@@ -63,7 +63,10 @@ public abstract class WebPageClassifier {
     /** whether or not the program runs in benchmark mode */
     protected boolean benchmark = false;
 
-    /**
+	/** only tags that are classified with a confidence above the threshold are assigned */ 
+	public double tagConfidenceThreshold = 0.0;
+	
+	/**
      * the constructor, initiate members
      */
     public WebPageClassifier() {
@@ -274,6 +277,14 @@ public abstract class WebPageClassifier {
     public void setName(String name) {
         this.name = name;
     }
+    
+    public double getTagConfidenceThreshold() {
+		return tagConfidenceThreshold;
+	}
+
+	public void setTagConfidenceThreshold(double tagConfidenceThreshold) {
+		this.tagConfidenceThreshold = tagConfidenceThreshold;
+	}
 
     /**
      * Get the number of correct classified documents in a given category.
