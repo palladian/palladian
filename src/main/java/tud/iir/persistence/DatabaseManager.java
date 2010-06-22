@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -880,7 +881,7 @@ public class DatabaseManager {
         return sourceIDs;
     }
 
-    public void addQAs(ArrayList<QA> qas) {
+    public void addQAs(List<QA> qas) {
         try {
             for (Iterator<QA> iterator = qas.iterator(); iterator.hasNext();) {
                 QA qa = iterator.next();

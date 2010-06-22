@@ -182,19 +182,19 @@ public class FeedDatabase implements FeedStore {
 
             PreparedStatement ps = DatabaseManager.getInstance().psGetFeeds;
 
-//            switch (FeedChecker.getInstance().getCheckApproach()) {
-//                case FeedChecker.CHECK_FIXED:
-//                    if (FeedChecker.getInstance().getCheckInterval() == -1) {
-//                        ps = DatabaseManager.getInstance().psGetFeeds_fixed_learned;
-//                    }
-//                    break;
-//                case FeedChecker.CHECK_ADAPTIVE:
-//                    ps = DatabaseManager.getInstance().psGetFeeds_adaptive;
-//                    break;
-//                case FeedChecker.CHECK_PROBABILISTIC:
-//                    ps = DatabaseManager.getInstance().psGetFeeds_probabilistic;
-//                    break;
-//            }
+            switch (FeedChecker.getInstance().getCheckApproach()) {
+                case FeedChecker.CHECK_FIXED:
+                    if (FeedChecker.getInstance().getCheckInterval() == -1) {
+                        ps = DatabaseManager.getInstance().psGetFeeds_fixed_learned;
+                    }
+                    break;
+                case FeedChecker.CHECK_ADAPTIVE:
+                    ps = DatabaseManager.getInstance().psGetFeeds_adaptive;
+                    break;
+                case FeedChecker.CHECK_PROBABILISTIC:
+                    ps = DatabaseManager.getInstance().psGetFeeds_probabilistic;
+                    break;
+            }
 
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
             while (resultSet.next()) {

@@ -55,8 +55,7 @@ public class FactExtractor extends Extractor {
 
     /** the instance of this class */
     private static final FactExtractor INSTANCE = new FactExtractor();
-    private Crawler crawler = null;
-
+    
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(FactExtractor.class);
 
@@ -65,7 +64,10 @@ public class FactExtractor extends Extractor {
     //private int counter = 1; // for indexing websiteX.html X > 0
 
     private FactExtractor() {
-        crawler = new Crawler();
+        
+        // do not analyze any binary files
+        addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
+        
         if (GUIManager.isInstanciated()) {
             // instance.logger.addObserver(GUIManager.getInstance());
         }
@@ -441,15 +443,17 @@ public class FactExtractor extends Extractor {
 
             for (Entity entity : currentConcept.getEntities()) {
 
-                if (entity.getFacts().size() == 0)
+                if (entity.getFacts().size() == 0) {
                     continue;
+                }
 
                 LOGGER.info("\n---- Entity " + entity.getName() + " ----");
 
                 for (Fact fact : entity.getFacts()) {
 
-                    if (fact.getValues().size() == 0)
+                    if (fact.getValues().size() == 0) {
                         continue;
+                    }
 
                     LOGGER.info("\n---- Fact Candidates for Attribute " + fact.getAttribute().getName() + " ----");
 
@@ -462,9 +466,9 @@ public class FactExtractor extends Extractor {
             }
         }
 
-        double dataDownloaded = crawler.getTotalDownloadSize();
+        double dataDownloaded = Crawler.getSessionDownloadSize(Crawler.BYTES);
         LOGGER.info("\n\n--------------------------");
-        LOGGER.info("Downloaded: " + (dataDownloaded / 1024) + " KB / " + (dataDownloaded / (1024 * 1024)) + " MB\n");
+        LOGGER.info("Downloaded (all crawlers since start): " + (dataDownloaded / 1024) + " KB / " + (dataDownloaded / (1024 * 1024)) + " MB\n");
         LOGGER.info(SourceRetrieverManager.getInstance().getLogs());
 
         LOGGER.info("\n\n-- TRUST --");
