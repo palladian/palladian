@@ -1,0 +1,27 @@
+package tud.iir.extraction.mio;
+
+import java.util.Comparator;
+
+public class MIOComparator implements Comparator<Object> {
+
+    public int compare(Object obj1, Object obj2) {
+        // for rank-comparison
+        double mioTrust1 = ((MIO) obj1).getTrust();
+        double mioTrust2 = ((MIO) obj2).getTrust();
+
+        // for alphabetic comparison
+        String labelTitle1 = ((MIO) obj1).getFileName();
+        String labelTitle2 = ((MIO) obj1).getFileName();
+
+        if (mioTrust1 > mioTrust2)
+            return -1;
+        else if (mioTrust1 < mioTrust2)
+            return 1;
+        else if (labelTitle1.equals(labelTitle2))
+            return -1;
+        else
+            return 1;
+
+    }
+
+}

@@ -1,0 +1,11 @@
+The developers behind the KDE desktop environment have released the first beta of version 4.5. Although the major focus during this development cycle is stability, the release also brings some nice new features and user interface improvements.
+
+One of the additions that I'm particularly enthusiastic about is support for tiled window management in KDE's KWin window manager. This feature allows users to snap windows together in non-overlapping arrangements and resize them together, much like the behavior of Ion and other tiled desktop environments. The feature was implemented as a Summer of Code project last year and was finally merged last month. I've long been a fan of tiled window management, so I've been looking forward to seeing this feature land ever since work on it was started.
+
+KDE 4.5 is getting a new panel notification area that is designed to be more consistent and functional. This feature is based on a D-Bus protocol that the KDE development community has submitted to the FreeDesktop.org organization with the aim of making it a cross-desktop standard. Although the upstream GNOME community has rejected the protocol, it has been adopted by Canonical and is used to power the new application indicator feature that is included in Ubuntu 10.04.
+
+One of the many advantages of the new D-Bus notification area system is that it will allow notification area menus and widgets to be rendered natively by the desktop regardless of what toolkit is used to develop the underlying applications.
+
+KDE's Konqueror Web browser now has an optional WebKit-based renderer that can be used instead of the current KHTML renderer. Although WebKit was originally built from the KHTML code base, it has evolved considerably as a result of work done by Apple, Google, and other vendors. WebKit offers better performance and broader compatibility with Web content.
+
+The final KDE 4.5 SC release is expected to occur in August, but users who want to get an early look can try out the new beta. The source code is available for download from the project's website. For more details, refer to the official release announcement.

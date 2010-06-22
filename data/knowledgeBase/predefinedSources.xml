@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="windows-1250"?>
+<!-- 
+  this file specifies sources for concepts and their attributes
+  if attributes are given for a specific url, only these attributes will be trusted,
+  else all attributes of the concept will benefit from the trust
+  trust must be in range 0.0 to 1.0 and means how much the facts extracted from
+  the source are weighed, i.e. 0 no trust, 1 total trust
+-->
+<sources>
+  <concept name="Country">
+    <source url="cia.gov" trust="0.1">
+      <attribute>population</attribute>
+      <attribute>population</attribute>
+      <attribute>population</attribute>      
+    </source>
+    <source url="en.wikipedia.org" trust="0.1" />
+  </concept>
+  <concept name="Car">
+    <source url="speedcars.com" trust="0.2">
+      <attribute>top speed</attribute>    
+    </source>
+    <source url="en.wikipedia.org/cars" trust="0.1" />
+  </concept> 
+</sources>

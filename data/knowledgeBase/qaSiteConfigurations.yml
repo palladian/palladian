@@ -1,0 +1,74 @@
+sites:
+
+    - name:                   "Nobosh Answers"
+      type:                   QASite
+      entryURL:               http://answers.nobosh.com/
+      questionXPath:          "/html/body/div/div/div/div/div/div/div[2]/h1[1]"
+      bestAnswerXPath:        ""
+      allAnswersXPath:        "/html/body/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]/div"
+      answerPrefix:           "ratings ) "
+      answerSuffix:           " Comments Sign in"
+      
+    - name:                   "Hubpages"
+      type:                   QASite
+      entryURL:               http://hubpages.com/ 
+      questionXPath:          "/html/body/div/div/div/div/div/h1[1]"
+      bestAnswerXPath:        ""
+      allAnswersXPath:        "/html/body/div[4]/div/div/div/div[2]/div[1]"
+      answerPrefix:           ""
+      answerSuffix:           ""
+
+    - name:                   "Yahoo! Answers"
+      type:                   QASite
+      entryURL:               http://answers.yahoo.com/
+      questionXPath:          "/html/body/div/div[2]/div[1]/div[1]/div[1]/div[2]/h1"
+      bestAnswerXPath:        "/html/body/div/div[2]/div[1]/div[1]/div[2]/div[2]/div[1]"
+      allAnswersXPath:        "/html/body/div[1]/div[2]/div[1]/div[2]/div[2]/ul[1]/li/div[1]/div[2]/div[1]"
+      answerPrefix:           ""
+      answerSuffix:           ""
+
+    - name:                   "Wiki Answers"
+      type:                   QASite
+      entryURL:               http://wiki.answers.com/
+      questionXPath:          "/html/body/div/div[4]/div[2]/div/div/div[2]/div/table/tr/td[2]/h1"
+      bestAnswerXPath:        "/html/body/div/div[4]/div[2]/div/div/div[3]/div[2]/div[2]/div"
+      allAnswersXPath:        ""
+      answerPrefix:           ""
+      answerSuffix:           " var gaframe = false;"
+
+    - name:                   "Stack Overflow"
+      type:                   QASite
+      entryURL:               http://stackoverflow.com/
+      questionXPath:          "/html/body/div[2]/div[2]/div[1]/h2/a"
+      bestAnswerXPath:        "/html/body/div[2]/div[2]/div[2]/div[2]/div[2]/table/tr[1]/td[2]/div"
+      allAnswersXPath:        "/html/body/div[2]/div[2]/div[2]/div[2]/div/table/tr[1]/td[2]/div"
+      answerPrefix:           ""
+      answerSuffix:           ""
+
+    - name:                   "Mahalo Answers"
+      type:                   QASite
+      entryURL:               http://www.mahalo.com/answers/
+      questionXPath:          "/html/body/div/div/div/div/div/div/h1"
+      bestAnswerXPath:        "/html/body/div[2]/div[1]/div[1]/div[1]/div[7]/div/div[1]/div[2]/div[2]"
+      allAnswersXPath:        "/html/body/div[2]/div[1]/div[1]/div[1]/div[8]/div/div[1]/div[2]/div[2]"
+      answerPrefix:           ""
+      answerSuffix:           ""
+
+    - name:                   "ChaCha"
+      type:                   QASite
+      entryURL:               http://chacha.com/
+      questionXPath:          "/html/body/div/div/div/div/div/div/div/h1"
+      bestAnswerXPath:        "/html/body/div/div/div/div/div/div/h2"
+      allAnswersXPath:        ""
+      answerPrefix:           ""
+      answerSuffix:           ""
+      
+    - name:                   "Yedda"
+      type:                   QASite
+      entryURL:               http://yedda.com/
+      questionXPath:          "/html/body/div/form/div/div/div[2]/div[2]/div[1]/div[1]/div[2]/div[2]/h1[1]/span[1]"
+      bestAnswerXPath:        ""
+      allAnswersXPath:        "/html/body/div[2]/form[1]/div[4]/div[3]/div[7]/div[1]/div[1]/table[1]/tr[1]/td[1]/div[1]/div[1]/div[2]/div[2]/div[1]/span[1]/p"
+      answerPrefix:           ""
+      answerSuffix:           ""  
+      

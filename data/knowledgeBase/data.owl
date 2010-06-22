@@ -1,0 +1,109 @@
+<rdf:RDF
+    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    xmlns:owl="http://www.w3.org/2002/07/owl#"
+    xmlns:owl2xml="http://www.w3.org/2006/12/owl2-xml#"
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+    xmlns="http://www.semanticweb.org/ontologies/2008/8/Ontology1220939700153.owl#"
+    xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:WebKnox="http://www.webknox.com/owl/ontology.owl#" > 
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#laura_dern">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Actor"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#nokia_n95">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Mobile_Phone"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#asus_eee_pc_1000h_80g">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Notebook"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#iron_man">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Movie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#natalie_portman">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Actor"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#mel_gibson">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Actor"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#sony_ericsson_v600">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Mobile_Phone"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#2009_maserati_granturismo_s">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Car"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#2006_bugatti_veyron_16_4">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Car"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#brazil">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Country"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#motorola_w218">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Mobile_Phone"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#the_dark_knight">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Movie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#lg_cu915_vu">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Mobile_Phone"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#2009_tesla_roadster">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Car"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#usa">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Country"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#australia">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Country"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#2009_jaguar_xf">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Car"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#code_46">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Movie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#jim_carrey">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Actor"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#dell_latitude_e6400">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Notebook"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#2008_lamborghini_reventon">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Car"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#monica_potter">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Actor"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#apple_macbook_air_mb003ll_a">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Notebook"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#germany">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Country"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#braveheart">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Movie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#sony_vaio_vgn-fw139e_h">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Notebook"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#idiocracy">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Movie"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#hp_2133-kx870at">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Notebook"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#samsung_i8510">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Mobile_Phone"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#japan">
+    <rdf:type rdf:resource="http://www.webknox.com/owl/ontology.owl#Country"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://www.semanticweb.org/ontologies/2008/8/Ontology1220939700153.owl">
+    <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#Ontology"/>
+    <rdfs:comment>Instance Data</rdfs:comment>
+    <owl:imports rdf:resource="file:data/knowledgeBase/ontology.owl"/>
+    <owl:imports rdf:resource="file:data/knowledgeBase/sources.owl"/>
+    <rdfs:comment>
+      This knowledge base holds the instance data.
+    </rdfs:comment>
+    <rdfs:label>WebKNOX Knowledge</rdfs:label>
+  </rdf:Description>
+</rdf:RDF>

@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" id="c13547" href="./WordFeatureClassifier.html" title="tud.iir.classification.entity.WordFeatureClassifier" alt="" coords="15,321,254,474"/>
+<area shape="rect" id="c13549" href="./RandomGraphWalk.html" title="tud.iir.classification.entity.RandomGraphWalk" alt="" coords="299,241,928,554"/>
+<area shape="rect" id="c13550" href="./PMI.html" title="tud.iir.classification.entity.PMI" alt="" coords="973,241,2139,554"/>
+<area shape="rect" id="c13558" href="./EntityAssessor.html" title="tud.iir.classification.entity.EntityAssessor" alt="" coords="713,11,1455,181"/>
+<area shape="rect" id="c13561" href="./BCFC.html" title="tud.iir.classification.entity.BCFC" alt="" coords="2183,361,2270,434"/>
+</map>

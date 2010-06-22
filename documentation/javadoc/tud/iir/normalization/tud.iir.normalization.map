@@ -1,0 +1,5 @@
+<map id="G" name="G">
+<area shape="rect" id="c5578" href="./UnitNormalizer.html" title="tud.iir.normalization.UnitNormalizer" alt="" coords="15,11,737,325"/>
+<area shape="rect" id="c5579" href="./StringNormalizer.html" title="tud.iir.normalization.StringNormalizer" alt="" coords="781,123,1091,213"/>
+<area shape="rect" id="c5580" href="./DateNormalizer.html" title="tud.iir.normalization.DateNormalizer" alt="" coords="1136,99,1541,237"/>
+</map>

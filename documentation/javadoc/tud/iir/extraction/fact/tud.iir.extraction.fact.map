@@ -1,0 +1,12 @@
+<map id="G" name="G">
+<area shape="rect" id="c2560" href="./NumericFactDistribution.html" title="tud.iir.extraction.fact.NumericFactDistribution" alt="" coords="15,139,430,261"/>
+<area shape="rect" id="c2561" href="./LiveFactExtractor.html" title="tud.iir.extraction.fact.LiveFactExtractor" alt="" coords="475,83,813,317"/>
+<area shape="rect" id="c2562" href="./FactValueComparator.html" title="tud.iir.extraction.fact.FactValueComparator" alt="" coords="858,163,1155,237"/>
+<area shape="rect" id="c2563" href="./FactString.html" title="tud.iir.extraction.fact.FactString" alt="" coords="1199,123,1419,277"/>
+<area shape="rect" id="c2564" href="./FactQueryFactory.html" title="tud.iir.extraction.fact.FactQueryFactory" alt="" coords="1464,11,1987,389"/>
+<area shape="rect" id="c2565" href="./FactQuery.html" title="tud.iir.extraction.fact.FactQuery" alt="" coords="2032,59,2328,341"/>
+<area shape="rect" id="c2566" href="./FactExtractor.html" title="tud.iir.extraction.fact.FactExtractor" alt="" coords="2373,35,2843,365"/>
+<area shape="rect" id="c2567" href="./FactExtractionProcess.html" title="tud.iir.extraction.fact.FactExtractionProcess" alt="" coords="2888,139,3133,261"/>
+<area shape="rect" id="c2568" href="./FactExtractionDecisionTree.html" title="tud.iir.extraction.fact.FactExtractionDecisionTree" alt="" coords="3179,51,3731,349"/>
+<area shape="rect" id="c2569" href="./EntityFactExtractionThread.html" title="tud.iir.extraction.fact.EntityFactExtractionThread" alt="" coords="3775,67,4414,333"/>
+</map>

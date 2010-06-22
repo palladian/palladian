@@ -1,0 +1,589 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    
+    <!-- META -->
+    <title>Popular Links On Twittley</title>
+    <meta name="description" content="Twittley is a place to find and share interesting content from around the web through the Twitter network." />
+    <meta name="keywords" content="Recently Popular Links On Twittley" />
+    
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="http://twittley.com/css/quark.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="http://twittley.com/css/style.css" media="all" />
+    <link rel="stylesheet" type="text/css" href="http://twittley.com/css/dropdown.css" media="all" />
+    
+    <!-- JAVASCRIPT -->
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.1/jquery.min.js" type="text/javascript"></script>
+    <script src="http://twittley.com/scripts/jquery.validate.min.js" type="text/javascript"></script>
+    <script src="http://twittley.com/scripts/bgiframe-expose-rotator-min.js" type="text/javascript"></script>
+	
+    <!--[if lt IE 7]>
+    <style type="text/css" media="screen">
+    body { behavior:url("http://twittley.com/scripts/csshover.htc"); }
+    </style>
+    <![endif]-->
+    <!--[if lte IE 6]>
+    <link rel="stylesheet" type="text/css" href="http://twittley.com/css/ie6-sucks.css" media="screen" />
+    <![endif]-->
+    
+    <!-- RSS -->
+    <link rel="alternate" type="application/rss+xml" title="Popular Links On Twittley" href="feed://twittley.com/rss/" />
+    
+    <!-- OTHER -->
+    <link rel="shortcut icon" href="http://twittley.com/favicon.ico" />
+    <link rel="apple-touch-icon" href="http://twittley.com/apple-touch-icon.png" />
+
+</head>
+
+<body class="fluid" onload="rotateEvery(3600)">
+<script>var preloaded=new Array();function preload_images(){for(var i=0;i<arguments.length;i++){preloaded[i]=document.createElement('img');preloaded[i].setAttribute('src',arguments[i])}};preload_images('http://twittley.com/img/sm/ajax-loader.gif','http://twittley.com/img/sm/widgetbottomh.gif');preload_images();var link=new Array();var webmaster=new Array();function changeimgdark(changeid){document.getElementById('votedown'+changeid).style.backgroundImage='url(http://twittley.com/img/sm/widgetbottomh.gif)'}function changeimgnormal(changeid){document.getElementById('votedown'+changeid).style.backgroundImage='url(http://twittley.com/img/sm/widgetbottom.gif)'}function follow(follow,newsid){
+alert('Please login to Twittley.');}function vote(id,number){var store=$("#vote"+id).html();$("#vote"+id).html('<center><img style="margin-top:9px;" src="http://twittley.com/img/sm/ajax-loader.gif"></center>');$.post("http://twittley.com/vote.php",{id:id},function(data){if(data=='ERR')$("#vote"+id).html('Error!');else if(data=='LOG'){$("#vote"+id).html(store);alert('Please login to Twittley before voting.')}else if(data=='VTD'){$("#vote"+id).html(store);document.getElementById("votedownbig"+id).onclick=function(){document.location.href=link[id]};alert('You have already voted.')}else{document.getElementById("votedown"+id).onclick=function(){document.location.href=link[id]};document.getElementById("votedown"+id).onmouseover=null;document.getElementById("votedown"+id).onmouseout=null;$("#votedown"+id).css("backgroundImage","url(http://twittley.com/img/sm/widgetbottomv.gif)");$("#vote"+id).html(number+1)}})}</script>
+
+<script>
+
+
+
+      $(document).ready(function() {
+
+          $(".show_more").click(function () 
+		  { 
+			var hyperlink = $(this);
+			var parent = $(this).parent();
+			var domain = $(this).attr('domain'); 
+			
+			if ($(this).is('.active'))
+			{
+				
+				$(this).removeClass('active');
+				$(this).parent().find(".show_more_links").slideUp(500, function() 
+				{
+					hyperlink.text('Show Upcoming Links From This Website');
+					$(this).parent().find(".show_more_links").remove();
+					
+				});
+				return false;
+			}
+			else
+			{
+				$(this).addClass('active');
+				$(this).text('Hide Upcoming Links From This Website');
+			
+				$.get('show_more.php', {domain : domain},function(data) 
+				{
+		
+				hyperlink.before('<div style="overflow:hidden;display:none;" class="show_more_links">'+data+'</div>');
+				parent.find(".show_more_links").slideDown(500);
+				});
+	return false;
+			}
+			});
+		});
+</script>
+    <div class="wrapper">
+        <div class="header head">
+        	<h2 id="top-logo">
+            	<a href="http://twittley.com/" title="Twittley - Discover and Share With Twitter Friends">Twittley - Discover and Share With Twitter Friends</a>
+            </h2>
+            <div id="search">
+            	<form action="http://twittley.com/search.php" id="searchform" class="quark">
+                	<input id="query" name="query" class="search left" type="text" value="Enter A Search Term" onfocus="if(!this._haschanged){this.value=''};this._haschanged=true;" /><input name="submit" class="button right" type="submit" value="" />
+                    <input type="hidden" name="where" value="4" CHECKED><input type="hidden" name="type" value="or" CHECKED>
+                </form>
+            </div>
+      </div>
+    
+        <div class="categories">
+        	<!--
+            <ul>
+                <li class="home"><a href="http://twittley.com">Home</a></li>
+            </ul>
+            -->
+            <ul id="nav" class="dropdown dropdown-horizontal">
+            	<li class="dir"><a href="http://twittley.com/">Home</a></li>
+			  	<li class="dir"><a href="http://twittley.com/category/entertainment">Entertainment</a><ul><li><a href="http://twittley.com/category/celebrity">Celebrity</a></li><li><a href="http://twittley.com/category/comics-animations">Comics & Animations</a></li><li><a href="http://twittley.com/category/movies">Movies</a></li><li><a href="http://twittley.com/category/music">Music</a></li><li><a href="http://twittley.com/category/television">Television</a></li></ul></li>	<li class="dir"><a href="http://twittley.com/category/gaming">Gaming</a><ul><li><a href="http://twittley.com/category/gaming-news">Industry News</a></li><li><a href="http://twittley.com/category/nintendo">Nintendo</a></li><li><a href="http://twittley.com/category/pc-games">PC Games</a></li><li><a href="http://twittley.com/category/playstation">PlayStation</a></li><li><a href="http://twittley.com/category/web-games">Web Games</a></li><li><a href="http://twittley.com/category/xbox">Xbox</a></li></ul></li>	<li class="dir"><a href="http://twittley.com/category/internet">Internet</a><ul><li><a href="http://twittley.com/category/seo-search">SEO & Search</a></li><li><a href="http://twittley.com/category/social-media">Social Media</a></li><li><a href="http://twittley.com/category/twitter">Twitter</a></li><li><a href="http://twittley.com/category/web-design">Web Design</a></li></ul></li>	<li class="dir"><a href="http://twittley.com/category/lifestyle">Lifestyle</a><ul><li><a href="http://twittley.com/category/arts-culture">Arts & Culture</a></li><li><a href="http://twittley.com/category/autos">Autos</a></li><li><a href="http://twittley.com/category/educational">Educational</a></li><li><a href="http://twittley.com/category/food-drink">Food & Drink</a></li><li><a href="http://twittley.com/category/health">Health</a></li><li><a href="http://twittley.com/category/travel-places">Travel & Places</a></li></ul></li>	<li class="dir"><a href="http://twittley.com/category/offbeat">Offbeat</a><ul><li><a href="http://twittley.com/category/comedy">Comedy</a></li><li><a href="http://twittley.com/category/oddstuff">Oddstuff</a></li><li><a href="http://twittley.com/category/people">People</a></li><li><a href="http://twittley.com/category/pets-animals">Pets & Animals</a></li></ul></li>	<li class="dir"><a href="http://twittley.com/category/science">Science</a><ul><li><a href="http://twittley.com/category/environment">Environment</a></li><li><a href="http://twittley.com/category/general-sciences">General Sciences</a></li><li><a href="http://twittley.com/category/space">Space</a></li></ul></li>	<li class="dir"><a href="http://twittley.com/category/sports">Sports</a><ul><li><a href="http://twittley.com/category/baseball">Baseball</a></li><li><a href="http://twittley.com/category/basketball">Basketball</a></li><li><a href="http://twittley.com/category/extreme">Extreme</a></li><li><a href="http://twittley.com/category/football">Football (US - Canada)</a></li><li><a href="http://twittley.com/category/mma">Mixed Martial Arts</a></li><li><a href="http://twittley.com/category/other-sports">Other Sports</a></li><li><a href="http://twittley.com/category/soccer">Soccer</a></li><li><a href="http://twittley.com/category/tennis">Tennis</a></li></ul></li>	<li class="dir"><a href="http://twittley.com/category/technology">Technology</a><ul><li><a href="http://twittley.com/category/apple">Apple</a></li><li><a href="http://twittley.com/category/design">Design</a></li><li><a href="http://twittley.com/category/gadgets">Gadgets</a></li><li><a href="http://twittley.com/category/hardware">Hardware</a></li><li><a href="http://twittley.com/category/tech-news">Industry News</a></li><li><a href="http://twittley.com/category/linux-unix">Linux/Unix</a></li><li><a href="http://twittley.com/category/microsoft">Microsoft</a></li><li><a href="http://twittley.com/category/mods">Mods</a></li><li><a href="http://twittley.com/category/programming">Programming</a></li><li><a href="http://twittley.com/category/security">Security</a></li><li><a href="http://twittley.com/category/software">Software</a></li></ul></li>	<li class="dir"><a href="http://twittley.com/category/world-and-business">World & Business</a><ul><li><a href="http://twittley.com/category/business-finance">Business & Finance</a></li><li><a href="http://twittley.com/category/political-news">Political News</a></li><li><a href="http://twittley.com/category/political-opinion">Political Opinion</a></li><li><a href="http://twittley.com/category/world-news">World News</a></li></ul></li>			</ul>
+        </div>
+        
+        <div class="features">
+            <ul class="right">
+                <li><a href="http://twittley.com/submit.php">Submit A Link</a></li>
+                <li><a href="http://twittley.com/rss-feeds.php">RSS Feeds</a></li>
+                <li><a href="http://twittley.com/follow-us.php">Follow Us</a></li>
+          </ul>
+            <ul class="left">
+                <li><a href="http://twittley.com/">Popular</a></li>
+                <li><a href="http://twittley.com/upcoming">Upcoming</a></li>
+                <li><a href="http://twittley.com/search.php">Search</a></li>
+                <li><a href="http://twittley.com/spy/comments">Twittley Spy</a></li>
+            </ul>
+        </div>
+        
+        <div class="twocolrighta main">
+            <div class="column first main-left">
+            	<div class="padding-first">
+					<h2 class='title'>Recently Popular Links</h2><div id='time-frame'><a href='http://twittley.com/popular/365days'>365 days</a></div><div id='time-frame'><a href='http://twittley.com/popular/30days'>30 days</a></div><div id='time-frame'><a href='http://twittley.com/popular/7days'>7 days</a></div><div id='time-frame'><a href='http://twittley.com/popular/24hours'>Top in 24 hours</a></div><div class='active'id='time-frame'><a href='http://twittley.com/popular'>Recently Popular</a></div>
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[111477]='http://twittley.com/news/pc-games/north-korea-is-new-hotbed-for-tech-outsourcing/';
+			webmaster[111477]='';</script>
+			<div class='voteup' id='vote111477' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>5</div>
+			<div class='votedown' id='votedownbig111477' style='cursor:pointer;'>
+      <div class='votedown' id='votedown111477' onclick='javascript:vote(111477,5);' 
+      onmouseover='changeimgdark(111477);' 
+      onmouseout='changeimgnormal(111477);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/ke0ppbz9qe6t' rel='nofollow'>North Korea Is New Hotbed For Tech Outsourcing</a></h2>
+			<p class='description'><span class='domain'>http://gizmodo.com</span><a href='http://twittley.com/news/pc-games/north-korea-is-new-hotbed-for-tech-outsourcing/'>&nbsp;-&nbsp;Despite it being pretty-much closed off to the world, North Korea is the next boom place for IT and tech outsourcing, PC World has reported. Flash games are being developed there for outside publis...<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>12 hours</b> ago by <a href='http://twittley.com/user/ichigomanbot'>ichigomanbot</a> to <a href='http://twittley.com/category/pc-games'>PC Games</a></span> <span class='comment'><a href='http://twittley.com/news/pc-games/north-korea-is-new-hotbed-for-tech-outsourcing/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=111477' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/pc-games/north-korea-is-new-hotbed-for-tech-outsourcing/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[111542]='http://twittley.com/news/microsoft/new-natal-games-revealed-on-drippler-microsoft-xbox-updates/';
+			webmaster[111542]='';</script>
+			<div class='voteup' id='vote111542' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>5</div>
+			<div class='votedown' id='votedownbig111542' style='cursor:pointer;'>
+      <div class='votedown' id='votedown111542' onclick='javascript:vote(111542,5);' 
+      onmouseover='changeimgdark(111542);' 
+      onmouseout='changeimgnormal(111542);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/15cd2su2ity1' rel='nofollow'>New Natal Games Revealed - on Drippler Microsoft XBOX Updates</a></h2>
+			<p class='description'><span class='domain'>http://drippler.com</span><a href='http://twittley.com/news/microsoft/new-natal-games-revealed-on-drippler-microsoft-xbox-updates/'>&nbsp;-&nbsp;The L.A. Times detailed four games that Microsoft plans to use next week at E3 for showing off Project Natal. The games might more accurately be called tech...<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>18 hours</b> ago by <a href='http://twittley.com/user/XBOX_Updatez'>XBOX_Updatez</a> to <a href='http://twittley.com/category/microsoft'>Microsoft</a></span> <span class='comment'><a href='http://twittley.com/news/microsoft/new-natal-games-revealed-on-drippler-microsoft-xbox-updates/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=111542' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/microsoft/new-natal-games-revealed-on-drippler-microsoft-xbox-updates/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[111029]='http://twittley.com/news/world-and-business/this-shoe-had-prada-beat-by-5500-yearsv/';
+			webmaster[111029]='';</script>
+			<div class='voteup' id='vote111029' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>5</div>
+			<div class='votedown' id='votedownbig111029' style='cursor:pointer;'>
+      <div class='votedown' id='votedown111029' onclick='javascript:vote(111029,5);' 
+      onmouseover='changeimgdark(111029);' 
+      onmouseout='changeimgnormal(111029);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/y0zr0zs5dq3g' rel='nofollow'>This shoe had Prada beat by 5,500 yearsv</a></h2>
+			<p class='description'><span class='domain'>http://www.ndtv.com</span><a href='http://twittley.com/news/world-and-business/this-shoe-had-prada-beat-by-5500-yearsv/'>&nbsp;-&nbsp;Perfectly preserved under layers of sheep dung (who needs cedar closets?), the shoe, made of cowhide and tanned with oil from a plant or vegetable, is about 5,500 years old, older than Stonehenge a...<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>2 days</b> ago by <a href='http://twittley.com/user/dj_shaily'>dj_shaily</a> to <a href='http://twittley.com/category/world-and-business'>World & Business</a></span> <span class='comment'><a href='http://twittley.com/news/world-and-business/this-shoe-had-prada-beat-by-5500-yearsv/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=111029' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/world-and-business/this-shoe-had-prada-beat-by-5500-yearsv/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[110987]='http://twittley.com/news/playstation/gamasutra-news-montreal-voiceover-studio-game-on-audio-to-open-la-branch/';
+			webmaster[110987]='';</script>
+			<div class='voteup' id='vote110987' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>7</div>
+			<div class='votedown' id='votedownbig110987' style='cursor:pointer;'>
+      <div class='votedown' id='votedown110987' onclick='javascript:vote(110987,7);' 
+      onmouseover='changeimgdark(110987);' 
+      onmouseout='changeimgnormal(110987);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/0zikedf7biho' rel='nofollow'>Gamasutra - News - Montreal Voiceover Studio Game On Audio To Open L.A. Branch</a></h2>
+			<p class='description'><span class='domain'>http://www.gamasutra.com</span><a href='http://twittley.com/news/playstation/gamasutra-news-montreal-voiceover-studio-game-on-audio-to-open-la-branch/'>&nbsp;-&nbsp;Montreal-based voiceover studio Game On Audio is expanding to Los Angeles this September with the help of experienced video game voiceover director Amanda Wyatt, the company announced today.<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>2 days</b> ago by <a href='http://twittley.com/user/gamernsw'>gamernsw</a> to <a href='http://twittley.com/category/playstation'>PlayStation</a></span> <span class='comment'><a href='http://twittley.com/news/playstation/gamasutra-news-montreal-voiceover-studio-game-on-audio-to-open-la-branch/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=110987' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/playstation/gamasutra-news-montreal-voiceover-studio-game-on-audio-to-open-la-branch/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[110977]='http://twittley.com/news/oddstuff/ohio-woman-jailed-for-calling-911-seeking-husband/';
+			webmaster[110977]='';</script>
+			<div class='voteup' id='vote110977' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>7</div>
+			<div class='votedown' id='votedownbig110977' style='cursor:pointer;'>
+      <div class='votedown' id='votedown110977' onclick='javascript:vote(110977,7);' 
+      onmouseover='changeimgdark(110977);' 
+      onmouseout='changeimgnormal(110977);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/ew2lrmp6eu6c' rel='nofollow'>Ohio woman jailed for calling 911 seeking husband</a></h2>
+			<p class='description'><span class='domain'>http://dailyme.com</span><a href='http://twittley.com/news/oddstuff/ohio-woman-jailed-for-calling-911-seeking-husband/'>&nbsp;-&nbsp;ALLIANCE, Ohio &#8212; An Ohio woman spent three days in jail for calling the 911 emergency line five times seeking a husband. The dispatcher wa...<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>2 days</b> ago by <a href='http://twittley.com/user/DailyMeOddNews'>DailyMeOddNews</a> to <a href='http://twittley.com/category/oddstuff'>Oddstuff</a></span> <span class='comment'><a href='http://twittley.com/news/oddstuff/ohio-woman-jailed-for-calling-911-seeking-husband/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=110977' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/oddstuff/ohio-woman-jailed-for-calling-911-seeking-husband/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[110584]='http://twittley.com/news/oddstuff/king-tut8217s-dna-is-western-european-eutimesnet/';
+			webmaster[110584]='';</script>
+			<div class='voteup' id='vote110584' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>8</div>
+			<div class='votedown' id='votedownbig110584' style='cursor:pointer;'>
+      <div class='votedown' id='votedown110584' onclick='javascript:vote(110584,8);' 
+      onmouseover='changeimgdark(110584);' 
+      onmouseout='changeimgnormal(110584);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/4cc4dpa7x9ex' rel='nofollow'>King Tut&#8217;s DNA is Western European | EUTimes.net</a></h2>
+			<p class='description'><span class='domain'>http://www.eutimes.net</span><a href='http://twittley.com/news/oddstuff/king-tut8217s-dna-is-western-european-eutimesnet/'>&nbsp;-&nbsp;Despite the refusal of the Secretary General of the Egyptian Supreme Council of Antiquities, Zahi Hawass, to release any DNA results which might indicate the<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>3 days</b> ago by <a href='http://twittley.com/user/PuterPrsn'>PuterPrsn</a> to <a href='http://twittley.com/category/oddstuff'>Oddstuff</a></span> <span class='comment'><a href='http://twittley.com/news/oddstuff/king-tut8217s-dna-is-western-european-eutimesnet/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=110584' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/oddstuff/king-tut8217s-dna-is-western-european-eutimesnet/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[109729]='http://twittley.com/news/microsoft/feast-your-eyes-on-this-steampunk-xbox-360-controller-drippler-microsoft-updates/';
+			webmaster[109729]='';</script>
+			<div class='voteup' id='vote109729' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>5</div>
+			<div class='votedown' id='votedownbig109729' style='cursor:pointer;'>
+      <div class='votedown' id='votedown109729' onclick='javascript:vote(109729,5);' 
+      onmouseover='changeimgdark(109729);' 
+      onmouseout='changeimgnormal(109729);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/c84dx5eaw6ne' rel='nofollow'>Feast your eyes on this steampunk Xbox 360 controller - on Drippler Microsoft XBOX Updates</a></h2>
+			<p class='description'><span class='domain'>http://drippler.com</span><a href='http://twittley.com/news/microsoft/feast-your-eyes-on-this-steampunk-xbox-360-controller-drippler-microsoft-updates/'>&nbsp;-&nbsp;Section: Gaming News, Features, Mods-Hacks, Consoles, Xbox-360, Gear, Accessories, Controllers Are you tired of your plain Jane white or black Xbox 360...<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>5 days</b> ago by <a href='http://twittley.com/user/XBOX_Updatez'>XBOX_Updatez</a> to <a href='http://twittley.com/category/microsoft'>Microsoft</a></span> <span class='comment'><a href='http://twittley.com/news/microsoft/feast-your-eyes-on-this-steampunk-xbox-360-controller-drippler-microsoft-updates/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=109729' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/microsoft/feast-your-eyes-on-this-steampunk-xbox-360-controller-drippler-microsoft-updates/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[109902]='http://twittley.com/news/celebrity/sandra-bullock-makes-surprise-appearance-tmzcom/';
+			webmaster[109902]='';</script>
+			<div class='voteup' id='vote109902' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>9</div>
+			<div class='votedown' id='votedownbig109902' style='cursor:pointer;'>
+      <div class='votedown' id='votedown109902' onclick='javascript:vote(109902,9);' 
+      onmouseover='changeimgdark(109902);' 
+      onmouseout='changeimgnormal(109902);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/2fhdfw1zm4un' rel='nofollow'>Sandra Bullock Makes Surprise Appearance | TMZ.com</a></h2>
+			<p class='description'><span class='domain'>http://www.tmz.com</span><a href='http://twittley.com/news/celebrity/sandra-bullock-makes-surprise-appearance-tmzcom/'>&nbsp;-&nbsp;Sandra Bullock made her first public appearance since the Jesse James cheating scandal broke, accepting an award at last night&#039;s Guys Choice Awards in&hellip;<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>5 days</b> ago by <a href='http://twittley.com/user/betterclothes'>betterclothes</a> to <a href='http://twittley.com/category/celebrity'>Celebrity</a></span> <span class='comment'><a href='http://twittley.com/news/celebrity/sandra-bullock-makes-surprise-appearance-tmzcom/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=109902' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/celebrity/sandra-bullock-makes-surprise-appearance-tmzcom/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[109346]='http://twittley.com/news/baseball/draft-preview-yankees-sticking-with-plan-yankeescom-news/';
+			webmaster[109346]='';</script>
+			<div class='voteup' id='vote109346' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>6</div>
+			<div class='votedown' id='votedownbig109346' style='cursor:pointer;'>
+      <div class='votedown' id='votedown109346' onclick='javascript:vote(109346,6);' 
+      onmouseover='changeimgdark(109346);' 
+      onmouseout='changeimgnormal(109346);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/n4i00g5opn8' rel='nofollow'>Draft Preview: Yankees sticking with plan | yankees.com: News</a></h2>
+			<p class='description'><span class='domain'>http://mlb.mlb.com</span><a href='http://twittley.com/news/baseball/draft-preview-yankees-sticking-with-plan-yankeescom-news/'>&nbsp;-&nbsp;The 2010 First-Year Player Draft is, as general manager Brian Cashman has put it, another opportunity to correct the sins of the past -- those years when the Yankees disregarded how important the p...<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>7 days</b> ago by <a href='http://twittley.com/user/Cuck_the_Fubs'>Cuck_the_Fubs</a> to <a href='http://twittley.com/category/baseball'>Baseball</a></span> <span class='comment'><a href='http://twittley.com/news/baseball/draft-preview-yankees-sticking-with-plan-yankeescom-news/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=109346' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/baseball/draft-preview-yankees-sticking-with-plan-yankeescom-news/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[108854]='http://twittley.com/news/technology/microsoft-windows-embedded-compact-7-tablet-prototype-preview-engadget/';
+			webmaster[108854]='';</script>
+			<div class='voteup' id='vote108854' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>9</div>
+			<div class='votedown' id='votedownbig108854' style='cursor:pointer;'>
+      <div class='votedown' id='votedown108854' onclick='javascript:vote(108854,9);' 
+      onmouseover='changeimgdark(108854);' 
+      onmouseout='changeimgnormal(108854);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/d5i4z4v2rj1' rel='nofollow'>Microsoft Windows Embedded Compact 7 tablet prototype preview -- Engadget</a></h2>
+			<p class='description'><span class='domain'>http://www.engadget.com</span><a href='http://twittley.com/news/technology/microsoft-windows-embedded-compact-7-tablet-prototype-preview-engadget/'>&nbsp;-&nbsp;So, there may never be a Windows 7 Phone tablet, but that device above looks pretty darn close to what one may have looked like.<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>8 days</b> ago by <a href='http://twittley.com/user/BestBlogPosts'>BestBlogPosts</a> to <a href='http://twittley.com/category/technology'>Technology</a></span> <span class='comment'><a href='http://twittley.com/news/technology/microsoft-windows-embedded-compact-7-tablet-prototype-preview-engadget/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=108854' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/technology/microsoft-windows-embedded-compact-7-tablet-prototype-preview-engadget/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[108628]='http://twittley.com/news/apple/ilounge-launches-ipad-buyers-guide-ipodiphone-book-5/';
+			webmaster[108628]='';</script>
+			<div class='voteup' id='vote108628' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>214</div>
+			<div class='votedown' id='votedownbig108628' style='cursor:pointer;'>
+      <div class='votedown' id='votedown108628' onclick='javascript:vote(108628,214);' 
+      onmouseover='changeimgdark(108628);' 
+      onmouseout='changeimgnormal(108628);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/4kt45gbmc2b' rel='nofollow'>iLounge Launches iPad Buyers\' Guide + iPod/iPhone Book 5</a></h2>
+			<p class='description'><span class='domain'>http://www.ilounge.com</span><a href='http://twittley.com/news/apple/ilounge-launches-ipad-buyers-guide-ipodiphone-book-5/'>&nbsp;-&nbsp;Released today, iLounges iPad Buyers Guide has combined with The iPod + iPhone Book 5 to form an impressive 150-page look at all things iPod, iPhone, and iPad, providing readers with the ultimate r...<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>9 days</b> ago by <a href='http://twittley.com/user/prMac'>prMac</a> to <a href='http://twittley.com/category/apple'>Apple</a></span> <span class='comment'><a href='http://twittley.com/news/apple/ilounge-launches-ipad-buyers-guide-ipodiphone-book-5/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=108628' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/apple/ilounge-launches-ipad-buyers-guide-ipodiphone-book-5/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[108371]='http://twittley.com/news/playstation/gamasutra-news-mad-catz-acquires-gaming-headset-company-tritton/';
+			webmaster[108371]='';</script>
+			<div class='voteup' id='vote108371' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>15</div>
+			<div class='votedown' id='votedownbig108371' style='cursor:pointer;'>
+      <div class='votedown' id='votedown108371' onclick='javascript:vote(108371,15);' 
+      onmouseover='changeimgdark(108371);' 
+      onmouseout='changeimgnormal(108371);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/0mmtp4m0ngom' rel='nofollow'>Gamasutra - News - Mad Catz Acquires Gaming Headset Company Tritton</a></h2>
+			<p class='description'><span class='domain'>http://www.gamasutra.com</span><a href='http://twittley.com/news/playstation/gamasutra-news-mad-catz-acquires-gaming-headset-company-tritton/'>&nbsp;-&nbsp;Video game accessory company Mad Catz announced that it acquired 100 percent of the stock of California-based gaming audio headset firm Tritton Technologies with a potential $10 million deal.<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>9 days</b> ago by <a href='http://twittley.com/user/gamernsw'>gamernsw</a> to <a href='http://twittley.com/category/playstation'>PlayStation</a></span> <span class='comment'><a href='http://twittley.com/news/playstation/gamasutra-news-mad-catz-acquires-gaming-headset-company-tritton/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=108371' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/playstation/gamasutra-news-mad-catz-acquires-gaming-headset-company-tritton/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[107860]='http://twittley.com/news/oddstuff/do-your-colleagues-look-better-on-mondays-yahoo-news/';
+			webmaster[107860]='';</script>
+			<div class='voteup' id='vote107860' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>7</div>
+			<div class='votedown' id='votedownbig107860' style='cursor:pointer;'>
+      <div class='votedown' id='votedown107860' onclick='javascript:vote(107860,7);' 
+      onmouseover='changeimgdark(107860);' 
+      onmouseout='changeimgnormal(107860);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/eou3r2q77flo' rel='nofollow'>Do your colleagues look better on Mondays? - Yahoo! News</a></h2>
+			<p class='description'><span class='domain'>http://news.yahoo.com</span><a href='http://twittley.com/news/oddstuff/do-your-colleagues-look-better-on-mondays-yahoo-news/'>&nbsp;-&nbsp;British women take four times as long to get ready for work on Mondays than on Fridays, while men also put less effort into their appearance as the week goes on, according to research by retail cha...<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>11 days</b> ago by <a href='http://twittley.com/user/soihear'>soihear</a> to <a href='http://twittley.com/category/oddstuff'>Oddstuff</a></span> <span class='comment'><a href='http://twittley.com/news/oddstuff/do-your-colleagues-look-better-on-mondays-yahoo-news/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=107860' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/oddstuff/do-your-colleagues-look-better-on-mondays-yahoo-news/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[107758]='http://twittley.com/news/science/44
+-obamas-keep-low-profile-on-holiday-weekend-at-chicago-home/';
+			webmaster[107758]='';</script>
+			<div class='voteup' id='vote107758' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>6</div>
+			<div class='votedown' id='votedownbig107758' style='cursor:pointer;'>
+      <div class='votedown' id='votedown107758' onclick='javascript:vote(107758,6);' 
+      onmouseover='changeimgdark(107758);' 
+      onmouseout='changeimgnormal(107758);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/xrg5j9tdeqag' rel='nofollow'>44
+ - Obamas keep low profile on holiday weekend at Chicago home</a></h2>
+			<p class='description'><span class='domain'>http://voices.washingtonpost.com</span><a href='http://twittley.com/news/science/44
+-obamas-keep-low-profile-on-holiday-weekend-at-chicago-home/'>&nbsp;-&nbsp;...<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>12 days</b> ago by <a href='http://twittley.com/user/BestBlogPosts'>BestBlogPosts</a> to <a href='http://twittley.com/category/science'>Science</a></span> <span class='comment'><a href='http://twittley.com/news/science/44
+-obamas-keep-low-profile-on-holiday-weekend-at-chicago-home/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=107758' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/science/44
+-obamas-keep-low-profile-on-holiday-weekend-at-chicago-home/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	
+	<div id='tweet'>
+		<div id='vote'>
+			<script>link[107346]='http://twittley.com/news/science/kids-face-up-to-disgust-surprisingly-late-science-news/';
+			webmaster[107346]='';</script>
+			<div class='voteup' id='vote107346' style='background-image:url(http://twittley.com/img/sm/widgettop.png); background-repeat: no-repeat;'>7</div>
+			<div class='votedown' id='votedownbig107346' style='cursor:pointer;'>
+      <div class='votedown' id='votedown107346' onclick='javascript:vote(107346,7);' 
+      onmouseover='changeimgdark(107346);' 
+      onmouseout='changeimgnormal(107346);' 
+      style='width:60px;height:27px;
+      background-image:url(http://twittley.com/img/sm/widgetbottom.gif); background-repeat: no-repeat;'>
+      </div></div>
+		</div>
+	
+		<div id='linkbody'>
+			<h2 class='tweet-title'><a target='_blank' href='http://twittley.com/r/4sywgf57ky1k' rel='nofollow'>Kids Face Up To Disgust Surprisingly Late - Science News</a></h2>
+			<p class='description'><span class='domain'>http://www.sciencenews.org</span><a href='http://twittley.com/news/science/kids-face-up-to-disgust-surprisingly-late-science-news/'>&nbsp;-&nbsp;Understanding of this yucky emotion may not emerge until age 5<span class='read-more'>More...</span></a></p>
+			<div id='linkinfo'><span class='clock'>Made popular <b>14 days</b> ago by <a href='http://twittley.com/user/boa_muenchen'>boa_muenchen</a> to <a href='http://twittley.com/category/science'>Science</a></span> <span class='comment'><a href='http://twittley.com/news/science/kids-face-up-to-disgust-surprisingly-late-science-news/#writecomment'>(0) Comments</a></span><br>
+			<span class='report'><a href='http://twittley.com/report.php?id=107346' title='Report'>Report</a></span> <span class='readmore'><a href='http://twittley.com/news/science/kids-face-up-to-disgust-surprisingly-late-science-news/'>Read more</a></span> </div>
+		</div>
+	</div>
+	
+	<div class="pagination"><span class="disabled">« prev</span><span class="current">0</span><a href="http://twittley.com/popular/recent/1">1</a><a href="http://twittley.com/popular/recent/2">2</a><a href="http://twittley.com/popular/recent/3">3</a><a href="http://twittley.com/popular/recent/4">4</a><a href="http://twittley.com/popular/recent/5">5</a><a href="http://twittley.com/popular/recent/1">next »</a></div>
+        </div>
+            </div>
+            <div class="column last main-right">
+				<div class="login">
+	
+    <div class="padding-first">
+		<h2>Sign In With Twitter</h2>
+		<a class="sign-in-twitter" href="https://twitter.com/oauth/authorize?oauth_token=zuv9LaXeE8Db3aGIV5qpf8WL1nOeIiYXQ4oQsFLGjE" title="Sign In With Twitter">Sign In With Twitter</a>
+		<p>There's no need to create a separate Twittley account.</p>
+    </div></div>
+<div class="padding-first">
+	<div class="container">
+        <h2>What's Twittley?</h2>
+        <p>Twittley is a social network for users to find and share links on Twitter.</p>
+        <p><a href="http://twittley.com/about-us.php">Learn More</a></p>
+    </div>
+    <div class="container">
+        <h2>Twittley Karma</h2>
+        <img src="http://twittley.com/img/sm/ying-yang-sm2.gif" alt="Karma Ying-Yang" class="right" />
+        <h3>Not All Votes Are Created Equal</h3>
+      	<p>Our proprietary Twittley Karma system makes Twittley unique. The more you participate on Twittley &amp; Twitter - the more Karma points you earn. The <em>"weight"</em> of your vote is calculated using this system. Our Karma system keeps quality stories on our web site and helps filter out spam naturally.</p>
+        <p><a href="http://twittley.com/why-were-unique.php#karma">Learn More</a></p>
+    </div>
+    <div class="container">
+        <h2>Submit A Link</h2>
+        <p>All of the content found at Twittley is user submitted. If you've found something interesting, share it with the community.</p>
+        <p><a href="http://twittley.com/submit.php">Submit A Link</a></p>
+    </div>
+    <div class="container">
+        <h2>The Twittley Button</h2>
+        <img src="http://twittley.com/img/sm/retweet-button-sm.gif" alt="Twittley Button Example" width="38" height="50" class="right" />
+        <h3>Harness The Power Of Twittley</h3>
+        <p>Harness the power of social networks and viral marketing with the Twittley button. Millions of users use Twitter as a social network so it only makes sense to get your link out to those users.</p>
+        <p><a href="http://twittley.com/twittley-button.php">Learn More</a></p>
+    </div>
+    <div class="container">
+        <h2>Sponsors</h2>
+        <a href="http://retweet.it/" title="reTweets" target="_blank"><img src="http://twittley.com/ads/retweetit.gif" alt="reTweets.it - Buy reTweets" width="206" height="250" /></a>    </div>
+</div>            </div>
+        </div><!--/twocolrightb-->
+<div class="footer">
+          <div class="fourcol footerr">
+                <div class="column first footer-column">
+                    <div class="padding-first">
+                    	<h3>Learn More About Twittley</h3>
+                        <ul>
+                            <li><a href="http://twittley.com/about-us.php">About Us</a></li>
+							<!--<li><a href="http://twittley.com/blog/">Blog</a></li> -->
+                            <li><a href="http://twittley.com/contact-us.php">Contact Us</a></li>
+                            <li><a href="http://twittley.com/follow-us.php">Follow Us</a></li>
+                            <li><a href="http://twittley.com/what-others-are-saying.php">What Others Are Saying</a></li>
+                            <li><a href="http://twittley.com/why-were-unique.php">Why We're Unique</a></li>
+                      </ul>
+                    </div>
+                </div>
+                <div class="column footer-column">
+                	<div class="padding">
+                    	<h3>Contribute To Twittley</h3>
+                        <ul>
+                        	<li><a href="http://twittley.com/twittley-comments.php">Leaving Comments</a></li>
+                            <li><a href="http://twittley.com/submit.php">Submit A Link</a></li>
+                            <li><a href="http://twittley.com/twittley-button.php">Twittley Button</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="column footer-column">
+                	<div class="padding">
+                    	<h3>More Information</h3>
+                        <ul>
+                            <li><a href="http://twittley.com/faq.php">Frequent Questions</a></li>
+                            <li><a href="http://twittley.com/rss-feeds.php">RSS Feeds</a></li>
+                            <li><a href="http://twittley.com/twittley-badges.php">Twittley Badges</a></li>
+                            <li><a href="http://twittley.com/twittley-widget.php">Twittley Widget</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="column last">
+                	<div class="padding">
+                    	<h3>Legal Mumbo Jumbo (Still Important)</h3>
+                        <ul>
+                        	<li><a href="http://twittley.com/privacy-policy.php">Privacy Policy</a></li>
+                            <li><a href="http://twittley.com/terms-of-service.php">Terms of Service</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+  <!--/footer-->
+        
+        <div class="twocol legal">
+            <div class="column first">Copyright © <a href="http://twittley.com">Twittley.com</a> 
+            2010. All rights reserved.</div>
+            <div class="column last right">
+              <ul>
+                <li><a href="http://www.joeysikes.com">Created By Joey Sikes</a></li>
+                <li><a href="http://billyshall.com/quark/">CSS Foundation Created With Quark</a></li>
+                <li><a href="http://www.ljetovanje.hr" class="others">Ljetovanje</a></li>
+              </ul>
+            </div>
+      </div><!--/twocolrightb-->
+        
+</div><!--/wrapper-->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-9754553-10");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" id="c21025" href="./Extractor.html" title="tud.iir.extraction.Extractor" alt="" coords="1467,11,1875,453"/>
+<area shape="rect" id="c21043" href="./entity/EntityExtractor.html" title="tud.iir.extraction.entity.EntityExtractor" alt="" coords="15,513,707,1066"/>
+<area shape="rect" id="c21058" href="./fact/FactExtractor.html" title="tud.iir.extraction.fact.FactExtractor" alt="" coords="752,625,1571,954"/>
+<area shape="rect" id="c21067" href="./qa/QAExtractor.html" title="tud.iir.extraction.qa.QAExtractor" alt="" coords="1615,513,2745,1066"/>
+<area shape="rect" id="c21074" href="./snippet/SnippetExtractor.html" title="tud.iir.extraction.snippet.SnippetExtractor" alt="" coords="2789,705,3149,874"/>
+</map>

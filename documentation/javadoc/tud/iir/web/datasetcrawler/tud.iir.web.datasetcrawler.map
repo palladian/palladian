@@ -1,0 +1,7 @@
+<map id="G" name="G">
+<area shape="rect" id="c7419" href="./Quote.html" title="tud.iir.web.datasetcrawler.Quote" alt="" coords="15,75,147,165"/>
+<area shape="rect" id="c7420" href="./DataSet.html" title="tud.iir.web.datasetcrawler.DataSet" alt="" coords="192,11,493,229"/>
+<area shape="rect" id="c7421" href="./QuoteCrawler.html" title="tud.iir.web.datasetcrawler.QuoteCrawler" alt="" coords="538,75,686,165"/>
+<area shape="rect" id="c7422" href="./LinkedDataStatisticsCrawler.html" title="tud.iir.web.datasetcrawler.LinkedDataStatisticsCrawler" alt="" coords="730,51,995,189"/>
+<area shape="rect" id="c7423" href="./DeliciousCrawler.html" title="tud.iir.web.datasetcrawler.DeliciousCrawler" alt="" coords="1040,11,1563,229"/>
+</map>

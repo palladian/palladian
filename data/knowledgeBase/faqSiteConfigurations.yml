@@ -1,0 +1,18 @@
+sites:
+    - name:                   "Otto"
+      type:                   FAQ
+      entryURL:               http://csottointer.kissnofrog.com/info/faq
+      questionXPath:          "/html/body/div/div/div/ul/li/div/a"
+      maximumURLs:            1
+
+    - name:                   "ABB"
+      type:                   FAQ
+      entryURL:               http://www.abb.com/cawp/abbzh259/14ea3e81ca94263bc1256fbe0030e163.aspx
+      questionXPath:          "/html/body/form[1]/div[3]/div[2]/div[2]/div[1]/div[1]/div[2]/div[1]/div[1]/div[2]/b/div"
+      maximumURLs:            1
+      
+    - name:                   "Sony"
+      type:                   FAQ
+      entryURL:               http://www.sony.com/faq.shtml
+      questionXPath:          "/html/body/div[1]/table[1]/tr[3]/td[1]/div[1]/table[1]/tr[2]/td[1]/table[1]/tr[2]/td[3]/div/div[1]"
+      maximumURLs:            1

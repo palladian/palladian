@@ -1,0 +1,906 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.2 Final//EN">
+<HTML>
+<HEAD>
+<TITLE>The Unofficial Cookie FAQ</TITLE>
+<!-- Copyright David Whalen.  No portion of this document may be   		 -->
+<!-- separated, altered, or redistributed without the written permission -->
+<!-- of the Author, David Whalen.                                        -->
+<META content=ALL name=ROBOTS>
+<META content="David Whalen" name=Author>
+<META http-equiv=Content-Type content="text/html; charset=iso-8859-1">
+<META content=2.6 name=Version>
+<META 
+content="The Unofficial Cookie FAQ, cookie, internet, cookies,&#13;&#10;controversy, persistent, magiccookie, magic cookie, magic-cookie,&#13;&#10;HTTP, Javascript, Javascript Cookies, Java, &#13;&#10;HTTP Client Side Persistent Cookies, Magic,Cookie Central, Magic Cookies, &#13;&#10;The dark side, Cookie Values, CGI, CGI cookies, perl, &#13;&#10;C, cookies.txt, C:\windows\cookies\, www" 
+name=keywords>
+<STYLE type=text/css>
+A:link {
+	FONT-WEIGHT: normal; COLOR: #0000ff; TEXT-DECORATION: none
+}
+A {
+	CURSOR: hand; TEXT-DECORATION: none
+}
+A:visited {
+	FONT-WEIGHT: normal; COLOR: #0000ff; TEXT-DECORATION: none
+}
+A:active {
+	FONT-WEIGHT: normal; COLOR: #00cc33; TEXT-DECORATION: underline
+}
+A:hover {
+	FONT-WEIGHT: normal; COLOR: #00cc33; TEXT-DECORATION: underline
+}
+</STYLE>
+
+<BODY vLink=#0000ff aLink=#ffffff link=#0000ff bgColor=#ffffff background="images/faqback2.gif" onload=clicks=0>
+<FONT face=Verdana,Arial,Helvetica size=-2>
+<A name=top>&nbsp;</A><A href="../" target=_top>[Back to Cookie Central]</A>
+</FONT>
+
+<table border="0" width="900" id="table1">
+	<tr>
+		<td width="678">
+
+<TABLE cellSpacing=0 cellPadding=5 width=595 border=0>
+	<TBODY>
+		<TR vAlign=top>
+			<TD width="100%">
+
+			<!-- Begin Banner HTML code -->
+<center>
+
+<script type="text/javascript"><!--
+google_ad_client = "pub-5151801432875630";
+google_ad_width = 468;
+google_ad_height = 60;
+google_ad_format = "468x60_as";
+google_ad_channel ="3670693285";
+google_color_border = "9999FF";
+google_color_bg = "ECF8FF";
+google_color_link = "0000CC";
+google_color_url = "008000";
+google_color_text = "6F6F6F";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script>
+
+<br></center><br>
+
+			<!-- End Banner HTML code -->
+
+			<BR>
+			<FONT face=Verdana,Arial,Helvetica size=-1>
+			<CENTER>
+			<IMG height=29 alt="The Unofficial Cookie FAQ" src="images/h_ufaq.gif" width=296>
+			<BR>Version 2.6
+			<BR>
+			<BR>Contributed to Cookie Central by David Whalen
+			</CENTER>
+			<IMG height=1 src="images/ufaqline.gif" width="100%" border=0> 
+			<UL>
+				<LI><A href="#note">A Note from the Author</A>
+
+				<BR>
+				<BR>
+
+				<LI><A href="#1">1. INTRODUCTION</A> 
+				<UL>
+					<LI><A href="#1.1">1.1 What is a cookie?</A> 
+					<LI><A href="#1.2">1.2 Where did the term cookies come from?</A> 
+					<LI><A href="#1.3">1.3 Why do sites use cookies?</A> 
+					<LI><A href="#1.4">1.4 Where can I get more information?</A>
+				</UL>
+
+				<LI><A href="#2">2. GENERAL QUESTIONS/MISCELLANEOUS</A> 
+				<UL>
+					<LI><A href="#2.1">2.1 Introduction</A> 
+					<LI><A href="#2.2">2.2 Can I delete cookies?</A> 
+					<LI><A href="#2.3">2.3 How do I set my browser to reject cookies?</A>
+					<LI><A href="#2.4">2.4 Are cookies dangerous to my computer?</A> 
+					<LI><A href="#2.5">2.5 Will cookies fill up my hard drive?</A> 
+					<LI><A href="#2.6">2.6 Are cookies a threat to my privacy?</A> 
+					<LI><A href="#2.7">2.7 Sites are telling me I need to turn on cookies, but they <I>are</I> on. What's wrong?</A> 
+					<LI><A href="#2.8">2.8 I deleted my cookies, and I can't log-on to my favorite site anymore. What can I do?</A> 
+					<LI><A href="#2.9">2.9 How did I get a cookie from doubleclick? I've never been there!</A>
+					<LI><A href="#2.10">2.10 I looked at my Internet Explorer cookies, and they had my <I>username</I> on them! Can servers see my username?</A>
+					<LI><A href="#2.11">2.11 There are two extra files in my Cookies folder called Mm256.dat and Mm2048.dat.  What are they?</A>
+				</UL>
+			
+				<LI><A href="#3">3. COOKIE FUNDAMENTALS</A> 
+				<UL>
+					<LI><A href="#3.1">3.1 Introduction</A> 
+					<LI><A href="#3.2">3.2 How does a cookie <I>really</I> work?</A> 
+					<LI><A href="#3.3">3.3 Breakdown of Cookie Parameters</A> 
+					<LI><A href="#3.4">3.4 How do cookies end up on my hard drive?</A> 
+					<LI><A href="#3.5">3.5 What are all those entries in my cookies.txt file?</A> 
+					<LI><A href="#3.6">3.6 Where does MSIE keep its cookies?</A>
+					<LI><a href="#3.7">3.7 Are cookies Year 2000 Compliant?</A>
+				</UL> 
+			
+				<LI><A href="#4">4. ADVANCED TOPICS</A> 
+			
+				<UL>
+					<LI><A href="#4.1">4.1 Introduction</A> 
+					<LI><A href="#4.2">4.2 Creating a cookie value</A> 
+					<LI><A href="#4.3">4.3 Retrieving a cookie value</A> 
+					<LI><A href="#4.4">4.4 Clearing a cookie value</A> 
+					<LI><A href="#4.5">4.5 Detecting if cookies are accepted</A> 
+					<LI><A href="#4.6">4.6 Compact Privacy Policies and IE6</A> 
+				</UL>
+
+				<LI><A href="#about">About the Author</A> 
+				<LI><A href="#copy">Important Disclaimer and Copyright Information</A>
+			</UL>
+			
+			<IMG height=1 src="images/ufaqline.gif" width=300 border=0>
+			
+			<B><A name=note><BR>A Note from the Author</A></B> 
+
+			<br><a href="http://www.pda-square.de/">PDA-Zubehör</a>
+
+			<P align=justify><I>(Version 2.6)</I>
+			<BR>
+			Whew!  After a <b>long</b> delay, I am returning to the FAQ.  A lot of information
+			has been out-of-date for some time, so I felt I had to at least get us back in place.
+			<br>
+			<br>
+			I have noticed a growing number of sites out there that have copied all
+			or part of my FAQ.  While I should be angered at what is clearly a violation
+			of copyright, I'll choose to be understanding and a little flattered.
+			Honestly, people, you could at least <i>mention</i> that it's my work,
+			you know.  Or, you could at least link back to Cookie Central, who provides
+			space for the FAQ free of charge.
+			<br>
+			<br>
+			It's things like this, and the waning interest in the cookie issue (which
+			I feel I've done my part to help), that leads me to think that this will
+			be the last update to the FAQ.  I nearly pulled it down a year ago, but
+			the owner of Cookie Central prevailed upon me to keep it live.
+			<br>
+			<br>
+			In November of 1996, I wrote the very first draft of the Cookie FAQ.  It was
+			a short treatise that ended up getting posted on Netscape's JavaScript newsgroup.
+			The FAQ led directly to my associations with Netscape, becoming the JavaScript
+			DevEdge Champion, and presenting an impromptu talk on cookies at DevCon.  Truly
+			a high-point in my career.
+			<br>
+			<br>
+			In the past five-and-a-half years, I've been able to watch cookies grow
+			from a fledgling concept to the most important part of the internet
+			experience.  Cookies have brought personalization, commerce, and convenience
+			to the internet, legitimizing it as a place for business, not just for science
+			or personal home pages.
+			<br>
+			<br>
+			I've seen the FAQ grow as well over that time.  The first draft of the
+			FAQ was written to target developers who were trying to understand
+			what cookies were and how they could use them.  To this day, I see
+			my examples put to use all over the internet.  But the FAQ served better
+			by informing everyday people about cookies and how they really work.
+			I hope I've done my part to cure the hysteria.
+			<br>
+			<br>
+			So, I bid the FAQ good-bye.  Thanks to all of you in the past who
+			have contributed ideas, feedback, questions, and complaints.  You
+			all made a difference.
+			<BR>
+			<BR>
+			And thanks for stopping by!
+			<BR>
+			<BR>
+			-- DW 
+
+			<BR><BR><FONT size=1><A href="#top">[Back to Top]</A></FONT>
+
+			<br>
+			<br>
+			<IMG height=1 src="images/ufaqline.gif" width=300 border=0>
+			<BR>
+			<BR>
+
+<center>
+<table border="1" cellpadding=5 cellspacing="1" style="border-collapse: collapse" bordercolor="#111111" width="500" 
+bgcolor=#DAEFF8>
+  <tr>
+    <td width="250" valign="top"><span style="font-size: 8.0pt; font-family: Verdana, Arial;">
+
+
+<a href="http://www.umzugsauktion.de/">Umzug München</a><br>
+Umzug Angebote von Umzugsfirmen gesucht? 
+Die Umzugsauktion vermittelt kostenlos
+eine günstige Umzugsfirma & preiswerte
+Umzugsunternehmen für Umzüge.
+    </span></td>
+    <td width="250"  valign="top"><span style="font-size: 8.0pt; font-family: Verdana, Arial">
+
+
+    </span></td>
+    <td width="250"  valign="top"><span style="font-size: 8.0pt; font-family: Verdana, Arial">
+
+<a href="http://www.overseaspropertyshop.com/">Spanish Property</a><br>
+<a href="http://www.seo-computer.de">Suchmaschinenoptimierung</a><br>
+
+    </span></td>
+  </tr>
+</table>
+</center>
+		<IMG height=1 src="images/ufaqline.gif" width=300 border=0>
+
+
+
+			<H3><A name=1>1. INTRODUCTION</A></H3>
+			<P align=justify>Cookies are a very important method for maintaining
+			state on the Web. "State" in this case refers to an application's
+			ability to work interactively with a user, remembering all data since
+			the application started, and differentiating between users and their
+			individual data sets.
+			<br>
+			<br>
+			An analogy I like to use is a laundry cleaner's shop.  You drop something
+			off, and get a ticket. When you return with the ticket, you get your
+			clothes back. If you don't have the ticket, then the laundry man doesn't
+			know which clothes are yours.  In fact, he won't be able to tell whether
+			you are there to pick up clothes, or a brand new customer.  As such,
+			the ticket is critical to maintaining state between you and the laundry
+			man.
+			<br>
+			<br>
+			Unfortunately, HTTP is a "stateless" protocol.  This means that each
+			visit to a site (or even clicks within a site) is seen by the server
+			as the first visit by the user.  In essence, the server "forgets" everything
+			after each request, unless it can somehow mark a visitor (that is,
+			hand him a "laundry ticket") to help it remember.  Cookies can accomplish this.
+			</P>
+
+			<P align=justify><B><A name=1.1>1.1 What is a Cookie?</A></B>
+			<BR><BR>A cookie is a text-only string that gets entered into the memory
+			of your browser. This value of a variable that a website sets. If the lifetime of this value
+			is set to be longer than the time you spend at that site, then this string
+			is saved to file for future reference. </P>
+
+			<P align=justify><B><A name=1.2>1.2 Where did the term cookies come from?</A></B>
+			<BR><BR>According to an article written by Paul Bonner for 
+			<A href="http://www.builder.com/Programming/Cookies/?st.bl.pr.10.feat.1140" rel="nofollow" target=builder.com>Builder.Com</A> on 11/18/1997: 
+			<BLOCKQUOTE>
+			<P align=justify>"Lou Montulli, currently the protocols manager in 
+			Netscape's client product division, wrote the cookies specification for 
+			Navigator 1.0, the first browser to use the technology. Montulli says 
+			there's nothing particularly amusing about the origin of the name: 'A 
+			cookie is a well-known computer science term that is used when 
+			describing an opaque piece of data held by an intermediary. The term 
+			fits the usage precisely; it's just not a well-known term outside of 
+			computer science circles.'" </P></BLOCKQUOTE>
+
+			<P align=justify><B><A name=1.3>1.3 Why do sites use Cookies?</A></B> 
+			<BR><BR>There are many reasons a given site would wish to use cookies. 
+			These range from the ability to personalize information (like on My Yahoo 
+			or Excite), or to help with on-line sales/services (like on Amazon Books 
+			or eBay), or simply for the purposes of collecting demographic information
+			(like DoubleClick). Cookies also provide programmers with a quick and
+			convenient means of keeping site content fresh and relevant to the user's
+			interests. The newest servers use cookies to help with back-end interaction
+			as well, which can improve the utility of a site by being able to securely
+			store any personal data that the user has shared with a site (to help with
+			quick logins on your favorite sites, for example). 
+			</P>
+
+			<P align=justify><B><A name=1.4>1.4 Where Can I Get More Information?</A></B>
+			<BR><BR><A 
+			href="http://www.cookiecentral.com/">Cookie Central</A> is dedicated to 
+			answering questions about cookies.  Feel free to look around.
+			<BR><BR>There's a great article concerning cookies on
+			<a href="http://www.howstuffworks.com/cookie.htm" rel="nofollow">Marshall Brain's "How Stuff Works"</a>.
+			It goes even deeper than this FAQ does, especially in the realm of public opinion.  Worth a look!
+			<BR><BR>The World Wide Web Consortium has an excellent 
+			FAQ to answer the majority of Internet and Web-related questions. You can 
+			read their topic: <A 
+			href="http://www.w3.org/Security/Faq/wwwsf2.html#CLT-Q10">"Do 'Cookies' Pose 
+			any Security Risks?"</A>
+			<BR><BR>In addition, there are an abundance of 
+			resources on the Internet that can help you find answers to your cookie 
+			questions. Conveniently, <A 
+			href="http://dir.yahoo.com/Computers_and_Internet/Internet/World_Wide_Web/Cookies/">Yahoo</A> 
+			has a great listing of them. I encourage you to stop by and check the list 
+			out!</P>
+
+			<FONT size=1><A href="#top">[Back to Top]</A></FONT>
+			
+			<BR>
+			<BR>
+			<IMG height=1 src="images/ufaqline.gif" width=300 border=0>
+			<BR>
+			<BR>
+
+			<H3><A name=2>2. GENERAL QUESTIONS/MISCELLANEOUS</A></H3>
+			<P align=justify><B><A name=2.1>2.1 Introduction</A></B> <BR><BR>This 
+			section is devoted to general questions on cookies and their usage. </P>
+
+			<P align=justify><B><A name=2.2>2.2 Can I delete cookies?</A></B> 
+			<BR><BR>Yes. Whether you use Internet Explorer or Netscape, your cookies
+			are saved to a simple text file that you can delete as you please.
+			<BR><BR>In order to do this properly, remember to <B>close 
+			your browser first</B>. This is because all your cookies are held in 
+			memory until you close your browser. So, if you delete the file with your 
+			browser open, it will make a new file when you close it, and your cookies 
+			will be back. <BR><BR>Remember that deleting your cookie file entirely 
+			will cause you to "start from scratch" with every web site you usually 
+			visit. So, it may be preferable to open the cookies.txt file (in the case 
+			of Netscape) and remove only the entries you don't like, or go to the 
+			cookies folder (in the case of IE) and delete the files matching servers you 
+			don't want. </P>
+
+			<P align=justify><B><A name=2.3>2.3 How do I set my browser to reject 
+			cookies?</A></B> <BR><BR>Both Internet Explorer and Netscape allow some
+			level of cookie verification. They both have menu options that allow you
+			to accept all, some, or none of your incoming cookies. In addition, the
+			"warn before accepting" feature is present in both, if you want to
+			screen your incoming cookies.
+			<BR><BR>In Netscape, go to the <B>Edit/Preferences/Advanced</B> menu.  Your
+			cookie choices can be changed there.
+			<BR><BR>Microsoft has changed their approach to cookies over the last 3
+			versions of their browser.  This is a reflection of how cookies have been
+			thrust into the limelight of privacy on the Internet:
+			<UL>
+				<LI>In IE 6.0, go to the <B>Tools/Internet&nbsp;Options/Privacy</B> menu.  This menu allows you to select how discriminating the browser will be when accepting cookies, based on two factors -- (1) the source of the cookie, and (2) whether the source has a "privacy policy."  There are also features for the advanced user, if you'd like to have a greater control over cookies. <a href="http://support.microsoft.com/default.aspx?scid=kb;EN-US;q283185" rel="nofollow">[more info]</a>
+				<LI>In IE 5.0, go to the <B>Tools/Internet&nbsp;Options/Security</B> menu.  In there, you can choose the security level for 4 different browsing conditions: Internet Sites, Local Sites, "Trusted" Sites, and Restricted Sites. If you select "Internet," and click on Custom Level, you'll get a dialog box where you can accept all, warn before accepting, or reject all cookies. <a href="http://support.microsoft.com/search/preview.aspx?scid=kb;en-us;Q196955" rel="nofollow">[more info]</a>
+				<LI>In IE 4.0, go to the <B>View/Internet&nbsp;Options/Advanced</B> menu. There you can accept all, warn before accepting, or reject all.
+			</UL>
+
+			<BR><BR>Once a cookie is rejected, it is thrown out and not saved to
+			memory or disk. Don't forget, though, that servers will keep looking
+			for the cookie even if you have discarded it and may try to replace
+			it as you surf around.
+			
+			<BR><BR>This fact is almost comical in nature. Essentially, by removing
+			the way to tell the server to not send cookies, it can't remember to not
+			send you any cookies the next time!</P>
+
+			<P align=justify><B><A name=2.4>2.4 Are Cookies Dangerous to My Computer?</A></B>
+			<BR><BR>NO. A cookie is a simple piece of text. It is not a program, or a plug-in.
+			It cannot be used as a virus, and it cannot access your hard drive. Your browser
+			(not a programmer) can save cookie values to your hard disk if it needs to, but
+			that is the limit of the effect on your system. </P>
+
+			<P align=justify><B><A name=2.5>2.5 Will cookies fill up my hard 
+			drive?</A></B> <BR><BR>Both Netscape and Microsoft have measures in place 
+			that limit the number of cookies that will be saved on your hard drive at 
+			one time.
+			<BR>
+			<BR>Both Internet Explorer and Netscape conform to the RFC 2109 
+			limitations on your total cookie count to 300 (this includes a limit of 20
+			cookies per individual domain). If you exceed this, the browser will discard
+			your least-used cookies to make room for the new ones.
+			<BR>
+			<BR>Microsoft saves cookies into the "Temporary 
+			Internet Files" folder, a system folder that you can set the maximum size 
+			of (the default is 2% of your hard drive). <BR><BR>In any event, remember 
+			that most cookie files are 4KB or smaller, so you would need about a million
+			cookies to fill up a 4GB drive. This is incredibly unlikely. </P>
+
+			<P align=justify><B><A name=2.6>2.6 Are Cookies a Threat to My Privacy?</A></B>
+			<BR><BR>The sad truth is that revealing any kind of personal information
+			opens the door for that information to be spread.
+			<BR>
+			<BR>
+			Consider the growing trend of technology conveniences in our lives.
+			We use "frequent buyer" cards at supermarkets and gas stations.  We
+			place electronic tags on our cars to pay tolls faster and easier.
+			We let banks pay our bills for us automatically each month without
+			checks.
+			<br>
+			<br>
+			While each of these technologies (and others like them) have made our
+			lives more convenient, each time we use them exposes us to a loss of
+			privacy.  Stores know what foods you eat.  Gas stations know how much
+			you spend on gas per fill-up.  Turnpike operators know how fast you
+			drive on their highways.  Banks know how you spend your money each
+			month.
+			<BR>
+			<BR>
+			It's the same with cookies.  In fact, one may argue that cookies in the
+			long-run will be less damaging to privacy efforts than those technologies
+			described above.  If you're going to single-out cookies as your sole
+			vulnerability to personal privacy, you should re-examine how you live
+			your daily life.
+			<BR>
+			<BR>
+			The never-ending ethical debate associated with these facts shall be
+			left to other forums. However, it is wise to consider carefully the
+			information you collect and share over the Internet. </P>
+
+			<P align=justify><B><A name=2.7>2.7 Sites are telling me I need to turn on 
+			cookies, but they <I>are</I> on. What's wrong?</A></B>
+			<BR><BR>There are 
+			three likely possibilities for problems like this. Firstly, the site you 
+			are visiting may be detecting cookies improperly. As a result, it may 
+			appear to the site that you are rejecting cookies when in fact you are 
+			not.
+			<BR><BR>Another possibility is that you may be running software that 
+			interferes with cookie usage. There are many filtering and blocking 
+			software packages available for Internet users these days, and many of 
+			them also filter cookies. If you are running software like this, then your 
+			computer may not receive or send cookies. This will cause sites you visit 
+			to assume you are not accepting cookies.
+			<BR><BR>Finally, your machine may 
+			be behind a firewall or proxy server that prevents cookie transmission. 
+			This is most likely in a corporate environment. So, regardless of how your 
+			browser is set, cookies won't be sent or received by your browser. Since 
+			the cookies aren't making it through to your browser, the Web Site will 
+			assume you personally aren't accepting them. </P>
+
+			<P align=justify><B><A name=2.8>2.8 I deleted my cookies, and I can't 
+			log-on to my favorite site anymore. What can I do?</A></B>
+			<BR><BR>Many 
+			sites use a cookie to keep track of your settings on their servers, and to 
+			help you log in to their site. If you lose your cookie, that site cannot 
+			recall your settings for you to use.
+			<BR><BR>If this happens to you, the 
+			best thing you can do is contact that site's webmaster or customer service 
+			department. </P>
+
+			<P align=justify><B><A name=2.9>2.9 How did I get a cookie from 
+			doubleclick? I've never been there!</A></B> <BR><BR>In <A 
+			href="#3.3">section 3.3</A>, we'll see that 
+			a server cannot set a cookie for a domain that it isn't a member of. 
+			However, almost every Web user has gotten a cookie from 
+			"ad.doubleclick.net" at one time or another, without ever visiting there. 
+			DoubleClick and other advertisers have employed a clever solution that 
+			enables them to track users and serve media content without violating this 
+			rule. <BR><BR>Most sites on the Internet do not keep their advertisements 
+			locally. Rather, they subscribe to a media service that places those ads 
+			for them. This is accomplished via a simple HTML call to the media 
+			service. When a page is requested, it is assembled through many HTTP 
+			requests by the browser. First, there is a request for the HTML itself. 
+			Then, everything the HTML needs is requested, including images, sounds, 
+			and plug-ins. <BR><BR>The call to the media service is an HTTP request for 
+			an image. Once the request is made to the media service, it can return 
+			more than just an ad. It can also return a cookie. Or, if is has given the 
+			user a cookie previously, it can read that first, and check to see what ad 
+			to send. The net result is that the user gets a cookie from the media 
+			service without ever having visited it. <BR><BR>This usage of cookies is 
+			the most controversial, and has led to the polarized opinions on cookies, 
+			privacy, and the Internet. </P>
+
+			<P align=justify><B><A name=2.10>2.10 I looked at my Internet Explorer 
+			cookies, and they had my <I>username</I> on them! Can servers see my 
+			username?</A></B> <BR><BR>Because Windows systems allow more than one user 
+			to login and use programs, Microsoft had to come up with a way to keep 
+			each user's cookies separate on a given machine. This can be common in 
+			workplaces, where a single machine is shared by many employees. 
+			<BR><BR>This is accomplished by appending the username to the cookie file 
+			name. This way, both Jane Doe and Joe Smith can get cookies from 
+			coolsite.com and they don't get over-written. Also, this stop's Jane from 
+			using Joe's cookies while she's surfing, since the browser will only use 
+			her cookies when she is logged in. That is, the cookie file: 
+			<BR><BR></FONT><I>
+			
+<PRE>jdoe@coolsite.txt</PRE>
+
+			</I><P align=justify><FONT face=Verdana,Arial,Helvetica size=-1>Contains Jane 
+			Doe's cookie for coolsite.com. If anyone else logs-in, then this cookie is 
+			not used. <BR><BR>This is the only reason that the username is part of the 
+			cookie file name. The username does <B>not</B> get sent to the server with 
+			the cookie data. </P>
+			
+			<P align=justify><B><A name=2.11>2.11 There are two extra files in
+			my Cookies folder called Mm256.dat and Mm2048.dat.  What are they?</A></B>
+			<BR>
+			<BR>
+			You can read more about this on Microsoft's <a href="http://support.microsoft.com/default.aspx?scid=kb;EN-US;q178702" rel="nofollow">Knowledge Base</a>.
+			</P>
+			
+			
+			<FONT size=1><A href="#top">[Back to Top]</A></FONT>
+			
+			<br>
+			<br>
+			<IMG height=1 src="images/ufaqline.gif" width=300 border=0>
+			<BR>
+			<BR>
+
+			<H3><A name=3>3. COOKIE FUNDAMENTALS</A></H3>
+			<P align=justify><B><A name=3.1>3.1 Introduction</A></B> <BR><BR>Whether 
+			you're a programmer or just a web user looking for answers, a big part of 
+			understanding cookies is to go into the gory details. This section does 
+			just that. </P>
+			<P align=justify><B><A name=3.2>3.2 How does a cookie <I>really</I> 
+			work?</A></B> <BR><BR>Understanding how cookies really work requires an 
+			understanding of how HTTP works. Cookies transport from Server to Client 
+			and back as an HTTP header. The specifications for this header are 
+			explicitly laid out in <A 
+			href="http://www.cis.ohio-state.edu/htbin/rfc/rfc2109.html">RFC 2109</A>. 
+			<BR><BR>When a cookie is sent from the server to the browser, an 
+			additional line is added to the HTTP headers (example): <BR><BR></FONT><I>
+<PRE>
+Content-type: text/html
+Set-Cookie: foo=bar; path=/; expires Mon, 09-Dec-2002 13:46:00 GMT
+</PRE>
+			</I><P align=justify><FONT face=Verdana,Arial,Helvetica size=-1>This header 
+			entry would result in a cookie named <B>foo</B>. The value of <B>foo</B> 
+			is <B>bar</B>. In addition, this cookie has a path of <B>/</B>, meaning 
+			that it is valid for the entire site, and it has an expiration date of 
+			<B>Dec 9, 2002 at 1:46pm Greenwich Mean Time (or Universal Time)</B>. 
+			Provided the browser can understand this header, the cookie will be set. 
+			<BR><BR>When a cookie is sent from the browser to the server, the cookie 
+			header is changed slightly: </FONT><BR><BR><I>
+<PRE>
+Content-type: text/html
+Cookie: foo=bar
+</PRE>
+			</I><FONT face=Verdana,Arial,Helvetica size=-1>
+			<P align=justify>Here, the server is made aware of a cookie called 
+			<B>foo</B>, whose value is <B>bar</B>. </P>
+
+
+			<P align=justify><B><A name=3.3>3.3 Breakdown of Cookie Parameters</A></B> 
+			<BR><BR>As we have just seen, a cookie contains more than simply a name 
+			and a value. In fact, a cookie has 6 parameters that can be passed to it: 
+			<UL>
+			<LI>The <B>name</B> of the cookie, 
+			<LI>The <B>value</B> of the cookie, 
+			<LI>The <B>expiration date</B> of the cookie, 
+			<LI>The <B>path</B> the cookie is valid for, 
+			<LI>The <B>domain</B> the cookie is valid for, 
+			<LI>The need for a <B>secure</B> connection to exist to use the cookie. 
+			</LI></UL>
+			<P align=justify>Two of these are mandatory (its name and its value). The 
+			other four can be set manually or automatically. Each parameter is 
+			separated by a semicolon when set explicitly. Here is a detailed 
+			description of each. <BR><BR><B><I>Name, Value</I></B> <BR><BR>The name of 
+			a cookie and its value are set simply by pairing them together: 
+			</FONT><BR><BR><I>
+			
+<PRE>... foo=bar ...</PRE>
+			
+			</I><FONT face=Verdana,Arial,Helvetica size=-1>The value of a cookie 
+			can also be null, for the purpose of clearing the cookie value: 
+			</FONT><BR><BR><I>
+			
+<PRE>... foo= ...</PRE>
+			
+			</I><P align=justify><FONT face=Verdana,Arial,Helvetica 
+			size=-1><B><I>Expires</I></B> <BR><BR>The expires parameter lets you 
+			determine the lifetime of the cookie.</FONT> <BR><BR><I>
+			
+<PRE>... expires=Mon, 01-Jan-2001 00:00:00 GMT ...</PRE>
+
+			</I><P align=justify><FONT face=Verdana,Arial,Helvetica size=-1>If 
+			<I>Expires</I> is not set explicitly, then it defaults to end-of-session. 
+			The length of a session can vary depending on browsers and servers, but 
+			generally a session is the length of time that the browser is open for 
+			(even if the user is no longer at that site). <BR><BR><B><I>Path</I></B> 
+			<BR><BR>The path parameter is potentially the most useful of the 4 
+			optional cookie settings. It sets the URL path the cookie is valid within. 
+			Pages outside of that path cannot read or use the cookie. 
+			<BR><BR></FONT><I>
+			
+<PRE>... path=/promo ...</PRE>
+			
+			</I><P align=justify><FONT face=Verdana,Arial,Helvetica size=-1>If <I>Path</I> 
+			is not set explicitly, then it defaults to the URL path of the document 
+			creating the cookie. <BR><BR>Netscape has identified a bug for VERY old 
+			versions of Navigator where the path <B>must</B> be specified if an 
+			expiration is specified. Furthermore, this path must be set to "/". For 
+			more information, browse Netscape's Cookie Spec at: <BR><A 
+			href="http://www.netscape.com/newsref/std/cookie_spec.html" 
+			target="Resource Window">http://www.netscape.com/newsref/std/cookie_spec.html</A> 
+			<BR><BR><B><I>Domain</I></B> <BR><BR>The domain parameter takes the 
+			flexibility of the path parameter one step further. If a site uses 
+			multiple servers within a domain the it is important to make the cookie 
+			accessible to pages on any of these servers. <BR><BR></FONT><I>
+			
+<PRE>... domain=www.myserver.com ...</PRE>
+			
+			</I><P align=justify><FONT face=Verdana,Arial,Helvetica size=-1>Cookies can be 
+			assigned to individual machines, or to an entire Internet domain. The only 
+			restrictions on this value is that it must contain at least two dots 
+			(.myserver.com, <B>not</B> myserver.com) for the normal top-level domains, 
+			or three dots for the "extended" domains (.myserver.ny.us, <B>not</B> 
+			myserver.ny.us) <BR><BR><B>IMPORTANT:</B> The server issuing the cookie 
+			must be a member of the domain that it tries to set in the cookie. That 
+			is, a server called www.myserver.com cannot set a cookie for the domain 
+			www.yourserver.com. The security implications should be obvious. 
+			<BR><BR>If <I>Domain</I> is not set explicitly, then it defaults to the 
+			full domain of the document creating the cookie. 
+			<BR><BR><B><I>Secure</I></B> <BR><BR>The secure parameter is a flag 
+			indicating that a cookie should only be used under a secure server 
+			condition, such as SSL. Since most sites do not require secure 
+			connections, this defaults to FALSE. </P>
+
+
+			<P align=justify><B><A name=3.4>3.4 How do cookies end up on my hard 
+			drive?</A></B> <BR><BR>After a cookie is transmitted through an HTTP 
+			header, it is stored in the memory of your browser. This way the 
+			information is quickly and readily available without re-transmission. As 
+			we have seen, however, it is possible for the lifetime of a cookie to 
+			greatly exceed the amount of time the browser will be open. <BR><BR>In 
+			such cases, the browser must have a way of saving the cookie when you are 
+			not browsing, or when your computer is shut off. The only way the browser 
+			can do this is to move the cookies from memory into the hard drive. This way, 
+			when you start your browser a few days later, you still have the cookies 
+			you had previously. <BR><BR>The browser is constantly performing 
+			maintenance on its cookies. Every time you open your browser, your cookies 
+			are read in from disk, and every time you close your browser, your cookies 
+			are re-saved to disk. As a cookie expires, it is discarded from memory and 
+			it is no longer saved to the hard drive. </P>
+
+			<P align=justify><B><A name=3.5>3.5 What are all those entries in my 
+			cookies.txt file?</A></B> <BR><BR>The layout of Netscape's 
+			<I>cookies.txt</I> file is such that each line contains one name-value 
+			pair. An example cookies.txt file may have an entry that looks like this: 
+			</FONT>
+			
+<PRE>.netscape.com     TRUE   /  FALSE  946684799   NETSCAPE_ID  100103</PRE>
+			
+			<P align=justify><FONT face=Verdana,Arial,Helvetica size=-1>Each line 
+			represents a single piece of stored information. A tab is inserted between 
+			each of the fields. <BR><BR>From left-to-right, here is what each field 
+			represents: <BR><BR><B>domain</B> - The domain that created AND that can 
+			read the variable. <BR><B>flag</B> - A TRUE/FALSE value indicating if all 
+			machines within a given domain can access the variable. This value is set 
+			automatically by the browser, depending on the value you set for 
+			<B>domain</B>. <BR><B>path</B> - The path within the domain that the 
+			variable is valid for. <BR><B>secure</B> - A TRUE/FALSE value indicating 
+			if a secure connection with the domain is needed to access the variable. 
+			<BR><B>expiration</B> - The UNIX time that the variable will expire on. 
+			UNIX time is defined as the number of seconds since Jan 1, 1970 00:00:00 
+			GMT. <BR><B>name</B> - The name of the variable. <BR><B>value</B> - The 
+			value of the variable. </P>
+
+			<P align=justify><B><A name=3.6>3.6 Where does MSIE keep its 
+			cookies?</A></B> <BR><BR>Microsoft keeps its cookies in different 
+			locations, depending on the version of explorer and Windows you are using.
+			The best way to find it is to use the Windows "Search" feature an look
+			for the "Cookies" folder.  More information can be found <a href="http://support.microsoft.com/default.aspx?scid=kb;EN-US;q153417" rel="nofollow">here</a>.
+			<br>
+			<br>
+			Although the location may be different, the format is the same. Each individual
+			domain's cookies are stored in their own file, along with the username that
+			accessed the site.  For example, if I went to Yahoo.com, I would get a cookie
+			that is stored in the file <B>dwhalen@yahoo.txt</B>. <BR><BR>Note that the 
+			username is <I>not</I> sent with the cookie. See <A 
+			href="#2.10">Section 2.10</A> for more 
+			information. </P>
+
+			<P align=justify><B><A name=3.7>3.7 Are cookies Year 2000 Compliant?</A></B>
+			<BR><BR>There is no date-specific restriction on the 
+			HTTP header used to transmit cookies. In fact, the only determining factor 
+			in whether a cookie will be accepted is the programming of the client 
+			receiving the cookie. <BR><BR>The major browsers do not have an issue with 
+			this. Cookies with expiration dates set with 2-digit or 4-digit years are 
+			understood properly. Naturally, it's always advisable to use 4-digit years 
+			when setting cookies.</P>
+			
+			<FONT size=1><A href="#top">[Back to Top]</A></FONT>
+			
+			<br>
+			<br>
+			<IMG height=1 src="images/ufaqline.gif" width=300 border=0>
+			<BR>
+			<BR>
+
+			<B><A name=4>4. ADVANCED TOPICS</A></B> 
+			<P align=justify><B><A name=4.1>4.1 Introduction</A></B> <BR><BR>This 
+			section covers topics beyond those discussed above. 
+			</P>
+			
+			<P align=justify><B><A name=4.2>4.2 Creating a Cookie Value</A></B>
+			<BR><BR>
+			Creating a cookie generally involves duplicating the HTTP cookie header in some 
+			fashion so that the browser will store the name-value pair in memory. Some 
+			languages expect an exact HTTP header to be sent, while others will use 
+			built-in functions to help you speed the process along.
+			<BR><BR>
+			Cookies can be set from the browser-side or from the server-side. The determining 
+			factor will be the language you use to create the cookie. Once the cookie 
+			is created, it should flow easily from server to client and back via the 
+			HTTP headers.
+			<br>
+			<br>
+			There are limits on the contents of both the cookie string and the
+			cookie file. These limits are partially imposed by HTTP and partially
+			by arbitrary choice. They are as follows:
+			<OL>
+				<LI>You CANNOT set Cookies for domains other than those that your
+				response originates from. That is, a page on www.myserver.com can set a 
+				Cookie for myserver.com and www.myserver.com, but NOT www.yourserver.com. 
+				<LI>The cookie HTTP header must be no more than 4K in size. 
+			</OL>
+			<P align=justify>Note that this applies to cookies while they are in 
+			memory or stored in the cookies.txt file.</P>
+
+			<P align=justify><B><A name=4.3>4.3 Retrieving a Cookie Value</A></B>
+			<BR><BR>
+			For the most part, retrieving cookies does not require reading the HTTP Cookie: 
+			header. Most languages read this header for you and make it accessible 
+			through a variable or object. <BR><BR>Cookies can be read on the browser 
+			side or the server side. Again, the determining factor is the language 
+			used.
+			<br>
+			<br>
+			The main limit on retrieving a cookie is that you can only 
+			retrieve cookies that are valid for the document your script resides in. 
+			That is, a script on www.myserver.com cannot read cookies from 
+			www.yourserver.com. This is also true for subdirectories within your site.
+			A cookie valid for /dirOne cannot be read by a script in /dirTwo.  This
+			is mainly governed on the browser side, as browsers know the URL that
+			they are accessing, and only transmit cookies for that server across
+			the connection.</P>
+			
+			<P align=justify><B><A name=4.4>4.4 Clearing a Cookie Value</A></B> 
+			<BR><BR>When programming a Web site, there are many reasons that you may 
+			need to erase a cookie you have created. Often it is because the cookie is 
+			no longer needed, or the scheme of your cookie has been altered, and 
+			requires resetting. <BR><BR>The two main steps to clearing a cookie you 
+			have created are: 
+			<OL>
+			<LI>Set the cookie's value to null. 
+			<LI>Set the cookie's expiration date to some time in the past. 
+			</OL>
+			<P align=justify>The reason you must do both is that simply setting the 
+			expiration to a past time will not change it's value until the browser is 
+			closed. That is, all cookie names, values, expirations, etc are resolved 
+			once the browser program has been closed. Setting the cookie to null 
+			allows you to properly test for the cookie until that resolution. </P>
+
+			<P align=justify><B><A name=4.5>4.5 Detecting if cookies are 
+			accepted</A></B> <BR><BR>To properly detect if a cookie is being accepted 
+			via the server, the cookie needs to be set on one HTTP request and read 
+			back in another. This cannot be accomplished within 1 request. When using 
+			PERL or ASP, try to funnel your visitors through a common page where you 
+			can set a test cookie. Then, when the time comes to detect, check for that 
+			cookie. <BR><BR>If you use client-side languages to set a cookie, you can 
+			set and read on the same page. Cookies set by JavaScript or VBScript 
+			reside in the browser's memory already, so you will know if they have been 
+			accepted right away. Check by setting a test value, and then try to read 
+			that value back out of the cookie. If the value still exists, the cookie 
+			was accepted. </P>
+
+			<P align=justify><B><A name=4.6>4.6 Compact Privacy Policies and IE6</A></B>
+			<br>
+			<br>
+			In 1998, the W3C started drafting a proposal for a Platform for
+			Privacy Preferences (P3P).  P3P has 3 main goals (courtesy of the <a href="http://www.w3.org/TR/P3P/" rel="nofollow">W3C</a>):
+			<ul>
+			<li>To inform a user agent of a site's data collection and privacy practices. 
+			<li>To allow a user agent and service to automatically negotiate and to come to an agreement satisfactory to both parties; alternatively, for the user agent to notify the user and take instruction concerning proposed data exchanges from the user. 
+			<li>To exchange data when such exchange is authorized by the user and consistent with a user's preferences and any outstanding agreement. 
+			</ul>
+			<p align=Justify>
+			Now an official specification, P3Ps use an XML file to describe in as
+			much detail as possible how a web site uses personal data during and
+			after a user's session.  This can include the intended usage of cookies
+			to hold or refer to such information.
+			<br>
+			<br>
+			Alternatively, a site can create a P3P policy that refers solely to
+			its cookie use.  These Compact Privacy Policies are a focal point in
+			Microsoft's new strategy in addressing the cookie "problem."
+			<br>
+			<br>
+			Users of Internet Explorer 6 can set their Privacy preferences based
+			upon whether the target site has a Privacy Policy or not.  If a site
+			does not have a policy, its cookies may be automatically rejected by
+			IE, and the user will see an icon on the status bar indicating a conflict
+			with the user's privacy preferences.
+			<br>
+			<br>
+			P3P may have a broad impact on cookies and their future use.  Especially
+			in the context of advertising and commerce.  Even though compact policies
+			are essentially straightforward to create, users still stand to regain a
+			great deal of control over their browser's communications.
+	
+			</P>
+
+			<FONT size=1><A href="#top">[Back to Top]</A></FONT>
+
+			<br>
+			<br>
+			<IMG height=1 src="images/ufaqline.gif" width=300 border=0>
+			<BR>
+			<BR>
+			
+			<P align=justify><B><A name=about>About the Author</A></B> <BR><BR>David 
+			Whalen is a Senior Internet Engineer. David writes Web-based applications 
+			in ASP, VB, C#, PERL, Java, and JavaScript. He has worked in the Web industry for 
+			over 6 years. David is a Microsoft Certified Professional. In addition, he 
+			was an inaugural Netscape DevEdge Champion, where he provided third-party 
+			support to developers in JavaScript and Netscape's LiveWire. <BR><BR>David 
+			holds a Masters Degree in Astrophysics. His personal interests include 
+			traveling, photography, gaming, animation, and sports. When not 
+			programming, he can be found either playing Quake or out on the golf 
+			course.</P>
+			
+			<br>
+			<br>
+			<IMG height=1 src="images/ufaqline.gif" width=300 border=0>
+			<BR>
+			<BR>
+			
+			<P align=justify><FONT size=1><A name=copy>Copyright ©1997-2002</a> David Whalen. This 
+			document is provided "as is" without any guarantees or warranty. Although 
+			the author has attempted to find and correct any errors or mistakes he, 
+			and everyone who contributed to it, are not responsible for any damage or 
+			losses of any kind caused by the use or misuse of information in this FAQ. 
+			The author is under no obligation to provide service, corrections, or 
+			upgrades to this FAQ.
+			<BR><BR>
+			The following is legal information and 
+			refers to all the information in this document. <b>This information pertains 
+			to all use of the FAQ worldwide.</b> All specific names included in the 
+			package are registered trademarks and are hereby acknowledged. Any other 
+			trademarks not mentioned in the FAQ are still hypothetically acknowledged. 
+			<BR>
+			<LI><b>No portion of the document may be separated and distributed separately 
+			without the written permission of the author, David Whalen.</b> 
+			<LI><b>The document can not be included in any publication, such as, but not 
+			limited to: magazines, books, newspapers or newsletters, without the 
+			written permission of the author.</b> 
+			<LI><b>The document can not be included in any software compilation using 
+			media such as, but not limited to: CD-ROM, tape backup, optical disks, 
+			hard disks or memory cards, without the written permission of the author.</b> 
+			<LI><b>The document can not be recompiled, modified or not, and distributed 
+			without the written permission of the author.</b> 
+			<LI>Visitors are encouraged to send submissions and error fixes to the 
+			author, but the author is in no way obliged to utilize these enhancements 
+			or fixes. 
+			<LI>In the event of ambiguity or omission within this notice, all rights 
+			and ownership are retained by the author. 
+			</FONT>
+			</TD>
+		</TR>
+	</TBODY>
+
+</TABLE>
+
+<FONT face=Verdana,Arial,Helvetica size=-2>Last Modified: 06/08/2002</font>
+<BR>
+<BR>
+<FONT face=Verdana,Arial,Helvetica size=1><A href="#top">[Back to Top]</A></FONT>
+
+
+	</td>
+        <td width="250" valign="top">
+<script type="text/javascript"><!--
+google_ad_client = "pub-5151801432875630";
+google_ad_width = 160;
+google_ad_height = 600;
+google_ad_format = "160x600_as";
+google_ad_channel ="3670693285";
+google_color_border = "9999FF";
+google_color_bg = "ECF8FF";
+google_color_link = "0000CC";
+google_color_url = "008000";
+google_color_text = "6F6F6F";
+//--></script>
+<script type="text/javascript"
+  src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+</script><table border="1" width="220" bgcolor=#ffffff style="border-collapse: collapse" bordercolor="#111111" cellpadding="5">
+	<tr>
+	<td bgcolor="#C7DBF0"><img src="/images/cookiecentral.com.gif"></td>
+</tr>
+<tr>
+<img src="/images/clear.gif" height="900" width="1">
+<br><br><br><br><br>
+		<td bgcolor="#F2FFF7"><font face="tahoma,arial" size=-2>
+		<a href="http://www.pfalzonline.de/">Wohnungen</a> zur Miete<br>
+		<a href="http://www.dantotec.de">Navigationssystem</a><br>
+		<a href="http://www.spacelive.co.jp/" target="_blank">&#19981;&#21205;&#29987;</a><br>
+		<a href="http://www.press-aktuell.de/">Presseinformationen versenden</a><br>
+		<a href="http://www.quadriga-press.de/">Presseinformation</a><br>
+		<a href="http://www.direkthomepage.de/">Get free homepage</a><br>
+		<a href="http://www.dejavue-gmbh.de">Suchmaschinenoptimierung and Internet Marketing</a><br>
+		<a href="http://www.rrot.de">Webkatalog</a><br>
+
+		</font>
+		</td>
+	</tr>
+</table>
+
+	</td>
+	</tr>
+</table>
+
+
+
+</BODY>
+</HTML>

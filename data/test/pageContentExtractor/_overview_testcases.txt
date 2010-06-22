@@ -1,0 +1,19 @@
+Readability Testpages
+
+test001.html --> http://www.tagesschau.de/wirtschaft/googlewlan100.html --> OK
+test002.html --> http://edition.cnn.com/2010/TECH/05/26/aral.sea/index.html?hpt=C1 --> OK
+test003.html --> http://www.spreeblick.com/2010/05/24/lost-the-final-episode/ --> OK
+test004.html --> http://www.neustadt-ticker.de/nachrichten/burgerversammlung-in-der-leipziger-vorstadt/ --> OK
+test005.html --> http://www.engadget.com/2010/05/25/e-ink-shocker-amazon-ceo-says-color-kindle-is-still-a-long-way/ --> OK
+test006.html --> http://www.wired.com/gadgetlab/2010/05/iphone-4g-ads/ --> OK
+test007.html --> http://www.smashingmagazine.com/2010/05/25/bizarre-websites-on-which-you-can-kill-time-with-style/ --> OK
+test008.html --> http://www.alistapart.com/articles/quick-and-dirty-remote-user-testing/ --> OK
+test009.html --> http://www.readwriteweb.com/enterprise/2010/05/alex-williams-now-managing-readwriteenterprise.php --> OK
+test010.html --> http://sujitpal.blogspot.com/2009/11/extracting-useful-text-from-html.html --> OK
+test011.html --> http://www.engadget.com/2010/05/17/sprint-blackberry-bold-9650-goes-on-sale-a-little-early/ --> OK
+test012.html --> http://arstechnica.com/open-source/news/2010/05/kde-45-beta-brings-window-tiling-new-notifications.ars --> OK
+test013.html --> http://www.reuters.com/article/idUSTRE6430AR20100528 --> OK
+test014.html --> http://hardware.slashdot.org/story/10/05/28/043243/XBMC-Discontinues-Xbox-Support?art_pos=1 --> OK
+test015.html --> http://www.codinghorror.com/blog/2010/05/on-working-remotely.html --> OK
+test016.html --> http://www.gizmodo.de/2010/05/28/iphone-und-ipad-drahtlos-mit-itunes-synchronisieren.html --> Problem mit YouTube-Link
+test017.html --> http://egadgetbay.com/tablet-computer/apple-unveils-ipad-tablet-computer/ --> ...

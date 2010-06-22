@@ -1,0 +1,10 @@
+<map id="G" name="G">
+<area shape="rect" id="c3479" href="./SnippetQueryFactory.html" title="tud.iir.extraction.snippet.SnippetQueryFactory" alt="" coords="16,75,331,181"/>
+<area shape="rect" id="c3480" href="./SnippetQuery.html" title="tud.iir.extraction.snippet.SnippetQuery" alt="" coords="376,83,547,173"/>
+<area shape="rect" id="c3481" href="./SnippetFeatureExtractor.html" title="tud.iir.extraction.snippet.SnippetFeatureExtractor" alt="" coords="592,11,968,245"/>
+<area shape="rect" id="c3482" href="./SnippetExtractor.html" title="tud.iir.extraction.snippet.SnippetExtractor" alt="" coords="1013,43,1358,213"/>
+<area shape="rect" id="c3483" href="./SnippetExtractionProcess.html" title="tud.iir.extraction.snippet.SnippetExtractionProcess" alt="" coords="1403,67,1648,189"/>
+<area shape="rect" id="c3484" href="./SnippetDuplicateDetection.html" title="tud.iir.extraction.snippet.SnippetDuplicateDetection" alt="" coords="1693,75,2054,181"/>
+<area shape="rect" id="c3485" href="./SnippetBuilder.html" title="tud.iir.extraction.snippet.SnippetBuilder" alt="" coords="2098,11,2625,245"/>
+<area shape="rect" id="c3486" href="./EntitySnippetExtractionThread.html" title="tud.iir.extraction.snippet.EntitySnippetExtractionThread" alt="" coords="2669,83,2867,173"/>
+</map>

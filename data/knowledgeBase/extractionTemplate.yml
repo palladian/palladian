@@ -1,0 +1,22 @@
+objects:
+    - url:                        "http://www.abb.com/product/seitp322/4bd491f50ac01a9fc1256dcc0046a220.aspx?productLanguage=us&country=00"
+        properties:
+          - name:                 "DC motor, DMI 180-400"
+            description:          "Thanks to the precise optimization of the electrical and mechanical"
+            pdfs:
+                - pdfTitle:       "Outline"
+                  pdfURL:         "http://library.abb.com/global/scot/scot234.nsf/veritydisplay/1c8595da200410e0c12574730045d869/$File/3BSM003057-1.pdf"
+                - pdfTitle:       "Poster, DMI, Competitor comparison"
+                  pdfURL:         "http://library.abb.com/global/scot/scot234.nsf/veritydisplay/71de0f2c2ab39480c12574730045eea4/$File/3BSM003889-2.pdf"
+    - url:                        "http://www.abb.com/product/seitp322/4bd491f50ac01a9fc1256dcc0046a220.aspx?productLanguage=us&country=00&tabKey=2"
+        properties:
+            - key:                "Frame size"
+              value:              "180, 200, 225, 250, 280, 315 and 400"
+            - key:                "Output power"
+              value:              "25 - 1400 kW"
+    - url:                        "http://www.abb.com/product/seitp322/4bd491f50ac01a9fc1256dcc0046a220.aspx?productLanguage=us&country=00&tabKey=7"
+        properties:
+            - key:                "image1"
+              value:              "http://www04.abb.com/global/gad/gad02007.nsf/Images/CFC239B14B29640FC125746B0024CB76/$file/step1_195.jpg"
+            - key:                "image2"
+              value:              "http://www04.abb.com/global/gad/gad02007.nsf/Images/EFBAEFAC8D48A096C125746B00249DAF/$file/edrawing1_195.jpg"     

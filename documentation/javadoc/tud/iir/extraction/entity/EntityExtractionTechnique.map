@@ -1,0 +1,6 @@
+<map id="G" name="G">
+<area shape="rect" id="c25538" href="./SeedExtractor.html" title="tud.iir.extraction.entity.SeedExtractor" alt="" coords="15,225,459,378"/>
+<area shape="rect" id="c25540" href="./PhraseExtractor.html" title="tud.iir.extraction.entity.PhraseExtractor" alt="" coords="503,249,947,354"/>
+<area shape="rect" id="c25543" href="./FocusedCrawlExtractor.html" title="tud.iir.extraction.entity.FocusedCrawlExtractor" alt="" coords="991,233,1435,370"/>
+<area shape="rect" id="c25549" href="./EntityExtractionTechnique.html" title="tud.iir.extraction.entity.EntityExtractionTechnique" alt="" coords="503,11,947,165"/>
+</map>
