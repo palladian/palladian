@@ -24,10 +24,12 @@ import tud.iir.persistence.DatabaseManager;
  */
 public class FeedDatabase implements FeedStore {
 
+    /** the instance of this class */
+    private final static FeedDatabase INSTANCE = new FeedDatabase();
+    
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
-    private final static FeedDatabase INSTANCE = new FeedDatabase();
-
+    
     private FeedDatabase() {
     }
 
@@ -182,19 +184,19 @@ public class FeedDatabase implements FeedStore {
 
             PreparedStatement ps = DatabaseManager.getInstance().psGetFeeds;
 
-            switch (FeedChecker.getInstance().getCheckApproach()) {
-                case FeedChecker.CHECK_FIXED:
-                    if (FeedChecker.getInstance().getCheckInterval() == -1) {
-                        ps = DatabaseManager.getInstance().psGetFeeds_fixed_learned;
-                    }
-                    break;
-                case FeedChecker.CHECK_ADAPTIVE:
-                    ps = DatabaseManager.getInstance().psGetFeeds_adaptive;
-                    break;
-                case FeedChecker.CHECK_PROBABILISTIC:
-                    ps = DatabaseManager.getInstance().psGetFeeds_probabilistic;
-                    break;
-            }
+//            switch (FeedChecker.getInstance().getCheckApproach()) {
+//                case FeedChecker.CHECK_FIXED:
+//                    if (FeedChecker.getInstance().getCheckInterval() == -1) {
+//                        ps = DatabaseManager.getInstance().psGetFeeds_fixed_learned;
+//                    }
+//                    break;
+//                case FeedChecker.CHECK_ADAPTIVE:
+//                    ps = DatabaseManager.getInstance().psGetFeeds_adaptive;
+//                    break;
+//                case FeedChecker.CHECK_PROBABILISTIC:
+//                    ps = DatabaseManager.getInstance().psGetFeeds_probabilistic;
+//                    break;
+//            }
 
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
             while (resultSet.next()) {
