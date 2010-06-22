@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -47,8 +48,10 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
  */
 public class QAExtractor extends Extractor {
 
+    /** the instance of this class */
     private static QAExtractor INSTANCE = new QAExtractor();
 
+    /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(QAExtractor.class);
 
     private static final Logger flashOutputLogger = Logger.getLogger("FlashOutputLogger");
@@ -57,22 +60,22 @@ public class QAExtractor extends Extractor {
     private boolean benchmark = false;
 
     /** list of QA tuples */
-    private ArrayList<QA> qas = null;
+    private List<QA> qas;
 
     /** count the number of extracted questions */
     private int qaExtractionCount = 0;
 
     /** a classifier for answers */
-    private AnswerClassifier answerClassifier = null;
+    private AnswerClassifier answerClassifier;
 
     /** the list of QA sites that are used for crawling and extraction */
-    private QASites qaSites = null;
+    private QASites qaSites;
 
     /** an FAQ site which holds all question hashes and visited URLs for any FAQ site during crawling */
-    private QASite faqSite = null;
+    private QASite faqSite;
 
     /** a page analyzer */
-    private PageAnalyzer pa = null;
+    private PageAnalyzer pa;
 
     private QAExtractor() {
         setPa(new PageAnalyzer());

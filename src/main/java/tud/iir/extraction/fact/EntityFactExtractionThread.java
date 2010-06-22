@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,11 +39,12 @@ import tud.iir.web.SourceRetrieverManager;
  */
 public class EntityFactExtractionThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(EntityFactExtractionThread.class);
+    /** the logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(EntityFactExtractionThread.class);
 
     private Entity entity = null;
 
-    // temporarily save information about which url is being processed at the moment
+    /** temporarily save information about which url is being processed at the moment */
     private String currentSource = "";
 
     public EntityFactExtractionThread(ThreadGroup threadGroup, String name, Entity entity) {
@@ -57,10 +59,10 @@ public class EntityFactExtractionThread extends Thread {
 
         // create a fact queries for the entity that tries to extract many attributes from one single page
         FactQuery fq;
-        logger.info("### query with type x ###");
+        LOGGER.info("### query with type x ###");
         fq = FactQueryFactory.getInstance().createManyAttributesQuery(entity, FactQueryFactory.TYPE_X);
         extractFromFactPages(fq);
-        logger.info("### query with type x facts ###");
+        LOGGER.info("### query with type x facts ###");
         fq = FactQueryFactory.getInstance().createManyAttributesQuery(entity, FactQueryFactory.TYPE_X_FACTS);
         extractFromFactPages(fq);
         // logger.log("### query with type x yn ###");
@@ -84,7 +86,7 @@ public class EntityFactExtractionThread extends Thread {
             currentAttribute.setLastSearched(new Date(System.currentTimeMillis()));
 
             if (FactExtractor.getInstance().isStopped()) {
-                logger.info("fact extraction process stopped");
+                LOGGER.info("fact extraction process stopped");
                 break;
             }
 
@@ -95,27 +97,27 @@ public class EntityFactExtractionThread extends Thread {
 
             // create a fact query that extracts images
             else if (currentAttribute.getValueType() == Attribute.VALUE_IMAGE) {
-                logger.info("### query for images ###");
+                LOGGER.info("### query for images ###");
                 fq = FactQueryFactory.getInstance().createImageQuery(entity, currentAttribute);
-                logger.info("extract images for " + entity.getName() + " with query " + fq.getAttribute().getName());
+                LOGGER.info("extract images for " + entity.getName() + " with query " + fq.getAttribute().getName());
                 extractImages(fq, entity);
 
                 // create attribute related fact queries
             } else {
 
-                logger.info("### query with type x'y is ###");
+                LOGGER.info("### query with type x'y is ###");
                 fq = FactQueryFactory.getInstance().createSingleAttributeQuery(entity, currentAttribute, FactQueryFactory.TYPE_X_Y_IS);
                 extractFromFactPages(fq);
-                logger.info("### query with type y of x is ###");
+                LOGGER.info("### query with type y of x is ###");
                 fq = FactQueryFactory.getInstance().createSingleAttributeQuery(entity, currentAttribute, FactQueryFactory.TYPE_Y_OF_X_IS);
                 extractFromFactPages(fq);
-                logger.info("### query with type x y ###");
+                LOGGER.info("### query with type x y ###");
                 fq = FactQueryFactory.getInstance().createSingleAttributeQuery(entity, currentAttribute, FactQueryFactory.TYPE_X_Y);
                 extractFromFactPages(fq);
             }
         }
 
-        logger.info("Thread finished in " + DateHelper.getRuntime(t1) + "s, facts for \"" + entity.getName() + "\" were sought. " + entity.getFacts().size()
+        LOGGER.info("Thread finished in " + DateHelper.getRuntime(t1) + "s, facts for \"" + entity.getName() + "\" were sought. " + entity.getFacts().size()
                 + " facts about the entity in total.");
         FactExtractor.getInstance().decreaseThreadCount();
     }
@@ -143,7 +145,7 @@ public class EntityFactExtractionThread extends Thread {
             querySet = fq.getQuerySet();
             int querySetSize = querySet.length;
             for (int i = 0; i < querySetSize; ++i) {
-                ArrayList<String> retrievedURLs = sr.getURLs(querySet[i]);
+                List<String> retrievedURLs = sr.getURLs(querySet[i]);
 
                 // filter urls
                 retrievedURLs = FactExtractor.getInstance().filterURLs(retrievedURLs);
@@ -180,7 +182,7 @@ public class EntityFactExtractionThread extends Thread {
             setCurrentSource(url);
 
             if (FactExtractor.getInstance().isStopped()) {
-                logger.info("fact extraction process stopped");
+                LOGGER.info("fact extraction process stopped");
                 break;
             }
 
@@ -211,7 +213,7 @@ public class EntityFactExtractionThread extends Thread {
             //			
             // ///////////////////////////////////////////////////////////////////////
 
-            logger.info("analyze url: " + url);
+            LOGGER.info("analyze url: " + url);
 
             // for reading from index
             if (FactExtractor.getInstance().isBenchmark()) {
@@ -227,11 +229,11 @@ public class EntityFactExtractionThread extends Thread {
                 // String pageString = crawler.download(url,freeTextOnly); // get the contents, strip html tags only if fact pattern can only be found in free
                 // text
 
-                logger.info("apply free text only query on " + url);
+                LOGGER.info("apply free text only query on " + url);
                 extractFactFromPhrase(entity, querySet, pageString, fq.getAttribute());
                 // extractFactsFromPage(entity, url, fq.getAttributes()); // -2% recall if used
             } else {
-                logger.info("apply semi structured query on " + url);
+                LOGGER.info("apply semi structured query on " + url);
                 System.out.println("url " + url);
                 extractFactsFromPage(entity, url, fq.getAttributes());
             }
@@ -251,7 +253,7 @@ public class EntityFactExtractionThread extends Thread {
         for (int i = 0; i < patternSetSize; ++i) {
 
             if (FactExtractor.getInstance().isStopped()) {
-                logger.info("fact extraction process stopped");
+                LOGGER.info("fact extraction process stopped");
                 break;
             }
 
@@ -259,7 +261,7 @@ public class EntityFactExtractionThread extends Thread {
                 // remove "" that were entered for search engine
                 String currentPattern = StringHelper.escapeForRegularExpression(patternSet[i].replaceAll("\"", ""));
 
-                logger.info("try to match free text query " + patternSet[i]);
+                LOGGER.info("try to match free text query " + patternSet[i]);
                 Pattern pat = Pattern.compile(currentPattern, Pattern.CASE_INSENSITIVE);
 
                 Matcher m = pat.matcher(pageString);
@@ -270,9 +272,9 @@ public class EntityFactExtractionThread extends Thread {
                     FactString factString = new FactString(searchArea, ExtractionType.PATTERN_PHRASE);
                     extractValue(entity, factString, attribute);
                 }
-                logger.info("no more matches found");
+                LOGGER.info("no more matches found");
             } catch (PatternSyntaxException e) {
-                logger.error(patternSet[i] + ", " + e.getMessage());
+                LOGGER.error(patternSet[i] + ", " + e.getMessage());
             }
 
         }
@@ -298,7 +300,7 @@ public class EntityFactExtractionThread extends Thread {
             String lowerCaseAttributeName = currentAttribute.getName().toLowerCase();
 
             if (FactExtractor.getInstance().isStopped()) {
-                logger.info("fact extraction process stopped");
+                LOGGER.info("fact extraction process stopped");
                 break;
             }
 
@@ -323,7 +325,7 @@ public class EntityFactExtractionThread extends Thread {
                     FactString factString = new FactString(searchArea, ExtractionType.UNKNOWN);
                     extractValue(entity, factString, currentAttribute);
                 } catch (Exception e) {
-                    logger.error("Exception at FactExtractor", e);
+                    LOGGER.error("Exception at FactExtractor", e);
                 }
             }
         }
@@ -397,14 +399,14 @@ public class EntityFactExtractionThread extends Thread {
             Attribute currentAttribute = attributeArray[i];
 
             if (FactExtractor.getInstance().isStopped()) {
-                logger.info("fact extraction process stopped");
+                LOGGER.info("fact extraction process stopped");
                 break;
             }
 
-            logger.info("search attribute " + currentAttribute.getName() + " for " + entity.getName());
+            LOGGER.info("search attribute " + currentAttribute.getName() + " for " + entity.getName());
             dt.setAttribute(currentAttribute);
             HashMap<Attribute, ArrayList<FactString>> factStrings = dt.getFactStrings(currentAttribute);
-            logger.info("found " + (factStrings.size() - 1) + " new attribute candidates, " + factStrings.keySet());
+            LOGGER.info("found " + (factStrings.size() - 1) + " new attribute candidates, " + factStrings.keySet());
 
             // iterate through all attributes found
             Iterator<Map.Entry<Attribute, ArrayList<FactString>>> factIterator = factStrings.entrySet().iterator();
@@ -455,7 +457,7 @@ public class EntityFactExtractionThread extends Thread {
             searchString = searchString.replaceAll("(?<=(\\.|,|(\\W)|(\\A)|(\\Z)|\\s))(?i)" + StringHelper.escapeForRegularExpression(entity.getName())
                     + "(?=(\\.|,|(\\W)|(\\Z)|\\s))", "");
         } catch (PatternSyntaxException e) {
-            logger.error(entity.getName(), e);
+            LOGGER.error(entity.getName(), e);
             return;
         }
 
@@ -492,11 +494,11 @@ public class EntityFactExtractionThread extends Thread {
         try {
             pat = java.util.regex.Pattern.compile(attribute.getRegExp());
         } catch (PatternSyntaxException e) {
-            logger.error("PatternSyntaxException for " + attribute.getName() + " with regExp " + attribute.getRegExp(), e);
+            LOGGER.error("PatternSyntaxException for " + attribute.getName() + " with regExp " + attribute.getRegExp(), e);
             return;
         }
         Matcher m = pat.matcher(searchString);
-        logger.info("try to match " + attribute.getRegExp() + " on " + searchString);
+        LOGGER.info("try to match " + attribute.getRegExp() + " on " + searchString);
         m.region(0, searchString.length());
 
         String afterValueText = ""; // for numbers this text can hold information about units
@@ -516,7 +518,7 @@ public class EntityFactExtractionThread extends Thread {
 
                 }
                 // System.out.println("found in sentence ("+factString.getType()+") "+m.group()+" (closest so far: "+shortestDistanceValue+") after value:"+afterValueText/*+distance+" "+attributeIndex+" "+shortestDistance*/);
-                logger.info("found in sentence (" + factString.getExtractionType() + ") " + m.group() + " (closest so far: " + shortestDistanceValue
+                LOGGER.info("found in sentence (" + factString.getExtractionType() + ") " + m.group() + " (closest so far: " + shortestDistanceValue
                         + ") after value:" + afterValueText/* +distance+" "+attributeIndex+" "+shortestDistance */);
             }
 
@@ -554,7 +556,7 @@ public class EntityFactExtractionThread extends Thread {
 
                 // add fact candidate for entity and attribute, checking whether fact or fact value has been entered already is done in the entity and fact
                 // class respectively
-                logger.info("found in phrase (" + factString.getExtractionType() + ") " + m.group() + " after value:" + afterValueText);
+                LOGGER.info("found in phrase (" + factString.getExtractionType() + ") " + m.group() + " after value:" + afterValueText);
                 // entity.addFactAndValue(new Fact(attribute),new FactValue(m.group(),new Source(Source.SEMI_STRUCTURED,getCurrentSource())));
                 addFactValue(entity, attribute, m.group(), factString.getExtractionType(), afterValueText);
             }
@@ -578,11 +580,11 @@ public class EntityFactExtractionThread extends Thread {
             try {
                 factString = StringNormalizer.normalizeNumber(factString);
             } catch (NumberFormatException e) {
-                logger.error(factString + ", " + e.getMessage());
+                LOGGER.error(factString + ", " + e.getMessage());
             }
 
-            logger.info("number before unit normalization " + factString);
-            String bn = factString;
+            LOGGER.info("number before unit normalization " + factString);
+
             // normalize units when given
             if (factString.length() > 0) {
                 try {
@@ -590,10 +592,10 @@ public class EntityFactExtractionThread extends Thread {
 
                     // make it a normalized string again (no .0)
                     factString = StringNormalizer.normalizeNumber(factString);
-                    logger.info("number after unit normalization " + factString);
+                    LOGGER.info("number after unit normalization " + factString);
 
                 } catch (NumberFormatException e) {
-                    logger.error(factString + ", " + e.getMessage());
+                    LOGGER.error(factString + ", " + e.getMessage());
                 }
             }
 

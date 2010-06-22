@@ -27,20 +27,20 @@ import tud.iir.persistence.DatabaseManager;
  */
 public class SnippetExtractor extends Extractor {
 
-    private static final Logger logger = Logger.getLogger(SnippetExtractor.class);
+    /** the instance of this class */
+    private static final SnippetExtractor INSTANCE = new SnippetExtractor();
+    
+    /** the logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(SnippetExtractor.class);
 
-    private static SnippetExtractor instance = null;
-
+    /** the maximum number of extraction threads */ 
     protected static final int MAX_EXTRACTION_THREADS = 3;
 
     private SnippetExtractor() {
     }
 
     public static SnippetExtractor getInstance() {
-        if (instance == null) {
-            instance = new SnippetExtractor();
-        }
-        return instance;
+        return INSTANCE;
     }
 
     /**
@@ -78,7 +78,7 @@ public class SnippetExtractor extends Extractor {
             System.out.println("Concept: " + currentConcept.getName());
 
             if (isStopped()) {
-                logger.info("snippet extraction process stopped");
+                LOGGER.info("snippet extraction process stopped");
                 break;
             }
 
@@ -96,7 +96,7 @@ public class SnippetExtractor extends Extractor {
             // wait for a certain time when no entities were found, then
             // restart
             if (conceptEntities.size() == 0) {
-                logger.info("no entities for snippet extraction, continue with next concept");
+                LOGGER.info("no entities for snippet extraction, continue with next concept");
                 continue;
             }
 
@@ -105,22 +105,22 @@ public class SnippetExtractor extends Extractor {
             for (Entity currentEntity : conceptEntities) {
 
                 if (isStopped()) {
-                    logger.info("snippet extraction process stopped");
+                    LOGGER.info("snippet extraction process stopped");
                     break;
                 }
 
                 currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
 
-                logger.info("  start snippet extraction process for entity \"" + currentEntity.getName() + "\" (" + currentEntity.getConcept().getName() + ")");
+                LOGGER.info("  start snippet extraction process for entity \"" + currentEntity.getName() + "\" (" + currentEntity.getConcept().getName() + ")");
                 Thread snippetThread = new EntitySnippetExtractionThread(extractionThreadGroup, currentEntity.getSafeName() + "SnippetExtractionThread",
                         currentEntity);
                 snippetThread.start();
 
-                logger.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
+                LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
                 System.out.println("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
 
                 while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                    logger.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
+                    LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
                     System.out.println("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
                     ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
                 }
@@ -133,7 +133,7 @@ public class SnippetExtractor extends Extractor {
             getKnowledgeManager().saveExtractions();
         } else {
             getKnowledgeManager().evaluateBenchmarkExtractions();
-            logger.info("finished benchmark");
+            LOGGER.info("finished benchmark");
             // break;
         }
         // }

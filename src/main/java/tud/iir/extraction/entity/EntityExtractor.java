@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -34,9 +35,11 @@ import tud.iir.web.SourceRetrieverManager;
  */
 public class EntityExtractor extends Extractor {
 
+    /** the instance of the entity extractor */
     private static EntityExtractor INSTANCE = new EntityExtractor();
 
-    private static final Logger logger = Logger.getLogger(EntityExtractor.class);
+    /** the logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(EntityExtractor.class);
 
     /** private HashMap<String,String[]> concepts; */
     private ArrayList<Concept> concepts;
@@ -60,6 +63,11 @@ public class EntityExtractor extends Extractor {
     private EntityExtractor() {
         currentNumberOfExtractions = 0;
         currentExtractionStatus = new EntityExtractionStatus();
+        
+        // do not analyze any binary files
+        addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
+        //addSuffixesToBlackList(new String[]{"dat"});
+        
         if (GUIManager.isInstanciated()) {
             // instance.logger.addObserver(GUIManager.getInstance());
         }
@@ -75,7 +83,7 @@ public class EntityExtractor extends Extractor {
 
     public void startExtraction(boolean phrase, boolean focusedCrawl, boolean seeds, boolean continueFromLastExtraction) {
 
-        logger.info("start entity extraction");
+        LOGGER.info("start entity extraction");
 
         // reset stopped command
         setStopped(false);
@@ -92,7 +100,7 @@ public class EntityExtractor extends Extractor {
         concepts = getKnowledgeManager().getConcepts(continueFromLastExtraction);
 
         for (int i = 0; i < concepts.size(); i++) {
-            logger.debug(concepts.get(i).getName() + " " + concepts.get(i).getLastSearched());
+            LOGGER.debug(concepts.get(i).getName() + " " + concepts.get(i).getLastSearched());
         }
 
         if (continueFromLastExtraction) {
@@ -102,7 +110,7 @@ public class EntityExtractor extends Extractor {
                     currentExtractionStatus = extractionStatus;
                     currentExtractionStatus.setLoaded(true);
                     currentExtractionStatus.setInitialized(false);
-                    logger.info("loaded extraction status " + currentExtractionStatus);
+                    LOGGER.info("loaded extraction status " + currentExtractionStatus);
                 }
             }
         }
@@ -112,21 +120,21 @@ public class EntityExtractor extends Extractor {
                 && !isStopped()
                 && ((continueFromLastExtraction && currentExtractionStatus.getExtractionType() == ExtractionType.ENTITY_PHRASE) || !continueFromLastExtraction || !currentExtractionStatus
                         .isLoaded())) {
-            logger.info("starting/continuing extraction from phrases");
+            LOGGER.info("starting/continuing extraction from phrases");
             this.extractionFromPhrase();
         }
         if (focusedCrawl
                 && !isStopped()
                 && ((continueFromLastExtraction && currentExtractionStatus.getExtractionType() == ExtractionType.ENTITY_FOCUSED_CRAWL)
                         || !continueFromLastExtraction || !currentExtractionStatus.isLoaded())) {
-            logger.info("starting/continuing extraction with focused crawling");
+            LOGGER.info("starting/continuing extraction with focused crawling");
             this.extractionFocusedCrawl();
         }
         if (seeds
                 && !isStopped()
                 && ((continueFromLastExtraction && currentExtractionStatus.getExtractionType() == ExtractionType.ENTITY_SEED) || !continueFromLastExtraction || !currentExtractionStatus
                         .isLoaded())) {
-            logger.info("starting/continuing extraction with seeds");
+            LOGGER.info("starting/continuing extraction with seeds");
             this.extractionSeeds();
         }
 
@@ -138,28 +146,29 @@ public class EntityExtractor extends Extractor {
                     "SAVE EXTRACTIONS | " + " | memory usage (free:" + Runtime.getRuntime().freeMemory() + ",total:" + Runtime.getRuntime().totalMemory()
                             + ",max:" + Runtime.getRuntime().maxMemory() + ")");
             getKnowledgeManager().saveExtractions();
-            logger.debug("STOPPED");
+            LOGGER.debug("STOPPED");
 
         } else {
             // stop logging and save logs
-            logger.debug("---------------STOPPED HERE---------------");
-            logger.debug("------------------------------------------");
-            logger.debug("Total Extractions:");
+            LOGGER.debug("---------------STOPPED HERE---------------");
+            LOGGER.debug("------------------------------------------");
+            LOGGER.debug("Total Extractions:");
 
             for (Concept entry4 : knowledgeManager.getConcepts()) {
 
-                logger.info("\n\n---- Extractions for the Concept " + entry4.getName() + " ----");
+                LOGGER.info("\n\n---- Extractions for the Concept " + entry4.getName() + " ----");
 
                 ArrayList<Entity> entityList = entry4.getEntitiesByTrust();
-                logger.debug(entityList.toString());
+                LOGGER.debug(entityList.toString());
                 Collections.sort(entityList, new EntityTrustComparator());
                 int s = entityList.size();
                 for (int e = 0; e < s; ++e) {
                     Entity entry3 = entityList.get(e);
-                    if (entry3.isInitial())
+                    if (entry3.isInitial()) {
                         continue;
-                    logger.debug(entry3.getName() + " : " + entry3.getExtractionCount());
-                    logger.info(entry3.getName() + " : " + entry3.getExtractionCount());
+                    }
+                    LOGGER.debug(entry3.getName() + " : " + entry3.getExtractionCount());
+                    LOGGER.info(entry3.getName() + " : " + entry3.getExtractionCount());
                 }
 
                 /*
@@ -170,7 +179,7 @@ public class EntityExtractor extends Extractor {
             }
 
             // create log document
-            logger.info(SourceRetrieverManager.getInstance().getLogs());
+            LOGGER.info(SourceRetrieverManager.getInstance().getLogs());
 
             // save extraction results after each full loop
             // getKnowledgeManager().saveExtractions();
@@ -184,7 +193,7 @@ public class EntityExtractor extends Extractor {
      * Use simple generic patterns to extract entities from unstructured text.
      */
     public void extractionFromPhrase() {
-        logger.info("start entity extraction from phrases");
+        LOGGER.info("start entity extraction from phrases");
 
         PhraseExtractor pe = new PhraseExtractor();
         extract(pe);
@@ -194,7 +203,7 @@ public class EntityExtractor extends Extractor {
      * Focused crawl extraction.
      */
     public void extractionFocusedCrawl() {
-        logger.info("start entity extraction with focused crawling");
+        LOGGER.info("start entity extraction with focused crawling");
 
         FocusedCrawlExtractor fce = new FocusedCrawlExtractor(this);
         extract(fce);
@@ -204,7 +213,7 @@ public class EntityExtractor extends Extractor {
      * Extraction with seeds.
      */
     public void extractionSeeds() {
-        logger.info("start entity extraction with seeds");
+        LOGGER.info("start entity extraction with seeds");
 
         SeedExtractor se = new SeedExtractor(this);
         extract(se);
@@ -215,6 +224,7 @@ public class EntityExtractor extends Extractor {
      * 
      * @param entityExtractionTechnique The entity extraction technique that should be used for a retrieved URL.
      */
+    @SuppressWarnings("unchecked")
     public void extract(EntityExtractionTechnique entityExtractionTechnique) {
 
         // set the extraction technique that is currently used to save it in the entity extraction status
@@ -232,10 +242,10 @@ public class EntityExtractor extends Extractor {
         extractionThreadGroup = new ThreadGroup("entityExtractionThreadGroup");
 
         // if we want to continue we need to jump to the concept we stopped at last time, that is, we need to put it to the very first index
-        ArrayList<Concept> conceptCopie = (ArrayList<Concept>) concepts.clone();
+        List<Concept> conceptCopies = (ArrayList<Concept>) concepts.clone();
         if (currentExtractionStatus.isLoaded() && !currentExtractionStatus.isInitialized()) {
-            for (int i = 0; i < conceptCopie.size(); i++) {
-                Concept currentConcept = conceptCopie.get(i);
+            for (int i = 0; i < conceptCopies.size(); i++) {
+                Concept currentConcept = conceptCopies.get(i);
                 if (currentConcept.getName().equalsIgnoreCase(currentExtractionStatus.getCurrentConcept())) {
                     Concept c = concepts.get(0);
                     concepts.set(0, concepts.get(i));
@@ -244,15 +254,16 @@ public class EntityExtractor extends Extractor {
                 }
             }
         }
-        conceptCopie = null;
+        conceptCopies = null;
 
         // extract entities for all concepts
         for (Concept currentConcept : concepts) {
 
-            if (isStopped())
+            if (isStopped()) {
                 break;
+            }
 
-            logger.info("setting lastSearched for concept: " + currentConcept.getName());
+            LOGGER.info("setting lastSearched for concept: " + currentConcept.getName());
 
             // save the current concept in the extraction status
             currentExtractionStatus.setCurrentConcept(currentConcept.getName());
@@ -264,7 +275,7 @@ public class EntityExtractor extends Extractor {
 
                 // show all synonyms
                 for (int a = 0; a < synonyms.length; ++a) {
-                    logger.info("Synonyms: " + synonyms[a]);
+                    LOGGER.info("Synonyms: " + synonyms[a]);
                 }
 
             } else {
@@ -315,7 +326,7 @@ public class EntityExtractor extends Extractor {
                         }
                     }
 
-                    logger.info(urls.size() + " urls have been received");
+                    LOGGER.info(urls.size() + " urls have been received");
 
                     // if we want to continue we need to use the URL stack from last time
                     if (currentExtractionStatus.isLoaded() && !currentExtractionStatus.isInitialized()) {
@@ -330,7 +341,7 @@ public class EntityExtractor extends Extractor {
                         if (isStopped())
                             break;
 
-                        logger.info("processing page " + currentURL + " (retrieved with query: \"" + StringHelper.getArrayAsString(eq.getQuerySet()) + "\")");
+                        LOGGER.info("processing page " + currentURL + " (retrieved with query: \"" + StringHelper.getArrayAsString(eq.getQuerySet()) + "\")");
 
                         if (!isURLallowed(currentURL)) {
                             continue;
@@ -342,15 +353,15 @@ public class EntityExtractor extends Extractor {
                         entityExtractionThread.start();
                         // entityExtractionThread.run();
 
-                        logger.info("THREAD STARTED (" + getThreadCount() + "): " + currentURL);
+                        LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentURL);
                         // logger.debug("THREAD STARTED ("+getThreadCount()+"): "+currentURL);
 
                         int c = 0;
                         while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                            logger.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") " + c + "/25, " + extractionThreadGroup.activeCount()
+                            LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") " + c + "/25, " + extractionThreadGroup.activeCount()
                                     + "," + extractionThreadGroup.activeGroupCount());
                             if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
-                                logger.warn("apparently " + getThreadCount() + " threads have not finished correctly but thread group is empty, continuing...");
+                                LOGGER.warn("apparently " + getThreadCount() + " threads have not finished correctly but thread group is empty, continuing...");
                                 resetThreadCount();
                                 break;
                             }
@@ -358,7 +369,7 @@ public class EntityExtractor extends Extractor {
                             if (isStopped())
                                 c++;
                             if (c > 25) {
-                                logger.info("waited 25 iterations after stop has been called, breaking now");
+                                LOGGER.info("waited 25 iterations after stop has been called, breaking now");
                                 break;
                             }
                         }
@@ -382,7 +393,7 @@ public class EntityExtractor extends Extractor {
 
         } // iterating through concepts
 
-        logger.info("finishing extract method, using another extraction technique in the next run");
+        LOGGER.info("finishing extract method, using another extraction technique in the next run");
 
         currentExtractionStatus.nextExtractionType();
 
@@ -400,21 +411,21 @@ public class EntityExtractor extends Extractor {
     }
 
     public void printExtractions() {
-        logger.info("\n###############################################################");
-        logger.info("Extractions (" + getExtractions().size() + " unique):");
+        LOGGER.info("\n###############################################################");
+        LOGGER.info("Extractions (" + getExtractions().size() + " unique):");
         Iterator<Entity> entityIterator = getExtractions().iterator();
         while (entityIterator.hasNext()) {
             Entity entry = entityIterator.next();
-            logger.info(entry.getName() + " (" + entry.getConcept().getName() + ") : " + entry.getSources().size());
+            LOGGER.info(entry.getName() + " (" + entry.getConcept().getName() + ") : " + entry.getSources().size());
         }
-        logger.info(SourceRetrieverManager.getInstance().getLogs());
+        LOGGER.info(SourceRetrieverManager.getInstance().getLogs());
         // logger.saveLogs("NEE_extractions_notSaved"+extractionSaveNumber+".txt");
     }
 
     @Override
     protected synchronized void saveExtractions(boolean saveResults) {
         if (saveResults && !isBenchmark()) {
-            logger.debug("save extractions now");
+            LOGGER.debug("save extractions now");
             getKnowledgeManager().saveExtractions();
             saveExtractionStatus();
         }
@@ -446,9 +457,9 @@ public class EntityExtractor extends Extractor {
 
                 if (crawler.downloadAndSave(url, path + filename)) {
                     IndexManager.getInstance().writeIndex(filename, url, resultID);
-                    logger.info("download and index " + url + " resultID " + resultID);
+                    LOGGER.info("download and index " + url + " resultID " + resultID);
                 } else {
-                    logger.info("error when downloading " + url);
+                    LOGGER.info("error when downloading " + url);
                 }
 
                 ++counter;
@@ -477,7 +488,7 @@ public class EntityExtractor extends Extractor {
     }
 
     public Logger getLogger() {
-        return logger;
+        return LOGGER;
     }
 
     public ArrayList<Concept> getConcepts() {
@@ -516,7 +527,7 @@ public class EntityExtractor extends Extractor {
         concept.addEntity(newEntity);
         currentNumberOfExtractions++;
         if (currentNumberOfExtractions >= 1000 && isAutoSave()) {
-            logger.info("SAVE EXTRACTIONS | timestamp " + System.currentTimeMillis() + " | memory usage (free:" + Runtime.getRuntime().freeMemory() + ",total:"
+            LOGGER.info("SAVE EXTRACTIONS | timestamp " + System.currentTimeMillis() + " | memory usage (free:" + Runtime.getRuntime().freeMemory() + ",total:"
                     + Runtime.getRuntime().totalMemory() + ",max:" + Runtime.getRuntime().maxMemory() + ")");
             getKnowledgeManager().saveExtractions();
 
@@ -590,8 +601,8 @@ public class EntityExtractor extends Extractor {
         Source s1 = new Source("www1", 1);
         Source s2 = new Source("www2", 1);
         hs.add(s1);
-        logger.debug(s1.equals(s2));
-        logger.debug(hs.contains(s2));
+        LOGGER.debug(s1.equals(s2));
+        LOGGER.debug(hs.contains(s2));
 
         Entity e1 = new Entity("E1", null);
         e1.addSource(new Source("www1", EntityQueryFactory.TYPE_BROWSE_XP));
@@ -608,11 +619,11 @@ public class EntityExtractor extends Extractor {
         Iterator<Entity> eI = c1.getEntities().iterator();
         while (eI.hasNext()) {
             Entity e = eI.next();
-            logger.debug(e.getName());
+            LOGGER.debug(e.getName());
             Iterator<Source> sI = e.getSources().iterator();
             while (sI.hasNext()) {
                 Source s = sI.next();
-                logger.debug(" " + s.getUrl() + " " + s.getExtractionType());
+                LOGGER.debug(" " + s.getUrl() + " " + s.getExtractionType());
             }
         }
 
@@ -643,7 +654,7 @@ public class EntityExtractor extends Extractor {
         Iterator<Entity> i = entities.iterator();
         while (i.hasNext()) {
             Entity entry = i.next();
-            logger.debug(entry.getName() + " (" + entry.getConcept().getName() + ") : " + entry.getSources().size());
+            LOGGER.debug(entry.getName() + " (" + entry.getConcept().getName() + ") : " + entry.getSources().size());
         }
 
     }
