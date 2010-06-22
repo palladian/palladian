@@ -809,7 +809,7 @@ public class ClassifierManager {
                             + (k + 1) + "\n");
 
                     String currentTime = DateHelper.getCurrentDatetime();
-                    new TrainingDataSeparation().seperateFile(trainingPercentage, randomSplitTrainingDataSet);
+                    new TrainingDataSeparation().separateFile("data/temp/dataRewrittenCombined_completeSet.csv", "data/temp/dataRewrittenCombined_Training.csv", "data/temp/dataRewrittenCombined_Testing.csv",trainingPercentage, randomSplitTrainingDataSet);
                     new CSVRewriter().rewriteOutputGoldstandard();
                     // createDictionaryIteratively = false;
                     // train with two categories
