@@ -1,5 +1,6 @@
 package tud.iir.knowledge;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -18,9 +19,16 @@ import tud.iir.helper.StringHelper;
  * 
  * @author David Urbansky
  */
-public class FactValue {
+public class FactValue implements Serializable {
 
-    // the fact the fact value belongs to
+    /**
+	 * <p>
+	 * 
+	 * </p>
+	 */
+	private static final long serialVersionUID = 1460843012795886296L;
+
+	// the fact the fact value belongs to
     private Fact fact = null;
 
     // identification

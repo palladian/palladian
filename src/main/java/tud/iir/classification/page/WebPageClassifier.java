@@ -747,19 +747,19 @@ public abstract class WebPageClassifier {
 
     // //////////////////////////////////////// only DEBUG purposes /////////////////////////////////
     public String showTrainingDocuments() {
-        String show = "";
+        StringBuilder show = new StringBuilder();
 
         for (ClassificationDocument document : trainingDocuments) {
 
             Iterator<Term> j = document.getWeightedTerms().keySet().iterator();
 
-            show += "Document: (" + document.getWeightedTerms().keySet().size() + ")\n\t";
+            show.append("Document: (" + document.getWeightedTerms().keySet().size() + ")\n\t");
             while (j.hasNext()) {
-                show += j.next().getText() + " | ";
+                show.append(j.next().getText() + " | ");
             }
-            show += "\n\n";
+            show.append("\n\n");
         }
-        return show;
+        return show.toString();
     }
 
     public String showTestDocuments(int classType) {

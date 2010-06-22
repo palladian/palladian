@@ -156,11 +156,11 @@ public class DeliciousCrawler {
                 if (!urlStack.contains(deliciousLink) && tags.size() > 0) {
 
                     content.append(deliciousLink).append(" ");
-                    String logLine = " ";
+                    StringBuilder logLine = new StringBuilder(" ");
                     for (String tag : tags) {
                         tag = StringHelper.trim(tag).toLowerCase();
                         content.append(tag).append(" ");
-                        logLine += tag + " ";
+                        logLine.append(tag + " ");
                     }
                     content.append("\n");
 
@@ -286,7 +286,7 @@ public class DeliciousCrawler {
     public static void analyzeDataSet(String suffix) {
 
         long t1 = System.currentTimeMillis();
-        String s = "";
+        StringBuilder s = new StringBuilder();
 
         final Object[] obj = new Object[4];
         obj[0] = 0; // total number of lines
@@ -344,15 +344,15 @@ public class DeliciousCrawler {
         HashMap<String, Integer> tagMap = (HashMap<String, Integer>) la.arguments[1];
         tagMap = CollectionHelper.sortByValue(tagMap.entrySet(), false);
 
-        s += "URLs in data set:     	" + totalURLs + "\n";
-        s += "Number of distinct tags:	" + tagMap.keySet().size() + "\n";
-        s += "Average URL length:   	" + avgURLLength + "\n";
-        s += "Average Tags per URL: 	" + avgTagsPerURL + "\n";
-        s += "Most common tags:\n";
+        s.append("URLs in data set:     	" + totalURLs + "\n");
+        s.append("Number of distinct tags:	" + tagMap.keySet().size() + "\n");
+        s.append("Average URL length:   	" + avgURLLength + "\n");
+        s.append("Average Tags per URL: 	" + avgTagsPerURL + "\n");
+        s.append("Most common tags:\n");
         int c = 0;
         for (Entry<String, Integer> t : tagMap.entrySet()) {
-            s += "\t" + t.getKey() + ":\t\t" + t.getValue() + " (" + MathHelper.round((double) t.getValue() * 100.0 / (double) totalURLs, 2)
-                    + "% of all URLs)\n";
+            s.append("\t" + t.getKey() + ":\t\t" + t.getValue() + " (" + MathHelper.round((double) t.getValue() * 100.0 / (double) totalURLs, 2)
+                    + "% of all URLs)\n");
             if (c >= 50)
                 break;
             c++;
@@ -364,10 +364,10 @@ public class DeliciousCrawler {
             tagSorted.add(t.getKey());
         }
 
-        s += "Tags alphabetically (top 500):\n";
+        s.append("Tags alphabetically (top 500):\n");
         c = 0;
         for (String tag : tagSorted) {
-            s += "\t" + tag + "\n";
+            s.append("\t" + tag + "\n");
             if (c >= 500)
                 break;
             c++;
