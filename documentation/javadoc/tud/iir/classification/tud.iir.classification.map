@@ -1,0 +1,14 @@
+<map id="G" name="G">
+<area shape="rect" id="c0" href="./WordCorrelationMatrix.html" title="tud.iir.classification.WordCorrelationMatrix" alt="" coords="15,427,409,549"/>
+<area shape="rect" id="c1" href="./WordCorrelation.html" title="tud.iir.classification.WordCorrelation" alt="" coords="453,379,723,597"/>
+<area shape="rect" id="c2" href="./Term.html" title="tud.iir.classification.Term" alt="" coords="768,411,971,565"/>
+<area shape="rect" id="c3" href="./Helper.html" title="tud.iir.classification.Helper" alt="" coords="1016,443,1227,533"/>
+<area shape="rect" id="c4" href="./FeatureObject.html" title="tud.iir.classification.FeatureObject" alt="" coords="1272,379,1557,597"/>
+<area shape="rect" id="c5" href="./FeatureEvaluator.html" title="tud.iir.classification.FeatureEvaluator" alt="" coords="1603,347,2296,629"/>
+<area shape="rect" id="c6" href="./Dictionary.html" title="tud.iir.classification.Dictionary" alt="" coords="2341,99,2875,877"/>
+<area shape="rect" id="c7" href="./Classifier.html" title="tud.iir.classification.Classifier" alt="" coords="2919,11,3531,965"/>
+<area shape="rect" id="c8" href="./CategoryEntry.html" title="tud.iir.classification.CategoryEntry" alt="" coords="3575,371,3841,605"/>
+<area shape="rect" id="c9" href="./CategoryEntries.html" title="tud.iir.classification.CategoryEntries" alt="" coords="3885,379,4251,597"/>
+<area shape="rect" id="c10" href="./Category.html" title="tud.iir.classification.Category" alt="" coords="4296,275,4573,701"/>
+<area shape="rect" id="c11" href="./Categories.html" title="tud.iir.classification.Categories" alt="" coords="4619,411,4981,565"/>
+</map>

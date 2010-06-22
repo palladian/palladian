@@ -1,0 +1,586 @@
+Some time back, a colleague pointed me to The Easy Way to Extract Useful Text from Arbitary HTML. If you haven't read/know about this already, I suggest that you do, the simplicity of the approach will probably blow you away. The approach has two steps:
+
+For each line of input HTML, compute the text density and discard the ones whose densities are below some predefined threshold value. This has the effect of removing heavily marked up text.
+
+To the text that remains, train and apply a neural network to remove boiler-plate text such as disclaimers, etc.
+
+The article above provides a Python implementation for both steps. This post describes an approach, in Java, that uses a similar approach for the first step and a trained binary classifier instead of the neural network for the second. I also describe my experience training and testing it on a mid-size corpus of 4000 web pages.
+
+My input is a directory of files, one file per page. Each file is piped through the two filters (Density and Boilerplate filters) described below, and the resulting list of Chunks are converted back into a String of clean "useful" text.
+
+Density Filter
+
+Even though the density filtering step is the more powerful of the two, ie, results in more cleanup, the algorithm is really simple, so much so that I am in complete and total awe of its simplicity. Consider a density graph for one of my pages:
+
+The density is calculated for each block (or line) of text in the page using the following formula:
+
+density = N(text) / (N(text) + N(markup))
+where N(x) = number of characters of type x.
+
+The algorithm is predicated on the assumption that most web pages would have a density graph similar to this one. The initial portion represents the head section, followed by the body. The peaks represent paragraphs of text and the valleys represent marked up sections. So the idea is to filter out the valleys and any other chunks whose densities fall below a particular threshold (I found that 0.5 - stddev(densities) works quite well (at least in this case). Here is the code for the density filter:
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+76
+77
+78
+79
+80
+81
+82
+83
+84
+85
+86
+87
+88
+89
+90
+91
+92
+93
+94
+
+// Source: src/main/java/net/sf/jtmt/crawling/textextraction/DensityFilter.java
+package net.sf.jtmt.crawling.textextraction;
+
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.collections15.CollectionUtils;
+import org.apache.commons.collections15.Predicate;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+
+/**
+* Converts the contents of a page to a List of Chunk objects, and returns
+* the Chunks which have text densities exceeding the threshold. As a side
+* effect, also marks the Chunks with the keep/discard marker for training
+* and testing the classifier in a downstream filter.
+*/
+public class DensityFilter {
+
+private static final int MIN_CHARS_IN_TEXT = 60;
+
+public List<Chunk> filter(String content) throws Exception {
+List<Chunk> usefulChunks = new ArrayList<Chunk>();
+List<Float> densities = new ArrayList<Float>();
+BufferedReader reader = new BufferedReader(new StringReader(content));
+String line = null;
+int lno = 0;
+boolean keepContent = false;
+while ((line = reader.readLine()) != null) {
+line = StringUtils.trim(line);
+if (StringUtils.isEmpty(line)) {
+continue;
+}
+// This block is completely specific to the current corpus, we are
+// just exploiting a quirk of the data to minimize manual work
+// annotating the corpus for training the classifier.
+if (line.contains("<!-- content -->")) {
+keepContent = true;
+} else if (line.contains("<!-- /content -->")) {
+keepContent = false;
+}
+char[] chars = line.toCharArray();
+boolean inMarkup = false;
+int numCharsMarkup = 0;
+int numCharsText = 0;
+StringBuilder text = new StringBuilder();
+for (char c : chars) {
+switch (c) {
+case '<':
+inMarkup = true;
+break;
+case '>':
+inMarkup = false;
+break;
+default:
+if (inMarkup) {
+numCharsMarkup++;
+} else {
+text.append(c);
+}
+break;
+}
+}
+String chunktext = text.toString().trim();
+numCharsText = chunktext.length();
+// this block reduced the error rate from 19% to 0%. This may
+// overfit the data, and may need to be adjusted for other datasets
+if (numCharsText < MIN_CHARS_IN_TEXT) {
+continue;
+}
+// 1 is added to both the numerator and denominator to prevent
+// NaN results.
+float density =
+((float) numCharsText + 1) /
+((float) numCharsMarkup + (float) numCharsText + 1);
+densities.add(density);
+usefulChunks.add(new Chunk(text.toString(), density, keepContent));
+lno++;
+}
+DescriptiveStatistics stat = new DescriptiveStatistics();
+for (Float density : densities) {
+stat.addValue((double) density);
+}
+final double threshold = 0.5D - stat.getStandardDeviation();
+CollectionUtils.filter(usefulChunks, new Predicate<Chunk>() {
+public boolean evaluate(Chunk chunk) {
+return (chunk.density > threshold);
+}
+});
+return usefulChunks;
+}
+}
+
+The one extra assumption I made was to discard lines whose text content was less than a certain length (MIN_CHARS_IN_TEXT). This is to get rid of text in <li> and <hx> tags (lines 70-72 above). Without that the error rate of my classifier was 19.8% but once this was applied, the error rate went down to 0 (yes, 0, you read that right). But more on that below.
+
+The Chunk class is a simple holder bean that holds the text, the computed density, and the keep/discard annotation for each chunk. The Density filter will output a List of Chunk objects for the next stage.
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+
+// Source: src/main/java/net/sf/jtmt/crawling/textextraction/Chunk.java
+package net.sf.jtmt.crawling.textextraction;
+
+/**
+* Holder for a line of text and its attributes.
+*/
+public class Chunk {
+
+public String text;
+public float density;
+public boolean keep;
+
+public Chunk(String text, float density, boolean keep) {
+this.text = text;
+this.density = density;
+this.keep = keep;
+}
+}
+
+The keep/discard annotation may need to be made manually, probably using a web interface similar to that described in the ai-depot.com article. However, in this particular case, the pages were created using a template, and contained markers as HTML comments (see below) to delimit the "true" content on the page as opposed to the "decoration". I used these markers (see lines 39-43 in DensityFilter.java) to generate the training data for the classifier below, and to calculate the error rate of the classifier during the test phase.
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+
+<html>
+<head>
+... head stuff ...
+</head>
+<body>
+... decoration ...
+<!-- content -->
+... true content of page ...
+<!-- /content -->
+... more decoration ...
+</body>
+</html>
+
+Although, come to think of it, this type of marker is not all that uncommon. Most sites deliver pages using some sort of templating mechanism, and are likely to have similar markers. For example, the text in my blog is encased in the following div tags: <div class='post-body entry-content'> and <div class='post-footer'>. Google has even formalized the process with googleon/off (comment) tags, which you can exploit during the training process too, if the site uses it.
+
+Boilerplate Filter
+
+The Boilerplate Classifier is a simple binary classifier that is trained to categorize incoming test into "keep" and "discard" categories, corresponding to "not-boilerplate" and "boilerplate". This is similar to an email spam filter. Any text that is passed through the density filter and is marked with keep=true is treated as a positive example (ie, keep) and vice versa.
+
+The code is adapted almost completely from LingPipe's Classification Tutorial, with some enhancements copied from the BSA book. The training is done on 90% of my test set(about 3600 pages) and the trained model is used in the Boilerplate Classifier filter. In real-world situations, the training would be done offline. The training code is shown below:
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+68
+69
+70
+71
+72
+73
+74
+75
+
+// Source: src/main/java/net/sf/jtmt/crawling/textextraction/BoilerplateClassifier.java
+package net.sf.jtmt.crawling.textextraction;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.util.List;
+
+import org.apache.commons.collections15.Closure;
+import org.apache.commons.collections15.CollectionUtils;
+
+import com.aliasi.classify.Classifier;
+import com.aliasi.classify.DynamicLMClassifier;
+import com.aliasi.classify.JointClassification;
+
+/**
+* A classifier to classify incoming text chunks into keep and discard
+* categories. The train() method builds a classifier out of training
+* data and serializes it out to a location on disk. The test() method
+* will categorize a single Chunk and return the String "keep" or
+* "discard". The getClassifier() deserializes a serialized classifier
+* model from disk if it exists.
+*/
+public class BoilerplateClassifier {
+
+private static final String[] CATEGORIES = {"keep", "discard"};
+private static final int NGRAM_SIZE = 6;
+private static final String MODEL_FILE =
+"src/test/resources/lingpipe-models/html-textextract-model.ser";
+
+public BoilerplateClassifier() {
+this.nErrors = 0.0D;
+this.nTests = 0.0D;
+}
+
+@SuppressWarnings("unchecked")
+public void train(List<Chunk> chunks) throws Exception {
+final DynamicLMClassifier classifier =
+DynamicLMClassifier.createNGramProcess(CATEGORIES, NGRAM_SIZE);
+CollectionUtils.forAllDo(chunks, new Closure<Chunk>() {
+public void execute(Chunk chunk) {
+if (chunk.keep) {
+classifier.train("keep", chunk.text);
+} else {
+classifier.train("discard", chunk.text);
+}
+}
+});
+ObjectOutputStream oos = new ObjectOutputStream(
+new FileOutputStream(new File(MODEL_FILE)));
+classifier.compileTo(oos);
+oos.close();
+}
+
+@SuppressWarnings("unchecked")
+public Classifier<CharSequence,JointClassification> getClassifier()
+throws Exception {
+ObjectInputStream ois = new ObjectInputStream(
+new FileInputStream(new File(MODEL_FILE)));
+Classifier<CharSequence,JointClassification> compiledClassifier =
+(Classifier<CharSequence,JointClassification>) ois.readObject();
+ois.close();
+return compiledClassifier;
+}
+
+public String test(
+Classifier<CharSequence,JointClassification> classifier,
+Chunk chunk) throws Exception {
+JointClassification jc = classifier.classify(chunk.text);
+String bestCategory = jc.bestCategory();
+return bestCategory;
+}
+}
+
+The output of the training is a serialized file, which can be downloaded from here, per the terms of the free LingPipe license which I am using, although its probably just as simple to repeat the experiment with your own data.
+
+The serialized file is used as an input to the Boilerplate Classifier, which is run against ~400 pages (10% of the data). To calculate the error rate for the classifier, we consider as error if a chunk marked "keep" is discarded, and a chunk marked "discard" is wrongly kept, then divide the number of errors by the number of chunks processed.
+
+Driver Code
+
+Here is the driver code, built as a JUnit class. It runs through the entire corpus, and trains on the first 90% of the pages, then tests against the last 10%, and prints out the error rate for the classifier. You can also manually print out the filtered text chunks and compare them manually (I did) and verify that the process worked as expected.
+
+1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+20
+21
+22
+23
+24
+25
+26
+27
+28
+29
+30
+31
+32
+33
+34
+35
+36
+37
+38
+39
+40
+41
+42
+43
+44
+45
+46
+47
+48
+49
+50
+51
+52
+53
+54
+55
+56
+57
+58
+59
+60
+61
+62
+63
+64
+65
+66
+67
+
+// Source: src/test/java/net/sf/jtmt/crawling/textextraction/ExtractionTest.java
+package net.sf.jtmt.crawling.textextraction;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import org.apache.commons.io.FileUtils;
+import org.junit.Test;
+
+import com.aliasi.classify.Classifier;
+import com.aliasi.classify.JointClassification;
+
+/**
+* Harness for testing the test extraction algorithm.
+*/
+public class ExtractionTest {
+
+@Test
+public void testExtract() throws Exception {
+File[] files = new File("/tmp/testpages").listFiles();
+int numFiles = files.length;
+int trainFiles = (int) Math.floor(numFiles * 0.9);
+DensityFilter df = new DensityFilter();
+BoilerplateClassifier bpc = new BoilerplateClassifier();
+// extract and train on first 90% data
+for (int i = 0; i < trainFiles; i++) {
+File file = files[i];
+String content = FileUtils.readFileToString(file, "UTF-8");
+List<Chunk> densityFilteredChunks = df.filter(content);
+bpc.train(densityFilteredChunks);
+}
+// test on remaining 10% data
+Classifier<CharSequence,JointClassification> classifier =
+bpc.getClassifier();
+int numTests = 0;
+int numErrors = 0;
+for (int i = trainFiles; i < numFiles; i++) {
+File file = files[i];
+String content = FileUtils.readFileToString(file, "UTF-8");
+List<Chunk> densityFilteredChunks = df.filter(content);
+List<Chunk> boilerplateFilteredChunks =
+new ArrayList<Chunk>();
+for (Chunk densityFilteredChunk : densityFilteredChunks) {
+String category = bpc.test(classifier, densityFilteredChunk);
+if ("keep".equals(category)) {
+boilerplateFilteredChunks.add(densityFilteredChunk);
+if (! densityFilteredChunk.keep) {
+numErrors++;
+}
+} else {
+if (densityFilteredChunk.keep) {
+numErrors++;
+}
+}
+numTests++;
+}
+// print out to console for manual verification
+System.out.println("==== File: " + file.getName());
+for (Chunk boilerplateFilteredChunk : boilerplateFilteredChunks) {
+System.out.println(boilerplateFilteredChunk.text);
+}
+}
+double errorRate = (double) numErrors * 100.0D / (double) numTests;
+System.out.println("==== Error % = " + errorRate);
+}
+}
+
+I tried to use the BinaryLMClassifier (from an example in the BSA book) instead of the DynamicLMClassifier used in the LingPipe tutorial, but the results were not as good (28% error without length filtering), so I switched back. The LingPipe API appears to be worth exploring more, though. It beats having to build everything from scratch, and the results are likely to be better because the LingPipe guys are more knowledgeable about Text Mining than I am, and have spent more time and effort on the problems. The API is quite complex, though - hopefully, I will get a working understanding of it in the months ahead.

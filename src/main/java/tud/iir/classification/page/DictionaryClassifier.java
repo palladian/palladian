@@ -1,0 +1,413 @@
+package tud.iir.classification.page;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.apache.log4j.Logger;
+
+import tud.iir.classification.Category;
+import tud.iir.classification.CategoryEntries;
+import tud.iir.classification.CategoryEntry;
+import tud.iir.classification.Dictionary;
+import tud.iir.classification.Term;
+import tud.iir.classification.WordCorrelation;
+import tud.iir.helper.DateHelper;
+import tud.iir.helper.FileHelper;
+import tud.iir.helper.TreeNode;
+
+/**
+ * This classifier builds a weighed term look up table for the categories to classify new documents.
+ * 
+ * @author David Urbansky
+ */
+public abstract class DictionaryClassifier extends WebPageClassifier {
+
+    /** enable category co-occurrence, that works only in tag mode */
+    private static final boolean CO_OCCURRENCE_IN_TAG_MODE = false;
+
+    /** if true, the tags that appear in the text (or URL) are weighted higher */
+    private static final boolean TAG_IN_URL_BOOST = false;
+
+    /** number of tags that are assigned to a document in tagging mode */
+    private final static int NUMBER_OF_TAGS = 5;
+
+    /** the context map: matrix of terms x categories with weights in cells */
+    protected Dictionary dictionary = null;
+
+    /** hold all possible dictionaries in a map */
+    protected HashMap<Integer, Dictionary> dictionaries = new HashMap<Integer, Dictionary>();
+
+    public DictionaryClassifier() {
+        ClassifierManager.log("DictionaryClassifier created");
+        this.setName("DictionaryClassifier");
+        dictionary = new Dictionary(getName(), WebPageClassifier.FIRST);
+    }
+
+    public void init() {
+        dictionary.setName(getName());
+    }
+
+    public void useIndex(int classType) {
+        dictionary.useIndex(classType);
+    }
+
+    public void useMemory() {
+        dictionary.useMemory();
+    }
+
+    /**
+     * Create the dictionary consisting of stemmed words.
+     */
+    protected void buildDictionary(int classType) {
+        if (dictionary == null) {
+            dictionary = new Dictionary(getName(), classType);
+        } else {
+            dictionary.setClassType(classType);
+        }
+
+        for (ClassificationDocument document : trainingDocuments) {
+            addToDictionary(document, classType);
+        }
+
+        // dictionary.setCategories(categories);
+
+        System.out.println("dictionary built");
+    }
+
+    protected void addToDictionary(ClassificationDocument trainingDocument, int classType) {
+
+        long t1 = System.currentTimeMillis();
+
+        for (Map.Entry<Term, Double> entry : trainingDocument.getWeightedTerms().entrySet()) {
+
+            // get the first category only
+            if (classType == WebPageClassifier.FIRST) {
+                dictionary.updateWord(entry.getKey(), trainingDocument.getFirstRealCategory().getName(), entry.getValue());
+            }
+
+            // get all categories for hierarchical and tag mode
+            else {
+                for (Category realCategory : trainingDocument.getRealCategories()) {
+                    // System.out.println("update " + entry.getKey() + " " + realCategory.getName());
+                    dictionary.updateWord(entry.getKey(), realCategory.getName(), entry.getValue());
+                }
+            }
+        }
+        dictionary.increaseNumberOfDocuments();
+
+        // co-occurrence: update the category correlation matrix of the dictionary (works but takes more time and space)
+        if (CO_OCCURRENCE_IN_TAG_MODE) {
+
+            Term[] terms;
+            if (trainingDocument.getRealCategories().size() == 1) {
+                terms = new Term[2];
+                terms[0] = new Term(trainingDocument.getRealCategories().get(0).getName());
+                terms[1] = new Term(trainingDocument.getRealCategories().get(0).getName());
+            } else {
+                terms = new Term[trainingDocument.getRealCategories().size()];
+                int c = 0;
+                for (Category realCategory : trainingDocument.getRealCategories()) {
+                    terms[c++] = new Term(realCategory.getName());
+                }
+            }
+
+            dictionary.updateWCM(terms);
+        }
+
+        // empty the training documents term map to save memory
+        trainingDocument.getWeightedTerms().clear();
+
+        System.out.println("added to dictionary in " + DateHelper.getRuntime(t1) + " (" + DateHelper.getRuntime(initTime) + "), "
+                + dictionary.getNumberOfDocuments() + " documents processed");
+    }
+
+    /**
+     * Serialize the dictionary. All category information and parameters will be saved in the .ser file. The actual dictionary will be stored in the dictionary
+     * index.
+     * 
+     * @param classType The class type for the dictionary to distinguish the name.
+     */
+    public void saveDictionary(int classType, boolean indexFirst, boolean deleteIndexFirst) {
+
+        logger.info("saving the dictionary");
+        dictionary.serialize("data/models/dictionary_" + getName() + "_" + classType + ".ser", indexFirst, deleteIndexFirst);
+        // dictionary.index("data/models/dictionaryIndex_"+getName()+"_"+classType);
+        System.out.println("saved model");
+        // dictionary.saveAsCSV();
+
+        // we now have to use the index for classification because the in-memory dictionary is empty
+        dictionary.useIndex(classType);
+    }
+
+    /**
+     * Load the dictionary into memory, or activate it when several have been loaded.
+     */
+    public void loadDictionary(int classType) {
+
+        if (dictionaries.get(classType) == null) {
+            String modelFilePath = "data/models/dictionary_" + getName() + "_" + classType + ".ser";
+            dictionary = (Dictionary) FileHelper.deserialize(modelFilePath);
+
+            // all serialized dictionaries must use the index since their dictionaries are not serialized
+            dictionary.useIndex(classType);
+
+            dictionaries.put(classType, dictionary);
+        } else {
+            dictionary = dictionaries.get(classType);
+        }
+
+        if (dictionary == null) {
+            return;
+        }
+        categories = dictionary.getCategories();
+    }
+
+    /**
+     * Load all dictionaries into memory.
+     */
+    public void loadAllDictionaries() {
+        loadDictionary(WebPageClassifier.FIRST);
+        loadDictionary(WebPageClassifier.HIERARCHICAL);
+        loadDictionary(WebPageClassifier.TAG);
+    }
+
+    // protected abstract double calculateRelevance(Category category, Map.Entry<String, Double> categoryEntry, Map.Entry<String, Double> weightedTerm);
+    protected abstract double calculateRelevance(CategoryEntry categoryEntry, Map.Entry<String, Double> weightedTerm);
+
+    public ClassificationDocument classify(ClassificationDocument document, int classType, boolean loadDictionary) {
+
+        if (document == null) {
+            return new ClassificationDocument();
+        }
+
+        long t1 = System.currentTimeMillis();
+
+        if (loadDictionary) {
+            loadDictionary(classType);
+        } else {
+            categories = dictionary.getCategories();
+        }
+
+        // make a look up in the context map for every single term
+        CategoryEntries bestFitList = new CategoryEntries();
+
+        // initialize all categories with 0
+        // for (Category category : categories) {
+        // Category c = new Category(category.getName());
+        // c.setClassType(classType);
+        // category.setClassType(classType);
+        // c.calculatePrior(dictionary.getNumberOfDocuments());
+        // bestFitList.add(c);
+        // }
+
+        // create one category entry for every category with relevance 0
+        for (Category category : categories) {
+            CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
+            // c.setClassType(classType);
+            // category.setClassType(classType);
+            // c.calculatePrior(dictionary.getNumberOfDocuments());
+            bestFitList.add(c);
+        }
+
+        // count the number of categories that are somehow relevant for the current document
+        Map<String, Integer> relevantCategories = new HashMap<String, Integer>();
+
+        // iterate through all weighted terms in the document
+        for (Map.Entry<Term, Double> weightedTerm : document.getWeightedTerms().entrySet()) {
+
+            CategoryEntries dictionaryCategoryEntries = dictionary.get(weightedTerm.getKey());
+
+            if (!dictionaryCategoryEntries.isEmpty()) {
+
+                // add empty category entries for categories that did not match the term
+                for (CategoryEntry ce : bestFitList) {
+                    if (!dictionaryCategoryEntries.hasEntryWithCategory(ce.getCategory())) {
+                        dictionaryCategoryEntries.add(new CategoryEntry(dictionaryCategoryEntries, ce.getCategory(), 0));
+                    } else {
+                        Integer relevanceCount0 = relevantCategories.get(ce.getCategory().getName());
+                        if (relevanceCount0 == null) {
+                            relevantCategories.put(ce.getCategory().getName(), 1);
+                        } else {
+                            int relevanceCount = relevantCategories.get(ce.getCategory().getName());
+                            relevanceCount++;
+                            relevantCategories.put(ce.getCategory().getName(), relevanceCount);
+                        }
+                    }
+                }
+
+                // iterate through all categories in the dictionary for the weighted term
+                for (CategoryEntry categoryEntry : dictionaryCategoryEntries) {
+                    String categoryName = categoryEntry.getCategory().getName();
+                    CategoryEntry c = bestFitList.getCategoryEntry(categoryName);
+                    if (c == null) {
+                        continue;
+                    }
+
+                    // in tag mode, boost the category entry if the category is part of the URL
+                    if (TAG_IN_URL_BOOST) {
+                        if (classType == WebPageClassifier.TAG && document.getUrl().toLowerCase().indexOf(categoryName.toLowerCase()) > -1
+                                && categoryName.length() > 3) {
+                            c.addAbsoluteRelevance(weightedTerm.getValue() * categoryName.length());
+                        }
+                    }
+
+                    // double relevance = calculateRelevance(c,categoryEntry,weightedTerm);
+                    // double relevance = calculateRelevance(c,weightedTerm.getText());
+                    // c.setRelevance(relevance);
+
+                    // add the absolute weight of the term to the category
+                    // c.addAbsoluteRelevance(weightedTerm.getValue());
+
+                    // add the absolute weight of the term to the category
+                    if (categoryEntry.getRelevance() > 0) {
+                        // c.addAbsoluteRelevance(weightedTerm.getValue());
+                        //c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance());
+                        c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance()*categoryEntry.getRelevance());
+                        //double idf = categoryEntry.getAbsoluteRelevance() / (double) dictionary.getNumberOfDocuments();
+                        //c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance() * idf);
+                       // c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getAbsoluteRelevance());
+                    }
+
+                    // c.addAbsoluteRelevance(weightedTerm.getValue()*categoryEntry.getRelevance()*categoryEntry.getCategory().getPrior());
+                    // c.addAbsoluteRelevance(weightedTerm.getValue()*categoryEntry.getRelevance());
+                    // c.addAbsoluteRelevance(categoryEntry.getAbsoluteRelevance());
+
+                    // using only the priors
+                    // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior());
+
+                    // Bayes with La Place smoothing
+                    // if (c.getAbsoluteRelevance() == 0) {
+                    // //c.addAbsoluteRelevance(1);
+                    // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior());
+                    // }
+                    // c.multAbsRel(categoryEntry.getRelevance()+0.01);
+                    // System.out.println("abc");
+                }
+
+            } else {
+                logger
+                        .trace("the term \"" + weightedTerm.getKey().getText()
+                                + "\" is not in the learned dictionary and cannot be associated with any category");
+            }
+
+        }
+
+        // XXX: experimental
+        // for (Entry<String, Integer> relevantCategory : relevantCategories.entrySet()) {
+        // CategoryEntry c = bestFitList.getCategoryEntry(relevantCategory.getKey());
+        // c.multAbsRel(relevantCategory.getValue());
+        // }
+
+        // add all categories to processed document
+        document.assignCategoryEntries(bestFitList);
+
+        // co-occurrence boost (wcm has to be build in addToDictionary method)
+        if (CO_OCCURRENCE_IN_TAG_MODE) {
+
+            dictionary.getWcm().makeRelativeScores();
+
+            // number one category entry
+            CategoryEntry numberOne = null;
+            for (CategoryEntry c : document.getAssignedCategoryEntriesByRelevance(classType)) {
+                numberOne = c;
+                break;
+            }
+
+            if (numberOne != null) {
+
+                List<WordCorrelation> correlations = dictionary.getWcm().getCorrelations(numberOne.getCategory().getName(), 1);
+                for (WordCorrelation wc : correlations) {
+                    String cooccuringCategory = wc.getTerm1().getText();
+                    if (cooccuringCategory.equalsIgnoreCase(numberOne.getCategory().getName())) {
+                        cooccuringCategory = wc.getTerm2().getText();
+                    }
+
+                    CategoryEntry cen = bestFitList.getCategoryEntry(cooccuringCategory);
+                    cen.multAbsRel(wc.getRelativeCorrelation());
+                }
+            }
+        }
+
+        if (classType == WebPageClassifier.HIERARCHICAL) {
+
+            // set weights for this document in the node tree
+            getDictionary().hierarchyRootNode.resetWeights();
+            for (CategoryEntry c : bestFitList) {
+                TreeNode tn = getDictionary().hierarchyRootNode.getNode(c.getCategory().getName());
+                if (tn != null) {
+                    tn.setWeight(c.getRelevance());
+                }
+            }
+
+            // System.out.println("main category: " +document.getMainCategory().getName());
+            CategoryEntries hiearchyCategories = new CategoryEntries();
+            String mc = document.getMainCategoryEntry().getCategory().getName();
+            try {
+                mc = document.getMainCategoryEntry().getCategory().getName();
+                ArrayList<TreeNode> nodes = getDictionary().hierarchyRootNode.getNode(mc).getFullPath();
+                for (TreeNode node : nodes) {
+                    if (node == null)
+                        continue;
+                    CategoryEntry ce = bestFitList.getCategoryEntry(node.getLabel());
+                    if (ce != null) {
+                        hiearchyCategories.add(ce);
+                    }
+                }
+                hiearchyCategories.setRelevancesInPercent(true);
+                document.assignCategoryEntries(hiearchyCategories);
+            } catch (Exception e) {
+                Logger.getRootLogger()
+                        .error(
+                                "class " + mc + " was not learned and could not be found in hierarchy tree: "
+                                        + document.getMainCategoryEntry().getCategory().getName(), e);
+                document.limitCategories(5, 0.0);
+            }
+        }
+
+        // keep only top X categories for tagging mode
+        else if (classType == WebPageClassifier.TAG) {
+            document.limitCategories(NUMBER_OF_TAGS, 0.0);
+        }
+
+        // keep only top category for single mode
+        else if (classType == WebPageClassifier.FIRST) {
+            document.limitCategories(1, 0.0);
+        }
+
+        if (document.getAssignedCategoryEntries().isEmpty()) {
+            Category unassignedCategory = new Category(null);
+            categories.add(unassignedCategory);
+            CategoryEntry defaultCE = new CategoryEntry(bestFitList, unassignedCategory, 1);
+            document.addCategoryEntry(defaultCE);
+        }
+
+        document.setClassifiedAs(classType);
+
+        ClassifierManager.log("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
+                + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
+
+        return document;
+    }
+
+    @Override
+    public ClassificationDocument classify(ClassificationDocument document, int classType) {
+        return classify(document, classType, true);
+    }
+
+    public void classifyTestDocuments(int classType, boolean loadDictionary) {
+        for (ClassificationDocument testDocument : testDocuments) {
+            classify(testDocument, classType, loadDictionary);
+        }
+    }
+
+    public Dictionary getDictionary() {
+        return dictionary;
+    }
+
+    public void setDictionary(Dictionary dictionary) {
+        this.dictionary = dictionary;
+    }
+
+}

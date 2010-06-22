@@ -1,0 +1,108 @@
+Modern Web-building technologies allow designers to realize their most daring and creative ideas. Enhanced interactivity and a remarkable visual appearance can be achieved by means of such tools as Flash, JavaScript and Papervision3D, to name just a few. These strengths usually impress and entertain visitors and thus are often used for conceptual artistic presentations and promotional campaigns.
+
+In this post, you’ll find a collection of amusing websites that, by combining unconventional (and sometimes bizarre) ideas and clever JavaScript and Flash effects, will entice you to play on them for an embarrassing long time.
+
+[Offtopic: By the way, did you know that Smashing Magazine has a mobile version? Try it out if you have an iPhone, Blackberry or another capable device.]
+
+Bizarre and Beautiful Websites
+
+Record Tripping
+Record Tripping is a nifty experimental game by Bell Brothers. You are invited to solve a series of puzzles by scratching a record with your mouse’s scroll wheel. Clever game play and a lovely interface make this online Flash game as fun as it is weird.
+
+Sound of Hamburg
+Here is one of the most creative and unconventional Flash websites we’ve seen lately. Sound of Hamburg lets you compose music on and with the city of Hamburg. The combination of brilliant idea and unique interaction makes for an absorbing Web experience.
+
+Echogenesis
+Echogenesis is another interactive brainchild of Bell Brothers. This exciting Flash website lets you explore five natural environments and experience a variety of sound and visual effects through your interaction.
+
+Verbatim Championship
+Verbatim Championship is a hilarious Flash-based website where you can build your own “Media Monster” using Verbatim recording devices and use it to fight other monsters.
+
+Incredibox
+This fun and well-developed Flash application lets you conduct a beatbox or a capella band. The website is available in both English and French.
+
+De Montagetafel
+This website was definitely among the best for Flash Web design for 2009. You are invited to try your montage skills and create your own documentary on an edgy topic.
+
+Optus Whale Song
+An amazingly creative experience is offered by the Australian telecommunication company Optus on its official website. You can compose a song for a whale and make an orchestra perform it. This is a must-see Flash website.
+
+Flurrious
+If you like to create things, this website will keep you busy for hours (especially in winter). Using a versatile Flash editor, you can compile your very own snowflake and watch it dance in an artistic snowfall.
+
+Blues Maker
+Blues Maker is a fun online Flash application that allows you to create a fine blues song. The list of options is rather limited; still the process of song-making is quite enjoyable. The design of the website is really cool, too.
+
+Bubole
+Bubole will definitely make you smile. It is an amusing monster builder and game. You create a weirdo and make it fight with monsters created by other players. The funny sound effects and typography are nice touches.
+
+Ball Pool (not Flash)
+Ball Pool is a beautiful jQuery website with a simple yet absorbing concept behind it. Just click and shake your browser to generate more colorful balls. A simple and fun app to cheer you up in the middle of a working day.
+
+Bank of Imagination
+How often do you start sentences with “What if…”? If you have a rich imagination, consider investing in the Bank of Imagination. This Flash-based interactive website allows you to note and save your “What if” thoughts. You can also observe other global flights of fancy by browsing other user messages.
+
+Google Gravity
+This website probably won’t be of much interest to the average Web user, but SEO specialists will love it: who else could stare at Google’s downfall for ages?
+
+Flame
+Flame is a brilliant JavaScript painting tool that proves that anyone can be an artist. The program was created by Peter Blaskovic as part of his experimental project “I am Artist.” Using a number of nifty drawing tools and, of course, your imagination, you can create some cool psychedelic drawings and then export them in a resolution of 1680 x 1050 pixels. All you need to use this tool is Java (probably already installed on your computer).
+
+Ball Droppings
+Ball Droppings is a cool JavaScript experiment that lets you create music in a quite unusual and tricky way: just draw lines with your mouse to bounce the balls that fall from the hole.
+
+Beans
+This is the pearl in our collection of bizarre JavaScript and Flash websites. Who would have thought that crushing little screaming beans could be so much fun?
+
+Labuat
+Labuat is the most beautiful and enjoyable time-killer in our selection. It’s a song illustrated by an interactive brush that reacts to music, and the lyrics won’t leave you cold.
+
+Why Do You Stay Up So Late?
+Why Do You Stay Up So Late? is a compelling lyrical poem accompanied by a beautiful Flash animation. Such a creative combo gives the website a special feel.
+
+The Infinite Oz
+The Infinite Oz is an interactive Flash animation that features a collaboration between nine acclaimed international artists. Exploring fantastic sci-fi worlds that replace each other infinitely is a quite relaxing pastime.
+
+Annamika kaleidoscope
+Catherine Hubert created this Flash kaleidoscope to provide Web users with a place for meditative contemplation.
+
+Neon Bible
+This interactive video for a song by Arcade Fire is weird and hypnotizing at the same time.
+
+Drum Machine
+Drum Machine has several pre-loaders that play before the actual animation starts. In most cases, you would not wait so long for a Flash website to load, but Drum Machine is an exception. a mesmerizing combination of animation and sounds won’t let you leave.
+
+Soundtrack for a Book
+This exquisite Flash website belongs to the Singapore-based indie band Concave Scream. A myriad of colorful particles assembled into 3-D book covers, set to dreamy music, makes for a beautiful and calming Web experience.
+
+Papervision3D.org
+Before entering the official website of open-source Flash framework Papervision3D, you have a chance to explore an interactive 3-D underwater environment.
+
+Condiment
+The portfolio of creative communication agency Condiment features a clever JavaScript jigsaw puzzle. This engaging feature, set against a neat and stylish design, makes the website a pleasure to browse.
+
+The Digital Invaders
+This Flash website takes some time to load, but incredible animations, showing an awfully funny crowd of invaders, fully compensate for that.
+
+Bio-Bak
+Bio-Bak is indubitably a trendsetter when it comes to bizarre Web design. Enter this kingdom of the absurd and fun to load up on positive emotions.
+
+Donnie Darko
+Okay, here is the most extraordinary movie website you may have ever seen. It engrosses you in a mysterious and suspenseful journey based on the 2001 US psychological thriller Donnie Darko.
+
+Paul Neave
+You will never get bored on this website. This online home of interactive designer Paul Neave is a fount of engaging Flash applications and games.
+
+Salt Films
+This website of film production company Salt Films tastes delicious. Elegant and funky graphics, creative animation and interactive salt shakers for the work of film directors deliver the most pleasing Web experience.
+
+Bonus
+
+And Then There Was Salsa
+Although not a website, this cool video ad shows Flash in its glory.
+
+About the Author
+
+Julia May is a freelance writer now working with FlashMint, a top-class provider of beautiful Flash templates and smart jQuery templates.
+
+(al)

@@ -1,0 +1,564 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US">
+  <head>
+        <title>KDE 4.5 beta brings window tiling, new notifications</title>
+
+
+  <!-- Begin CSS -->
+  <link rel="stylesheet" type="text/css" href="http://static.arstechnica.com//public/v6/styles/light/light.c.css?1274990623" media="screen" />
+  <link rel="stylesheet" type="text/css" href="http://static.arstechnica.com//public/v6/styles/print/print.css?1274990623" media="print" />
+  <!-- End CSS -->
+
+  <link rel="apple-touch-icon" href="http://static.arstechnica.com/apple-touch-icon.png" />
+  <link rel="canonical" href="http://arstechnica.com/open-source/news/2010/05/kde-45-beta-brings-window-tiling-new-notifications.ars" /> 
+    <link rel="shorturl" href="http://arst.ch/kqn" />
+  <link rel="shortlink" href="http://arst.ch/kqn" />
+  <link rev="canonical" href="http://arst.ch/kqn" />
+
+    <link rel="shortcut icon" href="http://arstechnica.com/favicon.ico" />
+  <link rel="icon" type="image/x-icon" href="http://arstechnica.com/favicon.ico" />
+
+  <!-- Begin Feeds -->
+    
+    <link rel="alternate" type="application/rss+xml" title="All Articles " href="http://feeds.arstechnica.com/arstechnica/everything" />
+    <!-- End Feeds -->
+  
+  <!-- Begin Metadata -->
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=1000" />
+    <meta name="description" content="The KDE project has announced the availability of KDE 4.5 SC beta 1. The new version includes tiling window management and an improved notification area." />
+      <meta name="keywords" content="kde" />
+      <meta name="title" content="KDE 4.5 beta brings window tiling, new notifications" />
+  <link rel="image_src" href="http://static.arstechnica.com/brief_icons/open-source-brief.png" />
+  <meta name="medium" content="news" />
+  
+  <meta property="og:title" content="KDE 4.5 beta brings window tiling, new notifications"/>
+  <meta property="og:site_name" content="Ars Technica"/>
+  <meta property="og:image" content="http://static.arstechnica.com/brief_icons/open-source-brief.png"/>
+  
+    <meta name="advertising" content="ask" />
+  <!-- End Metadata -->
+
+      <script type="text/javascript" src="/public/shared/scripts/da-1.5.js"></script>
+    <script type="text/javascript">
+    try {  
+      cnp.ad.dart.setSite("ars.dart");
+      cnp.ad.dart.setZone('itbiz_general_computing');
+      //cnp.ad.dart.addParameterString('kw=kde-45-beta-brings-window-tiling-new-notifications;kw=05;kw=2010;kw=news;kw=open-source;');
+      cnp.ad.dart.addParameterString('mtfIFPath=/mt-static/plugins/ArsTheme/ad-campaigns/doubleclick/');
+      cnp.ad.emptyFrameSrc="/public/shared/scripts/empty.html";
+      cnp.ad.loaderFrameSrc="/public/shared/scripts/ad-loader-frame.html";
+    } catch(e) {}
+    </script>
+     
+  <!-- Entry - itbiz_general_computing -->
+<style type="text/css" id="resource-styles">  </style>
+ 
+  </head>
+  <body class="individual">
+    <div id="page" class="">
+      
+<div id="masthead" class="">
+  <div id="logo"><a href="/"><img src="http://static.arstechnica.com//public/v6/styles/light/images/masthead/logo.png?1274990623" alt="Ars Technica: The Art of Technology" width="110" height="81" /></a></div>      
+  <div id="ebc51ce07629d0e14d2fbc4236e44067" >
+<script type="text/javascript">
+  var pbanner_start = new Date();
+  try {
+    var pbanner = cnp.ad.create(cnp.ad.refreshable, false);
+    pbanner.addParameter({'dcopt':'ist'});
+    pbanner.addParameterString('kw=kde-45-beta-brings-window-tiling-new-notifications;kw=05;kw=2010;kw=news;kw=open-source;');
+    pbanner.addParameter({'sz': '728x90' });
+  } catch(e) {}
+</script>
+</div>
+  </div>
+      
+<div id="search-navigation">
+  <div id="search">
+    <form action="http://www.google.com/cse" id="search-form">
+      <div>
+        <input type="hidden" value="011835048811694782689:7zpko-isndo" name="cx"/>
+        <input type="hidden" value="UTF-8" name="ie"/>
+        <input type="text" id="search-form-text" value="Search Ars" name="q"/>
+        <input type="image" id="search-form-button" value="Search" src="http://static.arstechnica.com//public/v6/styles/light/images/search/button-bg.png?1274990623" name="sa"/>
+      </div>
+    </form>
+  </div>
+  <div id="navigation">
+    <ul id="primary-navigation">
+          <li class=""><a href="/">All</a></li>
+          <li class="apple"><a href="/apple/">Apple</a></li>
+          <li class="business"><a href="/business/">Business</a></li>
+          <li class="gadgets"><a href="/gadgets/">Gadgets</a></li>
+          <li class="gaming"><a href="/gaming/">Gaming</a></li>
+          <li class="microsoft"><a href="/microsoft/">Microsoft</a></li>
+          <li class="open-source selected"><a href="/open-source/">Open Source</a></li>
+          <li class="science"><a href="/science/">Science</a></li>
+          <li class="tech-policy"><a href="/tech-policy/">Tech Policy</a></li>
+          <li id="primary-navigation-more" style="display:none;">
+        More
+        <ul >
+                  <li><a href="/hardware/">Hardware</a></li>
+                  <li><a href="/media/">Media</a></li>
+                  <li><a href="/security/">Security</a></li>
+                  <li><a href="/software/">Software</a></li>
+                  <li><a href="/staff/">Staff</a></li>
+                  <li><a href="/telecom/">Telecom</a></li>
+                  <li><a href="/web/">Web</a></li>
+                </ul>
+      </li>
+    </ul>
+   
+    <ul id="secondary-navigation" class="open-source">
+                            <li class="news selected"><a href="/open-source/news/">News</a></li>
+                                          <li class="guides"><a href="/open-source/guides/">Guides</a></li>
+                                          <li class="reviews"><a href="/open-source/reviews/">Reviews</a></li>
+                      </ul>
+    <ul id="auxiliary-navigation">
+        <li class="subscribe"><a href="/subscriptions/">Subscribe</a>
+        </li>
+    <li class="customize" style="display:none;">
+      <a href="#">Customize</a>
+      <ul>
+        <li>
+          <p>Site Theme:</p>
+          <label><input type="radio" checked="checked" value="light.css" class="site-style" name="site-style" /> White</label>
+          <label><input type="radio" value="dark.css" class="site-style" name="site-style" /> Black</label>
+        </li>
+        <li>
+          <p>Choose body font:</p>
+          <label><input type="radio" checked="checked" value="arial" class="body_font" name="body_font" /> Arial</label>
+          <label><input type="radio" value="helvetica" class="body_font" name="body_font" /> Helvetica</label>
+        </li>
+        <li>
+          <p>Layout (beta):</p>
+          <label><input type="radio" checked="checked" value="normal" class="fp_layout" name="fp_layout" /> Normal</label>
+          <label><input type="radio" value="compact" class="fp_layout" name="fp_layout" /> Compact</label>
+        </li>
+      </ul>
+    </li>
+    
+    <li class="openforum"><a href="http://arstechnica.com/civis/">OpenForum</a></li>
+    
+    <li class="login-join"><a href="/civis/ucp.php?mode=login&amp;return_to=http%3A%2F%2Farstechnica.com%2Fopen-source%2Fnews%2F2010%2F05%2Fkde-45-beta-brings-window-tiling-new-notifications.ars%3Futm_source%3Drss">Login/Join</a></li>
+      </ul>
+  </div>
+</div>
+      
+                  <div id="main">
+        
+<div id="silo-header" class="">
+  <h1 class="open-source"><a href="/open-source/" title="Go to Open Ended">Open Ended</a></h1>
+</div>
+        
+        <div id="content" class="normal">   <div id="content-inner">
+             <div id="story">
+                <h2 class="title">KDE 4.5 beta brings window tiling, new notifications</h2>
+        <div class="byline"><span class="author">By <a href="/author/ryan-paul/">Ryan Paul</a></span> | <span class="posted">Last updated <abbr class="timeago datetime" title="2010-05-27T22:50:00Z">May 27, 2010 5:50 PM</abbr></span></div>
+        
+      <div class="story-image CenteredImage" style="width:600px;">  
+  <img width="600" src="http://static.arstechnica.com/kde45b_ars.png" alt="KDE 4.5 beta brings window tiling, new notifications" /> 
+  
+    <div class="news-item-figure-caption">
+                <div class="news-item-figure-caption-text">KDE Plasma has a revamped notification area</div>
+              </div>
+  </div>
+
+
+
+              <div id="" class="body" style="">          
+          <!--body--><p>The developers behind the KDE desktop environment have released the first beta of version 4.5. Although the major focus during this development cycle is stability, the release also brings some nice new features and user interface improvements.</p>
+
+<p>One of the additions that I'm particularly enthusiastic about is support for tiled window management in KDE's KWin window manager. This feature allows users to snap windows together in non-overlapping arrangements and resize them together, much like the behavior of Ion and other tiled desktop environments. The feature was implemented as a Summer of Code project last year and was finally <a href="http://kodeclutz.blogspot.com/2010/04/kwin-tiling-is-merged.html">merged</a> last month. I've long been a fan of tiled window management, so I've been looking forward to seeing this feature land ever since work on it was started.</p>
+
+<p>KDE 4.5 is getting a new panel notification area that is designed to be more consistent and functional. This feature is based on a D-Bus protocol that the KDE development community has submitted to the FreeDesktop.org organization with the aim of making it a cross-desktop standard. Although the upstream GNOME community has rejected the protocol, it has been adopted by Canonical and is used to power the new application indicator feature that is included in Ubuntu 10.04.</p>
+
+<p>One of the many advantages of the new D-Bus notification area system is that it will allow notification area menus and widgets to be rendered natively by the desktop regardless of what toolkit is used to develop the underlying applications.</p>
+
+<p>KDE's Konqueror Web browser now has an optional WebKit-based renderer that can be used instead of the current KHTML renderer. Although WebKit was originally built from the KHTML code base, it has evolved considerably as a result of work done by Apple, Google, and other vendors. WebKit offers better performance and broader compatibility with Web content.</p>
+
+<p>The final KDE 4.5 SC release is expected to occur in August, but users who want to get an early look can try out the new beta. The source code is available for <a href="http://download.kde.org/stable/4.4.80/src/">download</a> from the project's website. For more details, refer to the official <a href="http://www.kde.org/announcements/announce-4.5-beta1.php">release announcement</a>.</p>        
+        
+        
+                
+        </div>
+        
+        
+       
+        
+
+    </div>
+
+
+
+    <noscript>
+    <img style="position: absolute; bottom: 0px; right: 0px; width: 1px; height: 1px;" src="http://arstechnica.com/dragons/breath.gif?id=44764&1899922049" alt="" />
+    </noscript>
+    <script type="text/javascript">
+    document.write('<img style="position: absolute; bottom: 0px; right: 0px; width: 1px; height: 1px;" src="http://arstechnica.com/dragons/breath.gif?id=44764&' + (parseInt(Math.random()*99999999)).toString() + '" alt="" />');
+    </script>
+          
+<!--googleoff: index-->
+
+<div id="comments-bar" class="with-bubble">
+    <h2>User comments</h2>
+     
+    <div class="comments-link">
+    <a rel="nofollow" href="/open-source/news/2010/05/kde-45-beta-brings-window-tiling-new-notifications.ars?comments=1#comments-bar">Click here to view the 27 comments on this story</a>
+    </div>
+      </div>
+
+  <div id="hiddencomment"></div>
+<!--<div id="alert"><p><img src="http://arstechnica.com/civis/images/smilies/flail.gif" /> We're making some updates to the commenting system.  We should have the kinks worked out soon.</p></div>-->
+<!--googleon: index-->
+              <div id="links-bar">
+  <ul>
+    <li class="digg">
+     
+    <a class="DiggThisButton DiggCompact" href="http://digg.com/submit?url=http%3A%2F%2Farstechnica.com%2Fopen-source%2Fnews%2F2010%2F05%2Fkde-45-beta-brings-window-tiling-new-notifications.ars&amp;title=KDE%204.5%20beta%20brings%20window%20tiling%2C%20new%20notifications"><span style="display:none">The KDE project has announced the availability of KDE 4.5 SC beta 1. The new version includes tiling window management and an improved notification area.</span>
+</a>
+        </li>
+    
+    <li class="reddit">
+        <iframe src="http://www.reddit.com/static/button/button1.html?width=120&url=http%3A%2F%2Farstechnica.com%2Fopen-source%2Fnews%2F2010%2F05%2Fkde-45-beta-brings-window-tiling-new-notifications.ars&amp;title=KDE%204.5%20beta%20brings%20window%20tiling%2C%20new%20notifications&amp;bgcolor=fff&amp;bordercolor=eee" width="120" height="20" scrolling="no" frameborder="0"></iframe>
+
+    <!--<iframe src="http://www.reddit.com/button_content?t=1&amp;width=120&amp;url=http%3A%2F%2Farstechnica.com%2Fopen-source%2Fnews%2F2010%2F05%2Fkde-45-beta-brings-window-tiling-new-notifications.ars&amp;title=KDE%204.5%20beta%20brings%20window%20tiling%2C%20new%20notifications&amp;bgcolor=fff&amp;bordercolor=eee" width="120" height="20" scrolling="no" frameborder="0"></iframe>-->
+        </li>
+
+        <li class="facebook">
+      <a name="fb_share" type="button_count" share_url="http://arstechnica.com/open-source/news/2010/05/kde-45-beta-brings-window-tiling-new-notifications.ars" href="http://www.facebook.com/sharer.php"><img src="http://static.ak.fbcdn.net/images/connect_favicon.png" alt="facebook logo icon" style="display:inline; text-align:middle;"/>Share</a>
+    </li>
+            <li class="twitter">
+      <a href="http://twitter.com/home?source=arstechnica&amp;status=KDE 4.5 beta brings window tiling, new notifications - http://arst.ch/kqn via @arstechnica" title="Share this story with your friends on Twitter">Tweet!</a>
+    </li>
+          
+    <!--<li class="short-url" style="position:relative;">
+      <a href="http://arst.ch/kqn" title="The short URL for this article, use on Twitter, IM, or in e-mail!" id="short-link">Copy URL</a>
+      <input type="text" value="http://arst.ch/kqn" style="display:none; font-size: 0.6em; height: 11px; margin-top: 1px; width:95px;" />
+    </li>-->
+        <li class="share">
+      <a class="a2a_dd" href="http://www.addtoany.com/share_save?linkname=KDE%204.5%20beta%20brings%20window%20tiling%2C%20new%20notifications&amp;linkurl=http%3A%2F%2Farstechnica.com%2Fopen-source%2Fnews%2F2010%2F05%2Fkde-45-beta-brings-window-tiling-new-notifications.ars"><img src="http://static.addtoany.com/buttons/favicon.png" width="16" height="16" border="0" alt="Share/Bookmark" style="display:inline;vertical-align:middle;"/> Share/Email</a>
+      <script type="text/javascript">
+        var a2a_linkname="KDE 4.5 beta brings window tiling, new notifications",
+        a2a_linkurl="http://arstechnica.com/open-source/news/2010/05/kde-45-beta-brings-window-tiling-new-notifications.ars",
+        a2a_onclick=1,
+        a2a_show_title=1,
+        a2a_hide_embeds=0,
+        a2a_num_services=8,
+        a2a_color_main="989EA3",
+        a2a_color_border="989EA3",
+        a2a_color_link_text="FF5B00",
+        a2a_color_link_text_hover="ffffff",
+        a2a_track_links='ga',
+        a2a_prioritize= [
+          "yahoo_buzz",
+          "stumbleupon",
+          "instapaper",
+          "slashdot",
+          "linkedin",
+          "delicious",
+          "google_reader",
+          "tumblr",
+          "posterous"
+          ];
+        var a2a_config = a2a_config || {};
+        a2a_config.no_3p = 1;
+      </script>
+      <style type="text/css">#a2apage_BROWSER { display:none !important; }</style>
+    </li>
+
+  </ul>
+</div>
+              <div id="read-more-stories">
+<h2>Read more stories</h2>
+  <div class="story-navigation">
+      <a href="/tech-policy/news/2010/05/senate-antitrust-leader-fears-comcast-will-kneecap-hulu.ars" title="Read the previously published article">&lt; Older Story</a> 
+    
+   |   
+      <a href="/apple/news/2010/05/ibooks-opened-to-self-publishers.ars" title="Read the next newest article">Newer Story &gt;</a>
+    </div>
+  <ul>
+  <!--googleoff: index-->
+  
+  <li>
+    <div class="image">
+      <a href="/open-source/news/2010/05/kde-45-beta-brings-window-tiling-new-notifications.ars"><img width="140" height="78" src="http://static.arstechnica.com/brief_icons/open-source-brief.png" alt="KDE 4.5 beta brings window tiling, new notifications" /></a>
+    </div>
+    <div class="title"><h3><a href="/open-source/news/2010/05/kde-45-beta-brings-window-tiling-new-notifications.ars">KDE 4.5 beta brings window tiling, new notifications</a> </h3></div>
+  </li>
+  <li>
+    <div class="image">
+      <a href="/open-source/reviews/2010/05/fedora-13-released-with-open-3d-drivers-and-python-3-stack.ars"><img width="140" height="78" src="http://static.arstechnica.com/assets/2009/11/fedora10logo-thumb-140x78-9887-f.png" alt="Fedora 13 released with open 3D drivers and Python 3 stack" /></a>
+    </div>
+    <div class="title"><h3><a href="/open-source/reviews/2010/05/fedora-13-released-with-open-3d-drivers-and-python-3-stack.ars">Fedora 13 released with open 3D drivers and Python 3 stack</a> </h3></div>
+  </li>
+  <li>
+    <div class="image">
+      <a href="/open-source/news/2010/05/chrome-5-released-browser-exits-beta-for-mac-and-linux.ars"><img width="140" height="78" src="http://static.arstechnica.com/assets/2009/12/chrome_mac_ars-thumb-140x78-10384-f.jpg" alt="Chrome 5 released, browser exits beta for Mac and Linux" /></a>
+    </div>
+    <div class="title"><h3><a href="/open-source/news/2010/05/chrome-5-released-browser-exits-beta-for-mac-and-linux.ars">Chrome 5 released, browser exits beta for Mac and Linux</a> </h3></div>
+  </li>
+  <li>
+    <div class="image">
+      <a href="/open-source/news/2010/05/bittorrent-open-sources-new-protocol-implementation.ars"><img width="140" height="78" src="http://static.arstechnica.com/assets/2010/02/security_network_list_ars-thumb-140x78-12284-f.jpg" alt="Newly open source BitTorrent protocol aims to unclog tubes" /></a>
+    </div>
+    <div class="title"><h3><a href="/open-source/news/2010/05/bittorrent-open-sources-new-protocol-implementation.ars">Newly open source BitTorrent protocol aims to unclog tubes</a> </h3></div>
+  </li>
+  <!--googleon: index-->
+  </ul>
+</div>
+      
+  </div>   
+</div>
+        <!--googleoff: index-->
+<div id="sidebar">
+      
+<div id="article-links" class="with-divider" style="display:none;">
+  
+  <ul>
+    <li class="enlarge-text"><a href="#">Increase text size</a></li>
+    <li class="shrink-text"><a href="#">Reduce text size</a></li>
+        <li class="print"><a href="#">Print this story</a></li>
+        
+    <li class="comment"><a href="/open-source/news/2010/05/kde-45-beta-brings-window-tiling-new-notifications.ars?comments=1#comments-bar#comments-bar">Leave a comment (27)</a></li>
+  </ul>
+
+  </div>
+
+ 
+            <clint></clint>
+      <sakjasd></sakjasd>
+      <abbr></abbr>
+      <abbr></abbr>
+      <blah></blah>
+      <abbr></abbr>
+  <div id="b61a2a39f917b27cfdde56ac7b10c41b">
+
+<noscript>
+<div id="help-by-subscribing">
+<a href="/business/news/2010/05/investing-in-the-cloud-not-revolution-but-evolution.ars/2"><img src="/business/news/2010/05/investing-in-the-cloud-not-revolution-but-evolution.ars/4" alt="Please subscribe" /></a></div>
+</noscript>
+
+<script type="text/javascript">
+try {
+  var ppanel = cnp.ad.create(cnp.ad.refreshable, false);
+  ppanel.addParameter({'sz':'300x250'});
+  ppanel.addParameterString('kw=top;kw=kde-45-beta-brings-window-tiling-new-notifications;kw=05;kw=2010;kw=news;kw=open-source;');
+  ppanel.load();
+} catch(e) {}
+</script>
+</div>
+  <div id="journals-box" class="with-divider">
+  <h2 class="title">Latest Top Stories</h2>
+  <ul class="category">
+        <li class="all selected">
+      <span class="tab-inner">
+        <a href="/" title="All">All</a>
+      </span>
+    </li>
+        <li class="apple">
+      <span class="tab-inner">
+        <a href="/apple/" title="Apple">Apple</a>
+      </span>
+    </li>
+        <li class="gaming">
+      <span class="tab-inner">
+        <a href="/gaming/" title="Gaming">Gaming</a>
+      </span>
+    </li>
+        <li class="microsoft">
+      <span class="tab-inner">
+        <a href="/microsoft/" title="Microsoft">Microsoft</a>
+      </span>
+    </li>
+        <li class="gadgets">
+      <span class="tab-inner">
+        <a href="/gadgets/" title="Gadgets">Gadgets</a>
+      </span>
+    </li>
+        <li class="open-source">
+      <span class="tab-inner">
+        <a href="/open-source/" title="Open Source">Open Source</a>
+      </span>
+    </li>
+        <li class="business">
+      <span class="tab-inner">
+        <a href="/business/" title="Business">Business</a>
+      </span>
+    </li>
+        <li class="science">
+      <span class="tab-inner">
+        <a href="/science/" title="Science">Science</a>
+      </span>
+    </li>
+        <li class="tech-policy">
+      <span class="tab-inner">
+        <a href="/tech-policy/" title="Tech Policy">Tech Policy</a>
+      </span>
+    </li>
+        <li class="staff">
+      <span class="tab-inner">
+        <a href="/staff/" title="Staff">Staff</a>
+      </span>
+    </li>
+      </ul>
+  <ul class="stories">
+    <li id="journal-box-0" class="business">
+    <a href="/business/news/2010/05/investing-in-the-cloud-not-revolution-but-evolution.ars">Investing in the cloud: evolution, not revolution</a>
+      </li>
+    <li id="journal-box-1" class="tech-policy">
+    <a href="/tech-policy/news/2010/05/far-cry-innocence.ars">Exclusive: "I've never heard of <em>Far Cry</em>," says P2P defendant</a>
+      </li>
+    <li id="journal-box-2" class="science">
+    <a href="/science/news/2010/05/when-science-clashes-with-belief-make-science-impotent.ars">When science clashes with beliefs? Make science impotent</a>
+      </li>
+    <li id="journal-box-3" class="apple">
+    <a href="/apple/news/2010/05/ibooks-opened-to-self-publishers.ars">Apple opens iBookstore to self-publishers</a>
+      </li>
+    <li id="journal-box-4" class="open-source">
+    <a href="/open-source/news/2010/05/kde-45-beta-brings-window-tiling-new-notifications.ars">KDE 4.5 beta brings window tiling, new notifications</a>
+      </li>
+    <li id="journal-box-5" class="tech-policy">
+    <a href="/tech-policy/news/2010/05/senate-antitrust-leader-fears-comcast-will-kneecap-hulu.ars">Senate antitrust leader fears Comcast will kneecap Hulu</a>
+      </li>
+    <li id="journal-box-6" class="science">
+    <a href="/science/news/2010/05/island-hopping-dinosaur-discovered-in-europe.ars">Island-hopping dinosaur discovered in Europe</a>
+      </li>
+    <li id="journal-box-7" class="microsoft">
+    <a href="/microsoft/news/2010/05/apples-stock-rise-could-have-meant-5-billion-for-microsoft.ars">Apple stock rise could have meant $4.5 billion for Microsoft</a>
+      </li>
+    <li id="journal-box-8" class="tech-policy">
+    <a href="/tech-policy/news/2010/05/color-privacy-groups-unimpressed-with-facebook-updates.ars">Privacy groups on Facebook updates: meh </a>
+      </li>
+    <li id="journal-box-9" class="gaming">
+    <a href="/gaming/news/2010/05/small-world-shows-ipad-capability-for-board-games.ars">Small World shows iPad capability for board games</a>
+      </li>
+    <li id="journal-box-10" class="gadgets">
+    <a href="/gadgets/news/2010/05/android-tablet-prototypes-not-yet-ready-for-prime-time.ars">Android tablet prototypes not yet ready for prime time</a>
+      </li>
+    <li id="journal-box-11" class="tech-policy">
+    <a href="/tech-policy/news/2010/05/senators-call-for-end-of-anonymous-prepaid-cell-phones.ars">Senators call for end to anonymous, prepaid cell phones</a>
+      </li>
+    <li id="journal-box-12" class="tech-policy">
+    <a href="/tech-policy/news/2010/05/google-keeping-wifi-data-from-german-hong-kong-governments.ars">Google keeping WiFi data from German, Hong Kong governments</a>
+      </li>
+    <li id="journal-box-13" class="gaming">
+    <a href="/gaming/news/2010/05/dj-hero-soundtrack-the-quest-for-a-rip.ars">Raving with the DMCA: a quest for a legal DJ Hero soundtrack</a>
+      </li>
+    <li id="journal-box-14" class="telecom">
+    <a href="/telecom/news/2010/05/new-shocking-statistics-on-bill-shock.ars">One out of six cell phone users suffers from "bill shock"</a>
+      </li>
+    </ul>
+</div>
+<div class="with-divider" id="fb">
+  <iframe scrolling="no" frameborder="0" src="http://www.facebook.com/connect/connect.php?id=19374573752&connections=10&stream=0&css&locale=en_US&logobar=0" allowtransparency="true" style="border: none; width: 300px; height: 250px;"></iframe>  
+
+  <p><a href="#" class="anonymous">Do not show me this box</a></p>
+  </div>
+
+     <div class="dont-miss with-divider">
+    <h2 class="title">
+      <span class="title">Don't Miss</span>:
+      <span class="sub-title">Promos &amp; Insight</span>
+    </h2>
+    <div class="body">
+      <a href="http://arstechnica.com/business/inside-the-cloud/"><img src="http://static.arstechnica.com/public/shared/images/msft_cloud_xrail2.jpg" width="300" height="100" alt="Promo image!" /></a>
+      <div class="bubble">
+        <div class="bubble-inner">
+          <span class="promo">Promo</span>:
+          <a href="http://arstechnica.com/business/inside-the-cloud/">Go "Inside the Cloud" with Ars Technica to explore the latest trends and innovations in cloud computing</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="jobs-ars" class="with-divider">
+    <h2 class="title">
+      <span class="title">Job.Ars</span>:
+      <span class="subtitle">looking for a new job?</span>
+    </h2>
+    <div class="body">
+      <ul>
+      <div id="jobs-ars-content">
+  <ul>
+    
+    <li>
+      <div class="job-title"><a href="http://jobs.arstechnica.com/list/652/">Sr. System Administrator </a> at Enova Financial </div>
+      <div class="job-location">Chicago</div>
+    </li>
+    
+    <li>
+      <div class="job-title"><a href="http://jobs.arstechnica.com/list/650/">Web UI Developer, Interaction Designer</a> at SRI International </div>
+      <div class="job-location">Menlo Park, CA</div>
+    </li>
+    
+    <li>
+      <div class="job-title"><a href="http://jobs.arstechnica.com/list/649/">iPad Developer</a> at SRI International </div>
+      <div class="job-location">Menlo Park, CA</div>
+    </li>
+    
+    <li>
+      <div class="job-title"><a href="http://jobs.arstechnica.com/list/648/">JUNIOR INTERFACE DESIGNER</a> at Marketcircle Inc</div>
+      <div class="job-location">Markham, Ontario Canada</div>
+    </li>
+    
+  </ul>
+  <div id="more-jobs"><a href="http://jobs.arstechnica.com">More Job Listings</a></div>
+</div>      </ul>
+    </div>
+  </div>
+</div>
+<!--googleon: index-->
+      </div>
+      <div id="footer">
+        <div id="slogan">Serving the technologist for <span id="decades">1</span> &#x00d7; 10<sup>-1</sup> centuries</div>
+        <iframe src="http://static.arstechnica.com//public/v6/footer.html?1274990623" frameborder="0" scrolling="no" width="1000" height="350"></iframe>
+      </div>
+    </div> 
+    <script type="text/javascript">
+
+  var page_class = 'individual',
+    site_root = "",
+    site_root_rel = '/',
+        discussion_url = "",
+        entry_author = {
+          "ryan paul":true,
+      "ryan paul":true,
+      "segphault":true
+        },
+    entry_id = 44764,
+        fp_layout = 'normal',
+    syntaxhighlighter = "http://arstechnica.com/public/full/scripts/syntaxhighlighter.js",
+    gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www."),
+    new_comments = true,
+    disable_fb = 'false';
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+   
+<script type="text/javascript">
+  try {
+    var pageTracker = _gat._getTracker("UA-31997-1");
+    pageTracker._trackPageview();
+  } catch(err)  {}
+</script>
+
+  <script src="http://static.arstechnica.com//public/v6/scripts/site.min.js?1274990623" type="text/javascript" charset="utf-8"></script>
+<!-- Begin comScore Tag -->
+<script type="text/javascript">
+$(document).ready(function(){
+  var cs_url = (document.location.protocol == "https:" ? "https://sb" : "http://b") + ".scorecardresearch.com/beacon.js?c1=2&c2=6035094&c3=&c4=&c5=&c6=&c15=";
+  $.getScript(cs_url, function(){ return });
+});
+</script>
+<noscript>
+<img src="http://b.scorecardresearch.com/b?c1=2&c2=6035094&c3=&c4=&c5=&c6=&c15=&cv=1.3&cj=1" style="display:none"
+width="1" height="1" alt="" />
+</noscript>
+<!-- End comScore Tag -->
+<span style="display: none" id="ArsTechnicaNews" class="hslice">
+  <span style="display: none" class="entry-title">Ars Technica News</span>
+  <a style="display: none" href="http://www.ieaddons.com/en/ie8slice/Content.ashx?id=330" rel="entry-content"></a>
+</span>
+          </body>
+</html>

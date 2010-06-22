@@ -1,0 +1,19 @@
+<map id="G" name="G">
+<area shape="rect" id="c237" href="./NBC.html" title="tud.iir.classification.entity.NBC" alt="" coords="16,67,488,253"/>
+<area shape="rect" id="c238" href="./Feature.html" title="tud.iir.classification.entity.Feature" alt="" coords="533,11,883,309"/>
+<area shape="rect" id="c239" href="./WordFeatureClassifier.html" title="tud.iir.classification.entity.WordFeatureClassifier" alt="" coords="593,449,831,602"/>
+<area shape="rect" id="c240" href="./Urns.html" title="tud.iir.classification.entity.Urns" alt="" coords="1823,107,2244,213"/>
+<area shape="rect" id="c241" href="./RandomGraphWalk.html" title="tud.iir.classification.entity.RandomGraphWalk" alt="" coords="876,369,1505,682"/>
+<area shape="rect" id="c242" href="./PMI.html" title="tud.iir.classification.entity.PMI" alt="" coords="1551,369,2716,682"/>
+<area shape="rect" id="c243" href="./NoisyOr.html" title="tud.iir.classification.entity.NoisyOr" alt="" coords="2505,107,2802,213"/>
+<area shape="rect" id="c244" href="./GradualEntityTrustVoting.html" title="tud.iir.classification.entity.GradualEntityTrustVoting" alt="" coords="3723,465,3962,586"/>
+<area shape="rect" id="c245" href="./FeatureEntityTrustVoting.html" title="tud.iir.classification.entity.FeatureEntityTrustVoting" alt="" coords="4006,465,4239,586"/>
+<area shape="rect" id="c246" href="./EvaluationHelper.html" title="tud.iir.classification.entity.EvaluationHelper" alt="" coords="4399,107,4547,213"/>
+<area shape="rect" id="c247" href="./EntityTrustVotingInterface.html" title="tud.iir.classification.entity.EntityTrustVotingInterface" alt="" coords="3277,115,3446,205"/>
+<area shape="rect" id="c251" href="./ClassifierEntityTrustVoting.html" title="tud.iir.classification.entity.ClassifierEntityTrustVoting" alt="" coords="3052,465,3305,586"/>
+<area shape="rect" id="c252" href="./BooleanEntityTrustVoting.html" title="tud.iir.classification.entity.BooleanEntityTrustVoting" alt="" coords="3350,449,3679,602"/>
+<area shape="rect" id="c248" href="./EntityTrustVoting.html" title="tud.iir.classification.entity.EntityTrustVoting" alt="" coords="3490,59,4355,261"/>
+<area shape="rect" id="c249" href="./EntityClassifier.html" title="tud.iir.classification.entity.EntityClassifier" alt="" coords="4591,115,5297,205"/>
+<area shape="rect" id="c250" href="./EntityAssessor.html" title="tud.iir.classification.entity.EntityAssessor" alt="" coords="928,75,1669,245"/>
+<area shape="rect" id="c253" href="./BCFC.html" title="tud.iir.classification.entity.BCFC" alt="" coords="2761,489,2847,562"/>
+</map>

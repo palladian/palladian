@@ -1,0 +1,75 @@
+Although more web people have basic design training nowadays, many are still unfamiliar with how to conduct user research, which is an important part of the design process. Fortunately, the internet makes it easy to get direct feedback from real users with quick, cheap, guerilla-style usability testing. Using some of the new web applications popping up, you can effectively do remote user research—that is, user research conducted over the phone and your computer. As Dana Chisnell points out, usability testing only takes a few steps, and it’s easy to do remote testing with minimal cost and preparation time.
+
+There are three basic approaches to conducting quick remote interface tests, whether you’re testing live websites, designs, wireframes, or prototypes. The approach you take will depend mostly on how you feel about people—do you want to talk to users face-to-face, or use one of the many new UX tools and let computers gather the information automatically? Read on to find out which route is best for you.
+
+Method #1: if you like people
+
+Conduct and record a screen-sharing session with someone you know. This straightforward method is just as good, contrary to obsolete popular belief, as a face-to-face testing session for most purposes. No, you can’t see participants’ facial expressions, and yes, your participants must have high-speed internet; but facial expressions aren’t usually of much practical use for design feedback (you’ll have to trust me there), and high-speed internet is fast becoming the norm. You’ll need a reasonably fast computer with a solid connection, and Skype. It’s also nice to have a microphone headset so you don’t have to cradle the phone during the test.
+
+This is how to do it:
+
+Get a screen-sharing software tool. The screen-sharing application is the most crucial component, since it allows you to see what’s on your user’s computer screen during the session. We like Adobe Acrobat ConnectNow, which supports observation, chat, and webcam sharing. It doesn’t require participants to install anything. All they have to do is visit a web address, which means that you can get around most firewalls, antivirus software, and other barriers that might prevent you from screen-sharing. It’s compatible with all OS platforms.
+
+Other popular options include GoToMeeting, LiveLook, and Dimdim. Most offer free trials, so don’t worry about having to spend cash if it’s your first time.
+
+Download a screen-recording app. iShowU HD for Mac ($30), Camtasia Studio for PC ($299) or Mac ($149), are my favorites. You can also use the new version of Quicktime X to screen record if you’re blessed with a Macintosh, but the files are gigantic. The paid tools allow you to select the portion of the screen and capture audio from the Skype call.
+
+Find a pilot participant. Grab anyone who’s willing—your coworker, someone in the hallway—and ask them to wait near a phone and a computer with high-speed internet access. If you don’t want to go remote at all, just use Silverback to do it in-person.
+
+Call your participant and have them share their screen with you, using the screen-sharing tool. We keep this easy-to-read URL handy to read over the phone to our participants, so you don't have to use the long one that every online meeting generates. Watch them as they use your interface. Don’t interrupt them in the middle of tasks, even if they seem to be running into trouble or “going off-track”—it’s important to see where they get stuck. Ask open-ended, non-leading questions such as, “What’s going through your mind right now?” or “Can you tell me what you’re looking at now?”
+
+Wrap it up. When you’re done, deactivate the screen-sharing software. (No uninstalling is necessary for Adobe Connect.) Be sure to thank the participant and reassure them that you can no longer see their screen. If you’re offering compensation for participation, tell them how they’ll receive it. (We like to use Amazon gift certificates, since all you need is an e-mail address.) And you’re done.
+
+Method #2: if you like machines better than people
+
+Let’s say you prefer the logic and efficiency of computers to human beings. Conduct an automated research study. There are many online tools you can use to create quick task-based usability tests, perform card sorts, and measure analytics. Many call this approach “unattended user research,” because the tools automatically gather the feedback with no human-to-human interaction.
+
+As you can probably guess, these methods do not give you much insight or qualitative information on why people struggle with certain parts of your interface, but they do illuminate exactly where users are going wrong. Usually they’ll track various parts of the user’s behavior and allow the participant to type in comments, but that’s it. For that reason, automated research studies are most useful when evaluating the usability of a specific feature. You lose the bigger picture of usage, which can give you a misleading picture of what your users are doing on your website.
+
+At any rate, each automated research tool works differently, but most tools can be sorted into a few broad categories by their purpose.
+
+Task elicitation
+
+Task elicitation is similar to web analytics, but gives users specific task prompts, such as: “Suppose you want to buy a new sofa. Where on this page would you click to find information about the sofa?” There are many variations on this type of tool: Some tools automatically monitor user behaviors; some ask users to manually indicate when they’ve accomplished a task. Task elicitation is the most direct way to gather performance feedback on a particular task, which is why it’s also the most popular.
+
+Task elicitation tools: Loop11, Usabilla, and IntuitionHQ.
+
+Card sorting and other formative research tools
+
+This is a remote version of a tried-and-true user research method. You give participants a stack of randomly shuffled cards, each with an item written on it, and then ask the participants to sort the cards into groups that make sense to them. The idea is to get a sense of how users naturally categorize different concepts so that you can structure your interface’s categorization scheme accordingly. You perform a card sort when you want to understand how to categorize or organize a set of elements—an issue usually related to early-stage IA design.
+
+There are other formative design research tools besides card sorting ones: Plainframe and TreeJack allow you to test a bare-bones conceptual navigation scheme to see where users are likely to look for certain pages or content.
+
+Card sorting tools: OptimalSort, WebSort.
+
+Enhanced analytics
+
+Enhanced analytic tools are traffic monitoring services that give you richer information about what people do when they visit your site. Some are capable of giving you Javascript video recordings of actual usage; others make “clickmaps” and “heatmaps” that graphically visualize the most-clicked areas.
+
+User behavior recording tools: Clixpy, ClickTale, LEOTrace.
+
+Analytics visualization tools: ClickDensity, ClickHeat, ClickTale, CrazyEgg.
+
+Regardless of what kind of automated research you do, I encourage you to do it only to supplement the kind of rich behavioral research we describe above—it’s no substitute for watching a real person use your product.
+
+Method #3: if you like people, just not talking with them
+
+Unattended qualitative research is useful if you’ve already built some functional elements of your design or application, and you want to hear actual user voices talking about your interface, but you just don’t have the time, desire, or social skills to talk to them directly. This is a cutting-edge niche of remote research, which takes advantage of the increasing webcam and rich media capabilities many users now have. Unattended qualitative research services get users to submit webcam videos, images, and/or spoken feedback about your product.
+
+Doing this kind of research is mostly just a matter of signing up for one of the services and writing a couple of questions for your users to answer. A serious caution: Almost all of these services supply the participants from a “research panel,” a small army of paid participants who may not reflect your real users, and who may not care about using your interface at all, both of which can affect feedback validity.
+
+Unmoderated qualitative research services: Usertesting.com, OpenHallway, UserLytics, and TryMyUI.
+
+Conclusion
+
+For extra bonus points, do time-aware research. No matter which guerilla method you choose, you can use an online web form to intercept qualified visitors in real time, and then call them or e-mail them right away to begin a session. This strategy is called “live recruiting,” and it allows you to get insight about the tasks that people really care about rather than creating pre-determined tasks for them. It’s the difference between watching someone manage their own finances versus asking them to pretend to. The easiest way to create a form is by using Ethnio, the recruiting tool we designed specifically for this purpose. You can also use an HTML form-building tool such as the excellent Wufoo or the form functionality in Google Docs. You can then link the form from one of your web pages, or embed the form right on the page (which is slightly more effective). (For a more in-depth discussion of recruiting, see Chapter 4 of our Remote Research book.)
+
+Who actually does quick and dirty user research, besides the companies we’ve conducted studies for?
+
+At SXSW this year, I attended a panel called “Your UI is Your Laboratory” with people from Wufoo and Freshbooks—two web interfaces well regarded for their user experiences. The developers were ostensibly there to talk about A/B testing but admitted that the original interfaces for both of their successful web products were informally guerilla-tested with participants ranging from the developers’ significant others to people in the hallway. In other words, Wufoo and Freshbooks developers used guerilla testing to refine their orginal core functional interfaces. Fantastic! Remote research can also be the online equivalent of grabbing people in the hallway and having them use your sketch or prototype. Stamen’s Michal Migurski, who spoke on “Not Conducting User Testing” at the February 2010 User Research Friday event in San Francisco, also encouraged putting your interface out in the world rather than doing formal testing. And the sheer number of automated tools popping up everywhere suggests something about how many lone-wolf developers are starting to do their own testing, too.
+
+Still need convincing? Didn’t see any tools you liked? Well, fortunately for you, we’ve put together a huge Google spreadsheet of every remote research tool we know of. Check it out and go do some user research right away.
+
+Editor’s Note:
+
+We are pleased to present a discount for Nate Bolt and Tony Tulathimutte’s Remote Research: Real Users, Real Time, Real Research (Rosenfeld Media, 2010). Save 20% with the code ALARR when you order from the publisher’s site.

@@ -1,0 +1,11 @@
+This post is part of our ReadWriteEnterprise channel, which is a resource and guide for IT managers and technologists in the Enterprise. The channel is sponsored by Intel and Microsoft. As you're exploring solutions for your enterprise, check out this helpful resource from our sponsors: All New 2010 Intel Core vPro Processors and Microsoft Office 2010: Your Best Choice for Business PCs
+
+This month we're quietly re-launching our ReadWriteEnterprise channel, with a new sponsor: Intel and Microsoft. We've hired Alex Williams full-time, to manage both of our enterprise-focused channels: ReadWriteEnterprise and ReadWriteCloud. We will also be introducing a new daily writer to ReadWriteEnterprise shortly.
+
+I'd like to formally welcome Alex to his new role. He has been doing a lot of traveling in recent times for us, attending enterprise and cloud events. He will continue to be out and about in his new role. Indeed this week Alex is at the cloud computing focused Gluecon in Denver, where he'll be moderating a session entitled "Managing Complexity in the Cloud." You'll also be able to catch up with him at the Enterprise 2.0 event in Boston in June.
+
+You may be wondering what the difference is between ReadWriteEnterprise and ReadWriteCloud.
+
+ReadWriteEnterprise is a resource and guide for IT managers and business people in the Enterprise. The channel will profile online solutions and outline best practices within the enterprise.
+
+ReadWriteCloud is aimed at a more technical audience. It is dedicated to helping software architects and engineers understand the strategic business and technical implications of Virtualization and Cloud Computing.

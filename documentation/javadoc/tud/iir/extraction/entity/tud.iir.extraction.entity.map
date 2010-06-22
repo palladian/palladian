@@ -1,0 +1,25 @@
+<map id="G" name="G">
+<area shape="rect" id="c2312" href="./XPathWrapperInductor.html" title="tud.iir.extraction.entity.XPathWrapperInductor" alt="" coords="15,878,643,1095"/>
+<area shape="rect" id="c2313" href="./XPathAffixWrapper.html" title="tud.iir.extraction.entity.XPathAffixWrapper" alt="" coords="1387,673,1551,762"/>
+<area shape="rect" id="c2314" href="./WrapperSet.html" title="tud.iir.extraction.entity.WrapperSet" alt="" coords="1704,203,1995,389"/>
+<area shape="rect" id="c2315" href="./WrapperInductorInterface.html" title="tud.iir.extraction.entity.WrapperInductorInterface" alt="" coords="687,251,1087,341"/>
+<area shape="rect" id="c2316" href="./WrapperInductor.html" title="tud.iir.extraction.entity.WrapperInductor" alt="" coords="685,673,923,762"/>
+<area shape="rect" id="c2318" href="./PhraseWrapperInductor.html" title="tud.iir.extraction.entity.PhraseWrapperInductor" alt="" coords="688,950,1088,1023"/>
+<area shape="rect" id="c2333" href="./AffixWrapperInductor.html" title="tud.iir.extraction.entity.AffixWrapperInductor" alt="" coords="1133,854,1597,1119"/>
+<area shape="rect" id="c2317" href="./SeedExtractor.html" title="tud.iir.extraction.entity.SeedExtractor" alt="" coords="1595,641,2039,794"/>
+<area shape="rect" id="c2319" href="./PhraseExtractor.html" title="tud.iir.extraction.entity.PhraseExtractor" alt="" coords="2083,665,2527,770"/>
+<area shape="rect" id="c2320" href="./Pattern.html" title="tud.iir.extraction.entity.Pattern" alt="" coords="2571,219,2839,373"/>
+<area shape="rect" id="c2321" href="./ListDiscoverer.html" title="tud.iir.extraction.entity.ListDiscoverer" alt="" coords="2883,123,3458,469"/>
+<area shape="rect" id="c2322" href="./FocusedCrawlExtractor.html" title="tud.iir.extraction.entity.FocusedCrawlExtractor" alt="" coords="2571,649,3015,786"/>
+<area shape="rect" id="c2323" href="./EntityTrustComparator.html" title="tud.iir.extraction.entity.EntityTrustComparator" alt="" coords="3503,259,3748,333"/>
+<area shape="rect" id="c2324" href="./EntityQueryFactory.html" title="tud.iir.extraction.entity.EntityQueryFactory" alt="" coords="3793,11,4489,581"/>
+<area shape="rect" id="c2325" href="./EntityQuery.html" title="tud.iir.extraction.entity.EntityQuery" alt="" coords="4535,219,4852,373"/>
+<area shape="rect" id="c2326" href="./EntityExtractor.html" title="tud.iir.extraction.entity.EntityExtractor" alt="" coords="4897,19,5589,573"/>
+<area shape="rect" id="c2327" href="./EntityExtractionThread.html" title="tud.iir.extraction.entity.EntityExtractionThread" alt="" coords="5633,235,5975,357"/>
+<area shape="rect" id="c2328" href="./EntityExtractionTechnique.html" title="tud.iir.extraction.entity.EntityExtractionTechnique" alt="" coords="2083,219,2527,373"/>
+<area shape="rect" id="c2329" href="./EntityExtractionStatus.html" title="tud.iir.extraction.entity.EntityExtractionStatus" alt="" coords="6020,107,6303,485"/>
+<area shape="rect" id="c2330" href="./EntityExtractionProcess.html" title="tud.iir.extraction.entity.EntityExtractionProcess" alt="" coords="6348,251,6529,341"/>
+<area shape="rect" id="c2331" href="./EntityExtraction.html" title="tud.iir.extraction.entity.EntityExtraction" alt="" coords="6575,227,6964,365"/>
+<area shape="rect" id="c2332" href="./EntityDateComparator.html" title="tud.iir.extraction.entity.EntityDateComparator" alt="" coords="7009,259,7255,333"/>
+<area shape="rect" id="c2334" href="./AffixWrapper.html" title="tud.iir.extraction.entity.AffixWrapper" alt="" coords="1322,147,1617,445"/>
+</map>

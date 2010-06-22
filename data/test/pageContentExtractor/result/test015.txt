@@ -1,0 +1,397 @@
+When I first chose my own adventure, I didn't know what working remotely from home was going to be like. I had never done it before. As programmers go, I'm fairly social. Which still means I'm a borderline sociopath by normal standards. All the same, I was worried that I'd go stir-crazy with no division between my work life and my home life.
+
+Well, I haven't gone stir-crazy yet. I think. But in building Stack Overflow, I have learned a few things about what it means to work remotely -- at least when it comes to programming. Our current team encompasses 5 people, distributed all over the USA, along with the team in NYC.
+
+My first mistake was attempting to program alone. I had weekly calls with my business partner, Joel Spolsky, which were quite productive in terms of figuring out what it was we were trying to do together -- but he wasn't writing code. I was coding alone. Really alone. One guy working all by yourself alone. This didn't work at all for me. I was unmoored, directionless, suffering from analysis paralysis, and barely able to get motivated enough to write even a few lines of code. I rapidly realized that I'd made a huge mistake in not having a coding buddy to work with.
+
+That situation rectified itself soon enough, as I was fortunate enough to find one of my favorite old coding buddies was available. Even though Jarrod was in North Carolina and I was in California, the shared source code was the mutual glue that stuck us together, motivated us, and kept us moving forward. To be fair, we also had the considerable advantage of prior history, because we had worked together at a previous job. But the minimum bar to work remotely is to find someone who loves code as much as you do. It's … enough. Anything else on top of that -- old friendships, new friendships, a good working relationship -- is icing that makes working together all the sweeter. I eventually expanded the team in the same way by adding another old coding buddy, Geoff, who lives in Oregon. And again by adding Kevin, who I didn't know, but had built amazing stuff for us without even being asked to, from Texas. And again by adding Robert, in Florida, who I also didn't know, but spent so much time on every single part of our sites that I felt he had been running alongside our team the whole way, there all along.
+
+The reason remote development worked for us, in retrospect, wasn't just shared love of code. I picked developers who I knew -- I had incontrovertible proof -- were amazing programmers. I'm not saying they're perfect, far from it, merely that they were top programmers by any metric you'd care to measure. That's why they were able to work remotely. Newbie programmers, or competent programmers who are phoning it in, are absolutely not going to have the moxie necessary to get things done remotely -- at least, not without a pointy haired manager, or grumpy old team lead, breathing down their neck. Don't even think about working remotely with anyone who doesn't freakin' bleed ones and zeros, and has a proven track record of getting things done.
+
+While Joel certainly had a lot of high level input into what Stack Overflow eventually became, I only talked to him once a week, at best (these calls were the genesis of our weekly podcast series). I had a strong, clear vision of what I wanted Stack Overflow to be, and how I wanted it to work. Whenever there was a question about functionality or implementation, my team was able to rally around me and collectively make decisions we liked, and that I personally felt were in tune with this vision. And if you know me at all, you know I'm not shy about saying no, either. We were able to build exactly what we wanted, exactly how we wanted.
+
+Bottom line, we were on a mission from God. And we still are.
+
+So, there are a few basic ground rules for remote development, at least as I've seen it work:
+
+The minimum remote team size is two. Always have a buddy, even if your buddy is on another continent halfway across the world.
+
+Only grizzled veterans who absolutely love to code need apply for remote development positions. Mentoring of newbies or casual programmers simply doesn't work at all remotely.
+
+To be effective, remote teams need full autonomy and a leader (PM, if you will) who has a strong vision and the power to fully execute on that vision.
+
+This is all well and good when you have a remote team size of three, as we did for the bulk of Stack Overflow development. And all in the same country. Now we need to grow the company, and I'd like to grow it in distributed fashion, by hiring other amazing developers from around the world, many of whom I have met through Stack Overflow itself.
+
+But how do you scale remote development? Joel had some deep seated concerns about this, so I tapped one of my heroes, Miguel de Icaza -- who I'm proud to note is on our all-star board of advisors -- and he was generous enough to give us some personal advice based on his experience running the Mono project, which has dozens of developers distributed all over the world.
+
+At the risk of summarizing mercilessly (and perhaps too much), I'll boil down Miguel's advice the best I can. There are three tools you'll need in place if you plan to grow a large-ish and still functional remote team:
+
+Real time chat
+
+When your team member lives in Brazil, you can't exactly walk by his desk to ask him a quick question, or bug him about something in his recent checkin. Nope. You need a way to casually ping your fellow remote team members and get a response back quickly. This should be low friction and available to all remote developers at all times. IM, IRC, some web based tool, laser beams, smoke signals, carrier pigeon, two tin cans and a string: whatever. As long as everyone really uses it.
+
+We're currently experimenting with Campfire, but whatever floats your boat and you can get your team to consistently use, will work. Chat is the most essential and omnipresent form of communication you have when working remotely, so you need to make absolutely sure it's functioning before going any further.
+
+Persistent mailing list
+
+Sure, your remote team may know the details of their project, but what about all the other work going on? How do they find out about that stuff or even know it exists in the first place? You need a virtual bulletin board: a place for announcements, weekly team reports, and meeting summaries. This is where a classic old-school mailing list comes in handy.
+
+We're using Google Groups and although it's old school in spades, it works plenty well for this. You can get the emails as they arrive, or view the archived list via the web interface. One word of caution, however. Every time you see something arrive in your inbox from the mailing list you better believe, in your heart of hearts, that it contains useful information. The minute the mailing list becomes just another "whenever I have time to read that stuff", noise engine, or distraction from work … you've let someone cry wolf too much, and ruined it. So be very careful. Noisy, argumentative, or useless things posted to the mailing list should be punishable by death. Or noogies.
+
+Voice and video chat
+
+As much as I love ASCII, sometimes faceless ASCII characters just aren't enough to capture the full intentions and feelings of the human being behind them. When you find yourself sending kilobytes of ASCII back and forth, and still are unsatisfied that you're communicating, you should instill a reflexive habit of "going voice" on your team.
+
+Never underestimate the power of actually talking to another human being. I know, I know, the whole reason we got into this programming thing was to avoid talking to other people, but bear with me here. You can't be face to face on a remote team without flying 6 plus hours, and who the heck has that kind of time? I've got work I need to get done! Well, the next best thing to hopping on a plane is to fire up Skype and have a little voice chat. Easy peasy. All that human nuance which is totally lost in faceless ASCII characters (yes, even with our old pal *<:-)) will come roaring back if you regularly schedule voice chats. I recommend at least once a week at an absolute minimum; they don't have to be long meetings, but it sure helps in understanding the human being behind all those awesome checkins.
+
+Nobody hates meetings and process claptrap more than I do, but there is a certain amount of process you'll need to keep a bunch of loosely connected remote teams and developers in sync.
+
+Monday team status reports
+
+Every Monday, as in somebody's-got-a-case-of-the, each team should produce a brief, summarized rundown of:
+
+What we did last week
+
+What we're planning to do this week
+
+Anything that is blocking us or we are concerned about
+
+This doesn't have to be (and in fact shouldn't be) a long report. The briefer the better, but do try to capture all the useful highlights. Mail this to the mailing list every Monday like clockwork. Now, how many "teams" you have is up to you; I don't think this needs to be done at the individual developer level, but you could.
+
+Meeting minutes
+
+Any time you conduct what you would consider to be a "meeting" with someone else, take minutes! That is, write down what happened in bullet point form, so those remote team members who couldn't be there can benefit from -- or at least hear about -- whatever happened.
+
+Again, this doesn't have to be long, and if you find taking meeting minutes onerous then you're probably doing it wrong. A simple bulleted list of sentences should suffice. We don't need to know every little detail, just the big picture stuff: who was there? What topics were discussed? What decisions were made? What are the next steps?
+
+Both of the above should, of course, be mailed out to the mailing list as they are completed so everyone can be notified. You do have a mailing list, right? Of course you do!
+
+If this seems like a lot of jibba-jabba, well, that's because remote development is hard. It takes discipline to make it all work, certainly more discipline than piling a bunch of programmers into the same cubicle farm. But when you imagine what this kind of intellectual work -- not just programming, but anything where you're working in mostly thought-stuff -- will be like in ten, twenty, even thirty years … don't you think it will look a lot like what happens every day right now on Stack Overflow? That is, a programmer in Brazil helping a programmer in New Jersey solve a problem?
+
+If I have learned anything from Stack Overflow it is that the world of programming is truly global. I am honored to meet these brilliant programmers from every corner of the world, even if only in a small way through a website. Nothing is more exciting for me than the prospect of adding international members to the Stack Overflow team. The development of Stack Overflow should be reflective of what Stack Overflow is: an international effort of like-minded -- and dare I say totally awesome -- programmers. I wish I could hire each and every one of you. OK, maybe I'm a little biased. But to me, that's how awesome the Stack Overflow community is.
+
+I believe remote development represents the future of work. If we have to spend a little time figuring out how this stuff works, and maybe even make some mistakes along the way, it's worth it. As far as I'm concerned, the future is now. Why wait?
+
+Posted by Jeff Atwood    View blog reactions
+
+Future of work. Yeah, right. Right as our very industry has gotten on the scrumtrain - you know, the one that says that people must work face-to-face, in open office environments, and have a meeting every single morning at the right time, and should use sticky notes instead of electronic tools.
+
+Hey Jeff, I've been working remote for about two and a half years now, and I generally agree. A couple of ideas:
+
+- Pair Programming. Yes, you can do it remote; use GNU Screen, and you'll find the latency of just pushing ASCII text is actually pretty good. (You are using Linux/Unix/Mac right?)
+
+- Set up an Asterisk server so VOIP is free, then do pair programming with VOIP ALL THE TIME,
+
+- Use VNC for screen sharing when you need to debug an issue
+
+If you're doing fancy javascript and have cross-browser compatibility issues, you'll likely want to start getting to testers to help out, and those guys don't have to have code coming out of their ears. Likewise product management folks and graphic design. But for coders, sure, hard-core is good.
+
+I wish you the best man; sounds like you're doing it, and doing it well.
+
+Jeff - How material are the benefits? Do you think productivity goes up?
+
+I suggest recording some meetings and make them available to the new people when they join the group. It really helps them gain some context and learn the thought processes that went into how you got to where you are now.
+
+I think you hit the nail on the head. Remote work is about the chemistry of the team. If you don't have at least 1 person that is your coding buddy, then you're generally not going to be great at working remotely (this concept doesn't seem to be unique to remote...). Any difficulties I've previously had with remote work boils down to some lack of teamwork among coworkers that makes it completely unproductive.
+
+Personally, I long to be a part of an exceptional distributed team.
+
+I work as a 1-man team. So all of those issues you mentioned with working alone, remotely, I experience on a day-to-day basis. It's tough, really tough. My last job consisted of 8 developers, so I was able to quickly discuss problems, solutions, or ideas in general with 2 or 3 others pretty quickly. You don't fully appreciate the value of that until you're not able to do it any longer.
+
+I hear your point. I'm programming in academia, totally and completely alone. It takes a lot of discipline to make things happen. Programming is a collaborative effort. If you take that away, it's rather dull, because you don't learn anything. it's just you, your problems, and your documentation. On this regard, StackOverflow had another great advantage: it made me feel less alone in my work. As a developer with a problem, not having any colleague to talk with, but having the SO community at a quick click of a button was precious.
+
+Hey Jeff,
+
+When it comes to team and individual status reports, I highly recommend using blogs or a wiki. There are a ton of tools you can leverage to do this. The nice thing is that they become backed up, searchable and even subscribable via RSS.
+
+This is also something Google Wave looks very promising for, though I haven't personally tried with that. I've definitely had good results with blogs and wikis though.
+
+Also, it goes without saying in most cases, but remote development DEMANDS that you follow all your tried-and-true, software engineering practices like using source control, automated testing, continuous integration, etc.
+
+I generally like to keep tabs on teams like Apache, Spring and OpenBSD for guidance in these practice areas. They are truly effective at doing this stuff.
+
+Good luck!
+
+Sam Wilson
+
+I work in Michigan for a company in San Francisco on a team of 4 developers. I am the only remote dev, and it can definitely have its pluses and minuses. You did a decent job highlighting what comes along with having remote teams.
+
+I have worked remotely in a couple of different settings and personally love it. It definitely works for me, even without a coding buddy, and saves me tons of time in commute and stress from not having to look at cubicle walls or sit up straight all day.
+
+"Only grizzled veterans who absolutely love to code need apply for remote development positions. Mentoring of newbies or casual programmers simply doesn't work at all remotely."
+
+This sounds like the typical yet completely wrong advice that "agile is only for companies that are ok with risk". The reality is that agile is for ALL companies and helps manage risk better, but since it exposes the inherent risks in development, then people conclude it causes it.
+
+The reality in this case is that "only grizzled veterans who absolutely love to code" make a ridiculously large and valuable contribution to any software development team, way out of proportion with a newbie or competent programmer. That is not as obvious when we all sit together in a room and code for 40-50 hours but becomes much MORE obvious in a distributed environment. A newbie who would not be able to successfully contribute much in a distributed environment would not be able to do much in a co-working environment either, but since they show up for the same amount of time, somehow our brains just don't notice or care.
+
+I'm not making the case NOT to hire a newbie or barely competent programmer, as there are many benefits to having them (at least the newbie ones). You get a fresh perspective, you can build loyalty and grow a great programmer (if you play it right), etc. But for too long managers and companies have ignored the massive productivity differences in programmers of different skills. I am making the case to make those as transparent as possible, and working remotely (among many other benefits) is one way to do that.
+
+Some good tips in here, we run a fully distributed team and had overcome similar challenges.
+
+One tip I would add is pair-programming on complex parts or sticking points through screen and vim, we have an ec2 instance dedicated for pairing which everyone has access to.
+
+Some good tips in here, we run a fully distributed team and had overcome similar challenges.
+
+One tip I would add is pair-programming on complex parts or sticking points through screen and vim, we have an ec2 instance dedicated for pairing which everyone has access to.
+
+Hey Jeff,
+
+Another thought... when it comes to pair programming, sometimes it's possible to utilize screen-sharing or other tools, but if you've got timezone issues, that can be problematic.
+
+One thing I've done in the past that was pretty effective, was to basically require all code check-ins to be peer reviewed. This did a number of things. First, and most obviously, it meant that code reviews were being done on a regular and ongoing basis. Second, it meant that at least one other person was cross trained on your code. Third, it forced us to keep our code check-ins relatively small and discreet. Big, ungainly check-ins made the peer review process difficult. So, best to keep things small and manageable.
+
+Most importantly, it fits nicely into the distributed, disconnected nature of working in a remote environment.
+
+Sam
+
+I found out some of these things the hard way. My first programming job that moved from in office to remote led to a zombie-like state where I couldn't keep track of days, or even weeks. Now I make sure any remote work is done with another programmer elsewhere and with improved organizational skills it is quite enjoyable and easily managed.
+
+The company I work for doesn't have an office as such, we all work from home. I've worked from home since early 2003 and would find it very strange to go back to working in an office full time again.
+
+What is also important is that your remote team members are provided with separate business telephones, broadband and computer(s). This provides a ring fenced work environment within the home office and the mental flag that "this is work stuff". You also don't get hard feelings where folk feel they are providing a freebie to the business of their own phone, connectivity and hardware.
+
+One of the things I do miss is white boarding sessions in person with other devs and general office banter. But that said, we're still a fairly sociable lot over MSN and the phone anyway.
+
+"If this seems like a lot of jibba-jabba" - actually, it sounds like a *lot* less jibba-jabba than I just sat through in my software engineering class in my Master's program in Computer Science at a top-tier university.
+
+The main things I learned from that class are that colleges can't teach software engineering, the type and size of process needed varies wildly among projects, and I now have a list of buzzwords to listen for during interviews, upon the hearing of which I shall run screaming from the room.
+
+This article was fantastic and well-timed. I'm programming alone on a research project, and I've felt many of the issues you've pointed out (on top of which I'm a novice programmer, as these things go: only three years of actual experience and that with a giant pile of legacy code).
+
+Some of this isn't exactly what I wanted to hear: I like the idea of working remotely, but I don't think I'm ready for it. I need more experience working on good and bad teams (hopefully more good than bad) first.
+
+How do I know if I'm good enough to work remotely? Compared to my college peers I'm a better-than-average programmer but, being a college student, I haven't had many opportunities to compare my skills and productivity with professionals. How can I tell if I'm cut out for remote work without spending a decade in the workplace becoming a "grizzled veteran" first?
+
+At the risk of plugging my own thing on somebody's blog, this situation is the reason we built Twiddla, so I'd recommend you check it out.
+
+Mostly it was to deal with communicating little graphical changes to the site to remote designers without resorting to MS Paint and email, but it does chat and voice too, so it pretty much wraps up your whole "tools you need" section in one thing.
+
+What little professional experience(couple of years) I have, I've been largely working remotely. I wouldn't recommend it to anyone just starting out as a software developer. There just are too many things that are too easy to miss out on. Like, you know, the whole social aspect of working. Early on in your career the job itself is enough of a learning experience not to burden yourself with working remotely. YMMV.
+
+Another thing: working remotely as a part of team is definately easier and more pleasurable than working remotely as a lone wolf. Especially if you are the lone developer of the company, then it is pretty tough even if the work itself is pretty simple.
+
+We've managed to work remotely with newbie developers just fine. We haven't needed voice or video chat, either. But then again, we're also very experience with working on tasks remotely in a way that most programmers aren't.
+
+Analysis paralysis? You talk first about coding, then about analysis paralysis. That is not possible. When you program, you already have specifications. If not, then you make them. So you cannot have analysis paralysis while programming, because if you program, you have specs. If you don't have specs, you don't program.
+
+Jeff, you may have inadvertently stumbled upon a big secret:
+
+Everything you described there applies 100% directly to traditional offices too. Every. Single. Point.
+
+"The minimum remote team size is two"
+
+Nah. If you've got a decent work ethic, you can go it on your own. I've been working 2 development jobs from home for over 3 years now, both of which are on a development team of 1. Works just fine for me.
+
+We've been doing this at Wildbit for almost 10 years. It's been a lot of trial and error and the tools are much better now, but overall it always comes down to two things:
+
+1. Each person must be a natural contributor
+
+2. The team as a whole shares the same goals and are aligned.
+
+It's not any different from a team in an office, but the issues amplify and are harder to figure out. A problem team member might not become apparent until things start to get bad. I've become pretty good at reading emotions over IM in the past several years :)
+
+I wrote a post about this on Vitamin a while back:
+
+http://carsonified.com/blog/business/building-and-managing-virtual-teams/
+
+We tend to take retreats once or twice a year. It helps nail down strategy and just hang out and have fun as a team, something that really lacks from a virtual team. You can only mess around in Campfire so much. Usually after each retreat the team is on fire with productivity and ideas.
+
+Really great post. It's nice to see that more and more teams are thinking this way.
+
+My mother has been working like this as a medical writer and editor back to the days when she had to mail floppy disks back and forth to people to move files around (we were the first ones with Internet in our area, for obvious reasons). She long ago told everyone she didn't travel for work, or not without them dumping an obscene amount of money on her. My father worked with her as a typesetter, and also as an engineer, also from home. As a result, I grew up thinking that this was the *normal* way to work, and I still regard offices and hours are kind of odd.
+
+I too think working from home is the future of all businesses that can be made to work remotely. Besides, the obvious features like being able to tap into talent, lack of office overhead etc. etc, there is a fundamental economic benefit if remote working became accepted more widely. By, shifting people away from major cities back to cheaper country or smaller cities areas, people can live a better quality of life without having to spend huge amounts on mortgages etc. It is a choice which people should have. I have explored this aspect of remote working in the following post, if people are interested:
+
+http://technocures.blogspot.com/2009/08/how-to-use-space-time-continuum-to.html
+
+Don't you even *dare* saying anything about "really global" when your hiring statement for StackExchange contains the requirement "Permanent legal right to work in the US".
+
+--
+
+Pavel Shved, 10k SO user.
+
+Jeff, you said "Newbie programmers, or competent programmers who are phoning it in, are absolutely not going to have the moxie necessary to get things done remotely -- at least, not without a pointy haired manager, or grumpy old team lead, breathing down their neck. Don't even think about working remotely with anyone who doesn't freakin' bleed ones and zeros, and has a proven track record of getting things done."
+
+(I added bolding.)
+
+I think this is pretty scary advice to be giving, especially from your pulpit, which is not a small one. Have you tried remote development with newbie coders? Have you tried it with enough newbies to feel you've gotten a good sample? If you haven't, then where do you get the experience to add so much emphasis to this point?
+
+I haven't seriously tried it either - in fact I'm a newbie coder at best (since my actual experience is more of the sysadmin kind). But I have a suspicion that I'd be at least an OK newbie coder to have on a remote dev team, as long as other sufficient motivations existed. Which is to say that I have dicked around with hobby things, and they tend to move forward in fits and jerks. But that's because motivation is spotty, not because capability is lacking.
+
+I could be wrong, but I suspect that with the right newbie coder, remote dev would work alright. I suspect what you are saying here is that you have the luxury of working with great coders and since you have it, you're going to take advantage of it. And yup, if a person has that luxury, why would they voluntarily give it up? But to suggest that a person without that luxury should simply fold tents and give up is, I think, not such a good thing to do.
+
+I''m just sayin'!
+
+Can you hire me? I am very good ;)
+
+We (Sauce Labs) found out that Skype don't scale well for meetings with a lot of people (that's how we do the daily standup). We've switched to TeamSpeak and never looked back.
+
+We do some of the pair programming using Skype and it's screen sharing, works well.
+
+I'm a developer based in New Zealand, and have been working remotely for a US based company for a few years now (Embarcadero Technologies, www.embarcadero.com). I would consider Skype to be our most valuable tool without a doubt. We have an ongoing team chat window always open, and make regular voice calls to combat the ASCII fatigue you mention.
+
+I don't know if you necessarily have to be the type of programmer that bleeds 1s and 0s to make this work, but you definitely need to be self-motivated, and know when to ask your team for help if you hit a stumbling block.
+
+I've worked from my home in MI for Mozilla in CA for a little over 2 years now, and it's been great.
+
+The main things I've found useful are basically what you call out here: synchronous constant communication over many channels (eg. IM, IRC, VoIP, email to some degree); asynchronous comm with lots of recordkeeping and documentation; and a lot of self-motivation and initiative.
+
+That last point is really the crucial thing for a newbie or a junior developer - some can do it, while some need lots of guidance and mentoring up front. If you have a history of getting things done without a lot of micromanagement, you might be ready for remote work.
+
+If you don't have such a history, you *could* be ready but it would take a lot of faith from an employer to rely on you. This is where things like writing a book or contributing to an OSS project in your free time can help prove your ability to work remotely.
+
+Also, getting the team physically together about once a quarter is worth the travel for the value of the in-person touch-points. Try to make it a mini-conference, give lightning talks to each other and leave time for hallway conversations. Have a bar night or drive go-carts.
+
+One more thing: I'd be curious to see how coders with World of Warcraft raiding experience would do. When you need to huddle around a project sprint occasionally, it can have a lot in common with a TeamSpeak / Ventrilo session to take down a boss. The main thing would be whether a WoW player could get away from the game and transfer the habits to billable work. I'm sure Joi Ito would have something to say about this. :)
+
+Unfortunately, it's considerably harder for part of an existing F2F team to work remotely. Most difficult part is weaning off habit of having ad hoc discussions and making decisions in the hallway which leaves remote workers unaware and out of decision making process.
+
+The best situation for working remotely is "everyone, from the start", like StackOverflow. The next best is, of course, "Rambo vs. Red Army".
+
+I must be one those guys who hate meetings even more than you do. :-) One thing which I found very useful to keep a team of remote people (let say 10 members) in sync without regular meetings: create a dedicated channel on something like www.jaiku.com per team or per big chunk of work and ask each member of the team to post once/twice a day what #1) they were/are/will be working on and #2) how well/bad it is going and #3) how they feel about it. And forbid posts of anything not related to these "status updates". I was really surprised how easy it was to adopt and how practical it is. For multiple teams I guess you do need some weekly reports which are not that fine grained.
+
+Only grizzled veterans who absolutely love to code need apply for remote development positions. Mentoring of newbies or casual programmers simply doesn't work at all remotely.
+
+This is a good reason why sites that provide remote developers (oDesk etc.) don't provide quality work. Most of the people I've tried are either newbies or casual programmers.
+
+If remote development is the future there are a few issues:
+
+* Unfortunately putting together a team of veterans has a cost associated to it.
+
+* Good quality new developers often have clever or innovative ideas. If you are just code monkeys then this is fine, if you want ideas then you may be narrowing your options.
+
+* Where would new developers go to cut their teeth? Veterans were newbies at one point. Heaven forbid we send them to one of those remote only marketplace sites to learn how to write decent code.
+
+Thanks for another great article.
+
+Doesn't this fly directly in the face of Joel's repeated statements that the SO/SE team being build from the VC funding will be in NYC only (other that don't-call-us-we'll-call-you)?
+
+I do agree though - I've worked semi-remotely and as part of a distributed team and it really is difficult to maintain the discipline. One thing that makes it harder is if you have a co-located group and then other people spread around the place - the co-located group naturally forgets to include the others. When everyone's distributed I imagine that's less of a problem.
+
+Ben,
+
+I was thinking about that the WHOLE time I reading this article. Joel posted that they need to hire people but they absolutely, without a friggin' doubt have to be in NYC and (presumably) work at the FogCreek offices.
+
+But, yet, here's Jeff saying he wants to build a totally virtual team. Say wha now?
+
+Hey Jeff, this is great information and comes at perfect timing for me. I'm moving from Los Angeles in a month back to my home state in a small town because I want to be near family and miss the country living (Quality of life). I moved to LA 7 years ago to start my business and gain some well needed development experience on some teams. Now that my business is growing I'm looking to grow my team and I know the talent I would need will not be near the town I'll be living in. Remote teams are the way to go. I'm glad that I'm not the only one out there thinking this! It is the way of the future!
+
+Thanks for the information and I'll be applying things from your post and also some from the comments.
+
+It would be great for you to do a follow-up on what you do for your team members. Like paying for internet, providing hardware and software, etc.
+
+Thanks
+
+Thanks for sharing your thoughts on this.
+
+As someone who has been working remotely for the past 3 months i can say that it works if the people involved want it to work. I have been doing scrum, with 2 week sprints and daily standup meetings via Skype, plus any required planning/retrospective meetings also via VOIP and it just works.
+
+Whenever i need to talk to a colleague i do it via email, IM, or Skype, depending on the severity/level of understanding of the issue and so far it has been pretty much the same as being there, apart from missing the work-environment-typically-awesome sarcastic jokes, that is :)
+
+The greatest challenge, IMHO, is to find people who can make the system work :)
+
+I'm currently working remotely, with a team of people that are fluent and think in different languages, and so to communicate my thoughts to specific person I usually use specific language. I don't think it's taken into account here. Using IRC-like things like Campfire in such group, or Google Groups, or writing memos wouldn't be of much use, unless it's done for every language group separately. Yet it all seems to work well for us with one-to-one communication.
+
+I think it's more important that remote co-workers have the ability of "getting things done". seniority comes after that.
+
+I also suggest Google Docs. It's very easy to share documents and you can edit the same doc with more than one editor. It's realtime: you see your modifications and the ones from others. Try it. It's fantastic.
+
+fabrizio
+
+The LAST thing I want to have is a chat session open during my programming day. Its bad enough that the telephone ringing makes me cringe but CHAT is even worse. Its instant gratification at its best. I can not code and be disrupted like that. I do not know how others do it. I will not work at a company that requires me to have an instant messenger open in the corner of my screen. Its proven to be a complete failure for me. I cant get up and take a dump without a 1/2 dozen people asking WHY I am "unavailable". In that example, having become enrgaged as to why they were even ASKING me about my "unavailable" status, I simply replied to everyone on the list with "I was taking a shit. Do you want to see pictures of the wipe next time?". I presented my 2 week notice later that day. Cant deal with chat. Email is about as disruptive as I want my day to get. I even turn off the phone most of the time. What I cant stand about the phone is people calling and not leaving messages EXPECTING that I should call back. Uh, if you didnt leave a message then it wasnt important. And, similarly, when I leave a message, what MOST people do is just call me back and not listen to my message! That is quite arrogant. I simply tell them to listen to the voice mail and then call me back, and then I nicely end the call. Even though we've got more and more "instant" methods, communications between people have become rude if not horrendous.
+
+@Shvedsky: Sorry, but, we have more than enough illegal workers in the United States. That coupled with out of control outsourcing has destroyed the US' economy. You wouldnt hire anyone in YOUR nation if they werent legal? No other nation hires illegals like the US does. Stop the whining.
+
+@Phat, that's not about that. Just the statements about "global" coupled with a map of the US only sound... (I'm not from US, so I can't pick a proper adjective) like *lies*.
+
+@Shvedsky: Its not lies, its policy. Every nation has its labor policies. I can not just waltz into another nation and expect to find work at the expense of those who live there and pay taxes there. There are far, far too many people already working in the USA that do not pay taxes here and for that our cities, our states... our infrastructure is beginning to suffer.
+
+Skype includes a decent chat program, so using it you can kill 2 birds with one stone.
+
+Nice post, but I want to add one more thing:
+
+Google Wave is one of THE MOST AWESOME services you can use for this ^^
+
+Jeff, have you ever considered running a MOO for this? you can have any features you want to add to a MOO- mailing lists, tasks, and so on. All it takes is a moo server and learning moocode.
+
+Have you thought about using virtual world environments like opensimulator.org in your remote working environment? You could create virtual work room with text and voice chat.
+
+Does your group use any specific tool for minutes? I always try to cram to much information in because I don't want those who missed meetings to make the same argument about a certain aspect of design that someone else did and we already discussed the pro's and cons of it.
+
+How do you suggest someone actually become "remote working" capable since newer people you say should not do it but it seems that if its a Non-Profit project that those who are new to the industry (myself included) can learn in these types of environments better then making small scale projects by themselves.
+
+"Tim M wrote: (on top of which I'm a novice programmer, as these things go: only three years of actual experience and that with a giant pile of legacy code)."
+
+3 years shoud make you more than novice. And working with legacy code is an essential skill to any programmer - debugging other people's code - good and bad - teaches you many lessons.
+
+Generally: There are some great commercial and open source tools now to support remote and distributed working. I have used webex and similar for oline collaborative working; IM; Skype; Google docs for document sharing and various others. Thoughtworks have some great tools and they are now looking to integrate those with Google Wave, which should be interesting.
+
+Distributed VCS is now available, automated test management tools from unit to system (Junit, Selenim et al), online PM tools for agile project management and the plethora of wikis, blogs, facebook type apps and so on.
+
+For those working out of Eclipse, the Eclipse Communication Framework would be a boon.
+
+Combined with an XMPP(S) server, such as openfire, you can have a controlled IM system, chatrooms and shared editor, allowing both of you to edit an individuals local copy of the code in realtime while keeping your copy clean.
+
+Along with this is of course basic file & screen shot sending utilities.
+
+You can of course keep chat logs, but there are better tools for meetings and doc sharing, especially for collaboration.
+
+A googlewave plug in for eclipse would be a killer feature.
+
+Amen Jeff.
+
+I've been doing this for a decade now - working in a small team in a big company from across the world. My current team has had up to 5 timezones in 3 countries at time. I've often considered blogging about it, but my first post would have read just like yours:
+
+IM is crucial (didn't have it when I started) as a replacement for over-the-cubicle-wall chatter.
+
+I would add that with the right attitude you can be hugely more productive when not constantly interrupted by general meetings, birthdays, wanderer's by and so on. I miss all that to some extent true - but on those rare occasions when I fly in and visit the mother ship, and spend some time in a cube, I start to wonder how anyone gets anything done (or how I did back then)
+
+I agree there are times when being there is very beneficial, however overall this loss is outweighed by the productivity gained by working alone.
+
+On a technology note: If the advent of IM was a real boon to this way of working, the advent of VPNs around 1999 was an absolutely essential part of making this possible - if you're doing it for a big company.
+
+Blanket statements tend to over generalize to a startling degree.
+
+Newbie programmers, or competent programmers who are phoning it in, are absolutely not going to have the moxie necessary to get things done remotely -- at least, not without a pointy haired manager, or grumpy old team lead, breathing down their neck. Don't even think about working remotely with anyone who doesn't freakin' bleed ones and zeros, and has a proven track record of getting things done.
+
+The only important part of this sentence is "gettings things done". I've been working in the office four days a week and one day a week remotely largely doing development work for the last four years and it doesn't really matter where I am working. If you have the experience, creativity and drive you will get things done.
+
+Malcolm
+
+You say that mentoring remotely shouldn't even be considered... but don't projects like [Google/Ruby] Summer of Code rely heavily on remote interaction between the student and mentor?
+
+I understand that mentoring in a production environment would be far more stressful than mentoring a low risk project, i.e GSoC; but to flat out say "mentoring of newbies or casual programmers simply doesn't work at all remotely" is wrong.
+
+I for one would kill to just watch a remote-desktop stream of someone working on StackOverflow's unicorn-backend and give my feedback over a VoIP program like Ventrilo.
+
+If working remotely is truly the future of work, then it should be the future of mentoring as well. Unless it's high-time we got rid of on the job training?
+
+I disagree with your positon re: newbies. What you really need to succeed in a remote or any isolated work environment is a strong work ethic.
+
+The recipe for success is to find smart people that are motivated to work hard, maintain social connections and get things done, and add some good leadership. If you can attract and retain top performers in their craft, that's great, but isn't really relevant to remote work.
+
+I've worked with a few folks that I would consider absolutely brilliant in various roles who would wither in a remote work environment -- especially in an org with more than a dozen people. They need that social contact. Conversely, I've worked with folks who as a programmer or engineer weren't at the top of the heap, but had the people/social skills to thrive in any environment -- they would still be contributing if their connection to the rest of the team was morse code over shortwave radio.
+
+Most people lie in the middle, obviously.
+
+I'm curious about Leetdoodsnonexistentramblings.blogspot.com's assertion that using a MOO would help with collaboration -- and even asked a question on SuperUser about it. Does anyone have any thoughts on how this would facilitate collaboration?
+
+I have been working with teams that are spread across countries (USA, India (Bangalore and Chennai) and europe). It has its own advantages but there are pain points to if teams are not ready to cooperate.
+
+I agree. Future is in global teams.
+
+The other problem is that once you're senior enough to merit working from home, you are quite likely to be expected to mentor more junior people - who don't, can't, or aren't trusted to work from home. Oops.
+
+Again, this kind of thing is a fantasy - vastly oversold - in my other hobbyist field (transportation); most people will never and can never telecommute for more than a trivial number of days per year, period.
+
+FINALLY! Someone willing to say remote development is hard and that it takes time to get it right. Great job! We just merged with our development partner in Costa Rica and we do nothing but remote development. I think we're pretty good at it but that's because we spent the time to do that, to understand what type of engineer it takes and how you manage the project. Here's what I would add:
+
+- You should always hire awesome developers remote or not. The bar should be high even if you sit together.
+
+- The best engineers we have found for remote dev are the ones who know how to ask questions back. The product owner is counting on you 100% to see when the product is not coming together and to escalate that up. Like when you spoke with Joel, he is counting on you to know what needs to be discussed most of the time.
+
+- Remote with only 1 guy? Really tough to do well. Plus, most guys who are good enough to create killer products alone don't touch the ground between jobs.
+
+Bob Benedict
+
+Avantica Technologies

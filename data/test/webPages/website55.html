@@ -1,0 +1,1489 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en"><head><title>NVIDIA Powered Notebooks</title><meta name="robots" content="noodp"><meta xmlns="" name="keywords" content=""><META NAME="Description" CONTENT="Notebooks, GeForce Go"><link rel="alternate" type="application/rss+xml" href="http://www.nvidia.com/content/rss/nvidia_podcast.xml" title="NVIDIA Podcast"><link rel="alternate" type="application/rss+xml" href="http://www.nvidia.com/object/rss_nvidia_pressroom" title="NVIDIA Press Room"><link rel="alternate" type="application/rss+xml" href="http://www.nvidia.com/object/rss_success_stories" title="NVIDIA Success Stories"><script type="text/javascript">
+
+//location of the .net application - DO NOT EDIT
+var rssASPXReader = "/rssreader/nvidia_rss.aspx";
+
+var rssReader_rssFeed;
+var rssReader_rssItems;
+//var rssReader_moz = ((typeof(document.implementation) != 'undefined') <xsl:text disable-output-escaping="yes">&amp;&amp;</xsl:text> (typeof(document.implementation.createDocument) != 'undefined'));
+var rssReader_moz = ((typeof(document.implementation) != 'undefined') && (typeof(document.implementation.createDocument) != 'undefined'));
+
+var rssReader_ie = (typeof(window.ActiveXObject) != 'undefined');
+var rssReader_isFeedLoaded = false;
+var rssReader_rssTitle = "";
+var rssReader_xml = "";
+var rssReader_xmlHttp;
+var rssReader_titleClassName = "";
+var rssReader_descriptionClassName = "";
+var rssReader_numberOfAttempts = 0;
+var rssReader_numberOfItemsToShow;
+var rssReader_mode = 2;
+var rssReader_containerID = "";
+var rssReader_showDescription = true;
+var rssReader_showDate = false;
+
+//Use this for 'GET'
+function rssReader_Init(feedURL, numberOfItemsToShow, titleClassName, descriptionClassName, containerID, showDescription, showDate)
+{
+rssReader_numberOfItemsToShow = numberOfItemsToShow;
+rssReader_titleClassName = titleClassName;
+rssReader_descriptionClassName = descriptionClassName;
+rssReader_containerID = containerID;
+
+
+if(showDescription != null)
+{
+rssReader_showDescription = showDescription;
+}
+if(showDate != null)
+{
+rssReader_showDate = showDate;
+}
+
+
+if(rssReader_mode == 1)
+{
+  rssReader_loadXML(feedURL);
+  rssReader_buildRSSReader(rssReader_titleClassName, rssReader_descriptionClassName);
+}
+else
+{
+  rssReader_getResponse(feedURL);
+}
+
+}
+
+//use this for 'POST'
+function rssReader_InitPost(feedURL, numberOfItemsToShow, titleClassName, descriptionClassName, containerID, showDescription, showDate) {
+    rssReader_numberOfItemsToShow = numberOfItemsToShow;
+    rssReader_titleClassName = titleClassName;
+    rssReader_descriptionClassName = descriptionClassName;
+    rssReader_containerID = containerID;
+
+
+    if(showDescription != null) {
+        rssReader_showDescription = showDescription;
+        }
+    if(showDate != null) {
+        rssReader_showDate = showDate;
+        }
+    
+    
+    if(rssReader_mode == 1) {
+      rssReader_loadXML(feedURL);
+      rssReader_buildRSSReader(rssReader_titleClassName, rssReader_descriptionClassName);
+        } else {
+          rssReader_getResponsePost(feedURL);
+    }
+
+}
+
+
+
+function rssReader_loadXML(xml)
+{
+if(rssReader_moz)
+{
+  try
+  {
+   if(rssReader_mode == 1)
+   {
+    rssReader_rssFeed = document.implementation.createDocument("", "", null)
+    rssReader_rssFeed.onload = rssReader_readXML;
+    rssReader_rssFeed.load(xml);
+    
+   }
+   else
+   {
+    var parser = new DOMParser();
+   
+    rssReader_rssFeed = parser.parseFromString(xml, "text/xml");
+    rssReader_isFeedLoaded = true;
+    parser = null;
+   }
+  }
+  catch(err)
+  {
+  
+  }
+}
+else if(rssReader_ie)
+{
+  rssReader_rssFeed = new ActiveXObject("Microsoft.XMLDOM");
+  rssReader_rssFeed.async = false;
+  rssReader_rssFeed.onreadystatechange = rssReader_readXML;
+  
+  try
+  {
+   if(rssReader_mode == 1)
+   {
+    rssReader_rssFeed.load(xml); 
+   }
+   else
+   {
+    rssReader_rssFeed.loadXML(xml);   
+   }
+  }
+  catch(err)
+  {
+   
+  }
+} 
+}
+function rssReader_readXML()
+{
+if(rssReader_moz)
+{
+  rssReader_isFeedLoaded = true;
+  return true;
+}
+else if(rssReader_ie)
+{
+  if(rssReader_rssFeed.readyState == 4 || rssReader_rssFeed.readyState == "complete")
+  {
+   rssReader_isFeedLoaded = true;
+   return true;
+    
+  }
+  else
+  {
+   return false;
+  }
+}
+}
+
+function rssReader_buildRSSReader(titleClassName, descriptionClassName)
+{
+var title = "";
+var description = "";
+var url = "";
+
+//if(rssReader_numberOfAttempts <xsl:text disable-output-escaping="yes">&lt;</xsl:text> 100)
+if(rssReader_numberOfAttempts < 100)
+{
+  if(rssReader_isFeedLoaded)
+  {
+   if(rssReader_rssFeed != null)
+   {
+    //if(rssReader_rssFeed.getElementsByTagName("rss")[0] != null <xsl:text disable-output-escaping="yes">&amp;&amp;</xsl:text> rssReader_rssFeed.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0].getElementsByTagName("item") != null)
+    if(rssReader_rssFeed.getElementsByTagName("rss")[0] != null && rssReader_rssFeed.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0].getElementsByTagName("item") != null)
+   {
+     rssReader_rssItems = rssReader_rssFeed.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0].getElementsByTagName("item");
+    }
+    
+    //if(rssReader_rssFeed.getElementsByTagName("rss")[0] != null <xsl:text disable-output-escaping="yes">&amp;&amp;</xsl:text> rssReader_rssFeed.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0].getElementsByTagName("title") != null)
+    if(rssReader_rssFeed.getElementsByTagName("rss")[0] != null && rssReader_rssFeed.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0].getElementsByTagName("title") != null)
+    {
+     rssReader_rssTitle = rssReader_rssFeed.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0].getElementsByTagName("title")[0].firstChild.nodeValue;
+    }
+    else
+    {
+     rssReader_rssTitle = "Latest RSS Headlines";
+    }
+    
+    if(rssReader_rssItems != null)
+    {
+     var rssReaderContainer = document.getElementById(rssReader_containerID);
+     //for(var i = 0; i <xsl:text disable-output-escaping="yes">&lt;</xsl:text> rssReader_rssItems.length <xsl:text disable-output-escaping="yes">&amp;&amp;</xsl:text> (rssReader_numberOfItemsToShow == null || i <xsl:text disable-output-escaping="yes">&lt;</xsl:text> rssReader_numberOfItemsToShow); i++)
+     for(var i = 0; i < rssReader_rssItems.length && (rssReader_numberOfItemsToShow == null || i < rssReader_numberOfItemsToShow); i++)
+     {
+      title = rssReader_rssItems[i].getElementsByTagName("title")[0].firstChild.nodeValue;
+      description = rssReader_rssItems[i].getElementsByTagName("description")[0].firstChild.nodeValue;
+      url = rssReader_rssItems[i].getElementsByTagName("link")[0].firstChild.nodeValue;
+      
+      if(rssReader_rssItems[i].getElementsByTagName("pubDate").length > 0)
+      {
+          date = rssReader_rssItems[i].getElementsByTagName("pubDate")[0].firstChild.nodeValue;
+      }
+
+      //rssReaderContainer.innerHTML += "<xsl:text disable-output-escaping="yes">&lt;</xsl:text>span class='" + titleClassName + "'<xsl:text disable-output-escaping="yes">&gt;</xsl:text><xsl:text disable-output-escaping="yes">&lt;</xsl:text>a href='" + url + "'<xsl:text disable-output-escaping="yes">&gt;</xsl:text>" + title + "<xsl:text disable-output-escaping="yes">&lt;</xsl:text>/a<xsl:text disable-output-escaping="yes">&gt;</xsl:text><xsl:text disable-output-escaping="yes">&lt;</xsl:text>/span<xsl:text disable-output-escaping="yes">&gt;</xsl:text><xsl:text disable-output-escaping="yes">&lt;br/&gt;</xsl:text>";
+      rssReaderContainer.innerHTML += "<span class='" + titleClassName + "'><a href='" + url + "'>" + title + "</a></span><br/>";
+      
+      if(rssReader_showDescription)
+      {
+            //rssReaderContainer.innerHTML += "<xsl:text disable-output-escaping="yes">&lt;</xsl:text>span class='" + descriptionClassName + "'<xsl:text disable-output-escaping="yes">&gt;</xsl:text>" + description + "<xsl:text disable-output-escaping="yes">&lt;</xsl:text>/span<xsl:text disable-output-escaping="yes">&gt;</xsl:text><xsl:text disable-output-escaping="yes">&lt;br/&gt;</xsl:text>";
+            rssReaderContainer.innerHTML += "<span class='" + descriptionClassName + "'>" + description + "</span><br/>";
+      }
+
+      //if(rssReader_showDate <xsl:text disable-output-escaping="yes">&amp;&amp;</xsl:text> date.length <xsl:text disable-output-escaping="yes">&gt;</xsl:text> 0)
+      if(rssReader_showDate && date.length > 0)
+            
+      {
+           //rssReaderContainer.innerHTML += "<xsl:text disable-output-escaping="yes">&lt;</xsl:text>span class='" + descriptionClassName + "'<xsl:text disable-output-escaping="yes">&gt;</xsl:text>" + date + "<xsl:text disable-output-escaping="yes">&lt;</xsl:text>/span<xsl:text disable-output-escaping="yes">&gt;</xsl:text><xsl:text disable-output-escaping="yes">&lt;br/&gt;</xsl:text>";
+           rssReaderContainer.innerHTML += "<span class='" + descriptionClassName + "'>" + date + "</span><br/>";
+      }
+      //rssReaderContainer.innerHTML += "<xsl:text disable-output-escaping="yes">&lt;br/&gt;</xsl:text>";
+      rssReaderContainer.innerHTML += "<br/>";
+
+     }
+     
+     rssReader_rssItems = null;
+     rssReader_rssFeed = null;
+     rssReader_xml = null;
+     
+     return;
+    }
+   }
+   else
+   {
+    rssReader_numberOfAttempts += 1;
+    window.setTimeout("rssReader_buildRSSReader('" + titleClassName + "', '" + descriptionClassName + "')", 0);
+   }
+  }
+  
+  else
+  {
+   rssReader_numberOfAttempts += 1;
+   window.setTimeout("rssReader_buildRSSReader('" + titleClassName + "', '" + descriptionClassName + "')", 0);
+  }
+}
+}
+function rssReader_getXmlHttpObject()
+{
+var objXMLHttp = null;
+
+if (window.XMLHttpRequest)
+{
+  objXMLHttp = new XMLHttpRequest();
+}
+else if (window.ActiveXObject)
+{
+  objXMLHttp = new ActiveXObject("Microsoft.XMLHTTP");
+}
+
+return objXMLHttp;
+}
+
+function rssReader_stateChanged()
+{
+if (rssReader_xmlHttp.readyState == 4 || rssReader_xmlHttp.readyState == "complete")
+{
+  rssReader_loadXML(rssReader_xmlHttp.responseText);
+  rssReader_buildRSSReader(rssReader_titleClassName, rssReader_descriptionClassName);
+  rssReader_xmlHttp = null;
+}
+}
+
+//use this for 'GET'
+function rssReader_getResponse(url)
+{
+rssReader_xmlHttp = rssReader_getXmlHttpObject();
+
+    if (rssReader_xmlHttp != null)
+{
+    var header = "Content-Type:application/x-www-form-urlencoded; charset=UTF-8";
+    var url = url;
+    
+    rssReader_xmlHttp.onreadystatechange = rssReader_stateChanged;
+    rssReader_xmlHttp.open("GET", url, true);
+    rssReader_xmlHttp.setRequestHeader(header.split(':')[0],header.split(':')[1]);
+    
+    rssReader_xmlHttp.send(null);
+   }
+}
+
+//use this for 'POST'
+function rssReader_getResponsePost(url)
+{
+rssReader_xmlHttp = rssReader_getXmlHttpObject();
+
+    if (rssReader_xmlHttp != null)
+{
+    var header = "Content-Type:application/x-www-form-urlencoded; charset=UTF-8";
+    var url = url;
+    
+    rssReader_xmlHttp.onreadystatechange = rssReader_stateChanged;
+    rssReader_xmlHttp.open("POST", rssASPXReader, true);
+    rssReader_xmlHttp.setRequestHeader(header.split(':')[0],header.split(':')[1]);
+    rssReader_xmlHttp.send("url=" + url);
+
+   }
+}
+
+
+
+</script><script language="JavaScript">
+<!--
+///////////////////////////////////////////////////
+//               QUADRO SERIES
+///////////////////////////////////////////////////
+var quadroSeries = new Array("dell","eurocomm","fsc","fujitsujapan","hewlettpackard","lenovo","toshiba");
+
+var quadro_dell = new Array("Dell",
+"Precision M2400,NVIDIA Quadro FX 370M,http://www.dell.com/workstations",
+"Precision M4400,NVIDIA Quadro FX 770M,http://www.dell.com/workstations",
+"Precision M6300,NVIDIA Quadro FX 3600M,http://www.dell.com/content/products/productdetails.aspx/precn_m6300?c=us&l=en&s=bsd&cs=04http://www.dell.com/content/products/productdetails.aspx/precn_m6300?c=us&l=en&s=bsd&cs=04",
+"Precision M6300,NVIDIA Quadro FX 1600M,http://www.dell.com/content/products/productdetails.aspx/precn_m6300?c=us&l=en&s=bsd&cs=04http://www.dell.com/content/products/productdetails.aspx/precn_m6300?c=us&l=en&s=bsd&cs=04",
+"Precision M4300,NVIDIA Quadro FX 360M,http://www.dell.com/content/products/productdetails.aspx/precn_m4300?c=us&l=en&s=bsd&cs=04",
+"Precision M2300,NVIDIA Quadro FX 360M,http://www.engadget.com/2007/11/08/dell-rolls-out-precision-m2300-laptop/",
+"Latitude D830,NVIDIA Quadro NVS 140M/NVIDIA Quadro NVS 135M,http://www.dell.com/content/products/productdetails.aspx/latit_d830?c=us&l=en&s=bsd&cs=04",
+"Latitude D820,NVIDIA Quadro NVS 120M/NVIDIA Quadro NVS 110M,http://www1.us.dell.com/content/products/compare.aspx/latit_hi?c=us&cs=04&l=en&s=bsd",
+"Latitude D630,NVIDIA Quadro NVS 135M,http://www.dell.com/content/products/productdetails.aspx/latit_d630?c=us&l=en&s=bsd&cs=04",
+"Latitude D620,NVIDIA Quadro NVS 110M,http://www1.us.dell.com/content/products/compare.aspx/latit_hi?c=us&cs=04&l=en&s=bsd"
+);
+
+var quadro_eurocomm = new Array("Eurocom",
+"M570TU Montebello,NVIDIA Quadro FX 1600M,http://www.eurocom.com/",
+"M57RU DIVINE-X,NVIDIA Quadro FX 1600M,http://www.eurocom.com/"
+);
+
+var quadro_fsc = new Array("FSC",
+"CELSIUS H270,NVIDIA Quadro FX 770M,http://www.fujitsu-siemens.com/",
+"CELSIUS H265,NVIDIA Quadro FX 770M,http://www.fujitsu-siemens.com/",
+"Celsius H250,NVIDIA Quadro FX 570M,http://www.fujitsu-siemens.com/products/mobile/notebooks/celsius_h.html"
+);
+
+var quadro_fujitsujapan = new Array("Fujitsu-Japan",
+"FMV-Life Book FMVH8240,NVIDIA Quadro FX 570M,http://www.fmworld.net/biz/fmv/product/hard/blb0704/h8240/"
+);
+
+var quadro_hewlettpackard = new Array("Hewlett_Packard",
+"EliteBook HP 8530w,NVIDIA Quadro FX 770M,http://www.hp.com/go/mobileworkstations",
+"EliteBook HP 8730w,NVIDIA Quadro FX 2700M/NVIDIA Quadro FX 3700M,http://www.hp.com/go/mobileworkstations",
+"HP Compaq 8710w,Quadro FX 3600M,http://h10010.www1.hp.com/wwpc/us/en/sm/WF06b/321957-321957-64295-321838-3329741-3355679-3355689-3544137.html?jumpid=oc_R1002_USENC-001_HP%20Compaq%208710w%20Mobile%20Workstation&lang=en&cc=us",
+"HP Compaq 8710w,Quadro FX 1600M,http://h10010.www1.hp.com/wwpc/us/en/sm/WF06b/321957-321957-64295-321838-3329741-3355679-3355689-3544137.html?jumpid=oc_R1002_USENC-001_HP%20Compaq%208710w%20Mobile%20Workstation&lang=en&cc=us",
+"HP Compaq 8510w,NVIDIA Quadro FX 570M,http://h10010.www1.hp.com/wwpc/us/en/sm/WF25a/321957-321957-64295-321838-3329741-3369263.html",
+"HP Compaq 8710p,NVIDIA Quadro NVS 320M,http://h10010.www1.hp.com/wwpc/us/en/sm/WF05a/321957-321957-64295-321838-3329741-3369264.html",
+"HP Compaq nx9420 (RB529UT),NVIDIA Quadro NVS 510M,http://h10010.www1.hp.com/wwpc/us/en/sm/WF06b/321957-64295-89315-321838-f1-1839153-1839212-3287148.html"
+);
+
+var quadro_lenovo = new Array("Lenovo",
+"Thinkpad W700,NVIDIA Quadro FX 2700M/NVIDIA Quadro FX 3700M,http://www.lenovo.com/",
+"ThinkPad T61p 15W,NVIDIA Quadro FX 570M,http://shop.lenovo.com/SEUILibrary/controller/e/na/LenovoPortal/en_US/catalog.workflow:category.details?current-catalog-id=12F0696583E04D86B9B79B0FEC01C087&current-category-id=19C791A03AF24034A0011B825513BCED&ipromoID=hpa00086&cid=USAffiliateT61LaunchBanne",
+"ThinkPad T61p 14W,NVIDIA Quadro FX 570M,http://shop.lenovo.com/SEUILibrary/controller/e/na/LenovoPortal/en_US/catalog.workflow:category.details?current-catalog-id=12F0696583E04D86B9B79B0FEC01C087&current-category-id=19C791A03AF24034A0011B825513BCED&ipromoID=hpa00086&cid=USAffiliateT61LaunchBanne",
+"ThinkPad T61,Quadro NVS 140M,http://shop.lenovo.com/SEUILibrary/controller/catalog.workflow:category.details?current-catalog-id=12F0696583E04D86B9B79B0FEC01C087&current-category-id=F2F5363C71FA4D61B176AD5FB80FA5D8",
+"ThinkPad R61,Quadro NVS 140M,http://shop.lenovo.com/SEUILibrary/controller/catalog.workflow:category.details?current-catalog-id=12F0696583E04D86B9B79B0FEC01C087&current-category-id=52A252555D554F338EB4B3178B3B6554"
+);
+
+/*var quadro_malibal = new Array("Malibal",
+"Samadhi Series,NVIDIA Quadro FX 2500M,",
+"Satori Series,NVIDIA Quadro FX 2500M,http://www.malibal.com/products/laptops/satori.shtml",
+"Nine Series,Dual NVIDIA Quadro FX 2500M,http://www.malibal.com/products/laptops/series9.shtml",
+"Veda Series,Dual NVIDIA Quadro FX 2500M,http://www.malibal.com/products/laptops/veda.shtml"
+);
+
+
+var quadro_prostar = new Array("Prostar",
+"9098,NVIDIA Quadro FX 2500M,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=9098",
+"9068,NVIDIA Quadro FX 2500M,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=9068",
+"5988,NVIDIA Quadro FX 2500M,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=5988",
+"5724,NVIDIA Quadro FX 2500M,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=5724",
+"9193,NVIDIA Quadro FX 1600M,http://www.pro-star.com",
+"5728,NVIDIA Quadro FX 1600M,http://www.pro-star.com"
+);
+
+
+var quadro_sager = new Array("Sager",
+"NP 9262,NVIDIA Quadro FX 1600M,http://www.sagernotebook.com",
+"NP 5792,NVIDIA Quadro FX 1600M,http://www.sagernotebook.com"
+);*/
+
+var quadro_toshiba = new Array("Toshiba",
+"Tecra M9,Quadro NVS 130M,http://www.toshibadirect.com/td/b2c/pdet.to?seg=HHO&poid=378523&coid=-33778"
+);
+
+///////////////////////////////////////////////////
+//               NINE SERIES
+///////////////////////////////////////////////////
+var nineSeries = new Array
+("acer","asus","msi");
+
+var nine_acer = new Array("ACER",
+"Aspire 8920G,<a href='/object/geforce_9650m_gs.html'>GeForce 9650M GS</a> / <a href='/object/geforce_9500m_gs.html'>GeForce 9500M GS</a>,http://www.acer.com/gemstoneblue/eng/",
+"Aspire 6920G,<a href='/object/geforce_9500m_gs.html'>GeForce 9500M GS</a>,http://www.acer.com/gemstoneblue/eng/"
+);
+
+var nine_asus = new Array("ASUS",
+"M51Sn,<a href='/object/geforce_9500m_gs.html'>GeForce 9500M GS</a>,http://www.asus.com/products.aspx?l1=5&l2=74&l3=604&l4=0&model=2026&modelmenu=1",
+"U3Sg,<a href='/object/geforce_9300m_g.html'>GeForce 9300M G</a>,http://www.asus.com/products.aspx?l1=5&l2=75&l3=565&l4=0&model=2022&modelmenu=2"
+);
+
+var nine_msi = new Array("MSI",
+"MSI GX720,GeForce 9600M GT,http://www.msimobile.com/nblist.aspx?series=GX720",
+"MSI GX620,GeForce 9600M GT,http://www.msimobile.com/nblist.aspx?series=GX620"
+);
+
+
+///////////////////////////////////////////////////
+//               EIGHT SERIES
+///////////////////////////////////////////////////
+var eightSeries = new Array
+("acer","addictPC","asus","alienware","apple","belinea","casper","chemUSA","chiligreen","connoiseur","cybersystem","datron","dell","fsc","hewlettpackard","lenovo","lg","malibal","maxdata","multirama","nexoc","novatech","olidata","packardbell","prostar","rock","rover","sager","samsung","sony","tarox","toshiba","tsunami","turboX","wortmann","xxodd","zepto");
+
+var eight_acer = new Array("Acer",
+"Aspire 5920G,GeForce 8600M GT,http://global.acer.com/products/notebook/as5920g.htm"
+);
+
+var eight_addictPC = new Array("Addict",
+"ASUS G1S-B2,GeForce 8600M GT,http://www.addictpc.com/index.php?crn=124&rn=515&action=show_detail"
+);
+
+var eight_asus = new Array("ASUS",
+"A7S,GeForce 8400M G,http://usa.asus.com/products.aspx?l1=5&l2=61&l3=424&l4=0&model=1666&modelmenu=2",
+"A8SC,GeForce 8400M G,http://usa.asus.com/news_show.aspx?id=6745",
+"F3SC,GeForce 8400M G,http://www.asus.com/products.aspx?l1=5&l2=26&l3=316&l4=0&model=1660&modelmenu=2",
+"F3SV,GeForce 8600M GS,http://www.asus.com/products4.aspx?modelmenu=2&model=1661&l1=5&l2=26&l3=316&l4=0",
+"G1S,GeForce 8600M GT,http://usa.asus.com/products.aspx?l1=5&l2=61&l3=416&l4=0&model=1674&modelmenu=2",
+
+
+"G2S,GeForce 8600M GT,http://usa.asus.com/products.aspx?l1=5&l2=61&l3=417&l4=0&model=1675&modelmenu=2"
+);
+
+var eight_alienware = new Array("alienware",
+"Area-51 m9750,Dual GeForce 8700M GT/GeForce 8700M GT,http://www.alienware.com/product_detail_pages/area-51_m9750/area-51m_overview(dep).aspx?SysCode=PC-LT-AREA51M9750&SubCode=SKU-DEFAULT#pdp-nav",
+"Area-51 m15x,GeForce 8800M GTX/GeForce 8700M GT/GeForce 8600M GT,http://www.alienware.com/product_pages/notebook_m15x.aspx?source=ECH0026"
+);
+
+var eight_apple = new Array("Apple",
+"MacBook Pro,GeForce 8600M GT,http://www.apple.com/macbookpro/"
+);
+
+var eight_belinea = new Array("Belinea",
+"o.book 5,GeForce 8600M GT,http://www.belinea.com/de/o_line/product_notebook_nu.jsp?node=645&artnr=220426",
+"b.book 5,GeForce 8400M GS,http://www.belinea.com/de/b_line/product_notebook_nu.jsp?node=649&artnr=220463"
+);
+
+var eight_casper = new Array("Casper",
+"Casper Nirvana,GeForce 8400M GS,http://www.casper.com.tr/pageStructure.aspx?intPageStructureNo=2&sintLanguageID=0&bytContentType=2&intPageNo=163&strHitCountParam=2|2|0|24|64"
+);
+
+var eight_chemUSA = new Array("Chem_USA",
+"ChemBook 4237 Series,GeForce 8400M GT,http://www.chemusa.com/",
+"ChemBook 4092 Series,GeForce 8600M GT,http://www.chemusa.com/",
+"ChemBook 1719 Series,GeForce 8600M GT,http://www.chemusa.com/"
+);
+
+var eight_chiligreen = new Array("Chiligreen",
+"Mobilitas CA MR2,GeForce 8700M GT,http://www.chiligreen.at/shop/configurator.asp?id=6239",
+"Mobilitas MK3,GeForce 8400M G,http://www.chiligreen.at/shop/configurator.asp?id=6513",
+"Mobilitas MU3,GeForce 8400M G,http://www.chiligreen.at/shop/configurator.asp?id=6514"
+);
+
+var eight_connoiseur = new Array("Connoiseur",
+"Connoi FL90,GeForce 8600M GT,http://www.connoiseur.com/connoi/index.php?main_page=product_info&cPath=99&products_id=996",
+"Connoi M570RU,GeForce 8700M GT,http://www.connoiseur.com/connoi/index.php?main_page=product_info&cPath=99&products_id=1000"
+);
+
+var eight_cybersystem = new Array("Cyber_system",
+"SR17,GeForce 8800M GTX/GeForce 8700M GT,http://www.cyber-system.de/product.php?productid=133&exp_showoptions=1",
+"SR15 Core2,GeForce 8400M GS,http://www.cyber-system.de/product.php?productid=127&cat=59",
+"Q17 Xtreme,GeForce 8800M GTX/Dual GeForce 8700M GT/GeForce 8700M GT,http://www.cyber-system.de/product.php?productid=128&exp_showoptions=1"
+);
+
+var eight_datron = new Array("Datron",
+"Datron TW7A,GeForce 8400M GS,http://www.datron.com.tr/datron/urundetay.php?malkodu=NB.DA-TW7A20S8WFD"
+);
+
+var eight_dell = new Array("Dell",
+"Insprion 1520,GeForce 8600M GT/GeForce 8400M GS,http://www.dell.com/content/products/productdetails.aspx/inspnnb_152x?c=us&cs=19&l=en&s=dhs",
+"Insprion 1720,GeForce 8600M GT/GeForce 8400M GS,http://www.dell.com/content/products/productdetails.aspx/inspnnb_172x?c=us&cs=19&l=en&s=dhs",
+"XPS 1330,Geforce 8400M GS,http://www.dell.com/content/products/productdetails.aspx/xpsnb_m1330?c=us&cs=19&l=en&s=dhs",
+"XPS M1730,Dual GeForce 8700M GT,http://www.dell.com/content/products/productdetails.aspx/xpsnb_m1730?c=us&cs=19&l=en&s=dhs&~tab=bundlestab"
+);
+
+var eight_fsc = new Array("FSC",
+"AMILIO Xa 2528,GeForce 8600M GS,http://www.fujitsu-siemens.com/home/products/notebooks/amilo_xa_2528.html"
+);
+
+var eight_hewlettpackard = new Array("Hewlett_Packard",
+"Pavilion dv2500t BroadBand Wireless Series,GeForce 8400M GS,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&series_name=dv2500tbw_series&tab_switch=true&a1=Brand&v1=HP+Pavilion&tab=specs",
+"Pavilion dv2500t Series,GeForce 8400M GS,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&series_name=dv2500t_series&tab_switch=true&a1=Brand&v1=HP+Pavilion&tab=specs",
+"Pavilion dv2800t Artist Edition,GeForce 8400M GS,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&a1=Brand&v1=Special+Edition&series_name=dv2800tae_series",
+"Pavilion dv6500t Series,GeForce 8400M GS,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&series_name=dv6500t_series&tab_switch=true&a1=Brand&v1=HP+Pavilion&tab=specs",
+"Pavilion dv6500z Series,GeForce 8400M GS,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&series_name=dv6500z_series&tab_switch=true&a1=Brand&v1=HP+Pavilion&tab=specs",
+"Pavilion dv9500t Series,GeForce 8400M GS/GeForce 8600M GS,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&series_name=dv9500t_series&tab_switch=true&a1=Brand&v1=HP+Pavilion&tab=specs",
+"Pavilion dv9500z Series,GeForce 8400M GS,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&series_name=dv9500z_series&tab_switch=true&a1=Brand&v1=HP+Pavilion&tab=specs",
+"Pavilion HDX,GeForce 8800M GTS,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&a1=Usage&v1=Extreme+multimedia&series_name=HDX_series&a1=Usage&v1=Extreme+multimedia"
+);
+
+var eight_lenovo = new Array("Lenovo",
+"TianYi F41,GeForce 8400M GS,http://appserver.lenovo.com.cn/Product/Product_Note/Product_detail.asp?productid=5759"
+);
+
+var eight_lg = new Array("LG",
+"E500,GeForce 8400M G,http://www.lge.com/products/model/detail/e500.jhtml",
+"R405,GeForce 8400M GS,http://www.lge.com/products/model/detail/r405.jhtml",
+"R500,GeForce 8600M GS/GeForce 8400M,http://www.lge.com/products/model/detail/r500.jhtml"
+);
+
+ var eight_malibal = new Array("malibal",
+"Nine Series,Dual GeForce 8800M GTX,http://www.malibal.com/products/laptops/series9.shtml",
+"Satori Series,GeForce 8800M GTX ,http://www.malibal.com/products/laptops/satori.shtml"
+);
+
+var eight_maxdata = new Array("Maxdata",
+"MAXDATA NB PRO 6110 IW,GeForce 8400M GS,http://www.maxdata.de/Onlineshop/product_notebook_nu.jsp?node=447&artnr=219881"
+);
+
+var eight_multirama = new Array("Multirama",
+"HQ Force FL-G,GeForce 8600M GT,http://www.multirama.gr/Multirama/product.aspx?a_id=111&cc_id=MultiramaNotebooks&cp_id=129590",
+"HQ Force TW-G,GeForce 8400M GS,http://www.multirama.gr/Multirama/product.aspx?a_id=111&cc_id=MultiramaNotebooks&cp_id=130777"
+);
+
+var eight_nexoc = new Array("Nexoc",
+"E617 III,GeForce 8400M G,http://www.nexoc.de/Nex_osirisE617III_db.htm",
+"E618,GeForce 8600M GS,http://www.nexoc.de/Nex_osirisE618_db.htm",
+"E619,GeForce 8600M GT,http://www.nexoc.de/Nex_osirisE619_db.htm",
+"E705 II,GeForce 8700M GT,http://www.nexoc.de/Nex_osirisE705II_db.htm",
+"E706 III,GeForce 8400M G,http://www.nexoc.de/Nex_osirisE706III_db.htm",
+"ODIN E804,Dual GeForce 8700M GT,http://www.nexoc.de/Nex_odinE804_db.htm"
+);
+
+var eight_novatech = new Array("Novatech",
+"Alpha R,GeForce 8600M GS,http://www.novatech.co.uk/novatech/specpage.html?NNB-576",
+"X60i,GeForce 8400M G,http://www.novatech.co.uk/novatech/specpage.html?NNB-567",
+"X80r,GeForce 8700M GT,http://www.novatech.co.uk/novatech/specpage.html?NNB-578"
+);
+
+var eight_olidata = new Array("Olidata",
+"Tehom 4950,GeForce 8600M GT,http://www.olidata.com/4950/"
+);
+
+var eight_packardbell = new Array("Packard_Bell",
+"EasyNote SB85,GeForce 8600M GS,http://www.packardbell.fr/products/ordinateurs-portables/easynote-sb/productgroup-631-1160.html",
+"EasyNote SB86,GeForce 8600M GS,http://www.packardbell.fr/products/ordinateurs-portables/easynote-sb/productgroup-631-1160.html",
+"EasyNote MB86,GeForce 8600M GS,http://www.packardbell.fr/products/ordinateurs-portables/easynote-mb/easynote-mb86-p-001/productsheet-PB92QW0002-1170.html"
+);
+
+var eight_prostar = new Array("Prostar",
+"9194,GeForce 8800M GTX,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=9194",
+"9022,GeForce 8600M GT,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=9022",
+"5729,GeForce 8800M GTX,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=5729"
+);
+
+var eight_rock = new Array("Rock",
+"Pegasus P710,GeForce 8600M GS,http://www.rockdirect.com/viewNotebook.php?pName=PEGASUS%20710",
+"Pegasus 670,GeForce 8600M GT,http://www.rockdirect.com/viewNotebook.php?pName=PEGASUS%20670",
+"Xtreme 770,GeForce 8800M GTX/GeForce 8700M GT,http://www.rockdirect.com/viewNotebook.php?pName=XTREME%20770"
+);
+
+var eight_rover = new Array("Rover",
+"Nautilus V450,GeForce 8400M GS,http://www.roverbook.ru/site/roverbook/homen.nsf/techspecs/NB000215",
+"Nautilus V570,GeForce 8600M GT,http://www.roverbook.ru/site/roverbook/homen.nsf/descriptions/NB000217",
+"Nautilus V571,GEForce 8600M GT,http://www.roverbook.ru/site/roverbook/homen.nsf/techspecs/NB000228",
+"Nautilus V770,GeForce 8600M GT,http://www.roverbook.ru/site/roverbook/homen.nsf/descriptions/NB000218",
+"Voyager V552,GeForce 8400M GS,http://www.roverbook.ru/site/roverbook/homen.nsf/techspecs/NB000214",
+"Voyager V553,GeForce 8600M GS,http://www.roverbook.ru/site/roverbook/homen.nsf/descriptions/NB000222",
+"Voyager V554,GeForce 8400M G,http://www.roverbook.ru/site/roverbook/homen.nsf/techspecs/NB000227",
+"Voyager V571,GeForce 8600M GT,http://www.roverbook.ru/site/roverbook/homen.nsf/descriptions/NB000228",
+"Voyager V750,GeForce 8400M G,http://www.roverbook.ru/site/roverbook/homen.nsf/descriptions/NB000229"
+);
+
+var eight_sager = new Array("Sager",
+"NP 9262, Dual GeForce 8800M GTX,http://www.sagernotebook.com/product_customed.php?pid=29175",
+"NP 5792, GeForce 8800M GTX/GeForce 8700M GT,http://www.sagernotebook.com/product_customed.php?pid=29186",
+"NP 6690, GeForce 8400M G,http://www.sagernotebook.com/product_customed.php?pid=22512",
+"NP 6790, GeForce 8400M G,http://www.sagernotebook.com/product_customed.php?pid=24978"
+);
+
+var eight_samsung = new Array("Samsung",
+"R70,GeForce 8400 M GS,http://www.sec.co.kr/goSamsung/index.jsp"
+);
+
+var eight_sony = new Array("Sony",
+"VAIO FZ180E/B,GeForce 8400M GT,http://www.sonystyle.com/webapp/wcs/stores/servlet/ProductDisplay?catalogId=10551&storeId=10151&langId=-1&productId=8198552921665091949",
+"VAIO AR Series,GeForce 8600M GT/GeForce 8400M GT,http://www.sonystyle.com/webapp/wcs/stores/servlet/CategoryDisplay?catalogId=10551&storeId=10151&langId=-1&categoryId=27835"
+);
+
+var eight_tarox = new Array("Tarox",
+"Wingpad 2160,GeForce 8800M GTX,http://www.tarox.de/produkte/notebooks/wingpad_2160.php?cat=products&pid=219",
+"Wingpad 2150,GeForce 8700M GT,http://www.tarox.de/produkte/notebooks/wingpad_2150.php",
+"Wingpad 2060,GeForce 8400M,http://www.tarox.de/produkte/notebooks/wingpad_2060.php"
+);
+
+var eight_toshiba = new Array("Toshiba",
+"Satellite X205,GeForce 8700M GT,http://www.toshibadirect.com/td/b2c/cmpr.to?seg=HHO&poid=383432&poid=383433",
+"Satellite X205-SLi,Dual GeForce 8600M GT,http://www.toshibadirect.com/td/b2c/toshibadirect.to?page=gaming&seg=HHO"
+);
+
+var eight_tsunami = new Array("Tsunami",
+"Speeder,GeForce 8600M GS,http://www.tsunami.pt/catalogue/index.php?action=searchfo&cat_id=86",
+"Runner,GeForce 8400M GS,http://www.tsunami.pt/catalogue/index.php?action=searchfo&cat_id=93",
+"Replacer,GeForce 8600M GT,http://www.tsunami.pt/catalogue/index.php?action=searchfo&cat_id=94"
+);
+
+var eight_turboX = new Array("TurboX",
+"Turbo-X Dominus,GeForce 8700M GT,http://www.plaisio.gr/product.aspx?catalog=5&category=69980225&product=988790",
+"Turbo-X Iron VN75,GeForce 8600M GT,http://www.plaisio.gr/product.aspx?catalog=5&category=69975832&product=988812",
+"Turbo-X Prime VN,GeForce 8400M G,http://www.plaisio.gr/productlist.aspx?catalog=05&category=69980225",
+"Turbo-X Prime XVN,GeForce 8400M G,http://www.plaisio.gr/productlist.aspx?catalog=05&category=69980225",
+"Maestro MN,GeForce 8600M GS,http://www.plaisio.gr/productlist.aspx?catalog=05&category=69980225"
+);
+
+var eight_wortmann = new Array("Wortmann",
+"Terra Mobile Business 8410,GeForce 8400M GS,https://webshop.wortmann.de/commerceportal/default.asp?PageNo=DEFAULT"
+);
+
+var eight_xxodd = new Array("XXODD",
+"XNi 660SU,GeForce 8400M G,http://www.xxodd.nl/index.php",
+"XNi 660sru,GeForce 8400M G,http://www.xxodd.nl/index.php?p=artikel&ID=258&e=1",
+"XNi 8252dp,GeForce 8600M GS,http://www.xxodd.nl/index.php?p=artikel&ID=201&e=1",
+"XNi 670sru,GeForce 8400M G,http://www.xxodd.nl/index.php?p=artikel&ID=223&e=1",
+"XNi 8227d,GeForce 8600M GS,http://www.xxodd.nl/index.php?p=artikel&ID=202&e=1",
+"XNi 570ru,GeForce 8700M GT,http://www.xxodd.nl/index.php?p=artikel&ID=185&e=1",
+"XNi 570ru-GTX,GeForce 8800M GTX,http://www.xxodd.nl/index.php?p=artikel&ID=261&e=1",
+"XNi 901c-GT,Dual GeForce 8700M GT,http://www.xxodd.nl/index.php?p=artikel&ID=262&e=1"
+);
+
+var eight_zepto = new Array("Zepto",
+"Znote 3414W,GeForce 8400M GS,http://uk.zepto.com/Shop/Notebook.aspx?notebookid=676",
+"Znote 3415W,GeForce 8600M GT,http://www.zepto.com/Shop/Notebook.aspx?notebookid=674",
+"Znote 6224W,GeForce 8600M GT,http://www.zepto.com/Shop/Notebook.aspx?notebookid=644",
+"Znote 6324W,GeForce 8600M GT,http://www.zepto.com/Shop/Notebook.aspx?notebookid=645",
+"Znote 6625WD,GeForce 8600M GT,http://www.zepto.com/Shop/Notebook.aspx?notebookid=636"
+);
+
+
+///////////////////////////////////////////////////
+//               SEVEN SERIES
+///////////////////////////////////////////////////
+var sevenSeries = new Array("abs","acer","ajump","alienware","amax","asus","azkenmuga","bacoc","biohazard","boxx","cyberpower","cybersystem","dell","eurocomm","gateway","hewlettpackard","hypersonic","ibuypower","lenovo","lg","malibal","nogware","polywell","prostar","rock","rover","sager","samsung","sony","tarox","toshiba","velocitymicro","vestel","vigorgaming","xicomputer");
+
+var seven_abs = new Array ("ABS",
+"Mayhem Z5, GeForce Go 7900 GTX, http://www.abs.com/app/z5_specs.asp",
+"Mayhem G5 Vanguard,GeForce Go 7800 GTX,http://www.abs.com/app/config.asp?mono=1957"
+);
+
+var seven_acer = new Array ("Acer",
+"Aspire 9800,GeForce Go 7600,http://global.acer.com/products/notebook/as9800.htm",
+"Aspire 5650,GeForce Go 7600,http://global.acer.com/products/notebook/as5650.htm",
+"Aspire 9110,GeForce Go 7600,http://global.acer.com/products/notebook/as9110.htm",
+"Aspire 9150,GeForce Go 7900 GS/GeForce Go 7600,http://global.acer.com/products/notebook/as9510.htm",
+"Travelmate 4260,GeForce Go 7600,http://global.acer.com/products/notebook/tm4260.htm",
+"Travelmate 4200,GeForce Go 7300,http://global.acer.com/products/notebook/tm4200.htm"
+);
+
+var seven_ajump = new Array("ajump",
+"Asus V6J,GeForce Go 7400,http://www.ajump.com/ajump/product.asp?dept%5Fid=4210&pf%5Fid=0640166&sku=99%2D99%2D99%2D99%2D99%2D0640166"
+);
+
+var seven_alienware = new Array("Alienware",
+"Area-51 m5550,GeForce Go 7600,http://www.alienware.com/product_detail_pages/Area-51_m5550/area-51m_specs.aspx?SysCode=PC-LT-AREA51M5550-R3&SubCode=SKU-DEFAULT#pdp-nav",
+"Area-51 m9750,Dual GeForce Go 7950 GTX,http://www.alienware.com/product_detail_pages/area-51_m9750/area-51m_overview.aspx?SysCode=PC-LT-AREA51M9750&SubCode=SKU-DEFAULT"
+);
+
+var seven_amax = new Array("Amax",
+"Asus Z92KM,GeForce Go 7300,http://online.amax.com/amaxres/nb_amd.asp?"
+);
+
+var seven_asus = new Array("Asus",
+"ASUS Lamborghini VX1,GeForce Go 7400,http://www.asus.com/products.aspx?l1=5&l2=25&l3=309&model=1188&modelmenu=2",
+"A6KM,GeForce Go 7300,http://www.asus.com/",
+"A6Vm,GeForce Go 7300,http://www.asus.com/",
+"A6Km,GeForce Go 7300,http://www.asus.com/",
+"A6J,GeForce Go 7300,http://www.asus.com/",
+"A6Jm,GeForce Go 7600,http://www.asus.com/products3.aspx?l1=5&l2=24&l3=134&slname=A6%20Series",
+"A6T,GeForce Go 7600,http://www.asus.com/products3.aspx?l1=5&l2=24&l3=134&slname=A6%20Series",
+"A6Tc,GeForce Go 7300,http://www.asus.com/products.aspx?l1=5&l2=24&l3=134&model=1186&modelmenu=2",
+"A7T,GeForce Go 7600/GeForce Go 7600 SE,http://www.asus.com/products3.aspx?l1=5&l2=22&l3=291&slname=A7%20Series",
+"A7Tc,GeForce Go 7600/GeForce Go 7600 SE,http://www.asus.com/products3.aspx?l1=5&l2=22&l3=291&slname=A7%20Series",
+"A8J,GeForce Go 7600/GeForce Go 7300,http://www.asus.com/products3.aspx?l1=5&l2=26&l3=270",
+"F3P,GeForce Go 7300,http://www.asus.com/products.aspx?l1=5&l2=26&l3=316&model=1475&modelmenu=2",
+"F3Jc,GeForce Go 7300,http://www.asus.com/products.aspx?l1=5&l2=26&l3=316&model=1475&modelmenu=2",
+"F3Jm,GeForce Go 7600,http://www.asus.com/products3.aspx?l1=5&l2=26&l3=316",
+"F3Jv,GeForce Go 7600,http://www.asus.com/products3.aspx?l1=5&l2=26&l3=316",
+"G1,GeForce Go 7700,http://www.asus.com/products.aspx?l1=5&l2=74&l3=464&model=1447&modelmenu=2",
+"M9J,GeForce Go 7300,http://www.asus.com/products.aspx?l1=5&l2=26&l3=223&model=1150&modelmenu=2",
+"V6J,GeForce Go 7400,http://www.asus.com/",
+"W7J,GeForce Go 7400,http://www.asus.com/products.aspx?l1=5&l2=75&l3=298&model=1142&modelmenu=2",
+"Z62,GeForce Go 7300,http://www.asus.com/"
+);
+
+var seven_azkenmuga = new Array("Azken_Muga",
+"AzkenStation M10,GeForce Go 7800 GTX,http://www.azken.com/privado/Workstation.asp?IDC=&idWs=63"
+);
+
+var seven_bacoc = new Array("Bacoc",
+"D910K,GeForce Go 7800 GTX,http://www.bacoc.com/notebook_D910K.html"
+);
+
+var seven_biohazard = new Array("Biohazard",
+"Outbreak SLI,Dual GeForce Go 7950 GTX,http://shop.1asecure.com/prod.cfm?Stid=2343&ProdID=233905"
+);
+
+var seven_boxx = new Array("Boxx",
+"GoBOXX 2300 Series,GeForce Go 7800 GTX,http://www.boxxtech.com/products/2300.asp",
+"GoBOXX 1400 Series,GeForce Go 7900 GTX,http://www.boxxtech.com/products/1400.asp"
+);
+
+var seven_cyberpower = new Array("Cyber_Power",
+"Gamer Xplorer X64 SLI Pro,Dual GeForce Go 7900 GTX,http://www.cyberpowerpc.com/system/ntbkx64sli.asp?v=d",
+"Gamer Xplorer X64-Ultra,GeForce Go 7900 GTX,http://www.cyberpowerpc.com/system/ntbkx64ultra.asp?v=d"
+);
+
+var seven_cybersystem = new Array("Cyber_System",
+"DR19 Dual,Dual GeForce Go 7900 GTX,http://www.cyber-system.de/product.php?productid=106",
+"X17 Core 2,GeForce Go 7900 GTX,http://www.cyber-system.de/product.php?productid=107",
+"X17,GeForce Go 7800 GTX,http://www.cyber-system.de/product.php?productid=7&cat=39"
+);
+
+var seven_dell = new Array("Dell",
+"XPS M1710,GeForce Go 7950 GTX/GeForce Go 7900 GS,http://www.dell.com/content/products/productdetails.aspx/xpsnb_m1710?c=us&cs=19&l=en&s=dhs&~ck=mn",
+"M170,GeForce Go 7800 GTX,http://www.dell.com/",
+"Inspiron 9400,GeForce Go 7900 GS,http://www.dell.com/content/products/features.aspx/inspn_9400?c=us&cs=04&l=en&s=bsd",
+"Inspiron E1505,GeForce Go 7300,http://www.dell.com/content/products/features.aspx/entnb_e1505?c=us&cs=19&l=en&s=dhs",
+"XPS M1210,GeForce Go 7400,http://www.dell.com/content/products/productdetails.aspx/xpsnb_m1210?c=us&cs=19&l=en&s=dhs"
+);
+
+var seven_eurocomm = new Array("Eurocom",
+"D900K F-Bomb,GeForce Go 7900 GTX/GeForce Go 7800 GTX,http://web.eurocom.com/EC/ec_model_config1&#40;1&#44;164&#44;0&#41;",
+"D900T Phantom,GeForce Go 7900 GTX/GeForce Go 7800 GTX,http://web.eurocom.com/EC/ec_model_config1&#40;1&#44;123&#44;0&#41;",
+"M590K,GeForce Go 7900 GTX/GeForce Go 7800 GTX,http://web.eurocom.com/EC/ec_model_config1&#40;1&#44;172&#44;0&#41;",
+"M570U Divine,GeForce Go 7900 GTX,http://web.eurocom.com/EC/ec_model_config1&#40;1&#44;175&#44;0&#41;"
+);
+
+var seven_gateway = new Array("Gateway",
+"NX860XL,GeForce Go 7900,http://www.gateway.com/products/GConfig/proddetails.asp?system_id=nx860xl&seg=hm",
+"NX860X,GeForce Go 7600,http://www.gateway.com/products/gconfig/prodhmseries.asp?seg=hm&gcseries=nx860&clv=Btn1",
+"M685,GeForce Go 7800/GeForce Go 7600,http://www.gateway.com/products/gconfig/proddetails.asp?seg=sb&system_id=m685esbb"
+);
+
+var seven_hewlettpackard = new Array("Hewlett_Packard",
+"Pavilion dv9500z Series,GeForce 7150M,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&series_name=dv9500z_series&tab_switch=true&a1=Brand&v1=HP+Pavilion&tab=specs",
+"Pavilion dv6500z Series,GeForce 7150M,http://www.shopping.hp.com/webapp/shopping/computer_can_series.do?storeName=computer_store&category=notebooks&series_name=dv6500z_series&tab_switch=true&a1=Brand&v1=HP+Pavilion&tab=specs",
+"Pavilion dv9000z,GeForce Go 7600,http://www.shopping.hp.com/webapp/shopping/series_can.do?catLevel=2&landing=notebooks&storeName=computer_store&a1=Usage&v1=Entertainment",
+"Pavilion dv9000t,GeForce Go 7600,http://www.shopping.hp.com/webapp/shopping/series_can.do?catLevel=2&landing=notebooks&storeName=computer_store&a1=Usage&v1=Entertainment",
+"Pavilion dv6000z,GeForce Go 7200,http://www.shopping.hp.com/webapp/shopping/series_can.do?catLevel=2&landing=notebooks&storeName=computer_store&a1=Usage&v1=Entertainment",
+"Pavilion dv6000t,GeForce Go 7400,http://www.shopping.hp.com/webapp/shopping/series_can.do?catLevel=2&landing=notebooks&storeName=computer_store&a1=Usage&v1=Entertainment",
+"Pavilion dv2000t,GeForce Go 7200,http://www.shopping.hp.com/webapp/shopping/series_can.do?catLevel=2&landing=notebooks&storeName=computer_store&a1=Usage&v1=Entertainment"
+);
+
+var seven_hypersonic = new Array("Hypersonic",
+"Aviator CX7,GeForce Go 7900 GTX,http://www.hypersonic-pc.com/2001/systems-mobile.asp",
+"Aviator EX7,GeForce Go 7900 GTX,http://www.hypersonic-pc.com/2001/systems-mobile.asp",
+"Aviator FX7,GeForce Go 7900 GTX,http://www.hypersonic-pc.com/2001/systems-mobile.asp"
+);
+
+var seven_ibuypower = new Array("iBuypower",
+"Battalion 101 SC-650 SLI,Dual GeForce Go 7900 GTX,http://www.ibuypower.com/ibp/store/configurator.aspx?mid=172"
+);
+
+var seven_lenovo = new Array("Lenovo",
+"3000 N200,GeForce Go 7300,http://shop.lenovo.com/SEUILibrary/controller/systemconfig.runtime.workflow:LoadRuntimeTree?sb=:00000025:0000014C:"
+);
+
+var seven_lg = new Array("LG",
+"M1 Express Dual,GeForce Go 7600/GeForce Go 7400/GeForce Go 7300,http://www.lge.com/products/category/list/computer%20products_notebook_m1%20express%20dual.jhtml"
+);
+
+var seven_malibal = new Array("Malibal",
+"Samadhi Series,GeForce Go 7950 GTX,",
+"Satori Series,GeForce Go 7950 GTX,http://www.malibal.com/products/laptops/satori.shtml",
+"Nine Series,Dual GeForce Go 7950 GTX,http://www.malibal.com/products/laptops/series9.shtml",
+"Veda Series,Dual GeForce Go 7950 GTX,http://www.malibal.com/products/laptops/veda.shtml"
+);
+
+var seven_nogware = new Array("Nogware",
+"Anarchy 100,GeForce Go 7900 GTX/GeForce Go 7800 GTX,http://www.nogware.com/product_p/a100.htm",
+"Hyperion H500,GeForce Go 7900 GTX,http://www.nogware.com/product_p/h500.htm",
+"Kaos 400,GeForce Go 7900 GTX/GeForce Go 7800 GTX,http://www.nogware.com/product_p/k400.htm",
+"Savage 150,Dual GeForce Go 7800 GTX,http://www.nogware.com/product_p/s150.htm"
+);
+
+var seven_polywell = new Array("Polywell",
+"Polynote M719NC,GeForce Go 7900 GTX,http://www.polywell.com/us/notebook/PolyNoteM719NB.asp",
+"Polynote T512NS-MXM,GeForce Go 7300,http://www.polywell.com/us/notebook/polyT512NS-MXM.asp",
+"Polynote T916N,GeForce Go 7800,http://www.polywell.com/us/notebook/polyT916N.asp"
+);
+
+var seven_prostar = new Array("Prostar",
+"9098,GeForce Go 7900 GTX/GeForce Go 7800 GTX,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=9098",
+"9068,GeForce Go 7900 GTX/GeForce Go 7800 GTX,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=9068",
+"5988,GeForce Go 7900 GTX,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=5988",
+"5724,GeForce Go 7900 GTX,http://www.pro-star.com/index.cfm?mainpage=productdetail&model=5724"
+);
+
+var seven_rock = new Array("Rock",
+"Xtreme CTX Pro,GeForce Go 7900 GTX,http://www.rockdirect.com/viewNotebook.php?pName=XTREME%20CTX%20PRO",
+"Xtreme SL,Dual GeForce Go 7900 GTX/Dual GeForce Go 7800 GTX,http://www.rockdirect.com/viewNotebook.php?pName=XTREME%20SL"
+);
+
+var seven_rover = new Array("Rover",
+"RoverBook Pro 550,GeForce Go 7400,http://www.roverbook.ru/site/roverbook/homen.nsf/descriptions/NB000206"
+);
+
+var seven_sager = new Array("Sager",
+"NP 9890,GeForce Go 7900 GTX/GeForce Go 7800 GTX,http://www.sagernotebook.com/pages/notebooks/product.cfm?ProductType=9890",
+"NP 9750,GeForce Go 7900 GTX/GeForce Go 7800 GTX,http://www.sagernotebook.com/pages/notebooks/product.cfm?ProductType=9750",
+"NP 5950,Dual GeForce Go 7900 GTX/Dual GeForce Go 7800 GTX,http://www.sagernotebook.com/pages/notebooks/product.cfm?ProductType=5950",
+"NP 5760,GeForce Go 7900 GTX,http://www.sagernotebook.com/pages/notebooks/product.cfm?ProductType=5760",
+"NP 9262, Go 7960 GTX,http://www.sagernotebook.com",
+"NP 5792, Go 7950 GTX,http://www.sagernotebook.com"
+);
+
+var seven_samsung = new Array("Samsung",
+"R65,GeForce Go 7600/GeForce Go 7400,http://product.samsung.com/cgi-bin/nabc/includes/samsung_con_HQ/global/b2c_global_gate.jsp?eUser=&item=notebook",
+"X11,GeForce Go 7400,http://www.samsungcomputer.com/product/X11/X11_feature.htm?SMSESSION=NO"
+);
+
+var seven_sony = new Array("Sony",
+"Vaio AR Series,GeForce Go 7600 GT,http://www.sonystyle.com/is-bin/INTERSHOP.enfinity/eCS/Store/en/-/USD/SY_BrowseCatalog-Start?CategoryName=cpu_VAIONotebookComputers_AR_Series&Dept=computers",
+"Vaio FE690PB (VGN-FE690PB),GeForce Go 7600,http://www.sonystyle.com/is-bin/INTERSHOP.enfinity/eCS/Store/en/-/USD/SY_DisplayProductInformation-Start?CategoryName=cpu_VAIONotebookComputers_FE_Series&ProductSKU=VGNFE690PB&TabName=feature&var2=",
+"Vaio SZ Series,GeForce Go 7400,http://www.sonystyle.com/is-bin/INTERSHOP.enfinity/eCS/Store/en/-/USD/SY_BrowseCatalog-Start?CategoryName=cpu_VAIONotebookComputers&Dept=computers"
+);
+
+var seven_tarox = new Array("Tarox",
+"TAROX Lightpad 2015,GeForce Go 7800 GTX,http://www.tarox.de/produkte/notebooks/lightpad_2015.php?cat=products&pid=130"
+);
+
+var seven_toshiba = new Array("Toshiba",
+"Satellite P105-S921,GeForce Go 7900 GS,http://www.toshibadirect.com/td/b2c/pdet.to?poid=326522&coid=-30597&seg=HHO&tab=xsell",
+"Satellite P100-ST9012,GeForce Go 7900 GTX,http://www.toshibadirect.com/td/b2c/cmod.to?seg=HHO&coid=-30605",
+"Satellite P100-ST9412,GeForce Go 7900 GS,http://www.toshibadirect.com/td/b2c/cmod.to?seg=HHO&coid=-30605",
+"Satellite P100-ST9612,GeForce Go 7900 GS,http://www.toshibadirect.com/td/b2c/cmod.to?seg=HHO&coid=-30605",
+"Qosmio G35,GeForce Go 7600/GeForce Go 7300,http://www.toshibadirect.com/td/b2c/cmod.to?seg=HHO&coid=-30600"
+);
+
+var seven_velocitymicro = new Array("Velocity_Micro",
+"NoteMagix L80 Ultra,GeForce Go 7600 GS,http://www.velocitymicro.com/wizard.php?iid=80",
+"NoteMagix M57 Ultra,GeForce Go 7900 GTX,http://www.velocitymicro.com/wizard.php?iid=79"
+);
+
+var seven_vestel = new Array("Vestel",
+"D15N/D154N,GeForce Go 7400/Geforce Go 7300,http://www.vestel.com.tr/dev_en"
+);
+
+var seven_vigorgaming = new Array("Vigor_Gaming",
+"Atlantis,GeForce Go 7900 GTX,http://www.vigorgaming.com/main/rigs-atlantis.html"
+);
+
+var seven_xicomputer = new Array("Xi_Computer",
+"Xi PowerGo 2 Duo,GeForce Go 7950 GTX,http://www.xicomputer.com/products/powergointel.asp"
+);
+
+///////////////////////////////////////////////////
+//                SIX SERIES
+///////////////////////////////////////////////////
+
+var sixSeries = new Array("abs","acer","addictPC","ajump","aopen","asus","bacoc","chemUSA","ecs","eurocomm","evesham","falcon","fujitsu","gateway","gericom","hewlettpackard","hypersonic","iru","jetta","malibal","maxdata","medion","msi","nogware","packardBell","pcspezialist","polywell","prostar","rover","sabio","sager","samsung","seanix","sony","tarox","toshiba","turboX","voodoo");
+
+var six_abs = new Array("ABS",
+"Mayhem G4 Revolution,GeForce Go 6600 MXM,http://www.abs.com/app/config.asp?mono=1902"
+);
+
+var six_acer = new Array("Acer",
+"TravelMate4150,GeForce Go 6200,",
+"TravelMate4650,GeForce Go 6600,",
+"TravelMate C120,GeForce Go 6200,",
+"TravelMate C310,GeForce Go 6200,"
+);
+
+var six_addictPC = new Array("Addict",
+"Addict Z71V ,GeForce Go 6600,",
+"HyperAddict Pentium M,GeForce Go 6600 MXM,",
+"Addict Z81SP Pentium 4,GeForce Go 6800 MXM,"
+);
+
+var six_ajump = new Array("ajump",
+"Asus A6VC,GeForce Go 6200,",
+"Asus Z71Vp,GeForce Go 6600,",
+"Asus Z81Sp,GeForce Go 6800,"
+);
+
+
+var six_aopen = new Array("Aopen",
+"1559,GeForce Go 6600,"
+);
+
+var six_asus = new Array("Asus",
+"M7V,GeForce Go 6600,",
+"A6K,GeForce Go 6600,http://www.asus.com/products.aspx?l1=5&l2=24&l3=134&l4=0&model=518&modelmenu=1",
+"A6M,GeForce Go 6100,http://www.asus.com/products.aspx?l1=5&l2=24&l3=134&model=1183&modelmenu=2",
+"A6Vc,GeForce Go 6600,http://www.asus.com/products.aspx?l1=5&l2=24&l3=134&l4=0&model=534&modelmenu=1",
+"A7M,GeForce Go 6100,http://www.asus.com/products3.aspx?l1=5&l2=22&l3=291&slname=A7%20Series",
+"A7Mb,GeForce Go 6100,http://www.asus.com/products3.aspx?l1=5&l2=22&l3=291&slname=A7%20Series",
+"A7Mc,GeForce Go 6100,http://www.asus.com/products3.aspx?l1=5&l2=22&l3=291&slname=A7%20Series",
+"A7Tb,GeForce Go 6100,http://www.asus.com/products3.aspx?l1=5&l2=22&l3=291&slname=A7%20Series",
+"A8M,GeForce Go 6100,http://www.asus.com/products3.aspx?l1=5&l2=26&l3=270&slname=A8%20Series",
+"A8Tc,GeForce Go 6100,http://www.asus.com/products3.aspx?l1=5&l2=26&l3=270&slname=A8%20Series",
+"F3M,GeForce Go 6100,http://www.asus.com/products3.aspx?l1=5&l2=26&l3=316&slname=F3%20Series",
+"F3T,GeForce Go 6100,http://www.asus.com/products3.aspx?l1=5&l2=26&l3=316&slname=F3%20Series",
+"Z71V,GeForce Go 6600,",
+"Z81Sp,GeForce Go 6800,"
+);
+
+var six_bacoc = new Array("Bacoc",
+"D900,GeForce Go 6800 MXM,http://www.bacoc.com/notebook_D900.html",
+"M820,GeForce Go 6800,http://www.bacoc.com/notebook_M820.html"
+);
+
+var six_chemUSA = new Array("Chem_USA",
+"Chembook 2030,GeForce Go 6400,",
+"Chembook 2371V,GeForce Go 6600,"
+);
+
+var six_ecs = new Array("ECS",
+"G910,GeForce Go 6800 Ultra,"
+);
+
+var six_eurocomm = new Array("Eurocom",
+"D900K F-Bomb,GeForce Go 6800 Ultra,http://web.eurocom.com/EC/ec_model_config1&#40;1&#44;164&#44;0&#41;",
+"D900T Phantom,GeForce Go 6800 Ultra/GeForce Go 6800,http://web.eurocom.com/EC/ec_model_config1&#40;1&#44;123&#44;0&#41;",
+"D700T Enigma,GeForce Go 6800,http://web.eurocom.com/EC/ec_model_config1&#40;1&#44;150&#44;0&#41;"
+);
+
+var six_evesham = new Array("Evesham",
+"Voyager C720,GeForce Go 6800,"
+);
+
+var six_falcon = new Array("Falcon_Northwest",
+"FragBook DR,GeForce Go 6800,"
+);
+
+var six_fujitsu = new Array("FSC",
+"Amilo M3438G,GeForce Go 6600,http://www.kelkoo.de/b/a/ss_fsc_notebook.html",
+"Amilo M4438G,GeForce Go 6800,http://www.kelkoo.de/b/a/ss_fsc_notebook.html"
+);
+
+var six_gateway = new Array("Gateway",
+"Gateway MX3302,GeForce Go 6100,"
+);
+
+var six_gericom = new Array("Gericom",
+"Supersonic PCI E,GeForce Go 6600,"
+);
+
+var six_hewlettpackard = new Array("Hewlett_Packard",
+"Compaq Presario V3000Z,GeForce Go 6150,",
+"Pavilion dv9000z,GeForce Go 6150,",
+"Pavilion dv6000z,GeForce Go 6150,",
+"Pavilion dv2000z,GeForce Go 6150,",
+"Compaq Presario V6000Z,GeForce Go 6150,"
+);
+
+var six_hypersonic = new Array("Hypersonic",
+"Aviator EX7,GeForce Go 6800,http://www.hypersonic-pc.com/2001/index.asp",
+"Aviator MX6,GeForce Go 6600,",
+"Aviator CR6,GeForce Go 6600,"
+);
+
+var six_iru = new Array("iRU",
+"Brava 7154,GeForce Go 6600,http://www.iru.ru/",
+"Brava 7615,GeForce Go 6600,http://www.iru.ru/"
+);
+
+var six_jetta = new Array("Jetta",
+"Jetbook C240,GeForce Go 6600,"
+);
+
+var six_malibal = new Array("Malibal",
+"Samadhi,GeForce Go 6800 Ultra,",
+"Series #9,GeForce Go 6800 Ultra,"
+);
+
+var six_maxdata = new Array("Maxdata",
+"MAXDATA NB PRO 8100 IS ( 58 ),GeForce Go 6600,",
+"MAXDATA NB PRO 6100 I ,GeForce Go 6200,",
+"MAXDATA NB ECO 4100 IW DE ,GeForce Go 6200,"
+);
+
+var six_medion = new Array("Medion",
+"RIM 2000,GeForce Go 6600,",
+"MIM 2110,GeForce Go 6200,"
+);
+
+var six_msi = new Array("MSI",
+"MS1035 17&quot; wide,GeForce Go 6600,",
+"M645( MS1032 15.4 wide),GeForce Go 6600,",
+"M425( MS1022 14 wide ),GeForce Go 6600,"
+);
+
+var six_nogware = new Array("Nogware",
+"Hyperion H300,GeForce Go 6600,"
+);
+
+var six_packardBell = new Array("Packard_Bell",
+"EasyNote W7,GeForce Go 6600,",
+"EasyNote R9,GeForce Go 6200,"
+);
+
+var six_pcspezialist = new Array("PC_Spezialist",
+"Samsung M50,GeForce Go 6600,",
+"MSI Megabook S425-1756DL,GeForce Go 6200,"
+);
+
+var six_polywell = new Array("Polywell",
+"Polynote MXM915AS ,GeForce Go 6600 MXM,",
+"PolyNote 915P4-MXM,GeForce Go 6800 MXM,",
+"Polynote T714NS-MXM,GeForce Go 6600,"
+);
+
+var six_prostar = new Array("Prostar",
+"9097,GeForce Go 6800,"
+);
+
+var six_rover = new Array("Rover",
+"Nautilus Z790,GeForce Go 6800,",
+"Navigator W400,GeForce Go 6200,"
+);
+
+var six_sabio = new Array("Sabio_Digital",
+"KN1C PM,GeForce Go 6600,"
+);
+
+var six_sager = new Array("Sager",
+"D900,GeForce Go 6800,"
+);
+
+var six_samsung = new Array("Samsung",
+"M50,GeForce Go 6600,",
+"M70,GeForce Go 6600,"
+);
+
+var six_seanix = new Array("Seanix",
+"Seanote SJ235A-1,GeForce Go 6800,"
+);
+
+var six_sony = new Array("Sony",
+"Vaio FS Series,GeForce Go 6400,"
+);
+
+var six_tarox = new Array("Tarox",
+"Lightpad 1030,GeForce Go 6600,",
+"Lightpad 1040,GeForce Go 6600,",
+"Winpad 2011,GeForce Go 6800,",
+"Lightpad 1030,GeForce Go 6600 MXM,"
+);
+
+var six_toshiba = new Array("Toshiba",
+"Tecra M3,GeForce Go 6200 or GeForce Go 6600,",
+"Tecra S3,GeForce Go 6600,",
+"Portege S100,GeForce Go 6200,"
+);
+
+var six_turboX = new Array("TurboX",
+"15 WSMA ,GeForce Go 6600,",
+"15 WSMA Plus,GeForce Go 6600,",
+"17 WDT 64bit,GeForce Go 6800,",
+"17 WDT SATA,GeForce Go 6800,"
+);
+
+var six_voodoo = new Array("Voodoo",
+"ENVY u:703,GeForce Go 6800,"
+);
+
+
+///////////////////////////////////////////////////////////////
+/////            MAIN FUNCTIONS
+///////////////////////////////////////////////////////////////
+
+function printTable(myArray,arrPrefix) {
+	for(var i=0; i<myArray.length; i++) {
+		writePartner(eval(arrPrefix + myArray[i]));
+	}
+
+}
+
+function writePartner(myArray) {
+
+	var rs = myArray.length-1; //rowspan
+	for(var i=0; i<myArray.length; i++) {
+		
+		if(i!=1) {
+			document.write("<tr class=trail>");
+		}
+		
+		if(i==0) {
+			document.write("<td align=middle valign=middle rowspan=" + rs + "><img src=/content/wheretobuy/go_6_7_series/"  + myArray[0].toLowerCase() + ".jpg></td>");
+		} else {
+			
+			var tempArray = myArray[i].split(",");
+                                                if(tempArray[2] == "") {
+                                                    document.write("<td>" + tempArray[0]  +  "</td><td>" + tempArray[1]  + "</td>");
+	                                } else {
+			     document.write("<td><a href=" + tempArray[2] + " target=_new>" + tempArray[0]  +  "</a></td><td>" + tempArray[1]  + "</td>");
+	                                }
+				
+		}
+		
+		if(i!=0) { //take into account the rowspan
+			document.write("</tr>");
+		}
+		
+	}
+
+}
+
+
+//-->
+</script>
+
+
+
+
+
+<script type="text/javascript">
+var WTB_DivID;
+function WTB_GetResults(DivID, LowPrice, HighPrice, Query)
+{
+             WTB_DivID = DivID;
+                             document.getElementById(DivID).innerHTML = "Available GeForce 8800:<BR><BR>";
+                          
+   WTB_Get(DivID, LowPrice, HighPrice, Query);
+}
+    </script>
+
+<script type="text/javascript">
+  var interval;
+  
+  function DoWhereToBuy(DivID, CallBackFunction, PageNumber, LowPrice, HighPrice, Query)
+  {
+   var div = document.getElementById(DivID);
+   var divProgress = document.getElementById("WTBProgress");
+   
+   divProgress.style.display = "";
+   
+   div.innerHTML = "";
+   
+   WTB_Get(DivID, CallBackFunction, PageNumber, LowPrice, HighPrice, Query);
+   
+   interval = setInterval('StopProgress()', 500);
+  }
+  
+  function StopProgress()
+  {
+   if(WTB_IsComplete)
+   {
+    var divProgress = document.getElementById("WTBProgress");
+    divProgress.style.display = "none";
+    clearInterval(interval);
+    return true;
+   }
+   else
+   {
+    return false;
+   }
+  }
+  
+  function showWTBList(DivID)
+  {
+   showDiv(DivID);
+  }
+  
+  function hideWTBList(DivID)
+  {
+   hideDiv(DivID);
+  }
+  var iMyOpacity = 100;
+  function showDiv(strDIVID) {
+   iMyOpacity = 0;
+   var myDiv = document.getElementById(strDIVID);
+   myDiv.style.display = "";
+    
+   changeOpac(iMyOpacity, strDIVID);  
+   setTimeout("fadeInDiv('" + strDIVID + "')", 0);
+  }
+  function hideDiv(strDIVID) {
+   iMyOpacity = 100;
+   setTimeout("fadeOutDiv('" + strDIVID + "')", 0);
+  }
+    
+  function fadeInDiv(strDIVID)
+  {
+   iMyOpacity += 10;
+   changeOpac(iMyOpacity, strDIVID);
+   if(iMyOpacity < 100) {
+    setTimeout("fadeInDiv('" + strDIVID + "')", 0);
+   }
+   else
+   {
+    var object = document.getElementById(strDIVID).style; 
+    object.opacity = ""; 
+    object.MozOpacity = ""; 
+    object.KhtmlOpacity = ""; 
+    object.filter = ""; 
+    iMyOpacity = 100;
+      }
+  }
+  function fadeOutDiv(strDIVID) {
+   iMyOpacity -= 25;
+   changeOpac(iMyOpacity, strDIVID);
+   if(iMyOpacity > 0) {
+    setTimeout("fadeOutDiv('" + strDIVID + "')", 0);
+   }
+   else {
+    document.getElementById(strDIVID).style.display = "none";
+   }
+  }
+  function changeOpac(opacity, id) { 
+   var object = document.getElementById(id).style; 
+   object.opacity = (opacity / 100); 
+   object.MozOpacity = (opacity / 100); 
+   object.KhtmlOpacity = (opacity / 100); 
+   object.filter = "alpha(opacity=" + opacity + ")"; 
+  }
+    </script>
+    <style type="text/css">
+  body
+  {
+   font-family: arial;
+   font-size: 10pt;
+  }
+  
+  body table
+  {
+   font-family: arial;
+   font-size: 10pt;
+  }
+  
+  #buyTop
+  {
+   background-image: url(/docs/TEMPLATE/542/buy_top.png);
+   width: 181px;
+   height: 29px;
+   cursor: pointer;
+  }
+  * html #buyTop
+  {
+   background-image: none;
+   filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/docs/TEMPLATE/542/buy_top.png", sizingMethod="crop");
+  } 
+  
+  #buyMiddle
+  {
+   width: 181px;
+   background-image: url(/docs/TEMPLATE/542/buy_middle.png);
+  }
+  * html #buyMiddle
+  {
+   background-image: none;
+   filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/docs/TEMPLATE/542/buy_middle.png", sizingMethod="crop");
+  }
+  
+  #WTBInnerPadding
+  {
+   padding-left: 10px;
+  }
+  
+  #buyBottom
+  {
+   width: 181px;
+   height: 21px;
+   background-image: url(/docs/TEMPLATE/542/buy_bottom.png);
+  }
+  * html #buyBottom
+  {
+   background-image: none;
+   filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/docs/TEMPLATE/542/buy_bottom.png", sizingMethod="crop");
+  }
+  
+  .ulWTBList
+  {
+   list-style-type:none;
+   
+   margin: 0;
+   padding:0;
+   background-color:#ffffff; 
+   font-family: arial;
+   font-size:8pt;
+  }
+  .liWTBList
+  {
+   line-height: 20px;
+   font-family: arial;
+   font-size:8pt;
+  }
+  .liWTBList a
+  {
+   text-decoration: none;
+   display:block;
+   color: #000000;
+   font-family: arial;
+   font-size:8pt;
+   width: 157px;
+  }
+  .liWTBList a:hover
+  {
+   text-decoration: none;
+   display:block;
+   background-color:#E5E5E5;
+   color: #76B900;
+   font-family: arial;
+   font-size:8pt;
+   width: 157px;
+   
+  }
+  li:hover ul , li.over ul
+  { /* lists nested under hovered list items */
+   display: block;
+   font-family: arial;
+   font-size:8pt;
+  }
+#WTBButton
+  {
+   background-image: url(/docs/TEMPLATE/542/btn_buy_now_off.png);
+   width: 125px;
+   height: 28px;
+   cursor: pointer;
+  }
+  * html #WTBButton
+  {
+   background-image: none;
+   filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/docs/TEMPLATE/542/btn_buy_now_off.png", sizingMethod="crop");
+  }
+#WTBButton2
+  {
+   background-image: url(/docs/TEMPLATE/542/btn_buy_now_off.png);
+   width: 125px;
+   height: 28px;
+   cursor: pointer;
+  }
+  * html #WTBButton2
+  {
+   background-image: none;
+   filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/docs/TEMPLATE/542/btn_buy_now_off.png", sizingMethod="crop");
+  }
+  #WTBButtonOn
+  {
+   background-image: url(/docs/TEMPLATE/542/btn_buy_now_on.png);
+   width: 125px;
+   height: 28px;
+   cursor: pointer;
+                                               
+  }
+  * html #WTBButtonOn
+  {
+   background-image: none;
+   filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src="/docs/TEMPLATE/542/btn_buy_now_on.png", sizingMethod="crop");
+  }
+
+    </style>
+
+
+<style type="text/css">
+      @import "/content/includes/css/redesign08/nvidia_styles_redesign08.css";
+ </style><style type="text/css">
+          @import "/content/includes/css/redesign08/nvidia_nav_us.css";
+     </style><style xmlns="http://www.w3.org/1999/xhtml" type="text/css">
+      @import "/content/includes/css/nvidia_legacy_may08.css";
+</style><script type="text/javascript" src="/content/includes/js/swfobject.js"></script><script type="text/javascript" src="/content/includes/js/nvidia_nav_redesign08.js"></script><script type="text/javascript" src="/content/includes/js/scriptaculous/prototype.js"></script><script type="text/javascript" src="/content/includes/js/scriptaculous/scriptaculous.js"></script></head><body><div style="top:30px;text-align:left;" id="container"><!--noindex--><div xmlns="" id="globalnav"><div onclick="openMenuURL('/page/drivers.html')" onmouseout="hideSubMenu(this, '02');" onmouseover="showSubMenu(this, '02', '#333333')" class="globalnav_item_container" id="menu_container_id02"><div class="globalnav_item_link" id="menu_div_id02">Download Drivers</div><div style="display: none;" class="globalnav_item_sub_container" id="sub_div_id02"><ul class="globalnav_item_sub_links_ul" id="sub_links_ul_id02"><li><a href="/page/pg_20030521269172.html">Download Drivers</a></li><li><a href="/page/pg_55074.html">Driver Widget</a></li><li><a href="/page/pg_20020828381205.html">NVIDIA Software</a></li></ul></div></div><div onclick="openMenuURL('/page/shop.html')" onmouseout="hideSubMenu(this, '03');" onmouseover="showSubMenu(this, '03', '')" class="globalnav_item_container" id="menu_container_id03"><div class="globalnav_item_link" id="menu_div_id03">Shop</div></div><div onclick="openMenuURL('/page/products.html')" onmouseout="hideSubMenu(this, '04');" onmouseover="showSubMenu(this, '04', '#333333')" class="globalnav_item_container" id="menu_container_id04"><div class="globalnav_item_link" id="menu_div_id04">Products</div><div style="display: none;" class="globalnav_item_sub_container" id="sub_div_id04"><ul class="globalnav_item_sub_links_ul" id="sub_links_ul_id04"><li><a href="/page/desktop.html">Desktop</a></li><li><a href="/page/workstation.html">Workstation</a></li><li><a href="/page/pg_20051028206728.html">Servers</a></li><li><a href="/page/mobo.html">Motherboard</a></li><li><a href="/page/hpc.html">High Performance Computing</a></li><li><a href="/page/notebook.html">Notebook</a></li><li><a href="/page/handheld.html">Mobile</a></li><li><a href="/page/business_solutions.html">Business</a></li><li><a href="/page/apple.html">Apple</a></li><li><a href="/page/software.html">Software</a></li><li><a href="/page/home_entertainment.html">Home Entertainment</a></li><li><a href="/page/pg_55001.html">Downloadable Games</a></li><li><a href="/page/console.html">Game Console</a></li><li><a href="/page/legacy.html">Legacy Products</a></li><li><a href="/page/po3d_promotions.html">Promotions</a></li><li><a href="/page/pg_20010611291062.html">Where to Buy</a></li></ul></div></div><div onclick="openMenuURL('/page/technologies.html')" onmouseout="hideSubMenu(this, '05');" onmouseover="showSubMenu(this, '05', '#333333')" class="globalnav_item_container" id="menu_container_id05"><div class="globalnav_item_link" id="menu_div_id05">Technologies</div><div style="display: none;" class="globalnav_item_sub_container" id="sub_div_id05"><ul class="globalnav_item_sub_links_ul" id="sub_links_ul_id05"><li><a href="/page/sli.html">NVIDIA SLI</a></li><li><a href="/page/pg_55059.html">NVIDIA Hybrid SLI</a></li><li><a href="/page/pg_54704.html">ESA</a></li><li><a href="/page/pg_20070418845144.html">NVIDIA PureVideo</a></li><li><a href="/page/pg_55167.html">CUDA</a></li><li><a href="/page/pg_55418.html">NVIDIA PhysX</a></li><li><a href="/page/mxm.html">MXM</a></li><li><a href="/page/technology_vista_main.html">Windows Vista</a></li></ul></div></div><div onclick="openMenuURL('/page/powerof3d.html')" onmouseout="hideSubMenu(this, '06');" onmouseover="showSubMenu(this, '06', '#333333')" class="globalnav_item_container" id="menu_container_id06"><div class="globalnav_item_link" id="menu_div_id06">Communities</div><div style="display: none;" class="globalnav_item_sub_container" id="sub_div_id06"><ul class="globalnav_item_sub_links_ul" id="sub_links_ul_id06"><li><a href="/page/pg_55419.html">nZone</a></li><li><a href="/page/pg_55420.html">SLI Zone</a></li><li><a href="/page/pg_55421.html">CUDA Zone</a></li><li><a href="/page/pg_55422.html">Developer Zone</a></li><li><a href="/page/pg_55423.html">PartnerForce</a></li><li><a href="/page/pg_55424.html">Gelato Zone</a></li></ul></div></div><div onclick="openMenuURL('/page/companyinfo.html')" onmouseout="hideSubMenu(this, '07');" onmouseover="showSubMenu(this, '07', '#333333')" class="globalnav_item_container" id="menu_container_id07"><div class="globalnav_item_link" id="menu_div_id07">Company Info</div><div style="display: none;" class="globalnav_item_sub_container" id="sub_div_id07"><ul class="globalnav_item_sub_links_ul" id="sub_links_ul_id07"><li><a href="/page/investor_relations.html">Investor Relations</a></li><li><a href="/page/pg_20061109828788.html">Channel Partners</a></li><li><a href="/page/contact_information.html">Contact Information</a></li><li><a href="/page/corporate_timeline.html">Corporate Milestones</a></li><li><a href="/page/pg_20010527369917.html">Social Responsibility</a></li><li><a href="/page/employment.html">Employment</a></li><li><a href="/page/university_relations.html">University Relations</a></li><li><a href="/page/pg_20011011487525.html">Executive Profiles</a></li><li><a href="/page/corporate_awards.html">Corporate Awards</a></li></ul></div></div><div onclick="openMenuURL('/page/newsandevents.html')" onmouseout="hideSubMenu(this, '08');" onmouseover="showSubMenu(this, '08', '#333333')" class="globalnav_item_container" id="menu_container_id08"><div class="globalnav_item_link" id="menu_div_id08">News</div><div style="display: none;" class="globalnav_item_sub_container" id="sub_div_id08"><ul class="globalnav_item_sub_links_ul" id="sub_links_ul_id08"><li><a href="/page/press_room.html">Press Room</a></li><li><a href="/page/nvision.html">NVISION</a></li><li><a href="/page/events.html">Events Calendar</a></li><li><a href="/page/pg_20040317553375.html">Success Stories</a></li><li><a href="/page/nv_news.html">NVIDIA in the News</a></li><li><a href="/page/pg_20070517815014.html">NVIDIA Newsletter</a></li></ul></div></div><div onclick="openMenuURL('/page/support.html')" onmouseout="hideSubMenu(this, '09');" onmouseover="showSubMenu(this, '09', '')" class="globalnav_item_container" id="menu_container_id09"><div class="globalnav_item_link" id="menu_div_id09">Support</div></div></div><!--/noindex--><div xmlns="http://www.w3.org/1999/xhtml" style="background-color:#ffffff;width:980px;margin:0 auto;margin-top:86px;padding-top:15px;"><table width="890" cellspacing="0" cellpadding="0" align="center" border="0"><tr><td valign="top" width="250"><table cellspacing="0" cellpadding="0" border="0"><tr><td><table cellpadding="0" border="0" cellspacing="0" width="195"><tr><td align="right"><a href="javascript:history.back();"><img border="0" alt="Back" src="/docs/TEMPLATE/703/button_back.jpg"/></a></td></tr></table><br/></td></tr><tr><td/></tr><tr><td/></tr></table><br/><br/><br/></td><td width="19">&nbsp;</td><td valign="top" width="621"><font class="header">NVIDIA Powered Notebooks</font><br/><br/><div style="height:3px;width:100px;"><span/></div>The following is a list of notebooks, available now, featuring NVIDIA GPUs. <BR>
+<BR><A href="/object/wtb_notebooks.html#quadroSeries">NVIDIA Quadro</A>
+<BR><A href="/object/wtb_notebooks.html#nineSeries">NVIDIA GeForce 9M Series</A>
+<BR><A href="/object/wtb_notebooks.html#eightSeries">NVIDIA GeForce 8M Series</A>
+<BR><A href="/object/wtb_notebooks.html#sevenSeries">NVIDIA GeForce Go 7 Series</A>
+<BR><A href="/object/wtb_notebooks.html#sixSeries">NVIDIA GeForce Go 6 Series</A> 
+<BR><BR>
+<TABLE cellSpacing=0 cellPadding=5 border=1>
+<TBODY>
+<TR>
+<TD style="FONT-WEIGHT: bold; FONT-SIZE: 14px; COLOR: #000000; BACKGROUND-COLOR: #ececec; TEXT-ALIGN: center" colSpan=3><A name=quadroSeries></A>NVIDIA Quadro</TD></TR>
+<TR class=trail bgColor=#cccccc>
+<TD><B>Manufacturer</B></TD>
+<TD><B>Model</B></TD>
+<TD width=400><B>GPU</B></TD></TR>
+<SCRIPT language=JavaScript>
+<!--
+printTable(quadroSeries,"quadro_");
+//-->
+</SCRIPT>
+<TR>
+<TD style="FONT-WEIGHT: bold; FONT-SIZE: 14px; COLOR: #000000; BACKGROUND-COLOR: #ececec; TEXT-ALIGN: center" colSpan=3><A name=nineSeries></A>NVIDIA GeForce 9M Series</TD></TR>
+<TR class=trail bgColor=#cccccc>
+<TD><B>Manufacturer</B></TD>
+<TD><B>Model</B></TD>
+<TD width=400><B>GPU</B></TD></TR>
+<SCRIPT language=JavaScript>
+<!--
+printTable(nineSeries,"nine_");
+//-->
+</SCRIPT>
+<TR>
+<TD style="FONT-WEIGHT: bold; FONT-SIZE: 14px; COLOR: #000000; BACKGROUND-COLOR: #ececec; TEXT-ALIGN: center" colSpan=3><A name=eightSeries></A>NVIDIA GeForce 8M Series</TD></TR>
+<TR class=trail bgColor=#cccccc>
+<TD><B>Manufacturer</B></TD>
+<TD><B>Model</B></TD>
+<TD width=400><B>GPU</B></TD></TR>
+<SCRIPT language=JavaScript>
+<!--
+printTable(eightSeries,"eight_");
+//-->
+</SCRIPT>
+<TR>
+<TD style="FONT-WEIGHT: bold; FONT-SIZE: 14px; COLOR: #000000; BACKGROUND-COLOR: #ececec; TEXT-ALIGN: center" colSpan=3><A name=sevenSeries></A>NVIDIA GeForce Go 7 Series</TD></TR>
+<TR class=trail bgColor=#cccccc>
+<TD><B>Manufacturer</B></TD>
+<TD><B>Model</B></TD>
+<TD width=400><B>GPU</B></TD></TR>
+<SCRIPT language=JavaScript>
+<!--
+printTable(sevenSeries,"seven_");
+//-->
+</SCRIPT>
+<TR>
+<TD style="FONT-WEIGHT: bold; FONT-SIZE: 14px; COLOR: #000000; BACKGROUND-COLOR: #ececec; TEXT-ALIGN: center" colSpan=3><A name=sixSeries></A>NVIDIA GeForce Go 6 Series</TD></TR>
+<TR class=trail bgColor=#cccccc>
+<TD><B>Manufacturer</B></TD>
+<TD><B>Model</B></TD>
+<TD width=400><B>GPU</B></TD></TR>
+<SCRIPT language=JavaScript>
+<!--
+printTable(sixSeries,"six_");
+//-->
+</SCRIPT>
+</TBODY></TABLE><br/><br/><br/><br/></td></tr></table></div><div style="background-color:#000000;" id="mastheadBlack">&nbsp;</div><div xmlns="" id="logo"><a href="/page/home.html"><img border="0" height="40" width="176" alt="NVIDIA" src="/content/includes/images/redesign08/nvidia_logo.png"></a></div><div id="globalselector"><form name="nav"><script type="text/javascript" src="/content/includes/js/global_menu.js"></script></form></div><div xmlns="http://www.w3.org/1999/xhtml" id="search"><form xmlns="" name="search" id="Form1" action="/object/nv_search_us.html"><input value="009029091075083507105:9leknaf7r_8" name="cx" type="hidden"><input value="FORID:11;NB:1" name="cof" type="hidden"><input value="UTF-8" name="ie" type="hidden"><input value="en" name="hl" type="hidden"><input value="us" name="gl" type="hidden"><input value="Search NVIDIA" onFocus="javascript:document.search.q.value = '';" maxlength="50" size="25" name="q" type="text"></form><script type="text/javascript" src="http://www.google.com/coop/cse/brand?form=cse-search-box&lang=en"></script></div><div id="footerContainer"><div xmlns="" id="footer"><a href="http://www.slizone.com/object/slizone_buyprebuilt_us2.html">
+Gaming PC</a> | <a href="http://www.slizone.com/object/slizone_buyprebuilt_nb_us2.html"> Gaming Laptop</a> | <a href="http://www.slizone.com/object/slizone_learn_howtoguide.html">Build a PC</a> | <a href="http://www.nvidia.com">Visual Computing</a><br><a href="http://developer.nvidia.com">Developers</a> | <a href="/page/channel.html">Channel Partners</a> | <a href="http://phx.corporate-ir.net/phoenix.zhtml?c=116466&p=irol-IRHome">Investor Relations</a> | <a href="http://careers.nvidia.com">Employment</a><br>
+          
+          
+Copyright 
+          
+          &copy;
+          
+          2008 NVIDIA Corporation
+          
+           | <a href="/object/legal_info.html">Legal Info</a> | <a href="/object/privacy_policy.html">Privacy Policy</a> | <a href="/object/rss_home.html">RSS Feeds</a> | <a href="/content/widgets/widget_home.asp">NVIDIA Widgets</a></div><br><br></div></div>
+<!--WEBSIDESTORY CODE HBX1.0 (Universal)-->
+<!--COPYRIGHT 1997-2005 WEBSIDESTORY,INC. ALL RIGHTS RESERVED. U.S.PATENT No. 6,393,479B1. MORE INFO:http://websidestory.com/privacy-->
+<script type="text/javascript" language="javascript">
+var _hbEC=0,_hbE=new Array;function _hbEvent(a,b){b=_hbE[_hbEC++]=new Object();b._N=a;b._C=0;return b;}
+var hbx=_hbEvent("pv");hbx.vpc="HBX0100u";hbx.gn="a.nvidia.com";
+hbx.acct="DM550425P5EN96EN3";//US
+hbx.pn="PUT+PAGE+NAME+HERE";
+hbx.mlc="CONTENT+CATEGORY";
+hbx.pndef="home.html";
+hbx.ctdef="full";
+hbx.lt="auto";
+hbx.dlf=".run";
+
+</script><script type="text/javascript" language="javascript1.1" defer src="http://www.nvidia.com/content/websidestory/hbx.js"></script>
+<!-- END WEBSIDESTORY CODE -->
+
+<!-- SiteCatalyst code version: H.17.
+Copyright 1997-2008 Omniture, Inc. More info available at http://www.omniture.com -->
+<script language="JavaScript" type="text/javascript" src="http://www.nvidia.com/content/websidestory/omniture/production/s_code_us_dev_aut1.js"></script>
+<script language="JavaScript" type="text/javascript">
+<!--You may give each page an identifying name, server, and channel on the next lines-->
+s.pageName=""
+s.server=""
+s.channel=""
+s.pageType=""
+s.referrer=""
+s.prop1=""
+s.prop2=""
+s.prop3=""
+s.prop4=""
+s.prop5=""
+s.prop6=""
+s.prop7=""
+/* Conversion Variables */
+s.campaign=""
+s.state=""
+s.zip=""
+s.events=""
+s.products=""
+s.purchaseID=""
+s.eVar1=""
+s.eVar2=""
+s.eVar3=""
+s.eVar4=""
+s.eVar5=""
+s.eVar6=""
+s.eVar7=""
+/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+var s_code=s.t();if(s_code)document.write(s_code)//--></script>
+<script language="JavaScript" type="text/javascript"><!--
+if(navigator.appVersion.indexOf('MSIE')>=0)document.write(unescape('%3C')+'\!-'+'-')
+//--></script><noscript><a href="http://www.omniture.com" title="Web Analytics"><img
+src="http://omniture.nvidia.com/b/ss/nvidiausdev/1/H.17--NS/0"
+height="1" width="1" border="0" alt="" /></a></noscript><!--/DO NOT REMOVE/-->
+<!-- End SiteCatalyst code version: H.17. -->
+</body></html>

@@ -1,0 +1,1588 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html lang="">
+<head>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=UTF-8">
+<META HTTP-EQUIV="Content-Style-Type" CONTENT="text/css">
+<META HTTP-EQUIV="Content-Script-Type" CONTENT="text/javascript">
+
+<meta name="ad-spaceid" content="2011330004">
+<meta name="ad-location" content="HEAD,FOOT">
+<meta name="ad-property" content="360">
+<meta name="ad-nopageview" content="DOC.AD_MIME_NOPAGEVIEW">
+<meta name="ad-site_attribute" content="DOC.AD_MIME_SITE_ATTRIBUTE">
+<meta name="ad-dma" content="807">
+<meta name="ad-state" content="ca">
+<meta name="ad-city" content="Sunnyvale">
+<meta name="ad-zip" content="94089">
+<meta name="ad-geocode" content="DOC.AD_MIME_GEOCODE">
+
+
+<title>Yahoo!7 360&#176; - Lester&#39;s Comments, Tips &amp; Point View - AUSTRALIA the country we love</title>
+<link type="text/css" rel="stylesheet" href="http://us.js2.yimg.com/us.js.yimg.com/lib/cmty/ymgl_global_200608161000.css" media="screen">
+<link type="text/css" rel="stylesheet" href="http://us.js2.yimg.com/us.js.yimg.com/lib/cmty/thm/ymgl_classic_200608161000.css" media="screen">
+<link type="text/css" rel="stylesheet" href="http://us.js2.yimg.com/us.js.yimg.com/lib/common/widgets/2/container/css/container_2.0.0-b3.css" media="screen">
+
+<style type="text/css">
+    .profile .body #ymgl-customize-links {
+   margin-top: 7px;
+}
+
+.profile .body .user-card-shadow .user-card .user-photo {
+*width:190px;
+}
+/*tags*/
+#ymgl-tagcloud .hTagcloud .popularity {
+   margin:0;
+	padding:0;
+	list-style:none;
+}
+
+#ymgl-tagcloud .hTagcloud .popularity li {
+   display:inline;
+	padding:0 2px;
+}
+
+#ymgl-tagcloud .hTagcloud .popularity li.popular {
+   font-size:80%;
+}
+
+#ymgl-tagcloud .hTagcloud .popularity li.vv-popular {
+   font-size:100%;
+}
+
+#ymgl-tagcloud .hTagcloud .popularity li.vvvv-popular {
+   font-size:130%;
+}#ymgl-blog-calendar {}
+#ymgl-blog-calendar iframe {width:205px; height:219px;}
+#tooltip {
+  position:absolute;
+  top:0; 
+  left:0;
+  visibility: hidden;
+  width: 200px;
+  border: 1px solid #999;
+  background-color: #ffeecf;
+  padding: 7px;
+  z-index: 1000000010;
+}
+
+#tooltip ul {margin:0; padding:0; list-style:none;}
+#tooltip li{margin: 0 0 7px 0;}
+#tooltip a.highlight {font-weight:bold;}
+
+
+
+            
+#tt1{
+ /*put the tooltip on top */ 
+  z-index:  10000000000000;
+}
+#tt1 .bd{
+ /* this force the div in IE to shrink-wrap */ 
+   white-space:nowrap;
+   color:#404040;
+   font-size: 80%;  
+  *width:10px;
+}
+
+/*blast edit*/
+/*move profile down if there's a blast*/
+.profile {margin-top:10px;}
+
+#ymgl-blast {
+   position: relative;
+   min-width: 350px;
+   margin:0 0 13px 0;
+}
+#ymgl-blast form {
+   zoom:1;
+}
+
+#ymgl-blast form:after {
+   content:".";
+   display:block;
+   clear:both;
+   visibility:hidden;
+   height:1px;
+}
+
+#ymgl-blast .highlight {
+   color:#404040;
+   background-color:#ffffd3;
+}
+
+#ymgl-blast .content {
+   width:100%;
+   margin-right:0;
+}
+#ymgl-blast .form-wrapper {
+   display:block;
+   clear:both;
+   float:none;
+   margin:0 18px;
+   position:relative;
+   z-index:6000000;
+   text-align:left;
+}
+
+#ymgl-blast .form-wrapper input,
+#ymgl-blast .form-wrapper select {
+   display:inline;
+   clear:none;
+   font:74% verdana;
+   margin:0 1px;
+}
+
+#ymgl-blast .form-wrapper input {
+   width:200px;
+}
+
+#ymgl-blast .form-wrapper .active,
+#ymgl-blast .form-wrapper .inactive {
+   width:auto;
+}
+
+#ymgl-blast textarea {
+   display:inline;
+   clear:right;
+   float:left;
+   height:33px;
+   margin:0 1px 0 18px;
+   width:70%;
+   position:relative;
+}
+
+#ymgl-blast.sale textarea,
+#ymgl-blast.sale .wrapper {
+   margin-top:3px;
+}
+
+#ymgl-blast .form-wrapper label {
+   font:74% verdana;
+}
+
+#ymgl-blast .wrapper {
+   clear:right;
+   float:left;
+   font:74% verdana;
+   position:relative;
+   width:140px;
+   margin:0 0 0 10px;
+   text-align:left;
+}
+
+#ymgl-blast .wrapper a {
+   font-size:100%;
+   display:inline;
+   margin:0;
+}
+
+#ymgl-blast .wrapper p {
+   clear:both;
+   float:none;
+   margin:0;
+}
+
+#ymgl-blast .wrapper p em {
+   font-weight:bold;
+}
+
+#ymgl-blast span.edit-link {
+   clear:both;
+   float:none;
+   border:0;
+   background:transparent;
+   padding:0;
+   width:auto;
+   text-align:right;
+}
+
+#ymgl-blast.quote span.edit-link {
+   right:26px;
+}
+
+#ymgl-blast div.empty {
+   clear:both;
+   float:none;
+   background:#fff;
+   border:1px solid #d9d9d9;
+   padding-top:3px;
+   margin:auto;
+   width:200px;
+   min-height:30px;
+   position:relative;
+   text-align:center;
+}
+
+#ymgl-blast .empty a {
+   display:block;
+   font:100% arial;
+   font-weight:bold;
+   text-align:center;
+}
+#ymgl-blast .empty .footnote a {
+   font:74% verdana;
+   font-weight:normal;
+   display:block;
+   margin-bottom:4px;
+   font-size:100%;
+}
+
+#ymgl-blast textarea.empty-blast {
+   color:#666;
+   font-style:italic;
+}
+
+#ymgl-blast span.alert {
+   display:block;
+   background:#f7ffad;
+}
+/* end blast bubble */
+    
+
+.yfla-upgrade { border: 1px solid #d9d9d9; background:#fff; width: 300px; height: 200px; }
+
+.yfla-upgrade p { font:100% arial; color:#404040; text-align: center; }
+
+.yfla-upgrade span { display: block; margin-top: 20px; text-align:center;}
+.yfla-upgrade a:link,
+.yfla-upgrade a:visited {color:#247cd4;}
+
+#ymgl-blog .head {
+    border-bottom: 1px solid #7b9400;
+    padding-bottom: 10px;
+}
+
+#ymgl-blog .head h3 {
+    display: block;
+    clear: both;
+    float: none;
+    padding: 0;
+    margin-left:0;
+}
+
+#ymgl-blog .head h3 span.footnote {
+   font-size:60%;
+}
+
+#ymgl-blog .head h3 span.view-toggle {
+   font-size:60%;
+   margin-left: 15px;
+}
+
+#ymgl-blog dl.body {
+    margin: 20px 25px 0 25px;
+}
+
+#ymgl-blog dt.post-head {
+    clear: both;
+    font: 170% georgia, times new roman, serif;
+    margin: 0 0 10px 0;
+}
+
+#ymgl-blog dd.post-body {
+    border-bottom: 1px solid #d6d6e7;
+    margin: 0 0 25px 0;
+}
+
+#ymgl-blog dd.post-body em {
+    font-style: italic;
+}
+
+#ymgl-blog dd.post-body .content-wrapper {
+    font: 100% georgia, times new roman, serif;
+}
+
+#ymgl-blog dd.post-body p {
+    clear: both;
+    text-align: left;
+    margin: 0 0 .75em 0;
+}
+
+#ymgl-blog dd.post-body ul, #ymgl-blog dd.post-body ol {
+    padding-left:27px;
+    margin-bottom:10px;
+    vertical-align:top;
+}
+
+#ymgl-blog dd.post-body li {
+    clear:both;
+    float:none;
+    margin: 0 0 5px 0;
+    padding:0;
+    vertical-align:top;
+}
+
+#ymgl-blog dd.post-body .image-wrapper {
+    text-align: center;
+    margin: 0 0 15px 0;
+}
+
+#ymgl-blog dd.last {
+    border-bottom: 0;
+   margin-bottom:0;
+}
+
+#ymgl-blog dd.post-body .foot {
+    font: 74% verdana, arial, helvetica;
+    margin: 23px 0 10px 0;
+    text-align: left;
+    *padding-bottom:10px;
+}
+#ymgl-blog dd.post-body .alert {
+   color:#ea3307;
+   padding:3px 2px;
+   background:#f7ffad;
+}
+
+#ymgl-blog dd.post-body .foot span {
+   display:block;
+   clear:both;
+   float: none;
+}
+
+
+#ymgl-blog .no-entry {
+    text-align: center;
+    margin-left: 25px;
+    padding: 50px 0 50px;
+}
+
+#ymgl-blog .no-entry em {
+    display: block;
+    font-style: italic;
+    line-height: 2em;
+}
+
+#ymgl-blog .add-rss {
+    text-align: left;
+    margin: 10px 25px 7px 25px;
+    padding-top: 7px;
+    border-top: 1px solid #d4d4d4;
+}
+#ymgl-blog .add-rss a {display:block; clear:none; float:left; font:74% verdana; margin-right:7px;}
+
+/*music plugin*/  
+#ymgl-blog .music-plugin {
+	font:100% arial, helvetica;
+}
+
+#ymgl-blog .music-plugin .image-wrapper {
+	display:block;
+	clear:right;
+	float:left;
+	border:1px solid #000;
+	width:82px;
+	height:82px;
+}
+
+#ymgl-blog .music-plugin .image-wrapper img {
+	border:1px solid #fff;
+}
+
+#ymgl-blog .music-plugin .music-wrapper {
+	clear:right;
+	float:left;
+	width:80%;
+	margin:0;
+	padding-left:5px;
+}
+
+#ymgl-blog .music-plugin .music-wrapper h4 {
+	font-size:100%;
+	font-weight:bold;
+	margin:0;
+}
+
+#ymgl-blog .music-plugin .music-wrapper p {
+	font:85% verdana, arial, helvetica;
+}
+
+#ymgl-blog .music-plugin .music-wrapper span {
+	display:block;
+	clear:both;
+}
+
+#ymgl-blog .music-plugin .music-wrapper .footnote {font-size:100%;}
+
+#ymgl-blog .music-plugin br { clear:both;  }/*comments*/
+#ymgl-blog .comments {
+    border-top: 1px solid #7b9400;
+    background: #f7f7f7;
+    margin:0;
+    position:relative;
+    *bottom:0;
+}
+
+#ymgl-blog.default .comments {
+   border-color:#7b9ebd;
+}
+
+#ymgl-blog .comments .pagination {
+   margin-right:10px;
+   background:transparent;
+}
+
+#ymgl-blog .comments .top {
+   margin:10px 20px 0 0;
+   padding:0;
+   border:0;
+}
+
+#ymgl-blog .comments .bottom {
+   margin:0 20px 7px 0;
+   padding:0;
+   border:0;
+}
+
+#ymgl-blog .comments .head {
+    border: 0;
+    margin: 10px 25px 0 25px;    
+}
+
+#ymgl-blog .comments .head h4 {
+    display: inline;
+    font-weight: bold;
+    font-size: 100%;
+    font-family: arial, helvetica, sans-serif;
+    color: #7d9c54;
+}
+
+#ymgl-blog .comments .head em {
+    font-style: italic;
+    font-weight: normal;
+}
+
+#ymgl-blog .comments .head a {
+    font-size: 74%;
+}
+
+#ymgl-blog .comments .row {
+    margin: 10px 25px 0 25px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #d4d4d4;
+}
+
+#ymgl-blog .comments .row .user-card {
+    clear: right;
+    float: left;
+    margin-right: 45px;
+    *margin-right: 22px;
+   width:75px;
+}
+
+#ymgl-blog .comments .row .user-card .user-photo,
+#ymgl-blog .comments .row .user-card .vitals {
+   display:block;
+   clear:both;
+   float:none;
+   width:auto;
+}
+
+#ymgl-blog .comments .row .wrapper {
+    clear: right;
+    float: left;
+    width: 75%;
+}
+
+#ymgl-blog .comments .row .wrapper .comment {
+    font-size: 89%;
+    font-family: georgia, times new roman, serif;
+    margin-bottom: .75em;
+}
+
+#ymgl-blog .comments .row .wrapper .datestamp {
+    font-size: 74%;
+    font-family: verdana, arial, helvetica, sans-serif;
+}
+
+#ymgl-blog .comments .last {border: 0;}
+
+#ymgl-comment-add .body {
+    margin: 15px 25px 10px 25px;
+}
+
+#ymgl-comment-add .body h3 {
+    margin-bottom: 10px;
+}
+
+#ymgl-comment-add .body label {
+    display: block;
+    font-weight: bold;
+    font-size: 74%;
+    font-family: verdana, arial, helvetica, sans-serif;
+}
+
+#ymgl-comment-add .body .word-verify {
+    margin: 25px 0 0 0;
+}
+
+#ymgl-comment-add .body .word-verify h4 {
+    font-size: 100%;
+    font-weight: bold;
+    margin:0;
+}
+
+#ymgl-comment-add .body .word-verify p {
+	margin:0 0 7px 0;
+}
+
+#ymgl-comment-add .body .word-verify img {
+	clear: right;
+	float: left;
+    border: 1px solid #d4d4d4;
+	margin: 0 15px 15px 0;
+}
+
+#ymgl-comment-add .body .word-verify input {
+    clear: right;
+    float: left;
+    width: 100px;
+}
+
+#ymgl-comment-add .foot {
+	background:transparent;
+    text-align: right;
+    margin: 0 10px 10px 0;
+}
+
+#ymgl-comment-add .foot input {
+   margin: 0 0 0 8px;
+}
+
+#ymgl-comment-add .logged-out {
+   font-weight:bold;
+   margin:10px;
+   text-align:center;
+}
+        
+
+</style>
+<script type="text/javascript">logd = function() { };</script><style type="text/css" id="custom_style" >
+/*set defaults*/
+#doc-body #doc-1 {
+   padding-bottom:400px;
+}
+
+#doc-body .ct,
+#doc-body .cl,
+#doc-body .cb {
+   visibility:hidden;
+}
+
+/*pagination*/
+#doc-body .pagination {
+   padding-left:6px;
+   padding-right:6px;
+   background-color:#fff;
+   position:relative;
+   z-index:2000000000;
+   *width:99%;
+   height:1.3em;
+   *left:1px;
+}
+
+#doc-body .top {
+   *margin-bottom:-15px;
+   padding-top:2px;
+   border-width:1px;
+   border-style:solid;
+   border-color:#7d9c54;
+   border-bottom:0;
+   *border:0;
+}
+
+#doc-body .bottom {
+   bottom:20px;
+   border-width:1px;
+   border-style:solid;
+   border-color:#7d9c54;
+   border-top:0;
+   border-bottom:0;
+   *border:0;
+}
+
+/*pagination - component spacing details*/
+#doc-body #ymgl-blog .thm-box,
+#doc-body #ymgl-local-reviews .thm-box,
+#doc-body #ymgl-friends .thm-box,
+#doc-body #ymgl-guestbook .thm-box {
+   padding-bottom:25px;
+   *padding-top:19px;
+}
+
+#doc-body #ymgl-friends.intro .thm-box,
+#doc-body #ymgl-guestbook.intro .thm-box {
+   padding-bottom:0;
+   padding-top:0;
+}
+
+#doc-body #ymgl-blog,
+#doc-body #ymgl-friends,
+#doc-body #ymgl-local-reviews,
+#doc-body #ymgl-guestbook {
+   margin-top:-14px;
+   *margin-top:0;
+}
+
+#doc-body #ymgl-blog.post {
+   margin-top:0;
+}
+
+#doc-body #ymgl-blog.post .thm-box {
+   padding-top:0;
+   padding-bottom:0;
+}
+
+#doc-body #ymgl-friends.intro,
+#doc-body #ymgl-guestbook.intro {
+   margin-top:0;
+}
+/*end pagination*/
+
+#doc-body #ymgl-blast .ct,
+#doc-body #ymgl-blast .cl {
+   visibility:visible;
+}
+
+#doc-body #ymgl-blast .highlight {
+   color:#404040;
+}
+
+#doc-body .tip {
+   color:#404040;
+   font:100% arial;
+   border:1px solid #b1e397;
+   background-color:#f4ffe5;
+}
+
+#doc-body .tip h3 {
+   font:118% arial;
+   font-weight:bold;
+   color:#628c2a;
+}
+
+#doc-body #doc-1 #ymgl-blogroll,
+#doc-body #doc-2 #ymgl-sticky-post {
+   border:1px solid #7d9c54
+}
+
+#doc-body #doc-1 #ymgl-blogroll h4,
+#doc-body #doc-2 #ymgl-sticky-post h4 {
+   margin:2px 5px 5px 5px;
+}
+
+#doc-body #doc-1 #ymgl-blogroll ul,
+#doc-body #doc-2 #ymgl-sticky-post ul {
+   margin:0 5px 5px 5px;
+}
+
+#doc-body #ymgl-blog-calendar iframe {
+   height:220px;
+}
+
+
+#doc-body #blog-calendar caption {
+   background-color:#295c7d;
+}
+
+#doc-body #blog-calendar caption span,
+#doc-body #blog-calendar th,
+#doc-body #blog-calendar caption a:link,
+#doc-body #blog-calendar caption a:visited {
+   color:#e6ecf2;
+}
+
+#doc-body #blog-calendar td span {
+   color:#404040;
+}
+
+/*end defaults*/
+/*BEGIN page background*/
+#doc-body {
+   background: #0D110E url(http://us.f6.yahoofs.com/blog/4623546bz2ee011c3/60/__hr_/ec43.jpg?mgwUXwIBRNRfYqF6) no-repeat 0 0;
+   padding-top: 70px;
+}
+
+#doc-body #doc-1 {
+   top: 70px;
+   *top: 0;
+}
+
+#doc-body .thm-wrapper {
+   background: transparent url(http://us.f6.yahoofs.com/blog/4623546bz2ee011c3/58/__hr_/ceee.jpg?mgwUXwIBrA1dFeG1) no-repeat 0 100%;
+   padding-bottom: 120px;
+}
+
+/*popup & iframes get solid bgs. no images*/
+#doc-body.doc-popup-body,
+#doc-body.doc-iframe-body #calendar {
+   background-color:#0D110E;
+}
+/*END page background*/
+
+/*BEGIN container background*/
+/* default container bg color*/
+#doc-body .publish,
+#doc-body .message,
+#doc-body .pagination,
+#doc-body #blog-calendar,
+#doc-body #doc-1 #ymgl-blogroll,
+#doc-body #doc-2 #ymgl-sticky-post,
+#doc-body #ymgl-blog dd.post-body .poll dd {
+   background-color:transparent;
+}
+
+/* left-col profile bg (if different from default) */
+#doc-body #ymgl-profile {
+   background-color:transparent;
+}
+
+#doc-body #ymgl-profile .user-card-shadow .user-card {
+   background-color:#121212;
+}
+
+/* left-col profile nickname & calendar background color */
+#doc-body #ymgl-profile h2,
+#doc-body #blog-calendar caption,
+#doc-body #blog-calendar th,
+#doc-body #blog-calendar td.today{
+   background-color:#377492;
+}
+
+/* blast bg */
+#doc-body #ymgl-blast.container-0,
+#doc-body #ymgl-blast .thm-box,
+#doc-body #ymgl-blast.whisper .thm-box {
+   background-color:#ffffff;
+}
+
+#doc-body #ymgl-blast.whisper {
+   background:transparent;
+}
+
+/* blog comments, poll, action buttons bg */
+#doc-body #ymgl-profile .body .action-shadow .action,
+#doc-body #ymgl-profile .body .action-menu,
+#doc-body #ymgl-blog .comments,
+#doc-body #ymgl-blog .poll {
+   background-color:#0E0E0E;
+}
+
+/* blog poll bar color = main text color */
+#doc-body #ymgl-blog dd.post-body .poll dd div {
+   background-color:#F1F8F7;
+}
+
+/*END container background*/
+
+/*BEGIN text color*/
+/* main text color */
+#doc-body,
+#doc-body table,
+#doc-body .rnr dt,
+#doc-body .user-card .vitals .user-name,
+#doc-body #ymgl-profile .head p,
+#doc-body .publish .snippet,
+#doc-body .publish h4,
+#doc-body #ymgl-blog dt,
+#doc-body #ymgl-blog dd.post-body .content-wrapper,
+#doc-body #ymgl-blog .comments .row .comment,
+#doc-body #ymgl-feed .body dd .snippet,
+#doc-body #ymgl-local-reviews .rnr .bd .posting p,
+#doc-body #ymgl-local-reviews .rnr .bd .posting h5,
+#doc-body #ymgl-guestbook .body .row .wrapper .comment,
+#doc-body #ymgl-feed dt,
+#doc-body #ymgl-profile-detail .quote,
+#doc-body .intro .footnote {
+   color:#F1F8F7;
+   font-family:Comic Sans MS;
+}
+
+/* small text color */
+#doc-body .footnote,
+#doc-body cite,
+#doc-body .datestamp,
+#doc-body .caption,
+#doc-body .profile .body,
+#doc-body #ymgl-profile-detail dt,
+#doc-body #blog-calendar td,
+#doc-body #blog-calendar td span,
+#doc-body .intro h6,
+#doc-body .intro .previous,
+#doc-body .time,
+#doc-body .pagination,
+#doc-body #ymgl-local-reviews .rnr .score,
+#doc-body #ymgl-blog dd.post-body .foot,
+#doc-body #ymgl-comment-add label,
+#doc-body .user-card .vitals {
+   color:#F8F1F1;
+}
+
+/* blast text color (gets main text color by default) */
+#doc-body #ymgl-blast .content .snippet {
+   color:#121111;
+}
+
+/* module headline text color */
+#doc-body h3,
+#doc-body #ymgl-profile-detail .head h3,
+#doc-body #ymgl-blog .comments .head h4 {
+   font-family:Lucida Sans, Arial, Helvetica, Sans Serif;
+   color:#F1EBEB;
+}
+
+#doc-body .my-links h4 {
+   color:#F1EBEB;
+}
+
+/* body link color */
+#doc-body a:link,
+#doc-body #ymgl-profile a:visited,
+#doc-body .pagination a:visited,
+#doc-body .publish p.footnote a:visited,
+#doc-body .doc-layout-4 .publish .head a:visited,
+#doc-body .doc-layout-4 .publish .foot a:visited,
+#doc-body .publish .user-card a:visited,
+#doc-body #ymgl-blog-promo a:visited,
+#doc-body #ymgl-blog dd.post-body .poll a:visited,
+#doc-body #ymgl-blast p a:link,
+#doc-body #ymgl-blast p a:visited {
+   color:#32FFF1;
+}
+
+/* body visited link color */
+#doc-body a:visited,
+#doc-body .publish .user-card strong a:visited,
+#doc-body #ymgl-feed a:visited,
+#doc-body table a:visited {
+   color:#22FF4E;
+}
+
+/* nickname  & calendar options text color */
+#doc-body #ymgl-profile h2,
+#doc-body #blog-calendar caption span,
+#doc-body #blog-calendar th,
+#doc-body #blog-calendar caption a:link,
+#doc-body #blog-calendar caption a:visited,
+#doc-body.doc-iframe-body #calendar caption a:visited,
+#doc-body.doc-iframe-body #calendar caption a:link {
+   color:#F5E835;
+}
+
+/*END text color*/
+
+/*BEGIN line colors*/
+/* outside line colors */
+#doc-body .container-1,
+#doc-body .container-0,
+#doc-body #ymgl-blog .head,
+#doc-body #ymgl-local-reviews .head,
+#doc-body #ymgl-blog .comments,
+#doc-body #ymgl-journal-slideshow .wrapper,
+#doc-body.doc-iframe-body #calendar,
+#doc-body #ymgl-profile-detail dd,
+#doc-body #ymgl-photos .body .flickr,
+#doc-body #ymgl-blog dd.post-body,
+#doc-body #ymgl-blog .comments .row,
+#doc-body #ymgl-feed dl,
+#doc-body #ymgl-local-reviews td,
+#doc-body #ymgl-local-reviews th,
+#doc-body #ymgl-local-reviews li,
+#doc-body #ymgl-local-reviews .rnr,
+#doc-body #ymgl-lists .row,
+#doc-body #ymgl-blog li .body,
+#doc-body #doc-1 #ymgl-blogroll,
+#doc-body #doc-2 #ymgl-sticky-post,
+#doc-body #ymgl-local-reviews .sub-rating,
+#doc-body #ymgl-profile .foot,
+#doc-body #ymgl-profile .user-card-shadow .user-card,
+#doc-body #ymgl-profile .body .action-shadow .action,
+#doc-body #ymgl-profile .body .action-menu,
+#doc-body #ymgl-profile .body .action-menu li,
+#doc-body #ymgl-blog .add-rss,
+#doc-body #ymgl-guestbook .body .form-wrapper,
+#doc-body #ymgl-guestbook .body .row,
+#doc-body #blog-calendar td,
+#doc-body .top,
+#doc-body .bottom {
+   border-color:#100F0F;
+}
+
+
+/*END line colors*/
+
+/* my page thumbnail */
+#doc-head.my-page #ymgl-viewer-options .current-theme .thumbnail {
+   background-image:url(http://l.yimg.com/us.yimg.com/i/us/cmty/thm2/customize_th.gif);
+}
+
+/*BEGIN blast images*/
+#doc-body #ymgl-blast .ct,
+#doc-body #ymgl-blast .ct .cl {
+   background-image: url(http://l.yimg.com/us.yimg.com/i/us/cmty/thm2/ffffff_blast_cr.gif);
+}
+
+#doc-body #ymgl-blast .tail {
+   background-image: url(http://l.yimg.com/us.yimg.com/i/us/cmty/thm2/ffffff_blast_tail.gif);
+}
+
+/*shout*/
+#doc-body #ymgl-blast.shout .ct,
+#doc-body #ymgl-blast.shout .ct .cl {
+   background-image: url(http://l.yimg.com/us.yimg.com/i/us/cmty/thm2/ffffff_blsh_cr.gif);
+}
+
+/*thought*/
+#doc-body #ymgl-blast.thought .ct,
+#doc-body #ymgl-blast.thought .ct .cl {
+   background-image: url(http://l.yimg.com/us.yimg.com/i/us/cmty/thm2/ffffff_blth_cr.gif);
+}
+
+#doc-body #ymgl-blast.thought .tail {
+   background-image: url(http://l.yimg.com/us.yimg.com/i/us/cmty/thm2/ffffff_blth_tail.gif);
+}
+
+/*quote*/
+#doc-body #ymgl-blast.quote .ct,
+#doc-body #ymgl-blast.quote .ct .cl {
+   background-image: url(http://l.yimg.com/us.yimg.com/i/us/cmty/thm2/ffffff_blqo_cr.gif);
+}
+
+/*question*/
+#doc-body #ymgl-blast.question .ct,
+#doc-body #ymgl-blast.question .ct .cl {
+   background-image: url(http://l.yimg.com/us.yimg.com/i/us/cmty/thm2/ffffff_blqu_cr.gif);
+}
+
+/*sale*/
+#doc-body #ymgl-blast.sale .tail {
+   background-image: url(http://l.yimg.com/us.yimg.com/i/us/cmty/thm2/ffffff_blsa_tail.gif);
+}
+/*END blast images*/
+
+</style>
+<script type="text/javascript" src="http://us.js2.yimg.com/us.js.yimg.com/lib/cmty/ymgl_fla_20061130134131.js"></script>
+</head>
+<body  onload=" hlx_js_init(); ">
+
+<div class="doc-layout-head wide" id="doc-head">
+    <span class="beacon"></span>
+    
+<script language="JavaScript" type="text/javascript" src="http://au.adserver.yahoo.com/a?f=2011330004:HEADR&p=au360&l=HEADR&c=rm&rand=1220637195471828&.crumb=">
+</script>
+<noscript>
+<iframe src="http://au.adserver.yahoo.com/a?f=2011330004:HEADR&p=au360&l=HEADR&c=hm&bg=ffffff&rand=1220637195471828" width=100% marginwidth=0 marginheight=0 hspace=0 vspace=0 frameborder=0 scrolling=no>
+</iframe>
+</noscript><script language=javascript>
+if(window.yzq_d==null)window.yzq_d=new Object();
+window.yzq_d['jqINEdgnMuM-']='&U=13ea1kd2a%2fN%3djqINEdgnMuM-%2fC%3d253710.8113293.8933351.7761428%2fD%3dHEADR%2fB%3d3306073%2fV%3d1';
+</script><noscript><img width=1 height=1 alt="" src="http://row.bc.yahoo.com/b?P=c_gEH86.ODZWRavfIZY29QEHyquqBUjBcgMABWjo&T=1412pp5jp%2fX%3d1220637195%2fE%3d2011330004%2fR%3dau360%2fK%3d5%2fV%3d2.1%2fW%3dHR%2fY%3dAUNZ%2fF%3d4174791289%2fQ%3d-1%2fS%3d1%2fJ%3d5B38BECE&U=13ea1kd2a%2fN%3djqINEdgnMuM-%2fC%3d253710.8113293.8933351.7761428%2fD%3dHEADR%2fB%3d3306073%2fV%3d1"></noscript>
+<div class="container-0" id="ymgl-north-wrapper">
+<!--http://au.ard.yahoo.com/SIG=14r5e6k9h/M=253710.8511723.9307995.8249584/D=au360/S=2011330004:N/Y=AUNZ/EXP=1220644395/L=c_gEH86.ODZWRavfIZY29QEHyquqBUjBcgMABWjo/B=kaINEdgnMuM-/J=1220637195471828/A=3601771/R=0/*--><script language="JavaScript" type="text/javascript" src="http://au.adserver.yahoo.com/a?f=2011330004:N&p=au360&l=N&c=rm">
+</script>
+<noscript>
+<iframe src="http://au.adserver.yahoo.com/a?f=2011330004:N&p=au360&l=N&c=hm&bg=ffffff" width=728 height=90 marginwidth=0 marginheight=0 hspace=0 vspace=0 frameborder=0 scrolling=no>
+</iframe>
+</noscript><script language=javascript>
+if(window.yzq_d==null)window.yzq_d=new Object();
+window.yzq_d['kaINEdgnMuM-']='&U=13ad1srgn%2fN%3dkaINEdgnMuM-%2fC%3d253710.8511723.9307995.8249584%2fD%3dN%2fB%3d3601771%2fV%3d1';
+</script><noscript><img width=1 height=1 alt="" src="http://row.bc.yahoo.com/b?P=c_gEH86.ODZWRavfIZY29QEHyquqBUjBcgMABWjo&T=1410f1dat%2fX%3d1220637195%2fE%3d2011330004%2fR%3dau360%2fK%3d5%2fV%3d2.1%2fW%3dHR%2fY%3dAUNZ%2fF%3d1904845138%2fQ%3d-1%2fS%3d1%2fJ%3d5B38BECE&U=13ad1srgn%2fN%3dkaINEdgnMuM-%2fC%3d253710.8511723.9307995.8249584%2fD%3dN%2fB%3d3601771%2fV%3d1"></noscript>
+</div>
+<div class="container-0" id="ymgl-feedback">
+<span class="caption"><a href="http://au.blog.360.yahoo.com/australia_360">Yahoo!7 360&#176; News</a> | <a href="http://add.yahoo.com/fast/help/au/360/cgi_feedback">Beta Feedback</a></span>
+</div>
+<div class="container-0" id="ymgl-masthead">
+    <span class="ct"><span class="cl"></span></span>
+    
+        
+<span class="button"><a href="http://au.rd.yahoo.com/evt=35266/*http://au.upload.360.yahoo.com/reg/new_user.html?.login=1">Start your own Yahoo!7 360&#176; page</a></span>
+
+     <div class="body">
+        <a href="http://au.360.yahoo.com/;_ylt=A86.OFsDcsFIZBUAZADUdeJ3?.login=1">Home</a>|<a href="http://au.360.yahoo.com/my_profile.html;_ylt=A86.OFsDcsFIZBUAZQDUdeJ3">My Page</a>|<a href="http://au.blog.360.yahoo.com/blog/;_ylt=A86.OFsDcsFIZBUAZgDUdeJ3">My Blog</a>|<a href="http://au.360.yahoo.com/friends/index.html;_ylt=A86.OFsDcsFIZBUAZwDUdeJ3">My Friends</a>|<a href="http://au.message.360.yahoo.com/mailbox/;_ylt=A86.OFsDcsFIZBUAaADUdeJ3">Mailbox</a>|<a href="http://au.message.360.yahoo.com/invites/compose.html;_ylt=A86.OFsDcsFIZBUAaQDUdeJ3">Invite</a>|<a href="http://au.360.yahoo.com/search.html;_ylt=A86.OFsDcsFIZBUAagDUdeJ3">Search</a>|<a href="http://au.360.yahoo.com/edit/identity.html;_ylt=A86.OFsDcsFIZBUAawDUdeJ3">Settings</a>
+    </div>
+    <span class="cb"><span class="cl"></span></span>
+</div>
+
+
+
+</div>
+<div class="doc-layout-body wide" id="doc-body">
+    <div class="thm-wrapper">
+        <span class="beacon"></span>
+        <div class="doc-layout-1" id="doc-1">
+            
+<div class="container-1 profile" id="ymgl-profile">
+<span class="shadow"></span>
+<div class="thm-box">
+    <div class="head">
+        <h2>
+            <span class="ct"><span class="cl"></span></span>
+            <span class="nickname">Lester</span>
+         <span class="alias">
+            
+         </span>  
+        </h2>
+        <p>
+<a href="http://au.360.yahoo.com/profile-WKR08rI9frXm83..3JRe">Top Page</a>
+&nbsp;|&nbsp;
+<a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe">Blog</a>
+&nbsp;|&nbsp;
+<a href="http://au.360.yahoo.com/feeds-WKR08rI9frXm83..3JRe">Feeds</a>
+&nbsp;|&nbsp;
+<a href="http://au.360.yahoo.com/friends-WKR08rI9frXm83..3JRe">Friends</a>
+&nbsp;|&nbsp;
+<a href="http://au.360.yahoo.com/lists-WKR08rI9frXm83..3JRe">Lists</a>
+
+
+&nbsp;|&nbsp;
+<a href="http://au.360.yahoo.com/groups-WKR08rI9frXm83..3JRe">Groups</a>
+        </p>
+    </div>
+    <div class="body">
+        
+    
+<div class="user-card-shadow">
+   <div class="user-card" id="user-photos">
+          
+
+<div class="user-photo" id="user-photos-wrap">
+   <img src="http://f3.yahoofs.com/mingle/45d80d1dz646c76/profile/__sr_/f0ca.jpg?mgwUXwIB4ChK.Ccd"  id="user-photos-full" height="190" width="140" border="">
+</div>
+<div class="thumb-wrapper" id="user-photos-thumbs">
+      <span><img src=""  height="-21" width="60" border=""></span>
+      <span><img src=""  height="-21" width="60" border=""></span>
+      <span><img src="http://f3.yahoofs.com/mingle/45d80d1dz646c76/profile/__sr_/4b15.jpg?mgwUXwIBrd25UJzB"  height="86" width="60" border=""></span>
+</div>
+    
+          
+<ul class="vitals">
+    
+<li>Work: Retired Soldier</li>
+    
+</ul>
+    
+   </div>
+</div>
+    
+
+
+        
+    <div class="action-shadow">
+        <p class="action"><a href="http://au.message.360.yahoo.com/invites/confirm.html?id=WKR08rI9frXm83..3JRe" class="bullet-add">Add as a Friend</a></p>
+    </div>
+        
+        <p class="degree">
+            <span></span>
+            <span>Lester is not connected to you in Yahoo!7 360&#176;.</span>
+        </p>
+
+        
+<div class="action-menu">
+    <span class="ct"><span class="cl"></span></span>
+    <ul>
+            
+<li class="opi "><a href="ymsgr:sendIM?lesdavo" title="Offline IM"><img src="http://l.yimg.com/us.yimg.com/i/us/msg/6/gr/offline_12px_1.gif"  height="12" width="12" border="0"> Offline IM</a></li>
+             
+<li class="send-message "><a href="http://au.message.360.yahoo.com/mailbox/message/compose-WKR08rI9frXm83..3JRe;_ylt=A86.OFsDcsFIZBUAYQDUdeJ3">Send Message</a></li>
+             
+<li class="launch last"><a href="http://au.rd.yahoo.com/launch/integration/360/nav/lc/evt=32929/*http://au.music.yahoo.com/launchcast/station.asp
+?u=347740287" target="_new">Yahoo!7 Music Station</a></li>
+     
+    </ul>
+    <span class="cb"><span class="cl"></span></span>
+</div>
+
+        <ul class="options">
+        
+<li><strong><a href="ymsgr:addfriend?lesdavo">Add to Messenger</a></strong></li>
+
+        <li><a href="http://au.360.yahoo.com/friends/ignore_list.html?ignore=WKR08rI9frXm83..3JRe&.crumb=WQGxVECWAdj">Ignore</a> this person <span><a href="http://help.yahoo.com/help/au/360/friends/friends-04.html" title="Find out what happens when you ignore someone.">(What's this?)</a></span></li>
+        <li><a href="http://add.yahoo.com/fast/help/au/360/cgi_abuse">Report for abuse</a></li>
+        </ul>
+        <ul id="ymgl-customize-links" class="options">
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=903&cs=0" id="style_toggle" accesskey="z">View without theme</a></li>
+<li></li>
+</ul>
+
+    </div>
+    <div class="foot">
+        <p class="datestamp">
+        <span>Last updated Mon 18 Aug 2008</span>
+        <span>Member since January 2007</span>
+	
+        </p>
+    </div>
+<span class="cb"><span class="cl"></span></span>
+</div>
+</div>
+<div id="ymgl-tagcloud" class="container-1 publish intro">
+<span class="shadow"></span>
+<div class="thm-box">
+   <span class="ct"><span class="cl"></span></span>
+	<div class="head">
+	   <h3>Tag Cloud</h3>
+	</div>
+	<div class="body">
+	   <!-- begin tagcloud microformat-->
+
+	   <div class="hTagcloud">
+	      <ul class="popularity">
+              <li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=21stanniversaryandjulie%27sb%2Fd">21stanniversaryandjulie&#039;sb/d</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=adamandtheants">adamandtheants</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=adelaide">adelaide</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=affairsrelationships">affairsrelationships</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=animal">animal</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=animals">animals</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=annoy">annoy</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=australia">australia</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=australia-landdownunder">australia-landdownunder</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=b-52%27sprivateidaho">b-52&#039;sprivateidaho</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=background">background</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=bodywaxing">bodywaxing</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=brb">brb</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=bushfire">bushfire</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=cat">cat</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=coldweather">coldweather</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=confuse">confuse</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=courses">courses</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=criminals">criminals</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=cynic">cynic</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=diagnosis">diagnosis</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=different">different</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=dinks">dinks</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=driver">driver</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=epilepticseizure">epilepticseizure</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=extremelyfunny">extremelyfunny</a></li>
+<li class="vvvv-popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=facts">facts</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=fonts">fonts</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=friendship">friendship</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=funnies">funnies</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=funnycard">funnycard</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=funnyoneliners">funnyoneliners</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=gunny">gunny</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=haha">haha</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=happiness">happiness</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=heartofglass">heartofglass</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=hiddenmeaninginyourname">hiddenmeaninginyourname</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=history1">history1</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=howto">howto</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=howtoshaveyourhead">howtoshaveyourhead</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=insect">insect</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=insults">insults</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=irlaws">irlaws</a></li>
+<li class="vvvv-popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=jokes">jokes</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=kfc">kfc</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=law">law</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=lovelife">lovelife</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=meatloaf">meatloaf</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=mika">mika</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=mirror">mirror</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=missing">missing</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=myfriend">myfriend</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=nairne">nairne</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=onehugejellyfish">onehugejellyfish</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=paperlacebillydon%27tbeahero">paperlacebillydon&#039;tbeahero</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=persons">persons</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=pets">pets</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=pinkfloyd">pinkfloyd</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=predators">predators</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=problemflowchart">problemflowchart</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=quiz">quiz</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=removingsomeone">removingsomeone</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=robinwilliams">robinwilliams</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=romantic">romantic</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=scammers">scammers</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=secrets">secrets</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=seizure">seizure</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=sex">sex</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=sexual">sexual</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=sheila">sheila</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=sinks">sinks</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=sites">sites</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=songsofaustralia">songsofaustralia</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=spudsandfreemales">spudsandfreemales</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=suziquatro">suziquatro</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=test">test</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=thepretenders">thepretenders</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=tnt">tnt</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=training">training</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=understandingmen">understandingmen</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=welaughatourselves">welaughatourselves</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=women">women</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=words">words</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=worldclockweather">worldclockweather</a></li>
+<li class="popular"><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?tag=yahoomail">yahoomail</a></li>
+
+ 	      </ul>
+      </div>
+	   <p class="footnote"><a href=""></a></p>
+	</div>
+	<span class="cb"><span class="cl"></span></span>
+
+</div>
+</div>
+<div id="ymgl-blog-calendar" class="container-1">
+<span class="shadow"></span>
+<div class="thm-box">
+<iframe name='calendar' id="blog-calendar-iframe" src="/blog/calendar_content.html?id=WKR08rI9frXm83..3JRe&cyy=2008&cmm=9" frameborder="0" marginheight="0" marginwidth="0" scrolling="no"></iframe>
+</div>
+</div>
+
+
+<div id="ymgl-blogroll" class="container-1 my-links">
+<span class="shadow"></span>
+<div class="thm-box">
+<h4>MY BLOGROLL</h4>
+<ul>
+
+<li><a href="http://feeds.feedburner.com/brainyquote/QUOTEFU">Brainy Quotes</a></li>
+
+</ul>
+</div>
+</div>
+
+        </div>
+        <div class="doc-layout-2 wide" id="doc-2">
+            <span class="beacon"></span>
+            
+<div class="container-0 blast spoken " id="ymgl-blast">
+   <div class="thm-box" id="jBlast-thm-box">
+        <span class="ct"><span class="cl"></span></span>
+        <span class="tail"></span>
+        <p class="content" id="jBlastGraph"><span class="snippet" >Some people are like Slinkys. Totally useless but they still make you smile when they tumble down the stairs and I have a Blog Block</span><span id="linksspan" class="links"><a href="http://profiles.friendster.com/user.php" id="ymgl-blast-outside-link" class="outside-link">--&gt;&nbsp;Click&nbsp;here</a> <a href="http://au.message.360.yahoo.com/mailbox/message/compose-WKR08rI9frXm83..3JRe;_ylt=A86.OFsDcsFIZBUAYwDUdeJ3?blst=1" class="action-link">Reply</a></span></p>
+        
+        <span class="cb"><span class="cl"></span></span>
+   </div>
+</div>
+
+            <div class="doc-layout-11">
+            <span class="beacon"></span>
+                
+<div id="ymgl-blog" class="container-0 publish post">
+<span class="shadow"></span>
+<div class="thm-box">
+        <span class="ct"><span class="cl"></span></span>
+        <dl class="body">
+            <dt class="post-head">AUSTRALIA the country we love</dt>
+            <dd class="post-body last">
+                <div class="image-wrapper"> </div>
+		<div class="content-wrapper">
+<p><strong></strong></p> <p><strong>Country Profile</strong> </p> <p>Aboriginal settlers arrived on the continent from Southeast Asia about 40,000 years before the first Europeans began exploration in the 17th century. No formal territorial claims were made until 1770, when Capt. James COOK took possession in the name of Great Britain. Six colonies were created in the late 18th and 19th centuries; they federated and became the Commonwealth of Australia in 1901. The new country took advantage of its natural resources to rapidly develop agricultural and manufacturing industries and to make a major contribution to the British effort in World Wars I and II. In recent decades, Australia has transformed itself into an internationally competitive, advanced market economy. It boasted one of the OECD's fastest growing economies during the 1990s, a performance due in large part to economic reforms adopted in the 1980s. Long-term concerns include pollution, particularly depletion of the ozone layer, and management and conservation of coastal areas, especially the Great Barrier Reef. </p> <p> <table cellspacing="0" cellpadding="1" border="0"> <tbody> <tr valign="top"> <th valign="top" align="left"><strong>Location</strong></th> <td>Oceania</td></tr> <tr valign="top"> <th valign="top" align="left"><strong>Coordinates</strong></th> <td>25° 0' S 135° 0' E</td></tr> <tr valign="top"> <th valign="top" align="left"><strong>Capital</strong>  <td>Canberra (Pop: 0.3)</td></tr> <tr valign="top"> <th valign="top" align="left"><strong>Main Cities</strong></th> <td>Adelaide, Brisbane, Melbourne, Perth, Sydney</td></tr> <tr valign="top"> <th valign="top" align="left"><strong>Area</strong></th> <td>7686850 km<sup>2</sup></td></tr> <tr valign="top"> <th valign="top" align="left"><strong>Boundaries (km)</strong></th> <td>0</td></tr> <tr valign="top"> <th valign="top" align="left"><strong>Coastline (km)</strong></th> <td>25,760</td></tr> <tr valign="top"> <th valign="top" align="left"><strong>Timezone (GMT)</strong></th> <td>8 to 10</td></tr></tbody></table></p> <p><strong>Population and Demographics</strong>  <p>Australia has a population of 20,434,176 (July 2007 est.) .  <p> <table cellspacing="1" cellpadding="1" border="0"> <tbody> <tr valign="top"> <td><strong>Capital</strong></td> <td>Canberra (0.3 million inhabitants)</td></tr> <tr valign="top"> <td><strong>Main urban areas</strong></td> <td>Adelaide, Brisbane, Melbourne, Perth, Sydney</td></tr> <tr valign="top"> <td><strong>Ethnic groups</strong></td> <td>Caucasian 92%, Asian 7%, aboriginal and other 1%</td></tr> <tr valign="top"> <td><strong>Languages spoken</strong></td> <td>English, native languages </td></tr></tbody></table> <p> <table cellspacing="3" cellpadding="1" border="0"> <tbody> <tr valign="bottom"> <td><strong>Population age</strong>  <p>0-14: 19.3% (<strong>m</strong> 2,023,375/<strong>f</strong> 1,929,229) <br />15-64: 67.4% (<strong>m</strong> 6,945,068/<strong>f</strong> 6,831,653) <br />65+: 13.2% (<strong>m</strong> 1,197,494/<strong>f</strong> 1,507,357) (2007 est.) </p></td> <td valign="bottom" align="middle"><img height="19" width="20" alt=" 19.3 percent population 0-14" src="http://www.intute.ac.uk/sciences/worldguide/blue.gif" /></td> <td valign="bottom" align="middle"><img height="67" width="20" alt=" 67.4 percent population 15-64" src="http://www.intute.ac.uk/sciences/worldguide/blue.gif" /></td> <td valign="bottom" align="middle"><img height="13" width="20" alt=" 13.2 percent population 65+" src="http://www.intute.ac.uk/sciences/worldguide/blue.gif" /></td></tr> <tr> <td></td> <td align="middle">0-14</td> <td align="middle">15-64</td> <td align="middle">65+</td></tr> <tr> <td colspan="4"><strong>Gender ratios</strong>  <p>At birth: 1.05 m/f , 0-14: 1.049 m/f , 15-64: 1.017 m/f , 65+: 0.794 m/f <br />Total population: 0.99 m/f (2007 est.) </p></td></tr></tbody></table> <p><strong>Labour Force</strong>  <p><a href="http://www.intute.ac.uk/sciences/worldguide/html/817_economic.html">Labour Force demographics available via the Australia economic data page</a>  <p><strong>Changing Population</strong> (Life expectancy, births, deaths and fertility)  <p>The population growth rate for Australia is 0.824% (2007 est.) (world growth rate at 2006 is 1.14%). The country also saw migration of 3.85 migrant(s)/1,000 population (2006 est.).  <p>Note: on the graphs, world figures are represented by a red bar, figures for Australia are illustrated with a green bar  <p> <table cellspacing="1" cellpadding="1" border="0"> <tbody> <tr valign="top"> <td>Life Expectancy:</td> <td>Total population: 80.62 years <br />Male: 77.75 years <br />Female: 83.63 years (2007 est.) </td> <td><img height="10" hspace="5" width="241" src="http://www.intute.ac.uk/sciences/worldguide/green.gif" />[80.62] <br /><img height="10" hspace="5" width="194" src="http://www.intute.ac.uk/sciences/worldguide/red.gif" />[64.77] <br /><img height="10" hspace="5" width="233" src="http://www.intute.ac.uk/sciences/worldguide/green.gif" />[77.75, m] <br /><img height="10" hspace="5" width="189" src="http://www.intute.ac.uk/sciences/worldguide/red.gif" />[63.16, m] <br /><img height="10" hspace="5" width="250" src="http://www.intute.ac.uk/sciences/worldguide/green.gif" />[83.63, f] <br /><img height="10" hspace="5" width="199" src="http://www.intute.ac.uk/sciences/worldguide/red.gif" />[66.47, f] </td></tr> <tr valign="top"> <td>Fertility:</td> <td>1.76 children born/woman (2007 est.)</td> <td><img height="10" hspace="5" width="5" src="http://www.intute.ac.uk/sciences/worldguide/green.gif" />[1.76] <br /><img height="10" hspace="5" width="7" src="http://www.intute.ac.uk/sciences/worldguide/red.gif" />[2.59] </td></tr> <tr valign="top"> <td>Births:</td> <td>12.02 births/1,000 population (2007 est.)</td> <td><img height="10" hspace="5" width="36" src="http://www.intute.ac.uk/sciences/worldguide/green.gif" />[12.02] <br /><img height="10" hspace="5" width="60" src="http://www.intute.ac.uk/sciences/worldguide/red.gif" />[20.05] </td></tr> <tr valign="top"> <td>Deaths:</td> <td>7.56 deaths/1,000 population (2007 est.)</td> <td><img height="10" hspace="5" width="22" src="http://www.intute.ac.uk/sciences/worldguide/green.gif" />[7.56] <br /><img height="10" hspace="5" width="26" src="http://www.intute.ac.uk/sciences/worldguide/red.gif" />[8.67] </td></tr> <tr valign="top"> <td>Infants:</td> <td>Total: 4.57 deaths/1,000 live births <br />Male: 4.95 deaths/1,000 live births <br />Female: 4.16 deaths/1,000 live births (2007 est.) </td> <td><img height="10" hspace="5" width="4" src="http://www.intute.ac.uk/sciences/worldguide/green.gif" />[4.57] <br /><img height="10" hspace="5" width="48" src="http://www.intute.ac.uk/sciences/worldguide/red.gif" />[48.87] <br /><img height="10" hspace="5" width="0" src="http://www.intute.ac.uk/sciences/worldguide/green.gif" />[ <br />Male:, m] <br /><img height="10" hspace="5" width="50" src="http://www.intute.ac.uk/sciences/worldguide/red.gif" />[50.98, m] <br /><img height="10" hspace="5" width="0" src="http://www.intute.ac.uk/sciences/worldguide/green.gif" />[, f] <br /><img height="10" hspace="5" width="46" src="http://www.intute.ac.uk/sciences/worldguide/red.gif" />[46.65, f]</td></tr></tbody></table></p> <p><strong>Economic Data</strong>  <p><strong>Economy Overview</strong> <br />Australia has an enviable Western-style capitalist economy with a per capita GDP on par with the four dominant West European economies. Rising output in the domestic economy, robust business and consumer confidence, and rising exports of raw materials and agricultural products are fueling the economy. Australia's emphasis on reforms, low inflation, and growing ties with China are other key factors behind the economy's strength. The impact of drought, weak foreign demand, and strong import demand pushed the trade deficit up from $8 billion in 2002, to $18 billion in 2003, $13 billion in 2004, and nearly $17 billion in 2005. Housing prices probably peaked in 2005, diminishing the prospect that interest rates would be raised to prevent a speculative bubble. Conservative fiscal policies have kept Australia's budget in surplus from 2002 to 2005.  <p><strong>Labour Force</strong> <br />Number in labour force: 10.42 million (2005 est.) <br />Sectors: agriculture: 3.6% industry: 21.2% services: 75.2% (2004 est.) <br />Unemployment: 5.1% (2005 est.)  <p><strong>GDP Facts and Figures</strong> <br />Currency: Dollar (A) <br />GDP: $635.5 billion (2005 est.) <br />GDP Per Capita: $31,600 (2005 est.) <br />GDP Real Growth: 2.7% (2005 est.) <br />GDP Composition: agriculture: 3.8% industry: 26.2% services: 70% (2004 est.)  <p><strong>Industries and Land Use</strong> <br />Industries: mining, industrial and transportation equipment, food processing, chemicals, steel <br />Land use: arable land: 6.15% (includes about 27 million hectares of cultivated grassland) permanent crops: 0.04% other: 93.81% (2005) <br />Exports: coal, gold, meat, wool, alumina, iron ore, wheat, machinery and transport equipment </p> <p><a name="data"></a><strong>Geographic Data</strong> <br />Australia is located in Oceania, in the timezone GMT 8 to 10. The country has boundaries of 0 (km), and a coastline of 25,760 (km). Major urban areas: <strong>Canberra</strong>, Adelaide, Brisbane, Melbourne, Perth, Sydney.  <p><strong>Elevations</strong> <br />Lowest point: Lake Eyre -15 m <br />Highest point: Mount Kosciuszko 2,229 m  <p><strong>Physical Features</strong> <br />Lake Eyre (8,800 km2), Uluru (Ayers Rock), Great Barrier reef (1,900 km), Great Victoria desert (647,000 km2), Great Sandy desert (400,000 km2), Simpson desert (145,000 km2), Sturt desert (130,000 km2), Gibson desert, MacDonnell Ranges, West Australian Plateau, Kimberley Plateau, Nullarbor Plain, Australian Alps, Eastern Highlands, Murray river, Darling river  <p><strong>Hazards</strong> <br />Cyclones along the coast; severe droughts; forest fires  <p><strong>Climate</strong> <br />Generally arid to semiarid; temperate in south and east; tropical in north  <p><strong>Natural Resources</strong> <br />Bauxite, coal, iron ore, copper, tin, gold, silver, uranium, nickel, tungsten, mineral sands, lead, zinc, diamonds, natural gas, petroleum  <p><strong>Land Use</strong> <br />Arable land: 6.15% (includes about 27 million hectares of cultivated grassland) permanent crops: 0.04% other: 93.81% (2005)  <p><strong>Environmental Issues</strong> <br />Soil erosion from overgrazing, industrial development, urbanization, and poor farming practices; soil salinity rising due to the use of poor quality water; desertification; clearing for agricultural purposes threatens the natural habitat of many unique animal and plant species; the Great Barrier Reef off the northeast coast, the largest coral reef in the world, is threatened by increased shipping and its popularity as a tourist site; limited natural fresh water resources </p> <p></p> <p>Interactive Map of Sydney</p> <p> <table cellspacing="0" cellpadding="0" border="1"> <tbody> <tr valign="bottom"> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/1.html"><img height="40" width="40" border="0" alt="Region 1" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney1.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/2.html"><img height="40" width="40" border="0" alt="Region 2" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney2.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/3.html"><img height="40" width="40" border="0" alt="Region 3" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney3.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/4.html"><img height="40" width="40" border="0" alt="Region 4" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney4.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/5.html"><img height="40" width="40" border="0" alt="Region 5" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney5.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/6.html"><img height="40" width="40" border="0" alt="Region 6" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney6.jpg" /></a></td></tr> <tr valign="bottom"> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/7.html"><img height="40" width="40" border="0" alt="Region 7" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney7.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/8.html"><img height="40" width="40" border="0" alt="Region 8" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney8.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/9.html"><img height="40" width="40" border="0" alt="Region 9" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney9.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/10.html"><img height="40" width="40" border="0" alt="Region 10" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney10.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/11.html"><img height="40" width="40" border="0" alt="Region 11" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney11.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/12.html"><img height="40" width="40" border="0" alt="Region 12" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney12.jpg" /></a></td></tr> <tr valign="bottom"> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/13.html"><img height="40" width="40" border="0" alt="Region 13" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney13.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/14.html"><img height="40" width="40" border="0" alt="Region 14" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney14.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/15.html"><img height="40" width="40" border="0" alt="Region 15" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney15.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/16.html"><img height="40" width="40" border="0" alt="Region 16" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney16.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/17.html"><img height="40" width="40" border="0" alt="Region 17" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney17.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/18.html"><img height="40" width="40" border="0" alt="Region 18" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney18.jpg" /></a></td></tr> <tr valign="bottom"> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/19.html"><img height="40" width="40" border="0" alt="Region 19" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney19.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/20.html"><img height="40" width="40" border="0" alt="Region 20" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney20.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/21.html"><img height="40" width="40" border="0" alt="Region 21" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney21.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/22.html"><img height="40" width="40" border="0" alt="Region 22" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney22.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/23.html"><img height="40" width="40" border="0" alt="Region 23" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney23.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/24.html"><img height="40" width="40" border="0" alt="Region 24" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney24.jpg" /></a></td></tr> <tr valign="bottom"> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/25.html"><img height="40" width="40" border="0" alt="Region 25" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney25.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/26.html"><img height="40" width="40" border="0" alt="Region 26" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney26.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/27.html"><img height="40" width="40" border="0" alt="Region 27" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney27.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/28.html"><img height="40" width="40" border="0" alt="Region 28" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney28.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/29.html"><img height="40" width="40" border="0" alt="Region 29" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney29.jpg" /></a></td> <td><a href="http://www.intute.ac.uk/sciences/worldguide/city_sydney/30.html"><img height="40" width="40" border="0" alt="Region 30" src="http://www.intute.ac.uk/sciences/worldguide/citythumbs/sydney30.jpg" /></a></td></tr></tbody></table></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p></th> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p> <p></p></p></p></p></p></p></p></p></p></p></p></p></p></p></p></p></p></p></p></p></p>
+
+		</div>
+                <div class="foot">
+                    <span>Tags: <span style="display:inline" id="tag-container-903"><a href="?tag=australia" rel="nofollow tag">australia</a></span></span>
+<form><input type="hidden" name="tagslist" value="" id="tag-list-903" /></form>
+<div class="alert" style="display:none" id="tag-error-903"></div>
+
+                    <p>Sunday 19 August 2007 - 03:31PM (CST) </p>
+                    <p class="nav">
+			<span>Next Post: <a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=912">Welcome to my home, Adelaide - Nairne South Australia</a></span>
+                        <span>Previous Post: <a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=888">Warning to Men: Words and their Meanings that females use</a></span>
+		    </p>
+                </div>
+           </dd>
+        </dl>
+
+
+<div class="comments" id="comments">
+    <div class="head"><h4>Comments</h4><em>(2 total)</em> </div>
+<span class="pagination top"></span>
+    
+    <div class="row">
+	    
+<div class="user-card ">
+        
+<div class="user-photo "><a href="http://au.360.yahoo.com/profile-WKR08rI9frXm83..3JRe" title="Lester"><img src="http://f3.yahoofs.com/mingle/45d80d1dz646c76/profile/__tn_/f0ca.jpg?mgwUXwIBALqB5lFf"  width="64" border="0"></a></div>
+    
+        
+<ul class="vitals">
+    
+<li class="user-name"><a href="http://au.360.yahoo.com/profile-WKR08rI9frXm83..3JRe" title="Lester">Lester</a></li>
+        
+<li class="opi"><a href="ymsgr:sendIM?lesdavo" title="Offline IM"><img src="http://l.yimg.com/us.yimg.com/i/us/msg/6/gr/offline_12px_1.gif"  height="12" width="12" border="0"> Offline IM</a></li>
+    
+</ul>
+    
+</div>
+    
+	<div class="wrapper">
+		<p class="comment">Use it for ya home work or there&#039;ll be no Sherpards Pie for dinner tonight.</p>
+		<p class="datestamp">Sunday 19 August 2007 - 05:05PM (CST) </p>
+	</div>
+    </div>
+
+    <div class="row last">
+	    
+<div class="user-card ">
+        
+<div class="user-photo "><a href="http://au.360.yahoo.com/profile-K1BUciMlabN9Orp9uJd7tW6h" title="Desert Rose"><img src="http://f3.yahoofs.com/mingle/442e3ddaza8b470e4/profile/__tn_/598e.jpg?mgwUXwIBoA0cD9pn"  width="64" border="0"></a></div>
+    
+        
+<ul class="vitals">
+    
+<li class="user-name"><a href="http://au.360.yahoo.com/profile-K1BUciMlabN9Orp9uJd7tW6h" title="Desert Rose">Deser&#8230;</a></li>
+        
+<li class="opi"><img src="http://l.yimg.com/us.yimg.com/i/us/msg/6/gr/offline_12px_1.gif"  height="12" width="12" border="0"> Offline </li>
+    
+</ul>
+    
+</div>
+    
+	<div class="wrapper">
+		<p class="comment">LOL...still the teacher.I&#039;ve just put in to restart my Bachelor of Early Childhood Education for next year Les. I completed 1 yr in 1998, so my ten years are up, the kids have grown up a bit, and thought I&#039;d better finish it. Better than nursing as a career.</p>
+		<p class="datestamp">Tuesday 21 August 2007 - 10:02PM (CST) </p>
+	</div>
+    </div>
+
+<span class="pagination bottom"></span>
+</div>
+
+
+
+
+        <span class="cb"><span class="cl"></span></span>
+</div>
+</div>
+
+<div id="ymgl-comment-add" class="container-0 default-light">
+<span class="shadow"></span>
+<div class="thm-box">
+    <span class="ct"><span class="cl"></span></span>
+	<div class="logged-out">You must be a member of <a href="http://au.360.yahoo.com">Yahoo!7 360&#176;</a> to comment on this blog entry.</div>
+    <span class="cb"><span class="cl"></span></span>
+</div>
+</div>
+            </div>
+            <div class="doc-layout-10">
+                
+<div id="ymgl-sticky-post" class="container-0 my-links">
+<span class="shadow"></span>
+<div class="thm-box">
+<h4>HIGHLIGHTED POSTS</h4>
+<ul>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2998" title="Sixty Amazing-but-True Facts!">Sixty Amazing-but-True Facts!</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2987" title="Death of Mr C. Sense">Death of Mr C. Sense</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2974" title="O.M.G. What did you say ???">O.M.G. What did you say ???</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2968" title="Bleeding Love">Bleeding Love</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2952" title="What the hell went wrong">What the hell went wrong</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=" title="Oooops our bad, Sorry bout that">Oooops our bad, Sorry bout that</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2562" title="My Desktop Background at the Moment">My Desktop Background at the Moment</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2046" title="My new glasses">My new glasses</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2040" title="Bundy Bear really Loves his VB">Bundy Bear really Loves his VB</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2022" title="Can you name them">Can you name them</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=2020" title="Bushfire 14 March 08 / Fire now out">Bushfire 14 March 08 / Fire now out</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1984" title="Name some songs">Name some songs</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1977" title="How To Get A Flat Stomach">How To Get A Flat Stomach</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1970" title="Irish Technology">Irish Technology</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1962" title="Subject: A Letter to a Goverment Minister">Subject: A Letter to a Goverment Minister</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1919" title="Stupid questions found on Yahoo Answers">Stupid questions found on Yahoo Answers</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1559" title="Having problems with your yahoo? come here">Having problems with your yahoo? come here</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1512" title="Hi there everybody Solid Rock 82">Hi there everybody Solid Rock 82</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1372" title="John Williamson&#39;s Songs of Australia">John Williamson&#39;s Songs of Australia</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1366" title="The Kangaroo">The Kangaroo</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1353" title="Entry for 02 October 2007">Entry for 02 October 2007</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1343" title="AUSTRALIAN WORKPLACE AGREEMENTS. IR LAWs">AUSTRALIAN WORKPLACE AGREEMENTS. IR LAWs</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1340" title="Funnies">Funnies</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1338" title="Today In History 29th September">Today In History 29th September</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1336" title="Some Funny One Liners">Some Funny One Liners</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1329" title="21st Anniversary and Julie&#39;s B/D   Fri 28 September 2007">21st Anniversary and Julie&#039;s B/D   Fri 28 ...</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1304" title="This one is from &quot;Sarina&#39;s&quot; page  Ta Sarina he he">This one is from &quot;Sarina&#039;s&quot; page  Ta Sarin...</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1275" title="Friendships">Friendships</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1269" title="When will we learn?">When will we learn?</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1245" title="You Ask and I shall Answer">You Ask and I shall Answer</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1240" title="30 Way To Annoy Your Friends">30 Way To Annoy Your Friends</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1236" title="10 Secrets to a Better Love Life">10 Secrets to a Better Love Life</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1230" title="GUNNY 1">GUNNY 1</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1227" title="GUNNY 2">GUNNY 2</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1225" title="Diagnosis Dictionary">Diagnosis Dictionary</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1220" title="HA HA HA">HA HA HA</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1187" title="Comfortably">Comfortably</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1182" title="How&#39;s my driving 1300 000FUCU">How&#39;s my driving 1300 000FUCU</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1157" title="ZZ Top She&#39;s got legs">ZZ Top She&#39;s got legs</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1162" title="My Wife&#39;s Car had a Make Over">My Wife&#39;s Car had a Make Over</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1159" title="My choice of music for the week">My choice of music for the week</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1154" title="Tina Turner ( I refuse to put Ike on here)">Tina Turner ( I refuse to put Ike on here)</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1152" title="Suzi Quatro - Very First Clip - Daytona Demon">Suzi Quatro - Very First Clip - Daytona Demon</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1150" title="The Pretenders - Brass in Pocket">The Pretenders - Brass in Pocket</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1145" title="AC/DC - TNT">AC/DC - TNT</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1143" title="Blondie - Heart of Glass">Blondie - Heart of Glass</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1141" title="Ant Music by Adam and the Ants">Ant Music by Adam and the Ants</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1139" title="10cc - Feel The Love">10cc - Feel The Love</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1137" title="B-52&#39;s Private Idaho">B-52&#39;s Private Idaho</a></li>
+
+<li><a href="http://au.blog.360.yahoo.com/blog-WKR08rI9frXm83..3JRe?p=1135" title="Paper Lace Billy don&#39;t be a hero">Paper Lace Billy don&#39;t be a hero</a></li>
+
+</ul>
+</div>
+</div>
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="doc-layout-foot wide" id="doc-foot">
+    <span class="beacon"></span> 
+    <!-- beacons component //-->
+<script>
+
+</script>
+
+
+<script language="JavaScript" type="text/javascript" src="http://au.adserver.yahoo.com/a?f=2011330004:FOOT&p=au360&l=FOOT&c=rm">
+</script>
+<noscript>
+<iframe src="http://au.adserver.yahoo.com/a?f=2011330004:FOOT&p=au360&l=FOOT&c=hm&bg=ffffff" width=760 height=60 marginwidth=0 marginheight=0 hspace=0 vspace=0 frameborder=0 scrolling=no>
+</iframe>
+</noscript><script language=javascript>
+if(window.yzq_d==null)window.yzq_d=new Object();
+window.yzq_d['jaINEdgnMuM-']='&U=13dp28vg3%2fN%3djaINEdgnMuM-%2fC%3d253710.8113294.8933350.7761429%2fD%3dFOOT%2fB%3d3306078%2fV%3d1';
+</script><noscript><img width=1 height=1 alt="" src="http://row.bc.yahoo.com/b?P=c_gEH86.ODZWRavfIZY29QEHyquqBUjBcgMABWjo&T=141i7pudn%2fX%3d1220637195%2fE%3d2011330004%2fR%3dau360%2fK%3d5%2fV%3d2.1%2fW%3dHR%2fY%3dAUNZ%2fF%3d3010778534%2fQ%3d-1%2fS%3d1%2fJ%3d5B38BECE&U=13dp28vg3%2fN%3djaINEdgnMuM-%2fC%3d253710.8113294.8933350.7761429%2fD%3dFOOT%2fB%3d3306078%2fV%3d1"></noscript>
+
+</div>
+
+</body>
+<head>
+<script type="text/javascript" language="JavaScript" src="http://us.js2.yimg.com/us.js.yimg.com/lib/cmty/utils/y360_20061114143852.js"></script>
+<script type="text/javascript" language="JavaScript" src="http://us.js2.yimg.com/us.yimg.com/lib/cmty/ymgl_rotate_200602061654.js"></script>
+<script type="text/javascript" language="JavaScript" src="http://us.js2.yimg.com/us.yimg.com/lib/g/yg_browser.js"></script>
+<script type="text/javascript" language="JavaScript" src="http://us.js2.yimg.com/us.js.yimg.com/lib/common/utils/2/connection_2.1.0.js"></script>
+<script type="text/javascript" language="JavaScript" src="http://us.js2.yimg.com/us.js.yimg.com/lib/common/utils/2/animation_2.0.0-b3.js"></script>
+
+<script type="text/javascript">
+function hlx_js_init() {
+    YAHOO.y360.CustomThemeDisabler('style_toggle', 'custom_style', {"turn_on":"Make it Ugly","turn_off":"View without theme"});
+YAHOO.util.Event.addListener('make_it_mine', 'click', function(e) { if (!confirm("Clicking OK will overwrite any theme settings you may have.\n\nThis is permanent and cannot be undone.")) { YAHOO.util.Event.stopEvent(e); } });
+up_images = new Array();
+up_sizes = new Array();
+up_images[0] = "http://f3.yahoofs.com/mingle/45d80d1dz646c76/profile/__sr_/f0ca.jpg?mgwUXwIB4ChK.Ccd";
+up_sizes[0] = {"thumbw":60,"thumbh":81,"bigw":140,"bigh":190};
+up_images[1] = "";
+up_sizes[1] = {"thumbw":60,"thumbh":-21,"bigw":-1614938032,"bigh":578470435};
+up_images[2] = "";
+up_sizes[2] = {"thumbw":60,"thumbh":-21,"bigw":-1614938032,"bigh":578470435};
+up_images[3] = "http://f3.yahoofs.com/mingle/45d80d1dz646c76/profile/__sr_/4b15.jpg?mgwUXwIBrd25UJzB";
+up_sizes[3] = {"thumbw":60,"thumbh":86,"bigw":132,"bigh":190};
+
+try { if(avKey){} } catch (e) { avKey = ''; }
+
+initThumbnails('user-photos', false, 500);
+
+YAHOO.y360.evenColumns();
+
+//hide dropshadow from opera
+function hideShadow() {
+    if (!YAHOO.y360.isOpera) { return false; }
+    var findSpans = document.getElementById('doc-body').getElementsByTagName('span');
+    for (var i=0; i < findSpans.length; i++) {
+        if (findSpans[i].className == 'shadow') {
+            findSpans[i].style.display = 'none';
+        }
+    }
+}
+hideShadow();
+
+gPAGELOADED = true;
+
+YAHOO.y360.Mp3.go('ymgl-blast');
+         
+
+function yg_popup(u,n,w,h,k){
+	var a=[],o=null,r=arguments;
+	a[0]="width="+w+",height="+h;
+	a[1]=",scrollbars="+((k&1)?1:0);
+	a[2]=",resizable="+((k&2)?1:0);
+	a[3]=",toolbar="+((k&4)?1:0);
+	a[4]=",status="+((k&8)?1:0);
+	a[5]=",location="+((k&16)?1:0);
+	a[6]=",menubar="+((k&32)?1:0);
+	if(r.length>=6){a[7]=(document.layers)?",screenX="+r[5]:",left="+r[5]}
+	if(r.length>=7){a[8]=(document.layers)?",screenY="+r[6]:",top="+r[6]}
+	a=a.join("");o=open(u,n,a);o.focus();
+	return o;
+}
+
+function initPopup(p_sId, p_sURL, p_sWinName, p_nWidth, p_nHeight, p_sYLibCode)
+{
+	var oLink = document.getElementById(p_sId);
+	if (!oLink) return;
+	oLink.winURL = (p_sURL) ? p_sURL : oLink.href;
+	oLink.winWidth = p_nWidth; 
+	oLink.winName = p_sWinName;
+	oLink.winHeight = p_nHeight
+	oLink.winOptions = p_sYLibCode
+	oLink.onclick = popupLink;
+}
+
+function popupLink()
+{
+	yg_popup(this.winURL,this.winName, this.winWidth, this.winHeight,this.winOptions);
+	return false;
+}
+
+
+        
+
+
+}
+</script>
+</head>
+</html>
+<!-- 8.09188 -->
+<script language=javascript>
+if(window.yzq_p==null)document.write("<scr"+"ipt language=javascript src=http://l.yimg.com/us.js.yimg.com/lib/bc/bcr_2.0.4.js></scr"+"ipt>");
+</script><script language=javascript>
+if(window.yzq_p)yzq_p('P=c_gEH86.ODZWRavfIZY29QEHyquqBUjBcgMABWjo&T=13sumekc0%2fX%3d1220637195%2fE%3d2011330004%2fR%3dau360%2fK%3d5%2fV%3d1.1%2fW%3dJR%2fY%3dAUNZ%2fF%3d3159123873%2fS%3d1%2fJ%3d5B38BECE');
+if(window.yzq_s)yzq_s();
+</script><noscript><img width=1 height=1 alt="" src="http://row.bc.yahoo.com/b?P=c_gEH86.ODZWRavfIZY29QEHyquqBUjBcgMABWjo&T=141c6grmf%2fX%3d1220637195%2fE%3d2011330004%2fR%3dau360%2fK%3d5%2fV%3d3.1%2fW%3dJR%2fY%3dAUNZ%2fF%3d3549973429%2fQ%3d-1%2fS%3d1%2fJ%3d5B38BECE"></noscript>
+<!-- fe0009.mgl.re4.yahoo.com uncompressed/chunked Fri Sep  5 10:53:07 PDT 2008 -->

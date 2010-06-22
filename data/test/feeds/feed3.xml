@@ -1,0 +1,720 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<rss version="2.0" xmlns:RTmovie="http://www.rottentomatoes.com/xmlns/rtmovie/">
+<channel>
+
+
+
+
+
+<title>Rotten Tomatoes: Upcoming Movies</title>
+<link>http://www.rottentomatoes.com/movie/upcoming.php</link>
+<description>Upcoming Movies.</description>
+<language>en-us</language>
+
+
+
+<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+<lastBuildDate>Fri, 11 Jun 2010 09:23:26 PDT</lastBuildDate>
+<ttl>60</ttl>
+<image>
+	<title>Rotten Tomatoes: Upcoming Movies</title>
+	<width>88</width>
+	<height>31</height>
+	<link>http://www.rottentomatoes.com/</link>
+	<url>http://images.rottentomatoes.com/images/rtads/smalltout.gif</url>
+</image>
+
+
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+100% Toy Story 3</title>
+	<link>http://www.flixstertomatoes.com/m/toy_story_3/</link>
+	<description><![CDATA["Toy Story 3" brings to life more adventures from Woody, Buzz Lightyear and the rest of Andy's toys as they go on the road and out of Andy's room.]]></description>
+	<guid>/m/toy_story_3/</guid>
+	
+
+	
+	
+	
+		
+		
+	
+	
+
+
+<RTmovie:tomatometer_percent>100</RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating>Fresh</RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh>0</RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Jonah Hex</title>
+	<link>http://www.flixstertomatoes.com/m/jonah_hex/</link>
+	<description><![CDATA[The adventures of a Wild West bounty hunter in the Wild West whose horrifically scarred face and personality hide his honorable nature.]]></description>
+	<guid>/m/jonah_hex/</guid>
+	
+
+	
+		
+		
+		
+	
+	
+	
+	
+
+
+<RTmovie:tomatometer_percent></RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating></RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh></RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+59% The Killer Inside Me</title>
+	<link>http://www.flixstertomatoes.com/m/the_killer_inside_me/</link>
+	<description><![CDATA[A West Texas deputy sheriff is slowly unmasked as a psychotic killer.]]></description>
+	<guid>/m/the_killer_inside_me/</guid>
+	
+
+	
+	
+	
+	
+		
+		
+	
+
+
+<RTmovie:tomatometer_percent>59</RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating>Rotten</RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh>0</RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+91% Cyrus</title>
+	<link>http://www.flixstertomatoes.com/m/cyrus/</link>
+	<description><![CDATA[A recently divorced guy meets the woman of his dreams. Then he meets her son.]]></description>
+	<guid>/m/cyrus/</guid>
+	
+
+	
+	
+	
+		
+		
+	
+	
+
+
+<RTmovie:tomatometer_percent>91</RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating>Fresh</RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh>0</RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+83% I Am Love (Io sono l'amore)</title>
+	<link>http://www.flixstertomatoes.com/m/i_am_love/</link>
+	<description><![CDATA[A tragic love story set at the turn of the millennium in Milan. The film follows the fall of the haute bourgeoisie due to the forces of passion and unconditional love.]]></description>
+	<guid>/m/i_am_love/</guid>
+	
+
+	
+	
+	
+		
+		
+	
+	
+
+
+<RTmovie:tomatometer_percent>83</RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating>Fresh</RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh>0</RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+81% Let it Rain (Parlez-moi de la pluie)</title>
+	<link>http://www.flixstertomatoes.com/m/let_it_rain/</link>
+	<description><![CDATA[A loose and subtle French ensemble comedy of manners with solid performances and a few witty one liners.]]></description>
+	<guid>/m/let_it_rain/</guid>
+	
+
+	
+	
+	
+		
+		
+	
+	
+
+
+<RTmovie:tomatometer_percent>81</RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating>Fresh</RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh>0</RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Knight &amp; Day</title>
+	<link>http://www.flixstertomatoes.com/m/knight_and_day/</link>
+	<description><![CDATA[An action-comedy centered on a fugitive couple (Cruise and Diaz) on a glamorous and sometimes deadly adventure where nothing and no one - even themselves - are what they seem. Amid shifting alliances and unexpected betrayals, they race across the...]]></description>
+	<guid>/m/knight_and_day/</guid>
+	
+
+	
+		
+		
+		
+	
+	
+	
+	
+
+
+<RTmovie:tomatometer_percent></RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating></RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh></RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Grown Ups</title>
+	<link>http://www.flixstertomatoes.com/m/grown_ups/</link>
+	<description><![CDATA[Thirty years after their high school graduation, five good friends reunite for a Fourth of July holiday weekend.]]></description>
+	<guid>/m/grown_ups/</guid>
+	
+
+	
+		
+		
+		
+	
+	
+	
+	
+
+
+<RTmovie:tomatometer_percent></RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating></RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh></RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+89% Dogtooth (Kynodontas)</title>
+	<link>http://www.flixstertomatoes.com/m/dogtooth/</link>
+	<description><![CDATA[Three teenagers are confined to an isolated country estate that could very well be on another planet. The trio spend their days listening to endless homemade tapes that teach them a whole new vocabulary. Any word that comes from beyond their family...]]></description>
+	<guid>/m/dogtooth/</guid>
+	
+
+	
+	
+	
+		
+		
+	
+	
+
+
+<RTmovie:tomatometer_percent>89</RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating>Fresh</RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh>0</RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ The Twilight Saga: Eclipse</title>
+	<link>http://www.flixstertomatoes.com/m/1210749-eclipse/</link>
+	<description><![CDATA[As Seattle is ravaged by a string of mysterious killings and a malicious vampire continues her quest for revenge, Bella once again finds herself surrounded by danger. In the midst of it all, she is forced to choose between her love for Edward and her...]]></description>
+	<guid>/m/1210749-eclipse/</guid>
+	
+
+	
+		
+		
+		
+	
+	
+	
+	
+
+
+<RTmovie:tomatometer_percent></RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating></RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh></RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Space Chimps 2: Zartog Strikes Back</title>
+	<link>http://www.flixstertomatoes.com/m/space_chimps_2_zartog_strikes_back/</link>
+	<description><![CDATA["Space Chimps 2" follows Comet, the techno chimp who longs to be taken as a fully-fledged space chimp. Comet journeys to Planet Malgor where he bonds with the alien Kilowatt, and lives out his ultimate fantasy. However, it's time for Comet to prove...]]></description>
+	<guid>/m/space_chimps_2_zartog_strikes_back/</guid>
+	
+
+	
+		
+		
+		
+	
+	
+	
+	
+
+
+<RTmovie:tomatometer_percent></RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating></RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh></RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ The Last Airbender</title>
+	<link>http://www.flixstertomatoes.com/m/last_airbender/</link>
+	<description><![CDATA[Based on the hugely successful Nickelodeon animated TV series, the live-action feature film is set in a world where human civilization is divided into four nations: Water, Earth, Air and Fire.]]></description>
+	<guid>/m/last_airbender/</guid>
+	
+
+	
+		
+		
+		
+	
+	
+	
+	
+
+
+<RTmovie:tomatometer_percent></RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating></RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh></RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ The Girl Who Played with Fire (Flickan som lekte med elden)</title>
+	<link>http://www.flixstertomatoes.com/m/girl_who_played_with_fire/</link>
+	<description><![CDATA[Mikael Blomkvist, publisher of Millennium magazine, has made his living exposing the crooked and corrupt practices of establishment Swedish figures. So when a young journalist approaches him with a meticulously researched thesis about sex trafficking...]]></description>
+	<guid>/m/girl_who_played_with_fire/</guid>
+	
+
+	
+		
+		
+		
+	
+	
+	
+	
+
+
+<RTmovie:tomatometer_percent></RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating></RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh></RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Predators</title>
+	<link>http://www.flixstertomatoes.com/m/10012256-predators/</link>
+	<description><![CDATA[A group of elite warriors are hunted by members of a merciless alien race known as Predators.]]></description>
+	<guid>/m/10012256-predators/</guid>
+	
+
+	
+		
+		
+		
+	
+	
+	
+	
+
+
+<RTmovie:tomatometer_percent></RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating></RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh></RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+ Despicable Me</title>
+	<link>http://www.flixstertomatoes.com/m/1214097-despicable_me/</link>
+	<description><![CDATA[In a happy suburban neighborhood surrounded by white picket fences with flowering rose bushes, sits a black house with a dead lawn. Unbeknownst to the neighbors, hidden beneath this home is a vast secret hideout. Surrounded by a small army of...]]></description>
+	<guid>/m/1214097-despicable_me/</guid>
+	
+
+	
+		
+		
+		
+	
+	
+	
+	
+
+
+<RTmovie:tomatometer_percent></RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating></RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh></RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+69% [Rec] 2</title>
+	<link>http://www.flixstertomatoes.com/m/rec_2/</link>
+	<description><![CDATA[The action continues from [Rec], with the medical officer and a SWAT team outfitted with video cameras are sent into the sealed off apartment to control the situation.]]></description>
+	<guid>/m/rec_2/</guid>
+	
+
+	
+	
+	
+		
+		
+	
+	
+
+
+<RTmovie:tomatometer_percent>69</RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating>Fresh</RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh>0</RTmovie:certified_fresh>
+</item>
+
+	<item>
+	<pubDate>Fri, 11 Jun 2010 09:23:26 PDT</pubDate>
+	<title>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+100% The Kids Are All Right</title>
+	<link>http://www.flixstertomatoes.com/m/10012141-kids_are_all_right/</link>
+	<description><![CDATA["The Kids Are All Right" is the heartfelt new comedy from acclaimed director Lisa Cholodenko, starring Annette Bening, Julianne Moore, and Mark Ruffalo. Two teenaged children (Alice in Wonderland’s Mia Wasikowska and Journey to the Center of the...]]></description>
+	<guid>/m/10012141-kids_are_all_right/</guid>
+	
+
+	
+	
+	
+		
+		
+	
+	
+
+
+<RTmovie:tomatometer_percent>100</RTmovie:tomatometer_percent>
+<RTmovie:tomatometer_rating>Fresh</RTmovie:tomatometer_rating>
+<RTmovie:certified_fresh>0</RTmovie:certified_fresh>
+</item>
+
+
+</channel>
+</rss>

@@ -1,0 +1,17 @@
+<map id="G" name="G">
+<area shape="rect" id="c4185" href="./XPathHelper.html" title="tud.iir.helper.XPathHelper" alt="" coords="16,347,459,549"/>
+<area shape="rect" id="c4186" href="./WordNet.html" title="tud.iir.helper.WordNet" alt="" coords="503,395,995,501"/>
+<area shape="rect" id="c4187" href="./TreeNode.html" title="tud.iir.helper.TreeNode" alt="" coords="1040,227,1371,669"/>
+<area shape="rect" id="c4188" href="./ThreadHelper.html" title="tud.iir.helper.ThreadHelper" alt="" coords="1415,411,1585,485"/>
+<area shape="rect" id="c4189" href="./StringOutputStream.html" title="tud.iir.helper.StringOutputStream" alt="" coords="1629,403,1776,493"/>
+<area shape="rect" id="c4190" href="./StringInputStream.html" title="tud.iir.helper.StringInputStream" alt="" coords="1821,395,1968,501"/>
+<area shape="rect" id="c4191" href="./StringHelper.html" title="tud.iir.helper.StringHelper" alt="" coords="2013,19,2958,877"/>
+<area shape="rect" id="c4192" href="./MathHelper.html" title="tud.iir.helper.MathHelper" alt="" coords="3003,379,3699,517"/>
+<area shape="rect" id="c4193" href="./LoggerMessage.html" title="tud.iir.helper.LoggerMessage" alt="" coords="3744,371,4013,525"/>
+<area shape="rect" id="c4194" href="./Logger.html" title="tud.iir.helper.Logger" alt="" coords="4059,11,4429,885"/>
+<area shape="rect" id="c4195" href="./LineAction.html" title="tud.iir.helper.LineAction" alt="" coords="4475,395,4760,501"/>
+<area shape="rect" id="c4196" href="./FileHelper.html" title="tud.iir.helper.FileHelper" alt="" coords="4805,139,5245,757"/>
+<area shape="rect" id="c4197" href="./DBStore.html" title="tud.iir.helper.DBStore" alt="" coords="5290,51,5646,845"/>
+<area shape="rect" id="c4198" href="./DateHelper.html" title="tud.iir.helper.DateHelper" alt="" coords="5691,315,6035,581"/>
+<area shape="rect" id="c4199" href="./CollectionHelper.html" title="tud.iir.helper.CollectionHelper" alt="" coords="6079,339,6657,557"/>
+</map>

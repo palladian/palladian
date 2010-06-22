@@ -1,0 +1,546 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    
+    
+    
+    <title>Frequently Asked Questions | Bandcamp</title>
+    
+    <meta name="Description" content="
+    
+    
+    "/>
+    
+     
+         
+        
+    
+    <link rel="shortcut icon" href="/img/bc_favicon.ico"/>
+    
+    
+    
+     
+
+     
+      
+    
+    <link type="text/css" rel="stylesheet" href="http://bandcamp.com/tmpdata/cache/container_191b80e613c45862730bf4e0bfe92ef1.css" >
+    
+
+    <script type="text/javascript">
+        var isDebug = false;
+    </script>
+
+    
+
+
+<script type="text/javascript">
+    
+    var isDebug = false;
+    var siteroot = "http:\/\/bandcamp.com";
+    var band_url = null;
+    var isProduction = true;
+
+    
+    document.documentElement.className += " js";
+    
+    
+    var Browser = {"platform":"win","grade":"A","type":"gecko","version":[3,5,7],"make":"firefox"};    
+
+    var JSLoader = {
+    
+        
+         
+
+    
+        sets: {
+            head: [
+                
+                "http://bandcamp.com/tmpdata/cache/yahoo-dom-event_a9d799f77c2490a0efd41a75aed51298.js"
+                       
+            ],
+            
+            foot: [
+                
+                
+                "http://bandcamp.com/tmpdata/cache/json-min_67b19e2c3984571d19a6d16fbba22449.js",
+                
+                "http://bandcamp.com/tmpdata/cache/utils_83548a6b3ed9b057d5e021688c7090fe.js"
+                            
+            ]
+        },
+    
+
+        writeScriptTags: function( set ) {
+            var libs = JSLoader.sets[ set ];
+            if ( !libs ) 
+                throw "no js set: " + set;
+            for ( var i=0; i < libs.length; i++ )
+                document.write( '<script type="text/javascript" src="' + libs[i] + '"><\/s' + 'cript>' );
+        },
+        
+        requireJS : function(src) {
+            if(typeof(src) == "string")
+            {
+                JSLoader._addRequire(src);
+            }
+            else
+            {
+                for(var i=0; i<src.length; i++)
+                {
+                    JSLoader._addRequire(src[i]);
+                }
+            }
+        },
+        
+        _addRequire : function(src) {
+            var libs = JSLoader.sets.foot;
+            for(var i=0; i<libs.length; i++)
+            {
+                if(libs[i] == src) return;
+            }
+            libs.push( src );
+        },
+            
+        onJSLoaded : null
+    };
+    
+    JSLoader.writeScriptTags( "head" );
+        
+    
+</script>    
+
+
+    
+
+
+    
+    <script type="text/javascript">
+        var gCrumb = null;
+        Control.registerEvents();
+        Control.registerController( "/no_js", TPController );
+    </script>
+    
+
+    
+    
+        
+    
+
+</head>
+<body class="gecko">
+
+
+
+    
+    
+    
+
+    
+
+
+
+    
+
+    
+        
+    
+    
+    <div id="pgHd">
+        
+<ul id="siteNav" class="horizNav">
+    <li class="first"><a href="http://bandcamp.com"><span class="hiddenAccess">home</span><span id="headerLogo" alt="Bandcamp logo"></span></a></li>
+
+</ul>
+<ul id="userNav" class="horizNav">
+
+    <li class="first"><a href="https://bandcamp.com/login">login</a></li>
+    <li><a href="https://bandcamp.com/signup">signup</a></li>
+
+</ul>
+&nbsp; 
+
+    </div>
+    
+
+
+<div id="pgBd" class="yui-skin-sam">
+    
+<link type="text/css" rel="stylesheet" href="http://bandcamp.com/tmpdata/cache/corp_4bc39791af03401de3cbf3938f423fff.css" >
+<style type="text/css">
+
+p {
+    color:#505958;
+}
+
+p strong {
+    color:#363636;
+}
+
+</style>
+
+
+
+
+
+<div id="pgContent">
+
+<h1 class="headline">Frequently Asked Questions</h1>
+<div class="redRule"></div>
+
+<p><a href="#whatitis">What's Bandcamp?</a></p>
+<p><a href="#cost">How much does Bandcamp cost?</a></p>
+<p><a href="#monetization">Free!? Then how are you going to stay in business? In your answer, please use the non-word "monetization" at least twice.</a></p>
+<p><a href="#rights">Does Bandcamp take any ownership rights in my music?</a></p>
+<p><a href="#integrate">My band already has its own official site, can I integrate it with Bandcamp?</a></p>
+<p><a href="#integrate">What about all the other typical band site sections, like upcoming shows, news/blog, bio, photos, etc?</a></p>
+<p><a href="#myspace">My band is already on MySpace, Virb, iMeem, Fuzz, ReverbNation, Fairtilizer, Pistachio Nut, Red Pistachio Nut, and Natural, All Natural White Pistachio Nut. Why should we bother with Bandcamp too?</a></p>
+<p><a href="#aiffwavuploadrequirement">What's with the WAV/AIFF/FLAC upload requirement? Why don't you just accept mp3s?</a></p>
+<p><a href="#losslesshuge">But lossless files are freaking huge!</a></p>
+<p><a href="#losslesshugequestion">But lossless files are freaking huge?</a></p>
+<p><a href="#aiffwavhowto">Sold! So how do I get my tracks into AIFF or WAV?</a></p>
+<p><a href="#flachowto">And what about FLAC?</a></p>
+<p><a href="#maxupload">What's the maximum upload size?</a></p>
+<p><a href="#upload_trouble">Help! My stuff won't upload!</a></p>
+<p><a href="#download_trouble">Help! The track I downloaded won't play back on my computer!</a></p>
+<p><a href="#track_order">How do I change the order of an album's tracks?</a></p>
+<p><a href="#album_order">How do I change the order of albums in the discography? or How do I change the album that's shown by default?</a></p>
+<p><a href="#sharing">How do I embed a track or album on my blog, web site, MySpace page, etc?</a></p>
+<p><a href="#id3">Did I know that Bandcamp automatically adds metadata to all of my downloadable tracks?</a></p>
+<p><a href="#requireemail">Did I know that I can collect a fan's email address when I let them download a free track or album?</a></p>
+<p><a href="#requireemailbroken">I made an album download email-required, but when I click to download it I'm not prompted for an email address. What's up?</a></p>
+<p><a href="#paymentsetup">I want to sell my music on Bandcamp. How?</p>
+<p><a href="#customdomainsetup">I want to point my own domain to my Bandcamp site. How?</p>
+<p><a href="#seo">I've heard that SEO is important, but I don't even know what it is. What is it?</a></p>
+<p><a href="#upcoming">Bandcamp is worthless to me until it has [feature that's really important to me]. Are you working on that?</a></p>
+<p><a href="#streams">What format/quality are the streams on Bandcamp?</a></p>
+<p><a href="#lowflutteringwavystuff">I hear a warbling sound, or maybe it's more of a low rumble, when I play my tracks back on Bandcamp. Do you hear it too?</a></p>
+<p><a href="#steal">One of my fans showed me a totally easy way that someone could STEAL my music off of Bandcamp using RealPlayer 14.1 beta 3, or RipTheWeb.com, or by going into Temporary Internet Files and renaming blah blah blah. What are you doing about this grave problem?</a></p>
+<p><a href="#snippets">OK, but how about making the streams on Bandcamp 30-second snippets?</a></p>
+<p><a href="#maverick">Who's using Bandcamp?</a></p>
+<p><a href="#testimony">And do any of those people actually like it?</a></p>
+<p><a href="#omitted">Why is my band not showing up on the artist index page?</a></p>
+<p><a href="#bonus_formats">What file types can I include as bonus items in an album download?</a></p>
+<p><a href="#more_codes">Help! I need more download codes!</a></p>
+<p><a href="#email_codes">How do I send out download codes via email? Do I have to copy/paste each code individually?</a></p>
+<!--<p><a href="#why_print_lots">I'm printing 500 download code cards, why do I get five separate links that say "print card pack 1 of 5", "...2 of 5" and so on?</a></p>-->
+<p><a href="#label">Do you offer label accounts?</a></p>
+<p><a href="#tax">What's this about taxes on my profile page?</a></p>
+<p><a href="#sam">What two objects does Sam have in his hands when he emerges from Shelob's cave?</a></p>
+<p><a href="#autostart">How do I make the shared player autostart?</a></p>
+<p><a href="#tagging">Why should I bother adding tags to my profile and music?</a></p>
+<p><a href="#volume">Where's the volume control?</a></p>
+<p><a href="#bug">I found a bug! In your face! FAIL! PWN! LOLCANO! Bandcamp suxxors! You suxxors! Tell me old chum, is there perchance anything I could do to assist in the resolution of the issue? Twould be my pleasure.</a></p>
+<p><a href="#badges">I love Bandcamp so much that I want to put the logo on my website, poster, flyer, etc. Hi-res file plz!?</a></p>
+<p><a href="#usernames">I am deeply offended by your suggested alternate usernames. Say something to slake my fury!</a></p>
+<p><a href="#whowebe">Who is Bandcamp?</a></p>
+
+<div class="yellowRule"></div>
+
+<p id="whatitis"><strong>What's Bandcamp?</strong><br>
+Earlier this year, one of my favorite bands left their label, recorded a new album, and released it as a digital download from their own website. The hour it was due out, I headed to their site, and after several minutes of watching the page struggle to load, concluded that they were just slammed and made a note to check back the next day. But when I did, the site was, once again, excruciatingly slow. This time I was a bit more patient, made it to the checkout page, entered my billing info, and...the download didn't start. I checked my credit card statement, saw that I'd indeed been charged, and emailed the band. A few days later, the lead singer sent me an apology, along with a direct link to the album's zip file. I did not then forward that link on to my 200 closest friends, but I wondered how many did, and couldn't decide whether it was a good or bad thing that most fans had probably given up before getting this far.</p>
+
+<p>Well the new record turned out to be even better than I'd hoped, but now, months later, I'm still running into other fans who don't have it. This just kills me, because here's a relatively unknown band that deserves all the success in the world, made the admirable decision to do an entirely independent release, yet was tripped up by the sorts of aggravating technical issues familiar to anyone who's ever tried to build out their own website. What choice did they have though? They could have put their music up on MySpace or any of its dozens of imitators, but all of those services offer bands what is essentially a sharecropping arrangement. They host your tunes, and in exchange it's their logo, their ads, their URL, their traffic, their identity. What if you want to build out a site that's very clearly <em>yours</em>? The only choice seems to be to do what the band did: hire a designer and engineer, buy or rent some servers, spend a lot of time and money, and risk ending up with something that either works poorly or not at all. Does it not seem crazy that if you're a blogger, you can create a rock-solid site that's your own in a matter of minutes (and for free), but if you happen to create music instead of text, your options just suck?</p>
+
+<p>Seemed nuts to us, so we created Bandcamp, the best home on the web for your music. We're not yet another site wanting to host your tracks alongside the trailer for High School Musical 4: I'm Pregnant. Instead, we power a site that's truly yours, and hang out in the background handling all the technical issues you dread (and several you've probably never even considered). We keep your music streaming and downloading quickly and reliably, whether it's 3am on a Sunday, or the hour your new record drops and Pitchfork gives it a scathingly positive review. We make your tracks available in every format under the sun, so the audiophilic nerderati can have their FLAC and eat mp3 v2. We adorn your songs with all the right metadata, so they sail into iTunes with artwork, album, band and track names intact. We mutter the various incantations necessary to keep your site top-ranked in Google, so when your fans search for your hits, they find <em>your music</em> long before they find bonkersforlyrics.com or iMyFace. We give your fans easy ways to share your music with their friends, and we give you gorgeous tools that reveal exactly how your music is spreading, so you can fan the fire.</p>
+
+<p>So what's Bandcamp then? We're a publishing platform for bands, or, anthropomorphically/arthropodically-speaking, your fifth, fully geeked-out Beatle -- the one who keeps your very own website humming and lets you get back to making great music and building your fan base. If this all sounds as highly satisfactory to you as we hope, we invite you to <a href="http://www.bandcamp.com" target="_blank">check out the screencast</a>, or cut straight to the chase and <a href="https://bandcamp.com/signup">sign up for a free account</a>. Welcome!</p>
+
+<p id="cost"><strong>How much does Bandcamp cost?</strong><br>
+It's free.
+</p>
+
+<p id="monetization"><strong>Free!? Then how are you going to stay in business? In your answer, please use the non-word "monetization" at least twice.</strong><br>
+Our monetization strategy boils down to the simple belief that we should only make money if you make money. So, for example, we might take a cut of download and merchandise revenue, but only from artists selling over a certain amount per month (right now we take nothing over Paypal's transaction fees). We don't know yet what that threshold will be, nor do we know what percentage cut we'll take. The point is, we think it's silly to build a business model in a vacuum, and would rather get the product out, <a href="mailto:feedback@bandcamp.com">get feedback</a> from all of you, and sort it out that way. In the meantime, we've got plenty of cash in the bank (we're modestly venture funded by the fine folks at <a href="http://www.trueventures.com/" target="_blank">True</a>), a low burn rate (we're all engineers and designers -- no HR VPs just yet), and a <a href="http://www.usatoday.com/money/covers/2001-12-18-bcovtue.htm" target="_blank">proud history</a> of succeeding in the midst of a recession. (Past performance is not a guarantee of future returns. Monetization strategy subject to metamorphosis. Teamocil may cause numbness of the extremities.)</p>
+
+<p id="rights"><strong>Does Bandcamp take any ownership rights in my music?</strong><br>
+Nope. Full details are in our <a href="/terms_of_use#rights">Terms of Use</a>, but the short of it is that the only rights we take are the obvious ones we need to run the service. For example, the non-exclusive right to host the music you upload, sell it on your behalf (if you choose to enable paid downloads), display whatever lyrics and artwork you publish to the site, and so on.</p>
+
+<p id="integrate"><strong>My band already has its own official site, can I integrate it with Bandcamp?</strong> or,<br>
+<strong>What about all the other typical band site sections, like upcoming shows, news/blog, bio, photos, etc?</strong><br>
+That's all coming (<a href="#upcoming">and then some</a>), but we decided to start with the most important, and the most technically challenging, part first: music. If you already have an official site, we respectfully submit that Bandcamp might be an improvement upon its music section, and suggest you simply let your Bandcamp site <em>be</em> your music section.</p>
+
+<p id="myspace"><strong>My band is already on MySpace, Virb, iMeem, Fuzz, ReverbNation, Fairtilizer, Pistachio Nut, Red Pistachio Nut, and Natural, All Natural White Pistachio Nut. Why should we bother with Bandcamp too?</strong><br>
+We refer the right honourable gentleperson to <a href="#whatitis">the answer we gave some moments ago</a>.</p>
+
+<p id="aiffwavuploadrequirement"><strong>What's with the WAV/AIFF/FLAC upload requirement? Why don't you just accept mp3s?</strong><br>
+It's all about maximizing flexibility for you and your fans. WAV, AIFF and FLAC are high-fidelity (lossless) formats.
+By starting with the highest possible quality source, we're able to convert your track into a bunch of different format and quality combinations, including
+<a href="http://wiki.hydrogenaudio.org/index.php?title=Mp3" target="_blank">mp3</a> (320k, <a href="http://wiki.hydrogenaudio.org/index.php?title=VBR" target="_blank">VBR</a>), <a href="http://wiki.hydrogenaudio.org/index.php?title=Vorbis" target="_blank">Ogg Vorbis</a>, <a href="http://wiki.hydrogenaudio.org/index.php?title=ALAC" target="_blank">Apple Lossless</a>, <a href="http://wiki.hydrogenaudio.org/index.php?title=FLAC" target="_blank">FLAC</a> and <a href="http://wiki.hydrogenaudio.org/index.php?title=AAC" target="_blank">AAC</a> (aka .m4a or iTunes store format).
+Sure, most fans will just want the mp3 and won't know or care about anything else, but there's a rabid minority out there who'll love that you're giving them a choice.
+This approach also allows you more freedom, since at any point you can decide what format/quality you want to give away and what you want to charge for, without having to re-encode and re-upload your music. And if a new format/quality becomes &agrave; la mode (like when Amazon's mp3 store made iTunes' 128k mp3s seem antiquated), we'll transcode to that too, without you having to do a thing.</p>
+
+<p>Getting specific, your uploaded source material must be lossless, at least 16-bit/44.1kHz ("CD quality"). Higher quality sources are supported: 24-bit and 32-bit, with sample rates up to 192kHz (your FLAC-downloading fans will worship at your feet). We grudgingly accept mono material (you better have a good reason) but prefer stereo mixes, 2 channels max please (we don't know what to do with Sensurround).</p>
+
+<p id="losslesshuge"><strong>But lossless files are freaking huge!</strong><br>
+Please phrase that in the form of a question.</p>
+
+<p id="losslesshugequestion"><strong>But lossless files are freaking huge?</strong><br>
+Yeah, they're bigger than mp3s, but you only have to upload them once, and we think the goodness it buys you is plenty worth it. We'll also allow batch uploading pretty soon, so you'll be able to queue up your entire oeuvre for import while you're off at practice. Until then, you can upload two tracks at a time by just opening up two track edit tabs or windows (two is the limit though -- three or more won't work).</p>
+
+<p id="aiffwavhowto"><strong>Sold! So how do I get my tracks into WAV or AIFF?</strong><br>
+New tracks (from the studio) are probably already in WAV or AIFF or can easily be saved in one of those formats by your audio editing software. And if you're importing old tracks from CD, it's pretty easy too: just rip the tracks to WAV or AIFF using iTunes. Select "Preferences..." from the iTunes menu, click the Import Settings... button in the General tab (for versions of iTunes earlier than 8.0, click the Advanced tab and select "Importing"), and next to "Import Using:" choose "AIFF Encoder" or "WAV Encoder."</p>
+
+<p id="flachowto"><strong>And what about FLAC?</strong><br>
+iTunes doesn't support FLAC conversion, but <a target="_blank" href="http://wiki.hydrogenaudio.org/index.php?title=Flac">plenty of other tools</a> do. If you're wondering why you'd want to bother, it's because FLAC is a compressed lossless format, so a FLAC file will sound exactly the same but take about half the time to upload as the same track in AIFF or WAV (which also means it can be twice as long and still be under our max upload size). Speaking of which...</p>
+
+<p id="maxupload"><strong>What's the maximum upload size?</strong><br>
+It's 305 megabytes, or more precisely, 305,088,054 bytes (that's 297,937.6 kibibytes or 290.95 mebibytes to you, Lieutenant Commander La Forge). Never you mind that though. The important thing is that it's the exact size of "Inamorata and Narration by Conrad Roberts" from side 4 of Miles Davis' Live-Evil (assuming we're talking 16/44.1, which we always are). If you have something to say that's longer/larger than that, you are a jam band and we cannot be a party to the dissemination of your output (j/k jam bands, we love you too -- but please take a quick hacky-sack break at 26:29).</p>
+
+<p id="upload_trouble"><strong>Help! My stuff won't upload!</strong><br>We know how vexing that can be, so first off, thanks for your persistence. Some things to check/do before you give up in disgust: 1) If you're on a wireless connection, try plugging directly in. Lossless audio files can be big, and even a small hiccup on your wireless can cause your upload to fail. 2) Bandcamp upload doesn't work with all sorts of third-party anti-virus programs. If you're using AVG, you'll need to disable the Web Shield and LinkScanner. If you're using Kaspersky Internet Security, you'll need to either disable it entirely, or just turn off their port 80 filtering. If you're using Avast, you'll have to disable it. If you're using something not listed here...you guessed it, try turning it off. 3) If you're already on a direct connection, and some uploads are failing and some are succeeding, just try, try again. 4) If the failures are consistent, upload a tiny test file. If that works, then the issue is most likely your connection and the solution is to keep trying (maybe from another network, if available). 5) If none of that helps, <a href="mailto:support@bandcamp.com">give us a shout</a>, with as much detail about your setup as possible.</p>
+
+<p id="download_trouble"><strong>Help! The track I downloaded won't play back on my computer!</strong><br>
+Odds are you're on a Windows machine and renamed the track during download, which had the unfortunate side-effect of removing the file extension, which is now causing your operating system to say "derrrrrrrr." Here's the solution: go to Windows Explorer, find the file you downloaded, right-click on it, choose Rename, and change it from "Jammin on the One" to "Jammin on the One.mp3".  Then it should play back, no problem.
+</p>
+
+<p id="track_order"><strong>How do I change the order of an album's tracks?</strong><br>
+Make sure you're logged in. Then, on the album page, click the yellow Edit button (it's just below your band name, and to the left of a button that says "Delete", and above a big play button, and to the right of your cover art, approximately <a href="/img/edit_button_tip.jpg">here</a>). That'll take you to the Edit Album page, where you'll see the track listing and the instructions "drag tracks up or down to reorder them." Do that, click Save, and you're done.</p>
+
+<p id="album_order"><strong>How do I change the order of albums in the discography?</strong> or <strong>How do I change the album that's shown by default?</strong><br>
+Albums are ordered by release date, with the most recent shown first and displayed by default when fans visit your site. We don't let you override that (yet), so if you want to change the order/default, you will have to manipulate release dates.</p>
+
+<p id="sharing"><strong>How do I embed a track or album on my blog, web site, MySpace page, etc?</strong><br>
+Just click "Share" on any track or album page -- you'll see a menu of all the sharing options there.</p>
+
+<p id="id3"><strong>Did I know that Bandcamp automatically adds metadata to all of my downloadable tracks?</strong><br>
+No, you did not! And it's totally bitchin'! We can't tell you how many times we've downloaded music from some band's site, only to bring it into iTunes and find that it has no cover art, a name like "Master 2 (final).mp3" and no information about who it's by or what album it's from. Annoying, but not really surprising when you learn what a pain in the ass it is for a band to add all that information to a track themselves. Well, we've got you covered. As you add information to your site, we automatically attach that data to the underlying tracks, so that when your fans download and import them into iTunes or anywhere else, they come with their title, artist, lyrics, album, track number, release date, and artwork intact. Smoove.</p>
+
+<p id="requireemail"><strong>Did I know that I can collect a fan's email address when I let them download a free track or album?</strong><br>
+This too somehow escaped your seemingly limitless capacity for knowledge! And yet it is true! Simply tick the "require email address" checkbox on the Edit Track or Album page, and when a fan downloads your music, Bandcamp will ask them for their vitals and email them a link to the goods. You may then extract that solid gold nugget of data from our servers with a flick of your mouse: on the right side of the navigation bar at the top of the screen, click Tools, and under the section titled Mailing List, click Export. You'll not only get the fan's email address, but their country, zip/postal code, and even the date they signed up. Given the power to use that information for good, or for awesome, we trust you will choose the latter.</p>
+
+<p id="requireemailbroken"><strong>I made an album download email-required, but when I click to download it I'm not prompted for an email address. What's up?</strong><br>
+Would it not be a lousy user experience if a fan gave you their email address, downloaded your album, then returned to download another track or album that you also made email-required, only to have to enter their email address again? YES IT WOULD. That's why once a fan (or conscientious band-member testing their site) provides an email address for a download, they never have to do it again (at least not from that same browser, for that same band, unless they clear their cookies). For this same reason, stats spelunkers may notice the number of downloads exceeding the number of email addresses collected.</p>
+
+<p id="paymentsetup"><strong>I want to sell my music on Bandcamp. How?</strong><br>
+By doing <a href="/payment_setup">this</a>.
+</p>
+
+<p id="customdomainsetup"><strong>I want to point my own domain to my Bandcamp site. How?</strong><br>
+By default your Bandcamp site will have a URL that looks like http://MyBandHere.bandcamp.com. That works for
+many, but hardcore musicians, domain freakazoids, and David Bowie will probably want their own custom domain.
+Luckily, <a href="/faq_custom_domains">they (and you) can have one</a>.</p>
+
+<p id="seo"><strong>I've heard that SEO is important, but I don't even know what it is. What is it?</strong><br>
+Thank you shill! "SEO" stands for Search Engine Optimization, and Bandcamp greases yours up smoother than pomade-dipped velour. For example, check out what happens when you <a href="http://www.google.com/search?num=100&hl=en&q=%22vanilla+march%22+20+minute+loop"  target="_blank">Google this track</a> by 20 Minute Loop. Notice their Bandcamp-powered site is at or near the top, ahead of GarageBand, iLike, CDBaby, eMusic, Rhapsody, and the rest. That means 20 Minute Loop has first crack at engaging and ultimately, profiting from, their fans. Contrast that with the typical Flash-based band site -- you know, the expensive one with the shadowy crow that cries blood-red teardrops as it flies across the screen between page transitions. Totally invisible to Google. Might as well not even exist. The fact is, we're living in a Google world, and if your fans aren't finding you when they search for your track names, lyrics and so on, you're throwing away an opportunity.</p>
+
+<p id="upcoming"><strong>Bandcamp is worthless to me until it has [feature that's really important to me]. Are you working on that?</strong><br>
+Possibly. The features we're actively developing at the moment include batch upload (so you can queue up an entire album at once), comments, tagging, and one or two others that we'll keep to ourselves for the sake of a little competitive advantage. If you'd like to see us doing something else, <a href="mailto:feedback@bandcamp.com">we'd love to hear from you</a>.</p>
+
+<p id="streams"><strong>What format/quality are the streams on Bandcamp?</strong><br>
+Close your eyes and guess. Wrong! They're 128k mp3s.</p>
+
+<p id="lowflutteringwavystuff"><strong>I hear a warbling sound, or maybe it's more of a low rumble, when I play my tracks back on Bandcamp. Do you hear it too?</strong><br>
+Let's talk about streaming. We use mp3 128k for the streaming format, and for quiet passages there can be a noticeable warbly sound (other synonyms: muddiness, low fluttering wavy stuff, distortion in the bottom end, compression artifacts). This is a fact of life with mp3 at low bit rates. Using a compression filter on your source audio will also exaggerate the mp3 128k funkiness in not a good way. Aside from actually encoding into the various formats, we don't do anything to your upload: no EQ, boosting or multi-band companding, and definitely no two-pole Butterworth band-pass/band-reject filtering (so tempting).</p>
+
+<p>We chose mp3 128k for streaming as a compromise. It allows your tracks to stream quickly from even the putziest of networks, yet is significantly higher quality than that-other-place-that-used-to-host-your-music. Agreed that streaming can be a mere shadow of the goodness of your music that's available for download, which you can be sure sounds as great as possible (the lossless formats are exactly as you uploaded them).
+</p>
+
+<p id="steal"><strong>One of my fans showed me a totally easy way that someone could STEAL my music off of Bandcamp using RealPlayer 14.1 beta 3, or RipTheWeb.com, or by going into Temporary Internet Files and renaming blah blah blah. What are you doing about this grave problem?</strong><br>
+Nothing. Since streams on Bandcamp are full-length, rather than 30-second snippets, it's correct that someone could use one of the above methods to access the underlying 128k mp3. And sure, we could throw some technical hurdles in their way, but if they hit one of those hurdles, it's not like they'd slap their forehead and open their wallet. Instead, they'd just move on to some other site where those restrictions aren't in place, and you'll have squandered the chance to make your own site the premier destination for those seemingly cheap, but enthusiastic, word-spreading, and potentially later money-spending fans. In other words, the few people employing the above methods are better thought of as an opportunity, not a lost sale. If you're still skeptical, Andrew Dubber's <a href="http://newmusicstrategies.com/2008/04/03/should-i-be-worried-about-piracy/" target="_blank">post on the topic of music piracy</a> is a must-read.</p>
+
+<p id="snippets"><strong>OK, but how about making the streams on Bandcamp 30-second snippets?</strong><br>
+We again refer you to <a href="http://newmusicstrategies.com/2008/04/03/should-i-be-worried-about-piracy/" target="_blank">the wise words of Andrew Dubber</a>. Here's the abridged version:</p>
+
+<p>"Music is pretty much unique when it comes to media consumption. You don’t buy a movie ticket because you liked the film so much, and while you might buy a book because you enjoyed reading it so much at the library, typically you’ll purchase first, then consume...</p>
+
+<p>But music is different — and radio proves that. By far the most reliable way to promote music is to have people hear it. Repeatedly, if possible — and for free. After a while, if you’re lucky, people get to know and love the music. Sooner or later, they’re going to want to own it.</p>
+
+<p>...whether it’s a pop tune, a heavily political punk album, or an experimental, avant-garde suite — the key is very simple: people have to hear music, then they will grow to like it, and then finally, if you’re lucky, they will engage in an economic relationship in order to consume (not just buy and listen to) that music.</p>
+
+<p>That’s the order it has to happen in. It can’t happen in any other order. There’s no point in hoping that people will buy the music, then hear it, then like it. They just won’t.</p>
+
+<p>Nobody really wants to buy a piece of music they don’t know — let alone one they haven’t heard. Especially if it’s by someone who lies outside their usual frame of reference.</p>
+
+<p>And a 30-second sample is a waste of your time and bandwidth. It’s worse than useless. That’s not enough to get to like your music. Let them hear it, keep it, live with it. And then bring them back as a fan."</p>
+
+
+<p id="maverick"><strong>Who's using Bandcamp?</strong><br>
+<a href="http://www.theonion.com/content/node/33352">Not Afraid To Try Popular New Things</a>, huh? Well here you go maverick, <a href="http://bandcamp.com/artists">an exhaustive list</a> of the other forward-thinkers whose sites are already powered by Bandcamp.</p>
+
+<p id="testimony"><strong>And do any of those people actually like it?</strong><br>
+And a chorus of angels sang <a href="/testimonials">YESSSSSSSSSSS</a>!</p>
+
+<p id="omitted"><strong>Why is my band not showing up on the artist index page?</strong><br>
+Because you don't have cover art. Because your cover art is all-white, all-black, or a webcam shot of you holding your guitar and/or cat. Because your cover art is pr0n-y. Because your cover art is just a picture of clouds, the ocean or a sunset. Because you used Photo Booth and brooded on 3-2-1, then spiced it up with the Pop Art effect. Because long-term, a cover of you holding a bottle of Hennessy and mean muggin' is just going to embarrass us both, even if it <em>is</em> V.S.O.P. Because...ah, nevermind. We really don't have much interest in exercising editorial control over the index page, so if you feel you've been omitted in error, <a href="mailto:support@bandcamp.com">please holler</a> and we'll take a look.</p>
+
+<p id="bonus_formats"><strong>What file types can I include as bonus items in an album download?</strong><br>
+The usual: png, jpg, gif, pdf, doc, docx, txt, ppt, pptx, mp4, m4v, mov, wmv, avi, mpg, mpeg, swf, flv, torrent, cue, afm, otf and ttf. If we've omitted your most favorite file type, <a href="mailto:support@bandcamp.com">let us know</a> and we'll consider adding it. Music file types are deliberately not included. If you want to include a track as a bonus item in an album download, upload it like any other track, but set it to hidden.</p>
+
+<p id="more_codes"><strong>Help! I need more download codes!</strong><br>
+Additional download codes are $.03 each for 100-900, or $.02 each for 1000 or more. Please <a href="mailto:support@bandcamp.com">email us</a> your Bandcamp URL and how many codes you'd like to purchase. 100 is the minimum order, and you must specify a multiple of 100. We'll invoice you via PayPal and activate the new codes as soon as we receive payment (we'll be automating this process eventually). You MUST include the email address to which you'd like the PayPal invoice sent.</p>
+
+<p id="email_codes"><strong>How do I send out download codes via email? Do I have to copy/paste each code individually?</strong><br>
+No no no. You just <a href="http://bandcamp.com/faq_codes_in_email">do this</a>.</p>
+
+<!--
+<p id="why_print_lots"><strong>I'm printing 500 download code cards, why do I get five separate links that say "print card pack 1 of 5", "...2 of 5" and so on?</strong><br>
+Isn't that annoying? It's an unfortunate limitation of the print service we're using. Basically, their system can only handle orders of 100 at a time right now, so if you need 500 cards you'll have to click each of those five links, making five separate orders. We're hoping to improve that flow in the very near future.</p>
+-->
+
+<p id="label"><strong>Do you offer label accounts?</strong><br>
+No, not yet, but we will. If you're a label, we recommend that you sign up for individual accounts for each of your artists (sounds more painful than it is -- you really only need separate usernames for each account -- they can all use the same email address, PayPal account, and, if you're crazy like that, even password). When we do introduce label accounts, we'll provide an easy way for you to roll up those individual accounts into the label account. Some people get around the current absence of label accounts by signing up as a band, and putting individual artist names in the track titles, but we don't recommend it (the track metadata will be wrong, and it'll be time-consuming to turn into a true label account down the line).</p>
+
+<p id="tax"><strong>What's this about taxes on my profile page?</strong><br>
+If you're in the U.S. and choose to charge sales tax on your merch (a matter upon which we conveniently have no opinion and recommend consulting your tax advisor), we do something super neato: we look at your location, compare it to the buyer's location, and if taxes apply (e.g., you're both in the same state) we dynamically pull in the up-to-the-minute tax rate for the buyer's city/county. Other online shops expect you to create and maintain a bunch of tax profiles, but with so many rates, and increases happening all the time, that is just kuh-razy. This here's the stuff 'puters were made fer!
+</p>
+
+<p id="sam"><strong>What two objects does Sam have in his hands when he emerges from Shelob's cave?</strong><br>
+The Light of Eärendil and Sting, loser.</p>
+
+<p id="autostart"><strong>How do I make the shared player autostart?</strong><br>
+Welcome home! We trust your 8 year expedition to the heart of the Amazon was a great success. SO much has happened since you left. The first Delawarean was elected Vice President of the United States, the Chronicles of Riddick defied box office expectations, and tabbed browsers became commonplace. As a result, many web enthusiasts now open tabs as they surf. Autostarting media players don't play well with this behavior, since they put you in a position of wondering <em>whoah, where is that sound coming from</em> and then force you to play find-the-tab-making-your-eardrums-bleed. AUTOSTART IS EVIL is a fairly common refrain nowadays, and who are we to disagree?</p>
+
+<p id="tagging"><strong>Why should I bother adding tags to my profile and music?</strong><br>
+tbd
+</p>
+
+<p id="volume"><strong>Where's the volume control?</strong><br>
+There isn't one. If your fans want to change the volume of the audio on Bandcamp, they adjust their computer's volume -- simple as that. We're not trying to build the ultimate platform for them to stream your albums while they play World of Warcraft in another window (which we completely agree would require an independent volume control). The streams on Bandcamp are there so visitors can listen to your music, decide if they like it, and if so, download it. Nothing more.</p>
+
+<p id="bug"><strong>I found a bug! In your face! FAIL! PWN! LOLCANO! Bandcamp suxxors! You suxxors! Tell me old chum, is there perchance anything I could do to assist in the resolution of the issue? Twould be my pleasure.</strong><br>
+Smashing old pineapple, that's ever so kind of you. Please email a description of the problem to us <a href="mailto:bugs@bandcamp.com">here</a>. Cheers.</p>
+
+<p id="badges"><strong>I love Bandcamp so much that I want to put the logo on my website, poster, flyer, etc. Hi-res file plz!?</strong><br>Please note that if "etc" includes anything <a href="http://ec.mashable.com/wp-content/uploads/2009/02/twitter_fail_whale_tattoo.jpg">this</a> <a href="http://ec.mashable.com/wp-content/uploads/2009/02/wordpress_tattoo.jpg">stupid</a>, we'll close your account immediately and have a long chat with your mom or legal guardian. No? OK. <a href="/img/biglogo.png">Here</a>. <a href="/img/bclogo.png">You</a>. <a href="/img/logoblack.png">Go</a>. <a href="/img/logowhite.png">Go</a>! (That last one smells lemony and reveals an exciting image when held over a lightbulb.)</p>
+
+<p id="usernames"><strong>I am deeply offended by your suggested alternate usernames. Say something to slake my fury!</strong><br>
+A few years ago, while I was still working at Yahoo, my phone rang. It was Neal. The exchange was not recorded, but went something like:<br>
+Neal: "You [expletive]."<br>
+Me: "Hi Neal."<br>
+Neal, laughing: "[expletive]."<br> 
+Things went on like this for a while, until Neal started to believe that I might really have no idea what he was talking about. He then forwarded me <a href="http://www.nealtucker.com/stuff/yahoo.html" target="blank">this screenshot</a> (take your time with it, there is much to absorb). It seemed that Neal had attempted to sign up for a Yahoo account, and his preferred username being unavailable, received those helpful suggestions. Given our rich history of screwing with each other, he naturally assumed I was responsible, but the sad truth is that I had neither the suction nor the knowledge to pull such a thing off. Furthermore, I had absolutely no clue who did, and therefore shared the story with a few coworkers. (Before I reveal the exciting explanation, can you sort it out for yourself? I'll wait.) It wasn't long before I heard from PR: "Perhaps we could ask Ethan to point out <a href="http://education.yahoo.com/reference/thesaurus/entry/tucker" target="_blank">this thesaurus entry</a> for 'tucker' to Neal?" Epilogue: I obliged, and Neal replied in classic form: "Make sure to tell them you also have a friend named Peter Johnson." [True.] Yahoo removed synonyms from its username helper shortly thereafter.</p>
+
+<p id="whowebe"><strong>Who is Bandcamp?</strong>
+<p style="margin-top:20px;"><img class="alignleft" style="float:left;margin-right:10px;" src="http://clubwikiorg.wordpress.com/files/2008/05/me1.jpg?w=80" alt="" width="80" height="80" /><strong>Ethan Diamond</strong> co-founded Oddpost, the web-based email service universally recognized as the <a rel="nofollow" href="http://www.pcworld.com/article/id,137824-page,3-c,webservices/article.html" target="_blank">Eighth Greatest Achievement in the History of the Web</a>, rightly beating out eBay, Craigslist and even JenniCam yet inexplicably trailing behind Mosaic and Amazon. Oddpost was acquired by Yahoo! in 2004, and three years later Ethan left to start Bandcamp. Prior to Oddpost, Ethan worked at Adobe, where he met Neal and Joe throwing things off the roof, and then Halfbrain, where he and Shawn pioneered the use of Ajax in the reimplementation of absolutely everything that gramps tells you was already working just fine as a desktop app. Ethan's interests are HTML <em>and</em> DHTML. He is a graduate.</p>
+
+<p><img class="alignleft" style="float:left;margin-right:10px;" src="http://www.gravatar.com/avatar/f25c5c692ecdaa0759f47cf26f523bb5?s=80" alt="" width="80" height="80" />Before helping to engineer Yahoo! Mail, Oddpost and Halfbrain.com, <strong>Shawn Grunberger</strong> helped negotiate the Peace of Westphalia in 1648. It was nontrivial.</p>
+
+<p style="clear:left;margin-top:45px;"><img class="alignleft" style="float:left;margin-right:10px;" src="http://www.gravatar.com/avatar/80e890fce05ff751bda16a9be54cab33?s=80" alt="" width="80" height="80" /><strong> Joe Holt</strong> is a programmer. California-bred, he labored for two decades at Apple and Adobe, but only a fool believes his claims that he co-wrote the very first version of Acrobat, four versions of Illustrator, iMovie and an assortment of unshippable chefs-d'œuvre. In addition to working with Bandcamp, Joe is a professor at Bennington College, Vermont where he creates clones. He didn’t teach Shawn everything he knows. Working with Ethan is a second honeymoon.</p>
+
+<p><img class="alignleft" style="float:left;margin-right:10px;" src="http://www.gravatar.com/avatar/a12ba9f69e498877386813d269c347dc?s=80" alt="" width="80" height="80" /><strong>Neal Tucker</strong> is one of the few people on Earth with the distinction of having been sentenced to 40 hours of community service by his own company's HR department.  After leaving Adobe under murky circumstances, he spent 9 years being "the unix guy" on various teams at Microsoft, which forever brands him "the Windows guy" everywhere else.  Much of his career has been spent writing software for embedded devices, so he's looking forward to stretching his legs on web server code for a while.  Neal lives in Seattle, where his hobbies include welding, being comfortable, and trying to convince his wife that it's normal to wear pajamas until 3pm.
+</p>
+
+<p><img class="alignleft" style="float:left;margin-right:10px;" src="/img/kj.jpg" alt="" width="80" height="80" />
+<strong>Kevin Johnston</strong> started his software engineering career at CompuServe, in the late 80s when AOL
+was the new punk on the block. He moved to Silicon Valley and worked for three years on Adobe Photoshop, in the
+general vicinity of Joe and Neal. He then worked on Final Cut Pro at Macromedia and Apple for four years.  A brief
+stint working on online spreadsheets and presentations at Halfbrain.com (ten years before Office Online) gave him
+his first experience working with Shawn and Ethan. A couple years later he reunited with them at Oddpost, and
+helped them transform online email at Yahoo for four years. Kevin does not currently believe he is a musician, but
+he does actively maintain several fantasy lives, including astronaut, oil rig firefighter, and internationally
+famous raconteur.
+</p>
+
+<p><img class="alignleft" style="float:left;margin-right:10px;" src="/img/rs.jpg" alt="" width="80" height="80" />
+<strong>Robbie Scott</strong> (né <i>Robert</i>) worked as a software engineer with the good fellows of 
+<a rel="nofollow" href="http://en.wikipedia.org/wiki/Wonders_of_the_World" target="_blank">Oddpost</a>. 
+He was also at Surfline (after it was Swell), Platinum (after it was CA), and Microsoft 
+(when they still used the <a href="http://www.geeknews.net/2007/01/09/word-of-the-day-blibbet" target="_blank">blibbet</a>). 
+Like Miles, he has changed music "five or six times".*<br>
+
+*<small>Not true.</small>
+</p>
+
+</div>
+
+    
+
+
+
+    <div class="bannercontainer">
+
+
+
+
+
+    </div>
+
+    <div style="clear:both"></div>
+</div>
+
+<div id="pgFt">
+
+<a href="http://bandcamp.com?from=logo"><div id="footerLogo" alt="Bandcamp logo"><span class="hiddenAccess">Bandcamp</span></div></a>
+<script type="text/javascript">  
+if ((typeof Y != "undefined") && (typeof Stats != "undefined")) {
+    Y.util.Event.onDOMReady(function() {
+        Stats.record({kind:"click", click:"footer_logo_served"});
+    });
+}
+</script>
+
+<ul id="legal" class="horizNav">
+    
+    <li id="login"><a href="https://bandcamp.com/login">artist login</a></li>
+    
+    <li><a href="http://bandcamp.com/terms_of_use">terms of use</a></li>
+    <li><a href="http://bandcamp.com/privacy">privacy</a></li>
+    <li><a href="http://bandcamp.com/copyright">copyright policy</a></li>
+    
+</ul>
+&nbsp; 
+
+
+
+
+
+
+
+</div>
+
+
+
+
+<script type="text/javascript">
+
+    
+    
+    JSLoader.writeScriptTags( "foot" );
+
+    
+</script>    
+
+<script type="text/javascript">
+    Y.widget.Logger.maxStackEntries = isDebug ? 100 : 1;
+    if(JSLoader.onJSLoaded) {
+        JSLoader.onJSLoaded();
+    }
+    Dom.initActiveElement();
+</script>
+
+
+
+
+<script type="text/javascript">
+    (function() {
+
+        Y.util.Event.onDOMReady( function() {
+            Control.handleDomReady();
+            FieldHints.init();
+        });
+
+    })();
+    
+</script>
+
+
+
+<script type="text/javascript">
+if(!isDebug)
+{
+    var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+    document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+}
+</script>
+<script type="text/javascript">
+if(!isDebug)
+{
+    var pageTracker = _gat._getTracker("UA-4189134-2");
+    pageTracker._setDomainName("bandcamp.com");
+    pageTracker._initData();
+    pageTracker._trackPageview();
+}
+</script>
+</body>
+</html>
+<!-- calculon-1 Thu Jan 28 10:17:32 -0800 2010 -->
+

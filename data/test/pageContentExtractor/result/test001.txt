@@ -1,0 +1,61 @@
+Wirtschaft
+
+Fragen und Antworten zu Googles Datensammlung
+
+Fragen und Antworten zu Googles Datensammlung
+
+Für Google läuft die Frist ab: Das Unternehmen soll Datenschützern eine Festplatte vorlegen, auf der private WLAN-Daten gespeichert sind, die Google im Rahmen von "Street View" erfasst hat. tagesschau.de erklärt, um welche Daten es geht und wie sich Internetnutzer vor weiteren WLAN-Datensammlungen schützen können.
+
+Wie ist Google an die Daten gekommen?
+
+Die Daten wurden von den gleichen Autos gesammelt, mit denen Google weltweit für "Street View" Häuser und Straßenzüge in Städten fotografiert hat. In Deutschland macht das Unternehmen diese Aufnahmen mit den Kamerawagen seit dem Jahr 2008.
+
+[Bildunterschrift: Am 14. Mai 2010 hat Google alle "Street View"-Fahrten weltweit bis auf Weiteres gestoppt. ]
+
+Ausgestattet mit WLAN-Antennen haben die Fahrzeuge von Anfang an auch Informationen zu Funk-Netzwerken erfasst, ähnlich wie Computer, die automatisch alle verfügbaren Drahtlosnetzwerke anzeigen. So wurden auf den Festplatten der Wagen nicht nur die Netzwerknamen (SSID) und die weltweit eindeutigen Kennungen, die sogenannten MAC-Adressen von WLAN-Routern gespeichert, sondern auch Daten aus unverschlüsselten Funknetzwerken.
+
+Denn die Software zum Sammeln der Daten war so verfasst, dass sie alle verfügbaren Daten speicherte. Dies hatte Google laut eigenen Angaben nicht beabsichtigt. Die Ursache liege in einem Programmcode, der aus einem experimentellen Projekt einfach übernommen wurde.
+
+Was sind das für Daten, die der Konzern gesammelt hat?
+
+Es handelt sich um sogenannte Nutzdaten, die entstehen, wenn Menschen über drahtlose Funknetze, E-Mails verschicken oder Internetseiten abrufen. Darin können zum Beispiel Internetadressen, aber auch persönliche Texte aus Formularen oder Briefen enthalten sein. Welche Daten genau ausgelesen wurden, weiß nur Google – eine unabhängige, deutsche Instanz hat noch keinen Einblick bekommen. Sicher ist: Die Daten aus gesicherten Internetverbindungen, zum Beispiel beim Online-Banking, konnte Google nicht erfassen.
+
+Die Fahrzeuge haben das gespeichert, was in den offenen Netzen in dem Moment passiert ist, in dem das Auto von Google vorbeifuhr. Das Unternehmen spricht von "Fragmenten", die gespeichert wurden, weil die Wagen nur sehr kurz in den jeweiligen Netzwerken "mithörten".
+
+Google sagt, dass weltweit auf diese Art und Weise 600 Gigabyte Daten gesammelt wurden.
+
+Was wollte Google ursprünglich mit den Daten machen?
+
+Die Informationen zu den WLAN-Netzen möchte Google völlig unabhängig von "Street View" für sogenannte standortbasierte Dienste einsetzen. Die Koordinaten der Funknetze sollen zum Beispiel die Navigation ohne das GPS-Signal von Satelliten ermöglichen. Schon jetzt gibt es zahlreiche Anwendungen, die auf Handys oder Smartphones mithilfe von verfügbaren WLAN-Netzen den eigenen Standort in Karten verzeichnen oder den Weg zu einem Geschäft weisen.
+
+Solche Informationen über WLAN-Netze haben neben Google auch bereits andere Firmen und beispielsweise die deutsche Fraunhofer-Gesellschaft gesammelt.
+
+Durfte Google die Daten aus den WLAN-Netzen speichern?
+
+Nein. Google hat mit dem Einsammeln und Speichern der Nutzdaten aus den offenen Netzen einen Verstoß gegen das Datenschutz-Recht begangen. "Daran besteht kein Zweifel", sagt der Hamburger Datenschutzbeauftragte Johannes Caspar.
+
+Persönliche Daten sind grundsätzlich gegen Veröffentlichung geschützt. Sie unterliegen dem Datenschutz unabhängig davon, ob sie über ein offenes oder geschütztes Funknetzwerk abgerufen werden können. Das Handeln Googles stellt gleichzeitig einen Eingriff in das allgemeine Persönlichkeitsrecht dar. Rein rechtlich könnte jeder Betroffene von Google verlangen, alle über ihn erhobenen Daten zu löschen. 
+
+Die Hamburger Staatsanwaltschaft ermittelt derzeit, ob Google-Mitarbeitern nachgewiesen werden kann, dass sie gewollt und bewusst, also mit Vorsatz die Daten abgefangen haben. Dann würde Anklage erhoben. Das Unternehmen spricht jedoch von einem Versehen, das in Unwissenheit geschehen sei.
+
+Wie hat Google auf die Vorfälle reagiert?
+
+Am 14. Mai hat Google weltweit alle "Street View"-Fahrten und damit auch die WLAN-Datensammlung bis auf Weiteres gestoppt. Die Daten aus den WLAN-Netzen sind laut Google isoliert und zusammengefasst worden. Zudem habe man eine externe Firma als Prüfer eingesetzt: "ISEC Partners" aus San Francisco. Die "Street-View"-Fahrten sollten erst fortgesetzt werden, wenn die Fahrzeuge technisch umgerüstet sind und keine WLAN-Daten mehr erfassen, erklärt Google-Sprecher Oberbeck. Um solche Pannen in Zukunft zu vermeiden, wolle Google außerdem zusätzliche Kontrollinstanzen einführen.
+
+Was wollen die Datenschützer?
+
+Der Hamburger Datenschutzbeauftragte Caspar hatte durch sein Nachfragen bei Google erst bewirkt, dass das Unternehmen die gesammelten Daten nochmals überprüfte. Erst dabei war dem Unternehmen laut eigenen Angaben aufgefallen, dass es die privaten Daten gesammelt hatte. Daraufhin verlangte Caspar von Google Einsicht in eine Festplatte, auf der diese Daten gespeichert wurden. Bislang hat die Behörde noch keine weiteren Informationen von Google erhalten, so Caspar.
+
+Was können Internetnutzer gegen das Einsammeln ihrer Daten tun?
+
+[Bildunterschrift: Die Fritzbox ist bereits durch den Hersteller AVM mit einem individuellen Passwort versehen, um ein WLAN-Netzwerk vor unerwünschtem Zugriff zu schützen. ]
+
+Jeder, der ein WLAN-Netz betreibt, kann es vor unbefugtem Zugriff mithilfe eines Passworts schützen. Aus einem gesicherten Netzwerk können die Daten nicht abgefangen werden. Einige Hersteller von WLAN-Routern haben ihre Geräte bereits mit einem Passwort versehen, um den Nutzern den Schutz ihrer Netze zu erleichtern.
+
+Der Bundesgerichtshof entschied kürzlich, dass Internetnutzer ihr WLAN mit einem Passwort sichern müssen. Tun sie das nicht, drohen im Falle einer unbefugten Nutzung durch Dritte eine Abmahnung und eine Unterlassungserklärung mit Kosten bis zu 100 Euro.
+
+Wer zudem Wert darauf legt, dass der Name und die Adresse des eigenen Funk-Netzwerks nicht von Diensten aufgenommen werden, kann seinen WLAN-Router immer dann ausschalten, wenn er nicht zu Hause ist. In dieser Zeit existiert das Netzwerk praktisch nicht. Und wer auf Nummer sicher gehen möchte, kann seinen Computer auch per Netzwerkkabel mit dem Router verbinden.
+
+Zusammengestellt von Georg Thomas für tagesschau.de
+
+Stand: 26.05.2010 06:39 Uhr

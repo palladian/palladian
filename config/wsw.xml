@@ -1,0 +1,57 @@
+<wsw>
+  <dictionary>
+    <term>url</term>
+    <term>query</term>
+    <term>start</term>
+    <term>resultCount</term>
+    <term>language</term>
+  </dictionary>
+  <webservices>
+    <webservice id="1">
+      <name>Google Web Search</name>
+      <key></key>
+      <responseFormat>json</responseFormat>
+      <endpoint>http://ajax.googleapis.com/ajax/services/search/web?v=1.0</endpoint>
+      <requestParameters>
+        <parameter term="start">start</parameter>
+        <parameter term="query">q</parameter>
+        <parameter term="language">lr</parameter>
+      </requestParameters>
+      <responseParameters>
+        <parameter type="o.a.v" term="url">responseData.results.unescapedUrl</parameter>
+        <!-- <parameter>responseData.results.content</parameter>
+        <parameter type="oa">responseData.results</parameter>-->
+      </responseParameters>
+    </webservice>
+    <webservice id="2">
+      <name>Bing Web Search</name>
+      <key></key>
+      <responseFormat>json</responseFormat>
+      <endpoint>http://api.bing.net/json.aspx?AppId=D35DE1803D6F6F03AB5044430997A91924AD347A&amp;Sources=Web&amp;JsonType=raw&amp;Adult=Moderate</endpoint>
+      <requestParameters>
+        <parameter term="language">Market</parameter>
+        <parameter term="query">Query</parameter>
+      </requestParameters>
+      <responseParameters>
+        <parameter type="o.o.a.v" term="url">SearchResponse.Web.Results.Url</parameter>
+        <!-- <parameter>responseData.results.content</parameter>
+        <parameter type="oa">responseData.results</parameter>-->
+      </responseParameters>
+    </webservice>
+  </webservices>
+  <profiles>
+    <profile id="1">
+      <name>search</name>
+      <webservices>
+        <ws id="1" include="*a*" exclude="0*"/>
+        <ws id="2"/>
+      </webservices>
+      <inputTerms>
+        <term>query</term>
+      </inputTerms>
+      <outputTerms>
+        <term>url</term>
+      </outputTerms>
+    </profile>
+  </profiles>
+</wsw>
