@@ -1,8 +1,9 @@
 package tud.iir.extraction.mio;
 
+import java.io.Serializable;
 import java.util.Comparator;
 
-public class MIOComparator implements Comparator<Object> {
+public class MIOComparator implements Comparator<Object>, Serializable {
 
     public int compare(Object obj1, Object obj2) {
         // for rank-comparison
