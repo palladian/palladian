@@ -1,5 +1,6 @@
 package tud.iir.classification.page;
 
+import java.util.HashMap;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -9,6 +10,7 @@ import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Term;
 import tud.iir.extraction.PageAnalyzer;
+import tud.iir.helper.FileHelper;
 import tud.iir.web.Crawler;
 
 /**
@@ -840,4 +842,109 @@ public abstract class WebPageClassifier {
 
         return show.toString();
     }
+    
+    /**
+     * 
+     * @param classType
+     * @return HashMap<Name of value, value> with statistical values 
+     */
+    // TODO: rename/refactor, get more statistical infos
+    public HashMap<String,Double> showTestDocuments2(int classType) {
+        
+        HashMap<String,Double> statistics = new HashMap<String,Double>();
+        
+        // for tagging evaluation we calculate average precision, recall and F1 by averaging over all classifications
+        double totalPrecision = 0.0;
+        double totalRecall = 0.0;
+        int precisionAtRank = 5;
+        double[] totalPrecisionAts = new double[precisionAtRank];
+
+        StringBuilder show = new StringBuilder("");
+        StringBuilder structuredOutput = new StringBuilder();
+        StringBuilder thresholdOutput = new StringBuilder();
+
+        int numberOf2Categories = 0;
+        for (ClassificationDocument document : testDocuments) {
+
+            Iterator<CategoryEntry> j = document.getAssignedCategoryEntries(true).iterator();           
+            
+            document.sortCategoriesByRelevance();
+            
+            show.append(document.getUrl()+"\n\treal ("+document.getClassifiedAsReadable()+"): ").append(document.getRealCategoriesString()).append("\n\tclassified:");
+            while (j.hasNext()) {
+                CategoryEntry categoryEntry = j.next();
+                show.append(categoryEntry.getCategory().getName()).append("(").append(Math.round(100*categoryEntry.getRelevance())).append("%) "); 
+            }
+            
+            if (classType == WebPageClassifier.TAG) {
+                
+                int correctlyAssigned = ((TestDocument)document).getCorrectlyAssignedCategoryEntries().size();
+                int totalAssigned = document.getAssignedCategoryEntries().size();
+                int real = document.getRealCategories().size();
+                
+                if (totalAssigned == 0 || real == 0) {
+                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getUrl());
+                    continue;
+                }
+                
+                for (int i = 1; i <= precisionAtRank; i++) {
+                    totalPrecisionAts[i-1] += ((TestDocument)document).getPrecisionAt(i);
+                }
+                
+                double precision = (double)correctlyAssigned / (double)totalAssigned;
+                double recall = (double)correctlyAssigned / (double)real;
+                
+                totalPrecision += precision;
+                totalRecall += recall;
+                
+                String result = "pr: " + precision + ", rc: " + recall;
+                
+                show.append("=> ").append(" ").append(result).append("\n");
+                boolean isFirst = true;
+                for (CategoryEntry ce : document.getAssignedCategoryEntries()) {
+                    structuredOutput.append(" ###").append(ce.getCategory().getName());
+                    if (!isFirst) {
+                        numberOf2Categories++;
+                    } else {
+                        isFirst = false;
+                    }
+                }
+                structuredOutput.append("\n");
+            } else {
+                String result = "WRONG";
+                if (((TestDocument)document).isCorrectClassified()) result = "CORRECT";
+                show.append("=> ").append(document.getMainCategoryEntry().getCategory().getName()).append(" ").append(result).append("\n");
+                structuredOutput.append(" ###").append(document.getMainCategoryEntry().getCategory().getName()).append("\n");
+            }
+        }
+        
+        if (classType == WebPageClassifier.TAG) {
+            double averagePrecision = totalPrecision / (double)testDocuments.size();
+            double averageRecall = totalRecall / (double)testDocuments.size();
+            double averageF1 = (2 * averagePrecision * averageRecall) / (averagePrecision + averageRecall);
+            
+            show.append("\n");
+            show.append("Average Precision@: ");
+            for (int i = 1; i <= precisionAtRank; i++) {
+                double averagePrecisionAtX = totalPrecisionAts[i-1] / (double)testDocuments.size();
+                show.append("@").append(i).append(": ").append((int) Math.floor(100 * averagePrecisionAtX)).append("% ");
+            }
+            show.append("\n");
+            thresholdOutput.append("----\n");
+            thresholdOutput.append("Threshold used: ").append(getTagConfidenceThreshold()).append("\n");
+            thresholdOutput.append("Number of two categories: ").append(numberOf2Categories).append("\n");
+            thresholdOutput.append("Average Precision: ").append((int) Math.floor(100 * averagePrecision)).append("%\n");
+            thresholdOutput.append("Average Recall: ").append((int) Math.floor(100 * averageRecall)).append("%\n");
+            thresholdOutput.append("Average F1: ").append((int) Math.floor(100 * averageF1)).append("%\n");
+            statistics.put("Number of two categories", (double)numberOf2Categories);
+        }
+        
+        FileHelper.appendToFile("data/temp/thresholds.txt", thresholdOutput, false);
+        show.append(thresholdOutput);
+        FileHelper.writeToFile("data/temp/dataRewrittenCombinedClassified.csv", structuredOutput);
+        
+        ClassifierManager.log(show.toString());
+        
+        return statistics;
+    }   
 }
