@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.Categories;
@@ -22,6 +23,8 @@ import tud.iir.helper.LineAction;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.TreeNode;
+import tud.iir.temp.CSVRewriter;
+import tud.iir.temp.TrainingDataSeparation;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
@@ -740,7 +743,173 @@ public class ClassifierManager {
     public String getSeparationString() {
         return separationString;
     }
+    
+    private void setThreshold(double threshold) {
+		classifier.setTagConfidenceThreshold(threshold);
+	}
 
+	/**
+	 * Method to compare the open analytix performance for classification depending on
+	 * values trainingPercentage, threshold for assigning a second category and number 
+	 * of loops to average the performance with fixed trainingPercentage and threshold
+	 * but random select of lines to be assigned to training and testing set
+	 * 
+	 * @param trainingPercentageMin The percentage of the data set to be used for 
+	 * training - minimum value of loop, range [0,100].
+	 * @param trainingPercentageMax The percentage of the data set to be used for 
+	 * training - maximum value of loop, range [0,100].
+	 * @param trainingPercentageStep The percentage of the data set to be used for 
+	 * training - step between loops, range [0,100].
+	 * @param randomSplitTrainingDataSet If true, initial data set is split randomly 
+	 * into training and test set (fixed percentage but randomly chosen lines). If false,
+	 * the first lines are training set and the remainder is the test set.
+	 * @param numberLoopsToAverage Number of loops to average the performance with 
+	 * fixed trainingPercentage and threshold but random select of lines to be 
+	 * assigned to training and testing set. Ignored if randomSplitTrainingDataSet=false,
+	 * e.g. only one loop is executed per trainingPercentage and threshold.
+	 * @param thMin Minimum value for the threshold used to assign a second category.
+	 * @param thMax Maximum value for the threshold used to assign a second category.
+	 * @param thStep Value to add to the threshold per loop. 
+	 * @param classType The type of WebPageClassifier to be used, e.g. WebPageClassifier.FIRST.
+	 */
+	private void openAnalytix(int trainingPercentageMin, 
+			int trainingPercentageMax, 
+			int trainingPercentageStep,
+			boolean randomSplitTrainingDataSet,
+			int numberLoopsToAverage,
+			int thMin, 
+			int thMax, 
+			int thStep,
+			int classType) {
+		
+		if(!randomSplitTrainingDataSet) numberLoopsToAverage = 1;
+		
+		ClassifierManager classifierManager = new ClassifierManager();
+		
+
+		// helper
+		int numberTrainingPercentageLoops = ((trainingPercentageMax - trainingPercentageMin) / trainingPercentageStep)+1;
+		int numberThresholdLoops = (int)Math.abs(((double)(thMax-thMin)/(double)thStep))+1;
+
+		// results[trainingPercentage][threshold][iteration]
+		// TODO change to numberLoopsToAverage to add average value in last line
+		double[][][] openAnalytixPerformances = new double[numberTrainingPercentageLoops][numberThresholdLoops][numberLoopsToAverage];
+		double[][][] numberOf2Categories = new double[numberTrainingPercentageLoops][numberThresholdLoops][numberLoopsToAverage];
+		int[] trainingPercentageUsed = new int[numberTrainingPercentageLoops];
+		int[] thresholdsUsed = new int[numberThresholdLoops];
+		int trainingPercentageLoop = 0;
+		
+		
+		
+		// e.g. test from 40:60 to 90:10 
+		for (int trainingPercentage = trainingPercentageMin; 
+			trainingPercentage <= trainingPercentageMax ; 
+			trainingPercentage += trainingPercentageStep) {
+			
+			trainingPercentageUsed[trainingPercentageLoop] = trainingPercentage;
+			logger.info("\n start trainingPercentage classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage " + trainingPercentage + "%, random = " + randomSplitTrainingDataSet + "\n");			
+			
+			// test with different thresholds
+			int thresholdLoop=0;
+			for (int th = thMin; th <= thMax; th += thStep) {
+				
+				logger.info("\n start thresholdLoop classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage " + trainingPercentage + "%, random = " + randomSplitTrainingDataSet + ", threshold = " + (double)th/100 + "\n");
+				thresholdsUsed[thresholdLoop] = th;
+				// e.g. 10 loops to average over random selection training and test data 
+				for (int k = 0; k < numberLoopsToAverage; k++){
+					
+					logger.info("\n start inner (cross-validation) classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage " + trainingPercentage + "%, random = " + randomSplitTrainingDataSet + ", threshold = " + (double)th/100 + ", iteration = " + (k+1) + "\n");
+										
+					String currentTime = DateHelper.getCurrentDatetime();
+					new TrainingDataSeparation().seperateFile(trainingPercentage, randomSplitTrainingDataSet);
+					new CSVRewriter().rewriteOutputGoldstandard();
+//					createDictionaryIteratively = false;
+					// train with two categories 
+					classifierManager.setSeparationString("###");
+					classifierManager.setTrainingDataPercentage(100);
+//					classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Training.csv", WebPageClassifier.URL, WebPageClassifier.TAG, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
+//					classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Training.csv", WebPageClassifier.URL, WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE, true); // 95%
+					classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Training.csv", WebPageClassifier.URL, classType, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE, true);
+					
+					// classify 
+//					classifierManager = new ClassifierManager();
+//					classifierManager.setSeparationString("###");
+					classifierManager.setTrainingDataPercentage(0);
+					classifierManager.setThreshold((double)th/100);
+//					classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Testing.csv", WebPageClassifier.URL, WebPageClassifier.TAG, ClassifierManager.CLASSIFICATION_TEST_MODEL);
+//					classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Testing.csv", WebPageClassifier.URL, WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TEST_MODEL, false); // 95% ??
+					// wenn createNewClassifier=true, dann ist Dictionary.dictionaryIndex wieder null , d.h. die jdbc Verbindung verloren
+					classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Testing.csv", WebPageClassifier.URL, classType, ClassifierManager.CLASSIFICATION_TEST_MODEL, false);
+					
+					HashMap<String,Double> statistics = classifierManager.getClassifier().showTestDocuments(WebPageClassifier.FIRST);
+					
+					if(statistics.containsKey("Number of two categories")){
+						numberOf2Categories[trainingPercentageLoop][thresholdLoop][k] = statistics.get("Number of two categories");
+					}
+					else //e.g. WebPageClassifier.FIRST - modus
+					numberOf2Categories[trainingPercentageLoop][thresholdLoop][k] = 0;
+					
+					//rewrite output
+					CSVRewriter csvRewriter = new CSVRewriter();
+					csvRewriter.rewriteOutput();
+					csvRewriter.combineGoldstandardAndPredictedCategories();			
+					double performance = csvRewriter.evaluate("data/temp/" + currentTime + "_dataTestAndClassifiedResults_trainingPercentage_" + trainingPercentage + "_threshold_"+ (double)th/100 +"_co-occurrenceBoost_"+DictionaryClassifier.COOCCURRENCE_BOOST+".csv");
+					
+					StringBuilder trainingsetPercentSB = new StringBuilder();
+					trainingsetPercentSB.append(currentTime);
+					trainingsetPercentSB.append("random trainingPercentage: ").append(trainingPercentage).append("\n");
+					FileHelper.appendToFile("data/temp/thresholds.txt", trainingsetPercentSB, false);
+					logger.info("\n finished inner (cross-validation) classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage " + trainingPercentage + "%, random = " + randomSplitTrainingDataSet + ", threshold = " + (double)th/100 + ", iteration = " + (k+1) + "\n");
+					
+					openAnalytixPerformances[trainingPercentageLoop][thresholdLoop][k] = performance;
+				}
+				thresholdLoop++;
+				logger.info("\n finished thresholdLoop classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage " + trainingPercentage + "%, random = " + randomSplitTrainingDataSet + ", threshold = " + (double)th/100 + "\n");
+			}
+			logger.info("\n finished trainingPercentage classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage " + trainingPercentage + "%, random = " + randomSplitTrainingDataSet + "\n");
+			trainingPercentageLoop++;
+		}	
+		
+//		//print results
+		String resultFilePath = "data/temp/" + DateHelper.getCurrentDatetime() + "_results.csv";
+		System.out.println("Writing final results to " + resultFilePath);
+		
+		String useRandom = (randomSplitTrainingDataSet)? "random":"static";
+		
+		StringBuilder finalResultSB = new StringBuilder();
+		finalResultSB.append("ave perf @ ").append(numberLoopsToAverage).append(";");
+				
+		for (int i = 0; i < numberThresholdLoops; i++) {
+			finalResultSB.append("thres ").append((double)thresholdsUsed[i]/100).append(";std deviation;# 2 cat;");
+		}
+		finalResultSB.append("\n");
+		
+		for (int i = 0; i < numberTrainingPercentageLoops; i++) {
+			finalResultSB.append("train ").append(trainingPercentageUsed[i]).append("% ").append(useRandom).append(";");
+			for (int j = 0; j < numberThresholdLoops; j++) {
+				double culmulatedPrecision = 0;
+				double culmulatedNumber2Categories = 0;
+				for (int k = 0; k < numberLoopsToAverage; k++){					
+					culmulatedPrecision += openAnalytixPerformances[i][j][k];
+					culmulatedNumber2Categories += numberOf2Categories[i][j][k];					
+				}
+				finalResultSB.append(MathHelper.round(culmulatedPrecision/numberLoopsToAverage, 4)).append(";");
+				StandardDeviation std = new StandardDeviation();
+				double stdDev = std.evaluate(openAnalytixPerformances[i][j]);
+				finalResultSB.append(MathHelper.round(stdDev, 4)).append(";");
+				finalResultSB.append(MathHelper.round(culmulatedNumber2Categories/numberLoopsToAverage, 1)).append(";");
+			}
+			finalResultSB.append("\n");
+			System.out.print("\n");
+		}
+		
+		FileHelper.writeToFile(resultFilePath, finalResultSB);
+	}
+
+	private WebPageClassifier getClassifier() {
+		return this.classifier;
+	}
+        
     /**
      * If arguments are given, they must be in the following order: trainingPercentage inputFilePath classifierType classificationType training For example:
      * java -jar classifierManager.jar 80 data/benchmarkSelection/page/deliciouspages_cleansed_400.txt 1 3 true
@@ -969,6 +1138,9 @@ public class ClassifierManager {
         // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages.txt",
         // WebPageClassifier.COMBINED, WebPageClassifier.TAG);
 
+        
+        classifierManager.openAnalytix(50,90,10,true,10,99,99,1,WebPageClassifier.FIRST);
+        
         System.out.println("finished training all classifiers in " + DateHelper.getRuntime(t1));
         System.exit(0);
         // ///////////////////////////////////////////////////////////////////////////////
