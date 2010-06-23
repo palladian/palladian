@@ -59,7 +59,8 @@ import tud.iir.multimedia.ImageHandler;
 import tud.iir.news.FeedDiscoveryCallback;
 
 /**
- * The Crawler downloads pages from the web. List of proxies can be found here: http://www.proxy-list.org/en/index.php TODO handle namespace in xpath
+ * The Crawler downloads pages from the web. List of proxies can be found here: http://www.proxy-list.org/en/index.php
+ * TODO handle namespace in xpath
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -203,7 +204,8 @@ public class Crawler {
             setProxyList(config.getList("proxyList"));
             setFeedAutodiscovery(config.getBoolean("feedAutoDiscovery"));
         } catch (ConfigurationException e) {
-            LOGGER.warn("crawler configuration under " + configPath + " could not be loaded completely: " + e.getMessage());
+            LOGGER.warn("crawler configuration under " + configPath + " could not be loaded completely: "
+                    + e.getMessage());
         }
     }
 
@@ -250,8 +252,10 @@ public class Crawler {
 
             // crawl(urlIterator.next());
             /*
-             * if ((urlDump.size() % 2000 < 1000) && !saved && urlDump.size() > 10) { saveURLDump("data/crawl/"+Logger.getInstance().getDateString
-             * ()+"_dmoz_urldump"+dumpNumber+".txt"); saved = true; ++dumpNumber; } else if (urlDump.size() % 2000 > 1000) { saved = false; }
+             * if ((urlDump.size() % 2000 < 1000) && !saved && urlDump.size() > 10) {
+             * saveURLDump("data/crawl/"+Logger.getInstance().getDateString
+             * ()+"_dmoz_urldump"+dumpNumber+".txt"); saved = true; ++dumpNumber; } else if (urlDump.size() % 2000 >
+             * 1000) { saved = false; }
              */
             // urlIterator = urlStack.iterator();
         }
@@ -356,8 +360,8 @@ public class Crawler {
         Document document = getWebDocument(currentURL);
 
         HashSet<String> links = getLinks(document, inDomain, outDomain);
-        LOGGER.info("\n\nretrieved " + links.size() + " links from " + currentURL + " || " + urlStack.size() + " dump size: " + urlDump.size() + ", visited: "
-                + visitedURLs.size());
+        LOGGER.info("\n\nretrieved " + links.size() + " links from " + currentURL + " || " + urlStack.size()
+                + " dump size: " + urlDump.size() + ", visited: " + visitedURLs.size());
 
         // moved this method call to setDocument method ... Philipp, 2010-06-13
         // callCrawlerCallback(document);
@@ -366,7 +370,8 @@ public class Crawler {
     }
 
     public void saveURLDump(String filename) {
-        String urlDumpString = "URL crawl from " + DateHelper.getCurrentDatetime("dd.MM.yyyy") + " at " + DateHelper.getCurrentDatetime("HH:mm:ss") + "\n";
+        String urlDumpString = "URL crawl from " + DateHelper.getCurrentDatetime("dd.MM.yyyy") + " at "
+                + DateHelper.getCurrentDatetime("HH:mm:ss") + "\n";
         urlDumpString += "Number of urls: " + urlDump.size() + "\n\n";
 
         try {
@@ -438,7 +443,7 @@ public class Crawler {
             // normalize relative and absolute links
             // currentLink = makeFullURL(url, currentLink);
             currentLink = makeFullURL(url, baseHref, currentLink);
-            
+
             if (currentLink.length() == 0) {
                 continue;
             }
@@ -456,7 +461,8 @@ public class Crawler {
     }
 
     /**
-     * Return the root/domain URL. For example: <code>http://www.example.com/page.html</code> is converted to <code>http://www.example.com</code>
+     * Return the root/domain URL. For example: <code>http://www.example.com/page.html</code> is converted to
+     * <code>http://www.example.com</code>
      * 
      * @param url
      * @param includeProtocol include protocol prefix, e.g. "http://"
@@ -467,7 +473,8 @@ public class Crawler {
         // int protocolIndex = 0;
         //
         // /*
-        // * if (url.indexOf("http://www.") > -1) { startIndex = 11; } else if (url.indexOf("http://") > -1) { startIndex = 7; protocolIndex = 7; } else if
+        // * if (url.indexOf("http://www.") > -1) { startIndex = 11; } else if (url.indexOf("http://") > -1) {
+        // startIndex = 7; protocolIndex = 7; } else if
         // * (url.indexOf("www.") > -1) { startIndex = 4; }
         // */
         //
@@ -517,9 +524,10 @@ public class Crawler {
         return result;
 
     }
-    
+
     /**
-     * Return the root/domain URL. For example: <code>http://www.example.com/page.html</code> is converted to <code>http://www.example.com</code>
+     * Return the root/domain URL. For example: <code>http://www.example.com/page.html</code> is converted to
+     * <code>http://www.example.com</code>
      * 
      * @param url
      * @return root URL, or empty String if URL cannot be determined, never <code>null</code>
@@ -587,7 +595,8 @@ public class Crawler {
             boolean joinTagsAndRemoveNewlines = false;
 
             // Remove all tags, comments, JS and CSS from body
-            bodyContent = StringHelper.removeHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS, joinTagsAndRemoveNewlines);
+            bodyContent = StringHelper.removeHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
+                    joinTagsAndRemoveNewlines);
             bodyContent = bodyContent.replaceAll("&nbsp;", "");
             bodyContent = bodyContent.replaceAll("&amp", "");
             return bodyContent;
@@ -602,7 +611,8 @@ public class Crawler {
 
         List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
         for (Node metaNode : metaNodes) {
-            if (metaNode.getAttributes().getNamedItem("name") != null && metaNode.getAttributes().getNamedItem("content") != null
+            if (metaNode.getAttributes().getNamedItem("name") != null
+                    && metaNode.getAttributes().getNamedItem("content") != null
                     && metaNode.getAttributes().getNamedItem("name").getTextContent().equalsIgnoreCase("keywords")) {
                 String keywordString = metaNode.getAttributes().getNamedItem("content").getTextContent();
                 String[] keywordArray = keywordString.split(",");
@@ -622,7 +632,8 @@ public class Crawler {
 
         List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
         for (Node metaNode : metaNodes) {
-            if (metaNode.getAttributes().getNamedItem("name") != null && metaNode.getAttributes().getNamedItem("content") != null
+            if (metaNode.getAttributes().getNamedItem("name") != null
+                    && metaNode.getAttributes().getNamedItem("content") != null
                     && metaNode.getAttributes().getNamedItem("name").getTextContent().equalsIgnoreCase("description")) {
                 String description = metaNode.getAttributes().getNamedItem("content").getTextContent();
                 String[] keywordArray = description.split("\\s");
@@ -779,7 +790,7 @@ public class Crawler {
 
             // normalize relative and absolute links
             currentLink = makeFullURL(url, currentLink);
-            
+
             if (currentLink.length() == 0) {
                 continue;
             }
@@ -808,8 +819,9 @@ public class Crawler {
                     fileEndingEndIndex = lastPointIndex + 1 + currentLink.substring(lastPointIndex + 1).indexOf("?");
                 }
                 String fileEndingLink = currentLink.substring(lastPointIndex + 1, fileEndingEndIndex);
-                if (fileEndingLink.equalsIgnoreCase("css") || fileEndingLink.equalsIgnoreCase("js") || fileEndingLink.equalsIgnoreCase("xml")
-                        || fileEndingLink.equalsIgnoreCase("ico") || fileEndingLink.equalsIgnoreCase("rss")) {
+                if (fileEndingLink.equalsIgnoreCase("css") || fileEndingLink.equalsIgnoreCase("js")
+                        || fileEndingLink.equalsIgnoreCase("xml") || fileEndingLink.equalsIgnoreCase("ico")
+                        || fileEndingLink.equalsIgnoreCase("rss")) {
                     continue;
                 }
             }
@@ -892,7 +904,7 @@ public class Crawler {
 
             // read from file with buffered input stream
             if (isFile) {
-                
+
                 // InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(url)));
                 File file = new File(url);
                 InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
@@ -905,7 +917,7 @@ public class Crawler {
                 }
 
                 document.setDocumentURI(file.toURI().toString());
-                
+
             } else {
                 url = url.replaceAll("\\s", "+");
                 URL urlObject = new URL(url);
@@ -949,7 +961,8 @@ public class Crawler {
 
             // document.setDocumentURI(url);
 
-            // only call, if we actually got a Document; so we dont need to check for null within the Callback implementation itself.
+            // only call, if we actually got a Document; so we dont need to check for null within the Callback
+            // implementation itself.
             if (callback && document != null) {
                 callCrawlerCallback(document);
             }
@@ -997,7 +1010,7 @@ public class Crawler {
         setDocument(url, false, true);
         return getDocument();
     }
-    
+
     /**
      * Get a web page ((X)HTML document).
      * 
@@ -1011,7 +1024,8 @@ public class Crawler {
     }
 
     /**
-     * Get XML document from a URL. Pure XML documents can created with the native DocumentBuilderFactory, which works better with the native XPath queries.
+     * Get XML document from a URL. Pure XML documents can created with the native DocumentBuilderFactory, which works
+     * better with the native XPath queries.
      * 
      * @param url The URL pointing to the XML document.
      * @return The XML document.
@@ -1020,9 +1034,10 @@ public class Crawler {
         setDocument(url, true, true);
         return getDocument();
     }
-    
+
     /**
-     * Get XML document from a URL. Pure XML documents can created with the native DocumentBuilderFactory, which works better with the native XPath queries.
+     * Get XML document from a URL. Pure XML documents can created with the native DocumentBuilderFactory, which works
+     * better with the native XPath queries.
      * 
      * @param url The URL pointing to the XML document.
      * @param callback set to <code>false</code> to disable callback for this document.
@@ -1062,7 +1077,8 @@ public class Crawler {
      * @param joinTagsAndRemoveNewlines If true, multiple blank spaces and line breaks will be removed.
      * @return The contents as a string.
      */
-    public String download(String urlString, boolean stripTags, boolean stripComments, boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
+    public String download(String urlString, boolean stripTags, boolean stripComments, boolean stripJSAndCSS,
+            boolean joinTagsAndRemoveNewlines) {
 
         // do not download pdf, ppt or ps files TODO try to download them as
         // well
@@ -1115,7 +1131,7 @@ public class Crawler {
                 do {
                     line = br.readLine();
                     if (line == null) {
-                        break;                        
+                        break;
                     }
                     html.append(line).append("\n");
                 } while (line != null);
@@ -1147,7 +1163,8 @@ public class Crawler {
         }
 
         if (stripTags || stripComments || stripJSAndCSS) {
-            contentString = StringHelper.removeHTMLTags(contentString, stripTags, stripComments, stripJSAndCSS, joinTagsAndRemoveNewlines);
+            contentString = StringHelper.removeHTMLTags(contentString, stripTags, stripComments, stripJSAndCSS,
+                    joinTagsAndRemoveNewlines);
         }
 
         return contentString;
@@ -1162,7 +1179,8 @@ public class Crawler {
     }
 
     /**
-     * Only download if the urlString is in a valid form and the file-ending is not blacklisted (see Extractor.java for file-ending-blackList)
+     * Only download if the urlString is in a valid form and the file-ending is not blacklisted (see Extractor.java for
+     * file-ending-blackList)
      * 
      */
     public String downloadNotBlacklisted(String urlString) {
@@ -1490,7 +1508,8 @@ public class Crawler {
      * Avoid to check HTTP-Response because it is very time-expensive!
      * 
      * TODO Apache Commons has an UrlValidator class, maybe use this one? :
-     * http://commons.apache.org/validator/apidocs/index.html?org/apache/commons/validator/package-summary.html, -- Philipp
+     * http://commons.apache.org/validator/apidocs/index.html?org/apache/commons/validator/package-summary.html, --
+     * Philipp
      */
     public static boolean isValidURL(String pageURL, boolean checkHTTPResp) {
 
@@ -1527,7 +1546,8 @@ public class Crawler {
     }
 
     /**
-     * Download from specified URL. This method caches the incoming InputStream and blocks until all incoming data has been read or the timeout has been
+     * Download from specified URL. This method caches the incoming InputStream and blocks until all incoming data has
+     * been read or the timeout has been
      * reached.
      * 
      * @param url
@@ -1600,7 +1620,8 @@ public class Crawler {
     }
 
     /**
-     * Download from specified URL string. This method caches the incoming InputStream and blocks until all incoming data has been read or the timeout has been
+     * Download from specified URL string. This method caches the incoming InputStream and blocks until all incoming
+     * data has been read or the timeout has been
      * reached.
      * 
      * @param urlString
@@ -1777,14 +1798,16 @@ public class Crawler {
         // java.util.regex.Pattern.compile("((\\d){4}-(\\d){2}-(\\d){2})|((\\d){1,2}[\\.|/|-](\\d){1,2}[\\.|/|-](\\d){1,4})|((?<!(\\d){2})(\\d){1,2}(th)?(\\.)?(\\s)?(\\w){3,9}\\s(['])?(\\d){2,4})|((\\w){3,9}\\s(\\d){1,2}(th)?((\\,)|(\\s))+(['])?(\\d){2,4})");
         // java.util.regex.Pattern pat =
         // java.util.regex.Pattern.compile("(?<!(\\w)-)(?<!(\\w))((\\d){1,}((,|\\.|\\s))?){1,}(?!((\\d)+-(\\d)+))(?!-(\\d)+)");
-        java.util.regex.Pattern pat = java.util.regex.Pattern.compile("([A-Z.]{1}([A-Za-z-0-9.]{0,}){1,}(\\s)?)+([A-Z.0-9]{1,}([A-Za-z-0-9.]{0,}){1,}(\\s)?)*");
+        java.util.regex.Pattern pat = java.util.regex.Pattern
+                .compile("([A-Z.]{1}([A-Za-z-0-9.]{0,}){1,}(\\s)?)+([A-Z.0-9]{1,}([A-Za-z-0-9.]{0,}){1,}(\\s)?)*");
 
         // (\\d){1,2}[\\.|/|-](\\d){1,2}[\\.|/|-](\\d){1,4}";
         // (\d){1,2}(th)?(\.)?(\s)?(\w){3,9}\s(['])?(\d){2,4}
         // (\w){3,9}\s(\d){1,2}(th)?(\,)?(\s)?(['])?(\d){2,4}
 
         a = "ssfd sdf Cities, suCh as A,B and C ksd cities,such as  fjasfh cities such as Rome,London, New York but asdf asdf cities (such as A,B and C) las sdf ABC34SA 34 saf ASD a Intel Core, 2 Duo sdf";
-        pat = java.util.regex.Pattern.compile("cities((\\()|(\\,)|(\\s))*such as", java.util.regex.Pattern.CASE_INSENSITIVE);
+        pat = java.util.regex.Pattern.compile("cities((\\()|(\\,)|(\\s))*such as",
+                java.util.regex.Pattern.CASE_INSENSITIVE);
 
         a = "sasdf syxcABC asdfaABC";
         pat = java.util.regex.Pattern.compile("([A-Za-z0-9 ](?!y))*?(?=ABC)", java.util.regex.Pattern.CASE_INSENSITIVE);
