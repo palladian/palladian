@@ -1,3 +1,7 @@
+/**
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import tud.iir.knowledge.Entity;
