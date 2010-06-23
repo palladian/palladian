@@ -23,7 +23,8 @@ import tud.iir.persistence.DatabaseManager;
 import tud.iir.persistence.PersistenceManager;
 
 /**
- * TODO separate conceptual and instance knowledge (concept,attribute | entity,fact) The KnowledgeManager manages all other knowledge units.
+ * TODO separate conceptual and instance knowledge (concept,attribute | entity,fact) The KnowledgeManager manages all
+ * other knowledge units.
  * 
  * @author David Urbansky
  */
@@ -38,7 +39,8 @@ public class KnowledgeManager implements Serializable {
     private static final double ENTITY_TRUST_THRESHOLD = 0.9;
 
     private ArrayList<Concept> concepts;
-    private HashSet<Fact> factsReviewed = new HashSet<Fact>(); // keep track of which fact has been reviewed already, only run highest corroboration fact value
+    private HashSet<Fact> factsReviewed = new HashSet<Fact>(); // keep track of which fact has been reviewed already,
+                                                               // only run highest corroboration fact value
 
     // test on facts that have not been reviewed yet
 
@@ -82,7 +84,8 @@ public class KnowledgeManager implements Serializable {
     }
 
     /**
-     * In the extraction loop, the status is saved. The concepts in the saved status are not necessarily the updated ones from the database. We need to add all
+     * In the extraction loop, the status is saved. The concepts in the saved status are not necessarily the updated
+     * ones from the database. We need to add all
      * entities and the lastSearched field from the extraction status concepts to the loaded ones.
      */
     public void mergeConcepts(HashSet<Concept> concepts2) {
@@ -476,13 +479,18 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("4156119", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a),
+                    new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Capital");
-        e1.addFactForBenchmark(new Fact(a), new FactValue("Washington DC", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e1
+                .addFactForBenchmark(new Fact(a), new FactValue("Washington DC", new Source("GIVEN"),
+                        ExtractionType.UNKNOWN));
         e2.addFactForBenchmark(new Fact(a), new FactValue("Canberra", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e3.addFactForBenchmark(new Fact(a), new FactValue("Berlin", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e4.addFactForBenchmark(new Fact(a), new FactValue("Brasilia", new Source("GIVEN"), ExtractionType.UNKNOWN));
@@ -490,13 +498,18 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("4156119", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a),
+                    new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Largest City");
-        e1.addFactForBenchmark(new Fact(a), new FactValue("New York City", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e1
+                .addFactForBenchmark(new Fact(a), new FactValue("New York City", new Source("GIVEN"),
+                        ExtractionType.UNKNOWN));
         e2.addFactForBenchmark(new Fact(a), new FactValue("Sydney", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e3.addFactForBenchmark(new Fact(a), new FactValue("Berlin", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e4.addFactForBenchmark(new Fact(a), new FactValue("Sao Paulo", new Source("GIVEN"), ExtractionType.UNKNOWN));
@@ -504,21 +517,32 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("4156119", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a),
+                    new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Area");
-        e1.addFactForBenchmark(new Fact(a), new FactValue("9161923000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e2.addFactForBenchmark(new Fact(a), new FactValue("7617930000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e1
+                .addFactForBenchmark(new Fact(a), new FactValue("9161923000000", new Source("GIVEN"),
+                        ExtractionType.UNKNOWN));
+        e2
+                .addFactForBenchmark(new Fact(a), new FactValue("7617930000000", new Source("GIVEN"),
+                        ExtractionType.UNKNOWN));
         e3.addFactForBenchmark(new Fact(a), new FactValue("357021000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e4.addFactForBenchmark(new Fact(a), new FactValue("8511965000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e4
+                .addFactForBenchmark(new Fact(a), new FactValue("8511965000000", new Source("GIVEN"),
+                        ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("377835000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("68890", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e10.addFactForBenchmark(new Fact(a), new FactValue("47000", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
@@ -532,7 +556,9 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("0.959", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e10.addFactForBenchmark(new Fact(a), new FactValue("0.579", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
@@ -546,7 +572,9 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("EUR", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e10.addFactForBenchmark(new Fact(a), new FactValue("BTN", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
@@ -560,7 +588,9 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("353", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e10.addFactForBenchmark(new Fact(a), new FactValue("975", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
@@ -574,7 +604,9 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("1.133", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e10.addFactForBenchmark(new Fact(a), new FactValue("1.301", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
@@ -588,7 +620,9 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("14.33", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e10.addFactForBenchmark(new Fact(a), new FactValue("20.56", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
@@ -602,7 +636,9 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("7.77", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e10.addFactForBenchmark(new Fact(a), new FactValue("7.54", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
@@ -616,23 +652,34 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("4.6", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e10.addFactForBenchmark(new Fact(a), new FactValue("2.5", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Geographic Coordinates");
-        e1.addFactForBenchmark(new Fact(a), new FactValue("38 00 N, 97 00 W", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e2.addFactForBenchmark(new Fact(a), new FactValue("28 00 S, 133 00 E", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e3.addFactForBenchmark(new Fact(a), new FactValue("51 00 N, 9 00 E", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e4.addFactForBenchmark(new Fact(a), new FactValue("10 00 S, 55 00 W", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e5.addFactForBenchmark(new Fact(a), new FactValue("36 00 N, 138 00 E", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e1.addFactForBenchmark(new Fact(a), new FactValue("38 00 N, 97 00 W", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e2.addFactForBenchmark(new Fact(a), new FactValue("28 00 S, 133 00 E", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e3.addFactForBenchmark(new Fact(a), new FactValue("51 00 N, 9 00 E", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e4.addFactForBenchmark(new Fact(a), new FactValue("10 00 S, 55 00 W", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e5.addFactForBenchmark(new Fact(a), new FactValue("36 00 N, 138 00 E", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("53 00 N, 800 W", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a), new FactValue("53 00 N, 800 W", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("27 30 N, 90 30 E", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("27 30 N, 90 30 E", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Coastline");
@@ -644,7 +691,9 @@ public class KnowledgeManager implements Serializable {
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("1448", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("682321", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8
+                    .addFactForBenchmark(new Fact(a), new FactValue("303824646", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
             e9.addFactForBenchmark(new Fact(a), new FactValue("20600856", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e10.addFactForBenchmark(new Fact(a), new FactValue("0", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
@@ -735,7 +784,8 @@ public class KnowledgeManager implements Serializable {
         }
 
         // a = d.getAttribute("Engine");
-        // e1.addFact(new Fact(a), new FactValue("8.0 L quad-turbocharge W16",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
+        // e1.addFact(new Fact(a), new FactValue("8.0 L quad-turbocharge W16",new
+        // Source("GIVEN"),ExtractionType.UNKNOWN), true);
         // e2.addFact(new Fact(a), new FactValue("6.5 L V12",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
         // e3.addFact(new Fact(a), new FactValue("1888000",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
         // e4.addFact(new Fact(a), new FactValue("1665000",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
@@ -776,11 +826,14 @@ public class KnowledgeManager implements Serializable {
         }
 
         // a = d.getAttribute("Networks");
-        // e1.addFact(new Fact(a), new FactValue("GSM 850 / 900 / 1800 / 1900, HSDPA 2100 ",new Source("GIVEN"),ExtractionType.UNKNOWN));
-        // e2.addFact(new Fact(a), new FactValue("GSM 850 / 900 / 1800 / 1900, HSDPA 2100 / 900",new Source("GIVEN"),ExtractionType.UNKNOWN));
+        // e1.addFact(new Fact(a), new FactValue("GSM 850 / 900 / 1800 / 1900, HSDPA 2100 ",new
+        // Source("GIVEN"),ExtractionType.UNKNOWN));
+        // e2.addFact(new Fact(a), new FactValue("GSM 850 / 900 / 1800 / 1900, HSDPA 2100 / 900",new
+        // Source("GIVEN"),ExtractionType.UNKNOWN));
         // if (fullSet) {
         // e3.addFact(new Fact(a), new FactValue("GSM 900 / 1800",new Source("GIVEN"),ExtractionType.UNKNOWN));
-        // e4.addFact(new Fact(a), new FactValue("GSM 900 / 1800 / 1900, UMTS 2100",new Source("GIVEN"),ExtractionType.UNKNOWN));
+        // e4.addFact(new Fact(a), new FactValue("GSM 900 / 1800 / 1900, UMTS 2100",new
+        // Source("GIVEN"),ExtractionType.UNKNOWN));
         // }
 
         a = d.getAttribute("Standby Time");
@@ -812,11 +865,16 @@ public class KnowledgeManager implements Serializable {
         }
 
         a = d.getAttribute("Dimensions");
-        e1.addFactForBenchmark(new Fact(a), new FactValue("99 x 53 x 21 mm", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e2.addFactForBenchmark(new Fact(a), new FactValue("106.5 x 53.9 x 17.2 mm", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e3.addFactForBenchmark(new Fact(a), new FactValue("109 x 45 x 15 mm ", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e4.addFactForBenchmark(new Fact(a), new FactValue("105 x 45.5 x 19.5 mm", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e5.addFactForBenchmark(new Fact(a), new FactValue("108 x 54.9 x 13 mm", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e1.addFactForBenchmark(new Fact(a), new FactValue("99 x 53 x 21 mm", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e2.addFactForBenchmark(new Fact(a), new FactValue("106.5 x 53.9 x 17.2 mm", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e3.addFactForBenchmark(new Fact(a), new FactValue("109 x 45 x 15 mm ", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e4.addFactForBenchmark(new Fact(a), new FactValue("105 x 45.5 x 19.5 mm", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e5.addFactForBenchmark(new Fact(a), new FactValue("108 x 54.9 x 13 mm", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
         if (fullSet) {
             e6.addFactForBenchmark(new Fact(a), new FactValue("300", new Source("GIVEN"), ExtractionType.UNKNOWN));
             e7.addFactForBenchmark(new Fact(a), new FactValue("360", new Source("GIVEN"), ExtractionType.UNKNOWN));
@@ -1001,25 +1059,38 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Processor Type");
-        e1.addFactForBenchmark(new Fact(a), new FactValue("Intel Core 2 Duo", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e1.addFactForBenchmark(new Fact(a), new FactValue("Intel Core 2 Duo", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
         e2.addFactForBenchmark(new Fact(a), new FactValue("Intel Atom", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e3.addFactForBenchmark(new Fact(a), new FactValue("Intel Core 2 Duo P8400", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e3.addFactForBenchmark(new Fact(a), new FactValue("Intel Core 2 Duo P8400", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
         e4.addFactForBenchmark(new Fact(a), new FactValue("VIA C7-M ULV", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e5.addFactForBenchmark(new Fact(a), new FactValue("Intel Core 2 Duo P8400", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e5.addFactForBenchmark(new Fact(a), new FactValue("Intel Core 2 Duo P8400", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("CPU Speed");
@@ -1029,11 +1100,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("1600000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("2260000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Hard Disk");
@@ -1043,11 +1119,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("128849018880", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("171798691840", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Front Side Bus");
@@ -1057,11 +1138,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("800000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("800000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Battery Life");
@@ -1071,11 +1157,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("16200", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("68400", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Display Size");
@@ -1085,11 +1176,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("22.606", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("35.814", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("2147483648", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a),
+                    new FactValue("1073741824", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("2147483648", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         // movie
@@ -1110,30 +1206,45 @@ public class KnowledgeManager implements Serializable {
 
         a = d.getAttribute("Director");
         e1.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e2.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e2.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
         e3.addFactForBenchmark(new Fact(a), new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e4.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e4.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("Jon Favreau", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Writer");
-        e1.addFactForBenchmark(new Fact(a), new FactValue("Randall Wallace", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e2.addFactForBenchmark(new Fact(a), new FactValue("Jonathan Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e1.addFactForBenchmark(new Fact(a), new FactValue("Randall Wallace", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e2.addFactForBenchmark(new Fact(a),
+                new FactValue("Jonathan Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e3.addFactForBenchmark(new Fact(a), new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e4.addFactForBenchmark(new Fact(a), new FactValue("Frank Cottrell Boyce", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e4.addFactForBenchmark(new Fact(a), new FactValue("Frank Cottrell Boyce", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("Mark Fergus", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Release Date");
@@ -1143,11 +1254,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("2003-09-02", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("2008-05-02", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         // a = d.getAttribute("Studio");
@@ -1158,7 +1274,8 @@ public class KnowledgeManager implements Serializable {
         // e5.addFact(new Fact(a), new FactValue("Mel Gibson",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
         // if (fullSet) {
         // e6.addFact(new Fact(a), new FactValue("Mike Judge",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
-        // e7.addFact(new Fact(a), new FactValue("Michael Winterbottom",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
+        // e7.addFact(new Fact(a), new FactValue("Michael Winterbottom",new Source("GIVEN"),ExtractionType.UNKNOWN),
+        // true);
         // e8.addFact(new Fact(a), new FactValue("Mel Gibson",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
         // e9.addFact(new Fact(a), new FactValue("Christopher Nolan",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
         // e10.addFact(new Fact(a), new FactValue("Mel Gibson",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
@@ -1171,20 +1288,29 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("Drama", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("Action", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         // a = d.getAttribute("Starring");
-        // e1.addFact(new Fact(a), new FactValue("Mel Gibson, Sophie Marceau, Catherine McCormack",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
-        // e2.addFact(new Fact(a), new FactValue("Christian Bale, Heath Ledger, Aaron Eckhart, Michael Caine",new Source("GIVEN"),ExtractionType.UNKNOWN),
+        // e1.addFact(new Fact(a), new FactValue("Mel Gibson, Sophie Marceau, Catherine McCormack",new
+        // Source("GIVEN"),ExtractionType.UNKNOWN), true);
+        // e2.addFact(new Fact(a), new FactValue("Christian Bale, Heath Ledger, Aaron Eckhart, Michael Caine",new
+        // Source("GIVEN"),ExtractionType.UNKNOWN),
         // true);
         // if (fullSet) {
-        // e3.addFact(new Fact(a), new FactValue("Luke Wilson, Maya Rudolph, Dax Shepard, Terry Crews",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
-        // e4.addFact(new Fact(a), new FactValue("Tim Robbins, Togo Igawa",new Source("GIVEN"),ExtractionType.UNKNOWN), true);
+        // e3.addFact(new Fact(a), new FactValue("Luke Wilson, Maya Rudolph, Dax Shepard, Terry Crews",new
+        // Source("GIVEN"),ExtractionType.UNKNOWN), true);
+        // e4.addFact(new Fact(a), new FactValue("Tim Robbins, Togo Igawa",new Source("GIVEN"),ExtractionType.UNKNOWN),
+        // true);
         // }
         a = d.getAttribute("Budget");
         e1.addFactForBenchmark(new Fact(a), new FactValue("53000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
@@ -1193,11 +1319,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("7500000", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("185000000", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Runtime");
@@ -1207,11 +1338,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("5520", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("7560", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Aspect Ratio");
@@ -1221,11 +1357,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("2.35:1", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("2.35:1", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mike Judge", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("Michael Winterbottom", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("Mel Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a), new FactValue("Christopher Nolan", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Gibson", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         // actor
@@ -1244,17 +1385,27 @@ public class KnowledgeManager implements Serializable {
         }
 
         a = d.getAttribute("Birth Name");
-        e1.addFactForBenchmark(new Fact(a), new FactValue("James Eugene Carrey", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e2.addFactForBenchmark(new Fact(a), new FactValue("Mel Columcille Gerard Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e3.addFactForBenchmark(new Fact(a), new FactValue("Laura Elizabeth Dern", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e4.addFactForBenchmark(new Fact(a), new FactValue("Monica Louise Brokaw", new Source("GIVEN"), ExtractionType.UNKNOWN));
-        e5.addFactForBenchmark(new Fact(a), new FactValue("Natalie Hershlag", new Source("GIVEN"), ExtractionType.UNKNOWN));
+        e1.addFactForBenchmark(new Fact(a), new FactValue("James Eugene Carrey", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e2.addFactForBenchmark(new Fact(a), new FactValue("Mel Columcille Gerard Gibson", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e3.addFactForBenchmark(new Fact(a), new FactValue("Laura Elizabeth Dern", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e4.addFactForBenchmark(new Fact(a), new FactValue("Monica Louise Brokaw", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
+        e5.addFactForBenchmark(new Fact(a), new FactValue("Natalie Hershlag", new Source("GIVEN"),
+                ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("Laura Elizabeth Dern", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("Monica Louise Brokaw", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("Laura Elizabeth Dern", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("Monica Louise Brokaw", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Columcille Gerard Gibson", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a), new FactValue("Laura Elizabeth Dern", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("Monica Louise Brokaw", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a), new FactValue("Laura Elizabeth Dern", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a), new FactValue("Monica Louise Brokaw", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("Mel Columcille Gerard Gibson", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Date of Birth");
@@ -1264,11 +1415,16 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("1971-06-30", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("1981-06-09", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("10 February 1967", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("30 June 1971", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("1967-02-10", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("1971-06-30", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("1981-06-09", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a), new FactValue("10 February 1967", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("30 June 1971", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a),
+                    new FactValue("1967-02-10", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e9.addFactForBenchmark(new Fact(a),
+                    new FactValue("1971-06-30", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a), new FactValue("1981-06-09", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Place of Birth");
@@ -1278,11 +1434,17 @@ public class KnowledgeManager implements Serializable {
         e4.addFactForBenchmark(new Fact(a), new FactValue("Cleveland", new Source("GIVEN"), ExtractionType.UNKNOWN));
         e5.addFactForBenchmark(new Fact(a), new FactValue("Jerusalem", new Source("GIVEN"), ExtractionType.UNKNOWN));
         if (fullSet) {
-            e6.addFactForBenchmark(new Fact(a), new FactValue("Los Angeles, California, USA", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e7.addFactForBenchmark(new Fact(a), new FactValue("Cleveland, Ohio, USA", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e8.addFactForBenchmark(new Fact(a), new FactValue("Los Angeles", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e9.addFactForBenchmark(new Fact(a), new FactValue("Cleveland", new Source("GIVEN"), ExtractionType.UNKNOWN));
-            e10.addFactForBenchmark(new Fact(a), new FactValue("Jerusalem", new Source("GIVEN"), ExtractionType.UNKNOWN));
+            e6.addFactForBenchmark(new Fact(a), new FactValue("Los Angeles, California, USA", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e7.addFactForBenchmark(new Fact(a), new FactValue("Cleveland, Ohio, USA", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e8.addFactForBenchmark(new Fact(a), new FactValue("Los Angeles", new Source("GIVEN"),
+                    ExtractionType.UNKNOWN));
+            e9
+                    .addFactForBenchmark(new Fact(a), new FactValue("Cleveland", new Source("GIVEN"),
+                            ExtractionType.UNKNOWN));
+            e10.addFactForBenchmark(new Fact(a),
+                    new FactValue("Jerusalem", new Source("GIVEN"), ExtractionType.UNKNOWN));
         }
 
         a = d.getAttribute("Height");
@@ -1322,7 +1484,8 @@ public class KnowledgeManager implements Serializable {
         double recallWeak = 0.0;
         double foundRatio = 0.0; // ratio of facts found to facts expected
         HashMap<String, Double> extractionTypeEvaluations = new HashMap<String, Double>();
-        Integer[] extractionTypes = { ExtractionType.FREE_TEXT_SENTENCE, ExtractionType.COLON_PHRASE, ExtractionType.PATTERN_PHRASE, ExtractionType.TABLE_CELL };
+        Integer[] extractionTypes = { ExtractionType.FREE_TEXT_SENTENCE, ExtractionType.COLON_PHRASE,
+                ExtractionType.PATTERN_PHRASE, ExtractionType.TABLE_CELL };
         ArrayList<FactValue> highestRankedFactValues = new ArrayList<FactValue>();
 
         // create log document
@@ -1350,10 +1513,12 @@ public class KnowledgeManager implements Serializable {
 
                         if (fEntry.isAbsoluteCorrect()) {
                             ++totalCorrectFacts;
-                            LOGGER.info("  " + fEntry.getAttribute().getName() + " considered correct with " + fEntry.getValue());
+                            LOGGER.info("  " + fEntry.getAttribute().getName() + " considered correct with "
+                                    + fEntry.getValue());
                         } else if (fEntry.isAlmostCorrect()) {
                             ++totalAlmostCorrectFacts;
-                            LOGGER.info("  " + fEntry.getAttribute().getName() + " considered ALMOST correct with " + fEntry.getValue());
+                            LOGGER.info("  " + fEntry.getAttribute().getName() + " considered ALMOST correct with "
+                                    + fEntry.getValue());
                         }
 
                         // calculate extraction type precisions
@@ -1365,69 +1530,93 @@ public class KnowledgeManager implements Serializable {
                             factExtractionTypesUsed.addAll(extractionTypesUsed);
 
                             for (int i = 0; i < extractionTypesUsed.size(); i++) {
-                                Double extractions = extractionTypeEvaluations.get(cEntry.getName() + extractionTypesUsed.get(i) + "extractions");
+                                Double extractions = extractionTypeEvaluations.get(cEntry.getName()
+                                        + extractionTypesUsed.get(i) + "extractions");
                                 if (extractions == null)
-                                    extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "extractions", 1.0);
+                                    extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                            + "extractions", 1.0);
                                 else {
                                     extractions += 1.0;
-                                    extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "extractions", extractions);
+                                    extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                            + "extractions", extractions);
                                 }
-                                Double extractionsOverall = extractionTypeEvaluations.get("overall" + extractionTypesUsed.get(i) + "extractions");
+                                Double extractionsOverall = extractionTypeEvaluations.get("overall"
+                                        + extractionTypesUsed.get(i) + "extractions");
                                 if (extractionsOverall == null)
-                                    extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "extractions", 1.0);
+                                    extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
+                                            + "extractions", 1.0);
                                 else {
                                     extractionsOverall += 1.0;
-                                    extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "extractions", extractionsOverall);
+                                    extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
+                                            + "extractions", extractionsOverall);
                                 }
                                 if (!foundCounted.contains(extractionTypesUsed.get(i))) {
-                                    Double found = extractionTypeEvaluations.get(cEntry.getName() + extractionTypesUsed.get(i) + "found");
+                                    Double found = extractionTypeEvaluations.get(cEntry.getName()
+                                            + extractionTypesUsed.get(i) + "found");
                                     if (found == null)
-                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "found", 1.0);
+                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                                + "found", 1.0);
                                     else {
                                         found += 1.0;
-                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "found", found);
+                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                                + "found", found);
                                     }
-                                    Double foundOverall = extractionTypeEvaluations.get("overall" + extractionTypesUsed.get(i) + "found");
+                                    Double foundOverall = extractionTypeEvaluations.get("overall"
+                                            + extractionTypesUsed.get(i) + "found");
                                     if (foundOverall == null)
-                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found", 1.0);
+                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found",
+                                                1.0);
                                     else {
                                         foundOverall += 1.0;
-                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found", foundOverall);
+                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found",
+                                                foundOverall);
                                     }
                                     foundCounted.add(extractionTypesUsed.get(i));
                                 }
                                 if (fEntry.isCorrect(fv.getValue())) {
-                                    Double correct = extractionTypeEvaluations.get(cEntry.getName() + extractionTypesUsed.get(i) + "correct");
+                                    Double correct = extractionTypeEvaluations.get(cEntry.getName()
+                                            + extractionTypesUsed.get(i) + "correct");
                                     if (correct == null)
-                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "correct", 1.0);
+                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                                + "correct", 1.0);
                                     else {
                                         correct += 1.0;
-                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "correct", correct);
+                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                                + "correct", correct);
                                     }
-                                    Double correctOverall = extractionTypeEvaluations.get("overall" + extractionTypesUsed.get(i) + "correct");
+                                    Double correctOverall = extractionTypeEvaluations.get("overall"
+                                            + extractionTypesUsed.get(i) + "correct");
                                     if (correctOverall == null)
-                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "correct", 1.0);
+                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
+                                                + "correct", 1.0);
                                     else {
                                         correctOverall += 1.0;
-                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "correct", correctOverall);
+                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
+                                                + "correct", correctOverall);
                                     }
                                 }
                             }
                         }
                         if (factExtractionTypesUsed.size() == 1 && fEntry.isCorrect()) {
-                            Double only = extractionTypeEvaluations.get(cEntry.getName() + factExtractionTypesUsed.iterator().next() + "only");
+                            Double only = extractionTypeEvaluations.get(cEntry.getName()
+                                    + factExtractionTypesUsed.iterator().next() + "only");
                             if (only == null)
-                                extractionTypeEvaluations.put(cEntry.getName() + factExtractionTypesUsed.iterator().next() + "only", 1.0);
+                                extractionTypeEvaluations.put(cEntry.getName()
+                                        + factExtractionTypesUsed.iterator().next() + "only", 1.0);
                             else {
                                 only += 1.0;
-                                extractionTypeEvaluations.put(cEntry.getName() + factExtractionTypesUsed.iterator().next() + "only", only);
+                                extractionTypeEvaluations.put(cEntry.getName()
+                                        + factExtractionTypesUsed.iterator().next() + "only", only);
                             }
-                            Double onlyOverall = extractionTypeEvaluations.get("overall" + factExtractionTypesUsed.iterator().next() + "only");
+                            Double onlyOverall = extractionTypeEvaluations.get("overall"
+                                    + factExtractionTypesUsed.iterator().next() + "only");
                             if (onlyOverall == null)
-                                extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next() + "only", 1.0);
+                                extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next()
+                                        + "only", 1.0);
                             else {
                                 onlyOverall += 1.0;
-                                extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next() + "only", onlyOverall);
+                                extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next()
+                                        + "only", onlyOverall);
                             }
                         }
                     }
@@ -1454,7 +1643,8 @@ public class KnowledgeManager implements Serializable {
         recallWeak = MathHelper.round((double) (totalAlmostCorrectFacts) / (double) totalFactNumberExpected, 4);
         f1Weak = MathHelper.round(2 * precisionWeak * recallWeak / (precisionWeak + recallWeak), 4);
 
-        f1Total = MathHelper.round(2 * (precision + precisionWeak) * (recall + recallWeak) / (precision + precisionWeak + recall + recallWeak), 4);
+        f1Total = MathHelper.round(2 * (precision + precisionWeak) * (recall + recallWeak)
+                / (precision + precisionWeak + recall + recallWeak), 4);
 
         foundRatio = (double) totalFactNumber / (double) totalFactNumberExpected;
 
@@ -1527,28 +1717,50 @@ public class KnowledgeManager implements Serializable {
 
         // create data for precision and recall tradeoff
         /*
-         * StringBuilder as3String = new StringBuilder(); int relativeTrustStepSize = 1; double distributionInterval = 10.0; int currentDistributionInterval =
-         * 0; // 0 - 10% int currentDistributionIntervalCount = 0; int currentDistributionIntervalCorrectCount = 0; int totalDistributionIntervalCount = 0; int
-         * totalDistributionIntervalCorrectCount = 0; for (int i = 0; i <= 100; i += relativeTrustStepSize) { Double[] data; double precisionValue = 0.0; double
+         * StringBuilder as3String = new StringBuilder(); int relativeTrustStepSize = 1; double distributionInterval =
+         * 10.0; int currentDistributionInterval =
+         * 0; // 0 - 10% int currentDistributionIntervalCount = 0; int currentDistributionIntervalCorrectCount = 0; int
+         * totalDistributionIntervalCount = 0; int
+         * totalDistributionIntervalCorrectCount = 0; for (int i = 0; i <= 100; i += relativeTrustStepSize) { Double[]
+         * data; double precisionValue = 0.0; double
          * recallValue = 0.0; double f1Value = 0.0; // go to next interval if ((double)i % distributionInterval == 0) {
-         * as3String.append("p = new Point("+currentDistributionInterval+","+currentDistributionIntervalCount+"); dataPoints4.push(p);").append("\n");
-         * as3String.append("p = new Point("+currentDistributionInterval+","+currentDistributionIntervalCorrectCount+"); dataPoints5.push(p);").append("\n");
-         * totalDistributionIntervalCount += currentDistributionIntervalCount; currentDistributionIntervalCount = 0; totalDistributionIntervalCorrectCount +=
-         * currentDistributionIntervalCorrectCount; currentDistributionIntervalCorrectCount = 0; currentDistributionInterval++; } // count number of fact values
-         * with a relative trust higher or equal i int correctFacts = 0; totalFactNumber = 0; Iterator<FactValue> highestRankedFactValuesIterator =
-         * highestRankedFactValues.iterator(); while (highestRankedFactValuesIterator.hasNext()) { FactValue fv = highestRankedFactValuesIterator.next(); if
-         * (fv.getRelativeTrust()*100 >= (double)i) { totalFactNumber++; if (fv.getFact().isCorrect()) { correctFacts++; } } if ((double)i %
-         * distributionInterval == 0 && fv.getRelativeTrust()*100 < distributionInterval * Math.ceil((double)(i+1)/distributionInterval) &&
-         * fv.getRelativeTrust()*100 >= distributionInterval * Math.floor((double)(i+1)/distributionInterval)) { currentDistributionIntervalCount++; if
-         * (fv.getFact().isCorrect()) { currentDistributionIntervalCorrectCount++; } } } precisionValue = MathHelper.round((double)correctFacts /
-         * (double)totalFactNumber,4); recallValue = MathHelper.round((double)correctFacts / (double)totalFactNumberExpected,4); f1Value =
-         * MathHelper.round(2*precisionValue*recallValue / (precisionValue + recallValue),4); // precision data = new Double[2]; data[0] = (double) i; data[1] =
-         * precisionValue; as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints1.push(p);").append("\n"); // recall data = new Double[2];
-         * data[0] = (double) i; data[1] = recallValue; as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints2.push(p);").append("\n"); // f1
+         * as3String.append("p = new Point("+currentDistributionInterval+","+currentDistributionIntervalCount+
+         * "); dataPoints4.push(p);").append("\n");
+         * as3String.append("p = new Point("+currentDistributionInterval+","+currentDistributionIntervalCorrectCount+
+         * "); dataPoints5.push(p);").append("\n");
+         * totalDistributionIntervalCount += currentDistributionIntervalCount; currentDistributionIntervalCount = 0;
+         * totalDistributionIntervalCorrectCount +=
+         * currentDistributionIntervalCorrectCount; currentDistributionIntervalCorrectCount = 0;
+         * currentDistributionInterval++; } // count number of fact values
+         * with a relative trust higher or equal i int correctFacts = 0; totalFactNumber = 0; Iterator<FactValue>
+         * highestRankedFactValuesIterator =
+         * highestRankedFactValues.iterator(); while (highestRankedFactValuesIterator.hasNext()) { FactValue fv =
+         * highestRankedFactValuesIterator.next(); if
+         * (fv.getRelativeTrust()*100 >= (double)i) { totalFactNumber++; if (fv.getFact().isCorrect()) { correctFacts++;
+         * } } if ((double)i %
+         * distributionInterval == 0 && fv.getRelativeTrust()*100 < distributionInterval *
+         * Math.ceil((double)(i+1)/distributionInterval) &&
+         * fv.getRelativeTrust()*100 >= distributionInterval * Math.floor((double)(i+1)/distributionInterval)) {
+         * currentDistributionIntervalCount++; if
+         * (fv.getFact().isCorrect()) { currentDistributionIntervalCorrectCount++; } } } precisionValue =
+         * MathHelper.round((double)correctFacts /
+         * (double)totalFactNumber,4); recallValue = MathHelper.round((double)correctFacts /
+         * (double)totalFactNumberExpected,4); f1Value =
+         * MathHelper.round(2*precisionValue*recallValue / (precisionValue + recallValue),4); // precision data = new
+         * Double[2]; data[0] = (double) i; data[1] =
+         * precisionValue;
+         * as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints1.push(p);").append("\n"); // recall data
+         * = new Double[2];
+         * data[0] = (double) i; data[1] = recallValue;
+         * as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints2.push(p);").append("\n"); // f1
          * data = new Double[2]; data[0] = (double) i; data[1] = f1Value;
          * as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints3.push(p);").append("\n");
-         * as3String.append("p = new Point("+i+","+totalDistributionIntervalCount+"); dataPoints6.push(p);").append("\n");
-         * as3String.append("p = new Point("+i+","+totalDistributionIntervalCorrectCount+"); dataPoints7.push(p);").append("\n"); }
+         * 
+         * as3String.append("p = new Point("+i+","+totalDistributionIntervalCount+"); dataPoints6.push(p);").append("\n")
+         * ;
+         * 
+         * as3String.append("p = new Point("+i+","+totalDistributionIntervalCorrectCount+"); dataPoints7.push(p);").append
+         * ("\n"); }
          * FileHelper.writeToFile("data/logs/asText_tradeoffdata_"+System.currentTimeMillis()+".txt", as3String);
          */
     }
@@ -1569,7 +1781,8 @@ public class KnowledgeManager implements Serializable {
         double recallWeak = 0.0;
         // double foundRatio = 0.0; // ratio of facts found to facts expected
         HashMap<String, Double> extractionTypeEvaluations = new HashMap<String, Double>();
-        //Integer[] extractionTypes = { ExtractionType.FREE_TEXT_SENTENCE, ExtractionType.COLON_PHRASE, ExtractionType.PATTERN_PHRASE, ExtractionType.TABLE_CELL };
+        // Integer[] extractionTypes = { ExtractionType.FREE_TEXT_SENTENCE, ExtractionType.COLON_PHRASE,
+        // ExtractionType.PATTERN_PHRASE, ExtractionType.TABLE_CELL };
 
         // create log document
         Iterator<Concept> dIt = concepts.iterator();
@@ -1595,10 +1808,12 @@ public class KnowledgeManager implements Serializable {
 
                         if (fEntry.isAbsoluteCorrect()) {
                             ++totalCorrectFacts;
-                            LOGGER.info("  " + fEntry.getAttribute().getName() + " considered correct with " + fEntry.getValue());
+                            LOGGER.info("  " + fEntry.getAttribute().getName() + " considered correct with "
+                                    + fEntry.getValue());
                         } else if (fEntry.isAlmostCorrect()) {
                             ++totalAlmostCorrectFacts;
-                            LOGGER.info("  " + fEntry.getAttribute().getName() + " considered ALMOST correct with " + fEntry.getValue());
+                            LOGGER.info("  " + fEntry.getAttribute().getName() + " considered ALMOST correct with "
+                                    + fEntry.getValue());
                         }
 
                         // calculate extraction type precisions
@@ -1610,69 +1825,93 @@ public class KnowledgeManager implements Serializable {
                             factExtractionTypesUsed.addAll(extractionTypesUsed);
 
                             for (int i = 0; i < extractionTypesUsed.size(); i++) {
-                                Double extractions = extractionTypeEvaluations.get(cEntry.getName() + extractionTypesUsed.get(i) + "extractions");
+                                Double extractions = extractionTypeEvaluations.get(cEntry.getName()
+                                        + extractionTypesUsed.get(i) + "extractions");
                                 if (extractions == null)
-                                    extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "extractions", 1.0);
+                                    extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                            + "extractions", 1.0);
                                 else {
                                     extractions += 1.0;
-                                    extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "extractions", extractions);
+                                    extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                            + "extractions", extractions);
                                 }
-                                Double extractionsOverall = extractionTypeEvaluations.get("overall" + extractionTypesUsed.get(i) + "extractions");
+                                Double extractionsOverall = extractionTypeEvaluations.get("overall"
+                                        + extractionTypesUsed.get(i) + "extractions");
                                 if (extractionsOverall == null)
-                                    extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "extractions", 1.0);
+                                    extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
+                                            + "extractions", 1.0);
                                 else {
                                     extractionsOverall += 1.0;
-                                    extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "extractions", extractionsOverall);
+                                    extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
+                                            + "extractions", extractionsOverall);
                                 }
                                 if (!foundCounted.contains(extractionTypesUsed.get(i))) {
-                                    Double found = extractionTypeEvaluations.get(cEntry.getName() + extractionTypesUsed.get(i) + "found");
+                                    Double found = extractionTypeEvaluations.get(cEntry.getName()
+                                            + extractionTypesUsed.get(i) + "found");
                                     if (found == null)
-                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "found", 1.0);
+                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                                + "found", 1.0);
                                     else {
                                         found += 1.0;
-                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "found", found);
+                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                                + "found", found);
                                     }
-                                    Double foundOverall = extractionTypeEvaluations.get("overall" + extractionTypesUsed.get(i) + "found");
+                                    Double foundOverall = extractionTypeEvaluations.get("overall"
+                                            + extractionTypesUsed.get(i) + "found");
                                     if (foundOverall == null)
-                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found", 1.0);
+                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found",
+                                                1.0);
                                     else {
                                         foundOverall += 1.0;
-                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found", foundOverall);
+                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found",
+                                                foundOverall);
                                     }
                                     foundCounted.add(extractionTypesUsed.get(i));
                                 }
                                 if (fEntry.isCorrect(fv.getValue())) {
-                                    Double correct = extractionTypeEvaluations.get(cEntry.getName() + extractionTypesUsed.get(i) + "correct");
+                                    Double correct = extractionTypeEvaluations.get(cEntry.getName()
+                                            + extractionTypesUsed.get(i) + "correct");
                                     if (correct == null)
-                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "correct", 1.0);
+                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                                + "correct", 1.0);
                                     else {
                                         correct += 1.0;
-                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i) + "correct", correct);
+                                        extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
+                                                + "correct", correct);
                                     }
-                                    Double correctOverall = extractionTypeEvaluations.get("overall" + extractionTypesUsed.get(i) + "correct");
+                                    Double correctOverall = extractionTypeEvaluations.get("overall"
+                                            + extractionTypesUsed.get(i) + "correct");
                                     if (correctOverall == null)
-                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "correct", 1.0);
+                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
+                                                + "correct", 1.0);
                                     else {
                                         correctOverall += 1.0;
-                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "correct", correctOverall);
+                                        extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
+                                                + "correct", correctOverall);
                                     }
                                 }
                             }
                         }
                         if (factExtractionTypesUsed.size() == 1 && fEntry.isCorrect()) {
-                            Double only = extractionTypeEvaluations.get(cEntry.getName() + factExtractionTypesUsed.iterator().next() + "only");
+                            Double only = extractionTypeEvaluations.get(cEntry.getName()
+                                    + factExtractionTypesUsed.iterator().next() + "only");
                             if (only == null)
-                                extractionTypeEvaluations.put(cEntry.getName() + factExtractionTypesUsed.iterator().next() + "only", 1.0);
+                                extractionTypeEvaluations.put(cEntry.getName()
+                                        + factExtractionTypesUsed.iterator().next() + "only", 1.0);
                             else {
                                 only += 1.0;
-                                extractionTypeEvaluations.put(cEntry.getName() + factExtractionTypesUsed.iterator().next() + "only", only);
+                                extractionTypeEvaluations.put(cEntry.getName()
+                                        + factExtractionTypesUsed.iterator().next() + "only", only);
                             }
-                            Double onlyOverall = extractionTypeEvaluations.get("overall" + factExtractionTypesUsed.iterator().next() + "only");
+                            Double onlyOverall = extractionTypeEvaluations.get("overall"
+                                    + factExtractionTypesUsed.iterator().next() + "only");
                             if (onlyOverall == null)
-                                extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next() + "only", 1.0);
+                                extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next()
+                                        + "only", 1.0);
                             else {
                                 onlyOverall += 1.0;
-                                extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next() + "only", onlyOverall);
+                                extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next()
+                                        + "only", onlyOverall);
                             }
                         }
                     }
@@ -1700,7 +1939,8 @@ public class KnowledgeManager implements Serializable {
         recallWeak = MathHelper.round((double) (totalAlmostCorrectFacts) / (double) totalFactNumberExpected, 4);
         // f1Weak = MathHelper.round(2 * precisionWeak * recallWeak / (precisionWeak + recallWeak), 4);
 
-        f1Total = MathHelper.round(2 * (precision + precisionWeak) * (recall + recallWeak) / (precision + precisionWeak + recall + recallWeak), 4);
+        f1Total = MathHelper.round(2 * (precision + precisionWeak) * (recall + recallWeak)
+                / (precision + precisionWeak + recall + recallWeak), 4);
 
         // foundRatio = totalFactNumber / (double) totalFactNumberExpected;
 
@@ -1804,7 +2044,8 @@ public class KnowledgeManager implements Serializable {
                     double corroboration2 = 0.0;
                     FactValue currentMostCorroboratedFactValue = null;
 
-                    // add trust for all values from the first one that are in the same margin and find difference to the first one out of that margin
+                    // add trust for all values from the first one that are in the same margin and find difference to
+                    // the first one out of that margin
                     boolean inMargin = true;
                     for (FactValue factValue : fact.getValues()) {
 
@@ -1816,8 +2057,9 @@ public class KnowledgeManager implements Serializable {
                                 corroboration1 = factValue.getCorroboration();
                                 currentMostCorroboratedFactValue = factValue;
                             } else if (fact.getAttribute().getValueType() == Attribute.VALUE_NUMERIC
-                                    && MathHelper.isWithinCorrectnessMargin(Double.valueOf(factValue.getValue()), Double
-                                            .valueOf(currentMostCorroboratedFactValue.getValue()), Fact.CORRECTNESS_MARGIN)) {
+                                    && MathHelper.isWithinCorrectnessMargin(Double.valueOf(factValue.getValue()),
+                                            Double.valueOf(currentMostCorroboratedFactValue.getValue()),
+                                            Fact.CORRECTNESS_MARGIN)) {
                                 corroboration1 += factValue.getCorroboration();
                             } else {
                                 inMargin = false;
@@ -1885,7 +2127,8 @@ public class KnowledgeManager implements Serializable {
             while (currentFactValuesIterator.hasNext()) {
                 FactValue currentFactValue = currentFactValuesIterator.next();
 
-                ArrayList<Integer> extractionTypesUsed = currentFactValue.getExtractionTypes(false); // TODO test with true and false
+                ArrayList<Integer> extractionTypesUsed = currentFactValue.getExtractionTypes(false); // TODO test with
+                                                                                                     // true and false
                 // HashSet<Integer> etUsed = new HashSet<Integer>();
                 // Iterator<Integer> etuIterator = extractionTypesUsed.iterator();
                 // while (etuIterator.hasNext()) {
@@ -1904,21 +2147,23 @@ public class KnowledgeManager implements Serializable {
                         }
                         // do also raise trust for extraction types that got the right value within the allowed margin
                         else if (currentFact.getAttribute().getValueType() == Attribute.VALUE_NUMERIC
-                                && MathHelper.isWithinCorrectnessMargin(Double.valueOf(currentFactValue.getValue()), Double
-                                        .valueOf(correctFactValue.getValue()), Fact.CORRECTNESS_MARGIN)) {
+                                && MathHelper.isWithinCorrectnessMargin(Double.valueOf(currentFactValue.getValue()),
+                                        Double.valueOf(correctFactValue.getValue()), Fact.CORRECTNESS_MARGIN)) {
                             correct = true;
                         }
 
                         // add number of correct number facts to number fact distribution
                         if (correct && currentFact.getAttribute().getValueType() == Attribute.VALUE_NUMERIC) {
-                            NumericFactDistribution.addNumber(currentFact.getID(), Double.valueOf(currentFactValue.getValue()));
+                            NumericFactDistribution.addNumber(currentFact.getID(), Double.valueOf(currentFactValue
+                                    .getValue()));
                         }
                     } catch (NumberFormatException e) {
                         LOGGER.error(currentFactValue.getValue(), e);
                     }
 
                     ExtractionType.addExtraction(extractionType, correct);
-                    // ExtractionType.addExtractionByType(extractionType, currentFactValue.getFact().getAttribute().getDomain().getName(), correct);
+                    // ExtractionType.addExtractionByType(extractionType,
+                    // currentFactValue.getFact().getAttribute().getDomain().getName(), correct);
                 }
             }
         }
@@ -1928,7 +2173,8 @@ public class KnowledgeManager implements Serializable {
             StringBuilder headText = new StringBuilder();
 
             headText.append("Extraction Types Trusts").append("\n");
-            headText.append("Free Text Sentence: " + ExtractionType.getTrust(ExtractionType.FREE_TEXT_SENTENCE)).append("\n");
+            headText.append("Free Text Sentence: " + ExtractionType.getTrust(ExtractionType.FREE_TEXT_SENTENCE))
+                    .append("\n");
             headText.append("Colon Pattern: " + ExtractionType.getTrust(ExtractionType.COLON_PHRASE)).append("\n");
             // headText.append("Structured Phrase: "+ExtractionType.getTrust(ExtractionType.STRUCTURED_PHRASE)).append("\n");
             headText.append("Pattern Phrase: " + ExtractionType.getTrust(ExtractionType.PATTERN_PHRASE)).append("\n");
@@ -1958,7 +2204,8 @@ public class KnowledgeManager implements Serializable {
     }
 
     /**
-     * Try to connect attributes that might be synonyms. Do not consider manually defined attributes as pairs. Calculate a trust for each attribute pair of a
+     * Try to connect attributes that might be synonyms. Do not consider manually defined attributes as pairs. Calculate
+     * a trust for each attribute pair of a
      * concept and connect top pairs with trust above certain threshold.
      */
     public void calculateAttributeSynonyms() {
@@ -1983,7 +2230,8 @@ public class KnowledgeManager implements Serializable {
                     if (!attribute1.isExtracted() && !attribute2.isExtracted())
                         continue;
 
-                    double attributeSynonymTrust = DatabaseManager.getInstance().calculateAttributeSynonymTrust(attribute1, attribute2);
+                    double attributeSynonymTrust = DatabaseManager.getInstance().calculateAttributeSynonymTrust(
+                            attribute1, attribute2);
 
                     if (attributeSynonymTrust > highestTrust) {
                         highestTrustPair[0] = attribute1;
@@ -1991,19 +2239,23 @@ public class KnowledgeManager implements Serializable {
                         highestTrust = attributeSynonymTrust;
                     }
 
-                    System.out.println("trust for synonyms " + attribute1.getName() + " = " + attribute2.getName() + ": " + attributeSynonymTrust);
+                    System.out.println("trust for synonyms " + attribute1.getName() + " = " + attribute2.getName()
+                            + ": " + attributeSynonymTrust);
 
                 }
             }
 
             if (highestTrustPair[0] != null && highestTrustPair[1] != null) {
-                System.out.println("highest trust in concept " + currentConcept.getName() + " between attributes " + highestTrustPair[0].getName() + " = "
-                        + highestTrustPair[1].getName() + " with trust " + highestTrust);
+                System.out.println("highest trust in concept " + currentConcept.getName() + " between attributes "
+                        + highestTrustPair[0].getName() + " = " + highestTrustPair[1].getName() + " with trust "
+                        + highestTrust);
             }
 
             if (highestTrust >= ATTRIBUTE_SYNONYM_TRUST_THRESHOLD) {
-                System.out.println("enter synonyms " + highestTrustPair[0].getName() + ", " + highestTrustPair[1].getName() + " with trust " + highestTrust);
-                DatabaseManager.getInstance().addAttributeSynonym(highestTrustPair[0].getID(), highestTrustPair[1].getID(), highestTrust);
+                System.out.println("enter synonyms " + highestTrustPair[0].getName() + ", "
+                        + highestTrustPair[1].getName() + " with trust " + highestTrust);
+                DatabaseManager.getInstance().addAttributeSynonym(highestTrustPair[0].getID(),
+                        highestTrustPair[1].getID(), highestTrust);
             }
 
         }
@@ -2022,9 +2274,12 @@ public class KnowledgeManager implements Serializable {
 
     public static void main(String[] a) {
         /*
-         * Concept c1 = new Concept("c1",new KnowledgeManager()); c1.setLastSearched(new Date(System.currentTimeMillis()-9870871)); Concept c2 = new
-         * Concept("c2",new KnowledgeManager()); c2.setLastSearched(new Date(System.currentTimeMillis()-9870870)); Concept c3 = new Concept("c3",new
-         * KnowledgeManager()); ArrayList<Concept> al = new ArrayList<Concept>(); al.add(c1); al.add(c2); al.add(c3); Collections.sort(al,new
+         * Concept c1 = new Concept("c1",new KnowledgeManager()); c1.setLastSearched(new
+         * Date(System.currentTimeMillis()-9870871)); Concept c2 = new
+         * Concept("c2",new KnowledgeManager()); c2.setLastSearched(new Date(System.currentTimeMillis()-9870870));
+         * Concept c3 = new Concept("c3",new
+         * KnowledgeManager()); ArrayList<Concept> al = new ArrayList<Concept>(); al.add(c1); al.add(c2); al.add(c3);
+         * Collections.sort(al,new
          * ConceptDateComparator()); for (int i = 0; i < al.size(); i++) { System.out.println(al.get(i).getName()); }
          */
 
@@ -2036,7 +2291,8 @@ public class KnowledgeManager implements Serializable {
         System.out.println("1: " + c.get(0).getID());
         System.exit(1);
         // TODO robert
-        // Attribute newSynonym = new Attribute("running time", c.get(0).getAttribute("runtime").getValueType(), c.get(0));
+        // Attribute newSynonym = new Attribute("running time", c.get(0).getAttribute("runtime").getValueType(),
+        // c.get(0));
         c.get(0).getAttribute("runtime").addSynonym("running time");
         // TODO c.get(0).getAttribute("runtime").addSynonym(newSynonym);
         DatabaseManager.getInstance().saveExtractions(km);
