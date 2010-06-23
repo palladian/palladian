@@ -1,5 +1,6 @@
 package tud.iir.web;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import tud.iir.control.AllTests;
 
@@ -36,6 +37,33 @@ public class CrawlerTest extends TestCase {
         assertEquals("https://example.com", Crawler.getDomain("https://example.com/index.html"));
         assertEquals("", Crawler.getDomain(""));
         assertEquals("", Crawler.getDomain(null));
+        assertEquals("", Crawler.getDomain("file:///test.html"));
+        assertEquals("localhost", Crawler.getDomain("file://localhost/test.html", false));
+    }
+    
+    public void testMakeFullURL() {
+        
+        
+        Assert.assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de", "", "page.html"));
+        Assert.assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de", null, "page.html"));
+        Assert.assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de/index.html", "", "page.html"));
+        Assert.assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de/index.html", "/directory", "/page.html"));
+        Assert.assertEquals("http://www.xyz.de/directory/page.html", Crawler.makeFullURL("http://www.xyz.de/index.html", "/directory", "./page.html"));
+        Assert.assertEquals("http://www.xyz.de/directory/page.html", Crawler.makeFullURL("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
+
+        Assert.assertEquals("http://www.abc.de/page.html", Crawler.makeFullURL("http://www.xyz.de", "", "http://www.abc.de/page.html"));
+        Assert.assertEquals("http://www.abc.de/page.html", Crawler.makeFullURL("http://www.xyz.de", "http://www.abc.de/", "/page.html"));
+        
+        Assert.assertEquals("http://www.example.com/page.html", Crawler.makeFullURL("/some/file/path.html", "http://www.example.com/page.html"));
+        Assert.assertEquals("", Crawler.makeFullURL("http://www.xyz.de", "mailto:example@example.com"));
+        
+        Assert.assertEquals("http://www.example.com/page.html", Crawler.makeFullURL(null, null, "http://www.example.com/page.html"));
+        
+        // when no linkUrl is supplied, we cannot determine the full URL, so just return an empty String.
+        Assert.assertEquals("", Crawler.makeFullURL(null, "http://www.example.com", null));
+        Assert.assertEquals("", Crawler.makeFullURL("http://www.example.com", null, null));
+        Assert.assertEquals("", Crawler.makeFullURL(null, null, "/page.html"));
+        
     }
 
     public void testGetSiblingPage() {
@@ -57,9 +85,12 @@ public class CrawlerTest extends TestCase {
         }
     }
 
-    public void testGetLinksWithBaseElement() {
+    public void testLinkHandling() {
         Crawler crawler = new Crawler();
         crawler.setDocument("data/test/pageContentExtractor/test9.html");
+        assertEquals("http://www.example.com/test.html", crawler.getLinks(true, true).iterator().next());
+
+        crawler.setDocument("data/test/pageContentExtractor/test10.html");
         assertEquals("http://www.example.com/test.html", crawler.getLinks(true, true).iterator().next());
     }
 

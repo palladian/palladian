@@ -10,21 +10,21 @@ import tud.iir.web.Crawler;
 
 public class HelperTest {
 	
-    // this functionality has been moved to the Crawler and can be removed in the future.
-    @Test
-    public void testUrlConversion() {
-
-        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de", "", "page.html"));
-        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de", null, "page.html"));
-        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "", "page.html"));
-        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "/directory", "/page.html"));
-        Assert.assertEquals("http://www.xyz.de/directory/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "/directory", "./page.html"));
-        Assert.assertEquals("http://www.xyz.de/directory/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
-
-        Assert.assertEquals("http://www.abc.de/page.html", Helper.getFullUrl("http://www.xyz.de", "", "http://www.abc.de/page.html"));
-        Assert.assertEquals("http://www.abc.de/page.html", Helper.getFullUrl("http://www.xyz.de", "http://www.abc.de/", "/page.html"));
-
-    }
+//    // this functionality has been moved to the Crawler and can be removed in the future.
+//    @Test
+//    public void testUrlConversion() {
+//
+//        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de", "", "page.html"));
+//        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de", null, "page.html"));
+//        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "", "page.html"));
+//        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "/directory", "/page.html"));
+//        Assert.assertEquals("http://www.xyz.de/directory/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "/directory", "./page.html"));
+//        Assert.assertEquals("http://www.xyz.de/directory/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
+//
+//        Assert.assertEquals("http://www.abc.de/page.html", Helper.getFullUrl("http://www.xyz.de", "", "http://www.abc.de/page.html"));
+//        Assert.assertEquals("http://www.abc.de/page.html", Helper.getFullUrl("http://www.xyz.de", "http://www.abc.de/", "/page.html"));
+//
+//    }
 
     // @Test
     // public void testGetDurationString() {
