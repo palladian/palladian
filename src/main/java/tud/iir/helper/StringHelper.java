@@ -30,11 +30,18 @@ import tud.iir.normalization.UnitNormalizer;
 public class StringHelper {
 
     // list of brackets
+    /** The Constant BRACKETS. */
     private static final char[] BRACKETS = { '(', ')', '{', '}', '[', ']' };
 
     // irregular nouns| singular, plural
+    /** The Constant IRREGULAR_NOUNS. */
     private static final HashMap<String, String> IRREGULAR_NOUNS = new HashMap<String, String>();
 
+    /**
+     * Gets the irregular nouns.
+     * 
+     * @return the irregular nouns
+     */
     private static HashMap<String, String> getIrregularNouns() {
 
         IRREGULAR_NOUNS.put("addendum", "addenda");
@@ -215,6 +222,13 @@ public class StringHelper {
         return camelCasedName;
     }
 
+    /**
+     * Make camel case.
+     * 
+     * @param name the name
+     * @param uppercaseFirst the uppercase first
+     * @return the string
+     */
     public static String makeCamelCase(String name, boolean uppercaseFirst) {
         return makeCamelCase(name, uppercaseFirst, false);
     }
@@ -226,8 +240,10 @@ public class StringHelper {
      * @return The term with an upper case first letter.
      */
     public static String upperCaseFirstLetter(String term) {
-        if (term.length() == 0)
+        if (term.length() == 0) {
             return term;
+        }
+
         return term.substring(0, 1).toUpperCase() + term.substring(1);
     }
 
@@ -238,8 +254,9 @@ public class StringHelper {
      * @return The term with an lower case first letter.
      */
     public static String lowerCaseFirstLetter(String term) {
-        if (term.length() == 0)
+        if (term.length() == 0) {
             return term;
+        }
         return term.substring(0, 1).toLowerCase() + term.substring(1);
     }
 
@@ -253,8 +270,9 @@ public class StringHelper {
     public static HashSet<String> calculateNGrams(String string, int n) {
         HashSet<String> nGrams = new HashSet<String>();
 
-        if (string.length() < n)
+        if (string.length() < n) {
             return nGrams;
+        }
 
         for (int i = 0; i <= string.length() - n; i++) {
 
@@ -325,8 +343,10 @@ public class StringHelper {
             return false;
         }
         Matcher m = pat.matcher(searchString);
-        if (m.find())
+        if (m.find()) {
             return true;
+        }
+
         return false;
     }
 
@@ -347,8 +367,10 @@ public class StringHelper {
             return false;
         }
         Matcher m = pat.matcher(searchString);
-        if (m.find())
+        if (m.find()) {
             return true;
+        }
+
         return false;
     }
 
@@ -357,7 +379,7 @@ public class StringHelper {
      * http://www.englisch-hilfen.de/en/grammar/plural.htm,
      * http://en.wikipedia.org/wiki/English_plural
      * 
-     * @param plural The plural.
+     * @param pluralForm the plural form
      * @return The singular.
      */
     public static String wordToSingular(String pluralForm) {
@@ -380,8 +402,9 @@ public class StringHelper {
             return singular;
         }
 
-        if (singular.length() < 4)
+        if (singular.length() < 4) {
             return singular;
+        }
 
         // substitute ices with x
         if (plural.toLowerCase().endsWith("ices")) {
@@ -516,7 +539,11 @@ public class StringHelper {
      * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
      * gaps.
      * 
-     * @param htmlText The html text of the web page.
+     * @param htmlContent the html content
+     * @param stripTags the strip tags
+     * @param stripComments the strip comments
+     * @param stripJSAndCSS the strip js and css
+     * @param joinTagsAndRemoveNewlines the join tags and remove newlines
      * @return The text of the web page.
      */
     public static String removeHTMLTags(String htmlContent, boolean stripTags, boolean stripComments,
@@ -579,12 +606,24 @@ public class StringHelper {
         return htmlText.trim();
     }
 
+    /**
+     * Removes the concrete html tag.
+     * 
+     * @param pageString the page string
+     * @param tag the tag
+     * @return the string
+     */
     public static String removeConcreteHTMLTag(String pageString, String tag) {
         return removeConcreteHTMLTag(pageString, tag, tag);
     }
 
     /**
-     * Remove concrete HTMLTags from a string; set isSpecial=true for special-tags like <!-- -->
+     * Remove concrete HTMLTags from a string; set isSpecial=true for special-tags like <!-- -->.
+     * 
+     * @param pageContent the page content
+     * @param beginTag the begin tag
+     * @param endTag the end tag
+     * @return the string
      */
     public static String removeConcreteHTMLTag(String pageContent, String beginTag, String endTag) {
         String pageString = pageContent;
@@ -597,15 +636,23 @@ public class StringHelper {
     }
 
     /**
-     * Get a list of concrete HTMLTags; begin- and endtag are not different
+     * Get a list of concrete HTMLTags; begin- and endtag are not different.
      * 
+     * @param pageString the page string
+     * @param tag the tag
+     * @return the concrete tags
      */
     public static List<String> getConcreteTags(String pageString, String tag) {
         return getConcreteTags(pageString, tag, tag);
     }
 
     /**
-     * Get a list of concrete HTMLTags; its possible that begin- and endtag are different like <!-- -->
+     * Get a list of concrete HTMLTags; its possible that begin- and endtag are different like <!-- -->.
+     * 
+     * @param pageString the page string
+     * @param beginTag the begin tag
+     * @param endTag the end tag
+     * @return the concrete tags
      */
     public static List<String> getConcreteTags(String pageString, String beginTag, String endTag) {
 
@@ -629,15 +676,34 @@ public class StringHelper {
         return tagList;
     }
 
+    /**
+     * Removes the special chars.
+     * 
+     * @param string the string
+     * @return the string
+     */
     public static String removeSpecialChars(String string) {
         String modString = string.replaceAll(" ", " ");
         return modString;
     }
 
+    /**
+     * Count tags.
+     * 
+     * @param htmlText the html text
+     * @return the int
+     */
     public static int countTags(String htmlText) {
         return countTags(htmlText, false);
     }
 
+    /**
+     * Count tags.
+     * 
+     * @param htmlText the html text
+     * @param distinct the distinct
+     * @return the int
+     */
     public static int countTags(String htmlText, boolean distinct) {
         Set<String> tags = new HashSet<String>();
 
@@ -658,6 +724,12 @@ public class StringHelper {
         return tagCount;
     }
 
+    /**
+     * Removes the brackets.
+     * 
+     * @param bracketString the bracket string
+     * @return the string
+     */
     public static String removeBrackets(String bracketString) {
         String string = bracketString;
         try {
@@ -670,6 +742,12 @@ public class StringHelper {
         return string;
     }
 
+    /**
+     * Escape for regular expression.
+     * 
+     * @param inputString the input string
+     * @return the string
+     */
     public static String escapeForRegularExpression(String inputString) {
         String string = inputString;
         try {
@@ -706,8 +784,10 @@ public class StringHelper {
      */
     public static boolean isBracket(char character) {
         for (int i = 0; i < BRACKETS.length; i++) {
-            if (BRACKETS[i] == character)
+            if (BRACKETS[i] == character) {
                 return true;
+            }
+
         }
         return false;
     }
@@ -715,15 +795,23 @@ public class StringHelper {
     /**
      * Check if the string is a number.
      * 
+     * @param ch the ch
      * @return True if string is number, else false.
      */
     public static boolean isNumber(Character ch) {
         return isNumber(ch.toString());
     }
 
+    /**
+     * Checks if is number.
+     * 
+     * @param string the string
+     * @return true, if is number
+     */
     public static boolean isNumber(String string) {
-        if (string.length() == 0)
+        if (string.length() == 0) {
             return false;
+        }
 
         boolean isNumber = true;
         for (int i = 0, l = string.length(); i < l; ++i) {
@@ -734,15 +822,25 @@ public class StringHelper {
             // System.out.println(Character.getType(ch)+" "+Character.DECIMAL_DIGIT_NUMBER);
         }
 
-        if (string.startsWith(".") || string.endsWith("."))
+        if (string.startsWith(".") || string.endsWith(".")) {
             return false;
+        }
 
         return isNumber;
     }
 
+    /**
+     * Checks if is numeric expression.
+     * 
+     * @param string the string
+     * @return true, if is numeric expression
+     * @throws NumberFormatException the number format exception
+     * @throws OutOfMemoryError the out of memory error
+     */
     public static boolean isNumericExpression(String string) throws NumberFormatException, OutOfMemoryError {
-        if (string.length() == 0)
+        if (string.length() == 0) {
             return false;
+        }
 
         boolean isNumericExpression = true;
 
@@ -768,8 +866,10 @@ public class StringHelper {
                 double number = Double.valueOf(StringNormalizer.normalizeNumber(m.group()));
                 double convertedNumber = UnitNormalizer.getNormalizedNumber(number,
                         string.substring(m.end(), string.length()));
-                if (number != convertedNumber)
+                if (number != convertedNumber) {
                     return true;
+                }
+
             }
         } catch (NumberFormatException e) {
             Logger.getRootLogger().error(m.group() + ", " + e.getMessage());
@@ -779,17 +879,32 @@ public class StringHelper {
         return isNumericExpression;
     }
 
+    /**
+     * Checks if is time expression.
+     * 
+     * @param string the string
+     * @return true, if is time expression
+     */
     public static boolean isTimeExpression(String string) {
-        if (string.matches("(\\d){1,2}:(\\d){1,2}(\\s)?(am|pm)"))
+        if (string.matches("(\\d){1,2}:(\\d){1,2}(\\s)?(am|pm)")) {
             return true;
+        }
+
         return false;
     }
 
+    /**
+     * Checks if is completely uppercase.
+     * 
+     * @param testString the test string
+     * @return true, if is completely uppercase
+     */
     public static boolean isCompletelyUppercase(String testString) {
 
         String string = StringHelper.trim(testString);
-        if (string.length() == 0)
+        if (string.length() == 0) {
             return false;
+        }
 
         boolean isCompletelyUppercase = true;
         for (int i = 0, l = string.length(); i < l; ++i) {
@@ -804,6 +919,12 @@ public class StringHelper {
         return isCompletelyUppercase;
     }
 
+    /**
+     * Starts uppercase.
+     * 
+     * @param testString the test string
+     * @return true, if successful
+     */
     public static boolean startsUppercase(String testString) {
         String string = StringHelper.trim(testString);
         if (string.length() == 0) {
@@ -817,10 +938,22 @@ public class StringHelper {
         return false;
     }
 
+    /**
+     * Letter number count.
+     * 
+     * @param string the string
+     * @return the int
+     */
     public static int letterNumberCount(String string) {
         return string.replaceAll("[^a-zA-Z0-9]", "").length();
     }
 
+    /**
+     * Capitalized word count.
+     * 
+     * @param string the string
+     * @return the int
+     */
     public static int capitalizedWordCount(String string) {
         StringTokenizer st = new StringTokenizer(string);
         int capitalizedWordCount = 0;
@@ -833,6 +966,12 @@ public class StringHelper {
         return capitalizedWordCount;
     }
 
+    /**
+     * Checks if is vowel.
+     * 
+     * @param inputCharacter the input character
+     * @return true, if is vowel
+     */
     public static boolean isVowel(Character inputCharacter) {
 
         Character character = Character.toUpperCase(inputCharacter);
@@ -847,7 +986,7 @@ public class StringHelper {
      * "Although, many of them". consider !,?,. and : as end of
      * sentence TODO control character after delimiter makes it end of sentence
      * 
-     * @param string The string.
+     * @param inputString the input string
      * @return The phrase from the beginning of the sentence.
      */
     public static String getPhraseFromBeginningOfSentence(String inputString) {
@@ -861,8 +1000,9 @@ public class StringHelper {
         // be the end of the sentence, keep searching in this case)
         boolean pointIsSentenceDelimiter = false;
         while (!pointIsSentenceDelimiter && startIndex > -1) {
-            if (startIndex >= string.length() - 1)
+            if (startIndex >= string.length() - 1) {
                 break;
+            }
 
             if (startIndex > 0) {
                 pointIsSentenceDelimiter = (!isNumber(string.charAt(startIndex - 1)) && Character.isUpperCase(string
@@ -872,8 +1012,9 @@ public class StringHelper {
                 pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2)) && string
                         .charAt(startIndex + 1) == ' ');
             }
-            if (pointIsSentenceDelimiter)
+            if (pointIsSentenceDelimiter) {
                 break;
+            }
 
             if (startIndex < string.length() - 1) {
                 startIndex = string.substring(0, startIndex).lastIndexOf(".");
@@ -882,18 +1023,26 @@ public class StringHelper {
             }
         }
 
-        if (string.lastIndexOf("!") > -1 && string.lastIndexOf("!") > startIndex)
+        if (string.lastIndexOf("!") > -1 && string.lastIndexOf("!") > startIndex) {
             startIndex = string.lastIndexOf("!");
-        if (string.lastIndexOf("?") > -1 && string.lastIndexOf("?") > startIndex)
+        }
+
+        if (string.lastIndexOf("?") > -1 && string.lastIndexOf("?") > startIndex) {
             startIndex = string.lastIndexOf("?");
-        if (string.lastIndexOf(":") > -1 && string.lastIndexOf(":") > startIndex)
+        }
+
+        if (string.lastIndexOf(":") > -1 && string.lastIndexOf(":") > startIndex) {
             startIndex = string.lastIndexOf(":");
-        if (startIndex == -1)
+        }
+
+        if (startIndex == -1) {
             startIndex = -1;
+        }
 
         string = string.substring(startIndex + 1); // cut point
-        if (string.startsWith(" "))
+        if (string.startsWith(" ")) {
             string = string.substring(1); // cut first space
+        }
 
         return string;
     }
@@ -933,8 +1082,9 @@ public class StringHelper {
                         && (Character.isUpperCase(string.charAt(endIndex + 2)) || isBracket(string.charAt(endIndex + 2))) && string
                         .charAt(endIndex + 1) == ' ');
             }
-            if (pointIsSentenceDelimiter)
+            if (pointIsSentenceDelimiter) {
                 break;
+            }
 
             if (endIndex < string.length() - 1) {
                 endIndex = string.indexOf(".", endIndex + 1);
@@ -943,19 +1093,28 @@ public class StringHelper {
             }
         }
 
-        if (string.indexOf("!") > -1 && (string.indexOf("!") < endIndex || endIndex == -1))
+        if (string.indexOf("!") > -1 && (string.indexOf("!") < endIndex || endIndex == -1)) {
             endIndex = string.indexOf("!");
-        if (string.indexOf("?") > -1 && (string.indexOf("?") < endIndex || endIndex == -1))
+        }
+
+        if (string.indexOf("?") > -1 && (string.indexOf("?") < endIndex || endIndex == -1)) {
             endIndex = string.indexOf("?");
+        }
+
         if (string.indexOf(":") > -1 && (string.indexOf(":") < endIndex || endIndex == -1)) {
             int indexColon = string.indexOf(":");
-            if (string.length() > indexColon + 1 && !isNumber(string.charAt(indexColon + 1)))
+            if (string.length() > indexColon + 1 && !isNumber(string.charAt(indexColon + 1))) {
                 endIndex = indexColon;
+            }
+
         }
-        if (endIndex == -1)
+        if (endIndex == -1) {
             endIndex = string.length();
-        else
+        }
+
+        else {
             ++endIndex; // take last character as well
+        }
 
         return string.substring(0, endIndex);
     }
@@ -968,12 +1127,16 @@ public class StringHelper {
      * @return The whole sentence.
      */
     public static String getSentence(String string, int position) {
-        if (position < 0)
+        if (position < 0) {
             return string;
+        }
+
         String beginning = getPhraseFromBeginningOfSentence(string.substring(0, position));
         String end = getPhraseToEndOfSentence(string.substring(position));
-        if (beginning.endsWith(" "))
+        if (beginning.endsWith(" ")) {
             end = end.trim();
+        }
+
         return beginning + end;
     }
 
@@ -987,11 +1150,19 @@ public class StringHelper {
         return trim(string, "");
     }
 
+    /**
+     * Trim.
+     * 
+     * @param inputString the input string
+     * @param keepCharacters the keep characters
+     * @return the string
+     */
     public static String trim(String inputString, String keepCharacters) {
 
         String string = inputString.trim();
-        if (string.length() == 0)
+        if (string.length() == 0) {
             return string;
+        }
 
         string = unescapeHTMLEntities(string);
 
@@ -1025,8 +1196,10 @@ public class StringHelper {
             Character last = string.charAt(string.length() - 1);
             // System.out.println(Character.getType(last));
             for (int i = 0, l = unwanted.length; i < l; ++i) {
-                if (keepCharacters.indexOf(unwanted[i]) > -1)
+                if (keepCharacters.indexOf(unwanted[i]) > -1) {
                     continue;
+                }
+
                 // System.out.println(first.charValue());
                 // System.out.println(Character.isSpaceChar(first));
                 if (first == unwanted[i].charAt(0)
@@ -1039,22 +1212,30 @@ public class StringHelper {
                         || Character.isSpaceChar(last)) {
                     deleteLast = true;
                 }
-                if (deleteFirst && deleteLast)
+                if (deleteFirst && deleteLast) {
                     break;
+                }
+
             }
 
-            if (deleteFirst)
+            if (deleteFirst) {
                 string = string.substring(1);
-            if (deleteLast && string.length() > 0)
+            }
+
+            if (deleteLast && string.length() > 0) {
                 string = string.substring(0, string.length() - 1);
+            }
+
             string = string.trim();
         }
 
         // remove all control characters from string
         for (int i = 0, l = string.length(); i < l; ++i) {
             // < 33 means all control characters are not wanted as well
-            if ((int) string.charAt(i) < 33)
+            if ((int) string.charAt(i) < 33) {
                 string = string.replace(string.charAt(i), ' ');
+            }
+
         }
 
         // close spaces gap that might have arisen
@@ -1066,6 +1247,12 @@ public class StringHelper {
         return string;
     }
 
+    /**
+     * Trim.
+     * 
+     * @param strings the strings
+     * @return the hash set
+     */
     public static HashSet<String> trim(HashSet<String> strings) {
         HashSet<String> trimmedStrings = new HashSet<String>();
         for (String s : strings) {
@@ -1088,12 +1275,24 @@ public class StringHelper {
         return continuoustext;
     }
 
+    /**
+     * Unescape html entities.
+     * 
+     * @param string the string
+     * @return the string
+     */
     public static String unescapeHTMLEntities(String string) {
         String escaped = StringEscapeUtils.unescapeHtml(string);
         escaped = escaped.replaceAll("â€™", "’");
         return escaped.replaceAll(" ", " ");
     }
 
+    /**
+     * Put article in front.
+     * 
+     * @param inputString the input string
+     * @return the string
+     */
     public static String putArticleInFront(String inputString) {
         String string = inputString.trim();
 
@@ -1173,15 +1372,31 @@ public class StringHelper {
         return words.length;
     }
 
+    /**
+     * Calculate similarity.
+     * 
+     * @param string1 the string1
+     * @param string2 the string2
+     * @return the double
+     */
     public static double calculateSimilarity(String string1, String string2) {
         return calculateSimilarity(string1, string2, true);
     }
 
+    /**
+     * Calculate similarity.
+     * 
+     * @param string1 the string1
+     * @param string2 the string2
+     * @param caseSensitive the case sensitive
+     * @return the double
+     */
     public static double calculateSimilarity(String string1, String string2, boolean caseSensitive) {
         double longestCommonStringLength = (double) getLongestCommonString(string1, string2, caseSensitive, true)
                 .length();
-        if (longestCommonStringLength == 0)
+        if (longestCommonStringLength == 0) {
             return 0.0;
+        }
 
         double similarity = longestCommonStringLength / (double) Math.min(string1.length(), string2.length()); // TODO
         // changed
@@ -1242,21 +1457,32 @@ public class StringHelper {
                     }
                 }
                 commonStrings.put(index - startPosition, s1.substring(0, index - startPosition));
-                if (!shiftString)
+                if (!shiftString) {
                     break;
+                }
+
             }
 
-            if (!shiftString)
+            if (!shiftString) {
                 break;
+            }
+
             s1 = s1.substring(1);
         }
 
-        if (commonStrings.isEmpty())
+        if (commonStrings.isEmpty()) {
             return "";
+        }
 
         return commonStrings.descendingMap().entrySet().iterator().next().getValue();
     }
 
+    /**
+     * Gets the array as string.
+     * 
+     * @param array the array
+     * @return the array as string
+     */
     public static String getArrayAsString(String[] array) {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < array.length; i++) {
@@ -1286,7 +1512,7 @@ public class StringHelper {
      * @param inputString The input string for the matching.
      * @param separator The separator used to separate the matched strings.
      * @param regularExpression The regular expression that is matched on the input string.
-     * @return
+     * @return the string
      */
     public static String concatMatchedString(String inputString, String separator, String regularExpression) {
         String modInputString = StringHelper.unescapeHTMLEntities(inputString);
@@ -1342,20 +1568,43 @@ public class StringHelper {
         return sha1.toString();
     }
 
+    /**
+     * Encode base64.
+     * 
+     * @param string the string
+     * @return the string
+     */
     public static String encodeBase64(String string) {
         return new String(Base64.encodeBase64(string.getBytes()));
     }
 
+    /**
+     * Decode base64.
+     * 
+     * @param string the string
+     * @return the string
+     */
     public static String decodeBase64(String string) {
         return new String(Base64.decodeBase64(string.getBytes()));
     }
 
+    /**
+     * Overlap.
+     * 
+     * @param start1 the start1
+     * @param end1 the end1
+     * @param start2 the start2
+     * @param end2 the end2
+     * @return true, if successful
+     */
     public static boolean overlap(int start1, int end1, int start2, int end2) {
         return Math.max(start1, start2) < Math.min(end1, end2);
     }
 
     /**
-     * @param args
+     * The main method.
+     * 
+     * @param args the arguments
      */
     public static void main(String[] args) {
 
