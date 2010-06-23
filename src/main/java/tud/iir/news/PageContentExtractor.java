@@ -7,6 +7,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 import org.apache.xerces.parsers.DOMParser;
 import org.apache.xerces.xni.parser.XMLDocumentFilter;
@@ -24,21 +31,24 @@ import tud.iir.web.Crawler;
 
 /**
  * <p>
- * A quick <s>and dirty</s> port of the JavaScript browser bookmarklet "Readability" by Arc90 -- a great tool for extracting content from HTML pages.
- * <i>"Readability [...] takes a crack at wiping out all that junk so you can have a more enjoyable reading experience. [...] its success rate is pretty
- * respectable (we'd guess over 90% of web sites are handled properly)"</i>.
+ * A quick <s>and dirty</s> port of the JavaScript browser bookmarklet "Readability" by Arc90 -- a great tool for
+ * extracting content from HTML pages. <i>"Readability [...] takes a crack at wiping out all that junk so you can have a
+ * more enjoyable reading experience. [...] its success rate is pretty respectable (we'd guess over 90% of web sites are
+ * handled properly)"</i>.
  * </p>
  * 
  * <p>
- * Note, that this is not designed for front pages like <a href="http://cnn.com">http://cnn.com</a>, but for articles and blog entries with one topic. The
- * result should be just the actual content, without irrelevant elements like navigation menus, headers, footers, ads, etc.
+ * Note, that this is not designed for front pages like <a href="http://cnn.com">http://cnn.com</a>, but for articles
+ * and blog entries with one topic. The result should be just the actual content, without irrelevant elements like
+ * navigation menus, headers, footers, ads, etc.
  * </p>
  * 
  * <p>
- * How it works, in a nutshell: Readability operates on the document's DOM tree. Basically, it assigns all elements a score for their contents. Metrics for the
- * scoring are length of their text content, number of commas and link density. Also, "class" and "id" names are taken into consideration; for example, elements
- * with class name "sidebar" contain unlikely actual content in contrast to elements with class "article". After the top element has been determined, the
- * algorithm also checks its siblings whether they contain content, too.
+ * How it works, in a nutshell: Readability operates on the document's DOM tree. Basically, it assigns all elements a
+ * score for their contents. Metrics for the scoring are length of their text content, number of commas and link
+ * density. Also, "class" and "id" names are taken into consideration; for example, elements with class name "sidebar"
+ * contain unlikely actual content in contrast to elements with class "article". After the top element has been
+ * determined, the algorithm also checks its siblings whether they contain content, too.
  * </p>
  * 
  * @version Based on: SVN r147, Jun 04, 2010
@@ -59,18 +69,25 @@ public class PageContentExtractor {
     private static final String READABILITY_ATTR = "readability";
 
     /**
-     * All of the regular expressions in use within readability. Defined up here so we don't instantiate them repeatedly in loops.
+     * All of the regular expressions in use within readability. Defined up here so we don't instantiate them repeatedly
+     * in loops.
      **/
-    private static final Pattern unlikelyCandidatesRe = Pattern.compile("combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor",
+    private static final Pattern unlikelyCandidatesRe = Pattern.compile(
+            "combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor", Pattern.CASE_INSENSITIVE);
+    private static final Pattern okMaybeItsACandidateRe = Pattern.compile("and|article|body|column|main",
             Pattern.CASE_INSENSITIVE);
-    private static final Pattern okMaybeItsACandidateRe = Pattern.compile("and|article|body|column|main", Pattern.CASE_INSENSITIVE);
-    private static final Pattern positiveRe = Pattern.compile("article|body|content|entry|hentry|page|pagination|post|text", Pattern.CASE_INSENSITIVE);
-    private static final Pattern negativeRe = Pattern.compile(
-            "combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget", Pattern.CASE_INSENSITIVE);
-    private static final Pattern divToPElementsRe = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern positiveRe = Pattern.compile(
+            "article|body|content|entry|hentry|page|pagination|post|text", Pattern.CASE_INSENSITIVE);
+    private static final Pattern negativeRe = Pattern
+            .compile(
+                    "combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget",
+                    Pattern.CASE_INSENSITIVE);
+    private static final Pattern divToPElementsRe = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul)",
+            Pattern.CASE_INSENSITIVE);
     // private static final Pattern trimRe = Pattern.compile("^\\s+|\\s+$");
     private static final Pattern normalizeRe = Pattern.compile("\\s{2,}");
-    private static final Pattern videoRe = Pattern.compile("http:\\/\\/(www\\.)?(youtube|vimeo)\\.com", Pattern.CASE_INSENSITIVE);
+    private static final Pattern videoRe = Pattern.compile("http:\\/\\/(www\\.)?(youtube|vimeo)\\.com",
+            Pattern.CASE_INSENSITIVE);
 
     private DOMParser parser;
 
@@ -116,7 +133,8 @@ public class PageContentExtractor {
     }
 
     /**
-     * Set Document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow convenient concatenations of method
+     * Set Document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
+     * convenient concatenations of method
      * invocations, like: <code>new PageContentExtractor().setDocument(...).getResultDocument();</code>
      * 
      * @param document
@@ -132,7 +150,8 @@ public class PageContentExtractor {
     }
 
     /**
-     * Set URL of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow convenient concatenations of method
+     * Set URL of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
+     * convenient concatenations of method
      * invocations, like: <code>new PageContentExtractor().setDocument(new URL(...)).getResultDocument();</code>
      * 
      * @param url
@@ -149,7 +168,8 @@ public class PageContentExtractor {
     }
 
     /**
-     * Set URL of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow convenient concatenations of method
+     * Set URL of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
+     * convenient concatenations of method
      * invocations, like: <code>new PageContentExtractor().setDocument(new URL(...)).getResultDocument();</code>
      * 
      * @param url
@@ -166,7 +186,8 @@ public class PageContentExtractor {
     }
 
     /**
-     * Set File to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow convenient concatenations of method invocations,
+     * Set File to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow convenient
+     * concatenations of method invocations,
      * like: <code>new PageContentExtractor().setDocument(new File(...)).getResultDocument();</code>
      * 
      * @param file
@@ -183,8 +204,10 @@ public class PageContentExtractor {
     }
 
     /**
-     * Set the location of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow convenient concatenations of
-     * method invocations, like: <code>new PageContentExtractor().setDocument("http://website.com").getResultDocument();</code>
+     * Set the location of document to be processed. Method returns <code>this</code> instance of PageContentExtractor,
+     * to allow convenient concatenations of
+     * method invocations, like:
+     * <code>new PageContentExtractor().setDocument("http://website.com").getResultDocument();</code>
      * 
      * @param documentLocation The location of the document. This can be either a local file or a URL.
      * @return The instance of the PageContentExtractor.
@@ -203,7 +226,8 @@ public class PageContentExtractor {
     }
 
     /**
-     * Returns the filtered result document, as minimal XHTML fragment. Result just contains the filtered content, the result is not meant to be a complete web
+     * Returns the filtered result document, as minimal XHTML fragment. Result just contains the filtered content, the
+     * result is not meant to be a complete web
      * page or even to validate.
      * 
      * @return
@@ -238,8 +262,10 @@ public class PageContentExtractor {
     }
 
     /**
-     * Returns the document's title. This will not just return the text from the document's <code>title</code> element, but try to remove generic, irrelevant
-     * substrings. For example, for a document with title <i>"Messi reveals close ties with Maradona - CNN.com"</i> this method will return
+     * Returns the document's title. This will not just return the text from the document's <code>title</code> element,
+     * but try to remove generic, irrelevant
+     * substrings. For example, for a document with title <i>"Messi reveals close ties with Maradona - CNN.com"</i> this
+     * method will return
      * <i>"Messi reveals close ties with Maradona"</i>.
      * 
      * @return
@@ -274,17 +300,18 @@ public class PageContentExtractor {
     //
     // ///////////////////////////////////////////////////////////////////////////////
 
-	/**
-	 * Runs readability.
-	 * 
-	 * Workflow:<br>1. Prep the document by removing script tags, css, etc.<br>
-	 * 2. Build readability's DOM tree.<br>
-	 * 3. Grab the article content from the current dom tree.<br>
-	 * 4. Replace the current DOM tree with the new one.<br>
-	 * 5. Read peacefully.
-	 * 
-	 * @return void
-	 **/
+    /**
+     * Runs readability.
+     * 
+     * Workflow:<br>
+     * 1. Prep the document by removing script tags, css, etc.<br>
+     * 2. Build readability's DOM tree.<br>
+     * 3. Grab the article content from the current dom tree.<br>
+     * 4. Replace the current DOM tree with the new one.<br>
+     * 5. Read peacefully.
+     * 
+     * @return void
+     **/
     private Document init(Document document) throws PageContentExtractorException {
         LOGGER.trace(">init");
 
@@ -301,14 +328,16 @@ public class PageContentExtractor {
 
         // write Document's dump to disk, using time stamped file name
         if (isWriteDump()) {
-            String filename = "dumps/readability" + System.currentTimeMillis() + ".xml";
+            String filename = "dumps/pageContentExtractor" + System.currentTimeMillis() + ".xml";
             Helper.writeXmlDump(cache, filename);
             LOGGER.info("wrote dump to " + filename);
         }
 
         /**
-         * If we attempted to strip unlikely candidates on the first run through, and we ended up with no content, that may mean we stripped out the actual
-         * content so we couldn't parse it. So re-run init while preserving unlikely candidates to have a better shot at getting our content out properly.
+         * If we attempted to strip unlikely candidates on the first run through, and we ended up with no content, that
+         * may mean we stripped out the actual
+         * content so we couldn't parse it. So re-run init while preserving unlikely candidates to have a better shot at
+         * getting our content out properly.
          **/
         if (getInnerText(result.getDocumentElement(), false).length() < 250) {
             if (stripUnlikelyCandidates) {
@@ -385,25 +414,26 @@ public class PageContentExtractor {
     }
 
     /**
-     * Prepare the HTML document for readability to scrape it. This includes things like stripping javascript, CSS, and handling terrible markup.
+     * Prepare the HTML document for readability to scrape it. This includes things like stripping javascript, CSS, and
+     * handling terrible markup.
      * 
      * @return void
      **/
     private void prepDocument(Document document) {
-    	
-    	// this method is pretty simplified in comparison to the JavaScript
-    	// TODO handling of frames is missing -- but do we really still need this in 2010? (:
-    	// TODO Turn all double br's into p's
-    	Helper.removeAll(document, Node.ELEMENT_NODE, "script");
-    	Helper.removeAll(document, Node.ELEMENT_NODE, "style");
-    	Helper.removeAll(document, Node.COMMENT_NODE);
-    	
-		// I did not port the addFootnotes functionality from r138 which converts
-		// links to footnotes, as I don't think this makes much sense for our
-		// use cases.
-    	
-    	cleanStyles(document.getDocumentElement());
-    	
+
+        // this method is pretty simplified in comparison to the JavaScript
+        // TODO handling of frames is missing -- but do we really still need this in 2010? (:
+        // TODO Turn all double br's into p's
+        Helper.removeAll(document, Node.ELEMENT_NODE, "script");
+        Helper.removeAll(document, Node.ELEMENT_NODE, "style");
+        Helper.removeAll(document, Node.COMMENT_NODE);
+
+        // I did not port the addFootnotes functionality from r138 which converts
+        // links to footnotes, as I don't think this makes much sense for our
+        // use cases.
+
+        cleanStyles(document.getDocumentElement());
+
     }
 
     /**
@@ -425,7 +455,8 @@ public class PageContentExtractor {
         clean(articleContent, "h1");
 
         /**
-         * If there is only one h2, they are probably using it as a header and not a subheader, so remove it since we already have a header.
+         * If there is only one h2, they are probably using it as a header and not a subheader, so remove it since we
+         * already have a header.
          ***/
         if (articleContent.getElementsByTagName("h2").getLength() == 1) {
             clean(articleContent, "h2");
@@ -448,7 +479,8 @@ public class PageContentExtractor {
             int embedCount = currentParagraph.getElementsByTagName("embed").getLength();
             int objectCount = currentParagraph.getElementsByTagName("object").getLength();
 
-            if (imgCount == 0 && embedCount == 0 && objectCount == 0 && getInnerText(currentParagraph, false).length() == 0) {
+            if (imgCount == 0 && embedCount == 0 && objectCount == 0
+                    && getInnerText(currentParagraph, false).length() == 0) {
                 currentParagraph.getParentNode().removeChild(currentParagraph);
             }
         }
@@ -462,7 +494,8 @@ public class PageContentExtractor {
     }
 
     /**
-     * Initialize a node with the readability object. Also checks the className/id for special names to add to its score.
+     * Initialize a node with the readability object. Also checks the className/id for special names to add to its
+     * score.
      * 
      * @param Element
      * @return void
@@ -476,11 +509,11 @@ public class PageContentExtractor {
             contentScore += 5;
         } else if (tagName.equals("pre") || tagName.equals("td") || tagName.equals("blockquote")) {
             contentScore += 3;
-        } else if (tagName.equals("address") || tagName.equals("ol") || tagName.equals("ul") || tagName.equals("dl") || tagName.equals("dd")
-                || tagName.equals("dt") || tagName.equals("li") || tagName.equals("form")) {
+        } else if (tagName.equals("address") || tagName.equals("ol") || tagName.equals("ul") || tagName.equals("dl")
+                || tagName.equals("dd") || tagName.equals("dt") || tagName.equals("li") || tagName.equals("form")) {
             contentScore -= 3;
-        } else if (tagName.equals("h1") || tagName.equals("h2") || tagName.equals("h3") || tagName.equals("h4") || tagName.equals("h5") || tagName.equals("h6")
-                || tagName.equals("th")) {
+        } else if (tagName.equals("h1") || tagName.equals("h2") || tagName.equals("h3") || tagName.equals("h4")
+                || tagName.equals("h5") || tagName.equals("h6") || tagName.equals("th")) {
             contentScore -= 5;
         }
 
@@ -491,7 +524,8 @@ public class PageContentExtractor {
     }
 
     /***
-     * grabArticle - Using a variety of metrics (content score, classname, element types), find the content that is most likely to be the stuff a user wants to
+     * grabArticle - Using a variety of metrics (content score, classname, element types), find the content that is most
+     * likely to be the stuff a user wants to
      * read. Then return it wrapped up in a div.
      * 
      * @return Element
@@ -503,10 +537,12 @@ public class PageContentExtractor {
         prepDocument(document);
 
         /**
-         * First, node prepping. Trash nodes that look cruddy (like ones with the class name "comment", etc), and turn divs into P tags where they have been
+         * First, node prepping. Trash nodes that look cruddy (like ones with the class name "comment", etc), and turn
+         * divs into P tags where they have been
          * used inappropriately (as in, where they contain no other block level elements.)
          * 
-         * Note: Assignment from index for performance. See http://www.peachpit.com/articles/article.aspx?p=31567&seqNum=5
+         * Note: Assignment from index for performance. See
+         * http://www.peachpit.com/articles/article.aspx?p=31567&seqNum=5
          * 
          * todo: Shouldn't this be a reverse traversal?
          **/
@@ -517,7 +553,8 @@ public class PageContentExtractor {
             /* Remove unlikely candidates */
             if (stripUnlikelyCandidates) {
                 String unlikelyMatchString = node.getAttribute("class") + node.getAttribute("id");
-                if (unlikelyCandidatesRe.matcher(unlikelyMatchString).find() && !okMaybeItsACandidateRe.matcher(unlikelyMatchString).find()
+                if (unlikelyCandidatesRe.matcher(unlikelyMatchString).find()
+                        && !okMaybeItsACandidateRe.matcher(unlikelyMatchString).find()
                         && !node.getTagName().equalsIgnoreCase("body")) {
                     LOGGER.debug("Removing unlikely candidate - " + unlikelyMatchString);
                     node.getParentNode().removeChild(node);
@@ -555,7 +592,8 @@ public class PageContentExtractor {
         }
 
         /**
-         * Loop through all paragraphs, and assign a score to them based on how content-y they look. Then add their score to their parent node.
+         * Loop through all paragraphs, and assign a score to them based on how content-y they look. Then add their
+         * score to their parent node.
          * 
          * A score is determined by things like number of commas, class names, etc. Maybe eventually link density.
          **/
@@ -605,20 +643,22 @@ public class PageContentExtractor {
         }
 
         /**
-         * After we've calculated scores, loop through all of the possible candidate nodes we found and find the one with the highest score.
+         * After we've calculated scores, loop through all of the possible candidate nodes we found and find the one
+         * with the highest score.
          **/
         Element topCandidate = null;
         for (Element candidate : candidates) {
             /**
-             * Scale the final candidates score based on link density. Good content should have a relatively small link density (5% or less) and be mostly
+             * Scale the final candidates score based on link density. Good content should have a relatively small link
+             * density (5% or less) and be mostly
              * unaffected by this operation.
              **/
             float contentScore = getReadability(candidate);
             contentScore = contentScore * (1 - getLinkDensity(candidate));
             setReadability(candidate, contentScore);
 
-            LOGGER.debug("Candidate: " + candidate + " (" + candidate.getAttribute("class") + ":" + candidate.getAttribute("id") + ") with score "
-                    + contentScore);
+            LOGGER.debug("Candidate: " + candidate + " (" + candidate.getAttribute("class") + ":"
+                    + candidate.getAttribute("id") + ") with score " + contentScore);
 
             if (topCandidate == null || contentScore > getReadability(topCandidate)) {
                 topCandidate = candidate;
@@ -626,7 +666,8 @@ public class PageContentExtractor {
         }
 
         /**
-         * If we still have no top candidate, just use the body as a last resort. We also have to copy the body node so it is something we can modify.
+         * If we still have no top candidate, just use the body as a last resort. We also have to copy the body node so
+         * it is something we can modify.
          **/
         if (topCandidate == null) {
             LOGGER.debug("No top candidate found, using the body");
@@ -635,7 +676,8 @@ public class PageContentExtractor {
         }
 
         /**
-         * Now that we have the top candidate, look through its siblings for content that might also be related. Things like preambles, content split by ads
+         * Now that we have the top candidate, look through its siblings for content that might also be related. Things
+         * like preambles, content split by ads
          * that we removed, etc.
          **/
         // create result Document
@@ -654,18 +696,20 @@ public class PageContentExtractor {
             Element siblingNode = (Element) siblingNodes.item(s);
             boolean append = false;
 
-            LOGGER.debug("Looking at sibling node: " + siblingNode + " (" + siblingNode.getAttribute("class") + ":" + siblingNode.getAttribute("id") + ")"
+            LOGGER.debug("Looking at sibling node: " + siblingNode + " (" + siblingNode.getAttribute("class") + ":"
+                    + siblingNode.getAttribute("id") + ")"
                     + (hasReadability(siblingNode) ? (" with score " + getReadability(siblingNode)) : ""));
 
             if (siblingNode == topCandidate) {
                 append = true;
             }
 
-    		int contentBonus = 0;
-    		/* Give a bonus if sibling nodes and top candidates have the example same classname */
-    		if (topCandidate.getAttribute("class").length() > 0 && siblingNode.getAttribute("class").equals(topCandidate.getAttribute("class"))) {
-    			contentBonus += getReadability(topCandidate) * 0.2;
-    		}
+            int contentBonus = 0;
+            /* Give a bonus if sibling nodes and top candidates have the example same classname */
+            if (topCandidate.getAttribute("class").length() > 0
+                    && siblingNode.getAttribute("class").equals(topCandidate.getAttribute("class"))) {
+                contentBonus += getReadability(topCandidate) * 0.2;
+            }
 
             if (hasReadability(siblingNode) && getReadability(siblingNode) + contentBonus >= siblingScoreThreshold) {
                 append = true;
@@ -675,10 +719,11 @@ public class PageContentExtractor {
                 float linkDensity = getLinkDensity(siblingNode);
                 String nodeContent = getInnerText(siblingNode);
                 int nodeLength = nodeContent.length();
-                
+
                 if (nodeLength > 80 && linkDensity < 0.25) {
                     append = true;
-                } else if (nodeLength < 80 && linkDensity == 0 && Pattern.compile("\\.( |$)").matcher(nodeContent).find()) {
+                } else if (nodeLength < 80 && linkDensity == 0
+                        && Pattern.compile("\\.( |$)").matcher(nodeContent).find()) {
                     append = true;
                 }
             }
@@ -687,9 +732,11 @@ public class PageContentExtractor {
                 LOGGER.debug("Appending node: " + siblingNode);
 
                 Element nodeToAppend;
-                if (!siblingNode.getNodeName().equalsIgnoreCase("div") && !siblingNode.getNodeName().equalsIgnoreCase("p")) {
+                if (!siblingNode.getNodeName().equalsIgnoreCase("div")
+                        && !siblingNode.getNodeName().equalsIgnoreCase("p")) {
                     /*
-                     * We have a node that isn't a common block level element, like a form or td tag. Turn it into a div so it doesn't get filtered out later by
+                     * We have a node that isn't a common block level element, like a form or td tag. Turn it into a div
+                     * so it doesn't get filtered out later by
                      * accident.
                      */
                     LOGGER.debug("Altering siblingNode of " + siblingNode.getNodeName() + " to div.");
@@ -702,7 +749,8 @@ public class PageContentExtractor {
                 // nodeToAppend.removeAttribute("class");
 
                 /* Append sibling and subtract from our list because it removes the node when you append to another node */
-                // in our case we copy the sibling to the new document, so no need for any subtraction from counters -- Philipp.
+                // in our case we copy the sibling to the new document, so no need for any subtraction from counters --
+                // Philipp.
                 Node nodeToAppendToResult = result.importNode(nodeToAppend, true);
                 articleContent.appendChild(nodeToAppendToResult);
             }
@@ -788,7 +836,8 @@ public class PageContentExtractor {
     }
 
     /**
-     * Get the density of links as a percentage of the content This is the amount of text that is inside a link divided by the total text in the node.
+     * Get the density of links as a percentage of the content This is the amount of text that is inside a link divided
+     * by the total text in the node.
      * 
      * @param Element
      * @return number (float)
@@ -891,7 +940,8 @@ public class PageContentExtractor {
     }
 
     /**
-     * Clean an element of all tags of type "tag" if they look fishy. "Fishy" is an algorithm based on content length, classnames, link density, number of
+     * Clean an element of all tags of type "tag" if they look fishy. "Fishy" is an algorithm based on content length,
+     * classnames, link density, number of
      * images & embeds, etc.
      * 
      * @return void
@@ -903,7 +953,8 @@ public class PageContentExtractor {
         int curTagsLength = tagsList.getLength();
 
         /**
-         * Gather counts for other typical elements embedded within. Traverse backwards so we can remove nodes at the same time without effecting the traversal.
+         * Gather counts for other typical elements embedded within. Traverse backwards so we can remove nodes at the
+         * same time without effecting the traversal.
          * 
          * todo: Consider taking into account original contentScore here.
          **/
@@ -913,14 +964,16 @@ public class PageContentExtractor {
             int weight = getClassIdWeight(element);
             float contentScore = getReadability(element);
 
-            LOGGER.debug("Cleaning Conditionally " + element + " (" + element.getAttribute("class") + ":" + element.getAttribute("id") + ")"
+            LOGGER.debug("Cleaning Conditionally " + element + " (" + element.getAttribute("class") + ":"
+                    + element.getAttribute("id") + ")"
                     + (hasReadability(element) ? (" with score " + getReadability(element)) : ""));
 
             if (weight + contentScore < 0) {
                 element.getParentNode().removeChild(element);
             } else if (getCharCount(element) < 10) {
                 /**
-                 * If there are not very many commas, and the number of non-paragraph elements is more than paragraphs or other ominous signs, remove the
+                 * If there are not very many commas, and the number of non-paragraph elements is more than paragraphs
+                 * or other ominous signs, remove the
                  * element.
                  **/
                 int p = element.getElementsByTagName("p").getLength();
@@ -1025,42 +1078,54 @@ public class PageContentExtractor {
 
     // //////////////////////////////////////////////////////////////////////////
     // main method for command line usage
-    // TODO use Apache CLI library for easier command line functionality?
     // //////////////////////////////////////////////////////////////////////////
+    @SuppressWarnings("static-access")
     public static void main(String[] args) throws Exception {
 
-        PageContentExtractor readability = new PageContentExtractor();
+        PageContentExtractor pageContentExtractor = new PageContentExtractor();
         String outputfile = null;
 
-        int i = 0;
-        while (i < args.length && args[i].startsWith("-")) {
-            String arg = args[i];
-            if (arg.equals("-dump")) {
-                readability.setWriteDump(true);
-            } else if (arg.equals("-output")) {
-                if (i < args.length) {
-                    outputfile = args[++i];
-                } else {
-                    System.err.println("-output requires a filename");
-                }
+        CommandLineParser parser = new BasicParser();
+
+        Options options = new Options();
+        options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write dump of parsed page").create());
+        options.addOption(OptionBuilder.withLongOpt("output").hasArg().withArgName("fileName").create());
+
+        try {
+
+            CommandLine cmd = parser.parse(options, args);
+
+            if (cmd.hasOption("dump")) {
+                pageContentExtractor.setWriteDump(true);
             }
-            i++;
-        }
-        if (i == args.length) {
-            System.err.println("CLI Usage: PageContentExtractor [-dump] [-output file.html] inputUrl");
-            System.err.println("(to use files as input use file:// schema)");
-            return;
+            if (cmd.hasOption("output")) {
+                outputfile = cmd.getOptionValue("output");
+            }
+
+            if (cmd.getArgs().length == 1) {
+
+                pageContentExtractor.setDocument(new URL(cmd.getArgs()[0]));
+
+                System.out.println(pageContentExtractor.getResultTitle());
+                System.out.println("================================");
+                System.out.println(pageContentExtractor.getResultText());
+
+                if (outputfile != null) {
+                    Helper.writeXmlDump(pageContentExtractor.getResultDocument(), outputfile);
+                }
+
+                // done.
+                return;
+
+            }
+
+        } catch (ParseException e) {
+            // do nothing here
         }
 
-        readability.setDocument(new URL(args[i]));
-
-        System.out.println(readability.getResultTitle());
-        System.out.println("================================");
-        System.out.println(readability.getResultText());
-
-        if (outputfile != null) {
-            Helper.writeXmlDump(readability.getResultDocument(), outputfile);
-        }
+        // print usage help
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("PageContentExtractor [options] inputUrl", options);
 
     }
 

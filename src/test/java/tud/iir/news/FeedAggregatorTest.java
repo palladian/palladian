@@ -27,5 +27,13 @@ public class FeedAggregatorTest {
     	aggregator.addFeed("http://www.gizmodo.de/feed/atom", "zyx");
     	aggregator.addFeed("http://www.gizmodo.de/feed/atom", "blabla");
     }
+    
+    @Test
+    public void readFeedFromFile() throws FeedAggregatorException {
+        aggregator.setUseScraping(false);
+        aggregator.getFeed("data/test/feeds/feed1.xml");
+        aggregator.getFeed("data/test/feeds/feed2.xml");
+        aggregator.getFeed("http://www.gizmodo.de/feed/atom");
+    }
 
 }

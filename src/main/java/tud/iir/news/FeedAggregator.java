@@ -11,6 +11,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -30,12 +37,12 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
 
 /**
  * FeedAggregator uses ROME library to fetch and parse feeds from the web. Feeds are stored persistently, aggregation method fetches new entries.
  * 
- * TODO add a "lastSuccessfullAggregation" attribute to feed, so we can filter out obsolute feeds. TODO we should check if an entry was modified and update.
+ * TODO add a "lastSuccessfullAggregation" attribute to feed, so we can filter out obsolute feeds. 
+ * TODO we should check if an entry was modified and update.
  * 
  * https://rome.dev.java.net/ *
  * 
@@ -44,7 +51,7 @@ import com.sun.syndication.io.XmlReader;
  */
 public class FeedAggregator {
 
-    private static final Logger logger = Logger.getLogger(FeedAggregator.class);
+    private static final Logger LOGGER = Logger.getLogger(FeedAggregator.class);
 
     private int maxThreads = 20;
 
@@ -77,13 +84,11 @@ public class FeedAggregator {
      * @throws FeedAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be parsed.
      */
     private SyndFeed getFeedWithRome(String feedUrl) throws FeedAggregatorException {
-        logger.trace(">getFeedWithRome " + feedUrl);
+        LOGGER.trace(">getFeedWithRome " + feedUrl);
 
         SyndFeed result;
 
         try {
-
-            InputStream inputStream = crawler.downloadInputStream(feedUrl);
 
             SyndFeedInput feedInput = new SyndFeedInput();
 
@@ -91,22 +96,27 @@ public class FeedAggregator {
             // to RSS/Atom specific elements
             // see http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
             feedInput.setPreserveWireFeed(true);
-
-            // build the result
-            result = feedInput.build(new XmlReader(inputStream));
+            
+            // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
+            // well, which we use inside the IIR toolkit.
+            Document xmlDocument = crawler.getXMLDocument(feedUrl, false);
+            if (xmlDocument == null) {
+                throw new FeedAggregatorException("could not get document from " + feedUrl);
+            }
+            result = feedInput.build(xmlDocument);
 
         } catch (IllegalArgumentException e) {
-            logger.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
+            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
             throw new FeedAggregatorException(e);
-        } catch (IOException e) {
-            logger.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
+        }/* catch (IOException e) {
+            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
             throw new FeedAggregatorException(e);
-        } catch (FeedException e) {
-            logger.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
+        }*/ catch (FeedException e) {
+            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
             throw new FeedAggregatorException(e);
         }
 
-        logger.trace("<getFeedWithRome");
+        LOGGER.trace("<getFeedWithRome");
         return result;
     }
 
@@ -118,7 +128,7 @@ public class FeedAggregator {
      */
     private Feed getFeed(SyndFeed syndFeed, String feedUrl) {
 
-        logger.trace(">getFeed " + feedUrl);
+        LOGGER.trace(">getFeed " + feedUrl);
         Feed result = null;
 
         WireFeed wireFeed = syndFeed.originalWireFeed();
@@ -146,7 +156,7 @@ public class FeedAggregator {
             result.setTextType(determineFeedTextType(syndFeed, feedUrl));
         }
 
-        logger.trace("<getFeed " + result);
+        LOGGER.trace("<getFeed " + result);
         return result;
 
     }
@@ -161,7 +171,7 @@ public class FeedAggregator {
      */
     @SuppressWarnings("unchecked")
     private int determineFeedTextType(SyndFeed syndFeed, String feedUrl) {
-        logger.trace(">determineFeedTextType " + feedUrl);
+        LOGGER.trace(">determineFeedTextType " + feedUrl);
 
         // count iterations
         int count = 0;
@@ -183,20 +193,20 @@ public class FeedAggregator {
                 continue;
             }
             // some feeds provide relative URLs -- convert.
-            entryLink = Helper.getFullUrl(feedUrl, entry.getLink());
+            entryLink = Crawler.makeFullURL(feedUrl, entry.getLink());
 
             // check type of linked file; ignore audio, video or pdf files ...
             String fileType = FileHelper.getFileType(entryLink);
             if (FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType) || fileType.equals("pdf")) {
-                logger.debug("ignoring filetype " + fileType + " from " + entryLink);
+                LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
                 continue;
             }
 
-            logger.trace("checking " + entryLink);
+            LOGGER.trace("checking " + entryLink);
 
             // entry contains no text at all
             if (entryText == null || entryText.length() == 0) {
-                logger.debug("entry " + entryLink + " contains no text");
+                LOGGER.debug("entry " + entryLink + " contains no text");
                 none++;
                 count++;
                 continue;
@@ -225,7 +235,7 @@ public class FeedAggregator {
                     // similar, we can assume that we have a full text feed
                     float textSim = Helper.getLevenshteinSim(entryText, pageText);
                     if (textSim >= 0.9) {
-                        logger.debug("entry " + entryLink + " seems to contain full text (textSim:" + textSim + ")");
+                        LOGGER.debug("entry " + entryLink + " seems to contain full text (textSim:" + textSim + ")");
                         full++;
                         count++;
                         continue;
@@ -233,21 +243,21 @@ public class FeedAggregator {
                 }
 
                 // feed and page were not similar enough, looks like partial text feed
-                logger.debug("entry " + entryLink + " seems to contain partial text (lengthSim:" + lengthSim + ")");
+                LOGGER.debug("entry " + entryLink + " seems to contain partial text (lengthSim:" + lengthSim + ")");
                 partial++;
                 count++;
 
             } catch (MalformedURLException e) {
-                logger.error("determineFeedTextType " + entryLink + " " + e.toString() + " " + e.getMessage());
+                LOGGER.error("determineFeedTextType " + entryLink + " " + e.toString() + " " + e.getMessage());
                 errors++;
             } catch (IOException e) {
-                logger.error("determineFeedTextType " + entryLink + " " + e.toString() + " " + e.getMessage());
+                LOGGER.error("determineFeedTextType " + entryLink + " " + e.toString() + " " + e.getMessage());
                 errors++;
             } catch (Exception e) {
                 // FIXME in some rare cases PageContentExtractor throws a NPE,
                 // I dont know yet where the problem lies, so we catch it here
                 // and move an as if nothing happened :)
-                logger.error("determineFeedTextType " + entryLink + " " + e.toString() + " " + e.getMessage());
+                LOGGER.error("determineFeedTextType " + entryLink + " " + e.toString() + " " + e.getMessage());
                 errors++;
             }
         }
@@ -259,7 +269,7 @@ public class FeedAggregator {
         // else --> assume partial text
         int result = Feed.TEXT_TYPE_PARTIAL;
         String resultStr = "partial";
-        if (count == 0) {
+        if (syndFeed.getEntries().isEmpty()) {
             result = Feed.TEXT_TYPE_UNDETERMINED;
             resultStr = "undetermined, feed has no entries";
         } else if ((float) full / count >= 0.6) {
@@ -268,11 +278,14 @@ public class FeedAggregator {
         } else if ((float) none / count >= 0.8) {
             result = Feed.TEXT_TYPE_NONE;
             resultStr = "none";
+        } else if (count == 0) {
+            result = Feed.TEXT_TYPE_UNDETERMINED;
+            resultStr = "undetermined, could not check entries";
         }
 
-        logger.info("feed " + feedUrl + " none:" + none + " partial:" + partial + " full:" + full + " -> " + resultStr);
+        LOGGER.info("feed " + feedUrl + " none:" + none + " partial:" + partial + " full:" + full + " -> " + resultStr);
 
-        logger.trace("<determineFeedTextType " + result);
+        LOGGER.trace("<determineFeedTextType " + result);
         return result;
     }
 
@@ -284,7 +297,7 @@ public class FeedAggregator {
      */
     @SuppressWarnings("unchecked")
     private List<FeedEntry> getEntries(SyndFeed syndFeed) {
-        logger.trace(">getEntries");
+        LOGGER.trace(">getEntries");
 
         List<FeedEntry> result = new LinkedList<FeedEntry>();
 
@@ -305,7 +318,7 @@ public class FeedAggregator {
             // some feeds provide relative URLs -- convert.
             String entryLink = entry.getLink();
             if (entryLink != null && entryLink.length() > 0) {
-                entryLink = Helper.getFullUrl(syndFeed.getLink(), entry.getLink());
+                entryLink = Crawler.makeFullURL(syndFeed.getLink(), entry.getLink());
             }
             entry.setLink(syndEntry.getLink());
 
@@ -343,7 +356,7 @@ public class FeedAggregator {
             // we take the Link as identification instead
             if (rawId == null) {
                 rawId = syndEntry.getLink();
-                logger.trace("id is missing, taking link instead");
+                LOGGER.trace("id is missing, taking link instead");
             }
             entry.setRawId(rawId);
 
@@ -351,7 +364,7 @@ public class FeedAggregator {
             result.add(entry);
         }
 
-        logger.trace("<getEntries");
+        LOGGER.trace("<getEntries");
         return result;
     }
 
@@ -363,7 +376,7 @@ public class FeedAggregator {
      */
     @SuppressWarnings("unchecked")
     private String getEntryText(SyndEntry syndEntry) {
-        logger.trace(">getEntryText");
+        LOGGER.trace(">getEntryText");
 
         // get content from SyndEntry
         // either from content or from description
@@ -388,7 +401,7 @@ public class FeedAggregator {
             entryText = StringHelper.unescapeHTMLEntities(entryText);
             entryText = entryText.trim();
         }
-        logger.trace("<getEntryText "/* + entryText */);
+        LOGGER.trace("<getEntryText "/* + entryText */);
         return entryText;
     }
 
@@ -402,7 +415,7 @@ public class FeedAggregator {
     	return addFeed(feedUrl, null);
     }
     public boolean addFeed(String feedUrl, String concept) {
-        logger.trace(">addFeed " + feedUrl);
+        LOGGER.trace(">addFeed " + feedUrl);
         boolean added = false;
 
         Feed feed = store.getFeedByUrl(feedUrl);
@@ -413,13 +426,13 @@ public class FeedAggregator {
                 // dont add feeds which were updated one year ago or more ...
                 feed = getFeed(syndFeed, feedUrl);
                 store.addFeed(feed);
-                logger.info("added feed to store " + feedUrl);
+                LOGGER.info("added feed to store " + feedUrl);
                 added = true;
             } catch (FeedAggregatorException e) {
-                logger.error("error adding feed " + feedUrl + " " + e.getMessage());
+                LOGGER.error("error adding feed " + feedUrl + " " + e.getMessage());
             }
         } else {
-            logger.info("i already have feed " + feedUrl);
+            LOGGER.info("i already have feed " + feedUrl);
         }
         
         if (feed != null && concept != null) {
@@ -427,7 +440,7 @@ public class FeedAggregator {
         	((FeedDatabase) store).assignConcept(concept, feed);
         }
 
-        logger.trace("<addFeed " + added);
+        LOGGER.trace("<addFeed " + added);
         return added;
     }
 
@@ -466,7 +479,7 @@ public class FeedAggregator {
 
             // if maximum # of Threads are already running, wait here
             while (threadCounter.getCount() >= maxThreads) {
-                logger.trace("max # of Threads running. waiting ...");
+                LOGGER.trace("max # of Threads running. waiting ...");
                 ThreadHelper.sleep(1000);
             }
 
@@ -492,16 +505,16 @@ public class FeedAggregator {
         // the Stack is empty
         while (threadCounter.getCount() > 0 || urlStack.size() > 0) {
             ThreadHelper.sleep(1000);
-            logger.trace("waiting ... threads:" + threadCounter.getCount() + " stack:" + urlStack.size());
+            LOGGER.trace("waiting ... threads:" + threadCounter.getCount() + " stack:" + urlStack.size());
         }
 
         stopWatch.stop();
 
-        logger.info("-------------------------------");
-        logger.info(" added " + addCounter.getCount() + " new feeds");
-        logger.info(" elapsed time: " + stopWatch.getElapsedTimeString());
-        logger.info(" traffic: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB");
-        logger.info("-------------------------------");
+        LOGGER.info("-------------------------------");
+        LOGGER.info(" added " + addCounter.getCount() + " new feeds");
+        LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
+        LOGGER.info(" traffic: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB");
+        LOGGER.info("-------------------------------");
 
         return addCounter.getCount();
 
@@ -518,6 +531,28 @@ public class FeedAggregator {
         // return addedCount;
 
     }
+    
+    /**
+     * Add feeds from a supplied OPML file.
+     * 
+     * @param fileName
+     * @return
+     */
+    public int addFeedsFromOpml(String fileName) {
+        LOGGER.trace(">addFeedsFromOpml");
+        
+        File opmlFile = new File(fileName);
+        List<Feed> feeds = OPMLHelper.readOPMLFile(opmlFile);
+        List<String> urls = new LinkedList<String>();
+        for (Feed feed : feeds) {
+            urls.add(feed.getFeedUrl());
+        }
+        LOGGER.info("adding " + urls.size() + " feeds");
+        int result = addFeeds(urls);
+        LOGGER.trace("<addFeedsFromOpml " + result);
+        return result;
+        
+    }
 
     /**
      * Do the aggregation process. New entries from all known feeds will be aggregated. Use {@link #setMaxThreads(int)} to set the number of maximum parallel
@@ -526,10 +561,10 @@ public class FeedAggregator {
      * @return number of aggregated new entries.
      */
     public int aggregate() {
-        logger.trace(">aggregate");
+        LOGGER.trace(">aggregate");
 
         List<Feed> feeds = store.getFeeds();
-        logger.info("# feeds in the store " + feeds.size());
+        LOGGER.info("# feeds in the store " + feeds.size());
 
         Stack<Feed> feedsStack = new Stack<Feed>();
         feedsStack.addAll(feeds);
@@ -559,7 +594,7 @@ public class FeedAggregator {
 
             // if maximum # of Threads are already running, wait here
             while (threadCounter.getCount() >= maxThreads) {
-                logger.trace("max # of Threads running. waiting ...");
+                LOGGER.trace("max # of Threads running. waiting ...");
                 ThreadHelper.sleep(1000);
             }
 
@@ -568,7 +603,7 @@ public class FeedAggregator {
                 @Override
                 public void run() {
                     int newEntries = 0;
-                    logger.debug("aggregating entries from " + feed.getFeedUrl());
+                    LOGGER.debug("aggregating entries from " + feed.getFeedUrl());
                     try {
                         SyndFeed syndFeed = getFeedWithRome(feed.getFeedUrl());
                         List<FeedEntry> entries = getEntries(syndFeed);
@@ -586,7 +621,7 @@ public class FeedAggregator {
                             boolean add = (store.getEntryByRawId(entry.getRawId()) == null);
                             if (add) {
                                 if (useScraping && extractorFails < 5 && (feed.getTextType() != Feed.TEXT_TYPE_FULL)) {
-                                    logger.trace("scraping " + entry.getLink());
+                                    LOGGER.trace("scraping " + entry.getLink());
                                     // here we scrape content using PageContentExtractor
                                     try {
                                         PageContentExtractor extractor = new PageContentExtractor();
@@ -595,10 +630,10 @@ public class FeedAggregator {
                                         entry.setPageText(extractor.getResultText());
                                         scrapes.increment();
                                     } catch (IOException e) {
-                                        logger.trace("aggregate " + feed.getFeedUrl() + " " + e.getMessage());
+                                        LOGGER.trace("aggregate " + feed.getFeedUrl() + " " + e.getMessage());
                                         extractorFails++;
                                     } catch (PageContentExtractorException e) {
-                                        logger.trace("aggregate " + feed.getFeedUrl() + " " + e.getMessage());
+                                        LOGGER.trace("aggregate " + feed.getFeedUrl() + " " + e.getMessage());
                                         extractorFails++;
                                     }
                                 }
@@ -618,7 +653,7 @@ public class FeedAggregator {
                         threadCounter.decrement();
                     }
                     if (newEntries > 0) {
-                        logger.info("# new entries in " + feed.getFeedUrl() + " " + newEntries);
+                        LOGGER.info("# new entries in " + feed.getFeedUrl() + " " + newEntries);
                         newEntriesTotal.increment(newEntries);
                     }
                 }
@@ -630,22 +665,22 @@ public class FeedAggregator {
         // the Stack is empty
         while (threadCounter.getCount() > 0 || feedsStack.size() > 0) {
             ThreadHelper.sleep(1000);
-            logger.trace("waiting ... threads:" + threadCounter.getCount() + " stack:" + feedsStack.size());
+            LOGGER.trace("waiting ... threads:" + threadCounter.getCount() + " stack:" + feedsStack.size());
         }
         stopWatch.stop();
 
-        logger.info("-------------------------------");
-        logger.info(" # of aggregated feeds: " + feeds.size());
-        logger.info(" # new entries total: " + newEntriesTotal.getCount());
-        logger.info(" # errors: " + errors.getCount());
-        logger.info(" scraping enabled: " + useScraping);
-        logger.info(" # scraped pages: " + scrapes);
-        logger.info(" # scrape errors: " + scrapeErrors);
-        logger.info(" elapsed time: " + stopWatch.getElapsedTimeString());
-        logger.info(" traffic: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB");
-        logger.info("-------------------------------");
+        LOGGER.info("-------------------------------");
+        LOGGER.info(" # of aggregated feeds: " + feeds.size());
+        LOGGER.info(" # new entries total: " + newEntriesTotal.getCount());
+        LOGGER.info(" # errors: " + errors.getCount());
+        LOGGER.info(" scraping enabled: " + useScraping);
+        LOGGER.info(" # scraped pages: " + scrapes);
+        LOGGER.info(" # scrape errors: " + scrapeErrors);
+        LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
+        LOGGER.info(" traffic: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB");
+        LOGGER.info("-------------------------------");
 
-        logger.trace("<aggregate");
+        LOGGER.trace("<aggregate");
         return newEntriesTotal.getCount();
     }
 
@@ -677,8 +712,7 @@ public class FeedAggregator {
      */
     public Feed getFeed(String feedUrl) throws FeedAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
-        Feed feed = getFeed(syndFeed, feedUrl);
-        return feed;
+        return getFeed(syndFeed, feedUrl);
     }
 
     /**
@@ -690,8 +724,7 @@ public class FeedAggregator {
      */
     public List<FeedEntry> getEntries(String feedUrl) throws FeedAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
-        List<FeedEntry> entries = getEntries(syndFeed);
-        return entries;
+        return getEntries(syndFeed);
     }
 
     // //////////////////////
@@ -706,68 +739,64 @@ public class FeedAggregator {
      * 
      * @param args
      */
+    @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
         FeedAggregator aggregator = new FeedAggregator();
-
-        int i = 0;
-        while (i < args.length && args[i].startsWith("-")) {
-            String arg = args[i++];
-
-            if (arg.equals("-threads")) {
-                if (i < args.length) {
-                    aggregator.setMaxThreads(Integer.valueOf(args[i++]));
-                } else {
-                    System.err.println("-threads requires # of threads");
-                }
+        
+        CommandLineParser parser = new BasicParser();
+        
+        // CLI usage: FeedAggregator [-threads nn] [-noScraping] [-add <feed-Url>] [-addOpml <OPML-file>] [-aggregate] [-aggregateWait <minutes>]
+        Options options = new Options();
+        options.addOption(OptionBuilder.withLongOpt("threads").withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("noScraping").withDescription("disable PageContentExtractor").create());
+        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName("feedUrl").create());
+        options.addOption(OptionBuilder.withLongOpt("addOpml").withDescription("add multiple feeds from supplied OPML file").hasArg().withArgName("OPMLfile").create());
+        options.addOption(OptionBuilder.withLongOpt("aggregate").withDescription("run aggregation process").create());
+        options.addOption(OptionBuilder.withLongOpt("aggregateWait").withDescription("run continuous aggregation process; wait for specified number of minutes between each aggregation step").hasArg().withArgName("minutes").withType(Number.class).create());
+        
+        
+        try {
+            
+            CommandLine cmd = parser.parse(options, args);
+            
+            if (cmd.hasOption("threads")) {
+                aggregator.setMaxThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
             }
-            if (arg.equals("-noScraping")) {
+            if (cmd.hasOption("noScraping")) {
                 aggregator.setUseScraping(false);
-            } else if (arg.equals("-add")) {
-                if (i < args.length) {
-                    aggregator.addFeed(args[i++]);
-                } else {
-                    System.err.println("-add requires a URL");
-                }
-            } else if (arg.equals("-addOpml")) {
-                if (i < args.length) {
-                    File opmlFile = new File(args[i++]);
-                    List<Feed> feeds = OPMLHelper.readOPMLFile(opmlFile);
-                    List<String> urls = new LinkedList<String>();
-                    for (Feed feed : feeds) {
-                        urls.add(feed.getFeedUrl());
-                    }
-                    System.out.println("adding " + urls.size() + " feeds");
-                    aggregator.addFeeds(urls);
-                } else {
-                    System.err.println("-addOpml requires a filename");
-                }
-            } else if (arg.equals("-aggregate")) {
+            }
+            if (cmd.hasOption("add")) {
+                aggregator.addFeed(cmd.getOptionValue("add"));
+            }
+            if (cmd.hasOption("addOpml")) {
+                aggregator.addFeedsFromOpml(cmd.getOptionValue("addOpml"));
+            }
+            if (cmd.hasOption("aggregate")) {
                 aggregator.aggregate();
             }
-            // allows continuous running of the aggregation process; we wait for
-            // the specified time in minutes after each aggregation run.
-            else if (arg.equals("-aggregateWait")) {
-                if (i < args.length) {
-                    int wait = Integer.valueOf(args[i++]);
-                    while (true) {
-                        aggregator.aggregate();
-                        System.out.println("sleeping for " + wait + " minutes");
-                        ThreadHelper.sleep(wait * DateHelper.MINUTE_MS);
-                    }
-                } else {
-                    System.err.println("-aggregateInterval requires a numeric interval");
+            if (cmd.hasOption("aggregateWait")) {
+                int waitMinutes = ((Number)cmd.getParsedOptionValue("aggregateWait")).intValue() * DateHelper.MINUTE_MS;
+                while (true) {
+                    aggregator.aggregate();
+                    LOGGER.info("sleeping for " + waitMinutes + " minutes");
+                    ThreadHelper.sleep(waitMinutes);
                 }
             }
+            
+            return;
+            
+            
+        } catch (ParseException e) {
+            
         }
-
-        if (i == 0) {
-            System.err
-                    .println("CLI usage: FeedAggregator [-threads nn] [-noScraping] [-add <feed-Url>] [-addOpml <OPML-file>] [-aggregate] [-aggregateWait <minutes>]");
-            System.err.println("Examples:  FeedAggregator -threads 5 -addOpml temp/cities.opml");
-            System.err.println("           FeedAggregator -aggregate");
-        }
+        
+        // print usage help
+        HelpFormatter formatter = new HelpFormatter();
+        formatter.printHelp("FeedDiscovery [options] query1[,query2,...]", options);
 
     }
+
+
 
 }

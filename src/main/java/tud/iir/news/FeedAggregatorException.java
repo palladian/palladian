@@ -7,4 +7,9 @@ public class FeedAggregatorException extends Exception {
         super(t);
     }
 
+    public FeedAggregatorException(String string) {
+        // TODO Auto-generated constructor stub
+        super(string);
+    }
+
 }

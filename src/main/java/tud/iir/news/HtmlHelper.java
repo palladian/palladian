@@ -48,15 +48,15 @@ public class HtmlHelper {
 
     // Pattern for opening and closing HTML block level elements
     // see: http://htmlhelp.com/reference/html40/block.html
-    private static Pattern blockElements = Pattern
-            .compile("</?(?=address|blockquote|div|dl|fieldset|form|h1|h2|h3|h4|h5|h6|hr|noscript|ol|p|pre|table|ul|dd|dt|li|tbody|td|tfoot|th|thead|tr|button|del|ins|map|object|script).*?>");
+//    private static Pattern blockElements = Pattern
+//            .compile("</?(?=address|blockquote|div|dl|fieldset|form|h1|h2|h3|h4|h5|h6|hr|noscript|ol|p|pre|table|ul|dd|dt|li|tbody|td|tfoot|th|thead|tr|button|del|ins|map|object|script).*?>");
 
     private static final String[] BLOCK_ELEMENTS = new String[] { "address", "blockquote", "div", "dl", "fieldset", "form", "h1", "h2", "h3", "h4", "h5", "h6",
             "hr", "noscript", "ol", "p", "pre", "table", "ul", "dd", "dt", "li", "tbody", "td", "tfoot", "th", "thead", "tr", "button", "del", "ins", "map",
             "object", "script" };
 
     // "junk" elements, which we want to filter out
-    private static Pattern junkElements = Pattern.compile("<script.*?>.*?</script>|<style.*?>.*?</style>|<!--.*?-->");
+//    private static Pattern junkElements = Pattern.compile("<script.*?>.*?</script>|<style.*?>.*?</style>|<!--.*?-->");
 
     // //
     // // Patterns for HTML, HTM5, XHTML. One Pattern for the whole tag
@@ -85,38 +85,38 @@ public class HtmlHelper {
     private HtmlHelper() {
     }
 
-    /**
-     * Converts HTML markup to a more or less human readable string. For example we insert line breaks for HTML block level elements, filter out comments,
-     * scripts and stylesheets, remove unnecessary white space and so on.
-     * 
-     * Conclusion: The difference to {@link StringHelper#removeHTMLTags(String, boolean, boolean, boolean, boolean)} is, that this method tries to keep some
-     * structure for displaying HTML content in text mode.
-     * 
-     * TODO this does not work well; better use {@link #htmlDocToString} if applicable, which will do the transformation based on the Document's DOM tree and
-     * thus yield in better results.
-     * 
-     * @param html
-     * @return
-     */
-    public static String htmlToString(String html, boolean skipTitle) {
-
-        // html = html.replaceAll(">\\s*?<", "><");
-        html = html.replaceAll(">\\s+?<", "> <");
-        html = html.replaceAll("\n", " ");
-        html = html.replaceAll("\\s{2,}", " ");
-        html = junkElements.matcher(html).replaceAll("");
-        html = blockElements.matcher(html).replaceAll("\n");
-        if (skipTitle) {
-            html = html.replaceAll("<title>.*?</title>", "");
-        }
-        html = html.replaceAll("<br />", "\n");
-        html = html.replaceAll("<.*?>", "");
-        html = html.replaceAll(" \n", "\n");
-        html = html.replaceAll("\n{3,}", "\n\n");
-        html = html.trim();
-
-        return html;
-    }
+//    /**
+//     * Converts HTML markup to a more or less human readable string. For example we insert line breaks for HTML block level elements, filter out comments,
+//     * scripts and stylesheets, remove unnecessary white space and so on.
+//     * 
+//     * Conclusion: The difference to {@link StringHelper#removeHTMLTags(String, boolean, boolean, boolean, boolean)} is, that this method tries to keep some
+//     * structure for displaying HTML content in text mode.
+//     * 
+//     * TODO this does not work well; better use {@link #htmlDocToString} if applicable, which will do the transformation based on the Document's DOM tree and
+//     * thus yield in better results.
+//     * 
+//     * @param html
+//     * @return
+//     */
+//    public static String htmlToString(String html, boolean skipTitle) {
+//
+//        // html = html.replaceAll(">\\s*?<", "><");
+//        html = html.replaceAll(">\\s+?<", "> <");
+//        html = html.replaceAll("\n", " ");
+//        html = html.replaceAll("\\s{2,}", " ");
+//        html = junkElements.matcher(html).replaceAll("");
+//        html = blockElements.matcher(html).replaceAll("\n");
+//        if (skipTitle) {
+//            html = html.replaceAll("<title>.*?</title>", "");
+//        }
+//        html = html.replaceAll("<br />", "\n");
+//        html = html.replaceAll("<.*?>", "");
+//        html = html.replaceAll(" \n", "\n");
+//        html = html.replaceAll("\n{3,}", "\n\n");
+//        html = html.trim();
+//
+//        return html;
+//    }
 
     /*
      * public static String htmlToString(String string) { final StringBuilder builder = new StringBuilder(); ParserDelegator delegator = new ParserDelegator();

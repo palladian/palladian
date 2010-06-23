@@ -3,10 +3,8 @@ package tud.iir.news;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 /**
@@ -39,9 +37,6 @@ public class Feed {
     private String language;
     private int textType = TEXT_TYPE_UNDETERMINED;
     
-    /** a feed can contain 1...n domains, e.g. 'phones', 'cars' */
-    private Set<String> concepts = new HashSet<String>();
-
     private List<FeedEntry> entries;
 
     /** number of times the feed has been retrieved and read */
@@ -268,17 +263,6 @@ public class Feed {
         return updateClass;
     }
     
-    public Set<String> getConcepts() {
-		return concepts;
-	}
-    
-    public void setConcepts(Set<String> concepts) {
-		this.concepts = concepts;
-	}
-    
-    public boolean addConcept(String concept) {
-    	return concepts.add(concept);
-	}
 
     @Override
     public String toString() {
@@ -292,8 +276,7 @@ public class Feed {
         // sb.append(" format:").append(format);
         // sb.append(" language:").append(language);
         // sb.append(" added:").append(added);
-        sb.append(" domains:").append(concepts);
-
+        
         return sb.toString();
     }
 }

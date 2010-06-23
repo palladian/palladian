@@ -409,8 +409,9 @@ public class Crawler {
 
         HashSet<String> pageLinks = new HashSet<String>();
 
-        if (document == null)
+        if (document == null) {
             return pageLinks;
+        }
 
         // remove anchors from url
         String url = document.getDocumentURI();
@@ -500,13 +501,18 @@ public class Crawler {
         String result = "";
         try {
             URL urlObj = new URL(url);
-            if (includeProtocol) {
-                result = urlObj.getProtocol() + "://";
+            String host = urlObj.getHost();
+            if (!host.isEmpty()) {
+                if (includeProtocol) {
+                    result = urlObj.getProtocol() + "://";
+                }
+                result += urlObj.getHost();
+                LOGGER.trace("root url for " + url + " -> " + result);
+            } else {
+                LOGGER.trace("no domain specified " + url);
             }
-            result += urlObj.getHost();
-            LOGGER.trace("root url for " + url + " -> " + result);
         } catch (MalformedURLException e) {
-            LOGGER.error("could not convert url " + url);
+            LOGGER.trace("could not determine domain " + url);
         }
         return result;
 
@@ -642,10 +648,14 @@ public class Crawler {
     }
 
     /**
-     * Handling links in HTML documents can be tricky. If no absolute URL is specified in the link itself, there are two factors for which we have to take care:
+     * Creates a full/absolute URL based on the specified parameters.
+     * 
+     * Handling links in HTML documents can be tricky. If no absolute URL is specified in the link itself, there are two
+     * factors for which we have to take care:
      * <ol>
      * <li>The document's URL</li>
-     * <li>If provided, a base URL inside the document, which can be as well be absolute or relative to the document's URL</li>
+     * <li>If provided, a base URL inside the document, which can be as well be absolute or relative to the document's
+     * URL</li>
      * </ol>
      * 
      * @see <a href="http://www.mediaevent.de/xhtml/base.html">HTML base • Basis-Adresse einer Webseite</a>
@@ -653,29 +663,44 @@ public class Crawler {
      * @param pageUrl actual URL of the document.
      * @param baseUrl base URL defined in document's header, can be <code>null</code> if no base URL is specified.
      * @param linkUrl link URL from the document to be made absolute.
-     * @return the absolute URL, empty String, if URL cannot be created or for mailto and javascript links, never <code>null</code>.
+     * @return the absolute URL, empty String, if URL cannot be created or for mailto and javascript links, never
+     *         <code>null</code>.
      * 
      * @author Philipp Katz
      */
     public static String makeFullURL(String pageUrl, String baseUrl, String linkUrl) {
         LOGGER.trace(">makeFullURL " + pageUrl + " " + baseUrl + " " + linkUrl);
         String result = "";
-        if (!linkUrl.startsWith("javascript") && !linkUrl.startsWith("mailto:")) {
+        if (linkUrl != null && !linkUrl.startsWith("javascript") && !linkUrl.startsWith("mailto:")) {
+            // let's java.net.URL do all the conversion work from relative to absolute
+            URL resultUrl = null;
+            // create URL object from the supplied pageUrl
             try {
-                // let's java.net.URL do all the conversion work from relative to absolute
-                URL thePageUrl = new URL(pageUrl);
-                if (baseUrl == null) {
-                    baseUrl = "";
-                } else if (!baseUrl.endsWith("/")) {
-                    baseUrl = baseUrl.concat("/");
-                }
-                // baseUrl relative to pageUrl
-                URL theBaseUrl = new URL(thePageUrl, baseUrl);
-                // linkUrl relative to pageUrl+baseUrl
-                URL theLinkUrl = new URL(theBaseUrl, linkUrl);
-                result = theLinkUrl.toString();
+                resultUrl = new URL(pageUrl);
             } catch (MalformedURLException e) {
-                LOGGER.error("makeFullURL " + e.getMessage());
+                LOGGER.trace("makeFullURL: pageUrl: " + e.getMessage());
+            }
+            // create URL object considering baseUrl, relative to pageUrl
+            try {
+                if (baseUrl != null) {
+                    if (!baseUrl.endsWith("/")) {
+                        baseUrl = baseUrl.concat("/");
+                    }
+                    // this creates a new URL object with resultUrl as "context", which means that the specified baseUrl
+                    // is *relative* to the "context"
+                    resultUrl = new URL(resultUrl, baseUrl);
+                }
+            } catch (MalformedURLException e) {
+                LOGGER.trace("makeFullURL: baseUrl: " + e.getMessage());
+            }
+            // create URL object considering linkUrl, relative to pageUrl+baseUrl
+            try {
+                resultUrl = new URL(resultUrl, linkUrl);
+            } catch (MalformedURLException e) {
+                LOGGER.trace("makeFullURL: linkUrl: " + e.getMessage());
+            }
+            if (resultUrl != null) {
+                result = resultUrl.toString();
             }
         }
         LOGGER.trace("<makeFullURL " + result);
@@ -924,7 +949,7 @@ public class Crawler {
 
             // document.setDocumentURI(url);
 
-            // only call, if we actually got a Document; so we dont need to check for null within the Callback implementation.
+            // only call, if we actually got a Document; so we dont need to check for null within the Callback implementation itself.
             if (callback && document != null) {
                 callCrawlerCallback(document);
             }
@@ -972,13 +997,13 @@ public class Crawler {
         setDocument(url, false, true);
         return getDocument();
     }
-
+    
     /**
-     * Allows to disable callbacks.
+     * Get a web page ((X)HTML document).
      * 
-     * @param url
-     * @param callback
-     * @return
+     * @param url The URL of the web page.
+     * @param callback set to <code>false</code> to disable callback for this document.
+     * @return The W3C document.
      */
     public Document getWebDocument(String url, boolean callback) {
         setDocument(url, false, callback);
@@ -993,6 +1018,18 @@ public class Crawler {
      */
     public Document getXMLDocument(String url) {
         setDocument(url, true, true);
+        return getDocument();
+    }
+    
+    /**
+     * Get XML document from a URL. Pure XML documents can created with the native DocumentBuilderFactory, which works better with the native XPath queries.
+     * 
+     * @param url The URL pointing to the XML document.
+     * @param callback set to <code>false</code> to disable callback for this document.
+     * @return The XML document.
+     */
+    public Document getXMLDocument(String url, boolean callback) {
+        setDocument(url, true, callback);
         return getDocument();
     }
 
@@ -1077,8 +1114,9 @@ public class Crawler {
                 String line = "";
                 do {
                     line = br.readLine();
-                    if (line == null)
-                        break;
+                    if (line == null) {
+                        break;                        
+                    }
                     html.append(line).append("\n");
                 } while (line != null);
 
@@ -1194,8 +1232,9 @@ public class Crawler {
 
                 String t = entry.getKey().replace("http://", "").replace("www.", "");
                 int pInd = t.indexOf(".");
-                if (pInd == -1)
+                if (pInd == -1) {
                     continue;
+                }
                 filename += t.substring(0, pInd);
 
                 filename += ".html";
