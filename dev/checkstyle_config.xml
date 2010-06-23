@@ -79,7 +79,7 @@
     <module name="PackageName"/>
     <module name="StaticVariableName"/>
     <module name="LineLength">
-      <property name="max" value="160"/>
+      <property name="max" value="120"/>
     </module>
   </module>
   <module name="Translation"/>
