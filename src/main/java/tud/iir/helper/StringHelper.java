@@ -25,6 +25,7 @@ import tud.iir.normalization.UnitNormalizer;
  * The StringHelper adds string functionality.
  * 
  * @author David Urbansky
+ * @author Martin Werner
  */
 public class StringHelper {
 
@@ -145,13 +146,16 @@ public class StringHelper {
      * @return The safe name.
      */
     public static String makeSafeName(String name) {
-        return name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "").replaceAll(",", "_").replaceAll("\\.", "_").replaceAll(
-                ";", "_").replaceAll("\\:", "_").replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll("\\Ä", "Ae").replaceAll("\\ö",
-                "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue").replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
+        return name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
+                .replaceAll(",", "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll("\\:", "_")
+                .replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll("\\Ä", "Ae")
+                .replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue").replaceAll("\\Ü", "Ue")
+                .replaceAll("\\ß", "ss");
     }
 
     /**
-     * This function wraps the string to integer conversion in order to prevent the exception catching in other functions.
+     * This function wraps the string to integer conversion in order to prevent the exception catching in other
+     * functions.
      * 
      * @param text The text that is a number.
      * @return The integer presentation of the text.
@@ -167,7 +171,8 @@ public class StringHelper {
     }
 
     /**
-     * This function wraps the string to double conversion in order to prevent the exception catching in other functions.
+     * This function wraps the string to double conversion in order to prevent the exception catching in other
+     * functions.
      * 
      * @param text The text that is a number.
      * @return The double presentation of the text.
@@ -192,10 +197,9 @@ public class StringHelper {
      */
     public static String makeCamelCase(String name, boolean uppercaseFirst, boolean toSingular) {
         String camelCasedName = "";
+        String modName = name.replaceAll("\\s", "_");
 
-        name = name.replaceAll("\\s", "_");
-
-        String[] parts = name.split("_");
+        String[] parts = modName.split("_");
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
             if (i == parts.length - 1 && toSingular) {
@@ -272,12 +276,13 @@ public class StringHelper {
      * @return The text without the numbers.
      */
     public static String removeNumbering(String numberedText) {
-        numberedText = numberedText.replaceAll("^\\s*\\d+(\\.?\\d?)*\\s*", "");
-        return numberedText;
+        String modText = numberedText.replaceAll("^\\s*\\d+(\\.?\\d?)*\\s*", "");
+        return modText;
     }
 
     /**
-     * Calculate all n-grams for a string for different n. The size of the set can be calculated as: Size = SUM_n(n1,n2) (stringLength - n + 1)
+     * Calculate all n-grams for a string for different n. The size of the set can be calculated as: Size = SUM_n(n1,n2)
+     * (stringLength - n + 1)
      * 
      * @param string The string the n-grams should be calculated for.
      * @param n1 The smallest n-gram size.
@@ -314,7 +319,9 @@ public class StringHelper {
         try {
             pat = Pattern.compile(RegExp.getRegExp(Attribute.VALUE_STRING));
         } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + RegExp.getRegExp(Attribute.VALUE_STRING), e);
+            Logger.getRootLogger().error(
+                    "PatternSyntaxException for " + searchString + " with regExp "
+                            + RegExp.getRegExp(Attribute.VALUE_STRING), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -334,7 +341,9 @@ public class StringHelper {
         try {
             pat = Pattern.compile(RegExp.getRegExp(Attribute.VALUE_NUMERIC));
         } catch (PatternSyntaxException e) {
-            Logger.getRootLogger().error("PatternSyntaxException for " + searchString + " with regExp " + RegExp.getRegExp(Attribute.VALUE_NUMERIC), e);
+            Logger.getRootLogger().error(
+                    "PatternSyntaxException for " + searchString + " with regExp "
+                            + RegExp.getRegExp(Attribute.VALUE_NUMERIC), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -344,13 +353,16 @@ public class StringHelper {
     }
 
     /**
-     * Transform an English plural word to its singular form. Rules: http://www.englisch-hilfen.de/en/grammar/plural.htm,
+     * Transform an English plural word to its singular form. Rules:
+     * http://www.englisch-hilfen.de/en/grammar/plural.htm,
      * http://en.wikipedia.org/wiki/English_plural
      * 
      * @param plural The plural.
      * @return The singular.
      */
-    public static String wordToSingular(String plural) {
+    public static String wordToSingular(String pluralForm) {
+
+        String plural = pluralForm;
 
         if (plural == null) {
             return "";
@@ -395,8 +407,9 @@ public class StringHelper {
         if ((plural.toLowerCase().endsWith("es") && plural.length() >= 5)) {
             String lettersBeforeES = plural.substring(plural.length() - 4, plural.length() - 2);
             String letterBeforeES = lettersBeforeES.substring(1);
-            if (lettersBeforeES.equalsIgnoreCase("ss") || lettersBeforeES.equalsIgnoreCase("ch") || lettersBeforeES.equalsIgnoreCase("sh")
-                    || letterBeforeES.equalsIgnoreCase("x") || isVowel(letterBeforeES.charAt(0))) {
+            if (lettersBeforeES.equalsIgnoreCase("ss") || lettersBeforeES.equalsIgnoreCase("ch")
+                    || lettersBeforeES.equalsIgnoreCase("sh") || letterBeforeES.equalsIgnoreCase("x")
+                    || isVowel(letterBeforeES.charAt(0))) {
                 return plural.substring(0, plural.length() - 2);
             }
         }
@@ -410,7 +423,8 @@ public class StringHelper {
     }
 
     /**
-     * Transform an English singular word to its plural form. rules: http://owl.english.purdue.edu/handouts/grammar/g_spelnoun.html
+     * Transform an English singular word to its plural form. rules:
+     * http://owl.english.purdue.edu/handouts/grammar/g_spelnoun.html
      * 
      * @param singular The singular.
      * @return The plural.
@@ -444,8 +458,9 @@ public class StringHelper {
         String lastTwoLetters = secondLastLetter + lastLetter;
 
         // if word ends in a vowel plus -y (-ay, -ey, -iy, -oy, -uy), add an -s
-        if (lastTwoLetters.equalsIgnoreCase("ay") || lastTwoLetters.equalsIgnoreCase("ey") || lastTwoLetters.equalsIgnoreCase("iy")
-                || lastTwoLetters.equalsIgnoreCase("oy") || lastTwoLetters.equalsIgnoreCase("uy")) {
+        if (lastTwoLetters.equalsIgnoreCase("ay") || lastTwoLetters.equalsIgnoreCase("ey")
+                || lastTwoLetters.equalsIgnoreCase("iy") || lastTwoLetters.equalsIgnoreCase("oy")
+                || lastTwoLetters.equalsIgnoreCase("uy")) {
             return singular + "s";
         }
 
@@ -461,8 +476,8 @@ public class StringHelper {
         }
 
         // if word ends on -s, -z, -x, -ch or -sh end add an -es
-        if (lastLetter.equalsIgnoreCase("s") || lastLetter.equalsIgnoreCase("z") || lastLetter.equalsIgnoreCase("x") || lastTwoLetters.equalsIgnoreCase("ch")
-                || lastTwoLetters.equalsIgnoreCase("sh")) {
+        if (lastLetter.equalsIgnoreCase("s") || lastLetter.equalsIgnoreCase("z") || lastLetter.equalsIgnoreCase("x")
+                || lastTwoLetters.equalsIgnoreCase("ch") || lastTwoLetters.equalsIgnoreCase("sh")) {
             return singular + "es";
         }
 
@@ -482,29 +497,32 @@ public class StringHelper {
      * @return The string without the stop words.
      */
     public static String removeStopWords(String string) {
-        String[] stopWords = { "the", "and", "of", "by", "as", "but", "not", "is", "it", "to", "in", "or", "for", "on", "at", "up", "what", "how", "why",
-                "when", "where" };
+        String[] stopWords = { "the", "and", "of", "by", "as", "but", "not", "is", "it", "to", "in", "or", "for", "on",
+                "at", "up", "what", "how", "why", "when", "where" };
         int stopWordsSize = stopWords.length;
 
-        string = " " + string + " ";
+        String modString = " " + string + " ";
         for (int i = 0; i < stopWordsSize; ++i) {
             // remove stop words followed by a space
-            string = string.replaceAll("(?<![\\w])(?i)" + stopWords[i] + "\\s", "");
+            modString = modString.replaceAll("(?<![\\w])(?i)" + stopWords[i] + "\\s", "");
             // remove stop words followed by punctuation
-            string = string.replaceAll("\\s" + stopWords[i] + "(?=(\\!|\\?|\\.|,|;))", "");
+            modString = modString.replaceAll("\\s" + stopWords[i] + "(?=(\\!|\\?|\\.|,|;))", "");
         }
 
-        return string.trim();
+        return modString.trim();
     }
 
     /**
-     * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close gaps.
+     * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
+     * gaps.
      * 
      * @param htmlText The html text of the web page.
      * @return The text of the web page.
      */
-    public static String removeHTMLTags(String htmlText, boolean stripTags, boolean stripComments, boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
+    public static String removeHTMLTags(String htmlContent, boolean stripTags, boolean stripComments,
+            boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
 
+        String htmlText = htmlContent;
         // modified by Martin Werner, 2010-06-02
 
         if (joinTagsAndRemoveNewlines) {
@@ -540,7 +558,8 @@ public class StringHelper {
         // }
         //
         // // Pattern pattern =
-        // // Pattern.compile("((\\<!--.*?-->)|(\\<style.*?>.*?\\</style>)|(\\<script.*?>.*?\\</script>)|(\\<.*?>))",Pattern.DOTALL);
+        // //
+        // Pattern.compile("((\\<!--.*?-->)|(\\<style.*?>.*?\\</style>)|(\\<script.*?>.*?\\</script>)|(\\<.*?>))",Pattern.DOTALL);
         // Pattern pattern = Pattern.compile("(" + regExp + ")", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         // Matcher matcher = pattern.matcher(htmlText);
         //
@@ -567,7 +586,8 @@ public class StringHelper {
     /**
      * Remove concrete HTMLTags from a string; set isSpecial=true for special-tags like <!-- -->
      */
-    public static String removeConcreteHTMLTag(String pageString, String beginTag, String endTag) {
+    public static String removeConcreteHTMLTag(String pageContent, String beginTag, String endTag) {
+        String pageString = pageContent;
         List<String> removeList;
         removeList = getConcreteTags(pageString, beginTag, endTag);
         for (String removeTag : removeList) {
@@ -610,8 +630,8 @@ public class StringHelper {
     }
 
     public static String removeSpecialChars(String string) {
-        string = string.replaceAll(" ", " ");
-        return string;
+        String modString = string.replaceAll(" ", " ");
+        return modString;
     }
 
     public static int countTags(String htmlText) {
@@ -638,7 +658,8 @@ public class StringHelper {
         return tagCount;
     }
 
-    public static String removeBrackets(String string) {
+    public static String removeBrackets(String bracketString) {
+        String string = bracketString;
         try {
             string = string.replaceAll("\\(.*?\\)", "");
             string = string.replaceAll("\\[.*?\\]", "");
@@ -649,7 +670,8 @@ public class StringHelper {
         return string;
     }
 
-    public static String escapeForRegularExpression(String string) {
+    public static String escapeForRegularExpression(String inputString) {
+        String string = inputString;
         try {
             // modified by Philipp Katz, 2010-05-14
             // added further meta characters like . ? -
@@ -726,9 +748,12 @@ public class StringHelper {
 
         for (int i = 0, l = string.length(); i < l; ++i) {
             Character ch = string.charAt(i);
-            if (Character.getType(ch) != Character.DECIMAL_DIGIT_NUMBER && Character.getType(ch) != Character.DASH_PUNCTUATION
-                    && Character.getType(ch) != Character.CONNECTOR_PUNCTUATION && Character.getType(ch) != Character.CURRENCY_SYMBOL
-                    && Character.getType(ch) != Character.DIRECTIONALITY_WHITESPACE && ch != '%' && ch != '.' && ch != ',' && ch != ':') {
+            if (Character.getType(ch) != Character.DECIMAL_DIGIT_NUMBER
+                    && Character.getType(ch) != Character.DASH_PUNCTUATION
+                    && Character.getType(ch) != Character.CONNECTOR_PUNCTUATION
+                    && Character.getType(ch) != Character.CURRENCY_SYMBOL
+                    && Character.getType(ch) != Character.DIRECTIONALITY_WHITESPACE && ch != '%' && ch != '.'
+                    && ch != ',' && ch != ':') {
                 isNumericExpression = false;
                 break;
             }
@@ -741,7 +766,8 @@ public class StringHelper {
 
             if (m.find()) {
                 double number = Double.valueOf(StringNormalizer.normalizeNumber(m.group()));
-                double convertedNumber = UnitNormalizer.getNormalizedNumber(number, string.substring(m.end(), string.length()));
+                double convertedNumber = UnitNormalizer.getNormalizedNumber(number,
+                        string.substring(m.end(), string.length()));
                 if (number != convertedNumber)
                     return true;
             }
@@ -759,15 +785,17 @@ public class StringHelper {
         return false;
     }
 
-    public static boolean isCompletelyUppercase(String string) {
-        string = StringHelper.trim(string);
+    public static boolean isCompletelyUppercase(String testString) {
+
+        String string = StringHelper.trim(testString);
         if (string.length() == 0)
             return false;
 
         boolean isCompletelyUppercase = true;
         for (int i = 0, l = string.length(); i < l; ++i) {
             Character ch = string.charAt(i);
-            if (Character.getType(ch) != Character.UPPERCASE_LETTER && Character.getType(ch) != Character.INITIAL_QUOTE_PUNCTUATION
+            if (Character.getType(ch) != Character.UPPERCASE_LETTER
+                    && Character.getType(ch) != Character.INITIAL_QUOTE_PUNCTUATION
                     && Character.getType(ch) != Character.FINAL_QUOTE_PUNCTUATION && ch != ' ') {
                 isCompletelyUppercase = false;
             }
@@ -776,8 +804,8 @@ public class StringHelper {
         return isCompletelyUppercase;
     }
 
-    public static boolean startsUppercase(String string) {
-        string = StringHelper.trim(string);
+    public static boolean startsUppercase(String testString) {
+        String string = StringHelper.trim(testString);
         if (string.length() == 0) {
             return false;
         }
@@ -805,8 +833,9 @@ public class StringHelper {
         return capitalizedWordCount;
     }
 
-    public static boolean isVowel(Character character) {
-        character = Character.toUpperCase(character);
+    public static boolean isVowel(Character inputCharacter) {
+
+        Character character = Character.toUpperCase(inputCharacter);
         if (character == 'A' || character == 'E' || character == 'I' || character == 'O' || character == 'U') {
             return true;
         }
@@ -814,14 +843,16 @@ public class StringHelper {
     }
 
     /**
-     * Given a string, find the beginning of the sentence, e.g. "...now. Although, many of them" => "Although, many of them". consider !,?,. and : as end of
+     * Given a string, find the beginning of the sentence, e.g. "...now. Although, many of them" =>
+     * "Although, many of them". consider !,?,. and : as end of
      * sentence TODO control character after delimiter makes it end of sentence
      * 
      * @param string The string.
      * @return The phrase from the beginning of the sentence.
      */
-    public static String getPhraseFromBeginningOfSentence(String string) {
+    public static String getPhraseFromBeginningOfSentence(String inputString) {
 
+        String string = inputString;
         // find the beginning of the current sentence by finding the period at
         // the end
         int startIndex = string.lastIndexOf(".");
@@ -834,10 +865,12 @@ public class StringHelper {
                 break;
 
             if (startIndex > 0) {
-                pointIsSentenceDelimiter = (!isNumber(string.charAt(startIndex - 1)) && Character.isUpperCase(string.charAt(startIndex + 1)));
+                pointIsSentenceDelimiter = (!isNumber(string.charAt(startIndex - 1)) && Character.isUpperCase(string
+                        .charAt(startIndex + 1)));
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2)) && string.charAt(startIndex + 1) == ' ');
+                pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2)) && string
+                        .charAt(startIndex + 1) == ' ');
             }
             if (pointIsSentenceDelimiter)
                 break;
@@ -866,7 +899,8 @@ public class StringHelper {
     }
 
     /**
-     * Given a string, find the end of the sentence, e.g. "Although, many of them (30.2%) are good. As long as" => "Although, many of them (30.2%) are good."
+     * Given a string, find the end of the sentence, e.g. "Although, many of them (30.2%) are good. As long as" =>
+     * "Although, many of them (30.2%) are good."
      * consider !,?,. and : as end of sentence
      * 
      * @param string The string.
@@ -889,13 +923,15 @@ public class StringHelper {
             }
             // one digit after point
             if (endIndex < string.length() - 1) {
-                pointIsSentenceDelimiter = (!isNumber(string.charAt(endIndex + 1)) && (Character.isUpperCase(string.charAt(endIndex + 1))) || isBracket(string
+                pointIsSentenceDelimiter = (!isNumber(string.charAt(endIndex + 1))
+                        && (Character.isUpperCase(string.charAt(endIndex + 1))) || isBracket(string
                         .charAt(endIndex + 1)));
             }
             // two digits after point
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = (!isNumber(string.charAt(endIndex + 2))
-                        && (Character.isUpperCase(string.charAt(endIndex + 2)) || isBracket(string.charAt(endIndex + 2))) && string.charAt(endIndex + 1) == ' ');
+                        && (Character.isUpperCase(string.charAt(endIndex + 2)) || isBracket(string.charAt(endIndex + 2))) && string
+                        .charAt(endIndex + 1) == ' ');
             }
             if (pointIsSentenceDelimiter)
                 break;
@@ -951,15 +987,16 @@ public class StringHelper {
         return trim(string, "");
     }
 
-    public static String trim(String string, String keepCharacters) {
+    public static String trim(String inputString, String keepCharacters) {
 
-        string = string.trim();
+        String string = inputString.trim();
         if (string.length() == 0)
             return string;
 
         string = unescapeHTMLEntities(string);
 
-        String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\", "@", "<", ">", "=", "·", "^", "_", "+" }; // whitespace
+        String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/",
+                "\\", "@", "<", ">", "=", "·", "^", "_", "+" }; // whitespace
         // is also
         // unwanted
         // but trim()
@@ -992,11 +1029,14 @@ public class StringHelper {
                     continue;
                 // System.out.println(first.charValue());
                 // System.out.println(Character.isSpaceChar(first));
-                if (first == unwanted[i].charAt(0) || Character.getType(first) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
+                if (first == unwanted[i].charAt(0)
+                        || Character.getType(first) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
                         || Character.isSpaceChar(first)) {
                     deleteFirst = true;
                 }
-                if (last == unwanted[i].charAt(0) || Character.getType(last) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING || Character.isSpaceChar(last)) {
+                if (last == unwanted[i].charAt(0)
+                        || Character.getType(last) == Character.DIRECTIONALITY_RIGHT_TO_LEFT_EMBEDDING
+                        || Character.isSpaceChar(last)) {
                     deleteLast = true;
                 }
                 if (deleteFirst && deleteLast)
@@ -1043,9 +1083,9 @@ public class StringHelper {
     public static String makeContinuousText(String text) {
 
         // close multiple spaces
-        text = text.replaceAll("(\\s){1,}", " ");
+        String continuoustext = text.replaceAll("(\\s){1,}", " ");
 
-        return text;
+        return continuoustext;
     }
 
     public static String unescapeHTMLEntities(String string) {
@@ -1054,8 +1094,8 @@ public class StringHelper {
         return escaped.replaceAll(" ", " ");
     }
 
-    public static String putArticleInFront(String string) {
-        string = string.trim();
+    public static String putArticleInFront(String inputString) {
+        String string = inputString.trim();
 
         if (string.toLowerCase().endsWith(",the")) {
             string = "The " + string.substring(0, string.length() - 4);
@@ -1138,7 +1178,8 @@ public class StringHelper {
     }
 
     public static double calculateSimilarity(String string1, String string2, boolean caseSensitive) {
-        double longestCommonStringLength = (double) getLongestCommonString(string1, string2, caseSensitive, true).length();
+        double longestCommonStringLength = (double) getLongestCommonString(string1, string2, caseSensitive, true)
+                .length();
         if (longestCommonStringLength == 0)
             return 0.0;
 
@@ -1158,12 +1199,15 @@ public class StringHelper {
      * @param string1 The first string.
      * @param string2 The second string.
      * @param caseSensitive True if the check should be case sensitive, false otherwise.
-     * @param shiftString If true, the shorter string will be shifted and checked against the longer string. The longest common string of two strings is found
-     *            regardless whether they start with the same characters. If true, ABCD and BBCD have BCD in common, if false the longest common string is
+     * @param shiftString If true, the shorter string will be shifted and checked against the longer string. The longest
+     *            common string of two strings is found
+     *            regardless whether they start with the same characters. If true, ABCD and BBCD have BCD in common, if
+     *            false the longest common string is
      *            empty.
      * @return The longest common string.
      */
-    public static String getLongestCommonString(String string1, String string2, boolean caseSensitive, boolean shiftString) {
+    public static String getLongestCommonString(String string1, String string2, boolean caseSensitive,
+            boolean shiftString) {
 
         String string1Compare = string1;
         String string2Compare = string2;
@@ -1236,7 +1280,8 @@ public class StringHelper {
     }
 
     /**
-     * Run a regular expression on a string and form a new string with the matched strings separated by the specified separator.
+     * Run a regular expression on a string and form a new string with the matched strings separated by the specified
+     * separator.
      * 
      * @param inputString The input string for the matching.
      * @param separator The separator used to separate the matched strings.
@@ -1244,10 +1289,10 @@ public class StringHelper {
      * @return
      */
     public static String concatMatchedString(String inputString, String separator, String regularExpression) {
-        inputString = StringHelper.unescapeHTMLEntities(inputString);
+        String modInputString = StringHelper.unescapeHTMLEntities(inputString);
         String string = "";
         Pattern pattern = Pattern.compile(regularExpression);
-        Matcher matcher = pattern.matcher(inputString);
+        Matcher matcher = pattern.matcher(modInputString);
 
         while (matcher.find()) {
             Logger.getRootLogger().debug(matcher.group());
@@ -1314,74 +1359,77 @@ public class StringHelper {
      */
     public static void main(String[] args) {
 
-        System.out.println(StringHelper.makeCamelCase("max_speed car", true));
-        System.out.println(StringHelper.makeCamelCase("max_speed car", false));
-        System.out.println(StringHelper.makeSafeName("Für Ärmel und Soßenklamüster."));
+        // System.out.println(StringHelper.makeCamelCase("max_speed car", true));
+        // System.out.println(StringHelper.makeCamelCase("max_speed car", false));
+        // System.out.println(StringHelper.makeSafeName("Für Ärmel und Soßenklamüster."));
         System.exit(0);
 
-        System.out.println(StringHelper
-                .encodeBase64("qwertzuiopü+#äölkjhgfdsaaaaaa<yxcvbnm,.-*ÜPOIUZTREWQASDFGHJKLÖ#Ä'Ä_:;MNBVCXY1234567890ß´`?=)(/&%$§\"\"\"\"\"!"));
-        System.out
-                .println(StringHelper
-                        .decodeBase64("cXdlcnR6dWlvcPwrI+T2bGtqaGdmZHNhYWFhYWE8eXhjdmJubSwuLSrcUE9JVVpUUkVXUUFTREZHSEpLTNYjxCfEXzo7TU5CVkNYWTEyMzQ1Njc4OTDftGA/PSkoLyYlJKciIiIiIiE="));
+        // System.out.println(StringHelper
+        // .encodeBase64("qwertzuiopü+#äölkjhgfdsaaaaaa<yxcvbnm,.-*ÜPOIUZTREWQASDFGHJKLÖ#Ä'Ä_:;MNBVCXY1234567890ß´`?=)(/&%$§\"\"\"\"\"!"));
+        // System.out
+        // .println(StringHelper
+        // .decodeBase64("cXdlcnR6dWlvcPwrI+T2bGtqaGdmZHNhYWFhYWE8eXhjdmJubSwuLSrcUE9JVVpUUkVXUUFTREZHSEpLTNYjxCfEXzo7TU5CVkNYWTEyMzQ1Njc4OTDftGA/PSkoLyYlJKciIiIiIiE="));
         System.exit(1);
 
-        System.out.println(StringHelper.reverseString("ABcd ef"));
-        System.out.println(StringHelper.getLongestCommonString("ABCD", "BCDE", false, true));
-        System.out.println(StringHelper.getLongestCommonString("ABCD", "BCDE", false, false));
+        // System.out.println(StringHelper.reverseString("ABcd ef"));
+        // System.out.println(StringHelper.getLongestCommonString("ABCD", "BCDE", false, true));
+        // System.out.println(StringHelper.getLongestCommonString("ABCD", "BCDE", false, false));
         System.exit(0);
         CollectionHelper.print(calculateNGrams("allthelilacsinohio", 3));
         CollectionHelper.print(calculateNGrams("hiatt", 3));
         CollectionHelper.print(calculateAllNGrams("allthelilacsinohio", 3, 8));
         System.exit(0);
-
-        System.out.println(trim("\""));
-        // test
-        System.out.println(getPhraseToEndOfSentence("dsaf sdff 21.4 million. [1]"));
-        System.out.println(getPhraseToEndOfSentence("2 hr. 32 min."));
-        System.out.println(isNumber("1asd8%"));
-        System.out.println(isNumber("0123456789"));
-        System.out.println(wordToPlural("elephant"));
-        System.out.println(wordToPlural("synopsis"));
-        System.out.println(wordToPlural("City"));
-        System.out.println(wordToPlural("enemy"));
-        System.out.println(wordToPlural("tray"));
-        System.out.println(wordToPlural("studio"));
-        System.out.println(wordToPlural("box"));
-        System.out.println(wordToPlural("church"));
-        System.out.println(unescapeHTMLEntities("    81&nbsp;904 100       _uacct = UA-66225"));
-
-        System.out.println(getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"));
-        System.out.println(getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"));
-        System.out.println(getSentence("...now. Although, many of them (30.2%) are good. As long as", 10));
-        System.out.println(getSentence("...now. Although, many of them (30.2%) are good? As long as", 40));
-        System.out.println(getSentence("What is the largest city in usa, (30.2%) in population. - Yahoo! Answers,", 12));
-        System.out.println(getSentence("What is the largest city in usa, (30.2%) in population? - Yahoo! Answers,", 12));
-        System.out.println(getSentence("...now. Although, has 234,423,234 sq.miles area many of them (30.2%) are good. As long as", 10));
-
-        System.out.println(trim(","));
-        System.out.println(trim(""));
-        System.out.println(trim(". ,"));
-        System.out.println(trim(" ; asd ?¬"));
-        System.out.println(trim(" ; asd ?¬"));
-        System.out.println(trim("; ,.  27 30 N, 90 30 E  "));
-        System.out.println(trim(",.  27 30 N, 90 30 E  ##"));
-        System.out.println(trim("' 2'',"));
-        System.out.println(trim("' 2\","));
-        System.out.println(trim("'80GB'))"));
+        //
+        // System.out.println(trim("\""));
+        // // test
+        // System.out.println(getPhraseToEndOfSentence("dsaf sdff 21.4 million. [1]"));
+        // System.out.println(getPhraseToEndOfSentence("2 hr. 32 min."));
+        // System.out.println(isNumber("1asd8%"));
+        // System.out.println(isNumber("0123456789"));
+        // System.out.println(wordToPlural("elephant"));
+        // System.out.println(wordToPlural("synopsis"));
+        // System.out.println(wordToPlural("City"));
+        // System.out.println(wordToPlural("enemy"));
+        // System.out.println(wordToPlural("tray"));
+        // System.out.println(wordToPlural("studio"));
+        // System.out.println(wordToPlural("box"));
+        // System.out.println(wordToPlural("church"));
+        // System.out.println(unescapeHTMLEntities("    81&nbsp;904 100       _uacct = UA-66225"));
+        //
+        // System.out.println(getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"));
+        // System.out.println(getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"));
+        // System.out.println(getSentence("...now. Although, many of them (30.2%) are good. As long as", 10));
+        // System.out.println(getSentence("...now. Although, many of them (30.2%) are good? As long as", 40));
+        // System.out.println(getSentence("What is the largest city in usa, (30.2%) in population. - Yahoo! Answers,",
+        // 12));
+        // System.out.println(getSentence("What is the largest city in usa, (30.2%) in population? - Yahoo! Answers,",
+        // 12));
+        // System.out.println(getSentence("...now. Although, has 234,423,234 sq.miles area many of them (30.2%) are good. As long as",
+        // 10));
+        //
+        // System.out.println(trim(","));
+        // System.out.println(trim(""));
+        // System.out.println(trim(". ,"));
+        // System.out.println(trim(" ; asd ?¬"));
+        // System.out.println(trim(" ; asd ?¬"));
+        // System.out.println(trim("; ,.  27 30 N, 90 30 E  "));
+        // System.out.println(trim(",.  27 30 N, 90 30 E  ##"));
+        // System.out.println(trim("' 2'',"));
+        // System.out.println(trim("' 2\","));
+        // System.out.println(trim("'80GB'))"));
 
         // System.out.println(removeStopWords("...The neighborhood is rocking of."));
         // System.out.println(removeStopWords("The neighborhood is; IS REALLY; rocking of!"));
 
         // upper case test
-        System.out.println((Character.isUpperCase('3')));
+        // System.out.println((Character.isUpperCase('3')));
 
         String n = "(2008)";
-        System.out.println(StringHelper.escapeForRegularExpression(n));
-
-        System.out.println(StringHelper.makeSafeName("The Dark Knight/A"));
-
-        System.out.println(makeContinuousText("city: 3.5 cu. ft.\n         \t\t\t\t\n\t\tabc"));
+        // System.out.println(StringHelper.escapeForRegularExpression(n));
+        //
+        // System.out.println(StringHelper.makeSafeName("The Dark Knight/A"));
+        //
+        // System.out.println(makeContinuousText("city: 3.5 cu. ft.\n         \t\t\t\t\n\t\tabc"));
 
         // Pattern colonPattern = null;
         // //colonPattern =
@@ -1401,11 +1449,12 @@ public class StringHelper {
 
             Pattern cp = Pattern.compile(RegExp.getRegExp(Attribute.VALUE_STRING) + ":$");
             Matcher cpm = cp.matcher(neighborhood.substring(Math.max(0, colonIndex - 30), colonIndex + 1));
-            System.out.println("String before colon: " + neighborhood.substring(Math.max(0, colonIndex - 30), colonIndex + 1));
+            // System.out.println("String before colon: " + neighborhood.substring(Math.max(0, colonIndex - 30),
+            // colonIndex + 1));
             int i = 1;
             String newAttributeName = "";
             while (cpm.find()) {
-                System.out.println((i++) + " " + cpm.group());
+                // System.out.println((i++) + " " + cpm.group());
                 newAttributeName = cpm.group();
             }
 
@@ -1420,7 +1469,7 @@ public class StringHelper {
                 }
 
                 String value = neighborhood.substring(colonIndex + 1, Math.min(neighborhood.length(), nextLookOut));
-                System.out.println("==> " + newAttributeName + ":" + value);
+                // System.out.println("==> " + newAttributeName + ":" + value);
             }
 
             colonIndex = nextColonIndex;
