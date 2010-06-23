@@ -153,11 +153,10 @@ public class StringHelper {
      * @return The safe name.
      */
     public static String makeSafeName(String name) {
-        return name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
-                .replaceAll(",", "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll("\\:", "_")
-                .replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll("\\Ä", "Ae")
-                .replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue").replaceAll("\\Ü", "Ue")
-                .replaceAll("\\ß", "ss");
+        return name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "").replaceAll(",",
+                "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll("\\:", "_").replaceAll("\\!", "")
+                .replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll("\\Ä", "Ae").replaceAll("\\ö", "oe")
+                .replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue").replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
     }
 
     /**
@@ -261,13 +260,14 @@ public class StringHelper {
     }
 
     /**
-     * Calculate n-grams for a given string. The size of the set can be calculated as: Size = stringLength - n + 1
+     * Calculate n-grams for a given string on a character level. The size of the set can be calculated as: Size =
+     * stringLength - n + 1
      * 
      * @param string The string that the n-grams should be calculated for.
      * @param n The number of characters for a gram.
      * @return A set of n-grams.
      */
-    public static Set<String> calculateNGrams(String string, int n) {
+    public static Set<String> calculateCharNGrams(String string, int n) {
         Set<String> nGrams = new HashSet<String>();
 
         if (string.length() < n) {
@@ -288,6 +288,74 @@ public class StringHelper {
     }
 
     /**
+     * Calculate n-grams for a given string on a word level. The size of the set can be calculated as: Size =
+     * numberOfWords - n + 1
+     * 
+     * @param string The string that the n-grams should be calculated for.
+     * @param n The number of words for a gram.
+     * @return A set of n-grams.
+     */
+    public static Set<String> calculateWordNGrams(String string, int n) {
+        Set<String> nGrams = new HashSet<String>();
+
+        String[] words = string.split("\\s");
+
+        if (words.length < n) {
+            return nGrams;
+        }
+
+        for (int i = 0; i <= words.length - n; i++) {
+
+            StringBuilder nGram = new StringBuilder();
+            for (int j = i; j < i + n; j++) {
+                nGram.append(words[j]).append(" ");
+            }
+            nGrams.add(nGram.toString().trim());
+
+        }
+
+        return nGrams;
+    }
+
+    /**
+     * Calculate all n-grams for a string for different n on a character level. The size of the set can be calculated
+     * as: Size = SUM_n(n1,n2)
+     * (stringLength - n + 1)
+     * 
+     * @param string The string the n-grams should be calculated for.
+     * @param n1 The smallest n-gram size.
+     * @param n2 The greatest n-gram size.
+     * @return A set of n-grams.
+     */
+    public static Set<String> calculateAllCharNGrams(String string, int n1, int n2) {
+        Set<String> nGrams = new HashSet<String>();
+        for (int n = n1; n <= n2; n++) {
+            nGrams.addAll(calculateCharNGrams(string, n));
+        }
+
+        return nGrams;
+    }
+
+    /**
+     * Calculate all n-grams for a string for different n on a word level. The size of the set can be calculated as:
+     * Size = SUM_n(n1,n2)
+     * (numberOfWords - n + 1)
+     * 
+     * @param string The string the n-grams should be calculated for.
+     * @param n1 The smallest n-gram size.
+     * @param n2 The greatest n-gram size.
+     * @return A set of n-grams.
+     */
+    public static Set<String> calculateAllWordNGrams(String string, int n1, int n2) {
+        Set<String> nGrams = new HashSet<String>();
+        for (int n = n1; n <= n2; n++) {
+            nGrams.addAll(calculateWordNGrams(string, n));
+        }
+
+        return nGrams;
+    }
+
+    /**
      * Replace number before a text. 1.1 Text => Text
      * 
      * @param numberedText The text that possibly has numbers before it starts.
@@ -296,24 +364,6 @@ public class StringHelper {
     public static String removeNumbering(String numberedText) {
         String modText = numberedText.replaceAll("^\\s*\\d+(\\.?\\d?)*\\s*", "");
         return modText;
-    }
-
-    /**
-     * Calculate all n-grams for a string for different n. The size of the set can be calculated as: Size = SUM_n(n1,n2)
-     * (stringLength - n + 1)
-     * 
-     * @param string The string the n-grams should be calculated for.
-     * @param n1 The smallest n-gram size.
-     * @param n2 The greatest n-gram size.
-     * @return A set of n-grams.
-     */
-    public static HashSet<String> calculateAllNGrams(String string, int n1, int n2) {
-        HashSet<String> nGrams = new HashSet<String>();
-        for (int n = n1; n <= n2; n++) {
-            nGrams.addAll(calculateNGrams(string, n));
-        }
-
-        return nGrams;
     }
 
     /**
@@ -864,8 +914,8 @@ public class StringHelper {
 
             if (m.find()) {
                 double number = Double.valueOf(StringNormalizer.normalizeNumber(m.group()));
-                double convertedNumber = UnitNormalizer.getNormalizedNumber(number,
-                        string.substring(m.end(), string.length()));
+                double convertedNumber = UnitNormalizer.getNormalizedNumber(number, string.substring(m.end(), string
+                        .length()));
                 if (number != convertedNumber) {
                     return true;
                 }
@@ -1005,12 +1055,12 @@ public class StringHelper {
             }
 
             if (startIndex > 0) {
-                pointIsSentenceDelimiter = !isNumber(string.charAt(startIndex - 1)) && Character.isUpperCase(string
-                        .charAt(startIndex + 1));
+                pointIsSentenceDelimiter = !isNumber(string.charAt(startIndex - 1))
+                        && Character.isUpperCase(string.charAt(startIndex + 1));
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = Character.isUpperCase(string.charAt(startIndex + 2)) && string
-                        .charAt(startIndex + 1) == ' ';
+                pointIsSentenceDelimiter = Character.isUpperCase(string.charAt(startIndex + 2))
+                        && string.charAt(startIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -1073,14 +1123,13 @@ public class StringHelper {
             // one digit after point
             if (endIndex < string.length() - 1) {
                 pointIsSentenceDelimiter = !isNumber(string.charAt(endIndex + 1))
-                        && Character.isUpperCase(string.charAt(endIndex + 1)) || isBracket(string
-                        .charAt(endIndex + 1));
+                        && Character.isUpperCase(string.charAt(endIndex + 1)) || isBracket(string.charAt(endIndex + 1));
             }
             // two digits after point
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = !isNumber(string.charAt(endIndex + 2))
-                        && (Character.isUpperCase(string.charAt(endIndex + 2)) || isBracket(string.charAt(endIndex + 2))) && string
-                        .charAt(endIndex + 1) == ' ';
+                        && (Character.isUpperCase(string.charAt(endIndex + 2)) || isBracket(string.charAt(endIndex + 2)))
+                        && string.charAt(endIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -1166,8 +1215,8 @@ public class StringHelper {
 
         string = unescapeHTMLEntities(string);
 
-        String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/",
-                "\\", "@", "<", ">", "=", "·", "^", "_", "+" }; // whitespace
+        String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
+                "@", "<", ">", "=", "·", "^", "_", "+" }; // whitespace
         // is also
         // unwanted
         // but trim()
@@ -1392,8 +1441,7 @@ public class StringHelper {
      * @return the double
      */
     public static double calculateSimilarity(String string1, String string2, boolean caseSensitive) {
-        double longestCommonStringLength = getLongestCommonString(string1, string2, caseSensitive, true)
-                .length();
+        double longestCommonStringLength = getLongestCommonString(string1, string2, caseSensitive, true).length();
         if (longestCommonStringLength == 0) {
             return 0.0;
         }
@@ -1624,9 +1672,9 @@ public class StringHelper {
         // System.out.println(StringHelper.getLongestCommonString("ABCD", "BCDE", false, true));
         // System.out.println(StringHelper.getLongestCommonString("ABCD", "BCDE", false, false));
         System.exit(0);
-        CollectionHelper.print(calculateNGrams("allthelilacsinohio", 3));
-        CollectionHelper.print(calculateNGrams("hiatt", 3));
-        CollectionHelper.print(calculateAllNGrams("allthelilacsinohio", 3, 8));
+        CollectionHelper.print(calculateCharNGrams("allthelilacsinohio", 3));
+        CollectionHelper.print(calculateCharNGrams("hiatt", 3));
+        CollectionHelper.print(calculateAllCharNGrams("allthelilacsinohio", 3, 8));
         System.exit(0);
         //
         // System.out.println(trim("\""));
@@ -1700,7 +1748,6 @@ public class StringHelper {
             Matcher cpm = cp.matcher(neighborhood.substring(Math.max(0, colonIndex - 30), colonIndex + 1));
             // System.out.println("String before colon: " + neighborhood.substring(Math.max(0, colonIndex - 30),
             // colonIndex + 1));
-            int i = 1;
             String newAttributeName = "";
             while (cpm.find()) {
                 // System.out.println((i++) + " " + cpm.group());
@@ -1717,7 +1764,7 @@ public class StringHelper {
                     nextLookOut = colonIndex + 61;
                 }
 
-                String value = neighborhood.substring(colonIndex + 1, Math.min(neighborhood.length(), nextLookOut));
+                neighborhood.substring(colonIndex + 1, Math.min(neighborhood.length(), nextLookOut));
                 // System.out.println("==> " + newAttributeName + ":" + value);
             }
 
