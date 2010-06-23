@@ -267,8 +267,8 @@ public class StringHelper {
      * @param n The number of characters for a gram.
      * @return A set of n-grams.
      */
-    public static HashSet<String> calculateNGrams(String string, int n) {
-        HashSet<String> nGrams = new HashSet<String>();
+    public static Set<String> calculateNGrams(String string, int n) {
+        Set<String> nGrams = new HashSet<String>();
 
         if (string.length() < n) {
             return nGrams;
@@ -319,7 +319,7 @@ public class StringHelper {
     /**
      * Make name for view.
      * 
-     * @param name The name
+     * @param name The name.
      * @return The view name.
      */
     public static String makeViewName(String name) {
@@ -427,7 +427,7 @@ public class StringHelper {
         }
 
         // remove es
-        if ((plural.toLowerCase().endsWith("es") && plural.length() >= 5)) {
+        if (plural.toLowerCase().endsWith("es") && plural.length() >= 5) {
             String lettersBeforeES = plural.substring(plural.length() - 4, plural.length() - 2);
             String letterBeforeES = lettersBeforeES.substring(1);
             if (lettersBeforeES.equalsIgnoreCase("ss") || lettersBeforeES.equalsIgnoreCase("ch")
@@ -1005,12 +1005,12 @@ public class StringHelper {
             }
 
             if (startIndex > 0) {
-                pointIsSentenceDelimiter = (!isNumber(string.charAt(startIndex - 1)) && Character.isUpperCase(string
-                        .charAt(startIndex + 1)));
+                pointIsSentenceDelimiter = !isNumber(string.charAt(startIndex - 1)) && Character.isUpperCase(string
+                        .charAt(startIndex + 1));
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = (Character.isUpperCase(string.charAt(startIndex + 2)) && string
-                        .charAt(startIndex + 1) == ' ');
+                pointIsSentenceDelimiter = Character.isUpperCase(string.charAt(startIndex + 2)) && string
+                        .charAt(startIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -1072,15 +1072,15 @@ public class StringHelper {
             }
             // one digit after point
             if (endIndex < string.length() - 1) {
-                pointIsSentenceDelimiter = (!isNumber(string.charAt(endIndex + 1))
-                        && (Character.isUpperCase(string.charAt(endIndex + 1))) || isBracket(string
-                        .charAt(endIndex + 1)));
+                pointIsSentenceDelimiter = !isNumber(string.charAt(endIndex + 1))
+                        && Character.isUpperCase(string.charAt(endIndex + 1)) || isBracket(string
+                        .charAt(endIndex + 1));
             }
             // two digits after point
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = (!isNumber(string.charAt(endIndex + 2))
+                pointIsSentenceDelimiter = !isNumber(string.charAt(endIndex + 2))
                         && (Character.isUpperCase(string.charAt(endIndex + 2)) || isBracket(string.charAt(endIndex + 2))) && string
-                        .charAt(endIndex + 1) == ' ');
+                        .charAt(endIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -1232,7 +1232,7 @@ public class StringHelper {
         // remove all control characters from string
         for (int i = 0, l = string.length(); i < l; ++i) {
             // < 33 means all control characters are not wanted as well
-            if ((int) string.charAt(i) < 33) {
+            if (string.charAt(i) < 33) {
                 string = string.replace(string.charAt(i), ' ');
             }
 
@@ -1392,13 +1392,13 @@ public class StringHelper {
      * @return the double
      */
     public static double calculateSimilarity(String string1, String string2, boolean caseSensitive) {
-        double longestCommonStringLength = (double) getLongestCommonString(string1, string2, caseSensitive, true)
+        double longestCommonStringLength = getLongestCommonString(string1, string2, caseSensitive, true)
                 .length();
         if (longestCommonStringLength == 0) {
             return 0.0;
         }
 
-        double similarity = longestCommonStringLength / (double) Math.min(string1.length(), string2.length()); // TODO
+        double similarity = longestCommonStringLength / Math.min(string1.length(), string2.length()); // TODO
         // changed
         // without
         // test
