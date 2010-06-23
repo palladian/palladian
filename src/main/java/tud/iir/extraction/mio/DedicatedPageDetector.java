@@ -17,11 +17,16 @@ public class DedicatedPageDetector {
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(DedicatedPageDetector.class);
 
+    /**
+     * Instantiates a new dedicated page detector.
+     */
     public DedicatedPageDetector() {
     }
 
     /**
-     * @param mioPage
+     * Calculate dedicated page trust.
+     *
+     * @param mioPage the mio page
      */
     public void calculateDedicatedPageTrust(MIOPage mioPage) {
 
@@ -29,7 +34,8 @@ public class DedicatedPageDetector {
 
         // check for existence of Flash-DedicatedPage-Indicators
         int flashInd = 0;
-        if (pageContent.contains("index.swf") || pageContent.contains("main.swf") || pageContent.contains("start.swf") || pageContent.contains("base.swf")) {
+        if (pageContent.contains("index.swf") || pageContent.contains("main.swf") || pageContent.contains("start.swf")
+                || pageContent.contains("base.swf")) {
             flashInd++;
         }
 
@@ -71,8 +77,13 @@ public class DedicatedPageDetector {
     }
 
     /**
-     * Calculate a DedicatedPageTrust with the help of the given values
-     * 
+     * Calculate a DedicatedPageTrust with the help of the given values.
+     *
+     * @param contentLength the content length
+     * @param numberOfLinks the number of links
+     * @param numberOfImages the number of images
+     * @param flashInd the flash ind
+     * @return the double
      */
     private double calculateDPTrustFactor(int contentLength, int numberOfLinks, int numberOfImages, int flashInd) {
         double result = 0;
@@ -107,8 +118,11 @@ public class DedicatedPageDetector {
     }
 
     /**
-     * Calculate a DedicatedPageTrust for a single value
-     * 
+     * Calculate a DedicatedPageTrust for a single value.
+     *
+     * @param singleValue the single value
+     * @param isContentLength the is content length
+     * @return the double
      */
     private double calcSingleTrust(int singleValue, boolean isContentLength) {
         double singleTrust = 0;
@@ -131,6 +145,11 @@ public class DedicatedPageDetector {
     }
 
     // method only for testing
+    /**
+     * Calculate body content.
+     *
+     * @param url the url
+     */
     private void calculateBodyContent(String url) {
         MIOPage mioPage = new MIOPage(url, url);
         Crawler crawler = new Crawler(5000, 5000, 10000);
@@ -145,6 +164,11 @@ public class DedicatedPageDetector {
 
     }
 
+    /**
+     * The main method.
+     *
+     * @param abc the arguments
+     */
     public static void main(String[] abc) {
         DedicatedPageDetector dpDet = new DedicatedPageDetector();
         dpDet.calculateBodyContent("http://www.canon.de/For_Home/Product_Finder/Multifunctionals/Inkjet/PIXMA_MP990/");

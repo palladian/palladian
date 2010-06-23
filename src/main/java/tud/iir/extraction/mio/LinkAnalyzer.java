@@ -6,7 +6,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * The LinkAnalyzer checks if some of the Links of MIOPageCandidates have targets with MIOs (simulates an indirect search)
+ * The LinkAnalyzer checks if some of the Links of MIOPageCandidates have targets with MIOs (simulates an indirect
+ * search)
  * 
  * @author Martin Werner
  */
@@ -14,10 +15,22 @@ public class LinkAnalyzer extends GeneralAnalyzer {
 
     private SearchWordMatcher swMatcher;
 
+    /**
+     * Instantiates a new link analyzer.
+     *
+     * @param swMatcher the sw matcher
+     */
     public LinkAnalyzer(SearchWordMatcher swMatcher) {
         this.swMatcher = swMatcher;
     }
 
+    /**
+     * Gets the linked mio pages.
+     *
+     * @param parentPageContent the parent page content
+     * @param parentPageURL the parent page url
+     * @return the linked mio pages
+     */
     public List<MIOPage> getLinkedMioPages(String parentPageContent, String parentPageURL) {
         List<MIOPage> mioPages = new ArrayList<MIOPage>();
 
@@ -43,7 +56,8 @@ public class LinkAnalyzer extends GeneralAnalyzer {
                     if (!linkedPageContent.equals("")) {
                         FastMIODetector mioDetector = new FastMIODetector();
                         if (mioDetector.containsMIO(linkedPageContent)) {
-                            MIOPage mioPage = generateMIOPage(linkURL, parentPageURL, linkName, linkTitle, linkedPageContent);
+                            MIOPage mioPage = generateMIOPage(linkURL, parentPageURL, linkName, linkTitle,
+                                    linkedPageContent);
                             mioPages.add(mioPage);
                         }
                     }
@@ -56,26 +70,51 @@ public class LinkAnalyzer extends GeneralAnalyzer {
         return mioPages;
     }
 
+    /**
+     * Gets the link url.
+     *
+     * @param linkTag the link tag
+     * @param pageURL the page url
+     * @return the link url
+     */
     private String getLinkURL(String linkTag, String pageURL) {
         String extractedLink = extractElement("href=\"[^>#\"]*\"", linkTag, "href=");
         return verifyURL(extractedLink, pageURL);
 
     }
 
+    /**
+     * Gets the link name.
+     *
+     * @param linkTag the link tag
+     * @return the link name
+     */
     private String getLinkName(String linkTag) {
         return extractElement(">[^<]*<", linkTag, "");
     }
 
+    /**
+     * Gets the link title.
+     *
+     * @param linkTag the link tag
+     * @return the link title
+     */
     private String getLinkTitle(String linkTag) {
         return extractElement("title=\"[^>\"]*\"", linkTag, "title=");
     }
 
     /**
-     * Check if the linkURL or linkInfo or linkTitle contains entity relevant words
+     * Check if the linkURL or linkInfo or linkTitle contains entity relevant words.
+     *
+     * @param linkURL the link url
+     * @param linkName the link name
+     * @param linkTitle the link title
+     * @return true, if is relevant link check
      */
     private boolean isRelevantLinkCheck(String linkURL, String linkName, String linkTitle) {
 
-        if (swMatcher.containsSearchWordOrMorphs(linkURL) || swMatcher.containsSearchWordOrMorphs(linkName) || swMatcher.containsSearchWordOrMorphs(linkTitle)) {
+        if (swMatcher.containsSearchWordOrMorphs(linkURL) || swMatcher.containsSearchWordOrMorphs(linkName)
+                || swMatcher.containsSearchWordOrMorphs(linkTitle)) {
             return true;
         }
 
@@ -90,9 +129,17 @@ public class LinkAnalyzer extends GeneralAnalyzer {
     }
 
     /**
-     * Create a MIOPage
+     * Create a MIOPage.
+     *
+     * @param linkURL the link url
+     * @param parentURL the parent url
+     * @param linkName the link name
+     * @param linkTitle the link title
+     * @param pageContent the page content
+     * @return the mIO page
      */
-    private MIOPage generateMIOPage(String linkURL, String parentURL, String linkName, String linkTitle, String pageContent) {
+    private MIOPage generateMIOPage(String linkURL, String parentURL, String linkName, String linkTitle,
+            String pageContent) {
 
         MIOPage mioPage = new MIOPage(linkURL, pageContent);
         mioPage.setLinkParentPage(parentURL);

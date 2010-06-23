@@ -14,11 +14,24 @@ public class MIOQueryFactory {
 
     ArrayList<String> SearchQueries;
 
+    /**
+     * Instantiates a new mIO query factory.
+     */
     public MIOQueryFactory() {
 
     }
 
-    public List<String> generateSearchQueries(String entityName, Concept concept, List<RolePage> rolePages, ConceptSearchVocabulary searchVoc) {
+    /**
+     * Generate search queries.
+     *
+     * @param entityName the entity name
+     * @param concept the concept
+     * @param rolePages the role pages
+     * @param searchVoc the search voc
+     * @return the list
+     */
+    public List<String> generateSearchQueries(String entityName, Concept concept, List<RolePage> rolePages,
+            ConceptSearchVocabulary searchVoc) {
 
         SearchQueries = new ArrayList<String>();
         List<String> conceptVocabulary = searchVoc.getVocByConceptName(concept.getName());

@@ -13,7 +13,9 @@ public class SearchWordMatcher {
     List<String> wordList;
 
     /**
-     * By instantiating a list of words is generated out of the given searchwords (entityName)
+     * By instantiating a list of words is generated out of the given searchwords (entityName).
+     *
+     * @param SearchWords the search words
      */
     public SearchWordMatcher(String SearchWords) {
 
@@ -25,6 +27,9 @@ public class SearchWordMatcher {
 
     /**
      * Check how deep a searchword or a kind of morphing is contained in the string ("samsung" vs. "samsung S8500")
+     *
+     * @param src the src
+     * @return the number of search word matches
      */
     public int getNumberOfSearchWordMatches(String src) {
 
@@ -43,6 +48,14 @@ public class SearchWordMatcher {
 
     }
 
+    /**
+     * Gets the number of search word matches.
+     *
+     * @param src the src
+     * @param withoutSpecialWords the without special words
+     * @param searchWords the search words
+     * @return the number of search word matches
+     */
     public int getNumberOfSearchWordMatches(String src, boolean withoutSpecialWords, String searchWords) {
         int counter = 0;
         if (!src.equals("")) {
@@ -60,7 +73,11 @@ public class SearchWordMatcher {
     }
 
     /**
-     * generate a wordList from the given SearchWords(EntityName)
+     * generate a wordList from the given SearchWords(EntityName).
+     *
+     * @param searchWords the search words
+     * @param withoutSpecialWords the without special words
+     * @return the list
      */
     private List<String> prepareWordList(String searchWords, boolean withoutSpecialWords) {
 
@@ -85,8 +102,11 @@ public class SearchWordMatcher {
     }
 
     /**
-     * morph specialSearchWords like s500 to s_500 or s-500
-     * 
+     * morph specialSearchWords like s500 to s_500 or s-500.
+     *
+     * @param word the word
+     * @param withoutSpecialWords the without special words
+     * @return the list
      */
     private List<String> morphSearchWord(String word, boolean withoutSpecialWords) {
         String separators[] = { "_", "-" };
@@ -124,8 +144,12 @@ public class SearchWordMatcher {
     }
 
     /**
-     * Check if a searchword or a kind of morphing is contained in the string If the name of entity consists of more than one word, more than one word must be
+     * Check if a searchword or a kind of morphing is contained in the string If the name of entity consists of more
+     * than one word, more than one word must be
      * contained in the given string.
+     *
+     * @param src the src
+     * @return true, if successful
      */
     public boolean containsSearchWordOrMorphs(String src) {
         if (!src.equals("")) {
@@ -142,13 +166,20 @@ public class SearchWordMatcher {
         return false;
     }
 
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     */
     public static void main(String[] args) {
 
         SearchWordMatcher matcher = new SearchWordMatcher("samsung s8500 wave");
         // matcher.matchSearchWords("http://pic.gsmarena.com/vv/spin/samsung-wave-s-8500-final.swf");
-        System.out.println("result: " + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php"));
         System.out.println("result: "
-                + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php", true, "samsung s8500 wave"));
+                + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php"));
+        System.out.println("result: "
+                + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php",
+                        true, "samsung s8500 wave"));
     }
 
 }

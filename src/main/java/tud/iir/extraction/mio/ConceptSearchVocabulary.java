@@ -1,3 +1,9 @@
+/**
+ * 
+ * 
+ * @author Martin Werner
+ */
+
 package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
@@ -15,12 +21,23 @@ public class ConceptSearchVocabulary {
 
     public String weakMIOs;
 
+    /**
+     * Gets the voc by concept name.
+     *
+     * @param conceptName the concept name
+     * @return the voc by concept name
+     */
     public List<String> getVocByConceptName(String conceptName) {
         Map<String, List<String>> attributeMap = attributesToMap();
         return attributeMap.get(conceptName);
 
     }
 
+    /**
+     * Attributes to map.
+     *
+     * @return the map
+     */
     private Map<String, List<String>> attributesToMap() {
         Map<String, List<String>> attributeMap = new HashMap<String, List<String>>();
         attributeMap.put("mobilePhone", parseStringToList(mobilePhone));
@@ -34,6 +51,12 @@ public class ConceptSearchVocabulary {
         return attributeMap;
     }
 
+    /**
+     * Parses the string to list.
+     *
+     * @param input the input
+     * @return the list
+     */
     private List<String> parseStringToList(String input) {
 
         List<String> outputList = new ArrayList<String>();

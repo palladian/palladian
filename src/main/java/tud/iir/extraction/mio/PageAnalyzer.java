@@ -17,6 +17,11 @@ public class PageAnalyzer {
     private List<String> MIOPageCandidates;
     private List<MIOPage> MIOPages;
 
+    /**
+     * Instantiates a new page analyzer.
+     *
+     * @param MIOPageCandidates the mIO page candidates
+     */
     public PageAnalyzer(List<String> MIOPageCandidates) {
 
         this.MIOPageCandidates = MIOPageCandidates;
@@ -25,7 +30,10 @@ public class PageAnalyzer {
     }
 
     /**
-     * the central method
+     * the central method.
+     *
+     * @param entity the entity
+     * @return the list
      */
     public List<MIOPage> analyzePages(Entity entity) {
 
@@ -57,7 +65,10 @@ public class PageAnalyzer {
     }
 
     /**
-     * get WebPage as String
+     * get WebPage as String.
+     *
+     * @param URLString the uRL string
+     * @return the page
      */
     private String getPage(String URLString) {
         GeneralAnalyzer generalAnalyzer = new GeneralAnalyzer();
@@ -65,7 +76,10 @@ public class PageAnalyzer {
     }
 
     /**
-     * remove duplicates, but pay attention to different ways of finding
+     * remove duplicates, but pay attention to different ways of finding.
+     *
+     * @param mioPages the mio pages
+     * @return the list
      */
     private List<MIOPage> removeDuplicates(List<MIOPage> mioPages) {
         List<MIOPage> resultList = new ArrayList<MIOPage>();

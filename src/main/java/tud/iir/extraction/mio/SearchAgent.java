@@ -16,10 +16,21 @@ public class SearchAgent {
     int resultCount = 20;
     int searchEngine = 2;
 
+    /**
+     * Instantiates a new search agent.
+     *
+     * @param resultCount the result count
+     */
     public SearchAgent(int resultCount) {
         this.resultCount = resultCount;
     }
 
+    /**
+     * Initiate search.
+     *
+     * @param searchQueries the search queries
+     * @return the list
+     */
     public List<String> initiateSearch(List<String> searchQueries) {
         SourceRetriever sRetriever = new SourceRetriever();
         sRetriever.setResultCount(resultCount);
@@ -43,7 +54,10 @@ public class SearchAgent {
     }
 
     /**
-     * remove duplicates
+     * remove duplicates.
+     *
+     * @param webResultList the web result list
+     * @return the array list
      */
     private ArrayList<String> removeDuplicates(List<WebResult> webResultList) {
         ArrayList<String> urlList = new ArrayList<String>();

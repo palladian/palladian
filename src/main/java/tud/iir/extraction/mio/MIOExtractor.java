@@ -9,11 +9,9 @@ import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
 import tud.iir.extraction.Extractor;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
-import tud.iir.knowledge.KnowledgeManager;
 import tud.iir.persistence.DatabaseManager;
 
 public class MIOExtractor extends Extractor {
@@ -24,9 +22,17 @@ public class MIOExtractor extends Extractor {
 
     protected static final int MAX_EXTRACTION_THREADS = 3;
 
+    /**
+     * Instantiates a new mIO extractor.
+     */
     private MIOExtractor() {
     }
 
+    /**
+     * Gets the single instance of MIOExtractor.
+     *
+     * @return single instance of MIOExtractor
+     */
     public static MIOExtractor getInstance() {
         if (instance == null) {
             instance = new MIOExtractor();
@@ -41,6 +47,11 @@ public class MIOExtractor extends Extractor {
         startExtraction(true);
     }
 
+    /**
+     * Start extraction.
+     *
+     * @param continueFromLastExtraction the continue from last extraction
+     */
     public void startExtraction(boolean continueFromLastExtraction) {
 
         logger.info("start MIO extraction");
@@ -54,7 +65,8 @@ public class MIOExtractor extends Extractor {
         // JaccardSimilarity js = new JaccardSimilarity();
         // JaroWinkler jw = new JaroWinkler();
         //        
-        // System.out.println(js.getSimilarity("Samsung s8500 Wave", " Das Samsung s8500 Wave ist besser als das Samsung S9500!"));
+        // System.out.println(js.getSimilarity("Samsung s8500 Wave",
+        // " Das Samsung s8500 Wave ist besser als das Samsung S9500!"));
         // System.out.println(js.getSimilarity("Samsung s8500 Wave", " Das Samsung s8500 Wave!"));
         // System.exit(0);
         // // reset stopped command
@@ -64,13 +76,15 @@ public class MIOExtractor extends Extractor {
         // what
         // // to extract
         // if (!isBenchmark()) {
-        KnowledgeManager km = DatabaseManager.getInstance().loadOntology();
+        // System.out.println("entires: " + DatabaseManager.getInstance().getTotalConceptsNumber());
+        // System.out.println(con.toString());
+        // OntologyManager.getInstance().clearCompleteKnowledgeBase();
+        ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
         // setKnowledgeManager(km);
         // } else {
 
         // KnowledgeManager km = new KnowledgeManager();
-        // km.createBenchmarkConcepts();
-        // km.setCorrectValues();
+
         // setKnowledgeManager(km);
         // }
         //		
@@ -78,13 +92,17 @@ public class MIOExtractor extends Extractor {
         // // while (!isStopped()) {
         //
         // concepts
-        ArrayList<Concept> concepts1 = km.getConcepts(true);
-        CollectionHelper.print(concepts1);
+        // ArrayList<Concept> concepts1 = km.getConcepts(true);
+        // for (Concept concept:concepts1){
+        // System.out.println("size: " + concepts1.size());
+        // System.out.println(concept.getName());
+        // }
+        // CollectionHelper.print(concepts3);
         System.exit(0);
         // TODO?
 
         // create a new concept without databaseusage
-        ArrayList<Concept> concepts = new ArrayList<Concept>();
+        // ArrayList<Concept> concepts = new ArrayList<Concept>();
         Concept exampleConcept = new Concept("mobilePhone");
         Entity exampleEntity_1 = new Entity("Samsung S8500 Wave", exampleConcept);
         // Entity exampleEntity_2 = new Entity("HTC Desire", exampleConcept);
@@ -144,9 +162,10 @@ public class MIOExtractor extends Extractor {
 
                 currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
 
-                logger.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" (" + currentEntity.getConcept().getName() + ")");
-                Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup, currentEntity.getSafeName() + "MIOExtractionThread", currentEntity,
-                        searchVoc);
+                logger.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
+                        + currentEntity.getConcept().getName() + ")");
+                Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup, currentEntity.getSafeName()
+                        + "MIOExtractionThread", currentEntity, searchVoc);
                 mioThread.start();
 
                 logger.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
@@ -173,6 +192,9 @@ public class MIOExtractor extends Extractor {
 
     }
 
+    /* (non-Javadoc)
+     * @see tud.iir.extraction.Extractor#saveExtractions(boolean)
+     */
     @Override
     protected void saveExtractions(boolean saveResults) {
         if (saveResults && !isBenchmark()) {
@@ -183,10 +205,13 @@ public class MIOExtractor extends Extractor {
 
     /**
      * load the concept-specific SearchVocabulary from .yml-file
+     *
+     * @return the concept search vocabulary
      */
     private ConceptSearchVocabulary loadSearchVocabulary() {
         try {
-            ConceptSearchVocabulary cSearchVoc = Yaml.loadType(new File("data/knowledgeBase/conceptSearchVocabulary.yml"), ConceptSearchVocabulary.class);
+            ConceptSearchVocabulary cSearchVoc = Yaml.loadType(new File(
+                    "data/knowledgeBase/conceptSearchVocabulary.yml"), ConceptSearchVocabulary.class);
 
             return cSearchVoc;
         } catch (FileNotFoundException e) {
@@ -196,12 +221,20 @@ public class MIOExtractor extends Extractor {
         return null;
     }
 
+    /* (non-Javadoc)
+     * @see tud.iir.extraction.Extractor#isURLallowed(java.lang.String)
+     */
     public boolean isURLallowed(String url) {
         super.addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
         super.addSuffixesToBlackList(super.URL_TEXTUAL_BLACKLIST);
         return super.isURLallowed(url);
     }
 
+    /**
+     * The main method.
+     *
+     * @param abc the arguments
+     */
     public static void main(String[] abc) {
         // Controller.getInstance();
 

@@ -7,8 +7,14 @@ public class MIOContextAnalyzer {
     private Entity entity;
     private MIOPage mioPage;
     private double pageContextTrust = 0;
-    private  String [] badWords = {"banner", "tower", "titlefont", "newsletter", "cloud"};
+    private String[] badWords = { "banner", "tower", "titlefont", "newsletter", "cloud" };
 
+    /**
+     * Instantiates a new mIO context analyzer.
+     *
+     * @param entity the entity
+     * @param mioPage the mio page
+     */
     public MIOContextAnalyzer(Entity entity, MIOPage mioPage) {
         this.entity = entity;
         this.mioPage = mioPage;
@@ -16,11 +22,16 @@ public class MIOContextAnalyzer {
         System.out.println("PageContextTrust: " + pageContextTrust + " for: " + mioPage.getUrl());
     }
 
+    /**
+     * Calculate trust.
+     *
+     * @param mio the mio
+     */
     public void calculateTrust(MIO mio) {
         this.entity = mio.getEntity();
         double fileNameRelevance = (calcStringRelevance(mio.getFileName(), entity)) * 4;
         // System.out.println("FileNameRelevance: " + fileNameRelevance);
-        double filePathRelevance = calcStringRelevance(mio.getDirectURL(), entity)*2;
+        double filePathRelevance = calcStringRelevance(mio.getDirectURL(), entity) * 2;
         // System.out.println("FilePathRelevance: "+filePathRelevance);
         // double pcTrust = calcPageContextTrust(mioPage);
 
@@ -40,14 +51,15 @@ public class MIOContextAnalyzer {
 
         double MIOTrust = pageContextTrust + fileNameRelevance + filePathRelevance + altTextRelevance;
         // System.out.println("pageContextTrust: " + pageContextTrust);
-       
+
         mio.setTrust(MIOTrust);
-        mio.setTrust( checkForBadWords(mio));
+        mio.setTrust(checkForBadWords(mio));
     }
 
     /**
-     * Initially calculate the trust for a mioPage which influences all its containing MIOs
-     * 
+     * Initially calculate the trust for a mioPage which influences all its containing MIOs.
+     *
+     * @return the double
      */
     private double calcPageContextTrust() {
 
@@ -67,16 +79,22 @@ public class MIOContextAnalyzer {
 
         double urlRelevance = calcStringRelevance(mioPage.getUrl(), entity);
 
-        double dpTrust = mioPage.getDedicatedPageTrust()*2;
+        double dpTrust = mioPage.getDedicatedPageTrust() * 2;
 
-        double pcTrust = titleRelevance + linkNameRelevance + linkTitleRelevance + iframeParentTitleRelevance + urlRelevance + (dpTrust*2);
+        double pcTrust = titleRelevance + linkNameRelevance + linkTitleRelevance + iframeParentTitleRelevance
+                + urlRelevance + (dpTrust * 2);
         return pcTrust;
 
     }
 
     /**
-     * Calculate the relevance of a string by checking how many terms or morphs of the entityName are included in the string. A special role play words like
+     * Calculate the relevance of a string by checking how many terms or morphs of the entityName are included in the
+     * string. A special role play words like
      * d500 or x500i. Returns: a value from 0 to 1
+     *
+     * @param string the string
+     * @param entity the entity
+     * @return the double
      */
     private double calcStringRelevance(String string, Entity entity) {
         SearchWordMatcher swm = new SearchWordMatcher(entity.getName());
@@ -85,7 +103,8 @@ public class MIOContextAnalyzer {
         double NumOfMatches = (double) swm.getNumberOfSearchWordMatches(string);
         // calculate the number of searchWord-Matches with ignoring specialWords
         // like D500x
-        double NumOfMatchesWithoutSW = (double) swm.getNumberOfSearchWordMatches(string, true, entity.getName().toLowerCase());
+        double NumOfMatchesWithoutSW = (double) swm.getNumberOfSearchWordMatches(string, true, entity.getName()
+                .toLowerCase());
         double Diff = (double) NumOfMatches - NumOfMatchesWithoutSW;
 
         double result = (double) ((NumOfMatchesWithoutSW * 2) + (Diff * 3)) / (double) (Elements.length * 3);
@@ -106,18 +125,29 @@ public class MIOContextAnalyzer {
         }
         return result;
     }
-    
-    private double checkForBadWords(MIO mio){
-       
-        for (String badWord:badWords){
-            if (mio.getDirectURL().contains(badWord)){
+
+    /**
+     * Check for bad words.
+     *
+     * @param mio the mio
+     * @return the double
+     */
+    private double checkForBadWords(MIO mio) {
+
+        for (String badWord : badWords) {
+            if (mio.getDirectURL().contains(badWord)) {
                 double result = mio.getTrust();
-                return (result/2);
+                return (result / 2);
             }
         }
-       return mio.getTrust();
+        return mio.getTrust();
     }
 
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     */
     public static void main(String[] args) {
         // MIOContextAnalyzer mCA = new MIOContextAnalyzer();
         // System.out
