@@ -36,18 +36,18 @@ public final class FeedChecker {
     public static final Logger LOGGER = Logger.getLogger(FeedChecker.class);
 
     /** symbols to separate headlines */
-    private final static String TITLE_SEPARATION = "<###>";
+    private static final String TITLE_SEPARATION = "<###>";
 
     /** benchmark off */
-    private final static int BENCHMARK_OFF = 0;
+    private static final int BENCHMARK_OFF = 0;
 
     /** benchmark algorithms towards their prediction ability for the next post */
-    private final static int BENCHMARK_MIN_CHECK_TIME = 1;
+    private static final int BENCHMARK_MIN_CHECK_TIME = 1;
 
     /**
      * benchmark algorithms towards their prediction ability for the next almost filled post list
      */
-    private final static int BENCHMARK_MAX_CHECK_TIME = 2;
+    private static final int BENCHMARK_MAX_CHECK_TIME = 2;
 
     /**
      * if true, some output will be generated to evaluate the reading approaches
@@ -76,12 +76,14 @@ public final class FeedChecker {
     private final Map<Integer, LinkedHashMap<Integer, Integer>> postDistributionMapEvaluation = new LinkedHashMap<Integer, LinkedHashMap<Integer, Integer>>();
 
     /**
-     * Record a list of time differences of real first news times and check times for each feed. feedID : list of time differences
+     * Record a list of time differences of real first news times and check times for each feed. feedID : list of time
+     * differences
      */
     private final Map<Integer, ArrayList<Integer>> timeDiffMapEvaluation = new LinkedHashMap<Integer, ArrayList<Integer>>();
 
     /**
-     * Record a list of dates the feed was checked before a new entry appeared for each feed. feedID : list of dates the feed was checked before a new entry
+     * Record a list of dates the feed was checked before a new entry appeared for each feed. feedID : list of dates the
+     * feed was checked before a new entry
      * appeared
      */
     private final Map<Integer, HashSet<Date>> tempCheckTimeMapEvaluation = new LinkedHashMap<Integer, HashSet<Date>>();
@@ -99,7 +101,8 @@ public final class FeedChecker {
     private int checkApproach = CHECK_FIXED;
 
     /**
-     * the check interval in minutes, only used if the checkApproach is {@link CHECK_FIXED} if checkInterval = -1 the interval will be determined automatically
+     * the check interval in minutes, only used if the checkApproach is {@link CHECK_FIXED} if checkInterval = -1 the
+     * interval will be determined automatically
      * at the first immediate check of the feed by looking in its past
      */
     private int checkInterval = -1;
@@ -169,7 +172,8 @@ public final class FeedChecker {
 
         stopContinuousReading();
 
-        LOGGER.info("cancelled all scheduled readings, total size downloaded (" + FeedChecker.getInstance().getCheckApproach() + "): "
+        LOGGER.info("cancelled all scheduled readings, total size downloaded ("
+                + FeedChecker.getInstance().getCheckApproach() + "): "
                 + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
         // System.out.println("abc");
     }
@@ -219,8 +223,10 @@ public final class FeedChecker {
     }
 
     /**
-     * Calculate the target percentage of new entries as follows: Percentage of new entries = pn = newEntries / totalEntries Target Percentage = pTarget =
-     * newEntries / (totalEntries - 1) A target percentage of 1 means that all entries but one are new and this is exactly what we want.
+     * Calculate the target percentage of new entries as follows: Percentage of new entries = pn = newEntries /
+     * totalEntries Target Percentage = pTarget =
+     * newEntries / (totalEntries - 1) A target percentage of 1 means that all entries but one are new and this is
+     * exactly what we want.
      * 
      * Example 1: newEntries = 3 totalEntries = 4 pn = 0.75 pTarget = 3 / (4-1) = 1
      * 
@@ -277,10 +283,12 @@ public final class FeedChecker {
     }
 
     /**
-     * Update the check interval depending on the chosen approach. Update the feed accordingly and return it. TODO this method is insanely long, break it down!
+     * Update the check interval depending on the chosen approach. Update the feed accordingly and return it. TODO this
+     * method is insanely long, break it down!
      * 
      * @param feed The feed to update.
-     * @param entries A list of entries of that feed. They are given in order to save the time here to retrieve them first.
+     * @param entries A list of entries of that feed. They are given in order to save the time here to retrieve them
+     *            first.
      * @return The updated feed.
      */
     public synchronized void updateCheckIntervals(Feed feed) {
@@ -395,7 +403,8 @@ public final class FeedChecker {
         maxCheckInterval *= f;
 
         // for chunked or on the fly updates the min and max intervals are the same
-        if (feed.getUpdateClass() != FeedClassifier.CLASS_CHUNKED && feed.getUpdateClass() != FeedClassifier.CLASS_ON_THE_FLY) {
+        if (feed.getUpdateClass() != FeedClassifier.CLASS_CHUNKED
+                && feed.getUpdateClass() != FeedClassifier.CLASS_ON_THE_FLY) {
             minCheckInterval = maxCheckInterval / Math.max(1, entries.size() - 1);
         } else {
             minCheckInterval = maxCheckInterval;
@@ -655,17 +664,20 @@ public final class FeedChecker {
         }
 
         // total number of megabytes dowloaded
-        csv.append("total downloaded MB:;").append(Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES)).append(" MB").append("\n");
+        csv.append("total downloaded MB:;").append(Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES)).append(" MB")
+                .append("\n");
 
         // total number of checks
         csv.append("total checks:;").append(totalChecks).append("\n");
-        FileHelper.writeToFile("data/temp/feedCheckerPnMap_Evaluation_" + getCheckApproachName() + "_" + System.currentTimeMillis() + ".csv", csv);
+        FileHelper.writeToFile("data/temp/feedCheckerPnMap_Evaluation_" + getCheckApproachName() + "_"
+                + System.currentTimeMillis() + ".csv", csv);
 
         csv = new StringBuilder();
         for (Entry<Integer, String> entry : ciMapEvaluation.entrySet()) {
             csv.append(entry.getKey()).append(";").append(entry.getValue()).append("\n");
         }
-        FileHelper.writeToFile("data/temp/feedCheckerCiMap_" + getCheckApproachName() + "_" + System.currentTimeMillis() + ".csv", csv);
+        FileHelper.writeToFile("data/temp/feedCheckerCiMap_" + getCheckApproachName() + "_"
+                + System.currentTimeMillis() + ".csv", csv);
 
         csv = new StringBuilder();
         for (Entry<Integer, LinkedHashMap<Integer, Integer>> entry : postDistributionMapEvaluation.entrySet()) {
@@ -675,7 +687,8 @@ public final class FeedChecker {
             }
             csv.append("\n");
         }
-        FileHelper.writeToFile("data/temp/feedCheckerPdMap_" + getCheckApproachName() + "_" + System.currentTimeMillis() + ".csv", csv);
+        FileHelper.writeToFile("data/temp/feedCheckerPdMap_" + getCheckApproachName() + "_"
+                + System.currentTimeMillis() + ".csv", csv);
     }
 
     public void setFeedProcessingAction(FeedProcessingAction feedProcessingAction) {
@@ -689,11 +702,14 @@ public final class FeedChecker {
     // TODO add multiple feed actions
 
     /**
-     * Set the approach for checking feeds for news. Once an approach is chosen it cannot be changed (meta information is saved in the feed store) unless you
+     * Set the approach for checking feeds for news. Once an approach is chosen it cannot be changed (meta information
+     * is saved in the feed store) unless you
      * reset the learned data.
      * 
-     * @param checkApproach The updating approach, can be one of {@link CHECK_FIXED}, {@link CHECK_ADAPTIVE}, or {@link CHECK_PROBABILISTIC}
-     * @param resetLearnedValues If true, learned and calculated values such as check intervals etc. are reset and are retrained using the new check approach.
+     * @param checkApproach The updating approach, can be one of {@link CHECK_FIXED}, {@link CHECK_ADAPTIVE}, or
+     *            {@link CHECK_PROBABILISTIC}
+     * @param resetLearnedValues If true, learned and calculated values such as check intervals etc. are reset and are
+     *            retrained using the new check approach.
      */
     public void setCheckApproach(int checkApproach, boolean resetLearnedValues) {
         if (this.checkApproach != checkApproach && resetLearnedValues) {
@@ -738,7 +754,8 @@ public final class FeedChecker {
     }
 
     /**
-     * Sample usage. Command line: parameters: checkType(1-3) runtime(in minutes) checkInterval(only if checkType=1), example: 1 10 2 TODO: simplify command
+     * Sample usage. Command line: parameters: checkType(1-3) runtime(in minutes) checkInterval(only if checkType=1),
+     * example: 1 10 2 TODO: simplify command
      * line use: http://commons.apache.org/cli/usage.html
      */
     public static void main(String[] args) {
@@ -773,7 +790,8 @@ public final class FeedChecker {
                 @Override
                 public void performAction(Feed feed) {
                     System.out.println("do stuff with " + feed.getFeedUrl());
-                    System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: " + feed.getChecks());
+                    System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
+                            + feed.getChecks());
                 }
             };
             fc.setCheckApproach(checkType, true);
@@ -789,7 +807,8 @@ public final class FeedChecker {
                 @Override
                 public void performAction(Feed feed) {
                     System.out.println("do stuff with " + feed.getFeedUrl());
-                    System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: " + feed.getChecks());
+                    System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
+                            + feed.getChecks());
 
                 }
             };
