@@ -2,10 +2,8 @@ package tud.iir.helper;
 
 import java.io.File;
 
-import tud.iir.helper.FileHelper;
-import tud.iir.helper.StringHelper;
-import tud.iir.knowledge.RegExp;
 import junit.framework.TestCase;
+import tud.iir.knowledge.RegExp;
 
 /**
  * Test cases for the String Helper class.
@@ -40,12 +38,20 @@ public class StringHelperTest extends TestCase {
         assertEquals("fe dcBA", StringHelper.reverseString("ABcd ef"));
     }
 
-    public void testCalculateNGrams() {
-        assertEquals(16, StringHelper.calculateNGrams("allthelilacsinohio", 3).size());
-        assertEquals(3, StringHelper.calculateNGrams("hiatt", 3).size());
-        assertEquals(81, StringHelper.calculateAllNGrams("allthelilacsinohio", 3, 8).size());
-        assertEquals(1, StringHelper.calculateNGrams("hiatt", 5).size());
-        assertEquals(0, StringHelper.calculateNGrams("hiatt", 6).size());
+    public void testCalculateCharNGrams() {
+        assertEquals(16, StringHelper.calculateCharNGrams("allthelilacsinohio", 3).size());
+        assertEquals(3, StringHelper.calculateCharNGrams("hiatt", 3).size());
+        assertEquals(81, StringHelper.calculateAllCharNGrams("allthelilacsinohio", 3, 8).size());
+        assertEquals(1, StringHelper.calculateCharNGrams("hiatt", 5).size());
+        assertEquals(0, StringHelper.calculateCharNGrams("hiatt", 6).size());
+    }
+
+    public void testCalculateWordNgrams() {
+        assertEquals(4, StringHelper.calculateWordNGrams("all the lilacs in ohio", 2).size());
+        assertEquals(3, StringHelper.calculateWordNGrams("all the lilacs in ohio", 3).size());
+        assertEquals(2, StringHelper.calculateWordNGrams("all the lilacs in ohio", 4).size());
+        assertEquals(1, StringHelper.calculateWordNGrams("all the lilacs in ohio", 5).size());
+        assertEquals(0, StringHelper.calculateWordNGrams("all the lilacs in ohio", 6).size());
     }
 
     public void testRename() {

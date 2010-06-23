@@ -177,7 +177,7 @@ public final class Preprocessor {
         // remove http(s): and www from URL
         inputString = Crawler.getCleanURL(inputString);
 
-        HashSet<String> ngrams = StringHelper.calculateAllNGrams(inputString, MIN_NGRAM_SIZE, MAX_NGRAM_SIZE);
+        HashSet<String> ngrams = StringHelper.calculateAllCharNGrams(inputString, MIN_NGRAM_SIZE, MAX_NGRAM_SIZE);
 
         // build the map
         for (String ngram : ngrams) {
