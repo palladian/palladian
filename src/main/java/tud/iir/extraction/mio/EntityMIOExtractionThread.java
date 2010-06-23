@@ -6,6 +6,7 @@ package tud.iir.extraction.mio;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -24,15 +25,19 @@ import tud.iir.knowledge.Entity;
 
 public class EntityMIOExtractionThread extends Thread {
 
-    private static final Logger logger = Logger.getLogger(EntityMIOExtractionThread.class);
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(EntityMIOExtractionThread.class);
     // private static final Logger mio_logger = Logger.getLogger("mio");
 
+    /** The central entity. */
     private Entity entity = null;
+
+    /** The search-vocabulary. */
     private ConceptSearchVocabulary searchVoc = null;
 
     /**
      * Instantiates a new entity mio extraction thread.
-     *
+     * 
      * @param threadGroup the thread group
      * @param name the name
      * @param entity the entity
@@ -45,7 +50,8 @@ public class EntityMIOExtractionThread extends Thread {
         this.searchVoc = searchVoc;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Thread#run()
      */
     @Override
@@ -63,15 +69,20 @@ public class EntityMIOExtractionThread extends Thread {
         Map<String, MIO> mios = mioPAnalyzer.extractMIOs(MIOPages, entity);
 
         Set<MIO> mioResults = new TreeSet<MIO>(mioComp);
-        for (String mioURL : mios.keySet()) {
-            mioResults.add(mios.get((mioURL)));
+        // for (String mioURL : mios.keySet()) {
+        // mioResults.add(mios.get((mioURL)));
+        //
+        // }
+
+        for (Entry<String, MIO> mio : mios.entrySet()) {
+            mioResults.add(mio.getValue());
 
         }
         // mioResults.addAll(mios.entrySet());
         // printMapToFile(mios);
         printSetToHTMLFile(mioResults);
 
-        logger.info("Thread finished in " + DateHelper.getRuntime(t1) + "  " + mios.size() + "s, MIOs for \""
+        LOGGER.info("Thread finished in " + DateHelper.getRuntime(t1) + "  " + mios.size() + "s, MIOs for \""
                 + entity.getName() + "\" were found.");
 
         MIOExtractor.getInstance().decreaseThreadCount();
@@ -79,12 +90,12 @@ public class EntityMIOExtractionThread extends Thread {
 
     /**
      * Prints the set to html file.
-     *
+     * 
      * @param cleanedMIOs the cleaned mi os
      */
     private void printSetToHTMLFile(Set<MIO> cleanedMIOs) {
-        FileHelper filehelper = new FileHelper();
-        filehelper.appendToFile("f:/test.html", "<html><body>", false);
+        // FileHelper filehelper = new FileHelper();
+        FileHelper.appendToFile("f:/test.html", "<html><body>", false);
         for (MIO mio : cleanedMIOs) {
             // MIO mio = cleanedMIOs.get(mioURL);
             StringBuffer sBuffer = new StringBuffer();
@@ -99,38 +110,38 @@ public class EntityMIOExtractionThread extends Thread {
                     + mio.getFindPageURL() + "</a> for Entity: " + mio.getEntity().getName() + " Infos: "
                     + sBuffer.toString() + "<br><br>";
             // System.out.println(output);
-            filehelper.appendToFile("f:/test.html", output + "\r\n", false);
+            FileHelper.appendToFile("f:/test.html", output + "\r\n", false);
 
         }
-        filehelper.appendToFile("f:/test.html", "</body></html>", false);
+        FileHelper.appendToFile("f:/test.html", "</body></html>", false);
 
     }
 
     /**
      * Prints the map to file.
-     *
+     * 
      * @param cleanedMIOs the cleaned mi os
      */
-    private void printMapToFile(Map<String, MIO> cleanedMIOs) {
-        FileHelper filehelper = new FileHelper();
-
-        for (String mioURL : cleanedMIOs.keySet()) {
-            MIO mio = cleanedMIOs.get(mioURL);
-            StringBuffer sBuffer = new StringBuffer();
-            for (String info : mio.getInfos().keySet()) {
-                sBuffer.append(info);
-                sBuffer.append(" ---- ");
-                sBuffer.append(mio.getInfos().get(info).toString());
-
-            }
-            String output = " TRUST: " + mio.getTrust() + " " + mio.getDirectURL() + " founded on "
-                    + mio.getFindPageURL() + " for Entity: " + mio.getEntity().getName() + " Infos: "
-                    + sBuffer.toString();
-            // System.out.println(output);
-            filehelper.appendToFile("f:/test.txt", output + "\r\n", false);
-
-        }
-
-    }
+    // private void printMapToFile(Map<String, MIO> cleanedMIOs) {
+    // FileHelper filehelper = new FileHelper();
+    //
+    // for (String mioURL : cleanedMIOs.keySet()) {
+    // MIO mio = cleanedMIOs.get(mioURL);
+    // StringBuffer sBuffer = new StringBuffer();
+    // for (String info : mio.getInfos().keySet()) {
+    // sBuffer.append(info);
+    // sBuffer.append(" ---- ");
+    // sBuffer.append(mio.getInfos().get(info).toString());
+    //
+    // }
+    // String output = " TRUST: " + mio.getTrust() + " " + mio.getDirectURL() + " founded on "
+    // + mio.getFindPageURL() + " for Entity: " + mio.getEntity().getName() + " Infos: "
+    // + sBuffer.toString();
+    // // System.out.println(output);
+    // filehelper.appendToFile("f:/test.txt", output + "\r\n", false);
+    //
+    // }
+    //
+    // }
 
 }

@@ -22,7 +22,7 @@ public class SearchAgent {
 
     /**
      * Instantiates a new search agent.
-     *
+     * 
      * @param resultCount the result count
      */
     public SearchAgent(int resultCount) {
@@ -31,7 +31,7 @@ public class SearchAgent {
 
     /**
      * Initiate search.
-     *
+     * 
      * @param searchQueries the search queries
      * @return the list
      */
@@ -59,7 +59,7 @@ public class SearchAgent {
 
     /**
      * remove duplicates.
-     *
+     * 
      * @param webResultList the web result list
      * @return the array list
      */

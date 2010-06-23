@@ -11,12 +11,15 @@ package tud.iir.extraction.mio;
  */
 public class RolePage {
 
+    /** The hostname of the page. */
     private String hostname;
+
+    /** The count. */
     private int count;
 
     /**
      * Instantiates a new role page.
-     *
+     * 
      * @param hostname the hostname
      * @param count the count
      */
@@ -34,7 +37,7 @@ public class RolePage {
 
     /**
      * Gets the hostname.
-     *
+     * 
      * @return the hostname
      */
     public String getHostname() {
@@ -43,7 +46,7 @@ public class RolePage {
 
     /**
      * Sets the hostname.
-     *
+     * 
      * @param hostname the new hostname
      */
     public void setHostname(String hostname) {
@@ -52,7 +55,7 @@ public class RolePage {
 
     /**
      * Gets the count.
-     *
+     * 
      * @return the count
      */
     public int getCount() {
@@ -61,7 +64,7 @@ public class RolePage {
 
     /**
      * Sets the count.
-     *
+     * 
      * @param count the new count
      */
     public void setCount(int count) {

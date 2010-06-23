@@ -16,19 +16,19 @@ import tud.iir.web.Crawler;
 
 public class MIOPageAnalyzer extends GeneralAnalyzer {
 
-//    private Entity entity;
+    // private Entity entity;
 
     final String[] nameBlackList = { "footer", "banner", "ticker", "ads", "youtube" };
 
     /**
      * Extract mios.
-     *
+     * 
      * @param mioPages the mio pages
      * @param entity the entity
      * @return the map
      */
     public Map<String, MIO> extractMIOs(List<MIOPage> mioPages, Entity entity) {
-//        this.entity = entity;
+
         // List<MIO> extractedMIOs = new ArrayList<MIO>();
         Map<String, MIO> cleanedMIOs = new HashMap<String, MIO>();
 
@@ -88,7 +88,7 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
 
     /**
      * Checks if is not blacklisted.
-     *
+     * 
      * @param url the url
      * @return true, if is not blacklisted
      */
@@ -103,7 +103,7 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
 
     /**
      * The main method.
-     *
+     * 
      * @param args the arguments
      */
     public static void main(String[] args) {

@@ -23,7 +23,7 @@ public class ConceptSearchVocabulary {
 
     /**
      * Gets the voc by concept name.
-     *
+     * 
      * @param conceptName the concept name
      * @return the voc by concept name
      */
@@ -35,7 +35,7 @@ public class ConceptSearchVocabulary {
 
     /**
      * Attributes to map.
-     *
+     * 
      * @return the map
      */
     private Map<String, List<String>> attributesToMap() {
@@ -53,7 +53,7 @@ public class ConceptSearchVocabulary {
 
     /**
      * Parses the string to list.
-     *
+     * 
      * @param input the input
      * @return the list
      */

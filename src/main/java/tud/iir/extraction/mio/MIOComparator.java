@@ -9,7 +9,8 @@ import java.util.Comparator;
 
 public class MIOComparator implements Comparator<Object>, Serializable {
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
     public int compare(Object obj1, Object obj2) {
@@ -21,14 +22,21 @@ public class MIOComparator implements Comparator<Object>, Serializable {
         String labelTitle1 = ((MIO) obj1).getFileName();
         String labelTitle2 = ((MIO) obj1).getFileName();
 
-        if (mioTrust1 > mioTrust2)
+        if (mioTrust1 > mioTrust2) {
             return -1;
-        else if (mioTrust1 < mioTrust2)
+        }
+
+        else if (mioTrust1 < mioTrust2) {
             return 1;
-        else if (labelTitle1.equals(labelTitle2))
+        }
+
+        else if (labelTitle1.equals(labelTitle2)) {
             return -1;
-        else
+        }
+
+        else {
             return 1;
+        }
 
     }
 

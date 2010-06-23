@@ -16,20 +16,20 @@ import tud.iir.web.Crawler;
 
 public class FlashExtractor extends GeneralAnalyzer {
 
-    private StringHelper stringHelper;
+    // private StringHelper stringHelper;
     private Entity entity;
     private String mioPageContent;
 
     /**
      * Instantiates a new flash extractor.
      */
-    public FlashExtractor() {
-        stringHelper = new StringHelper();
-    }
+    // public FlashExtractor() {
+    // // stringHelper = new StringHelper();
+    // }
 
     /**
      * Extract flash objects.
-     *
+     * 
      * @param mioPage the mio page
      * @param entity the entity
      * @return the list
@@ -42,30 +42,30 @@ public class FlashExtractor extends GeneralAnalyzer {
         List<MIO> flashMIOs = new ArrayList<MIO>();
 
         // extract all <object>
-        List<String> relevantTags = stringHelper.getConcreteTags(mioPageContent, "object");
+        List<String> relevantTags = StringHelper.getConcreteTags(mioPageContent, "object");
 
         // remove the object-tags
-        mioPageContent = stringHelper.removeConcreteHTMLTag(mioPageContent, "object");
+        mioPageContent = StringHelper.removeConcreteHTMLTag(mioPageContent, "object");
 
         // extract all remaining <embed>-tags
-        relevantTags.addAll(stringHelper.getConcreteTags(mioPageContent, "embed"));
+        relevantTags.addAll(StringHelper.getConcreteTags(mioPageContent, "embed"));
 
         // remove all <embed>-tags
-        mioPageContent = stringHelper.removeConcreteHTMLTag(mioPageContent, "embed");
+        mioPageContent = StringHelper.removeConcreteHTMLTag(mioPageContent, "embed");
 
         // extract all <script>-tags
-        relevantTags.addAll(stringHelper.getConcreteTags(mioPageContent, "script"));
+        relevantTags.addAll(StringHelper.getConcreteTags(mioPageContent, "script"));
 
         // remove all <script>-tags
-        mioPageContent = stringHelper.removeConcreteHTMLTag(mioPageContent, "script");
+        mioPageContent = StringHelper.removeConcreteHTMLTag(mioPageContent, "script");
 
         if (mioPageContent.contains(".swf") || mioPageContent.contains(".SWF")) {
 
             List<MIO> furtherSWFs = extractSWFURL(mioPageContent, mioPage);
-            System.out.println("NOCH SWF ENTHALTEN! - " + mioPage.getUrl());
-            for (MIO mio : furtherSWFs) {
-                System.out.println(mio.getDirectURL());
-            }
+            // System.out.println("NOCH SWF ENTHALTEN! - " + mioPage.getUrl());
+            // for (MIO mio : furtherSWFs) {
+            // System.out.println(mio.getDirectURL());
+            // }
             flashMIOs.addAll(furtherSWFs);
 
         }
@@ -119,7 +119,7 @@ public class FlashExtractor extends GeneralAnalyzer {
         // Calculate Trust
         MIOContextAnalyzer mioContextAnalyzer = new MIOContextAnalyzer(entity, mioPage);
         // TODO: calculate a trust for the flashMIOs of that mioPage
-        System.out.println("MIO-Trust-Calculation!");
+        // System.out.println("MIO-Trust-Calculation!");
 
         for (MIO mio : flashMIOs) {
             // calculateTrust(mio);
@@ -130,7 +130,7 @@ public class FlashExtractor extends GeneralAnalyzer {
 
     /**
      * Adapt flash vars to url.
-     *
+     * 
      * @param mio the mio
      * @param flashVars the flash vars
      * @return the mIO
@@ -141,7 +141,7 @@ public class FlashExtractor extends GeneralAnalyzer {
         StringBuffer modURL = new StringBuffer();
         for (String flashVar : flashVars) {
             if (!flashVar.contains("\"") && !modURL.toString().contains(flashVar)) {
-                if (modURL.equals("")) {
+                if (modURL.length() < 1) {
                     modURL.append(url + "?" + flashVar);
                 } else {
                     modURL.append(modURL + "&" + flashVar);
@@ -156,7 +156,7 @@ public class FlashExtractor extends GeneralAnalyzer {
     // extract an swf-URL out of concrete tag
     /**
      * Extract swfurl.
-     *
+     * 
      * @param concreteTag the concrete tag
      * @param mioPage the mio page
      * @return the list
@@ -168,9 +168,9 @@ public class FlashExtractor extends GeneralAnalyzer {
         Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         // remove attributs like name="140.swf"
-        concreteTag = concreteTag.replaceAll("name=\".[^\"]*\"", "");
+        String modConcreteTag = concreteTag.replaceAll("name=\".[^\"]*\"", "");
 
-        Matcher matcher = pattern.matcher(concreteTag);
+        Matcher matcher = pattern.matcher(modConcreteTag);
         while (matcher.find()) {
             String mioAdr = matcher.group(0).replaceAll("\"", "");
             // System.out.println("URL: "+ mioAdr);
@@ -189,7 +189,7 @@ public class FlashExtractor extends GeneralAnalyzer {
     // extract Parameters of Flashvars from a concrete tag
     /**
      * Extract flash vars.
-     *
+     * 
      * @param tagContent the tag content
      * @return the list
      */
@@ -244,22 +244,22 @@ public class FlashExtractor extends GeneralAnalyzer {
             }
         }
 
-        if (flashVars.size() > 0) {
-            System.out.println("mehrere FlashVars: ");
-            for (String fVar : flashVars) {
-                System.out.println(fVar);
-
-            }
-            System.out.println("____________________");
-
-        }
+        // if (flashVars.size() > 0) {
+        // // System.out.println("mehrere FlashVars: ");
+        // for (String fVar : flashVars) {
+        // System.out.println(fVar);
+        //
+        // }
+        // System.out.println("____________________");
+        //
+        // }
 
         return flashVars;
     }
 
     /**
      * Check swf object.
-     *
+     * 
      * @param relevantTag the relevant tag
      * @param mioPage the mio page
      * @return the mIO
@@ -331,14 +331,14 @@ public class FlashExtractor extends GeneralAnalyzer {
 
     /**
      * Extract swf from comments.
-     *
+     * 
      * @param mioPage the mio page
      * @return the list
      */
     private List<MIO> extractSWFFromComments(MIOPage mioPage) {
         List<MIO> resultList = new ArrayList<MIO>();
-        StringHelper stringHelper = new StringHelper();
-        List<String> relevantTags = stringHelper.getConcreteTags(mioPage.getContent(), "<!--", "-->");
+        // StringHelper stringHelper = new StringHelper();
+        List<String> relevantTags = StringHelper.getConcreteTags(mioPage.getContent(), "<!--", "-->");
         for (String relevantTag : relevantTags) {
 
             List<MIO> tempList = extractSWFURL(relevantTag, mioPage);
@@ -359,7 +359,7 @@ public class FlashExtractor extends GeneralAnalyzer {
 
     /**
      * The main method.
-     *
+     * 
      * @param args the arguments
      */
     public static void main(String[] args) {
@@ -411,9 +411,9 @@ public class FlashExtractor extends GeneralAnalyzer {
         FlashExtractor flashEx = new FlashExtractor();
         List<MIO> resultList = flashEx.extractFlashObjects(page, headphone2);
 
-        for (MIO mio : resultList) {
-            System.out.println(mio.getDirectURL() + "  " + mio.getFindPageURL() + " TRUST: " + mio.getTrust());
-        }
+        // for (MIO mio : resultList) {
+        // System.out.println(mio.getDirectURL() + "  " + mio.getFindPageURL() + " TRUST: " + mio.getTrust());
+        // }
 
     }
 

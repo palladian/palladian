@@ -21,7 +21,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
 
     /**
      * Instantiates a new link analyzer.
-     *
+     * 
      * @param swMatcher the sw matcher
      */
     public LinkAnalyzer(SearchWordMatcher swMatcher) {
@@ -30,7 +30,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
 
     /**
      * Gets the linked mio pages.
-     *
+     * 
      * @param parentPageContent the parent page content
      * @param parentPageURL the parent page url
      * @return the linked mio pages
@@ -45,7 +45,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
             String completeLinkTag = m.group(0);
 
             String linkURL = getLinkURL(completeLinkTag, parentPageURL);
-            if (!linkURL.equals("") && linkURL != null) {
+            if (!linkURL.equals("")) {
 
                 // extract the Text of a Link
                 String linkName = getLinkName(completeLinkTag);
@@ -76,7 +76,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
 
     /**
      * Gets the link url.
-     *
+     * 
      * @param linkTag the link tag
      * @param pageURL the page url
      * @return the link url
@@ -89,7 +89,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
 
     /**
      * Gets the link name.
-     *
+     * 
      * @param linkTag the link tag
      * @return the link name
      */
@@ -99,7 +99,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
 
     /**
      * Gets the link title.
-     *
+     * 
      * @param linkTag the link tag
      * @return the link title
      */
@@ -109,7 +109,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
 
     /**
      * Check if the linkURL or linkInfo or linkTitle contains entity relevant words.
-     *
+     * 
      * @param linkURL the link url
      * @param linkName the link name
      * @param linkTitle the link title
@@ -134,7 +134,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
 
     /**
      * Create a MIOPage.
-     *
+     * 
      * @param linkURL the link url
      * @param parentURL the parent url
      * @param linkName the link name

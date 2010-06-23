@@ -14,15 +14,14 @@ import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
 import tud.iir.extraction.Extractor;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
 import tud.iir.persistence.DatabaseManager;
 
-public class MIOExtractor extends Extractor {
+public final class MIOExtractor extends Extractor {
 
-    private static final Logger logger = Logger.getLogger(MIOExtractor.class);
+    private static final Logger LOGGER = Logger.getLogger(MIOExtractor.class);
 
     private static MIOExtractor instance = null;
 
@@ -36,7 +35,7 @@ public class MIOExtractor extends Extractor {
 
     /**
      * Gets the single instance of MIOExtractor.
-     *
+     * 
      * @return single instance of MIOExtractor
      */
     public static MIOExtractor getInstance() {
@@ -55,12 +54,12 @@ public class MIOExtractor extends Extractor {
 
     /**
      * Start extraction.
-     *
+     * 
      * @param continueFromLastExtraction the continue from last extraction
      */
     public void startExtraction(boolean continueFromLastExtraction) {
 
-        logger.info("start MIO extraction");
+        LOGGER.info("start MIO extraction");
         // http://www.dcs.shef.ac.uk/~sam/stringmetrics.html#overlap
         // OverlapCoefficient oc = new OverlapCoefficient();
         // QGramsDistance qg = new QGramsDistance();
@@ -70,14 +69,14 @@ public class MIOExtractor extends Extractor {
         // EuclideanDistance ed = new EuclideanDistance();
         // JaccardSimilarity js = new JaccardSimilarity();
         // JaroWinkler jw = new JaroWinkler();
-        //        
+        //
         // System.out.println(js.getSimilarity("Samsung s8500 Wave",
         // " Das Samsung s8500 Wave ist besser als das Samsung S9500!"));
         // System.out.println(js.getSimilarity("Samsung s8500 Wave", " Das Samsung s8500 Wave!"));
         // System.exit(0);
         // // reset stopped command
         // setStopped(false);
-        //		
+        //
         // // load concepts and attributes from ontology (and rdb) and to know
         // what
         // // to extract
@@ -86,7 +85,7 @@ public class MIOExtractor extends Extractor {
         // System.out.println(con.toString());
         // OntologyManager.getInstance().clearCompleteKnowledgeBase();
         ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
-        
+
         // setKnowledgeManager(km);
         // } else {
 
@@ -94,7 +93,7 @@ public class MIOExtractor extends Extractor {
 
         // setKnowledgeManager(km);
         // }
-        //		
+        //
         // // loop until exit called
         // // while (!isStopped()) {
         //
@@ -104,18 +103,18 @@ public class MIOExtractor extends Extractor {
         // System.out.println("size: " + concepts1.size());
         // System.out.println(concept.getName());
         // }
-//        CollectionHelper.print(concepts);
-//        System.exit(0);
+        // CollectionHelper.print(concepts);
+        // System.exit(0);
         // TODO?
 
         // create a new concept without databaseusage
         // ArrayList<Concept> concepts = new ArrayList<Concept>();
-//        Concept exampleConcept = new Concept("mobilePhone");
-//        Entity exampleEntity_1 = new Entity("Samsung S8500 Wave", exampleConcept);
+        // Concept exampleConcept = new Concept("mobilePhone");
+        // Entity exampleEntity_1 = new Entity("Samsung S8500 Wave", exampleConcept);
         // Entity exampleEntity_2 = new Entity("HTC Desire", exampleConcept);
-//        exampleConcept.addEntity(exampleEntity_1);
+        // exampleConcept.addEntity(exampleEntity_1);
         // exampleConcept.addEntity(exampleEntity_2);
-//        concepts.add(exampleConcept);
+        // concepts.add(exampleConcept);
         //
         // Concept headphoneConcept = new Concept("headphone");
         // Entity headphone1 = new Entity("Razer Megalodon", headphoneConcept);
@@ -129,16 +128,16 @@ public class MIOExtractor extends Extractor {
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
 
-//            System.out.println("Concept: " + currentConcept.getName());
-            
-            //load Entities from DB for current concept
+            // System.out.println("Concept: " + currentConcept.getName());
+
+            // load Entities from DB for current concept
             currentConcept.loadEntities(false);
-            
+
             // load concept-specific SearchVocabulary
-             List<String> conceptVocabularyList=searchVoc.getVocByConceptName(currentConcept.getName());
+            List<String> conceptVocabularyList = searchVoc.getVocByConceptName(currentConcept.getName());
 
             if (isStopped()) {
-                logger.info("mio extraction process stopped");
+                LOGGER.info("mio extraction process stopped");
                 break;
             }
 
@@ -156,7 +155,7 @@ public class MIOExtractor extends Extractor {
             // wait for a certain time when no entities were found, then
             // restart
             if (conceptEntities.size() == 0) {
-                logger.info("no entities for mio extraction, continue with next concept");
+                LOGGER.info("no entities for mio extraction, continue with next concept");
                 continue;
             }
 
@@ -165,26 +164,26 @@ public class MIOExtractor extends Extractor {
             for (Entity currentEntity : conceptEntities) {
 
                 if (isStopped()) {
-                    logger.info("mio extraction process stopped");
+                    LOGGER.info("mio extraction process stopped");
                     break;
                 }
-                
-                System.out.println("Concept: " + currentConcept.getName() + "Entity: "+currentEntity.getName());
+
+                // System.out.println("Concept: " + currentConcept.getName() + "Entity: " + currentEntity.getName());
 
                 currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
 
-                logger.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
+                LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
                         + currentEntity.getConcept().getName() + ")");
                 Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup, currentEntity.getSafeName()
                         + "MIOExtractionThread", currentEntity, searchVoc);
                 mioThread.start();
 
-                logger.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
-                System.out.println("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
+                LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
+                // System.out.println("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
 
                 while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                    logger.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
-                    System.out.println("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
+                    LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
+                    // System.out.println("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
                     ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
                 }
 
@@ -203,20 +202,21 @@ public class MIOExtractor extends Extractor {
 
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see tud.iir.extraction.Extractor#saveExtractions(boolean)
      */
     @Override
     protected void saveExtractions(boolean saveResults) {
         if (saveResults && !isBenchmark()) {
-            System.out.println("save extractions now");
+            // System.out.println("save extractions now");
             getKnowledgeManager().saveExtractions();
         }
     }
 
     /**
      * load the concept-specific SearchVocabulary from .yml-file
-     *
+     * 
      * @return the concept search vocabulary
      */
     private ConceptSearchVocabulary loadSearchVocabulary() {
@@ -227,29 +227,30 @@ public class MIOExtractor extends Extractor {
             return cSearchVoc;
         } catch (FileNotFoundException e) {
 
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return null;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see tud.iir.extraction.Extractor#isURLallowed(java.lang.String)
      */
-    public boolean isURLallowed(String url) {
+    public boolean isURLallowed(final String url) {
         super.addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
-        super.addSuffixesToBlackList(super.URL_TEXTUAL_BLACKLIST);
+        super.addSuffixesToBlackList(Extractor.URL_TEXTUAL_BLACKLIST);
         return super.isURLallowed(url);
     }
 
     /**
      * The main method.
-     *
+     * 
      * @param abc the arguments
      */
-    public static void main(String[] abc) {
+    public static void main(final String[] abc) {
         // Controller.getInstance();
 
-        long t1 = System.currentTimeMillis();
+        // long t1 = System.currentTimeMillis();
         MIOExtractor mioEx = MIOExtractor.getInstance();
 
         // mioEx.setKnowledgeManager(DatabaseManager.getInstance().loadOntology());

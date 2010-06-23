@@ -13,21 +13,40 @@ import tud.iir.web.Crawler;
  */
 public class MIOPage {
 
+    /** The url. */
     private String url;
+
+    /** The hostname. */
     private String hostname;
-    private String linkmatch = "";
+
+    /** The content. */
     private String content = "";
+
+    /** The title of a MIOPage. */
     private String title = "";
 
+    /** To check if this MIOPage was linked. */
     private boolean isLinkedPage = false;
+
+    /** The name of the link. */
     private String linkName = "";
+
+    /** The title of the link. */
     private String linkTitle = "";
+
+    /** The parent page that linked to this MIOPage. */
     private String linkParentPage = "";
 
+    /** To check if this MIOPage is an iframe-source. */
     private boolean isIFrameSource = false;
+
+    /** The iframe-Page that embeds this MIOPage. */
     private String iframeParentPage = "";
+
+    /** The title of the iframe-page that embeds this MIOpage. */
     private String iframeParentPageTitle = "";
 
+    /** The dedicated page trust. */
     private double dedicatedPageTrust = 0;
 
     /**
@@ -39,25 +58,7 @@ public class MIOPage {
     public MIOPage(String url, String content) {
         this.url = url;
         this.content = content;
-        Crawler crawler = new Crawler(5000, 5000, 10000);
-        crawler.setDocument(url);
-        this.hostname = Crawler.getDomain(url, false);
-        this.title = Crawler.extractTitle(crawler.getDocument());
-
-    }
-
-    /**
-     * Instantiates a new mIO page.
-     * 
-     * @param url the url
-     * @param linkmatch the linkmatch
-     * @param content the content
-     */
-    public MIOPage(String url, String linkmatch, String content) {
-        this.url = url;
-        this.linkmatch = linkmatch;
-        this.content = content;
-        Crawler crawler = new Crawler(5000, 5000, 10000);
+        Crawler crawler = new Crawler();
         crawler.setDocument(url);
         this.hostname = Crawler.getDomain(url, false);
         this.title = Crawler.extractTitle(crawler.getDocument());
@@ -94,30 +95,12 @@ public class MIOPage {
     /**
      * Sets the hostname.
      * 
-     * @param pageURL the new hostname
+     * @return true, if is i frame source
      */
     // private void setHostname(String pageURL) {
     // Crawler crawler = new Crawler(5000, 5000, 10000);
     // this.hostname = Crawler.getDomain(pageURL, false);
     // }
-
-    /**
-     * Gets the linkmatch.
-     * 
-     * @return the linkmatch
-     */
-    public String getLinkmatch() {
-        return linkmatch;
-    }
-
-    /**
-     * Sets the linkmatch.
-     * 
-     * @param linkmatch the new linkmatch
-     */
-    public void setLinkmatch(String linkmatch) {
-        this.linkmatch = linkmatch;
-    }
 
     /**
      * Checks if is i frame source.
