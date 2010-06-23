@@ -29,7 +29,7 @@ public class DedicatedPageDetector {
 
     /**
      * Calculate dedicated page trust.
-     *
+     * 
      * @param mioPage the mio page
      */
     public void calculateDedicatedPageTrust(MIOPage mioPage) {
@@ -82,7 +82,7 @@ public class DedicatedPageDetector {
 
     /**
      * Calculate a DedicatedPageTrust with the help of the given values.
-     *
+     * 
      * @param contentLength the content length
      * @param numberOfLinks the number of links
      * @param numberOfImages the number of images
@@ -123,7 +123,7 @@ public class DedicatedPageDetector {
 
     /**
      * Calculate a DedicatedPageTrust for a single value.
-     *
+     * 
      * @param singleValue the single value
      * @param isContentLength the is content length
      * @return the double
@@ -151,7 +151,7 @@ public class DedicatedPageDetector {
     // method only for testing
     /**
      * Calculate body content.
-     *
+     * 
      * @param url the url
      */
     private void calculateBodyContent(String url) {
@@ -170,7 +170,7 @@ public class DedicatedPageDetector {
 
     /**
      * The main method.
-     *
+     * 
      * @param abc the arguments
      */
     public static void main(String[] abc) {

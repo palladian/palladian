@@ -32,7 +32,7 @@ public class MIO {
 
     /**
      * Instantiates a new mIO.
-     *
+     * 
      * @param type the type
      * @param directURL the direct url
      * @param findPageURL the find page url
@@ -51,7 +51,7 @@ public class MIO {
 
     /**
      * Extract file name.
-     *
+     * 
      * @param directURL the direct url
      * @param type the type
      * @return the string
@@ -71,7 +71,7 @@ public class MIO {
 
     /**
      * Gets the trust.
-     *
+     * 
      * @return the trust
      */
     public double getTrust() {
@@ -80,7 +80,7 @@ public class MIO {
 
     /**
      * Sets the trust.
-     *
+     * 
      * @param trust the new trust
      */
     public void setTrust(double trust) {
@@ -89,7 +89,7 @@ public class MIO {
 
     /**
      * Gets the find page url.
-     *
+     * 
      * @return the find page url
      */
     public String getFindPageURL() {
@@ -98,7 +98,7 @@ public class MIO {
 
     /**
      * Sets the find page url.
-     *
+     * 
      * @param findPageURL the new find page url
      */
     public void setFindPageURL(String findPageURL) {
@@ -107,7 +107,7 @@ public class MIO {
 
     /**
      * Gets the direct url.
-     *
+     * 
      * @return the direct url
      */
     public String getDirectURL() {
@@ -116,7 +116,7 @@ public class MIO {
 
     /**
      * Sets the direct url.
-     *
+     * 
      * @param directURL the new direct url
      */
     public void setDirectURL(String directURL) {
@@ -125,7 +125,7 @@ public class MIO {
 
     /**
      * Gets the entity.
-     *
+     * 
      * @return the entity
      */
     public Entity getEntity() {
@@ -134,7 +134,7 @@ public class MIO {
 
     /**
      * Sets the entity.
-     *
+     * 
      * @param entity the new entity
      */
     public void setEntity(Entity entity) {
@@ -143,7 +143,7 @@ public class MIO {
 
     /**
      * Gets the interactivity grade.
-     *
+     * 
      * @return the interactivity grade
      */
     public String getInteractivityGrade() {
@@ -152,7 +152,7 @@ public class MIO {
 
     /**
      * Sets the interactivity grade.
-     *
+     * 
      * @param interactivityGrade the new interactivity grade
      */
     public void setInteractivityGrade(String interactivityGrade) {
@@ -161,7 +161,7 @@ public class MIO {
 
     /**
      * Checks if is dedicated page.
-     *
+     * 
      * @return true, if is dedicated page
      */
     public boolean isDedicatedPage() {
@@ -170,7 +170,7 @@ public class MIO {
 
     /**
      * Sets the dedicated page.
-     *
+     * 
      * @param isDedicatedPage the new dedicated page
      */
     public void setDedicatedPage(boolean isDedicatedPage) {
@@ -179,7 +179,7 @@ public class MIO {
 
     /**
      * Gets the type.
-     *
+     * 
      * @return the type
      */
     public String getType() {
@@ -188,7 +188,7 @@ public class MIO {
 
     /**
      * Sets the type.
-     *
+     * 
      * @param type the new type
      */
     public void setType(String type) {
@@ -197,7 +197,7 @@ public class MIO {
 
     /**
      * Gets the infos.
-     *
+     * 
      * @return the infos
      */
     public Map<String, List> getInfos() {
@@ -206,7 +206,7 @@ public class MIO {
 
     /**
      * Sets the infos.
-     *
+     * 
      * @param infos the infos
      */
     public void setInfos(Map<String, List> infos) {
@@ -215,7 +215,7 @@ public class MIO {
 
     /**
      * Adds the infos.
-     *
+     * 
      * @param infoName the info name
      * @param infoList the info list
      */
@@ -225,7 +225,7 @@ public class MIO {
 
     /**
      * Gets the file name.
-     *
+     * 
      * @return the file name
      */
     public String getFileName() {
@@ -234,7 +234,7 @@ public class MIO {
 
     /**
      * Sets the file name.
-     *
+     * 
      * @param fileName the new file name
      */
     public void setFileName(String fileName) {

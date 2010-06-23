@@ -22,7 +22,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     /**
      * Instantiates a new i frame analyzer.
-     *
+     * 
      * @param swMatcher the sw matcher
      */
     public IFrameAnalyzer(SearchWordMatcher swMatcher) {
@@ -31,7 +31,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     /**
      * Gets the iframe mio pages.
-     *
+     * 
      * @param parentPageContent the parent page content
      * @param parentPageURL the parent page url
      * @return the iframe mio pages
@@ -64,7 +64,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     /**
      * analyze a page for existing IFrames.
-     *
+     * 
      * @param pageContent the page content
      * @param pageURL the page url
      * @return the list
@@ -93,7 +93,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     /**
      * extract the src-url out of an iframe-tag.
-     *
+     * 
      * @param iframeTag the iframe tag
      * @param quotMark the quot mark
      * @return the src from iframe
@@ -109,7 +109,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     /**
      * analyze the URLs for validness and eventually modify them e.g. relative Paths
-     *
+     * 
      * @param urlCandidates the url candidates
      * @param parentPageURL the parent page url
      * @return the list
@@ -129,7 +129,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     /**
      * Create a new MIOPage.
-     *
+     * 
      * @param iframeSourceURL the iframe source url
      * @param iframePageContent the iframe page content
      * @param parentPageURL the parent page url
@@ -149,7 +149,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     /**
      * The main method.
-     *
+     * 
      * @param abc the arguments
      */
     public static void main(String[] abc) {

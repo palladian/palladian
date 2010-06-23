@@ -20,7 +20,7 @@ public class RolePageDetector {
 
     /**
      * Instantiates a new role page detector.
-     *
+     * 
      * @param relevanceValue the relevance value
      */
     public RolePageDetector(int relevanceValue) {
@@ -33,7 +33,7 @@ public class RolePageDetector {
 
     /**
      * Analyze for role pages.
-     *
+     * 
      * @param MIOPages the mIO pages
      * @return the list
      */
@@ -70,7 +70,7 @@ public class RolePageDetector {
     // only return rolePages with counts that match the minimum of the relevanceValue
     /**
      * Find relevance role pages.
-     *
+     * 
      * @param rolePageCandidates the role page candidates
      */
     private void findRelevanceRolePages(List<RolePage> rolePageCandidates) {

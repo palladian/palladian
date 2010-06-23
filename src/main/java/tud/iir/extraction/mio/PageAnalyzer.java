@@ -18,24 +18,24 @@ import tud.iir.knowledge.Entity;
  */
 public class PageAnalyzer {
 
-    private List<String> MIOPageCandidates;
-    private List<MIOPage> MIOPages;
+    private List<String> mioPageCandidates;
+    private List<MIOPage> mioPages;
 
     /**
      * Instantiates a new page analyzer.
-     *
+     * 
      * @param MIOPageCandidates the mIO page candidates
      */
     public PageAnalyzer(List<String> MIOPageCandidates) {
 
-        this.MIOPageCandidates = MIOPageCandidates;
-        MIOPages = new ArrayList<MIOPage>();
+        this.mioPageCandidates = MIOPageCandidates;
+        mioPages = new ArrayList<MIOPage>();
 
     }
 
     /**
      * the central method.
-     *
+     * 
      * @param entity the entity
      * @return the list
      */
@@ -44,7 +44,7 @@ public class PageAnalyzer {
         // initialize SearchWordMatcher
         SearchWordMatcher swMatcher = new SearchWordMatcher(entity.getName());
 
-        for (String mioPageCandidate : MIOPageCandidates) {
+        for (String mioPageCandidate : mioPageCandidates) {
 
             // System.out.println("PageAnalysing started for: " +
             // mioPageCandidate);
@@ -53,24 +53,24 @@ public class PageAnalyzer {
 
                 // use fast MIO-Detection
                 FastMIODetector fMIODec = new FastMIODetector();
-                MIOPages.addAll(fMIODec.getMioPages(pageContent, mioPageCandidate));
+                mioPages.addAll(fMIODec.getMioPages(pageContent, mioPageCandidate));
 
                 // IFRAME-Analysis
                 IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
-                MIOPages.addAll(iframeAnalyzer.getIframeMioPages(pageContent, mioPageCandidate));
+                mioPages.addAll(iframeAnalyzer.getIframeMioPages(pageContent, mioPageCandidate));
 
                 // Link-Analysis
                 LinkAnalyzer linkAnalyzer = new LinkAnalyzer(swMatcher);
-                MIOPages.addAll(linkAnalyzer.getLinkedMioPages(pageContent, mioPageCandidate));
+                mioPages.addAll(linkAnalyzer.getLinkedMioPages(pageContent, mioPageCandidate));
             }
         }
 
-        return removeDuplicates(MIOPages);
+        return removeDuplicates(mioPages);
     }
 
     /**
      * get WebPage as String.
-     *
+     * 
      * @param URLString the uRL string
      * @return the page
      */
@@ -81,7 +81,7 @@ public class PageAnalyzer {
 
     /**
      * remove duplicates, but pay attention to different ways of finding.
-     *
+     * 
      * @param mioPages the mio pages
      * @return the list
      */

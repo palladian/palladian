@@ -19,7 +19,7 @@ import tud.iir.knowledge.Entity;
  */
 public class MIOPageRetriever {
 
-    private static final Logger logger = Logger.getLogger(MIOPageRetriever.class);
+    private static final Logger LOGGER = Logger.getLogger(MIOPageRetriever.class);
 
     private List<RolePage> rolePageList;
     private static MIOPageRetriever instance = null;
@@ -33,7 +33,7 @@ public class MIOPageRetriever {
 
     /**
      * Gets the single instance of MIOPageRetriever.
-     *
+     * 
      * @return single instance of MIOPageRetriever
      */
     public static MIOPageRetriever getInstance() {
@@ -45,7 +45,7 @@ public class MIOPageRetriever {
 
     /**
      * Retrieve mi os.
-     *
+     * 
      * @param entity the entity
      * @param searchVoc the search voc
      * @return the list
@@ -62,22 +62,22 @@ public class MIOPageRetriever {
         // initiate search with searchEngines
         List<String> MIOPageCandidates = startSearchAgent(searchQueries);
 
-        logger.info("Analyzing MIOPageCandidates startet..");
+        LOGGER.info("Analyzing MIOPageCandidates startet..");
 
         // analyze the MIOPageCandidates for MIO-existence
         MIOPages = analyzeMIOPageCandidates(MIOPageCandidates, entity);
 
-        logger.info("PageAnalysis finished, DedicatedPage-Calculation starts..");
+        LOGGER.info("PageAnalysis finished, DedicatedPage-Calculation starts..");
 
         // detect DedicatedPages
         for (MIOPage mioPage : MIOPages) {
             DedicatedPageDetector dpDetector = new DedicatedPageDetector();
             dpDetector.calculateDedicatedPageTrust(mioPage);
         }
-        logger.info("DedicatedPage-Calculation finished");
+        LOGGER.info("DedicatedPage-Calculation finished");
 
         // printMIOPagesURLs(MIOPages, entity.getName());
-        //			
+        //
         // //check for Role-Pages
         // rolePageList = rolePageDet.analyzeForRolePages(MIOPages);
         // }
@@ -87,7 +87,7 @@ public class MIOPageRetriever {
 
     /**
      * Generate specific SearchQueries for every entity.
-     *
+     * 
      * @param entity the entity
      * @param conceptVocabulary the concept vocabulary
      * @return the list
@@ -102,7 +102,7 @@ public class MIOPageRetriever {
 
     /**
      * Initiate a search with generated queries for every entity.
-     *
+     * 
      * @param searchQueries the search queries
      * @return the list
      */
@@ -115,7 +115,7 @@ public class MIOPageRetriever {
 
     /**
      * Do the Webpage-Analysis.
-     *
+     * 
      * @param MIOPageCandidates the mIO page candidates
      * @param entity the entity
      * @return the list
@@ -130,33 +130,33 @@ public class MIOPageRetriever {
 
     /**
      * Prints the mio pages ur ls.
-     *
+     * 
      * @param MIOPages the mIO pages
      * @param entityName the entity name
      */
-    private void printMIOPagesURLs(List<MIOPage> MIOPages, String entityName) {
-        System.out.println("-------fuer " + entityName + " wurden " + MIOPages.size() + " MIOPages gefunden!");
-        for (MIOPage mioPage : MIOPages) {
-            if (mioPage.getDedicatedPageTrust() > 0.6) {
-                System.out.println(mioPage.getHostname() + "  " + entityName + " dpTrust: "
-                        + mioPage.getDedicatedPageTrust() + " isIframeSource: " + mioPage.isIFrameSource()
-                        + " isLinkedPage: " + mioPage.isLinkedPage());
-                System.out.println(mioPage.getUrl());
-            }
-
-        }
-    }
+    // private void printMIOPagesURLs(List<MIOPage> MIOPages, String entityName) {
+    // System.out.println("-------fuer " + entityName + " wurden " + MIOPages.size() + " MIOPages gefunden!");
+    // for (MIOPage mioPage : MIOPages) {
+    // if (mioPage.getDedicatedPageTrust() > 0.6) {
+    // System.out.println(mioPage.getHostname() + "  " + entityName + " dpTrust: "
+    // + mioPage.getDedicatedPageTrust() + " isIframeSource: " + mioPage.isIFrameSource()
+    // + " isLinkedPage: " + mioPage.isLinkedPage());
+    // System.out.println(mioPage.getUrl());
+    // }
+    //
+    // }
+    // }
 
     /**
      * Prints the role page ur ls.
-     *
+     * 
      * @param rolePages the role pages
      */
-    private void printRolePageURLs(List<RolePage> rolePages) {
-        System.out.println("Size: " + rolePages.size());
-        for (RolePage rolePage : rolePages) {
-            System.out.println(rolePage.getHostname() + " Count: " + rolePage.getCount());
-        }
-    }
+    // private void printRolePageURLs(List<RolePage> rolePages) {
+    // System.out.println("Size: " + rolePages.size());
+    // for (RolePage rolePage : rolePages) {
+    // System.out.println(rolePage.getHostname() + " Count: " + rolePage.getCount());
+    // }
+    // }
 
 }

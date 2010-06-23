@@ -15,7 +15,7 @@ public class MIOContextAnalyzer {
 
     /**
      * Instantiates a new mIO context analyzer.
-     *
+     * 
      * @param entity the entity
      * @param mioPage the mio page
      */
@@ -28,7 +28,7 @@ public class MIOContextAnalyzer {
 
     /**
      * Calculate trust.
-     *
+     * 
      * @param mio the mio
      */
     public void calculateTrust(MIO mio) {
@@ -62,7 +62,7 @@ public class MIOContextAnalyzer {
 
     /**
      * Initially calculate the trust for a mioPage which influences all its containing MIOs.
-     *
+     * 
      * @return the double
      */
     private double calcPageContextTrust() {
@@ -95,7 +95,7 @@ public class MIOContextAnalyzer {
      * Calculate the relevance of a string by checking how many terms or morphs of the entityName are included in the
      * string. A special role play words like
      * d500 or x500i. Returns: a value from 0 to 1
-     *
+     * 
      * @param string the string
      * @param entity the entity
      * @return the double
@@ -113,7 +113,7 @@ public class MIOContextAnalyzer {
 
         double result = (double) ((NumOfMatchesWithoutSW * 2) + (Diff * 3)) / (double) (Elements.length * 3);
         // if (Diff>0){
-        //			
+        //
         // //result = (double)(NumOfMatches-1)/Elements.length+
         // (Diff/Elements.length) + (Diff/(2*Elements.length));
         // //
@@ -132,7 +132,7 @@ public class MIOContextAnalyzer {
 
     /**
      * Check for bad words.
-     *
+     * 
      * @param mio the mio
      * @return the double
      */
@@ -149,7 +149,7 @@ public class MIOContextAnalyzer {
 
     /**
      * The main method.
-     *
+     * 
      * @param args the arguments
      */
     public static void main(String[] args) {

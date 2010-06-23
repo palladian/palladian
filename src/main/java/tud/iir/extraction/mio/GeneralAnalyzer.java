@@ -22,7 +22,7 @@ public class GeneralAnalyzer {
 
     /**
      * Get WebPage as String (without comments and JS/CSS possible).
-     *
+     * 
      * @param URLString the uRL string
      * @param removeJS the remove js
      * @return the page
@@ -43,7 +43,7 @@ public class GeneralAnalyzer {
 
     /**
      * Gets the page.
-     *
+     * 
      * @param URLString the uRL string
      * @return the page
      */
@@ -53,7 +53,7 @@ public class GeneralAnalyzer {
 
     /**
      * Extract values e.g for: src=, href= or title=
-     *
+     * 
      * @param pattern the pattern
      * @param content the content
      * @param removeTerm the remove term
@@ -82,7 +82,7 @@ public class GeneralAnalyzer {
 
     /**
      * Check URL for validness and eventually modify e.g. relative path
-     *
+     * 
      * @param urlCandidate the url candidate
      * @param pageURL the page url
      * @return the string
@@ -90,18 +90,18 @@ public class GeneralAnalyzer {
     public String verifyURL(String urlCandidate, String pageURL) {
 
         String returnValue = "";
-        Crawler crawler = new Crawler(5000, 5000, 10000);
+        // Crawler crawler = new Crawler(5000, 5000, 10000);
 
-        urlCandidate = urlCandidate.trim();
-        if (urlCandidate.startsWith("http://")) {
-            if (crawler.isValidURL(urlCandidate, false)) {
-                return urlCandidate;
+        String modUrlCandidate = urlCandidate.trim();
+        if (modUrlCandidate.startsWith("http://")) {
+            if (Crawler.isValidURL(modUrlCandidate, false)) {
+                return modUrlCandidate;
             }
         } else {
 
-            if (urlCandidate.length() > 2) {
-                String modifiedURL = crawler.makeFullURL(pageURL, urlCandidate);
-                if (crawler.isValidURL(modifiedURL, false)) {
+            if (modUrlCandidate.length() > 2) {
+                String modifiedURL = Crawler.makeFullURL(pageURL, modUrlCandidate);
+                if (Crawler.isValidURL(modifiedURL, false)) {
                     return modifiedURL;
                 }
             }
@@ -112,7 +112,7 @@ public class GeneralAnalyzer {
 
     /**
      * Extract alt text from tag.
-     *
+     * 
      * @param relevantTag the relevant tag
      * @return the string
      */
@@ -121,9 +121,9 @@ public class GeneralAnalyzer {
         int beginIndex = relevantTag.indexOf(">") + 1;
         int endIndex = relevantTag.lastIndexOf("<");
         if (beginIndex < endIndex) {
-            relevantTag = relevantTag.substring(beginIndex, endIndex);
-            StringHelper stringHelper = new StringHelper();
-            altText = stringHelper.removeHTMLTags(relevantTag, true, true, false, true);
+            String modRelevantTag = relevantTag.substring(beginIndex, endIndex);
+            // StringHelper stringHelper = new StringHelper();
+            altText = StringHelper.removeHTMLTags(modRelevantTag, true, true, false, true);
         }
 
         return altText;
