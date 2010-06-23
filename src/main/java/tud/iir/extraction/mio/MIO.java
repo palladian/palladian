@@ -1,3 +1,7 @@
+/**
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.HashMap;
@@ -22,7 +26,7 @@ public class MIO {
     private String fileName = "";
 
     private Entity entity;
-    private String interactGrade = "";
+    private String interactivityGrade = "";
     private boolean isDedicatedPage = true;
     private Map<String, List> infos;
 
@@ -143,7 +147,7 @@ public class MIO {
      * @return the interactivity grade
      */
     public String getInteractivityGrade() {
-        return interactGrade;
+        return interactivityGrade;
     }
 
     /**
@@ -152,7 +156,7 @@ public class MIO {
      * @param interactivityGrade the new interactivity grade
      */
     public void setInteractivityGrade(String interactivityGrade) {
-        this.interactGrade = interactivityGrade;
+        this.interactivityGrade = interactivityGrade;
     }
 
     /**

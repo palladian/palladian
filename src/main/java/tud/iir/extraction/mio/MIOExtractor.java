@@ -1,14 +1,20 @@
+/**
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
 import tud.iir.extraction.Extractor;
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -80,6 +86,7 @@ public class MIOExtractor extends Extractor {
         // System.out.println(con.toString());
         // OntologyManager.getInstance().clearCompleteKnowledgeBase();
         ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
+        
         // setKnowledgeManager(km);
         // } else {
 
@@ -97,18 +104,18 @@ public class MIOExtractor extends Extractor {
         // System.out.println("size: " + concepts1.size());
         // System.out.println(concept.getName());
         // }
-        // CollectionHelper.print(concepts3);
-        System.exit(0);
+//        CollectionHelper.print(concepts);
+//        System.exit(0);
         // TODO?
 
         // create a new concept without databaseusage
         // ArrayList<Concept> concepts = new ArrayList<Concept>();
-        Concept exampleConcept = new Concept("mobilePhone");
-        Entity exampleEntity_1 = new Entity("Samsung S8500 Wave", exampleConcept);
+//        Concept exampleConcept = new Concept("mobilePhone");
+//        Entity exampleEntity_1 = new Entity("Samsung S8500 Wave", exampleConcept);
         // Entity exampleEntity_2 = new Entity("HTC Desire", exampleConcept);
-        exampleConcept.addEntity(exampleEntity_1);
+//        exampleConcept.addEntity(exampleEntity_1);
         // exampleConcept.addEntity(exampleEntity_2);
-        concepts.add(exampleConcept);
+//        concepts.add(exampleConcept);
         //
         // Concept headphoneConcept = new Concept("headphone");
         // Entity headphone1 = new Entity("Razer Megalodon", headphoneConcept);
@@ -122,11 +129,13 @@ public class MIOExtractor extends Extractor {
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
 
-            System.out.println("Concept: " + currentConcept.getName());
-
+//            System.out.println("Concept: " + currentConcept.getName());
+            
+            //load Entities from DB for current concept
+            currentConcept.loadEntities(false);
+            
             // load concept-specific SearchVocabulary
-            // List<String>
-            // conceptVocabularyList=searchVoc.getVocByConceptName(currentConcept.getName());
+             List<String> conceptVocabularyList=searchVoc.getVocByConceptName(currentConcept.getName());
 
             if (isStopped()) {
                 logger.info("mio extraction process stopped");
@@ -159,6 +168,8 @@ public class MIOExtractor extends Extractor {
                     logger.info("mio extraction process stopped");
                     break;
                 }
+                
+                System.out.println("Concept: " + currentConcept.getName() + "Entity: "+currentEntity.getName());
 
                 currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
 

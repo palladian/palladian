@@ -1,3 +1,7 @@
+/**
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.List;

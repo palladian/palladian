@@ -1,3 +1,8 @@
+/**
+ * The MIOPageAnalyzer analyzes MIOPages for relevant MIOs and try to extract them.
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
@@ -11,19 +16,19 @@ import tud.iir.web.Crawler;
 
 public class MIOPageAnalyzer extends GeneralAnalyzer {
 
-    Entity entity;
+//    private Entity entity;
 
     final String[] nameBlackList = { "footer", "banner", "ticker", "ads", "youtube" };
 
     /**
-     * Extract mi os.
+     * Extract mios.
      *
      * @param mioPages the mio pages
      * @param entity the entity
      * @return the map
      */
     public Map<String, MIO> extractMIOs(List<MIOPage> mioPages, Entity entity) {
-        this.entity = entity;
+//        this.entity = entity;
         // List<MIO> extractedMIOs = new ArrayList<MIO>();
         Map<String, MIO> cleanedMIOs = new HashMap<String, MIO>();
 

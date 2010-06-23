@@ -1,3 +1,7 @@
+/**
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
@@ -134,16 +138,16 @@ public class FlashExtractor extends GeneralAnalyzer {
     private MIO adaptFlashVarsToURL(MIO mio, List<String> flashVars) {
 
         String url = mio.getDirectURL();
-        String modURL = "";
+        StringBuffer modURL = new StringBuffer();
         for (String flashVar : flashVars) {
-            if (!flashVar.contains("\"") && !modURL.contains(flashVar)) {
+            if (!flashVar.contains("\"") && !modURL.toString().contains(flashVar)) {
                 if (modURL.equals("")) {
-                    modURL = url + "?" + flashVar;
+                    modURL.append(url + "?" + flashVar);
                 } else {
-                    modURL = modURL + "&" + flashVar;
+                    modURL.append(modURL + "&" + flashVar);
                 }
             }
-            mio.setDirectURL(modURL);
+            mio.setDirectURL(modURL.toString());
         }
 
         return mio;

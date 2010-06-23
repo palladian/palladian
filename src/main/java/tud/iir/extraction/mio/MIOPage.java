@@ -1,3 +1,7 @@
+/**
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import tud.iir.web.Crawler;
@@ -28,7 +32,7 @@ public class MIOPage {
 
     /**
      * Instantiates a new mIO page.
-     *
+     * 
      * @param url the url
      * @param content the content
      */
@@ -44,7 +48,7 @@ public class MIOPage {
 
     /**
      * Instantiates a new mIO page.
-     *
+     * 
      * @param url the url
      * @param linkmatch the linkmatch
      * @param content the content
@@ -62,7 +66,7 @@ public class MIOPage {
 
     /**
      * Gets the url.
-     *
+     * 
      * @return the url
      */
     public String getUrl() {
@@ -71,7 +75,7 @@ public class MIOPage {
 
     /**
      * Sets the url.
-     *
+     * 
      * @param url the new url
      */
     public void setUrl(String url) {
@@ -80,7 +84,7 @@ public class MIOPage {
 
     /**
      * Gets the hostname.
-     *
+     * 
      * @return the hostname
      */
     public String getHostname() {
@@ -89,17 +93,17 @@ public class MIOPage {
 
     /**
      * Sets the hostname.
-     *
+     * 
      * @param pageURL the new hostname
      */
-    private void setHostname(String pageURL) {
-        Crawler crawler = new Crawler(5000, 5000, 10000);
-        this.hostname = Crawler.getDomain(pageURL, false);
-    }
+    // private void setHostname(String pageURL) {
+    // Crawler crawler = new Crawler(5000, 5000, 10000);
+    // this.hostname = Crawler.getDomain(pageURL, false);
+    // }
 
     /**
      * Gets the linkmatch.
-     *
+     * 
      * @return the linkmatch
      */
     public String getLinkmatch() {
@@ -108,7 +112,7 @@ public class MIOPage {
 
     /**
      * Sets the linkmatch.
-     *
+     * 
      * @param linkmatch the new linkmatch
      */
     public void setLinkmatch(String linkmatch) {
@@ -117,7 +121,7 @@ public class MIOPage {
 
     /**
      * Checks if is i frame source.
-     *
+     * 
      * @return true, if is i frame source
      */
     public boolean isIFrameSource() {
@@ -126,7 +130,7 @@ public class MIOPage {
 
     /**
      * Sets the i frame source.
-     *
+     * 
      * @param isIFrameSource the new i frame source
      */
     public void setIFrameSource(boolean isIFrameSource) {
@@ -135,7 +139,7 @@ public class MIOPage {
 
     /**
      * Gets the content.
-     *
+     * 
      * @return the content
      */
     public String getContent() {
@@ -144,7 +148,7 @@ public class MIOPage {
 
     /**
      * Sets the content.
-     *
+     * 
      * @param content the new content
      */
     public void setContent(String content) {
@@ -153,7 +157,7 @@ public class MIOPage {
 
     /**
      * Gets the link name.
-     *
+     * 
      * @return the link name
      */
     public String getLinkName() {
@@ -162,7 +166,7 @@ public class MIOPage {
 
     /**
      * Sets the link name.
-     *
+     * 
      * @param linkName the new link name
      */
     public void setLinkName(String linkName) {
@@ -171,7 +175,7 @@ public class MIOPage {
 
     /**
      * Gets the link parent page.
-     *
+     * 
      * @return the link parent page
      */
     public String getLinkParentPage() {
@@ -180,7 +184,7 @@ public class MIOPage {
 
     /**
      * Sets the link parent page.
-     *
+     * 
      * @param linkParentPage the new link parent page
      */
     public void setLinkParentPage(String linkParentPage) {
@@ -189,7 +193,7 @@ public class MIOPage {
 
     /**
      * Checks if is linked page.
-     *
+     * 
      * @return true, if is linked page
      */
     public boolean isLinkedPage() {
@@ -198,7 +202,7 @@ public class MIOPage {
 
     /**
      * Sets the linked page.
-     *
+     * 
      * @param isLinkedPage the new linked page
      */
     public void setLinkedPage(boolean isLinkedPage) {
@@ -207,7 +211,7 @@ public class MIOPage {
 
     /**
      * Gets the link title.
-     *
+     * 
      * @return the link title
      */
     public String getLinkTitle() {
@@ -216,7 +220,7 @@ public class MIOPage {
 
     /**
      * Sets the link title.
-     *
+     * 
      * @param linkTitle the new link title
      */
     public void setLinkTitle(String linkTitle) {
@@ -231,7 +235,7 @@ public class MIOPage {
 
     /**
      * Gets the dedicated page trust.
-     *
+     * 
      * @return the dedicated page trust
      */
     public double getDedicatedPageTrust() {
@@ -240,7 +244,7 @@ public class MIOPage {
 
     /**
      * Sets the dedicated page trust.
-     *
+     * 
      * @param dedicatedPageTrust the new dedicated page trust
      */
     public void setDedicatedPageTrust(double dedicatedPageTrust) {
@@ -249,7 +253,7 @@ public class MIOPage {
 
     /**
      * Gets the iframe parent page.
-     *
+     * 
      * @return the iframe parent page
      */
     public String getIframeParentPage() {
@@ -258,7 +262,7 @@ public class MIOPage {
 
     /**
      * Sets the iframe parent page.
-     *
+     * 
      * @param iframeParentPage the new iframe parent page
      */
     public void setIframeParentPage(String iframeParentPage) {
@@ -267,7 +271,7 @@ public class MIOPage {
 
     /**
      * Sets the iframe parent page title.
-     *
+     * 
      * @param iframeParentPageTitle the new iframe parent page title
      */
     public void setIframeParentPageTitle(String iframeParentPageTitle) {
@@ -276,7 +280,7 @@ public class MIOPage {
 
     /**
      * Gets the iframe parent page title.
-     *
+     * 
      * @return the iframe parent page title
      */
     public String getIframeParentPageTitle() {
@@ -285,7 +289,7 @@ public class MIOPage {
 
     /**
      * Gets the title.
-     *
+     * 
      * @return the title
      */
     public String getTitle() {
@@ -294,7 +298,7 @@ public class MIOPage {
 
     /**
      * Sets the title.
-     *
+     * 
      * @param title the new title
      */
     public void setTitle(String title) {
