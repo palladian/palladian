@@ -39,15 +39,15 @@ import tud.iir.knowledge.Source;
  */
 public class DatabaseManager {
 
-    /** the instance of the DatabaseManager  */
+    /** the instance of the DatabaseManager */
     private final static DatabaseManager INSTANCE = new DatabaseManager();
-    
+
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
-    
+
     /** the configuration file can be found under config/db.conf */
     private static PropertiesConfiguration config;
-    
+
     private Connection connection;
     private PreparedStatement psConceptCheck;
     private PreparedStatement psConceptSynonymCheck;
@@ -94,6 +94,7 @@ public class DatabaseManager {
     private PreparedStatement psGetExtractionTypesForSource;
     private PreparedStatement psGetSourcesForExtractionType;
     private PreparedStatement psGetPMI;
+    private PreparedStatement psGetConcepts;
 
     private PreparedStatement psSetTestField;
 
@@ -135,9 +136,13 @@ public class DatabaseManager {
     public PreparedStatement psGetEntryByRawId;
     public PreparedStatement psChangeCheckApproach;
     public CallableStatement pcAssignFeedConcept;
-    
-    // TODO in entities domainID instead of conceptID (or no cascade or best new table that connects an entity with all synonyms) because deleting a
+
+    // TODO in entities domainID instead of conceptID (or no cascade or best new table that connects an entity with all
+    // synonyms) because deleting a
     // concept (one synonym) might lead to deletion of all entities for that concept
+    /**
+     * Instantiates a new database manager.
+     */
     private DatabaseManager() {
         try {
             config = new PropertiesConfiguration("config/db.conf");
@@ -146,6 +151,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Gets the single instance of DatabaseManager.
+     *
+     * @return single instance of DatabaseManager
+     */
     public static DatabaseManager getInstance() {
         try {
             if (INSTANCE.connection == null || (INSTANCE.connection != null && INSTANCE.connection.isClosed())) {
@@ -157,20 +167,34 @@ public class DatabaseManager {
         return INSTANCE;
     }
 
+
+    /**
+     * Gets the logger.
+     *
+     * @return the logger
+     */
     public Logger getLogger() {
         return LOGGER;
     }
 
+
+    /**
+     * Gets the connection.
+     *
+     * @return the connection
+     */
     public Connection getConnection() {
 
         try {
             Class.forName(config.getString("db.driver"));
-            String url = "jdbc:" + config.getString("db.type") + "://" + config.getString("db.host") + ":" + config.getString("db.port") + "/"
-                    + config.getString("db.name");
+            String url = "jdbc:" + config.getString("db.type") + "://" + config.getString("db.host") + ":"
+                    + config.getString("db.port") + "/" + config.getString("db.name");
             url += "?useServerPrepStmts=false&cachePrepStmts=false";
-            connection = DriverManager.getConnection(url, config.getString("db.username"), config.getString("db.password"));
+            connection = DriverManager.getConnection(url, config.getString("db.username"), config
+                    .getString("db.password"));
 
             psLastInsertID = connection.prepareStatement("SELECT LAST_INSERT_ID()");
+            psGetConcepts = connection.prepareStatement("SELECT * FROM `concepts`");
 
             psConceptCheck = connection.prepareStatement("SELECT id FROM `concepts` WHERE name = ?");
             psConceptSynonymCheck = connection
@@ -178,23 +202,28 @@ public class DatabaseManager {
             psAttributeSynonymCheck = connection
                     .prepareStatement("SELECT id FROM attribute_synonyms WHERE (attributeID1 = ? AND attributeID2 = ?) OR (attributeID1 = ? AND attributeID2 = ?)");
 
-            psAttributeConceptCheck = connection.prepareStatement("SELECT id FROM attributes_concepts WHERE attributeID = ? AND conceptID = ?");
+            psAttributeConceptCheck = connection
+                    .prepareStatement("SELECT id FROM attributes_concepts WHERE attributeID = ? AND conceptID = ?");
 
             psGetLastSearchedConcept = connection.prepareStatement("SELECT lastSearched FROM concepts WHERE name = ?");
-            psGetLastSearchedAttribute = connection.prepareStatement("SELECT lastSearched FROM attributes WHERE name = ?");
+            psGetLastSearchedAttribute = connection
+                    .prepareStatement("SELECT lastSearched FROM attributes WHERE name = ?");
             psGetLastSearchedEntity = connection.prepareStatement("SELECT lastSearched FROM entities WHERE name = ?");
             psInsertConcept = connection.prepareStatement("INSERT INTO `concepts` SET name = ?, lastSearched = ?");
             psUpdateConcept = connection.prepareStatement("UPDATE `concepts` SET lastSearched = ? WHERE id = ?");
 
             psAttributeCheck = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
-            psInsertAttribute = connection.prepareStatement("INSERT INTO `attributes` SET name = ?,trust = ?, lastSearched = ?");
+            psInsertAttribute = connection
+                    .prepareStatement("INSERT INTO `attributes` SET name = ?,trust = ?, lastSearched = ?");
             psUpdateAttribute = connection.prepareStatement("UPDATE `attributes` SET lastSearched = ? WHERE id = ?");
 
             psEntityCheck = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ? AND conceptID = ?");
             psGetEntityName = connection.prepareStatement("SELECT name FROM `entities` WHERE id = ?");
-            psInsertEntity = connection.prepareStatement("INSERT INTO `entities` SET name = ?,trust = ?,conceptID = ?,lastSearched = ?");
+            psInsertEntity = connection
+                    .prepareStatement("INSERT INTO `entities` SET name = ?,trust = ?,conceptID = ?,lastSearched = ?");
             psUpdateEntity = connection.prepareStatement("UPDATE `entities` SET lastSearched = ? WHERE id = ?");
-            psLoadEntities1 = connection.prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY name ASC LIMIT ?,?");
+            psLoadEntities1 = connection
+                    .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY name ASC LIMIT ?,?");
             psLoadEntities2 = connection
                     .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY lastSearched ASC LIMIT ?,?");
             psLoadEntity = connection
@@ -203,31 +232,42 @@ public class DatabaseManager {
 
             psGetEntityIDsByName = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ?");
             psGetAttributeID = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
-            psGetAttributeExtractedAt = connection.prepareStatement("SELECT extractedAt FROM `attributes` WHERE name = ?");
+            psGetAttributeExtractedAt = connection
+                    .prepareStatement("SELECT extractedAt FROM `attributes` WHERE name = ?");
 
-            psFactCheck = connection.prepareStatement("SELECT id FROM `facts` WHERE entityID = ? AND attributeID = ? AND value = ?");
-            psInsertFact = connection.prepareStatement("INSERT INTO `facts` SET entityID = ?,attributeID = ?,value = ?,trust = ?");
+            psFactCheck = connection
+                    .prepareStatement("SELECT id FROM `facts` WHERE entityID = ? AND attributeID = ? AND value = ?");
+            psInsertFact = connection
+                    .prepareStatement("INSERT INTO `facts` SET entityID = ?,attributeID = ?,value = ?,trust = ?");
 
             psSnippetCheck = connection.prepareStatement("SELECT id FROM `snippets` WHERE entityID = ? AND text = ?");
             // psInsertSnippet = connection
             // .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, f_SearchIndex = ?, f_SearchIndexRank = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_CharacterCount = ?, f_StartsWithEntity = ?, f_WordCount = ?, f_SyllableCount = ?, f_CapitalizedWordCount = ?, regressionRank = ?");
             psInsertSnippet = connection
                     .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, regressionRank = ?, f_AggregatedRank = ?, f_SearchEngine1 = ?, f_SearchEngine2 = ?, f_SearchEngine3 = ?, f_SearchEngine4 = ?, f_SearchEngine5 = ?, f_SearchEngine6 = ?, f_SearchEngine7 = ?, f_SearchEngine8 = ?, f_SearchEngine9 = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_MainContentCharCount = ?, f_CharacterCount = ?, f_LetterNumberPercentage = ?, f_SyllablesPerWordCount = ?, f_WordCount = ?, f_UniqueWordCount = ?, f_ComplexWordPercentage = ?, f_SentenceCount = ?, f_WordsPerSentenceCount = ?, f_FleschKincaidReadingEase = ?, f_GunningFogScore = ?, f_FleschKincaidGradeLevel = ?, f_AutomatedReadabilityIndex = ?, f_ColemanLiauIndex = ?, f_SmogIndex = ?, f_ContainsProperNoun = ?, f_CapitalizedWordCount = ?, f_StartsWithEntity = ?, f_RelatedEntityCount = ?");
-            // psUpdateSnippetRank = connection.prepareStatement("UPDATE `snippets` SET regressionRank = ? WHERE id = ?");
+            // psUpdateSnippetRank =
+            // connection.prepareStatement("UPDATE `snippets` SET regressionRank = ? WHERE id = ?");
 
-            psAttributeSourceCheck = connection.prepareStatement("SELECT id FROM `attributes_sources` WHERE attributeID = ? AND sourceID = ?");
-            psInsertAttributeSource = connection.prepareStatement("INSERT INTO `attributes_sources` SET attributeID = ?,sourceID = ?,extractionType = ?");
+            psAttributeSourceCheck = connection
+                    .prepareStatement("SELECT id FROM `attributes_sources` WHERE attributeID = ? AND sourceID = ?");
+            psInsertAttributeSource = connection
+                    .prepareStatement("INSERT INTO `attributes_sources` SET attributeID = ?,sourceID = ?,extractionType = ?");
             psGetEntitySources = connection
                     .prepareStatement("SELECT sources.id,url,extractionType FROM `entities`,`entities_sources`,`sources` WHERE `entities`.id = `entities_sources`.entityID AND `entities_sources`.sourceID = `sources`.id  AND `entities`.id = ?");
-            psEntitySourceCheck = connection.prepareStatement("SELECT id FROM `entities_sources` WHERE entityID = ? AND sourceID = ? AND extractionType = ?");
-            psInsertEntitySource = connection.prepareStatement("INSERT INTO `entities_sources` SET entityID = ?,sourceID = ?,extractionType = ?");
-            psFactSourceCheck = connection.prepareStatement("SELECT id FROM `facts_sources` WHERE factID = ? AND sourceID = ?");
-            psInsertFactSource = connection.prepareStatement("INSERT INTO `facts_sources` SET factID = ?,sourceID = ?,extractionType = ?");
+            psEntitySourceCheck = connection
+                    .prepareStatement("SELECT id FROM `entities_sources` WHERE entityID = ? AND sourceID = ? AND extractionType = ?");
+            psInsertEntitySource = connection
+                    .prepareStatement("INSERT INTO `entities_sources` SET entityID = ?,sourceID = ?,extractionType = ?");
+            psFactSourceCheck = connection
+                    .prepareStatement("SELECT id FROM `facts_sources` WHERE factID = ? AND sourceID = ?");
+            psInsertFactSource = connection
+                    .prepareStatement("INSERT INTO `facts_sources` SET factID = ?,sourceID = ?,extractionType = ?");
             psSourceCheck = connection.prepareStatement("SELECT id FROM `sources` WHERE url = ?");
             psInsertSource = connection.prepareStatement("INSERT INTO `sources` SET url = ?");
             psGetSourceURL = connection.prepareStatement("SELECT url FROM `sources` WHERE id = ?");
 
-            psInsertAssessmentInstance = connection.prepareStatement("INSERT INTO training_samples SET conceptID = ?, entityID = ?, class = ?");
+            psInsertAssessmentInstance = connection
+                    .prepareStatement("INSERT INTO training_samples SET conceptID = ?, entityID = ?, class = ?");
 
             psGetSeeds = connection
                     .prepareStatement("SELECT entities.name FROM `entities`,`entities_sources` WHERE `entities`.conceptID = ? AND `entities`.id = `entities_sources`.entityID GROUP BY entityID ORDER BY COUNT(entityID) DESC LIMIT 0,2000");
@@ -253,10 +293,12 @@ public class DatabaseManager {
             // status
             psUpdateExtractionStatus = connection
                     .prepareStatement("UPDATE extraction_status SET phase = ?, progress = ?, logExcerpt = ?, downloadedBytes = ?, updatedAt = NOW() WHERE id = 1");
-            psGetExtractionStatusDownloadedBytes = connection.prepareStatement("SELECT downloadedBytes FROM extraction_status WHERE id = 1");
+            psGetExtractionStatusDownloadedBytes = connection
+                    .prepareStatement("SELECT downloadedBytes FROM extraction_status WHERE id = 1");
 
             // // prepared statements for feeds
-            // psGetReachableFeeds = connection.prepareStatement("SELECT id, url FROM feeds WHERE unreachableCount < 3 ORDER BY extractions DESC");
+            // psGetReachableFeeds =
+            // connection.prepareStatement("SELECT id, url FROM feeds WHERE unreachableCount < 3 ORDER BY extractions DESC");
             // psGetInformationNeeds = connection
             // .prepareStatement("SELECT information_needs.id, keywords, url AS feedURL FROM information_needs LEFT JOIN feeds ON feedID = feeds.id");
             // psCountNews = connection.prepareStatement("SELECT COUNT(id) AS c FROM news WHERE title = ?");
@@ -264,10 +306,12 @@ public class DatabaseManager {
             // psInsertNews = connection
             // .prepareStatement("INSERT INTO news SET title = ?, text = ?, link = ?, audioSource = ?, videoSource = ?, feedID = ?, publishedAt = ?");
             // psInsertIn_News = connection.prepareStatement("INSERT INTO in_news SET inID = ?, newsID = ?");
-            // psUpdateUnreachable = connection.prepareStatement("UPDATE feeds SET unreachableCount = unreachableCount + 1 WHERE id = ?");
+            // psUpdateUnreachable =
+            // connection.prepareStatement("UPDATE feeds SET unreachableCount = unreachableCount + 1 WHERE id = ?");
             // psUpdateUnreachable0 = connection.prepareStatement("UPDATE feeds SET unreachableCount = 0 WHERE id = ?");
             // psUpdateMedia = connection.prepareStatement("UPDATE feeds SET hasAudio = ?,hasVideo = ? WHERE id = ?");
-            // psUpdateFeed = connection.prepareStatement("UPDATE feeds SET extractions = extractions + 1 WHERE id = ?");
+            // psUpdateFeed =
+            // connection.prepareStatement("UPDATE feeds SET extractions = extractions + 1 WHERE id = ?");
 
             // prepared statements for Philipp's feeds
             psAddFeedEntry = connection
@@ -284,7 +328,8 @@ public class DatabaseManager {
                     .prepareStatement("UPDATE feeds_probabilistic SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
             psUpdateFeedPostDistribution = connection
                     .prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
-            psGetFeedPostDistribution = connection.prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
+            psGetFeedPostDistribution = connection
+                    .prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
             psGetFeeds = connection
                     .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds");
             psGetFeeds_fixed_learned = connection
@@ -302,7 +347,7 @@ public class DatabaseManager {
             psChangeCheckApproach = connection
                     .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
             pcAssignFeedConcept = connection.prepareCall("{CALL assign_feed_concept(?, ?)}");
-            
+
         } catch (ClassNotFoundException e) {
             LOGGER.error(e.getMessage());
         } catch (SQLException e) {
@@ -313,15 +358,21 @@ public class DatabaseManager {
     }
 
     /*
-     * private void closeConnection() { try { connection.close(); } catch (SQLException e) { LOGGER.error(e.getMessage()); } }
+     * private void closeConnection() { try { connection.close(); } catch (SQLException e) {
+     * LOGGER.error(e.getMessage()); } }
      */
 
+    /**
+     * Update ontology.
+     */
     public void updateOntology() {
         updateOntology("");
     }
 
     /**
      * Write the concepts and their attributes (defined in the ontology) in the database.
+     *
+     * @param filePath the file path
      */
     public void updateOntology(String filePath) {
 
@@ -371,6 +422,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Update ontology.
+     *
+     * @param knowledgeManager the knowledge manager
+     */
     public void updateOntology(KnowledgeManager knowledgeManager) {
 
         // enter concept and attribute names in the database
@@ -411,12 +467,21 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Load ontology.
+     *
+     * @return the knowledge manager
+     */
     public KnowledgeManager loadOntology() {
         return loadOntology("");
     }
 
     /**
-     * Load the ontology saved in the database into the KnowledgeManager. Update the ontology for the database first from the owl ontology.
+     * Load the ontology saved in the database into the KnowledgeManager. Update the ontology for the database first
+     * from the owl ontology.
+     *
+     * @param filePath the file path
+     * @return the knowledge manager
      */
     public KnowledgeManager loadOntology(String filePath) {
         updateOntology(filePath);
@@ -441,7 +506,8 @@ public class DatabaseManager {
                 lastSearched = new java.util.Date(Timestamp.valueOf(dateString).getTime());
             concept.setLastSearched(lastSearched);
             concept.setID(getConceptID(concept.getName()));
-            // System.out.println("loaded concept with " + concept.getName() + "lastSearched " + concept.getLastSearched());
+            // System.out.println("loaded concept with " + concept.getName() + "lastSearched " +
+            // concept.getLastSearched());
 
             Iterator<Attribute> attributesIterator = concept.getAttributes(false).iterator();
             while (attributesIterator.hasNext()) {
@@ -472,7 +538,8 @@ public class DatabaseManager {
             // System.out.println("  entity: "+entity.getLastSearched());
             // }
             /*
-             * Iterator<Attribute> attributesIterator = concept.getAttributes().iterator(); while (attributesIterator.hasNext()) {
+             * Iterator<Attribute> attributesIterator = concept.getAttributes().iterator(); while
+             * (attributesIterator.hasNext()) {
              * System.out.println("  attribute: "+attributesIterator.next().getName()); }
              */
         }
@@ -483,10 +550,11 @@ public class DatabaseManager {
     // TODO load sources for each entity as well / done but not tested
     /**
      * Load entities (names and lastSearched only) for a specific concept.
-     * 
-     * @param conceptName The name of a concept.
+     *
+     * @param concept the concept
      * @param number A number.
      * @param offset An offset value.
+     * @param continueFromLastExtraction the continue from last extraction
      * @return An array of entities.
      */
     public ArrayList<Entity> loadEntities(Concept concept, int number, int offset, boolean continueFromLastExtraction) {
@@ -548,12 +616,46 @@ public class DatabaseManager {
 
         return entities;
     }
+    
+    
 
+    /**
+     * Load concepts.
+     *
+     * @return the array list
+     */
+    public ArrayList<Concept> loadConcepts() {
+
+        ArrayList<Concept> concepts = new ArrayList<Concept>();
+
+        ResultSet rs = null;
+
+        rs = runQuery(psGetConcepts);
+        try {
+            while (rs.next()) {
+                String conceptName = rs.getString("name");
+                Concept concept = new Concept(conceptName);
+                concepts.add(concept);
+            }
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        return concepts;
+    }
+
+    /**
+     * Load evaluation entities.
+     *
+     * @param concept the concept
+     * @return the array list
+     */
     public ArrayList<Entity> loadEvaluationEntities(Concept concept) {
         ArrayList<Entity> entities = new ArrayList<Entity>();
 
         int conceptID = getConceptID(concept.getName());
-        String query = "SELECT entityID,class,test FROM `training_samples` WHERE conceptID = " + conceptID + " ORDER BY RAND()";
+        String query = "SELECT entityID,class,test FROM `training_samples` WHERE conceptID = " + conceptID
+                + " ORDER BY RAND()";
 
         ResultSet rs = runQuery(query);
         try {
@@ -578,6 +680,12 @@ public class DatabaseManager {
         return entities;
     }
 
+    /**
+     * Load entity.
+     *
+     * @param entityID the entity id
+     * @return the entity
+     */
     public Entity loadEntity(int entityID) {
         Entity entity = null;
 
@@ -627,7 +735,8 @@ public class DatabaseManager {
 
         long t1 = System.currentTimeMillis();
 
-        // FactValue fv = new FactValue("Canberra",new Source(Source.SEMI_STRUCTURED,"www.www.com"),ExtractionType.COLON_PHRASE);
+        // FactValue fv = new FactValue("Canberra",new
+        // Source(Source.SEMI_STRUCTURED,"www.www.com"),ExtractionType.COLON_PHRASE);
         // System.out.println(knowledgeManager.getConcept("Country").getEntity("Australia"));
         // knowledgeManager.getConcept("Country")
         // .getEntity("Australia")
@@ -680,7 +789,8 @@ public class DatabaseManager {
                     }
 
                     // add first three fact values with highest trust or more if value count is higher
-                    ArrayList<FactValue> highTrustFactValues = fact.getValues(true, Math.max(3, fact.getAttribute().getValueCount()));
+                    ArrayList<FactValue> highTrustFactValues = fact.getValues(true, Math.max(3, fact.getAttribute()
+                            .getValueCount()));
                     for (int i = 0, l = highTrustFactValues.size(); i < l; i++) {
                         FactValue highTrustFV = highTrustFactValues.get(i);
                         int factID = addFact(highTrustFV, entityID, attributeID);
@@ -719,6 +829,13 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Gets the seeds.
+     *
+     * @param concept the concept
+     * @param maxNumber the max number
+     * @return the seeds
+     */
     public ArrayList<String> getSeeds(Concept concept, int maxNumber) {
         ArrayList<String> seeds = new ArrayList<String>();
 
@@ -736,6 +853,13 @@ public class DatabaseManager {
         return seeds;
     }
 
+    /**
+     * Gets the pMI.
+     *
+     * @param entityID the entity id
+     * @param attributeID the attribute id
+     * @return the pMI
+     */
     public double getPMI(int entityID, int attributeID) {
         double pmi = 0;
         try {
@@ -752,6 +876,11 @@ public class DatabaseManager {
         return pmi;
     }
 
+    /**
+     * Gets the benchmark pm is.
+     *
+     * @return the benchmark pm is
+     */
     public HashMap<String, Double> getBenchmarkPMIs() {
         HashMap<String, Double> benchmarkPMIs = new HashMap<String, Double>();
 
@@ -767,9 +896,16 @@ public class DatabaseManager {
         return benchmarkPMIs;
     }
 
-    /***************************************************************************************************
+    /**
+     * *************************************************************************************************
      * reading and writing from the database
-     ***************************************************************************************************/
+     * *************************************************************************************************.
+     *
+     * @param extractionPhase the extraction phase
+     * @param progress the progress
+     * @param logExcerpt the log excerpt
+     * @param downloadedBytes the downloaded bytes
+     */
 
     public void updateExtractionStatus(int extractionPhase, int progress, StringBuilder logExcerpt, long downloadedBytes) {
         try {
@@ -784,6 +920,11 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Gets the extraction status downloaded bytes.
+     *
+     * @return the extraction status downloaded bytes
+     */
     public long getExtractionStatusDownloadedBytes() {
         try {
             ResultSet rs = runQuery(psGetExtractionStatusDownloadedBytes);
@@ -799,6 +940,9 @@ public class DatabaseManager {
 
     /**
      * Set the test field in training_samples database for a certain entity.
+     *
+     * @param entityID the entity id
+     * @param test the test
      */
     public void setTestField(int entityID, boolean test) {
         try {
@@ -815,6 +959,12 @@ public class DatabaseManager {
         }
     }
 
+    /**
+     * Gets the entities for source.
+     *
+     * @param sourceID the source id
+     * @return the entities for source
+     */
     public HashSet<Integer> getEntitiesForSource(int sourceID) {
         HashSet<Integer> entityIDs = new HashSet<Integer>();
         try {
@@ -830,6 +980,13 @@ public class DatabaseManager {
         return entityIDs;
     }
 
+    /**
+     * Gets the entities for extraction type.
+     *
+     * @param extractionType the extraction type
+     * @param concept the concept
+     * @return the entities for extraction type
+     */
     public HashSet<Integer> getEntitiesForExtractionType(int extractionType, Concept concept) {
         HashSet<Integer> entityIDs = new HashSet<Integer>();
         try {
@@ -847,6 +1004,13 @@ public class DatabaseManager {
         return entityIDs;
     }
 
+    /**
+     * Gets the extraction types for source.
+     *
+     * @param sourceID the source id
+     * @param concept the concept
+     * @return the extraction types for source
+     */
     public HashSet<Integer> getExtractionTypesForSource(int sourceID, Concept concept) {
         HashSet<Integer> extractionTypes = new HashSet<Integer>();
         try {
@@ -864,6 +1028,13 @@ public class DatabaseManager {
         return extractionTypes;
     }
 
+    /**
+     * Gets the sources for extraction type.
+     *
+     * @param extractionType the extraction type
+     * @param concept the concept
+     * @return the sources for extraction type
+     */
     public HashSet<Integer> getSourcesForExtractionType(int extractionType, Concept concept) {
         HashSet<Integer> sourceIDs = new HashSet<Integer>();
         try {
@@ -881,6 +1052,11 @@ public class DatabaseManager {
         return sourceIDs;
     }
 
+    /**
+     * Adds the q as.
+     *
+     * @param qas the qas
+     */
     public void addQAs(List<QA> qas) {
         try {
             for (Iterator<QA> iterator = qas.iterator(); iterator.hasNext();) {
@@ -916,8 +1092,8 @@ public class DatabaseManager {
 
     /**
      * Add a concept to the database, if it exists already, update it.
-     * 
-     * @param conceptName The name of a concept.
+     *
+     * @param concept the concept
      * @return The id of the added concept or of the existing concept.
      */
     private int addConcept(Concept concept) {
@@ -934,7 +1110,8 @@ public class DatabaseManager {
         }
         // insert or update
         if (entryID == -1) {
-            // runUpdate("INSERT INTO `concepts` SET name = '" + concept.getName() + "',lastSearched = " + lastSearched);
+            // runUpdate("INSERT INTO `concepts` SET name = '" + concept.getName() + "',lastSearched = " +
+            // lastSearched);
             try {
                 psInsertConcept.setString(1, concept.getName());
                 psInsertConcept.setString(2, lastSearched);
@@ -987,8 +1164,8 @@ public class DatabaseManager {
 
     /**
      * Add an attribute for a concept, if it exists already update it.
-     * 
-     * @param attributeName The name of the attribute.
+     *
+     * @param attribute the attribute
      * @param conceptID The id of the concept.
      * @return The id of the added attribute.
      */
@@ -1013,9 +1190,11 @@ public class DatabaseManager {
                 psInsertAttribute.setString(3, lastSearched);
                 runUpdate(psInsertAttribute);
                 int attributeID = getLastInsertID();
-                // runUpdate("INSERT INTO `attributes` SET name = ?,trust = " + attribute.getTrust() + ",lastSearched = " + lastSearched +
+                // runUpdate("INSERT INTO `attributes` SET name = ?,trust = " + attribute.getTrust() +
+                // ",lastSearched = " + lastSearched +
                 // ",extractedAt = " + extractedAt,attribute.getName());
-                runUpdate("INSERT INTO `attributes_concepts` SET attributeID = " + attributeID + ",conceptID = " + conceptID);
+                runUpdate("INSERT INTO `attributes_concepts` SET attributeID = " + attributeID + ",conceptID = "
+                        + conceptID);
                 return attributeID;
             } catch (SQLException e) {
                 LOGGER.error(e.getMessage());
@@ -1032,7 +1211,8 @@ public class DatabaseManager {
 
             int relationID = entryExists(psAttributeConceptCheck);
             if (relationID == -1) {
-                runUpdate("INSERT INTO `attributes_concepts` SET attributeID = " + entryID + ",conceptID = " + conceptID);
+                runUpdate("INSERT INTO `attributes_concepts` SET attributeID = " + entryID + ",conceptID = "
+                        + conceptID);
             }
 
             try {
@@ -1043,7 +1223,8 @@ public class DatabaseManager {
                 LOGGER.error(e.getMessage());
             }
             /*
-             * if (lastSearched != null) runUpdate("UPDATE `attributes` SET lastSearched = " + lastSearched + " WHERE id = " + entryID); if (extractedAt !=
+             * if (lastSearched != null) runUpdate("UPDATE `attributes` SET lastSearched = " + lastSearched +
+             * " WHERE id = " + entryID); if (extractedAt !=
              * null) runUpdate("UPDATE `attributes` SET extractedAt = " + extractedAt + " WHERE id = " + entryID);
              */
 
@@ -1071,24 +1252,35 @@ public class DatabaseManager {
 
         int entryID = entryExists(psAttributeSynonymCheck);
         if (entryID == -1) {
-            runUpdate("INSERT INTO `attribute_synonyms` SET attributeID1 = " + attributeID1 + ",attributeID2 = " + attributeID2 + ",trust = " + trust);
+            runUpdate("INSERT INTO `attribute_synonyms` SET attributeID1 = " + attributeID1 + ",attributeID2 = "
+                    + attributeID2 + ",trust = " + trust);
             return getLastInsertID();
         }
         return entryID;
     }
 
+    /**
+     * Calculate attribute synonym trust.
+     *
+     * @param attribute1 the attribute1
+     * @param attribute2 the attribute2
+     * @return the double
+     */
     public double calculateAttributeSynonymTrust(Attribute attribute1, Attribute attribute2) {
 
         // get number of matching values between attributes (only first of three valus per fact is taken)
         /*
-         * SELECT COUNT(*) FROM (SELECT entityID,attributeID,value,trust FROM `facts` WHERE attributeID = 7 GROUP BY entityID,attributeID) AS A1 INNER JOIN
-         * (SELECT entityID,attributeID,value,trust FROM `facts` WHERE attributeID = 2 GROUP BY entityID,attributeID) AS A2 ON A1.value = A2.value AND
+         * SELECT COUNT(*) FROM (SELECT entityID,attributeID,value,trust FROM `facts` WHERE attributeID = 7 GROUP BY
+         * entityID,attributeID) AS A1 INNER JOIN
+         * (SELECT entityID,attributeID,value,trust FROM `facts` WHERE attributeID = 2 GROUP BY entityID,attributeID) AS
+         * A2 ON A1.value = A2.value AND
          * A1.entityID = A2.entityID
          */
 
         // get total number of possible matches between attributes (only first of three valus per fact is taken)
         /*
-         * SELECT COUNT(*) FROM (SELECT entityID FROM `facts` WHERE attributeID = 7 GROUP BY entityID,attributeID) AS A1,(SELECT entityID FROM `facts` WHERE
+         * SELECT COUNT(*) FROM (SELECT entityID FROM `facts` WHERE attributeID = 7 GROUP BY entityID,attributeID) AS
+         * A1,(SELECT entityID FROM `facts` WHERE
          * attributeID = 2 GROUP BY entityID,attributeID) AS A2
          */
 
@@ -1100,7 +1292,9 @@ public class DatabaseManager {
                 + " GROUP BY entityID,attributeID) AS A1 INNER JOIN (SELECT entityID,attributeID,value,trust FROM `facts` WHERE attributeID = "
                 + attribute2.getID()
                 + " GROUP BY entityID,attributeID) AS A2 ON A1.value = A2.value AND A1.entityID = A2.entityID)/(SELECT COUNT(*) FROM (SELECT entityID FROM `facts` WHERE attributeID = "
-                + attribute1.getID() + " GROUP BY entityID,attributeID) AS A1,(SELECT entityID FROM `facts` WHERE attributeID = " + attribute2.getID()
+                + attribute1.getID()
+                + " GROUP BY entityID,attributeID) AS A1,(SELECT entityID FROM `facts` WHERE attributeID = "
+                + attribute2.getID()
                 + " GROUP BY entityID,attributeID) AS A2 WHERE A1.entityID = A2.entityID)) AS Trust");
 
         try {
@@ -1114,6 +1308,12 @@ public class DatabaseManager {
         return 0.0;
     }
 
+    /**
+     * Gets the entity name.
+     *
+     * @param entityID the entity id
+     * @return the entity name
+     */
     public String getEntityName(int entityID) {
         try {
             psGetEntityName.setInt(1, entityID);
@@ -1132,6 +1332,12 @@ public class DatabaseManager {
         return "unknown";
     }
 
+    /**
+     * Gets the entity i ds by name.
+     *
+     * @param entityName the entity name
+     * @return the entity i ds by name
+     */
     public HashSet<Integer> getEntityIDsByName(String entityName) {
 
         HashSet<Integer> entityIDs = new HashSet<Integer>();
@@ -1149,6 +1355,13 @@ public class DatabaseManager {
         return entityIDs;
     }
 
+    /**
+     * Adds the assessment instance.
+     *
+     * @param conceptID the concept id
+     * @param entityID the entity id
+     * @param classValue the class value
+     */
     public void addAssessmentInstance(int conceptID, int entityID, int classValue) {
         try {
             psInsertAssessmentInstance.setInt(1, conceptID);
@@ -1162,8 +1375,8 @@ public class DatabaseManager {
 
     /**
      * Add an entity to the database, if it exists already, update it.
-     * 
-     * @param entityName The name of the entity.
+     *
+     * @param entity the entity
      * @param conceptID The id of the concept of the entity.
      * @return The id of the added entity.
      */
@@ -1181,7 +1394,8 @@ public class DatabaseManager {
             LOGGER.error(e.getMessage());
         }
 
-        // int entryID = entryExists("SELECT id FROM `entities` WHERE name = '" + entity.getName() +"' AND conceptID = " + conceptID);
+        // int entryID = entryExists("SELECT id FROM `entities` WHERE name = '" + entity.getName() +"' AND conceptID = "
+        // + conceptID);
 
         String lastSearched = null;
         if (entity.getLastSearched() != null) {
@@ -1306,7 +1520,8 @@ public class DatabaseManager {
             LOGGER.error(e.getMessage());
         }
 
-        // int entryID = entryExists("SELECT id FROM `facts` WHERE entityID = " + entityID +" AND attributeID = " + attributeID + " AND value = '" +
+        // int entryID = entryExists("SELECT id FROM `facts` WHERE entityID = " + entityID +" AND attributeID = " +
+        // attributeID + " AND value = '" +
         // factValue.getValue() + "'")
 
         if (entryID == -1) {
@@ -1415,6 +1630,13 @@ public class DatabaseManager {
         return sourceID;
     }
 
+    /**
+     * Adds the entity source.
+     *
+     * @param source the source
+     * @param entityID the entity id
+     * @return the int
+     */
     private int addEntitySource(Source source, int entityID) {
         int entryID = -1;
         int sourceID = addSource(source);
@@ -1443,6 +1665,12 @@ public class DatabaseManager {
         return sourceID;
     }
 
+    /**
+     * Adds the source.
+     *
+     * @param source the source
+     * @return the int
+     */
     private int addSource(Source source) {
         int entryID = -1;
         try {
@@ -1468,6 +1696,12 @@ public class DatabaseManager {
         return sourceID;
     }
 
+    /**
+     * Gets the source url.
+     *
+     * @param sourceID the source id
+     * @return the source url
+     */
     public String getSourceURL(int sourceID) {
         try {
             psGetSourceURL.setInt(1, sourceID);
@@ -1486,6 +1720,12 @@ public class DatabaseManager {
         return "unknown";
     }
 
+    /**
+     * Gets the snippet id.
+     *
+     * @param snippet the snippet
+     * @return the snippet id
+     */
     public int getSnippetID(Snippet snippet) {
 
         int entryID = -1;
@@ -1501,6 +1741,12 @@ public class DatabaseManager {
         return entryID;
     }
 
+    /**
+     * Snippet exists.
+     *
+     * @param snippet the snippet
+     * @return true, if successful
+     */
     public boolean snippetExists(Snippet snippet) {
         if (this.getSnippetID(snippet) > 0) {
             return true;
@@ -1511,22 +1757,25 @@ public class DatabaseManager {
 
     /**
      * Check whether a specified table and field has the entry already.
-     * 
-     * @param entry The entry.
-     * @param table The table.
-     * @param field The field.
+     *
+     * @param statement the statement
      * @return The id of the existing record or -1 if entry was not found.
      */
     /*
-     * private int entryExists_(String entry, String table, String field) { ResultSet rs = runQuery("SELECT id FROM `" + table + "` WHERE " + field + " = ?",
-     * entry); try { int id = -1; if (rs.first()) { id = rs.getInt(1); } rs.close(); return id; } catch (SQLException e) { logger.error(e.getMessage()); }
+     * private int entryExists_(String entry, String table, String field) { ResultSet rs = runQuery("SELECT id FROM `" +
+     * table + "` WHERE " + field + " = ?",
+     * entry); try { int id = -1; if (rs.first()) { id = rs.getInt(1); } rs.close(); return id; } catch (SQLException e)
+     * { logger.error(e.getMessage()); }
      * return -1; }
      */
 
     /*
-     * private int entryExists_(int id1, int id2, String table, String field1, String field2) { ResultSet rs = runQuery("SELECT id FROM `" + table + "` WHERE ("
-     * + field1 + " = " + id1 + " AND " + field2 + " = " + id2 + ") OR (" + field2 + " = " + id1 + " AND " + field1 + " = " + id2 + ")"); try { int id = -1; if
-     * (rs.first()) { id = rs.getInt(1); } rs.close(); return id; } catch (SQLException e) { logger.error(e.getMessage()); } catch (NullPointerException e) {
+     * private int entryExists_(int id1, int id2, String table, String field1, String field2) { ResultSet rs =
+     * runQuery("SELECT id FROM `" + table + "` WHERE ("
+     * + field1 + " = " + id1 + " AND " + field2 + " = " + id2 + ") OR (" + field2 + " = " + id1 + " AND " + field1 +
+     * " = " + id2 + ")"); try { int id = -1; if
+     * (rs.first()) { id = rs.getInt(1); } rs.close(); return id; } catch (SQLException e) {
+     * logger.error(e.getMessage()); } catch (NullPointerException e) {
      * logger.error(e.getMessage()); } return -1; }
      */
 
@@ -1546,6 +1795,11 @@ public class DatabaseManager {
         return -1;
     }
 
+    /**
+     * Gets the last insert id.
+     *
+     * @return the last insert id
+     */
     public int getLastInsertID() {
 
         int lastInsertID = -1;
@@ -1563,6 +1817,12 @@ public class DatabaseManager {
         return lastInsertID;
     }
 
+    /**
+     * Gets the concept id.
+     *
+     * @param conceptName the concept name
+     * @return the concept id
+     */
     public int getConceptID(String conceptName) {
 
         try {
@@ -1579,6 +1839,12 @@ public class DatabaseManager {
         return -1;
     }
 
+    /**
+     * Gets the attribute id.
+     *
+     * @param attributeName the attribute name
+     * @return the attribute id
+     */
     private int getAttributeID(String attributeName) {
         try {
             psGetAttributeID.setString(1, attributeName);
@@ -1599,6 +1865,12 @@ public class DatabaseManager {
         return -1;
     }
 
+    /**
+     * Gets the source id.
+     *
+     * @param sourceURL the source url
+     * @return the source id
+     */
     private int getSourceID(String sourceURL) {
         try {
             psSourceCheck.setString(1, sourceURL);
@@ -1608,6 +1880,12 @@ public class DatabaseManager {
         return entryExists(psSourceCheck);
     }
 
+    /**
+     * Gets the attribute extracted at.
+     *
+     * @param attributeName the attribute name
+     * @return the attribute extracted at
+     */
     private String getAttributeExtractedAt(String attributeName) {
         try {
             psGetAttributeExtractedAt.setString(1, attributeName);
@@ -1628,6 +1906,11 @@ public class DatabaseManager {
         return "";
     }
 
+    /**
+     * Gets the total concepts number.
+     *
+     * @return the total concepts number
+     */
     public int getTotalConceptsNumber() {
         int totalConcepts = 0;
 
@@ -1643,6 +1926,11 @@ public class DatabaseManager {
         return totalConcepts;
     }
 
+    /**
+     * Gets the total attributes number.
+     *
+     * @return the total attributes number
+     */
     public int getTotalAttributesNumber() {
         int totalAttributes = 0;
 
@@ -1658,10 +1946,21 @@ public class DatabaseManager {
         return totalAttributes;
     }
 
+    /**
+     * Gets the total entities number.
+     *
+     * @return the total entities number
+     */
     public int getTotalEntitiesNumber() {
         return getTotalEntitiesNumber("");
     }
 
+    /**
+     * Gets the total entities number.
+     *
+     * @param conceptName the concept name
+     * @return the total entities number
+     */
     public int getTotalEntitiesNumber(String conceptName) {
         int totalEntities = 0;
 
@@ -1690,12 +1989,19 @@ public class DatabaseManager {
         return getTotalFactsNumber("");
     }
 
+    /**
+     * Gets the total facts number.
+     *
+     * @param conceptName the concept name
+     * @return the total facts number
+     */
     public int getTotalFactsNumber(String conceptName) {
         int totalFacts = 0;
 
         String query = "SELECT COUNT(c) FROM (SELECT COUNT(id) AS c FROM `facts`";
         if (conceptName.length() > 0) {
-            query += " WHERE entityID IN (SELECT id FROM `entities` WHERE conceptID = " + getConceptID(conceptName) + ")";
+            query += " WHERE entityID IN (SELECT id FROM `entities` WHERE conceptID = " + getConceptID(conceptName)
+                    + ")";
         }
         query += " GROUP BY entityID,attributeID) AS t";
 
@@ -1711,6 +2017,11 @@ public class DatabaseManager {
         return totalFacts;
     }
 
+    /**
+     * Gets the total sources number.
+     *
+     * @return the total sources number
+     */
     public int getTotalSourcesNumber() {
         int totalSources = 0;
 
@@ -1726,10 +2037,22 @@ public class DatabaseManager {
         return totalSources;
     }
 
+    /**
+     * Run query.
+     *
+     * @param query the query
+     * @return the result set
+     */
     public ResultSet runQuery(String query) {
         return runQuery(query, "");
     }
 
+    /**
+     * Run query.
+     *
+     * @param statement the statement
+     * @return the result set
+     */
     public ResultSet runQuery(PreparedStatement statement) {
         ResultSet rs = null;
 
@@ -1746,6 +2069,13 @@ public class DatabaseManager {
         return rs;
     }
 
+    /**
+     * Run query.
+     *
+     * @param query the query
+     * @param text the text
+     * @return the result set
+     */
     public ResultSet runQuery(String query, String text) {
         ResultSet rs = null;
         PreparedStatement ps = null;
@@ -1772,6 +2102,13 @@ public class DatabaseManager {
         return rs;
     }
 
+    /**
+     * Run query.
+     *
+     * @param query the query
+     * @param texts the texts
+     * @return the result set
+     */
     public ResultSet runQuery(String query, String[] texts) {
         ResultSet rs = null;
 
@@ -1797,9 +2134,9 @@ public class DatabaseManager {
 
     /**
      * Execute a prepared statement.
-     * 
+     *
      * @param preparedStatement The prepared statement.
-     * @return
+     * @return the int
      */
     public int runUpdate(PreparedStatement preparedStatement) {
         int result = 0;
@@ -1812,10 +2149,23 @@ public class DatabaseManager {
         return result;
     }
 
+    /**
+     * Run update.
+     *
+     * @param update the update
+     * @return the int
+     */
     public int runUpdate(String update) {
         return runUpdate(update, "");
     }
 
+    /**
+     * Run update.
+     *
+     * @param update the update
+     * @param text the text
+     * @return the int
+     */
     public int runUpdate(String update, String text) {
         int result = 0;
         try {
@@ -1836,6 +2186,13 @@ public class DatabaseManager {
         return result;
     }
 
+    /**
+     * Run update.
+     *
+     * @param update the update
+     * @param texts the texts
+     * @return the int
+     */
     public int runUpdate(String update, String[] texts) {
         int result = 0;
         try {
@@ -1857,6 +2214,13 @@ public class DatabaseManager {
         return result;
     }
 
+    /**
+     * Gets the last searched.
+     *
+     * @param name the name
+     * @param table the table
+     * @return the last searched
+     */
     private String getLastSearched(String name, String table) {
 
         String fieldValue = "";
@@ -1888,12 +2252,15 @@ public class DatabaseManager {
 
     }
 
-    /***************************************************************************************************
+    /**
+     * *************************************************************************************************
      * interaction
-     ***************************************************************************************************/
+     * *************************************************************************************************.
+     */
 
     /**
-     * Deletes all domains, concepts, attributes that are not in the ontology anymore (foreign key cascade). It also deletes all facts etc. that refer to them
+     * Deletes all domains, concepts, attributes that are not in the ontology anymore (foreign key cascade). It also
+     * deletes all facts etc. that refer to them
      * (trigger / lookup).
      */
     public void cleanUnusedOntologyElements() {
@@ -1998,6 +2365,9 @@ public class DatabaseManager {
 
     }
 
+    /**
+     * Clear complete database.
+     */
     public void clearCompleteDatabase() {
         String query;
         query = "TRUNCATE `attributes`";
@@ -2032,6 +2402,9 @@ public class DatabaseManager {
         runUpdate(query);
     }
 
+    /**
+     * Test procedure.
+     */
     public void testProcedure() {
         try {
             Statement stmt = connection.createStatement();
@@ -2047,39 +2420,54 @@ public class DatabaseManager {
     }
 
     /**
-     * Sql script to grab the worst performing indexes in the whole server. Source: http://forge.mysql.com/tools/tool.php?id=85
+     * Sql script to grab the worst performing indexes in the whole server. Source:
+     * http://forge.mysql.com/tools/tool.php?id=85
+     *
      */
     private void getWorstIndices() {
-        runQuery("SELECT t.TABLE_SCHEMA AS `db`" + ", t.TABLE_NAME AS `table`" + ", s.INDEX_NAME AS `index name`" + ", s.COLUMN_NAME AS `field name`"
-                + ", s.SEQ_IN_INDEX `seq in index`" + ", s2.max_columns AS `# cols`" + ", s.CARDINALITY AS `card`" + ", t.TABLE_ROWS AS `est rows`"
-                + ", ROUND(((s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) * 100), 2) AS `sel %`" + "FROM INFORMATION_SCHEMA.STATISTICS s"
-                + "INNER JOIN INFORMATION_SCHEMA.TABLES t" + "ON s.TABLE_SCHEMA = t.TABLE_SCHEMA" + "AND s.TABLE_NAME = t.TABLE_NAME" + "INNER JOIN ("
-                + "SELECT" + "TABLE_SCHEMA" + ", TABLE_NAME" + ", INDEX_NAME" + ", MAX(SEQ_IN_INDEX) AS max_columns" + "FROM INFORMATION_SCHEMA.STATISTICS"
-                + "WHERE TABLE_SCHEMA != 'mysql'" + "GROUP BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME" + ") AS s2" + "ON s.TABLE_SCHEMA = s2.TABLE_SCHEMA"
-                + "AND s.TABLE_NAME = s2.TABLE_NAME" + "AND s.INDEX_NAME = s2.INDEX_NAME" + "WHERE t.TABLE_SCHEMA != 'mysql'" + // filter out the mysql system
+        runQuery("SELECT t.TABLE_SCHEMA AS `db`" + ", t.TABLE_NAME AS `table`" + ", s.INDEX_NAME AS `index name`"
+                + ", s.COLUMN_NAME AS `field name`" + ", s.SEQ_IN_INDEX `seq in index`"
+                + ", s2.max_columns AS `# cols`" + ", s.CARDINALITY AS `card`" + ", t.TABLE_ROWS AS `est rows`"
+                + ", ROUND(((s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) * 100), 2) AS `sel %`"
+                + "FROM INFORMATION_SCHEMA.STATISTICS s" + "INNER JOIN INFORMATION_SCHEMA.TABLES t"
+                + "ON s.TABLE_SCHEMA = t.TABLE_SCHEMA" + "AND s.TABLE_NAME = t.TABLE_NAME" + "INNER JOIN (" + "SELECT"
+                + "TABLE_SCHEMA" + ", TABLE_NAME" + ", INDEX_NAME" + ", MAX(SEQ_IN_INDEX) AS max_columns"
+                + "FROM INFORMATION_SCHEMA.STATISTICS" + "WHERE TABLE_SCHEMA != 'mysql'"
+                + "GROUP BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME" + ") AS s2" + "ON s.TABLE_SCHEMA = s2.TABLE_SCHEMA"
+                + "AND s.TABLE_NAME = s2.TABLE_NAME" + "AND s.INDEX_NAME = s2.INDEX_NAME"
+                + "WHERE t.TABLE_SCHEMA != 'mysql'" + // filter out the mysql system
                 // DB
                 "AND t.TABLE_ROWS > 10" + // only tables with some rows
                 "AND s.CARDINALITY IS NOT NULL" + // need at least one non-NULL value in the field
-                "AND (s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) < 1.00" + // selectivity < 1.0 b/c unique indexes are perfect anyway
+                "AND (s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) < 1.00" + // selectivity < 1.0 b/c unique indexes are
+                // perfect anyway
                 "ORDER BY `sel %`, s.TABLE_SCHEMA, s.TABLE_NAME" + // switch to `sel %` DESC for best non-unique indexes
                 "LIMIT 20;");
     }
 
     /**
-     * @param args
+     * The main method.
+     *
+     * @param args the arguments
+     * @throws Exception the exception
      */
     public static void main(String[] args) throws Exception {
 
         // snippet testing //
 
         /*
-         * Entity entity = new Entity("iPhone 3GS", new Concept("Mobile Phone")); entity.setID(1); WebResult webresult = new
-         * WebResult(SourceRetrieverManager.YAHOO, 45, "http://www.slashgear.com/iphone-3gs-reviews-2648062/"); Snippet snippet = new Snippet( entity,
+         * Entity entity = new Entity("iPhone 3GS", new Concept("Mobile Phone")); entity.setID(1); WebResult webresult =
+         * new
+         * WebResult(SourceRetrieverManager.YAHOO, 45, "http://www.slashgear.com/iphone-3gs-reviews-2648062/"); Snippet
+         * snippet = new Snippet( entity,
          * webresult,
          * "The iPhone 3GS striking physical similarity to the last-gen 3G came as a mild disappointment back at the WWDC, but we've come to appreciate the stability.  It underscores the evolutionary, rather than revolutionary, nature of this update and, perhaps more importantly, it means accessories acquired for the iPhone 3G will still have a place with the new 3GS."
-         * ); SnippetFeatureExtractor.setFeatures(snippet); int snippetID = DatabaseManager.getInstance().addSnippet(snippet); if (snippetID > 0) { try {
-         * DatabaseManager.getInstance().psUpdateSnippet.setDouble(1, 3.0); DatabaseManager.getInstance().psUpdateSnippet.setInt(2, snippetID);
-         * DatabaseManager.getInstance().runUpdate(DatabaseManager.getInstance().psUpdateSnippet); } catch (SQLException e) { e.getStackTrace(); } }
+         * ); SnippetFeatureExtractor.setFeatures(snippet); int snippetID =
+         * DatabaseManager.getInstance().addSnippet(snippet); if (snippetID > 0) { try {
+         * DatabaseManager.getInstance().psUpdateSnippet.setDouble(1, 3.0);
+         * DatabaseManager.getInstance().psUpdateSnippet.setInt(2, snippetID);
+         * DatabaseManager.getInstance().runUpdate(DatabaseManager.getInstance().psUpdateSnippet); } catch (SQLException
+         * e) { e.getStackTrace(); } }
          */
 
         // Connection con = DatabaseManager.getInstance().getConnection();
@@ -2141,11 +2529,13 @@ public class DatabaseManager {
         // java.util.Date d = new java.util.Date(System.currentTimeMillis());
         // Timestamp ds = new java.sql.Timestamp(d.getTime());
         // System.out.println(d+"_"+ds);
-        // DatabaseManager.getInstance().runUpdate("INSERT INTO `entities` SET name = 'te',trust = 0.1,conceptID = 4,lastSearched = '" + ds + "'");
+        // DatabaseManager.getInstance().runUpdate("INSERT INTO `entities` SET name = 'te',trust = 0.1,conceptID = 4,lastSearched = '"
+        // + ds + "'");
         // //
         //		
         // Concept concept = new Concept("Actor");
-        // String dateString = DatabaseManager.getInstance().getField("lastSearched","concepts","name = '" + concept.getName() + "'");
+        // String dateString = DatabaseManager.getInstance().getField("lastSearched","concepts","name = '" +
+        // concept.getName() + "'");
         //		
         // java.util.Date lastSearched = null;
         // if (dateString != null) lastSearched = new java.util.Date(Timestamp.valueOf(dateString).getTime());
@@ -2163,12 +2553,14 @@ public class DatabaseManager {
         // DatabaseManager.getInstance().createEntityFile2();
 
         /*
-         * long t1 = System.currentTimeMillis(); DatabaseManager.getInstance().booleanEntityTrustVoting(); long t2 = System.currentTimeMillis();
+         * long t1 = System.currentTimeMillis(); DatabaseManager.getInstance().booleanEntityTrustVoting(); long t2 =
+         * System.currentTimeMillis();
          * System.out.println("stopped, runtime: "+((t2-t1)/1000)+" seconds");
          */
 
         /*
-         * long t1 = System.currentTimeMillis(); DatabaseManager.getInstance().gradualEntityTrustVoting(); long t2 = System.currentTimeMillis(); double hours =
+         * long t1 = System.currentTimeMillis(); DatabaseManager.getInstance().gradualEntityTrustVoting(); long t2 =
+         * System.currentTimeMillis(); double hours =
          * (t2-t1)/(1000*60*60); System.out.println("stopped, runtime: "+((t2-t1)/1000)+" seconds ("+hours+"h)");
          */
 
@@ -2179,11 +2571,14 @@ public class DatabaseManager {
         // DatabaseManager.getInstance().findEntityConnection(14,2,0,new HashSet<Integer>(),new ArrayList<String>());
         // DatabaseManager.getInstance().findEntityConnection(12,11,0,new HashSet<Integer>(),new ArrayList<String>());
 
-        // DatabaseManager.getInstance().findEntityConnection(154180,151864,0,new HashSet<Integer>(),new ArrayList<String>());
-        // DatabaseManager.getInstance().findEntityConnection(153977,151912,0,new HashSet<Integer>(),new ArrayList<String>());
+        // DatabaseManager.getInstance().findEntityConnection(154180,151864,0,new HashSet<Integer>(),new
+        // ArrayList<String>());
+        // DatabaseManager.getInstance().findEntityConnection(153977,151912,0,new HashSet<Integer>(),new
+        // ArrayList<String>());
         // DatabaseManager.getInstance().gradualEntityTrustVoting();
 
-        // int r = DatabaseManager.getInstance().runUpdate("UPDATE sources SET entityTrust = 0.5 WHERE id = 1 AND entityTrust != 0.5");
+        // int r =
+        // DatabaseManager.getInstance().runUpdate("UPDATE sources SET entityTrust = 0.5 WHERE id = 1 AND entityTrust != 0.5");
         // System.out.println(r);
 
         // long t1 = System.currentTimeMillis();
@@ -2210,7 +2605,8 @@ public class DatabaseManager {
         // //java.sql.PreparedStatement ps = null;
         // int entryID = -1;
         // try {
-        // // ps = dbm.connection.prepareStatement("SELECT id FROM `t1` WHERE name = ? AND foreignKeyField = " + randomNumber);
+        // // ps = dbm.connection.prepareStatement("SELECT id FROM `t1` WHERE name = ? AND foreignKeyField = " +
+        // randomNumber);
         // ps.setString(1, "vbydferwer"+randomNumber);
         // ps.setInt(2, randomNumber);
         //			
@@ -2255,7 +2651,8 @@ public class DatabaseManager {
         // long t3 = System.currentTimeMillis();
         // DatabaseManager dbm2 = DatabaseManager.getInstance();
         //		
-        // PreparedStatement ps5 = dbm.connection.prepareStatement("SELECT id FROM `t1` WHERE name = ? AND foreignKeyField > ?");
+        // PreparedStatement ps5 =
+        // dbm.connection.prepareStatement("SELECT id FROM `t1` WHERE name = ? AND foreignKeyField > ?");
         //
         // for (int i = 0; i < 100; i++) {
         // int randomNumber = (int) Math.floor((Math.random()*10000));

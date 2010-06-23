@@ -12,6 +12,9 @@ public class FastMIODetector {
 
     ArrayList<String> MIOIndicator = new ArrayList<String>();
 
+    /**
+     * Instantiates a new fast mio detector.
+     */
     public FastMIODetector() {
         MIOIndicator.add(".swf");
         MIOIndicator.add(".SWF");
@@ -31,6 +34,13 @@ public class FastMIODetector {
 
     }
 
+    /**
+     * Gets the mio pages.
+     *
+     * @param pageContent the page content
+     * @param pageURL the page url
+     * @return the mio pages
+     */
     public List<MIOPage> getMioPages(String pageContent, String pageURL) {
         List<MIOPage> mioPages = new ArrayList<MIOPage>();
         if (containsMIO(pageContent)) {
@@ -43,7 +53,10 @@ public class FastMIODetector {
     }
 
     /**
-     * check if a MIO-Indicator is contained
+     * check if a MIO-Indicator is contained.
+     *
+     * @param mioPageContent the mio page content
+     * @return true, if successful
      */
     public boolean containsMIO(String mioPageContent) {
 

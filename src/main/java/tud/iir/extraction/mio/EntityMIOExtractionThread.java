@@ -12,7 +12,8 @@ import tud.iir.helper.FileHelper;
 import tud.iir.knowledge.Entity;
 
 /**
- * The EntityMIOExtractionThread extracts MIOs for one given entity. Therefore, extracting MIOs can be parallelized on the entity level.
+ * The EntityMIOExtractionThread extracts MIOs for one given entity. Therefore, extracting MIOs can be parallelized on
+ * the entity level.
  * 
  * @author Martin Werner
  */
@@ -25,12 +26,24 @@ public class EntityMIOExtractionThread extends Thread {
     private Entity entity = null;
     private ConceptSearchVocabulary searchVoc = null;
 
-    public EntityMIOExtractionThread(ThreadGroup threadGroup, String name, Entity entity, ConceptSearchVocabulary searchVoc) {
+    /**
+     * Instantiates a new entity mio extraction thread.
+     *
+     * @param threadGroup the thread group
+     * @param name the name
+     * @param entity the entity
+     * @param searchVoc the search voc
+     */
+    public EntityMIOExtractionThread(ThreadGroup threadGroup, String name, Entity entity,
+            ConceptSearchVocabulary searchVoc) {
         super(threadGroup, name);
         this.entity = entity;
         this.searchVoc = searchVoc;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Thread#run()
+     */
     @Override
     public void run() {
         MIOExtractor.getInstance().increaseThreadCount();
@@ -54,11 +67,17 @@ public class EntityMIOExtractionThread extends Thread {
         // printMapToFile(mios);
         printSetToHTMLFile(mioResults);
 
-        logger.info("Thread finished in " + DateHelper.getRuntime(t1) + "  " + mios.size() + "s, MIOs for \"" + entity.getName() + "\" were found.");
+        logger.info("Thread finished in " + DateHelper.getRuntime(t1) + "  " + mios.size() + "s, MIOs for \""
+                + entity.getName() + "\" were found.");
 
         MIOExtractor.getInstance().decreaseThreadCount();
     }
 
+    /**
+     * Prints the set to html file.
+     *
+     * @param cleanedMIOs the cleaned mi os
+     */
     private void printSetToHTMLFile(Set<MIO> cleanedMIOs) {
         FileHelper filehelper = new FileHelper();
         filehelper.appendToFile("f:/test.html", "<html><body>", false);
@@ -71,9 +90,10 @@ public class EntityMIOExtractionThread extends Thread {
                 sBuffer.append(mio.getInfos().get(info).toString());
 
             }
-            String output = " TRUST: " + mio.getTrust() + " <a href=\"" + mio.getDirectURL() + "\">" + mio.getDirectURL() + "</a> founded on <a href=\""
-                    + mio.getFindPageURL() + "\">" + mio.getFindPageURL() + "</a> for Entity: " + mio.getEntity().getName() + " Infos: " + sBuffer.toString()
-                    + "<br><br>";
+            String output = " TRUST: " + mio.getTrust() + " <a href=\"" + mio.getDirectURL() + "\">"
+                    + mio.getDirectURL() + "</a> founded on <a href=\"" + mio.getFindPageURL() + "\">"
+                    + mio.getFindPageURL() + "</a> for Entity: " + mio.getEntity().getName() + " Infos: "
+                    + sBuffer.toString() + "<br><br>";
             // System.out.println(output);
             filehelper.appendToFile("f:/test.html", output + "\r\n", false);
 
@@ -82,6 +102,11 @@ public class EntityMIOExtractionThread extends Thread {
 
     }
 
+    /**
+     * Prints the map to file.
+     *
+     * @param cleanedMIOs the cleaned mi os
+     */
     private void printMapToFile(Map<String, MIO> cleanedMIOs) {
         FileHelper filehelper = new FileHelper();
 
@@ -94,8 +119,9 @@ public class EntityMIOExtractionThread extends Thread {
                 sBuffer.append(mio.getInfos().get(info).toString());
 
             }
-            String output = " TRUST: " + mio.getTrust() + " " + mio.getDirectURL() + " founded on " + mio.getFindPageURL() + " for Entity: "
-                    + mio.getEntity().getName() + " Infos: " + sBuffer.toString();
+            String output = " TRUST: " + mio.getTrust() + " " + mio.getDirectURL() + " founded on "
+                    + mio.getFindPageURL() + " for Entity: " + mio.getEntity().getName() + " Infos: "
+                    + sBuffer.toString();
             // System.out.println(output);
             filehelper.appendToFile("f:/test.txt", output + "\r\n", false);
 

@@ -16,10 +16,20 @@ public class FlashExtractor extends GeneralAnalyzer {
     private Entity entity;
     private String mioPageContent;
 
+    /**
+     * Instantiates a new flash extractor.
+     */
     public FlashExtractor() {
         stringHelper = new StringHelper();
     }
 
+    /**
+     * Extract flash objects.
+     *
+     * @param mioPage the mio page
+     * @param entity the entity
+     * @return the list
+     */
     public List<MIO> extractFlashObjects(MIOPage mioPage, Entity entity) {
 
         this.entity = entity;
@@ -61,7 +71,8 @@ public class FlashExtractor extends GeneralAnalyzer {
 
             List<MIO> tempMIOs = new ArrayList<MIO>();
 
-            if (relevantTag.contains("swfobject") || relevantTag.contains("swfObject") || relevantTag.contains("SWFObject")) {
+            if (relevantTag.contains("swfobject") || relevantTag.contains("swfObject")
+                    || relevantTag.contains("SWFObject")) {
                 // System.out.println("CheckSWFObject");
                 MIO tempMio = checkSWFObject(relevantTag, mioPage);
                 if (tempMio != null) {
@@ -82,7 +93,7 @@ public class FlashExtractor extends GeneralAnalyzer {
                     List<String> flashVars = extractFlashVars(relevantTag);
                     if (!flashVars.isEmpty()) {
                         for (MIO mio : tempMIOs) {
-                            mio=adaptFlashVarsToURL(mio, flashVars);
+                            mio = adaptFlashVarsToURL(mio, flashVars);
                             mio.addInfos("flashvars", flashVars);
                         }
                     }
@@ -113,6 +124,13 @@ public class FlashExtractor extends GeneralAnalyzer {
         return flashMIOs;
     }
 
+    /**
+     * Adapt flash vars to url.
+     *
+     * @param mio the mio
+     * @param flashVars the flash vars
+     * @return the mIO
+     */
     private MIO adaptFlashVarsToURL(MIO mio, List<String> flashVars) {
 
         String url = mio.getDirectURL();
@@ -132,6 +150,13 @@ public class FlashExtractor extends GeneralAnalyzer {
     }
 
     // extract an swf-URL out of concrete tag
+    /**
+     * Extract swfurl.
+     *
+     * @param concreteTag the concrete tag
+     * @param mioPage the mio page
+     * @return the list
+     */
     private List<MIO> extractSWFURL(String concreteTag, MIOPage mioPage) {
         List<MIO> resultList = new ArrayList<MIO>();
         // String regExp = "\".[^\"]*\\.swf\"";
@@ -158,6 +183,12 @@ public class FlashExtractor extends GeneralAnalyzer {
     }
 
     // extract Parameters of Flashvars from a concrete tag
+    /**
+     * Extract flash vars.
+     *
+     * @param tagContent the tag content
+     * @return the list
+     */
     private List<String> extractFlashVars(String tagContent) {
         List<String> flashVars = new ArrayList<String>();
 
@@ -222,6 +253,13 @@ public class FlashExtractor extends GeneralAnalyzer {
         return flashVars;
     }
 
+    /**
+     * Check swf object.
+     *
+     * @param relevantTag the relevant tag
+     * @param mioPage the mio page
+     * @return the mIO
+     */
     private MIO checkSWFObject(String relevantTag, MIOPage mioPage) {
 
         MIO mio = null;
@@ -249,7 +287,7 @@ public class FlashExtractor extends GeneralAnalyzer {
 
                 if (!flashVars.isEmpty()) {
                     // for (MIO mio : tempList) {
-                    mio=adaptFlashVarsToURL(mio, flashVars);
+                    mio = adaptFlashVarsToURL(mio, flashVars);
                     mio.addInfos("flashvars", flashVars);
                     // }
                 }
@@ -287,6 +325,12 @@ public class FlashExtractor extends GeneralAnalyzer {
         return null;
     }
 
+    /**
+     * Extract swf from comments.
+     *
+     * @param mioPage the mio page
+     * @return the list
+     */
     private List<MIO> extractSWFFromComments(MIOPage mioPage) {
         List<MIO> resultList = new ArrayList<MIO>();
         StringHelper stringHelper = new StringHelper();
@@ -309,6 +353,11 @@ public class FlashExtractor extends GeneralAnalyzer {
         return resultList;
     }
 
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     */
     public static void main(String[] args) {
 
         Crawler crawler = new Crawler();
@@ -343,8 +392,11 @@ public class FlashExtractor extends GeneralAnalyzer {
         // String content = crawler.download("http://s8500.samsungmobile.de/");
         // MIOPage page = new MIOPage("http://s8500.samsungmobile.de/", content);
 
-        String content = crawler.download("http://www.moviesklix.com/2010/02/samsung-wave-s8500-pircie-in-india-samsung-wave-s8500-review-specifications/");
-        MIOPage page = new MIOPage("http://www.moviesklix.com/2010/02/samsung-wave-s8500-pircie-in-india-samsung-wave-s8500-review-specifications/", content);
+        String content = crawler
+                .download("http://www.moviesklix.com/2010/02/samsung-wave-s8500-pircie-in-india-samsung-wave-s8500-review-specifications/");
+        MIOPage page = new MIOPage(
+                "http://www.moviesklix.com/2010/02/samsung-wave-s8500-pircie-in-india-samsung-wave-s8500-review-specifications/",
+                content);
 
         Concept headphoneConcept = new Concept("mobilePhone");
         // Entity headphone1 = new Entity("Razer Megalodon", headphoneConcept);

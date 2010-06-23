@@ -5,6 +5,9 @@ import java.util.Comparator;
 
 public class MIOComparator implements Comparator<Object>, Serializable {
 
+    /* (non-Javadoc)
+     * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+     */
     public int compare(Object obj1, Object obj2) {
         // for rank-comparison
         double mioTrust1 = ((MIO) obj1).getTrust();

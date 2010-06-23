@@ -15,6 +15,13 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
 
     final String[] nameBlackList = { "footer", "banner", "ticker", "ads", "youtube" };
 
+    /**
+     * Extract mi os.
+     *
+     * @param mioPages the mio pages
+     * @param entity the entity
+     * @return the map
+     */
     public Map<String, MIO> extractMIOs(List<MIOPage> mioPages, Entity entity) {
         this.entity = entity;
         // List<MIO> extractedMIOs = new ArrayList<MIO>();
@@ -74,6 +81,12 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
     // return false;
     // }
 
+    /**
+     * Checks if is not blacklisted.
+     *
+     * @param url the url
+     * @return true, if is not blacklisted
+     */
     private boolean isNotBlacklisted(String url) {
         for (String blackWord : nameBlackList) {
             if (url.contains(blackWord)) {
@@ -83,6 +96,11 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
         return true;
     }
 
+    /**
+     * The main method.
+     *
+     * @param args the arguments
+     */
     public static void main(String[] args) {
         List<MIOPage> mioPages = new ArrayList<MIOPage>();
         Crawler crawler = new Crawler();

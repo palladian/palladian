@@ -16,10 +16,22 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     private SearchWordMatcher swMatcher;
 
+    /**
+     * Instantiates a new i frame analyzer.
+     *
+     * @param swMatcher the sw matcher
+     */
     public IFrameAnalyzer(SearchWordMatcher swMatcher) {
         this.swMatcher = swMatcher;
     }
 
+    /**
+     * Gets the iframe mio pages.
+     *
+     * @param parentPageContent the parent page content
+     * @param parentPageURL the parent page url
+     * @return the iframe mio pages
+     */
     public List<MIOPage> getIframeMioPages(String parentPageContent, String parentPageURL) {
         List<MIOPage> mioPages = new ArrayList<MIOPage>();
 
@@ -47,7 +59,11 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
     }
 
     /**
-     * analyze a page for existing IFrames
+     * analyze a page for existing IFrames.
+     *
+     * @param pageContent the page content
+     * @param pageURL the page url
+     * @return the list
      */
     private List<String> analyzeForIframe(String pageContent, String pageURL) {
         List<String> iframeURLs;
@@ -72,7 +88,11 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
     }
 
     /**
-     * extract the src-url out of an iframe-tag
+     * extract the src-url out of an iframe-tag.
+     *
+     * @param iframeTag the iframe tag
+     * @param quotMark the quot mark
+     * @return the src from iframe
      */
     private List<String> getSrcFromIframe(String iframeTag, String quotMark) {
         List<String> iframeURLs = new ArrayList<String>();
@@ -85,6 +105,10 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     /**
      * analyze the URLs for validness and eventually modify them e.g. relative Paths
+     *
+     * @param urlCandidates the url candidates
+     * @param parentPageURL the parent page url
+     * @return the list
      */
     private List<String> checkURLs(List<String> urlCandidates, String parentPageURL) {
         List<String> validURLs = new ArrayList<String>();
@@ -100,8 +124,12 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
     }
 
     /**
-     * Create a new MIOPage
-     * 
+     * Create a new MIOPage.
+     *
+     * @param iframeSourceURL the iframe source url
+     * @param iframePageContent the iframe page content
+     * @param parentPageURL the parent page url
+     * @return the mIO page
      */
     private MIOPage generateMIOPage(String iframeSourceURL, String iframePageContent, String parentPageURL) {
         MIOPage mioPage = new MIOPage(iframeSourceURL, iframePageContent);
@@ -115,14 +143,21 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
 
     }
 
+    /**
+     * The main method.
+     *
+     * @param abc the arguments
+     */
     public static void main(String[] abc) {
 
         SearchWordMatcher swMatcher = new SearchWordMatcher("Sennheiser HD800");
         IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
 
-        String pageContent = iframeAnalyzer.getPage("http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
-        List<MIOPage> mioPages = iframeAnalyzer.getIframeMioPages(pageContent,
-                "http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
+        String pageContent = iframeAnalyzer
+                .getPage("http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
+        List<MIOPage> mioPages = iframeAnalyzer
+                .getIframeMioPages(pageContent,
+                        "http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
         for (MIOPage mioPage : mioPages) {
             System.out.println(mioPage.getUrl() + " is IFRAMESOURCE: " + mioPage.isIFrameSource());
         }

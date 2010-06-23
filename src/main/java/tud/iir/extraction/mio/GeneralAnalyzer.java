@@ -18,6 +18,10 @@ public class GeneralAnalyzer {
 
     /**
      * Get WebPage as String (without comments and JS/CSS possible).
+     *
+     * @param URLString the uRL string
+     * @param removeJS the remove js
+     * @return the page
      */
     public String getPage(String URLString, boolean removeJS) {
         String page = "";
@@ -33,13 +37,23 @@ public class GeneralAnalyzer {
         return page;
     }
 
+    /**
+     * Gets the page.
+     *
+     * @param URLString the uRL string
+     * @return the page
+     */
     public String getPage(String URLString) {
         return getPage(URLString, false);
     }
 
     /**
      * Extract values e.g for: src=, href= or title=
-     * 
+     *
+     * @param pattern the pattern
+     * @param content the content
+     * @param removeTerm the remove term
+     * @return the string
      */
     public String extractElement(String pattern, String content, String removeTerm) {
         String element = "";
@@ -64,6 +78,10 @@ public class GeneralAnalyzer {
 
     /**
      * Check URL for validness and eventually modify e.g. relative path
+     *
+     * @param urlCandidate the url candidate
+     * @param pageURL the page url
+     * @return the string
      */
     public String verifyURL(String urlCandidate, String pageURL) {
 
@@ -88,6 +106,12 @@ public class GeneralAnalyzer {
         return returnValue;
     }
 
+    /**
+     * Extract alt text from tag.
+     *
+     * @param relevantTag the relevant tag
+     * @return the string
+     */
     public String extractALTTextFromTag(String relevantTag) {
         String altText = "";
         int beginIndex = relevantTag.indexOf(">") + 1;
