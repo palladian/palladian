@@ -2,8 +2,8 @@ package tud.iir.classification.page;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 
@@ -177,7 +177,7 @@ public final class Preprocessor {
         // remove http(s): and www from URL
         inputString = Crawler.getCleanURL(inputString);
 
-        HashSet<String> ngrams = StringHelper.calculateAllCharNGrams(inputString, MIN_NGRAM_SIZE, MAX_NGRAM_SIZE);
+        Set<String> ngrams = StringHelper.calculateAllCharNGrams(inputString, MIN_NGRAM_SIZE, MAX_NGRAM_SIZE);
 
         // build the map
         for (String ngram : ngrams) {
