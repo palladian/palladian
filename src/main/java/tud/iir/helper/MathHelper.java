@@ -104,6 +104,19 @@ public class MathHelper {
     }
 
     /**
+     * Check whether two numeric intervals overlap.
+     * 
+     * @param start1 The start1.
+     * @param end1 The end1.
+     * @param start2 The start2.
+     * @param end2 The end2.
+     * @return True, if the intervals overlap, false otherwise.
+     */
+    public static boolean overlap(int start1, int end1, int start2, int end2) {
+        return Math.max(start1, start2) < Math.min(end1, end2);
+    }
+
+    /**
      * Calculate the parameters for a regression line. A series of x and y must be given. y = beta * x + alpha
      * 
      * See <a href="http://en.wikipedia.org/wiki/Simple_linear_regression">http://en.wikipedia.org/wiki/Simple_linear_regression</a> for an explanation.

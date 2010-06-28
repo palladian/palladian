@@ -3,6 +3,9 @@ package tud.iir.helper;
 import java.io.File;
 
 import junit.framework.TestCase;
+
+import org.junit.Test;
+
 import tud.iir.knowledge.RegExp;
 
 /**
@@ -319,6 +322,12 @@ public class StringHelperTest extends TestCase {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
         assertEquals("this is relevant", StringHelper.removeHTMLTags(htmlContent, true, true, true, false));
 
+    }
+
+    @Test
+    public void testGetSubstringBetween() {
+        assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
+        assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", "allt ", "in ohio"));
     }
 
 }

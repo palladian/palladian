@@ -1637,16 +1637,25 @@ public class StringHelper {
     }
 
     /**
-     * Overlap.
+     * Get the substring between the given sequences.
      * 
-     * @param start1 the start1
-     * @param end1 the end1
-     * @param start2 the start2
-     * @param end2 the end2
-     * @return true, if successful
+     * @param string The string where the substring belongs to.
+     * @param string1 The left border.
+     * @param string2 The right border.
+     * @return The substring between the two given strings or an empty string in case of an error.
      */
-    public static boolean overlap(int start1, int end1, int start2, int end2) {
-        return Math.max(start1, start2) < Math.min(end1, end2);
+    public static String getSubstringBetween(String string, String string1, String string2) {
+
+        String substring = "";
+
+        int index1 = string.indexOf(string1);
+        int index2 = string.indexOf(string2, index1);
+
+        if (index2 > index1 && index1 > -1) {
+            substring = string.substring(index1 + string1.length(), index2);
+        }
+
+        return substring;
     }
 
     /**
@@ -1721,7 +1730,7 @@ public class StringHelper {
         // upper case test
         // System.out.println((Character.isUpperCase('3')));
 
-        String n = "(2008)";
+        // String n = "(2008)";
         // System.out.println(StringHelper.escapeForRegularExpression(n));
         //
         // System.out.println(StringHelper.makeSafeName("The Dark Knight/A"));
@@ -1772,4 +1781,5 @@ public class StringHelper {
         }
 
     }
+
 }
