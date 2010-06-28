@@ -264,7 +264,17 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
                     if (categoryEntry.getRelevance() > 0) {
                         // c.addAbsoluteRelevance(weightedTerm.getValue());
                         //c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance());
+
+                        // use prior AND relevance
+                        // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior() * weightedTerm.getValue()
+                        // * categoryEntry.getRelevance());
+
+                        // use prior only
+                        // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior());
+
+                        // use relevance
                         c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance()*categoryEntry.getRelevance());
+
                         //double idf = categoryEntry.getAbsoluteRelevance() / (double) dictionary.getNumberOfDocuments();
                         //c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance() * idf);
                        // c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getAbsoluteRelevance());
