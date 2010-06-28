@@ -13,8 +13,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.net.URL;
@@ -29,6 +31,7 @@ import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
@@ -293,7 +296,7 @@ public class Crawler {
         urlRules.add(rule);
     }
 
-    private synchronized void addURLsToStack(HashSet<String> urls, String sourceURL) {
+    private synchronized void addURLsToStack(Set<String> urls, String sourceURL) {
         for (String url : urls) {
             addURLToStack(url, sourceURL);
         }
@@ -348,9 +351,9 @@ public class Crawler {
     }
 
     /**
-     * Visit a certain web page, grab urls
+     * Visit a certain web page and grab URLs.
      * 
-     * @param currentURL
+     * @param currentURL A URL.
      */
     protected void crawl(String currentURL) {
 
@@ -359,7 +362,7 @@ public class Crawler {
         // System.out.println("process "+currentURL+" \t stack size: "+urlStack.size()+" dump size: "+urlDump.size());
         Document document = getWebDocument(currentURL);
 
-        HashSet<String> links = getLinks(document, inDomain, outDomain);
+        Set<String> links = getLinks(document, inDomain, outDomain);
         LOGGER.info("\n\nretrieved " + links.size() + " links from " + currentURL + " || " + urlStack.size()
                 + " dump size: " + urlDump.size() + ", visited: " + visitedURLs.size());
 
@@ -884,7 +887,6 @@ public class Crawler {
     public void setDocument(String url, boolean isXML, boolean callback) {
         DOMParser parser = new DOMParser();
         document = null;
-        // ConnectionTimeout ct = null;
 
         try {
 
@@ -922,28 +924,6 @@ public class Crawler {
                 url = url.replaceAll("\\s", "+");
                 URL urlObject = new URL(url);
 
-                // replaced this part with downloadInputStream method
-                // which allows compressed downloding via gzip/deflate
-                // Philipp -- 2010-06-05
-
-                // URLConnection urlConnection = null;
-                // if (proxy != null) {
-                // urlConnection = urlObject.openConnection(proxy);
-                // } else {
-                // urlConnection = urlObject.openConnection();
-                // }
-                // requestsSent++;
-                // checkChangeProxy();
-                //
-                // urlConnection.setConnectTimeout(CONNECTION_TIMEOUT);
-                // urlConnection.setReadTimeout(READ_TIMEOUT);
-                // urlConnection.setRequestProperty("User-Agent", getUserAgent());
-                // urlConnection.setRequestProperty("Referer", REFERER);
-                // ct = new ConnectionTimeout(urlConnection, 60000);
-                //
-                // InputStream fis = urlConnection.getInputStream();
-                // addDownloadSize(urlConnection.getContentLength());
-
                 InputStream fis = downloadInputStream(urlObject);
 
                 if (isXML) {
@@ -959,21 +939,11 @@ public class Crawler {
                 document.setDocumentURI(url);
             }
 
-            // document.setDocumentURI(url);
-
-            // only call, if we actually got a Document; so we dont need to check for null within the Callback
+            // only call, if we actually got a Document; so we don't need to check for null within the Callback
             // implementation itself.
             if (callback && document != null) {
                 callCrawlerCallback(document);
             }
-
-            // read from string
-            // Crawler c = new Crawler();
-            // DOMParser domParser = new DOMParser();
-            // StringReader stringReader = new StringReader(c.download(url));
-            // InputSource is = new InputSource(stringReader);
-            // domParser.parse(is);
-            // document = domParser.getDocument();
 
         } catch (SAXException e) {
             LOGGER.error(url + ", " + e.getMessage());
@@ -991,9 +961,6 @@ public class Crawler {
             LOGGER.error(url + ", " + e.getMessage());
         }
 
-        // if (ct != null) {
-        // ct.setActive(false);
-        // }
     }
 
     public Document getDocument() {
@@ -1315,11 +1282,11 @@ public class Crawler {
             case BYTES:
                 return totalDownloadSize;
             case KILO_BYTES:
-                return (double) totalDownloadSize / 1024.0;
+                return totalDownloadSize / 1024.0;
             case MEGA_BYTES:
-                return (double) totalDownloadSize / 1048576.0;
+                return totalDownloadSize / 1048576.0;
             case GIGA_BYTES:
-                return (double) totalDownloadSize / 1073741824.0;
+                return totalDownloadSize / 1073741824.0;
         }
 
         return totalDownloadSize;
@@ -1353,11 +1320,11 @@ public class Crawler {
             case BYTES:
                 return sessionDownloadedBytes;
             case KILO_BYTES:
-                return (double) sessionDownloadedBytes / 1024.0;
+                return sessionDownloadedBytes / 1024.0;
             case MEGA_BYTES:
-                return (double) sessionDownloadedBytes / 1048576.0;
+                return sessionDownloadedBytes / 1048576.0;
             case GIGA_BYTES:
-                return (double) sessionDownloadedBytes / 1073741824.0;
+                return sessionDownloadedBytes / 1073741824.0;
         }
 
         return sessionDownloadedBytes;
@@ -1550,8 +1517,8 @@ public class Crawler {
      * been read or the timeout has been
      * reached.
      * 
-     * @param url
-     * @return
+     * @param url The URL to download.
+     * @return The input stream.
      * @throws IOException
      * @author Philipp Katz
      */
@@ -1633,9 +1600,59 @@ public class Crawler {
     }
 
     /**
+     * Get the response code of the given url after sending a HEAD request.
+     * This works only for HTTP connections.
+     * 
+     * @param urlString The URL.
+     * @return The HTTP response Code.
+     */
+    public int getResponseCode(String urlString) {
+
+        int responseCode = -1;
+
+        URL url;
+        try {
+            url = new URL(urlString);
+
+            HttpURLConnection urlConnection;
+
+            if (proxy != null) {
+                urlConnection = (HttpURLConnection) url.openConnection(proxy);
+            } else {
+                urlConnection = (HttpURLConnection) url.openConnection();
+            }
+
+            urlConnection.setRequestMethod("HEAD");
+
+            urlConnection.setConnectTimeout(connectionTimout);
+            urlConnection.setReadTimeout(readTimeout);
+            urlConnection.setRequestProperty("User-Agent", USER_AGENT);
+            urlConnection.setRequestProperty("Referer", REFERER);
+            if (useCompression) {
+                urlConnection.setRequestProperty("Accept-Encoding", "gzip, deflate");
+            }
+            requestsSent++;
+            checkChangeProxy();
+
+            urlConnection.connect();
+
+            responseCode = urlConnection.getResponseCode();
+
+        } catch (MalformedURLException e) {
+            LOGGER.error(e.getMessage());
+        } catch (ProtocolException e) {
+            LOGGER.error(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        return responseCode;
+    }
+
+    /**
      * Use to disable compression.
      * 
-     * @param useCompression
+     * @param useCompression If true, compression will be used, if false then not.
      */
     public void setUseCompression(boolean useCompression) {
         this.useCompression = useCompression;
