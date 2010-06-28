@@ -55,6 +55,7 @@ public class PageAnalyzer {
      * 
      * @return The title of the web page.
      */
+    @SuppressWarnings("unchecked")
     public String getTitle() {
         String title = "";
 
@@ -840,6 +841,7 @@ public class PageAnalyzer {
         return numberOfColumns;
     }
 
+    @SuppressWarnings("unchecked")
     public String getHTMLTextByXPath(String xPath) {
         StringBuilder sb = new StringBuilder();
 
@@ -854,13 +856,13 @@ public class PageAnalyzer {
             Iterator<Node> nodeIterator = results.iterator();
             while (nodeIterator.hasNext()) {
                 Node node = nodeIterator.next();
-                String a = node.getNodeName();
-                String b = node.getNodeValue();
-                String c = node.getTextContent();
-                String d = node.getChildNodes().toString();
+                // String a = node.getNodeName();
+                // String b = node.getNodeValue();
+                // String c = node.getTextContent();
+                // String d = node.getChildNodes().toString();
                 // sb.append(nodeIterator.next());
 
-                sb.append(getChildHTMLContents(node, ""));
+                sb.append(getChildHTMLContents(node, new StringBuilder()));
             }
         } catch (JaxenException e) {
             e.printStackTrace();
@@ -872,6 +874,7 @@ public class PageAnalyzer {
         return getTextByXPath(document, xPath);
     }
 
+    @SuppressWarnings("unchecked")
     public String getTextByXPath(Document document, String xpath) {
 
         if (document == null || xpath.length() == 0) {
@@ -943,7 +946,7 @@ public class PageAnalyzer {
         return currentString;
     }
 
-    private String getChildHTMLContents(Node node, String currentString) {
+    private StringBuilder getChildHTMLContents(Node node, StringBuilder currentString) {
         Node child = node.getFirstChild();
 
         int maximumTags = 50;
@@ -954,12 +957,30 @@ public class PageAnalyzer {
             if (child.getNodeType() == 3 || child.getNodeType() == 1) {
                 if (child.getNodeValue() != null && child.getNodeName().startsWith("#")) {
                     if (!child.getNodeName().startsWith("#")) {
-                        currentString += "<" + child.getNodeName() + ">" + child.getNodeValue() + "</" + child.getNodeName() + ">";
+                        currentString.append("<");
+                        currentString.append(child.getNodeName());
+                        currentString.append(">");
+                        currentString.append(child.getNodeValue());
+                        currentString.append("</");
+                        currentString.append(child.getNodeName());
+                        currentString.append(">");
                     } else {
-                        currentString += child.getNodeValue();
+                        currentString.append(child.getNodeValue());
                     }
                 } else {
-                    currentString += "<" + child.getNodeName() + " />";
+
+                    currentString.append("<").append(child.getNodeName()).append(" ");
+
+                    // add attributes
+                    NamedNodeMap nnm = child.getAttributes();
+                    for (int i = 0; i < nnm.getLength(); i++) {
+                        Node attributeNode = nnm.item(i);
+                        currentString.append(attributeNode.getNodeName());
+                        currentString.append("=\"");
+                        currentString.append(attributeNode.getTextContent()).append("\" ");
+                    }
+
+                    currentString.append("/>");
                 }
             }
 
@@ -1052,7 +1073,13 @@ public class PageAnalyzer {
         }
     }
 
-    public String getTextDump(Node node) {
+    /**
+     * Get the sub tree as text.
+     * 
+     * @param node The node from where to start.
+     * @return A string representation of the node and it's sub nodes.
+     */
+    public static String getTextDump(Node node) {
         StringBuilder sb = new StringBuilder();
         // System.out.println(node.getNodeName()+node.getTextContent());
         sb.append(node.getTextContent());
@@ -1061,6 +1088,15 @@ public class PageAnalyzer {
             sb.append(getTextDump(child));
             child = child.getNextSibling();
         }
+
+        return sb.toString();
+    }
+
+    public String getHTMLText(Node node) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(getChildHTMLContents(node, new StringBuilder()));
+
         return sb.toString();
     }
 
