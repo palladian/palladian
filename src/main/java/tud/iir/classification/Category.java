@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.page.WebPageClassifier;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 
 /**
  * A category has a name and a relevance for certain resource.
@@ -35,7 +35,7 @@ public class Category implements Serializable {
     private boolean mainCategory = false;
 
     /** what classification type does the category belong to? (simple, hiearchy or tag) */
-    private int classType = WebPageClassifier.FIRST;
+    private int classType = ClassificationTypeSetting.SINGLE;
 
     public Category(String name) {
         if (name == null) {
@@ -138,7 +138,7 @@ public class Category implements Serializable {
         if (obj == null) {
             return false;
         }
-        return ((String) obj).equals(this.getName());
+        return ((String) obj).equals(getName());
     }
 
     /*

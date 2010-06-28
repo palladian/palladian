@@ -3,6 +3,7 @@ package tud.iir.classification.page;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -17,6 +18,9 @@ import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Dictionary;
 import tud.iir.classification.Term;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
+import tud.iir.classification.page.evaluation.EvaluationSetting;
+import tud.iir.classification.page.evaluation.FeatureSetting;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
@@ -174,7 +178,7 @@ public class ClassifierManager {
 
                 for (String url : urls) {
                     String shortURLName = StringHelper.makeSafeName(Crawler.getCleanURL(url));
-                    String cleanURLName = "webpage" + (fileCounter++) + "_"
+                    String cleanURLName = "webpage" + fileCounter++ + "_"
                             + shortURLName.substring(0, Math.min(25, shortURLName.length())) + ".html";
 
                     // download file
@@ -291,7 +295,7 @@ public class ClassifierManager {
 
         // in hierarchy mode we have to tell the dictionary which categories are
         // main categories
-        if (classType == WebPageClassifier.HIERARCHICAL) {
+        if (classType == ClassificationTypeSetting.HIERARCHICAL) {
             ((DictionaryClassifier) classifier).getDictionary().setMainCategories(classifier.categories);
         }
 
@@ -311,7 +315,7 @@ public class ClassifierManager {
             if (classifier instanceof DictionaryClassifier) {
                 ((DictionaryClassifier) classifier).classifyTestDocuments(classType, false);
             } else {
-                ((WebPageClassifier) classifier).classifyTestDocuments(classType);
+                classifier.classifyTestDocuments(classType);
             }
         } else {
             classifier.classifyTestDocuments(classType);
@@ -332,7 +336,7 @@ public class ClassifierManager {
                 + " categories");
         LOGGER.info("Runtime: " + timeNeeded);
 
-        if (classType != WebPageClassifier.TAG) {
+        if (classType != ClassificationTypeSetting.TAG) {
 
             LOGGER
                     .info("Category                      Training  Test  Classified  Correct  Precision        Recall           F1               Sensitivity      Specificity      Accuracy         Weight/Prior");
@@ -342,7 +346,7 @@ public class ClassifierManager {
 
                 // skip categories that are not main categories because they are
                 // classified according to the main category
-                if (classType == WebPageClassifier.HIERARCHICAL && !category.isMainCategory()) {
+                if (classType == ClassificationTypeSetting.HIERARCHICAL && !category.isMainCategory()) {
                     continue;
                 }
 
@@ -407,7 +411,7 @@ public class ClassifierManager {
             LOGGER.info("Average Accuracy: " + Math.floor(1000 * classifier.getAverageAccuracy(false)) / 1000
                     + ", weighted: " + Math.floor(1000 * classifier.getAverageAccuracy(true)) / 1000);
 
-            if (classType == WebPageClassifier.FIRST) {
+            if (classType == ClassificationTypeSetting.SINGLE) {
                 double correctClassified = (double) totalCorrect / (double) testUrls.size();
                 LOGGER.info("Correctly Classified: " + MathHelper.round(100 * correctClassified, 2) + "%");
             }
@@ -442,7 +446,7 @@ public class ClassifierManager {
                 String[] siteInformation = line.split(getSeparationString());
 
                 int l = siteInformation.length;
-                if (((Integer) obj[1]) == WebPageClassifier.FIRST) {
+                if ((Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
                     l = 2;
                 }
 
@@ -460,7 +464,7 @@ public class ClassifierManager {
                     String categoryName = categorieNames[0];
 
                     // update hierarchy
-                    if (((Integer) obj[1]) == WebPageClassifier.HIERARCHICAL) {
+                    if ((Integer) obj[1] == ClassificationTypeSetting.HIERARCHICAL) {
                         // category names must be saved with the information
                         // about the preceding node
                         if (lastCategoryName.length() > 0) {
@@ -480,10 +484,11 @@ public class ClassifierManager {
                     // add category if it does not exist yet
                     if (!classifier.categories.containsCategoryName(categoryName)) {
                         Category cat = new Category(categoryName);
-                        if ((((Integer) obj[1]) == WebPageClassifier.HIERARCHICAL && ((DictionaryClassifier) classifier)
+                        if ((Integer) obj[1] == ClassificationTypeSetting.HIERARCHICAL
+                                && ((DictionaryClassifier) classifier)
                                 .getDictionary().hierarchyRootNode.getNode(categoryName).getParent() == ((DictionaryClassifier) classifier)
-                                .getDictionary().hierarchyRootNode)
-                                || ((Integer) obj[1]) == WebPageClassifier.FIRST) {
+                                .getDictionary().hierarchyRootNode
+                                || (Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
                             cat.setMainCategory(true);
                         }
                         cat.setClassType((Integer) obj[1]);
@@ -495,7 +500,7 @@ public class ClassifierManager {
                     }
 
                     // only take first category in "first" mode
-                    if (((Integer) obj[1]) == WebPageClassifier.FIRST) {
+                    if ((Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
                         break;
                     }
 
@@ -561,7 +566,7 @@ public class ClassifierManager {
             String url = tData[0];
 
             if (!isTrainingDocument) {
-                preprocessedDocument = (TestDocument) classifier.preprocessDocument(url, preprocessedDocument);
+                preprocessedDocument = classifier.preprocessDocument(url, preprocessedDocument);
             } else {
                 preprocessedDocument = classifier.preprocessDocument(url, preprocessedDocument);
             }
@@ -586,7 +591,7 @@ public class ClassifierManager {
                 preprocessedDocument.setRealCategories(categories);
                 classifier.testDocuments.add(preprocessedDocument);
             }
-            log(Math.floor(100.0 * (double) i / (double) size) + "% preprocessed: " + tData[0] + ", i:" + i + ", size:"
+            log(Math.floor(100.0 * i / size) + "% preprocessed: " + tData[0] + ", i:" + i + ", size:"
                     + size);
 
         }
@@ -798,7 +803,7 @@ public class ClassifierManager {
         ClassifierManager classifierManager = new ClassifierManager();
 
         // helper
-        int numberTrainingPercentageLoops = ((trainingPercentageMax - trainingPercentageMin) / trainingPercentageStep) + 1;
+        int numberTrainingPercentageLoops = (trainingPercentageMax - trainingPercentageMin) / trainingPercentageStep + 1;
         int numberThresholdLoops = (int) Math.abs(((double) (thMax - thMin) / (double) thStep)) + 1;
 
         // results[trainingPercentage][threshold][iteration]
@@ -875,7 +880,7 @@ public class ClassifierManager {
                             WebPageClassifier.URL, classType, ClassifierManager.CLASSIFICATION_TEST_MODEL);
 
                     HashMap<String, Double> statistics = classifierManager.getClassifier().showTestDocuments2(
-                            WebPageClassifier.FIRST);
+                            ClassificationTypeSetting.SINGLE);
 
                     if (statistics.containsKey("Number of two categories")) {
                         numberOf2Categories[trainingPercentageLoop][thresholdLoop][k] = statistics
@@ -925,7 +930,7 @@ public class ClassifierManager {
         String resultFilePath = "data/temp/" + DateHelper.getCurrentDatetime() + "_results.csv";
         System.out.println("Writing final results to " + resultFilePath);
 
-        String useRandom = (randomSplitTrainingDataSet) ? "random" : "static";
+        String useRandom = randomSplitTrainingDataSet ? "random" : "static";
 
         StringBuilder finalResultSB = new StringBuilder();
         finalResultSB.append("ave perf @ ").append(numberLoopsToAverage).append(";");
@@ -960,6 +965,41 @@ public class ClassifierManager {
 
     private WebPageClassifier getClassifier() {
         return this.classifier;
+    }
+
+    /**
+     * This method simplifies the search for the best combination of classifier and feature settings.
+     * It automatically learns and evaluates all given combinations.
+     * The result will be a ranked list (by F1 score) of the combinations that perform best on the given training/test
+     * data.
+     * 
+     * @param classificationTypeSettings
+     * @param featureSettings
+     * @param classifiers
+     * @param evaluationSetting
+     */
+    public void learnBestClassifier(List<ClassificationTypeSetting> classificationTypeSettings,
+            List<WebPageClassifier> classifiers, List<FeatureSetting> featureSettings,
+            EvaluationSetting evaluationSetting) {
+
+        // loop through all classifiers
+        for (WebPageClassifier classifier : classifiers) {
+
+            // loop through all classification types
+            for (ClassificationTypeSetting cts : classificationTypeSettings) {
+
+                // loop through all features
+                for (FeatureSetting featureSetting : featureSettings) {
+
+                    // classifier.setClassificationType(cts.getClassificationType());
+
+                    // cross validation
+
+                }
+
+            }
+        }
+
     }
 
     /**
@@ -1068,7 +1108,7 @@ public class ClassifierManager {
         classifierManager.setTrainingDataPercentage(80);
         classifierManager.setSeparationString("###");
 
-        classifierManager.openAnalytix(50, 50, 10, true, 1, 99, 99, 1, WebPageClassifier.FIRST);
+        classifierManager.openAnalytix(50, 50, 10, true, 1, 99, 99, 1, ClassificationTypeSetting.SINGLE);
         System.exit(0);
 
         // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional_small.txt",
@@ -1082,7 +1122,8 @@ public class ClassifierManager {
         // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
 
         classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-                WebPageClassifier.URL, WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
+                WebPageClassifier.URL, ClassificationTypeSetting.SINGLE,
+                ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
         // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/productStrings.csv",
         // WebPageClassifier.URL,WebPageClassifier.FIRST,
         // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
@@ -1112,10 +1153,11 @@ public class ClassifierManager {
         classifierManager.setSeparationString("###");
         classifierManager.setTrainingDataPercentage(100);
         classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/researchGarden_Training.csv",
-                WebPageClassifier.URL, WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
+                WebPageClassifier.URL, ClassificationTypeSetting.SINGLE,
+                ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
         classifierManager.setTrainingDataPercentage(0);
         classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/researchGarden_Testing.csv",
-                WebPageClassifier.URL, WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TEST_MODEL);
+                WebPageClassifier.URL, ClassificationTypeSetting.SINGLE, ClassifierManager.CLASSIFICATION_TEST_MODEL);
 
         // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
         // WebPageClassifier.FULL_PAGE,

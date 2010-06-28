@@ -1,9 +1,8 @@
 package tud.iir.extraction;
 
+import junit.framework.TestCase;
 import tud.iir.control.AllTests;
 import tud.iir.extraction.entity.ListDiscoverer;
-
-import junit.framework.TestCase;
 
 /**
  * Test cases for the list discoverer.

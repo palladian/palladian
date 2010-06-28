@@ -13,6 +13,7 @@ import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Dictionary;
 import tud.iir.classification.Term;
 import tud.iir.classification.WordCorrelation;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.TreeNode;
@@ -24,25 +25,18 @@ import tud.iir.helper.TreeNode;
  */
 public abstract class DictionaryClassifier extends WebPageClassifier {
 
-    /** enable category co-occurrence, that works only in tag mode */
-    private static final boolean CO_OCCURRENCE_IN_TAG_MODE = false;
 
-    /** if true, the tags that appear in the text (or URL) are weighted higher */
-    private static final boolean TAG_IN_URL_BOOST = false;
-
-    /** number of tags that are assigned to a document in tagging mode */
-    private final static int NUMBER_OF_TAGS = 5;
 
     /** the context map: matrix of terms x categories with weights in cells */
     protected Dictionary dictionary = null;
 
     /** hold all possible dictionaries in a map */
-    protected HashMap<Integer, Dictionary> dictionaries = new HashMap<Integer, Dictionary>();
+    protected Map<Integer, Dictionary> dictionaries = new HashMap<Integer, Dictionary>();
 
     public DictionaryClassifier() {
         ClassifierManager.log("DictionaryClassifier created");
-        this.setName("DictionaryClassifier");
-        dictionary = new Dictionary(getName(), WebPageClassifier.FIRST);
+        setName("DictionaryClassifier");
+        dictionary = new Dictionary(getName(), ClassificationTypeSetting.SINGLE);
     }
 
     public void init() {
@@ -83,7 +77,7 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
         for (Map.Entry<Term, Double> entry : trainingDocument.getWeightedTerms().entrySet()) {
 
             // get the first category only
-            if (classType == WebPageClassifier.FIRST) {
+            if (classType == ClassificationTypeSetting.SINGLE) {
                 dictionary.updateWord(entry.getKey(), trainingDocument.getFirstRealCategory().getName(), entry.getValue());
             }
 
@@ -98,7 +92,7 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
         dictionary.increaseNumberOfDocuments();
 
         // co-occurrence: update the category correlation matrix of the dictionary (works but takes more time and space)
-        if (CO_OCCURRENCE_IN_TAG_MODE) {
+        if (ClassificationTypeSetting.CO_OCCURRENCE_IN_TAG_MODE) {
 
             Term[] terms;
             if (trainingDocument.getRealCategories().size() == 1) {
@@ -168,9 +162,9 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
      * Load all dictionaries into memory.
      */
     public void loadAllDictionaries() {
-        loadDictionary(WebPageClassifier.FIRST);
-        loadDictionary(WebPageClassifier.HIERARCHICAL);
-        loadDictionary(WebPageClassifier.TAG);
+        loadDictionary(ClassificationTypeSetting.SINGLE);
+        loadDictionary(ClassificationTypeSetting.HIERARCHICAL);
+        loadDictionary(ClassificationTypeSetting.TAG);
     }
 
     // protected abstract double calculateRelevance(Category category, Map.Entry<String, Double> categoryEntry, Map.Entry<String, Double> weightedTerm);
@@ -246,8 +240,9 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
                     }
 
                     // in tag mode, boost the category entry if the category is part of the URL
-                    if (TAG_IN_URL_BOOST) {
-                        if (classType == WebPageClassifier.TAG && document.getUrl().toLowerCase().indexOf(categoryName.toLowerCase()) > -1
+                    if (ClassificationTypeSetting.TAG_IN_URL_BOOST) {
+                        if (classType == ClassificationTypeSetting.TAG
+                                && document.getUrl().toLowerCase().indexOf(categoryName.toLowerCase()) > -1
                                 && categoryName.length() > 3) {
                             c.addAbsoluteRelevance(weightedTerm.getValue() * categoryName.length());
                         }
@@ -314,7 +309,7 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
         document.assignCategoryEntries(bestFitList);
 
         // co-occurrence boost (wcm has to be build in addToDictionary method)
-        if (CO_OCCURRENCE_IN_TAG_MODE) {
+        if (ClassificationTypeSetting.CO_OCCURRENCE_IN_TAG_MODE) {
 
             dictionary.getWcm().makeRelativeScores();
 
@@ -340,7 +335,7 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
             }
         }
 
-        if (classType == WebPageClassifier.HIERARCHICAL) {
+        if (classType == ClassificationTypeSetting.HIERARCHICAL) {
 
             // set weights for this document in the node tree
             getDictionary().hierarchyRootNode.resetWeights();
@@ -358,8 +353,9 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
                 mc = document.getMainCategoryEntry().getCategory().getName();
                 ArrayList<TreeNode> nodes = getDictionary().hierarchyRootNode.getNode(mc).getFullPath();
                 for (TreeNode node : nodes) {
-                    if (node == null)
+                    if (node == null) {
                         continue;
+                    }
                     CategoryEntry ce = bestFitList.getCategoryEntry(node.getLabel());
                     if (ce != null) {
                         hiearchyCategories.add(ce);
@@ -377,12 +373,12 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
         }
 
         // keep only top X categories for tagging mode
-        else if (classType == WebPageClassifier.TAG) {
-            document.limitCategories(NUMBER_OF_TAGS, 0.0);
+        else if (classType == ClassificationTypeSetting.TAG) {
+            document.limitCategories(ClassificationTypeSetting.NUMBER_OF_TAGS, 0.0);
         }
 
         // keep only top category for single mode
-        else if (classType == WebPageClassifier.FIRST) {
+        else if (classType == ClassificationTypeSetting.SINGLE) {
             document.limitCategories(1, 0.0);
         }
 

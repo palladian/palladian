@@ -3,6 +3,7 @@ package tud.iir.classification.page;
 import java.util.Map.Entry;
 
 import tud.iir.classification.CategoryEntry;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 
 /**
  * Classify a web page only by its URL. Implementation similar to the one described in "Purely URL-based Topic Classification, 2009".
@@ -46,8 +47,8 @@ public class URLClassifier extends DictionaryClassifier {
     public static void main(String[] args) {
         URLClassifier urlClassifier = new URLClassifier();
         urlClassifier.loadAllDictionaries();
-        urlClassifier.classify("http://www.computerworld.com", WebPageClassifier.FIRST);
-        urlClassifier.classify("http://www.computerworld.com", WebPageClassifier.TAG);
+        urlClassifier.classify("http://www.computerworld.com", ClassificationTypeSetting.SINGLE);
+        urlClassifier.classify("http://www.computerworld.com", ClassificationTypeSetting.TAG);
 
         // urlClassifier.buildNGramIndex();
         // System.exit(0);

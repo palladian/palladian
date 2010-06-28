@@ -7,6 +7,7 @@ import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Dictionary;
 import tud.iir.classification.Term;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 
 public class ClassifierTest extends TestCase {
 
@@ -60,7 +61,7 @@ public class ClassifierTest extends TestCase {
         // ------------------------------
         // documents 2 3 5 => prior(c1) = 2/5, prior(c2) = 3/5
         // weights 84 19 103 => e.g. cweight(word1,word2,c1) = 66/84, cweight(word1,word3,c1) = 84/84
-        Dictionary dictionary = new Dictionary("testDictionary", WebPageClassifier.FIRST);
+        Dictionary dictionary = new Dictionary("testDictionary", ClassificationTypeSetting.SINGLE);
         dictionary.updateWord(word1, c1, 12);
         dictionary.updateWord(word2, c2, 2);
         dictionary.updateWord(word1, c1, 54);

@@ -11,6 +11,7 @@ import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Term;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.helper.MathHelper;
 
 /**
@@ -41,12 +42,12 @@ public class ClassificationDocument {
     private int documentType = UNCLASSIFIED;
 
     /** type of classification (tags or hierarchy) */
-    private int classifiedAs = WebPageClassifier.TAG;
+    private int classifiedAs = ClassificationTypeSetting.TAG;
 
     /** comparator to sort categories by relevance */
     Comparator<CategoryEntry> comparator = new Comparator<CategoryEntry>() {
         public int compare(CategoryEntry o1, CategoryEntry o2) {
-            return ((Comparable<Double>) ((o2)).getRelevance()).compareTo(((o1)).getRelevance());
+            return ((Comparable<Double>) o2.getRelevance()).compareTo(o1.getRelevance());
         }
         /*
          * public int compare(CategoryEntry o1, CategoryEntry o2) { return ((Comparable<Double>) ((CategoryEntry) (o2)).bayesRelevance)
@@ -153,7 +154,7 @@ public class ClassificationDocument {
     }
 
     public CategoryEntries getAssignedCategoryEntriesByRelevance(int classType) {
-        if (classType == WebPageClassifier.HIERARCHICAL) {
+        if (classType == ClassificationTypeSetting.HIERARCHICAL) {
             return assignedCategoryEntries;
         }
         Collections.sort(assignedCategoryEntries, comparator);
@@ -167,8 +168,9 @@ public class ClassificationDocument {
      * @return All categories.
      */
     public CategoryEntries getAssignedCategoryEntries(boolean relevancesInPercent) {
-        if (relevancesInPercent)
+        if (relevancesInPercent) {
             assignedCategoryEntries.transformRelevancesInPercent(true);
+        }
         return assignedCategoryEntries;
     }
 
@@ -234,11 +236,11 @@ public class ClassificationDocument {
 
     public String getClassifiedAsReadable() {
         switch (classifiedAs) {
-            case WebPageClassifier.FIRST:
+            case ClassificationTypeSetting.SINGLE:
                 return "single";
-            case WebPageClassifier.TAG:
+            case ClassificationTypeSetting.TAG:
                 return "tag";
-            case WebPageClassifier.HIERARCHICAL:
+            case ClassificationTypeSetting.HIERARCHICAL:
                 return "hierarchical";
         }
         return "unknown";
