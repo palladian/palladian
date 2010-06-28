@@ -9,6 +9,7 @@ import tud.iir.classification.Categories;
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Term;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.helper.FileHelper;
 import tud.iir.web.Crawler;
@@ -37,16 +38,6 @@ public abstract class WebPageClassifier {
 
     /** use a combination of URL and full page classification */
     public static final int COMBINED = 4;
-
-    // // classification types
-    /** take only the first category specified in the txt file */
-    public static final int FIRST = 1;
-
-    /** take all categories and treat them as a hierarchy */
-    public static final int HIERARCHICAL = 2;
-
-    /** take all categories ant treat them as tags */
-    public static final int TAG = 3;
 
     /** a classifier has a name */
     private String name = "";
@@ -172,8 +163,9 @@ public abstract class WebPageClassifier {
             indicatorCount++;
         }
 
-        if (indicatorCount >= 3)
+        if (indicatorCount >= 3) {
             return true;
+        }
 
         return false;
     }
@@ -216,8 +208,9 @@ public abstract class WebPageClassifier {
             indicatorCount += 2;
         }
 
-        if (indicatorCount >= 2)
+        if (indicatorCount >= 2) {
             return true;
+        }
 
         return false;
     }
@@ -300,7 +293,7 @@ public abstract class WebPageClassifier {
         for (ClassificationDocument document : this.testDocuments) {
             TestDocument d = (TestDocument) document;
 
-            if (category.getClassType() == WebPageClassifier.FIRST) {
+            if (category.getClassType() == ClassificationTypeSetting.SINGLE) {
                 if (document.getMainCategoryEntry().getCategory().getName().equals(category.getName()) && d.isCorrectClassified()) {
                     ++number;
                 }
@@ -329,10 +322,11 @@ public abstract class WebPageClassifier {
             double correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
             double classified = testDocuments.getClassifiedNumberOfCategory(category);
 
-            if (classified < 1.0)
+            if (classified < 1.0) {
                 return -1.0;
+            }
 
-            return (correct / classified);
+            return correct / classified;
         } catch (ArithmeticException e) {
             Logger.getRootLogger().error("ERROR Division By Zero for Precision in Category " + category.getName());
             return -1.0;
@@ -349,9 +343,10 @@ public abstract class WebPageClassifier {
         try {
             double correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
             double real = testDocuments.getRealNumberOfCategory(category);
-            if (real < 1.0)
+            if (real < 1.0) {
                 return -1.0;
-            return (correct / real);
+            }
+            return correct / real;
         } catch (ArithmeticException e) {
             Logger.getRootLogger().error("ERROR Division By Zero for Recall in Category " + category.getName());
             return -1.0;
@@ -370,10 +365,11 @@ public abstract class WebPageClassifier {
             double pfc = getPrecisionForCategory(category);
             double rfc = getRecallForCategory(category);
 
-            if (pfc < 0 || rfc < 0)
+            if (pfc < 0 || rfc < 0) {
                 return -1.0;
+            }
 
-            return 1.0 / (alpha * (1.0 / pfc) + (1.0 - alpha) * (1.0 / rfc));
+            return 1.0 / (alpha * 1.0 / pfc + (1.0 - alpha) * 1.0 / rfc);
             // double alphaSquared = alpha * alpha;
             // return ((1+alphaSquared)*getPrecisionForCategory(category) * getRecallForCategory(category)) /
             // (alphaSquared*getPrecisionForCategory(category)+getRecallForCategory(category));
@@ -398,10 +394,11 @@ public abstract class WebPageClassifier {
 
             double falseNegatives = realPositives - truePositives;
 
-            if ((truePositives + falseNegatives) == 0)
+            if (truePositives + falseNegatives == 0) {
                 return -1.0;
+            }
 
-            sensitivity = (truePositives) / (truePositives + falseNegatives);
+            sensitivity = truePositives / (truePositives + falseNegatives);
 
         } catch (ArithmeticException e) {
             Logger.getRootLogger().error("ERROR Division By Zero for Sensitivity in Category " + category.getName());
@@ -429,10 +426,11 @@ public abstract class WebPageClassifier {
             double falseNegatives = realPositives - truePositives;
             double trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
 
-            if ((trueNegatives + falsePositives) == 0)
+            if (trueNegatives + falsePositives == 0) {
                 return -1.0;
+            }
 
-            specificity = (trueNegatives) / (trueNegatives + falsePositives);
+            specificity = trueNegatives / (trueNegatives + falsePositives);
 
         } catch (ArithmeticException e) {
             Logger.getRootLogger().error("ERROR Division By Zero for Specificity in Category " + category.getName());
@@ -459,8 +457,9 @@ public abstract class WebPageClassifier {
             double falseNegatives = realPositives - truePositives;
             double trueNegatives = testDocuments.size() - classifiedPositives - falseNegatives;
 
-            if ((truePositives + trueNegatives + falsePositives + falseNegatives) == 0)
+            if (truePositives + trueNegatives + falsePositives + falseNegatives == 0) {
                 return -1.0;
+            }
 
             accuracy = (truePositives + trueNegatives) / (truePositives + trueNegatives + falsePositives + falseNegatives);
 
@@ -493,7 +492,7 @@ public abstract class WebPageClassifier {
             for (Category c : categories) {
 
                 // skip categories that are not main categories because they are classified according to the main category
-                if (category.getClassType() == WebPageClassifier.HIERARCHICAL && !c.isMainCategory()) {
+                if (category.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
                     continue;
                 }
 
@@ -501,7 +500,7 @@ public abstract class WebPageClassifier {
             }
 
             // double ratio = (double) documentCount / (double) (testDocuments.size() + trainingDocuments.size());
-            double weight = ((double) documentCount / (double) totalAssigned);
+            double weight = (double) documentCount / (double) totalAssigned;
             category.setTestSetWeight(weight);
             return weight;
 
@@ -523,13 +522,14 @@ public abstract class WebPageClassifier {
         for (Category c : this.categories) {
 
             // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == WebPageClassifier.HIERARCHICAL && !c.isMainCategory()) {
+            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
                 continue;
             }
 
             double pfc = getPrecisionForCategory(c);
-            if (pfc < 0)
+            if (pfc < 0) {
                 continue;
+            }
 
             if (weighted) {
                 precision += getWeightForCategory(c) * pfc;
@@ -539,11 +539,13 @@ public abstract class WebPageClassifier {
             ++count;
         }
 
-        if (weighted)
+        if (weighted) {
             return precision;
+        }
 
-        if (count == 0)
+        if (count == 0) {
             return -1.0;
+        }
 
         return precision / count;
     }
@@ -560,13 +562,14 @@ public abstract class WebPageClassifier {
         for (Category c : this.categories) {
 
             // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == WebPageClassifier.HIERARCHICAL && !c.isMainCategory()) {
+            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
                 continue;
             }
 
             double rfc = getRecallForCategory(c);
-            if (rfc < 0.0)
+            if (rfc < 0.0) {
                 continue;
+            }
 
             if (weighted) {
                 recall += getWeightForCategory(c) * rfc;
@@ -576,11 +579,13 @@ public abstract class WebPageClassifier {
             ++count;
         }
 
-        if (weighted)
+        if (weighted) {
             return recall;
+        }
 
-        if (count == 0)
+        if (count == 0) {
             return -1.0;
+        }
 
         return recall / count;
     }
@@ -598,14 +603,15 @@ public abstract class WebPageClassifier {
         for (Category c : this.categories) {
 
             // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == WebPageClassifier.HIERARCHICAL && !c.isMainCategory()) {
+            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
                 continue;
             }
 
             double ffc = getFForCategory(c, alpha);
 
-            if (ffc < 0.0)
+            if (ffc < 0.0) {
                 continue;
+            }
 
             if (weighted) {
                 f += getWeightForCategory(c) * ffc;
@@ -616,11 +622,13 @@ public abstract class WebPageClassifier {
             ++count;
         }
 
-        if (weighted)
+        if (weighted) {
             return f;
+        }
 
-        if (count == 0)
+        if (count == 0) {
             return -1.0;
+        }
 
         return f / count;
     }
@@ -638,14 +646,15 @@ public abstract class WebPageClassifier {
         for (Category c : this.categories) {
 
             // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == WebPageClassifier.HIERARCHICAL && !c.isMainCategory()) {
+            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
                 continue;
             }
 
             double sfc = getSensitivityForCategory(c);
 
-            if (sfc < 0.0)
+            if (sfc < 0.0) {
                 continue;
+            }
 
             if (weighted) {
                 sensitivity += getWeightForCategory(c) * sfc;
@@ -656,11 +665,13 @@ public abstract class WebPageClassifier {
             ++count;
         }
 
-        if (weighted)
+        if (weighted) {
             return sensitivity;
+        }
 
-        if (count == 0)
+        if (count == 0) {
             return -1.0;
+        }
 
         return sensitivity / count;
     }
@@ -678,14 +689,15 @@ public abstract class WebPageClassifier {
         for (Category c : this.categories) {
 
             // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == WebPageClassifier.HIERARCHICAL && !c.isMainCategory()) {
+            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
                 continue;
             }
 
             double sfc = getSpecificityForCategory(c);
 
-            if (sfc < 0)
+            if (sfc < 0) {
                 return -1.0;
+            }
 
             if (weighted) {
                 specificity += getWeightForCategory(c) * sfc;
@@ -696,11 +708,13 @@ public abstract class WebPageClassifier {
             ++count;
         }
 
-        if (weighted)
+        if (weighted) {
             return specificity;
+        }
 
-        if (count == 0)
+        if (count == 0) {
             return -1.0;
+        }
 
         return specificity / count;
     }
@@ -718,14 +732,15 @@ public abstract class WebPageClassifier {
         for (Category c : this.categories) {
 
             // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == WebPageClassifier.HIERARCHICAL && !c.isMainCategory()) {
+            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
                 continue;
             }
 
             double afc = getAccuracyForCategory(c);
 
-            if (afc < 0.0)
+            if (afc < 0.0) {
                 return -1.0;
+            }
 
             if (weighted) {
                 accuracy += getWeightForCategory(c) * afc;
@@ -736,11 +751,13 @@ public abstract class WebPageClassifier {
             ++count;
         }
 
-        if (weighted)
+        if (weighted) {
             return accuracy;
+        }
 
-        if (count == 0)
+        if (count == 0) {
             return -1.0;
+        }
 
         return accuracy / count;
     }
@@ -786,7 +803,7 @@ public abstract class WebPageClassifier {
                 show.append(categoryEntry.getCategory().getName()).append("(").append(Math.round(100 * categoryEntry.getRelevance())).append("%) ");
             }
 
-            if (classType == WebPageClassifier.TAG) {
+            if (classType == ClassificationTypeSetting.TAG) {
 
                 int correctlyAssigned = ((TestDocument) document).getCorrectlyAssignedCategoryEntries().size();
                 int totalAssigned = document.getAssignedCategoryEntries().size();
@@ -821,10 +838,10 @@ public abstract class WebPageClassifier {
             }
         }
 
-        if (classType == WebPageClassifier.TAG) {
+        if (classType == ClassificationTypeSetting.TAG) {
             double averagePrecision = totalPrecision / testDocuments.size();
             double averageRecall = totalRecall / testDocuments.size();
-            double averageF1 = (2 * averagePrecision * averageRecall) / (averagePrecision + averageRecall);
+            double averageF1 = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
 
             show.append("\n");
             show.append("Average Precision@: ");
@@ -876,7 +893,7 @@ public abstract class WebPageClassifier {
                 show.append(categoryEntry.getCategory().getName()).append("(").append(Math.round(100*categoryEntry.getRelevance())).append("%) "); 
             }
             
-            if (classType == WebPageClassifier.TAG) {
+            if (classType == ClassificationTypeSetting.TAG) {
                 
                 int correctlyAssigned = ((TestDocument)document).getCorrectlyAssignedCategoryEntries().size();
                 int totalAssigned = document.getAssignedCategoryEntries().size();
@@ -912,21 +929,23 @@ public abstract class WebPageClassifier {
                 structuredOutput.append("\n");
             } else {
                 String result = "WRONG";
-                if (((TestDocument)document).isCorrectClassified()) result = "CORRECT";
+                if (((TestDocument)document).isCorrectClassified()) {
+                    result = "CORRECT";
+                }
                 show.append("=> ").append(document.getMainCategoryEntry().getCategory().getName()).append(" ").append(result).append("\n");
                 structuredOutput.append(" ###").append(document.getMainCategoryEntry().getCategory().getName()).append("\n");
             }
         }
         
-        if (classType == WebPageClassifier.TAG) {
-            double averagePrecision = totalPrecision / (double)testDocuments.size();
-            double averageRecall = totalRecall / (double)testDocuments.size();
-            double averageF1 = (2 * averagePrecision * averageRecall) / (averagePrecision + averageRecall);
+        if (classType == ClassificationTypeSetting.TAG) {
+            double averagePrecision = totalPrecision / testDocuments.size();
+            double averageRecall = totalRecall / testDocuments.size();
+            double averageF1 = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
             
             show.append("\n");
             show.append("Average Precision@: ");
             for (int i = 1; i <= precisionAtRank; i++) {
-                double averagePrecisionAtX = totalPrecisionAts[i-1] / (double)testDocuments.size();
+                double averagePrecisionAtX = totalPrecisionAts[i-1] / testDocuments.size();
                 show.append("@").append(i).append(": ").append((int) Math.floor(100 * averagePrecisionAtX)).append("% ");
             }
             show.append("\n");
@@ -946,5 +965,5 @@ public abstract class WebPageClassifier {
         ClassifierManager.log(show.toString());
         
         return statistics;
-    }   
+    }
 }

@@ -13,6 +13,7 @@ import tud.iir.classification.page.ClassificationDocument;
 import tud.iir.classification.page.ClassifierManager;
 import tud.iir.classification.page.URLClassifier;
 import tud.iir.classification.page.WebPageClassifier;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.helper.FileHelper;
 import tud.iir.persistence.DatabaseManager;
 
@@ -59,7 +60,7 @@ public class ClassifierTesting {
 
         // use the classifier to classify a web page to multiple categories
         // using URL features only
-        classifiedDocument = classifier.classify(url, WebPageClassifier.TAG);
+        classifiedDocument = classifier.classify(url, ClassificationTypeSetting.TAG);
 
         // print out classification results
         System.out.println(classifiedDocument);
@@ -239,7 +240,8 @@ public class ClassifierTesting {
         // classifierManager.trainAndTestClassifier(ttFile, WebPageClassifier.URL, WebPageClassifier.TAG,
         // ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
         // classifierManager.trainAndTestClassifier(ttFile, 123, WebPageClassifier.TAG, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-        classifierManager.trainAndTestClassifier(ttFile, 123, WebPageClassifier.TAG, ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
+        classifierManager.trainAndTestClassifier(ttFile, 123, ClassificationTypeSetting.TAG,
+                ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
 
     }
 

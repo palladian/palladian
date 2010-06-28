@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.Map.Entry;
@@ -18,38 +19,38 @@ import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Dictionary;
 import tud.iir.classification.Term;
-import tud.iir.classification.page.WebPageClassifier;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 
 public class NERCer implements Serializable {
 
-    private static final Logger logger = Logger.getLogger(NERCer.class);
+    private static final Logger LOGGER = Logger.getLogger(NERCer.class);
 
     private static final long serialVersionUID = -8793232373094322955L;
 
-    // pattern candidates in the form of: prefix (TODO: ENTITY suffix)
-    private TreeMap<String, CategoryEntries> patternCandidates = null;
+    /** pattern candidates in the form of: prefix (TODO: ENTITY suffix) */
+    private Map<String, CategoryEntries> patternCandidates = null;
 
-    // patterns in the form of: prefix (TODO ENTITY suffix)
+    /** patterns in the form of: prefix (TODO ENTITY suffix) */
     private HashMap<String, CategoryEntries> patterns = null;
 
-    // a dictionary that holds a term vector of words that appear frequently close to the entities
+    /** a dictionary that holds a term vector of words that appear frequently close to the entities */
     private Dictionary dictionary = null;
 
-    // the connector to the knowledge base
+    /** the connector to the knowledge base */
     private transient KnowledgeBaseCommunicatorInterface kbCommunicator = null;
 
     public NERCer() {
         patternCandidates = new TreeMap<String, CategoryEntries>();
         patterns = new HashMap<String, CategoryEntries>();
-        dictionary = new Dictionary("NERC dictionary", WebPageClassifier.FIRST);
+        dictionary = new Dictionary("NERC dictionary", ClassificationTypeSetting.SINGLE);
     }
 
     public EntityList getTrainingEntities(double percentage) {
         if (kbCommunicator == null) {
-            logger.debug("could not get training entities because no KnowledgeBaseCommunicator has been defined");
+            LOGGER.debug("could not get training entities because no KnowledgeBaseCommunicator has been defined");
             return new EntityList();
         }
         return kbCommunicator.getTrainingEntities(percentage);
@@ -74,7 +75,7 @@ public class NERCer implements Serializable {
         int c = 1;
         int totalTexts = trainingTexts.size();
         for (String trainingText : trainingTexts) {
-            logger.info("training with training text number " + (c++) + " of " + totalTexts);
+            LOGGER.info("training with training text number " + c++ + " of " + totalTexts);
             trainRecognizer(trainingText);
         }
     }
@@ -83,10 +84,10 @@ public class NERCer implements Serializable {
         // now that we have seen all training texts and have the pattern candidates we can calculate the patterns
         calculatePatterns();
 
-        logger.info("serializing NERCer");
+        LOGGER.info("serializing NERCer");
         FileHelper.serialize(this, "data/models/NERCer.model");
 
-        logger.info("dictionary size: " + dictionary.size());
+        LOGGER.info("dictionary size: " + dictionary.size());
     }
 
     public void load() {
@@ -135,7 +136,7 @@ public class NERCer implements Serializable {
         // patternCandidates.put("abvasdfertaay", null);
         // patternCandidates.put("abcasdfertaay", null);
 
-        logger.info("calculate patterns");
+        LOGGER.info("calculate patterns");
         int minPatternLength = 7;
 
         // keep information about frequency of possible patterns
@@ -145,18 +146,19 @@ public class NERCer implements Serializable {
         Set<String> currentLevelPatternCandidatesSet = patternCandidates.keySet();
         LinkedHashSet<String> currentLevelPatternCandidates = new LinkedHashSet<String>();
         for (String pc : currentLevelPatternCandidatesSet) {
-            if (pc.length() >= minPatternLength)
+            if (pc.length() >= minPatternLength) {
                 currentLevelPatternCandidates.add(pc);
+            }
         }
 
-        logger.info(currentLevelPatternCandidates.size() + " pattern candidates");
+        LOGGER.info(currentLevelPatternCandidates.size() + " pattern candidates");
 
         LinkedHashSet<String> nextLevelPatternCandidates = null;
 
         for (int level = 0; level < 3; level++) {
             nextLevelPatternCandidates = new LinkedHashSet<String>();
 
-            logger.info("level " + level + ", " + currentLevelPatternCandidates.size() + " pattern candidates");
+            LOGGER.info("level " + level + ", " + currentLevelPatternCandidates.size() + " pattern candidates");
 
             int it1Position = 0;
             Iterator<String> iterator1 = currentLevelPatternCandidates.iterator();
@@ -187,8 +189,9 @@ public class NERCer implements Serializable {
                     String possiblePattern = StringHelper.getLongestCommonString(patternCandidate1, patternCandidate2, false, false);
                     possiblePattern = StringHelper.reverseString(possiblePattern);
 
-                    if (possiblePattern.length() < minPatternLength)
+                    if (possiblePattern.length() < minPatternLength) {
                         continue;
+                    }
 
                     Integer c = possiblePatterns.get(possiblePattern);
                     if (c == null) {
@@ -207,7 +210,7 @@ public class NERCer implements Serializable {
         // CollectionHelper.print(possiblePatterns);
 
         // use only patterns longer or equal 7 characters
-        logger.info("filtering patterns");
+        LOGGER.info("filtering patterns");
         for (Entry<String, Integer> pattern : possiblePatterns.entrySet()) {
             if (pattern.getKey().length() >= minPatternLength) {
 
@@ -222,8 +225,9 @@ public class NERCer implements Serializable {
                     }
                 }
 
-                if (categoryEntries == null)
+                if (categoryEntries == null) {
                     categoryEntries = new CategoryEntries();
+                }
 
                 for (CategoryEntry c : categoryEntries) {
                     c.addAbsoluteRelevance(pattern.getValue().doubleValue());
@@ -232,9 +236,9 @@ public class NERCer implements Serializable {
             }
         }
 
-        logger.info("calculated " + patterns.size() + " patterns:");
+        LOGGER.info("calculated " + patterns.size() + " patterns:");
         for (Entry<String, CategoryEntries> pattern : patterns.entrySet()) {
-            logger.info(" " + pattern);
+            LOGGER.info(" " + pattern);
         }
 
     }
@@ -262,8 +266,9 @@ public class NERCer implements Serializable {
 
                 for (String word : windowWords) {
                     word = StringHelper.trim(word);
-                    if (word.length() < 3)
+                    if (word.length() < 3) {
                         continue;
+                    }
                     Term t = new Term(word);
                     for (CategoryEntry categoryEntry : entity.getCategoryEntries()) {
                         dictionary.updateWord(t, categoryEntry.getCategory().getName(), 1.0);
@@ -280,12 +285,14 @@ public class NERCer implements Serializable {
         int windowSize = 30;
 
         String prefix = "";
-        if (capturePrefix)
+        if (capturePrefix) {
             prefix = text.substring(Math.max(0, startIndex - windowSize), startIndex);
+        }
 
         String suffix = "";
-        if (captureSuffix)
+        if (captureSuffix) {
             suffix = text.substring(endIndex, Math.min(endIndex + windowSize, text.length()));
+        }
 
         String context = prefix + suffix;
         String[] words = context.split("\\s");

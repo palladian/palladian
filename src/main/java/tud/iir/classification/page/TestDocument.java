@@ -3,6 +3,7 @@ package tud.iir.classification.page;
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 
 /**
  * A test document is a document that has given information about the correct category but is classified using a classifier It is used to determine the accuracy
@@ -63,14 +64,16 @@ public class TestDocument extends ClassificationDocument {
      * @return True if the document is correct classified, false otherwise.
      */
     public boolean isCorrectClassified() {
-        if (checkedClassification)
+        if (checkedClassification) {
             return correctClassified;
+        }
         checkedClassification = true;
 
         String mcn = getMainCategoryEntry().getCategory().getName();
 
         // in simple or hieararchy mode, main categories have to match
-        if (getClassifiedAs() == WebPageClassifier.FIRST || getClassifiedAs() == WebPageClassifier.HIERARCHICAL) {
+        if (getClassifiedAs() == ClassificationTypeSetting.SINGLE
+                || getClassifiedAs() == ClassificationTypeSetting.HIERARCHICAL) {
             if (mcn.equals(getFirstRealCategory().getName())) {
                 correctClassified = true;
                 return correctClassified;
@@ -78,7 +81,7 @@ public class TestDocument extends ClassificationDocument {
         }
 
         // in tag mode, main tag has to match one of the real tags
-        else if (getClassifiedAs() == WebPageClassifier.TAG) {
+        else if (getClassifiedAs() == ClassificationTypeSetting.TAG) {
             for (Category realCategory : getRealCategories()) {
                 if (mcn.equals(realCategory.getName())) {
                     correctClassified = true;

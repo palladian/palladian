@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.page.WebPageClassifier;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
@@ -71,7 +71,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     private boolean readFromIndexForUpdate = true;
 
     /** which class type (one category, hierarchical, or tags) */
-    private int classType = WebPageClassifier.FIRST;
+    private int classType = ClassificationTypeSetting.SINGLE;
 
     public Dictionary(String name, int classType) {
         super();
@@ -230,7 +230,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
         } else {
 
-            if (this.containsKey(word)) {
+            if (containsKey(word)) {
 
                 CategoryEntries categoryEntries = get(word);
 
@@ -415,7 +415,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
         // add some meta information
         dictionaryString.append("Files processed,").append(getNumberOfDocuments()).append("\n");
-        dictionaryString.append("Words,").append(this.entrySet().size()).append("\n").append("\n");
+        dictionaryString.append("Words,").append(entrySet().size()).append("\n").append("\n");
 
         // create the file head
         dictionaryString.append("Term,");
@@ -425,10 +425,10 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         }
         dictionaryString.append("\n");
 
-        System.out.println("word count " + this.entrySet().size());
+        System.out.println("word count " + entrySet().size());
 
         // one word per line with term frequencies per category
-        for (Map.Entry<Term, CategoryEntries> term : this.entrySet()) {
+        for (Map.Entry<Term, CategoryEntries> term : entrySet()) {
 
             dictionaryString.append(term.getKey()).append(",");
 
@@ -476,7 +476,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 //        HashSet<String> usedString = new HashSet<String>();
 
         int c = 0;
-        for (Map.Entry<Term, CategoryEntries> dictionaryEntry : this.entrySet()) {
+        for (Map.Entry<Term, CategoryEntries> dictionaryEntry : entrySet()) {
             // Logger.getRootLogger().debug("write: "+dictionaryEntry.getKey() +
             // " : " + dictionaryEntry.getValue());
             // if (!usedString.add(dictionaryEntry.getKey().getText())) {
@@ -484,7 +484,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             // }
             dictionaryIndex.write(dictionaryEntry.getKey().getText(), dictionaryEntry.getValue());
             if (c % 4000 == 0) {
-                double percent = MathHelper.round(100.0 * c / this.entrySet().size(), 2);
+                double percent = MathHelper.round(100.0 * c / entrySet().size(), 2);
                 Logger.getRootLogger().info("saving dictionary process: " + percent + "%");
             }
             c++;
@@ -503,7 +503,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         if (indexFirst) {
             index(deleteIndexFirst);
         }
-        this.clear();
+        clear();
         FileHelper.serialize(this, indexPath);
     }
 
@@ -565,7 +565,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         }
         dictionaryString.append("\n");
 
-        for (Map.Entry<Term, CategoryEntries> term : this.entrySet()) {
+        for (Map.Entry<Term, CategoryEntries> term : entrySet()) {
 
             dictionaryString.append(term.getKey()).append(",");
 

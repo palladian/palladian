@@ -10,6 +10,7 @@ import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Term;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StopWatch;
 
@@ -28,7 +29,7 @@ public class KNNClassifier extends WebPageClassifier {
      */
     public KNNClassifier() {
         ClassifierManager.log("KNN Classifier created");
-        this.setName("k-NN");
+        setName("k-NN");
     }
 
     @Override
@@ -69,7 +70,7 @@ public class KNNClassifier extends WebPageClassifier {
             for (Category realCategory : votingDocument.getRealCategories()) {
 
                 if (votes.containsKey(realCategory.getName())) {
-                    votes.put(realCategory.getName(), votes.get(realCategory.getName()) + (1.0 / entry.getValue()));
+                    votes.put(realCategory.getName(), votes.get(realCategory.getName()) + 1.0 / entry.getValue());
                 } else {
                     votes.put(realCategory.getName(), 1.0 / entry.getValue());
                 }
@@ -98,7 +99,7 @@ public class KNNClassifier extends WebPageClassifier {
         document.assignCategoryEntries(bestFitList);
 
         // keep only top category for single mode
-        if (classType == WebPageClassifier.FIRST) {
+        if (classType == ClassificationTypeSetting.SINGLE) {
             document.limitCategories(1, 0.0);
         }
 
