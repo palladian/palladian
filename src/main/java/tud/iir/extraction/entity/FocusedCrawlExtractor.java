@@ -2,6 +2,7 @@ package tud.iir.extraction.entity;
 
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.w3c.dom.Document;
 
@@ -64,8 +65,8 @@ class FocusedCrawlExtractor extends EntityExtractionTechnique {
 
             ee.getLogger().info("pagination found: " + ld.getPaginationXPath() + ", get pagination path and try to extract");
 
-            HashSet<String> urlsVisited = new HashSet<String>();
-            HashSet<String> listURLs = ld.getPaginationURLs();
+            Set<String> urlsVisited = new HashSet<String>();
+            Set<String> listURLs = ld.getPaginationURLs();
 
             while (urlsVisited.size() < listURLs.size()) {
 
