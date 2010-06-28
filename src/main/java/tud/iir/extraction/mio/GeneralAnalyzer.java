@@ -4,6 +4,7 @@
  */
 package tud.iir.extraction.mio;
 
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -23,19 +24,20 @@ public class GeneralAnalyzer {
     /**
      * Get WebPage as String (without comments and JS/CSS possible).
      * 
-     * @param URLString the uRL string
+     * @param urlString the uRL string
      * @param removeJS the remove js
      * @return the page
      */
-    public String getPage(String URLString, boolean removeJS) {
+    public String getPage(String urlString, boolean removeJS) {
         String page = "";
-        Crawler craw = new Crawler(5000, 5000, 10000);
-        if (craw.isValidURL(URLString, false)) {
+        // Crawler craw = new Crawler(5000, 5000, 10000);
+        Crawler craw = new Crawler();
+        if (craw.isValidURL(urlString, false)) {
             if (removeJS) {
-                page = craw.download(URLString, false, true, true, false);
+                page = craw.download(urlString, false, true, true, false);
             } else {
                 // page = craw.download(URLString, false, false, false, false);
-                page = craw.downloadNotBlacklisted(URLString);
+                page = craw.downloadNotBlacklisted(urlString);
             }
         }
         return page;
@@ -68,8 +70,8 @@ public class GeneralAnalyzer {
             if (!removeTerm.equals("")) {
                 // remove the remove term
                 result = result.replaceFirst(removeTerm, "");
-                result = result.replaceFirst(removeTerm.toUpperCase(), "");
-                result = result.replaceFirst(removeTerm.toLowerCase(), "");
+                result = result.replaceFirst(removeTerm.toUpperCase(Locale.ENGLISH), "");
+                result = result.replaceFirst(removeTerm.toLowerCase(Locale.ENGLISH), "");
             }
             // remove the quotation-marks
             result = result.replaceAll("\"", "");
@@ -119,6 +121,7 @@ public class GeneralAnalyzer {
     public String extractALTTextFromTag(String relevantTag) {
         String altText = "";
         int beginIndex = relevantTag.indexOf(">") + 1;
+
         int endIndex = relevantTag.lastIndexOf("<");
         if (beginIndex < endIndex) {
             String modRelevantTag = relevantTag.substring(beginIndex, endIndex);

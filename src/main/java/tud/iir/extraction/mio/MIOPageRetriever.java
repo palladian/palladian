@@ -13,16 +13,23 @@ import tud.iir.knowledge.Entity;
 
 /**
  * The MIOPageRetriever finds pages from the web that have a relative high probability of containing relevant MIO(s) for
- * a given entity
+ * a given entity.
  * 
  * @author Martin Werner
  */
 public class MIOPageRetriever {
 
+    /** The LOGGER. */
     private static final Logger LOGGER = Logger.getLogger(MIOPageRetriever.class);
 
+    /** The rolePage-List. */
     private List<RolePage> rolePageList;
+
+    /** The instance of MIOPageRetriever. */
     private static MIOPageRetriever instance = null;
+
+    /** The resultCount determines how many sources (URLs) should be retrieved */
+    private final static int resultCount = 20;
 
     /**
      * Instantiates a new mIO page retriever.
@@ -44,7 +51,7 @@ public class MIOPageRetriever {
     }
 
     /**
-     * Retrieve mi os.
+     * Retrieve MIOs.
      * 
      * @param entity the entity
      * @param searchVoc the search voc
@@ -52,7 +59,7 @@ public class MIOPageRetriever {
      */
     public List<MIOPage> retrieveMIOs(Entity entity, ConceptSearchVocabulary searchVoc) {
 
-        List<MIOPage> MIOPages;
+        List<MIOPage> mioPages;
 
         // RolePageDetector rolePageDet = new RolePageDetector(2);
 
@@ -60,17 +67,17 @@ public class MIOPageRetriever {
         List<String> searchQueries = generateSearchQueries(entity, searchVoc);
 
         // initiate search with searchEngines
-        List<String> MIOPageCandidates = startSearchAgent(searchQueries);
+        List<String> mioPageCandidates = startSearchAgent(searchQueries);
 
         LOGGER.info("Analyzing MIOPageCandidates startet..");
 
         // analyze the MIOPageCandidates for MIO-existence
-        MIOPages = analyzeMIOPageCandidates(MIOPageCandidates, entity);
+        mioPages = analyzeMIOPageCandidates(mioPageCandidates, entity);
 
         LOGGER.info("PageAnalysis finished, DedicatedPage-Calculation starts..");
 
         // detect DedicatedPages
-        for (MIOPage mioPage : MIOPages) {
+        for (MIOPage mioPage : mioPages) {
             DedicatedPageDetector dpDetector = new DedicatedPageDetector();
             dpDetector.calculateDedicatedPageTrust(mioPage);
         }
@@ -82,7 +89,7 @@ public class MIOPageRetriever {
         // rolePageList = rolePageDet.analyzeForRolePages(MIOPages);
         // }
         // printRolePageURLs(rolePageList);
-        return MIOPages;
+        return mioPages;
     }
 
     /**
@@ -107,31 +114,31 @@ public class MIOPageRetriever {
      * @return the list
      */
     private List<String> startSearchAgent(List<String> searchQueries) {
-        SearchAgent searchAgent = new SearchAgent(20);
-        List<String> MIOPageCandidates = searchAgent.initiateSearch(searchQueries);
+        SearchAgent searchAgent = new SearchAgent(resultCount);
+        List<String> mioPageCandidates = searchAgent.initiateSearch(searchQueries);
 
-        return MIOPageCandidates;
+        return mioPageCandidates;
     }
 
     /**
      * Do the Webpage-Analysis.
      * 
-     * @param MIOPageCandidates the mIO page candidates
+     * @param mioPageCandidates the mioPage-candidates
      * @param entity the entity
      * @return the list
      */
-    private List<MIOPage> analyzeMIOPageCandidates(List<String> MIOPageCandidates, Entity entity) {
-        PageAnalyzer pageAnalyzer = new PageAnalyzer(MIOPageCandidates);
+    private List<MIOPage> analyzeMIOPageCandidates(List<String> mioPageCandidates, Entity entity) {
+        PageAnalyzer pageAnalyzer = new PageAnalyzer(mioPageCandidates);
         // start and get Results of PageAnalyzing
-        List<MIOPage> MIOPages = pageAnalyzer.analyzePages(entity);
+        List<MIOPage> mioPages = pageAnalyzer.analyzePages(entity);
 
-        return MIOPages;
+        return mioPages;
     }
 
     /**
-     * Prints the mio pages ur ls.
+     * Prints the mioPages-URLs
      * 
-     * @param MIOPages the mIO pages
+     * @param MIOPages the mioPages
      * @param entityName the entity name
      */
     // private void printMIOPagesURLs(List<MIOPage> MIOPages, String entityName) {

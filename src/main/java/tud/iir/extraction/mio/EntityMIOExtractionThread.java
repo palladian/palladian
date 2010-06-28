@@ -39,13 +39,13 @@ public class EntityMIOExtractionThread extends Thread {
      * Instantiates a new entity mio extraction thread.
      * 
      * @param threadGroup the thread group
-     * @param name the name
+     * @param entityName the entityName
      * @param entity the entity
-     * @param searchVoc the search voc
+     * @param searchVoc the searchVocabulary
      */
-    public EntityMIOExtractionThread(ThreadGroup threadGroup, String name, Entity entity,
+    public EntityMIOExtractionThread(ThreadGroup threadGroup, String entityName, Entity entity,
             ConceptSearchVocabulary searchVoc) {
-        super(threadGroup, name);
+        super(threadGroup, entityName);
         this.entity = entity;
         this.searchVoc = searchVoc;
     }
@@ -63,7 +63,7 @@ public class EntityMIOExtractionThread extends Thread {
         MIOPageRetriever pageRetr = MIOPageRetriever.getInstance();
         List<MIOPage> MIOPages = pageRetr.retrieveMIOs(entity, searchVoc);
 
-        // TODO Detail MIOAnalysis (content&context + trustcalculation)
+        // TODO Detail MIOAnalysis (content&context & trust-calculation)
         MIOPageAnalyzer mioPAnalyzer = new MIOPageAnalyzer();
         MIOComparator mioComp = new MIOComparator();
         Map<String, MIO> mios = mioPAnalyzer.extractMIOs(MIOPages, entity);
@@ -76,9 +76,8 @@ public class EntityMIOExtractionThread extends Thread {
 
         for (Entry<String, MIO> mio : mios.entrySet()) {
             mioResults.add(mio.getValue());
-
         }
-        // mioResults.addAll(mios.entrySet());
+
         // printMapToFile(mios);
         printSetToHTMLFile(mioResults);
 

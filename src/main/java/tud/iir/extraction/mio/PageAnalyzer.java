@@ -42,17 +42,17 @@ public class PageAnalyzer {
     public List<MIOPage> analyzePages(Entity entity) {
 
         // initialize SearchWordMatcher
-        SearchWordMatcher swMatcher = new SearchWordMatcher(entity.getName());
+        final SearchWordMatcher swMatcher = new SearchWordMatcher(entity.getName());
 
         for (String mioPageCandidate : mioPageCandidates) {
 
             // System.out.println("PageAnalysing started for: " +
             // mioPageCandidate);
             String pageContent = getPage(mioPageCandidate);
-            if (!pageContent.equals("")) {
+            if (!("").equals(pageContent)) {
 
                 // use fast MIO-Detection
-                FastMIODetector fMIODec = new FastMIODetector();
+                final FastMIODetector fMIODec = new FastMIODetector();
                 mioPages.addAll(fMIODec.getMioPages(pageContent, mioPageCandidate));
 
                 // IFRAME-Analysis
@@ -91,10 +91,8 @@ public class PageAnalyzer {
         Map<String, MIOPage> tempMap = new HashMap<String, MIOPage>();
         for (MIOPage mioPage : mioPages) {
 
-            if (!tempMap.containsKey(mioPage.getUrl())) {
-                tempMap.put(mioPage.getUrl(), mioPage);
+            if (tempMap.containsKey(mioPage.getUrl())) {
 
-            } else {
                 MIOPage tempMIOPage = tempMap.get(mioPage.getUrl());
 
                 // organize the different ways of finding the same miopage
@@ -117,6 +115,9 @@ public class PageAnalyzer {
                         tempMIOPage.setIframeParentPage(mioPage.getIframeParentPage());
                     }
                 }
+
+            } else {
+                tempMap.put(mioPage.getUrl(), mioPage);
             }
         }
         for (MIOPage mioPage : tempMap.values()) {
@@ -126,5 +127,19 @@ public class PageAnalyzer {
 
         return resultList;
 
+    }
+
+    public static void main(String[] args) {
+        // List<String> testList = new ArrayList<String>();
+        // testList.add("http://www.canon.co.uk/for_home/product_finder/multifunctionals/inkjet/pixma_mp990/index.aspx");
+        // PageAnalyzer pageAnalyzer = new PageAnalyzer(testList);
+        // // start and get Results of PageAnalyzing
+        // Concept pconcept = new Concept("printer");
+        // Entity printer = new Entity("canon mp990", pconcept);
+        // List<MIOPage> MIOPages = pageAnalyzer.analyzePages(printer);
+        //
+        // for (MIOPage mioPage : MIOPages) {
+        // System.out.println(mioPage.getUrl() + "  linkName: " + mioPage.getLinkName());
+        // }
     }
 }
