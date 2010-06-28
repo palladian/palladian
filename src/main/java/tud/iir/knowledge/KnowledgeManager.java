@@ -30,7 +30,8 @@ import tud.iir.persistence.PersistenceManager;
  */
 public class KnowledgeManager implements Serializable {
 
-    static final long serialVersionUID = 1L;
+    /** the serial version id to serialize the KnowledgeManager */
+    private static final long serialVersionUID = 2284737131182925479L;
 
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(KnowledgeManager.class);
@@ -38,9 +39,11 @@ public class KnowledgeManager implements Serializable {
     private static final double ATTRIBUTE_SYNONYM_TRUST_THRESHOLD = 0.05;
     private static final double ENTITY_TRUST_THRESHOLD = 0.9;
 
+    /** list of concepts held by the KnowledgeManager */
     private ArrayList<Concept> concepts;
-    private HashSet<Fact> factsReviewed = new HashSet<Fact>(); // keep track of which fact has been reviewed already,
-                                                               // only run highest corroboration fact value
+
+    /** keep track of which fact has been reviewed already, only run highest corroboration fact value */
+    private Set<Fact> factsReviewed = new HashSet<Fact>();
 
     // test on facts that have not been reviewed yet
 
@@ -255,7 +258,7 @@ public class KnowledgeManager implements Serializable {
             c.addEntity(new Entity("Nigeria", c, true));
             c.addEntity(new Entity("Bhutan", c, true));
         }
-        this.addConcept(c);
+        addConcept(c);
 
         // city
         // d = new Concept();
@@ -302,7 +305,7 @@ public class KnowledgeManager implements Serializable {
             c.addEntity(new Entity("2010 Lotus Evora", c, true));
         }
 
-        this.addConcept(c);
+        addConcept(c);
 
         // mobile phone
         c = new Concept("Mobile Phone", this);
@@ -345,7 +348,7 @@ public class KnowledgeManager implements Serializable {
         // d.addEntity(new Entity("Sony Ericsson T700i",d,true));
         // d.addEntity(new Entity("Samsung A727",d,true));
 
-        this.addConcept(c);
+        addConcept(c);
 
         // notebook
         c = new Concept("Notebook", this);
@@ -373,7 +376,7 @@ public class KnowledgeManager implements Serializable {
             c.addEntity(new Entity("Asus M70SA-X2", c, true));
         }
 
-        this.addConcept(c);
+        addConcept(c);
 
         // movies
         c = new Concept("Movie", this);
@@ -407,7 +410,7 @@ public class KnowledgeManager implements Serializable {
             c.addEntity(new Entity("Eternal Sunshine of a Spotless Mind", c, true));
         }
 
-        this.addConcept(c);
+        addConcept(c);
 
         // actors
         c = new Concept("Actor", this);
@@ -434,7 +437,7 @@ public class KnowledgeManager implements Serializable {
             c.addEntity(new Entity("Tom Cruise", c, true));
         }
 
-        this.addConcept(c);
+        addConcept(c);
 
         // total values to extract: 255
         // total images to extract: 65
@@ -447,8 +450,9 @@ public class KnowledgeManager implements Serializable {
     public void setCorrectValues() {
 
         boolean fullSet = true;
-        if (ExtractionProcessManager.getBenchmarkSetSize() == ExtractionProcessManager.BENCHMARK_HALF_SET)
+        if (ExtractionProcessManager.getBenchmarkSetSize() == ExtractionProcessManager.BENCHMARK_HALF_SET) {
             fullSet = false;
+        }
 
         // country
         Concept d = this.getConcept("Country");
@@ -1532,20 +1536,20 @@ public class KnowledgeManager implements Serializable {
                             for (int i = 0; i < extractionTypesUsed.size(); i++) {
                                 Double extractions = extractionTypeEvaluations.get(cEntry.getName()
                                         + extractionTypesUsed.get(i) + "extractions");
-                                if (extractions == null)
+                                if (extractions == null) {
                                     extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                             + "extractions", 1.0);
-                                else {
+                                } else {
                                     extractions += 1.0;
                                     extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                             + "extractions", extractions);
                                 }
                                 Double extractionsOverall = extractionTypeEvaluations.get("overall"
                                         + extractionTypesUsed.get(i) + "extractions");
-                                if (extractionsOverall == null)
+                                if (extractionsOverall == null) {
                                     extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
                                             + "extractions", 1.0);
-                                else {
+                                } else {
                                     extractionsOverall += 1.0;
                                     extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
                                             + "extractions", extractionsOverall);
@@ -1553,20 +1557,20 @@ public class KnowledgeManager implements Serializable {
                                 if (!foundCounted.contains(extractionTypesUsed.get(i))) {
                                     Double found = extractionTypeEvaluations.get(cEntry.getName()
                                             + extractionTypesUsed.get(i) + "found");
-                                    if (found == null)
+                                    if (found == null) {
                                         extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                                 + "found", 1.0);
-                                    else {
+                                    } else {
                                         found += 1.0;
                                         extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                                 + "found", found);
                                     }
                                     Double foundOverall = extractionTypeEvaluations.get("overall"
                                             + extractionTypesUsed.get(i) + "found");
-                                    if (foundOverall == null)
+                                    if (foundOverall == null) {
                                         extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found",
                                                 1.0);
-                                    else {
+                                    } else {
                                         foundOverall += 1.0;
                                         extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found",
                                                 foundOverall);
@@ -1576,20 +1580,20 @@ public class KnowledgeManager implements Serializable {
                                 if (fEntry.isCorrect(fv.getValue())) {
                                     Double correct = extractionTypeEvaluations.get(cEntry.getName()
                                             + extractionTypesUsed.get(i) + "correct");
-                                    if (correct == null)
+                                    if (correct == null) {
                                         extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                                 + "correct", 1.0);
-                                    else {
+                                    } else {
                                         correct += 1.0;
                                         extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                                 + "correct", correct);
                                     }
                                     Double correctOverall = extractionTypeEvaluations.get("overall"
                                             + extractionTypesUsed.get(i) + "correct");
-                                    if (correctOverall == null)
+                                    if (correctOverall == null) {
                                         extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
                                                 + "correct", 1.0);
-                                    else {
+                                    } else {
                                         correctOverall += 1.0;
                                         extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
                                                 + "correct", correctOverall);
@@ -1600,20 +1604,20 @@ public class KnowledgeManager implements Serializable {
                         if (factExtractionTypesUsed.size() == 1 && fEntry.isCorrect()) {
                             Double only = extractionTypeEvaluations.get(cEntry.getName()
                                     + factExtractionTypesUsed.iterator().next() + "only");
-                            if (only == null)
+                            if (only == null) {
                                 extractionTypeEvaluations.put(cEntry.getName()
                                         + factExtractionTypesUsed.iterator().next() + "only", 1.0);
-                            else {
+                            } else {
                                 only += 1.0;
                                 extractionTypeEvaluations.put(cEntry.getName()
                                         + factExtractionTypesUsed.iterator().next() + "only", only);
                             }
                             Double onlyOverall = extractionTypeEvaluations.get("overall"
                                     + factExtractionTypesUsed.iterator().next() + "only");
-                            if (onlyOverall == null)
+                            if (onlyOverall == null) {
                                 extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next()
                                         + "only", 1.0);
-                            else {
+                            } else {
                                 onlyOverall += 1.0;
                                 extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next()
                                         + "only", onlyOverall);
@@ -1630,17 +1634,18 @@ public class KnowledgeManager implements Serializable {
             }
         }
 
-        if (ExtractionProcessManager.getBenchmarkSetSize() == ExtractionProcessManager.BENCHMARK_FULL_SET)
+        if (ExtractionProcessManager.getBenchmarkSetSize() == ExtractionProcessManager.BENCHMARK_FULL_SET) {
             totalFactNumberExpected *= 10;
-        else
+        } else {
             totalFactNumberExpected *= 5;
+        }
 
         precision = MathHelper.round((double) totalCorrectFacts / (double) totalFactNumber, 4);
         recall = MathHelper.round((double) totalCorrectFacts / (double) totalFactNumberExpected, 4);
         f1 = MathHelper.round(2 * precision * recall / (precision + recall), 4);
 
         precisionWeak = MathHelper.round((double) totalAlmostCorrectFacts / (double) totalFactNumber, 4);
-        recallWeak = MathHelper.round((double) (totalAlmostCorrectFacts) / (double) totalFactNumberExpected, 4);
+        recallWeak = MathHelper.round((double) totalAlmostCorrectFacts / (double) totalFactNumberExpected, 4);
         f1Weak = MathHelper.round(2 * precisionWeak * recallWeak / (precisionWeak + recallWeak), 4);
 
         f1Total = MathHelper.round(2 * (precision + precisionWeak) * (recall + recallWeak)
@@ -1651,13 +1656,14 @@ public class KnowledgeManager implements Serializable {
         LOGGER.info("\n\n----------------------------------------------------");
         LOGGER.info("Precision: " + precision + " (weak: +" + precisionWeak + ") = " + (precision + precisionWeak));
         LOGGER.info("Recall: " + recall + " (weak: +" + recallWeak + ") = " + (recall + recallWeak));
-        LOGGER.info("F1: " + f1 + " (weak: +" + f1Weak + ") = " + (f1Total));
+        LOGGER.info("F1: " + f1 + " (weak: +" + f1Weak + ") = " + f1Total);
         LOGGER.info("Found: " + foundRatio);
         LOGGER.info("-- Extraction Type Evaluation --");
 
         int setSize = 5;
-        if (ExtractionProcessManager.getBenchmarkSetSize() == ExtractionProcessManager.BENCHMARK_FULL_SET)
+        if (ExtractionProcessManager.getBenchmarkSetSize() == ExtractionProcessManager.BENCHMARK_FULL_SET) {
             setSize = 10;
+        }
 
         ArrayList<Concept> concepts = getConcepts();
         if (getConcept("overall") == null) {
@@ -1667,36 +1673,42 @@ public class KnowledgeManager implements Serializable {
         for (int i = 0; i < extractionTypes.length; i++) {
             Iterator<Concept> cIt2 = concepts.iterator();
             String etypeName = "";
-            if (extractionTypes[i] == ExtractionType.FREE_TEXT_SENTENCE)
+            if (extractionTypes[i] == ExtractionType.FREE_TEXT_SENTENCE) {
                 etypeName = "Free Text Sentence";
-            else if (extractionTypes[i] == ExtractionType.COLON_PHRASE)
+            } else if (extractionTypes[i] == ExtractionType.COLON_PHRASE) {
                 etypeName = "Colon Pattern";
-            else if (extractionTypes[i] == ExtractionType.PATTERN_PHRASE)
+            } else if (extractionTypes[i] == ExtractionType.PATTERN_PHRASE) {
                 etypeName = "Pattern Phrase";
-            else if (extractionTypes[i] == ExtractionType.TABLE_CELL)
+            } else if (extractionTypes[i] == ExtractionType.TABLE_CELL) {
                 etypeName = "Table";
+            }
 
             LOGGER.info(etypeName + ":");
 
             while (cIt2.hasNext()) {
                 Concept c = cIt2.next();
                 factsExpected = setSize * c.getAttributes().size();
-                if (c.getName().equalsIgnoreCase("overall"))
+                if (c.getName().equalsIgnoreCase("overall")) {
                     factsExpected = totalFactNumberExpected;
+                }
                 double found = 0.0;
-                if (extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "found") != null)
+                if (extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "found") != null) {
                     found = extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "found");
+                }
                 double foundPercent = MathHelper.round(found / factsExpected, 3);
                 double extractions = 0.0;
-                if (extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "extractions") != null)
+                if (extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "extractions") != null) {
                     extractions = extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "extractions");
+                }
                 double correct = 0.0;
-                if (extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "correct") != null)
+                if (extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "correct") != null) {
                     correct = extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "correct");
+                }
                 double correctPercent = MathHelper.round(correct / extractions, 3);
                 double only = 0.0;
-                if (extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "only") != null)
+                if (extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "only") != null) {
                     only = extractionTypeEvaluations.get(c.getName() + extractionTypes[i] + "only");
+                }
                 double onlyPercent = MathHelper.round(only / factsExpected, 3);
 
                 LOGGER.info(" " + c.getName());
@@ -1827,20 +1839,20 @@ public class KnowledgeManager implements Serializable {
                             for (int i = 0; i < extractionTypesUsed.size(); i++) {
                                 Double extractions = extractionTypeEvaluations.get(cEntry.getName()
                                         + extractionTypesUsed.get(i) + "extractions");
-                                if (extractions == null)
+                                if (extractions == null) {
                                     extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                             + "extractions", 1.0);
-                                else {
+                                } else {
                                     extractions += 1.0;
                                     extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                             + "extractions", extractions);
                                 }
                                 Double extractionsOverall = extractionTypeEvaluations.get("overall"
                                         + extractionTypesUsed.get(i) + "extractions");
-                                if (extractionsOverall == null)
+                                if (extractionsOverall == null) {
                                     extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
                                             + "extractions", 1.0);
-                                else {
+                                } else {
                                     extractionsOverall += 1.0;
                                     extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
                                             + "extractions", extractionsOverall);
@@ -1848,20 +1860,20 @@ public class KnowledgeManager implements Serializable {
                                 if (!foundCounted.contains(extractionTypesUsed.get(i))) {
                                     Double found = extractionTypeEvaluations.get(cEntry.getName()
                                             + extractionTypesUsed.get(i) + "found");
-                                    if (found == null)
+                                    if (found == null) {
                                         extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                                 + "found", 1.0);
-                                    else {
+                                    } else {
                                         found += 1.0;
                                         extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                                 + "found", found);
                                     }
                                     Double foundOverall = extractionTypeEvaluations.get("overall"
                                             + extractionTypesUsed.get(i) + "found");
-                                    if (foundOverall == null)
+                                    if (foundOverall == null) {
                                         extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found",
                                                 1.0);
-                                    else {
+                                    } else {
                                         foundOverall += 1.0;
                                         extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i) + "found",
                                                 foundOverall);
@@ -1871,20 +1883,20 @@ public class KnowledgeManager implements Serializable {
                                 if (fEntry.isCorrect(fv.getValue())) {
                                     Double correct = extractionTypeEvaluations.get(cEntry.getName()
                                             + extractionTypesUsed.get(i) + "correct");
-                                    if (correct == null)
+                                    if (correct == null) {
                                         extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                                 + "correct", 1.0);
-                                    else {
+                                    } else {
                                         correct += 1.0;
                                         extractionTypeEvaluations.put(cEntry.getName() + extractionTypesUsed.get(i)
                                                 + "correct", correct);
                                     }
                                     Double correctOverall = extractionTypeEvaluations.get("overall"
                                             + extractionTypesUsed.get(i) + "correct");
-                                    if (correctOverall == null)
+                                    if (correctOverall == null) {
                                         extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
                                                 + "correct", 1.0);
-                                    else {
+                                    } else {
                                         correctOverall += 1.0;
                                         extractionTypeEvaluations.put("overall" + extractionTypesUsed.get(i)
                                                 + "correct", correctOverall);
@@ -1895,20 +1907,20 @@ public class KnowledgeManager implements Serializable {
                         if (factExtractionTypesUsed.size() == 1 && fEntry.isCorrect()) {
                             Double only = extractionTypeEvaluations.get(cEntry.getName()
                                     + factExtractionTypesUsed.iterator().next() + "only");
-                            if (only == null)
+                            if (only == null) {
                                 extractionTypeEvaluations.put(cEntry.getName()
                                         + factExtractionTypesUsed.iterator().next() + "only", 1.0);
-                            else {
+                            } else {
                                 only += 1.0;
                                 extractionTypeEvaluations.put(cEntry.getName()
                                         + factExtractionTypesUsed.iterator().next() + "only", only);
                             }
                             Double onlyOverall = extractionTypeEvaluations.get("overall"
                                     + factExtractionTypesUsed.iterator().next() + "only");
-                            if (onlyOverall == null)
+                            if (onlyOverall == null) {
                                 extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next()
                                         + "only", 1.0);
-                            else {
+                            } else {
                                 onlyOverall += 1.0;
                                 extractionTypeEvaluations.put("overall" + factExtractionTypesUsed.iterator().next()
                                         + "only", onlyOverall);
@@ -1936,7 +1948,7 @@ public class KnowledgeManager implements Serializable {
         // f1 = MathHelper.round(2 * precision * recall / (precision + recall), 4);
 
         precisionWeak = MathHelper.round((double) totalAlmostCorrectFacts / (double) totalFactNumber, 4);
-        recallWeak = MathHelper.round((double) (totalAlmostCorrectFacts) / (double) totalFactNumberExpected, 4);
+        recallWeak = MathHelper.round((double) totalAlmostCorrectFacts / (double) totalFactNumberExpected, 4);
         // f1Weak = MathHelper.round(2 * precisionWeak * recallWeak / (precisionWeak + recallWeak), 4);
 
         f1Total = MathHelper.round(2 * (precision + precisionWeak) * (recall + recallWeak)
@@ -2036,8 +2048,9 @@ public class KnowledgeManager implements Serializable {
                 for (Fact fact : entity.getFacts()) {
 
                     // look for highest corroboration of facts that have not been reviewed
-                    if (factsReviewed.contains(fact))
+                    if (factsReviewed.contains(fact)) {
                         continue;
+                    }
 
                     int c = 0;
                     double corroboration1 = 0.0;
@@ -2049,8 +2062,9 @@ public class KnowledgeManager implements Serializable {
                     boolean inMargin = true;
                     for (FactValue factValue : fact.getValues()) {
 
-                        if (!inMargin)
+                        if (!inMargin) {
                             break;
+                        }
 
                         try {
                             if (c == 0) {
@@ -2077,7 +2091,7 @@ public class KnowledgeManager implements Serializable {
                     }
 
                     if (c >= 2) {
-                        double cDifference = (corroboration1 - corroboration2);
+                        double cDifference = corroboration1 - corroboration2;
                         if (cDifference > highestCorroborationDifference1) {
                             highestCorroborationDifference3 = highestCorroborationDifference2;
                             highestCorroborationDifference2 = highestCorroborationDifference1;
@@ -2101,8 +2115,9 @@ public class KnowledgeManager implements Serializable {
         }
 
         // no more values found to update parameters TODO
-        if (highestCorroborationDifferenceFactValue3 == null)
+        if (highestCorroborationDifferenceFactValue3 == null) {
             return false;
+        }
 
         // update trust for the extraction types used in the three fact values
         ArrayList<FactValue> factValues = new ArrayList<FactValue>();
@@ -2112,8 +2127,9 @@ public class KnowledgeManager implements Serializable {
 
         for (FactValue correctFactValue : factValues) {
 
-            if (correctFactValue == null)
+            if (correctFactValue == null) {
                 continue;
+            }
             Fact currentFact = correctFactValue.getFact();
             factsReviewed.add(currentFact);
 
@@ -2227,8 +2243,9 @@ public class KnowledgeManager implements Serializable {
                     Attribute attribute2 = attributeList.get(j);
 
                     // compare only attributes where at least one has been extracted
-                    if (!attribute1.isExtracted() && !attribute2.isExtracted())
+                    if (!attribute1.isExtracted() && !attribute2.isExtracted()) {
                         continue;
+                    }
 
                     double attributeSynonymTrust = DatabaseManager.getInstance().calculateAttributeSynonymTrust(
                             attribute1, attribute2);
@@ -2273,6 +2290,16 @@ public class KnowledgeManager implements Serializable {
     // }
 
     public static void main(String[] a) {
+
+        // add test Concept+Entity
+        KnowledgeManager km1 = new KnowledgeManager();
+        Concept test = new Concept("car");
+        test.addEntity(new Entity("Porsche 911", test));
+        km1.addConcept(test);
+        km1.saveExtractions();
+
+        // dm.saveExtractions(km);
+
         /*
          * Concept c1 = new Concept("c1",new KnowledgeManager()); c1.setLastSearched(new
          * Date(System.currentTimeMillis()-9870871)); Concept c2 = new
