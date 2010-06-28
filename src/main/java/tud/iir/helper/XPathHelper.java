@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
  * A helper to handle xPath.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public class XPathHelper {
 
@@ -23,15 +24,16 @@ public class XPathHelper {
      * @return True if the document has a xhtml namespace declared, else false.
      */
     public static boolean hasXMLNS(Document document) {
-        if (document == null)
+        if (document == null) {
             return false;
+        }
 
         Node node = null;
         if (document.getLastChild() != null && document.getLastChild().getAttributes() != null && document.getLastChild().getAttributes() != null) {
             node = document.getLastChild().getAttributes().getNamedItem("xmlns");
         }
 
-        if (node != null && node.getTextContent().indexOf("xhtml") > -1) {
+        if (node != null && node.getTextContent().toLowerCase().indexOf("xhtml") > -1) {
             return true;
         }
         return false;
@@ -51,9 +53,16 @@ public class XPathHelper {
         return xPath;
     }
 
+    /**
+     * Add the xhtml namespace to an xPath in case it does not have it yet.
+     * 
+     * @param xPath The xPath.
+     * @return The xPath with included xhtml namespace.
+     */
     public static String addNameSpaceToXPath(String xPath) {
-        if (xPath.indexOf("xhtml:") > -1)
+        if (xPath.toLowerCase().indexOf("xhtml:") > -1) {
             return xPath;
+        }
         // return xPath.replaceAll("/(?=\\w)","/xhtml:");
         // this is a fix NOT to touch slashes inside quotes,
         // for example in @type='application/rss+xml'
@@ -94,9 +103,17 @@ public class XPathHelper {
         return nodes;
     }
 
+    /**
+     * Get a node by xPath.
+     * 
+     * @param node The node where the xPath should be applied to.
+     * @param xPath The xPath.
+     * @return The node that the xPath points to.
+     */
     public static Node getNode(Node node, String xPath) {
-        if (node == null)
+        if (node == null) {
             return null;
+        }
         Node targetNode = null;
         List<Node> nodeList = getNodes(node, xPath);
         if (nodeList.iterator().hasNext()) {
@@ -106,8 +123,9 @@ public class XPathHelper {
     }
 
     public static Node getNode(Document doc, String xPath) {
-        if (doc == null)
+        if (doc == null) {
             return null;
+        }
         Node targetNode = null;
         List<Node> nodeList = getNodes(doc, xPath);
         if (nodeList.iterator().hasNext()) {
@@ -144,9 +162,17 @@ public class XPathHelper {
         return node;
     }
 
+    /**
+     * Get a child node by xPath.
+     * 
+     * @param node The parent node under which the sought node must descend.
+     * @param xPath The xPath that points to a node.
+     * @return A node that matches the xPath and descends from the given node.
+     */
     public static Node getChildNode(Node node, String xPath) {
-        if (node == null)
+        if (node == null) {
             return null;
+        }
         Node childNode = null;
         if (getChildNodes(node, xPath).iterator().hasNext()) {
             childNode = getChildNodes(node, xPath).iterator().next();
@@ -154,6 +180,13 @@ public class XPathHelper {
         return childNode;
     }
 
+    /**
+     * Check whether a node is a child (descendant) of another node.
+     * 
+     * @param childCandidate The node that is checked to be a child.
+     * @param parent The node under which the childCandidate must descend.
+     * @return True, if the childCandidate really descends from the parent, false otherwise.
+     */
     private static boolean isChildOf(Node childCandidate, Node parent) {
 
         while (childCandidate.getParentNode() != null) {

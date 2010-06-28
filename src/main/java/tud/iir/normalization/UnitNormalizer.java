@@ -472,7 +472,7 @@ public class UnitNormalizer {
     }
 
     public static double getNormalizedNumber(String unitText) throws NumberFormatException, NullPointerException {
-        String words[] = unitText.split(" ");
+        String words[] = unitText.trim().split(" ");
         double number = Double.parseDouble(words[0]);
 
         String newUnitText = "";
