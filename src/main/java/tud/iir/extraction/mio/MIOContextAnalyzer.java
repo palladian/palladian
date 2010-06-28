@@ -5,13 +5,25 @@
 package tud.iir.extraction.mio;
 
 import tud.iir.knowledge.Entity;
+import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
 
+/**
+ * The Class MIOContextAnalyzer.
+ */
 public class MIOContextAnalyzer {
 
+    /** The entity. */
     private Entity entity;
+
+    /** The mioPage. */
     private MIOPage mioPage;
+
+    /** The page-context-trust. */
     private double pageContextTrust = 0;
-    private String[] badWords = { "banner", "tower", "titlefont", "newsletter", "cloud" };
+
+    /** A List of bad words. */
+    private String[] badWords = { "banner", "tower", "titlefont", "newsletter", "cloud", "footer", "ticker", "ads",
+            "expressinstall" };
 
     /**
      * Instantiates a new mIO context analyzer.
@@ -19,11 +31,18 @@ public class MIOContextAnalyzer {
      * @param entity the entity
      * @param mioPage the mio page
      */
-    public MIOContextAnalyzer(Entity entity, MIOPage mioPage) {
+    public MIOContextAnalyzer(final Entity entity, final MIOPage mioPage) {
         this.entity = entity;
         this.mioPage = mioPage;
         pageContextTrust = calcPageContextTrust();
-        System.out.println("PageContextTrust: " + pageContextTrust + " for: " + mioPage.getUrl());
+        // System.out.println("PageContextTrust: " + pageContextTrust + " for: " + mioPage.getUrl());
+    }
+
+    /**
+     * Instantiates a new mIO context analyzer.
+     */
+    public MIOContextAnalyzer() {
+
     }
 
     /**
@@ -31,11 +50,11 @@ public class MIOContextAnalyzer {
      * 
      * @param mio the mio
      */
-    public void calculateTrust(MIO mio) {
+    public void calculateTrust(final MIO mio) {
         this.entity = mio.getEntity();
-        double fileNameRelevance = (calcStringRelevance(mio.getFileName(), entity)) * 4;
+        final double fileNameRelevance = (calcStringRelevance(mio.getFileName(), entity)) * 4;
         // System.out.println("FileNameRelevance: " + fileNameRelevance);
-        double filePathRelevance = calcStringRelevance(mio.getDirectURL(), entity) * 2;
+        final double filePathRelevance = calcStringRelevance(mio.getDirectURL(), entity) * 2;
         // System.out.println("FilePathRelevance: "+filePathRelevance);
         // double pcTrust = calcPageContextTrust(mioPage);
 
@@ -53,10 +72,10 @@ public class MIOContextAnalyzer {
             }
         }
 
-        double MIOTrust = pageContextTrust + fileNameRelevance + filePathRelevance + altTextRelevance;
+        final double mioTrust = pageContextTrust + fileNameRelevance + filePathRelevance + altTextRelevance;
         // System.out.println("pageContextTrust: " + pageContextTrust);
 
-        mio.setTrust(MIOTrust);
+        mio.setTrust(mioTrust);
         mio.setTrust(checkForBadWords(mio));
     }
 
@@ -67,7 +86,7 @@ public class MIOContextAnalyzer {
      */
     private double calcPageContextTrust() {
 
-        double titleRelevance = calcStringRelevance(mioPage.getTitle(), entity);
+        final double titleRelevance = calcStringRelevance(mioPage.getTitle(), entity);
 
         double linkNameRelevance = 0;
         double linkTitleRelevance = 0;
@@ -81,14 +100,25 @@ public class MIOContextAnalyzer {
             iframeParentTitleRelevance = calcStringRelevance(mioPage.getIframeParentPageTitle(), entity);
         }
 
-        double urlRelevance = calcStringRelevance(mioPage.getUrl(), entity);
+        final double urlRelevance = calcStringRelevance(mioPage.getUrl(), entity);
 
-        double dpTrust = mioPage.getDedicatedPageTrust() * 2;
+        final double dpTrust = mioPage.getDedicatedPageTrust() * 2;
 
-        double pcTrust = titleRelevance + linkNameRelevance + linkTitleRelevance + iframeParentTitleRelevance
+        final double pcTrust = titleRelevance + linkNameRelevance + linkTitleRelevance + iframeParentTitleRelevance
                 + urlRelevance + (dpTrust * 2);
         return pcTrust;
 
+    }
+
+    /**
+     * Calc string relevance.
+     * 
+     * @param inputString the input string
+     * @param entity the entity
+     * @return the double
+     */
+    private double calcStringRelevance(final String inputString, final Entity entity) {
+        return calcStringRelevance(inputString, entity.getName());
     }
 
     /**
@@ -96,22 +126,27 @@ public class MIOContextAnalyzer {
      * string. A special role play words like
      * d500 or x500i. Returns: a value from 0 to 1
      * 
-     * @param string the string
-     * @param entity the entity
+     * @param inputString the string
+     * @param entityName the entity name
      * @return the double
      */
-    private double calcStringRelevance(String string, Entity entity) {
-        SearchWordMatcher swm = new SearchWordMatcher(entity.getName());
-        String Elements[] = entity.getName().split("\\s");
-        // calculate the number of searchWord-Matches
-        double NumOfMatches = (double) swm.getNumberOfSearchWordMatches(string);
-        // calculate the number of searchWord-Matches with ignoring specialWords
-        // like D500x
-        double NumOfMatchesWithoutSW = (double) swm.getNumberOfSearchWordMatches(string, true, entity.getName()
-                .toLowerCase());
-        double Diff = (double) NumOfMatches - NumOfMatchesWithoutSW;
+    private double calcStringRelevance(String inputString, String entityName) {
+        // SearchWordMatcher swm = new SearchWordMatcher(entityName);
 
-        double result = (double) ((NumOfMatchesWithoutSW * 2) + (Diff * 3)) / (double) (Elements.length * 3);
+        // String Elements[] = entityName.split("\\s");
+        // String input[]= inputString.split("\\s");
+        // // calculate the number of searchWord-Matches
+        // double NumOfMatches = (double) swm.getNumberOfSearchWordMatches(inputString);
+        // // System.out.println("number of swm: " + NumOfMatches);
+        // // calculate the number of searchWord-Matches with ignoring specialWords
+        // // like D500x
+        // double NumOfMatchesWithoutSW = (double) swm.getNumberOfSearchWordMatches(inputString, true,
+        // entityName.toLowerCase());
+        // // System.out.println("number of swm without SW: " + NumOfMatchesWithoutSW);
+        // double Diff = (double) NumOfMatches - NumOfMatchesWithoutSW;
+        //
+        // double result = (double) ((NumOfMatchesWithoutSW * 2) + (Diff * 3)) / (double) (Elements.length * 2);
+
         // if (Diff>0){
         //
         // //result = (double)(NumOfMatches-1)/Elements.length+
@@ -123,8 +158,12 @@ public class MIOContextAnalyzer {
         // }else{
         // result=(double)NumOfMatches/Elements.length;
         // }
+
+        final JaroWinkler js = new JaroWinkler();
+        double result = (double) js.getSimilarity(entityName, inputString);
+
         if (result > 1) {
-            System.out.println("result groesser 1!");
+            // System.out.println("result groesser 1!");
             result = 1;
         }
         return result;
@@ -161,6 +200,47 @@ public class MIOContextAnalyzer {
         // Entity entity = new Entity("samsung wave s8500", exampleConcept);
         // System.out.println("Relevance:"
         // + mCA.calcStringRelevance("wave s8500", entity));
+
+        // http://www.dcs.shef.ac.uk/~sam/stringmetrics.html#overlap
+        // OverlapCoefficient oc = new OverlapCoefficient();
+        // QGramsDistance js = new QGramsDistance();
+        // CosineSimilarity js = new CosineSimilarity();
+        // BlockDistance bd = new BlockDistance();;
+        // DiceSimilarity ds = new DiceSimilarity();
+        // EuclideanDistance js = new EuclideanDistance();
+        // JaccardSimilarity js = new JaccardSimilarity();
+        // JaroWinkler js = new JaroWinkler();
+        // MIOContextAnalyzer mioCon = new MIOContextAnalyzer();
+        //
+        // System.out.println(js.getSimilarity("samsung s8500 wave",
+        // "das samsung s8500 wave ist besser als das samsung s9500!"));
+        // System.out.println("own: "
+        // + mioCon.calcStringRelevance("das samsung s8500 wave ist besser als das samsung s9500!",
+        // "samsung s8500 wave"));
+        //
+        // System.out.println(js.getSimilarity("samsung s8500 wave", "samsung s8500 wave"));
+        // System.out.println(js.getSimilarity("samsung s8500 wave", "wave s8500 samsung"));
+        // System.out.println("own: " + mioCon.calcStringRelevance("samsung s8500 wave", "samsung s8500 wave"));
+        //
+        // System.out.println(js.getSimilarity("samsung", "das neue samsung ist toll"));
+        // System.out.println("own: " + mioCon.calcStringRelevance("das neue samsung ist toll", "samsung"));
+        //
+        // System.out.println(js.getSimilarity("s8500", "s_8500"));
+        // System.out.println("own: " + mioCon.calcStringRelevance("s_8500", "s8500"));
+        //
+        // System.out.println(js.getSimilarity("samsung s8500 wave",
+        // "das neue samsung ist super aber auch das s_8500 wave"));
+        // System.out.println("own: "
+        // + mioCon.calcStringRelevance("das neue samsung ist super aber auch das s_8500 wave",
+        // "samsung s8500 wave"));
+        //
+        // System.out.println(js.getSimilarity("samsung s8500 wave",
+        // "das neue samsung ist super aber auch das s_8500 von wave"));
+        // System.out.println("own: "
+        // + mioCon.calcStringRelevance("das neue samsung ist super aber auch das s_8500 von wave",
+        // "samsung s8500 wave"));
+        //
+        // System.exit(0);
     }
 
 }

@@ -11,21 +11,34 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The Class ConceptSearchVocabulary.
+ */
 public class ConceptSearchVocabulary {
 
+    /** The mobile phone. */
     public String mobilePhone;
+
+    /** The printer. */
     public String printer;
+
+    /** The headphone. */
     public String headphone;
+
+    /** The movie. */
     public String movie;
+
+    /** The car. */
     public String car;
 
+    /** The weak MIOs. */
     public String weakMIOs;
 
     /**
-     * Gets the voc by concept name.
+     * Gets the searchVocabulary by concept name.
      * 
      * @param conceptName the concept name
-     * @return the voc by concept name
+     * @return the searchVocabulary by concept name
      */
     public List<String> getVocByConceptName(String conceptName) {
         Map<String, List<String>> attributeMap = attributesToMap();

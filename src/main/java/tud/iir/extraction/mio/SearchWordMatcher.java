@@ -6,6 +6,7 @@ package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * The SearchWordMatcher checks if and how deep a given String contains an EntityName or a morpheme of it.
@@ -19,11 +20,11 @@ public class SearchWordMatcher {
     /**
      * By instantiating a list of words is generated out of the given searchwords (entityName).
      * 
-     * @param SearchWords the search words
+     * @param searchWords the search words
      */
-    public SearchWordMatcher(String SearchWords) {
+    public SearchWordMatcher(String searchWords) {
 
-        wordList = (prepareWordList(SearchWords, false));
+        wordList = (prepareWordList(searchWords, false));
 
         // System.out.println("wordList ready: " + wordList.size()
         // + wordList.toString());
@@ -35,11 +36,11 @@ public class SearchWordMatcher {
      * @param src the src
      * @return the number of search word matches
      */
-    public int getNumberOfSearchWordMatches(String src) {
+    public int getNumberOfSearchWordMatches(final String src) {
 
         int counter = 0;
-        if (!src.equals("")) {
-            String modSrc = src.toLowerCase();
+        if (!("").equals(src)) {
+            final String modSrc = src.toLowerCase(Locale.ENGLISH);
             // check if parts of searchwords are contained
             for (String word : wordList) {
                 if (modSrc.contains(word)) {
@@ -60,12 +61,12 @@ public class SearchWordMatcher {
      * @param searchWords the search words
      * @return the number of search word matches
      */
-    public int getNumberOfSearchWordMatches(String src, boolean withoutSpecialWords, String searchWords) {
+    public int getNumberOfSearchWordMatches(final String src, boolean withoutSpecialWords, String searchWords) {
         int counter = 0;
-        if (!src.equals("")) {
-            String modSrc = src.toLowerCase();
+        if (!("").equals(src)) {
+            final String modSrc = src.toLowerCase(Locale.ENGLISH);
             // check if parts of searchwords are contained
-            List<String> tempWordList = prepareWordList(searchWords, withoutSpecialWords);
+            final List<String> tempWordList = prepareWordList(searchWords, withoutSpecialWords);
             for (String word : tempWordList) {
                 if (modSrc.contains(word)) {
                     counter++;
@@ -85,12 +86,12 @@ public class SearchWordMatcher {
      */
     private List<String> prepareWordList(String searchWords, boolean withoutSpecialWords) {
 
-        List<String> wordList = new ArrayList<String>();
-        List<String> morphResults = new ArrayList<String>();
-        String modSearchWords = searchWords.toLowerCase();
-        String Elements[] = modSearchWords.split("\\s");
+        final List<String> wordList = new ArrayList<String>();
+        final List<String> morphResults = new ArrayList<String>();
+        final String modSearchWords = searchWords.toLowerCase(Locale.ENGLISH);
+        final String[] elements = modSearchWords.split("\\s");
 
-        for (String element : Elements) {
+        for (String element : elements) {
 
             // add the given SearchWords
             morphResults.addAll(morphSearchWord(element, withoutSpecialWords));
@@ -113,10 +114,16 @@ public class SearchWordMatcher {
      * @return the list
      */
     private List<String> morphSearchWord(String word, boolean withoutSpecialWords) {
-        String separators[] = { "_", "-" };
+        String[] separators = { "_", "-" };
         List<String> morphList = new ArrayList<String>();
 
-        if (!withoutSpecialWords) {
+        if (withoutSpecialWords) {
+
+            if (!word.matches("\\w+\\d+\\w*")) {
+                morphList.add(word);
+            }
+
+        } else {
             // add the original word
             morphList.add(word);
 
@@ -138,10 +145,6 @@ public class SearchWordMatcher {
                 }
 
             }
-        } else {
-            if (!word.matches("\\w+\\d+\\w*")) {
-                morphList.add(word);
-            }
         }
 
         return morphList;
@@ -156,7 +159,7 @@ public class SearchWordMatcher {
      * @return true, if successful
      */
     public boolean containsSearchWordOrMorphs(String src) {
-        if (!src.equals("")) {
+        if (!("").equals(src)) {
             int matches = getNumberOfSearchWordMatches(src);
 
             if (wordList.size() == 1 && matches == 1) {
@@ -177,7 +180,7 @@ public class SearchWordMatcher {
      */
     public static void main(String[] args) {
 
-        SearchWordMatcher matcher = new SearchWordMatcher("samsung s8500 wave");
+        // SearchWordMatcher matcher = new SearchWordMatcher("samsung s8500 wave");
         // matcher.matchSearchWords("http://pic.gsmarena.com/vv/spin/samsung-wave-s-8500-final.swf");
         // System.out.println("result: "
         // + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php"));

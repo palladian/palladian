@@ -25,6 +25,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
      * @param swMatcher the sw matcher
      */
     public LinkAnalyzer(SearchWordMatcher swMatcher) {
+        super();
         this.swMatcher = swMatcher;
     }
 
@@ -39,13 +40,14 @@ public class LinkAnalyzer extends GeneralAnalyzer {
         List<MIOPage> mioPages = new ArrayList<MIOPage>();
 
         // find all <a>-tags
-        Pattern p = Pattern.compile("<a[^>]*href=\\\"?[^(>|)]*\\\"?[^>]*>[^<]*</a>", Pattern.CASE_INSENSITIVE);
+        // Pattern p = Pattern.compile("<a[^>]*href=\\\"?[^(>|)]*\\\"?[^>]*>[^<]*</a>", Pattern.CASE_INSENSITIVE);
+        Pattern p = Pattern.compile("<a[^>]*>.*</a>", Pattern.CASE_INSENSITIVE);
         Matcher m = p.matcher(parentPageContent);
         while (m.find()) {
             String completeLinkTag = m.group(0);
 
             String linkURL = getLinkURL(completeLinkTag, parentPageURL);
-            if (!linkURL.equals("")) {
+            if (!("").equals(linkURL)) {
 
                 // extract the Text of a Link
                 String linkName = getLinkName(completeLinkTag);
@@ -57,7 +59,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
                 // relevant words
                 if (isRelevantLinkCheck(linkURL, linkName, linkTitle)) {
                     String linkedPageContent = getPage(linkURL, false);
-                    if (!linkedPageContent.equals("")) {
+                    if (!("").equals(linkedPageContent)) {
                         FastMIODetector mioDetector = new FastMIODetector();
                         if (mioDetector.containsMIO(linkedPageContent)) {
                             MIOPage mioPage = generateMIOPage(linkURL, parentPageURL, linkName, linkTitle,
@@ -83,6 +85,9 @@ public class LinkAnalyzer extends GeneralAnalyzer {
      */
     private String getLinkURL(String linkTag, String pageURL) {
         String extractedLink = extractElement("href=\"[^>#\"]*\"", linkTag, "href=");
+        if (extractedLink.length() <= 3) {
+            extractedLink = extractElement("=\\\"?'?http[^>#\\\"']*\\\"?'?", linkTag, "=");
+        }
         return verifyURL(extractedLink, pageURL);
 
     }
@@ -94,7 +99,9 @@ public class LinkAnalyzer extends GeneralAnalyzer {
      * @return the link name
      */
     private String getLinkName(String linkTag) {
-        return extractElement(">[^<]*<", linkTag, "");
+        String result = extractElement(">[^<]*<", linkTag, "");
+        result = result.replaceAll("[<>]", "");
+        return result;
     }
 
     /**
