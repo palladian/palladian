@@ -7,9 +7,11 @@ import tud.iir.classification.CategoryEntry;
 /**
  * Combine URL and FullPage classification.
  * 
+ * @deprecated probably won't work anymore after refactoring
  * @author David Urbansky
  * 
  */
+@Deprecated
 public class CombinedClassifier extends DictionaryClassifier {
 
     public CombinedClassifier() {

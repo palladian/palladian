@@ -1,0 +1,60 @@
+package tud.iir.classification.page.evaluation;
+
+public class ClassificationTypeTagSetting {
+
+    /** only tags that are classified with a confidence above the threshold are assigned */
+    private double tagConfidenceThreshold = 0.0;
+
+    /** minimum number of tags that are assigned to a document in tagging mode */
+    private int minTags = 1;
+
+    /** maximum number of tags that are assigned to a document in tagging mode */
+    private int maxTags = 5;
+
+    /** if true, the tags that appear in the text (or URL) are weighted higher */
+    private boolean tagBoost = false;
+
+    /** enable category co-occurrence, that works only in tag mode */
+    private boolean useCooccurrence = false;
+
+    public double getTagConfidenceThreshold() {
+        return tagConfidenceThreshold;
+    }
+
+    public void setTagConfidenceThreshold(double tagConfidenceThreshold) {
+        this.tagConfidenceThreshold = tagConfidenceThreshold;
+    }
+
+    public int getMinTags() {
+        return minTags;
+    }
+
+    public void setMinTags(int minTags) {
+        this.minTags = minTags;
+    }
+
+    public int getMaxTags() {
+        return maxTags;
+    }
+
+    public void setMaxTags(int maxTags) {
+        this.maxTags = maxTags;
+    }
+
+    public boolean isTagBoost() {
+        return tagBoost;
+    }
+
+    public void setTagBoost(boolean tagBoost) {
+        this.tagBoost = tagBoost;
+    }
+
+    public boolean isUseCooccurrence() {
+        return useCooccurrence;
+    }
+
+    public void setUseCooccurrence(boolean useCooccurrence) {
+        this.useCooccurrence = useCooccurrence;
+    }
+
+}

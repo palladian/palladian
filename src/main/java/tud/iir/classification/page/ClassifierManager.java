@@ -9,7 +9,6 @@ import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.Categories;
@@ -19,16 +18,17 @@ import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Dictionary;
 import tud.iir.classification.Term;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
+import tud.iir.classification.page.evaluation.CrossValidator;
+import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.classification.page.evaluation.EvaluationSetting;
 import tud.iir.classification.page.evaluation.FeatureSetting;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.MathHelper;
+import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.TreeNode;
-import tud.iir.temp.CSVRewriter;
-import tud.iir.temp.TrainingDataSeparation;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
@@ -46,7 +46,7 @@ public class ClassifierManager {
     private static PropertiesConfiguration config = null;
 
     /** the classifier used to categorize the web sites */
-    private WebPageClassifier classifier = null;
+    private TextClassifier classifier = null;
 
     /** percentage of pages used as training data */
     private int trainingDataPercentage = 20;
@@ -64,10 +64,10 @@ public class ClassifierManager {
     private boolean createDictionaryNGramSearchMode = true;
 
     /** the list of training URLs */
-    private URLs trainingUrls = null;
+    private URLs trainingUrls = new URLs();
 
     /** the list of test URLs */
-    private URLs testUrls = null;
+    private URLs testUrls = new URLs();
 
     // // classification modes
     /** train model, serialize model and use serialized model for test */
@@ -79,10 +79,9 @@ public class ClassifierManager {
     /** test model without training it again (model has to exist) */
     public static int CLASSIFICATION_TEST_MODEL = 3;
 
-    /** the character sequence that splits the training data and the class in the input file */
-    private String separationString = " ";
+    // int classificationMode = CLASSIFICATION_TRAIN_TEST_SERIALIZE;
 
-    int classificationMode = CLASSIFICATION_TRAIN_TEST_SERIALIZE;
+    StopWatch stopWatch;
 
     public ClassifierManager() {
 
@@ -205,32 +204,213 @@ public class ClassifierManager {
     /**
      * Start training a classifier.
      * 
+     * @deprecated insanely long, use train and test separately
+     * 
      * @filePath The path of the text file with the URLs and categories.
      * @classifierType The type of the classifier that should be trained.
      */
+    @Deprecated
     public final void trainAndTestClassifier(String filePath, int classifierType, int classType, int classificationMode) {
-
         long startTime = System.currentTimeMillis();
         // if (classificationMode != CLASSIFICATION_TEST_MODEL) {
         // create classifier
-        if (classifierType == WebPageClassifier.URL) {
+        if (classifierType == 1) {
             classifier = new URLClassifier();
-        } else if (classifierType == WebPageClassifier.FULL_PAGE) {
+        } else if (classifierType == 2) {
             classifier = new FullPageClassifier();
-        } else if (classifierType == WebPageClassifier.COMBINED) {
+        } else if (classifierType == 4) {
             classifier = new CombinedClassifier();
-        } else if (classifierType == WebPageClassifier.KNN) {
+        } else if (classifierType == 3) {
             classifier = new KNNClassifier();
         }
         // XXX temp. added by Philipp,
         // to allow classification of local text contents,
         // see JavaDoc comments of the class for more information
         else {
-            classifier = new TextClassifier();
+            classifier = new TextClassifier_old();
         }
         // }
+        if (classifierType != 3) {
+            // set index location (lucene or database)
+            ((DictionaryClassifier) classifier).dictionary.setIndexType(dictionaryClassifierIndexType);
+            // set database type
+            ((DictionaryClassifier) classifier).dictionary.setDatabaseType(dictionaryDatabaseType);
+            // set class type
+            ((DictionaryClassifier) classifier).dictionary.setClassType(classType);
+            // if index should be created iteratively, we do not keep it in memory
+            // but write it to disk right away
+            if (createDictionaryIteratively) {
+                ((DictionaryClassifier) classifier).dictionary.useIndex(classType);
+                // in training mode, the dictionary will be deleted first
+                if (classificationMode == CLASSIFICATION_TRAIN_TEST_SERIALIZE) {
+                    ((DictionaryClassifier) classifier).dictionary.emptyIndex();
+                }
+            }
+        }
+        // classifier.setBenchmark(true);
+        // read the urls (training and test data) from urls.txt file
+        trainingUrls = new URLs();
+        testUrls = new URLs();
+        Dataset ds = new Dataset();
+        ds.setPath(filePath);
+        readTrainingTestingData(trainingDataPercentage, ds, classType);
+        // load the text data from the gathered urls, preprocess the data and
+        // create document representations
+        if (classificationMode == CLASSIFICATION_TRAIN_TEST_SERIALIZE) {
+            ((DictionaryClassifier) classifier).dictionary.setReadFromIndexForUpdate(!createDictionaryNGramSearchMode);
+            if (createDictionaryNGramSearchMode && createDictionaryIteratively) {
+                preprocessDocumentsFast(classType);
+            } else {
+                preprocessDocuments(classType, createDictionaryIteratively);
+            }
+        } else if (classificationMode == CLASSIFICATION_TEST_MODEL) {
+            preprocessDocuments(classType, false);
+        } else if (classificationMode == CLASSIFICATION_TRAIN_TEST_VOLATILE) {
+            if (classifierType != 3) {
+                preprocessDocuments(classType, true);
+            } else {
+                preprocessDocuments(classType, false);
+            }
+        }
+        LOGGER.info("loaded and preprocessed successfully");
+        // create the dictionary in one single step
+        if (!createDictionaryIteratively && classificationMode == CLASSIFICATION_TRAIN_TEST_SERIALIZE) {
+            ((DictionaryClassifier) classifier).buildDictionary(classType);
+        }
+        // close the dictionary index writer
+        else if (classifierType != 3) {
+            ((DictionaryClassifier) classifier).dictionary.closeIndexWriter();
+        }
+        // in hierarchy mode we have to tell the dictionary which categories are
+        // main categories
+        if (classType == ClassificationTypeSetting.HIERARCHICAL) {
+            ((DictionaryClassifier) classifier).getDictionary().setMainCategories(classifier.categories);
+        }
+        // save the dictionary (serialize, in-memory dictionary will be deleted
+        // at this point)
+        if (classificationMode == CLASSIFICATION_TRAIN_TEST_SERIALIZE) {
+            ((DictionaryClassifier) classifier).saveDictionary(classType, !createDictionaryIteratively, true);
+        }
+        LOGGER.info("start classifying " + testUrls.size() + " documents");
+        if (classifier instanceof DictionaryClassifier) {
+            classifier.setCategories(((DictionaryClassifier) classifier).getCategories());
+        }
+        if (classificationMode == CLASSIFICATION_TRAIN_TEST_VOLATILE) {
+            if (classifier instanceof DictionaryClassifier) {
+                ((DictionaryClassifier) classifier).classifyTestDocuments(false);
+            } else {
+                classifier.classifyTestDocuments();
+            }
+        } else {
+            classifier.classifyTestDocuments();
+        }
+        // create log document
+        String timeNeeded = DateHelper.getRuntime(startTime);
+        LOGGER.info("Classifier: " + classifier.getName() + " (with parameters: " + classifier.getParameters() + ")");
+        LOGGER.info("Classification type: " + classType);
+        LOGGER.info("Document Representation Settings: " + classifier.getFeatureSetting() + " Weights: Domain "
+                + Preprocessor.WEIGHT_DOMAIN_TERM + " Title " + Preprocessor.WEIGHT_TITLE_TERM + " Keyword "
+                + Preprocessor.WEIGHT_KEYWORD_TERM + " Meta " + Preprocessor.WEIGHT_META_TERM + " Body "
+                + Preprocessor.WEIGHT_BODY_TERM);
+        LOGGER.info("Use " + trainingDataPercentage + "% as training data. Loaded " + trainingUrls.size()
+                + " training urls, " + testUrls.size() + " test urls in " + classifier.categories.size()
+                + " categories");
+        LOGGER.info("Runtime: " + timeNeeded);
+        if (classType != ClassificationTypeSetting.TAG) {
+            LOGGER
+                    .info("Category                      Training  Test  Classified  Correct  Precision        Recall           F1               Sensitivity      Specificity      Accuracy         Weight/Prior");
+            int totalCorrect = 0;
+            for (Category category : classifier.categories) {
+                // skip categories that are not main categories because they are
+                // classified according to the main category
+                if (classType == ClassificationTypeSetting.HIERARCHICAL && !category.isMainCategory()) {
+                    continue;
+                }
+                StringBuilder logLine = new StringBuilder(category.getName());
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 30 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append(classifier.trainingDocuments.getRealNumberOfCategory(category));
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 40 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append(classifier.testDocuments.getRealNumberOfCategory(category));
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 46 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append(classifier.testDocuments.getClassifiedNumberOfCategory(category));
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 58 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append(classifier.getNumberOfCorrectClassifiedDocumentsInCategory(category));
+                totalCorrect += classifier.getNumberOfCorrectClassifiedDocumentsInCategory(category);
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 67 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append((int) Math.floor(100 * classifier.getPrecisionForCategory(category)) + "%");
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 84 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append((int) Math.floor(100 * classifier.getRecallForCategory(category)) + "%");
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 101 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append(Math.floor(100 * classifier.getFForCategory(category, 0.5)) / 100);
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 118 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append((int) Math.floor(100 * classifier.getSensitivityForCategory(category)) + "%");
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 135 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append((int) Math.floor(100 * classifier.getSpecificityForCategory(category)) + "%");
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 152 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append(MathHelper.round(classifier.getAccuracyForCategory(category), 2));
+                for (int i = 0, l = logLine.length(); i < Math.max(0, 169 - l); i++) {
+                    logLine.append(" ");
+                }
+                logLine.append(MathHelper.round(classifier.getWeightForCategory(category), 2));
+                LOGGER.info(logLine.toString());
+            }
+            LOGGER.info("Average Precision: " + (int) Math.floor(100 * classifier.getAveragePrecision(false))
+                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAveragePrecision(true)) + "%");
+            LOGGER.info("Average Recall: " + (int) Math.floor(100 * classifier.getAverageRecall(false))
+                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAverageRecall(true)) + "%");
+            LOGGER.info("Average F1: " + Math.floor(1000 * classifier.getAverageF(0.5, false)) / 1000 + ", weighted: "
+                    + Math.floor(1000 * classifier.getAverageF(0.5, true)) / 1000);
+            LOGGER.info("Average Sensitivity: " + (int) Math.floor(100 * classifier.getAverageSensitivity(false))
+                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAverageSensitivity(true)) + "%");
+            LOGGER.info("Average Specificity: " + (int) Math.floor(100 * classifier.getAverageSpecificity(false))
+                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAverageSpecificity(true)) + "%");
+            LOGGER.info("Average Accuracy: " + Math.floor(1000 * classifier.getAverageAccuracy(false)) / 1000
+                    + ", weighted: " + Math.floor(1000 * classifier.getAverageAccuracy(true)) / 1000);
+            if (classType == ClassificationTypeSetting.SINGLE) {
+                double correctClassified = (double) totalCorrect / (double) testUrls.size();
+                LOGGER.info("Correctly Classified: " + MathHelper.round(100 * correctClassified, 2) + "%");
+            }
+        }
+        LOGGER.info("\nClassified Documents in Detail:");
+        LOGGER.info(classifier.showTestDocuments());
+        LOGGER.info("FINISH, classified and logged successfully " + DateHelper.getRuntime(startTime));
+    }
 
-        if (classifierType != WebPageClassifier.KNN) {
+    public final void trainAndTestClassifier(TextClassifier classifier, EvaluationSetting evaluationSetting) {
+
+        CrossValidator cv = new CrossValidator();
+        cv.setEvaluationSetting(evaluationSetting);
+        cv.crossValidate(classifier);
+
+    }
+
+    public final void trainClassifier(Dataset dataset, TextClassifier classifier) {
+
+        this.classifier = classifier;
+
+        stopWatch = new StopWatch();
+
+        if (!(classifier instanceof KNNClassifier)) {
 
             // set index location (lucene or database)
             ((DictionaryClassifier) classifier).dictionary.setIndexType(dictionaryClassifierIndexType);
@@ -239,104 +419,106 @@ public class ClassifierManager {
             ((DictionaryClassifier) classifier).dictionary.setDatabaseType(dictionaryDatabaseType);
 
             // set class type
-            ((DictionaryClassifier) classifier).dictionary.setClassType(classType);
+            ((DictionaryClassifier) classifier).dictionary.setClassType(classifier.getClassificationType());
 
             // if index should be created iteratively, we do not keep it in memory
             // but write it to disk right away
             if (createDictionaryIteratively) {
-                ((DictionaryClassifier) classifier).dictionary.useIndex(classType);
+                ((DictionaryClassifier) classifier).dictionary.useIndex(classifier.getClassificationType());
 
                 // in training mode, the dictionary will be deleted first
-                if (classificationMode == CLASSIFICATION_TRAIN_TEST_SERIALIZE) {
+                if (classifier.isSerialize()) {
                     ((DictionaryClassifier) classifier).dictionary.emptyIndex();
                 }
             }
-
         }
 
-        // classifier.setBenchmark(true);
+        // read the training URLs from the given dataset
+        readTrainingTestingData(dataset, true, classifier.getClassificationType());
 
-        // read the urls (training and test data) from urls.txt file
-        trainingUrls = new URLs();
-        testUrls = new URLs();
-        readTrainingTestingData(trainingDataPercentage, filePath, classType);
-
-        // load the text data from the gathered urls, preprocess the data and
-        // create document representations
-        if (classificationMode == CLASSIFICATION_TRAIN_TEST_SERIALIZE) {
+        // load the text data from the gathered URLs, preprocess the data and create document representations
+        if (classifier.isSerialize()) {
 
             ((DictionaryClassifier) classifier).dictionary.setReadFromIndexForUpdate(!createDictionaryNGramSearchMode);
             if (createDictionaryNGramSearchMode && createDictionaryIteratively) {
-                preprocessDocumentsFast(classType);
+                preprocessDocumentsFast(classifier.getClassificationType());
             } else {
-                preprocessDocuments(classType, createDictionaryIteratively);
+                preprocessDocuments(classifier.getClassificationType(), createDictionaryIteratively);
             }
 
-        } else if (classificationMode == CLASSIFICATION_TEST_MODEL) {
-            preprocessDocuments(classType, false);
-        } else if (classificationMode == CLASSIFICATION_TRAIN_TEST_VOLATILE) {
-            if (classifierType != WebPageClassifier.KNN) {
-                preprocessDocuments(classType, true);
-            } else {
-                preprocessDocuments(classType, false);
-            }
+        } else {
+            preprocessDocuments(classifier.getClassificationType(), true);
         }
 
         LOGGER.info("loaded and preprocessed successfully");
 
-        // create the dictionary in one single step
-        if (!createDictionaryIteratively && classificationMode == CLASSIFICATION_TRAIN_TEST_SERIALIZE) {
-            ((DictionaryClassifier) classifier).buildDictionary(classType);
-        }
-        // close the dictionary index writer
-        else if (classifierType != WebPageClassifier.KNN) {
-            ((DictionaryClassifier) classifier).dictionary.closeIndexWriter();
+        if (classifier instanceof DictionaryClassifier) {
+
+            // create the dictionary in one single step
+            if (!createDictionaryIteratively && classifier.isSerialize()) {
+                ((DictionaryClassifier) classifier).buildDictionary(classifier.getClassificationType());
+            }
+            // close the dictionary index writer
+            else {
+                ((DictionaryClassifier) classifier).dictionary.closeIndexWriter();
+            }
+
         }
 
-        // in hierarchy mode we have to tell the dictionary which categories are
-        // main categories
-        if (classType == ClassificationTypeSetting.HIERARCHICAL) {
+        // in hierarchy mode we have to tell the dictionary which categories are main categories
+        if (classifier.getClassificationType() == ClassificationTypeSetting.HIERARCHICAL) {
             ((DictionaryClassifier) classifier).getDictionary().setMainCategories(classifier.categories);
         }
 
-        // save the dictionary (serialize, in-memory dictionary will be deleted
-        // at this point)
-        if (classificationMode == CLASSIFICATION_TRAIN_TEST_SERIALIZE) {
-            ((DictionaryClassifier) classifier).saveDictionary(classType, !createDictionaryIteratively, true);
+        // save the dictionary (serialize, in-memory dictionary will be deleted at this point)
+        if (classifier instanceof DictionaryClassifier && classifier.isSerialize()) {
+            ((DictionaryClassifier) classifier).saveDictionary(classifier.getClassificationType(),
+                    !createDictionaryIteratively, true);
         }
 
+    }
+
+    public void testClassifier(Dataset dataset, TextClassifier classifier) {
+
+        this.classifier = classifier;
+
         LOGGER.info("start classifying " + testUrls.size() + " documents");
+
+        // read the testing URLs from the given dataset
+        readTrainingTestingData(dataset, false, classifier.getClassificationType());
+
+        preprocessDocuments(classifier.getClassificationType(), false);
 
         if (classifier instanceof DictionaryClassifier) {
             classifier.setCategories(((DictionaryClassifier) classifier).getCategories());
         }
 
-        if (classificationMode == CLASSIFICATION_TRAIN_TEST_VOLATILE) {
-            if (classifier instanceof DictionaryClassifier) {
-                ((DictionaryClassifier) classifier).classifyTestDocuments(classType, false);
-            } else {
-                classifier.classifyTestDocuments(classType);
-            }
+        if (!classifier.isSerialize() && classifier instanceof DictionaryClassifier) {
+            ((DictionaryClassifier) classifier).classifyTestDocuments(false);
         } else {
-            classifier.classifyTestDocuments(classType);
+            classifier.classifyTestDocuments();
         }
 
+        writeLog(classifier);
+    }
+
+    private void writeLog(TextClassifier classifier) {
+
         // create log document
-        String timeNeeded = DateHelper.getRuntime(startTime);
+        String timeNeeded = stopWatch.getElapsedTimeString();
 
         LOGGER.info("Classifier: " + classifier.getName() + " (with parameters: " + classifier.getParameters() + ")");
-        LOGGER.info("Classification type: " + classType);
-        LOGGER.info("Document Representation Settings: maximum terms: " + Preprocessor.MAXIMUM_TERMS
-                + " url n-grams min/max: " + Preprocessor.MIN_NGRAM_SIZE + "/" + Preprocessor.MAX_NGRAM_SIZE
-                + " Weights: Domain " + Preprocessor.WEIGHT_DOMAIN_TERM + " Title " + Preprocessor.WEIGHT_TITLE_TERM
-                + " Keyword " + Preprocessor.WEIGHT_KEYWORD_TERM + " Meta " + Preprocessor.WEIGHT_META_TERM + " Body "
+        LOGGER.info("Classification type: " + classifier.getClassificationType());
+        LOGGER.info("Document Representation Settings: " + classifier.getFeatureSetting() + " Weights: Domain "
+                + Preprocessor.WEIGHT_DOMAIN_TERM + " Title " + Preprocessor.WEIGHT_TITLE_TERM + " Keyword "
+                + Preprocessor.WEIGHT_KEYWORD_TERM + " Meta " + Preprocessor.WEIGHT_META_TERM + " Body "
                 + Preprocessor.WEIGHT_BODY_TERM);
         LOGGER.info("Use " + trainingDataPercentage + "% as training data. Loaded " + trainingUrls.size()
                 + " training urls, " + testUrls.size() + " test urls in " + classifier.categories.size()
                 + " categories");
         LOGGER.info("Runtime: " + timeNeeded);
 
-        if (classType != ClassificationTypeSetting.TAG) {
+        if (classifier.getClassificationType() != ClassificationTypeSetting.TAG) {
 
             LOGGER
                     .info("Category                      Training  Test  Classified  Correct  Precision        Recall           F1               Sensitivity      Specificity      Accuracy         Weight/Prior");
@@ -346,7 +528,8 @@ public class ClassifierManager {
 
                 // skip categories that are not main categories because they are
                 // classified according to the main category
-                if (classType == ClassificationTypeSetting.HIERARCHICAL && !category.isMainCategory()) {
+                if (classifier.getClassificationType() == ClassificationTypeSetting.HIERARCHICAL
+                        && !category.isMainCategory()) {
                     continue;
                 }
 
@@ -411,7 +594,7 @@ public class ClassifierManager {
             LOGGER.info("Average Accuracy: " + Math.floor(1000 * classifier.getAverageAccuracy(false)) / 1000
                     + ", weighted: " + Math.floor(1000 * classifier.getAverageAccuracy(true)) / 1000);
 
-            if (classType == ClassificationTypeSetting.SINGLE) {
+            if (classifier.getClassificationType() == ClassificationTypeSetting.SINGLE) {
                 double correctClassified = (double) totalCorrect / (double) testUrls.size();
                 LOGGER.info("Correctly Classified: " + MathHelper.round(100 * correctClassified, 2) + "%");
             }
@@ -419,9 +602,9 @@ public class ClassifierManager {
         }
 
         LOGGER.info("\nClassified Documents in Detail:");
-        LOGGER.info(classifier.showTestDocuments(classType));
+        LOGGER.info(classifier.showTestDocuments());
 
-        LOGGER.info("FINISH, classified and logged successfully " + DateHelper.getRuntime(startTime));
+        LOGGER.info("FINISH, classified and logged successfully in " + stopWatch.getElapsedTimeString());
     }
 
     /**
@@ -430,11 +613,12 @@ public class ClassifierManager {
      * 
      * @param trainingPercentage Number in percent of how many documents should be used as training data.
      */
-    private void readTrainingTestingData(double trainingPercentage, String filePath, int classType) {
+    private void readTrainingTestingData(double trainingPercentage, Dataset dataset, int classType) {
 
-        final Object[] obj = new Object[2];
+        final Object[] obj = new Object[3];
         obj[0] = trainingPercentage;
         obj[1] = classType;
+        obj[2] = dataset;
 
         LineAction la = new LineAction(obj) {
 
@@ -443,7 +627,7 @@ public class ClassifierManager {
 
                 double trainingStep = 100.0 / (Double) obj[0];
 
-                String[] siteInformation = line.split(getSeparationString());
+                String[] siteInformation = line.split(((Dataset) obj[2]).getSeparationString());
 
                 int l = siteInformation.length;
                 if ((Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
@@ -485,9 +669,9 @@ public class ClassifierManager {
                     if (!classifier.categories.containsCategoryName(categoryName)) {
                         Category cat = new Category(categoryName);
                         if ((Integer) obj[1] == ClassificationTypeSetting.HIERARCHICAL
-                                && ((DictionaryClassifier) classifier)
-                                .getDictionary().hierarchyRootNode.getNode(categoryName).getParent() == ((DictionaryClassifier) classifier)
-                                .getDictionary().hierarchyRootNode
+                                && ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
+                                        categoryName).getParent() == ((DictionaryClassifier) classifier)
+                                        .getDictionary().hierarchyRootNode
                                 || (Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
                             cat.setMainCategory(true);
                         }
@@ -524,7 +708,114 @@ public class ClassifierManager {
             }
         };
 
-        FileHelper.performActionOnEveryLine(filePath, la);
+        FileHelper.performActionOnEveryLine(dataset.getPath(), la);
+
+        // calculate the prior for all categories
+        // classifier.categories.calculatePriors(trainingUrls.size() +
+        // testUrls.size());
+        classifier.categories.calculatePriors();
+    }
+
+    private void readTrainingTestingData(Dataset dataset, boolean forTraining, int classType) {
+
+        if (forTraining) {
+            trainingUrls = new URLs();
+        } else {
+            testUrls = new URLs();
+        }
+
+        final Object[] obj = new Object[3];
+        obj[0] = forTraining;
+        obj[1] = classType;
+        obj[2] = dataset;
+
+        LineAction la = new LineAction(obj) {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                String[] siteInformation = line.split(((Dataset) obj[2]).getSeparationString());
+
+                int l = siteInformation.length;
+                if ((Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
+                    l = 2;
+                }
+
+                String[] urlInformation = new String[l];
+                urlInformation[0] = siteInformation[0];
+
+                String lastCategoryName = "";
+                String lastCategoryPrefix = "";
+                for (int i = 1; i < siteInformation.length; ++i) {
+                    String[] categorieNames = siteInformation[i].split("/");
+                    if (categorieNames.length == 0) {
+                        LOGGER.debug("no category names found for " + line);
+                        return;
+                    }
+                    String categoryName = categorieNames[0];
+
+                    // update hierarchy
+                    if ((Integer) obj[1] == ClassificationTypeSetting.HIERARCHICAL) {
+                        // category names must be saved with the information
+                        // about the preceding node
+                        if (lastCategoryName.length() > 0) {
+                            categoryName = lastCategoryPrefix + "_" + categoryName;
+                        }
+
+                        TreeNode newNode = new TreeNode(categoryName);
+                        if (i == 1) {
+                            ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.addNode(newNode);
+                        } else {
+                            ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
+                                    lastCategoryName).addNode(newNode);
+                        }
+                    }
+                    urlInformation[i] = categoryName;
+
+                    // add category if it does not exist yet
+                    if (!classifier.categories.containsCategoryName(categoryName)) {
+                        Category cat = new Category(categoryName);
+                        if ((Integer) obj[1] == ClassificationTypeSetting.HIERARCHICAL
+                                && ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
+                                        categoryName).getParent() == ((DictionaryClassifier) classifier)
+                                        .getDictionary().hierarchyRootNode
+                                || (Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
+                            cat.setMainCategory(true);
+                        }
+                        cat.setClassType((Integer) obj[1]);
+                        cat.increaseFrequency();
+                        classifier.categories.add(cat);
+                    } else {
+                        classifier.categories.getCategoryByName(categoryName).setClassType((Integer) obj[1]);
+                        classifier.categories.getCategoryByName(categoryName).increaseFrequency();
+                    }
+
+                    // only take first category in "first" mode
+                    if ((Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
+                        break;
+                    }
+
+                    lastCategoryName = categoryName;
+                    lastCategoryPrefix = categorieNames[0];
+                }
+
+                // add to training urls
+                if ((Boolean) obj[0] == true) {
+                    trainingUrls.add(urlInformation);
+
+                } else {
+                    // add to test urls
+                    testUrls.add(urlInformation);
+                }
+
+                if (lineNumber % 1000 == 0) {
+                    log("read another 1000 lines from training/testing file, total: " + lineNumber);
+                }
+
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(dataset.getPath(), la);
 
         // calculate the prior for all categories
         // classifier.categories.calculatePriors(trainingUrls.size() +
@@ -591,8 +882,7 @@ public class ClassifierManager {
                 preprocessedDocument.setRealCategories(categories);
                 classifier.testDocuments.add(preprocessedDocument);
             }
-            log(Math.floor(100.0 * i / size) + "% preprocessed: " + tData[0] + ", i:" + i + ", size:"
-                    + size);
+            log(Math.floor(100.0 * i / size) + "% preprocessed: " + tData[0] + ", i:" + i + ", size:" + size);
 
         }
 
@@ -754,219 +1044,6 @@ public class ClassifierManager {
         this.trainingDataPercentage = trainingDataPercentage;
     }
 
-    public final void setSeparationString(String separationString) {
-        this.separationString = separationString;
-    }
-
-    public final String getSeparationString() {
-        return separationString;
-    }
-
-    private void setThreshold(double threshold) {
-        classifier.setTagConfidenceThreshold(threshold);
-    }
-
-    /**
-     * Method to compare the open analytix performance for classification depending on values trainingPercentage,
-     * threshold for assigning a second category and
-     * number of loops to average the performance with fixed trainingPercentage and threshold but random select of lines
-     * to be assigned to training and testing
-     * set
-     * 
-     * @param trainingPercentageMin The percentage of the data set to be used for training - minimum value of loop,
-     *            range [0,100].
-     * @param trainingPercentageMax The percentage of the data set to be used for training - maximum value of loop,
-     *            range [0,100].
-     * @param trainingPercentageStep The percentage of the data set to be used for training - step between loops, range
-     *            [0,100].
-     * @param randomSplitTrainingDataSet If true, initial data set is split randomly into training and test set (fixed
-     *            percentage but randomly chosen lines). If
-     *            false, the first lines are training set and the remainder is the test set.
-     * @param numberLoopsToAverage Number of loops to average the performance with fixed trainingPercentage and
-     *            threshold but random select of lines to be
-     *            assigned to training and testing set. Ignored if randomSplitTrainingDataSet=false, e.g. only one loop
-     *            is executed per trainingPercentage and
-     *            threshold.
-     * @param thMin Minimum value for the threshold used to assign a second category.
-     * @param thMax Maximum value for the threshold used to assign a second category.
-     * @param thStep Value to add to the threshold per loop.
-     * @param classType The type of WebPageClassifier to be used, e.g. WebPageClassifier.FIRST.
-     */
-    private void openAnalytix(int trainingPercentageMin, int trainingPercentageMax, int trainingPercentageStep,
-            boolean randomSplitTrainingDataSet, int numberLoopsToAverage, int thMin, int thMax, int thStep,
-            int classType) {
-
-        if (!randomSplitTrainingDataSet) {
-            numberLoopsToAverage = 1;
-        }
-
-        ClassifierManager classifierManager = new ClassifierManager();
-
-        // helper
-        int numberTrainingPercentageLoops = (trainingPercentageMax - trainingPercentageMin) / trainingPercentageStep + 1;
-        int numberThresholdLoops = (int) Math.abs(((double) (thMax - thMin) / (double) thStep)) + 1;
-
-        // results[trainingPercentage][threshold][iteration]
-        // TODO change to numberLoopsToAverage to add average value in last line
-        double[][][] openAnalytixPerformances = new double[numberTrainingPercentageLoops][numberThresholdLoops][numberLoopsToAverage];
-        double[][][] numberOf2Categories = new double[numberTrainingPercentageLoops][numberThresholdLoops][numberLoopsToAverage];
-        int[] trainingPercentageUsed = new int[numberTrainingPercentageLoops];
-        int[] thresholdsUsed = new int[numberThresholdLoops];
-        int trainingPercentageLoop = 0;
-
-        // e.g. test from 40:60 to 90:10
-        for (int trainingPercentage = trainingPercentageMin; trainingPercentage <= trainingPercentageMax; trainingPercentage += trainingPercentageStep) {
-
-            trainingPercentageUsed[trainingPercentageLoop] = trainingPercentage;
-            LOGGER
-                    .info("\n start trainingPercentage classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage "
-                            + trainingPercentage + "%, random = " + randomSplitTrainingDataSet + "\n");
-
-            // test with different thresholds
-            int thresholdLoop = 0;
-            for (int th = thMin; th <= thMax; th += thStep) {
-
-                LOGGER
-                        .info("\n start thresholdLoop classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage "
-                                + trainingPercentage
-                                + "%, random = "
-                                + randomSplitTrainingDataSet
-                                + ", threshold = "
-                                + (double) th / 100 + "\n");
-                thresholdsUsed[thresholdLoop] = th;
-                // e.g. 10 loops to average over random selection training and test data
-                for (int k = 0; k < numberLoopsToAverage; k++) {
-
-                    LOGGER
-                            .info("\n start inner (cross-validation) classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage "
-                                    + trainingPercentage
-                                    + "%, random = "
-                                    + randomSplitTrainingDataSet
-                                    + ", threshold = " + (double) th / 100 + ", iteration = " + (k + 1) + "\n");
-
-                    String currentTime = DateHelper.getCurrentDatetime();
-                    new TrainingDataSeparation().separateFile("data/temp/dataRewrittenCombined_completeSet.csv",
-                            "data/temp/dataRewrittenCombined_Training.csv",
-                            "data/temp/dataRewrittenCombined_Testing.csv", trainingPercentage,
-                            randomSplitTrainingDataSet);
-                    new CSVRewriter().rewriteOutputGoldstandard();
-                    // createDictionaryIteratively = false;
-                    // train with two categories
-                    classifierManager.setSeparationString("###");
-                    classifierManager.setTrainingDataPercentage(100);
-                    // classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Training.csv",
-                    // WebPageClassifier.URL, WebPageClassifier.TAG,
-                    // ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-                    // classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Training.csv",
-                    // WebPageClassifier.URL, WebPageClassifier.FIRST,
-                    // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE, true); // 95%
-                    classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Training.csv",
-                            WebPageClassifier.URL, classType, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-
-                    // classify
-                    // classifierManager = new ClassifierManager();
-                    // classifierManager.setSeparationString("###");
-                    classifierManager.setTrainingDataPercentage(0);
-                    classifierManager.setThreshold((double) th / 100);
-                    // classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Testing.csv",
-                    // WebPageClassifier.URL, WebPageClassifier.TAG,
-                    // ClassifierManager.CLASSIFICATION_TEST_MODEL);
-                    // classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Testing.csv",
-                    // WebPageClassifier.URL, WebPageClassifier.FIRST,
-                    // ClassifierManager.CLASSIFICATION_TEST_MODEL, false); // 95% ??
-                    // wenn createNewClassifier=true, dann ist Dictionary.dictionaryIndex wieder null , d.h. die jdbc
-                    // Verbindung verloren
-                    classifierManager.trainAndTestClassifier("data/temp/dataRewrittenCombined_Testing.csv",
-                            WebPageClassifier.URL, classType, ClassifierManager.CLASSIFICATION_TEST_MODEL);
-
-                    HashMap<String, Double> statistics = classifierManager.getClassifier().showTestDocuments2(
-                            ClassificationTypeSetting.SINGLE);
-
-                    if (statistics.containsKey("Number of two categories")) {
-                        numberOf2Categories[trainingPercentageLoop][thresholdLoop][k] = statistics
-                                .get("Number of two categories");
-                    } else {
-                        // e.g. WebPageClassifier.FIRST - modus
-                        numberOf2Categories[trainingPercentageLoop][thresholdLoop][k] = 0;
-                    }
-
-                    // rewrite output
-                    CSVRewriter csvRewriter = new CSVRewriter();
-                    csvRewriter.rewriteOutput();
-                    csvRewriter.combineGoldstandardAndPredictedCategories();
-                    double performance = csvRewriter.evaluate("data/temp/" + currentTime
-                            + "_dataTestAndClassifiedResults_trainingPercentage_" + trainingPercentage + "_threshold_"
-                            + (double) th / 100 + "_co-occurrenceBoost_.csv");
-
-                    StringBuilder trainingsetPercentSB = new StringBuilder();
-                    trainingsetPercentSB.append(currentTime);
-                    trainingsetPercentSB.append("random trainingPercentage: ").append(trainingPercentage).append("\n");
-                    FileHelper.appendToFile("data/temp/thresholds.txt", trainingsetPercentSB, false);
-                    LOGGER
-                            .info("\n finished inner (cross-validation) classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage "
-                                    + trainingPercentage
-                                    + "%, random = "
-                                    + randomSplitTrainingDataSet
-                                    + ", threshold = " + (double) th / 100 + ", iteration = " + (k + 1) + "\n");
-
-                    openAnalytixPerformances[trainingPercentageLoop][thresholdLoop][k] = performance;
-                }
-                thresholdLoop++;
-                LOGGER
-                        .info("\n finished thresholdLoop classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage "
-                                + trainingPercentage
-                                + "%, random = "
-                                + randomSplitTrainingDataSet
-                                + ", threshold = "
-                                + (double) th / 100 + "\n");
-            }
-            LOGGER
-                    .info("\n finished trainingPercentage classification loop on dataRewrittenCombined_Testing.csv with trainingPercentage "
-                            + trainingPercentage + "%, random = " + randomSplitTrainingDataSet + "\n");
-            trainingPercentageLoop++;
-        }
-
-        // //print results
-        String resultFilePath = "data/temp/" + DateHelper.getCurrentDatetime() + "_results.csv";
-        System.out.println("Writing final results to " + resultFilePath);
-
-        String useRandom = randomSplitTrainingDataSet ? "random" : "static";
-
-        StringBuilder finalResultSB = new StringBuilder();
-        finalResultSB.append("ave perf @ ").append(numberLoopsToAverage).append(";");
-
-        for (int i = 0; i < numberThresholdLoops; i++) {
-            finalResultSB.append("thres ").append((double) thresholdsUsed[i] / 100).append(";std deviation;# 2 cat;");
-        }
-        finalResultSB.append("\n");
-
-        for (int i = 0; i < numberTrainingPercentageLoops; i++) {
-            finalResultSB.append("train ").append(trainingPercentageUsed[i]).append("% ").append(useRandom).append(";");
-            for (int j = 0; j < numberThresholdLoops; j++) {
-                double culmulatedPrecision = 0;
-                double culmulatedNumber2Categories = 0;
-                for (int k = 0; k < numberLoopsToAverage; k++) {
-                    culmulatedPrecision += openAnalytixPerformances[i][j][k];
-                    culmulatedNumber2Categories += numberOf2Categories[i][j][k];
-                }
-                finalResultSB.append(MathHelper.round(culmulatedPrecision / numberLoopsToAverage, 4)).append(";");
-                StandardDeviation std = new StandardDeviation();
-                double stdDev = std.evaluate(openAnalytixPerformances[i][j]);
-                finalResultSB.append(MathHelper.round(stdDev, 4)).append(";");
-                finalResultSB.append(MathHelper.round(culmulatedNumber2Categories / numberLoopsToAverage, 1)).append(
-                        ";");
-            }
-            finalResultSB.append("\n");
-            System.out.print("\n");
-        }
-
-        FileHelper.writeToFile(resultFilePath, finalResultSB);
-    }
-
-    private WebPageClassifier getClassifier() {
-        return this.classifier;
-    }
-
     /**
      * This method simplifies the search for the best combination of classifier and feature settings.
      * It automatically learns and evaluates all given combinations.
@@ -979,11 +1056,13 @@ public class ClassifierManager {
      * @param evaluationSetting
      */
     public void learnBestClassifier(List<ClassificationTypeSetting> classificationTypeSettings,
-            List<WebPageClassifier> classifiers, List<FeatureSetting> featureSettings,
+            List<TextClassifier> classifiers, List<FeatureSetting> featureSettings,
             EvaluationSetting evaluationSetting) {
 
+        CrossValidator crossValidator = new CrossValidator();
+
         // loop through all classifiers
-        for (WebPageClassifier classifier : classifiers) {
+        for (TextClassifier classifier : classifiers) {
 
             // loop through all classification types
             for (ClassificationTypeSetting cts : classificationTypeSettings) {
@@ -991,10 +1070,11 @@ public class ClassifierManager {
                 // loop through all features
                 for (FeatureSetting featureSetting : featureSettings) {
 
-                    // classifier.setClassificationType(cts.getClassificationType());
+                    classifier.setClassificationTypeSetting(cts);
+                    classifier.setFeatureSetting(featureSetting);
 
                     // cross validation
-
+                    crossValidator.crossValidate(classifier);
                 }
 
             }
@@ -1011,47 +1091,15 @@ public class ClassifierManager {
      */
     public static void main(String[] args) {
 
-        if (args.length > 0) {
-            System.out.println("arguments found");
-            ClassifierManager classifierManager = new ClassifierManager();
-            classifierManager.setTrainingDataPercentage(Integer.parseInt(args[0]));
-            classifierManager.trainAndTestClassifier(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]),
-                    Integer.parseInt(args[4]));
-            System.out.println("finished");
-            System.exit(0);
-        }
-
-        // URLClassifier classifier = new URLClassifier();
-        // ((DictionaryClassifier) classifier).dictionary.setIndexType(2);
-        // ((DictionaryClassifier) classifier).saveDictionary(3);
-        //		
-        // Dictionary d = (Dictionary)
-        // FileHelper.deserialize("data/models/dictionary_URLClassifier_3.ser");
-        //		
+        // if (args.length > 0) {
+        // System.out.println("arguments found");
+        // ClassifierManager classifierManager = new ClassifierManager();
+        // classifierManager.setTrainingDataPercentage(Integer.parseInt(args[0]));
+        // classifierManager.trainAndTestClassifier(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]),
+        // Integer.parseInt(args[4]));
+        // System.out.println("finished");
         // System.exit(0);
-
-        // String[] arguments = { "knn", "3" };
-        // new ClassifierManager().start_(arguments);
-        // new
-        // ClassifierManager().trainAndTestClassifier("data/benchmarkSelection/page/index.txt");
-        // new
-        // ClassifierManager().trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls.txt");
-        // new
-        // ClassifierManager().trainAndTestClassifier("data/benchmarkSelection/page/url/list_german_sample20000.txt");
-        // new
-        // ClassifierManager().trainAndTestClassifier("data/benchmarkSelection/page/url/4categories_urls.txt",
-        // false);
-        // new
-        // ClassifierManager().trainAndTestClassifier("data/benchmarkSelection/page/url/4categories_urls.txt",
-        // WebPageClassifier.URL);
-        // new
-        // ClassifierManager().trainAndTestClassifier("data/benchmarkSelection/page/automatic/4categories_index.txt",
-        // WebPageClassifier.FULL_PAGE);
-        // new
-        // ClassifierManager().trainAndTestClassifier("data/benchmarkSelection/page/automatic/4categories_index.txt",
-        // WebPageClassifier.COMBINED);
-        // new ClassifierManager()._learnAndTestClassifierOnline();
-        // if (true) return;
+        // }
 
         // ///////////////////////// test reading from file index // /////////////////////////////
         // DictionaryIndex dictionaryIndex = new
@@ -1063,224 +1111,40 @@ public class ClassifierManager {
         // ////////////////////////////////////////////////////////////////////////////////////
 
         // //////////////////////////// test classification ////////////////////////////////
-        // WebPageClassifier classifier = new URLClassifier();
-        // ClassificationDocument classifiedDocument = null;
-        // classifiedDocument =
-        // classifier.classify("http://www.hinternet.de/buch/g/george.php",
-        // WebPageClassifier.HIERARCHICAL);
-        // System.out.println(classifiedDocument);
-        // classifiedDocument =
-        // classifier.classify("http://www.cinefreaks.com/movies/film.php",
-        // WebPageClassifier.FIRST);
-        // System.out.println(classifiedDocument);
-        // classifiedDocument =
-        // classifier.classify("http://www.cinefreaks.com/movies/film.php",
-        // WebPageClassifier.TAG);
-        // System.out.println(classifiedDocument);
-        // //classifiedDocument =
-        // classifier.classify("http://www.hinternet.de/buch/g/george.php",
-        // WebPageClassifier.HIERARCHICAL);
-        // //System.out.println(classifiedDocument);
-        // classifiedDocument =
-        // classifier.classify("http://www.newsroom.com/news/international",
-        // WebPageClassifier.TAG);
-        // //System.out.println(classifiedDocument);
-        // System.exit(0);
+        //
         // ///////////////////////////////////////////////////////////////////////////////
 
         // ///////////////////////////// learn classifiers /////////////////////////////////
         ClassifierManager classifierManager = new ClassifierManager();
-        // classifierManager.setTrainingDataPercentage(10);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.FIRST);
-        // System.exit(0);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional_small.txt",
-        // WebPageClassifier.URL, WebPageClassifier.HIERARCHICAL);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional_small.txt",
-        // WebPageClassifier.URL, WebPageClassifier.FIRST);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional_small.txt",
-        // WebPageClassifier.URL, WebPageClassifier.HIERARCHICAL);
+        Dataset dataset = new Dataset();
+        TextClassifier classifier = new DictionaryClassifier();// new KNNClassifier();
+        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+        FeatureSetting featureSetting = new FeatureSetting();
+        classifier.setClassificationTypeSetting(classificationTypeSetting);
+        classifier.setFeatureSetting(featureSetting);
 
         // train and test all classifiers
-        long t1 = System.currentTimeMillis();
-        System.out.println("start training all classifiers");
-        classifierManager.setTrainingDataPercentage(80);
-        classifierManager.setSeparationString("###");
+        StopWatch stopWatch = new StopWatch();
 
-        classifierManager.openAnalytix(50, 50, 10, true, 1, 99, 99, 1, ClassificationTypeSetting.SINGLE);
+        // train
+        // dataset.setPath("data/temp/opendirectory_urls_noregional_small_train.txt");
+        // classifierManager.trainClassifier(dataset, classifier);
+
+        // test
+        // dataset.setPath("data/temp/opendirectory_urls_noregional_small_test.txt");
+        // classifierManager.testClassifier(dataset, classifier);
+
+        // train + test
+        EvaluationSetting evaluationSetting = new EvaluationSetting();
+        evaluationSetting.setTrainingPercentageMin(50);
+        evaluationSetting.setTrainingPercentageMax(50);
+        evaluationSetting.setkFolds(1);
+        evaluationSetting.addDataset(dataset);
+        dataset.setPath("data/temp/opendirectory_urls_noregional_small.txt");
+        classifierManager.trainAndTestClassifier(classifier, evaluationSetting);
+
+        System.out.println("finished training and testing classifier in " + stopWatch.getElapsedTimeString());
         System.exit(0);
 
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional_small.txt",
-        // WebPageClassifier.KNN,
-        // WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.KNN,
-        // WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/productStrings.csv",
-        // WebPageClassifier.KNN, WebPageClassifier.FIRST,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-
-        classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-                WebPageClassifier.URL, ClassificationTypeSetting.SINGLE,
-                ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/productStrings.csv",
-        // WebPageClassifier.URL,WebPageClassifier.FIRST,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-
-        // classifierManager.setTrainingDataPercentage(100);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional_small_training.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-        // classifierManager.setTrainingDataPercentage(0);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional_small_test.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TEST_MODEL);
-        System.exit(0);
-
-        // FIRST : 67%
-        // classifierManager.setSeparationString("###");
-        // classifierManager.setTrainingDataPercentage(100);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/researchGarden_Training.csv",
-        // WebPageClassifier.URL, WebPageClassifier.FIRST,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-        // classifierManager.setTrainingDataPercentage(0);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/researchGarden_Testing.csv",
-        // WebPageClassifier.URL, WebPageClassifier.FIRST,
-        // ClassifierManager.CLASSIFICATION_TEST_MODEL);
-
-        // FIRST
-        classifierManager.setSeparationString("###");
-        classifierManager.setTrainingDataPercentage(100);
-        classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/researchGarden_Training.csv",
-                WebPageClassifier.URL, ClassificationTypeSetting.SINGLE,
-                ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-        classifierManager.setTrainingDataPercentage(0);
-        classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/researchGarden_Testing.csv",
-                WebPageClassifier.URL, ClassificationTypeSetting.SINGLE, ClassifierManager.CLASSIFICATION_TEST_MODEL);
-
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.FULL_PAGE,
-        // WebPageClassifier.FIRST);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.FULL_PAGE,
-        // WebPageClassifier.HIERARCHICAL);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages.txt",
-        // WebPageClassifier.FULL_PAGE,
-        // WebPageClassifier.TAG);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.HIERARCHICAL);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_02k_200.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG, true);
-
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.KNN,
-        // WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.TAG, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_1k_200.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_1k_200.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG,
-        // ClassifierManager.CLASSIFICATION_TEST_MODEL);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_1k_200.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_02k_200.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG,
-        // ClassifierManager.CLASSIFICATION_TEST_MODEL);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_02k_200.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_10k_500_n.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_1k_500_n.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-        // classifierManager.setTrainingDataPercentage(0);
-        // classifierManager.setSeparationString("#");
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/productStrings_training.csv",
-        // WebPageClassifier.URL, WebPageClassifier.FIRST,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/productStrings_testing.csv",
-        // WebPageClassifier.URL, WebPageClassifier.FIRST,
-        // ClassifierManager.CLASSIFICATION_TEST_MODEL);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/productStrings_training.csv",
-        // WebPageClassifier.URL, WebPageClassifier.FIRST,
-        // ClassifierManager.CLASSIFICATION_TEST_MODEL);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/productStrings.csv",
-        // WebPageClassifier.URL, WebPageClassifier.FIRST,
-        // ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-
-        // language classification
-        // classifierManager.setTrainingDataPercentage(20);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/language/languageDocumentIndex.txt",
-        // WebPageClassifier.FULL_PAGE,
-        // WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
-
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_10k_200.txt",
-        // WebPageClassifier.URL,WebPageClassifier.TAG, true);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_cleansed_400.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.TAG, true);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_100k_300.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.TAG, true);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_130k_300.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.TAG, true);
-
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_1k_200.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG, true);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_1k_200.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG, false);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_10k_200.txt",
-        // WebPageClassifier.URL, WebPageClassifier.TAG, true);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages_1k_200.txt",
-        // WebPageClassifier.FULL_PAGE, WebPageClassifier.TAG, true);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional_small.txt",
-        // WebPageClassifier.URL,
-        // WebPageClassifier.FIRST, ClassifierManager.CLASSIFICATION_TRAIN_TEST_VOLATILE);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.URL, WebPageClassifier.HIERARCHICAL, true);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.FULL_PAGE, WebPageClassifier.HIERARCHICAL, true);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.FULL_PAGE,WebPageClassifier.FIRST, true);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional_small.txt",
-        // WebPageClassifier.URL, WebPageClassifier.HIERARCHICAL, true);
-
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.COMBINED, WebPageClassifier.FIRST);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/opendirectory_urls_noregional.txt",
-        // WebPageClassifier.COMBINED, WebPageClassifier.HIERARCHICAL);
-        // classifierManager.trainAndTestClassifier("data/benchmarkSelection/page/deliciouspages.txt",
-        // WebPageClassifier.COMBINED, WebPageClassifier.TAG);
-
-        System.out.println("finished training all classifiers in " + DateHelper.getRuntime(t1));
-        System.exit(0);
-        // ///////////////////////////////////////////////////////////////////////////////
-
-        // WebPageClassifier classifier = new URLClassifier();
-        // ClassificationDocument classifiedDocument =
-        // classifier.classify("http://www.hinternet.de/buch/g/george.php",
-        // WebPageClassifier.HIERARCHICAL);
-        // classifiedDocument =
-        // classifier.classify("http://www.cinefreaks.com/movies/793",
-        // WebPageClassifier.HIERARCHICAL);
-        // classifiedDocument =
-        // classifier.classify("http://www.cinefreaks.com/movies/793",
-        // WebPageClassifier.FIRST);
-        // System.out.println(classifiedDocument);
     }
-
 }

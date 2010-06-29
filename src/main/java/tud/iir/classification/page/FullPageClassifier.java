@@ -4,6 +4,8 @@ import java.util.Map.Entry;
 
 import tud.iir.classification.CategoryEntry;
 
+/** @deprecated */
+@Deprecated
 public class FullPageClassifier extends DictionaryClassifier {
 
     public FullPageClassifier() {

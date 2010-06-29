@@ -12,7 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import tud.iir.classification.page.ClassificationDocument;
 import tud.iir.classification.page.ClassifierManager;
 import tud.iir.classification.page.URLClassifier;
-import tud.iir.classification.page.WebPageClassifier;
+import tud.iir.classification.page.TextClassifier;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.helper.FileHelper;
 import tud.iir.persistence.DatabaseManager;
@@ -54,13 +54,13 @@ public class ClassifierTesting {
         System.out.println("classifying");
 
         // create the URL classifier
-        WebPageClassifier classifier = new URLClassifier();
+        TextClassifier classifier = new URLClassifier();
         // create a classification document
         ClassificationDocument classifiedDocument = null;
 
         // use the classifier to classify a web page to multiple categories
         // using URL features only
-        classifiedDocument = classifier.classify(url, ClassificationTypeSetting.TAG);
+        classifiedDocument = classifier.classify(url);
 
         // print out classification results
         System.out.println(classifiedDocument);
@@ -228,7 +228,7 @@ public class ClassifierTesting {
         classifierManager.setTrainingDataPercentage(80);
 
         // set separation string between training data and class
-        classifierManager.setSeparationString(SEPARATOR);
+        // classifierManager.setSeparationString(SEPARATOR);
 
         // build and test the model
         // the second parameter specifies that we want to use URL features only
