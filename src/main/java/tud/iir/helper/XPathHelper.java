@@ -1,7 +1,18 @@
 package tud.iir.helper;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.log4j.Logger;
 import org.jaxen.JaxenException;
@@ -14,6 +25,7 @@ import org.w3c.dom.Node;
  * 
  * @author David Urbansky
  * @author Philipp Katz
+ * @author Martin Werner
  */
 public class XPathHelper {
 
@@ -23,13 +35,15 @@ public class XPathHelper {
      * @param document The document.
      * @return True if the document has a xhtml namespace declared, else false.
      */
-    public static boolean hasXMLNS(Document document) {
+    public static boolean hasXMLNS(final Document document) {
+
         if (document == null) {
             return false;
         }
 
         Node node = null;
-        if (document.getLastChild() != null && document.getLastChild().getAttributes() != null && document.getLastChild().getAttributes() != null) {
+        if (document.getLastChild() != null && document.getLastChild().getAttributes() != null
+                && document.getLastChild().getAttributes() != null) {
             node = document.getLastChild().getAttributes().getNamedItem("xmlns");
         }
 
@@ -46,11 +60,12 @@ public class XPathHelper {
      * @param xPath The xPath.
      * @return The xPath with the namespace.
      */
-    public static String addNameSpaceToXPath(Document document, String xPath) {
+    public static String addNameSpaceToXPath(final Document document, final String xPath) {
+        String returnValue = xPath;
         if (hasXMLNS(document)) {
-            return addNameSpaceToXPath(xPath);
+            returnValue = addNameSpaceToXPath(xPath);
         }
-        return xPath;
+        return returnValue;
     }
 
     /**
@@ -59,8 +74,8 @@ public class XPathHelper {
      * @param xPath The xPath.
      * @return The xPath with included xhtml namespace.
      */
-    public static String addNameSpaceToXPath(String xPath) {
-        if (xPath.toLowerCase().indexOf("xhtml:") > -1) {
+    public static String addNameSpaceToXPath(final String xPath) {
+        if (xPath.toLowerCase(Locale.ENGLISH).indexOf("xhtml:") > -1) {
             return xPath;
         }
         // return xPath.replaceAll("/(?=\\w)","/xhtml:");
@@ -70,23 +85,37 @@ public class XPathHelper {
         return xPath.replaceAll("(/)(?=\\w(?:[^']|'[^']*')*$)", "/xhtml:");
     }
 
-    public static List<Node> getNodes(Document document, String xPath) {
+    /**
+     * Gets the nodes.
+     * 
+     * @param document the document
+     * @param xPath the x path
+     * @return the nodes
+     */
+    public static List<Node> getNodes(final Document document, final String xPath) {
         if (document == null || xPath == null || xPath.length() == 0) {
             return new ArrayList<Node>();
         }
-        xPath = addNameSpaceToXPath(document, xPath);
+        final String modXPath = addNameSpaceToXPath(document, xPath);
 
-        return getNodes(document.getLastChild(), xPath);
+        return getNodes(document.getLastChild(), modXPath);
     }
 
     // TODO uppercase xPath and namespace (xml vs. xhtml!?)
+    /**
+     * Gets the nodes.
+     * 
+     * @param node the node
+     * @param xPath the x path
+     * @return the nodes
+     */
     @SuppressWarnings("unchecked")
-    public static List<Node> getNodes(Node node, String xPath) {
+    public static List<Node> getNodes(final Node node, final String xPath) {
 
         List<Node> nodes = new ArrayList<Node>();
         try {
             // System.out.println(xPath);
-            DOMXPath xpathObj = new DOMXPath(xPath);
+            final DOMXPath xpathObj = new DOMXPath(xPath);
             xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
 
             nodes = xpathObj.selectNodes(node);
@@ -110,24 +139,31 @@ public class XPathHelper {
      * @param xPath The xPath.
      * @return The node that the xPath points to.
      */
-    public static Node getNode(Node node, String xPath) {
+    public static Node getNode(final Node node, final String xPath) {
         if (node == null) {
             return null;
         }
         Node targetNode = null;
-        List<Node> nodeList = getNodes(node, xPath);
+        final List<Node> nodeList = getNodes(node, xPath);
         if (nodeList.iterator().hasNext()) {
             targetNode = nodeList.iterator().next();
         }
         return targetNode;
     }
 
-    public static Node getNode(Document doc, String xPath) {
+    /**
+     * Gets the node.
+     * 
+     * @param doc the doc
+     * @param xPath the x path
+     * @return the node
+     */
+    public static Node getNode(final Document doc, final String xPath) {
         if (doc == null) {
             return null;
         }
         Node targetNode = null;
-        List<Node> nodeList = getNodes(doc, xPath);
+        final List<Node> nodeList = getNodes(doc, xPath);
         if (nodeList.iterator().hasNext()) {
             targetNode = nodeList.iterator().next();
         }
@@ -135,28 +171,40 @@ public class XPathHelper {
     }
 
     /*
-     * public static Node getChildNodeNS(Node node, String xPath) { if (node == null) return null; Node childNode = null; try { //System.out.println(xPath);
-     * DOMXPath xpathObj = new DOMXPath(xPath); xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml"); List<Node> nodeList =
-     * xpathObj.selectNodes(node); if (nodeList.size() > 0) childNode = nodeList.get(0); } catch (JaxenException e) { Logger.getRootLogger().error(xPath + ", "
-     * + e.getMessage()); } catch (OutOfMemoryError e) { Logger.getRootLogger().error(xPath + ", " + e.getMessage()); } catch (NullPointerException e) {
-     * Logger.getRootLogger().error(xPath + ", " + e.getMessage()); } catch (Error e) { Logger.getRootLogger().error(xPath + ", " + e.getMessage()); } return
+     * public static Node getChildNodeNS(Node node, String xPath) { if (node == null) return null; Node childNode =
+     * null; try { //System.out.println(xPath);
+     * DOMXPath xpathObj = new DOMXPath(xPath); xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+     * List<Node> nodeList =
+     * xpathObj.selectNodes(node); if (nodeList.size() > 0) childNode = nodeList.get(0); } catch (JaxenException e) {
+     * Logger.getRootLogger().error(xPath + ", "
+     * + e.getMessage()); } catch (OutOfMemoryError e) { Logger.getRootLogger().error(xPath + ", " + e.getMessage()); }
+     * catch (NullPointerException e) {
+     * Logger.getRootLogger().error(xPath + ", " + e.getMessage()); } catch (Error e) {
+     * Logger.getRootLogger().error(xPath + ", " + e.getMessage()); } return
      * childNode; }
      */
 
-    public static Node getNodeByID(Document document, String id) {
+    /**
+     * Gets the node by id.
+     * 
+     * @param document the document
+     * @param nodeId the id
+     * @return the node by id
+     */
+    public static Node getNodeByID(final Document document, final String nodeId) {
 
         Node node = null;
         try {
-            List<Node> idNodes = XPathHelper.getNodes(document, "//*[@id='" + id + "']");
+            final List<Node> idNodes = XPathHelper.getNodes(document, "//*[@id='" + nodeId + "']");
             for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
                 node = idNodes.get(i).getParentNode();
             }
         } catch (OutOfMemoryError e) {
-            Logger.getRootLogger().error(id + ", " + e.getMessage());
+            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
         } catch (NullPointerException e) {
-            Logger.getRootLogger().error(id + ", " + e.getMessage());
+            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
         } catch (Error e) {
-            Logger.getRootLogger().error(id + ", " + e.getMessage());
+            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
         }
 
         return node;
@@ -169,7 +217,7 @@ public class XPathHelper {
      * @param xPath The xPath that points to a node.
      * @return A node that matches the xPath and descends from the given node.
      */
-    public static Node getChildNode(Node node, String xPath) {
+    public static Node getChildNode(final Node node, final String xPath) {
         if (node == null) {
             return null;
         }
@@ -187,11 +235,11 @@ public class XPathHelper {
      * @param parent The node under which the childCandidate must descend.
      * @return True, if the childCandidate really descends from the parent, false otherwise.
      */
-    private static boolean isChildOf(Node childCandidate, Node parent) {
+    private static boolean isChildOf(final Node childCandidate, final Node parent) {
 
         while (childCandidate.getParentNode() != null) {
-            childCandidate = childCandidate.getParentNode();
-            if (childCandidate.equals(parent)) {
+            final Node modChildCandidate = childCandidate.getParentNode();
+            if (modChildCandidate.equals(parent)) {
                 return true;
             }
         }
@@ -199,12 +247,19 @@ public class XPathHelper {
         return false;
     }
 
+    /**
+     * Gets the child nodes.
+     * 
+     * @param node the node
+     * @param xPath the x path
+     * @return the child nodes
+     */
     @SuppressWarnings("unchecked")
-    public static List<Node> getChildNodes(Node node, String xPath) {
+    public static List<Node> getChildNodes(final Node node, final String xPath) {
         List<Node> childNodes = null;
-        List<Node> childNodesMatch = new ArrayList<Node>();
+        final List<Node> childNodesMatch = new ArrayList<Node>();
         try {
-            DOMXPath xpathExpression = new DOMXPath(xPath);
+            final DOMXPath xpathExpression = new DOMXPath(xPath);
             childNodes = xpathExpression.selectNodes(node);
 
             for (Node cn : childNodes) {
@@ -222,5 +277,34 @@ public class XPathHelper {
         }
 
         return childNodesMatch;
+    }
+
+    /**
+     * Convert a node and his children to string.
+     * 
+     * @param node the node
+     * @return the node as string
+     */
+    public static String convertNodeToString(final Node node) {
+        Transformer trans = null;
+        try {
+            trans = TransformerFactory.newInstance().newTransformer();
+        } catch (TransformerConfigurationException e1) {
+            Logger.getRootLogger().error(e1.getMessage());
+        } catch (TransformerFactoryConfigurationError e1) {
+            Logger.getRootLogger().error(e1.getMessage());
+        }
+
+        final StringWriter sWriter = new StringWriter();
+        try {
+            trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            trans.transform(new DOMSource(node), new StreamResult(sWriter));
+        } catch (TransformerException e) {
+            Logger.getRootLogger().error(e.getMessage());
+        }
+        String result = sWriter.toString();
+        result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\" ", "");
+
+        return result;
     }
 }
