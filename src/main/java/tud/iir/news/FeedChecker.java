@@ -61,9 +61,15 @@ public final class FeedChecker {
     private FeedProcessingAction feedProcessingAction = null;
 
     /**
-     * record a list of percentage new values for each feed: feedID;pn1;...;pnItarationN
+     * Record a list of percentage new values for each feed: feedID;pn1;...;pnItarationN.
      */
     private final Map<Integer, String> pnMapEvaluation = new LinkedHashMap<Integer, String>();
+
+    /**
+     * Store for each feed after which iteration the probabilistic approach took over.
+     * In the beginning the adaptive approach is used until at least one full day has been seen.
+     */
+    private final Map<Integer, Integer> probabilisticSwitchMap = new HashMap<Integer, Integer>();
 
     /**
      * record a list of checkInterval values for each feed: feedID;ci1;...;ciItarationN
@@ -305,7 +311,7 @@ public final class FeedChecker {
         double pnTarget = getTargetPercentageOfNewEntries(feed);
 
         // calculate new update times depending on approach chosen
-        if (checkApproach == CHECK_FIXED && ((checkInterval == -1 && feed.getChecks() > 0) || (checkInterval != -1))) {
+        if (checkApproach == CHECK_FIXED && (checkInterval == -1 && feed.getChecks() > 0 || checkInterval != -1)) {
 
             // the checkInterval for the feed must have been determined at the
             // first check so don't do anything now OR the checkInterval is
@@ -315,7 +321,7 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(checkInterval);
             }
 
-        } else if (((checkApproach == CHECK_FIXED && checkInterval == -1) || checkApproach == CHECK_ADAPTIVE || checkApproach == CHECK_PROBABILISTIC)
+        } else if ((checkApproach == CHECK_FIXED && checkInterval == -1 || checkApproach == CHECK_ADAPTIVE || checkApproach == CHECK_PROBABILISTIC)
                 && feed.getChecks() == 0) {
 
             updateIntervalFixed(feed, fps);
@@ -323,8 +329,8 @@ public final class FeedChecker {
         }
 
         // for on-the-fly updates switch from probabilistic to adaptive
-        else if (((checkApproach == CHECK_ADAPTIVE) || (checkApproach == CHECK_PROBABILISTIC && (feed.getUpdateClass() == FeedClassifier.CLASS_ON_THE_FLY || !feed
-                .oneFullDayHasBeenSeen())))
+        else if ((checkApproach == CHECK_ADAPTIVE || checkApproach == CHECK_PROBABILISTIC && (feed.getUpdateClass() == FeedClassifier.CLASS_ON_THE_FLY || !feed
+                .oneFullDayHasBeenSeen()))
                 && feed.getChecks() > 0) {
 
             updateIntervalAdaptive(feed, pnTarget);
@@ -444,7 +450,7 @@ public final class FeedChecker {
             }
 
             // update the minutes where an entry could have been posted
-            for (long t = fps.getTimeOldestPost(); t < (fps.getTimeNewestPost() + DateHelper.MINUTE_MS); t += DateHelper.MINUTE_MS) {
+            for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS) {
                 int minuteOfDay = (int) DateHelper.getTimeOfDay(t, Calendar.MINUTE);
                 int[] postsChances = postDistribution.get(minuteOfDay);
                 postsChances[1] = postsChances[1] + 1;
@@ -548,6 +554,14 @@ public final class FeedChecker {
                 feed.setMinCheckInterval(minCheckInterval);
                 feed.setMaxCheckInterval(maxCheckInterval);
 
+                // remember at which iteration the probabilistic approach took over
+                if (benchmark != BENCHMARK_OFF) {
+                    Integer iteration = probabilisticSwitchMap.get(feed.getId());
+                    if (iteration == null) {
+                        probabilisticSwitchMap.put(feed.getId(), feed.getChecks());
+                    }
+                }
+
             }
         }
 
@@ -586,23 +600,23 @@ public final class FeedChecker {
             ciMapEvaluation.put(feed.getId(), cis);
 
             // update the minutes where an entry was actually posted
-            LinkedHashMap<Integer, Integer> minuteMap = postDistributionMapEvaluation.get(feed.getId());
-            if (minuteMap == null) {
-                minuteMap = new LinkedHashMap<Integer, Integer>();
-                for (int i = 0; i < 1440; i++) {
-                    minuteMap.put(i, 0);
-                }
-            }
-            for (FeedEntry entry : entries) {
-                if (entry.getPublished() == null) {
-                    continue;
-                }
-                int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
-                int posts = minuteMap.get(minuteOfDay);
-                posts = posts + 1;
-                minuteMap.put(minuteOfDay, posts);
-            }
-            postDistributionMapEvaluation.put(feed.getId(), minuteMap);
+            // LinkedHashMap<Integer, Integer> minuteMap = postDistributionMapEvaluation.get(feed.getId());
+            // if (minuteMap == null) {
+            // minuteMap = new LinkedHashMap<Integer, Integer>();
+            // for (int i = 0; i < 1440; i++) {
+            // minuteMap.put(i, 0);
+            // }
+            // }
+            // for (FeedEntry entry : entries) {
+            // if (entry.getPublished() == null) {
+            // continue;
+            // }
+            // int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
+            // int posts = minuteMap.get(minuteOfDay);
+            // posts = posts + 1;
+            // minuteMap.put(minuteOfDay, posts);
+            // }
+            // postDistributionMapEvaluation.put(feed.getId(), minuteMap);
 
         } else if (benchmark == BENCHMARK_MIN_CHECK_TIME) {
 
@@ -655,6 +669,13 @@ public final class FeedChecker {
 
             // the feed class
             csv.append(feed.getUpdateClass()).append(";");
+
+            // which iteration the probabilistic approach took over
+            Integer iteration = probabilisticSwitchMap.get(entry.getKey());
+            if (iteration == null) {
+                iteration = -1;
+            }
+            csv.append(iteration).append(";");
 
             // the pn data
             csv.append(entry.getValue()).append("\n");
