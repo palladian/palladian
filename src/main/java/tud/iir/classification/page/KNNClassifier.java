@@ -19,7 +19,7 @@ import tud.iir.helper.StopWatch;
  * 
  * @author David Urbansky
  */
-public class KNNClassifier extends WebPageClassifier {
+public class KNNClassifier extends TextClassifier {
 
     /** number of nearest neighbors that are allowed to vote */
     private int k = 3;
@@ -37,9 +37,11 @@ public class KNNClassifier extends WebPageClassifier {
      * Classify a given document.
      * @param document the document being classified
      */
-    public ClassificationDocument classify(ClassificationDocument document, int classType) {
+    public ClassificationDocument classify(ClassificationDocument document) {
 
         StopWatch stopWatch = new StopWatch();
+
+        int classType = getClassificationType();
 
         // make a look up in the context map for every single term
         CategoryEntries bestFitList = new CategoryEntries();
@@ -98,10 +100,26 @@ public class KNNClassifier extends WebPageClassifier {
 
         document.assignCategoryEntries(bestFitList);
 
-        // keep only top category for single mode
-        if (classType == ClassificationTypeSetting.SINGLE) {
-            document.limitCategories(1, 0.0);
+        // keep only top X categories for tagging mode
+        if (classType == ClassificationTypeSetting.TAG) {
+            document.limitCategories(classificationTypeSetting.getClassificationTypeTagSetting().getMinTags(),
+                    classificationTypeSetting.getClassificationTypeTagSetting().getMaxTags(), classificationTypeSetting
+                            .getClassificationTypeTagSetting().getTagConfidenceThreshold());
         }
+
+        // keep only top category for single mode
+        else if (classType == ClassificationTypeSetting.SINGLE) {
+            document.limitCategories(1, 1, 0.0);
+        }
+
+        if (document.getAssignedCategoryEntries().isEmpty()) {
+            Category unassignedCategory = new Category(null);
+            categories.add(unassignedCategory);
+            CategoryEntry defaultCE = new CategoryEntry(bestFitList, unassignedCategory, 1);
+            document.addCategoryEntry(defaultCE);
+        }
+
+        document.setClassifiedAs(classType);
 
         ClassifierManager.log("classified document (classType " + classType + ") in " + stopWatch.getElapsedTimeString() + " " + " ("
                 + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
@@ -118,7 +136,7 @@ public class KNNClassifier extends WebPageClassifier {
      */
     private Double getDistanceBetween(ClassificationDocument classifyDocument, ClassificationDocument trainingDocument) {
 
-        double matches = 0.001;
+        double matches = 0.0001;
 
         Set<Map.Entry<Term, Double>> entrySet1 = classifyDocument.getWeightedTerms().entrySet();
         
@@ -156,14 +174,12 @@ public class KNNClassifier extends WebPageClassifier {
 
     @Override
     public ClassificationDocument preprocessDocument(String url) {
-        ClassificationDocument classificationDocument = preprocessor.preProcessString(url);
-        return classificationDocument;
+        return preprocessor.preProcessDocument(url);
     }
 
     @Override
     public ClassificationDocument preprocessDocument(String url, ClassificationDocument classificationDocument) {
-        classificationDocument = preprocessor.preProcessString(url, classificationDocument);
-        return classificationDocument;
+        return preprocessor.preProcessDocument(url, classificationDocument);
     }
 
 }

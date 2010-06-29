@@ -8,6 +8,7 @@ import java.util.Set;
 import org.w3c.dom.Document;
 
 import tud.iir.classification.Term;
+import tud.iir.classification.page.evaluation.FeatureSetting;
 import tud.iir.helper.StringHelper;
 import tud.iir.web.Crawler;
 
@@ -23,10 +24,6 @@ import tud.iir.web.Crawler;
  */
 public final class Preprocessor {
 
-    /** list of words that are not considered in further calculation (English) */
-    private String[] stopWords = { "I", "a", "about", "an", "and", "are", "as", "at", "be", "by", "com", "de", "en", "for", "from", "how", "in", "is", "he",
-            "she", "it", "la", "of", "on", "or", "that", "the", "this", "to", "was", "what", "when", "where", "who", "will", "with", "und", "the", "www" };
-
     // characters that will be eliminated
     // private String[] illegalTermCharacters = { "\t", " ", ",", "\"", "'", ":", ";", "\\(", "\\)", "\\.", "\\!", "\\?", "\\{", "\\}" };
 
@@ -37,18 +34,12 @@ public final class Preprocessor {
     public static final double WEIGHT_META_TERM = 4.0;
     public static final double WEIGHT_BODY_TERM = 1.0;
 
-    /** maximum number of terms extracted from the resource (for full page preprocessing only) */
-    public static final int MAXIMUM_TERMS = 800;
-
-    /** minimum n-gram length (URL preprocessing only) */
-    public static final int MIN_NGRAM_SIZE = 4;
-
-    /** maximum n-gram length (URL preprocessing only) */
-    public static final int MAX_NGRAM_SIZE = 7;
-
-    // private PorterStemmer porterStemmer = null;
-
     private Crawler crawler = null;
+
+    /**
+     * the classifier that this preprocessor belongs to, the classifier holds the feature settings which are needed here
+     */
+    private TextClassifier classifier;
 
     /**
      * global map of terms, all documents that are processed by this preprocessor share this term map, this will save memory since strings do not have to be
@@ -59,8 +50,8 @@ public final class Preprocessor {
     /** the term x weight map */
     private Map<Term, Double> map;
 
-    public Preprocessor() {
-        // porterStemmer = new PorterStemmer();
+    public Preprocessor(TextClassifier classifier) {
+        this.classifier = classifier;
         crawler = new Crawler();
     }
 
@@ -112,17 +103,11 @@ public final class Preprocessor {
      */
     private void addToTermMap(String termString, double weight) {
 
-        if (termString.length() < 3 || termString.length() > 18 || map.size() >= MAXIMUM_TERMS || isStopWord(termString)) {
-            return;
-        }
-
-        termString = StringHelper.trim(termString);
-
-        /*
-         * try { term = porterStemmer.stem(term); } catch (StringIndexOutOfBoundsException e) { e.printStackTrace(); }
-         */
-
-        if (termString.length() < 3 || termString.length() > 18 || map.size() >= MAXIMUM_TERMS) {
+        if ((getFeatureSetting().getTextFeatureType() == FeatureSetting.WORD_NGRAMS
+                && getFeatureSetting().getMaxNGramLength() == 1 && (termString.length() < getFeatureSetting()
+                .getMinimumTermLength() || termString.length() > getFeatureSetting().getMaximumTermLength()))
+                || map.size() >= getFeatureSetting().getMaxTerms()
+                || isStopWord(termString)) {
             return;
         }
 
@@ -140,25 +125,11 @@ public final class Preprocessor {
         } else {
             map.put(term, weight);
         }
+
     }
 
-    private void addToNGramIndex(String ngram, double weight) {
-
-        ngram = ngram.toLowerCase();
-
-        Term term = termMap.get(ngram);
-        if (term == null) {
-            term = new Term(ngram);
-            termMap.put(ngram, term);
-        }
-
-        if (map.containsKey(term)) {
-            double currentWeight = map.get(term);
-            map.put(term, currentWeight + weight);
-        } else {
-            map.put(term, weight);
-        }
-
+    private FeatureSetting getFeatureSetting() {
+        return classifier.getFeatureSetting();
     }
 
     /**
@@ -169,6 +140,50 @@ public final class Preprocessor {
      * @param classificationDocument The classification document.
      * @return The classification document with the n-gram map.
      */
+    public ClassificationDocument preProcessDocument(String inputString, ClassificationDocument classificationDocument) {
+
+        // create a new term map for the classification document
+        map = new HashMap<Term, Double>();
+
+        // remove http(s): and www from URL
+        inputString = Crawler.getCleanURL(inputString);
+
+        Set<String> ngrams = StringHelper.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
+                getFeatureSetting().getMaxNGramLength());
+
+        // build the map
+        for (String ngram : ngrams) {
+
+            // TODO, change that => do not add ngrams with some special chars or if it is only numbers
+            if (ngram.indexOf("&") > -1 || ngram.indexOf("/") > -1 || ngram.indexOf("=") > -1
+                    || StringHelper.isNumber(ngram)) {
+                continue;
+            }
+
+            addToTermMap(ngram, 1.0);
+        }
+
+        classificationDocument.getWeightedTerms().putAll(map);
+
+        return classificationDocument;
+    }
+
+    public ClassificationDocument preProcessDocument(String url) {
+        return preProcessDocument(url, new ClassificationDocument());
+    }
+
+    /**
+     * Preprocess a string (such as a URL) and create a classification document. A map of n-grams is created for the
+     * document and added to it. If a n-gram term
+     * exists, it will be taken from the n-gram index.
+     * 
+     * @deprecated consider using preprocess document
+     * 
+     * @param inputString The input string.
+     * @param classificationDocument The classification document.
+     * @return The classification document with the n-gram map.
+     */
+    @Deprecated
     public ClassificationDocument preProcessString(String inputString, ClassificationDocument classificationDocument) {
 
         // create a new term map for the classification document
@@ -177,7 +192,8 @@ public final class Preprocessor {
         // remove http(s): and www from URL
         inputString = Crawler.getCleanURL(inputString);
 
-        Set<String> ngrams = StringHelper.calculateAllCharNGrams(inputString, MIN_NGRAM_SIZE, MAX_NGRAM_SIZE);
+        Set<String> ngrams = StringHelper.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
+                getFeatureSetting().getMaxNGramLength());
 
         // build the map
         for (String ngram : ngrams) {
@@ -187,7 +203,7 @@ public final class Preprocessor {
                 continue;
             }
 
-            addToNGramIndex(ngram, 1.0);
+            addToTermMap(ngram, 1.0);
         }
 
         classificationDocument.getWeightedTerms().putAll(map);
@@ -200,13 +216,17 @@ public final class Preprocessor {
     }
 
     /**
-     * Preprocess a web page and create a classification document. A map of terms is created for the document and added to it. If a term exists, it will be
+     * Preprocess a web page and create a classification document. A map of terms is created for the document and added
+     * to it. If a term exists, it will be
      * taken from the term index.
+     * 
+     * @deprecated consider using preprocess document
      * 
      * @param url The URL of the web page.
      * @param classificationDocument The classification document.
      * @return The classification document with the n-gram map.
      */
+    @Deprecated
     public ClassificationDocument preProcessPage(String url, ClassificationDocument classificationDocument) {
 
         Document webPage = crawler.getWebDocument(url);
@@ -243,14 +263,24 @@ public final class Preprocessor {
         return classificationDocument;
     }
 
+    /**
+     * @deprecated consider using preprocess document
+     * @param url
+     * @return
+     */
+    @Deprecated
     public ClassificationDocument preProcessPage(String url) {
         return preProcessPage(url, new ClassificationDocument());
     }
 
     /**
-     * Preprocesses a long string of text similar to {@link #preProcessPage(String, ClassificationDocument)}, but the text content is not downloaded from the
-     * web but passed via the url parameter. XXX This is a quick and dirty hack to allow classification of text content and should be refactored somehow in the
+     * Preprocesses a long string of text similar to {@link #preProcessPage(String, ClassificationDocument)}, but the
+     * text content is not downloaded from the
+     * web but passed via the url parameter. XXX This is a quick and dirty hack to allow classification of text content
+     * and should be refactored somehow in the
      * future.
+     * 
+     * @deprecated consider using preprocess document
      * 
      * @author Philipp Katz
      * 
@@ -258,6 +288,7 @@ public final class Preprocessor {
      * @param classificationDocument
      * @return
      */
+    @Deprecated
     public ClassificationDocument preProcessText(String text, ClassificationDocument classificationDocument) {
 
         map = new HashMap<Term, Double>();
@@ -278,6 +309,12 @@ public final class Preprocessor {
         return classificationDocument;
     }
 
+    /**
+     * @deprecated consider using preprocess document
+     * @param text
+     * @return
+     */
+    @Deprecated
     public ClassificationDocument preProcessText(String text) {
         return preProcessText(text, new ClassificationDocument());
     }
@@ -300,8 +337,8 @@ public final class Preprocessor {
      * @return a string without words from the stop word list
      */
     private String stripStopWords(String words) {
-        for (int i = 0; i < stopWords.length; ++i) {
-            words = words.replaceAll("\\s" + stopWords[i] + "\\s", " ");
+        for (String stopWord : getFeatureSetting().getStopWords()) {
+            words = words.replaceAll("\\s" + stopWord + "\\s", " ");
         }
 
         return words;
@@ -310,7 +347,7 @@ public final class Preprocessor {
     private boolean isStopWord(String word) {
         word = word.toLowerCase().trim();
 
-        for (String stopWord : stopWords) {
+        for (String stopWord : getFeatureSetting().getStopWords()) {
             if (stopWord.equals(word))
                 return true;
         }

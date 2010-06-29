@@ -23,9 +23,7 @@ import tud.iir.helper.TreeNode;
  * 
  * @author David Urbansky
  */
-public abstract class DictionaryClassifier extends WebPageClassifier {
-
-
+public class DictionaryClassifier extends TextClassifier {
 
     /** the context map: matrix of terms x categories with weights in cells */
     protected Dictionary dictionary = null;
@@ -92,7 +90,8 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
         dictionary.increaseNumberOfDocuments();
 
         // co-occurrence: update the category correlation matrix of the dictionary (works but takes more time and space)
-        if (ClassificationTypeSetting.CO_OCCURRENCE_IN_TAG_MODE) {
+        if (classificationTypeSetting.getClassificationType() == ClassificationTypeSetting.TAG
+                && classificationTypeSetting.getClassificationTypeTagSetting().isUseCooccurrence()) {
 
             Term[] terms;
             if (trainingDocument.getRealCategories().size() == 1) {
@@ -168,9 +167,14 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
     }
 
     // protected abstract double calculateRelevance(Category category, Map.Entry<String, Double> categoryEntry, Map.Entry<String, Double> weightedTerm);
-    protected abstract double calculateRelevance(CategoryEntry categoryEntry, Map.Entry<String, Double> weightedTerm);
+    protected double calculateRelevance(CategoryEntry categoryEntry, Map.Entry<String, Double> map) {
+         return 0.0;
+     }
+    // weightedTerm);
 
-    public ClassificationDocument classify(ClassificationDocument document, int classType, boolean loadDictionary) {
+    public ClassificationDocument classify(ClassificationDocument document, boolean loadDictionary) {
+
+        int classType = getClassificationType();
 
         if (document == null) {
             return new ClassificationDocument();
@@ -240,7 +244,8 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
                     }
 
                     // in tag mode, boost the category entry if the category is part of the URL
-                    if (ClassificationTypeSetting.TAG_IN_URL_BOOST) {
+                    if (classificationTypeSetting.getClassificationType() == ClassificationTypeSetting.TAG
+                            && classificationTypeSetting.getClassificationTypeTagSetting().isTagBoost()) {
                         if (classType == ClassificationTypeSetting.TAG
                                 && document.getUrl().toLowerCase().indexOf(categoryName.toLowerCase()) > -1
                                 && categoryName.length() > 3) {
@@ -309,7 +314,8 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
         document.assignCategoryEntries(bestFitList);
 
         // co-occurrence boost (wcm has to be build in addToDictionary method)
-        if (ClassificationTypeSetting.CO_OCCURRENCE_IN_TAG_MODE) {
+        if (classificationTypeSetting.getClassificationType() == ClassificationTypeSetting.TAG
+                && classificationTypeSetting.getClassificationTypeTagSetting().isUseCooccurrence()) {
 
             dictionary.getWcm().makeRelativeScores();
 
@@ -368,18 +374,20 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
                         .error(
                                 "class " + mc + " was not learned and could not be found in hierarchy tree: "
                                         + document.getMainCategoryEntry().getCategory().getName(), e);
-                document.limitCategories(5, 0.0);
+                document.limitCategories(5, 5, 0.0);
             }
         }
 
         // keep only top X categories for tagging mode
         else if (classType == ClassificationTypeSetting.TAG) {
-            document.limitCategories(ClassificationTypeSetting.NUMBER_OF_TAGS, 0.0);
+            document.limitCategories(classificationTypeSetting.getClassificationTypeTagSetting().getMinTags(),
+                    classificationTypeSetting.getClassificationTypeTagSetting().getMaxTags(), classificationTypeSetting
+                            .getClassificationTypeTagSetting().getTagConfidenceThreshold());
         }
 
         // keep only top category for single mode
         else if (classType == ClassificationTypeSetting.SINGLE) {
-            document.limitCategories(1, 0.0);
+            document.limitCategories(1, 1, 0.0);
         }
 
         if (document.getAssignedCategoryEntries().isEmpty()) {
@@ -398,14 +406,24 @@ public abstract class DictionaryClassifier extends WebPageClassifier {
     }
 
     @Override
-    public ClassificationDocument classify(ClassificationDocument document, int classType) {
-        return classify(document, classType, true);
+    public ClassificationDocument classify(ClassificationDocument document) {
+        return classify(document, true);
     }
 
-    public void classifyTestDocuments(int classType, boolean loadDictionary) {
+    public void classifyTestDocuments(boolean loadDictionary) {
         for (ClassificationDocument testDocument : testDocuments) {
-            classify(testDocument, classType, loadDictionary);
+            classify(testDocument, loadDictionary);
         }
+    }
+
+    @Override
+    public ClassificationDocument preprocessDocument(String url, ClassificationDocument classificationDocument) {
+        return preprocessor.preProcessDocument(url, classificationDocument);
+    }
+
+    @Override
+    public ClassificationDocument preprocessDocument(String url) {
+        return preprocessor.preProcessDocument(url);
     }
 
     public Dictionary getDictionary() {

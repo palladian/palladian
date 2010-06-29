@@ -202,11 +202,11 @@ public class ClassificationDocument {
      * @param number Number of categories to keep.
      * @param relevanceThreshold Categories must have at least this much relevance to be kept.
      */
-    public void limitCategories(int number, double relevanceThreshold) {
+    public void limitCategories(int minCategories, int maxCategories, double relevanceThreshold) {
         CategoryEntries limitedCategories = new CategoryEntries();
         int n = 0;
         for (CategoryEntry c : getAssignedCategoryEntriesByRelevance(getClassifiedAs())) {
-            if (n < number && c.getRelevance() >= relevanceThreshold) {
+            if (n < minCategories || (n < maxCategories && c.getRelevance() >= relevanceThreshold)) {
                 limitedCategories.add(c);
             }
             n++;

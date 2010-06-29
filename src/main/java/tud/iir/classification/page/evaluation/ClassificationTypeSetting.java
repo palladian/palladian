@@ -1,6 +1,6 @@
 package tud.iir.classification.page.evaluation;
 
-import tud.iir.classification.page.WebPageClassifier;
+import tud.iir.classification.page.TextClassifier;
 
 public class ClassificationTypeSetting {
 
@@ -20,20 +20,17 @@ public class ClassificationTypeSetting {
      */
     private int classificationType = SINGLE;
 
-    /** enable category co-occurrence, that works only in tag mode */
-    public static final boolean CO_OCCURRENCE_IN_TAG_MODE = false;
+    /** Whether or not the classifier should be serialized. */
+    private boolean serializeClassifier = false;
 
-    /** if true, the tags that appear in the text (or URL) are weighted higher */
-    public static final boolean TAG_IN_URL_BOOST = false;
-
-    /** number of tags that are assigned to a document in tagging mode */
-    public static final int NUMBER_OF_TAGS = 5;
+    /** configurations that only apply if {@link classifcationType} is set to {@link TAG} */
+    private ClassificationTypeTagSetting classificationTypeTagSetting;
 
     /**
      * Set the classification type under which the classifier operates.
      * 
-     * @param classificationType The classification type must be one of {@link WebPageClassifier.SINGLE},
-     *            {@link WebPageClassifier.HIERARCHICAL}, or {@link WebPageClassifier.TAG}.
+     * @param classificationType The classification type must be one of {@link TextClassifier.SINGLE},
+     *            {@link TextClassifier.HIERARCHICAL}, or {@link TextClassifier.TAG}.
      */
     public void setClassificationType(int classificationType) {
         this.classificationType = classificationType;
@@ -41,5 +38,21 @@ public class ClassificationTypeSetting {
 
     public int getClassificationType() {
         return classificationType;
+    }
+
+    public void setClassificationTypeTagSetting(ClassificationTypeTagSetting classificationTypeTagSetting) {
+        this.classificationTypeTagSetting = classificationTypeTagSetting;
+    }
+
+    public ClassificationTypeTagSetting getClassificationTypeTagSetting() {
+        return classificationTypeTagSetting;
+    }
+
+    public void setSerializeClassifier(boolean serializeClassifier) {
+        this.serializeClassifier = serializeClassifier;
+    }
+
+    public boolean isSerializeClassifier() {
+        return serializeClassifier;
     }
 }

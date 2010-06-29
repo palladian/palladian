@@ -1,4 +1,4 @@
-package tud.iir.temp;
+package tud.iir.classification.page.evaluation;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
@@ -20,34 +20,39 @@ public class TrainingDataSeparation {
 	public TrainingDataSeparation(){
 		
 	}
-	
-	/**
-	 * Separates a given training set by trainingDataPercentage into two files, containing  
-	 * training and testing data. The separation can be done by randomly chosen lines or 
-	 * the first part is used for training and the second part for testing.<br /><br />
-	 * Example:<br />
-	 * 1) fileToSeparate contains 10 lines, trainingDataPercentage = 40 and randomlyChooseLines
-	 *    is false, than lines 1-4 are written to trainingDataFileToWrite and lines 5-10 are
-	 *    written to testingDataFileToWrite.<br />
-	 * 2) fileToSeparate contains 10 lines, trainingDataPercentage = 40 and randomlyChooseLines
-	 *    is true, than 4 randomly chosen lines are written to trainingDataFileToWrite and 
-	 *    the remaining lines are written to testingDataFileToWrite.   
-	 * @param fileToSeparate Path to the file to be separated. 
-	 * @param trainingDataFileToWrite Path to the file the training data will be written to.
-	 * @param testingDataFileToWrite Path to the file the testing data will be written to.
-	 * @param trainingDataPercentage Percentage of file which should 
-	 * be used for training, range [0, 100]. The remainder of the file
-	 * can be used for testing.  
-	 * @param randomlyChooseLines Specifies whether lines should be picked randomly 
-	 * or not. If false, the first lines are used for training. 
-	 */
+
+    /**
+     * Separates a given training set by trainingDataPercentage into two files, containing
+     * training and testing data. The separation can be done by randomly chosen lines or
+     * the first part is used for training and the second part for testing.<br />
+     * <br />
+     * 
+     * Example:<br />
+     * 1) fileToSeparate contains 10 lines, trainingDataPercentage = 40 and randomlyChooseLines
+     * is false, than lines 1-4 are written to trainingDataFileToWrite and lines 5-10 are
+     * written to testingDataFileToWrite.<br />
+     * 2) fileToSeparate contains 10 lines, trainingDataPercentage = 40 and randomlyChooseLines
+     * is true, than 4 randomly chosen lines are written to trainingDataFileToWrite and
+     * the remaining lines are written to testingDataFileToWrite.
+     * 
+     * @param fileToSeparate Path to the file to be separated.
+     * @param trainingDataFileToWrite Path to the file the training data will be written to.
+     * @param testingDataFileToWrite Path to the file the testing data will be written to.
+     * @param trainingDataPercentage Percentage of file which should
+     *            be used for training, range [0, 100]. The remainder of the file
+     *            can be used for testing.
+     * @param randomlyChooseLines Specifies whether lines should be picked randomly
+     *            or not. If false, the first lines are used for training.
+     */
 	public void separateFile(String fileToSeparate,
 			String trainingDataFileToWrite,
 			String testingDataFileToWrite,
-			int trainingDataPercentage, 
-			boolean randomlyChooseLines){
-		if(trainingDataPercentage < 0  || trainingDataPercentage > 100)
-		{
+            double trainingDataPercentage, boolean randomlyChooseLines) {
+
+        FileHelper.delete(trainingDataFileToWrite);
+        FileHelper.delete(testingDataFileToWrite);
+
+        if (trainingDataPercentage < 0 || trainingDataPercentage > 100) {
 			logger.error("trainingDataPercentage out of range [0, 100]: "+ trainingDataPercentage);
 			logger.error("File not separated! ");
 			return;
@@ -59,7 +64,7 @@ public class TrainingDataSeparation {
 		
 		// calculate number of lines of training and test data sets
 		lineCounter = FileHelper.getNumberOfLines(fileToSeparate);
-		trainingDataLines = Math.round((float)lineCounter*(float)trainingDataPercentage/100);
+		trainingDataLines = Math.round(lineCounter*(float)trainingDataPercentage/100);
 
 				
 		// 'reassign' lines, 
