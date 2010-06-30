@@ -19,6 +19,7 @@ import org.jaxen.JaxenException;
 import org.jaxen.dom.DOMXPath;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 /**
  * A helper to handle xPath.
@@ -280,6 +281,32 @@ public class XPathHelper {
     }
 
     /**
+     * Gets the child nodes.
+     * 
+     * @param node the (parent)node
+     * @return the childNodes
+     */
+    public static List<Node> getChildNodes(final Node node) {
+
+        final List<Node> children = new ArrayList<Node>();
+
+        try {
+            final NodeList childNodes = node.getChildNodes();
+            if (childNodes != null) {
+                for (int x = 0; x < childNodes.getLength(); x++) {
+                    if (childNodes.item(x).getLocalName() != null && isChildOf(childNodes.item(x), node)) {
+                        children.add(childNodes.item(x));
+                    }
+                }
+            }
+        } catch (Exception e) {
+            Logger.getRootLogger().error(e.getMessage());
+        }
+
+        return children;
+    }
+
+    /**
      * Convert a node and his children to string.
      * 
      * @param node the node
@@ -303,8 +330,32 @@ public class XPathHelper {
             Logger.getRootLogger().error(e.getMessage());
         }
         String result = sWriter.toString();
-        result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\" ", "");
+        result = result.replace(" xmlns=\"http://www.w3.org/1999/xhtml\"", "");
+        // result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\"", "");
 
         return result;
     }
+
+    /**
+     * Gets the previous sibling nodes of a node.
+     * 
+     * @param node the node
+     * @return the previous siblings
+     */
+    public static List<Node> getPreviousSiblings(final Node node) {
+
+        final Node parentNode = node.getParentNode();
+        final List<Node> previousSiblings = new ArrayList<Node>();
+        final List<Node> childNodes = XPathHelper.getChildNodes(parentNode);
+
+        for (Node childNode : childNodes) {
+            if (childNode.isSameNode(node)) {
+                break;
+            } else {
+                previousSiblings.add(childNode);
+            }
+        }
+        return previousSiblings;
+    }
+
 }
