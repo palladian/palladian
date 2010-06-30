@@ -157,9 +157,9 @@ public class DedicatedPageDetector {
     private void calculateBodyContent(String url) {
         MIOPage mioPage = new MIOPage(url, url);
         Crawler crawler = new Crawler(5000, 5000, 10000);
-        String content = crawler.download(url);
+        String content = crawler.downloadNotBlacklisted(url);
         if (!content.equals("")) {
-            mioPage.setContent(crawler.download(url));
+            mioPage.setContent(crawler.downloadNotBlacklisted(url));
             calculateDedicatedPageTrust(mioPage);
         } else {
             System.out.println("Fehler beim content-download!");

@@ -72,7 +72,37 @@ public class MIOContextAnalyzer {
             }
         }
 
-        final double mioTrust = pageContextTrust + fileNameRelevance + filePathRelevance + altTextRelevance;
+        double headlineRelevance = 0;
+        String headlines = "";
+        if (mio.getInfos().containsKey("previousHeadlines")) {
+            try {
+                // get the nearest previousHeadline
+                headlines = (String) mio.getInfos().get("previousHeadlines").get(0);
+            } catch (Exception e) {
+                // do nothing
+            }
+
+            if (headlines.length() > 1) {
+                headlineRelevance = calcStringRelevance(headlines, entity);
+            }
+        }
+
+        double surroundingTextRelevance = 0;
+        String surroundingText = "";
+        if (mio.getInfos().containsKey("surroundingText")) {
+            try {
+                surroundingText = (String) mio.getInfos().get("surroundingText").get(0);
+            } catch (Exception e) {
+                // do nothing
+            }
+
+            if (surroundingText.length() > 1) {
+                surroundingTextRelevance = calcStringRelevance(surroundingText, entity);
+            }
+        }
+
+        final double mioTrust = pageContextTrust + fileNameRelevance + filePathRelevance + altTextRelevance
+                + headlineRelevance + surroundingTextRelevance;
         // System.out.println("pageContextTrust: " + pageContextTrust);
 
         mio.setTrust(mioTrust);
@@ -130,7 +160,7 @@ public class MIOContextAnalyzer {
      * @param entityName the entity name
      * @return the double
      */
-    private double calcStringRelevance(String inputString, String entityName) {
+    private double calcStringRelevance(final String inputString, final String entityName) {
         // SearchWordMatcher swm = new SearchWordMatcher(entityName);
 
         // String Elements[] = entityName.split("\\s");
@@ -178,13 +208,17 @@ public class MIOContextAnalyzer {
     private double checkForBadWords(MIO mio) {
 
         for (String badWord : badWords) {
-            if (mio.getDirectURL().contains(badWord)) {
+            if (!mio.getEntity().getName().contains(badWord) && mio.getDirectURL().contains(badWord)) {
                 double result = mio.getTrust();
                 return (result / 2);
             }
         }
         return mio.getTrust();
     }
+
+    // private double calcHeadlineRelevance(mio){
+    //
+    // }
 
     /**
      * The main method.
