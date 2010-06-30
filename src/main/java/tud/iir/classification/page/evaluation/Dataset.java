@@ -24,4 +24,15 @@ public class Dataset {
         return separationString;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Dataset [path=");
+        builder.append(path);
+        builder.append(", separationString=");
+        builder.append(separationString);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

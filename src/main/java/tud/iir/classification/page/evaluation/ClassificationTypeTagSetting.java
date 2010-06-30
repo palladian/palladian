@@ -57,4 +57,21 @@ public class ClassificationTypeTagSetting {
         this.useCooccurrence = useCooccurrence;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("ClassificationTypeTagSetting [maxTags=");
+        builder.append(maxTags);
+        builder.append(", minTags=");
+        builder.append(minTags);
+        builder.append(", tagBoost=");
+        builder.append(tagBoost);
+        builder.append(", tagConfidenceThreshold=");
+        builder.append(tagConfidenceThreshold);
+        builder.append(", useCooccurrence=");
+        builder.append(useCooccurrence);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

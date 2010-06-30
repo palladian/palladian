@@ -55,4 +55,17 @@ public class ClassificationTypeSetting {
     public boolean isSerializeClassifier() {
         return serializeClassifier;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("classificationType=");
+        builder.append(classificationType);
+        if (getClassificationType() == TAG) {
+            builder.append(", classificationTypeTagSetting=");
+            builder.append(classificationTypeTagSetting);
+        }
+        return builder.toString();
+    }
+
 }

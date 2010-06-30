@@ -11,26 +11,26 @@ public class FeatureSetting {
 
     private int textFeatureType = CHAR_NGRAMS;
 
-    /** the maximum number of terms that should be used per document */
+    /** The maximum number of terms that should be used per document. */
     private int maxTerms = 800;
 
-    /** minimum n-gram length */
+    /** Minimum n-gram length. */
     private int minNGramLength = 4;
 
-    /** maximum n-gram length */
+    /** Maximum n-gram length. */
     private int maxNGramLength = 7;
 
     /**
-     * the maximum length of a single term, this only applies if {@link textFeatureType} is set to {@link WORD_NGRAMS}
-     * and {@link maxNGramLength} is 1, that is, only unigrams will be used
-     */
-    private int maximumTermLength = 20;
-
-    /**
-     * the minimum length of a single term, this only applies if {@link textFeatureType} is set to {@link WORD_NGRAMS}
-     * and {@link maxNGramLength} is 1, that is, only unigrams will be used
+     * The minimum length of a single term, this only applies if {@link textFeatureType} is set to {@link WORD_NGRAMS}
+     * and {@link maxNGramLength} is 1, that is, only unigrams will be used.
      */
     private int minimumTermLength = 3;
+
+    /**
+     * The maximum length of a single term, this only applies if {@link textFeatureType} is set to {@link WORD_NGRAMS}
+     * and {@link maxNGramLength} is 1, that is, only unigrams will be used.
+     */
+    private int maximumTermLength = 20;
 
     public static Set<String> englishStopWords = new HashSet<String>();
 
