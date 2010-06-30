@@ -1,0 +1,147 @@
+package tud.iir.classification.page.evaluation;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
+
+import tud.iir.classification.page.TextClassifier;
+
+public class CrossValidationResult {
+
+    /** The classifier for which the results are gathered. */
+    private TextClassifier classifier;
+
+    /** Average performances over all datasets, training percentages, and folds. */
+    private Set<ClassifierPerformance> performancesDatasetTrainingFolds = new HashSet<ClassifierPerformance>();
+
+    /** Average performances over all training percentages and folds <Datasetname:performances> */
+    private Map<String, HashSet<ClassifierPerformance>> performancesTrainingFolds = new HashMap<String, HashSet<ClassifierPerformance>>();
+
+    /** Average performances over all folds <Datasetname,trainingpercentage:performances>. */
+    private Map<String, HashSet<ClassifierPerformance>> performancesFolds = new HashMap<String, HashSet<ClassifierPerformance>>();
+
+    public CrossValidationResult(TextClassifier classifier) {
+        this.classifier = classifier;
+    }
+
+    public void setClassifier(TextClassifier classifier) {
+        this.classifier = classifier;
+    }
+
+    public TextClassifier getClassifier() {
+        return classifier;
+    }
+
+    public Set<ClassifierPerformance> getPerformancesDatasetTrainingFolds() {
+        return performancesDatasetTrainingFolds;
+    }
+
+    public void setPerformancesDatasetTrainingFolds(Set<ClassifierPerformance> performancesDatasetTrainingFolds) {
+        this.performancesDatasetTrainingFolds = performancesDatasetTrainingFolds;
+    }
+
+    public Map<String, HashSet<ClassifierPerformance>> getPerformancesTrainingFolds() {
+        return performancesTrainingFolds;
+    }
+
+    public void setPerformancesTrainingFolds(Map<String, HashSet<ClassifierPerformance>> performancesTrainingFolds) {
+        this.performancesTrainingFolds = performancesTrainingFolds;
+    }
+
+    public Map<String, HashSet<ClassifierPerformance>> getPerformancesFolds() {
+        return performancesFolds;
+    }
+
+    public void setPerformancesFolds(Map<String, HashSet<ClassifierPerformance>> performancesFolds) {
+        this.performancesFolds = performancesFolds;
+    }
+
+    /**
+     * Calculate the average classifier performance when all performances over all datasets, training percentages, and
+     * folds are averaged.
+     * 
+     * @return An average classifier performance.
+     */
+    public AverageClassifierPerformance getAveragePerformanceDataSetTrainingFolds() {
+        AverageClassifierPerformance averageCP = new AverageClassifierPerformance();
+
+        double avgPrecision = 0;
+        double avgRecall = 0;
+        for (ClassifierPerformance cp : getPerformancesDatasetTrainingFolds()) {
+            avgPrecision += cp.getAveragePrecision(false);
+            avgRecall += cp.getAverageRecall(false);
+        }
+
+        averageCP.setPrecision(avgPrecision);
+        averageCP.setRecall(avgRecall);
+
+        return averageCP;
+    }
+
+    /**
+     * Calculate the average classifier performance when all performances over all training percentages and
+     * folds are averaged.
+     * 
+     * @return The average classifier performance for each dataset.
+     */
+    public Map<String, AverageClassifierPerformance> getAveragePerformanceTrainingFolds() {
+
+        Map<String, AverageClassifierPerformance> result = new HashMap<String, AverageClassifierPerformance>();
+
+        AverageClassifierPerformance averageCP = new AverageClassifierPerformance();
+
+        for (Entry<String, HashSet<ClassifierPerformance>> cpEntry : getPerformancesTrainingFolds().entrySet()) {
+
+            double avgPrecision = 0;
+            double avgRecall = 0;
+
+            for (ClassifierPerformance cp : cpEntry.getValue()) {
+                avgPrecision += cp.getAveragePrecision(false);
+                avgRecall += cp.getAverageRecall(false);
+            }
+
+            averageCP.setPrecision(avgPrecision);
+            averageCP.setRecall(avgRecall);
+
+            result.put(cpEntry.getKey(), averageCP);
+
+        }
+
+        return result;
+    }
+
+    /**
+     * Calculate the average classifier performance when all performances over all folds are averaged.
+     * 
+     * @return The average classifier performance for each dataset and training percentage.
+     */
+    public Map<String, AverageClassifierPerformance> getAveragePerformanceFolds() {
+
+        Map<String, AverageClassifierPerformance> result = new HashMap<String, AverageClassifierPerformance>();
+
+        AverageClassifierPerformance averageCP = new AverageClassifierPerformance();
+
+        for (Entry<String, HashSet<ClassifierPerformance>> cpEntry : getPerformancesFolds().entrySet()) {
+
+            double avgPrecision = 0;
+            double avgRecall = 0;
+
+            for (ClassifierPerformance cp : cpEntry.getValue()) {
+                avgPrecision += cp.getAveragePrecision(false);
+                avgRecall += cp.getAverageRecall(false);
+            }
+
+            averageCP.setPrecision(avgPrecision);
+            averageCP.setRecall(avgRecall);
+
+            result.put(cpEntry.getKey(), averageCP);
+
+        }
+
+        return result;
+    }
+
+
+}
