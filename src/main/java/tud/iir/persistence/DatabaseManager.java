@@ -552,7 +552,7 @@ public class DatabaseManager {
      * Load entities (names and lastSearched only) for a specific concept.
      *
      * @param concept the concept
-     * @param number A number.
+     * @param number Number of Entities to return.
      * @param offset An offset value.
      * @param continueFromLastExtraction the continue from last extraction
      * @return An array of entities.
@@ -753,8 +753,23 @@ public class DatabaseManager {
 
         for (Concept concept : concepts) {
             // int conceptID = getConceptID(concept.getName());
+            
             int conceptID = addConcept(concept);
-
+            
+            //
+            // TODO added by Philipp, 2010-06-30
+            // this saves Synonyms as well; the problem is, that when loading the Concepts from the database, 
+            // the synonyms are treated as separate Concepts, so I commented this out. Need to talk to David how
+            // Synonyms should be treated -- 
+            // a) Treat each Synonym equally as separate Concept. 
+            // b) Have one "master" Concept, which can have multiple synonym Concepts.
+            //
+            /*HashSet<String> synonyms = concept.getSynonyms();
+            for (String synonym : synonyms) {
+                int synonymID = addConcept(new Concept(synonym));
+                addConceptSynonym(conceptID, synonymID);
+            }*/
+            
             for (Entity entity : concept.getEntities()) {
 
                 // add entity to database

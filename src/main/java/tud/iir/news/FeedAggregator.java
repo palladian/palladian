@@ -1,9 +1,9 @@
 package tud.iir.news;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -523,27 +523,20 @@ public class FeedAggregator {
         // return addedCount;
 
     }
-    
+
     /**
-     * Add feeds from a supplied OPML file.
+     * Add feeds from a supplied file. The file must contain a newline separeted list of feed URLs.
      * 
      * @param fileName
      * @return
      */
-    public int addFeedsFromOpml(String fileName) {
-        LOGGER.trace(">addFeedsFromOpml");
-        
-        File opmlFile = new File(fileName);
-        List<Feed> feeds = OPMLHelper.readOPMLFile(opmlFile);
-        List<String> urls = new LinkedList<String>();
-        for (Feed feed : feeds) {
-            urls.add(feed.getFeedUrl());
-        }
-        LOGGER.info("adding " + urls.size() + " feeds");
-        int result = addFeeds(urls);
-        LOGGER.trace("<addFeedsFromOpml " + result);
+    public int addFeedsFromFile(String filePath) {
+        LOGGER.trace(">addFeedsFromFile");
+        ArrayList<String> feedUrls = FileHelper.readFileToArray(filePath);
+        LOGGER.info("adding " + feedUrls.size() + " feeds");
+        int result = addFeeds(feedUrls);
+        LOGGER.trace("<addFeedsFromFile " + result);
         return result;
-        
     }
 
     /**
@@ -738,12 +731,12 @@ public class FeedAggregator {
         
         CommandLineParser parser = new BasicParser();
         
-        // CLI usage: FeedAggregator [-threads nn] [-noScraping] [-add <feed-Url>] [-addOpml <OPML-file>] [-aggregate] [-aggregateWait <minutes>]
+        // CLI usage: FeedAggregator [-threads nn] [-noScraping] [-add <feed-Url>] [-addFile <file>] [-aggregate] [-aggregateWait <minutes>]
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("threads").withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("noScraping").withDescription("disable PageContentExtractor").create());
         options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName("feedUrl").create());
-        options.addOption(OptionBuilder.withLongOpt("addOpml").withDescription("add multiple feeds from supplied OPML file").hasArg().withArgName("OPMLfile").create());
+        options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file").hasArg().withArgName("file").create());
         options.addOption(OptionBuilder.withLongOpt("aggregate").withDescription("run aggregation process").create());
         options.addOption(OptionBuilder.withLongOpt("aggregateWait").withDescription("run continuous aggregation process; wait for specified number of minutes between each aggregation step").hasArg().withArgName("minutes").withType(Number.class).create());
         
@@ -766,8 +759,8 @@ public class FeedAggregator {
             if (cmd.hasOption("add")) {
                 aggregator.addFeed(cmd.getOptionValue("add"));
             }
-            if (cmd.hasOption("addOpml")) {
-                aggregator.addFeedsFromOpml(cmd.getOptionValue("addOpml"));
+            if (cmd.hasOption("addFile")) {
+                aggregator.addFeedsFromFile(cmd.getOptionValue("addFile"));
             }
             if (cmd.hasOption("aggregate")) {
                 aggregator.aggregate();
@@ -790,7 +783,7 @@ public class FeedAggregator {
         
         // print usage help
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("FeedDiscovery [options] query1[,query2,...]", options);
+        formatter.printHelp("FeedAggregator [options]", options);
 
     }
 

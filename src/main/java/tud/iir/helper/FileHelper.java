@@ -14,6 +14,8 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -25,6 +27,7 @@ import org.apache.log4j.Logger;
  * The FileHelper helps with file concerning tasks.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public class FileHelper {
 
@@ -185,6 +188,27 @@ public class FileHelper {
 
     public static void writeToFile(String filePath, StringBuilder string) {
         writeToFile(filePath, string.toString());
+    }
+
+    /**
+     * Writes a Collection of Objects to a file. Each Object's {{@link #toString()} invocation represents a line.
+     * 
+     * @param filePath
+     * @param lines
+     * @author Philipp Katz
+     */
+    public static void writeToFile(String filePath, Collection<?> lines) {
+        try {
+            FileWriter fileWriter = new FileWriter(filePath);
+            for (Object line : lines) {
+                fileWriter.write(line.toString());
+                fileWriter.write(System.getProperty("line.separator"));
+            }
+            fileWriter.flush();
+            fileWriter.close();
+        } catch (IOException e) {
+            logger.error(filePath + ", " + e.getMessage());
+        }
     }
 
     public static void writeToFile(String filePath, String string) {
@@ -673,7 +697,9 @@ public class FileHelper {
         // FileHelper.addFileHeader("data/temp/src/tud/iir/web/test", sb);
         // System.exit(0);
         // ////////////////////////add license to every file //////////////////////////
-
+        writeToFile("temp/test.txt", Arrays.asList(new String[] {"one","two","three","four"}));
+        System.exit(0);
+        
         FileHelper.move(new File("abc.txt"), "data");
         System.exit(0);
         FileHelper.unzipFile7z("wpc_1262_20091020_0017_1.log.gz");
@@ -702,5 +728,6 @@ public class FileHelper {
         isFileName("  abasdf.mpeg2 ");
 
         System.out.println(rename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
+        
     }
 }
