@@ -28,7 +28,7 @@ import tud.iir.web.Crawler;
  */
 public class HtmlHelper {
 
-    private static final Logger logger = Logger.getLogger(HtmlHelper.class);
+    private static final Logger LOGGER = Logger.getLogger(HtmlHelper.class);
 
     // block level elements for which we want to create a line break
     private static final String[] BLOCK_ELEMENTS = new String[] { "address", "blockquote", "div", "dl", "fieldset", "form", "h1", "h2", "h3", "h4", "h5", "h6",
@@ -92,11 +92,11 @@ public class HtmlHelper {
                 }
             }));
         } catch (TransformerConfigurationException e) {
-            logger.error("htmlDocToString:TransformerConfigurationException", e);
+            LOGGER.error("htmlDocToString:TransformerConfigurationException", e);
         } catch (TransformerFactoryConfigurationError e) {
-            logger.error("htmlDocToString:TransformerFactoryConfigurationError", e);
+            LOGGER.error("htmlDocToString:TransformerFactoryConfigurationError", e);
         } catch (TransformerException e) {
-            logger.error("htmlDocToString:TransformerException", e);
+            LOGGER.error("htmlDocToString:TransformerException", e);
         }
         String result = builder.toString();
         // result = result.replaceAll("[ \t]*?\n", "\n");
