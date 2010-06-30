@@ -477,7 +477,7 @@ SourceRetriever s = new SourceRetriever();
 s.setResultCount(10);
 		
 // set search result language to english
-s.setLanguage(SourceRetrieve.LANGUAGE_ENGLISH);
+s.setLanguage(SourceRetriever.LANGUAGE_ENGLISH);
 		
 // set the query source to the Bing search engine 
 s.setSource(SourceRetrieverManager.BING);
@@ -523,7 +523,7 @@ CrawlerCallback crawlerCallback = new CrawlerCallback() {
 		System.out.println(document.getDocumentURI());
 	}
 };
-c.setCrawlerCallback(crawlerCallback);
+c.addCrawlerCallback(crawlerCallback);
 
 // stop after 1000 pages have been crawled (default is unlimited)
 c.setStopCount(1000);

@@ -9,16 +9,17 @@ import org.apache.xerces.xni.XNIException;
 import org.cyberneko.html.filters.DefaultFilter;
 
 /**
- * Quick and dirty approach to filter out elements and attributes from foreign namespaces.
+ * Filter out elements and attributes from the Document parsed with NekoHTML which can cause trouble later. This
+ * includes elements from foreign namespaces or attribute names with illegal characters.
  * 
  * @author Philipp Katz
  * 
  */
-public class ForeignNamespaceFilter extends DefaultFilter {
+public class PreflightFilter extends DefaultFilter {
 
     private Logger logger;
 
-    public ForeignNamespaceFilter(Logger logger) {
+    public PreflightFilter(Logger logger) {
         this.logger = logger;
     }
 

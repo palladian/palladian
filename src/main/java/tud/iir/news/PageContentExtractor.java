@@ -51,7 +51,7 @@ import tud.iir.web.Crawler;
  * determined, the algorithm also checks its siblings whether they contain content, too.
  * </p>
  * 
- * @version Based on: SVN r147, Jun 04, 2010
+ * @version Based on: SVN r150, Jun 21, 2010
  * 
  * @see <a href="http://lab.arc90.com/experiments/readability">Website</a>
  * @see <a href="http://code.google.com/p/arc90labs-readability">JavaScript Source</a>
@@ -72,22 +72,14 @@ public class PageContentExtractor {
      * All of the regular expressions in use within readability. Defined up here so we don't instantiate them repeatedly
      * in loops.
      **/
-    private static final Pattern unlikelyCandidatesRe = Pattern.compile(
-            "combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor", Pattern.CASE_INSENSITIVE);
-    private static final Pattern okMaybeItsACandidateRe = Pattern.compile("and|article|body|column|main",
-            Pattern.CASE_INSENSITIVE);
-    private static final Pattern positiveRe = Pattern.compile(
-            "article|body|content|entry|hentry|page|pagination|post|text", Pattern.CASE_INSENSITIVE);
-    private static final Pattern negativeRe = Pattern
-            .compile(
-                    "combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget",
-                    Pattern.CASE_INSENSITIVE);
-    private static final Pattern divToPElementsRe = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul)",
-            Pattern.CASE_INSENSITIVE);
+    private static final Pattern UNLIKELY_CANDIDATES_RE = Pattern.compile("combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor", Pattern.CASE_INSENSITIVE);
+    private static final Pattern OK_MAYBE_ITS_A_CANDIDATE_RE = Pattern.compile("and|article|body|column|main", Pattern.CASE_INSENSITIVE);
+    private static final Pattern POSITIVE_RE = Pattern.compile("article|body|content|entry|hentry|page|pagination|post|text|blog", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NEGATIVE_RE = Pattern.compile("combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget", Pattern.CASE_INSENSITIVE);
+    private static final Pattern DIV_TO_P_ELEMENTS_RE = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul)", Pattern.CASE_INSENSITIVE);
     // private static final Pattern trimRe = Pattern.compile("^\\s+|\\s+$");
-    private static final Pattern normalizeRe = Pattern.compile("\\s{2,}");
-    private static final Pattern videoRe = Pattern.compile("http:\\/\\/(www\\.)?(youtube|vimeo)\\.com",
-            Pattern.CASE_INSENSITIVE);
+    private static final Pattern NORMALIZE_RE = Pattern.compile("\\s{2,}");
+    private static final Pattern VIDEO_RE = Pattern.compile("http:\\/\\/(www\\.)?(youtube|vimeo)\\.com", Pattern.CASE_INSENSITIVE);
 
     private DOMParser parser;
 
@@ -100,14 +92,16 @@ public class PageContentExtractor {
     private boolean weightClasses;
 
     private boolean stripUnlikelyCandidates;
+    
+    private boolean cleanConditionally;
 
     private boolean writeDump = false;
 
-    public PageContentExtractor() {
+    public PageContentExtractor() throws PageContentExtractorException {
         setup();
     }
 
-    private void setup() {
+    private void setup() throws PageContentExtractorException {
         LOGGER.trace(">setup");
         // set up the NekoHTML parser
         try {
@@ -116,18 +110,18 @@ public class PageContentExtractor {
             // use the filter to filter out Elements and Attributes which do not
             // belong to the default namespace -- elsewise we can get into trouble
             // later, when we want to construct the new document
-            XMLDocumentFilter[] filters = { new ForeignNamespaceFilter(LOGGER) };
+            XMLDocumentFilter[] filters = { new PreflightFilter(LOGGER) };
             parser.setProperty("http://cyberneko.org/html/properties/filters", filters);
 
             parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
             parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
 
         } catch (SAXNotSupportedException e) {
-            LOGGER.error("initialization of DOMParser failed, throwing RuntimeException", e);
-            throw new RuntimeException("initialization of DOMParser failed", e);
+            LOGGER.error("initialization of DOMParser failed", e);
+            throw new PageContentExtractorException("initialization of DOMParser failed", e);
         } catch (SAXNotRecognizedException e) {
-            LOGGER.error("initialization of DOMParser failed, throwing RuntimeException", e);
-            throw new RuntimeException("initialization of DOMParser failed", e);
+            LOGGER.error("initialization of DOMParser failed", e);
+            throw new PageContentExtractorException("initialization of DOMParser failed", e);
         }
         LOGGER.trace("<setup");
     }
@@ -145,6 +139,7 @@ public class PageContentExtractor {
         this.document = document;
         stripUnlikelyCandidates = true;
         weightClasses = true;
+        cleanConditionally = true;
         this.resultDocument = init(document);
         return this;
     }
@@ -348,6 +343,10 @@ public class PageContentExtractor {
                 weightClasses = false;
                 LOGGER.debug("re-running without class weigths");
                 result = init(document);
+            } else if (cleanConditionally) {
+                cleanConditionally = false;
+                LOGGER.debug("re-running without conditional cleaning");
+                result = init(document);
             } else {
                 LOGGER.debug("looks like I could not parse this page for content (result looks too short)");
                 // do we really need to throw an exception? better return result, which *might* be too short.
@@ -450,7 +449,7 @@ public class PageContentExtractor {
         // TODO readability.killBreaks(articleContent);
 
         /* Clean out junk from the article content */
-        clean(articleContent, "form");
+        cleanConditionally(articleContent, "form");
         clean(articleContent, "object");
         clean(articleContent, "h1");
 
@@ -553,8 +552,8 @@ public class PageContentExtractor {
             /* Remove unlikely candidates */
             if (stripUnlikelyCandidates) {
                 String unlikelyMatchString = node.getAttribute("class") + node.getAttribute("id");
-                if (unlikelyCandidatesRe.matcher(unlikelyMatchString).find()
-                        && !okMaybeItsACandidateRe.matcher(unlikelyMatchString).find()
+                if (UNLIKELY_CANDIDATES_RE.matcher(unlikelyMatchString).find()
+                        && !OK_MAYBE_ITS_A_CANDIDATE_RE.matcher(unlikelyMatchString).find()
                         && !node.getTagName().equalsIgnoreCase("body")) {
                     LOGGER.debug("Removing unlikely candidate - " + unlikelyMatchString);
                     node.getParentNode().removeChild(node);
@@ -569,10 +568,11 @@ public class PageContentExtractor {
 
             /* Turn all divs that don't have children block level elements into p's */
             if (node.getTagName().equalsIgnoreCase("div")) {
-                if (!divToPElementsRe.matcher(Helper.getInnerXml(node)).find()) {
+                if (!DIV_TO_P_ELEMENTS_RE.matcher(Helper.getInnerXml(node)).find()) {
                     LOGGER.debug("Altering div to p");
                     document.renameNode(node, node.getNamespaceURI(), "p");
                     nodeIndex--;
+                    nodesToScore.add(node);
                 } else {
                     // EXPERIMENTAL
                     for (int i = 0; i < node.getChildNodes().getLength(); i++) {
@@ -600,6 +600,11 @@ public class PageContentExtractor {
         List<Element> candidates = new LinkedList<Element>();
         for (Element nodeToScore : nodesToScore) {
             Node parentNode = nodeToScore.getParentNode();
+            
+            if (parentNode == null) {
+                continue;
+            }
+            
             Node grandParentNode = parentNode.getParentNode();
 
             String innerText = getInnerText(nodeToScore);
@@ -631,7 +636,7 @@ public class PageContentExtractor {
             }
 
             // if grandparent is ELEMENT_NODE, initialize readability, add half of the score -- Philipp.
-            if (grandParentNode.getNodeType() == Node.ELEMENT_NODE) {
+            if (grandParentNode != null && grandParentNode.getNodeType() == Node.ELEMENT_NODE) {
                 Element grandParentElement = (Element) grandParentNode;
                 if (!hasReadability(grandParentElement)) {
                     initializeNode(grandParentElement);
@@ -782,7 +787,7 @@ public class PageContentExtractor {
         String textContent = e.getTextContent().trim();
 
         if (normalizeSpaces) {
-            textContent = normalizeRe.matcher(textContent).replaceAll(" ");
+            textContent = NORMALIZE_RE.matcher(textContent).replaceAll(" ");
         }
 
         // logger.trace("<getInnerText " + textContent);
@@ -875,22 +880,22 @@ public class PageContentExtractor {
 
         /* Look for a special classname */
         if (e.hasAttribute("class")) {
-            if (negativeRe.matcher(e.getAttribute("class")).find()) {
+            if (NEGATIVE_RE.matcher(e.getAttribute("class")).find()) {
                 weight -= 25;
             }
 
-            if (positiveRe.matcher(e.getAttribute("class")).find()) {
+            if (POSITIVE_RE.matcher(e.getAttribute("class")).find()) {
                 weight += 25;
             }
         }
 
         /* Look for a special ID */
         if (e.hasAttribute("id")) {
-            if (negativeRe.matcher(e.getAttribute("id")).find()) {
+            if (NEGATIVE_RE.matcher(e.getAttribute("id")).find()) {
                 weight -= 25;
             }
 
-            if (positiveRe.matcher(e.getAttribute("id")).find()) {
+            if (POSITIVE_RE.matcher(e.getAttribute("id")).find()) {
                 weight += 25;
             }
         }
@@ -917,19 +922,19 @@ public class PageContentExtractor {
             Node item = targetList.item(y);
 
             if (isEmbed) {
-                String attributeValues = "";
+                StringBuilder attributeValues = new StringBuilder();
 
                 for (int i = 0; i < item.getAttributes().getLength(); i++) {
-                    attributeValues += item.getAttributes().item(i).getTextContent() + "|";
+                    attributeValues.append(item.getAttributes().item(i).getTextContent() + "|");
                 }
 
                 /* First, check the elements attributes to see if any of them contain youtube or vimeo */
-                if (videoRe.matcher(attributeValues).find()) {
+                if (VIDEO_RE.matcher(attributeValues).find()) {
                     continue;
                 }
 
                 /* Then check the elements inside this element for the same. */
-                if (videoRe.matcher(item.getTextContent()).find()) {
+                if (VIDEO_RE.matcher(item.getTextContent()).find()) {
                     continue;
                 }
 
@@ -948,6 +953,10 @@ public class PageContentExtractor {
      **/
     private void cleanConditionally(Element e, String tag) {
         LOGGER.trace(">cleanConditionally");
+        
+        if (!cleanConditionally) {
+            return;
+        }
 
         NodeList tagsList = e.getElementsByTagName(tag);
         int curTagsLength = tagsList.getLength();
@@ -985,7 +994,7 @@ public class PageContentExtractor {
                 NodeList embeds = element.getElementsByTagName("embed");
                 for (int ei = 0; ei < embeds.getLength(); ei++) {
                     Element embedElement = (Element) embeds.item(ei);
-                    if (videoRe.matcher(embedElement.getAttribute("src")).find()) {
+                    if (VIDEO_RE.matcher(embedElement.getAttribute("src")).find()) {
                         embedCount++;
                     }
                 }
@@ -1092,6 +1101,10 @@ public class PageContentExtractor {
         options.addOption(OptionBuilder.withLongOpt("output").hasArg().withArgName("fileName").create());
 
         try {
+            
+            if (args.length < 1) {
+                throw new ParseException(null);
+            }
 
             CommandLine cmd = parser.parse(options, args);
 
@@ -1104,7 +1117,7 @@ public class PageContentExtractor {
 
             if (cmd.getArgs().length == 1) {
 
-                pageContentExtractor.setDocument(new URL(cmd.getArgs()[0]));
+                pageContentExtractor.setDocument(cmd.getArgs()[0]);
 
                 System.out.println(pageContentExtractor.getResultTitle());
                 System.out.println("================================");
@@ -1125,7 +1138,7 @@ public class PageContentExtractor {
 
         // print usage help
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("PageContentExtractor [options] inputUrl", options);
+        formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
 
     }
 
