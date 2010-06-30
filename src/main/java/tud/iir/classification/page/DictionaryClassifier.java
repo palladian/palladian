@@ -59,7 +59,7 @@ public class DictionaryClassifier extends TextClassifier {
             dictionary.setClassType(classType);
         }
 
-        for (ClassificationDocument document : trainingDocuments) {
+        for (ClassificationDocument document : getTrainingDocuments()) {
             addToDictionary(document, classType);
         }
 
@@ -411,7 +411,7 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     public void classifyTestDocuments(boolean loadDictionary) {
-        for (ClassificationDocument testDocument : testDocuments) {
+        for (ClassificationDocument testDocument : getTestDocuments()) {
             classify(testDocument, loadDictionary);
         }
     }

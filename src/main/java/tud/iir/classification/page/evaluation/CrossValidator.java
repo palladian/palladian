@@ -1,12 +1,16 @@
 package tud.iir.classification.page.evaluation;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.page.ClassifierManager;
 import tud.iir.classification.page.TextClassifier;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
-import tud.iir.helper.MathHelper;
 
 public class CrossValidator {
 
@@ -60,10 +64,22 @@ public class CrossValidator {
         double[][] openAnalytixPerformances = new double[numberTrainingPercentageLoops][kFolds];
         int[] trainingPercentageUsed = new int[numberTrainingPercentageLoops];
 
+        // average performances over all datasets, training percentages and folds
+        Set<ClassifierPerformance> classifierPerformancesDatasetTrainingFolds = new HashSet<ClassifierPerformance>();
+
+        // average performances over all training percentages and folds <Datasetname:performances>
+        Map<String, HashSet<ClassifierPerformance>> classifierPerformancesTrainingFolds = new HashMap<String, HashSet<ClassifierPerformance>>();
+
+        // average performances over all folds <Datasetname,trainingpercentage:performances>
+        Map<String, HashSet<ClassifierPerformance>> classifierPerformancesFolds = new HashMap<String, HashSet<ClassifierPerformance>>();
+
         // iterate over all datasets
         for (Dataset dataset : getEvaluationSetting().getDatasets()) {
 
             int trainingPercentageLoop = 0;
+
+            // keep a set of performances for all training percentages of the given dataset
+            Set<ClassifierPerformance> classifierPerformancesDatasetTrainingFoldsTemp0 = new HashSet<ClassifierPerformance>();
 
             // e.g. test from 40:60 to 90:10
             for (double trainingPercentage = trainingPercentageMin; trainingPercentage <= trainingPercentageMax; trainingPercentage += trainingPercentageStep) {
@@ -72,6 +88,9 @@ public class CrossValidator {
                 LOGGER.info("\n start trainingPercentage classification loop on " + dataset.getPath()
                         + " with trainingPercentage "
                                 + trainingPercentage + "%, random = " + getEvaluationSetting().isRandom() + "\n");
+
+                // keep a set of performances for all folds of the given training percentage and dataset
+                Set<ClassifierPerformance> classifierPerformancesDatasetTrainingFoldsTemp1 = new HashSet<ClassifierPerformance>();
 
                 // e.g. 10 loops to average over random selection training and test data
                 for (int k = 0; k < kFolds; k++) {
@@ -104,6 +123,8 @@ public class CrossValidator {
                     // classType, ClassifierManager.CLASSIFICATION_TEST_MODEL);
 
 
+                    classifierPerformancesDatasetTrainingFolds.add(classifier.getPerformance());
+                    classifierPerformancesDatasetTrainingFoldsTemp1.add(classifier.getPerformance());
 
                     StringBuilder trainingsetPercentSB = new StringBuilder();
                     trainingsetPercentSB.append(currentTime);
@@ -112,36 +133,38 @@ public class CrossValidator {
 
                 }
 
+                classifierPerformancesTrainingFolds.get(dataset.getPath() + "_" + trainingPercentage).addAll(
+                        classifierPerformancesDatasetTrainingFoldsTemp1);
+                classifierPerformancesDatasetTrainingFoldsTemp0.addAll(classifierPerformancesDatasetTrainingFoldsTemp1);
+
                 trainingPercentageLoop++;
             }
+
+            classifierPerformancesTrainingFolds.get(dataset.getPath()).addAll(
+                    classifierPerformancesDatasetTrainingFoldsTemp0);
         }
 
-        // //print results
-        String resultFilePath = "data/temp/" + DateHelper.getCurrentDatetime() + "_results.csv";
-        System.out.println("Writing final results to " + resultFilePath);
-
-        String useRandom = getEvaluationSetting().isRandom() ? "random" : "static";
-
+        // output results
         StringBuilder finalResultSB = new StringBuilder();
-        finalResultSB.append("ave perf @ ").append(kFolds).append(";");
+        finalResultSB.append(getEvaluationSetting()).append(";\n");
 
 
         finalResultSB.append("\n");
 
-        for (int i = 0; i < numberTrainingPercentageLoops; i++) {
-            finalResultSB.append("train ").append(trainingPercentageUsed[i]).append("% ").append(useRandom).append(";");
-
-                double culmulatedPrecision = 0;
-                for (int k = 0; k < kFolds; k++) {
-                culmulatedPrecision += openAnalytixPerformances[i][k];
-            }
-                finalResultSB.append(MathHelper.round(culmulatedPrecision / kFolds, 4)).append(";");
-
-            finalResultSB.append("\n");
-            System.out.print("\n");
-        }
-
-        FileHelper.writeToFile(resultFilePath, finalResultSB);
+        // for (int i = 0; i < numberTrainingPercentageLoops; i++) {
+        // finalResultSB.append("train ").append(trainingPercentageUsed[i]).append("% ").append(useRandom).append(";");
+        //
+        // double culmulatedPrecision = 0;
+        // for (int k = 0; k < kFolds; k++) {
+        // culmulatedPrecision += openAnalytixPerformances[i][k];
+        // }
+        // finalResultSB.append(MathHelper.round(culmulatedPrecision / kFolds, 4)).append(";");
+        //
+        // finalResultSB.append("\n");
+        // System.out.print("\n");
+        // }
+        //
+        // FileHelper.writeToFile(resultFilePath, finalResultSB);
     }
 
     private int getTrainingPercentageLoops() {

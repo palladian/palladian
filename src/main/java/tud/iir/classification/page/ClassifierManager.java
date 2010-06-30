@@ -18,6 +18,7 @@ import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Dictionary;
 import tud.iir.classification.Term;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
+import tud.iir.classification.page.evaluation.ClassifierPerformance;
 import tud.iir.classification.page.evaluation.CrossValidator;
 import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.classification.page.evaluation.EvaluationSetting;
@@ -304,6 +305,9 @@ public class ClassifierManager {
         } else {
             classifier.classifyTestDocuments();
         }
+
+        ClassifierPerformance performance = classifier.getPerformance();
+
         // create log document
         String timeNeeded = DateHelper.getRuntime(startTime);
         LOGGER.info("Classifier: " + classifier.getName() + " (with parameters: " + classifier.getParameters() + ")");
@@ -330,62 +334,62 @@ public class ClassifierManager {
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 30 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(classifier.trainingDocuments.getRealNumberOfCategory(category));
+                logLine.append(classifier.getTrainingDocuments().getRealNumberOfCategory(category));
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 40 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(classifier.testDocuments.getRealNumberOfCategory(category));
+                logLine.append(classifier.getTestDocuments().getRealNumberOfCategory(category));
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 46 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(classifier.testDocuments.getClassifiedNumberOfCategory(category));
+                logLine.append(classifier.getTestDocuments().getClassifiedNumberOfCategory(category));
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 58 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(classifier.getNumberOfCorrectClassifiedDocumentsInCategory(category));
-                totalCorrect += classifier.getNumberOfCorrectClassifiedDocumentsInCategory(category);
+                logLine.append(performance.getNumberOfCorrectClassifiedDocumentsInCategory(category));
+                totalCorrect += performance.getNumberOfCorrectClassifiedDocumentsInCategory(category);
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 67 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append((int) Math.floor(100 * classifier.getPrecisionForCategory(category)) + "%");
+                logLine.append((int) Math.floor(100 * performance.getPrecisionForCategory(category)) + "%");
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 84 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append((int) Math.floor(100 * classifier.getRecallForCategory(category)) + "%");
+                logLine.append((int) Math.floor(100 * performance.getRecallForCategory(category)) + "%");
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 101 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(Math.floor(100 * classifier.getFForCategory(category, 0.5)) / 100);
+                logLine.append(Math.floor(100 * performance.getFForCategory(category, 0.5)) / 100);
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 118 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append((int) Math.floor(100 * classifier.getSensitivityForCategory(category)) + "%");
+                logLine.append((int) Math.floor(100 * performance.getSensitivityForCategory(category)) + "%");
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 135 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append((int) Math.floor(100 * classifier.getSpecificityForCategory(category)) + "%");
+                logLine.append((int) Math.floor(100 * performance.getSpecificityForCategory(category)) + "%");
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 152 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(MathHelper.round(classifier.getAccuracyForCategory(category), 2));
+                logLine.append(MathHelper.round(performance.getAccuracyForCategory(category), 2));
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 169 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(MathHelper.round(classifier.getWeightForCategory(category), 2));
+                logLine.append(MathHelper.round(performance.getWeightForCategory(category), 2));
                 LOGGER.info(logLine.toString());
             }
-            LOGGER.info("Average Precision: " + (int) Math.floor(100 * classifier.getAveragePrecision(false))
-                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAveragePrecision(true)) + "%");
-            LOGGER.info("Average Recall: " + (int) Math.floor(100 * classifier.getAverageRecall(false))
-                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAverageRecall(true)) + "%");
-            LOGGER.info("Average F1: " + Math.floor(1000 * classifier.getAverageF(0.5, false)) / 1000 + ", weighted: "
-                    + Math.floor(1000 * classifier.getAverageF(0.5, true)) / 1000);
-            LOGGER.info("Average Sensitivity: " + (int) Math.floor(100 * classifier.getAverageSensitivity(false))
-                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAverageSensitivity(true)) + "%");
-            LOGGER.info("Average Specificity: " + (int) Math.floor(100 * classifier.getAverageSpecificity(false))
-                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAverageSpecificity(true)) + "%");
-            LOGGER.info("Average Accuracy: " + Math.floor(1000 * classifier.getAverageAccuracy(false)) / 1000
-                    + ", weighted: " + Math.floor(1000 * classifier.getAverageAccuracy(true)) / 1000);
+            LOGGER.info("Average Precision: " + (int) Math.floor(100 * performance.getAveragePrecision(false))
+                    + "%, weighted: " + (int) Math.floor(100 * performance.getAveragePrecision(true)) + "%");
+            LOGGER.info("Average Recall: " + (int) Math.floor(100 * performance.getAverageRecall(false))
+                    + "%, weighted: " + (int) Math.floor(100 * performance.getAverageRecall(true)) + "%");
+            LOGGER.info("Average F1: " + Math.floor(1000 * performance.getAverageF(0.5, false)) / 1000 + ", weighted: "
+                    + Math.floor(1000 * performance.getAverageF(0.5, true)) / 1000);
+            LOGGER.info("Average Sensitivity: " + (int) Math.floor(100 * performance.getAverageSensitivity(false))
+                    + "%, weighted: " + (int) Math.floor(100 * performance.getAverageSensitivity(true)) + "%");
+            LOGGER.info("Average Specificity: " + (int) Math.floor(100 * performance.getAverageSpecificity(false))
+                    + "%, weighted: " + (int) Math.floor(100 * performance.getAverageSpecificity(true)) + "%");
+            LOGGER.info("Average Accuracy: " + Math.floor(1000 * performance.getAverageAccuracy(false)) / 1000
+                    + ", weighted: " + Math.floor(1000 * performance.getAverageAccuracy(true)) / 1000);
             if (classType == ClassificationTypeSetting.SINGLE) {
                 double correctClassified = (double) totalCorrect / (double) testUrls.size();
                 LOGGER.info("Correctly Classified: " + MathHelper.round(100 * correctClassified, 2) + "%");
@@ -507,6 +511,8 @@ public class ClassifierManager {
         // create log document
         String timeNeeded = stopWatch.getElapsedTimeString();
 
+        ClassifierPerformance performance = classifier.getPerformance();
+
         LOGGER.info("Classifier: " + classifier.getName() + " (with parameters: " + classifier.getParameters() + ")");
         LOGGER.info("Classification type: " + classifier.getClassificationType());
         LOGGER.info("Document Representation Settings: " + classifier.getFeatureSetting() + " Weights: Domain "
@@ -537,62 +543,62 @@ public class ClassifierManager {
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 30 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(classifier.trainingDocuments.getRealNumberOfCategory(category));
+                logLine.append(classifier.getTrainingDocuments().getRealNumberOfCategory(category));
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 40 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(classifier.testDocuments.getRealNumberOfCategory(category));
+                logLine.append(classifier.getTestDocuments().getRealNumberOfCategory(category));
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 46 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(classifier.testDocuments.getClassifiedNumberOfCategory(category));
+                logLine.append(classifier.getTestDocuments().getClassifiedNumberOfCategory(category));
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 58 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(classifier.getNumberOfCorrectClassifiedDocumentsInCategory(category));
-                totalCorrect += classifier.getNumberOfCorrectClassifiedDocumentsInCategory(category);
+                logLine.append(performance.getNumberOfCorrectClassifiedDocumentsInCategory(category));
+                totalCorrect += performance.getNumberOfCorrectClassifiedDocumentsInCategory(category);
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 67 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append((int) Math.floor(100 * classifier.getPrecisionForCategory(category)) + "%");
+                logLine.append((int) Math.floor(100 * performance.getPrecisionForCategory(category)) + "%");
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 84 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append((int) Math.floor(100 * classifier.getRecallForCategory(category)) + "%");
+                logLine.append((int) Math.floor(100 * performance.getRecallForCategory(category)) + "%");
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 101 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(Math.floor(100 * classifier.getFForCategory(category, 0.5)) / 100);
+                logLine.append(Math.floor(100 * performance.getFForCategory(category, 0.5)) / 100);
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 118 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append((int) Math.floor(100 * classifier.getSensitivityForCategory(category)) + "%");
+                logLine.append((int) Math.floor(100 * performance.getSensitivityForCategory(category)) + "%");
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 135 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append((int) Math.floor(100 * classifier.getSpecificityForCategory(category)) + "%");
+                logLine.append((int) Math.floor(100 * performance.getSpecificityForCategory(category)) + "%");
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 152 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(MathHelper.round(classifier.getAccuracyForCategory(category), 2));
+                logLine.append(MathHelper.round(performance.getAccuracyForCategory(category), 2));
                 for (int i = 0, l = logLine.length(); i < Math.max(0, 169 - l); i++) {
                     logLine.append(" ");
                 }
-                logLine.append(MathHelper.round(classifier.getWeightForCategory(category), 2));
+                logLine.append(MathHelper.round(performance.getWeightForCategory(category), 2));
                 LOGGER.info(logLine.toString());
             }
-            LOGGER.info("Average Precision: " + (int) Math.floor(100 * classifier.getAveragePrecision(false))
-                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAveragePrecision(true)) + "%");
-            LOGGER.info("Average Recall: " + (int) Math.floor(100 * classifier.getAverageRecall(false))
-                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAverageRecall(true)) + "%");
-            LOGGER.info("Average F1: " + Math.floor(1000 * classifier.getAverageF(0.5, false)) / 1000 + ", weighted: "
-                    + Math.floor(1000 * classifier.getAverageF(0.5, true)) / 1000);
-            LOGGER.info("Average Sensitivity: " + (int) Math.floor(100 * classifier.getAverageSensitivity(false))
-                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAverageSensitivity(true)) + "%");
-            LOGGER.info("Average Specificity: " + (int) Math.floor(100 * classifier.getAverageSpecificity(false))
-                    + "%, weighted: " + (int) Math.floor(100 * classifier.getAverageSpecificity(true)) + "%");
-            LOGGER.info("Average Accuracy: " + Math.floor(1000 * classifier.getAverageAccuracy(false)) / 1000
-                    + ", weighted: " + Math.floor(1000 * classifier.getAverageAccuracy(true)) / 1000);
+            LOGGER.info("Average Precision: " + (int) Math.floor(100 * performance.getAveragePrecision(false))
+                    + "%, weighted: " + (int) Math.floor(100 * performance.getAveragePrecision(true)) + "%");
+            LOGGER.info("Average Recall: " + (int) Math.floor(100 * performance.getAverageRecall(false))
+                    + "%, weighted: " + (int) Math.floor(100 * performance.getAverageRecall(true)) + "%");
+            LOGGER.info("Average F1: " + Math.floor(1000 * performance.getAverageF(0.5, false)) / 1000 + ", weighted: "
+                    + Math.floor(1000 * performance.getAverageF(0.5, true)) / 1000);
+            LOGGER.info("Average Sensitivity: " + (int) Math.floor(100 * performance.getAverageSensitivity(false))
+                    + "%, weighted: " + (int) Math.floor(100 * performance.getAverageSensitivity(true)) + "%");
+            LOGGER.info("Average Specificity: " + (int) Math.floor(100 * performance.getAverageSpecificity(false))
+                    + "%, weighted: " + (int) Math.floor(100 * performance.getAverageSpecificity(true)) + "%");
+            LOGGER.info("Average Accuracy: " + Math.floor(1000 * performance.getAverageAccuracy(false)) / 1000
+                    + ", weighted: " + Math.floor(1000 * performance.getAverageAccuracy(true)) / 1000);
 
             if (classifier.getClassificationType() == ClassificationTypeSetting.SINGLE) {
                 double correctClassified = (double) totalCorrect / (double) testUrls.size();
@@ -871,7 +877,7 @@ public class ClassifierManager {
             if (isTrainingDocument) {
                 preprocessedDocument.setDocumentType(ClassificationDocument.TRAINING);
                 preprocessedDocument.setRealCategories(categories);
-                classifier.trainingDocuments.add(preprocessedDocument);
+                classifier.getTrainingDocuments().add(preprocessedDocument);
 
                 if (addToDictionary) {
                     ((DictionaryClassifier) classifier).addToDictionary(preprocessedDocument, classType);
@@ -880,7 +886,7 @@ public class ClassifierManager {
             } else {
                 preprocessedDocument.setDocumentType(ClassificationDocument.TEST);
                 preprocessedDocument.setRealCategories(categories);
-                classifier.testDocuments.add(preprocessedDocument);
+                classifier.getTestDocuments().add(preprocessedDocument);
             }
             log(Math.floor(100.0 * i / size) + "% preprocessed: " + tData[0] + ", i:" + i + ", size:" + size);
 
@@ -907,7 +913,7 @@ public class ClassifierManager {
 
             String[] tData = trainingUrls.get(i);
             preprocessedDocument = preprocessDocument(tData, ClassificationDocument.TRAINING);
-            classifier.trainingDocuments.add(preprocessedDocument);
+            classifier.getTrainingDocuments().add(preprocessedDocument);
 
             // all nGrams of the current URL are saved in the map with their
             // categories and relevances as ngram => [category => relevance]
@@ -1004,7 +1010,7 @@ public class ClassifierManager {
             TestDocument preprocessedDocument = null;
             String[] tData = testUrls.get(i - trainingUrls.size());
             preprocessedDocument = (TestDocument) preprocessDocument(tData, ClassificationDocument.TEST);
-            classifier.testDocuments.add(preprocessedDocument);
+            classifier.getTestDocuments().add(preprocessedDocument);
         }
 
     }

@@ -12,7 +12,7 @@ import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
  * @author David Urbansky
  * 
  */
-class ClassificationDocuments extends ArrayList<ClassificationDocument> {
+public class ClassificationDocuments extends ArrayList<ClassificationDocument> {
 
     private static final long serialVersionUID = 1L;
 

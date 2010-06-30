@@ -21,7 +21,7 @@ import tud.iir.helper.StopWatch;
  */
 public class KNNClassifier extends TextClassifier {
 
-    /** number of nearest neighbors that are allowed to vote */
+    /** Number of nearest neighbors that are allowed to vote. */
     private int k = 3;
 
     /**
@@ -54,7 +54,7 @@ public class KNNClassifier extends TextClassifier {
 
         // find k nearest neighbors, compare document to every trained document
         Map<ClassificationDocument, Double> neighbors = new HashMap<ClassificationDocument, Double>();
-        for (ClassificationDocument trainingDocument : trainingDocuments) {
+        for (ClassificationDocument trainingDocument : getTrainingDocuments()) {
             double distance = getDistanceBetween(trainingDocument, document);
             neighbors.put(trainingDocument, distance);
         }
