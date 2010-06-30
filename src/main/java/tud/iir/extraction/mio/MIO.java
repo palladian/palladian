@@ -4,6 +4,7 @@
  */
 package tud.iir.extraction.mio;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -11,16 +12,17 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.Extractable;
 
 /**
  * An interactive multimedia object.
  * 
  * @author Martin Werner
  */
-public class MIO {
+public class MIO extends Extractable {
 
     private double trust = 0;
-    private String type = "";
+    private String mioType = "";
     private String findPageURL = "";
     private String directURL = "";
     private String fileName = "";
@@ -30,6 +32,8 @@ public class MIO {
     private boolean isDedicatedPage = true;
     private Map<String, List> infos;
 
+    private Map<String, Double> features;
+
     /**
      * Instantiates a new mIO.
      * 
@@ -38,13 +42,16 @@ public class MIO {
      * @param findPageURL the find page url
      * @param entity the entity
      */
-    public MIO(String type, String directURL, String findPageURL, Entity entity) {
+    public MIO(String mioType, String directURL, String findPageURL, Entity entity) {
 
-        this.type = type;
+        this.features = new HashMap<String, Double>();
+        this.mioType = mioType;
         this.findPageURL = findPageURL;
         this.entity = entity;
         this.directURL = directURL;
-        this.fileName = extractFileName(directURL, type);
+        this.fileName = extractFileName(directURL, mioType);
+
+        setExtractedAt(new Date(System.currentTimeMillis()));
 
         infos = new HashMap<String, List>();
     }
@@ -182,8 +189,8 @@ public class MIO {
      * 
      * @return the type
      */
-    public String getType() {
-        return type;
+    public String getMIOType() {
+        return mioType;
     }
 
     /**
@@ -191,8 +198,8 @@ public class MIO {
      * 
      * @param type the new type
      */
-    public void setType(String type) {
-        this.type = type;
+    public void setMIOType(String type) {
+        this.mioType = type;
     }
 
     /**
@@ -239,5 +246,17 @@ public class MIO {
      */
     public void setFileName(String fileName) {
         this.fileName = fileName;
+    }
+
+    public void setFeature(String name, double value) {
+        features.put(name, value);
+    }
+
+    public double getFeature(String name) {
+        return features.get(name);
+    }
+
+    public Map<String, Double> getFeatures() {
+        return features;
     }
 }

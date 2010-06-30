@@ -115,7 +115,7 @@ public final class MIOExtractor extends Extractor {
 
             // System.out.println("Concept: " + currentConcept.getName());
 
-            if (currentConcept.getName().equals("mobilePhone")) {
+            if (currentConcept.getName().equals("printer")) {
                 // load Entities from DB for current concept
                 currentConcept.loadEntities(false);
             }
