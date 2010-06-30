@@ -18,17 +18,20 @@ import tud.iir.knowledge.Entity;
  */
 public class PageAnalyzer {
 
+    /** The mio page candidates. */
     private List<String> mioPageCandidates;
+
+    /** The mio pages. */
     private List<MIOPage> mioPages;
 
     /**
      * Instantiates a new page analyzer.
      * 
-     * @param MIOPageCandidates the mIO page candidates
+     * @param mioPageCandidates the mIO page candidates
      */
-    public PageAnalyzer(List<String> MIOPageCandidates) {
+    public PageAnalyzer(List<String> mioPageCandidates) {
 
-        this.mioPageCandidates = MIOPageCandidates;
+        this.mioPageCandidates = mioPageCandidates;
         mioPages = new ArrayList<MIOPage>();
 
     }
@@ -71,21 +74,22 @@ public class PageAnalyzer {
     /**
      * get WebPage as String.
      * 
-     * @param URLString the uRL string
+     * @param urlString the URL
      * @return the page
      */
-    private String getPage(String URLString) {
+    private String getPage(String urlString) {
         GeneralAnalyzer generalAnalyzer = new GeneralAnalyzer();
-        return generalAnalyzer.getPage(URLString, false);
+        return generalAnalyzer.getPage(urlString);
     }
 
     /**
-     * remove duplicates, but pay attention to different ways of finding.
+     * Remove duplicates, but pay attention to the different ways of retrieving a MIO.
      * 
-     * @param mioPages the mio pages
-     * @return the list
+     * @param mioPages the mioPages
+     * @return the list without duplicates
      */
     private List<MIOPage> removeDuplicates(List<MIOPage> mioPages) {
+        // System.out.println("Anzahl MIOPAGES vor DublicateRemoiving: " + mioPages.size());
         List<MIOPage> resultList = new ArrayList<MIOPage>();
 
         Map<String, MIOPage> tempMap = new HashMap<String, MIOPage>();
@@ -124,11 +128,16 @@ public class PageAnalyzer {
             resultList.add(mioPage);
 
         }
-
+        // System.out.println("Anzahl MIOPAGES nach DublicateRemoiving: " + resultList.size());
         return resultList;
 
     }
 
+    /**
+     * The main method.
+     * 
+     * @param args the arguments
+     */
     public static void main(String[] args) {
         // List<String> testList = new ArrayList<String>();
         // testList.add("http://www.canon.co.uk/for_home/product_finder/multifunctionals/inkjet/pixma_mp990/index.aspx");

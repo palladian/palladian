@@ -58,7 +58,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
                 // check if the linkURL or linkInfo or linkTitle contains entity
                 // relevant words
                 if (isRelevantLinkCheck(linkURL, linkName, linkTitle)) {
-                    String linkedPageContent = getPage(linkURL, false);
+                    String linkedPageContent = getPage(linkURL);
                     if (!("").equals(linkedPageContent)) {
                         FastMIODetector mioDetector = new FastMIODetector();
                         if (mioDetector.containsMIO(linkedPageContent)) {

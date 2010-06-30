@@ -122,7 +122,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      */
     private List<MIO> analyzeRelevantTags(final List<String> relevantTags, final String mioType) {
 
-        List<MIO> retrievedMIOs = new ArrayList<MIO>();
+        final List<MIO> retrievedMIOs = new ArrayList<MIO>();
 
         // try to extract swf-file-URLs
         for (String relevantTag : relevantTags) {
@@ -166,17 +166,34 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
             // extract ALT-Text from object and embed-tags and add to MIO-infos
             if (!relevantTag.toLowerCase(Locale.ENGLISH).startsWith("<script")) {
                 final List<String> altText = new ArrayList<String>();
+                // final List<String> headlines = new ArrayList<String>();
                 for (MIO mio : tempMIOs) {
-                    altText.add(extractALTTextFromTag(relevantTag));
-                    mio.addInfos("altText", altText);
+                    final String tempAltText = extractALTTextFromTag(relevantTag);
+                    if (tempAltText.length() > 2) {
+                        altText.add(tempAltText);
+                        mio.addInfos("altText", altText);
+                    }
+
+                    // String nearfieldHeadlines = extractSiblingHeadlines(relevantTag, mioPage, mio);
+                    // headlines.add(nearfieldHeadlines);
+                    // mio.addInfos("headlines", headlines);
                 }
             }
+
+            // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
+
+            // final List<String> headlines = new ArrayList<String>();
+            // for (MIO mio : tempMIOs) {
+            // mio = extractSurroundingInfos(relevantTag, mioPage, mio);
+            //
+            //
+            // }
 
             retrievedMIOs.addAll(tempMIOs);
         }
 
         // Calculate Trust
-        MIOContextAnalyzer mioContextAnalyzer = new MIOContextAnalyzer(entity, mioPage);
+        final MIOContextAnalyzer mioContextAnalyzer = new MIOContextAnalyzer(entity, mioPage);
 
         // System.out.println("MIO-Trust-Calculation!");
 
@@ -194,17 +211,17 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @param flashVars the flashVars
      * @return the MIO
      */
-    private MIO adaptFlashVarsToURL(MIO mio, List<String> flashVars) {
+    private MIO adaptFlashVarsToURL(final MIO mio, final List<String> flashVars) {
 
         final String url = mio.getDirectURL();
         final StringBuffer modURL = new StringBuffer();
         for (String flashVar : flashVars) {
             if (!flashVar.contains("\"") && !modURL.toString().contains(flashVar)) {
                 if (modURL.length() < 1) {
-                    String tempURL = url + "?" + flashVar;
+                    final String tempURL = url + "?" + flashVar;
                     modURL.append(tempURL);
                 } else {
-                    String tempURL = modURL + "&" + flashVar;
+                    final String tempURL = modURL + "&" + flashVar;
                     modURL.append(tempURL);
                 }
             }
@@ -222,8 +239,8 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @param mioType the mio type
      * @return the list
      */
-    private List<MIO> extractMIOWithURL(String concreteTag, MIOPage mioPage, String mioType) {
-        List<MIO> resultList = new ArrayList<MIO>();
+    private List<MIO> extractMIOWithURL(final String concreteTag, final MIOPage mioPage, final String mioType) {
+        final List<MIO> resultList = new ArrayList<MIO>();
         // String regExp = "\".[^\"]*\\.swf\"";
         String regExp = "";
         if (mioType.equals(FLASH)) {
@@ -242,17 +259,17 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
             }
         }
 
-        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        final Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         // remove wrong-leading-attributes like name="140.swf"
-        String modConcreteTag = concreteTag.replaceAll("name=\".[^\"]*\"", "");
+        final String modConcreteTag = concreteTag.replaceAll("name=\".[^\"]*\"", "");
 
-        Matcher matcher = pattern.matcher(modConcreteTag);
+        final Matcher matcher = pattern.matcher(modConcreteTag);
         while (matcher.find()) {
-            String mioAdr = matcher.group(0).replaceAll("\"", "");
+            final String mioAdr = matcher.group(0).replaceAll("\"", "");
             // System.out.println("URL: "+ mioAdr);
 
-            MIO mio = new MIO(mioType, verifyURL(mioAdr, mioPage.getUrl()), mioPage.getUrl(), entity);
+            final MIO mio = new MIO(mioType, verifyURL(mioAdr, mioPage.getUrl()), mioPage.getUrl(), entity);
             // System.out.println(verifyURL(mioAdr, mioPage.getUrl()));
             // mio.setDirectURL(verifyURL(mioAdr, mioPage.getUrl()));
             resultList.add(mio);
@@ -269,12 +286,12 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @param mioType the mio-type
      * @return the list of mios
      */
-    private List<MIO> findOutOfTagMIOs(String mioPageContent, String mioType) {
-        List<MIO> flashMIOs = new ArrayList<MIO>();
+    private List<MIO> findOutOfTagMIOs(final String mioPageContent, final String mioType) {
+        final List<MIO> flashMIOs = new ArrayList<MIO>();
 
         if (mioType.equals(FLASH) && mioPageContent.toLowerCase(Locale.ENGLISH).contains(".swf")) {
 
-            List<MIO> furtherSWFs = extractMIOWithURL(mioPageContent, mioPage, mioType);
+            final List<MIO> furtherSWFs = extractMIOWithURL(mioPageContent, mioPage, mioType);
             // System.out.println("NOCH SWF ENTHALTEN! - " + mioPage.getUrl());
             // for (MIO mio : furtherSWFs) {
             // System.out.println(mio.getDirectURL());
@@ -291,13 +308,13 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @param tagContent the content of the concrete tag
      * @return the list of flashVars
      */
-    private List<String> extractFlashVars(String tagContent) {
-        List<String> flashVars = new ArrayList<String>();
+    private List<String> extractFlashVars(final String tagContent) {
+        final List<String> flashVars = new ArrayList<String>();
 
         // extract var flashVars = {}
         String regExp = "flashvars(\\s?)=(\\s?)\\{[^\\}]*\\};";
-        Pattern pat1 = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher1 = pat1.matcher(tagContent);
+        final Pattern pat1 = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        final Matcher matcher1 = pat1.matcher(tagContent);
         while (matcher1.find()) {
             // result has the form: flashvars = {cool};
             String result = matcher1.group(0);
@@ -315,8 +332,8 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
         // extract <param name="FlashVars"
         // value="myURL=http://weblogs.adobe.com/">
         String regExp2 = "<param[^>]*flashvars[^>]*>";
-        Pattern pat2 = Pattern.compile(regExp2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher2 = pat2.matcher(tagContent);
+        final Pattern pat2 = Pattern.compile(regExp2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        final Matcher matcher2 = pat2.matcher(tagContent);
         while (matcher2.find()) {
             // result has the form: <param name="FlashVars"
             // value="myURL=http://weblogs.adobe.com/">
@@ -363,7 +380,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @param mioPage the mio page
      * @return the mIO
      */
-    private List<MIO> checkSWFObject(String relevantTag, MIOPage mioPage) {
+    private List<MIO> checkSWFObject(final String relevantTag, final MIOPage mioPage) {
 
         List<MIO> tempList = new ArrayList<MIO>();
 

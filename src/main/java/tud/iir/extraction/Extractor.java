@@ -97,6 +97,8 @@ public abstract class Extractor {
     protected boolean isURLallowed(String url) {
 
         for (String forbiddenSuffix : blackList) {
+            
+            url=url.trim();
             if (url.endsWith("." + forbiddenSuffix))
                 return false;
         }

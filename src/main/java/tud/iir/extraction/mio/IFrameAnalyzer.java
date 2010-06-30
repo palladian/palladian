@@ -45,7 +45,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
             for (String iframeSourceURL : iframeSources) {
                 // only analyze if the url contains hints for the entity
                 if (swMatcher.containsSearchWordOrMorphs(iframeSourceURL)) {
-                    String iframePageContent = getPage(iframeSourceURL, false);
+                    String iframePageContent = getPage(iframeSourceURL);
                     // check for MIOs
                     if (!iframePageContent.equals("")) {
                         FastMIODetector mioDetector = new FastMIODetector();

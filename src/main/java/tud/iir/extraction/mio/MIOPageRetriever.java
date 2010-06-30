@@ -23,13 +23,13 @@ public class MIOPageRetriever {
     private static final Logger LOGGER = Logger.getLogger(MIOPageRetriever.class);
 
     /** The rolePage-List. */
-    private List<RolePage> rolePageList;
+    final private List<RolePage> rolePageList;
 
     /** The instance of MIOPageRetriever. */
     private static MIOPageRetriever instance = null;
 
     /** The resultCount determines how many sources (URLs) should be retrieved */
-    private final static int resultCount = 20;
+    private final static int RESULTCOUNT = 20;
 
     /**
      * Instantiates a new mIO page retriever.
@@ -57,17 +57,17 @@ public class MIOPageRetriever {
      * @param searchVoc the search voc
      * @return the list
      */
-    public List<MIOPage> retrieveMIOs(Entity entity, ConceptSearchVocabulary searchVoc) {
+    public List<MIOPage> retrieveMIOs(final Entity entity, final ConceptSearchVocabulary searchVoc) {
 
         List<MIOPage> mioPages;
 
         // RolePageDetector rolePageDet = new RolePageDetector(2);
 
         // generate searchQueries
-        List<String> searchQueries = generateSearchQueries(entity, searchVoc);
+        final List<String> searchQueries = generateSearchQueries(entity, searchVoc);
 
         // initiate search with searchEngines
-        List<String> mioPageCandidates = startSearchAgent(searchQueries);
+        final List<String> mioPageCandidates = startSearchAgent(searchQueries);
 
         LOGGER.info("Analyzing MIOPageCandidates startet..");
 
@@ -78,7 +78,7 @@ public class MIOPageRetriever {
 
         // detect DedicatedPages
         for (MIOPage mioPage : mioPages) {
-            DedicatedPageDetector dpDetector = new DedicatedPageDetector();
+            final DedicatedPageDetector dpDetector = new DedicatedPageDetector();
             dpDetector.calculateDedicatedPageTrust(mioPage);
         }
         LOGGER.info("DedicatedPage-Calculation finished");
@@ -99,9 +99,9 @@ public class MIOPageRetriever {
      * @param conceptVocabulary the concept vocabulary
      * @return the list
      */
-    private List<String> generateSearchQueries(Entity entity, ConceptSearchVocabulary conceptVocabulary) {
-        MIOQueryFactory searchQueryFac = new MIOQueryFactory();
-        List<String> searchQueries = searchQueryFac.generateSearchQueries(entity.getName(), entity.getConcept(),
+    private List<String> generateSearchQueries(final Entity entity, final ConceptSearchVocabulary conceptVocabulary) {
+        final MIOQueryFactory searchQueryFac = new MIOQueryFactory();
+        final List<String> searchQueries = searchQueryFac.generateSearchQueries(entity.getName(), entity.getConcept(),
                 rolePageList, conceptVocabulary);
 
         return searchQueries;
@@ -113,9 +113,9 @@ public class MIOPageRetriever {
      * @param searchQueries the search queries
      * @return the list
      */
-    private List<String> startSearchAgent(List<String> searchQueries) {
-        SearchAgent searchAgent = new SearchAgent(resultCount);
-        List<String> mioPageCandidates = searchAgent.initiateSearch(searchQueries);
+    private List<String> startSearchAgent(final List<String> searchQueries) {
+        final SearchAgent searchAgent = new SearchAgent(RESULTCOUNT);
+        final List<String> mioPageCandidates = searchAgent.initiateSearch(searchQueries);
 
         return mioPageCandidates;
     }
@@ -127,10 +127,10 @@ public class MIOPageRetriever {
      * @param entity the entity
      * @return the list
      */
-    private List<MIOPage> analyzeMIOPageCandidates(List<String> mioPageCandidates, Entity entity) {
-        PageAnalyzer pageAnalyzer = new PageAnalyzer(mioPageCandidates);
+    private List<MIOPage> analyzeMIOPageCandidates(final List<String> mioPageCandidates, final Entity entity) {
+        final PageAnalyzer pageAnalyzer = new PageAnalyzer(mioPageCandidates);
         // start and get Results of PageAnalyzing
-        List<MIOPage> mioPages = pageAnalyzer.analyzePages(entity);
+        final List<MIOPage> mioPages = pageAnalyzer.analyzePages(entity);
 
         return mioPages;
     }
