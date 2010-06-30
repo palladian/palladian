@@ -19,14 +19,7 @@ public class FeedAggregatorTest {
         aggregator.getEntries("http://feeds.smh.com.au/rssheadlines/top.xml");
         aggregator.getFeedTextType("http://www.carscars.ie/index.php?format=feed&type=atom");
     }
-    
-    @Test
-    @Ignore
-    public void testAddConcept() throws FeedAggregatorException {
-    	aggregator.addFeed("http://www.gizmodo.de/feed/atom", "gadget");
-    	aggregator.addFeed("http://www.gizmodo.de/feed/atom", "zyx");
-    	aggregator.addFeed("http://www.gizmodo.de/feed/atom", "blabla");
-    }
+
     
     @Test
     public void readFeedFromFile() throws FeedAggregatorException {

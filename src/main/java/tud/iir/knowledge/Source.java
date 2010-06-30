@@ -323,8 +323,8 @@ public class Source implements Serializable {
     private String getMainContentFromAlchemy() {
         String result = null;
 
-        PageContentExtractor e = new PageContentExtractor();
         try {
+            PageContentExtractor e = new PageContentExtractor();
             result = e.setDocument(new URL(url)).getResultText();
         } catch (PageContentExtractorException e1) {
             Logger.getRootLogger().error(e1.getMessage());

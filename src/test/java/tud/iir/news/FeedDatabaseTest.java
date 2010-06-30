@@ -19,7 +19,7 @@ public class FeedDatabaseTest {
     }
 
     @Test
-    @Ignore
+    //@Ignore
     public void testAddFeed() throws FeedAggregatorException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
         FeedAggregator feedAggregator = new FeedAggregator();

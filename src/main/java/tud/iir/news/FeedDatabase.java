@@ -1,6 +1,5 @@
 package tud.iir.news;
 
-import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -408,24 +407,5 @@ public class FeedDatabase implements FeedStore {
         DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feeds");
         LOGGER.trace("<cleanTables");
     }
-
-	//@Override
-	public synchronized void assignConcept(String concept, Feed feed) {
-		LOGGER.trace(">assignFeedDomain" + feed.getId() + " " + concept);
-		boolean assigned = false;
-		try {
-			CallableStatement pc = DatabaseManager.getInstance().pcAssignFeedConcept;
-			pc.setInt(1, feed.getId());
-			pc.setString(2, concept);
-			int result = pc.executeUpdate();
-			if (result == 1) {
-				assigned = true;
-			}
-		} catch (SQLException e) {
-			LOGGER.error("assignConcept", e);
-		}
-		
-		LOGGER.trace("<assignFeedDomain " + assigned);
-	}
 
 }

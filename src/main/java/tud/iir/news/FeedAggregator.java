@@ -412,9 +412,6 @@ public class FeedAggregator {
      * @return true, if feed was added.
      */
     public boolean addFeed(String feedUrl) {
-    	return addFeed(feedUrl, null);
-    }
-    public boolean addFeed(String feedUrl, String concept) {
         LOGGER.trace(">addFeed " + feedUrl);
         boolean added = false;
 
@@ -433,11 +430,6 @@ public class FeedAggregator {
             }
         } else {
             LOGGER.info("i already have feed " + feedUrl);
-        }
-        
-        if (feed != null && concept != null) {
-        	// TODO
-        	((FeedDatabase) store).assignConcept(concept, feed);
         }
 
         LOGGER.trace("<addFeed " + added);
@@ -759,6 +751,11 @@ public class FeedAggregator {
         try {
             
             CommandLine cmd = parser.parse(options, args);
+            
+            if (args.length < 1) {
+                // no arguments given
+                throw new ParseException(null);
+            }
             
             if (cmd.hasOption("threads")) {
                 aggregator.setMaxThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());

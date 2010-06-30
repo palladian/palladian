@@ -181,7 +181,7 @@ public class FeedDiscovery {
      * @return list of discovered feed URLs, empty list if no feeds are
      *         available, <code>null</code> if page could not be parsed.
      */
-    List<String> getFeedsViaAutodiscovery(String pageUrl) {
+    public List<String> getFeedsViaAutodiscovery(String pageUrl) {
 
         LOGGER.trace(">getFeedsViaAutodiscovery " + pageUrl);
 
@@ -436,7 +436,7 @@ public class FeedDiscovery {
      * @return
      */
     public boolean addIgnore(String ignore) {
-        return this.ignoreList.add(ignore);
+        return this.ignoreList.add(ignore.toLowerCase());
     }
 
     public void setIgnores(Collection<String> ignores) {
@@ -486,7 +486,7 @@ public class FeedDiscovery {
 
     private boolean isIgnored(String feedUrl) {
         for (String ignore : ignoreList) {
-            if (feedUrl.contains(ignore)) {
+            if (feedUrl.toLowerCase().contains(ignore)) {
                 return true;
             }
         }
@@ -502,21 +502,18 @@ public class FeedDiscovery {
         CommandLineParser parser = new BasicParser();
 
         Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("resultLimit").withDescription("maximum results per query")
-                .hasArg().withArgName("nn").withType(Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("threads")
-                .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(
-                        Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write XML dumps of visited pages")
-                .create());
-        options.addOption(OptionBuilder.withLongOpt("output").withDescription("output file for results").hasArg()
-                .withArgName("filename").create());
-        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg()
-                .withArgName("query1[,query2,...]").create());
-        options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
-                .withArgName("url").create());
+        options.addOption(OptionBuilder.withLongOpt("resultLimit").withDescription("maximum results per query").hasArg().withArgName("nn").withType(Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("threads").withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write XML dumps of visited pages").create());
+        options.addOption(OptionBuilder.withLongOpt("output").withDescription("output file for results").hasArg().withArgName("filename").create());
+        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg().withArgName("query1[,query2,...]").create());
+        options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg().withArgName("url").create());
 
         try {
+            
+            if (args.length < 1) {
+                throw new ParseException(null);
+            }
 
             CommandLine cmd = parser.parse(options, args);
 

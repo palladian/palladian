@@ -25,7 +25,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
 
     private static final String DEFAULT_FILE_PATH = "data/discovered_feeds.txt";
 
-    private static FeedDiscoveryCallback instance = null;
+    private static final FeedDiscoveryCallback INSTANCE = new FeedDiscoveryCallback();
 
     private FeedDiscovery feedDiscovery = new FeedDiscovery();
 
@@ -46,10 +46,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
      * @return Singleton of {@link FeedDiscoveryCallback} which is shared among all {@link Crawler} instances.
      */
     public static FeedDiscoveryCallback getInstance() {
-        if (instance == null) {
-            instance = new FeedDiscoveryCallback();
-        }
-        return instance;
+        return INSTANCE;
     }
 
     @Override
