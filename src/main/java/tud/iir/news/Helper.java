@@ -7,13 +7,10 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Iterator;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.xml.XMLConstants;
-import javax.xml.namespace.NamespaceContext;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -79,7 +76,7 @@ public class Helper {
     // }
 
     /** class logger */
-    private static final Logger logger = Logger.getLogger(Helper.class);
+    private static final Logger LOGGER = Logger.getLogger(Helper.class);
 
     /** prevent instantiation */
     private Helper() {
@@ -129,10 +126,10 @@ public class Helper {
         try {
             URL url = new URL(urlString);
             result = url.getProtocol() + "://" + url.getHost();
-            logger.trace("root url for " + urlString + " -> " + result);
+            LOGGER.trace("root url for " + urlString + " -> " + result);
         } catch (MalformedURLException e) {
             // e.printStackTrace();
-            logger.error("could not convert url " + urlString);
+            LOGGER.error("could not convert url " + urlString);
         }
         return result;
     }
@@ -155,7 +152,7 @@ public class Helper {
      */
     @Deprecated
     public static String getFullUrl(String pageUrl, String baseUrl, String linkUrl) {
-        logger.trace(">getFullUrl " + pageUrl + " " + baseUrl + " " + linkUrl);
+        LOGGER.trace(">getFullUrl " + pageUrl + " " + baseUrl + " " + linkUrl);
         String result = null;
         try {
             // let's java.net.URL do all the conversion work from relative to absolute
@@ -171,9 +168,9 @@ public class Helper {
             URL theLinkUrl = new URL(theBaseUrl, linkUrl);
             result = theLinkUrl.toString();
         } catch (MalformedURLException e) {
-            logger.error("getFullUrl", e);
+            LOGGER.error("getFullUrl", e);
         }
-        logger.trace("<getFullUrl " + result);
+        LOGGER.trace("<getFullUrl " + result);
         return result;
     }
 
@@ -214,8 +211,9 @@ public class Helper {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            if (pw != null)
+            if (pw != null) {
                 pw.close();
+            }
         }
     }
 
@@ -333,24 +331,21 @@ public class Helper {
      * @return
      */
     public static Document stringToXml(String input) {
-        DocumentBuilder builder;
+        DocumentBuilder builder = null;
         Document result = null;
         try {
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             factory.setNamespaceAware(true);
             builder = factory.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            logger.error("stringToXml:ParserConfigurationException, throwing RuntimeException", e);
-            throw new RuntimeException(e);
-        }
-        try {
             result = builder.parse(new InputSource(new StringReader(input)));
+        } catch (ParserConfigurationException e) {
+            LOGGER.error("stringToXml:ParserConfigurationException " + e.getMessage());
         } catch (SAXException e) {
-            logger.error("stringToXml:SAXException " + e.getMessage());
+            LOGGER.error("stringToXml:SAXException " + e.getMessage());            
         } catch (IOException e) {
-            logger.error("stringToXml:IOException " + e.getMessage());
+            LOGGER.error("stringToXml:IOException " + e.getMessage());            
         }
-        if (result == null) {
+        if (result == null && builder != null) {
             // return an empty Document
             result = builder.newDocument();
         }
@@ -367,25 +362,22 @@ public class Helper {
      */
     public static String getOuterXml(Node node) {
         // logger.trace(">getOuterXml");
-        String result;
+        String result = "";
         Transformer transformer;
         try {
             transformer = TransformerFactory.newInstance().newTransformer();
             transformer.setOutputProperty("omit-xml-declaration", "yes");
-        } catch (TransformerConfigurationException e) {
-            logger.error("getOuterXml:TransformerConfigurationException, throwing RuntimeException", e);
-            throw new RuntimeException(e);
-        } catch (TransformerFactoryConfigurationError e) {
-            logger.error("getOuterXml:TransformerFactoryConfigurationError, throwing RuntimeException", e);
-            throw new RuntimeException(e);
-        }
-        try {
+
             StringWriter writer = new StringWriter();
             transformer.transform(new DOMSource(node), new StreamResult(writer));
             result = writer.toString();
+            
+        } catch (TransformerConfigurationException e) {
+            LOGGER.error("getOuterXml:TransformerConfigurationException", e);
+        } catch (TransformerFactoryConfigurationError e) {
+            LOGGER.error("getOuterXml:TransformerFactoryConfigurationError", e);
         } catch (TransformerException e) {
-            logger.error("getOuterXml:TransformerException " + e.getMessage());
-            result = "";
+            
         }
         // logger.trace("<getOuterXml " + result);
         return result;
@@ -420,7 +412,7 @@ public class Helper {
             DocumentBuilder builder = factory.newDocumentBuilder();
             return builder.newDocument();
         } catch (ParserConfigurationException e) {
-            logger.error("createDocument:ParserConfigurationException, throwing RuntimeException", e);
+            LOGGER.error("createDocument:ParserConfigurationException, throwing RuntimeException", e);
             throw new RuntimeException(e);
         }
     }
@@ -499,11 +491,11 @@ public class Helper {
             transformer.transform(source, target);
             result = (Document) target.getNode();
         } catch (TransformerConfigurationException e) {
-            logger.error("cloneDocument:TransformerConfigurationException " + e.getMessage());
+            LOGGER.error("cloneDocument:TransformerConfigurationException " + e.getMessage());
         } catch (TransformerFactoryConfigurationError e) {
-            logger.error("cloneDocument:TransformerFactoryConfigurationError " + e.getMessage());
+            LOGGER.error("cloneDocument:TransformerFactoryConfigurationError " + e.getMessage());
         } catch (TransformerException e) {
-            logger.error("cloneDocument:TransformerException " + e.getMessage());
+            LOGGER.error("cloneDocument:TransformerException " + e.getMessage());
             // this happens when document is ill-formed, we could also throw
             // this exception. This way we have to check if this method returns
             // null;
@@ -541,7 +533,7 @@ public class Helper {
         return (float) Math.min(length1, length2) / Math.max(length1, length2);
     }
 
-    private static String[] BINARY_PREFIXES = new String[] { "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi", "Yi" };
+    private static final String[] BINARY_PREFIXES = new String[] { "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi", "Yi" };
 
     /**
      * Format number of bytes to human readable String using IEC binary unit prefixes, for example getReadibleBytes(48956748) -> 46.69 MiB
