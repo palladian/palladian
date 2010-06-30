@@ -970,7 +970,7 @@ public class Crawler {
     /**
      * Get a web page ((X)HTML document).
      * 
-     * @param url The URL of the web page.
+     * @param url The URL or file path of the web page.
      * @return The W3C document.
      */
     public Document getWebDocument(String url) {
@@ -981,7 +981,7 @@ public class Crawler {
     /**
      * Get a web page ((X)HTML document).
      * 
-     * @param url The URL of the web page.
+     * @param url The URL or file path of the web page.
      * @param callback set to <code>false</code> to disable callback for this document.
      * @return The W3C document.
      */
@@ -994,7 +994,7 @@ public class Crawler {
      * Get XML document from a URL. Pure XML documents can created with the native DocumentBuilderFactory, which works
      * better with the native XPath queries.
      * 
-     * @param url The URL pointing to the XML document.
+     * @param url The URL or file path pointing to the XML document.
      * @return The XML document.
      */
     public Document getXMLDocument(String url) {
@@ -1006,7 +1006,7 @@ public class Crawler {
      * Get XML document from a URL. Pure XML documents can created with the native DocumentBuilderFactory, which works
      * better with the native XPath queries.
      * 
-     * @param url The URL pointing to the XML document.
+     * @param url The URL or file path pointing to the XML document.
      * @param callback set to <code>false</code> to disable callback for this document.
      * @return The XML document.
      */

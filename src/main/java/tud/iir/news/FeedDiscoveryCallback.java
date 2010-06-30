@@ -21,23 +21,23 @@ import tud.iir.web.CrawlerCallback;
  */
 public class FeedDiscoveryCallback implements CrawlerCallback {
 
-    private static final Logger logger = Logger.getLogger(FeedDiscoveryCallback.class);
+    private static final FeedDiscoveryCallback INSTANCE = new FeedDiscoveryCallback();
+    
+    private static final Logger LOGGER = Logger.getLogger(FeedDiscoveryCallback.class);
 
     private static final String DEFAULT_FILE_PATH = "data/discovered_feeds.txt";
-
-    private static final FeedDiscoveryCallback INSTANCE = new FeedDiscoveryCallback();
 
     private FeedDiscovery feedDiscovery = new FeedDiscovery();
 
     private String filePath = DEFAULT_FILE_PATH;
 
     private FeedDiscoveryCallback() {
-        logger.trace("<init>");
+        //LOGGER.trace("<init>");
         try {
             PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
             filePath = config.getString("crawlerDiscoveryList", DEFAULT_FILE_PATH);
         } catch (ConfigurationException e) {
-            logger.trace("failed to read configuration " + e.getMessage());
+            LOGGER.trace("failed to read configuration " + e.getMessage());
         }
     }
 
@@ -52,7 +52,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
     @Override
     public void crawlerCallback(Document document) {
         if (document != null) {
-            List<String> feeds = feedDiscovery.getFeedsViaAutodiscovery(document);
+            List<String> feeds = feedDiscovery.discoverFeeds(document);
             for (String feed : feeds) {
                 // output to the file must be synched, or we will lose data when
                 // writing from multiple crawl threads
@@ -83,6 +83,10 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
         if (add) {
             FileHelper.appendToFile(filePath, string, before);
         }
+    }
+    
+    public static void main(String[] args) {
+        FeedDiscoveryCallback.getInstance();
     }
 
 }

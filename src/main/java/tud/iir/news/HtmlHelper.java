@@ -32,6 +32,7 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.StringInputStream;
 import tud.iir.helper.XPathHelper;
+import tud.iir.web.Crawler;
 
 /**
  * Some HTML specific helper methods.
@@ -44,7 +45,7 @@ public class HtmlHelper {
     private static final Logger logger = Logger.getLogger(HtmlHelper.class);
 
     // the default encoding we assume in this class.
-    private static final String DEFAULT_ENCODING = "UTF-8";
+//    private static final String DEFAULT_ENCODING = "UTF-8";
 
     // Pattern for opening and closing HTML block level elements
     // see: http://htmlhelp.com/reference/html40/block.html
@@ -54,6 +55,8 @@ public class HtmlHelper {
     private static final String[] BLOCK_ELEMENTS = new String[] { "address", "blockquote", "div", "dl", "fieldset", "form", "h1", "h2", "h3", "h4", "h5", "h6",
             "hr", "noscript", "ol", "p", "pre", "table", "ul", "dd", "dt", "li", "tbody", "td", "tfoot", "th", "thead", "tr", "button", "del", "ins", "map",
             "object", "script" };
+    
+    private static final String[] IGNORE_INSIDE = new String[] { "script", "style" };
 
     // "junk" elements, which we want to filter out
 //    private static Pattern junkElements = Pattern.compile("<script.*?>.*?</script>|<style.*?>.*?</style>|<!--.*?-->");
@@ -129,91 +132,91 @@ public class HtmlHelper {
      * breaks, trim String result = builder.toString(); result = result.replaceAll("\n{3,}", "\n\n"); result = result.trim(); return result; }
      */
 
-    /**
-     * Reads a File with the specified encoding.
-     * 
-     * @param filePath
-     * @param encoding
-     * @return
-     * @throws UnsupportedEncodingException
-     * @throws IOException
-     */
-    private static String readFileWithEncoding(String filePath, String encoding) throws UnsupportedEncodingException, IOException {
-        StringBuilder contents = new StringBuilder();
-        FileInputStream fis = new FileInputStream(filePath);
-        InputStreamReader in = new InputStreamReader(fis, encoding);
-        BufferedReader input = new BufferedReader(in);
-        String line;
-        while ((line = input.readLine()) != null) {
-            contents.append(line);
-            // XXX contents.append(System.getProperty("line.separator"));
-            contents.append("\n");
-        }
-        input.close();
-        return contents.toString();
-    }
+//    /**
+//     * Reads a File with the specified encoding.
+//     * 
+//     * @param filePath
+//     * @param encoding
+//     * @return
+//     * @throws UnsupportedEncodingException
+//     * @throws IOException
+//     */
+//    private static String readFileWithEncoding(String filePath, String encoding) throws UnsupportedEncodingException, IOException {
+//        StringBuilder contents = new StringBuilder();
+//        FileInputStream fis = new FileInputStream(filePath);
+//        InputStreamReader in = new InputStreamReader(fis, encoding);
+//        BufferedReader input = new BufferedReader(in);
+//        String line;
+//        while ((line = input.readLine()) != null) {
+//            contents.append(line);
+//            // XXX contents.append(System.getProperty("line.separator"));
+//            contents.append("\n");
+//        }
+//        input.close();
+//        return contents.toString();
+//    }
 
-    /**
-     * Reads an (X)HTML file with the correct encoding, specified inside the file itself, using one of the following techniques. If no encoding is specified, we
-     * assume UTF-8 as default.
-     * 
-     * HTML: <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
-     * 
-     * HTML5: <meta charset="iso-8859-1">
-     * 
-     * XHTML: <?xml version="1.0" encoding="ISO-8859-1"?>
-     * 
-     * See: http://en.wikipedia.org/wiki/Character_encodings_in_HTML
-     * 
-     * TODO There is already such a method {@link FileHelper#readHTMLFileToString(String, boolean)} but this does not seem to honor specific encodings.
-     * 
-     * @param filePath
-     * @return
-     */
-    public static String readHtmlFile(String filePath) throws IOException {
-        String html = null;
+//    /**
+//     * Reads an (X)HTML file with the correct encoding, specified inside the file itself, using one of the following techniques. If no encoding is specified, we
+//     * assume UTF-8 as default.
+//     * 
+//     * HTML: <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+//     * 
+//     * HTML5: <meta charset="iso-8859-1">
+//     * 
+//     * XHTML: <?xml version="1.0" encoding="ISO-8859-1"?>
+//     * 
+//     * See: http://en.wikipedia.org/wiki/Character_encodings_in_HTML
+//     * 
+//     * TODO There is already such a method {@link FileHelper#readHTMLFileToString(String, boolean)} but this does not seem to honor specific encodings.
+//     * 
+//     * @param filePath
+//     * @return
+//     */
+//    public static String readHtmlFile(String filePath) throws IOException {
+//        String html = null;
+//
+//        try {
+//            html = readFileWithEncoding(filePath, DEFAULT_ENCODING);
+//        } catch (UnsupportedEncodingException e) {
+//            // this should not happen as we are using the default encoding UTF-8
+//            logger.error("unexpected UnsupportedEncodingException, throwing RuntimeException", e);
+//            throw new RuntimeException(e);
+//        }
+//
+//        // if the encoding differs from default, we need to re-read the file with the specified encoding
+//        String encoding = determineEncoding(html);
+//        if (encoding != null) {
+//            if (!encoding.equalsIgnoreCase(DEFAULT_ENCODING)) {
+//                logger.debug(filePath + ": encoding " + encoding + " differs from default encoding, re-reading");
+//                try {
+//                    html = readFileWithEncoding(filePath, encoding);
+//                } catch (UnsupportedEncodingException e) {
+//                    logger.debug(filePath + ": unsupported encoding: " + encoding + " using " + DEFAULT_ENCODING + " " + e.getMessage());
+//                }
+//            } else {
+//                logger.debug(filePath + ": file has default encoding " + DEFAULT_ENCODING);
+//            }
+//        } else {
+//            logger.debug(filePath + ": could not determine encoding, assuming default " + DEFAULT_ENCODING);
+//        }
+//
+//        System.out.println("used encoding =======> " + encoding);
+//
+//        return html;
+//    }
 
-        try {
-            html = readFileWithEncoding(filePath, DEFAULT_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            // this should not happen as we are using the default encoding UTF-8
-            logger.error("unexpected UnsupportedEncodingException, throwing RuntimeException", e);
-            throw new RuntimeException(e);
-        }
-
-        // if the encoding differs from default, we need to re-read the file with the specified encoding
-        String encoding = determineEncoding(html);
-        if (encoding != null) {
-            if (!encoding.equalsIgnoreCase(DEFAULT_ENCODING)) {
-                logger.debug(filePath + ": encoding " + encoding + " differs from default encoding, re-reading");
-                try {
-                    html = readFileWithEncoding(filePath, encoding);
-                } catch (UnsupportedEncodingException e) {
-                    logger.debug(filePath + ": unsupported encoding: " + encoding + " using " + DEFAULT_ENCODING + " " + e.getMessage());
-                }
-            } else {
-                logger.debug(filePath + ": file has default encoding " + DEFAULT_ENCODING);
-            }
-        } else {
-            logger.debug(filePath + ": could not determine encoding, assuming default " + DEFAULT_ENCODING);
-        }
-
-        System.out.println("used encoding =======> " + encoding);
-
-        return html;
-    }
-
-    /**
-     * Determine encoding of supplied HTML file.
-     * 
-     * @param filePath
-     * @return
-     * @throws IOException
-     */
-    public static String getEncodingForHtmlFile(String filePath) throws IOException {
-        String html = readFileWithEncoding(filePath, DEFAULT_ENCODING);
-        return determineEncoding(html);
-    }
+//    /**
+//     * Determine encoding of supplied HTML file.
+//     * 
+//     * @param filePath
+//     * @return
+//     * @throws IOException
+//     */
+//    public static String getEncodingForHtmlFile(String filePath) throws IOException {
+//        String html = readFileWithEncoding(filePath, DEFAULT_ENCODING);
+//        return determineEncoding(html);
+//    }
 
     /**
      * Try to get encoding from HTML text content. Returns <code>null</code> if encoding can not be determined, else the determined encoding as lowercase.
@@ -223,107 +226,126 @@ public class HtmlHelper {
      * @param html
      * @return
      */
-    private static String determineEncoding(String html) {
-        // String encoding = null;
-        //		
-        // Matcher htmlMatcher = htmlMetaTag.matcher(html);
-        // Matcher html5Matcher = html5MetaTag.matcher(html);
-        // Matcher xmlMatcher = xmlDeclaration.matcher(html);
-        //		
-        // Matcher encodingMatcher = null;
-        // if (htmlMatcher.find()) {
-        // logger.trace("determine encoding from html meta http-equiv " + htmlMatcher.group());
-        // encodingMatcher = htmlMetaEncoding.matcher(htmlMatcher.group());
-        // }
-        // else if (html5Matcher.find()) {
-        // logger.trace("determine encoding from html5 meta charset " + html5Matcher.group());
-        // encodingMatcher = html5MetaEncoding.matcher(html5Matcher.group());
-        // }
-        // else if (xmlMatcher.find()) {
-        // logger.trace("determine encoding from xml declaration " + xmlMatcher.group());
-        // encodingMatcher = xmlDeclarationEncoding.matcher(xmlMatcher.group());
-        // }
-        // else {
-        // logger.trace("could not determine encoding from header tags");
-        // }
-        //		
-        // if (encodingMatcher != null && encodingMatcher.find() && encodingMatcher.groupCount() == 2) {
-        // encoding = encodingMatcher.group(2).toLowerCase();
-        // } // else { ... here we could use Mozilla's encoding detection as fallback ... }
-        //
-        // return encoding;
+//    private static String determineEncoding(String html) {
+//        // String encoding = null;
+//        //		
+//        // Matcher htmlMatcher = htmlMetaTag.matcher(html);
+//        // Matcher html5Matcher = html5MetaTag.matcher(html);
+//        // Matcher xmlMatcher = xmlDeclaration.matcher(html);
+//        //		
+//        // Matcher encodingMatcher = null;
+//        // if (htmlMatcher.find()) {
+//        // logger.trace("determine encoding from html meta http-equiv " + htmlMatcher.group());
+//        // encodingMatcher = htmlMetaEncoding.matcher(htmlMatcher.group());
+//        // }
+//        // else if (html5Matcher.find()) {
+//        // logger.trace("determine encoding from html5 meta charset " + html5Matcher.group());
+//        // encodingMatcher = html5MetaEncoding.matcher(html5Matcher.group());
+//        // }
+//        // else if (xmlMatcher.find()) {
+//        // logger.trace("determine encoding from xml declaration " + xmlMatcher.group());
+//        // encodingMatcher = xmlDeclarationEncoding.matcher(xmlMatcher.group());
+//        // }
+//        // else {
+//        // logger.trace("could not determine encoding from header tags");
+//        // }
+//        //		
+//        // if (encodingMatcher != null && encodingMatcher.find() && encodingMatcher.groupCount() == 2) {
+//        // encoding = encodingMatcher.group(2).toLowerCase();
+//        // } // else { ... here we could use Mozilla's encoding detection as fallback ... }
+//        //
+//        // return encoding;
+//
+//        String encoding = null;
+//
+//        try {
+//
+//            DOMParser parser = new DOMParser(new HTMLConfiguration());
+//
+//            parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
+//            parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
+//            parser.setProperty("http://cyberneko.org/html/properties/names/attrs", "lower");
+//
+//            parser.parse(new InputSource(new StringInputStream(html)));
+//            Document document = parser.getDocument();
+//
+//            // HTML <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
+//            // case insensitive match of attributes value ...:
+//            Node htmlMeta = XPathHelper.getNode(document,
+//                    "//meta[translate(@http-equiv,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='content-type']/@content");
+//
+//            // HTML5 <meta charset="iso-8859-1">
+//            Node html5Meta = XPathHelper.getNode(document, "//meta[@charset]/@charset");
+//
+//            // XHTML <?xml version="1.0" encoding="ISO-8859-1"?>
+//            String xmlEncoding = document.getXmlEncoding();
+//
+//            if (htmlMeta != null) {
+//                String str = htmlMeta.getTextContent();
+//                encoding = str.substring(str.indexOf("=") + 1, str.length()).trim();
+//                logger.trace("determine encoding from html meta http-equiv " + encoding);
+//            } else if (html5Meta != null) {
+//                encoding = html5Meta.getTextContent();
+//                logger.trace("determine encoding from html5 meta charset " + encoding);
+//            } else if (xmlEncoding != null) {
+//                logger.trace("determine encoding from xml declaration " + xmlEncoding);
+//                encoding = xmlEncoding;
+//            }
+//
+//            if (encoding != null) {
+//                encoding = encoding.toLowerCase();
+//            } else {
+//                logger.trace("could not determine encoding from header tags, returning null");
+//            }
+//
+//        } catch (SAXNotRecognizedException e) {
+//            logger.error("determineEncoding", e);
+//        } catch (SAXNotSupportedException e) {
+//            logger.error("determineEncoding", e);
+//        } catch (SAXException e) {
+//            logger.error("determineEncoding", e);
+//        } catch (IOException e) {
+//            logger.error("determineEncoding", e);
+//        }
+//
+//        return encoding;
+//
+//    }
 
-        String encoding = null;
-
-        try {
-
-            DOMParser parser = new DOMParser(new HTMLConfiguration());
-
-            parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
-            parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
-            parser.setProperty("http://cyberneko.org/html/properties/names/attrs", "lower");
-
-            parser.parse(new InputSource(new StringInputStream(html)));
-            Document document = parser.getDocument();
-
-            // HTML <meta http-equiv="content-type" content="text/html; charset=iso-8859-1" />
-            // case insensitive match of attributes value ...:
-            Node htmlMeta = XPathHelper.getNode(document,
-                    "//meta[translate(@http-equiv,'ABCDEFGHIJKLMNOPQRSTUVWXYZ','abcdefghijklmnopqrstuvwxyz')='content-type']/@content");
-
-            // HTML5 <meta charset="iso-8859-1">
-            Node html5Meta = XPathHelper.getNode(document, "//meta[@charset]/@charset");
-
-            // XHTML <?xml version="1.0" encoding="ISO-8859-1"?>
-            String xmlEncoding = document.getXmlEncoding();
-
-            if (htmlMeta != null) {
-                String str = htmlMeta.getTextContent();
-                encoding = str.substring(str.indexOf("=") + 1, str.length()).trim();
-                logger.trace("determine encoding from html meta http-equiv " + encoding);
-            } else if (html5Meta != null) {
-                encoding = html5Meta.getTextContent();
-                logger.trace("determine encoding from html5 meta charset " + encoding);
-            } else if (xmlEncoding != null) {
-                logger.trace("determine encoding from xml declaration " + xmlEncoding);
-                encoding = xmlEncoding;
-            }
-
-            if (encoding != null) {
-                encoding = encoding.toLowerCase();
-            } else {
-                logger.trace("could not determine encoding from header tags, returning null");
-            }
-
-        } catch (SAXNotRecognizedException e) {
-            logger.error("determineEncoding", e);
-        } catch (SAXNotSupportedException e) {
-            logger.error("determineEncoding", e);
-        } catch (SAXException e) {
-            logger.error("determineEncoding", e);
-        } catch (IOException e) {
-            logger.error("determineEncoding", e);
-        }
-
-        return encoding;
-
-    }
-
+    /**
+     * Converts HTML markup to a more or less human readable string. For example we insert line breaks for HTML block
+     * level elements, filter out comments, scripts and stylesheets, remove unnecessary white space and so on.
+     * 
+     * In contrast to {@link StringHelper#removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which just strips
+     * out all tags, this approach tries to keep some structure for displaying HTML content in text mode.
+     * 
+     * @param doc
+     * @return
+     */
     public static String htmlDocToString(Document doc) {
         final StringBuilder builder = new StringBuilder();
         try {
             TransformerFactory transFac = TransformerFactory.newInstance();
             Transformer trans = transFac.newTransformer();
             trans.transform(new DOMSource(doc), new SAXResult(new DefaultHandler() {
+                boolean ignoreCharacters = false;
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-                    if (isBlockElement(localName) || localName.equals("br")) {
+                    if (isInIgnore(localName)) {
+                        ignoreCharacters = true;
+                        return;
+                    }
+                    if (isBlockElement(localName) || localName.equalsIgnoreCase("br")) {
                         builder.append("\n");
                     }
                 }
 
                 @Override
                 public void endElement(String uri, String localName, String qName) throws SAXException {
+                    if (isInIgnore(localName)) {
+                        ignoreCharacters = false;
+                        return;
+                    }
                     if (isBlockElement(localName)) {
                         builder.append("\n");
                     }
@@ -331,6 +353,9 @@ public class HtmlHelper {
 
                 @Override
                 public void characters(char[] ch, int start, int length) throws SAXException {
+                    if (ignoreCharacters) {
+                        return;
+                    }
                     builder.append(ch);
                 }
             }));
@@ -346,12 +371,21 @@ public class HtmlHelper {
         result = normalizeLines.matcher(result).replaceAll("");
         result = result.replaceAll("\n{3,}", "\n\n");
         result = result.replaceAll(" {2,}", " ");
+
+        // experimental added 2010-06-30
+        // remove multi line comments
+        //result = result.replaceAll("<!--(.|\n)*?-->", "");
+        
         result = result.trim();
         return result;
     }
 
     private static boolean isBlockElement(String elementName) {
         return Arrays.asList(BLOCK_ELEMENTS).contains(elementName.toLowerCase());
+    }
+    
+    private static boolean isInIgnore(String elementName) {
+        return Arrays.asList(IGNORE_INSIDE).contains(elementName.toLowerCase());
     }
 
     public static void main(String[] args) throws Exception {
@@ -370,6 +404,10 @@ public class HtmlHelper {
 
         // String s = null;
         // System.out.println(s.toLowerCase());
+        
+        Crawler c = new Crawler();
+        Document doc = c.getWebDocument("data/test/pageContentExtractor/test001.html");
+        System.out.println(HtmlHelper.htmlDocToString(doc));
 
     }
 }

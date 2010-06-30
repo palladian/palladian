@@ -251,7 +251,7 @@ public class FeedDatabase implements FeedStore {
                 feed.setLastFeedEntry(resultSet.getTimestamp(14));
                 feed.setUpdateClass(resultSet.getInt(15));
             } else {
-            	LOGGER.info("feed with " + feedUrl + " not found.");
+            	LOGGER.debug("feed with " + feedUrl + " not found.");
             }
             resultSet.close();
         } catch (SQLException e) {

@@ -49,6 +49,11 @@ public class Entity extends Extractable {
         this.setName(name);
         this.setConcept(concept);
     }
+    
+    public Entity(String name) {
+        init();
+        this.setName(name);
+    }
 
     private void init() {
         this.facts = new ArrayList<Fact>();

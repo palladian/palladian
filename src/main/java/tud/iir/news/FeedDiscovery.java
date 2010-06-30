@@ -1,6 +1,5 @@
 package tud.iir.news;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -25,6 +24,7 @@ import org.w3c.dom.Node;
 
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
@@ -50,6 +50,9 @@ public class FeedDiscovery {
     private static final int MAX_NUMBER_OF_THREADS = 10;
 
     private boolean debugDump = false;
+    
+    /** wether to extract all feeds on a page, or just the first, "preferred" one */
+    private boolean onlyPreferred = true;
 
     private int maxThreads = MAX_NUMBER_OF_THREADS;
 
@@ -65,7 +68,9 @@ public class FeedDiscovery {
     /** ignore list, will be matched with URLs */
     private Set<String> ignoreList = new HashSet<String>();
 
-    /** some statistics */
+    ////////////////////////////////
+    // some statistics
+    ////////////////////////////////
 
     /** total # of sites we checked */
     private Counter totalSites = new Counter();
@@ -97,6 +102,7 @@ public class FeedDiscovery {
             PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
             setMaxThreads(config.getInt("maxDiscoveryThreads", MAX_NUMBER_OF_THREADS));
             setIgnores(config.getList("discoveryIgnoreList"));
+            setOnlyPreferred(config.getBoolean("onlyPreferred", true));
         } catch (ConfigurationException e) {
             LOGGER.error("error loading configuration " + e.getMessage());
         }
@@ -164,7 +170,8 @@ public class FeedDiscovery {
 
         Set<String> sites = new HashSet<String>();
         for (String resultUrl : resultURLs) {
-            sites.add(Helper.getRootUrl(resultUrl));
+            //sites.add(Helper.getRootUrl(resultUrl));
+            sites.add(Crawler.getDomain(resultUrl));
         }
 
         stopWatch.stop();
@@ -181,9 +188,9 @@ public class FeedDiscovery {
      * @return list of discovered feed URLs, empty list if no feeds are
      *         available, <code>null</code> if page could not be parsed.
      */
-    public List<String> getFeedsViaAutodiscovery(String pageUrl) {
+    public List<String> discoverFeeds(String pageUrl) {
 
-        LOGGER.trace(">getFeedsViaAutodiscovery " + pageUrl);
+        LOGGER.trace(">discoverFeeds " + pageUrl);
 
         // logger.debug("-------------");
         // logger.debug("pageUrl: " + pageUrl);
@@ -195,7 +202,7 @@ public class FeedDiscovery {
             Crawler crawler = new Crawler();
 
             Document doc = crawler.getWebDocument(pageUrl, false);
-            result = getFeedsViaAutodiscovery(doc);
+            result = discoverFeeds(doc);
             traffic.increment((int) crawler.getTotalDownloadSize());
 
         } catch (Throwable t) {
@@ -206,7 +213,7 @@ public class FeedDiscovery {
         }
 
         // logger.debug("-------------");
-        LOGGER.trace("<getFeedsViaAutodiscovery");
+        LOGGER.trace("<discoverFeeds");
 
         return result;
     }
@@ -219,7 +226,7 @@ public class FeedDiscovery {
      * @param document
      * @return list of discovered feed URLs or empty list.
      */
-    List<String> getFeedsViaAutodiscovery(Document document) {
+    List<String> discoverFeeds(Document document) {
 
         List<String> result = new LinkedList<String>();
 
@@ -242,47 +249,58 @@ public class FeedDiscovery {
             baseHref = baseNode.getTextContent();
         }
 
-        //
-        // TODO maybe we should think this over again ... according to ...:
-        // http://diveintomark.org/archives/2003/12/19/atom-autodiscovery
-        // a) attributes contents are case insensitive, e.g. 'ApPlIkAtIoN/AtOm+xMl' is valid
-        // b) if multiple feeds are present, the first one indicates the 'prefered' feed
-        //
-        List<Node> atomNodes = XPathHelper.getNodes(document,
-                "//LINK[@rel='alternate' and @type='application/atom+xml']/@href");
-        List<Node> rssNodes = XPathHelper.getNodes(document,
-                "//LINK[@rel='alternate' and @type='application/rss+xml']/@href");
-
-        boolean hasAtom = atomNodes.size() > 0;
-        if (hasAtom) {
-            atomFeeds.increment();
+        // get all Nodes from the Document containing feeds
+        // this XPath relatively complicated to be in conformance to the Atom autodiscovery "standard".
+        // see: http://diveintomark.org/archives/2003/12/19/atom-autodiscovery
+        List<Node> feedNodes = XPathHelper.getNodes(document, 
+                "//LINK[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and " +
+                "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or " +
+                "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]");
+        
+        List<Node> atomNodes = new ArrayList<Node>();
+        List<Node> rssNodes = new ArrayList<Node>();
+        List<Node> resultNodes = null;
+        
+        // check for Atom/RSS
+        for (Node feedNode : feedNodes) {
+            
+            String type = feedNode.getAttributes().getNamedItem("type").getNodeValue().toLowerCase();
+            if (type.contains("atom")) {
+                atomNodes.add(feedNode);
+                atomFeeds.increment();
+            } else if (type.contains("rss")) {
+                rssNodes.add(feedNode);
+                rssFeeds.increment();
+            }
+            
         }
-        boolean hasRss = rssNodes.size() > 0;
-        if (hasRss) {
-            rssFeeds.increment();
-        }
-
-        List<Node> feedNodes = null;
-        if (hasAtom) {
-            LOGGER.trace("taking Atom feed");
-            feedNodes = atomNodes;
-        } else if (hasRss) {
-            LOGGER.trace("taking RSS feed");
-            feedNodes = rssNodes;
+        
+        if (onlyPreferred && feedNodes.size() > 0) {
+            // we only want to have the 1st, preferred feed
+            LOGGER.trace("taking preferred feed");
+            resultNodes = new ArrayList<Node>(Arrays.asList(new Node[] { feedNodes.get(0) }));
+        } else if (atomNodes.size() > 0) {
+            // we have Atom feeds, so we take them
+            LOGGER.trace("taking Atom feeds");
+            resultNodes = atomNodes;
+        } else if (rssNodes.size() > 0) {
+            // we have no Atom feeds, so we take the RSS feeds
+            LOGGER.trace("taking RSS feeds");
+            resultNodes = rssNodes;
         } else {
-            LOGGER.trace("no feed available");
+            LOGGER.trace("no feeds found");
         }
 
-        if (feedNodes != null) {
-            int numFeeds = feedNodes.size();
+        if (resultNodes != null) {
+            int numFeeds = resultNodes.size();
             feedSites.increment();
             if (numFeeds > 1) {
                 multipleFeeds.increment();
                 LOGGER.trace("found multiple feeds");
             }
-            for (Node feedNode : feedNodes) {
+            for (Node feedNode : resultNodes) {
 
-                String feedHref = feedNode.getNodeValue();
+                String feedHref = feedNode.getAttributes().getNamedItem("href").getNodeValue();
 
                 // there are actualy some pages with an empty href attribute! so ignore them here.
                 if (feedHref == null || feedHref.length() == 0) {
@@ -297,7 +315,6 @@ public class FeedDiscovery {
                 feedHref = feedHref.replace("feed:", "");
 
                 // make full URL
-                //String feedUrl = Helper.getFullUrl(pageUrl, baseHref, feedHref);
                 String feedUrl = Crawler.makeFullURL(pageUrl, baseHref, feedHref);
 
                 // validate URL
@@ -310,16 +327,16 @@ public class FeedDiscovery {
                 // if (feedHref != null && feedHref.length() > 0 && isValidUrl) {
                 // if (isValidUrl) {
                 LOGGER.debug("found feed: " + feedUrl);
-                if (!isIgnored(feedUrl)) {
-                    result.add(feedUrl);
-                } else {
+                if (isIgnored(feedUrl)) {
                     LOGGER.info("ignoring " + feedUrl);
                     ignoredFeeds.increment();
+                } else {
+                    result.add(feedUrl);
                 }
                 // }
             }
             // some statistical information
-            LOGGER.info(pageUrl + " has atom:" + hasAtom + ", rss:" + hasRss + ", count:" + numFeeds);
+            LOGGER.info(pageUrl + " has atom:" + atomNodes.size() + ", rss:" + rssNodes.size() + ", extracted:" + numFeeds);
         } else {
             LOGGER.info(pageUrl + " has no feed");
         }
@@ -356,7 +373,7 @@ public class FeedDiscovery {
                 @Override
                 public void run() {
                     try {
-                        List<String> discoveredFeeds = getFeedsViaAutodiscovery(site);
+                        List<String> discoveredFeeds = discoverFeeds(site);
                         if (discoveredFeeds != null) {
                             feeds.addAll(discoveredFeeds);
                         }
@@ -396,6 +413,15 @@ public class FeedDiscovery {
         LOGGER.trace(">getFeeds");
         LOGGER.trace("<getFeeds " + feeds.size());
         return feeds;
+    }
+    
+    /**
+     * Saves the discovered feeds to a file.
+     * 
+     * @param resultFile
+     */
+    public void saveToFile(String resultFile) {
+        FileHelper.writeToFile(resultFile, feeds);
     }
 
     /**
@@ -442,6 +468,22 @@ public class FeedDiscovery {
     public void setIgnores(Collection<String> ignores) {
         LOGGER.trace("setting ignores to " + ignores);
         this.ignoreList = new HashSet<String>(ignores);
+    }
+
+    /**
+     * Disable this option, to extract <i>all</i> available feeds on each webpage. Elsewise we only extract the
+     * <i>preferred</i> feed, which means the first one mentioned on the page.
+     * 
+     * @see http://tools.ietf.org/id/draft-snell-atompub-autodiscovery-00.txt
+     * 
+     * @param allFeeds
+     */
+    public void setOnlyPreferred(boolean onlyPreferred) {
+        this.onlyPreferred = onlyPreferred;
+    }
+    
+    public boolean isOnlyPreferred() {
+        return onlyPreferred;
     }
 
     /**
@@ -497,7 +539,7 @@ public class FeedDiscovery {
     public static void main(String[] args) {
 
         FeedDiscovery discovery = new FeedDiscovery();
-        String resultOpml = null;
+        String resultFile = null;
 
         CommandLineParser parser = new BasicParser();
 
@@ -527,7 +569,7 @@ public class FeedDiscovery {
                 discovery.setDebugDump(true);
             }
             if (cmd.hasOption("output")) {
-                resultOpml = cmd.getOptionValue("output");
+                resultFile = cmd.getOptionValue("output");
             }
             if (cmd.hasOption("query")) {
 
@@ -540,15 +582,15 @@ public class FeedDiscovery {
                 CollectionHelper.print(discoveredFeeds);
                 System.out.println(discovery.getStatistics());
 
-                // write result to OPML file
-                if (resultOpml != null) {
-                    OPMLHelper.writeOPMLFileFromStrings(discoveredFeeds, new File(resultOpml));
-                    System.out.println("wrote result to " + resultOpml);
+                // write result to file
+                if (resultFile != null) {
+                    discovery.saveToFile(resultFile);
+                    System.out.println("wrote result to " + resultFile);
                 }
 
             }
             if (cmd.hasOption("check")) {
-                List<String> feeds = discovery.getFeedsViaAutodiscovery(cmd.getOptionValue("check"));
+                List<String> feeds = discovery.discoverFeeds(cmd.getOptionValue("check"));
                 if (feeds.size() > 0) {
                     CollectionHelper.print(feeds);
                 } else {
@@ -565,7 +607,7 @@ public class FeedDiscovery {
 
         // print usage help
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("FeedDiscovery [options] query1[,query2,...]", options);
+        formatter.printHelp("FeedDiscovery [options]", options);
 
     }
 

@@ -8,7 +8,7 @@ import org.junit.Test;
 
 public class HtmlHelperTest {
 
-    @Test
+    /*@Test
     // @Ignore
     public void testDetermineEncoding() throws IOException {
 
@@ -30,7 +30,7 @@ public class HtmlHelperTest {
         Assert.assertEquals(null, HtmlHelper.getEncodingForHtmlFile("data/test/pageContentExtractor/test7.html"));
         Assert.assertEquals("iso-8859-1", HtmlHelper.getEncodingForHtmlFile("data/test/pageContentExtractor/test8.html"));
 
-    }
+    }*/
 
     // @Test
     // @Ignore

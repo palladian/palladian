@@ -37,7 +37,7 @@ public interface FeedStore {
      * Get a feed by its feedUrl.
      * 
      * @param feedUrl
-     * @return
+     * @return the Feed with specified feedUrl, <code>null</code> if Feed does not exist.
      */
     public abstract Feed getFeedByUrl(String feedUrl);
 
@@ -52,7 +52,8 @@ public interface FeedStore {
     /**
      * Get an entry by its rawId.
      * 
-     * @return
+     * @param rawId
+     * @return the Feed with specified rawId, <code>null</code> if Feed does not exist.
      */
     public abstract FeedEntry getEntryByRawId(String rawId);
 

@@ -533,7 +533,7 @@ public class SourceRetriever {
                 // query yahoo for search engine results
                 String iterationUrl = fixUrl + "&start=" + (50 * it);
                 Document searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(iterationUrl);
-                LOGGER.info("Search Results for " + iterationUrl);
+                LOGGER.debug("Search Results for " + iterationUrl);
                 SRManager.addRequest(SourceRetrieverManager.YAHOO_BOSS);
                 String summary = null;
 
