@@ -199,7 +199,8 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
         for (MIO mio : retrievedMIOs) {
             // calculateTrust(mio);
-            mioContextAnalyzer.calculateTrust(mio);
+            // mioContextAnalyzer.calculateTrust(mio);
+            mioContextAnalyzer.setFeatures(mio);
         }
         return retrievedMIOs;
     }

@@ -78,6 +78,12 @@ public class EntityMIOExtractionThread extends Thread {
             mioResults.add(mio.getValue());
         }
 
+        // extract features from MIOS for mio scoring
+        // for (MIO mio : mioResults) {
+        // MIOClassifier mioClass = new MIOClassifier();
+        // mioClass.classify(mio);
+        // }
+
         // printMapToFile(mios);
         printSetToHTMLFile(mioResults);
 
