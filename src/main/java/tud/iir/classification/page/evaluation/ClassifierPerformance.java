@@ -8,10 +8,21 @@ import tud.iir.classification.page.ClassificationDocument;
 import tud.iir.classification.page.TestDocument;
 import tud.iir.classification.page.TextClassifier;
 
+/**
+ * This class calculates scores for a given classifier such as precision, recall, and F1.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class ClassifierPerformance {
 
     private TextClassifier classifier = null;
 
+    /**
+     * Create a new ClassifierPerformance for a given classifier.
+     * 
+     * @param classifier The classifier.
+     */
     public ClassifierPerformance(TextClassifier classifier) {
         this.classifier = classifier;
     }
