@@ -20,7 +20,8 @@ import tud.iir.web.Crawler;
  */
 public abstract class TextClassifier {
 
-    protected final Logger logger = Logger.getLogger(TextClassifier.class);
+    /** The logger for this class. */
+    protected static final Logger LOGGER = Logger.getLogger(TextClassifier.class);
 
     /** start time of initialization of classifier */
     protected long initTime = 0;
@@ -388,5 +389,14 @@ public abstract class TextClassifier {
 
         return show.toString();
     }
-    
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("TextClassifier [name=");
+        builder.append(name);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

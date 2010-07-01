@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -1074,6 +1075,7 @@ public class ClassifierManager {
         Set<CrossValidationResult> cvResults = new HashSet<CrossValidationResult>();
 
         CrossValidator crossValidator = new CrossValidator();
+        crossValidator.setEvaluationSetting(evaluationSetting);
 
         // loop through all classifiers
         for (TextClassifier classifier : classifiers) {
@@ -1132,17 +1134,75 @@ public class ClassifierManager {
         //
         // ///////////////////////////////////////////////////////////////////////////////
 
-        // ///////////////////////////// learn classifiers /////////////////////////////////
+        // /////////////////////////// learn best classifiers ///////////////////////////////
         ClassifierManager classifierManager = new ClassifierManager();
+
+        // build a set of classification type settings to evaluate
+        List<ClassificationTypeSetting> classificationTypeSettings = new ArrayList<ClassificationTypeSetting>();
+        ClassificationTypeSetting cts = new ClassificationTypeSetting();
+        cts.setClassificationType(ClassificationTypeSetting.SINGLE);
+        cts.setSerializeClassifier(false);
+        classificationTypeSettings.add(cts);
+
+        // build a set of classifiers to evaluate
+        List<TextClassifier> classifiers = new ArrayList<TextClassifier>();
+        TextClassifier classifier = null;
+        classifier = new DictionaryClassifier();
+        classifiers.add(classifier);
+        classifier = new KNNClassifier();
+        classifiers.add(classifier);
+
+        // build a set of feature settings for evaluation
+        List<FeatureSetting> featureSettings = new ArrayList<FeatureSetting>();
+        FeatureSetting fs = null;
+        fs = new FeatureSetting();
+        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        fs.setMinNGramLength(4);
+        fs.setMaxNGramLength(7);
+        featureSettings.add(fs);
+
+        fs = new FeatureSetting();
+        fs.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        fs.setMinNGramLength(1);
+        fs.setMaxNGramLength(3);
+        featureSettings.add(fs);
+
+        // build a set of datasets that should be used for evaluation
+        Set<Dataset> datasets = new TreeSet<Dataset>();
         Dataset dataset = new Dataset();
-        TextClassifier classifier = new DictionaryClassifier();// new KNNClassifier();
+        dataset.setPath("data/temp/opendirectory_urls_noregional_small.txt");
+        datasets.add(dataset);
+
+        // set evaluation settings
+        EvaluationSetting evaluationSetting = new EvaluationSetting();
+        evaluationSetting.setTrainingPercentageMin(40);
+        evaluationSetting.setTrainingPercentageMax(50);
+        evaluationSetting.setkFolds(3);
+        evaluationSetting.addDataset(dataset);
+
+        // train and test all classifiers in all combinations
+        StopWatch stopWatch = new StopWatch();
+
+        // train + test
+        classifierManager.learnBestClassifier(classificationTypeSettings, classifiers, featureSettings,
+                evaluationSetting);
+
+        System.out.println("finished training and testing classifier in " + stopWatch.getElapsedTimeString());
+        System.exit(0);
+
+        // /////////////////////////////////////////////////////////////////////////////////
+
+        // ///////////////////////////// learn classifiers /////////////////////////////////
+        classifierManager = new ClassifierManager();
+        dataset = new Dataset();
+        classifier = new DictionaryClassifier();// new KNNClassifier();
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
         FeatureSetting featureSetting = new FeatureSetting();
         classifier.setClassificationTypeSetting(classificationTypeSetting);
         classifier.setFeatureSetting(featureSetting);
 
         // train and test all classifiers
-        StopWatch stopWatch = new StopWatch();
+        stopWatch = new StopWatch();
 
         // train
         // dataset.setPath("data/temp/opendirectory_urls_noregional_small_train.txt");
@@ -1153,7 +1213,7 @@ public class ClassifierManager {
         // classifierManager.testClassifier(dataset, classifier);
 
         // train + test
-        EvaluationSetting evaluationSetting = new EvaluationSetting();
+        evaluationSetting = new EvaluationSetting();
         evaluationSetting.setTrainingPercentageMin(50);
         evaluationSetting.setTrainingPercentageMax(50);
         evaluationSetting.setkFolds(1);

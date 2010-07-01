@@ -5,13 +5,13 @@ import tud.iir.classification.page.TextClassifier;
 public class ClassificationTypeSetting {
 
     // // classification types
-    /** take only the first category specified in the txt file */
+    /** Take only the first category specified in the txt file. */
     public static final int SINGLE = 1;
 
-    /** take all categories and treat them as a hierarchy */
+    /** Take all categories and treat them as a hierarchy. */
     public static final int HIERARCHICAL = 2;
 
-    /** take all categories ant treat them as tags */
+    /** Take all categories ant treat them as tags. */
     public static final int TAG = 3;
 
     /**
