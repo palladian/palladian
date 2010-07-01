@@ -11,61 +11,108 @@ import java.util.Map.Entry;
  */
 public class FeatureObject {
 
+    /** The features. */
     private Double[] features;
+
+    /** The feature names. */
     private String[] featureNames;
 
+    /** The class association. */
     private int classAssociation;
 
     /**
-     * Create a feature object with a feature vector of doubles. The last index of the features must be 0 or 1 and refers to the class.
+     * Create a feature object with a feature vector of doubles. The last index of the features must be 0 or 1 and
+     * refers to the class.
      * 
-     * @param features
-     * @param featureNames
+     * @param features the features
+     * @param featureNames the feature names
      */
-    public FeatureObject(Double[] features, String[] featureNames) {
-        setFeatures(features);
-        setFeatureNames(featureNames);
-        setClassAssociation((int) Math.floor((features[features.length - 1])));
+    public FeatureObject(final Double[] features, final String[] featureNames) {
+        // setFeatures(features);
+        this.features = features;
+        // setFeatureNames(featureNames);
+        this.featureNames = featureNames;
+        // setClassAssociation((int) Math.floor((features[features.length - 1])));
+        this.classAssociation = (int) Math.floor((features[features.length - 1]));
     }
 
-    public FeatureObject(Map<String, Double> features, Double classAssociation) {
+    /**
+     * Instantiates a new feature object.
+     * 
+     * @param features the features
+     * @param classAssociation the class association
+     */
+    public FeatureObject(final Map<String, Double> features, final Double classAssociation) {
         this(features);
-        setClassAssociation((int) Math.floor(classAssociation));
+        // setClassAssociation((int) Math.floor(classAssociation));
+        this.classAssociation = (int) Math.floor(classAssociation);
     }
 
-    public FeatureObject(Map<String, Double> features) {
+    /**
+     * Instantiates a new feature object.
+     * 
+     * @param features the features
+     */
+    public FeatureObject(final Map<String, Double> features) {
+
         String[] featureNames = new String[features.size()];
         Double[] featureValues = new Double[features.size()];
 
-        int i = 0;
+        int counter = 0;
         for (Entry<String, Double> feature : features.entrySet()) {
-            featureNames[i] = feature.getKey();
-            featureValues[i] = feature.getValue();
+            featureNames[counter] = feature.getKey();
+            featureValues[counter] = feature.getValue();
+            counter++;
         }
+        this.features = featureValues;
+        // setFeatures(featureValues);
+        this.featureNames = featureNames;
+        // setFeatureNames(featureNames);
 
-        setFeatureNames(featureNames);
-        setFeatures(featureValues);
     }
 
+    /**
+     * Gets the features.
+     * 
+     * @return the features
+     */
     public Double[] getFeatures() {
         return features;
     }
 
+    /**
+     * Sets the features.
+     * 
+     * @param features the new features
+     */
     public void setFeatures(Double[] features) { // NOPMD by David on 14.06.10 01:02
         this.features = features;
     }
 
+    /**
+     * Gets the feature names.
+     * 
+     * @return the feature names
+     */
     public String[] getFeatureNames() {
         return featureNames;
     }
 
-    public void setFeatureNames(String[] featureNames) {
+    /**
+     * Sets the feature names.
+     * 
+     * @param featureNames the featureNames as StringArray
+     */
+    public void setFeatureNames(final String[] featureNames) {
+
         if (featureNames.length < features.length) {
             this.featureNames = new String[features.length];
             for (int i = 0; i < features.length; i++) {
+
                 this.featureNames[i] = "feature" + i;
             }
         } else {
+
             this.featureNames = featureNames;
         }
     }
@@ -74,6 +121,11 @@ public class FeatureObject {
         return classAssociation;
     }
 
+    /**
+     * Gets the class association as string.
+     * 
+     * @return the class association as string
+     */
     public String getClassAssociationAsString() {
         if (getClassAssociation() == 1.0) {
             return "positive";
@@ -81,19 +133,28 @@ public class FeatureObject {
         return "negative";
     }
 
-    public void setClassAssociation(int classAssociation) {
+    /**
+     * Sets the class association.
+     * 
+     * @param classAssociation the new class association
+     */
+    public void setClassAssociation(final int classAssociation) {
         this.classAssociation = classAssociation;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        Double[] features = getFeatures();
+        final StringBuilder sBuilder = new StringBuilder();
+        final Double[] features = getFeatures();
         for (int i = 0; i < features.length; i++) {
             // sb.append(features[i]).append(" ; ");
-            sb.append(featureNames[i] + ":" + features[i]).append("\n");
+            sBuilder.append(featureNames[i] + ":" + features[i]).append("\n");
         }
-        return sb.toString();
+        return sBuilder.toString();
     }
 
 }
