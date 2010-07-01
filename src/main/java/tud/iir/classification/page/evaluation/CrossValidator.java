@@ -1,6 +1,8 @@
 package tud.iir.classification.page.evaluation;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -119,8 +121,14 @@ public class CrossValidator {
                                     + ", iteration = " + (k + 1) + "\n");
 
                     String currentTime = DateHelper.getCurrentDatetime();
-                    new TrainingDataSeparation().separateFile(dataset.getPath(), "data/temp/cvDataTraining.csv",
-                            "data/temp/cvDataTesting.csv", trainingPercentage, getEvaluationSetting().isRandom());
+                    try {
+						new TrainingDataSeparation().separateFile(dataset.getPath(), "data/temp/cvDataTraining.csv",
+						        "data/temp/cvDataTesting.csv", trainingPercentage, getEvaluationSetting().isRandom());
+					} catch (FileNotFoundException e) {
+						LOGGER.error(dataset.getPath() + e.getMessage());						
+					} catch (IOException e) {
+						LOGGER.error(dataset.getPath() + e.getMessage());						
+					}
 
 
                     // classifierManager.setTrainingDataPercentage(100);
