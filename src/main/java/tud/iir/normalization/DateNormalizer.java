@@ -251,7 +251,7 @@ public class DateNormalizer {
 
         return normalizedDate;
     }
-
+    
     public static void main(String[] args) {
         // System.out.println(normalizeDate("10 Oct 2008 16:34:01 EST"));
         // System.out.println(DateNormalizer.normalizeDateFormat("Thu Feb 12 01:56:22 CET 2009", "yyyy-MM-dd HH:mm:ss"));
