@@ -109,25 +109,23 @@ public class TrainingDataSeparation {
 		Set<Integer> alignedLinesSet = alignedLinesMap.keySet();
 		Iterator<Integer> alignedLinesIter = alignedLinesSet.iterator();
 		
-			FileReader orgDataFR = new FileReader(fileToSeparate);
-			BufferedReader orgDataBR = new BufferedReader(orgDataFR);
-			String orgDataLine = "";		
-						
-			do {
-				orgDataLine = orgDataBR.readLine();
-				if (orgDataLine == null || !alignedLinesIter.hasNext())
-					break;
-				int currentLine = alignedLinesIter.next();
-				if(alignedLinesMap.get(currentLine) == 0)
-					trainingSB.append(orgDataLine).append("\n");
-				else
-					testingSB.append(orgDataLine).append("\n");
-			} while (orgDataLine != null && alignedLinesIter.hasNext());
-						
-			orgDataFR.close();
-			orgDataBR.close();
-			
-						
+		FileReader orgDataFR = new FileReader(fileToSeparate);
+		BufferedReader orgDataBR = new BufferedReader(orgDataFR);
+		String orgDataLine = "";		
+					
+		do {
+			orgDataLine = orgDataBR.readLine();
+			if (orgDataLine == null || !alignedLinesIter.hasNext())
+				break;
+			int currentLine = alignedLinesIter.next();
+			if(alignedLinesMap.get(currentLine) == 0)
+				trainingSB.append(orgDataLine).append("\n");
+			else
+				testingSB.append(orgDataLine).append("\n");
+		} while (orgDataLine != null && alignedLinesIter.hasNext());
+					
+		orgDataFR.close();
+		orgDataBR.close();						
 		
 		// write data to files
 		FileHelper.writeToFile(trainingDataFileToWrite, trainingSB);
