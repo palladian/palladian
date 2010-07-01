@@ -577,7 +577,7 @@ public final class FeedChecker {
      */
     private void updateEvaluationMaps(Feed feed, double pnTarget, FeedPostStatistics fps) {
 
-        List<FeedEntry> entries = feed.getEntries();
+        // List<FeedEntry> entries = feed.getEntries();
 
         if (benchmark == BENCHMARK_MAX_CHECK_TIME) {
 

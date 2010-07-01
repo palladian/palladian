@@ -37,7 +37,7 @@ public class KnowledgeManager implements Serializable {
     private static final Logger LOGGER = Logger.getLogger(KnowledgeManager.class);
 
     private static final double ATTRIBUTE_SYNONYM_TRUST_THRESHOLD = 0.05;
-    private static final double ENTITY_TRUST_THRESHOLD = 0.9;
+    // private static final double ENTITY_TRUST_THRESHOLD = 0.9;
 
     /** list of concepts held by the KnowledgeManager */
     private ArrayList<Concept> concepts;

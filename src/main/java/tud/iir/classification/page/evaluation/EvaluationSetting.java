@@ -3,6 +3,12 @@ package tud.iir.classification.page.evaluation;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Set the evaluation settings for a classifier.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class EvaluationSetting {
 
     // //////// presets //////////
@@ -92,6 +98,12 @@ public class EvaluationSetting {
         datasets.add(dataset);
     }
 
+    /**
+     * Set a preset evaluation strategy.
+     * 
+     * @param preset Strategy must be one of {@link PRESET_SIMPLE_EVALUATION}, {@link PRESET_MODERATE_EVALUATION}, or
+     *            {@link PRESET_INTENSE_EVALUATION}.
+     */
     private void setPreset(int preset) {
 
         switch (preset) {

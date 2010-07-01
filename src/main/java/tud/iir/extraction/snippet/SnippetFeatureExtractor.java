@@ -154,7 +154,7 @@ public class SnippetFeatureExtractor {
         int letterNumberCount = StringHelper.letterNumberCount(snippet.getText());
         // snippet.setFeature("LetterNumberCount", letterNumberCount);
 
-        float letterNumberPercentage = (100 / (float) characterCount) * letterNumberCount;
+        float letterNumberPercentage = 100 / (float) characterCount * letterNumberCount;
         snippet.setFeature("LetterNumberPercentage", letterNumberPercentage);
 
         // int syllableCount = fs.getNumSyllables();
@@ -176,8 +176,9 @@ public class SnippetFeatureExtractor {
         snippet.setFeature("ComplexWordPercentage", complexWordPercentage);
 
         int sentenceCount = fs.getNumSentences();
-        if (sentenceCount == 0)
+        if (sentenceCount == 0) {
             sentenceCount++; // FIXME
+        }
         snippet.setFeature("SentenceCount", sentenceCount);
 
         float wordsPerSentenceCount = Readability.wordsPerSentence(fs);
@@ -199,11 +200,11 @@ public class SnippetFeatureExtractor {
         snippet.setFeature("FleschKincaidGradeLevel", (float) fleschKincaidGradeLevel);
 
         // Automated Readability Index
-        double automatedReadabilityIndex = (4.71 * letterNumberCount) / wordCount + (0.5 * wordCount) / sentenceCount - 21.43;
+        double automatedReadabilityIndex = 4.71 * letterNumberCount / wordCount + 0.5 * wordCount / sentenceCount - 21.43;
         snippet.setFeature("AutomatedReadabilityIndex", (float) automatedReadabilityIndex);
 
         // Coleman-Liau Index
-        double colemanLiauIndex = (5.89 * letterNumberCount) / wordCount - (30.0 * sentenceCount) / wordCount - 15.8;
+        double colemanLiauIndex = 5.89 * letterNumberCount / wordCount - 30.0 * sentenceCount / wordCount - 15.8;
         snippet.setFeature("ColemanLiauIndex", (float) colemanLiauIndex);
 
         // SMOG Index
@@ -245,12 +246,12 @@ public class SnippetFeatureExtractor {
             snippet.setFeature("StartsWithEntity", 0);
         }
 
-        HashSet<Attribute> attributes = snippet.getEntity().getConcept().getAttributes(false);
-        int attributeCount = 0;
-        for (Attribute attribute : attributes) {
-            // attributeCount += StringHelper.countWordOccurrences(attribute.getName(), snippet.getText());
-            // TODO: synonyms
-        }
+        // Set<Attribute> attributes = snippet.getEntity().getConcept().getAttributes(false);
+        // int attributeCount = 0;
+        // for (Attribute attribute : attributes) {
+        // // attributeCount += StringHelper.countWordOccurrences(attribute.getName(), snippet.getText());
+        // // TODO: synonyms
+        // }
         // snippet.setFeature("AttributeCount", attributeCount);
 
         ArrayList<Entity> entities = snippet.getEntity().getConcept().getEntities();
@@ -305,29 +306,29 @@ public class SnippetFeatureExtractor {
      * @param se - The search engine.
      * @return The search engine type.
      */
-    private static int classifySearchEngine(int se) {
-
-        int result = -1;
-
-        HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
-
-        // mapping, TODO: move to some config file or so
-        map.put(SourceRetrieverManager.YAHOO, 1);
-        map.put(SourceRetrieverManager.GOOGLE, 1);
-        map.put(SourceRetrieverManager.MICROSOFT, 1);
-        map.put(SourceRetrieverManager.HAKIA, 2);
-        map.put(SourceRetrieverManager.YAHOO_BOSS, 3);
-        map.put(SourceRetrieverManager.BING, 1);
-        map.put(SourceRetrieverManager.TWITTER, 4);
-        map.put(SourceRetrieverManager.GOOGLE_BLOGS, 5);
-        map.put(SourceRetrieverManager.TEXTRUNNER, 6);
-
-        if (map.containsKey(se)) {
-            result = map.get(se);
-        }
-
-        return result;
-    }
+    // private static int classifySearchEngine(int se) {
+    //
+    // int result = -1;
+    //
+    // HashMap<Integer, Integer> map = new HashMap<Integer, Integer>();
+    //
+    // // mapping, TODO: move to some config file or so
+    // map.put(SourceRetrieverManager.YAHOO, 1);
+    // map.put(SourceRetrieverManager.GOOGLE, 1);
+    // map.put(SourceRetrieverManager.MICROSOFT, 1);
+    // map.put(SourceRetrieverManager.HAKIA, 2);
+    // map.put(SourceRetrieverManager.YAHOO_BOSS, 3);
+    // map.put(SourceRetrieverManager.BING, 1);
+    // map.put(SourceRetrieverManager.TWITTER, 4);
+    // map.put(SourceRetrieverManager.GOOGLE_BLOGS, 5);
+    // map.put(SourceRetrieverManager.TEXTRUNNER, 6);
+    //
+    // if (map.containsKey(se)) {
+    // result = map.get(se);
+    // }
+    //
+    // return result;
+    // }
 
     /**
      * Extract a list of part-of-speech tags from a sentence.
@@ -381,8 +382,9 @@ public class SnippetFeatureExtractor {
 
     public static void main(String[] abc) {
 
-        String s = "San Antonio, Texas (PRWEB) December 11, 2009 -- The leader in battery replacements for Apple\'s IPHONE and IPOD, milliamp.com, has just announced that they have the ability to change the battery in Apple\'s IPHONE 3G. \"Being able to replace the battery in Apple\'s IPHONE 3G is very exciting, and will prove to be more and more important for IPHONE users as these devices age and the batteries inside continue to lose their ability to retain a charge.\", said the owner of milliamp.com, Anthony Magnabosco. Unlike the first generation IPHONE (aka IPHONE 2G), the battery inside the IPHONE 3G and IPHONE 3GS is not soldered in. One would think this would make it easier for the average consumer to replace the battery, but in reality, the IPHONE 3G and 3GS takes special talent to safely open and service. \"We have been replacing batteries in IPODS and IPHONES for nearly five years now, and we are pleased to be able to perform this service for IPHONE 3GS owners.\", continued Magnabosco. IPHONE 3GS battery replacements are usually performed within a few days after arrival, and then go through a series of quality control tests before the device is quickly shipped back to the customer. Further, milliamp.com guarantees their IPHONE 3GS batteries for ten years, so should the battery fail to hold its\' charge or if you start to notice a decrease in playtime, you can have the battery replaced by milliamp.com and not have to buy a new one. Interestingly, the battery for Apple\'s IPHONE 3GS is a bit different in its\' configuration and circuitry than its\' IPHONE 3G predecessor, so the two batteries are not interchangeable. \"It is important for customers to know that, if they notice their IPHONE 3GS is not holding a charge as well as it did when it was brand new, they need to contact us for a solution.\" More information about this new battery repair offering can be found at milliamp.com. Milliamp LTD and their websites are in no way associated with Apple Computer, Inc. \'Apple\', \'iPod\', and \'iPhone\' are trademarks of Apple Computer, Inc., registered in the U.S. and other countries. Opening up your device may void or limit the scope of Apple\'s warranty that you may or may not have.";
-        s = "The iphone 3GS is manufactered by Apple.";
+        // String s =
+        // "San Antonio, Texas (PRWEB) December 11, 2009 -- The leader in battery replacements for Apple\'s IPHONE and IPOD, milliamp.com, has just announced that they have the ability to change the battery in Apple\'s IPHONE 3G. \"Being able to replace the battery in Apple\'s IPHONE 3G is very exciting, and will prove to be more and more important for IPHONE users as these devices age and the batteries inside continue to lose their ability to retain a charge.\", said the owner of milliamp.com, Anthony Magnabosco. Unlike the first generation IPHONE (aka IPHONE 2G), the battery inside the IPHONE 3G and IPHONE 3GS is not soldered in. One would think this would make it easier for the average consumer to replace the battery, but in reality, the IPHONE 3G and 3GS takes special talent to safely open and service. \"We have been replacing batteries in IPODS and IPHONES for nearly five years now, and we are pleased to be able to perform this service for IPHONE 3GS owners.\", continued Magnabosco. IPHONE 3GS battery replacements are usually performed within a few days after arrival, and then go through a series of quality control tests before the device is quickly shipped back to the customer. Further, milliamp.com guarantees their IPHONE 3GS batteries for ten years, so should the battery fail to hold its\' charge or if you start to notice a decrease in playtime, you can have the battery replaced by milliamp.com and not have to buy a new one. Interestingly, the battery for Apple\'s IPHONE 3GS is a bit different in its\' configuration and circuitry than its\' IPHONE 3G predecessor, so the two batteries are not interchangeable. \"It is important for customers to know that, if they notice their IPHONE 3GS is not holding a charge as well as it did when it was brand new, they need to contact us for a solution.\" More information about this new battery repair offering can be found at milliamp.com. Milliamp LTD and their websites are in no way associated with Apple Computer, Inc. \'Apple\', \'iPod\', and \'iPhone\' are trademarks of Apple Computer, Inc., registered in the U.S. and other countries. Opening up your device may void or limit the scope of Apple\'s warranty that you may or may not have.";
+        // s = "The iphone 3GS is manufactered by Apple.";
         //		
         //		
         // // StringTokenizer st = new StringTokenizer(s);

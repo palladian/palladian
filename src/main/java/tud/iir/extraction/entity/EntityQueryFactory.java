@@ -46,8 +46,9 @@ public class EntityQueryFactory {
     }
 
     public static EntityQueryFactory getInstance() {
-        if (instance == null)
+        if (instance == null) {
             instance = new EntityQueryFactory();
+        }
         return instance;
     }
 
@@ -169,17 +170,18 @@ public class EntityQueryFactory {
         return eq;
     }
 
-    private EntityQuery createFocusedCrawlQueryXSListing(Concept concept) {
-        EntityQuery eq = new EntityQuery();
-        // String xp = StringHelper.wordToPlural(concept.getName()); // TODO test with plural
-        String xs = concept.getName();
-        String[] querySet = { xs + " listing" };
-        eq.setQuerySet(querySet);
-        eq.setRegularExpression(xs + " listing");
-        eq.setQueryType(TYPE_XS_LIST);
-
-        return eq;
-    }
+    /*
+     * private EntityQuery createFocusedCrawlQueryXSListing(Concept concept) {
+     * EntityQuery eq = new EntityQuery();
+     * // String xp = StringHelper.wordToPlural(concept.getName()); // TODO test with plural
+     * String xs = concept.getName();
+     * String[] querySet = { xs + " listing" };
+     * eq.setQuerySet(querySet);
+     * eq.setRegularExpression(xs + " listing");
+     * eq.setQueryType(TYPE_XS_LIST);
+     * return eq;
+     * }
+     */
 
     private EntityQuery createFocusedCrawlQueryBrowseXP(Concept concept) {
         EntityQuery eq = new EntityQuery();

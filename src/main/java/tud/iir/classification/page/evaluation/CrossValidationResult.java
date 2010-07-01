@@ -8,10 +8,28 @@ import java.util.Map.Entry;
 
 import tud.iir.classification.page.TextClassifier;
 
+/**
+ * The result of a cross validation for a classifier and given settings.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class CrossValidationResult {
 
     /** The classifier for which the results are gathered. */
     private TextClassifier classifier;
+
+    /**
+     * The classification type settings used for the classifier, this needs to be copied and cannot be accessed from the
+     * classifier itself since the settings might change for the same classifier.
+     */
+    private ClassificationTypeSetting classificationTypeSettings;
+
+    /**
+     * The feature settings used for the classifier, this needs to be copied and cannot be accessed from the classifier
+     * itself since the settings might change for the same classifier.
+     */
+    private FeatureSetting featureSettings;
 
     /** Average performances over all datasets, training percentages, and folds. */
     private Set<ClassifierPerformance> performancesDatasetTrainingFolds = new HashSet<ClassifierPerformance>();
@@ -24,6 +42,8 @@ public class CrossValidationResult {
 
     public CrossValidationResult(TextClassifier classifier) {
         this.classifier = classifier;
+        this.classificationTypeSettings = classifier.getClassificationTypeSetting();
+        this.featureSettings = classifier.getFeatureSetting();
     }
 
     public void setClassifier(TextClassifier classifier) {
@@ -32,6 +52,22 @@ public class CrossValidationResult {
 
     public TextClassifier getClassifier() {
         return classifier;
+    }
+
+    public void setClassificationTypeSetting(ClassificationTypeSetting classificationTypeSettings) {
+        this.classificationTypeSettings = classificationTypeSettings;
+    }
+
+    public ClassificationTypeSetting getClassificationTypeSetting() {
+        return classificationTypeSettings;
+    }
+
+    public void setFeatureSetting(FeatureSetting featureSettings) {
+        this.featureSettings = featureSettings;
+    }
+
+    public FeatureSetting getFeatureSetting() {
+        return featureSettings;
     }
 
     public Set<ClassifierPerformance> getPerformancesDatasetTrainingFolds() {
@@ -142,6 +178,4 @@ public class CrossValidationResult {
 
         return result;
     }
-
-
 }

@@ -6,8 +6,12 @@ package tud.iir.extraction;
  * @author David Urbansky
  */
 public abstract class Query {
-    protected String[] querySet; // all queries for that fact query type, e.g. "the population of Germany is" etc.
-    protected int queryType; // an id that identifies the fact query type
+
+    /** All queries for that fact query type, e.g. "the population of Germany is" etc. */
+    protected String[] querySet;
+
+    /** An id that identifies the fact query type. */
+    protected int queryType;
 
     public int getQueryType() {
         return queryType;

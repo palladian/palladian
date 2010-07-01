@@ -2,23 +2,29 @@ package tud.iir.classification.page;
 
 import java.io.Serializable;
 
+/**
+ * An n-Gram.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class NGram implements Serializable {
 
     private static final long serialVersionUID = 8745021882046835435L;
 
-    // the string of the ngram
+    /** The string of the n-Gram. */
     private String string = "";
 
-    // the length of the ngram
+    /** The length of the n-Gram. */
     private int n = 0;
 
-    // number of times the ngram occurred
+    /** Number of times the n-Gram occurred. */
     private int frequency = 0;
 
-    // the inverse document frequency of the ngram
+    /** The inverse document frequency of the n-Gram. */
     private double idf = -1.0;
 
-    // the index of the ngram, this makes it possible to refer to this ngram in the feature list
+    /** The index of the ngram, this makes it possible to refer to this ngram in the feature list. */
     private int index = 0;
 
     public NGram(String string) {

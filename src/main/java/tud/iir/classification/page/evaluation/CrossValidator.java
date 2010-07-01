@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 
 import tud.iir.classification.page.ClassifierManager;
 import tud.iir.classification.page.TextClassifier;
-import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 
 /**
@@ -92,8 +91,12 @@ public class CrossValidator {
         // average performances over all folds <Datasetname,trainingpercentage:performances>
         Map<String, HashSet<ClassifierPerformance>> performancesFolds = cvResult.getPerformancesFolds();
 
+        Dataset trainingTestingDataset = new Dataset();
+
         // iterate over all datasets
         for (Dataset dataset : getEvaluationSetting().getDatasets()) {
+
+            trainingTestingDataset.setSeparationString(dataset.getSeparationString());
 
             int trainingPercentageLoop = 0;
 
@@ -120,7 +123,6 @@ public class CrossValidator {
                                     + getEvaluationSetting().isRandom()
                                     + ", iteration = " + (k + 1) + "\n");
 
-                    String currentTime = DateHelper.getCurrentDatetime();
                     try {
 						new TrainingDataSeparation().separateFile(dataset.getPath(), "data/temp/cvDataTraining.csv",
 						        "data/temp/cvDataTesting.csv", trainingPercentage, getEvaluationSetting().isRandom());
@@ -132,16 +134,16 @@ public class CrossValidator {
 
 
                     // classifierManager.setTrainingDataPercentage(100);
-                    dataset.setPath("data/temp/cvDataTraining.csv");
-                    classifierManager.trainClassifier(dataset, classifier);
+                    trainingTestingDataset.setPath("data/temp/cvDataTraining.csv");
+                    classifierManager.trainClassifier(trainingTestingDataset, classifier);
 
                     // classifierManager.trainAndTestClassifier("data/temp/cvDataTraining.csv",
                     // WebPageClassifier.URL,classType, ClassifierManager.CLASSIFICATION_TRAIN_TEST_SERIALIZE);
 
                     // classify
                     // classifierManager.setTrainingDataPercentage(0);
-                    dataset.setPath("data/temp/cvDataTesting.csv");
-                    classifierManager.testClassifier(dataset, classifier);
+                    trainingTestingDataset.setPath("data/temp/cvDataTesting.csv");
+                    classifierManager.testClassifier(trainingTestingDataset, classifier);
 
                     // classifierManager.trainAndTestClassifier("data/temp/cvDataTesting.csv", WebPageClassifier.URL,
                     // classType, ClassifierManager.CLASSIFICATION_TEST_MODEL);
@@ -150,12 +152,6 @@ public class CrossValidator {
                     // add the performance to the evaluation maps
                     performancesDatasetTrainingFolds.add(classifier.getPerformance());
                     performancesDatasetTrainingFoldsTemp1.add(classifier.getPerformance());
-
-                    StringBuilder trainingsetPercentSB = new StringBuilder();
-                    trainingsetPercentSB.append(currentTime);
-                    trainingsetPercentSB.append("random trainingPercentage: ").append(trainingPercentage).append("\n");
-                    FileHelper.appendToFile("data/temp/thresholds.txt", trainingsetPercentSB, false);
-
                 }
 
                 // add the performances to the evaluation maps
@@ -178,33 +174,11 @@ public class CrossValidator {
             cfp.addAll(performancesDatasetTrainingFoldsTemp0);
         }
 
-        // output results
-        StringBuilder finalResultSB = new StringBuilder();
-        finalResultSB.append(getEvaluationSetting()).append(";\n");
-
-
-        finalResultSB.append("\n");
-
         cvResult.setPerformancesDatasetTrainingFolds(performancesDatasetTrainingFolds);
         cvResult.setPerformancesTrainingFolds(performancesTrainingFolds);
         cvResult.setPerformancesFolds(performancesFolds);
 
         return cvResult;
-
-        // for (int i = 0; i < numberTrainingPercentageLoops; i++) {
-        // finalResultSB.append("train ").append(trainingPercentageUsed[i]).append("% ").append(useRandom).append(";");
-        //
-        // double culmulatedPrecision = 0;
-        // for (int k = 0; k < kFolds; k++) {
-        // culmulatedPrecision += openAnalytixPerformances[i][k];
-        // }
-        // finalResultSB.append(MathHelper.round(culmulatedPrecision / kFolds, 4)).append(";");
-        //
-        // finalResultSB.append("\n");
-        // System.out.print("\n");
-        // }
-        //
-        // FileHelper.writeToFile(resultFilePath, finalResultSB);
     }
 
     /**
@@ -220,12 +194,6 @@ public class CrossValidator {
      */
     public void printEvaluationFiles(Set<CrossValidationResult> cvResults, String outputFolder) {
         
-
-        // if (cvResult == null) {
-        // LOGGER.warn("cannot print evaluation files because no results were generated yet, run crossValidate before using this");
-        // return;
-        // }
-
         StringBuilder csv = new StringBuilder();
         csv.append(evaluationSetting).append("\n");
 
@@ -234,8 +202,8 @@ public class CrossValidator {
 
             AverageClassifierPerformance avgCP = cvResult.getAveragePerformanceDataSetTrainingFolds();
             csv.append(cvResult.getClassifier()).append(";");
-            csv.append(cvResult.getClassifier().getFeatureSetting()).append(";");
-            csv.append(cvResult.getClassifier().getClassificationTypeSetting()).append(";");
+            csv.append(cvResult.getFeatureSetting()).append(";");
+            csv.append(cvResult.getClassificationTypeSetting()).append(";");
             csv.append(avgCP.getPrecision()).append(";");
             csv.append(avgCP.getRecall()).append(";");
             csv.append(avgCP.getF1()).append("\n");
@@ -254,8 +222,8 @@ public class CrossValidator {
             for (Entry<String, AverageClassifierPerformance> avgEntry : avgCP.entrySet()) {
                 csv.append(avgEntry.getKey()).append(";");
                 csv.append(cvResult.getClassifier()).append(";");
-                csv.append(cvResult.getClassifier().getFeatureSetting()).append(";");
-                csv.append(cvResult.getClassifier().getClassificationTypeSetting()).append(";");
+                csv.append(cvResult.getFeatureSetting()).append(";");
+                csv.append(cvResult.getClassificationTypeSetting()).append(";");
                 csv.append(avgEntry.getValue().getPrecision()).append(";");
                 csv.append(avgEntry.getValue().getRecall()).append(";");
                 csv.append(avgEntry.getValue().getF1()).append("\n");
@@ -275,8 +243,8 @@ public class CrossValidator {
             for (Entry<String, AverageClassifierPerformance> avgEntry : avgCP.entrySet()) {
                 csv.append(avgEntry.getKey()).append(";");
                 csv.append(cvResult.getClassifier()).append(";");
-                csv.append(cvResult.getClassifier().getFeatureSetting()).append(";");
-                csv.append(cvResult.getClassifier().getClassificationTypeSetting()).append(";");
+                csv.append(cvResult.getFeatureSetting()).append(";");
+                csv.append(cvResult.getClassificationTypeSetting()).append(";");
                 csv.append(avgEntry.getValue().getPrecision()).append(";");
                 csv.append(avgEntry.getValue().getRecall()).append(";");
                 csv.append(avgEntry.getValue().getF1()).append("\n");

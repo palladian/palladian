@@ -148,8 +148,9 @@ public class PageAnalyzer {
         for (String currentXPath : listElements) {
 
             List<Node> results = XPathHelper.getNodes(document, currentXPath);
-            if (results == null)
+            if (results == null) {
                 continue;
+            }
             for (Node currentNode : results) {
                 String[] rcElements = { "TABLE" };
                 String xPath = removeXPathIndicesNot(constructXPath(currentNode), rcElements);
@@ -252,8 +253,9 @@ public class PageAnalyzer {
      */
     public String makeMutualXPath(HashSet<String> xPathSet) {
 
-        if (xPathSet.isEmpty())
+        if (xPathSet.isEmpty()) {
             return "";
+        }
 
         XPathSet xps = new XPathSet();
         Iterator<String> xPathIterator = xPathSet.iterator();
@@ -297,20 +299,24 @@ public class PageAnalyzer {
 
             for (int i = 0; i < Math.min(pathArray.length, xPath2Array.length); i++) {
                 int indexPosition1 = pathArray[i].indexOf("[");
-                if (indexPosition1 == -1)
+                if (indexPosition1 == -1) {
                     continue;
+                }
 
                 int indexPosition2 = xPath2Array[i].indexOf("[");
-                if (indexPosition2 == -1)
+                if (indexPosition2 == -1) {
                     continue;
+                }
 
                 int index1 = Integer.valueOf(pathArray[i].substring(indexPosition1 + 1, pathArray[i].length() - 1));
                 int index2 = Integer.valueOf(xPath2Array[i].substring(indexPosition2 + 1, xPath2Array[i].length() - 1));
 
-                if (!pathArray[i].substring(0, indexPosition1).equals(xPath2Array[i].substring(0, indexPosition2)))
+                if (!pathArray[i].substring(0, indexPosition1).equals(xPath2Array[i].substring(0, indexPosition2))) {
                     continue;
-                if (index1 != index2)
+                }
+                if (index1 != index2) {
                     indices[i] = 0;
+                }
             }
         }
 
@@ -319,12 +325,14 @@ public class PageAnalyzer {
             int indexPosition = pathArray[i].indexOf("[");
 
             // there was no index, no change
-            if (indexPosition == -1)
+            if (indexPosition == -1) {
                 continue;
+            }
 
             // no change between the different xpath found
-            if (indices[i] == 1)
+            if (indices[i] == 1) {
                 continue;
+            }
 
             // change found, delete index
             pathArray[i] = pathArray[i].substring(0, indexPosition);
@@ -414,8 +422,9 @@ public class PageAnalyzer {
             String currentNodeName = node.getNodeName();
             Node ps = node.getPreviousSibling();
             while (ps != null) {
-                if (ps.getNodeName().equalsIgnoreCase(currentNodeName))
+                if (ps.getNodeName().equalsIgnoreCase(currentNodeName)) {
                     ++psCount;
+                }
                 ps = ps.getPreviousSibling();
             }
             psCount++; // xpath is based on 1
@@ -432,12 +441,14 @@ public class PageAnalyzer {
 
             // remove "#text" from xpath
             int textNodeIndex = xpath.indexOf("/#text");
-            if (textNodeIndex > -1)
+            if (textNodeIndex > -1) {
                 xpath = xpath.substring(0, textNodeIndex);
+            }
 
             node = node.getParentNode();
-            if (node == null)
+            if (node == null) {
                 break;
+            }
         }
 
         // normalize (add tbody)
@@ -449,8 +460,9 @@ public class PageAnalyzer {
             return "";
         }
 
-        if (xpath.endsWith("/"))
+        if (xpath.endsWith("/")) {
             xpath = xpath.substring(0, xpath.length() - 1);
+        }
 
         // Logger.getInstance().log("constructed xpath: "+xpath.toLowerCase(),false);
         return xpath;
@@ -624,8 +636,9 @@ public class PageAnalyzer {
         }
 
         // if not found any brackets return the given xpath
-        if (lastClosingBrackets <= lastOpeningBrackets || lastOpeningBrackets == 1)
+        if (lastClosingBrackets <= lastOpeningBrackets || lastOpeningBrackets == 1) {
             return xPath;
+        }
 
         // update counter and return the updated xpath (no th was found after the last brackets)
         int currentIndex = Integer.valueOf(xPath.substring(lastOpeningBrackets + 1, lastClosingBrackets));
@@ -718,14 +731,16 @@ public class PageAnalyzer {
         }
 
         // if not found any brackets return an empty array
-        if (lastClosingBrackets <= lastOpeningBrackets || lastOpeningBrackets == 1)
+        if (lastClosingBrackets <= lastOpeningBrackets || lastOpeningBrackets == 1) {
             return tableRowsXPaths;
+        }
 
         // find out how many rows the table has
         String tableXPath = getParentNode(attributeXPath.substring(0, lastOpeningBrackets));
         List<Node> tableNodes = XPathHelper.getNodes(document, tableXPath);
-        if (tableNodes.size() == 0)
+        if (tableNodes.size() == 0) {
             return tableRowsXPaths;
+        }
 
         int rowCount = 0;
         NodeList childNodes = tableNodes.get(0).getChildNodes();
@@ -759,8 +774,9 @@ public class PageAnalyzer {
 
         int trIndex = xPath.toLowerCase().lastIndexOf("tr");
 
-        if (trIndex == -1)
+        if (trIndex == -1) {
             return xPath;
+        }
 
         // check whether tr has index already
         if (xPath.substring(trIndex + 2, trIndex + 3).equals("[")) {
@@ -828,15 +844,17 @@ public class PageAnalyzer {
             }
         }
 
-        if (tdCountMap.entrySet().size() == 0)
+        if (tdCountMap.entrySet().size() == 0) {
             return 0;
+        }
 
         tdCountMap = CollectionHelper.sortByValue(tdCountMap.entrySet(), CollectionHelper.DESCENDING);
         numberOfColumns = tdCountMap.entrySet().iterator().next().getKey();
 
         // rowspan might have led to zero columns
-        if (numberOfColumns == 0)
+        if (numberOfColumns == 0) {
             numberOfColumns = 1;
+        }
 
         return numberOfColumns;
     }
@@ -1004,12 +1022,14 @@ public class PageAnalyzer {
         return getTextsByXpath(document, xPath);
     }
 
+    @SuppressWarnings("unchecked")
     public ArrayList<String> getTextsByXpath(Document document, String xpath) {
 
         ArrayList<String> texts = new ArrayList<String>();
 
-        if (document == null)
+        if (document == null) {
             return texts;
+        }
 
         try {
             // TODO next line, DOMXPath instead of XPath and document.getLastChild changed (might lead to different evaluation results)
@@ -1117,7 +1137,7 @@ public class PageAnalyzer {
         pa.setDocument("data/benchmarkSelection/qa/training/webpage32.html");
 
         // LinkedHashSet lhs = pa.constructAllXPaths(pa.getDocument(), "?", false, false);
-        LinkedHashSet lhs = pa.constructAllXPaths("vitamins B1, B2, B3, B5 and C.  Actions");
+        Set<String> lhs = pa.constructAllXPaths("vitamins B1, B2, B3, B5 and C.  Actions");
         CollectionHelper.print(lhs);
     }
     /**

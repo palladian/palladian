@@ -19,7 +19,6 @@ import tud.iir.knowledge.Fact;
 import tud.iir.knowledge.FactValue;
 import tud.iir.knowledge.KnowledgeManager;
 import tud.iir.knowledge.Source;
-import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
@@ -85,16 +84,16 @@ public class LiveFactExtractor {
         return entity.getFacts();
     }
 
-    private void saveExtractionsToDatabase() {
-        // check whether query was directed towards an existing entity (some facts must have been found)
-        if (entity.getFacts().size() > 4) {
-            logger.info("facts are being saved!");
-            DatabaseManager.getInstance().saveExtractions(km);
-        } else {
-            logger.info("less than 5 facts found, facts are not saved in database");
-        }
-
-    }
+    // private void saveExtractionsToDatabase() {
+    // // check whether query was directed towards an existing entity (some facts must have been found)
+    // if (entity.getFacts().size() > 4) {
+    // logger.info("facts are being saved!");
+    // DatabaseManager.getInstance().saveExtractions(km);
+    // } else {
+    // logger.info("less than 5 facts found, facts are not saved in database");
+    // }
+    //
+    // }
 
     public ArrayList<Fact> extractFacts(String url) {
         ArrayList<Fact> facts = new ArrayList<Fact>();
@@ -204,8 +203,9 @@ public class LiveFactExtractor {
                 valueString = StringHelper.trim(valueString.replaceAll("(\\?\\s)|((\\s\\?)|(\\?))", ""));
 
                 if (attributeString.length() == 0 || attributeString.length() > 30 || valueString.length() == 0 || attributeString.endsWith("http")
-                        || attributeString.endsWith("\"javascript") || attributeString.endsWith("http") || attributeString.indexOf("style=") > -1)
+                        || attributeString.endsWith("\"javascript") || attributeString.endsWith("http") || attributeString.indexOf("style=") > -1) {
                     continue;
+                }
 
                 Attribute attribute = new Attribute(attributeString, Attribute.VALUE_STRING, concept);
                 attribute.addSource(source);
