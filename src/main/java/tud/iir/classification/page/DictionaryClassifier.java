@@ -124,7 +124,7 @@ public class DictionaryClassifier extends TextClassifier {
      */
     public void saveDictionary(int classType, boolean indexFirst, boolean deleteIndexFirst) {
 
-        logger.info("saving the dictionary");
+        LOGGER.info("saving the dictionary");
         dictionary.serialize("data/models/dictionary_" + getName() + "_" + classType + ".ser", indexFirst, deleteIndexFirst);
         // dictionary.index("data/models/dictionaryIndex_"+getName()+"_"+classType);
         System.out.println("saved model");
@@ -297,8 +297,7 @@ public class DictionaryClassifier extends TextClassifier {
                 }
 
             } else {
-                logger
-                        .trace("the term \"" + weightedTerm.getKey().getText()
+                LOGGER.trace("the term \"" + weightedTerm.getKey().getText()
                                 + "\" is not in the learned dictionary and cannot be associated with any category");
             }
 

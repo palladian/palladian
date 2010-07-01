@@ -151,14 +151,23 @@ public class CrossValidator {
                 }
 
                 // add the performances to the evaluation maps
-                performancesTrainingFolds.get(dataset.getPath() + "_" + trainingPercentage).addAll(
-                        performancesDatasetTrainingFoldsTemp1);
+                Set<ClassifierPerformance> cfp = performancesTrainingFolds.get(dataset.getPath() + "_"
+                        + trainingPercentage);
+                if (cfp == null) {
+                    cfp = new HashSet<ClassifierPerformance>();
+                }
+                cfp.addAll(performancesDatasetTrainingFoldsTemp1);
+
                 performancesDatasetTrainingFoldsTemp0.addAll(performancesDatasetTrainingFoldsTemp1);
 
                 trainingPercentageLoop++;
             }
 
-            performancesTrainingFolds.get(dataset.getPath()).addAll(performancesDatasetTrainingFoldsTemp0);
+            Set<ClassifierPerformance> cfp = performancesTrainingFolds.get(dataset.getPath());
+            if (cfp == null) {
+                cfp = new HashSet<ClassifierPerformance>();
+            }
+            cfp.addAll(performancesDatasetTrainingFoldsTemp0);
         }
 
         // output results
@@ -217,6 +226,8 @@ public class CrossValidator {
 
             AverageClassifierPerformance avgCP = cvResult.getAveragePerformanceDataSetTrainingFolds();
             csv.append(cvResult.getClassifier()).append(";");
+            csv.append(cvResult.getClassifier().getFeatureSetting()).append(";");
+            csv.append(cvResult.getClassifier().getClassificationTypeSetting()).append(";");
             csv.append(avgCP.getPrecision()).append(";");
             csv.append(avgCP.getRecall()).append(";");
             csv.append(avgCP.getF1()).append("\n");
@@ -231,11 +242,12 @@ public class CrossValidator {
         // write file2: classifier performances averaged over all training percentages and folds
         for (CrossValidationResult cvResult : cvResults) {
 
-            csv.append(cvResult.getClassifier()).append(";");
-
             Map<String, AverageClassifierPerformance> avgCP = cvResult.getAveragePerformanceTrainingFolds();
             for (Entry<String, AverageClassifierPerformance> avgEntry : avgCP.entrySet()) {
                 csv.append(avgEntry.getKey()).append(";");
+                csv.append(cvResult.getClassifier()).append(";");
+                csv.append(cvResult.getClassifier().getFeatureSetting()).append(";");
+                csv.append(cvResult.getClassifier().getClassificationTypeSetting()).append(";");
                 csv.append(avgEntry.getValue().getPrecision()).append(";");
                 csv.append(avgEntry.getValue().getRecall()).append(";");
                 csv.append(avgEntry.getValue().getF1()).append("\n");
@@ -254,6 +266,9 @@ public class CrossValidator {
             Map<String, AverageClassifierPerformance> avgCP = cvResult.getAveragePerformanceFolds();
             for (Entry<String, AverageClassifierPerformance> avgEntry : avgCP.entrySet()) {
                 csv.append(avgEntry.getKey()).append(";");
+                csv.append(cvResult.getClassifier()).append(";");
+                csv.append(cvResult.getClassifier().getFeatureSetting()).append(";");
+                csv.append(cvResult.getClassifier().getClassificationTypeSetting()).append(";");
                 csv.append(avgEntry.getValue().getPrecision()).append(";");
                 csv.append(avgEntry.getValue().getRecall()).append(";");
                 csv.append(avgEntry.getValue().getF1()).append("\n");
