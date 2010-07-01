@@ -49,11 +49,13 @@ public class TrainingDataSeparation {
      * @param randomlyChooseLines Specifies whether lines should be picked randomly
      *            or not. If false, the first lines are used for training.
      * @throws IllegalArgumentException if trainingDataPercentage is out of range [0, 100].
+     * @throws FileNotFoundException if fileToSeparate can not be found.
+     * @throws IOException if fileToSeparate can not be accessed.
      */
 	public void separateFile(String fileToSeparate,
 			String trainingDataFileToWrite,
 			String testingDataFileToWrite,
-            double trainingDataPercentage, boolean randomlyChooseLines) {
+            double trainingDataPercentage, boolean randomlyChooseLines) throws FileNotFoundException, IOException{
 
         FileHelper.delete(trainingDataFileToWrite);
         FileHelper.delete(testingDataFileToWrite);
@@ -106,7 +108,7 @@ public class TrainingDataSeparation {
 		// separate training and test set 
 		Set<Integer> alignedLinesSet = alignedLinesMap.keySet();
 		Iterator<Integer> alignedLinesIter = alignedLinesSet.iterator();
-		try {
+		
 			FileReader orgDataFR = new FileReader(fileToSeparate);
 			BufferedReader orgDataBR = new BufferedReader(orgDataFR);
 			String orgDataLine = "";		
@@ -125,13 +127,7 @@ public class TrainingDataSeparation {
 			orgDataFR.close();
 			orgDataBR.close();
 			
-		} catch (FileNotFoundException e) {
-			logger.error(fileToSeparate + e.getMessage());
-		} catch (IOException e) {
-			logger.error(fileToSeparate + e.getMessage());
-		} catch (OutOfMemoryError e) {
-			logger.error(fileToSeparate + e.getMessage());
-		}				
+						
 		
 		// write data to files
 		FileHelper.writeToFile(trainingDataFileToWrite, trainingSB);
