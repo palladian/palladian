@@ -49,8 +49,8 @@ public class FactExtractionDecisionTree {
     }
 
     private void init(Entity entity, String url, Attribute attribute) {
-        this.setEntity(entity);
-        this.setAttribute(attribute);
+        setEntity(entity);
+        setAttribute(attribute);
 
         pa = new PageAnalyzer();
         Crawler crawler = new Crawler();
@@ -92,15 +92,16 @@ public class FactExtractionDecisionTree {
         ArrayList<FactString> factStrings = new ArrayList<FactString>();
 
         // do nothing if document couldn't be created
-        if (document == null)
+        if (document == null) {
             return attributesFactStrings;
+        }
 
         // keep track of all xpath that have been evaluated, do not evaluate one xpath twice
         // this could happen when the parent node is searched for /div/p/a[3] and /div/p/a[4] => /div/p would be taken twice
         // this counts two times for the same value which is not eligible
         HashSet<String> xpathEvaluatedForPage = new HashSet<String>();
 
-        String lowerCaseAttributeName = this.getAttribute().getName().toLowerCase();
+        String lowerCaseAttributeName = getAttribute().getName().toLowerCase();
 
         // find xpaths to the attribute (can be several)
         HashSet<String> xpaths = pa.constructAllXPaths(document, lowerCaseAttributeName);
@@ -108,8 +109,9 @@ public class FactExtractionDecisionTree {
         while (xpathIterator.hasNext()) {
 
             String currentXPath = xpathIterator.next();
-            if (!xpathEvaluatedForPage.add(currentXPath))
+            if (!xpathEvaluatedForPage.add(currentXPath)) {
                 continue; // do not evaluate xpath twice
+            }
 
             String xPathText = pa.getTextByXPath(document, currentXPath).trim();
 
@@ -122,12 +124,12 @@ public class FactExtractionDecisionTree {
             boolean nodeInTable = pa.nodeInTable(currentXPath, 4);
 
             // more than wordsForPhrase words
-            boolean considerItFreeText = (StringHelper.countWords(xPathText) >= wordsForPhrase);
+            boolean considerItFreeText = StringHelper.countWords(xPathText) >= wordsForPhrase;
 
             // if word in table count words of cell
             if (nodeInTable && !considerItFreeText) {
                 String wordsInCell = pa.getTextByXPath(document, pa.getTableCellPath(currentXPath));
-                considerItFreeText = (StringHelper.countWords(wordsInCell) >= wordsForPhrase);
+                considerItFreeText = StringHelper.countWords(wordsInCell) >= wordsForPhrase;
             }
 
             // check if there is a colon ":" and some text after the attribute
@@ -135,15 +137,17 @@ public class FactExtractionDecisionTree {
             int indexOfAttribute = xPathText.toLowerCase().indexOf(lowerCaseAttributeName);
 
             boolean textAfterColon = false;
-            if (indexOfColon > -1 && StringHelper.trim(xPathText, ":").length() > (indexOfColon + 1))
+            if (indexOfColon > -1 && StringHelper.trim(xPathText, ":").length() > indexOfColon + 1) {
                 textAfterColon = true;
+            }
 
             // check all text after colon if it is in a table cell
             if (nodeInTable && indexOfColon > -1) {
                 String wordsInCell = pa.getTextByXPath(document, pa.getTableCellPath(currentXPath));
                 int indexOfColonInTableCell = colonIndexAfterAttribute(wordsInCell);
-                if (StringHelper.trim(wordsInCell, ":").length() > (indexOfColonInTableCell + 1))
+                if (StringHelper.trim(wordsInCell, ":").length() > indexOfColonInTableCell + 1) {
                     textAfterColon = true;
+                }
             }
 
             // decision tree, find the corresponding string for the attribute, extract fact value from the found content area in the end
@@ -162,8 +166,9 @@ public class FactExtractionDecisionTree {
                 int maxTags = 4; // move up max. 4 tags but do not step out of table cell
                 while (currentFactStringText.length() == 0 && maxTags > 0) {
                     siblingXPath = PageAnalyzer.getParentNode(siblingXPath);
-                    if (pa.getTargetNode(siblingXPath).equalsIgnoreCase("tr"))
+                    if (pa.getTargetNode(siblingXPath).equalsIgnoreCase("tr")) {
                         break;
+                    }
                     currentFactStringText = pa.getTextByXPath(document, siblingXPath);
                     --maxTags;
                 }
@@ -194,8 +199,9 @@ public class FactExtractionDecisionTree {
                         }
 
                         // skip the initial attribute
-                        if (newAttributeName.equalsIgnoreCase(attribute.getName()) || newAttributeName.length() == 0)
+                        if (newAttributeName.equalsIgnoreCase(attribute.getName()) || newAttributeName.length() == 0) {
                             continue;
+                        }
 
                         String newAttributeFactStringText = pa.getTextByXPath(document, rowXPaths.get(i)[1]);
 
@@ -203,8 +209,9 @@ public class FactExtractionDecisionTree {
                         newAttributeFactStringText = StringHelper.trim(StringHelper.removeBrackets(newAttributeFactStringText));
 
                         // do not extract attributes for facts without a value
-                        if (newAttributeFactStringText.length() == 0)
+                        if (newAttributeFactStringText.length() == 0) {
                             continue;
+                        }
 
                         int newAttributeValueType = Attribute.guessValueType(newAttributeFactStringText, 1);
                         FactString newAttributeFS = new FactString(newAttributeFactStringText, ExtractionType.TABLE_CELL);
@@ -251,8 +258,9 @@ public class FactExtractionDecisionTree {
 
                         String pageText = pa.getTextByXPath(document, "//BODY");
                         int attributeColonIndex = pageText.toLowerCase().indexOf(lowerCaseAttributeName + ":");
-                        if (attributeColonIndex == -1)
+                        if (attributeColonIndex == -1) {
                             attributeColonIndex = pageText.toLowerCase().indexOf(lowerCaseAttributeName + " :");
+                        }
                         String neighborhood = pageText
                                 .substring(Math.max(0, attributeColonIndex - 400), Math.min(pageText.length(), attributeColonIndex + 400));
 
@@ -339,8 +347,9 @@ public class FactExtractionDecisionTree {
                     currentFactStringText = pa.getTextByXPath(document, currentXPath);
                     currentFactStringText = StringHelper.getSentence(currentFactStringText, indexOfAttribute);
                     // do not take facts from questions (end with "?")
-                    if (currentFactStringText.endsWith("?"))
+                    if (currentFactStringText.endsWith("?")) {
                         currentFactStringText = "";
+                    }
                     currentDecisionType = ExtractionType.FREE_TEXT_SENTENCE;
                 }
 
@@ -380,18 +389,19 @@ public class FactExtractionDecisionTree {
      * @return True if there is such a character, else false.
      */
     private int colonIndexAfterAttribute(String text) {
-        String lowerCaseAttributeName = this.getAttribute().getName().toLowerCase();
+        String lowerCaseAttributeName = getAttribute().getName().toLowerCase();
 
         boolean colon;
         int indexOfAttribute = text.toLowerCase().indexOf(lowerCaseAttributeName);
 
         // colon is maximum 2 characters away
         int indexOfColon = text.indexOf(":");
-        int distance = (indexOfColon - (indexOfAttribute + lowerCaseAttributeName.length()));
-        colon = (distance >= 0 && distance < 3);
+        int distance = indexOfColon - (indexOfAttribute + lowerCaseAttributeName.length());
+        colon = distance >= 0 && distance < 3;
 
-        if (colon)
+        if (colon) {
             return indexOfColon;
+        }
         return -1;
     }
 
@@ -406,8 +416,9 @@ public class FactExtractionDecisionTree {
         String text = "";
 
         boolean textAfterColon = false;
-        if (text.length() > (indexOfColon + 1))
+        if (text.length() > indexOfColon + 1) {
             textAfterColon = true;
+        }
 
         int c = 0;
         while (!textAfterColon) {
@@ -417,12 +428,14 @@ public class FactExtractionDecisionTree {
             if (text != null) {
                 int attributeIndex = text.toLowerCase().indexOf(attributeName);
                 indexOfColon = text.indexOf(":", attributeIndex);
-                if (text.length() > (indexOfColon + 1))
+                if (text.length() > indexOfColon + 1) {
                     textAfterColon = true;
+                }
             }
             ++c;
-            if (c >= 10)
+            if (c >= 10) {
                 break;
+            }
         }
 
         // take text after colon
@@ -510,7 +523,7 @@ public class FactExtractionDecisionTree {
         // System.out.println(document.getFirstChild().getNodeName()+" "+(et-st));
 
         //		
-        Crawler c = new Crawler();
+
         // String pageString = c.download("http://www.mobileburn.com/review.jsp?Id=4993");
         // TODO namespace support: http://www.rte.ie/news/2005/0503/esri.html
         // TODO dom not supported exception: http://www.letsgodigital.org/en/19496/pentax-optio-m60/

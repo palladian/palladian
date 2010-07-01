@@ -2,6 +2,12 @@ package tud.iir.classification.page.evaluation;
 
 import tud.iir.classification.page.TextClassifier;
 
+/**
+ * The settings which classification type and which settings for that should be used for a classifier.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class ClassificationTypeSetting {
 
     // // classification types

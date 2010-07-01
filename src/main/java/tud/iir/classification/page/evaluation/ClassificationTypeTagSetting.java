@@ -1,20 +1,26 @@
 package tud.iir.classification.page.evaluation;
 
+/**
+ * More specific settings for the {@link ClassificationTypeSetting.TAG} setting.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class ClassificationTypeTagSetting {
 
-    /** only tags that are classified with a confidence above the threshold are assigned */
+    /** Only tags that are classified with a confidence above the threshold are assigned. */
     private double tagConfidenceThreshold = 0.0;
 
-    /** minimum number of tags that are assigned to a document in tagging mode */
+    /** Minimum number of tags that are assigned to a document in tagging mode. */
     private int minTags = 1;
 
-    /** maximum number of tags that are assigned to a document in tagging mode */
+    /** Maximum number of tags that are assigned to a document in tagging mode. */
     private int maxTags = 5;
 
-    /** if true, the tags that appear in the text (or URL) are weighted higher */
+    /** If true, the tags that appear in the text (or URL) are weighted higher. */
     private boolean tagBoost = false;
 
-    /** enable category co-occurrence, that works only in tag mode */
+    /** Enable category co-occurrence, that works only in tag mode. */
     private boolean useCooccurrence = false;
 
     public double getTagConfidenceThreshold() {

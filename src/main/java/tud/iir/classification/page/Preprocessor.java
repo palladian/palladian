@@ -103,9 +103,9 @@ public final class Preprocessor {
      */
     private void addToTermMap(String termString, double weight) {
 
-        if ((getFeatureSetting().getTextFeatureType() == FeatureSetting.WORD_NGRAMS
+        if (getFeatureSetting().getTextFeatureType() == FeatureSetting.WORD_NGRAMS
                 && getFeatureSetting().getMaxNGramLength() == 1 && (termString.length() < getFeatureSetting()
-                .getMinimumTermLength() || termString.length() > getFeatureSetting().getMaximumTermLength()))
+                .getMinimumTermLength() || termString.length() > getFeatureSetting().getMaximumTermLength())
                 || map.size() >= getFeatureSetting().getMaxTerms()
                 || isStopWord(termString)) {
             return;
@@ -148,8 +148,19 @@ public final class Preprocessor {
         // remove http(s): and www from URL
         inputString = Crawler.getCleanURL(inputString);
 
-        Set<String> ngrams = StringHelper.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
-                getFeatureSetting().getMaxNGramLength());
+        Set<String> ngrams = null;
+
+        if (getFeatureSetting().getTextFeatureType() == FeatureSetting.CHAR_NGRAMS) {
+
+            ngrams = StringHelper.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
+                    getFeatureSetting().getMaxNGramLength());
+
+        } else if (getFeatureSetting().getTextFeatureType() == FeatureSetting.WORD_NGRAMS) {
+
+            ngrams = StringHelper.calculateAllWordNGrams(inputString, getFeatureSetting().getMinNGramLength(),
+                    getFeatureSetting().getMaxNGramLength());
+
+        }
 
         // build the map
         for (String ngram : ngrams) {
@@ -348,8 +359,9 @@ public final class Preprocessor {
         word = word.toLowerCase().trim();
 
         for (String stopWord : getFeatureSetting().getStopWords()) {
-            if (stopWord.equals(word))
+            if (stopWord.equals(word)) {
                 return true;
+            }
         }
         return false;
     }

@@ -130,7 +130,7 @@ public class EntityFactExtractionThread extends Thread {
     private void extractFromFactPages(FactQuery fq) {
         Entity entity = fq.getEntity();
 
-        boolean freeTextOnly = (fq.getFactStructureType() == FactQuery.FREE_TEXT_ONLY);
+        boolean freeTextOnly = fq.getFactStructureType() == FactQuery.FREE_TEXT_ONLY;
         HashSet<String> urls;
         String[] querySet;
 
@@ -289,47 +289,49 @@ public class EntityFactExtractionThread extends Thread {
      * @param attributes A set of attributes.
      * @param lookBothDirections If true, values are searched in both directions.
      */
-    private void plainExtraction(Entity entity, String url, HashSet<Attribute> attributes, boolean lookBothDirections) {
-
-        String pageString = FileHelper.readHTMLFileToString(url, true);
-
-        // try to find all attributes
-        Iterator<Attribute> attributeIterator = attributes.iterator();
-        while (attributeIterator.hasNext()) {
-            Attribute currentAttribute = attributeIterator.next();
-            String lowerCaseAttributeName = currentAttribute.getName().toLowerCase();
-
-            if (FactExtractor.getInstance().isStopped()) {
-                LOGGER.info("fact extraction process stopped");
-                break;
-            }
-
-            java.util.regex.Pattern pat = java.util.regex.Pattern.compile(lowerCaseAttributeName, java.util.regex.Pattern.CASE_INSENSITIVE);
-
-            Matcher m = pat.matcher(pageString);
-            m.region(0, pageString.length());
-            while (m.find()) {
-                int startIndex = m.start();
-                int lookRange = 150;
-                if (lookBothDirections) {
-                    startIndex = Math.max(0, startIndex - lookRange);
-                    lookRange *= 2;
-                }
-                startIndex += lowerCaseAttributeName.length();
-                // if (entity.getName().equalsIgnoreCase("Sony Ericsson V600") && lowerCaseAttributeName.equals("weight")) break;
-                try {
-                    String searchArea = pageString.substring(startIndex, Math.min(startIndex + lookRange, pageString.length()));
-                    // searchArea = StringHelper.getPhraseToEndOfSentence(searchArea);
-                    // System.out.println("get sentence "+lowerCaseAttributeName+" for "+entity.getName());
-                    // searchArea = StringHelper.getSentence(pageString, m.start());
-                    FactString factString = new FactString(searchArea, ExtractionType.UNKNOWN);
-                    extractValue(entity, factString, currentAttribute);
-                } catch (Exception e) {
-                    LOGGER.error("Exception at FactExtractor", e);
-                }
-            }
-        }
-    }
+    // private void plainExtraction(Entity entity, String url, HashSet<Attribute> attributes, boolean
+    // lookBothDirections) {
+    //
+    // String pageString = FileHelper.readHTMLFileToString(url, true);
+    //
+    // // try to find all attributes
+    // Iterator<Attribute> attributeIterator = attributes.iterator();
+    // while (attributeIterator.hasNext()) {
+    // Attribute currentAttribute = attributeIterator.next();
+    // String lowerCaseAttributeName = currentAttribute.getName().toLowerCase();
+    //
+    // if (FactExtractor.getInstance().isStopped()) {
+    // LOGGER.info("fact extraction process stopped");
+    // break;
+    // }
+    //
+    // java.util.regex.Pattern pat = java.util.regex.Pattern.compile(lowerCaseAttributeName,
+    // java.util.regex.Pattern.CASE_INSENSITIVE);
+    //
+    // Matcher m = pat.matcher(pageString);
+    // m.region(0, pageString.length());
+    // while (m.find()) {
+    // int startIndex = m.start();
+    // int lookRange = 150;
+    // if (lookBothDirections) {
+    // startIndex = Math.max(0, startIndex - lookRange);
+    // lookRange *= 2;
+    // }
+    // startIndex += lowerCaseAttributeName.length();
+    // // if (entity.getName().equalsIgnoreCase("Sony Ericsson V600") && lowerCaseAttributeName.equals("weight")) break;
+    // try {
+    // String searchArea = pageString.substring(startIndex, Math.min(startIndex + lookRange, pageString.length()));
+    // // searchArea = StringHelper.getPhraseToEndOfSentence(searchArea);
+    // // System.out.println("get sentence "+lowerCaseAttributeName+" for "+entity.getName());
+    // // searchArea = StringHelper.getSentence(pageString, m.start());
+    // FactString factString = new FactString(searchArea, ExtractionType.UNKNOWN);
+    // extractValue(entity, factString, currentAttribute);
+    // } catch (Exception e) {
+    // LOGGER.error("Exception at FactExtractor", e);
+    // }
+    // }
+    // }
+    // }
 
     private void extractImages(FactQuery fq, Entity entity) {
         SourceRetriever sr = new SourceRetriever();
@@ -341,10 +343,11 @@ public class EntityFactExtractionThread extends Thread {
         // keywords that must appear in the image caption
         String[] matchContent = new String[2];
         matchContent[0] = entity.getName();
-        if (!fq.getAttribute().getName().equalsIgnoreCase("_entity_image_"))
+        if (!fq.getAttribute().getName().equalsIgnoreCase("_entity_image_")) {
             matchContent[1] = fq.getAttribute().getName();
-        else
+        } else {
             matchContent[1] = "";
+        }
 
         String[] querySet = fq.getQuerySet();
         for (int i = 0; i < querySet.length; i++) {
@@ -359,12 +362,14 @@ public class EntityFactExtractionThread extends Thread {
         for (int i = 0; i < imageURLs.length; i++) {
             String currentURL = imageURLs[i];
             String imageType = FileHelper.getFileType(currentURL);
-            if (imageType.length() == 0)
+            if (imageType.length() == 0) {
                 imageType = "jpg";
+            }
 
             String fileName = entity.getSafeName();
-            if (!fq.getAttribute().getName().equalsIgnoreCase("_entity_image_"))
+            if (!fq.getAttribute().getName().equalsIgnoreCase("_entity_image_")) {
                 fileName += "_" + fq.getAttribute().getSafeName();
+            }
             fileName += "_" + (i + 1) + "." + imageType;
             FactValue fv = new FactValue(fileName, new Source(currentURL, ExtractionType.IMAGE), ExtractionType.IMAGE);
             fv.setExtractedAt(new Date(System.currentTimeMillis()));
@@ -510,7 +515,7 @@ public class EntityFactExtractionThread extends Thread {
             int shortestDistance = -1;
             String shortestDistanceValue = ""; // the value that was closest to the attribute
             while (m.find()) {
-                int distance = (int) Math.abs(m.start() + Math.round((m.group().length()) / 2.0) - attributeIndex);
+                int distance = (int) Math.abs(m.start() + Math.round(m.group().length() / 2.0) - attributeIndex);
                 if (distance < shortestDistance || shortestDistance == -1) {
                     shortestDistance = distance;
                     shortestDistanceValue = m.group();
@@ -551,8 +556,9 @@ public class EntityFactExtractionThread extends Thread {
             // for strings, numbers, booleans and dates take the first appearance only
             if (m.find()) {
 
-                if (m.end() < searchString.length())
+                if (m.end() < searchString.length()) {
                     afterValueText = searchString.substring(m.end(), Math.min(searchString.length(), m.end() + 26));
+                }
 
                 // add fact candidate for entity and attribute, checking whether fact or fact value has been entered already is done in the entity and fact
                 // class respectively
@@ -563,9 +569,9 @@ public class EntityFactExtractionThread extends Thread {
         }
     }
 
-    private void addFactValue(Entity entity, Attribute attribute, String factString, int extractionType) {
-        addFactValue(entity, attribute, factString, extractionType, "");
-    }
+    // private void addFactValue(Entity entity, Attribute attribute, String factString, int extractionType) {
+    // addFactValue(entity, attribute, factString, extractionType, "");
+    // }
 
     private void addFactValue(Entity entity, Attribute attribute, String factString, int extractionType, String unitText) {
 

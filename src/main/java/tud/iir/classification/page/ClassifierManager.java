@@ -886,7 +886,7 @@ public class ClassifierManager {
                 preprocessedDocument.setRealCategories(categories);
                 classifier.getTrainingDocuments().add(preprocessedDocument);
 
-                if (addToDictionary) {
+                if (addToDictionary && classifier instanceof DictionaryClassifier) {
                     ((DictionaryClassifier) classifier).addToDictionary(preprocessedDocument, classType);
                 }
 

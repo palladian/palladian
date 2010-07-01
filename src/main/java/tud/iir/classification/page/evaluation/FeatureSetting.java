@@ -3,12 +3,21 @@ package tud.iir.classification.page.evaluation;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Save the settings which text features should be used for a classifier.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class FeatureSetting {
 
+    /** Use n-Grams on a character level. */
     public static final int CHAR_NGRAMS = 1;
 
+    /** Use n-Grams on a word level. */
     public static final int WORD_NGRAMS = 2;
 
+    /** Set which n-Gram type should be used. */
     private int textFeatureType = CHAR_NGRAMS;
 
     /** The maximum number of terms that should be used per document. */
@@ -32,6 +41,7 @@ public class FeatureSetting {
      */
     private int maximumTermLength = 20;
 
+    /** Set of English stop words. */
     public static Set<String> englishStopWords = new HashSet<String>();
 
     private Set<String> stopWords = new HashSet<String>();

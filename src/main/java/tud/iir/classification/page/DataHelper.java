@@ -23,7 +23,8 @@ final class DataHelper {
 
     private static final String XML_PART_NAME = "part";
     private static final String URL_PART_NAME = "urls";
-    private static final int MAX_URLS = 2446790;
+
+    // private static final int MAX_URLS = 2446790;
 
     /**
      * Break the content.rdf.u8 in several small parts while keeping the XML correct.
@@ -45,17 +46,18 @@ final class DataHelper {
             int fileCount = 0;
             do {
                 line = br.readLine();
-                if (line == null)
+                if (line == null) {
                     break;
+                }
 
                 filePart.append(line).append("\n");
 
-                if ((lineNumber > 0 && (lineNumber % linesPerFile == 0)) || waitToBreak) {
+                if (lineNumber > 0 && lineNumber % linesPerFile == 0 || waitToBreak) {
                     waitToBreak = true;
 
                     if (line.endsWith("</Topic>") || line.endsWith("</ExternalPage>")) {
                         filePart.append("</RDF>");
-                        FileHelper.writeToFile("data/temp/odp/" + XML_PART_NAME + (fileCount++) + ".xml", filePart);
+                        FileHelper.writeToFile("data/temp/odp/" + XML_PART_NAME + fileCount++ + ".xml", filePart);
                         System.out.println("save file number " + fileCount);
                         filePart = new StringBuilder(head);
                         waitToBreak = false;
@@ -139,12 +141,13 @@ final class DataHelper {
                     String categoryString = topicNode.getAttributes().getNamedItem("r:id").getTextContent();
                     String[] categories = categoryString.split("/");
 
-                    if (categories.length < 2)
+                    if (categories.length < 2) {
                         continue;
+                    }
 
                     // add to file if the language is english and category not world or category is world and language matches
-                    if ((!categories[1].equalsIgnoreCase("world") && !useTopWorldCategories)
-                            || (useTopWorldCategories && categories.length > 2 && categories[2].equalsIgnoreCase(language))) {
+                    if (!categories[1].equalsIgnoreCase("world") && !useTopWorldCategories
+                            || useTopWorldCategories && categories.length > 2 && categories[2].equalsIgnoreCase(language)) {
 
                         // remove "Top" category
                         categoryString = categoryString.substring(4);
@@ -152,8 +155,9 @@ final class DataHelper {
                         if (categoryString.startsWith("World")) {
                             categoryString = categoryString.substring(6);
                             if (categoryString.toLowerCase().startsWith(language.toLowerCase())) {
-                                if (categoryString.length() <= language.length() + 1)
+                                if (categoryString.length() <= language.length() + 1) {
                                     continue;
+                                }
                                 categoryString = categoryString.substring(language.length() + 1);
                             }
                         }
@@ -164,11 +168,13 @@ final class DataHelper {
 
                             linkNode = linkNode.getNextSibling();
                             // System.out.println(linkNode.getNodeName()+","+linkNode.getNodeType());
-                            if (linkNode == null || (linkNode.getNodeType() != Node.TEXT_NODE && !linkNode.getNodeName().equals("LINK")))
+                            if (linkNode == null || linkNode.getNodeType() != Node.TEXT_NODE && !linkNode.getNodeName().equals("LINK")) {
                                 break;
+                            }
 
-                            if (linkNode.getNodeType() == Node.TEXT_NODE)
+                            if (linkNode.getNodeType() == Node.TEXT_NODE) {
                                 continue;
+                            }
 
                             if (linkNode.getAttributes().getNamedItem("r:resource") != null) {
                                 String link = linkNode.getAttributes().getNamedItem("r:resource").getTextContent();
@@ -178,7 +184,7 @@ final class DataHelper {
                                 // System.out.println(fileLines);
 
                                 if (fileLines > 0 && fileLines % 50000 == 0) {
-                                    FileHelper.writeToFile("data/temp/odp/" + URL_PART_NAME + (urlFileCount++) + ".txt", transformedString);
+                                    FileHelper.writeToFile("data/temp/odp/" + URL_PART_NAME + urlFileCount++ + ".txt", transformedString);
                                     transformedString = new StringBuilder();
                                 }
                                 // System.out.println(link + " " + categoryString);
@@ -193,7 +199,7 @@ final class DataHelper {
             count++;
         }
 
-        FileHelper.writeToFile("data/temp/odp/" + URL_PART_NAME + (urlFileCount++) + ".txt", transformedString);
+        FileHelper.writeToFile("data/temp/odp/" + URL_PART_NAME + urlFileCount++ + ".txt", transformedString);
         // FileHelper.writeToFile("data/benchmarkSelection/page/" + DateHelper.getCurrentDatetime() + "_odp.txt", transformedString);
 
         mergeURLFiles();
@@ -224,6 +230,7 @@ final class DataHelper {
 
         LineAction la = new LineAction() {
 
+            @SuppressWarnings("unchecked")
             @Override
             public void performAction(String line, int lineNumber) {
 

@@ -1,5 +1,11 @@
 package tud.iir.classification.page.evaluation;
 
+/**
+ * A simple representation of a dataset.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class Dataset {
 
     /** The path pointing to the dataset file. */

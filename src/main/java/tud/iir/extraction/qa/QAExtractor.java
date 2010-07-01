@@ -54,10 +54,10 @@ public class QAExtractor extends Extractor {
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(QAExtractor.class);
 
-    private static final Logger flashOutputLogger = Logger.getLogger("FlashOutputLogger");
+    // private static final Logger flashOutputLogger = Logger.getLogger("FlashOutputLogger");
 
     /** if true, more statistics are gathered for benchmarking purposes */
-    private boolean benchmark = false;
+    // private boolean benchmark = false;
 
     /** list of QA tuples */
     private List<QA> qas;
@@ -191,9 +191,9 @@ public class QAExtractor extends Extractor {
      * 
      * @param message The message to log.
      */
-    private void logForFlash(String message) {
-        flashOutputLogger.info(message);
-    }
+    // private void logForFlash(String message) {
+    // flashOutputLogger.info(message);
+    // }
 
     /**
      * The Q/A extraction is a bootstrapped process with two steps alternately performed in a loop: 1: use a seed query to retrieve urls with question and
@@ -222,8 +222,9 @@ public class QAExtractor extends Extractor {
         // if all sites do not have any URLs on stack anymore, they vote for stop
         int stopVotes = 0;
         for (QASite qaSite : qaSites) {
-            if (qaSite.hasVoted())
+            if (qaSite.hasVoted()) {
                 stopVotes++;
+            }
         }
 
         int iterations = 0;
@@ -233,8 +234,9 @@ public class QAExtractor extends Extractor {
 
             // wait if maximum number of threads are running
             int maxThreads = 1;
-            if (iterations > numberOfSites || ExtractionProcessManager.isContinueQAExtraction())
+            if (iterations > numberOfSites || ExtractionProcessManager.isContinueQAExtraction()) {
                 maxThreads = 3 * numberOfSites;
+            }
             while (getThreadCount() >= maxThreads) {
                 LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + " active threads)");
                 ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
@@ -349,8 +351,9 @@ public class QAExtractor extends Extractor {
                         index2 = siteTextLowerCase.lastIndexOf("</", index1 + question1.length() + 15);
                     }
 
-                    if (index2 <= index1 || index1 == -1)
+                    if (index2 <= index1 || index1 == -1) {
                         continue;
+                    }
 
                     answer = siteText.substring(index1 + question1.length(), index2);
                     // answer = StringHelper.removeHTMLTags(answer, true, true, true, true);
@@ -605,7 +608,7 @@ public class QAExtractor extends Extractor {
             indexOfAHint = newIndexOfAHint + 2;
         }
 
-        if ((indexOfAnswerHint > -1 && indexOfAnswerHint < indexOfAnswer) || (indexOfAHint > -1 && indexOfAHint < indexOfAnswer)) {
+        if (indexOfAnswerHint > -1 && indexOfAnswerHint < indexOfAnswer || indexOfAHint > -1 && indexOfAHint < indexOfAnswer) {
             return true;
         }
 
@@ -680,9 +683,10 @@ public class QAExtractor extends Extractor {
             int questionIndex = Integer.valueOf(listOfFiles[i].getName().replaceAll("webpage", "").replaceAll(".html", "")) - 1;
 
             String question = questions.get(questionIndex);
-            if (question.endsWith("?"))
+            if (question.endsWith("?")) {
                 question = question.substring(0, question.length() - 1);
             // question = StringHelper.removeStopWords(question);
+            }
 
             LOGGER.info("\nFile " + listOfFiles[i].getName() + ", question: " + question);
 
@@ -797,8 +801,7 @@ public class QAExtractor extends Extractor {
 
         CollectionHelper.print(qas);
 
-        if (true)
-            return;
+        System.exit(0);
 
         Crawler c = new Crawler();
         PageAnalyzer pa = new PageAnalyzer();

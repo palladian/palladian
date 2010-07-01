@@ -19,7 +19,8 @@ import tud.iir.helper.FileHelper;
  */
 public class TrainingDataSeparation {
 
-	private static final Logger logger = Logger.getLogger(TrainingDataSeparation.class);
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(TrainingDataSeparation.class);
 	
 	
 	public TrainingDataSeparation(){
@@ -57,8 +58,8 @@ public class TrainingDataSeparation {
 			String testingDataFileToWrite,
             double trainingDataPercentage, boolean randomlyChooseLines) throws FileNotFoundException, IOException{
 
-        FileHelper.delete(trainingDataFileToWrite);
-        FileHelper.delete(testingDataFileToWrite);
+        // FileHelper.delete(trainingDataFileToWrite);
+        // FileHelper.delete(testingDataFileToWrite);
 
         if (trainingDataPercentage < 0 || trainingDataPercentage > 100) {
         	throw new IllegalArgumentException("trainingDataPercentage out of range [0, 100]: " + trainingDataPercentage + "File not separated! ");			
@@ -82,8 +83,9 @@ public class TrainingDataSeparation {
 				do { 
 					key = Math.random();
 				} while(randomLinesMap.containsKey(key));
-			}
-			else key = line;
+			} else {
+                key = line;
+            }
 			randomLinesMap.put(key, line);			
 		}
 		
@@ -115,13 +117,15 @@ public class TrainingDataSeparation {
 					
 		do {
 			orgDataLine = orgDataBR.readLine();
-			if (orgDataLine == null || !alignedLinesIter.hasNext())
-				break;
+			if (orgDataLine == null || !alignedLinesIter.hasNext()) {
+                break;
+            }
 			int currentLine = alignedLinesIter.next();
-			if(alignedLinesMap.get(currentLine) == 0)
-				trainingSB.append(orgDataLine).append("\n");
-			else
-				testingSB.append(orgDataLine).append("\n");
+			if(alignedLinesMap.get(currentLine) == 0) {
+                trainingSB.append(orgDataLine).append("\n");
+            } else {
+                testingSB.append(orgDataLine).append("\n");
+            }
 		} while (orgDataLine != null && alignedLinesIter.hasNext());
 					
 		orgDataFR.close();
@@ -130,7 +134,8 @@ public class TrainingDataSeparation {
 		// write data to files
 		FileHelper.writeToFile(trainingDataFileToWrite, trainingSB);
 		FileHelper.writeToFile(testingDataFileToWrite, testingSB);
-		System.out.println("Data separated into training and test set, split at " + trainingDataPercentage + "%, random: " + randomlyChooseLines);
+        LOGGER.debug("Data separated into training and test set, split at " + trainingDataPercentage + "%, random: "
+                + randomlyChooseLines);
 	}
 		
 }

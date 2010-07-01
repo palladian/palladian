@@ -23,19 +23,19 @@ public abstract class TextClassifier {
     /** The logger for this class. */
     protected static final Logger LOGGER = Logger.getLogger(TextClassifier.class);
 
-    /** start time of initialization of classifier */
+    /** Start time of initialization of classifier. */
     protected long initTime = 0;
 
-    /** a classifier has a name */
+    /** A classifier has a name. */
     private String name = "";
 
-    /** a classifier classifies to certain categories */
+    /** A classifier classifies to certain categories. */
     public Categories categories = null;
 
-    /** a classifier has training documents */
+    /** A classifier has training documents. */
     private ClassificationDocuments trainingDocuments = null;
 
-    /** a classifier has test documents that can be used to calculate recall, precision, and F-score */
+    /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
     private ClassificationDocuments testDocuments = null;
 
     /**
@@ -44,17 +44,19 @@ public abstract class TextClassifier {
      */
     protected ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
 
+    /** The feature settings which should be used by the text classifier. */
     private FeatureSetting featureSetting = new FeatureSetting();
 
     private ClassifierPerformance performance = null;
 
+    /** The document preprocessor. */
     protected Preprocessor preprocessor;
 
     /** whether or not the program runs in benchmark mode */
     protected boolean benchmark = false;
-	
-	/**
-     * the constructor, initiate members
+
+    /**
+     * The constructor, initiate members.
      */
     public TextClassifier() {
         categories = new Categories();

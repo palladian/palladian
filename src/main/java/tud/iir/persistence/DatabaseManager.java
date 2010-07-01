@@ -158,7 +158,7 @@ public class DatabaseManager {
      */
     public static DatabaseManager getInstance() {
         try {
-            if (INSTANCE.connection == null || (INSTANCE.connection != null && INSTANCE.connection.isClosed())) {
+            if (INSTANCE.connection == null || INSTANCE.connection != null && INSTANCE.connection.isClosed()) {
                 INSTANCE.connection = INSTANCE.getConnection();
             }
         } catch (SQLException e) {
@@ -502,8 +502,9 @@ public class DatabaseManager {
             String dateString = getLastSearched(concept.getName(), "concepts");
 
             java.util.Date lastSearched = null;
-            if (dateString != null)
+            if (dateString != null) {
                 lastSearched = new java.util.Date(Timestamp.valueOf(dateString).getTime());
+            }
             concept.setLastSearched(lastSearched);
             concept.setID(getConceptID(concept.getName()));
             // System.out.println("loaded concept with " + concept.getName() + "lastSearched " +
@@ -516,11 +517,13 @@ public class DatabaseManager {
                 java.util.Date extractedAt = null;
                 int id = getAttributeID(attribute.getName());
                 dateString = getLastSearched(attribute.getName(), "attributes");
-                if (dateString != null)
+                if (dateString != null) {
                     lastSearched = new java.util.Date(Timestamp.valueOf(dateString).getTime());
+                }
                 dateString = getAttributeExtractedAt(attribute.getName());
-                if (dateString != null)
+                if (dateString != null) {
                     extractedAt = new java.util.Date(Timestamp.valueOf(dateString).getTime());
+                }
                 attribute.setID(id);
                 attribute.setLastSearched(lastSearched);
                 attribute.setExtractedAt(extractedAt);
@@ -587,8 +590,9 @@ public class DatabaseManager {
                 String dateString = rs.getString("lastSearched");
                 int entityID = rs.getInt("id");
                 java.util.Date lastSearched = null;
-                if (dateString != null)
+                if (dateString != null) {
                     lastSearched = new java.util.Date(Timestamp.valueOf(dateString).getTime());
+                }
                 Entity e = new Entity(entityName, concept);
                 e.setID(entityID);
                 e.setLastSearched(lastSearched);
@@ -701,8 +705,9 @@ public class DatabaseManager {
                 String entityName = rs.getString("entityName");
                 String dateString = rs.getString("lastSearched");
                 java.util.Date lastSearched = null;
-                if (dateString != null)
+                if (dateString != null) {
                     lastSearched = new java.util.Date(Timestamp.valueOf(dateString).getTime());
+                }
                 entity = new Entity(entityName, new Concept(rs.getString("conceptName")));
                 entity.setID(entityID);
                 entity.setLastSearched(lastSearched);
@@ -811,8 +816,9 @@ public class DatabaseManager {
                         int factID = addFact(highTrustFV, entityID, attributeID);
 
                         // error occurred, continue
-                        if (factID == -1)
+                        if (factID == -1) {
                             continue;
+                        }
 
                         // add source(s) for that value
                         for (Source fvSource : highTrustFV.getSources()) {
@@ -1763,7 +1769,7 @@ public class DatabaseManager {
      * @return true, if successful
      */
     public boolean snippetExists(Snippet snippet) {
-        if (this.getSnippetID(snippet) > 0) {
+        if (getSnippetID(snippet) > 0) {
             return true;
         } else {
             return false;
@@ -2312,8 +2318,9 @@ public class DatabaseManager {
                 LOGGER.error(e.getMessage());
             }
             int conceptID = entryExists(psConceptCheck);
-            if (conceptID > -1)
+            if (conceptID > -1) {
                 deleteConceptIDs.remove(conceptID);
+            }
 
             // find ids for concepts and their synonyms
             HashSet<String> conceptSynonyms = concept.getSynonyms();
@@ -2326,8 +2333,9 @@ public class DatabaseManager {
                     LOGGER.error(e.getMessage());
                 }
                 conceptID = entryExists(psConceptCheck);
-                if (conceptID > -1)
+                if (conceptID > -1) {
                     deleteConceptIDs.remove(conceptID);
+                }
             }
 
             Iterator<Attribute> attributesIterator = concept.getAttributes().iterator();
@@ -2340,8 +2348,9 @@ public class DatabaseManager {
                     LOGGER.error(e.getMessage());
                 }
                 int attributeID = entryExists(psAttributeCheck);
-                if (attributeID > -1)
+                if (attributeID > -1) {
                     deleteAttributeIDs.remove(attributeID);
+                }
 
                 HashSet<String> attributeSynonyms = attribute.getSynonyms();
                 Iterator<String> attributeSynonymsIterator = attributeSynonyms.iterator();
@@ -2353,8 +2362,9 @@ public class DatabaseManager {
                         LOGGER.error(e.getMessage());
                     }
                     attributeID = entryExists(psAttributeCheck);
-                    if (attributeID > -1)
+                    if (attributeID > -1) {
                         deleteAttributeIDs.remove(attributeID);
+                    }
                 }
             }
         }
@@ -2439,7 +2449,7 @@ public class DatabaseManager {
      * http://forge.mysql.com/tools/tool.php?id=85
      *
      */
-    private void getWorstIndices() {
+    public void getWorstIndices() {
         runQuery("SELECT t.TABLE_SCHEMA AS `db`" + ", t.TABLE_NAME AS `table`" + ", s.INDEX_NAME AS `index name`"
                 + ", s.COLUMN_NAME AS `field name`" + ", s.SEQ_IN_INDEX `seq in index`"
                 + ", s2.max_columns AS `# cols`" + ", s.CARDINALITY AS `card`" + ", t.TABLE_ROWS AS `est rows`"

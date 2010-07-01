@@ -7,14 +7,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.TreeMap;
-import java.util.regex.Matcher;
 
 import org.apache.log4j.Logger;
 
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.ExtractionType;
 import tud.iir.extraction.Extractor;
+import tud.iir.extraction.FactExtractionTest;
 import tud.iir.gui.GUIManager;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.ThreadHelper;
@@ -24,8 +23,6 @@ import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.Fact;
 import tud.iir.knowledge.FactValue;
 import tud.iir.knowledge.KnowledgeManager;
-import tud.iir.knowledge.Source;
-import tud.iir.knowledge.Sources;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetrieverManager;
@@ -324,95 +321,96 @@ public class FactExtractor extends Extractor {
     /**
      * remove sources from facts that are used for several other entities as well
      */
-    private void removeCrossSources() {
-
-        // 1. collect all sources that were used for more than one entity
-        HashSet<String> usedSources = new HashSet<String>();
-        HashSet<String> crossSources = new HashSet<String>();
-
-        ArrayList<Concept> concepts = knowledgeManager.getConcepts();
-        Iterator<Concept> rIt = concepts.iterator();
-        while (rIt.hasNext()) {
-            Concept dEntry = rIt.next();
-
-            Iterator<Entity> r2It = dEntry.getEntities().iterator();
-            while (r2It.hasNext()) {
-                Entity eEntry = r2It.next();
-                HashSet<String> usedSourcesEntity = new HashSet<String>();
-
-                Iterator<Fact> r4It = eEntry.getFacts().iterator();
-                while (r4It.hasNext()) {
-                    Fact fEntry = r4It.next();
-
-                    Iterator<FactValue> r5It = fEntry.getValues().iterator();
-                    while (r5It.hasNext()) {
-                        FactValue fv = r5It.next();
-
-                        ArrayList<Source> sources = fv.getSources();
-
-                        Iterator<Source> r6It = sources.iterator();
-                        while (r6It.hasNext()) {
-                            Source sEntry = r6It.next();
-                            boolean isNeverUsed = usedSources.add(sEntry.getUrl());
-                            boolean isNewForEntity = usedSourcesEntity.add(sEntry.getUrl());
-                            if (!isNeverUsed && isNewForEntity) {
-                                crossSources.add(sEntry.getUrl());
-                                LOGGER.info(sEntry.getUrl() + " was used before " + eEntry.getName());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        LOGGER.info("cross sources:\n");
-        // CollectionHelper.print(crossSources);
-        Iterator<String> setIterator = crossSources.iterator();
-        while (setIterator.hasNext()) {
-            String entry = setIterator.next();
-            LOGGER.info(entry);
-        }
-
-        // 2. remove all cross sources for all fact values
-        rIt = concepts.iterator();
-        while (rIt.hasNext()) {
-            Concept dEntry = rIt.next();
-
-            Iterator<Entity> r2It = dEntry.getEntities().iterator();
-            while (r2It.hasNext()) {
-                Entity eEntry = r2It.next();
-
-                Iterator<Fact> r4It = eEntry.getFacts().iterator();
-                while (r4It.hasNext()) {
-                    Fact fEntry = r4It.next();
-
-                    Iterator<FactValue> r5It = fEntry.getValues().iterator();
-                    while (r5It.hasNext()) {
-                        FactValue fv = r5It.next();
-
-                        ArrayList<Source> sources = fv.getSources();
-
-                        Sources<Source> removableSources = new Sources<Source>();
-                        Iterator<Source> r6It = sources.iterator();
-                        while (r6It.hasNext()) {
-                            Source sEntry = r6It.next();
-
-                            if (crossSources.contains(sEntry.getUrl()) && !removableSources.contains(sEntry)) {
-                                removableSources.add(sEntry);
-                            }
-                        }
-
-                        r6It = removableSources.iterator();
-                        while (r6It.hasNext()) {
-                            Source s = r6It.next();
-                            LOGGER.info("remove source from " + eEntry.getName() + ", " + fv.getFact().getAttribute().getName() + " : " + s.getUrl());
-                            fv.removeSource(s);
-                        }
-                    }
-                }
-            }
-        }
-    }
+    // private void removeCrossSources() {
+    //
+    // // 1. collect all sources that were used for more than one entity
+    // HashSet<String> usedSources = new HashSet<String>();
+    // HashSet<String> crossSources = new HashSet<String>();
+    //
+    // ArrayList<Concept> concepts = knowledgeManager.getConcepts();
+    // Iterator<Concept> rIt = concepts.iterator();
+    // while (rIt.hasNext()) {
+    // Concept dEntry = rIt.next();
+    //
+    // Iterator<Entity> r2It = dEntry.getEntities().iterator();
+    // while (r2It.hasNext()) {
+    // Entity eEntry = r2It.next();
+    // HashSet<String> usedSourcesEntity = new HashSet<String>();
+    //
+    // Iterator<Fact> r4It = eEntry.getFacts().iterator();
+    // while (r4It.hasNext()) {
+    // Fact fEntry = r4It.next();
+    //
+    // Iterator<FactValue> r5It = fEntry.getValues().iterator();
+    // while (r5It.hasNext()) {
+    // FactValue fv = r5It.next();
+    //
+    // ArrayList<Source> sources = fv.getSources();
+    //
+    // Iterator<Source> r6It = sources.iterator();
+    // while (r6It.hasNext()) {
+    // Source sEntry = r6It.next();
+    // boolean isNeverUsed = usedSources.add(sEntry.getUrl());
+    // boolean isNewForEntity = usedSourcesEntity.add(sEntry.getUrl());
+    // if (!isNeverUsed && isNewForEntity) {
+    // crossSources.add(sEntry.getUrl());
+    // LOGGER.info(sEntry.getUrl() + " was used before " + eEntry.getName());
+    // }
+    // }
+    // }
+    // }
+    // }
+    // }
+    //
+    // LOGGER.info("cross sources:\n");
+    // // CollectionHelper.print(crossSources);
+    // Iterator<String> setIterator = crossSources.iterator();
+    // while (setIterator.hasNext()) {
+    // String entry = setIterator.next();
+    // LOGGER.info(entry);
+    // }
+    //
+    // // 2. remove all cross sources for all fact values
+    // rIt = concepts.iterator();
+    // while (rIt.hasNext()) {
+    // Concept dEntry = rIt.next();
+    //
+    // Iterator<Entity> r2It = dEntry.getEntities().iterator();
+    // while (r2It.hasNext()) {
+    // Entity eEntry = r2It.next();
+    //
+    // Iterator<Fact> r4It = eEntry.getFacts().iterator();
+    // while (r4It.hasNext()) {
+    // Fact fEntry = r4It.next();
+    //
+    // Iterator<FactValue> r5It = fEntry.getValues().iterator();
+    // while (r5It.hasNext()) {
+    // FactValue fv = r5It.next();
+    //
+    // ArrayList<Source> sources = fv.getSources();
+    //
+    // Sources<Source> removableSources = new Sources<Source>();
+    // Iterator<Source> r6It = sources.iterator();
+    // while (r6It.hasNext()) {
+    // Source sEntry = r6It.next();
+    //
+    // if (crossSources.contains(sEntry.getUrl()) && !removableSources.contains(sEntry)) {
+    // removableSources.add(sEntry);
+    // }
+    // }
+    //
+    // r6It = removableSources.iterator();
+    // while (r6It.hasNext()) {
+    // Source s = r6It.next();
+    // LOGGER.info("remove source from " + eEntry.getName() + ", " + fv.getFact().getAttribute().getName() + " : " +
+    // s.getUrl());
+    // fv.removeSource(s);
+    // }
+    // }
+    // }
+    // }
+    // }
+    // }
 
     /**
      * Log which facts for which concepts and entities have been extracted.
@@ -468,7 +466,7 @@ public class FactExtractor extends Extractor {
 
         double dataDownloaded = Crawler.getSessionDownloadSize(Crawler.BYTES);
         LOGGER.info("\n\n--------------------------");
-        LOGGER.info("Downloaded (all crawlers since start): " + (dataDownloaded / 1024) + " KB / " + (dataDownloaded / (1024 * 1024)) + " MB\n");
+        LOGGER.info("Downloaded (all crawlers since start): " + dataDownloaded / 1024 + " KB / " + dataDownloaded / (1024 * 1024) + " MB\n");
         LOGGER.info(SourceRetrieverManager.getInstance().getLogs());
 
         LOGGER.info("\n\n-- TRUST --");
@@ -484,72 +482,77 @@ public class FactExtractor extends Extractor {
      * For attributes with the data type "number" or "date" several occurrences can be extracted and weighted by their distance to the attribute. TODO employ
      * this method and try to improve results with it
      */
-    private void weightedOccurrences() {
-
-        String a = "iuh ooi ai7zf8 asl:3.9 io asjf has a 4,9% Unemployment RATE asdf Also 4.8% dhfsfsfuhs fasdf though the unemployment rate might fall by 1% the next month. asdf asdf faisodf 3 sadf isado2 234  saidfjasoi sijf sof";
-        String search = "unemployment rate";
-
-        int currentStartIndex = 0;
-        TreeMap<Integer, String> values = new TreeMap<Integer, String>();
-
-        int neighborhoodRange = 50;
-
-        while (true) {
-
-            int index = a.toLowerCase().indexOf(search.toLowerCase(), currentStartIndex);
-
-            if (index == -1) {
-                break;
-            }
-
-            String pageStringCleaned = a.substring(0, currentStartIndex).toLowerCase();
-            pageStringCleaned = pageStringCleaned + a.substring(currentStartIndex).toLowerCase().replace(search.toLowerCase(), "");
-            int startIndex = index - neighborhoodRange;
-
-            int missingOffset = 0;
-            if (index - neighborhoodRange < 0)
-                missingOffset = Math.abs(index - neighborhoodRange);
-            int keyTermPosition = neighborhoodRange - missingOffset;
-
-            if (startIndex < 0)
-                startIndex = 0;
-            int endIndex = index + neighborhoodRange;
-            if (endIndex > pageStringCleaned.length())
-                endIndex = pageStringCleaned.length();
-
-            System.out.println(pageStringCleaned);
-
-            String neighborhood = pageStringCleaned.substring(startIndex, endIndex);
-            System.out.println(index + " " + keyTermPosition + "_" + neighborhood);
-
-            java.util.regex.Pattern pat = java.util.regex.Pattern.compile("[(\\s)|:]((\\d){1,}([,|\\.])?){1,}");
-            Matcher m = pat.matcher(neighborhood);
-
-            m.region(0, neighborhood.length());
-
-            while (m.find()) {
-                // add fact candidate for entity and attribute, checking whether fact or fact value has been entered already is done in the entity and fact
-                // class respectively
-                // logger.log("found "+m.group());
-                // currentEntity.addFactAndValue(new Fact(currentAttribute),new FactValue(m.group(),new Source(Source.SEMI_STRUCTURED,currentURL)));
-                String valueFound = m.group().trim().replace(":", "");
-                int absoluteFoundPosition = m.start() + currentStartIndex;
-                int distance = Math.abs(keyTermPosition - m.start());
-                System.out.println(valueFound + " at " + m.start() + " distance " + distance + " index " + index + " absolute " + absoluteFoundPosition + " "
-                        + currentStartIndex);
-                values.put(distance, valueFound);
-            }
-
-            currentStartIndex = index + search.length();
-        }
-
-        // Collections.sort(values,new IndexPositionComparator());
-        Iterator<Map.Entry<Integer, String>> vIt = values.entrySet().iterator();
-        while (vIt.hasNext()) {
-            Map.Entry<Integer, String> entry = vIt.next();
-            System.out.println(entry.getKey() + "_" + entry.getValue());
-        }
-    }
+    // private void weightedOccurrences() {
+    //
+    // String a =
+    // "iuh ooi ai7zf8 asl:3.9 io asjf has a 4,9% Unemployment RATE asdf Also 4.8% dhfsfsfuhs fasdf though the unemployment rate might fall by 1% the next month. asdf asdf faisodf 3 sadf isado2 234  saidfjasoi sijf sof";
+    // String search = "unemployment rate";
+    //
+    // int currentStartIndex = 0;
+    // TreeMap<Integer, String> values = new TreeMap<Integer, String>();
+    //
+    // int neighborhoodRange = 50;
+    //
+    // while (true) {
+    //
+    // int index = a.toLowerCase().indexOf(search.toLowerCase(), currentStartIndex);
+    //
+    // if (index == -1) {
+    // break;
+    // }
+    //
+    // String pageStringCleaned = a.substring(0, currentStartIndex).toLowerCase();
+    // pageStringCleaned = pageStringCleaned +
+    // a.substring(currentStartIndex).toLowerCase().replace(search.toLowerCase(), "");
+    // int startIndex = index - neighborhoodRange;
+    //
+    // int missingOffset = 0;
+    // if (index - neighborhoodRange < 0)
+    // missingOffset = Math.abs(index - neighborhoodRange);
+    // int keyTermPosition = neighborhoodRange - missingOffset;
+    //
+    // if (startIndex < 0)
+    // startIndex = 0;
+    // int endIndex = index + neighborhoodRange;
+    // if (endIndex > pageStringCleaned.length())
+    // endIndex = pageStringCleaned.length();
+    //
+    // System.out.println(pageStringCleaned);
+    //
+    // String neighborhood = pageStringCleaned.substring(startIndex, endIndex);
+    // System.out.println(index + " " + keyTermPosition + "_" + neighborhood);
+    //
+    // java.util.regex.Pattern pat = java.util.regex.Pattern.compile("[(\\s)|:]((\\d){1,}([,|\\.])?){1,}");
+    // Matcher m = pat.matcher(neighborhood);
+    //
+    // m.region(0, neighborhood.length());
+    //
+    // while (m.find()) {
+    // // add fact candidate for entity and attribute, checking whether fact or fact value has been entered already is
+    // done in the entity and fact
+    // // class respectively
+    // // logger.log("found "+m.group());
+    // // currentEntity.addFactAndValue(new Fact(currentAttribute),new FactValue(m.group(),new
+    // Source(Source.SEMI_STRUCTURED,currentURL)));
+    // String valueFound = m.group().trim().replace(":", "");
+    // int absoluteFoundPosition = m.start() + currentStartIndex;
+    // int distance = Math.abs(keyTermPosition - m.start());
+    // System.out.println(valueFound + " at " + m.start() + " distance " + distance + " index " + index + " absolute " +
+    // absoluteFoundPosition + " "
+    // + currentStartIndex);
+    // values.put(distance, valueFound);
+    // }
+    //
+    // currentStartIndex = index + search.length();
+    // }
+    //
+    // // Collections.sort(values,new IndexPositionComparator());
+    // Iterator<Map.Entry<Integer, String>> vIt = values.entrySet().iterator();
+    // while (vIt.hasNext()) {
+    // Map.Entry<Integer, String> entry = vIt.next();
+    // System.out.println(entry.getKey() + "_" + entry.getValue());
+    // }
+    // }
 
     /**
      * Try to find facts from a table on a web page. Use a set of attribute names to detect the table and the other facts. If no attributes are given facts are
@@ -576,7 +579,7 @@ public class FactExtractor extends Extractor {
 
             dt.setAttribute(currentAttribute);
             HashMap<Attribute, ArrayList<FactString>> factStrings = dt.getFactStrings(currentAttribute);
-            LOGGER.info("found " + (factStrings.size()) + " new attribute candidates, " + factStrings.keySet());
+            LOGGER.info("found " + factStrings.size() + " new attribute candidates, " + factStrings.keySet());
 
             // iterate through all attributes found
             Iterator<Map.Entry<Attribute, ArrayList<FactString>>> factIterator = factStrings.entrySet().iterator();
@@ -621,7 +624,7 @@ public class FactExtractor extends Extractor {
         // /////////////////////////////// extract facts ///////////////////////////////////
         // more examples can be found in the FactExtractionTest.java > testDetectTableFacts()
         String url = "http://en.wikipedia.org/wiki/Nokia_N95";
-        Concept c = new Concept("Mobile Phone");
+
         HashSet<Attribute> seedAttributes = new HashSet<Attribute>();
         // seedAttributes.add(new Attribute("Second camera", Attribute.VALUE_STRING, c));
         // seedAttributes.add(new Attribute("Memory card", Attribute.VALUE_STRING, c));
@@ -661,9 +664,9 @@ public class FactExtractor extends Extractor {
         Concept concept = new Concept("Movie");
         Attribute attribute = new Attribute("_entity_image_", Attribute.VALUE_IMAGE, concept);
         concept.addAttribute(attribute);
-        Entity entity = new Entity("Nokia N95", concept);
+        // Entity entity = new Entity("Nokia N95", concept);
 
-        FactQuery fq = FactQueryFactory.getInstance().createImageQuery(entity, attribute);
+        // FactQuery fq = FactQueryFactory.getInstance().createImageQuery(entity, attribute);
         // FactExtractor.getInstance().extractImages(fq, entity);
 
         // // test set

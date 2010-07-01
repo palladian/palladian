@@ -10,17 +10,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.ExtractionType;
-import tud.iir.extraction.PageAnalyzer;
-import tud.iir.extraction.XPathSet;
-import tud.iir.extraction.entity.ListDiscoverer;
-import tud.iir.helper.StringHelper;
 import tud.iir.news.PageContentExtractor;
 import tud.iir.news.PageContentExtractorException;
-import tud.iir.web.Crawler;
 
 import com.temesoft.google.pr.JenkinsHash;
 
@@ -54,23 +48,23 @@ public class Source implements Serializable {
     private String mainContent;
 
     public Source(String url, double trust, int extractionType) {
-        this.setUrl(url);
-        this.setTrust(trust);
-        this.setExtractionType(extractionType);
+        setUrl(url);
+        setTrust(trust);
+        setExtractionType(extractionType);
     }
 
     public Source(String url, int extractionType) {
-        this.setUrl(url);
-        this.setExtractionType(extractionType);
+        setUrl(url);
+        setExtractionType(extractionType);
     }
 
     public Source(String url, double trust) {
-        this.setUrl(url);
-        this.setTrust(trust);
+        setUrl(url);
+        setTrust(trust);
     }
 
     public Source(String url) {
-        this.setUrl(url);
+        setUrl(url);
     }
 
     public FactValue getFactValue() {
@@ -122,15 +116,17 @@ public class Source implements Serializable {
      */
     private double getTrust2() {
         double numberOfDifferentSources = getNumberOfDifferentValues();
-        if (numberOfDifferentSources == 0.0)
+        if (numberOfDifferentSources == 0.0) {
             return this.trust;
-        return (this.trust / numberOfDifferentSources);
+        }
+        return this.trust / numberOfDifferentSources;
     }
 
     private double getTrust3() {
         double numberOfDifferentValues = getNumberOfDifferentValues();
-        if (numberOfDifferentValues == 0.0)
+        if (numberOfDifferentValues == 0.0) {
             return this.trust;
+        }
 
         // exponential: applicability(D) = S/D
         // return ExtractionType.getTrust(this.getExtractionType())*(getNumberOfSameValues() * this.trust / numberOfDifferentValues);
@@ -142,7 +138,7 @@ public class Source implements Serializable {
         // return ExtractionType.getTrust(this.getExtractionType()) * (this.trust * Math.max(1,(1 - Math.pow(2, numberOfDifferentValues - 4))));
 
         // exponential: applicability(D) = 1/D
-        return ExtractionType.getTrust(this.getExtractionType()) * (this.trust / numberOfDifferentValues);
+        return ExtractionType.getTrust(getExtractionType()) * this.trust / numberOfDifferentValues;
 
         // cut: applicability(D) = 1 if D = 1 else 0
         // if (numberOfDifferentValues == 1) return ExtractionType.getTrust(this.getExtractionType()) * (this.trust);
@@ -163,8 +159,9 @@ public class Source implements Serializable {
         HashSet<String> differentValues = new HashSet<String>();
 
         FactValue factValue = getFactValue();
-        if (factValue == null)
+        if (factValue == null) {
             return 1;
+        }
 
         Fact fact = factValue.getFact();
         ArrayList<FactValue> factValues = fact.getValues(false);
@@ -176,10 +173,11 @@ public class Source implements Serializable {
             ArrayList<Source> sourceList = factValues.get(i).getSources();
             for (int j = 0, l2 = sourceList.size(); j < l2; j++) {
                 Source currentSource = sourceList.get(j);
-                if (currentSource == null || this.getUrl() == null)
+                if (currentSource == null || getUrl() == null) {
                     continue;
+                }
 
-                if (currentSource.getUrl().equalsIgnoreCase(this.getUrl())) {
+                if (currentSource.getUrl().equalsIgnoreCase(getUrl())) {
                     differentValues.add(currentFactValue.getValue());
                     break;
                 }
@@ -194,24 +192,24 @@ public class Source implements Serializable {
      * 
      * @return The number of same values.
      */
-    private double getNumberOfSameValues() {
-        double sameValues = 0;
-
-        FactValue factValue = getFactValue();
-        if (factValue == null)
-            return 1;
-
-        ArrayList<Source> sourceList = factValue.getSources();
-        for (int j = 0, l2 = sourceList.size(); j < l2; j++) {
-            Source currentSource = sourceList.get(j);
-            // Logger.getInstance().log(l2 + "current source"+currentSource.getUrl()+" =? "+ this.getUrl());
-            if (currentSource.getUrl().equalsIgnoreCase(this.getUrl())) {
-                sameValues++;
-            }
-        }
-
-        return sameValues;
-    }
+    // private double getNumberOfSameValues() {
+    // double sameValues = 0;
+    //
+    // FactValue factValue = getFactValue();
+    // if (factValue == null)
+    // return 1;
+    //
+    // ArrayList<Source> sourceList = factValue.getSources();
+    // for (int j = 0, l2 = sourceList.size(); j < l2; j++) {
+    // Source currentSource = sourceList.get(j);
+    // // Logger.getInstance().log(l2 + "current source"+currentSource.getUrl()+" =? "+ this.getUrl());
+    // if (currentSource.getUrl().equalsIgnoreCase(this.getUrl())) {
+    // sameValues++;
+    // }
+    // }
+    //
+    // return sameValues;
+    // }
 
     public int getExtractionType() {
         return extractionType;
@@ -282,7 +280,7 @@ public class Source implements Serializable {
      */
     public double getPageRank() {
         if (this.pageRank < 0) {
-            this.pageRank = getPageRank(this.getUrl());
+            this.pageRank = getPageRank(getUrl());
         }
         return this.pageRank;
     }
@@ -395,8 +393,9 @@ public class Source implements Serializable {
     @Override
     public boolean equals(Object obj) {
         Source s = (Source) obj;
-        if (s.getUrl().equalsIgnoreCase(getUrl()) && s.getExtractionType() == getExtractionType())
+        if (s.getUrl().equalsIgnoreCase(getUrl()) && s.getExtractionType() == getExtractionType()) {
             return true;
+        }
         return false;
     }
 

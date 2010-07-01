@@ -8,7 +8,6 @@ import java.awt.color.CMMException;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
-import java.awt.image.RenderedImage;
 import java.awt.image.renderable.ParameterBlock;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -82,8 +81,9 @@ public class ImageHandler {
 
     public static String getMatchingImageURL(ArrayList<ExtractedImage> images) {
         String[] matchingImages = getMatchingImageURLs(images, 1);
-        if (matchingImages.length > 0)
+        if (matchingImages.length > 0) {
             return matchingImages[0];
+        }
         return "";
     }
 
@@ -127,8 +127,9 @@ public class ImageHandler {
 
                 for (int j = i + 1; j < normalizedImages.size(); j++) {
                     ExtractedImage image2 = normalizedImages.get(j);
-                    if (duplicateImages.contains(image2.getURL()))
+                    if (duplicateImages.contains(image2.getURL())) {
                         continue;
+                    }
 
                     if (!MathHelper.isWithinMargin(image1.getWidthHeightRatio(), image2.getWidthHeightRatio(), 0.05)) {
                         continue;
@@ -438,8 +439,9 @@ public class ImageHandler {
 
             // get file extension
             String fileExtension = FileHelper.getFileType(url);
-            if (fileExtension.length() == 0)
+            if (fileExtension.length() == 0) {
                 fileExtension = "png";
+            }
 
             // save image
             Logger.getRootLogger().info("write " + savePath + " with " + fileExtension);
@@ -545,7 +547,7 @@ public class ImageHandler {
             }
         }
 
-        double meanSquareError = (1 / (double) (image1.getWidth() * image1.getHeight())) * squaredError;
+        double meanSquareError = 1 / (double) (image1.getWidth() * image1.getHeight()) * squaredError;
         return meanSquareError;
     }
 
@@ -569,7 +571,7 @@ public class ImageHandler {
             }
         }
 
-        double meanSquareError = (1.0 / (image1.getWidth() * image1.getHeight())) * squaredError;
+        double meanSquareError = 1.0 / (image1.getWidth() * image1.getHeight()) * squaredError;
         meanSquareError = Math.pow(meanSquareError, 1.0 / r);
 
         return 1 - meanSquareError;
@@ -585,7 +587,7 @@ public class ImageHandler {
         BufferedImage substractedImage = substractImages(image1, image2);
         double averageGray = getAverageGray(substractedImage);
 
-        return (1 - (averageGray / 255.0));
+        return 1 - averageGray / 255.0;
     }
 
     public static BufferedImage toGrayScale(BufferedImage bufferedImage) {
@@ -616,8 +618,9 @@ public class ImageHandler {
 
         double similarity = getSimilarity(image1, image2, DIFFG);
         // System.out.println(similarity);
-        if (similarity > 0.82)
+        if (similarity > 0.82) {
             return true;
+        }
 
         return false;
     }
@@ -709,9 +712,9 @@ public class ImageHandler {
 
     public static void main(String[] args) {
 
-        String url = "http://entimg.msn.com/i/gal/ScaryCelebs/JimCarrey_400.jpg";
-        url = "http://www.thehollywoodnews.com/artman2/uploads/1/jim-carrey_1.jpg";
-        URL urlLocation;
+        // String url = "http://entimg.msn.com/i/gal/ScaryCelebs/JimCarrey_400.jpg";
+        // url = "http://www.thehollywoodnews.com/artman2/uploads/1/jim-carrey_1.jpg";
+        // URL urlLocation;
         try {
 
             // urlLocation = new URL(url);
@@ -746,9 +749,8 @@ public class ImageHandler {
 
             System.exit(0);
 
-            RenderedImage ri = JAI.create("fileload", "data/test/images/tdk1.jpg");
-
-            RenderedOp op = JAI.create("filestore", ri, "data/multimedia/tdk1_rescaled.jpg", "JPEG");
+            // RenderedImage ri = JAI.create("fileload", "data/test/images/tdk1.jpg");
+            // RenderedOp op = JAI.create("filestore", ri, "data/multimedia/tdk1_rescaled.jpg", "JPEG");
 
             // BufferedImage image1 = Sanselan.getBufferedImage(new File("data/test/images/tdk1.jpg"));
 
@@ -759,7 +761,7 @@ public class ImageHandler {
             // ImageOutputStreamJAI outputJPEG=new ImageOutputStreamJAI("data/multimedia/images/test2.jpg");
             // outputJPEG.writeJPEG(ci);
 
-            urlLocation = new URL("http://entimg.msn.com/i/gal/ScaryCelebs/JimCarrey_400.jpg");
+            // urlLocation = new URL("http://entimg.msn.com/i/gal/ScaryCelebs/JimCarrey_400.jpg");
             BufferedImage bufferedImage2 = ImageIO.read(new File("data/multimedia/jc2g.jpg"));
             bufferedImage2 = rescaleImage(bufferedImage2, 200);
 

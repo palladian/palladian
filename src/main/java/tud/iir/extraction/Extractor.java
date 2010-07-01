@@ -11,43 +11,49 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.KnowledgeManager;
 
+/**
+ * The abstract Extractor from which other singleton extractors inherit.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public abstract class Extractor {
 
-    /** the logger for this class */
+    /** The logger for this class. */
     protected static final Logger LOGGER = Logger.getLogger(Extractor.class);
 
-    /** 5 minutes wait in case no entities were found in the database */
+    /** 5 minutes wait in case no entities were found in the database. */
     protected static final int WAIT_FOR_ENTITIES_TIMEOUT = 300000;
 
-    /** number of parallel extraction threads */
+    /** Number of parallel extraction threads. */
     protected static final int MAX_EXTRACTION_THREADS = 10;
 
-    /** wait 10 seconds if all extraction threads are currently running */
+    /** Wait 10 seconds if all extraction threads are currently running. */
     protected static final int WAIT_FOR_FREE_THREAD_SLOT = 10000;
 
-    /** the knowledge manager */
+    /** The knowledge manager. */
     protected KnowledgeManager knowledgeManager;
 
-    /** count number of active extraction threads */
+    /** Count number of active extraction threads. */
     private int threadCount = 0;
 
-    /** the thread group of all extraction threads */
+    /** The thread group of all extraction threads. */
     protected ThreadGroup extractionThreadGroup;
 
-    /** whether the stop command has been called */
+    /** Whether the stop command has been called. */
     private boolean stopped = false;
 
-    /** if true some statistics for benchmarking are gathered */
+    /** If true some statistics for benchmarking are gathered. */
     private boolean benchmark = false;
 
-    /** list of binary file extensions */
+    /** List of binary file extensions. */
     public static final String[] URL_BINARY_BLACKLIST = { "pdf", "doc", "ppt", "xls", "png", "jpg", "jpeg", "gif", "ai", "svg", "zip", "avi", "exe", "msi",
             "wav", "mp3", "wmv" };
 
-    /** list of textual file extensions */
+    /** List of textual file extensions. */
     public static final String[] URL_TEXTUAL_BLACKLIST = { "cfm", "db", "svg", "txt" };
 
-    /** list of file extensions that should be ignored for the extractor */
+    /** List of file extensions that should be ignored for the extractor. */
     private Set<String> blackList = new HashSet<String>();
 
     public KnowledgeManager getKnowledgeManager() {
@@ -99,8 +105,9 @@ public abstract class Extractor {
         for (String forbiddenSuffix : blackList) {
             
             url=url.trim();
-            if (url.endsWith("." + forbiddenSuffix))
+            if (url.endsWith("." + forbiddenSuffix)) {
                 return false;
+            }
         }
 
         return true;
