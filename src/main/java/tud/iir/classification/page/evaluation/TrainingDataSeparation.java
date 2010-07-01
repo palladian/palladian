@@ -11,7 +11,12 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.FileHelper;
-
+/**
+ * This class separates a given training set into a training set and a evaluation set. 
+ * 
+ * @author Sandro Reichert
+ *
+ */
 public class TrainingDataSeparation {
 
 	private static final Logger logger = Logger.getLogger(TrainingDataSeparation.class);
@@ -43,6 +48,7 @@ public class TrainingDataSeparation {
      *            can be used for testing.
      * @param randomlyChooseLines Specifies whether lines should be picked randomly
      *            or not. If false, the first lines are used for training.
+     * @throws IllegalArgumentException if trainingDataPercentage is out of range [0, 100].
      */
 	public void separateFile(String fileToSeparate,
 			String trainingDataFileToWrite,
@@ -53,9 +59,7 @@ public class TrainingDataSeparation {
         FileHelper.delete(testingDataFileToWrite);
 
         if (trainingDataPercentage < 0 || trainingDataPercentage > 100) {
-			logger.error("trainingDataPercentage out of range [0, 100]: "+ trainingDataPercentage);
-			logger.error("File not separated! ");
-			return;
+        	throw new IllegalArgumentException("trainingDataPercentage out of range [0, 100]: " + trainingDataPercentage + "File not separated! ");			
 		}
 		StringBuilder trainingSB = new StringBuilder();
 		StringBuilder testingSB = new StringBuilder();
