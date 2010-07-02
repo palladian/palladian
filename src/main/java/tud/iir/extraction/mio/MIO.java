@@ -75,6 +75,14 @@ public class MIO extends Extractable {
         }
         return directURL;
     }
+    
+    /**
+     * Resets the MIOInfos (for saving memory)
+     * 
+     */    
+    public void resetMIOInfos(){
+        infos= new HashMap<String, List>();
+    }
 
     /**
      * Gets the trust.

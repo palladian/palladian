@@ -31,7 +31,10 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
     /** The mioPage. */
     private MIOPage mioPage;
 
+    /** The Constant FLASH. */
     private static final String FLASH = "flash";
+    
+    /** The Constant APPLET. */
     private static final String APPLET = "applet";
 
     /**
@@ -122,7 +125,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      */
     private List<MIO> analyzeRelevantTags(final List<String> relevantTags, final String mioType) {
 
-        final List<MIO> retrievedMIOs = new ArrayList<MIO>();
+        List<MIO> retrievedMIOs = new ArrayList<MIO>();
 
         // try to extract swf-file-URLs
         for (String relevantTag : relevantTags) {
@@ -132,15 +135,8 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
             if (mioType.equals(FLASH)) {
 
                 if (relevantTag.toLowerCase(Locale.ENGLISH).contains("swfobject")) {
-                    // System.out.println("CheckSWFObject");
+
                     tempMIOs.addAll(checkSWFObject(relevantTag, mioPage));
-                    // if (tempMio != null) {
-                    //
-                    // // System.out.println("SWFObject enthalten! " + mioPage.getUrl());
-                    //
-                    // // flashMIOs.add(checkSWFObject(relevantTag, mioPage));
-                    // tempMIOs.add(tempMio);
-                    // }
 
                 } else {
                     // extract all swf-files from a relevant-tag
@@ -158,50 +154,34 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
                     }
                 }
             } else {
-
                 tempMIOs.addAll(extractMIOWithURL(relevantTag, mioPage, mioType));
-
             }
 
-            // extract ALT-Text from object and embed-tags and add to MIO-infos
+            // extract ALT-Text from object and embed-tags and add to MIO-Infos
             if (!relevantTag.toLowerCase(Locale.ENGLISH).startsWith("<script")) {
-                final List<String> altText = new ArrayList<String>();
-                // final List<String> headlines = new ArrayList<String>();
+
                 for (MIO mio : tempMIOs) {
                     final String tempAltText = extractALTTextFromTag(relevantTag);
-                    if (tempAltText.length() > 2) {
+                    final List<String> altText = new ArrayList<String>();
+                    if (tempAltText.length() > 2) {                       
                         altText.add(tempAltText);
                         mio.addInfos("altText", altText);
                     }
-
-                    // String nearfieldHeadlines = extractSiblingHeadlines(relevantTag, mioPage, mio);
-                    // headlines.add(nearfieldHeadlines);
-                    // mio.addInfos("headlines", headlines);
                 }
+               
+                // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
+                // final List<String> headlines = new ArrayList<String>();
+                // for (MIO mio : tempMIOs) {
+                // mio = extractSurroundingInfos(relevantTag, mioPage, mio);
+                //}
             }
-
-            // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
-
-            // final List<String> headlines = new ArrayList<String>();
-            // for (MIO mio : tempMIOs) {
-            // mio = extractSurroundingInfos(relevantTag, mioPage, mio);
-            //
-            //
-            // }
 
             retrievedMIOs.addAll(tempMIOs);
         }
 
         // Calculate Trust
-        final MIOContextAnalyzer mioContextAnalyzer = new MIOContextAnalyzer(entity, mioPage);
+        retrievedMIOs = calcTrust(retrievedMIOs);
 
-        // System.out.println("MIO-Trust-Calculation!");
-
-        for (MIO mio : retrievedMIOs) {
-            // calculateTrust(mio);
-            // mioContextAnalyzer.calculateTrust(mio);
-//            mioContextAnalyzer.setFeatures(mio);
-        }
         return retrievedMIOs;
     }
 
@@ -443,9 +423,31 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
     }
 
     /**
+     * Calc trust.
+     *
+     * @param retrievedMIOs the retrieved mi os
+     * @return the list
+     */
+    private List<MIO> calcTrust(final List<MIO> retrievedMIOs) {
+        final MIOContextAnalyzer contextAnalyzer = new MIOContextAnalyzer(entity, mioPage);
+
+        // System.out.println("MIO-Trust-Calculation!");
+
+        for (MIO mio : retrievedMIOs) {
+
+            contextAnalyzer.calculateTrust(mio);
+            contextAnalyzer.setFeatures(mio);
+            //reset MIO-Infos for saving memory
+            mio.resetMIOInfos();
+        }
+
+        return retrievedMIOs;
+    }
+
+    /**
      * Extract swf from comments.
-     * 
-     * @param mioPage the mio page
+     *
+     * @param args the arguments
      * @return the list
      */
     // private List<MIO> extractSWFFromComments(MIOPage mioPage) {
