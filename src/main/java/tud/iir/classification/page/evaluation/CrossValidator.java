@@ -150,8 +150,9 @@ public class CrossValidator {
 
 
                     // add the performance to the evaluation maps
-                    performancesDatasetTrainingFolds.add(classifier.getPerformance());
-                    performancesDatasetTrainingFoldsTemp1.add(classifier.getPerformance());
+                    ClassifierPerformance cfpc = classifier.getPerformanceCopy();
+                    performancesDatasetTrainingFolds.add(cfpc);
+                    performancesDatasetTrainingFoldsTemp1.add(cfpc);
                 }
 
                 // add the performances to the evaluation maps

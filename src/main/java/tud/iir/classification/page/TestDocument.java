@@ -13,7 +13,10 @@ import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
  */
 public class TestDocument extends ClassificationDocument {
 
+    /** If true, the classification has been checked. */
     private boolean checkedClassification = false;
+
+    /** If true, the document has been classified correctly. */
     private boolean correctClassified = false;
 
     public TestDocument() {

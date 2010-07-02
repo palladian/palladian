@@ -15,7 +15,7 @@ public class CategoryEntry implements Serializable {
     private static final long serialVersionUID = 2420029642880591759L;
 
     private final CategoryEntries categoryEntries;
-    private Category category = null;
+    private Category category;
     private double absoluteRelevance;
     private double relativeRelevance = -1.0;
     public double bayesRelevance = 1.0;

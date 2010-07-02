@@ -12,6 +12,8 @@ import java.util.HashMap;
 public class Term implements Serializable {
 
     private static final long serialVersionUID = 149355295388274193L;
+
+    /** The text of the term. */
     private String text = "";
 
     public Term(String text) {

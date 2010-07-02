@@ -16,6 +16,13 @@ public class WordCorrelationMatrix extends HashSet<WordCorrelation> {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Add one to the correlation count of two terms.
+     * The order of the terms does not matter: t1,t2 = t2,t1
+     * 
+     * @param word1 The first term.
+     * @param word2 The second term.
+     */
     public void updatePair(Term word1, Term word2) {
         WordCorrelation wc = getCorrelation(word1, word2);
 
@@ -71,8 +78,8 @@ public class WordCorrelationMatrix extends HashSet<WordCorrelation> {
     public WordCorrelation getCorrelation(String word1, String word2) {
 
         for (WordCorrelation entry : this) {
-            if ((entry.getTerm1().getText().equals(word1) && entry.getTerm2().getText().equals(word2))
-                    || (entry.getTerm1().getText().equals(word2) && entry.getTerm2().getText().equals(word1))) {
+            if (entry.getTerm1().getText().equals(word1) && entry.getTerm2().getText().equals(word2)
+                    || entry.getTerm1().getText().equals(word2) && entry.getTerm2().getText().equals(word1)) {
                 return entry;
             }
         }

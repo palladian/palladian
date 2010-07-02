@@ -16,10 +16,10 @@ public class Category implements Serializable {
 
     private static final long serialVersionUID = 8831509827509452692L;
 
-    /** the name of the category */
+    /** The name of the category. */
     private String name = "";
 
-    /** the frequency of documents belonging to this category, it will be used to calculate the prior */
+    /** The frequency of documents belonging to this category, it will be used to calculate the prior. */
     private int frequency = 0;
 
     /** the total number of weights for all terms in this category */
