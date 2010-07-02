@@ -1,6 +1,5 @@
 package tud.iir.persistence;
 
-import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.DriverManager;
@@ -95,6 +94,7 @@ public class DatabaseManager {
     private PreparedStatement psGetSourcesForExtractionType;
     private PreparedStatement psGetPMI;
     private PreparedStatement psGetConcepts;
+    private PreparedStatement psGetConceptSynonyms;
 
     private PreparedStatement psSetTestField;
 
@@ -106,36 +106,25 @@ public class DatabaseManager {
     private PreparedStatement psUpdateExtractionStatus;
     private PreparedStatement psGetExtractionStatusDownloadedBytes;
 
-    // prepared statements for feeds
-    // public PreparedStatement psGetReachableFeeds;
-    // public PreparedStatement psGetInformationNeeds;
-    // public PreparedStatement psCountNews;
-    // public PreparedStatement psGetNewsID;
-    // public PreparedStatement psInsertNews;
-    // public PreparedStatement psInsertIn_News;
-    // public PreparedStatement psUpdateUnreachable;
-    // public PreparedStatement psUpdateUnreachable0;
-    // public PreparedStatement psUpdateMedia;
+    // // ////////////////// feed prepared statements ////////////////////
+    // // moved to FeedDatabase
+    // //
+    // public PreparedStatement psAddFeedEntry;
+    // public PreparedStatement psAddFeed;
     // public PreparedStatement psUpdateFeed;
-
-    // ////////////////// feed prepared statements ////////////////////
-    public PreparedStatement psAddFeedEntry;
-    public PreparedStatement psAddFeed;
-    public PreparedStatement psUpdateFeed;
-    public PreparedStatement psUpdateFeed_fixed_learned;
-    public PreparedStatement psUpdateFeed_adaptive;
-    public PreparedStatement psUpdateFeed_probabilistic;
-    public PreparedStatement psUpdateFeedPostDistribution;
-    public PreparedStatement psGetFeedPostDistribution;
-    public PreparedStatement psGetFeeds;
-    public PreparedStatement psGetFeeds_fixed_learned;
-    public PreparedStatement psGetFeeds_adaptive;
-    public PreparedStatement psGetFeeds_probabilistic;
-    public PreparedStatement psGetFeedByUrl;
-    public PreparedStatement psGetFeedByID;
-    public PreparedStatement psGetEntryByRawId;
-    public PreparedStatement psChangeCheckApproach;
-    public CallableStatement pcAssignFeedConcept;
+    // public PreparedStatement psUpdateFeed_fixed_learned;
+    // public PreparedStatement psUpdateFeed_adaptive;
+    // public PreparedStatement psUpdateFeed_probabilistic;
+    // public PreparedStatement psUpdateFeedPostDistribution;
+    // public PreparedStatement psGetFeedPostDistribution;
+    // public PreparedStatement psGetFeeds;
+    // public PreparedStatement psGetFeeds_fixed_learned;
+    // public PreparedStatement psGetFeeds_adaptive;
+    // public PreparedStatement psGetFeeds_probabilistic;
+    // public PreparedStatement psGetFeedByUrl;
+    // public PreparedStatement psGetFeedByID;
+    // public PreparedStatement psGetEntryByRawId;
+    // public PreparedStatement psChangeCheckApproach;
 
     // TODO in entities domainID instead of conceptID (or no cascade or best new table that connects an entity with all
     // synonyms) because deleting a
@@ -194,7 +183,10 @@ public class DatabaseManager {
                     .getString("db.password"));
 
             psLastInsertID = connection.prepareStatement("SELECT LAST_INSERT_ID()");
-            psGetConcepts = connection.prepareStatement("SELECT * FROM `concepts`");
+            // only get the "master" concepts, not the synonyms -- Philipp, 2010-07-02
+            // psGetConcepts = connection.prepareStatement("SELECT * FROM `concepts`");
+            psGetConcepts = connection.prepareStatement("SELECT * FROM `concepts` WHERE id NOT IN (SELECT conceptID2 FROM concept_synonyms)");
+            psGetConceptSynonyms = connection.prepareStatement("SELECT * FROM `concepts`, `concept_synonyms` WHERE conceptID1 = ? AND conceptID2 = concepts.id");
 
             psConceptCheck = connection.prepareStatement("SELECT id FROM `concepts` WHERE name = ?");
             psConceptSynonymCheck = connection
@@ -296,57 +288,39 @@ public class DatabaseManager {
             psGetExtractionStatusDownloadedBytes = connection
                     .prepareStatement("SELECT downloadedBytes FROM extraction_status WHERE id = 1");
 
-            // // prepared statements for feeds
-            // psGetReachableFeeds =
-            // connection.prepareStatement("SELECT id, url FROM feeds WHERE unreachableCount < 3 ORDER BY extractions DESC");
-            // psGetInformationNeeds = connection
-            // .prepareStatement("SELECT information_needs.id, keywords, url AS feedURL FROM information_needs LEFT JOIN feeds ON feedID = feeds.id");
-            // psCountNews = connection.prepareStatement("SELECT COUNT(id) AS c FROM news WHERE title = ?");
-            // psGetNewsID = connection.prepareStatement("SELECT id FROM news WHERE title = ?");
-            // psInsertNews = connection
-            // .prepareStatement("INSERT INTO news SET title = ?, text = ?, link = ?, audioSource = ?, videoSource = ?, feedID = ?, publishedAt = ?");
-            // psInsertIn_News = connection.prepareStatement("INSERT INTO in_news SET inID = ?, newsID = ?");
-            // psUpdateUnreachable =
-            // connection.prepareStatement("UPDATE feeds SET unreachableCount = unreachableCount + 1 WHERE id = ?");
-            // psUpdateUnreachable0 = connection.prepareStatement("UPDATE feeds SET unreachableCount = 0 WHERE id = ?");
-            // psUpdateMedia = connection.prepareStatement("UPDATE feeds SET hasAudio = ?,hasVideo = ? WHERE id = ?");
-            // psUpdateFeed =
-            // connection.prepareStatement("UPDATE feeds SET extractions = extractions + 1 WHERE id = ?");
-
-            // prepared statements for Philipp's feeds
-            psAddFeedEntry = connection
-                    .prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?, tags = ?");
-            psAddFeed = connection
-                    .prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ?");
-            psUpdateFeed = connection
-                    .prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            psUpdateFeed_fixed_learned = connection
-                    .prepareStatement("UPDATE feeds_fixed_learned SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            psUpdateFeed_adaptive = connection
-                    .prepareStatement("UPDATE feeds_adaptive SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            psUpdateFeed_probabilistic = connection
-                    .prepareStatement("UPDATE feeds_probabilistic SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            psUpdateFeedPostDistribution = connection
-                    .prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
-            psGetFeedPostDistribution = connection
-                    .prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
-            psGetFeeds = connection
-                    .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds");
-            psGetFeeds_fixed_learned = connection
-                    .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_fixed_learned");
-            psGetFeeds_adaptive = connection
-                    .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_adaptive");
-            psGetFeeds_probabilistic = connection
-                    .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_probabilistic");
-            psGetFeedByUrl = connection
-                    .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
-            psGetFeedByID = connection
-                    .prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
-            psGetEntryByRawId = connection
-                    .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
-            psChangeCheckApproach = connection
-                    .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
-            pcAssignFeedConcept = connection.prepareCall("{CALL assign_feed_concept(?, ?)}");
+            // // // prepared statements for feeds
+            // psAddFeedEntry = connection
+            // .prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?, tags = ?");
+            // psAddFeed = connection
+            // .prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ?");
+            // psUpdateFeed = connection
+            // .prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+            // psUpdateFeed_fixed_learned = connection
+            // .prepareStatement("UPDATE feeds_fixed_learned SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+            // psUpdateFeed_adaptive = connection
+            // .prepareStatement("UPDATE feeds_adaptive SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+            // psUpdateFeed_probabilistic = connection
+            // .prepareStatement("UPDATE feeds_probabilistic SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+            // psUpdateFeedPostDistribution = connection
+            // .prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
+            // psGetFeedPostDistribution = connection
+            // .prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
+            // psGetFeeds = connection
+            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds");
+            // psGetFeeds_fixed_learned = connection
+            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_fixed_learned");
+            // psGetFeeds_adaptive = connection
+            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_adaptive");
+            // psGetFeeds_probabilistic = connection
+            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_probabilistic");
+            // psGetFeedByUrl = connection
+            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
+            // psGetFeedByID = connection
+            // .prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
+            // psGetEntryByRawId = connection
+            // .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
+            // psChangeCheckApproach = connection
+            // .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
 
         } catch (ClassNotFoundException e) {
             LOGGER.error(e.getMessage());
@@ -637,8 +611,11 @@ public class DatabaseManager {
         rs = runQuery(psGetConcepts);
         try {
             while (rs.next()) {
+                int id = rs.getInt("id");
                 String conceptName = rs.getString("name");
                 Concept concept = new Concept(conceptName);
+                concept.setID(id);
+                concept.setSynonyms(loadConceptSynonyms(concept));
                 concepts.add(concept);
             }
         } catch (SQLException e) {
@@ -646,6 +623,21 @@ public class DatabaseManager {
         }
 
         return concepts;
+    }
+    
+    private HashSet<String> loadConceptSynonyms(Concept concept) {
+        HashSet<String> result = new HashSet<String>();
+        try {
+            psGetConceptSynonyms.setInt(1, concept.getID());
+            ResultSet rs = runQuery(psGetConceptSynonyms);
+            while (rs.next()) {
+                String synonymName = rs.getString("name");
+                result.add(synonymName);
+            }
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+        }
+        return result;
     }
 
     /**
@@ -761,19 +753,12 @@ public class DatabaseManager {
             
             int conceptID = addConcept(concept);
             
-            //
-            // TODO added by Philipp, 2010-06-30
-            // this saves Synonyms as well; the problem is, that when loading the Concepts from the database, 
-            // the synonyms are treated as separate Concepts, so I commented this out. Need to talk to David how
-            // Synonyms should be treated -- 
-            // a) Treat each Synonym equally as separate Concept. 
-            // b) Have one "master" Concept, which can have multiple synonym Concepts.
-            //
-            /*HashSet<String> synonyms = concept.getSynonyms();
+            // save all concept's synonyms
+            HashSet<String> synonyms = concept.getSynonyms();
             for (String synonym : synonyms) {
                 int synonymID = addConcept(new Concept(synonym));
                 addConceptSynonym(conceptID, synonymID);
-            }*/
+            }
             
             for (Entity entity : concept.getEntities()) {
 
@@ -841,9 +826,10 @@ public class DatabaseManager {
                 connection.commit();
                 connection.setAutoCommit(true);
             }
-            long t2 = System.currentTimeMillis();
+            long ms = System.currentTimeMillis() - t1;
 
-            System.out.println(t2 - t1);
+            //System.out.println(t2 - t1);
+            LOGGER.debug("saved extractions in " + ms + " ms");
 
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -2477,6 +2463,28 @@ public class DatabaseManager {
      * @throws Exception the exception
      */
     public static void main(String[] args) throws Exception {
+
+        // DatabaseManager.getInstance().clearCompleteDatabase();
+        //        
+        // KnowledgeManager km = new KnowledgeManager();
+        // Concept c = new Concept("smartphone");
+        // c.addSynonym("cell phone");
+        // c.addSynonym("cellular phone");
+        // c.addSynonym("mobile phone");
+        // c.addSynonym("handphone");
+        // c.addEntity(new Entity("Apple iPhone"));
+        // km.addConcept(c);
+        //        
+        // c = new Concept("car");
+        // km.addConcept(c);
+        //        
+        // km.saveExtractions();
+        // DatabaseManager.getInstance().updateOntology(km);
+
+        // ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
+        // for (Concept concept : concepts) {
+        // System.out.println(concept);
+        // }
 
         // snippet testing //
 

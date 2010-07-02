@@ -18,6 +18,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
@@ -53,6 +54,9 @@ public class FeedDiscovery {
     
     /** wether to extract all feeds on a page, or just the first, "preferred" one */
     private boolean onlyPreferred = true;
+    
+    /** define which search engine to use, see {@link SourceRetrieverManager} for available constants */
+    private int searchEngine = SourceRetrieverManager.YAHOO_BOSS;
 
     private int maxThreads = MAX_NUMBER_OF_THREADS;
 
@@ -103,6 +107,7 @@ public class FeedDiscovery {
             setMaxThreads(config.getInt("maxDiscoveryThreads", MAX_NUMBER_OF_THREADS));
             setIgnores(config.getList("discoveryIgnoreList"));
             setOnlyPreferred(config.getBoolean("onlyPreferred", true));
+            setSearchEngine(config.getInt("searchEngine", SourceRetrieverManager.YAHOO_BOSS));
         } catch (ConfigurationException e) {
             LOGGER.error("error loading configuration " + e.getMessage());
         }
@@ -160,7 +165,7 @@ public class FeedDiscovery {
 
         // set the query source to the Bing search engine
         // sourceRetriever.setSource(SourceRetrieverManager.GOOGLE_BLOGS);
-        sourceRetriever.setSource(SourceRetrieverManager.YAHOO_BOSS);
+        sourceRetriever.setSource(getSearchEngine());
 
         // search for "Jim Carrey" in exact match mode (second parameter = true)
         ArrayList<String> resultURLs = sourceRetriever.getURLs(query, true);
@@ -290,14 +295,15 @@ public class FeedDiscovery {
         } else {
             LOGGER.trace("no feeds found");
         }
+        
+        if (feedNodes.size() > 1) {
+            multipleFeeds.increment();
+            LOGGER.trace("found multiple feeds");            
+        }
 
         if (resultNodes != null) {
-            int numFeeds = resultNodes.size();
+            
             feedSites.increment();
-            if (numFeeds > 1) {
-                multipleFeeds.increment();
-                LOGGER.trace("found multiple feeds");
-            }
             for (Node feedNode : resultNodes) {
 
                 String feedHref = feedNode.getAttributes().getNamedItem("href").getNodeValue();
@@ -318,25 +324,23 @@ public class FeedDiscovery {
                 String feedUrl = Crawler.makeFullURL(pageUrl, baseHref, feedHref);
 
                 // validate URL
-                // there are few URLs where validation does not work correctly,
-                // so we skip the validation for now, as the aggregator will encounter
-                // an error anyway when fed with an incorrect URL ...
-                // UrlValidator urlValidator = new UrlValidator(new String[]{"http","https"});
-                // boolean isValidUrl = urlValidator.isValid(feedHref);
+                UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https" , "file" });
+                boolean isValidUrl = urlValidator.isValid(feedUrl);
 
-                // if (feedHref != null && feedHref.length() > 0 && isValidUrl) {
-                // if (isValidUrl) {
-                LOGGER.debug("found feed: " + feedUrl);
-                if (isIgnored(feedUrl)) {
-                    LOGGER.info("ignoring " + feedUrl);
-                    ignoredFeeds.increment();
+                if (isValidUrl) {
+                    LOGGER.debug("found feed: " + feedUrl);
+                    if (isIgnored(feedUrl)) {
+                        LOGGER.info("ignoring " + feedUrl);
+                        ignoredFeeds.increment();
+                    } else {
+                        result.add(feedUrl);
+                    }
                 } else {
-                    result.add(feedUrl);
+                    LOGGER.info("invalid url " + feedUrl);
                 }
-                // }
             }
             // some statistical information
-            LOGGER.info(pageUrl + " has atom:" + atomNodes.size() + ", rss:" + rssNodes.size() + ", extracted:" + numFeeds);
+            LOGGER.info(pageUrl + " has atom:" + atomNodes.size() + ", rss:" + rssNodes.size() + ", extracted:" + result.size());
         } else {
             LOGGER.info(pageUrl + " has no feed");
         }
@@ -377,10 +381,6 @@ public class FeedDiscovery {
                         if (discoveredFeeds != null) {
                             feeds.addAll(discoveredFeeds);
                         }
-                        /*
-                         * } catch (Exception e) {
-                         * // logger.error("exception " + e.getMessage());
-                         */
                     } finally {
                         counter.decrement();
                     }
@@ -485,6 +485,15 @@ public class FeedDiscovery {
     public boolean isOnlyPreferred() {
         return onlyPreferred;
     }
+    
+    public void setSearchEngine(int searchEngine) {
+        LOGGER.info("using " + SourceRetrieverManager.getName(searchEngine));
+        this.searchEngine = searchEngine;
+    }
+    
+    public int getSearchEngine() {
+        return searchEngine;
+    }
 
     /**
      * Returns some statistics about the dicovery process.
@@ -554,6 +563,7 @@ public class FeedDiscovery {
         try {
             
             if (args.length < 1) {
+                // no options supplied, go to catch clause, print help.
                 throw new ParseException(null);
             }
 
@@ -602,12 +612,11 @@ public class FeedDiscovery {
             return;
 
         } catch (ParseException e) {
-            // do nothing here
+            // print usage help
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("FeedDiscovery [options]", options);
         }
 
-        // print usage help
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("FeedDiscovery [options]", options);
 
     }
 

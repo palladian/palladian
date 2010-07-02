@@ -49,7 +49,8 @@ public class HtmlHelper {
      * level elements, filter out comments, scripts and stylesheets, remove unnecessary white space and so on.
      * 
      * In contrast to {@link StringHelper#removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which just strips
-     * out all tags, this approach tries to keep some structure for displaying HTML content in text mode.
+     * out all tags, this approach tries to keep some structure for displaying HTML content in text mode in a readable
+     * form.
      * 
      * @param doc
      * @return
