@@ -6,8 +6,12 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
-import tud.iir.web.Crawler;
-
+/**
+ * Test a helper.
+ * 
+ * @author Philipp Katz
+ * 
+ */
 public class HelperTest {
 	
 //    // this functionality has been moved to the Crawler and can be removed in the future.

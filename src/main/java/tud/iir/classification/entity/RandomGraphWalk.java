@@ -97,7 +97,7 @@ public class RandomGraphWalk extends EntityAssessor {
         int vectorIndex = 0;
         for (Entity entity : entities) {
 
-            if ((vectorIndex % trainingSampleFrequency) < 1) {
+            if (vectorIndex % trainingSampleFrequency < 1) {
                 entity.setType(Extractable.TRAINING);
 
                 // System.out.println(entity.getTrust());
@@ -105,7 +105,7 @@ public class RandomGraphWalk extends EntityAssessor {
                 // positive entities
                 if (entity.getTrust() == 1) {
 
-                    if ((vectorIndex % seedSampleFrequency) >= 1) {
+                    if (vectorIndex % seedSampleFrequency >= 1) {
                         trainingEntities.put(vectorIndex, true);
                     } else {
                         v0.setEntry(vectorIndex, 1.0);
@@ -115,7 +115,7 @@ public class RandomGraphWalk extends EntityAssessor {
                     // negative entities
                 } else {
 
-                    if ((vectorIndex % seedSampleFrequency) >= 1) {
+                    if (vectorIndex % seedSampleFrequency >= 1) {
                         trainingEntities.put(vectorIndex, false);
                     } else {
                         v0.setEntry(vectorIndex, 0.0); // TODO ?
@@ -202,7 +202,7 @@ public class RandomGraphWalk extends EntityAssessor {
             }
         }
 
-        int numberOfExtractionTypes = extractionTypeMatrixMapping.size();
+        // int numberOfExtractionTypes = extractionTypeMatrixMapping.size();
 
         // initialize the matrix and vectors
         int n = matrixIndex;// entities.size() + numberOfSources + numberOfExtractionTypes;
@@ -242,8 +242,9 @@ public class RandomGraphWalk extends EntityAssessor {
                 // i = entityIndex, j = sourceIndex
                 Mxy.setEntry(matrixIndexEntity, matrixIndexSource, 1.0 / ((double) sources2.size() + (double) extractionTypes.size()));
 
-                if (!sourcesMapped.add(source.getID()))
+                if (!sourcesMapped.add(source.getID())) {
                     continue;
+                }
 
                 // source line
                 HashSet<Integer> extractionTypesForSource = idMap.get("extractionTypesForSource").get(source.getID() + concept.getName());
@@ -287,8 +288,9 @@ public class RandomGraphWalk extends EntityAssessor {
                 // i = entityIndex, j = extractionTypeIndex
                 Mxy.setEntry(matrixIndexEntity, matrixIndexExtractionType, 1.0 / ((double) sources2.size() + (double) extractionTypes.size()));
 
-                if (!extractionTypesMapped.add(extractionType))
+                if (!extractionTypesMapped.add(extractionType)) {
                     continue;
+                }
 
                 HashSet<Integer> sourcesForExtractionType = idMap.get("sourcesForExtractionType").get(extractionType + concept.getName());
                 if (sourcesForExtractionType == null) {
@@ -351,9 +353,10 @@ public class RandomGraphWalk extends EntityAssessor {
         // Mxy = (Array2DRowRealMatrix) Mxy.transpose();
 
         for (int i = 0; i < timeSteps; i++) {
-            vt = (ArrayRealVector) (v0.mapMultiply(m)).add((Mxy.operate(vt).mapMultiply(1 - m)));
-            if (i < 10)
+            vt = (ArrayRealVector) v0.mapMultiply(m).add(Mxy.operate(vt).mapMultiply(1 - m));
+            if (i < 10) {
                 System.out.println(i + ":" + vt.toString());
+            }
         }
 
         System.out.println("probability vector built completed\ndimension: " + vt.getDimension() + "," + vt.toString());
@@ -415,9 +418,9 @@ public class RandomGraphWalk extends EntityAssessor {
             HashMap<String, ArrayList<Double>> evaluationMetrics = new HashMap<String, ArrayList<Double>>();
 
             logger.info("use " + concepts.size() + " concepts for evaluation");
-            logger.info("training percentage: " + MathHelper.round(trainingPercentage, 2) + " (should be " + (400 * trainingPercentage) + ")");
-            logger.info("seed percentage: " + seedPercentage + " (should be " + (400 * trainingPercentage * seedPercentage) + ")");
-            logger.info("testing percentage: " + (1.0 - MathHelper.round(trainingPercentage, 2)) + " (" + (400 * (1.0 - trainingPercentage)) + ")\n");
+            logger.info("training percentage: " + MathHelper.round(trainingPercentage, 2) + " (should be " + 400 * trainingPercentage + ")");
+            logger.info("seed percentage: " + seedPercentage + " (should be " + 400 * trainingPercentage * seedPercentage + ")");
+            logger.info("testing percentage: " + (1.0 - MathHelper.round(trainingPercentage, 2)) + " (" + 400 * (1.0 - trainingPercentage) + ")\n");
             logger.info("trust threshold bias: " + trustThresholdBias + "\n");
 
             for (Concept concept : concepts) {

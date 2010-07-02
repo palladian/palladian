@@ -152,8 +152,7 @@ public class GradualEntityTrustVoting extends EntityTrustVoting implements Entit
         getv.runVoting();
         DateHelper.getRuntime(t1);
 
-        if (true)
-            return;
+        System.exit(0);
 
         for (int i = 1; i <= 18; i++) {
             int conceptID = i;

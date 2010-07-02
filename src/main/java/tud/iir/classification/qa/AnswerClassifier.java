@@ -12,6 +12,12 @@ import tud.iir.extraction.qa.QAExtractor;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 
+/**
+ * Classify an answer for a question.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class AnswerClassifier extends Classifier {
 
     private String[] featureNames;
@@ -42,7 +48,7 @@ public class AnswerClassifier extends Classifier {
         weka.classifiers.Classifier trainedAnswerClassifier;
         try {
             trainedAnswerClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper.read("data/learnedClassifiers/"
-                    + this.getChosenClassifierName() + ".model");
+                    + getChosenClassifierName() + ".model");
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedAnswerClassifier);
         } catch (Exception e) {
@@ -60,8 +66,9 @@ public class AnswerClassifier extends Classifier {
         PageAnalyzer pa = new PageAnalyzer();
 
         // load the questions to the web pages in an array
-        if (dirPath.endsWith("/"))
+        if (dirPath.endsWith("/")) {
             dirPath = dirPath.substring(0, dirPath.length() - 1);
+        }
         ArrayList<String> questions = FileHelper.readFileToArray(dirPath + "/questions.txt");
         ArrayList<String> answers = FileHelper.readFileToArray(dirPath + "/answers.txt");
 
@@ -149,7 +156,7 @@ public class AnswerClassifier extends Classifier {
 
         // serialize model
         try {
-            weka.core.SerializationHelper.write("data/learnedClassifiers/" + this.getChosenClassifierName() + ".model", getClassifier());
+            weka.core.SerializationHelper.write("data/learnedClassifiers/" + getChosenClassifierName() + ".model", getClassifier());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -159,12 +166,13 @@ public class AnswerClassifier extends Classifier {
 
         // ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
         QAExtractor qae = QAExtractor.getInstance();
-        qae.setAnswerClassifier(this.getChosenClassifier());
+        qae.setAnswerClassifier(getChosenClassifier());
         PageAnalyzer pa = new PageAnalyzer();
 
         // load the questions to the web pages in an array
-        if (dirPath.endsWith("/"))
+        if (dirPath.endsWith("/")) {
             dirPath = dirPath.substring(0, dirPath.length() - 1);
+        }
         ArrayList<String> questions = FileHelper.readFileToArray(dirPath + "/questions.txt");
 
         // iterate through all web pages of the qa test set
@@ -184,7 +192,7 @@ public class AnswerClassifier extends Classifier {
             pa.setDocument(listOfFiles[i].getAbsolutePath());
             qae.setPa(pa);
 
-            FeatureObject fo = null;
+            // FeatureObject fo = null;
 
             // get the question that appears on the page
             String question = questions.get(index);
