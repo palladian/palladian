@@ -10,7 +10,7 @@ public class FeedAggregatorTest {
 
     @BeforeClass
     public static void before() {
-        aggregator = new FeedAggregator();
+        aggregator = new FeedAggregator(new FeedStoreDummy());
     }
 
     @Test
