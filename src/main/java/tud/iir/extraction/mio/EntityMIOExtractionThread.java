@@ -68,12 +68,10 @@ public class EntityMIOExtractionThread extends Thread {
         MIOComparator mioComp = new MIOComparator();
         Map<String, MIO> mios = mioPAnalyzer.extractMIOs(MIOPages, entity);
 
-        Set<MIO> mioResults = new TreeSet<MIO>(mioComp);
-        // for (String mioURL : mios.keySet()) {
-        // mioResults.add(mios.get((mioURL)));
-        //
-        // }
+        //print the MIOFeatures out
+        printMIOFeaturesToFile(mios);
 
+        Set<MIO> mioResults = new TreeSet<MIO>(mioComp);
         for (Entry<String, MIO> mio : mios.entrySet()) {
             mioResults.add(mio.getValue());
         }
@@ -125,28 +123,27 @@ public class EntityMIOExtractionThread extends Thread {
     /**
      * Prints the map to file.
      * 
-     * @param cleanedMIOs the cleaned mi os
+     * @param cleanedMIOs the cleaned mios
      */
-    // private void printMapToFile(Map<String, MIO> cleanedMIOs) {
-    // FileHelper filehelper = new FileHelper();
-    //
-    // for (String mioURL : cleanedMIOs.keySet()) {
-    // MIO mio = cleanedMIOs.get(mioURL);
-    // StringBuffer sBuffer = new StringBuffer();
-    // for (String info : mio.getInfos().keySet()) {
-    // sBuffer.append(info);
-    // sBuffer.append(" ---- ");
-    // sBuffer.append(mio.getInfos().get(info).toString());
-    //
-    // }
-    // String output = " TRUST: " + mio.getTrust() + " " + mio.getDirectURL() + " founded on "
-    // + mio.getFindPageURL() + " for Entity: " + mio.getEntity().getName() + " Infos: "
-    // + sBuffer.toString();
-    // // System.out.println(output);
-    // filehelper.appendToFile("f:/test.txt", output + "\r\n", false);
-    //
-    // }
-    //
-    // }
+    private void printMIOFeaturesToFile(Map<String, MIO> cleanedMIOs) {
+
+        for (String mioURL : cleanedMIOs.keySet()) {
+            MIO mio = cleanedMIOs.get(mioURL);
+            StringBuffer sBuffer = new StringBuffer();
+            Map<String, Double> mioFeatures = cleanedMIOs.get(mioURL).getFeatures();
+            sBuffer.append("# " + mio.getEntity().getName()+" Trust: " + mio.getTrust() + " " + mio.getDirectURL() + "\r\n");
+            sBuffer.append("# " + mio.getFindPageURL() + "\r\n");
+            for (Entry<String, Double> feature : mioFeatures.entrySet()) {
+                sBuffer.append(feature.getValue());
+                sBuffer.append(";");
+
+            }
+            String output = sBuffer.toString();
+            // System.out.println(output);
+            FileHelper.appendToFile("f:/features.txt", output + "\r\n", false);
+
+        }
+
+    }
 
 }

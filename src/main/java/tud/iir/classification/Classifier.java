@@ -108,7 +108,8 @@ public class Classifier {
     }
 
     /**
-     * Train a classifier with data from a file. The file must be structured as follows: Each line is one object in an n-dimensional vector space. All features
+     * Train a classifier with data from a file. The file must be structured as follows: Each line is one object in an
+     * n-dimensional vector space. All features
      * and the class must be numeric. f1;f2;...;fn;class
      * 
      * @param filePath The path that points to the training file.
@@ -150,6 +151,7 @@ public class Classifier {
 
         try {
             classifier.buildClassifier(trainingSet);
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -211,6 +213,7 @@ public class Classifier {
     }
 
     protected Double[] discretize(Double[] features) {
+
         for (int i = 0; i < features.length; i++) {
             features[i] = Math.floor(features[i]);
         }
@@ -502,7 +505,8 @@ public class Classifier {
     }
 
     /**
-     * Classify an object soft, return distribution. Index 0 is the probability that it is positive, index 1 that it is negative.
+     * Classify an object soft, return distribution. Index 0 is the probability that it is positive, index 1 that it is
+     * negative.
      * 
      * @param fo
      * @return
@@ -526,8 +530,10 @@ public class Classifier {
         // bc.trainClassifier(1);
 
         // classify an object
-        Double[] features = { 14.0, 2.0, 0.0, 0.0, 1.0, 1.0, 4645.0, 1.0 }; // movie (1) "newspaper wars" should be correct
-        // Double[] features = {29.0,2.0,0.0,0.0,1.0,1.0,0.0,0.0}; // movie (1) "Singles/d/desperate hours.htm" should be incorrect
+        Double[] features = { 14.0, 2.0, 0.0, 0.0, 1.0, 1.0, 4645.0, 1.0 }; // movie (1) "newspaper wars" should be
+                                                                            // correct
+        // Double[] features = {29.0,2.0,0.0,0.0,1.0,1.0,0.0,0.0}; // movie (1) "Singles/d/desperate hours.htm" should
+        // be incorrect
         // Double[] features = {16.0,2.0,0.0,0.0,1.0,1.0,30.0,0.0};
         String[] featureNames = { "a", "b", "c" };
 
