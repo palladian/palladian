@@ -17,10 +17,10 @@ public class ClassificationDocuments extends ArrayList<ClassificationDocument> {
     private static final long serialVersionUID = 1L;
 
     /**
-     * get the number of documents that have been assigned to given category
+     * Get the number of documents that have been assigned to given category.
      * 
-     * @param categoryName
-     * @return number
+     * @param categoryName The name of the category.
+     * @return number The number of documents classified in the given category.
      */
     public int getClassifiedNumberOfCategory(String categoryName) {
         return getClassifiedNumberOfCategory(new Category(categoryName));
@@ -29,8 +29,8 @@ public class ClassificationDocuments extends ArrayList<ClassificationDocument> {
     /**
      * Get the number of documents that have been assigned to given category.
      * 
-     * @param category
-     * @return number
+     * @param categoryName The category.
+     * @return number The number of documents classified in the given category.
      */
     public int getClassifiedNumberOfCategory(Category category) {
         int number = 0;

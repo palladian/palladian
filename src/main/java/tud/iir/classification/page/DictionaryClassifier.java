@@ -25,10 +25,10 @@ import tud.iir.helper.TreeNode;
  */
 public class DictionaryClassifier extends TextClassifier {
 
-    /** the context map: matrix of terms x categories with weights in cells */
+    /** The context map: matrix of terms x categories with weights in cells. */
     protected Dictionary dictionary = null;
 
-    /** hold all possible dictionaries in a map */
+    /** Hold all possible dictionaries in a map. */
     protected Map<Integer, Dictionary> dictionaries = new HashMap<Integer, Dictionary>();
 
     public DictionaryClassifier() {
@@ -65,7 +65,7 @@ public class DictionaryClassifier extends TextClassifier {
 
         // dictionary.setCategories(categories);
 
-        System.out.println("dictionary built");
+        ClassifierManager.log("dictionary built");
     }
 
     protected void addToDictionary(ClassificationDocument trainingDocument, int classType) {

@@ -294,6 +294,15 @@ public abstract class TextClassifier {
         return performance;
     }
 
+    /**
+     * Get a copy of the classifier performance.
+     * 
+     * @return A new instance of classifier performance.
+     */
+    public ClassifierPerformance getPerformanceCopy() {
+        return new ClassifierPerformance(this);
+    }
+
     // //////////////////////////////////////// only DEBUG purposes /////////////////////////////////
     public String showTrainingDocuments() {
         StringBuilder show = new StringBuilder();
