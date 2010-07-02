@@ -43,6 +43,7 @@ import com.sun.syndication.io.SyndFeedInput;
  * 
  * TODO add a "lastSuccessfullAggregation" attribute to feed, so we can filter out obsolute feeds. 
  * TODO we should check if an entry was modified and update.
+ * TODO determine feed format for statistics? --> https://rome.dev.java.net/apidocs/1_0/com/sun/syndication/feed/WireFeed.html#getFeedType()
  * 
  * https://rome.dev.java.net/ *
  * 
@@ -386,6 +387,9 @@ public class FeedAggregator {
             for (SyndContent content : contents) {
                 if (content.getValue() != null && content.getValue().length() != 0) {
                     entryText = content.getValue();
+                    
+                    // TODO treat content by type!
+                    
                 }
             }
         }
@@ -746,7 +750,7 @@ public class FeedAggregator {
             CommandLine cmd = parser.parse(options, args);
             
             if (args.length < 1) {
-                // no arguments given
+                // no arguments given, print usage help in catch clause.
                 throw new ParseException(null);
             }
             
@@ -778,12 +782,11 @@ public class FeedAggregator {
             
             
         } catch (ParseException e) {
-            
+            // print usage help
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("FeedAggregator [options]", options);            
         }
         
-        // print usage help
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("FeedAggregator [options]", options);
 
     }
 

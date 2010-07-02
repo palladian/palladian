@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
  * 
  * @author David Urbansky
  * @author Christopher Friedrich
+ * @author Philipp Katz
  */
 public class SourceRetrieverManager {
 
@@ -185,6 +186,39 @@ public class SourceRetrieverManager {
         logs.append("Number of TextRunner requests: ").append(numberOfTextRunnerRequests).append("\n");
 
         return logs.toString();
+    }
+    
+    /**
+     * Get a human readable string for search engine constant.
+     * 
+     * @param source
+     * @return name of the corresponding search engine.
+     */
+    public static String getName(int source) {
+        switch (source) {
+            case YAHOO:
+                return "Yahoo!";
+            case GOOGLE:
+                return "Google";
+            case MICROSOFT:
+                return "Microsoft";
+            case HAKIA:
+                return "Hakia";
+            case YAHOO_BOSS:
+                return "Yahoo! Boss";
+            case BING:
+                return "Bing";
+            case TWITTER:
+                return "Twitter";
+            case GOOGLE_BLOGS:
+                return "Google Blogs";
+            case TEXTRUNNER:
+                return "TextRunner";
+            case YAHOO_BOSS_NEWS:
+                return "Yahoo! Boss News";
+            default:
+                return "<unknown>";
+        }
     }
 
     public static void main(String[] args) {

@@ -15,7 +15,7 @@ public class FeedDatabaseTest {
     @BeforeClass
     public static void beforeClass() {
         // clean database before we begin
-        db.cleanTables();
+        db.clearFeedTables();
     }
 
     @Test

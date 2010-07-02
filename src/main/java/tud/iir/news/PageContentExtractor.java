@@ -1103,6 +1103,7 @@ public class PageContentExtractor {
         try {
             
             if (args.length < 1) {
+                // no arguments given, print usage help in catch clause.
                 throw new ParseException(null);
             }
 
@@ -1133,12 +1134,10 @@ public class PageContentExtractor {
             }
 
         } catch (ParseException e) {
-            // do nothing here
+            // print usage help
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
         }
-
-        // print usage help
-        HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
 
     }
 

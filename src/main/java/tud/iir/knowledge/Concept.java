@@ -150,8 +150,9 @@ public class Concept implements Serializable {
     }
 
     public void addSynonym(String synonym) {
-        if (!synonym.equalsIgnoreCase(getName()))
+        if (!synonym.equalsIgnoreCase(getName())) {
             this.synonyms.add(synonym);
+        }
     }
 
     public KnowledgeManager getKnowledgeManager() {
@@ -223,11 +224,11 @@ public class Concept implements Serializable {
 
     public boolean addAttribute(Attribute attribute) {
         // check whether attribute has been entered already
-        if (!hasAttribute(attribute.getName())) {
+        if (hasAttribute(attribute.getName())) {
+            return false;
+        } else {
             this.attributes.add(attribute);
             return true;
-        } else {
-            return false;
         }
     }
 
@@ -239,8 +240,9 @@ public class Concept implements Serializable {
         Iterator<Attribute> aIt = getAttributes(onlyManuallyAdded).iterator();
         while (aIt.hasNext()) {
             Attribute a = aIt.next();
-            if (a.getName().equalsIgnoreCase(attributeName))
+            if (a.getName().equalsIgnoreCase(attributeName)) {
                 return true;
+            }
         }
         return false;
     }
@@ -253,8 +255,9 @@ public class Concept implements Serializable {
         Iterator<Attribute> aIt = this.attributes.iterator();
         while (aIt.hasNext()) {
             Attribute a = aIt.next();
-            if (a.getName().equalsIgnoreCase(attributeName))
+            if (a.getName().equalsIgnoreCase(attributeName)) {
                 return a;
+            }
             if (useSynonyms && a.hasSynonym(attributeName)) {
                 return a;
             }
@@ -266,8 +269,9 @@ public class Concept implements Serializable {
         Iterator<Attribute> aIt = this.attributes.iterator();
         while (aIt.hasNext()) {
             Attribute a = aIt.next();
-            if (a.getID() == attributeId)
+            if (a.getID() == attributeId) {
                 return a;
+            }
         }
         return null;
     }
@@ -323,8 +327,9 @@ public class Concept implements Serializable {
     public boolean hasEntity(String entityName) {
         synchronized (entities) {
             for (Entity e : entities) {
-                if (e.getName().equalsIgnoreCase(entityName))
+                if (e.getName().equalsIgnoreCase(entityName)) {
                     return true;
+                }
             }
         }
         return false;
@@ -333,8 +338,9 @@ public class Concept implements Serializable {
     public Entity getEntity(String entityName) {
         synchronized (entities) {
             for (Entity e : entities) {
-                if (e.getName().equalsIgnoreCase(entityName))
+                if (e.getName().equalsIgnoreCase(entityName)) {
                     return e;
+                }
             }
         }
         return null;
@@ -352,7 +358,13 @@ public class Concept implements Serializable {
 
     @Override
     public final String toString() {
-        return this.getName() + "(" + this.getID() + ")";
+        StringBuilder builder = new StringBuilder();
+        builder.append(getName());
+        builder.append(" (id: ").append(getID()).append(")");
+        if (!getSynonyms().isEmpty()) {
+            builder.append(" [synonyms: ").append(getSynonymsToString()).append("]");
+        }
+        return builder.toString();
     }
 
 }
