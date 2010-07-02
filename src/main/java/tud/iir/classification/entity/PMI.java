@@ -8,15 +8,12 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import tud.iir.extraction.entity.EntityExtractor;
-import tud.iir.extraction.entity.PhraseExtractor;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
-import tud.iir.knowledge.KnowledgeManager;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
 
@@ -72,29 +69,32 @@ public class PMI extends EntityAssessor {
         extractions.put(c, new HashSet<Entity>());
     }
 
-    private void extract() {
-
-        /*
-         * SourceRetriever sr = new SourceRetriever(); // find instances for each concept for (Map.Entry<Concept, HashSet<Entity>> entry :
-         * extractions.entrySet()) { Concept concept = entry.getKey(); String conceptNameSingular = concept.getName(); String conceptNamePlural =
-         * StringHelper.wordToPlural(conceptNameSingular); // query search engine with each discriminator for (String discriminator : discriminators) { } }
-         */
-
-        KnowledgeManager km = new KnowledgeManager();
-        km.addConcepts(extractions.keySet());
-
-        EntityExtractor ee = EntityExtractor.getInstance();
-        ee.setAutoSave(false);
-        ee.setKnowledgeManager(km);
-
-        SourceRetrieverManager.getInstance().setResultCount(10);
-        SourceRetrieverManager.getInstance().setSource(SourceRetrieverManager.GOOGLE);
-
-        PhraseExtractor pe = new PhraseExtractor();
-        ee.extract(pe);
-
-        ee.printExtractions();
-    }
+    // private void extract() {
+    //
+    // /*
+    // * SourceRetriever sr = new SourceRetriever(); // find instances for each concept for (Map.Entry<Concept,
+    // HashSet<Entity>> entry :
+    // * extractions.entrySet()) { Concept concept = entry.getKey(); String conceptNameSingular = concept.getName();
+    // String conceptNamePlural =
+    // * StringHelper.wordToPlural(conceptNameSingular); // query search engine with each discriminator for (String
+    // discriminator : discriminators) { } }
+    // */
+    //
+    // KnowledgeManager km = new KnowledgeManager();
+    // km.addConcepts(extractions.keySet());
+    //
+    // EntityExtractor ee = EntityExtractor.getInstance();
+    // ee.setAutoSave(false);
+    // ee.setKnowledgeManager(km);
+    //
+    // SourceRetrieverManager.getInstance().setResultCount(10);
+    // SourceRetrieverManager.getInstance().setSource(SourceRetrieverManager.GOOGLE);
+    //
+    // PhraseExtractor pe = new PhraseExtractor();
+    // ee.extract(pe);
+    //
+    // ee.printExtractions();
+    // }
 
     /**
      * Train one classifier for each concept. Use manually labeled examples, calculate PMIs, find threshold, use tuning set to learn conditional probabilities
@@ -188,8 +188,9 @@ public class PMI extends EntityAssessor {
 
     public boolean classify(Entity entity) {
         Double[] probabilities = classifySoft(entity);
-        if (probabilities[0] > probabilities[1])
+        if (probabilities[0] > probabilities[1]) {
             return true;
+        }
         return false;
     }
 
@@ -225,7 +226,7 @@ public class PMI extends EntityAssessor {
             }
         }
 
-        averagePMIPositive /= (double) counter;
+        averagePMIPositive /= counter;
 
         // get average PMI of all negative extractions
         counter = 0;
@@ -245,7 +246,7 @@ public class PMI extends EntityAssessor {
             }
         }
 
-        averagePMINegative /= (double) counter;
+        averagePMINegative /= counter;
 
         double threshold = (averagePMIPositive + averagePMINegative) / 2.0;
 
@@ -256,14 +257,14 @@ public class PMI extends EntityAssessor {
         return threshold;
     }
 
-    private double calculatePMIForAllDiscriminators(Entity entity) {
-        double pmi = 0.0;
-        for (String discriminator : discriminators) {
-            pmi += calculatePMI(entity, discriminator);
-        }
-
-        return pmi / (double) discriminators.length;
-    }
+    // private double calculatePMIForAllDiscriminators(Entity entity) {
+    // double pmi = 0.0;
+    // for (String discriminator : discriminators) {
+    // pmi += calculatePMI(entity, discriminator);
+    // }
+    //
+    // return pmi / (double) discriminators.length;
+    // }
 
     /**
      * Calculate the PMI: Hits(E+D)/Hits(E)
@@ -461,7 +462,7 @@ public class PMI extends EntityAssessor {
                 int count = 0;
                 for (Entity entity : entities) {
 
-                    if ((count % trainingSampleFrequency) < 1) {
+                    if (count % trainingSampleFrequency < 1) {
                         entity.setType(Entity.TRAINING);
 
                         // System.out.println(entity.getTrust());
@@ -469,7 +470,7 @@ public class PMI extends EntityAssessor {
                         // positive entities
                         if (entity.getTrust() == 1) {
 
-                            if ((count % tuningSampleFrequency) >= 1) {
+                            if (count % tuningSampleFrequency >= 1) {
                                 positiveEntities.add(entity);
                             } else {
                                 positiveEntitiesTuning.add(entity);
@@ -478,7 +479,7 @@ public class PMI extends EntityAssessor {
                             // negative entities
                         } else {
 
-                            if ((count % tuningSampleFrequency) >= 1) {
+                            if (count % tuningSampleFrequency >= 1) {
                                 negativeEntities.add(entity);
                             } else {
                                 negativeEntitiesTuning.add(entity);
@@ -515,7 +516,7 @@ public class PMI extends EntityAssessor {
                 for (Entity testEntity : testingEntities) {
                     // logger.log("test entity: \""+testEntity.getName()+"\"");
 
-                    Double[] p = classifySoft(testEntity);
+                    // Double[] p = classifySoft(testEntity);
                     // logger.log("p+: " + p[0]);
                     // logger.log("p-: " + p[1]);
 
@@ -688,11 +689,11 @@ class Feature {
     private double nn = 0.0;
 
     public Feature(double discriminatorNumber, double pp, double pn, double np, double nn) {
-        this.setDiscriminatorNumber(discriminatorNumber);
-        this.setPP(pp);
-        this.setPN(pn);
-        this.setNP(np);
-        this.setNN(nn);
+        setDiscriminatorNumber(discriminatorNumber);
+        setPP(pp);
+        setPN(pn);
+        setNP(np);
+        setNN(nn);
     }
 
     public Double[] getProbablities() {
@@ -783,7 +784,7 @@ class NBC implements Serializable {
                     + CollectionHelper.getPrint(feature.getProbablities()));
         }
 
-        this.setThreshold(threshold);
+        setThreshold(threshold);
     }
 
     public double getThreshold() {
@@ -812,12 +813,11 @@ class NBC implements Serializable {
             Double[] discriminatorProbabilities = probabilities.get(entry.getKey());
 
             // if PMI > thresh for the given discriminator, multiply with p(PMI > thresh | +)
-            if (entry.getValue())
+            if (entry.getValue()) {
                 pp *= discriminatorProbabilities[0];
-
-            // otherwise if PMI < thresh for the given discriminator, multiply with p(PMI < thresh | +)
-            else
+            } else {
                 pp *= discriminatorProbabilities[2];
+            }
         }
         pp *= positivePrior;
 
@@ -827,12 +827,11 @@ class NBC implements Serializable {
             Double[] discriminatorProbabilities = probabilities.get(entry.getKey());
 
             // if PMI > thresh for the given discriminator, multiply with p(PMI > thresh | -)
-            if (entry.getValue())
+            if (entry.getValue()) {
                 pn *= discriminatorProbabilities[1];
-
-            // otherwise if PMI < thresh for the given discriminator, multiply with p(PMI < thresh | -)
-            else
+            } else {
                 pn *= discriminatorProbabilities[3];
+            }
         }
         pn *= negativePrior;
 
@@ -851,8 +850,9 @@ class NBC implements Serializable {
 
     public boolean classify(Map<Integer, Boolean> discriminatorPMIOutcomes) {
         Double[] probabilities = classifySoft(discriminatorPMIOutcomes);
-        if (probabilities[0] > probabilities[1])
+        if (probabilities[0] > probabilities[1]) {
             return true;
+        }
         return false;
     }
 }

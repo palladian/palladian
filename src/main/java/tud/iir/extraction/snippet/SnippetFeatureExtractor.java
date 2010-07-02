@@ -336,6 +336,7 @@ public class SnippetFeatureExtractor {
      * @param sentence - The sentence
      * @return The part of speach tags.
      */
+    @SuppressWarnings("deprecation")
     public static List<String> extractPOSFromSentence(String sentence) {
 
         List<String> tags = null;

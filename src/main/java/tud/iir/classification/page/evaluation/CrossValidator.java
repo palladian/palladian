@@ -155,23 +155,25 @@ public class CrossValidator {
                 }
 
                 // add the performances to the evaluation maps
-                Set<ClassifierPerformance> cfp = performancesTrainingFolds.get(dataset.getPath() + "_"
+                HashSet<ClassifierPerformance> cfp = performancesTrainingFolds.get(dataset.getPath() + "_"
                         + trainingPercentage);
                 if (cfp == null) {
                     cfp = new HashSet<ClassifierPerformance>();
                 }
                 cfp.addAll(performancesDatasetTrainingFoldsTemp1);
+                performancesTrainingFolds.put(dataset.getPath() + "_" + trainingPercentage, cfp);
 
                 performancesDatasetTrainingFoldsTemp0.addAll(performancesDatasetTrainingFoldsTemp1);
 
                 trainingPercentageLoop++;
             }
 
-            Set<ClassifierPerformance> cfp = performancesTrainingFolds.get(dataset.getPath());
+            HashSet<ClassifierPerformance> cfp = performancesFolds.get(dataset.getPath());
             if (cfp == null) {
                 cfp = new HashSet<ClassifierPerformance>();
             }
             cfp.addAll(performancesDatasetTrainingFoldsTemp0);
+            performancesFolds.put(dataset.getPath(), cfp);
         }
 
         cvResult.setPerformancesDatasetTrainingFolds(performancesDatasetTrainingFolds);
