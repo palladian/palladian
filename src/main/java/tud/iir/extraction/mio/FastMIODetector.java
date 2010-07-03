@@ -6,6 +6,7 @@ package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * The FastMIODetector simply analyze a MIOPageCandidate for pure MIO-Existence by some indicators.
@@ -21,19 +22,14 @@ public class FastMIODetector {
      */
     public FastMIODetector() {
         mioIndicator.add(".swf");
-        mioIndicator.add(".SWF");
         mioIndicator.add(".mov");
-        mioIndicator.add(".MOV");
         mioIndicator.add(".xap");
-        mioIndicator.add(".XAP");
         mioIndicator.add(".jar");
-        mioIndicator.add(".JAR");
         mioIndicator.add(".class");
         mioIndicator.add("<canvas>");
         mioIndicator.add("application/x-shockwave-flash");
         mioIndicator.add("flashvars");
         mioIndicator.add("swfobject");
-        mioIndicator.add("SWFObject");
         mioIndicator.add("getflash");
 
     }
@@ -65,7 +61,7 @@ public class FastMIODetector {
     public boolean containsMIO(String mioPageContent) {
 
         for (String mioInd : mioIndicator) {
-            if (mioPageContent.contains(mioInd)) {
+            if (mioPageContent.toLowerCase(Locale.ENGLISH).contains(mioInd)) {
                 // break after a first indicator was detected
                 return true;
 
