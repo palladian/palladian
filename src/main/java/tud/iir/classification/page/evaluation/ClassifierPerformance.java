@@ -2,9 +2,11 @@ package tud.iir.classification.page.evaluation;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.classification.Categories;
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.page.ClassificationDocument;
+import tud.iir.classification.page.ClassificationDocuments;
 import tud.iir.classification.page.TestDocument;
 import tud.iir.classification.page.TextClassifier;
 
@@ -16,7 +18,14 @@ import tud.iir.classification.page.TextClassifier;
  */
 public class ClassifierPerformance {
 
-    private TextClassifier classifier = null;
+    /** The classifier's categories. */
+    public Categories categories = null;
+
+    /** The training documents. */
+    private ClassificationDocuments trainingDocuments = null;
+
+    /** The test documents that can be used to calculate recall, precision, and F-score. */
+    private ClassificationDocuments testDocuments = null;
 
     /**
      * Create a new ClassifierPerformance for a given classifier.
@@ -24,7 +33,33 @@ public class ClassifierPerformance {
      * @param classifier The classifier.
      */
     public ClassifierPerformance(TextClassifier classifier) {
-        this.classifier = classifier;
+        categories = classifier.getCategories();
+        trainingDocuments = classifier.getTrainingDocuments();
+        testDocuments = classifier.getTestDocuments();
+    }
+
+    public Categories getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Categories categories) {
+        this.categories = categories;
+    }
+
+    public void setTrainingDocuments(ClassificationDocuments trainingDocuments) {
+        this.trainingDocuments = trainingDocuments;
+    }
+
+    public ClassificationDocuments getTrainingDocuments() {
+        return trainingDocuments;
+    }
+
+    public void setTestDocuments(ClassificationDocuments testDocuments) {
+        this.testDocuments = testDocuments;
+    }
+
+    public ClassificationDocuments getTestDocuments() {
+        return testDocuments;
     }
 
     /**
@@ -36,17 +71,17 @@ public class ClassifierPerformance {
     public int getNumberOfCorrectClassifiedDocumentsInCategory(Category category) {
         int number = 0;
 
-        for (ClassificationDocument document : classifier.getTestDocuments()) {
-            TestDocument d = (TestDocument) document;
+        for (ClassificationDocument document : getTestDocuments()) {
+            TestDocument testDocument = (TestDocument) document;
 
             if (category.getClassType() == ClassificationTypeSetting.SINGLE) {
                 if (document.getMainCategoryEntry().getCategory().getName().equals(category.getName())
-                        && d.isCorrectClassified()) {
+                        && testDocument.isCorrectClassified()) {
                     ++number;
                 }
             } else {
-                for (CategoryEntry c : d.getAssignedCategoryEntries()) {
-                    if (c.getCategory().getName().equals(category.getName()) && d.isCorrectClassified()) {
+                for (CategoryEntry c : testDocument.getAssignedCategoryEntries()) {
+                    if (c.getCategory().getName().equals(category.getName()) && testDocument.isCorrectClassified()) {
                         ++number;
                         break;
                     }
@@ -67,7 +102,7 @@ public class ClassifierPerformance {
     public double getPrecisionForCategory(Category category) {
         try {
             double correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double classified = classifier.getTestDocuments().getClassifiedNumberOfCategory(category);
+            double classified = getTestDocuments().getClassifiedNumberOfCategory(category);
 
             if (classified < 1.0) {
                 return -1.0;
@@ -89,7 +124,7 @@ public class ClassifierPerformance {
     public double getRecallForCategory(Category category) {
         try {
             double correct = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double real = classifier.getTestDocuments().getRealNumberOfCategory(category);
+            double real = getTestDocuments().getRealNumberOfCategory(category);
             if (real < 1.0) {
                 return -1.0;
             }
@@ -138,7 +173,7 @@ public class ClassifierPerformance {
         double sensitivity = 0.0;
         try {
             double truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double realPositives = classifier.getTestDocuments().getRealNumberOfCategory(category);
+            double realPositives = getTestDocuments().getRealNumberOfCategory(category);
 
             double falseNegatives = realPositives - truePositives;
 
@@ -169,12 +204,12 @@ public class ClassifierPerformance {
         double specificity = 0.0;
         try {
             double truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double realPositives = classifier.getTestDocuments().getRealNumberOfCategory(category);
-            double classifiedPositives = classifier.getTestDocuments().getClassifiedNumberOfCategory(category);
+            double realPositives = getTestDocuments().getRealNumberOfCategory(category);
+            double classifiedPositives = getTestDocuments().getClassifiedNumberOfCategory(category);
 
             double falsePositives = classifiedPositives - truePositives;
             double falseNegatives = realPositives - truePositives;
-            double trueNegatives = classifier.getTestDocuments().size() - classifiedPositives - falseNegatives;
+            double trueNegatives = getTestDocuments().size() - classifiedPositives - falseNegatives;
 
             if (trueNegatives + falsePositives == 0) {
                 return -1.0;
@@ -200,12 +235,12 @@ public class ClassifierPerformance {
         double accuracy = 0.0;
         try {
             double truePositives = getNumberOfCorrectClassifiedDocumentsInCategory(category);
-            double realPositives = classifier.getTestDocuments().getRealNumberOfCategory(category);
-            double classifiedPositives = classifier.getTestDocuments().getClassifiedNumberOfCategory(category);
+            double realPositives = getTestDocuments().getRealNumberOfCategory(category);
+            double classifiedPositives = getTestDocuments().getClassifiedNumberOfCategory(category);
 
             double falsePositives = classifiedPositives - truePositives;
             double falseNegatives = realPositives - truePositives;
-            double trueNegatives = classifier.getTestDocuments().size() - classifiedPositives - falseNegatives;
+            double trueNegatives = getTestDocuments().size() - classifiedPositives - falseNegatives;
 
             if (truePositives + trueNegatives + falsePositives + falseNegatives == 0) {
                 return -1.0;
@@ -237,13 +272,13 @@ public class ClassifierPerformance {
 
         try {
             // the number of documents that belong to the given category
-            int documentCount = classifier.getTestDocuments().getRealNumberOfCategory(category)
-                    + classifier.getTrainingDocuments().getRealNumberOfCategory(category);
+            int documentCount = getTestDocuments().getRealNumberOfCategory(category)
+                    + getTrainingDocuments().getRealNumberOfCategory(category);
 
             // the total number of documents assigned to categories, one document can be assigned to multiple
             // categories!
             int totalAssigned = 0;
-            for (Category c : classifier.categories) {
+            for (Category c : getCategories()) {
 
                 // skip categories that are not main categories because they are classified according to the main
                 // category
@@ -251,8 +286,8 @@ public class ClassifierPerformance {
                     continue;
                 }
 
-                totalAssigned += classifier.getTestDocuments().getRealNumberOfCategory(c)
-                        + classifier.getTrainingDocuments().getRealNumberOfCategory(c);
+                totalAssigned += getTestDocuments().getRealNumberOfCategory(c)
+                        + getTrainingDocuments().getRealNumberOfCategory(c);
             }
 
             // double ratio = (double) documentCount / (double) (testDocuments.size() + trainingDocuments.size());
@@ -275,7 +310,7 @@ public class ClassifierPerformance {
         double precision = 0.0;
 
         double count = 0.0;
-        for (Category c : classifier.categories) {
+        for (Category c : getCategories()) {
 
             // skip categories that are not main categories because they are classified according to the main category
             if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
@@ -315,7 +350,7 @@ public class ClassifierPerformance {
         double recall = 0.0;
 
         double count = 0.0;
-        for (Category c : classifier.categories) {
+        for (Category c : getCategories()) {
 
             // skip categories that are not main categories because they are classified according to the main category
             if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
@@ -356,7 +391,7 @@ public class ClassifierPerformance {
         double f = 0.0;
 
         double count = 0.0;
-        for (Category c : classifier.categories) {
+        for (Category c : getCategories()) {
 
             // skip categories that are not main categories because they are classified according to the main category
             if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
@@ -399,7 +434,7 @@ public class ClassifierPerformance {
         double sensitivity = 0.0;
 
         double count = 0.0;
-        for (Category c : classifier.categories) {
+        for (Category c : getCategories()) {
 
             // skip categories that are not main categories because they are classified according to the main category
             if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
@@ -442,7 +477,7 @@ public class ClassifierPerformance {
         double specificity = 0.0;
 
         double count = 0.0;
-        for (Category c : classifier.categories) {
+        for (Category c : getCategories()) {
 
             // skip categories that are not main categories because they are classified according to the main category
             if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
@@ -485,7 +520,7 @@ public class ClassifierPerformance {
         double accuracy = 0.0;
 
         double count = 0.0;
-        for (Category c : classifier.categories) {
+        for (Category c : getCategories()) {
 
             // skip categories that are not main categories because they are classified according to the main category
             if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {

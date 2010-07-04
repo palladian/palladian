@@ -59,6 +59,13 @@ public abstract class TextClassifier {
      * The constructor, initiate members.
      */
     public TextClassifier() {
+        reset();
+    }
+
+    /**
+     * Reset the classifier.
+     */
+    public void reset() {
         categories = new Categories();
         trainingDocuments = new ClassificationDocuments();
         testDocuments = new ClassificationDocuments();

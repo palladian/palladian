@@ -452,11 +452,11 @@ public class ClassifierManager {
             if (createDictionaryNGramSearchMode && createDictionaryIteratively) {
                 preprocessDocumentsFast(classifier.getClassificationType());
             } else {
-                preprocessDocuments(classifier.getClassificationType(), createDictionaryIteratively);
+                preprocessDocuments(classifier.getClassificationType(), createDictionaryIteratively, true);
             }
 
         } else {
-            preprocessDocuments(classifier.getClassificationType(), true);
+            preprocessDocuments(classifier.getClassificationType(), true, true);
         }
 
         LOGGER.info("loaded and preprocessed successfully");
@@ -496,7 +496,7 @@ public class ClassifierManager {
         // read the testing URLs from the given dataset
         readTrainingTestingData(dataset, false, classifier.getClassificationType());
 
-        preprocessDocuments(classifier.getClassificationType(), false);
+        preprocessDocuments(classifier.getClassificationType(), false, false);
 
         if (classifier instanceof DictionaryClassifier) {
             classifier.setCategories(((DictionaryClassifier) classifier).getCategories());
@@ -732,9 +732,13 @@ public class ClassifierManager {
 
     private void readTrainingTestingData(Dataset dataset, boolean forTraining, int classType) {
 
+        // reset training and testing urls as well as learned categories
         if (forTraining) {
+            classifier.setTrainingDocuments(new ClassificationDocuments());
+            classifier.setCategories(new Categories());
             trainingUrls = new URLs();
         } else {
+            classifier.setTestDocuments(new ClassificationDocuments());
             testUrls = new URLs();
         }
 
@@ -763,7 +767,7 @@ public class ClassifierManager {
                 for (int i = 1; i < siteInformation.length; ++i) {
                     String[] categorieNames = siteInformation[i].split("/");
                     if (categorieNames.length == 0) {
-                        LOGGER.debug("no category names found for " + line);
+                        LOGGER.warn("no category names found for " + line);
                         return;
                     }
                     String categoryName = categorieNames[0];
@@ -839,41 +843,34 @@ public class ClassifierManager {
     /**
      * Create a document representation of the data read.
      */
-    private void preprocessDocuments(int classType, boolean addToDictionary) {
+    private void preprocessDocuments(int classType, boolean addToDictionary, boolean forTraining) {
 
-        int size = trainingUrls.size() + testUrls.size();
+        int size = 0;
+        if (forTraining) {
+            size = trainingUrls.size();
+        } else {
+            size = testUrls.size();
+        }
 
         for (int i = 0; i < size; ++i) {
 
             String[] tData;
             ClassificationDocument preprocessedDocument = null;
 
-            boolean isTrainingDocument;
-            if (i < trainingUrls.size()) {
-                isTrainingDocument = true;
+            if (forTraining) {
+
                 tData = trainingUrls.get(i);
-
-                // free memory, delete training URL
-                // trainingUrls.set(i, empty);
-
                 preprocessedDocument = new ClassificationDocument();
+
             } else {
-                isTrainingDocument = false;
-                tData = testUrls.get(i - trainingUrls.size());
 
-                // free memory, delete testing URL
-                // testUrls.set(i - trainingUrls.size(), empty);
-
+                tData = testUrls.get(i);
                 preprocessedDocument = new TestDocument();
             }
 
             String url = tData[0];
 
-            if (!isTrainingDocument) {
-                preprocessedDocument = classifier.preprocessDocument(url, preprocessedDocument);
-            } else {
-                preprocessedDocument = classifier.preprocessDocument(url, preprocessedDocument);
-            }
+            preprocessedDocument = classifier.preprocessDocument(url, preprocessedDocument);
 
             preprocessedDocument.setUrl(tData[0]);
 
@@ -881,7 +878,7 @@ public class ClassifierManager {
             for (int j = 1; j < tData.length; j++) {
                 categories.add(new Category(tData[j]));
             }
-            if (isTrainingDocument) {
+            if (forTraining) {
                 preprocessedDocument.setDocumentType(ClassificationDocument.TRAINING);
                 preprocessedDocument.setRealCategories(categories);
                 classifier.getTrainingDocuments().add(preprocessedDocument);
@@ -1150,7 +1147,7 @@ public class ClassifierManager {
         classifier = new DictionaryClassifier();
         classifiers.add(classifier);
         classifier = new KNNClassifier();
-        classifiers.add(classifier);
+        // classifiers.add(classifier);
 
         // build a set of feature settings for evaluation
         List<FeatureSetting> featureSettings = new ArrayList<FeatureSetting>();
@@ -1175,7 +1172,7 @@ public class ClassifierManager {
 
         // set evaluation settings
         EvaluationSetting evaluationSetting = new EvaluationSetting();
-        evaluationSetting.setTrainingPercentageMin(40);
+        evaluationSetting.setTrainingPercentageMin(50);
         evaluationSetting.setTrainingPercentageMax(50);
         evaluationSetting.setkFolds(3);
         evaluationSetting.addDataset(dataset);
