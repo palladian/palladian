@@ -3,13 +3,15 @@ package tud.iir.classification.page.evaluation;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 /**
  * Set the evaluation settings for a classifier.
  * 
  * @author David Urbansky
  * 
  */
-public class EvaluationSetting {
+public final class EvaluationSetting {
 
     // //////// presets //////////
     /** Evaluate quickly. */
@@ -39,6 +41,10 @@ public class EvaluationSetting {
     /** List of datasets for the evaluation. */
     private List<Dataset> datasets = new ArrayList<Dataset>();
 
+    /**
+     * In case no preset is chosen the empty constructor is called.
+     * All settings have to be made manually.
+     */
     public EvaluationSetting() {
     }
 
@@ -127,6 +133,9 @@ public class EvaluationSetting {
                 setTrainingPercentageMin(10);
                 setTrainingPercentageMax(90);
                 setTrainingPercentageStep(10);
+            default:
+                setPreset(PRESET_SIMPLE_EVALUATION);
+                Logger.getRootLogger().warn("no preset for evaluation setting given, take simple evaluation");
         }
     }
 

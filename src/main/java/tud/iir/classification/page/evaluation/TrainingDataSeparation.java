@@ -22,11 +22,6 @@ public class TrainingDataSeparation {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(TrainingDataSeparation.class);
 	
-	
-	public TrainingDataSeparation(){
-		
-	}
-
     /**
      * Separates a given training set by trainingDataPercentage into two files, containing
      * training and testing data. The separation can be done by randomly chosen lines or

@@ -105,10 +105,14 @@ public class CrossValidationResult {
 
         double avgPrecision = 0;
         double avgRecall = 0;
+
         for (ClassifierPerformance cp : getPerformancesDatasetTrainingFolds()) {
             avgPrecision += cp.getAveragePrecision(false);
             avgRecall += cp.getAverageRecall(false);
         }
+
+        avgPrecision /= getPerformancesDatasetTrainingFolds().size();
+        avgRecall /= getPerformancesDatasetTrainingFolds().size();
 
         averageCP.setPrecision(avgPrecision);
         averageCP.setRecall(avgRecall);
@@ -137,6 +141,9 @@ public class CrossValidationResult {
                 avgPrecision += cp.getAveragePrecision(false);
                 avgRecall += cp.getAverageRecall(false);
             }
+
+            avgPrecision /= cpEntry.getValue().size();
+            avgRecall /= cpEntry.getValue().size();
 
             averageCP.setPrecision(avgPrecision);
             averageCP.setRecall(avgRecall);
@@ -168,6 +175,9 @@ public class CrossValidationResult {
                 avgPrecision += cp.getAveragePrecision(false);
                 avgRecall += cp.getAverageRecall(false);
             }
+
+            avgPrecision /= cpEntry.getValue().size();
+            avgRecall /= cpEntry.getValue().size();
 
             averageCP.setPrecision(avgPrecision);
             averageCP.setRecall(avgRecall);
