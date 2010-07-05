@@ -5,9 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -48,7 +48,7 @@ public class ClassifierManager {
     private static final Logger LOGGER = Logger.getLogger(ClassifierManager.class);
 
     /** The configuration must be located in config/classification.conf */
-    private static PropertiesConfiguration config = null;
+    private static PropertiesConfiguration config;
 
     /** The classifier used to categorize the web sites. */
     private TextClassifier classifier = null;
@@ -86,7 +86,8 @@ public class ClassifierManager {
 
     // int classificationMode = CLASSIFICATION_TRAIN_TEST_SERIALIZE;
 
-    StopWatch stopWatch;
+    /** A simple stop watch to measure performance. */
+    private StopWatch stopWatch;
 
     public ClassifierManager() {
 
@@ -466,9 +467,8 @@ public class ClassifierManager {
             // create the dictionary in one single step
             if (!createDictionaryIteratively && classifier.isSerialize()) {
                 ((DictionaryClassifier) classifier).buildDictionary(classifier.getClassificationType());
-            }
-            // close the dictionary index writer
-            else {
+            } else {
+                // close the dictionary index writer
                 ((DictionaryClassifier) classifier).dictionary.closeIndexWriter();
             }
 
@@ -487,7 +487,7 @@ public class ClassifierManager {
 
     }
 
-    public void testClassifier(Dataset dataset, TextClassifier classifier) {
+    public final void testClassifier(Dataset dataset, TextClassifier classifier) {
 
         this.classifier = classifier;
 
@@ -818,7 +818,7 @@ public class ClassifierManager {
                 }
 
                 // add to training urls
-                if ((Boolean) obj[0] == true) {
+                if ((Boolean) obj[0]) {
                     trainingUrls.add(urlInformation);
 
                 } else {
@@ -910,7 +910,7 @@ public class ClassifierManager {
 
         for (int i = 0; i < size; ++i) {
 
-            LOGGER.info("processed " + MathHelper.round(100 * i / size, 2) + "% of the documents, ngrams: "
+            LOGGER.info("processed " + MathHelper.round(100 * i / (double) size, 2) + "% of the documents, ngrams: "
                     + nGramFound.size() + ", time: " + DateHelper.getRuntime(classifier.initTime));
 
             ClassificationDocument preprocessedDocument = null;
@@ -1065,7 +1065,7 @@ public class ClassifierManager {
      * @param classifiers
      * @param evaluationSetting
      */
-    public void learnBestClassifier(List<ClassificationTypeSetting> classificationTypeSettings,
+    public final void learnBestClassifier(List<ClassificationTypeSetting> classificationTypeSettings,
             List<TextClassifier> classifiers, List<FeatureSetting> featureSettings,
             EvaluationSetting evaluationSetting) {
 
@@ -1147,7 +1147,7 @@ public class ClassifierManager {
         classifier = new DictionaryClassifier();
         classifiers.add(classifier);
         classifier = new KNNClassifier();
-        // classifiers.add(classifier);
+        classifiers.add(classifier);
 
         // build a set of feature settings for evaluation
         List<FeatureSetting> featureSettings = new ArrayList<FeatureSetting>();
