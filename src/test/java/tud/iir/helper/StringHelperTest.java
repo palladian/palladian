@@ -5,7 +5,6 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
-import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
 
 import tud.iir.knowledge.RegExp;
@@ -269,17 +268,21 @@ public class StringHelperTest extends TestCase {
         // System.out.println(DigestUtils.md5Hex("text"));
 
         assertEquals(5, sentences.size());
-        assertEquals("075f52d69ae2299a3a9e1c0c5d7e396f", DigestUtils.md5Hex(sentences.get(0)));
-        assertEquals("f6748dc425146b927b1a63e358acc307", DigestUtils.md5Hex(sentences.get(4)));
+        assertEquals(
+                "The induction of immediate-early (IE) response genes, such as egr-1, c-fos, and c-jun, occurs rapidly after the activation of T lymphocytes.",
+                sentences.get(0));
+        assertEquals(
+                "We have investigated the inductions of the IE genes in response to calcium signals in Jurkat cells (in the presence of activated p21(ras)) and their correlated consequences!",
+                sentences.get(4));
 
         inputText = "This Paragraph is more difficult...or isn't it?hm, well (!), I don't know!!! I really don't.";
         sentences = StringHelper.getSentences(inputText);
         // CollectionHelper.print(sentences);
 
         assertEquals(3, sentences.size());
-        assertEquals("453fed50a672ebf73a3ed75f4fdae6a4", DigestUtils.md5Hex(sentences.get(0)));
-        assertEquals("d6530d350ebe7e07c6823e98647fdb78", DigestUtils.md5Hex(sentences.get(1)));
-        assertEquals("0c3fc6de24d8db88f920fef1cad7f0d1", DigestUtils.md5Hex(sentences.get(2)));
+        assertEquals("This Paragraph is more difficult...or isn't it?", sentences.get(0));
+        assertEquals("hm, well (!), I don't know!!!", sentences.get(1));
+        assertEquals("I really don't.", sentences.get(2));
         // CollectionHelper.print(sentences);
     }
 
