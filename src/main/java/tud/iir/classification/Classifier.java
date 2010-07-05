@@ -240,7 +240,7 @@ public class Classifier {
         i.setDataset(trainingSet);
 
         for (int j = 0; j < features.length; j++) {
-            if ((isNominalClass()) && j == features.length - 1) {
+            if (isNominalClass() && j == features.length - 1) {
                 String className = "positive";
                 if (features[j] != 1.0) {
                     className = "negative";
@@ -486,15 +486,19 @@ public class Classifier {
             fDistribution = classifier.distributionForInstance(iUse);
 
             if (fDistribution.length > 1) {
-                if (output)
-                    System.out.println("positive: " + fDistribution[0] + ", negative: " + fDistribution[1]);
-                if (fDistribution[0] > fDistribution[1])
+                if (output) {
+                    LOGGER.info("positive: " + fDistribution[0] + ", negative: " + fDistribution[1]);
+                }
+                if (fDistribution[0] > fDistribution[1]) {
                     return true;
+                }
             } else {
-                if (output)
-                    System.out.println("value: " + fDistribution[0]);
-                if (fDistribution[0] > 0.5)
+                if (output) {
+                    LOGGER.info("value: " + fDistribution[0]);
+                }
+                if (fDistribution[0] > 0.5) {
                     return true;
+                }
             }
 
         } catch (Exception e) {
@@ -541,8 +545,9 @@ public class Classifier {
         boolean c = bc.classifyBinary(fo, true);
         if (c) {
             System.out.println("object is classified as positive");
-        } else
+        } else {
             System.out.println("object is classified as negative");
+        }
 
         System.exit(0);
         ArrayList<FeatureObject> fol = bc.getTrainingObjects();

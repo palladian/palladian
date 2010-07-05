@@ -70,9 +70,10 @@ public class QueryWord {
 
         for (int i = 0; i < adjacentWords; i++) {
             TreeMap<String, Integer> wordList = wordsBefore.get(i);
-            if (wordList.size() == 0)
+            if (wordList.size() == 0) {
                 continue;
-            double occurrenceFrequency = wordList.firstEntry().getValue() / wordList.size();
+            }
+            double occurrenceFrequency = wordList.firstEntry().getValue() / (double) wordList.size();
             if (occurrenceFrequency >= occurrenceThreshold) {
                 entityName += wordList.firstKey() + " ";
             }
@@ -82,8 +83,9 @@ public class QueryWord {
 
         for (int i = 0; i < adjacentWords; i++) {
             TreeMap<String, Integer> wordList = wordsAfter.get(i);
-            if (wordList.size() == 0)
+            if (wordList.size() == 0) {
                 continue;
+            }
             double occurrenceFrequency = wordList.firstEntry().getValue() / (double) wordList.size();
             if (occurrenceFrequency >= occurrenceThreshold) {
                 entityName += wordList.firstKey() + " ";

@@ -3,6 +3,8 @@ package tud.iir.classification;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
@@ -64,7 +66,7 @@ public class Helper {
 
         FileHelper.performActionOnEveryLine("data/reports/entityAssessmentForImport.csv", la);
 
-        System.out.println("importet assessment instances in " + DateHelper.getRuntime(t1) + "s");
+        Logger.getRootLogger().info("importet assessment instances in " + DateHelper.getRuntime(t1) + "s");
     }
 
     /**

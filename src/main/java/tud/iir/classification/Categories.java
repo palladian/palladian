@@ -48,7 +48,7 @@ public class Categories extends java.util.ArrayList<Category> implements Seriali
             return false;
         }
 
-        if (this.contains(category)) {
+        if (contains(category)) {
             // this.getCategoryByName(category.getName()).addRelevance(category.getRelevance());
             return false;
         }

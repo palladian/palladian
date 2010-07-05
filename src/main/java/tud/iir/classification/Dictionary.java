@@ -376,9 +376,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
             for (CategoryEntry ce : wordCategoryEntries) {
                 CategoryEntry ce1 = categoryEntries.getCategoryEntry(ce.getCategory());
-                if (ce1 == null) {
-                    ce1 = new CategoryEntry(categoryEntries, ce.getCategory(), ce.getAbsoluteRelevance());
-                } else {
+                if (ce1 != null) {
                     ce1.addAbsoluteRelevance(ce.getAbsoluteRelevance());
                 }
             }
@@ -406,8 +404,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
     public void saveAsCSV() {
 
         if (categories == null) {
-            System.out.println("no categories assigned");
-            Logger.getRootLogger().error("no categories assigned", null);
+            Logger.getRootLogger().error("no categories assigned");
             return;
         }
 
@@ -425,7 +422,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
         }
         dictionaryString.append("\n");
 
-        System.out.println("word count " + entrySet().size());
+        Logger.getRootLogger().debug("word count " + entrySet().size());
 
         // one word per line with term frequencies per category
         for (Map.Entry<Term, CategoryEntries> term : entrySet()) {
@@ -449,10 +446,10 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
             dictionaryString.append("\n");
         }
 
-        System.out.print("save dictionary...");
+        Logger.getRootLogger().info("save dictionary...");
         FileHelper.writeToFile("data/models/" + DateHelper.getCurrentDatetime("yyyy-MM-dd_HH-mm-ss") + "webPageClassificationDictionary_" + getName() + ".csv",
                 dictionaryString);
-        System.out.println("saved");
+        // System.out.println("saved");
     }
 
 
