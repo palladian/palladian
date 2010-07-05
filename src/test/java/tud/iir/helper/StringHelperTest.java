@@ -1,9 +1,11 @@
 package tud.iir.helper;
 
 import java.io.File;
+import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
 
 import tud.iir.knowledge.RegExp;
@@ -229,15 +231,16 @@ public class StringHelperTest extends TestCase {
     }
 
     public void testUnescapeHTMLEntities() {
-        System.out.println(StringHelper.unescapeHTMLEntities("    81&nbsp;904 100     &#150;  _uacct = UA-66225"));
+        // System.out.println(StringHelper.unescapeHTMLEntities("    81&nbsp;904 100     &#150;  _uacct = UA-66225"));
         // assertEquals(StringHelper.unescapeHTMLEntities("    81&nbsp;904 100  &#150;     _uacct = UA-66225"),
         // "    81 904 100     ?  _uacct = UA-66225");
-        System.out.println(StringHelper.unescapeHTMLEntities("Don&#039;t be scared."));
+        // System.out.println(StringHelper.unescapeHTMLEntities("Don&#039;t be scared."));
         assertEquals("Don't be scared.", StringHelper.unescapeHTMLEntities("Don&#039;t be scared."));
     }
 
     public void testGetSentence() {
-        System.out.println(StringHelper.getSentence("...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40));
+        // System.out.println(StringHelper.getSentence("...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as",
+        // 40));
         assertEquals(StringHelper.getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"), "Although, many of them (30.2%) are good.");
         assertEquals(StringHelper.getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"),
                 "Although, many of them (30.2%) are good");
@@ -254,6 +257,30 @@ public class StringHelperTest extends TestCase {
                 "What is the largest city in usa, (30.2%) in population?");
         assertEquals(StringHelper.getSentence("...now. Although, has 234,423,234 sq.miles area many of them (30.2%) are good. As long as", 10),
                 "Although, has 234,423,234 sq.miles area many of them (30.2%) are good.");
+    }
+
+    public void testGetSentences() {
+
+        // this is the LingPipe example (last sentence ends with "!" to make it more difficult:
+        // http://alias-i.com/lingpipe/demos/tutorial/sentences/read-me.html
+        String inputText = "The induction of immediate-early (IE) response genes, such as egr-1, c-fos, and c-jun, occurs rapidly after the activation of T lymphocytes. The process of activation involves calcium mobilization, activation of protein kinase C (PKC), and phosphorylation of tyrosine kinases. p21(ras), a guanine nucleotide binding factor, mediates T-cell signal transduction through PKC-dependent and PKC-independent pathways. The involvement of p21(ras) in the regulation of calcium-dependent signals has been suggested through analysis of its role in the activation of NF-AT. We have investigated the inductions of the IE genes in response to calcium signals in Jurkat cells (in the presence of activated p21(ras)) and their correlated consequences!";
+        List<String> sentences = StringHelper.getSentences(inputText);
+
+        // System.out.println(DigestUtils.md5Hex("text"));
+
+        assertEquals(5, sentences.size());
+        assertEquals("075f52d69ae2299a3a9e1c0c5d7e396f", DigestUtils.md5Hex(sentences.get(0)));
+        assertEquals("f6748dc425146b927b1a63e358acc307", DigestUtils.md5Hex(sentences.get(4)));
+
+        inputText = "This Paragraph is more difficult...or isn't it?hm, well (!), I don't know!!! I really don't.";
+        sentences = StringHelper.getSentences(inputText);
+        // CollectionHelper.print(sentences);
+
+        assertEquals(3, sentences.size());
+        assertEquals("453fed50a672ebf73a3ed75f4fdae6a4", DigestUtils.md5Hex(sentences.get(0)));
+        assertEquals("d6530d350ebe7e07c6823e98647fdb78", DigestUtils.md5Hex(sentences.get(1)));
+        assertEquals("0c3fc6de24d8db88f920fef1cad7f0d1", DigestUtils.md5Hex(sentences.get(2)));
+        // CollectionHelper.print(sentences);
     }
 
     public void testTrim() {

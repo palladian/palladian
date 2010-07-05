@@ -1042,8 +1042,7 @@ public class StringHelper {
     public static String getPhraseFromBeginningOfSentence(String inputString) {
 
         String string = inputString;
-        // find the beginning of the current sentence by finding the period at
-        // the end
+        // find the beginning of the current sentence by finding the period at the end
         int startIndex = string.lastIndexOf(".");
 
         // make sure point is not between numerals e.g. 30.2% (as this would not
@@ -1187,6 +1186,43 @@ public class StringHelper {
         }
 
         return beginning + end;
+    }
+
+    /**
+     * Get a list of sentences of an input text.
+     * Also see <a
+     * href="http://alias-i.com/lingpipe/demos/tutorial/sentences/read-me.html">http://alias-i.com/lingpipe/demos
+     * /tutorial/sentences/read-me.html</a> for the LingPipe example.
+     * 
+     * @param inputText An input text.
+     * @return A list with sentences.
+     */
+    public static List<String> getSentences(String inputText) {
+
+        List<String> sentences = new ArrayList<String>();
+        String[] sentenceArray = inputText.split("(?<!(\\.|\\())(\\.|\\?+|\\!+)(?!(\\.|\\())");
+
+        // for (String sentence : sentenceArray) {
+        for (int i = 0; i < sentenceArray.length; i++) {
+            String sentence = sentenceArray[i];
+            if (sentence.length() == 0) {
+                continue;
+            }
+
+            // get end of sentence
+            String sentenceTermination = ".";
+
+            if (i < sentenceArray.length - 1) {
+                sentenceTermination = getSubstringBetween(inputText, sentence, sentenceArray[i + 1]);
+            } else {
+                int pos = inputText.lastIndexOf(sentence);
+                sentenceTermination = inputText.substring(pos + sentence.length());
+            }
+
+            sentences.add(sentence.trim() + sentenceTermination);
+        }
+
+        return sentences;
     }
 
     /**
