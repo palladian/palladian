@@ -21,6 +21,7 @@ import tud.iir.knowledge.RegExp;
 import tud.iir.normalization.StringNormalizer;
 import tud.iir.normalization.UnitNormalizer;
 
+// TODO Separate to several text processing classes and move to correct package.
 /**
  * The StringHelper adds string functionality.
  * 

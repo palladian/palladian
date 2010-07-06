@@ -18,6 +18,7 @@ import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.RegExp;
 import tud.iir.normalization.DateNormalizer;
 
+// TODO Move to Extraction package
 /**
  * This class helps to transform and help with dates.
  * 

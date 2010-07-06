@@ -23,6 +23,7 @@ import java.util.zip.GZIPOutputStream;
 
 import org.apache.log4j.Logger;
 
+// TODO Remove all functionalities that are provided by apache commons.
 /**
  * The FileHelper helps with file concerning tasks.
  * 
@@ -31,7 +32,7 @@ import org.apache.log4j.Logger;
  */
 public class FileHelper {
 
-    private static final Logger logger = Logger.getLogger(FileHelper.class);
+    private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
 
     public static boolean isFileName(String name) {
         name = name.trim();
@@ -115,11 +116,11 @@ public class FileHelper {
             br.close();
 
         } catch (FileNotFoundException e) {
-            logger.error(path + ", " + e.getMessage());
+            LOGGER.error(path + ", " + e.getMessage());
         } catch (IOException e) {
-            logger.error(path + ", " + e.getMessage());
+            LOGGER.error(path + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
-            logger.error(path + ", " + e.getMessage());
+            LOGGER.error(path + ", " + e.getMessage());
         }
 
         return contents.toString();
@@ -144,11 +145,11 @@ public class FileHelper {
             br.close();
 
         } catch (FileNotFoundException e) {
-            logger.error(path + ", " + e.getMessage());
+            LOGGER.error(path + ", " + e.getMessage());
         } catch (IOException e) {
-            logger.error(path + ", " + e.getMessage());
+            LOGGER.error(path + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
-            logger.error(path + ", " + e.getMessage());
+            LOGGER.error(path + ", " + e.getMessage());
         }
 
         return list;
@@ -176,11 +177,11 @@ public class FileHelper {
             br.close();
 
         } catch (FileNotFoundException e) {
-            logger.error(filePath + ", " + e.getMessage());
+            LOGGER.error(filePath + ", " + e.getMessage());
         } catch (IOException e) {
-            logger.error(filePath + ", " + e.getMessage());
+            LOGGER.error(filePath + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
-            logger.error(filePath + ", " + e.getMessage());
+            LOGGER.error(filePath + ", " + e.getMessage());
         }
 
         return lineNumber - 1;
@@ -207,7 +208,7 @@ public class FileHelper {
             fileWriter.flush();
             fileWriter.close();
         } catch (IOException e) {
-            logger.error(filePath + ", " + e.getMessage());
+            LOGGER.error(filePath + ", " + e.getMessage());
         }
     }
 
@@ -218,7 +219,7 @@ public class FileHelper {
             fileWriter.flush();
             fileWriter.close();
         } catch (IOException e) {
-            logger.error(filePath + ", " + e.getMessage());
+            LOGGER.error(filePath + ", " + e.getMessage());
         }
     }
 
@@ -247,7 +248,7 @@ public class FileHelper {
             fileWriter.flush();
             fileWriter.close();
         } catch (IOException e) {
-            logger.error(filePath + ", " + e.getMessage());
+            LOGGER.error(filePath + ", " + e.getMessage());
         }
     }
 
@@ -262,11 +263,11 @@ public class FileHelper {
             obj = in.readObject();
 
         } catch (FileNotFoundException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } catch (ClassNotFoundException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
 
         return obj;
@@ -284,12 +285,12 @@ public class FileHelper {
             out = null;
             fos = null;
         } catch (IOException e) {
-            logger.error("could not serialize object, " + e.getMessage());
+            LOGGER.error("could not serialize object, " + e.getMessage());
         } catch (OutOfMemoryError e) {
-            logger.error("could not serialize object, " + e.getMessage() + ", exiting now!");
+            LOGGER.error("could not serialize object, " + e.getMessage() + ", exiting now!");
             System.exit(1);
         } catch (Exception e) {
-            logger.error("could not serialize object, " + e.getMessage());
+            LOGGER.error("could not serialize object, " + e.getMessage());
         }
     }
 
@@ -325,9 +326,9 @@ public class FileHelper {
             // System.out.println("File copied.");
         } catch (FileNotFoundException ex) {
             // System.out.println(ex.getMessage() + " in the specified directory.");
-            logger.error(ex.getMessage());
+            LOGGER.error(ex.getMessage());
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -351,7 +352,7 @@ public class FileHelper {
         } else {
 
             if (!srcPath.exists()) {
-                logger.warn("File or directory does not exist.");
+                LOGGER.warn("File or directory does not exist.");
                 return;
             } else {
 
@@ -369,7 +370,7 @@ public class FileHelper {
                     in.close();
                     out.close();
                 } catch (Exception e) {
-                    logger.error(e.getMessage());
+                    LOGGER.error(e.getMessage());
                 }
             }
         }
@@ -388,12 +389,12 @@ public class FileHelper {
         File f = new File(filename);
 
         if (!f.exists()) {
-            logger.error("file can not be deleted because it does not exist");
+            LOGGER.error("file can not be deleted because it does not exist");
             return false;
         }
 
         if (!f.canWrite()) {
-            logger.error("file can not be deleted because of lack of permission");
+            LOGGER.error("file can not be deleted because of lack of permission");
             return false;
         }
 
@@ -401,7 +402,7 @@ public class FileHelper {
         if (f.isDirectory()) {
             String[] files = f.list();
             if (files.length > 0 && !deleteNonEmptyDirectory) {
-                logger.error("file can not be deleted because it is a non-empty directory");
+                LOGGER.error("file can not be deleted because it is a non-empty directory");
                 return false;
             } else {
                 for (File directoryFile : f.listFiles()) {
@@ -504,7 +505,7 @@ public class FileHelper {
             in.close();
             zipout.close();
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             return false;
         }
 
@@ -525,7 +526,7 @@ public class FileHelper {
             in.close();
             zipout.close();
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             return out.toString();
         }
 
@@ -557,7 +558,7 @@ public class FileHelper {
                 // keep waiting until all output is rendered
             }
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -572,7 +573,7 @@ public class FileHelper {
             p.getInputStream().close();
             p.destroy();
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 
@@ -587,7 +588,7 @@ public class FileHelper {
         try {
             in = new FileInputStream(filename);
         } catch (FileNotFoundException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             return "";
         }
 
@@ -628,9 +629,9 @@ public class FileHelper {
             out.close();
             zipin.close();
         } catch (FileNotFoundException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
         return out.toString();
     }

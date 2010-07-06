@@ -24,7 +24,7 @@ public class Controller {
     /**
      * benchmark settings
      */
-    private static Controller instance = null;
+    private static final Controller INSTANCE = new Controller();
 
     private static PropertiesConfiguration config = null;
 
@@ -54,10 +54,7 @@ public class Controller {
      * @return
      */
     public static Controller getInstance() {
-        if (instance == null) {
-            instance = new Controller();
-        }
-        return instance;
+        return INSTANCE;
     }
 
     public static PropertiesConfiguration getConfig() {

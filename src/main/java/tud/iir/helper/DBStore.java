@@ -297,6 +297,7 @@ public class DBStore {
         return size;
     }
 
+    // TODO Move to JUnit test.
     /**
      * @param args
      */

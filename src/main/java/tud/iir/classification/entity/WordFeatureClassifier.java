@@ -111,13 +111,13 @@ public class WordFeatureClassifier extends EntityAssessor {
         double trainingPercentage = 0.2;
         for (trustThreshold = 0; trustThreshold <= 1.01; trustThreshold += trustThresholdStepSize) {
 
-            logger.info("################################## start new iteration ##################################");
+            LOGGER.info("################################## start new iteration ##################################");
 
             double trainingSampleFrequency = 1.0 / trainingPercentage;
 
-            logger.info("use " + concepts.size() + " concepts for evaluation");
-            logger.info("training percentage: " + trainingPercentage);
-            logger.info("trust threshold: " + trustThreshold + "\n");
+            LOGGER.info("use " + concepts.size() + " concepts for evaluation");
+            LOGGER.info("training percentage: " + trainingPercentage);
+            LOGGER.info("trust threshold: " + trustThreshold + "\n");
 
             // save the evaluation metrics: concept name : [precision,recall,f1,correctAssigned,realCorrect,totalAssignedCorrect]
             HashMap<String, ArrayList<Double>> evaluationMetrics = new HashMap<String, ArrayList<Double>>();
@@ -132,7 +132,7 @@ public class WordFeatureClassifier extends EntityAssessor {
                     entityMap.put(concept.getName(), entities);
                 }
 
-                logger.info("loaded evaluation entities (" + entities.size() + ")");
+                LOGGER.info("loaded evaluation entities (" + entities.size() + ")");
 
                 // set training and testing field in database table training_samples.test (feature evaluator depends on that)
                 trainingEntities.clear();
@@ -159,7 +159,7 @@ public class WordFeatureClassifier extends EntityAssessor {
 
                 // get cfc for the current concept, the call must happen here because the cfc depends on the test field in training_samples
                 Map<Integer, Classifier> cfc = featureEvaluator.getClassifierFeatureCombination(concept);
-                logger.info("For concept " + concept.getName() + " classifier " + cfc.get(concept.getID()).getChosenClassifier() + " with RMSE of "
+                LOGGER.info("For concept " + concept.getName() + " classifier " + cfc.get(concept.getID()).getChosenClassifier() + " with RMSE of "
                         + cfc.get(concept.getID()).getRMSE() + " and feature combination " + cfc.get(concept.getID()).getFeatureCombination()
                         + " has been found");
 
@@ -217,7 +217,7 @@ public class WordFeatureClassifier extends EntityAssessor {
                         }
 
                     } catch (SQLException e) {
-                        logger.error(e.getMessage());
+                        LOGGER.error(e.getMessage());
                     }
                 }
 
@@ -231,7 +231,7 @@ public class WordFeatureClassifier extends EntityAssessor {
 
         createFlashChartLog(graphData);
 
-        logger.info(DateHelper.getRuntime(t1, System.currentTimeMillis(), true));
+        LOGGER.info(DateHelper.getRuntime(t1, System.currentTimeMillis(), true));
     }
 
     /**

@@ -2,6 +2,7 @@ package tud.iir.news;
 
 import java.util.List;
 
+// TODO move to persistence
 /**
  * The FeedStore is an interface for feed stores such as databases or file indices.
  * 
