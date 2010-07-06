@@ -22,7 +22,7 @@ import tud.iir.web.Crawler;
 public class QuoteCrawler {
 
     /** the logger for this class */
-    private final static Logger LOGGER = Logger.getLogger(QuoteCrawler.class);
+    private static final Logger LOGGER = Logger.getLogger(QuoteCrawler.class);
 
     /**
      * Extracts quotes
@@ -37,7 +37,8 @@ public class QuoteCrawler {
 
         Document peoplePage = c.getWebDocument("http://refspace.com/people");
 
-        List<Node> people = XPathHelper.getNodes(peoplePage, "/html/body/div/table/tr/td/div/table/tr/td/div/table/tr/td/a".toUpperCase());
+        List<Node> people = XPathHelper.getNodes(peoplePage,
+                "/html/body/div/table/tr/td/div/table/tr/td/div/table/tr/td/a".toUpperCase());
 
         HashSet<String> peopleLinks = new HashSet<String>();
         for (Node peopleNode : people) {
@@ -60,7 +61,8 @@ public class QuoteCrawler {
                 LOGGER.info("look for quotes from " + author + " on " + countURL);
 
                 Document quotePage = c.getWebDocument(countURL);
-                List<Node> quoteNodes = XPathHelper.getNodes(quotePage, "/html/body/div/table/tr/td/div/table/tr/td/div/div/div".toUpperCase());
+                List<Node> quoteNodes = XPathHelper.getNodes(quotePage,
+                        "/html/body/div/table/tr/td/div/table/tr/td/div/div/div".toUpperCase());
 
                 // skip first two nodes
                 int j = 0;

@@ -38,11 +38,16 @@
     <module name="ParameterNumber"/>
     <module name="EmptyForIteratorPad"/>
     <module name="MethodParamPad"/>
-    <module name="NoWhitespaceAfter"/>
+    <module name="NoWhitespaceAfter">
+      <property name="tokens" value="ARRAY_INIT,BNOT,DEC,DOT,INC,LNOT,TYPECAST"/>
+    </module>
     <module name="NoWhitespaceBefore"/>
     <module name="OperatorWrap"/>
     <module name="ParenPad"/>
-    <module name="TypecastParenPad"/>
+    <module name="TypecastParenPad">
+      <property name="option" value="space"/>
+      <property name="tokens" value="RPAREN,TYPECAST"/>
+    </module>
     <module name="WhitespaceAfter"/>
     <module name="WhitespaceAround"/>
     <module name="ModifierOrder"/>
@@ -80,6 +85,10 @@
     <module name="StaticVariableName"/>
     <module name="LineLength">
       <property name="max" value="120"/>
+    </module>
+    <module name="TypecastParenPad">
+      <property name="option" value="space"/>
+      <property name="tokens" value="RPAREN,TYPECAST"/>
     </module>
   </module>
   <module name="Translation"/>

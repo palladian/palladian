@@ -14,6 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
@@ -41,8 +42,10 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.OverlapCoefficient;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 
 /**
- * The main class for the Q/A extraction. (QUAX) QUAX knows a set of Q/A pages with information about question xPaths and answer xPaths. QUAX performs a focused
- * crawl over the Q/A pages and remembers URLs of visited pages also over extraction session. New Q/As are extracted and written in the database.
+ * The main class for the Q/A extraction. (QUAX) QUAX knows a set of Q/A pages with information about question xPaths
+ * and answer xPaths. QUAX performs a focused
+ * crawl over the Q/A pages and remembers URLs of visited pages also over extraction session. New Q/As are extracted and
+ * written in the database.
  * 
  * @author David Urbansky
  */
@@ -122,7 +125,8 @@ public class QAExtractor extends Extractor {
     /**
      * Load descriptions of sites to extract question and answers from.
      * 
-     * @param continueExtraction If false, the extraction will start from the beginning, if true, it is tried to deserialize QASites from previous extraction
+     * @param continueExtraction If false, the extraction will start from the beginning, if true, it is tried to
+     *            deserialize QASites from previous extraction
      *            run.
      */
     @SuppressWarnings("unchecked")
@@ -196,7 +200,8 @@ public class QAExtractor extends Extractor {
     // }
 
     /**
-     * The Q/A extraction is a bootstrapped process with two steps alternately performed in a loop: 1: use a seed query to retrieve urls with question and
+     * The Q/A extraction is a bootstrapped process with two steps alternately performed in a loop: 1: use a seed query
+     * to retrieve urls with question and
      * answers 2: perform a focused crawling on each retrieved url to increase the Q/A set
      */
     public void startExtraction() {
@@ -241,7 +246,8 @@ public class QAExtractor extends Extractor {
                 LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + " active threads)");
                 ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
                 if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
-                    LOGGER.warn("apparently " + getThreadCount() + " threads have not finished correctly but thread group is empty, continuing...");
+                    LOGGER.warn("apparently " + getThreadCount()
+                            + " threads have not finished correctly but thread group is empty, continuing...");
                     resetThreadCount();
                     break;
                 }
@@ -250,19 +256,20 @@ public class QAExtractor extends Extractor {
             if (qaSite.urlsAvailable()) {
                 LOGGER.info("getting url from website " + i + ":" + qaSite.getName());
 
-                Thread qaThread = new QAExtractionThread(extractionThreadGroup, "QA Extraction Thread for " + qaSite.getName(), qaSite);
+                Thread qaThread = new QAExtractionThread(extractionThreadGroup, "QA Extraction Thread for "
+                        + qaSite.getName(), qaSite);
                 qaThread.start();
 
             } else if (!qaSite.hasVoted()) {
-                LOGGER.info("STOP VOTE from page " + qaSite.getName() + " after iteration " + iterations + " having " + qaSite.getURLStackSize()
-                        + " URLs on the stack");
+                LOGGER.info("STOP VOTE from page " + qaSite.getName() + " after iteration " + iterations + " having "
+                        + qaSite.getURLStackSize() + " URLs on the stack");
                 stopVotes++;
                 qaSite.setVoted();
             }
 
             LOGGER.info("### iteration number " + iterations);
-            LOGGER.info("### total url stack of all " + qaSites.size() + " pages: " + qaSites.getTotalURLStackSize() + ", " + stopVotes + " stop votes, "
-                    + getThreadCount() + " threads active)");
+            LOGGER.info("### total url stack of all " + qaSites.size() + " pages: " + qaSites.getTotalURLStackSize()
+                    + ", " + stopVotes + " stop votes, " + getThreadCount() + " threads active)");
             LOGGER.info("### total Q/As extracted so far " + qaExtractionCount + " (" + qas.size() + " unsaved)");
             // logForFlash("p = new Point("+iterations+","+qas.size()+"); dataPoints10.push(p);");
             // logForFlash("p = new Point("+iterations+","+qaSites.getTotalURLStackSize()+"); dataPoints11.push(p);");
@@ -312,7 +319,8 @@ public class QAExtractor extends Extractor {
         // check if FAQ or a similar string appears on site
         String siteText = StringHelper.trim(pa.getDocumentTextDump());
         String siteTextLowerCase = siteText.toLowerCase();
-        if (siteTextLowerCase.indexOf("faq") > -1 || siteTextLowerCase.indexOf("f.a.q.") > -1 || siteTextLowerCase.indexOf("frequently asked questions") > -1) {
+        if (siteTextLowerCase.indexOf("faq") > -1 || siteTextLowerCase.indexOf("f.a.q.") > -1
+                || siteTextLowerCase.indexOf("frequently asked questions") > -1) {
 
             // detect all questions from the FAQ page
             ArrayList<String> questions = detectQuestions();
@@ -342,7 +350,8 @@ public class QAExtractor extends Extractor {
 
                         // get the content between questions
                         index1 = siteTextLowerCase.lastIndexOf(question1.toLowerCase());
-                        index2 = siteTextLowerCase.lastIndexOf(question2.toLowerCase());// ,index1 + question1.length());
+                        index2 = siteTextLowerCase.lastIndexOf(question2.toLowerCase());// ,index1 +
+                        // question1.length());
                         // index2 = pageContent.lastIndexOf(question2,index1 + question1.length());
 
                         // otherwise take all until the next closing tag.
@@ -398,7 +407,8 @@ public class QAExtractor extends Extractor {
     }
 
     /**
-     * Add a QA tuple and save them if they are over a certain number. This method is called by QAExtractionThreads and thus must be synchronized.
+     * Add a QA tuple and save them if they are over a certain number. This method is called by QAExtractionThreads and
+     * thus must be synchronized.
      * 
      * @param qa The QA tuple to add.
      */
@@ -422,7 +432,8 @@ public class QAExtractor extends Extractor {
     }
 
     /**
-     * Detect an answer without knowing its xPath. Build a candidate set, detect features and use a learned classifier to rank the candidates.
+     * Detect an answer without knowing its xPath. Build a candidate set, detect features and use a learned classifier
+     * to rank the candidates.
      * 
      * @param question
      * @param pa
@@ -457,13 +468,14 @@ public class QAExtractor extends Extractor {
         // choose best ranked answer candidate
         String highestRankedXPath = "";
         double highestRank = -1.0;
-        for (Iterator<Map.Entry<String, Double>> iterator = rankedCandidateAnswers.entrySet().iterator(); iterator.hasNext();) {
+        for (Iterator<Map.Entry<String, Double>> iterator = rankedCandidateAnswers.entrySet().iterator(); iterator
+                .hasNext();) {
             Map.Entry<String, Double> entry = iterator.next();
             if (entry.getValue() > highestRank) {
                 highestRankedXPath = entry.getKey();
                 highestRank = entry.getValue();
             }
-            //String answerContent = pa.getTextByXPath(entry.getKey());
+            // String answerContent = pa.getTextByXPath(entry.getKey());
             // System.out.println("answer: " + answerContent.substring(0,Math.min(100,answerContent.length())));
             // System.out.println("probability: " + entry.getValue()+"\n");
         }
@@ -479,7 +491,8 @@ public class QAExtractor extends Extractor {
      * 
      * @return A filtered set of candidate answers.
      */
-    public LinkedHashSet<String> filterAnswerCandidates(LinkedHashSet<String> questionXPaths, LinkedHashSet<String> answerCandidates) {
+    public LinkedHashSet<String> filterAnswerCandidates(LinkedHashSet<String> questionXPaths,
+            LinkedHashSet<String> answerCandidates) {
         LinkedHashSet<String> filteredAnswerCandidates = new LinkedHashSet<String>();
 
         // answers are only expected in block elements
@@ -587,7 +600,7 @@ public class QAExtractor extends Extractor {
     private boolean answerHintAvailable(String answer) {
         String pageContent = pa.getDocumentAsString();
         pageContent = StringHelper.removeHTMLTags(pageContent, true, false, true, true);
-        pageContent = StringHelper.unescapeHTMLEntities(pageContent);
+        pageContent = StringEscapeUtils.unescapeHtml(pageContent);
 
         int indexOfAnswer = pageContent.indexOf(answer);
         int indexOfAnswerHint = -1;
@@ -608,7 +621,8 @@ public class QAExtractor extends Extractor {
             indexOfAHint = newIndexOfAHint + 2;
         }
 
-        if (indexOfAnswerHint > -1 && indexOfAnswerHint < indexOfAnswer || indexOfAHint > -1 && indexOfAHint < indexOfAnswer) {
+        if (indexOfAnswerHint > -1 && indexOfAnswerHint < indexOfAnswer || indexOfAHint > -1
+                && indexOfAHint < indexOfAnswer) {
             return true;
         }
 
@@ -628,7 +642,7 @@ public class QAExtractor extends Extractor {
         distances[1] = 200;
 
         String pageContent = pa.getDocumentAsString();
-        pageContent = StringHelper.unescapeHTMLEntities(pageContent);
+        pageContent = StringEscapeUtils.unescapeHtml(pageContent);
         String pageContentNoTags = StringHelper.removeHTMLTags(pageContent, true, true, true, true);
 
         int answerIndex = pageContentNoTags.indexOf(answer);
@@ -643,7 +657,8 @@ public class QAExtractor extends Extractor {
         }
 
         if (questionIndex == -1 || answerIndex == -1 || questionIndex > answerIndex) {
-            // Logger.getInstance().logError("getTagAndWordDistance failed because question or answer was not found or answer was found before question", new
+            // Logger.getInstance().logError("getTagAndWordDistance failed because question or answer was not found or answer was found before question",
+            // new
             // Throwable(""));
             return distances;
         }
@@ -680,12 +695,13 @@ public class QAExtractor extends Extractor {
                 continue;
             }
 
-            int questionIndex = Integer.valueOf(listOfFiles[i].getName().replaceAll("webpage", "").replaceAll(".html", "")) - 1;
+            int questionIndex = Integer.valueOf(listOfFiles[i].getName().replaceAll("webpage", "").replaceAll(".html",
+                    "")) - 1;
 
             String question = questions.get(questionIndex);
             if (question.endsWith("?")) {
                 question = question.substring(0, question.length() - 1);
-            // question = StringHelper.removeStopWords(question);
+                // question = StringHelper.removeStopWords(question);
             }
 
             LOGGER.info("\nFile " + listOfFiles[i].getName() + ", question: " + question);
@@ -760,9 +776,11 @@ public class QAExtractor extends Extractor {
         // ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://secondlife.com/whatis/faq.php");
         // ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://www.freerice.com/faq.html");
         // ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://bandcamp.com/faq");
-        // ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://www.copyright.gov/help/faq/faq-register.html");
+        // ArrayList<QA> qas0 =
+        // QAExtractor.getInstance().extractFAQ("http://www.copyright.gov/help/faq/faq-register.html");
         // ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://www.cookiecentral.com/faq/");
-        // ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://wiki.creativecommons.org/Frequently_Asked_Questions");
+        // ArrayList<QA> qas0 =
+        // QAExtractor.getInstance().extractFAQ("http://wiki.creativecommons.org/Frequently_Asked_Questions");
 
         CollectionHelper.print(qas0);
 
@@ -795,7 +813,8 @@ public class QAExtractor extends Extractor {
 
         System.exit(0);
 
-        ArrayList<QA> qas = QAExtractor.getInstance().extractFAQ("http://www.abb.com/cawp/abbzh259/14ea3e81ca94263bc1256fbe0030e163.aspx");
+        ArrayList<QA> qas = QAExtractor.getInstance().extractFAQ(
+                "http://www.abb.com/cawp/abbzh259/14ea3e81ca94263bc1256fbe0030e163.aspx");
         // HashSet<QA> qas = QAExtractor.getInstance().extractFAQ("http://www.sony.com/faq.shtml");
         // HashSet<QA> qas = QAExtractor.getInstance().extractFAQ("http://csottointer.kissnofrog.com/info/faq");
 
@@ -813,8 +832,15 @@ public class QAExtractor extends Extractor {
         c.setDocument("http://yedda.com/questions/unified_voice_calling_aid_Haiti_518111363398926/");
         pa.setDocument(c.getDocument());
         CollectionHelper.print(pa.constructAllXPaths("need to survive Kids out there are"));
-        System.out.println("result: " + pa.getTextByXPath("/html/body/div/form/div/div/div[2]/div[2]/div[1]/div[1]/div[2]/div[2]/h1[1]/span[1]".toUpperCase()));
-        System.out.println("result: " + pa.getTextByXPath("/html/body/div[2]/div[1]/div[1]/div[1]/div[7]/div[3]/div[1]/div[2]/div[2]".toUpperCase()));
-        CollectionHelper.print(pa.getTextsByXPath("/HTML/BODY/DIV[1]/DIV[2]/DIV[1]/DIV[1]/DIV[2]/DIV[1]/DIV".toUpperCase()));
+        System.out
+                .println("result: "
+                        + pa
+                                .getTextByXPath("/html/body/div/form/div/div/div[2]/div[2]/div[1]/div[1]/div[2]/div[2]/h1[1]/span[1]"
+                                        .toUpperCase()));
+        System.out.println("result: "
+                + pa.getTextByXPath("/html/body/div[2]/div[1]/div[1]/div[1]/div[7]/div[3]/div[1]/div[2]/div[2]"
+                        .toUpperCase()));
+        CollectionHelper.print(pa.getTextsByXPath("/HTML/BODY/DIV[1]/DIV[2]/DIV[1]/DIV[1]/DIV[2]/DIV[1]/DIV"
+                .toUpperCase()));
     }
 }
