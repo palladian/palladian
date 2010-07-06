@@ -364,6 +364,7 @@ public class PMI extends EntityAssessor {
         return -1;
     }
 
+    // TODO Add this to JUnit tests.
     /**
      * Evaluate the algorithm by classifying entities with a score above the threshold as true and calculating precision and recall using the test entities.
      */
@@ -421,7 +422,7 @@ public class PMI extends EntityAssessor {
         for (int step = 0; step <= 11; step++) {
             trustThreshold = 0.05 * Math.pow(1.2589, step);
 
-            logger.info("################################## start new iteration ##################################");
+            LOGGER.info("################################## start new iteration ##################################");
 
             classifiers.clear();
 
@@ -434,14 +435,14 @@ public class PMI extends EntityAssessor {
             // save the evaluation metrics: concept name : [precision,recall,f1,correctAssigned,realCorrect,totalAssignedCorrect]
             HashMap<String, ArrayList<Double>> evaluationMetrics = new HashMap<String, ArrayList<Double>>();
 
-            logger.info("use " + concepts.size() + " concepts for evaluation");
-            logger.info("training percentage: " + trainingPercentage);
-            logger.info("tuning percentage: " + tuningPercentage + "\n");
-            logger.info("trust threshold: " + trustThreshold + "\n");
+            LOGGER.info("use " + concepts.size() + " concepts for evaluation");
+            LOGGER.info("training percentage: " + trainingPercentage);
+            LOGGER.info("tuning percentage: " + tuningPercentage + "\n");
+            LOGGER.info("trust threshold: " + trustThreshold + "\n");
 
             for (Concept concept : concepts) {
 
-                logger.info("start evaluating concept " + concept.getName());
+                LOGGER.info("start evaluating concept " + concept.getName());
 
                 Set<Entity> positiveEntities = new HashSet<Entity>();
                 Set<Entity> positiveEntitiesTuning = new HashSet<Entity>();
@@ -457,7 +458,7 @@ public class PMI extends EntityAssessor {
                     entityMap.put(concept.getName(), entities);
                 }
 
-                logger.info("loaded evaluation entities (" + entities.size() + ")");
+                LOGGER.info("loaded evaluation entities (" + entities.size() + ")");
 
                 int count = 0;
                 for (Entity entity : entities) {
@@ -495,7 +496,7 @@ public class PMI extends EntityAssessor {
                     count++;
                 }
 
-                logger.info("start training the classifier with " + positiveEntities.size() + " positive, " + negativeEntities.size() + " negative , "
+                LOGGER.info("start training the classifier with " + positiveEntities.size() + " positive, " + negativeEntities.size() + " negative , "
                         + positiveEntitiesTuning.size() + " pos. tuning and " + negativeEntitiesTuning.size() + " neg. tuning entities");
 
                 // PMI pmi = new PMI();
@@ -506,7 +507,7 @@ public class PMI extends EntityAssessor {
                 addConcept(concept);
                 trainClassifiers(positiveEntities, negativeEntities, positiveEntitiesTuning, negativeEntitiesTuning, priorPositive, priorNegative);
 
-                logger.info("training finished, start calculating evaluation metrics for concept " + concept.getName());
+                LOGGER.info("training finished, start calculating evaluation metrics for concept " + concept.getName());
 
                 // calculate evaluation metrics
                 int totalRealCorrect = 0;
@@ -547,7 +548,7 @@ public class PMI extends EntityAssessor {
 
         createFlashChartLog(graphData);
 
-        logger.info(DateHelper.getRuntime(t1, System.currentTimeMillis(), true));
+        LOGGER.info(DateHelper.getRuntime(t1, System.currentTimeMillis(), true));
     }
 
     public static void main(String[] args) {

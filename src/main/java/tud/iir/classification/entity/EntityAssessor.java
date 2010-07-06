@@ -15,7 +15,7 @@ import tud.iir.persistence.DatabaseManager;
 public abstract class EntityAssessor {
 
     // the logger for the evaluation
-    protected static final Logger logger = Logger.getLogger(EntityAssessor.class);
+    protected static final Logger LOGGER = Logger.getLogger(EntityAssessor.class);
 
     // training percentage step size [0,1]
     protected double trainingPercentageStepSize = 0.1;
@@ -73,7 +73,7 @@ public abstract class EntityAssessor {
         double totalRecall = 0.0;
         double totalAccuracy = 0.0;
 
-        logger.info("############ evaluation metrics by concept ############");
+        LOGGER.info("############ evaluation metrics by concept ############");
 
         for (Concept concept : concepts) {
             ArrayList<Double> metric = evaluationMetrics.get(concept.getName());
@@ -81,28 +81,28 @@ public abstract class EntityAssessor {
             totalRecall += metric.get(1);
             totalAccuracy += metric.get(6);
 
-            logger.info("Evaluation Metrics for concept " + concept.getName() + ":");
-            logger.info("true positive: " + metric.get(3) + " true negative: " + metric.get(7) + ", real total positive: " + metric.get(4)
+            LOGGER.info("Evaluation Metrics for concept " + concept.getName() + ":");
+            LOGGER.info("true positive: " + metric.get(3) + " true negative: " + metric.get(7) + ", real total positive: " + metric.get(4)
                     + ", total assigned positive: " + metric.get(5) + ", total test: " + metric.get(8) + ")");
-            logger.info("Precision: " + metric.get(0));
-            logger.info("Recall: " + metric.get(1));
-            logger.info("F1: " + metric.get(2));
-            logger.info("Accuracy: " + metric.get(6));
-            logger.info("");
+            LOGGER.info("Precision: " + metric.get(0));
+            LOGGER.info("Recall: " + metric.get(1));
+            LOGGER.info("F1: " + metric.get(2));
+            LOGGER.info("Accuracy: " + metric.get(6));
+            LOGGER.info("");
         }
 
-        logger.info("############ average evaluation metrics over all concept ############");
+        LOGGER.info("############ average evaluation metrics over all concept ############");
 
         // averaged metric
         double precisionAveraged = totalPrecision / concepts.size();
         double recallAveraged = totalRecall / concepts.size();
         double f1Averaged = (2 * precisionAveraged * recallAveraged) / (precisionAveraged + recallAveraged);
         double accuracyAveraged = totalAccuracy / concepts.size();
-        logger.info("");
-        logger.info("Average Precision: " + precisionAveraged);
-        logger.info("Average Recall: " + recallAveraged);
-        logger.info("Average F1: " + f1Averaged);
-        logger.info("Average Accuracy: " + accuracyAveraged);
+        LOGGER.info("");
+        LOGGER.info("Average Precision: " + precisionAveraged);
+        LOGGER.info("Average Recall: " + recallAveraged);
+        LOGGER.info("Average F1: " + f1Averaged);
+        LOGGER.info("Average Accuracy: " + accuracyAveraged);
 
         ArrayList<Double> values = new ArrayList<Double>();
         values.add(precisionAveraged);
@@ -122,11 +122,11 @@ public abstract class EntityAssessor {
             double recall = MathHelper.round(dataEntry.getValue().get(1), 4);
             double f1 = MathHelper.round(dataEntry.getValue().get(2), 4);
             double accuracy = MathHelper.round(dataEntry.getValue().get(3), 4);
-            logger.info("p = new Point(" + step + "," + precision + "); dataPoints10.push(p);");
-            logger.info("p = new Point(" + step + "," + recall + "); dataPoints11.push(p);");
-            logger.info("p = new Point(" + step + "," + f1 + "); dataPoints12.push(p);");
-            logger.info("p = new Point(" + step + "," + accuracy + "); dataPoints13.push(p);");
-            logger.info("p = new Point(" + recall + "," + precision + "); dataPoints14.push(p);");
+            LOGGER.info("p = new Point(" + step + "," + precision + "); dataPoints10.push(p);");
+            LOGGER.info("p = new Point(" + step + "," + recall + "); dataPoints11.push(p);");
+            LOGGER.info("p = new Point(" + step + "," + f1 + "); dataPoints12.push(p);");
+            LOGGER.info("p = new Point(" + step + "," + accuracy + "); dataPoints13.push(p);");
+            LOGGER.info("p = new Point(" + recall + "," + precision + "); dataPoints14.push(p);");
         }
 
     }

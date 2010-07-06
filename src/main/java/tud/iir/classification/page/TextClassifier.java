@@ -73,10 +73,16 @@ public abstract class TextClassifier {
         initTime = System.currentTimeMillis();
     }
 
+    /**
+     * @return All the categories the classifier orders documents to.
+     */
     public Categories getCategories() {
         return categories;
     }
 
+    /**
+     * @param categories All the categories the classifier orders documents to.
+     */
     public void setCategories(Categories categories) {
         this.categories = categories;
     }
@@ -113,6 +119,7 @@ public abstract class TextClassifier {
         this.benchmark = benchmark;
     }
 
+ // TODO develop Web Page classifier subclass 
     /**
      * Check whether a given web page is a forum/board page. Make use of heuristics.
      * 
@@ -124,6 +131,14 @@ public abstract class TextClassifier {
         return isForum(crawler.getWebDocument(url));
     }
 
+    /**
+     * <p>
+     * 
+     * </p>
+     *
+     * @param document
+     * @return
+     */
     public static boolean isForum(org.w3c.dom.Document document) {
 
         int indicatorCount = 0;

@@ -29,6 +29,7 @@ import org.xml.sax.SAXNotSupportedException;
 
 import tud.iir.web.Crawler;
 
+// TODO move to preprocessing package
 /**
  * <p>
  * A quick <s>and dirty</s> port of the JavaScript browser bookmarklet "Readability" by Arc90 -- a great tool for

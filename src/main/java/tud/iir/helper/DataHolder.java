@@ -2,6 +2,7 @@ package tud.iir.helper;
 
 import java.util.HashMap;
 
+// TODO Rename to cache
 /**
  * The DataHolder can be used to store data objects such as model files. These files do not have to be re-read from hard disk every time they are needed.
  * 
@@ -9,14 +10,11 @@ import java.util.HashMap;
  */
 public class DataHolder {
 
-    private static DataHolder instance = null;
+    private static final DataHolder INSTANCE = new DataHolder();
     private HashMap<String, Object> dataObjects = new HashMap<String, Object>();
 
     public static DataHolder getInstance() {
-        if (instance == null) {
-            instance = new DataHolder();
-        }
-        return instance;
+        return INSTANCE;
     }
 
     public boolean containsDataObject(String name) {

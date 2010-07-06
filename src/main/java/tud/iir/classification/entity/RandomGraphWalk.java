@@ -412,16 +412,16 @@ public class RandomGraphWalk extends EntityAssessor {
         double trainingPercentage = 0.2;
         for (trustThresholdBias = 0.0; trustThresholdBias <= 1; trustThresholdBias += trustThresholdStepSize) {
 
-            logger.info("################################## start new iteration ##################################");
+            LOGGER.info("################################## start new iteration ##################################");
 
             // save the evaluation metrics: concept name : [precision,recall,f1,correctAssigned,realCorrect,totalAssignedCorrect]
             HashMap<String, ArrayList<Double>> evaluationMetrics = new HashMap<String, ArrayList<Double>>();
 
-            logger.info("use " + concepts.size() + " concepts for evaluation");
-            logger.info("training percentage: " + MathHelper.round(trainingPercentage, 2) + " (should be " + 400 * trainingPercentage + ")");
-            logger.info("seed percentage: " + seedPercentage + " (should be " + 400 * trainingPercentage * seedPercentage + ")");
-            logger.info("testing percentage: " + (1.0 - MathHelper.round(trainingPercentage, 2)) + " (" + 400 * (1.0 - trainingPercentage) + ")\n");
-            logger.info("trust threshold bias: " + trustThresholdBias + "\n");
+            LOGGER.info("use " + concepts.size() + " concepts for evaluation");
+            LOGGER.info("training percentage: " + MathHelper.round(trainingPercentage, 2) + " (should be " + 400 * trainingPercentage + ")");
+            LOGGER.info("seed percentage: " + seedPercentage + " (should be " + 400 * trainingPercentage * seedPercentage + ")");
+            LOGGER.info("testing percentage: " + (1.0 - MathHelper.round(trainingPercentage, 2)) + " (" + 400 * (1.0 - trainingPercentage) + ")\n");
+            LOGGER.info("trust threshold bias: " + trustThresholdBias + "\n");
 
             for (Concept concept : concepts) {
 
@@ -451,9 +451,9 @@ public class RandomGraphWalk extends EntityAssessor {
                 double negativeAverage = sumNegativeScores / countNegative;
                 double threshold = negativeAverage + trustThresholdBias * Math.abs((positiveAverage - negativeAverage));
 
-                logger.info("positive " + positiveAverage + "," + sumPositiveScores);
-                logger.info("negative " + negativeAverage + "," + sumNegativeScores);
-                logger.info("threshold " + threshold);
+                LOGGER.info("positive " + positiveAverage + "," + sumPositiveScores);
+                LOGGER.info("negative " + negativeAverage + "," + sumNegativeScores);
+                LOGGER.info("threshold " + threshold);
 
                 int totalRealCorrect = 0;
                 int totalAssigned = 0;
@@ -484,19 +484,19 @@ public class RandomGraphWalk extends EntityAssessor {
 
                 System.out.println("------------------");
 
-                logger.info("Seed Entities actually used: " + trainingEntitiesSeeds.size());
+                LOGGER.info("Seed Entities actually used: " + trainingEntitiesSeeds.size());
                 /*
                  * for (Entity entity : trainingEntitiesSeeds) { System.out.println(entity.getName()); } System.out.println(" ");
                  */
 
                 // System.out.println("Control Entities ("+trainingEntitiesControl.size()+")");
-                logger.info("Training Entities actually used: " + trainingEntities.size());
+                LOGGER.info("Training Entities actually used: " + trainingEntities.size());
                 /*
                  * for (Map.Entry<Entity,Boolean> entry: trainingEntitiesControl.entrySet()) {
                  * System.out.println(entry.getKey().getName()+" | "+entry.getValue()); } System.out.println(" ");
                  */
 
-                logger.info("Test Entities actually used: " + testingEntities.size());
+                LOGGER.info("Test Entities actually used: " + testingEntities.size());
                 /*
                  * for (Map.Entry<Entity,Boolean> entry: testingEntities.entrySet()) { System.out.println(entry.getKey().getName()+" | "+entry.getValue()); }
                  * System.out.println(" ");
@@ -510,7 +510,7 @@ public class RandomGraphWalk extends EntityAssessor {
 
         createFlashChartLog(graphData);
 
-        logger.info(DateHelper.getRuntime(t1, System.currentTimeMillis(), true));
+        LOGGER.info(DateHelper.getRuntime(t1, System.currentTimeMillis(), true));
     }
 
     /**
