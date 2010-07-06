@@ -61,7 +61,8 @@ public class StringHelperTest extends TestCase {
     public void testRename() {
         // System.out.println(FileHelper.rename(new
         // File("data/test/sampleTextForTagging.txt"),"sampleTextForTagging_tagged"));
-        String renamedFile = FileHelper.rename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged");
+        String renamedFile = FileHelper.rename(new File("data/test/sampleTextForTagging.txt"),
+                "sampleTextForTagging_tagged");
         renamedFile = renamedFile.substring(renamedFile.lastIndexOf(File.separatorChar) + 1);
         assertEquals("sampleTextForTagging_tagged.txt", renamedFile);
     }
@@ -225,36 +226,39 @@ public class StringHelperTest extends TestCase {
     }
 
     public void testRemoveStopWords() {
-        assertEquals("...neighborhoodthe ofrocking.", StringHelper.removeStopWords("...The neighborhoodthe is ofrocking of."));
-        assertEquals("neighborhood; REALLY; rocking!", StringHelper.removeStopWords("The neighborhood is; IS REALLY; rocking of!"));
-    }
-
-    public void testUnescapeHTMLEntities() {
-        // System.out.println(StringHelper.unescapeHTMLEntities("    81&nbsp;904 100     &#150;  _uacct = UA-66225"));
-        // assertEquals(StringHelper.unescapeHTMLEntities("    81&nbsp;904 100  &#150;     _uacct = UA-66225"),
-        // "    81 904 100     ?  _uacct = UA-66225");
-        // System.out.println(StringHelper.unescapeHTMLEntities("Don&#039;t be scared."));
-        assertEquals("Don't be scared.", StringHelper.unescapeHTMLEntities("Don&#039;t be scared."));
+        assertEquals("...neighborhoodthe ofrocking.", StringHelper
+                .removeStopWords("...The neighborhoodthe is ofrocking of."));
+        assertEquals("neighborhood; REALLY; rocking!", StringHelper
+                .removeStopWords("The neighborhood is; IS REALLY; rocking of!"));
     }
 
     public void testGetSentence() {
         // System.out.println(StringHelper.getSentence("...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as",
         // 40));
-        assertEquals(StringHelper.getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"), "Although, many of them (30.2%) are good.");
+        assertEquals(StringHelper.getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"),
+                "Although, many of them (30.2%) are good.");
         assertEquals(StringHelper.getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"),
                 "Although, many of them (30.2%) are good");
-        assertEquals(StringHelper.getSentence("...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
+        assertEquals(StringHelper.getSentence(
+                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
                 "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
-        assertEquals(StringHelper.getSentence("...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
+        assertEquals(StringHelper.getSentence(
+                "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
                 "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
-        assertEquals(StringHelper.getSentence("...now. Although, many of them (30.2%) are good. As long as", 10), "Although, many of them (30.2%) are good.");
-        assertEquals(StringHelper.getSentence("...now. Although, many of them (30.2%) are good. As long as", 40), "Although, many of them (30.2%) are good.");
-        assertEquals(StringHelper.getSentence("...now. Although, many of them (30.2%) are good.As long as", 40), "Although, many of them (30.2%) are good.");
-        assertEquals(StringHelper.getSentence("What is the largest city in usa, (30.2%) in population. - Yahoo! Answers,", 12),
+        assertEquals(StringHelper.getSentence("...now. Although, many of them (30.2%) are good. As long as", 10),
+                "Although, many of them (30.2%) are good.");
+        assertEquals(StringHelper.getSentence("...now. Although, many of them (30.2%) are good. As long as", 40),
+                "Although, many of them (30.2%) are good.");
+        assertEquals(StringHelper.getSentence("...now. Although, many of them (30.2%) are good.As long as", 40),
+                "Although, many of them (30.2%) are good.");
+        assertEquals(StringHelper.getSentence(
+                "What is the largest city in usa, (30.2%) in population. - Yahoo! Answers,", 12),
                 "What is the largest city in usa, (30.2%) in population. - Yahoo!");
-        assertEquals(StringHelper.getSentence("What is the largest city in usa, (30.2%) in population? - Yahoo! Answers,", 12),
+        assertEquals(StringHelper.getSentence(
+                "What is the largest city in usa, (30.2%) in population? - Yahoo! Answers,", 12),
                 "What is the largest city in usa, (30.2%) in population?");
-        assertEquals(StringHelper.getSentence("...now. Although, has 234,423,234 sq.miles area many of them (30.2%) are good. As long as", 10),
+        assertEquals(StringHelper.getSentence(
+                "...now. Although, has 234,423,234 sq.miles area many of them (30.2%) are good. As long as", 10),
                 "Although, has 234,423,234 sq.miles area many of them (30.2%) are good.");
     }
 
@@ -305,28 +309,40 @@ public class StringHelperTest extends TestCase {
 
     public void testLFEColonPattern() {
 
-        assertEquals("Volume: 96 cc", StringHelper.concatMatchedString("Volume: 96 cc", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume: 96", StringHelper.concatMatchedString("Volume: 96", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume: 96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume: 96 ccWeight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume : 96 cc||Weight : 128 g", StringHelper.concatMatchedString("Volume : 96 ccWeight : 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume/V: 96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume/V: 96 ccWeight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume:96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume:96 ccWeight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume: 96 cc||Net Weight: 128 g", StringHelper.concatMatchedString("Volume: 96 ccNet Weight: 128 g", "||",
+        assertEquals("Volume: 96 cc", StringHelper.concatMatchedString("Volume: 96 cc", "||",
                 RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume: 96", StringHelper.concatMatchedString("Volume: 96", "||",
+                RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume: 96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume: 96 ccWeight: 128 g",
+                "||", RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume : 96 cc||Weight : 128 g", StringHelper.concatMatchedString("Volume : 96 ccWeight : 128 g",
+                "||", RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume/V: 96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume/V: 96 ccWeight: 128 g",
+                "||", RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume:96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume:96 ccWeight: 128 g", "||",
+                RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume: 96 cc||Net Weight: 128 g", StringHelper.concatMatchedString(
+                "Volume: 96 ccNet Weight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
         // assertEquals("Volume: 96 cc||Weight: 128 g",
         // StringHelper.concatMatchedString("Volume: 96 cc,Weight: 128 g","||",RegExp.COLON_FACT_REPRESENTATION));
         // assertEquals("Volume: 96 cc||Net weight: 128 g",
         // StringHelper.concatMatchedString("Volume: 96 cc,Net weight: 128 g","||",RegExp.COLON_FACT_REPRESENTATION));
         // assertEquals("Volume/V: 96 cc||Weight/W: 128 g",
         // StringHelper.concatMatchedString("Volume/V: 96 cc,Weight/W: 128 g","||",RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("V8: yes, 800kb", StringHelper.concatMatchedString("V8: yes, 800kb", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("V8: yes, 800kb", StringHelper.concatMatchedString("V8: yes, 800kbDimensions", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Weight: 800, 600", StringHelper.concatMatchedString("Weight: 800, 600Dimensions", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Weight: 800, 600", StringHelper.concatMatchedString("Weight: 800, 600MBDimensions", "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Weight: 800, 600MB", StringHelper.concatMatchedString("Weight: 800, 600MB Dimensions", "||", RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("V8: yes, 800kb", StringHelper.concatMatchedString("V8: yes, 800kb", "||",
+                RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("V8: yes, 800kb", StringHelper.concatMatchedString("V8: yes, 800kbDimensions", "||",
+                RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Weight: 800, 600", StringHelper.concatMatchedString("Weight: 800, 600Dimensions", "||",
+                RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Weight: 800, 600", StringHelper.concatMatchedString("Weight: 800, 600MBDimensions", "||",
+                RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Weight: 800, 600MB", StringHelper.concatMatchedString("Weight: 800, 600MB Dimensions", "||",
+                RegExp.COLON_FACT_REPRESENTATION));
         // assertEquals("General InfoNetwork: GSM 1900, UMTS, GSM 800",
         // StringHelper.concatMatchedString("General InfoNetwork:&nbsp;GSM 1900, UMTS, GSM 800","||",RegExp.COLON_FACT_REPRESENTATION));
-        // assertEquals("Available Color(s): Black", StringHelper.concatMatchedString("Available Color(s):&nbsp;Black", "||",
+        // assertEquals("Available Color(s): Black", StringHelper.concatMatchedString("Available Color(s):&nbsp;Black",
+        // "||",
         // RegExp.COLON_FACT_REPRESENTATION));
         // assertEquals("General InfoNetwork: GSM 1900||Dimensions: 111 x 50 x 18.8 mm||Screen Size: 240 x 320 pixels||Color Depth: 16M colors, TFT||Weight: 114 g||Available Color(s): Black",
         // StringHelper.concatMatchedString("General InfoNetwork:&nbsp;GSM 1900Dimensions:&nbsp;111 x 50 x 18.8 mmScreen Size:&nbsp;240 x 320 pixelsColor Depth:&nbsp;16M colors, TFTWeight:&nbsp;114 gAvailable Color(s):&nbsp;Black","||",RegExp.COLON_FACT_REPRESENTATION));
@@ -338,7 +354,8 @@ public class StringHelperTest extends TestCase {
         assertEquals(4, StringHelper.countTags("<br />everybody is <b>here</b> to do some <p>work"));
         assertEquals(4, StringHelper.countTags("<br />everybody<br /> is <b>here</b> to do some <p>work", true));
         assertEquals(7, StringHelper.countTags("<br /><a>abc</a>everybody<br /> is <b>here</b> to do some <p>work"));
-        assertEquals(6, StringHelper.countTags("<br /><a>abc</a>everybody<br /> is <b>here</b> to do some <a>abc</a> <p>work", true));
+        assertEquals(6, StringHelper.countTags(
+                "<br /><a>abc</a>everybody<br /> is <b>here</b> to do some <a>abc</a> <p>work", true));
     }
 
     public void testEscapeForRegularExpression() {

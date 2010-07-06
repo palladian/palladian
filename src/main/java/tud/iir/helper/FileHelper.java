@@ -21,6 +21,7 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 // TODO Remove all functionalities that are provided by apache commons.
@@ -50,8 +51,8 @@ public class FileHelper {
 
     public static boolean isVideoFile(String fileType) {
         fileType = fileType.toLowerCase();
-        if (fileType.equals("mp4") || fileType.equals("flv") || fileType.equals("avi") || fileType.equals("mpeg2") || fileType.equals("divx")
-                || fileType.equals("mov") || fileType.equals("xvid")) {
+        if (fileType.equals("mp4") || fileType.equals("flv") || fileType.equals("avi") || fileType.equals("mpeg2")
+                || fileType.equals("divx") || fileType.equals("mov") || fileType.equals("xvid")) {
             return true;
         }
         return false;
@@ -59,7 +60,8 @@ public class FileHelper {
 
     public static boolean isAudioFile(String fileType) {
         fileType = fileType.toLowerCase();
-        if (fileType.equals("mp3") || fileType.equals("ogg") || fileType.equals("aac") || fileType.equals("wav") || fileType.equals("flac")) {
+        if (fileType.equals("mp3") || fileType.equals("ogg") || fileType.equals("aac") || fileType.equals("wav")
+                || fileType.equals("flac")) {
             return true;
         }
         return false;
@@ -88,8 +90,9 @@ public class FileHelper {
         String contents = readFileToString(path);
 
         if (stripTags) {
-            contents = StringHelper.unescapeHTMLEntities(contents);
-            contents = StringHelper.removeHTMLTags(contents, true, false, false, false); // TODO remove JS, CSS, comments and merge?
+            contents = StringEscapeUtils.unescapeHtml(contents);
+            contents = StringHelper.removeHTMLTags(contents, true, false, false, false); // TODO remove JS, CSS,
+                                                                                         // comments and merge?
             return contents;
         }
 
@@ -228,7 +231,8 @@ public class FileHelper {
      * 
      * @param filePath The path to the file.
      * @param string The text to append.
-     * @param before If true, the text will be appended before all other content, if false it will be appended to the end of the file.
+     * @param before If true, the text will be appended before all other content, if false it will be appended to the
+     *            end of the file.
      */
     public static void appendToFile(String filePath, StringBuilder string, boolean before) {
         appendToFile(filePath, string.toString(), before);
@@ -567,7 +571,7 @@ public class FileHelper {
         try {
             p = Runtime.getRuntime().exec(consoleCommand + " " + filenameInput);
             InputStream in = p.getInputStream();
-             while (in.read() != -1) {
+            while (in.read() != -1) {
                 // keep waiting until all output is rendered
             }
             p.getInputStream().close();
@@ -602,10 +606,14 @@ public class FileHelper {
      * @return The unzipped string.
      */
     /*
-     * public static String unzipString(String zippedString) { InputStream in = new StringInputStream(zippedString); //return unzipInputStreamToString(in);
-     * StringOutputStream out = new StringOutputStream(); try { GZIPInputStream zipin = new GZIPInputStream(in); int chunkSize = 8192; byte[] buffer = new
-     * byte[chunkSize]; int length; while ((length = zipin.read(buffer, 0, chunkSize)) != -1) { out.write(buffer, 0, length); } out.close(); zipin.close(); }
-     * catch (FileNotFoundException e) { e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); } return out.toString(); }
+     * public static String unzipString(String zippedString) { InputStream in = new StringInputStream(zippedString);
+     * //return unzipInputStreamToString(in);
+     * StringOutputStream out = new StringOutputStream(); try { GZIPInputStream zipin = new GZIPInputStream(in); int
+     * chunkSize = 8192; byte[] buffer = new
+     * byte[chunkSize]; int length; while ((length = zipin.read(buffer, 0, chunkSize)) != -1) { out.write(buffer, 0,
+     * length); } out.close(); zipin.close(); }
+     * catch (FileNotFoundException e) { e.printStackTrace(); } catch (IOException e) { e.printStackTrace(); } return
+     * out.toString(); }
      */
 
     /**
@@ -698,9 +706,9 @@ public class FileHelper {
         // FileHelper.addFileHeader("data/temp/src/tud/iir/web/test", sb);
         // System.exit(0);
         // ////////////////////////add license to every file //////////////////////////
-        writeToFile("temp/test.txt", Arrays.asList(new String[] {"one","two","three","four"}));
+        writeToFile("temp/test.txt", Arrays.asList(new String[] { "one", "two", "three", "four" }));
         System.exit(0);
-        
+
         FileHelper.move(new File("abc.txt"), "data");
         System.exit(0);
         FileHelper.unzipFile7z("wpc_1262_20091020_0017_1.log.gz");
@@ -729,6 +737,6 @@ public class FileHelper {
         isFileName("  abasdf.mpeg2 ");
 
         System.out.println(rename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
-        
+
     }
 }

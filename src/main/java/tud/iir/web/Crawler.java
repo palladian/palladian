@@ -191,11 +191,12 @@ public class Crawler {
         loadConfig(configPath);
     }
 
-    @SuppressWarnings("unchecked")
+    
     /**
      * Load the configuration file from the specified location and set the variables accordingly.
      * @param configPath The location of the configuration file.
      */
+    @SuppressWarnings("unchecked")
     public final void loadConfig(String configPath) {
         try {
             config = new PropertiesConfiguration(configPath);

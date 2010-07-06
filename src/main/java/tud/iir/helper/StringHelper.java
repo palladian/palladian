@@ -1250,7 +1250,7 @@ public class StringHelper {
             return string;
         }
 
-        string = unescapeHTMLEntities(string);
+        string = StringEscapeUtils.unescapeHtml(string);
 
         String[] unwanted = { ",", ".", ":", ";", "!", "|", "?", "¬", " ", " ", "#", "-", "\'", "\"", "*", "/", "\\",
                 "@", "<", ">", "=", "·", "^", "_", "+" }; // whitespace
@@ -1359,18 +1359,6 @@ public class StringHelper {
         String continuoustext = text.replaceAll("(\\s){1,}", " ");
 
         return continuoustext;
-    }
-
-    /**
-     * Unescape html entities.
-     * 
-     * @param string the string
-     * @return the string
-     */
-    public static String unescapeHTMLEntities(String string) {
-        String escaped = StringEscapeUtils.unescapeHtml(string);
-        escaped = escaped.replaceAll("â€™", "’");
-        return escaped.replaceAll(" ", " ");
     }
 
     /**
@@ -1600,7 +1588,7 @@ public class StringHelper {
      * @return the string
      */
     public static String concatMatchedString(String inputString, String separator, String regularExpression) {
-        String modInputString = StringHelper.unescapeHTMLEntities(inputString);
+        String modInputString = StringEscapeUtils.unescapeHtml(inputString);
         String string = "";
         Pattern pattern = Pattern.compile(regularExpression);
         Matcher matcher = pattern.matcher(modInputString);

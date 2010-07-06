@@ -18,6 +18,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -39,11 +40,13 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
 /**
- * FeedAggregator uses ROME library to fetch and parse feeds from the web. Feeds are stored persistently, aggregation method fetches new entries.
+ * FeedAggregator uses ROME library to fetch and parse feeds from the web. Feeds are stored persistently, aggregation
+ * method fetches new entries.
  * 
- * TODO add a "lastSuccessfullAggregation" attribute to feed, so we can filter out obsolute feeds. 
+ * TODO add a "lastSuccessfullAggregation" attribute to feed, so we can filter out obsolute feeds.
  * TODO we should check if an entry was modified and update.
- * TODO determine feed format for statistics? --> https://rome.dev.java.net/apidocs/1_0/com/sun/syndication/feed/WireFeed.html#getFeedType()
+ * TODO determine feed format for statistics? -->
+ * https://rome.dev.java.net/apidocs/1_0/com/sun/syndication/feed/WireFeed.html#getFeedType()
  * 
  * https://rome.dev.java.net/ *
  * 
@@ -57,14 +60,15 @@ public class FeedAggregator {
     private int maxThreads = 20;
 
     /**
-     * if enabled we use PageContentExtractor to get extract text for entries directly from their corresponding web pages if neccesary
+     * if enabled we use PageContentExtractor to get extract text for entries directly from their corresponding web
+     * pages if neccesary
      */
     private boolean useScraping = true;
 
-    private FeedStore store;
+    private final FeedStore store;
 
     /** used for all downloading purposes */
-    private Crawler crawler = new Crawler();
+    private final Crawler crawler = new Crawler();
 
     public FeedAggregator() {
         store = FeedDatabase.getInstance();
@@ -82,7 +86,8 @@ public class FeedAggregator {
      * 
      * @param feedUrl
      * @return
-     * @throws FeedAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be parsed.
+     * @throws FeedAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be
+     *             parsed.
      */
     private SyndFeed getFeedWithRome(String feedUrl) throws FeedAggregatorException {
         LOGGER.trace(">getFeedWithRome " + feedUrl);
@@ -97,7 +102,7 @@ public class FeedAggregator {
             // to RSS/Atom specific elements
             // see http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
             feedInput.setPreserveWireFeed(true);
-            
+
             // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
             // well, which we use inside the IIR toolkit.
             Document xmlDocument = crawler.getXMLDocument(feedUrl, false);
@@ -109,10 +114,12 @@ public class FeedAggregator {
         } catch (IllegalArgumentException e) {
             LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
             throw new FeedAggregatorException(e);
-        }/* catch (IOException e) {
-            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-            throw new FeedAggregatorException(e);
-        }*/ catch (FeedException e) {
+        }/*
+          * catch (IOException e) {
+          * LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
+          * throw new FeedAggregatorException(e);
+          * }
+          */catch (FeedException e) {
             LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
             throw new FeedAggregatorException(e);
         }
@@ -163,8 +170,8 @@ public class FeedAggregator {
     }
 
     /**
-     * Try to determine the extent of text within a feed. We distinguish between no text {@link Feed#TEXT_TYPE_NONE}, partial text
-     * {@link Feed#TEXT_TYPE_PARTIAL} and full text {@link Feed#TEXT_TYPE_FULL}.
+     * Try to determine the extent of text within a feed. We distinguish between no text {@link Feed#TEXT_TYPE_NONE},
+     * partial text {@link Feed#TEXT_TYPE_PARTIAL} and full text {@link Feed#TEXT_TYPE_FULL}.
      * 
      * @param syndFeed
      * @param feedUrl
@@ -224,7 +231,7 @@ public class FeedAggregator {
                 Document pageContent = extractor.getResultDocument();
                 String pageText = Helper.xmlToString(pageContent);
                 pageText = StringHelper.removeHTMLTags(pageText, true, true, true, true);
-                pageText = StringHelper.unescapeHTMLEntities(pageText);
+                pageText = StringEscapeUtils.unescapeHtml(pageText);
 
                 // first, calculate a similarity based solely on text lengths
                 float lengthSim = Helper.getLengthSim(entryText, pageText);
@@ -310,7 +317,7 @@ public class FeedAggregator {
             String title = syndEntry.getTitle();
             if (title != null) {
                 title = StringHelper.removeHTMLTags(title, true, true, true, true);
-                title = StringHelper.unescapeHTMLEntities(title);
+                title = StringEscapeUtils.unescapeHtml(title);
                 title = title.trim();
             }
 
@@ -370,7 +377,8 @@ public class FeedAggregator {
     }
 
     /**
-     * Try to get the text content from SyndEntry; either from content/summary/description element. Returns null if no text content exists.
+     * Try to get the text content from SyndEntry; either from content/summary/description element. Returns null if no
+     * text content exists.
      * 
      * @param syndEntry
      * @return
@@ -387,9 +395,9 @@ public class FeedAggregator {
             for (SyndContent content : contents) {
                 if (content.getValue() != null && content.getValue().length() != 0) {
                     entryText = content.getValue();
-                    
+
                     // TODO treat content by type!
-                    
+
                 }
             }
         }
@@ -402,7 +410,7 @@ public class FeedAggregator {
         // clean up --> strip out HTML tags, unescape HTML code
         if (entryText != null) {
             entryText = StringHelper.removeHTMLTags(entryText, true, true, true, true);
-            entryText = StringHelper.unescapeHTMLEntities(entryText);
+            entryText = StringEscapeUtils.unescapeHtml(entryText);
             entryText = entryText.trim();
         }
         LOGGER.trace("<getEntryText "/* + entryText */);
@@ -445,7 +453,8 @@ public class FeedAggregator {
     }
 
     /**
-     * Add a Collection of feedUrls for aggregation. This process runs threaded. Use {@link #setMaxThreads(int)} to set the maximum number of concurrently
+     * Add a Collection of feedUrls for aggregation. This process runs threaded. Use {@link #setMaxThreads(int)} to set
+     * the maximum number of concurrently
      * running threads.
      * 
      * @param feedUrls
@@ -544,7 +553,8 @@ public class FeedAggregator {
     }
 
     /**
-     * Do the aggregation process. New entries from all known feeds will be aggregated. Use {@link #setMaxThreads(int)} to set the number of maximum parallel
+     * Do the aggregation process. New entries from all known feeds will be aggregated. Use {@link #setMaxThreads(int)}
+     * to set the number of maximum parallel
      * threads.
      * 
      * @return number of aggregated new entries.
@@ -683,8 +693,10 @@ public class FeedAggregator {
     }
 
     /**
-     * If enabled, we use {@link PageContentExtractor} to analyse feed type and to extract more text from feed entries with only partial text representations.
-     * Keep in mind that this causes heavy traffic and takes a lot of more time than a simple aggregation process from XML feeds only.
+     * If enabled, we use {@link PageContentExtractor} to analyse feed type and to extract more text from feed entries
+     * with only partial text representations.
+     * Keep in mind that this causes heavy traffic and takes a lot of more time than a simple aggregation process from
+     * XML feeds only.
      * 
      * @param usePageContentExtractor
      */
@@ -732,28 +744,38 @@ public class FeedAggregator {
     public static void main(String[] args) {
 
         FeedAggregator aggregator = new FeedAggregator();
-        
+
         CommandLineParser parser = new BasicParser();
-        
-        // CLI usage: FeedAggregator [-threads nn] [-noScraping] [-add <feed-Url>] [-addFile <file>] [-aggregate] [-aggregateWait <minutes>]
+
+        // CLI usage: FeedAggregator [-threads nn] [-noScraping] [-add <feed-Url>] [-addFile <file>] [-aggregate]
+        // [-aggregateWait <minutes>]
         Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("threads").withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("noScraping").withDescription("disable PageContentExtractor").create());
-        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName("feedUrl").create());
-        options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file").hasArg().withArgName("file").create());
+        options.addOption(OptionBuilder.withLongOpt("threads")
+                .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(
+                        Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("noScraping").withDescription("disable PageContentExtractor")
+                .create());
+        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName(
+                "feedUrl").create());
+        options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
+                .hasArg().withArgName("file").create());
         options.addOption(OptionBuilder.withLongOpt("aggregate").withDescription("run aggregation process").create());
-        options.addOption(OptionBuilder.withLongOpt("aggregateWait").withDescription("run continuous aggregation process; wait for specified number of minutes between each aggregation step").hasArg().withArgName("minutes").withType(Number.class).create());
-        
-        
+        options
+                .addOption(OptionBuilder
+                        .withLongOpt("aggregateWait")
+                        .withDescription(
+                                "run continuous aggregation process; wait for specified number of minutes between each aggregation step")
+                        .hasArg().withArgName("minutes").withType(Number.class).create());
+
         try {
-            
+
             CommandLine cmd = parser.parse(options, args);
-            
+
             if (args.length < 1) {
                 // no arguments given, print usage help in catch clause.
                 throw new ParseException(null);
             }
-            
+
             if (cmd.hasOption("threads")) {
                 aggregator.setMaxThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
             }
@@ -770,26 +792,23 @@ public class FeedAggregator {
                 aggregator.aggregate();
             }
             if (cmd.hasOption("aggregateWait")) {
-                int waitMinutes = ((Number)cmd.getParsedOptionValue("aggregateWait")).intValue() * DateHelper.MINUTE_MS;
+                int waitMinutes = ((Number) cmd.getParsedOptionValue("aggregateWait")).intValue()
+                        * DateHelper.MINUTE_MS;
                 while (true) {
                     aggregator.aggregate();
                     LOGGER.info("sleeping for " + waitMinutes + " minutes");
                     ThreadHelper.sleep(waitMinutes);
                 }
             }
-            
+
             return;
-            
-            
+
         } catch (ParseException e) {
             // print usage help
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("FeedAggregator [options]", options);            
+            formatter.printHelp("FeedAggregator [options]", options);
         }
-        
 
     }
-
-
 
 }

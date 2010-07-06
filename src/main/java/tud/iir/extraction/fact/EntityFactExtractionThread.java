@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import tud.iir.extraction.ExtractionProcessManager;
@@ -33,7 +34,8 @@ import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
 
 /**
- * The EntityFactExtractionThread extracts facts for one given entity. Therefore, extracting facts can be parallelized on the entity level.
+ * The EntityFactExtractionThread extracts facts for one given entity. Therefore, extracting facts can be parallelized
+ * on the entity level.
  * 
  * @author David Urbansky
  */
@@ -66,13 +68,15 @@ public class EntityFactExtractionThread extends Thread {
         fq = FactQueryFactory.getInstance().createManyAttributesQuery(entity, FactQueryFactory.TYPE_X_FACTS);
         extractFromFactPages(fq);
         // logger.log("### query with type x yn ###");
-        // fq = FactQueryFactory.getInstance().createFactQueryForManyAttributes(currentEntity, FactQueryFactory.TYPE_X_YN);
+        // fq = FactQueryFactory.getInstance().createFactQueryForManyAttributes(currentEntity,
+        // FactQueryFactory.TYPE_X_YN);
         // extractFromFactPages(fq);
 
         // iterate through all attributes for current concept
         HashSet<Attribute> currentAttributes = entity.getConcept().getAttributes(true);
 
-        // use an array because the iterator throws a concurrent modification exception when a new attribute is added to the KnowledgeManager
+        // use an array because the iterator throws a concurrent modification exception when a new attribute is added to
+        // the KnowledgeManager
         Attribute[] attributeArray = new Attribute[currentAttributes.size()];
         Iterator<Attribute> attributeIterator = currentAttributes.iterator();
         int i = 0;
@@ -106,24 +110,28 @@ public class EntityFactExtractionThread extends Thread {
             } else {
 
                 LOGGER.info("### query with type x'y is ###");
-                fq = FactQueryFactory.getInstance().createSingleAttributeQuery(entity, currentAttribute, FactQueryFactory.TYPE_X_Y_IS);
+                fq = FactQueryFactory.getInstance().createSingleAttributeQuery(entity, currentAttribute,
+                        FactQueryFactory.TYPE_X_Y_IS);
                 extractFromFactPages(fq);
                 LOGGER.info("### query with type y of x is ###");
-                fq = FactQueryFactory.getInstance().createSingleAttributeQuery(entity, currentAttribute, FactQueryFactory.TYPE_Y_OF_X_IS);
+                fq = FactQueryFactory.getInstance().createSingleAttributeQuery(entity, currentAttribute,
+                        FactQueryFactory.TYPE_Y_OF_X_IS);
                 extractFromFactPages(fq);
                 LOGGER.info("### query with type x y ###");
-                fq = FactQueryFactory.getInstance().createSingleAttributeQuery(entity, currentAttribute, FactQueryFactory.TYPE_X_Y);
+                fq = FactQueryFactory.getInstance().createSingleAttributeQuery(entity, currentAttribute,
+                        FactQueryFactory.TYPE_X_Y);
                 extractFromFactPages(fq);
             }
         }
 
-        LOGGER.info("Thread finished in " + DateHelper.getRuntime(t1) + "s, facts for \"" + entity.getName() + "\" were sought. " + entity.getFacts().size()
-                + " facts about the entity in total.");
+        LOGGER.info("Thread finished in " + DateHelper.getRuntime(t1) + "s, facts for \"" + entity.getName()
+                + "\" were sought. " + entity.getFacts().size() + " facts about the entity in total.");
         FactExtractor.getInstance().decreaseThreadCount();
     }
 
     /**
-     * Get the contents of the pages where the fact query matches. Pass entity to specialized extraction algorithms that add facts/fact values to the entity.
+     * Get the contents of the pages where the fact query matches. Pass entity to specialized extraction algorithms that
+     * add facts/fact values to the entity.
      * 
      * @param fq The fact query.
      */
@@ -197,7 +205,8 @@ public class EntityFactExtractionThread extends Thread {
             // String path = IndexManager.getInstance().getIndexPath()+"/";
             // String filename = "website"+counter+".html";
             //			
-            // // download urls only once but when they are free text queries (because these have not been tested on general query results)
+            // // download urls only once but when they are free text queries (because these have not been tested on
+            // general query results)
             // if (fq.getFactStructureType() == FactQuery.FREE_TEXT_ONLY || urlsSeenForEntity.add(url)) {
             // if (crawler.downloadAndSave(url,path+filename)) {
             // IndexManager.getInstance().writeIndex(filename, url, resultID);
@@ -226,7 +235,8 @@ public class EntityFactExtractionThread extends Thread {
             if (freeTextOnly) {
                 // for reading from index TODO still working with line breaks?
                 String pageString = FileHelper.readHTMLFileToString(url, freeTextOnly);
-                // String pageString = crawler.download(url,freeTextOnly); // get the contents, strip html tags only if fact pattern can only be found in free
+                // String pageString = crawler.download(url,freeTextOnly); // get the contents, strip html tags only if
+                // fact pattern can only be found in free
                 // text
 
                 LOGGER.info("apply free text only query on " + url);
@@ -241,7 +251,8 @@ public class EntityFactExtractionThread extends Thread {
     }
 
     /**
-     * Extract fact values that are related to the given pattern. The pattern is supposed to be found in free text, e.g. "the population of Germany is".
+     * Extract fact values that are related to the given pattern. The pattern is supposed to be found in free text, e.g.
+     * "the population of Germany is".
      * 
      * @param entity The entity.
      * @param patternSet A set of patterns.
@@ -267,7 +278,8 @@ public class EntityFactExtractionThread extends Thread {
                 Matcher m = pat.matcher(pageString);
                 m.region(0, pageString.length());
                 while (m.find()) {
-                    String searchArea = pageString.substring(m.start() + currentPattern.length(), Math.min(m.start() + 150, pageString.length()));
+                    String searchArea = pageString.substring(m.start() + currentPattern.length(), Math.min(
+                            m.start() + 150, pageString.length()));
                     searchArea = StringHelper.getPhraseToEndOfSentence(searchArea);
                     FactString factString = new FactString(searchArea, ExtractionType.PATTERN_PHRASE);
                     extractValue(entity, factString, attribute);
@@ -281,7 +293,8 @@ public class EntityFactExtractionThread extends Thread {
     }
 
     /**
-     * The plain extraction treats the website as a long string without tags every mention of the attribute will be found and the surrounding text is searched
+     * The plain extraction treats the website as a long string without tags every mention of the attribute will be
+     * found and the surrounding text is searched
      * for the attributes regular expression.
      * 
      * @param entity The entity.
@@ -389,7 +402,8 @@ public class EntityFactExtractionThread extends Thread {
 
         FactExtractionDecisionTree dt = new FactExtractionDecisionTree(entity, url);
 
-        // use an array because the iterator throws a concurrent modification exception when a new attribute is added to the KnowledgeManager
+        // use an array because the iterator throws a concurrent modification exception when a new attribute is added to
+        // the KnowledgeManager
         Attribute[] attributeArray = new Attribute[attributes.size()];
         Iterator<Attribute> attributeIterator = attributes.iterator();
         int i = 0;
@@ -420,8 +434,9 @@ public class EntityFactExtractionThread extends Thread {
                 Attribute attribute = currentEntry.getKey();
                 ArrayList<FactString> attributeFactStrings = currentEntry.getValue();
 
-                System.out.println("\n" + currentEntry.getKey().getName() + " (" + currentEntry.getKey().getValueTypeName() + ") with "
-                        + attributeFactStrings.size() + " values");
+                System.out.println("\n" + currentEntry.getKey().getName() + " ("
+                        + currentEntry.getKey().getValueTypeName() + ") with " + attributeFactStrings.size()
+                        + " values");
                 // CollectionHelper.print(currentEntry.getValue());
 
                 // extract the fact values from each of the strings for the current attribute
@@ -454,13 +469,13 @@ public class EntityFactExtractionThread extends Thread {
         // logger.log("1 try to match on "+searchString,true);
 
         // clean up the search string
-        searchString = StringHelper.unescapeHTMLEntities(searchString);
+        searchString = StringEscapeUtils.unescapeHtml(searchString);
         // logger.log("2 try to match on "+searchString,true);
 
         // entity from search string as it is also a noun and might be matched
         try {
-            searchString = searchString.replaceAll("(?<=(\\.|,|(\\W)|(\\A)|(\\Z)|\\s))(?i)" + StringHelper.escapeForRegularExpression(entity.getName())
-                    + "(?=(\\.|,|(\\W)|(\\Z)|\\s))", "");
+            searchString = searchString.replaceAll("(?<=(\\.|,|(\\W)|(\\A)|(\\Z)|\\s))(?i)"
+                    + StringHelper.escapeForRegularExpression(entity.getName()) + "(?=(\\.|,|(\\W)|(\\Z)|\\s))", "");
         } catch (PatternSyntaxException e) {
             LOGGER.error(entity.getName(), e);
             return;
@@ -468,19 +483,23 @@ public class EntityFactExtractionThread extends Thread {
 
         // logger.log("3 try to match on "+searchString,true);
 
-        // attribute appears in sentence, to determine the distance between the potential fact value get the index of the attribute
+        // attribute appears in sentence, to determine the distance between the potential fact value get the index of
+        // the attribute
         int attributeIndex = searchString.toLowerCase().indexOf(attribute.getName().toLowerCase());
 
         // replace all instances of the attribute
-        searchString = searchString.replaceAll("(?<=(\\.|,|(\\W)|(\\A)|(\\Z)|\\s))(?i)" + StringHelper.escapeForRegularExpression(attribute.getName())
-                + "(?=(\\.|,|(\\W)|(\\Z)|\\s))", "");
+        searchString = searchString.replaceAll("(?<=(\\.|,|(\\W)|(\\A)|(\\Z)|\\s))(?i)"
+                + StringHelper.escapeForRegularExpression(attribute.getName()) + "(?=(\\.|,|(\\W)|(\\Z)|\\s))", "");
         // logger.log("4 try to match on "+searchString,true);
 
-        // remove any information from brackets "()" and "[]" they often hold additional information that might be matched which is not wanted
+        // remove any information from brackets "()" and "[]" they often hold additional information that might be
+        // matched which is not wanted
         // searchString = searchString.replaceAll("\\(.*\\)","").replaceAll("\\[.*\\]","");
 
-        // searchString = StringHelper.removeStopWords(searchString); // TODO test here or later, if removed here false extraction can happen, e.g.
-        // "Sydney is Australia's largest city" => "Sydney Australia's largest city" => extract "Sydney Australia" because "is" is a stop word
+        // searchString = StringHelper.removeStopWords(searchString); // TODO test here or later, if removed here false
+        // extraction can happen, e.g.
+        // "Sydney is Australia's largest city" => "Sydney Australia's largest city" => extract "Sydney Australia"
+        // because "is" is a stop word
 
         // trim string length to 40 characters do not cut in between words
         // TODO changes many values examine in more detail!
@@ -499,7 +518,8 @@ public class EntityFactExtractionThread extends Thread {
         try {
             pat = java.util.regex.Pattern.compile(attribute.getRegExp());
         } catch (PatternSyntaxException e) {
-            LOGGER.error("PatternSyntaxException for " + attribute.getName() + " with regExp " + attribute.getRegExp(), e);
+            LOGGER.error("PatternSyntaxException for " + attribute.getName() + " with regExp " + attribute.getRegExp(),
+                    e);
             return;
         }
         Matcher m = pat.matcher(searchString);
@@ -509,7 +529,8 @@ public class EntityFactExtractionThread extends Thread {
         String afterValueText = ""; // for numbers this text can hold information about units
 
         // search string have different types depending on which way they have been extracted, handle them accordingly
-        if (factString.getExtractionType() == ExtractionType.FREE_TEXT_SENTENCE || factString.getExtractionType() == ExtractionType.UNKNOWN) {
+        if (factString.getExtractionType() == ExtractionType.FREE_TEXT_SENTENCE
+                || factString.getExtractionType() == ExtractionType.UNKNOWN) {
 
             // for strings, numbers and dates take the appearance closest to the attribute
             int shortestDistance = -1;
@@ -523,17 +544,27 @@ public class EntityFactExtractionThread extends Thread {
 
                 }
                 // System.out.println("found in sentence ("+factString.getType()+") "+m.group()+" (closest so far: "+shortestDistanceValue+") after value:"+afterValueText/*+distance+" "+attributeIndex+" "+shortestDistance*/);
-                LOGGER.info("found in sentence (" + factString.getExtractionType() + ") " + m.group() + " (closest so far: " + shortestDistanceValue
-                        + ") after value:" + afterValueText/* +distance+" "+attributeIndex+" "+shortestDistance */);
+                LOGGER.info("found in sentence (" + factString.getExtractionType() + ") " + m.group()
+                        + " (closest so far: " + shortestDistanceValue + ") after value:" + afterValueText/*
+                                                                                                           * +distance+" "
+                                                                                                           * +
+                                                                                                           * attributeIndex
+                                                                                                           * +" "+
+                                                                                                           * shortestDistance
+                                                                                                           */);
             }
 
-            // add fact candidate for entity and attribute, checking whether fact or fact value has been entered already is done in the entity and fact class
+            // add fact candidate for entity and attribute, checking whether fact or fact value has been entered already
+            // is done in the entity and fact class
             // respectively
-            // entity.addFactAndValue(new Fact(attribute),new FactValue(shortestDistanceValue,new Source(Source.SEMI_STRUCTURED,getCurrentSource())));
+            // entity.addFactAndValue(new Fact(attribute),new FactValue(shortestDistanceValue,new
+            // Source(Source.SEMI_STRUCTURED,getCurrentSource())));
             addFactValue(entity, attribute, shortestDistanceValue, factString.getExtractionType(), afterValueText);
 
-        } else if (factString.getExtractionType() == ExtractionType.PATTERN_PHRASE || factString.getExtractionType() == ExtractionType.COLON_PHRASE
-                || factString.getExtractionType() == ExtractionType.STRUCTURED_PHRASE || factString.getExtractionType() == ExtractionType.TABLE_CELL) {
+        } else if (factString.getExtractionType() == ExtractionType.PATTERN_PHRASE
+                || factString.getExtractionType() == ExtractionType.COLON_PHRASE
+                || factString.getExtractionType() == ExtractionType.STRUCTURED_PHRASE
+                || factString.getExtractionType() == ExtractionType.TABLE_CELL) {
 
             // if (searchString.length() > 34) {
             // int nextSpaceIndex = searchString.indexOf(" ",34);
@@ -541,13 +572,17 @@ public class EntityFactExtractionThread extends Thread {
             // searchString = searchString.substring(0,nextSpaceIndex);
             // }
 
-            // // if fact value type is string, the found string is short and in a table it might be belong all to the fact so take everything
-            // if (attribute.getValueType() == Attribute.VALUE_STRING && searchString.length() < 40 && factString.getType() == ExtractionType.TABLE_CELL) {
+            // // if fact value type is string, the found string is short and in a table it might be belong all to the
+            // fact so take everything
+            // if (attribute.getValueType() == Attribute.VALUE_STRING && searchString.length() < 40 &&
+            // factString.getType() == ExtractionType.TABLE_CELL) {
             //        		
-            // // add fact candidate for entity and attribute, checking whether fact or fact value has been entered already is done in the entity and fact class
+            // // add fact candidate for entity and attribute, checking whether fact or fact value has been entered
+            // already is done in the entity and fact class
             // respectively
             // logger.log("found in phrase (take everything) ("+factString.getType()+") "+searchString,true);
-            // //entity.addFactAndValue(new Fact(attribute),new FactValue(searchString,new Source(Source.SEMI_STRUCTURED,getCurrentSource())));
+            // //entity.addFactAndValue(new Fact(attribute),new FactValue(searchString,new
+            // Source(Source.SEMI_STRUCTURED,getCurrentSource())));
             // addFactValue(entity,attribute,searchString,factString.getType());
             //    			
             //        	       	
@@ -560,10 +595,13 @@ public class EntityFactExtractionThread extends Thread {
                     afterValueText = searchString.substring(m.end(), Math.min(searchString.length(), m.end() + 26));
                 }
 
-                // add fact candidate for entity and attribute, checking whether fact or fact value has been entered already is done in the entity and fact
+                // add fact candidate for entity and attribute, checking whether fact or fact value has been entered
+                // already is done in the entity and fact
                 // class respectively
-                LOGGER.info("found in phrase (" + factString.getExtractionType() + ") " + m.group() + " after value:" + afterValueText);
-                // entity.addFactAndValue(new Fact(attribute),new FactValue(m.group(),new Source(Source.SEMI_STRUCTURED,getCurrentSource())));
+                LOGGER.info("found in phrase (" + factString.getExtractionType() + ") " + m.group() + " after value:"
+                        + afterValueText);
+                // entity.addFactAndValue(new Fact(attribute),new FactValue(m.group(),new
+                // Source(Source.SEMI_STRUCTURED,getCurrentSource())));
                 addFactValue(entity, attribute, m.group(), factString.getExtractionType(), afterValueText);
             }
         }
@@ -594,7 +632,8 @@ public class EntityFactExtractionThread extends Thread {
             // normalize units when given
             if (factString.length() > 0) {
                 try {
-                    factString = String.valueOf(UnitNormalizer.getNormalizedNumber(Double.valueOf(factString), unitText));
+                    factString = String.valueOf(UnitNormalizer
+                            .getNormalizedNumber(Double.valueOf(factString), unitText));
 
                     // make it a normalized string again (no .0)
                     factString = StringNormalizer.normalizeNumber(factString);

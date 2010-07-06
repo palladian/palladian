@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import tud.iir.extraction.ExtractionType;
@@ -24,7 +25,8 @@ import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
 
 /**
- * The LiveFactExtractor manages fact extraction for entity names of unknown concepts. Only the names of the entities are known.
+ * The LiveFactExtractor manages fact extraction for entity names of unknown concepts. Only the names of the entities
+ * are known.
  * 
  * @author David Urbansky
  */
@@ -130,7 +132,8 @@ public class LiveFactExtractor {
 
                 String cellContent1 = StringHelper.trim(pa.getTextByXPath(rowXPath));
                 rowXPath = pa.getNextTableCell(rowXPath);
-                String cellContent2 = StringHelper.trim(pa.getTextByXPath(rowXPath).replaceAll("(\\?\\s)|((\\s\\?)|(\\?))", ""));
+                String cellContent2 = StringHelper.trim(pa.getTextByXPath(rowXPath).replaceAll(
+                        "(\\?\\s)|((\\s\\?)|(\\?))", ""));
 
                 if (cellContent1.length() == 0 || cellContent2.length() == 0) {
                     if (expectedRowsAdded < 10) {
@@ -183,11 +186,13 @@ public class LiveFactExtractor {
             while (matcher.find()) {
                 String attributeString = matcher.group().substring(1).replaceAll("<.*?>", "");
 
-                // take all text after attribute until next closing tag TODO jump over several closing tags after attribute if no text was in between (as in
+                // take all text after attribute until next closing tag TODO jump over several closing tags after
+                // attribute if no text was in between (as in
                 // ../testing/website9_movie.html)
                 int startIndex = matcher.end();
                 int endIndex = pageContent.indexOf("</", startIndex);
-                if (pageContent.toLowerCase().indexOf("<br", startIndex) > -1 && pageContent.toLowerCase().indexOf("<br", startIndex) < endIndex) {
+                if (pageContent.toLowerCase().indexOf("<br", startIndex) > -1
+                        && pageContent.toLowerCase().indexOf("<br", startIndex) < endIndex) {
                     endIndex = pageContent.toLowerCase().indexOf("<br", startIndex);
                 }
 
@@ -202,8 +207,9 @@ public class LiveFactExtractor {
                 attributeString = StringHelper.trim(attributeString);
                 valueString = StringHelper.trim(valueString.replaceAll("(\\?\\s)|((\\s\\?)|(\\?))", ""));
 
-                if (attributeString.length() == 0 || attributeString.length() > 30 || valueString.length() == 0 || attributeString.endsWith("http")
-                        || attributeString.endsWith("\"javascript") || attributeString.endsWith("http") || attributeString.indexOf("style=") > -1) {
+                if (attributeString.length() == 0 || attributeString.length() > 30 || valueString.length() == 0
+                        || attributeString.endsWith("http") || attributeString.endsWith("\"javascript")
+                        || attributeString.endsWith("http") || attributeString.indexOf("style=") > -1) {
                     continue;
                 }
 
@@ -235,22 +241,27 @@ public class LiveFactExtractor {
         LiveFactExtractor lfe = new LiveFactExtractor("DMC-FX35");
         ArrayList<Fact> facts = lfe.extractFacts(3);
         CollectionHelper.print(facts);
-        
+
         System.exit(0);
 
-        // ArrayList<Fact> facts = lfe.extractFacts("http://www.alibaba.com/product-free/11472106/30_x_Nokia_N73_cell_phone.html");
+        // ArrayList<Fact> facts =
+        // lfe.extractFacts("http://www.alibaba.com/product-free/11472106/30_x_Nokia_N73_cell_phone.html");
         // ArrayList<Fact> facts = lfe.extractFacts("http://www.notebookcheck.net/Dell-Vostro-1710.9697.0.html");
         // ArrayList<Fact> facts = lfe.extractFacts("http://www.cellphonevibes.com/nokia/n77.html");
 
         // Crawler c = new Crawler();
-        // Document document = c.getDocument("data/benchmarkSelection/facts/liveFactExtraction/training/website1.html", true);
+        // Document document = c.getDocument("data/benchmarkSelection/facts/liveFactExtraction/training/website1.html",
+        // true);
         // String contentString = document.getLastChild().getTextContent();
-        // String contentString = FileHelper.readFileToString("data/benchmarkSelection/facts/liveFactExtraction/training/website1.html");
+        // String contentString =
+        // FileHelper.readFileToString("data/benchmarkSelection/facts/liveFactExtraction/training/website1.html");
         // System.out.println(contentString);
         // contentString = contentString.replaceAll("\\<(.|\n)*?>","");
 
-        // ArrayList<Fact> facts = lfe.extractFacts("data/benchmarkSelection/facts/liveFactExtraction/training/website2.html");
-        ArrayList<Fact> facts2 = lfe.extractFacts("data/benchmarkSelection/facts/liveFactExtraction/testing/website3_car.html");
+        // ArrayList<Fact> facts =
+        // lfe.extractFacts("data/benchmarkSelection/facts/liveFactExtraction/training/website2.html");
+        ArrayList<Fact> facts2 = lfe
+                .extractFacts("data/benchmarkSelection/facts/liveFactExtraction/testing/website3_car.html");
         CollectionHelper.print(facts2);
 
         System.exit(0);
@@ -263,7 +274,8 @@ public class LiveFactExtractor {
 
         // Pattern pattern = Pattern.compile(RegExp.COLON_FACT_REPRESENTATION);
         text = FileHelper.readFileToString("data/benchmarkSelection/facts/liveFactExtraction/training/website1.html");
-        Pattern pattern = Pattern.compile("((\\<!--.*?-->)|(\\<style.*?>.*?\\</style>)|(\\<script.*?>.*?\\</script>)|(\\<.*?>))", Pattern.DOTALL);
+        Pattern pattern = Pattern.compile(
+                "((\\<!--.*?-->)|(\\<style.*?>.*?\\</style>)|(\\<script.*?>.*?\\</script>)|(\\<.*?>))", Pattern.DOTALL);
         Matcher matcher = pattern.matcher(text);
 
         while (matcher.find()) {
@@ -279,12 +291,14 @@ public class LiveFactExtractor {
         // text = "Volume: 96 cc Weight: 128 g";
         text = "General InfoNetwork:&nbsp;GSM 1900Dimensions:&nbsp;111 x 50 x 18.8 mmScreen Size:&nbsp;240 x 320 pixelsColor Depth:&nbsp;16M colors, TFTWeight:&nbsp;114 gAvailable Color(s):&nbsp;Black";
         System.out.println(text);
-        text = StringHelper.unescapeHTMLEntities(text);
+        text = StringEscapeUtils.unescapeHtml(text);
         System.out.println(text);
 
         /*
-         * Pattern pattern = Pattern.compile(RegExp.COLON_FACT_REPRESENTATION); Matcher matcher = pattern.matcher(text); while (matcher.find()) {
-         * System.out.println(matcher.group()); } text = StringHelper.concatMatchedString(text,"||",RegExp.COLON_FACT_REPRESENTATION); text += "";
+         * Pattern pattern = Pattern.compile(RegExp.COLON_FACT_REPRESENTATION); Matcher matcher = pattern.matcher(text);
+         * while (matcher.find()) {
+         * System.out.println(matcher.group()); } text =
+         * StringHelper.concatMatchedString(text,"||",RegExp.COLON_FACT_REPRESENTATION); text += "";
          */
 
     }
