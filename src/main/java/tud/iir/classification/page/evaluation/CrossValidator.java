@@ -21,6 +21,8 @@ import tud.iir.helper.FileHelper;
  * @author David Urbansky
  * @author Sandro Reichert
  * 
+ * @todo Implement real cross-validation which chooses for a training data percentage of 10% the first 10% in the first
+ *           run, the second 10% in the second run etc. This may require an update of class TrainingDataSeparation.
  */
 public class CrossValidator {
 
