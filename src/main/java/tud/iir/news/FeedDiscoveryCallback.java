@@ -23,7 +23,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
 
     private static final FeedDiscoveryCallback INSTANCE = new FeedDiscoveryCallback();
     
-    private static final Logger LOGGER = Logger.getLogger(FeedDiscoveryCallback.class);
+    //private static final Logger LOGGER = Logger.getLogger(FeedDiscoveryCallback.class);
 
     private static final String DEFAULT_FILE_PATH = "data/discovered_feeds.txt";
 
@@ -37,7 +37,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
             PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
             filePath = config.getString("crawlerDiscoveryList", DEFAULT_FILE_PATH);
         } catch (ConfigurationException e) {
-            LOGGER.trace("failed to read configuration " + e.getMessage());
+            Logger.getRootLogger().error("failed to read configuration: " + e.getMessage());
         }
     }
 

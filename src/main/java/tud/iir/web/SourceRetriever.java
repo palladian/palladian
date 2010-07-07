@@ -51,7 +51,7 @@ public class SourceRetriever {
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(SourceRetriever.class);
 
-    private SourceRetrieverManager SRManager = null;
+    private SourceRetrieverManager srManager = null;
 
     // determines how many sources (urls) should be retrieved
     private int resultCount;
@@ -67,9 +67,9 @@ public class SourceRetriever {
     private int language = LANGUAGE_ENGLISH;
 
     public SourceRetriever() {
-        SRManager = SourceRetrieverManager.getInstance();
-        setResultCount(SRManager.getResultCount());
-        setSource(SRManager.getSource());
+        srManager = SourceRetrieverManager.getInstance();
+        setResultCount(srManager.getResultCount());
+        setSource(srManager.getSource());
     }
 
     public int getResultCount() {
@@ -143,15 +143,16 @@ public class SourceRetriever {
                             && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
                         pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
                         int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
-                        if (lastStartPage < grabSize)
+                        if (lastStartPage < grabSize) {
                             grabSize = lastStartPage + 1;
+                        }
                     }
                 }
 
                 JSONArray results = jsonOBJ.getJSONObject("responseData").getJSONArray("results");
                 int resultSize = results.length();
                 for (int j = 0; j < resultSize; ++j) {
-                    System.out.println("next iteration " + j + "/" + resultSize);
+                    LOGGER.debug("next iteration " + j + "/" + resultSize);
                     if (urlsCollected < getResultCount()) {
                         String currentURL = (String) results.getJSONObject(j).get("unescapedUrl");
 
@@ -181,19 +182,19 @@ public class SourceRetriever {
                         image.setRankCount(j * (i + 1) + 1);
                         images.add(image);
                         ++urlsCollected;
-                        System.out.println("urls collected: " + urlsCollected);
+                        LOGGER.debug("urls collected: " + urlsCollected);
                     } else {
                         break;
                     }
                 }
-                System.out.println("grab " + i + "/" + grabSize);
+                LOGGER.debug("grab " + i + "/" + grabSize);
 
             } catch (JSONException e) {
                 LOGGER.error(e.getMessage());
             }
 
-            SRManager.addRequest(SourceRetrieverManager.GOOGLE);
-            System.out.println("google requests: " + SRManager.getRequestCount(SourceRetrieverManager.GOOGLE));
+            srManager.addRequest(SourceRetrieverManager.GOOGLE);
+            LOGGER.info("google requests: " + srManager.getRequestCount(SourceRetrieverManager.GOOGLE));
         }
 
         return images;
@@ -233,7 +234,7 @@ public class SourceRetriever {
 
             Object result = expr.evaluate(searchResult, XPathConstants.NODESET);
             NodeList nodes = (NodeList) result;
-            System.out.println("URL Nodes: " + nodes.getLength());
+            LOGGER.debug("URL Nodes: " + nodes.getLength());
 
             int grabSize = Math.min(nodes.getLength(), getResultCount());
             for (int i = 0; i < grabSize; i++) {
@@ -284,8 +285,8 @@ public class SourceRetriever {
             LOGGER.error(e.getMessage());
         }
 
-        SRManager.addRequest(SourceRetrieverManager.YAHOO_BOSS);
-        System.out.println("yahoo requests: " + SRManager.getRequestCount(SourceRetrieverManager.YAHOO_BOSS));
+        srManager.addRequest(SourceRetrieverManager.YAHOO_BOSS);
+        LOGGER.info("yahoo requests: " + srManager.getRequestCount(SourceRetrieverManager.YAHOO_BOSS));
 
         return images;
     }
@@ -434,12 +435,12 @@ public class SourceRetriever {
 
         try {
 
-            System.out.println(searchResult);
+            LOGGER.debug(searchResult);
             expr = xpath.compile("//Result/Url");
 
             Object result = expr.evaluate(searchResult, XPathConstants.NODESET);
             NodeList nodes = (NodeList) result;
-            System.out.println("URL Nodes: " + nodes.getLength());
+            LOGGER.debug("URL Nodes: " + nodes.getLength());
 
             int rank = 1;
             int grabSize = Math.min(nodes.getLength(), getResultCount());
@@ -465,8 +466,8 @@ public class SourceRetriever {
             LOGGER.error(e.getMessage());
         }
 
-        SRManager.addRequest(SourceRetrieverManager.YAHOO);
-        LOGGER.info("yahoo requests: " + SRManager.getRequestCount(SourceRetrieverManager.YAHOO));
+        srManager.addRequest(SourceRetrieverManager.YAHOO);
+        LOGGER.info("yahoo requests: " + srManager.getRequestCount(SourceRetrieverManager.YAHOO));
         return webresults;
     }
 
@@ -528,14 +529,12 @@ public class SourceRetriever {
 
             // iterate through result responses
             for (int it = 0; it < numIterations; it++) {
-                String title = null;
 
                 // query yahoo for search engine results
                 String iterationUrl = fixUrl + "&start=" + (50 * it);
                 Document searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(iterationUrl);
                 LOGGER.debug("Search Results for " + iterationUrl);
-                SRManager.addRequest(SourceRetrieverManager.YAHOO_BOSS);
-                String summary = null;
+                srManager.addRequest(SourceRetrieverManager.YAHOO_BOSS);
 
                 // update number of iterations with each step, as values might change
                 // http://developer.yahoo.com/search/boss/boss_guide/ch02s02.html
@@ -550,8 +549,8 @@ public class SourceRetriever {
                     Node currentNode = nodes.item(i);
 
                     String resultUrl = (String) urlExpr.evaluate(currentNode, XPathConstants.STRING);
-                    title = (String) titleExpr.evaluate(currentNode, XPathConstants.STRING);
-                    summary = (String) summExpr.evaluate(currentNode, XPathConstants.STRING);
+                    String title = (String) titleExpr.evaluate(currentNode, XPathConstants.STRING);
+                    String summary = (String) summExpr.evaluate(currentNode, XPathConstants.STRING);
 
                     WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO_BOSS, numHits + 1, new Source(resultUrl), StringHelper.removeHTMLTags(
                             title, true, true, true, true), StringHelper.removeHTMLTags(summary, true, true, true, true));
@@ -577,7 +576,7 @@ public class SourceRetriever {
             LOGGER.error(e.getMessage());
         }
 
-        LOGGER.info("yahoo requests: " + SRManager.getRequestCount(SourceRetrieverManager.YAHOO_BOSS));
+        LOGGER.info("yahoo requests: " + srManager.getRequestCount(SourceRetrieverManager.YAHOO_BOSS));
         LOGGER.trace("<fetchAndProcessWebResultsFromYahooBoss");
         return webresults;
     }
@@ -603,9 +602,11 @@ public class SourceRetriever {
 
         int rank = 1;
         int urlsCollected = 0;
-        int grabSize = (int) Math.ceil((double) getResultCount() / 8.0); // divide by 8 because 8 results will be responded by each query
+        int grabCount = (int) Math.ceil((double) getResultCount() / 8.0); // divide by 8 because 8 results will be responded by each query
+        // Google returns max. 8 pages/64 results -- http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
+        grabCount = Math.min(grabCount, 8);
         // System.out.println(grabSize);
-        for (int i = 0; i < grabSize; i++) {
+        for (int i = 0; i < grabCount; i++) {
 
             // rsz=large will respond 8 results
             String json = c.download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&start=" + (i * 8) + "&rsz=large&safe=off&lr=" + languageString
@@ -622,8 +623,9 @@ public class SourceRetriever {
                             && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
                         pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
                         int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
-                        if (lastStartPage < grabSize)
-                            grabSize = lastStartPage + 1;
+                        if (lastStartPage < grabCount) {
+                            grabCount = lastStartPage + 1;
+                        }
                     }
                 }
 
@@ -653,8 +655,8 @@ public class SourceRetriever {
                 LOGGER.error(e.getMessage());
             }
 
-            SRManager.addRequest(SourceRetrieverManager.GOOGLE);
-            LOGGER.info("google requests: " + SRManager.getRequestCount(SourceRetrieverManager.GOOGLE));
+            srManager.addRequest(SourceRetrieverManager.GOOGLE);
+            LOGGER.info("google requests: " + srManager.getRequestCount(SourceRetrieverManager.GOOGLE));
         }
 
         return webresults;
@@ -721,8 +723,8 @@ public class SourceRetriever {
                 LOGGER.error(e.getMessage());
             }
 
-            SRManager.addRequest(SourceRetrieverManager.BING);
-            LOGGER.info("bing requests: " + SRManager.getRequestCount(SourceRetrieverManager.BING));
+            srManager.addRequest(SourceRetrieverManager.BING);
+            LOGGER.info("bing requests: " + srManager.getRequestCount(SourceRetrieverManager.BING));
         }
 
         return webresults;
@@ -752,7 +754,7 @@ public class SourceRetriever {
             }
 
             String currentSourceURL = sourceURL + String.valueOf(i * 10 + 1);
-            System.out.println(currentSourceURL);
+            LOGGER.debug(currentSourceURL);
             try {
                 document = crawler.getWebDocument(currentSourceURL);
 
@@ -816,7 +818,7 @@ public class SourceRetriever {
                 LOGGER.error(e.getMessage());
             }
 
-            SRManager.addRequest(SourceRetrieverManager.MICROSOFT);
+            srManager.addRequest(SourceRetrieverManager.MICROSOFT);
         }
 
         return webresults;
@@ -851,12 +853,12 @@ public class SourceRetriever {
 
         try {
 
-            System.out.println(searchResult);
+            LOGGER.debug(searchResult);
             expr = xpath.compile("//Result/Url");
 
             Object result = expr.evaluate(searchResult, XPathConstants.NODESET);
             NodeList nodes = (NodeList) result;
-            System.out.println("URL Nodes: " + nodes.getLength());
+            LOGGER.debug("URL Nodes: " + nodes.getLength());
 
             int rank = 1;
             int grabSize = Math.min(nodes.getLength(), getResultCount());
@@ -882,7 +884,7 @@ public class SourceRetriever {
             LOGGER.error(searchQuery, e);
         }
 
-        SRManager.addRequest(SourceRetrieverManager.HAKIA);
+        srManager.addRequest(SourceRetrieverManager.HAKIA);
         return webresults;
     }
 
@@ -944,8 +946,8 @@ public class SourceRetriever {
             }
         }
 
-        SRManager.addRequest(SourceRetrieverManager.TWITTER);
-        System.out.println("twitter requests: " + SRManager.getRequestCount(SourceRetrieverManager.TWITTER));
+        srManager.addRequest(SourceRetrieverManager.TWITTER);
+        LOGGER.info("twitter requests: " + srManager.getRequestCount(SourceRetrieverManager.TWITTER));
 
         return webresults;
     }
@@ -983,8 +985,9 @@ public class SourceRetriever {
                             && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
                         pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
                         int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
-                        if (lastStartPage < grabSize)
+                        if (lastStartPage < grabSize) {
                             grabSize = lastStartPage + 1;
+                        }
                     }
                 }
 
@@ -1015,8 +1018,8 @@ public class SourceRetriever {
                 LOGGER.error(e.getMessage());
             }
 
-            SRManager.addRequest(SourceRetrieverManager.GOOGLE_BLOGS);
-            LOGGER.info("google blogs requests: " + SRManager.getRequestCount(SourceRetrieverManager.GOOGLE_BLOGS));
+            srManager.addRequest(SourceRetrieverManager.GOOGLE_BLOGS);
+            LOGGER.info("google blogs requests: " + srManager.getRequestCount(SourceRetrieverManager.GOOGLE_BLOGS));
         }
 
         return webresults;
@@ -1041,8 +1044,8 @@ public class SourceRetriever {
         try {
             document = crawler.getWebDocument(sourceURL);
 
-            System.out.println(sourceURL);
-            System.out.println(document.getTextContent());
+            LOGGER.debug(sourceURL);
+            LOGGER.debug(document.getTextContent());
 
             Node startNode = document.getLastChild(); // the html node
 
@@ -1100,7 +1103,7 @@ public class SourceRetriever {
             LOGGER.error(e.getMessage());
         }
 
-        SRManager.addRequest(SourceRetrieverManager.TEXTRUNNER);
+        srManager.addRequest(SourceRetrieverManager.TEXTRUNNER);
 
         return webresults;
     }

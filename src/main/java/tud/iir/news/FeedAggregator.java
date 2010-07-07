@@ -18,6 +18,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -72,11 +74,22 @@ public class FeedAggregator {
 
     public FeedAggregator() {
         store = FeedDatabase.getInstance();
+        loadConfig();
     }
 
     /** used primarily for testing to set DummyFeedStore */
     public FeedAggregator(FeedStore store) {
         this.store = store;
+        loadConfig();
+    }
+    
+    private void loadConfig() {
+        try {
+            PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
+            setMaxThreads(config.getInt("maxAggregationThreads", maxThreads));
+        } catch (ConfigurationException e) {
+            LOGGER.error("error loading configuration " + e.getMessage());
+        }
     }
 
     /**
@@ -339,7 +352,7 @@ public class FeedAggregator {
             entry.setPublished(publishDate);
 
             String entryText = getEntryText(syndEntry);
-            entry.setText(entryText);
+            entry.setContent(entryText);
 
             // Entry's assigned Tags, if any
             List<SyndCategory> categories = syndEntry.getCategories();
@@ -397,7 +410,6 @@ public class FeedAggregator {
                     entryText = content.getValue();
 
                     // TODO treat content by type!
-
                 }
             }
         }
@@ -408,12 +420,13 @@ public class FeedAggregator {
         }
 
         // clean up --> strip out HTML tags, unescape HTML code
+        // 2010-07-02 --> we keep the HTML markup for now!
         if (entryText != null) {
-            entryText = StringHelper.removeHTMLTags(entryText, true, true, true, true);
-            entryText = StringEscapeUtils.unescapeHtml(entryText);
+            // entryText = StringHelper.removeHTMLTags(entryText, true, true, true, true);
+            // entryText = StringHelper.unescapeHTMLEntities(entryText);
             entryText = entryText.trim();
         }
-        LOGGER.trace("<getEntryText "/* + entryText */);
+        LOGGER.trace("<getEntryText ");
         return entryText;
     }
 
@@ -454,8 +467,7 @@ public class FeedAggregator {
 
     /**
      * Add a Collection of feedUrls for aggregation. This process runs threaded. Use {@link #setMaxThreads(int)} to set
-     * the maximum number of concurrently
-     * running threads.
+     * the maximum number of concurrently running threads.
      * 
      * @param feedUrls
      * @return number of added feeds.
@@ -626,7 +638,14 @@ public class FeedAggregator {
                                         PageContentExtractor extractor = new PageContentExtractor();
                                         InputStream inpStream = crawler.downloadInputStream(entry.getLink());
                                         extractor.setDocument(new InputSource(inpStream));
-                                        entry.setPageText(extractor.getResultText());
+                                        // entry.setPageText(extractor.getResultText());
+                                        
+                                        // changed 2010-07-02 -- keep the whole markup, not the stripped text
+                                        // we can strip the text later anyway.
+                                        
+                                        String content = Helper.xmlToString(extractor.getResultDocument());
+                                        entry.setPageContent(content);
+                                        
                                         scrapes.increment();
                                     } catch (IOException e) {
                                         LOGGER.trace("aggregate " + feed.getFeedUrl() + " " + e.getMessage());
@@ -684,6 +703,21 @@ public class FeedAggregator {
     }
 
     /**
+     * Runs a continuous aggregation process. This is mainly intended for use as background process from the command
+     * line.
+     * 
+     * @param waitMinutes the interval in seconds when the aggregation is done.
+     * @return
+     */
+    public void aggregateContinuously(int waitMinutes) {        
+        while (true) {
+            aggregate();
+            LOGGER.info("sleeping for " + waitMinutes + " minutes");
+            ThreadHelper.sleep(waitMinutes * DateHelper.MINUTE_MS);
+        }
+    }
+
+    /**
      * Sets the maximum number of parallel threads when aggregating or adding multiple new feeds.
      * 
      * @param maxThreads
@@ -694,9 +728,8 @@ public class FeedAggregator {
 
     /**
      * If enabled, we use {@link PageContentExtractor} to analyse feed type and to extract more text from feed entries
-     * with only partial text representations.
-     * Keep in mind that this causes heavy traffic and takes a lot of more time than a simple aggregation process from
-     * XML feeds only.
+     * with only partial text representations. Keep in mind that this causes heavy traffic and takes a lot of more time
+     * than a simple aggregation process from XML feeds only.
      * 
      * @param usePageContentExtractor
      */
@@ -705,7 +738,7 @@ public class FeedAggregator {
     }
 
     /**
-     * Returns feed object which contains feed specific information for a specified feed URL.
+     * Returns a feed and its entries from a specified feed URL. Use {@link Feed#getEntries()} to get feed's entries.
      * 
      * @param feedUrl
      * @return
@@ -713,7 +746,10 @@ public class FeedAggregator {
      */
     public Feed getFeed(String feedUrl) throws FeedAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
-        return getFeed(syndFeed, feedUrl);
+        Feed feed = getFeed(syndFeed, feedUrl);
+        List<FeedEntry> entries = getEntries(syndFeed);
+        feed.setEntries(entries);
+        return feed;
     }
 
     /**
@@ -792,13 +828,8 @@ public class FeedAggregator {
                 aggregator.aggregate();
             }
             if (cmd.hasOption("aggregateWait")) {
-                int waitMinutes = ((Number) cmd.getParsedOptionValue("aggregateWait")).intValue()
-                        * DateHelper.MINUTE_MS;
-                while (true) {
-                    aggregator.aggregate();
-                    LOGGER.info("sleeping for " + waitMinutes + " minutes");
-                    ThreadHelper.sleep(waitMinutes);
-                }
+                int waitMinutes = ((Number)cmd.getParsedOptionValue("aggregateWait")).intValue();
+                aggregator.aggregateContinuously(waitMinutes);
             }
 
             return;

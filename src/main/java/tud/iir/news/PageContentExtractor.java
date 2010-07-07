@@ -129,8 +129,8 @@ public class PageContentExtractor {
 
     /**
      * Set Document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
-     * convenient concatenations of method
-     * invocations, like: <code>new PageContentExtractor().setDocument(...).getResultDocument();</code>
+     * convenient concatenations of method invocations, like:
+     * <code>new PageContentExtractor().setDocument(...).getResultDocument();</code>
      * 
      * @param document
      * @return
@@ -147,8 +147,8 @@ public class PageContentExtractor {
 
     /**
      * Set URL of document to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow
-     * convenient concatenations of method
-     * invocations, like: <code>new PageContentExtractor().setDocument(new URL(...)).getResultDocument();</code>
+     * convenient concatenations of method invocations, like:
+     * <code>new PageContentExtractor().setDocument(new URL(...)).getResultDocument();</code>
      * 
      * @param url
      * @return
@@ -183,8 +183,8 @@ public class PageContentExtractor {
 
     /**
      * Set File to be processed. Method returns <code>this</code> instance of PageContentExtractor, to allow convenient
-     * concatenations of method invocations,
-     * like: <code>new PageContentExtractor().setDocument(new File(...)).getResultDocument();</code>
+     * concatenations of method invocations, like:
+     * <code>new PageContentExtractor().setDocument(new File(...)).getResultDocument();</code>
      * 
      * @param file
      * @return
@@ -201,8 +201,7 @@ public class PageContentExtractor {
 
     /**
      * Set the location of document to be processed. Method returns <code>this</code> instance of PageContentExtractor,
-     * to allow convenient concatenations of
-     * method invocations, like:
+     * to allow convenient concatenations of method invocations, like:
      * <code>new PageContentExtractor().setDocument("http://website.com").getResultDocument();</code>
      * 
      * @param documentLocation The location of the document. This can be either a local file or a URL.
@@ -223,8 +222,7 @@ public class PageContentExtractor {
 
     /**
      * Returns the filtered result document, as minimal XHTML fragment. Result just contains the filtered content, the
-     * result is not meant to be a complete web
-     * page or even to validate.
+     * result is not meant to be a complete web page or even to validate.
      * 
      * @return
      */
@@ -363,6 +361,14 @@ public class PageContentExtractor {
                 Text textNode = result.createTextNode(element.getTextContent());
                 element.getParentNode().replaceChild(textNode, element);
             }
+        }
+        
+        // strip out class+readability attributes, as we dont need them
+        NodeList elements = result.getElementsByTagName("*");
+        for (int i = 0; i < elements.getLength(); i++) {
+            Element element = (Element) elements.item(i);
+            element.removeAttribute("class");
+            element.removeAttribute(READABILITY_ATTR);
         }
 
         LOGGER.trace("<init");
@@ -1099,7 +1105,7 @@ public class PageContentExtractor {
 
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write dump of parsed page").create());
-        options.addOption(OptionBuilder.withLongOpt("output").hasArg().withArgName("fileName").create());
+        options.addOption(OptionBuilder.withLongOpt("output").withDescription("save result to xml file").hasArg().withArgName("fileName").create());
 
         try {
             
@@ -1129,9 +1135,9 @@ public class PageContentExtractor {
                     Helper.writeXmlDump(pageContentExtractor.getResultDocument(), outputfile);
                 }
 
-                // done.
-                return;
 
+            } else {
+                throw new ParseException(null);
             }
 
         } catch (ParseException e) {

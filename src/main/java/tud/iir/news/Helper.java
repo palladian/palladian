@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Result;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
@@ -24,9 +25,14 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -85,20 +91,91 @@ public class Helper {
     // //////////////////////
     // helper methods
     public static String xmlToString(Node node) {
+        // try {
+        // Source source = new DOMSource(node);
+        // StringWriter stringWriter = new StringWriter();
+        // Result result = new StreamResult(stringWriter);
+        // TransformerFactory factory = TransformerFactory.newInstance();
+        // Transformer transformer = factory.newTransformer();
+        // transformer.transform(source, result);
+        // return stringWriter.getBuffer().toString();
+        // } catch (TransformerConfigurationException e) {
+        // e.printStackTrace();
+        // } catch (TransformerException e) {
+        // e.printStackTrace();
+        // }
+        // return null;
+        return xmlToString(node, false, false);
+    }
+
+    /**
+     * Converts a DOM Node or Document into a String.
+     * 
+     * @param node
+     * @param removeWhitespace whether to remove superfluous whitespace outside of tags.
+     * @param prettyPrint wheter to nicely indent the result.
+     * @return String representation of the supplied Node, empty String in case of errors.
+     */
+    public static String xmlToString(Node node, boolean removeWhitespace, boolean prettyPrint) {
+        String strResult = "";
         try {
+
+            if (removeWhitespace) {
+                node = removeWhitespace(node);
+            }
+
             Source source = new DOMSource(node);
             StringWriter stringWriter = new StringWriter();
             Result result = new StreamResult(stringWriter);
             TransformerFactory factory = TransformerFactory.newInstance();
             Transformer transformer = factory.newTransformer();
+
+            if (prettyPrint) {
+                transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+                transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+            }
+
             transformer.transform(source, result);
-            return stringWriter.getBuffer().toString();
+            strResult =  stringWriter.getBuffer().toString();
         } catch (TransformerConfigurationException e) {
             e.printStackTrace();
         } catch (TransformerException e) {
             e.printStackTrace();
         }
-        return null;
+        return strResult;
+    }
+
+    /**
+     * Remove unneccessary whitespace from DOM nodes.
+     * http://stackoverflow.com/questions/978810/how-to-strip-whitespace-only-text-nodes-from-a-dom-before-serialization
+     *  
+     * @param node
+     * @return
+     */
+    public static Node removeWhitespace(Node node) {
+        
+        Node result = node.cloneNode(true);
+        
+        try {
+            XPathFactory xpathFactory = XPathFactory.newInstance();
+            // XPath to find empty text nodes.
+            XPathExpression xpathExp = xpathFactory.newXPath().compile("//text()[normalize-space(.) = '']");  
+            NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(result, XPathConstants.NODESET);
+
+            // Remove each empty text node from document.
+            for (int i = 0; i < emptyTextNodes.getLength(); i++) {
+                Node emptyTextNode = emptyTextNodes.item(i);
+                emptyTextNode.getParentNode().removeChild(emptyTextNode);
+            }
+        } catch (XPathExpressionException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (DOMException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        return result;
     }
 
     public static void writeXmlDump(Node node, String filename) {
@@ -112,78 +189,80 @@ public class Helper {
         // }
     }
 
-    /**
-     * Return the root URL -> http://www.domain.com TODO there is already a method in {@link Crawler#getDomain(String, boolean)}
-     * 
-     * @param urlString
-     * @return
-     * 
-     * @deprecated use {@link Crawler#getDomain(String, true)}
-     */
-    @Deprecated
-    public static String getRootUrl(String urlString) {
-        String result = "";
-        try {
-            URL url = new URL(urlString);
-            result = url.getProtocol() + "://" + url.getHost();
-            LOGGER.trace("root url for " + urlString + " -> " + result);
-        } catch (MalformedURLException e) {
-            // e.printStackTrace();
-            LOGGER.error("could not convert url " + urlString);
-        }
-        return result;
-    }
+    // /**
+    // * Return the root URL -> http://www.domain.com TODO there is already a method in {@link Crawler#getDomain(String,
+    // boolean)}
+    // *
+    // * @param urlString
+    // * @return
+    // *
+    // * @deprecated use {@link Crawler#getDomain(String, true)}
+    // */
+    // @Deprecated
+    // public static String getRootUrl(String urlString) {
+    // String result = "";
+    // try {
+    // URL url = new URL(urlString);
+    // result = url.getProtocol() + "://" + url.getHost();
+    // LOGGER.trace("root url for " + urlString + " -> " + result);
+    // } catch (MalformedURLException e) {
+    // // e.printStackTrace();
+    // LOGGER.error("could not convert url " + urlString);
+    // }
+    // return result;
+    // }
 
-    /**
-     * Handling links in HTML documents can be tricky. If no absolute URL is specified there are two factors for which we have to take care:<BR>
-     * <BR>
-     * 1) The document's URL<BR>
-     * 2) If provided, a base URL inside the document, which can be as well be absolute or relative to 1)
-     * 
-     * See: http://www.mediaevent.de/xhtml/base.html
-     * 
-     * @param pageUrl TODO
-     * @param baseUrl TODO
-     * @param linkUrl TODO
-     * 
-     * @deprecated moved to {@link Crawler#makeFullURL(String, String, String)}
-     * 
-     * @return the absolute URL
-     */
-    @Deprecated
-    public static String getFullUrl(String pageUrl, String baseUrl, String linkUrl) {
-        LOGGER.trace(">getFullUrl " + pageUrl + " " + baseUrl + " " + linkUrl);
-        String result = null;
-        try {
-            // let's java.net.URL do all the conversion work from relative to absolute
-            URL thePageUrl = new URL(pageUrl);
-            if (baseUrl == null) {
-                baseUrl = "";
-            } else if (!baseUrl.endsWith("/")) {
-                baseUrl = baseUrl.concat("/");
-            }
-            // baseUrl relative to pageUrl
-            URL theBaseUrl = new URL(thePageUrl, baseUrl);
-            // linkUrl relative to pageUrl+baseUrl
-            URL theLinkUrl = new URL(theBaseUrl, linkUrl);
-            result = theLinkUrl.toString();
-        } catch (MalformedURLException e) {
-            LOGGER.error("getFullUrl", e);
-        }
-        LOGGER.trace("<getFullUrl " + result);
-        return result;
-    }
+    // /**
+    // * Handling links in HTML documents can be tricky. If no absolute URL is specified there are two factors for which
+    // we have to take care:<BR>
+    // * <BR>
+    // * 1) The document's URL<BR>
+    // * 2) If provided, a base URL inside the document, which can be as well be absolute or relative to 1)
+    // *
+    // * See: http://www.mediaevent.de/xhtml/base.html
+    // *
+    // * @param pageUrl TODO
+    // * @param baseUrl TODO
+    // * @param linkUrl TODO
+    // *
+    // * @deprecated moved to {@link Crawler#makeFullURL(String, String, String)}
+    // *
+    // * @return the absolute URL
+    // */
+    // @Deprecated
+    // public static String getFullUrl(String pageUrl, String baseUrl, String linkUrl) {
+    // LOGGER.trace(">getFullUrl " + pageUrl + " " + baseUrl + " " + linkUrl);
+    // String result = null;
+    // try {
+    // // let's java.net.URL do all the conversion work from relative to absolute
+    // URL thePageUrl = new URL(pageUrl);
+    // if (baseUrl == null) {
+    // baseUrl = "";
+    // } else if (!baseUrl.endsWith("/")) {
+    // baseUrl = baseUrl.concat("/");
+    // }
+    // // baseUrl relative to pageUrl
+    // URL theBaseUrl = new URL(thePageUrl, baseUrl);
+    // // linkUrl relative to pageUrl+baseUrl
+    // URL theLinkUrl = new URL(theBaseUrl, linkUrl);
+    // result = theLinkUrl.toString();
+    // } catch (MalformedURLException e) {
+    // LOGGER.error("getFullUrl", e);
+    // }
+    // LOGGER.trace("<getFullUrl " + result);
+    // return result;
+    // }
 
-    /**
-     * @deprecated moved to {@link Crawler#makeFullURL(String, String)}
-     * @param pageUrl
-     * @param linkUrl
-     * @return
-     */
-    @Deprecated
-    public static String getFullUrl(String pageUrl, String linkUrl) {
-        return getFullUrl(pageUrl, "", linkUrl);
-    }
+    // /**
+    // * @deprecated moved to {@link Crawler#makeFullURL(String, String)}
+    // * @param pageUrl
+    // * @param linkUrl
+    // * @return
+    // */
+    // @Deprecated
+    // public static String getFullUrl(String pageUrl, String linkUrl) {
+    // return getFullUrl(pageUrl, "", linkUrl);
+    // }
 
     // /**
     // * Simple approach for stripping out unwanted HTML tags.
@@ -555,6 +634,15 @@ public class Helper {
             result = String.format(Locale.ENGLISH, "%.2f", value) + " " + BINARY_PREFIXES[unitIndex] + "B";
         }
         return result;
+    }
+    
+    public static void main(String[] args) {
+
+        // Crawler c = new Crawler();
+        // Document doc = c.getXMLDocument("data/test2.xml");
+        // System.out.println(Helper.xmlToString(doc, true, true));
+        // System.out.println(Helper.xmlToString(doc, true, false));
+        //        
     }
 
 }

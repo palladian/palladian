@@ -469,8 +469,9 @@ public class StringHelper {
 
         // substitute ves with f or fe
         if (plural.toLowerCase().endsWith("ves")) {
+            char letterBeforeVES = plural.substring(plural.length() - 3, plural.length() - 2).charAt(0);
             plural = plural.substring(0, plural.length() - 3) + "f";
-            if (!isVowel(plural.substring(plural.length() - 3, plural.length() - 2).charAt(0))
+            if (!isVowel(letterBeforeVES)
                     && isVowel(plural.substring(plural.length() - 2, plural.length() - 1).charAt(0))) {
                 plural += "e";
             }
@@ -1689,6 +1690,9 @@ public class StringHelper {
      * @param args the arguments
      */
     public static void main(String[] args) {
+        
+        System.out.println(wordToSingular("yves"));
+        // gives a java.lang.StringIndexOutOfBoundsException: String index out of range: -1
 
         // System.out.println(StringHelper.makeCamelCase("max_speed car", true));
         // System.out.println(StringHelper.makeCamelCase("max_speed car", false));

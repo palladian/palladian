@@ -26,11 +26,11 @@ public class FeedEntry {
     /** when the entry was aggregated */
     private Date added;
 
-    /** contains text directly from the feed entry */
-    private String text;
+    /** content directly from the feed entry */
+    private String content;
 
-    /** contains text which we scraped from the corresponding web page */
-    private String pageText;
+    /** content which we scraped from the corresponding web page */
+    private String pageContent;
 
     // assigned tags
     private List<String> tags = new ArrayList<String>();
@@ -90,20 +90,20 @@ public class FeedEntry {
         return null;
     }
 
-    public String getText() {
-        return text;
+    public String getContent() {
+        return content;
     }
 
-    public void setText(String text) {
-        this.text = text;
+    public void setContent(String content) {
+        this.content = content;
     }
 
-    public String getPageText() {
-        return pageText;
+    public String getPageContent() {
+        return pageContent;
     }
 
-    public void setPageText(String pageText) {
-        this.pageText = pageText;
+    public void setPageContent(String pageContent) {
+        this.pageContent = pageContent;
     }
 
     public List<String> getTags() {

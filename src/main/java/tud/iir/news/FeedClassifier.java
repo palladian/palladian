@@ -49,9 +49,8 @@ public class FeedClassifier {
 
         final FeedAggregator feedAggregator = new FeedAggregator();
         try {
-            // Feed feed = fa.getFeed(feedURL);
 
-            List<FeedEntry> entries = feedAggregator.getEntries(feedURL);
+            List<FeedEntry> entries = feedAggregator.getFeed(feedURL).getEntries();
             FeedPostStatistics fps = new FeedPostStatistics(entries);
             System.out.println(fps);
 

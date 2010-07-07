@@ -136,7 +136,10 @@ public class DatabaseManager {
         try {
             config = new PropertiesConfiguration("config/db.conf");
         } catch (ConfigurationException e) {
-            LOGGER.error(e.getMessage());
+            //LOGGER.error(e.getMessage());
+            // Attention: using the "eager" singleton idiom we must not use the class logger, as it has not yet been
+            // instantiated at this point; use the RootLogger instead.
+            Logger.getRootLogger().error(e.getMessage());
         }
     }
 
