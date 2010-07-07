@@ -109,7 +109,7 @@ public class FeedDiscovery {
             setOnlyPreferred(config.getBoolean("onlyPreferred", true));
             setSearchEngine(config.getInt("searchEngine", SourceRetrieverManager.YAHOO_BOSS));
         } catch (ConfigurationException e) {
-            LOGGER.error("error loading configuration " + e.getMessage());
+            LOGGER.error("error loading configuration: " + e.getMessage());
         }
         LOGGER.trace("<FeedDiscovery");
     }

@@ -1024,6 +1024,15 @@ public class Crawler {
      */
     public JSONObject getJSONDocument(String url) {
         String json = download(url);
+
+        // delicous feeds return the whole JSON object wrapped in [square brackets], 
+        // altough this seems to be valid, our parser doesn't like this, so we remove
+        // those brackets before parsing -- Philipp, 2010-07-04
+        json = json.trim();
+        if (json.startsWith("[") && json.endsWith("]")) {
+            json = json.substring(1, json.length() - 1);
+        }
+        
         JSONObject jsonOBJ = null;
 
         try {

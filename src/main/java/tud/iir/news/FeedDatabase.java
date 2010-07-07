@@ -351,8 +351,8 @@ public class FeedDatabase implements FeedStore {
             psAddFeedEntry.setString(3, entry.getLink());
             psAddFeedEntry.setString(4, entry.getRawId());
             psAddFeedEntry.setTimestamp(5, entry.getAddedSQLTimestamp());
-            psAddFeedEntry.setString(6, entry.getText());
-            psAddFeedEntry.setString(7, entry.getPageText());
+            psAddFeedEntry.setString(6, entry.getContent());
+            psAddFeedEntry.setString(7, entry.getPageContent());
             // store tags in comma separated column
             psAddFeedEntry.setString(8, StringUtils.join(entry.getTags(), ","));
 
@@ -388,8 +388,8 @@ public class FeedDatabase implements FeedStore {
                 result.setLink(resultSet.getString(3));
                 result.setRawId(resultSet.getString(4));
                 result.setPublished(resultSet.getDate(5));
-                result.setText(resultSet.getString(6));
-                result.setPageText(resultSet.getString(7));
+                result.setContent(resultSet.getString(6));
+                result.setPageContent(resultSet.getString(7));
                 result.setAdded(resultSet.getDate(8));
                 String tags = resultSet.getString(9);
                 if (tags != null) {
@@ -447,6 +447,11 @@ public class FeedDatabase implements FeedStore {
         DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries");
         DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feeds");
         LOGGER.trace("<cleanTables");
+    }
+    
+    public static void main(String[] args) {
+        // clear feed specfic tables
+        FeedDatabase.getInstance().clearFeedTables();
     }
 
 }

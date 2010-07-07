@@ -99,6 +99,9 @@ public class StringHelperTest extends TestCase {
         assertEquals("matrix", StringHelper.wordToSingular("matrices"));
         assertEquals("movie", StringHelper.wordToSingular("movies"));
         assertEquals("status", StringHelper.wordToSingular("status"));
+        
+        // this transformation makes no sense, but it caused a StringIndexOutOfBoundsException which I fixed.
+        assertEquals("yf", StringHelper.wordToSingular("yves"));        
     }
 
     public void testWordToPlural() {
