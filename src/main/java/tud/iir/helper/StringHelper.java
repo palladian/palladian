@@ -27,6 +27,7 @@ import tud.iir.normalization.UnitNormalizer;
  * 
  * @author David Urbansky
  * @author Martin Werner
+ * @author Philipp Katz
  */
 public class StringHelper {
 
@@ -1683,6 +1684,53 @@ public class StringHelper {
 
         return substring;
     }
+    
+    /**
+     * Transforms a CamelCased String into a split String.
+     * @param camelCasedString The String to split.
+     * @param separator The separator to insert between the camelCased fragments.
+     * @return The separated String.
+     * @author Philipp Katz
+     */
+    public static String camelCaseToWords(String camelCasedString, String separator) {
+        StringBuilder result = new StringBuilder();
+        
+        if (camelCasedString != null && !camelCasedString.isEmpty()) {
+            
+            char[] chars = camelCasedString.toCharArray();
+            
+            // append first character
+            result.append(chars[0]);            
+    
+            // append the rest
+            for (int i = 1; i < chars.length; i++) {
+                
+                char current = chars[i];
+                boolean currentIsUpper = Character.getType(current) == Character.UPPERCASE_LETTER;
+                boolean previousIsLower = Character.getType(chars[i - 1]) == Character.LOWERCASE_LETTER;
+    
+                if (currentIsUpper && previousIsLower) {
+                    result.append(separator);
+                }
+                result.append(current);
+            }
+        }
+
+        return result.toString();
+    }
+    
+    /**
+     * Transforms a CamelCased String into a space separated String. For example:
+     * <code>camelCaseString</code> is converted to <code>camel Case String</code>.
+     * @param camelCasedString The String to split.
+     * @return The separated String.
+     * @author Philipp Katz
+     */
+    public static String camelCaseToWords(String camelCasedString) {
+        return camelCaseToWords(camelCasedString, " ");
+    }
+
+
 
     /**
      * The main method.

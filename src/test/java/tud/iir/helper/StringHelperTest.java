@@ -4,9 +4,6 @@ import java.io.File;
 import java.util.List;
 
 import junit.framework.TestCase;
-
-import org.junit.Test;
-
 import tud.iir.knowledge.RegExp;
 
 /**
@@ -374,10 +371,16 @@ public class StringHelperTest extends TestCase {
 
     }
 
-    @Test
     public void testGetSubstringBetween() {
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", "allt ", "in ohio"));
+    }
+    
+    public void testCamelCaseToWords() {
+        assertEquals("", StringHelper.camelCaseToWords(""));
+        assertEquals("camel Case String", StringHelper.camelCaseToWords("camelCaseString"));
+        assertEquals("camel.case.string", StringHelper.camelCaseToWords("camel.case.string"));
+        assertEquals("camel_Case_String", StringHelper.camelCaseToWords("camelCaseString", "_"));
     }
 
 }
