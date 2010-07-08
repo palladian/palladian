@@ -162,14 +162,10 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
             result = preparedStatement.executeUpdate();
         } catch (SQLException e) {
             LOGGER.error(e.getMessage() + ", " + preparedStatement.toString());
-            e.printStackTrace();
-            System.exit(1);
-            return -1;
+            result = -1;
         } catch (Exception e) {
             LOGGER.error(e.getMessage() + ", " + preparedStatement.toString());
-            e.printStackTrace();
-            System.exit(1);
-            return -1;
+            result = -1;
         }
         return result;
     }
