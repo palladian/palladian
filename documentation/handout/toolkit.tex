@@ -1,5 +1,5 @@
 %http://www.maths.manchester.ac.uk/~kd/latextut/pdfbyex.htm
-\documentclass[a4paper,twoside]{article}      % Comments after  % are ignored
+\documentclass[a4paper,twoside]{book}      % Comments after  % are ignored
 \usepackage{amsmath,amssymb,amsfonts} % Typical maths resource packages
 \usepackage{graphics}                 % Packages to allow inclusion of graphics
 \usepackage{graphicx}
@@ -54,10 +54,10 @@ This document explains basic functionalities of the TUDIIR Toolkit. Its intentio
 
 \tableofcontents
 
-\section{IIR and this Toolkit}
+\chapter{IIR and this Toolkit}
 Internet Information Retrieval (IIR) is a research domain in computer science that is concerned with the retrieval, extraction, classification, and presentation of information from the Internet. This toolkit provides functionality which is often needed to perform IIR tasks such as crawling, classification, and extraction of various information types.
 
-\section{License}
+\chapter{License}
 The complete source code is licensed under the Apache License 2.0. All source files should include the following license snippet at the very top.
 
 \begin{verbatim}
@@ -76,7 +76,7 @@ limitations under the License.
 \end{verbatim}
 
 
-\section{Toolkit Structure}
+\chapter{Toolkit Structure}
 \label{sec:toolkitstructure}
 The TUDIIR Toolkit is managed using subversion. The top level folder structure follows the usual subversion layout using trunk for the main development, branches for parallel development and tags to mark specific versions. The trunk is located in our SVN\footnote{\url{https://141.76.40.86/svn-students/iircommon/toolkit/trunk}}. The folder structure looks as follows.
 \begin{verbatim}
@@ -202,7 +202,7 @@ The libs folder contains all referenced libs used by the toolkit.
 \subsection{Src Folder}
 The src folder contains all source files of the toolkit. You may need to put the log4j.properties file here in order to use custom logging settings.
 
-\section{Management of the code base}
+\chapter{Management of the code base}
 The TUDIIR toolkit is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on a weekly basis using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.mantisbt.org/}{Mantis bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
 
 At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
@@ -300,7 +300,7 @@ To report issues with the toolkit or to view issues assigned to you, you need to
 %\end{itemize}
 %Apache Ant will create a target folder, please do not commit that folder to the repository but ignore it using svn:ignore.
 
-\section{Conventions}
+\chapter{Conventions}
 \subsection{Coding Standards}
 To keep the code readable and easy to understand for other developers, we use the following coding guidelines.
 %http://geosoft.no/development/javastyle.html
@@ -353,14 +353,46 @@ To guarantee that all components work as expected, we use jUnit tests. Before ma
 After finishing a new component, new testing code must be written.
 
 %\section{Project Management}
-\section{Toolkit Functionality}
-\subsection{Classification}
+\chapter{Toolkit Functionality}
+\section{Classification}
 
-\subsection{Extraction}
+\subsection{Text Classification}
+Text classification is the process of assigning one or more categories to a given text document. There are several types of text classification which are shown in Figure \ref{}. The TOOLKIT can classify text in a single category, multiple categories, or in a hierarchical manner.
+%TODO image
+
+The text classification components are built from scratch and do not rely on external libraries such as Weka. In this section we will explain which features can be used for the classification, the basic theory of the classifiers, and how the performance of a classifier can be evaluated. In each section, we will describe theory and how the classification components can be used programmatically.
+
+\subsubsection{Classification Type}
+The TOOLKIT supports simple single category classification, tagging, and hierarchical classification. Each classifier needs to know in which type it has to perform classification.
+This information is stored in the $tud.iir.classification.page.evaluation.ClassificationTypeSetting$ object which is then passed to the classifier. Please read the Javadoc of that class for more detailed information.
+
+\subsubsection{Features}
+Features are the input for a classifier. In text classification we have a long string as an input from which we can derive several features. All of the TOOLKIT classifiers work with n-grams. N-grams are sets of tokens of the length n. The TOOLKIT can preprocess text with character or word-level n-grams:
+
+\begin{enumerate}
+\item \textbf{Character level n-grams} use each character of the string as a token. For example, from the string ``It is sunny'' we can create the following set of 3-grams: ${$it ,t i, is,is ,s s, su,sun,unn,nny$}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $9 = 11 - 3 + 1$.
+\item \textbf{Word level n-grams} use each word (separated with white space) of the string as a token. For example, from the string ``It is so nice and sunny today'' we can create the following set of 3-grams: ${$It is so,is so nice,so nice and,nice and sunny,and sunny today$}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $5 = 7 - 3 + 1$. If you want to have single words as features for the text classifier you can simply use unigrams or bigrams which are n-grams with $n=1$ or $n=2$ respectively.
+\end{enumerate}
+
+The document preprocessor allows you to create a set of n-grams with different length too. For example, you can create all 2-grams, 3-grams, and 4-grams for the given input text and use them as features for the classifier.
+
+Sometimes you do not want to have all n-grams to be features for the classifier. You can simply disallow certain features by putting them in a stop word list. These n-grams will then be ignored for the classification.
+
+%CODE
+All these settings are stored in a $tud.iir.classification.page.evaluation.FeatureSetting$ object which is passed to the classifier. Please read the Javadoc of that class for more detailed information.
+
+\subsubsection{Text Classifiers}
+The text classifiers perform the actual classification task by calculating the most relevant category for the input document. CONTINUEHERE
+
+\subsubsection{Evaluation}
+\subsubsection{Best Practices}
+
+
+\section{Extraction}
 \paragraph{Fact Extraction}
 \paragraph{Date Extraction}
 
-\subsection{Retrieval}
+\section{Retrieval}
 \paragraph{Web Crawling}
 \paragraph{Retrieval of Information from Sources available through the web}
 \paragraph{Feed Retrieval}
@@ -368,7 +400,7 @@ After finishing a new component, new testing code must be written.
 \subsection{Preprocessing}
 \paragraph{Named Entity Recognition}
 
-\section{Example Usages}
+\chapter{More Example Usages}
 Learning to use a toolkit often does not work by reading the Javadoc. Therefore, we provide a simple example how to setup your first project using the toolkit, eclipse and maven. Afterwards we provide a short overview of some important modules and how you can use them. All examples are intended as entry points to facilitate the first use of the toolkit. Many components are too mighty to be explained exhaustively in small code snippets, make sure to read the Javadoc and more importantly the actual code for further information.
 
 \subsection{Hello Toolkit - Your first application using the TUDIIR Toolkit}
