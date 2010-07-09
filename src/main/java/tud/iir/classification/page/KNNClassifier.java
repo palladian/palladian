@@ -3,8 +3,8 @@ package tud.iir.classification.page;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
@@ -144,11 +144,13 @@ public class KNNClassifier extends TextClassifier {
 
             if (trainingDocument.getWeightedTerms().containsKey(entry1.getKey())) {
 
-                Double entry2Value = trainingDocument.getWeightedTerms().get(entry1.getKey());
+                // Double entry2Value = trainingDocument.getWeightedTerms().get(entry1.getKey());
+                // double similarity = 1.0 / (Math.abs(entry1.getValue() - entry2Value) + 1.5);
+                // double importance = Math.pow((entry1.getValue() + entry2Value) / 2.0, 2);
+                // matches += similarity * importance;
 
-                double similarity = 1.0 / (Math.abs(entry1.getValue() - entry2Value) + 1.5);
-                double importance = Math.pow((entry1.getValue() + entry2Value) / 2.0, 2);
-                matches += similarity * importance;
+                matches++;
+
             }
 
         }

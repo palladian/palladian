@@ -48,9 +48,9 @@
 %}
 \begin{document}
 \maketitle
-\begin{abstract}
-This document explains basic functionalities of the TUDIIR Toolkit. Its intention is to explain (new) developers how to work with the toolkit and how to extend its capabilities.
-\end{abstract}
+%\begin{abstract}
+%This document explains basic functionalities of the TUDIIR Toolkit. Its intention is to explain (new) developers how to work with the toolkit and how to extend its capabilities.
+%\end{abstract}
 
 \tableofcontents
 
@@ -100,10 +100,11 @@ toolkit
  |- dev
 \end{verbatim}
 
-\subsection{Config Folder}
+\section{Config Folder}
+\label{sec:config.conf}
 The config folder contains configuration files for several components of the toolkit. The files are explained in the following sections.
 
-\subsubsection{apikeys.conf}
+\subsection{apikeys.conf}
 \label{sec:apikeys.conf}
 The api keys that are used by the toolkit components are specified here. You may need to apply for API keys at the provider's page.
 
@@ -115,7 +116,7 @@ google.api.key =
 bing.api.key = 
 \end{verbatim}
 
-\subsubsection{classification.conf}
+\subsection{classification.conf}
 \label{sec:classification.conf}
 Classification settings for the tud.iir.classification.page.ClassifierManager.
 
@@ -136,7 +137,7 @@ page.createDictionaryNGramSearchMode = true
 page.dictionaryClassifierIndexType = 1
 \end{verbatim}
 
-\subsubsection{crawler.conf}
+\subsection{crawler.conf}
 \label{sec:crawler.conf}
 Crawler settings for the tud.iir.web.Crawler. All settings can be set in Java code as well.
 
@@ -162,7 +163,7 @@ proxyList = 83.244.106.73:80
 proxyList = 67.159.31.22:8080
 \end{verbatim}
 
-\subsubsection{db.conf}
+\subsection{db.conf}
 Database settings for the tud.iir.persistence.DatabaseManager.
 
 \begin{verbatim}
@@ -175,38 +176,41 @@ db.username = root
 db.password = rootpass
 \end{verbatim}
 
-\subsubsection{general.conf}
+\subsection{general.conf}
 General settings used by the tud.iir.control.Controller.
 
-\subsection{Data Folder}
+\section{Data Folder}
 The data folder contains files that are used during runtime of several components.
 
-\subsubsection{knowledgeBase} 
+\subsection{knowledgeBase} 
 The knowledge base folder contains the OWL ontology files used for the extraction tasks in the tud.iir.extraction package.
 
-\subsubsection{models}
+\subsection{models}
 The models folder contains learned models that can be reused.
 
-\subsubsection{test}  
+\subsection{Temp Folder}
+The temp folder is not part of the repository. Some functions may however create this folder and write temporary data.
+
+\subsection{test}  
 The test folder contains data that is used for running jUnit tests.
 
-\subsection{Documentation Folder}
+\section{Documentation Folder}
 The documentation folder contains help files to understand the toolkit. This very document is located in the handout folder and a Javadoc can be found there too.
 
-\subsection{Exe Folder}
+\section{Exe Folder}
 The exe folder contains all runnable jar files in separate folders including a sample script to run the program and a readme.txt that explains the run options.
 
-\subsection{Libs Folder}
+\section{Libs Folder}
 The libs folder contains all referenced libs used by the toolkit.
 
-\subsection{Src Folder}
-The src folder contains all source files of the toolkit. You may need to put the log4j.properties file here in order to use custom logging settings.
+\section{Src Folder}
+The src folder contains all source files of the toolkit. You may need to put the log4j.properties file here in order to use custom logging settings. Alternatively you include the config folder in the class path.
 
 \chapter{Management of the code base}
 The TUDIIR toolkit is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on a weekly basis using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.mantisbt.org/}{Mantis bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
 
 At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
-\subsection{Building the toolkit using Apache Maven}
+\section{Building the toolkit using Apache Maven}
 \label{sec:buildingthetoolkitusingapachemaven}
 Apache \textbf{Maven needs to be installed} before building the toolkit. How to do this is explained here: \href{http://maven.apache.org/download.html#Installation}{Maven installation}. There is one necessary manual step before you can start building the toolkit. You need to add our Nexus repository to your local maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content:
 \begin{verbatim}
@@ -269,9 +273,10 @@ You need to set your username and your password in the server section. This can 
 \item Type \texttt{mvn clean install} to start the build process.
 \end{enumerate}
 There also is an \href{http://m2eclipse.sonatype.org/}{Eclipse plugin}, that allows you to issue maven build from within Eclipse. It is quite beta so be careful with it.
-\subsection{Regularly builds and tests using Hudson CI}
+\section{Regularly builds and tests using Hudson CI}
 Currently the toolkit is build automatically every week using Hudson CI. Be careful to check in only working code or Hudson will send you and your advisor an E-Mail about broken code. If this happens try to fix your code as fast as possible and check in again. You can get details about the problem by logging into \href{http://www.effingo.de/hudson}{Hudson}. You can get a login by sending an E-Mail stating your advisor and why you nood to work with the toolkit to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de}
-\subsubsection{The Continuous Integration Game}
+\subsection{The Continuous Integration Game}
+\label{sec:cigame}
 Hudson supports a game that rewards people commiting code that improves the toolkit and punishing people breaking it. The leader (the person having the most points) is highly valued by the toolkit commiters community. The rules for the game are explained in detail in the next section.
 \paragraph{Rules}
 The rules of the game are:
@@ -288,7 +293,7 @@ The rules of the game are:
 \item Checkstyle Plugin. Adding/removing a checkstyle warning = -1/+1.
 \end{itemize}
 
-\subsection{Reporting issues using Mantis}
+\section{Reporting issues using Mantis}
 To report issues with the toolkit or to view issues assigned to you, you need to register with Mantis. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor and the reason why you are working on the toolkit (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link were you can set your password. If you successfully set a password for your account you can login on: \href{http://141.76.40.242/mantisbt}{Mantis}.
 %\subsection{Building the toolkit using Apache Ant}
 %You can also build the toolkit using Apache Ant\footnote{\url{http://ant.apache.org/}}. To do so, install Apache Ant, put the binary folder to your PATH and compile the project from the root folder that contains the build.xml file.
@@ -301,7 +306,7 @@ To report issues with the toolkit or to view issues assigned to you, you need to
 %Apache Ant will create a target folder, please do not commit that folder to the repository but ignore it using svn:ignore.
 
 \chapter{Conventions}
-\subsection{Coding Standards}
+\section{Coding Standards}
 To keep the code readable and easy to understand for other developers, we use the following coding guidelines.
 %http://geosoft.no/development/javastyle.html
 \begin{enumerate}
@@ -348,6 +353,20 @@ public class ExampleClass implements Example {
 \end{lstlisting}
 \end{codelisting}
 
+\section{Eclipse Plugins for better Coding}
+\label{sec:eclipseCodingPlugins}
+It is a very good practice to install the following eclipse plugins to check ones own code before committing:
+\begin{enumerate}
+\item CodeFormatter is a simple file that can be loaded into Eclipse to format the source code correctly. Go to Eclipse $\blacktriangleright$ Window $\blacktriangleright$ Preferences $\blacktriangleright$ Java $\blacktriangleright$ Code Style $\blacktriangleright$ Formatter and import the ``tudiir\_eclipse\_formatter.xml'' from the dev folder. Pressing Control+F formats the source code of a selected class.
+\item Checkstyle \footnote{\url{http://eclipse-cs.sourceforge.net/downloads.html}} checks styles of the code, whether JavaDoc comments are set etc. After installing you should go to the preferences section of Checkstyle in Enclipse and load the ``checkstyle\_config.xml'' from the dev folder.
+\item PMD\footnote{\url{http://pmd.sourceforge.net/eclipse/}} tells you what is wrong with your code in terms of common violations, forgotten initializations and much more. After installing you should go into the preferences of PMD and load the ruleset file ``pmd\_ruleset'' from the dev folder.
+\item FindBugs\footnote{\url{http://findbugs.cs.umd.edu/eclipse/}} is similar to PMD but focuses on severe errors only. After installing you don't need to configure anything.
+\end{enumerate}
+
+Checkstyle, PMD, and FindBugs can be initiated by right clicking a package or class file and selecting the plugin. The violations will be shown so that you can eliminate them.
+
+Using these plugins raises the chances to win in the continuous integration game as described in Section \ref{sec:cigame}.
+
 \subsection{Tests}
 To guarantee that all components work as expected, we use jUnit tests. Before major check-ins to the repository, all jUnit Tests must run successfully. Run the tud.iir.control.AllTests.java to make sure all components work correctly.
 After finishing a new component, new testing code must be written.
@@ -357,8 +376,13 @@ After finishing a new component, new testing code must be written.
 \section{Classification}
 
 \subsection{Text Classification}
-Text classification is the process of assigning one or more categories to a given text document. There are several types of text classification which are shown in Figure \ref{}. The TOOLKIT can classify text in a single category, multiple categories, or in a hierarchical manner.
-%TODO image
+Text classification is the process of assigning one or more categories to a given text document. There are several types of text classification which are shown in Figure \ref{fig:typesOfClassification}. The TOOLKIT can classify text in a single category, multiple categories, or in a hierarchical manner.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{img/typesOfClassification.png}
+\caption{Types of classification\cite{qi2009web}.}
+\label{fig:typesOfClassification}
+\end{figure}
 
 The text classification components are built from scratch and do not rely on external libraries such as Weka. In this section we will explain which features can be used for the classification, the basic theory of the classifiers, and how the performance of a classifier can be evaluated. In each section, we will describe theory and how the classification components can be used programmatically.
 
@@ -370,8 +394,8 @@ This information is stored in the $tud.iir.classification.page.evaluation.Classi
 Features are the input for a classifier. In text classification we have a long string as an input from which we can derive several features. All of the TOOLKIT classifiers work with n-grams. N-grams are sets of tokens of the length n. The TOOLKIT can preprocess text with character or word-level n-grams:
 
 \begin{enumerate}
-\item \textbf{Character level n-grams} use each character of the string as a token. For example, from the string ``It is sunny'' we can create the following set of 3-grams: ${$it ,t i, is,is ,s s, su,sun,unn,nny$}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $9 = 11 - 3 + 1$.
-\item \textbf{Word level n-grams} use each word (separated with white space) of the string as a token. For example, from the string ``It is so nice and sunny today'' we can create the following set of 3-grams: ${$It is so,is so nice,so nice and,nice and sunny,and sunny today$}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $5 = 7 - 3 + 1$. If you want to have single words as features for the text classifier you can simply use unigrams or bigrams which are n-grams with $n=1$ or $n=2$ respectively.
+\item \textbf{Character level n-grams} use each character of the string as a token. For example, from the string ``It is sunny'' we can create the following set of 3-grams: ${it ,t i, is,is ,s s, su,sun,unn,nny}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $9 = 11 - 3 + 1$.
+\item \textbf{Word level n-grams} use each word (separated with white space) of the string as a token. For example, from the string ``It is so nice and sunny today'' we can create the following set of 3-grams: ${It is so,is so nice,so nice and,nice and sunny,and sunny today}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $5 = 7 - 3 + 1$. If you want to have single words as features for the text classifier you can simply use unigrams or bigrams which are n-grams with $n=1$ or $n=2$ respectively.
 \end{enumerate}
 
 The document preprocessor allows you to create a set of n-grams with different length too. For example, you can create all 2-grams, 3-grams, and 4-grams for the given input text and use them as features for the classifier.
@@ -382,11 +406,80 @@ Sometimes you do not want to have all n-grams to be features for the classifier.
 All these settings are stored in a $tud.iir.classification.page.evaluation.FeatureSetting$ object which is passed to the classifier. Please read the Javadoc of that class for more detailed information.
 
 \subsubsection{Text Classifiers}
-The text classifiers perform the actual classification task by calculating the most relevant category for the input document. CONTINUEHERE
+The text classifiers perform the actual classification task by calculating the most relevant category (or categories) for the input document. Two text classifiers are implemented, a dictionary based classifier and a k-nearest neighbor classifier. Both are explained in more detail in the following paragraphs.
+
+\paragraph{K-Nearest Neighbor Text Classifier}
+The KNN classifier uses the n-grams of the training documents to place them in a high dimensional vector space. The dimensions of the space equal the total number of available n-grams. Each training document is therefore a vector in that highly dimensional space. A new, unclassified document is now put into that vector space and by using distance function the k nearest neighbors are found for that document. Each of these neighbors votes with its own class, the more votes for one class the more likely that the new document belongs to that class.
+
+\begin{figure}
+\includegraphics[width=\textwidth]{img/knn.png}
+\caption{A simple KNN example.}
+\label{fig:knn}
+\end{figure}
+
+Figure \ref{fig:knn} shows a simple example of how the KNN classifier works. We limited the dimension to two for easier understanding. In this scenario we want to classify the given document (black dot in the middle) into one of the two categories ``finance'' (blue triangles) or ``travel'' (red dots). We calculate the distance between the new document and all training documents and consider the votes of the nearest three. In the example, two of these three document vote for ``travel'' which would let us classify our input document into that class.
+
+The distance between two documents is calculated as shown in Equation \ref{eqn:knnDistance} where $d1$ and $d2$ are the two documents. The shorter the distance, the more similar the documents.
+
+\begin{equation}
+\label{eqn:knnDistance}
+distance(d1,d2) = \frac{1}{numberOfMatchingNGrams}
+\end{equation}
+
+\paragraph{Dictionary-Based Classifier}
+The dictionary-based classifier\footnote{This classifier won the first Research Garden (\url{http://www.research-garden.de}) competition where the goal was to classify product descriptions into 8 different categories.} learns how probable each n-gram is for each given category and assigns the most probable category (or categories) to the input document.
+
+A dictionary is built at training stage by counting and normalizing the co-occurrences of one n-gram and a category. The dictionary might then look as shown in Table \ref{tab:dictionary} where each column is a category (finance, travel, and science) and each row is an n-gram. In each cell we now have the learned relevance for each n-gram and category $relevance(ngram,category)$. The sum of the relevances in each row must add up to one.
+
+Table \ref{tab:dictionary} shows an example dictionary matrix. The n-gram ``money'' is more likely to get the category ``finance'' ($relevance(money,finance) = 0.6$) than ``science'' ($relevance(money,science) = 0.25$) while the n-gram ``beach'' is most likely to appear in the category ``travel'' ($relevance(beach,travel) = 0.85$.
+
+\begin{table}[ht]
+\centering
+\caption{N-Gram dictionary with relevances for categories.}
+\begin{tabular}{|l|l|l|l|}
+\hline
+n-gram   & finance & travel & science \\
+\hline
+money	   & 0.6	&	0.15	&	0.25	\\
+\hline
+beach	& 0.1	&	0.85	&	0.05	\\
+\hline
+paper	   & 0.3 &	0.2	&	0.5	\\
+\hline
+\end{tabular} 
+\label{tab:dictionary}
+\end{table}
+
+To classify a new document, we again create all n-grams, look up the relevance scores in the dictionary and assign the categories with the highest probability. The probability for each category and given document is calculated as shown in Equation \ref{eqn:dictionaryCategoryProbabilty} where $N_{Document}$ is the set of n-grams for the given document.
+
+\begin{equation}
+\label{eqn:dictionaryCategoryProbabilty}
+\mbox{$CategoryProbability(category,document)$} = \sum_{n\,\epsilon\, Nurl} \mbox{$relevance(n,category)$}
+\end{equation}
+
+The dictionary can be stored in memory, in an embedded H2 database, or in a client/server MySQL database. These settings can be made in the classification.conf file in the conf folder (see Section \ref{sec:config.conf}).
+
+%TODO category boost
+%TODO cooccurrence
 
 \subsubsection{Evaluation}
-\subsubsection{Best Practices}
+In order to find out which classifier works best with which feature settings, you can evaluate these combinations. The $tud.iir.classification.page.ClassifierManager$ has the $learnBestClassifier$ method to run the evaluation on all given classifiers with the given evaluation setting object $tud.iir.classification.page.EvaluationSetting$. See Section \ref{sec:bpTextClassification} for more details of how to perform the evaluation programmatically.
 
+The output of the evaluation will be three csv files that hold information about the combinations of classifier, dataset, training percentage, and the final performance for the combination. The performance is measured in precision, recall, and F1. The three files are stored in the data/temp folder and hold the following information.
+
+\paragraph{averagePerformancesDatasetTrainingFolds.csv} This file holds the performance measures for each classifier, averaged over all given datasets, training percentages, and folds in the cross validation.
+
+\paragraph{averagePerformancesTrainingFolds.csv} This file holds the performance measures for each classifier and dataset combination, averaged over all given training percentages and folds in the cross validation.
+
+\paragraph{averagePerformancesFolds.csv} This file holds the performance measures for each classifier, dataset, and training percentage combination, averaged over all given folds in the cross validation.
+
+\subsubsection{Best Practices}
+\label{sec:bpTextClassification}
+
+%TODO learn a classifier (and save it)
+%TODO test a classifier
+%TODO use a saved classifier
+%TODO learn bestclassifier
 
 \section{Extraction}
 \paragraph{Fact Extraction}
@@ -473,7 +566,7 @@ The same step is necessary to tell Eclipse that it should use Java 1.6 instead o
 \caption{"Hello Toolkit" Code}
 \label{fig:hellotoolkit}
 \end{figure}
-For the code to work you need three additional files that are already in the config folder in the toolkit project. These are "crawler.conf", "apikeys.conf" and "feeds.conf". You need to copy them to src/main/resources/config. The folder src/main/resources usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
+For the code to work you need three additional files that are already in the config folder in the toolkit project. These are ``crawler.conf'', ``apikeys.conf'' and ``feeds.conf''. You need to copy them to src/main/resources/config. The folder src/main/resources usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
 \begin{figure}
 \includegraphics[width=\textwidth]{img/ht11.png}
 \caption{Create a new Maven project}
@@ -821,12 +914,10 @@ String d = StringHelper.decodeBase64(e);
 \section{Reference Libraries}
 The TUDIIR Toolkit makes excessive use of third party libraries. We do not intend to re-implement code but rather to built on it and create something superior. Here an incomplete list of libraries the toolkit uses:
 \begin{itemize}
-\item Alchemy API \cite{alchemy} to query the services of Alchemy.com.
 \item Apache Commons \cite{apachecommons} for many standard tasks in string and number manipulation and more.
 \item Fathom \cite{fathom} to measure readability of English text.
 \item iText \cite{itext} for creating PDF documents.
 \item Jena \cite{jena} for reading and writing ontology files.
-\item jFreeChart \cite{jfreechart} for creating charts.
 \item jYaml \cite{jyaml} to read and write YAML files.
 \item Log4j \cite{log4j} for logging.
 \item Lucene \cite{lucene} for indexing and making learned models persistent.
@@ -849,25 +940,8 @@ The code is in development by students of the Dresden University of Technology. 
 \item Martin Werner
 \end{itemize}
 
-\begin{thebibliography}{99}
-%\bibitem{amari} S-I. Amari. {\bf Differential Geometrical Methods in
-%Statistics}, Springer Lecture Notes in Statistics 28,
-%Springer-Verlag, Berlin 1985.
-%\end{thebibliography}
-\bibitem{apachecommons} \url{http://commons.apache.org/}
-\bibitem{itext} \url{http://itextpdf.com/}
-\bibitem{jena} \url{http://jena.sourceforge.net/}
-\bibitem{jfreechart} \url{http://www.jfree.org/jfreechart/}
-\bibitem{log4j} \url{http://logging.apache.org/log4j/}
-\bibitem{lucene} \url{http://lucene.apache.org/}
-\bibitem{nekohtml} \url{http://nekohtml.sourceforge.net/}
-\bibitem{simmetrics} \url{http://www.dcs.shef.ac.uk/~sam/simmetrics.html}
-\bibitem{fathom} \url{http://www.representqueens.com/fathom/}
-\bibitem{twitter4j} \url{http://twitter4j.org/en/index.html}
-\bibitem{alchemy} \url{http://www.alchemyapi.com/tools/}
-\bibitem{jyaml} \url{http://jyaml.sourceforge.net/}
-\bibitem{weka} \url{http://www.cs.waikato.ac.nz/ml/weka/}
-\bibitem{webknox} \url{http://www.webknox.com}
-\bibitem{codingStandards} \url{http://net.tutsplus.com/tutorials/html-css-techniques/top-15-best-practices-for-writing-super-readable-code/}
-\end{thebibliography}
+\chapter{References}
+\bibliographystyle{abbrv}
+\bibliography{references}
+
 \end{document}
