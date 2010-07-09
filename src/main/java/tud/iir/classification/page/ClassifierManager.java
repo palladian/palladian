@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -1165,16 +1164,20 @@ public class ClassifierManager {
         featureSettings.add(fs);
 
         // build a set of datasets that should be used for evaluation
-        Set<Dataset> datasets = new TreeSet<Dataset>();
+        Set<Dataset> datasets = new HashSet<Dataset>();
         Dataset dataset = new Dataset();
         dataset.setPath("data/temp/opendirectory_urls_noregional_small.txt");
+        datasets.add(dataset);
+        dataset = new Dataset();
+        dataset.setPath("data/temp/productStrings.csv");
+        dataset.setSeparationString("#");
         datasets.add(dataset);
 
         // set evaluation settings
         EvaluationSetting evaluationSetting = new EvaluationSetting();
-        evaluationSetting.setTrainingPercentageMin(50);
-        evaluationSetting.setTrainingPercentageMax(50);
-        evaluationSetting.setkFolds(3);
+        evaluationSetting.setTrainingPercentageMin(20);
+        evaluationSetting.setTrainingPercentageMax(80);
+        evaluationSetting.setkFolds(5);
         evaluationSetting.addDataset(dataset);
 
         // train and test all classifiers in all combinations
