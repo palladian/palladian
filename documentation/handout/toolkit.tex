@@ -18,9 +18,12 @@
 {{\small\it David Urbansky, Klemens Muthmann} }
 
 \textwidth 15.5cm
+\textheight 24cm
+%\textwidth 10.0cm
+%\textheight 17cm
 \topmargin -1cm
 \parindent 0cm
-\textheight 24cm
+
 \parskip 1mm
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{proposition}[theorem]{Proposition}
@@ -54,10 +57,15 @@
 
 \tableofcontents
 
-\chapter{IIR and this Toolkit}
+\chapter{Introduction}
 Internet Information Retrieval (IIR) is a research domain in computer science that is concerned with the retrieval, extraction, classification, and presentation of information from the Internet. This toolkit provides functionality which is often needed to perform IIR tasks such as crawling, classification, and extraction of various information types.
 
-\chapter{License}
+\section{What is TOOLKIT?}
+%TODO contributions
+\section{What is TOOLKIT NOT?}
+%TODO
+
+\section{License}
 The complete source code is licensed under the Apache License 2.0. All source files should include the following license snippet at the very top.
 
 \begin{verbatim}
@@ -75,6 +83,118 @@ See the License for the specific language governing permissions and
 limitations under the License.
 \end{verbatim}
 
+\section{Alternative and Complimentary Toolkits}
+Some functionalities of this toolkit are covered in other libraries. Before you start using TOOLKIT you might want to take a look at these alternatives.
+
+\begin{enumerate}
+\item The \textbf{Dragon Toolkit} \cite{zhou2007dragon} is a Java-based development package for information retrieval and text mining. Its main features are text classification, text clustering, text summarization, and topic modeling.
+\item \textbf{FreeLing} \cite{atserias2006freeling} is a natural language processing library written in C++. Its main features are Text tokenization, sentence splitting, morphological analysis, sSuffix treatment, retokenization of clitic pronouns, flexible multiword recognition, contraction splitting, probabilistic prediction of unkown word categories, named entity detection, recognition of dates, numbers, ratios, currency, and physical magnitudes, PoS tagging, chart-based shallow parsing, named entity classification,  WordNet based sense annotation and disambiguation, Rule-based dependency parsing, and nominal correference resolution.
+It is licensed under GPL and supports Spanish, Catalan, Galician, Italian, English, Welsh, Portuguese, and Asturian as languages. An online demo is available under \url{http://garraf.epsevg.upc.es/freeling/demo.php}.
+\item The \textbf{Illinois Cognitive Computation Group} \cite{illinoisccg} has a list of ready to use programs for semantic role labeling, text chunking, named entity tagging, named entity discovery, PoS tagging, unsupervised rank aggregation, and named entity similarity metrics.
+\item \textbf{LingPipe} \cite{lingpipe} is a text processing toolkit using computational linguistics. LingPipe is written in Java. Its main features are topic classification, named entity recognition, clustering, PoS tagging, sentence detection, spelling correction, database text mining, string comparisons, interesting phrase detection, character language modeling, chinese word segmentation, hyphenation and syllabification, sentiment analysis, language identification, singular value decomposition, logistic regression, expectation maximization, and word sense disambiguation.
+LingPipe is available under a free license for academic use and several commercial licenses.
+\item \textbf{MorphAdorner} \cite{morphadorner} is a Java-based command line program for text processing. Its main features are language recognition, lemmatization, name recognition, PoS tagging, noun pluralization, sentence splitting, spelling standardization, text segmentation, verb conjugation, and word tokenization.
+The program is licensed under a NCSA style license.
+\end{enumerate}
+
+\chapter{Installation and making it work}
+The TUDIIR toolkit is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on a weekly basis using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.mantisbt.org/}{Mantis bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
+
+At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
+\section{Building the toolkit using Apache Maven}
+\label{sec:buildingthetoolkitusingapachemaven}
+Apache \textbf{Maven needs to be installed} before building the toolkit. How to do this is explained here: \href{http://maven.apache.org/download.html#Installation}{Maven installation}. There is one necessary manual step before you can start building the toolkit. You need to add our Nexus repository to your local maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content:
+\begin{verbatim}
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
+                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<mirrors>
+    <mirror>
+      <!--This sends everything else to /public -->
+      <id>nexus</id>
+      <mirrorOf>*</mirrorOf>
+      <url>http://www.effingo.de/nexus/content/groups/public</url>
+    </mirror>
+  </mirrors>
+  <profiles>
+    <profile>
+      <id>nexus</id>
+      <!--Enable snapshots for the built in central repo to direct -->
+      <!--all requests to nexus via the mirror -->
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>http://central</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+      </repositories>
+     <pluginRepositories>
+        <pluginRepository>
+          <id>central</id>
+          <url>http://central</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <!--make the profile active all the time -->
+    <activeProfile>nexus</activeProfile>
+  </activeProfiles>
+  <servers>
+    <server>
+      <id>nexus</id>
+      <username>your-username</username>
+      <password>your-password</password>
+      <filePermissions>664</filePermissions>
+      <directoryPermissions>775</directoryPermissions>
+      <configuration></configuration>
+    </server>
+  </servers>
+</settings>
+\end{verbatim}
+You need to set your username and your password in the server section. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. After completing the installation perform the following steps to build the toolkit using Maven:
+\begin{enumerate}
+\item Check out the code from SVN!
+\item Open your favorite command line.
+\item Change to the toolkits root folder.
+\item Type \texttt{mvn clean install} to start the build process.
+\end{enumerate}
+There also is an \href{http://m2eclipse.sonatype.org/}{Eclipse plugin}, that allows you to issue maven build from within Eclipse. It is quite beta so be careful with it.
+\section{Regularly builds and tests using Hudson CI}
+Currently the toolkit is build automatically every week using Hudson CI. Be careful to check in only working code or Hudson will send you and your advisor an E-Mail about broken code. If this happens try to fix your code as fast as possible and check in again. You can get details about the problem by logging into \href{http://www.effingo.de/hudson}{Hudson}. You can get a login by sending an E-Mail stating your advisor and why you nood to work with the toolkit to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de}
+\subsection{The Continuous Integration Game}
+\label{sec:cigame}
+Hudson supports a game that rewards people commiting code that improves the toolkit and punishing people breaking it. The leader (the person having the most points) is highly valued by the toolkit commiters community. The rules for the game are explained in detail in the next section.
+\paragraph{Rules}
+The rules of the game are:
+\begin{itemize}
+\item -10 points for breaking a build
+\item 0 points for breaking a build that already was broken
+\item +1 points for doing a build with no failures (unstable builds gives no points)
+\item -1 points for each new test failures
+\item +1 points for each new test that passes
+\item Adding/removing a HIGH priority PMD warning = -5/+5. Adding/removing a MEDIUM priority PMD warning = -3/+3. Adding/removing a LOW priority PMD warning = -1/+1.
+\item Adding/removing a violation = -1/+1. Adding/removing a duplication violation = +5/-5.
+\item Adding/removing a HIGH priority findbugs warning = -5/+5. Adding/removing a MEDIUM priority findbugs warning = -3/+3. Adding/removing a LOW priority findbugs warning = -1/+1
+\item Adding/removing a compiler warning = -1/+1.
+\item Checkstyle Plugin. Adding/removing a checkstyle warning = -1/+1.
+\end{itemize}
+
+\section{Reporting issues using Mantis}
+To report issues with the toolkit or to view issues assigned to you, you need to register with Mantis. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor and the reason why you are working on the toolkit (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link were you can set your password. If you successfully set a password for your account you can login on: \href{http://141.76.40.242/mantisbt}{Mantis}.
+%\subsection{Building the toolkit using Apache Ant}
+%You can also build the toolkit using Apache Ant\footnote{\url{http://ant.apache.org/}}. To do so, install Apache Ant, put the binary folder to your PATH and compile the project from the root folder that contains the build.xml file.
+%The following tasks can be performed by ant (type commands into your console):
+%\begin{itemize}
+%\item \textbf{standard} Type ``ant'' to clean and compile the project.
+%\item \textbf{jar} Type ``ant jar'' to pack TUDIIR into one single jar file. That file can then be found under target/jar/tudiir.jar.
+%\item \textbf{javadoc} Type ``ant javadoc'' to (re)create the javadoc which can then be found under documentation/javadoc. You  need to install Graphviz\footnote{\url{http://www.graphviz.org/}} beforehand. See Java Dzone\footnote{\url{http://java.dzone.com/articles/reverse-engineer-source-code-u}} for more information.
+%\end{itemize}
+%Apache Ant will create a target folder, please do not commit that folder to the repository but ignore it using svn:ignore.
 
 \chapter{Toolkit Structure}
 \label{sec:toolkitstructure}
@@ -206,104 +326,6 @@ The libs folder contains all referenced libs used by the toolkit.
 \section{Src Folder}
 The src folder contains all source files of the toolkit. You may need to put the log4j.properties file here in order to use custom logging settings. Alternatively you include the config folder in the class path.
 
-\chapter{Management of the code base}
-The TUDIIR toolkit is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on a weekly basis using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.mantisbt.org/}{Mantis bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
-
-At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
-\section{Building the toolkit using Apache Maven}
-\label{sec:buildingthetoolkitusingapachemaven}
-Apache \textbf{Maven needs to be installed} before building the toolkit. How to do this is explained here: \href{http://maven.apache.org/download.html#Installation}{Maven installation}. There is one necessary manual step before you can start building the toolkit. You need to add our Nexus repository to your local maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content:
-\begin{verbatim}
-<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
-                      http://maven.apache.org/xsd/settings-1.0.0.xsd">
-<mirrors>
-    <mirror>
-      <!--This sends everything else to /public -->
-      <id>nexus</id>
-      <mirrorOf>*</mirrorOf>
-      <url>http://www.effingo.de/nexus/content/groups/public</url>
-    </mirror>
-  </mirrors>
-  <profiles>
-    <profile>
-      <id>nexus</id>
-      <!--Enable snapshots for the built in central repo to direct -->
-      <!--all requests to nexus via the mirror -->
-      <repositories>
-        <repository>
-          <id>central</id>
-          <url>http://central</url>
-          <releases><enabled>true</enabled></releases>
-          <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-      </repositories>
-     <pluginRepositories>
-        <pluginRepository>
-          <id>central</id>
-          <url>http://central</url>
-          <releases><enabled>true</enabled></releases>
-          <snapshots><enabled>true</enabled></snapshots>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
-  </profiles>
-  <activeProfiles>
-    <!--make the profile active all the time -->
-    <activeProfile>nexus</activeProfile>
-  </activeProfiles>
-  <servers>
-    <server>
-      <id>nexus</id>
-      <username>your-username</username>
-      <password>your-password</password>
-      <filePermissions>664</filePermissions>
-      <directoryPermissions>775</directoryPermissions>
-      <configuration></configuration>
-    </server>
-  </servers>
-</settings>
-\end{verbatim}
-You need to set your username and your password in the server section. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. After completing the installation perform the following steps to build the toolkit using Maven:
-\begin{enumerate}
-\item Check out the code from SVN!
-\item Open your favorite command line.
-\item Change to the toolkits root folder.
-\item Type \texttt{mvn clean install} to start the build process.
-\end{enumerate}
-There also is an \href{http://m2eclipse.sonatype.org/}{Eclipse plugin}, that allows you to issue maven build from within Eclipse. It is quite beta so be careful with it.
-\section{Regularly builds and tests using Hudson CI}
-Currently the toolkit is build automatically every week using Hudson CI. Be careful to check in only working code or Hudson will send you and your advisor an E-Mail about broken code. If this happens try to fix your code as fast as possible and check in again. You can get details about the problem by logging into \href{http://www.effingo.de/hudson}{Hudson}. You can get a login by sending an E-Mail stating your advisor and why you nood to work with the toolkit to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de}
-\subsection{The Continuous Integration Game}
-\label{sec:cigame}
-Hudson supports a game that rewards people commiting code that improves the toolkit and punishing people breaking it. The leader (the person having the most points) is highly valued by the toolkit commiters community. The rules for the game are explained in detail in the next section.
-\paragraph{Rules}
-The rules of the game are:
-\begin{itemize}
-\item -10 points for breaking a build
-\item 0 points for breaking a build that already was broken
-\item +1 points for doing a build with no failures (unstable builds gives no points)
-\item -1 points for each new test failures
-\item +1 points for each new test that passes
-\item Adding/removing a HIGH priority PMD warning = -5/+5. Adding/removing a MEDIUM priority PMD warning = -3/+3. Adding/removing a LOW priority PMD warning = -1/+1.
-\item Adding/removing a violation = -1/+1. Adding/removing a duplication violation = +5/-5.
-\item Adding/removing a HIGH priority findbugs warning = -5/+5. Adding/removing a MEDIUM priority findbugs warning = -3/+3. Adding/removing a LOW priority findbugs warning = -1/+1
-\item Adding/removing a compiler warning = -1/+1.
-\item Checkstyle Plugin. Adding/removing a checkstyle warning = -1/+1.
-\end{itemize}
-
-\section{Reporting issues using Mantis}
-To report issues with the toolkit or to view issues assigned to you, you need to register with Mantis. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor and the reason why you are working on the toolkit (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link were you can set your password. If you successfully set a password for your account you can login on: \href{http://141.76.40.242/mantisbt}{Mantis}.
-%\subsection{Building the toolkit using Apache Ant}
-%You can also build the toolkit using Apache Ant\footnote{\url{http://ant.apache.org/}}. To do so, install Apache Ant, put the binary folder to your PATH and compile the project from the root folder that contains the build.xml file.
-%The following tasks can be performed by ant (type commands into your console):
-%\begin{itemize}
-%\item \textbf{standard} Type ``ant'' to clean and compile the project.
-%\item \textbf{jar} Type ``ant jar'' to pack TUDIIR into one single jar file. That file can then be found under target/jar/tudiir.jar.
-%\item \textbf{javadoc} Type ``ant javadoc'' to (re)create the javadoc which can then be found under documentation/javadoc. You  need to install Graphviz\footnote{\url{http://www.graphviz.org/}} beforehand. See Java Dzone\footnote{\url{http://java.dzone.com/articles/reverse-engineer-source-code-u}} for more information.
-%\end{itemize}
-%Apache Ant will create a target folder, please do not commit that folder to the repository but ignore it using svn:ignore.
 
 \chapter{Conventions}
 \section{Coding Standards}
