@@ -1,6 +1,7 @@
 package tud.iir.helper;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -12,6 +13,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -229,15 +231,22 @@ public class FileHelper {
     /**
      * Add some text to a file.
      * 
+     * TODO Attention -- when appending to files too big for memory this method will cause data loss. readFileToString
+     * will read until memory runs out (catching OutOfMemoryError) and return the partially read content, appendToFile
+     * then appends to the partial content and writes it back to disk. I have added the two methods
+     * appendFile/prependFile which use buffers instead of reading the whole files in memory. -- Philipp, 2010-07-10.
+     * 
      * @param filePath The path to the file.
      * @param string The text to append.
      * @param before If true, the text will be appended before all other content, if false it will be appended to the
      *            end of the file.
      */
+    @Deprecated
     public static void appendToFile(String filePath, StringBuilder string, boolean before) {
         appendToFile(filePath, string.toString(), before);
     }
 
+    @Deprecated
     public static void appendToFile(String filePath, String string, boolean before) {
         try {
             String currentContent = readFileToString(filePath);
@@ -254,6 +263,74 @@ public class FileHelper {
         } catch (IOException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
         }
+    }
+    
+    /**
+     * Appends (i. e. inserts a the end) a String to the specified File.
+     * 
+     * @param filePath
+     * @param stringToAppend
+     * @throws IOException
+     * @author Philipp Katz
+     */
+    public static void appendFile(String filePath, String stringToAppend) throws IOException {
+        
+        FileWriter fileWriter = new FileWriter(filePath, true);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        bufferedWriter.append(stringToAppend);
+        bufferedWriter.close();
+        
+    }
+
+    /**
+     * Prepends (i. e. inserts a the beginning) a String to the specified File.
+     * 
+     * Inspired by http://stackoverflow.com/questions/2537944/prepend-lines-to-file-in-java
+     * 
+     * @param filePath
+     * @param stringToPrepend
+     * @throws IOException
+     * @author Philipp Katz
+     */
+    public static void prependFile(String filePath, String stringToPrepend) throws IOException {
+
+        RandomAccessFile randomAccessFile = new RandomAccessFile(filePath, "rw");
+
+        byte[] writeBuffer = stringToPrepend.getBytes();
+        
+        // buffer size must be at least the size of String which we prepend
+        int bufferSize = Math.max(4096, writeBuffer.length);
+
+        // positions for read/write within the file at each iteration
+        long readPosition = 0;
+        long writePosition = 0;
+
+        // # of bytes to write during next iteration, or -1, if done
+        int writeBytes = writeBuffer.length;
+
+        do {
+
+            byte[] readBuffer = new byte[bufferSize];
+
+            // read chunk, starting at current position to the readBuffer
+            randomAccessFile.seek(readPosition);
+            int readBytes = randomAccessFile.read(readBuffer);
+
+            // write chunk from the writeBuffer, starting at current position
+            randomAccessFile.seek(writePosition);
+            randomAccessFile.write(writeBuffer, 0, writeBytes);
+
+            // set read data to the writeBuffer for next iteration
+            writeBuffer = readBuffer;
+            
+            readPosition += bufferSize;
+            writePosition += writeBytes;
+            writeBytes = readBytes;
+
+        } while (writeBytes != -1);
+
+        randomAccessFile.close();
+
     }
 
     public static Object deserialize(String filePath) {

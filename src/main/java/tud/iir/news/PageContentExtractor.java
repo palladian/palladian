@@ -52,7 +52,7 @@ import tud.iir.web.Crawler;
  * determined, the algorithm also checks its siblings whether they contain content, too.
  * </p>
  * 
- * @version Based on: SVN r150, Jun 21, 2010
+ * @version Based on: SVN r152, Jun 28, 2010
  * 
  * @see <a href="http://lab.arc90.com/experiments/readability">Website</a>
  * @see <a href="http://code.google.com/p/arc90labs-readability">JavaScript Source</a>
@@ -73,7 +73,7 @@ public class PageContentExtractor {
      * All of the regular expressions in use within readability. Defined up here so we don't instantiate them repeatedly
      * in loops.
      **/
-    private static final Pattern UNLIKELY_CANDIDATES_RE = Pattern.compile("combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor", Pattern.CASE_INSENSITIVE);
+    private static final Pattern UNLIKELY_CANDIDATES_RE = Pattern.compile("combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor|ad-break", Pattern.CASE_INSENSITIVE);
     private static final Pattern OK_MAYBE_ITS_A_CANDIDATE_RE = Pattern.compile("and|article|body|column|main", Pattern.CASE_INSENSITIVE);
     private static final Pattern POSITIVE_RE = Pattern.compile("article|body|content|entry|hentry|page|pagination|post|text|blog", Pattern.CASE_INSENSITIVE);
     private static final Pattern NEGATIVE_RE = Pattern.compile("combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget", Pattern.CASE_INSENSITIVE);

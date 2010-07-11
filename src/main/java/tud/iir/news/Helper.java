@@ -1,12 +1,8 @@
 package tud.iir.news;
 
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.StringWriter;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -40,10 +36,9 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import tud.iir.helper.FileHelper;
-import tud.iir.web.Crawler;
 
 /**
- * Various more or less feed specific helper functions. 
+ * Various more or less feed specific helper functions.
  * TODO most of these methods can be moved to the global Helper classes.
  * 
  * @author Philipp Katz
@@ -52,7 +47,8 @@ import tud.iir.web.Crawler;
 public class Helper {
 
     // /**
-    // * Namespace context for parsing result documents using xhtml namespace with XPath. See: http://www.ibm.com/developerworks/library/x-javaxpathapi.html
+    // * Namespace context for parsing result documents using xhtml namespace with XPath. See:
+    // http://www.ibm.com/developerworks/library/x-javaxpathapi.html
     // * http://www.ibm.com/developerworks/xml/library/x-nmspccontext/index.html
     // *
     // * @author pk
@@ -136,11 +132,11 @@ public class Helper {
             }
 
             transformer.transform(source, result);
-            strResult =  stringWriter.getBuffer().toString();
+            strResult = stringWriter.getBuffer().toString();
         } catch (TransformerConfigurationException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (TransformerException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
         return strResult;
     }
@@ -148,18 +144,18 @@ public class Helper {
     /**
      * Remove unneccessary whitespace from DOM nodes.
      * http://stackoverflow.com/questions/978810/how-to-strip-whitespace-only-text-nodes-from-a-dom-before-serialization
-     *  
+     * 
      * @param node
      * @return
      */
     public static Node removeWhitespace(Node node) {
-        
+
         Node result = node.cloneNode(true);
-        
+
         try {
             XPathFactory xpathFactory = XPathFactory.newInstance();
             // XPath to find empty text nodes.
-            XPathExpression xpathExp = xpathFactory.newXPath().compile("//text()[normalize-space(.) = '']");  
+            XPathExpression xpathExp = xpathFactory.newXPath().compile("//text()[normalize-space(.) = '']");
             NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(result, XPathConstants.NODESET);
 
             // Remove each empty text node from document.
@@ -168,13 +164,11 @@ public class Helper {
                 emptyTextNode.getParentNode().removeChild(emptyTextNode);
             }
         } catch (XPathExpressionException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (DOMException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         }
-        
+
         return result;
     }
 
@@ -275,26 +269,26 @@ public class Helper {
     // return htmlString.replaceAll("\\<.*?>", "").replaceAll("(\n\r?)+", "\n").trim();
     // }
 
-    // ///////////////
-    // from http://www.javadb.com/write-lines-of-text-to-file-using-a-printwriter
-    public static void writeLineToFile(String filename, String lineToWrite, boolean appendToFile) {
-        PrintWriter pw = null;
-        try {
-            if (appendToFile) {
-                pw = new PrintWriter(new FileWriter(filename, true));
-            } else {
-                pw = new PrintWriter(new FileWriter(filename));
-            }
-            pw.println(lineToWrite);
-            pw.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if (pw != null) {
-                pw.close();
-            }
-        }
-    }
+    // // ///////////////
+    // // from http://www.javadb.com/write-lines-of-text-to-file-using-a-printwriter
+    // public static void writeLineToFile(String filename, String lineToWrite, boolean appendToFile) {
+    // PrintWriter pw = null;
+    // try {
+    // if (appendToFile) {
+    // pw = new PrintWriter(new FileWriter(filename, true));
+    // } else {
+    // pw = new PrintWriter(new FileWriter(filename));
+    // }
+    // pw.println(lineToWrite);
+    // pw.flush();
+    // } catch (IOException e) {
+    // e.printStackTrace();
+    // } finally {
+    // if (pw != null) {
+    // pw.close();
+    // }
+    // }
+    // }
 
     //
     // see FileHelper
@@ -308,16 +302,21 @@ public class Helper {
     // }
     //	
     /**
-     * @deprecated was already existing in DateHelper Get a human readable duration string from milliseconds. For example: 273823872 -> 3d 4h 3min 43s 872ms
+     * @deprecated was already existing in DateHelper Get a human readable duration string from milliseconds. For
+     *             example: 273823872 -> 3d 4h 3min 43s 872ms
      * 
      * @param msInput
      * @return
      */
     /*
-     * public static String getDurationString(long msInput) { int ms = (int) (msInput % 1000); int s = (int) ((msInput / 1000) % 60); int min = (int) ((msInput
-     * / 1000 / 60) % 60); int h = (int) ((msInput / 1000 / 60 / 60) % 24); long d = (msInput / 1000 / 60 / 60 / 24); StringBuilder sb = new StringBuilder(); if
-     * (d > 0) { sb.append(d).append("d "); } if (d > 0 || h > 0) { sb.append(h).append("h "); } if (d > 0 || h > 0 || min > 0) { sb.append(min).append("min ");
-     * } if (d > 0 || h > 0 || min > 0 || s > 0) { sb.append(s).append("s "); } sb.append(ms).append("ms"); return sb.toString(); }
+     * public static String getDurationString(long msInput) { int ms = (int) (msInput % 1000); int s = (int) ((msInput /
+     * 1000) % 60); int min = (int) ((msInput
+     * / 1000 / 60) % 60); int h = (int) ((msInput / 1000 / 60 / 60) % 24); long d = (msInput / 1000 / 60 / 60 / 24);
+     * StringBuilder sb = new StringBuilder(); if
+     * (d > 0) { sb.append(d).append("d "); } if (d > 0 || h > 0) { sb.append(h).append("h "); } if (d > 0 || h > 0 ||
+     * min > 0) { sb.append(min).append("min ");
+     * } if (d > 0 || h > 0 || min > 0 || s > 0) { sb.append(s).append("s "); } sb.append(ms).append("ms"); return
+     * sb.toString(); }
      */
 
     /**
@@ -329,13 +328,11 @@ public class Helper {
      */
     public static String getFirstWords(String string, int num) {
         StringBuilder sb = new StringBuilder();
-        if (string != null) {
-            if (num > 0) {
-                String[] split = string.split("\\s");
-                sb.append(split[0]);
-                for (int i = 1; i < Math.min(num, split.length); i++) {
-                    sb.append(" ").append(split[i]);
-                }
+        if (string != null && num > 0) {
+            String[] split = string.split("\\s");
+            sb.append(split[0]);
+            for (int i = 1; i < Math.min(num, split.length); i++) {
+                sb.append(" ").append(split[i]);
             }
         }
         return sb.toString();
@@ -354,7 +351,8 @@ public class Helper {
     }
 
     /**
-     * Determines the longest common XPath from the beginning, in other words: We will return an XPath to an elements which contains both of the specified
+     * Determines the longest common XPath from the beginning, in other words: We will return an XPath to an elements
+     * which contains both of the specified
      * elements.<BR>
      * <BR>
      * Example: //a/b/c/d and //a/b/e/f -> //a/b
@@ -382,7 +380,8 @@ public class Helper {
     }
 
     /**
-     * Count number of occurences of pattern withing text. TODO this will fail if pattern contains RegEx metacharacters. Need to escape.
+     * Count number of occurences of pattern withing text. TODO this will fail if pattern contains RegEx metacharacters.
+     * Need to escape.
      * 
      * @param text
      * @param pattern
@@ -420,9 +419,9 @@ public class Helper {
         } catch (ParserConfigurationException e) {
             LOGGER.error("stringToXml:ParserConfigurationException " + e.getMessage());
         } catch (SAXException e) {
-            LOGGER.error("stringToXml:SAXException " + e.getMessage());            
+            LOGGER.error("stringToXml:SAXException " + e.getMessage());
         } catch (IOException e) {
-            LOGGER.error("stringToXml:IOException " + e.getMessage());            
+            LOGGER.error("stringToXml:IOException " + e.getMessage());
         }
         if (result == null && builder != null) {
             // return an empty Document
@@ -432,7 +431,8 @@ public class Helper {
     }
 
     /**
-     * Returns a String representation of the supplied Node, including the Node itself, like outerHTML in JavaScript/DOM.
+     * Returns a String representation of the supplied Node, including the Node itself, like outerHTML in
+     * JavaScript/DOM.
      * 
      * http://chicknet.blogspot.com/2007/05/outerxml-for-java.html
      * 
@@ -450,20 +450,21 @@ public class Helper {
             StringWriter writer = new StringWriter();
             transformer.transform(new DOMSource(node), new StreamResult(writer));
             result = writer.toString();
-            
+
         } catch (TransformerConfigurationException e) {
             LOGGER.error("getOuterXml:TransformerConfigurationException", e);
         } catch (TransformerFactoryConfigurationError e) {
             LOGGER.error("getOuterXml:TransformerFactoryConfigurationError", e);
         } catch (TransformerException e) {
-            
+            LOGGER.error("getOuterXml:TransformerException", e);
         }
         // logger.trace("<getOuterXml " + result);
         return result;
     }
 
     /**
-     * Returns a String representation of the supplied Node, excluding the Node itself, like innerHTML in JavaScript/DOM.
+     * Returns a String representation of the supplied Node, excluding the Node itself, like innerHTML in
+     * JavaScript/DOM.
      * 
      * @param node
      * @return
@@ -555,7 +556,8 @@ public class Helper {
     // ///////////////////////////////////////////////////////////////////////////
 
     /**
-     * Creates a copy of a DOM Document. http://stackoverflow.com/questions/279154/how-can-i-clone-an-entire-document-using-the-java-dom
+     * Creates a copy of a DOM Document.
+     * http://stackoverflow.com/questions/279154/how-can-i-clone-an-entire-document-using-the-java-dom
      * 
      * @param document
      * @return the cloned Document or <code>null</code> if cloning failed.
@@ -596,7 +598,8 @@ public class Helper {
     }
 
     /**
-     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein similarity which is computationally
+     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
+     * similarity which is computationally
      * expensive.
      * 
      * @param s1
@@ -615,7 +618,8 @@ public class Helper {
     private static final String[] BINARY_PREFIXES = new String[] { "Ki", "Mi", "Gi", "Ti", "Pi", "Ei", "Zi", "Yi" };
 
     /**
-     * Format number of bytes to human readable String using IEC binary unit prefixes, for example getReadibleBytes(48956748) -> 46.69 MiB
+     * Format number of bytes to human readable String using IEC binary unit prefixes, for example
+     * getReadibleBytes(48956748) -> 46.69 MiB
      * 
      * @param bytes
      * @return
@@ -635,7 +639,7 @@ public class Helper {
         }
         return result;
     }
-    
+
     public static void main(String[] args) {
 
         // Crawler c = new Crawler();
