@@ -318,11 +318,21 @@ public abstract class TextClassifier {
 
     /**
      * Get a copy of the classifier performance.
+     * Delete weighted terms in documents to lower memory consumption.
      * 
      * @return A new instance of classifier performance.
      */
     public ClassifierPerformance getPerformanceCopy() {
-        return new ClassifierPerformance(this);
+        ClassifierPerformance cfpc = new ClassifierPerformance(this);
+
+        for (ClassificationDocument d : cfpc.getTestDocuments()) {
+            d.setWeightedTerms(null);
+        }
+        for (ClassificationDocument d : cfpc.getTrainingDocuments()) {
+            d.setWeightedTerms(null);
+        }
+
+        return cfpc;
     }
 
     // //////////////////////////////////////// only DEBUG purposes /////////////////////////////////

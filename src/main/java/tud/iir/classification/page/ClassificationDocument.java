@@ -26,25 +26,28 @@ public class ClassificationDocument {
     public static final int TRAINING = 2;
     public static final int UNCLASSIFIED = 3;
 
-    /** the real categories are given for training documents (and test documents that are used to determine the quality of the classifier) */
+    /**
+     * The real categories are given for training documents (and test documents that are used to determine the quality
+     * of the classifier).
+     */
     protected Categories realCategories;
 
-    /** each document has a unique url */
+    /** Each document has a unique URL. */
     private String url = "";
 
-    /** the category of the document, null if not classified */
-    protected CategoryEntries assignedCategoryEntries = null;
+    /** The category of the document, null if not classified. */
+    protected CategoryEntries assignedCategoryEntries;
 
-    /** the weighted terms with term,weight representation */
+    /** The weighted terms with term,weight representation. */
     private HashMap<Term, Double> weightedTerms;
 
-    /** the type of the document (TEST, TRAINING or unknown) */
+    /** The type of the document (TEST, TRAINING or unknown). */
     private int documentType = UNCLASSIFIED;
 
-    /** type of classification (tags or hierarchy) */
+    /** Type of classification (tags or hierarchy). */
     private int classifiedAs = ClassificationTypeSetting.TAG;
 
-    /** comparator to sort categories by relevance */
+    /** Comparator to sort categories by relevance. */
     Comparator<CategoryEntry> comparator = new Comparator<CategoryEntry>() {
         public int compare(CategoryEntry o1, CategoryEntry o2) {
             return ((Comparable<Double>) o2.getRelevance()).compareTo(o1.getRelevance());
@@ -206,7 +209,7 @@ public class ClassificationDocument {
         CategoryEntries limitedCategories = new CategoryEntries();
         int n = 0;
         for (CategoryEntry c : getAssignedCategoryEntriesByRelevance(getClassifiedAs())) {
-            if (n < minCategories || (n < maxCategories && c.getRelevance() >= relevanceThreshold)) {
+            if (n < minCategories || n < maxCategories && c.getRelevance() >= relevanceThreshold) {
                 limitedCategories.add(c);
             }
             n++;
