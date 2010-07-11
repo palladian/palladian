@@ -84,13 +84,16 @@ limitations under the License.
 \end{verbatim}
 
 \section{Alternative and Complimentary Toolkits}
-Some functionalities of this toolkit are covered in other libraries. Before you start using TOOLKIT you might want to take a look at these alternatives.
+Some functionalities of this toolkit are covered in other libraries. Before you start using TOOLKIT you might want to take a look at these alternatives. The objective of TOOLKIT is to create new functionalities or improve existing ones, we do not intend to reinvent the wheel. For example, TOOLKIT has no functionality for part-of-speech tagging (PoS tagging) since there are many toolkits that do this task pretty accurate already. In case you do not find the functionality you are looking for in this toolkit, you probably will in one of the following toolkits.
 
 \begin{enumerate}
+\item \textbf{AlchemyAPI} \cite{alchemyapi} is a commercial web-service that can be used via several programming languages. The service offers named entity recognition, text classification, language identification, concept tagging, keyword extraction, content scraping, and web page cleaning.
+The service comes in 4 variants: free, basic, professional, and metered.
 \item \textbf{Apache Mahout} \cite{settings2apache} is a Java-based machine learning library. Its main features are collaborative filtering, user and item based recommenders, (fuzzy k-means clustering, mean shift clustering, latent dirichlet process allocation, singular value decomposition, parallel frequent pattern mining, complementary naive bayes classifier, and a random forest decision tree based classifier.
 The library is licensed under the Apache Software license.
 \item \textbf{Balie} \cite{balie} is a Java-based information extraction library. Its main features are language identification, tokenization, sentence boundary detection, and named entity recognition (using dictionaries).
 The library is licensed under the GNU GPL and supports English, German, French, Romanian, and Spanish as input languages.
+\item \textbf{ContentAnalyst} \cite{contentanalyst} is a commercial platform for text analytics. The platform's main features are concept search, dynamic clustering, near-duplicate document identification, automatic summarization, text classification, and latent semantic indexing.
 \item The \textbf{Dragon Toolkit} \cite{zhou2007dragon} is a Java-based development package for information retrieval and text mining. Its main features are text classification, text clustering, text summarization, and topic modeling.
 \item \textbf{FreeLing} \cite{atserias2006freeling} is a natural language processing library written in C++. Its main features are Text tokenization, sentence splitting, morphological analysis, sSuffix treatment, retokenization of clitic pronouns, flexible multiword recognition, contraction splitting, probabilistic prediction of unkown word categories, named entity detection, recognition of dates, numbers, ratios, currency, and physical magnitudes, PoS tagging, chart-based shallow parsing, named entity classification,  WordNet based sense annotation and disambiguation, Rule-based dependency parsing, and nominal correference resolution.
 It is licensed under GPL and supports Spanish, Catalan, Galician, Italian, English, Welsh, Portuguese, and Asturian as languages. An online demo is available under \url{http://garraf.epsevg.upc.es/freeling/demo.php}.
@@ -99,6 +102,9 @@ The framework is licensed under the GNU Lesser General Public License.
 \item The \textbf{Illinois Cognitive Computation Group} \cite{illinoisccg} has a list of ready to use programs for semantic role labeling, text chunking, named entity tagging, named entity discovery, PoS tagging, unsupervised rank aggregation, and named entity similarity metrics.
 \item \textbf{Julie NLP} \cite{tomanek2007uima} is a Java-based toolkit of UIMA based text processing components. The toolkit can be used for semantic search, information extraction, and text mining.
 The Toolkit is licensed under the Common Public License.
+\item \textbf{Language Computer} \cite{lanuagecomputer} provides commercial products for sentence splitting, tokenization, PoS tagging, named entity recognition, co-reference resolution, attribute extraction, relationship extraction, event extraction, question answering, and text summarization.
+\item \textbf{Lingo3G} \cite{lingo3g} is a text clustering engine that organizes text collections into hierarchical clusters.
+The software is commercial but \cite{stefanowski2003carrot} offers an open source alternative for text clustering algorithms written in Java. The algorithms integrate with other programming or scripting languages such as PHP, Ruby, and C\verb$#$ too.
 \item \textbf{LingPipe} \cite{lingpipe} is a text processing toolkit using computational linguistics. LingPipe is written in Java. Its main features are topic classification, named entity recognition, clustering, PoS tagging, sentence detection, spelling correction, database text mining, string comparisons, interesting phrase detection, character language modeling, chinese word segmentation, hyphenation and syllabification, sentiment analysis, language identification, singular value decomposition, logistic regression, expectation maximization, and word sense disambiguation.
 LingPipe is available under a free license for academic use and several commercial licenses.
 \item \textbf{Mallet} \cite{mccallum2002mallet} is a Java-based toolkit for statistical natural language processing. Its main features are text classification, sequence tagging (PoS tagging), topic modeling, and numerical optimization.
@@ -112,12 +118,18 @@ The program is licensed under a NCSA style license.
 \item \textbf{NaCTeM Software Tools} \cite{nactem} are programs for natural language processing and text mining that are made available by the National Centre for Text Mining. The programs include functionality for PoS tagging, syntactic parsing, named entity recognition, sentence splitting, text classification, and sentiment analysis.
 \item \textbf{NLTK} \cite{loper2002nltk} is a Python-based natural language processing toolkit. Its main features are tokenization, stemming, PoS tagging, text classification, and syntactic parsing.
 The toolkit is licensed under the Apache 2.0 license.
+\item \textbf{OpenCalais} \cite{opencalais} is a web service that performs named entity recognition, fact and event extraction.
+The web service is free for commercial and non-commercial use but limited to 50,000 transactions a day. A professional plan is available too including more transactions and an service license agreement.
 \item The \textbf{RASP System} \cite{briscoe2006second} is a C and Lisp-based toolkit for natural language processing (English only). Its main features are tokenization, PoS tagging, lemmatization, morphological analysis, and grammar-based parsing.
 The toolkit is free for non-commercial use and licensed under the RASP System License.
+\item The \textbf{Rosette Linguistic Platform} \cite{rosette} is a software suite that can perform name translation, name matching, named entity recognition, morphological analysis, and language identification. The suite works for 55 European, Asian, and Arabic languages.
+The software is a commercial product.
 \item \textbf{Stanford NLP} \cite{stanfordnlp} is a set of Java-based natural language processing libraries. Their main features are PoS tagging, named entity recognition, Chinese word segmentation, and classification.
 The software distributions are licensed under the GNU Public License.
 \item \textbf{SRILM - The SRI Language Modeling Toolkit} \cite{stolcke2002srilm} is a C++-based toolkit for language modeling. Its main features are speech recognition, statistical tagging and segmentation, and machine translation.
 The toolkit is free for non-commercial use and licensed under the SRILM Research Community License.
+\item \textbf{TextAnalyst} \cite{textanalyst} is a commercial text processing software offering text summarization, semantic information retrieval, meaning extraction, and text clustering.
+\item \textbf{VisualText} \cite{visualtext} is a natural language processing software that addresses named entity recognition, text indexing, text filtering, text classification, text grading, and text summarization.
 \item \textbf{WEKA} \cite{hall2009weka} is a Java-based machine learning and data mining library. The library contains a large set of machine learning algorithms such as Support Vector Machines, Neural Networks, Naive Bayes, k-nearest neighbor for but not limited to (text) clustering, (text) classification, and regression.
 The library is licensed under the GNU General Public License.
 \end{enumerate}
@@ -208,6 +220,99 @@ The rules of the game are:
 \item Adding/removing a compiler warning = -1/+1.
 \item Checkstyle Plugin. Adding/removing a checkstyle warning = -1/+1.
 \end{itemize}
+
+\section{Hello Toolkit - Your first application using the TUDIIR Toolkit}
+\paragraph{Project creation:} Create a new Maven Project using the New Project wizard of Eclipse (See Fig.~\ref{fig:maven-project01},~\ref{fig:maven-project02} and \ref{fig:maven-project03}).
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht01.png}
+\caption{Create a new Maven Project.}
+\label{fig:maven-project01}
+\end{figure}
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht02.png}
+\caption{Choose to create a simple Maven Project.}
+\label{fig:maven-project02}
+\end{figure}
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht03.png}
+\caption{Enter detail information about your new Maven Project}
+\label{fig:maven-project03}
+\end{figure}
+\paragraph{Adding the toolkit dependency to the project:} Right click on the new project. In the context menu that appears choose \textit{Maven $\rightarrow$ Add Dependency} (See Fig.~\ref{fig:example-project-context-menu01} and \ref{fig:example-project-context-menu02}).
+\begin{figure}
+\includegraphics[scale=1]{img/context02.png}
+\caption{Maven Project Context Menu. Choose \textit{Maven}}
+\label{fig:example-project-context-menu01}
+\end{figure}
+\begin{figure}
+\includegraphics[scale=1]{img/context01.png}
+\caption{Create a new Maven project}
+\label{fig:example-project-context-menu02}
+\end{figure}
+A search interface appears (See~\ref{fig:add-dependency01}). If you followed the steps in Section~\ref{sec:buildingthetoolkitusingapachemaven} and installed the toolkit to your local Maven repository, you can type \textit{toolkit} in the search interface (See Fig.~\ref{fig:add-dependency02} and add the dependency with a double click on the \textit{de.tud.inf.rn.iir toolkit} entry. 
+
+Note: If you need to add further dependencies in the future you can use the same steps.
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht04.png}
+\caption{Search interface for Maven dependencies.}
+\label{fig:add-dependency01}
+\end{figure}
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht05.png}
+\caption{Search results for \textit{toolkit}}
+\label{fig:add-dependency02}
+\end{figure}
+The Maven plugin adds the dependency to your pom.xml file, which should look like Fig.~\ref{fig:pom01}.
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht06.png}
+\caption{POM with added dependency on the TUD IIR Toolkit.}
+\label{fig:pom01}
+\end{figure}
+\paragraph{Configuring your project} Since Maven by default still uses Java 1.4 (very conservative), but the toolkit depends on Java 1.6 (very visionary) you need to configure the Maven Java compiler plugin to use Java 1.6. This is shown in Fig.~\ref{fig:java601}.
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht07.png}
+\caption{Configure the Maven Java compiler to use Java 1.6 instead of 1.4}
+\label{fig:java601}
+\end{figure}
+The same step is necessary to tell Eclipse that it should use Java 1.6 instead of 1.4. For this purpose open the project properties via the context menu for example. In the tree to the left choose \textit{Java Compiler} and change all three entries to 1.6. This is shown in Fig.~\ref{fig:java602} and Fig.~\ref{fig:java603}.
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht08.png}
+\caption{Eclipse uses Java 1.4 by default for Maven projects}
+\label{fig:java602}
+\end{figure}
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht09.png}
+\caption{configure Eclipse to use Java 1.6}
+\label{fig:java603}
+\end{figure}
+\paragraph{Writing your first toolkit code} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search Bing for the term "Hello Toolkit". The example is also shown in Fig.~\ref{fig:hellotoolkit}.
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht10.png}
+\caption{"Hello Toolkit" Code}
+\label{fig:hellotoolkit}
+\end{figure}
+For the code to work you need three additional files that are already in the config folder in the toolkit project. These are ``crawler.conf'', ``apikeys.conf'' and ``feeds.conf''. You need to copy them to src/main/resources/config. The folder src/main/resources usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht11.png}
+\caption{Create a new Maven project}
+\label{fig:resource01}
+\end{figure}
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht12.png}
+\caption{Create a new Maven project}
+\label{fig:resource02}
+\end{figure}
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht13.png}
+\caption{Create a new Maven project}
+\label{fig:resource03}
+\end{figure}
+\begin{figure}
+\includegraphics[width=\textwidth]{img/ht14.png}
+\caption{Create a new Maven project}
+\label{fig:structure}
+\end{figure}
+With the structure from Fig.~\ref{fig:structure} you can run your project. Just open your projects context menu again, choose \textit{Run As $\rightarrow$ Maven Clean}, then open context menu again choose \textit{Run As $\rightarrow$ Maven Install} and finally choose \textit{Run As $\rightarrow$ Java Application}.
 
 \section{Reporting issues using Mantis}
 To report issues with the toolkit or to view issues assigned to you, you need to register with Mantis. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor and the reason why you are working on the toolkit (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link were you can set your password. If you successfully set a password for your account you can login on: \href{http://141.76.40.242/mantisbt}{Mantis}.
@@ -531,110 +636,20 @@ The output of the evaluation will be three csv files that hold information about
 \section{Extraction}
 \paragraph{Fact Extraction}
 \paragraph{Date Extraction}
+\paragraph{Named Entity Recognition}
 
 \section{Retrieval}
 \paragraph{Web Crawling}
-\paragraph{Retrieval of Information from Sources available through the web}
+\paragraph{Web Information Retrieval}
 \paragraph{Feed Retrieval}
 
-\subsection{Preprocessing}
-\paragraph{Named Entity Recognition}
+\section{Preprocessing}
+\subsection{Sentence Splitting}
+\subsection{Creating N-Grams}
+\subsection{Noun Pluralization and Singularization}
 
 \chapter{More Example Usages}
 Learning to use a toolkit often does not work by reading the Javadoc. Therefore, we provide a simple example how to setup your first project using the toolkit, eclipse and maven. Afterwards we provide a short overview of some important modules and how you can use them. All examples are intended as entry points to facilitate the first use of the toolkit. Many components are too mighty to be explained exhaustively in small code snippets, make sure to read the Javadoc and more importantly the actual code for further information.
-
-\subsection{Hello Toolkit - Your first application using the TUDIIR Toolkit}
-\paragraph{Project creation:} Create a new Maven Project using the New Project wizard of Eclipse (See Fig.~\ref{fig:maven-project01},~\ref{fig:maven-project02} and \ref{fig:maven-project03}).
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht01.png}
-\caption{Create a new Maven Project.}
-\label{fig:maven-project01}
-\end{figure}
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht02.png}
-\caption{Choose to create a simple Maven Project.}
-\label{fig:maven-project02}
-\end{figure}
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht03.png}
-\caption{Enter detail information about your new Maven Project}
-\label{fig:maven-project03}
-\end{figure}
-\paragraph{Adding the toolkit dependency to the project:} Right click on the new project. In the context menu that appears choose \textit{Maven $\rightarrow$ Add Dependency} (See Fig.~\ref{fig:example-project-context-menu01} and \ref{fig:example-project-context-menu02}).
-\begin{figure}
-\includegraphics[scale=1]{img/context02.png}
-\caption{Maven Project Context Menu. Choose \textit{Maven}}
-\label{fig:example-project-context-menu01}
-\end{figure}
-\begin{figure}
-\includegraphics[scale=1]{img/context01.png}
-\caption{Create a new Maven project}
-\label{fig:example-project-context-menu02}
-\end{figure}
-A search interface appears (See~\ref{fig:add-dependency01}). If you followed the steps in Section~\ref{sec:buildingthetoolkitusingapachemaven} and installed the toolkit to your local Maven repository, you can type \textit{toolkit} in the search interface (See Fig.~\ref{fig:add-dependency02} and add the dependency with a double click on the \textit{de.tud.inf.rn.iir toolkit} entry. 
-
-Note: If you need to add further dependencies in the future you can use the same steps.
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht04.png}
-\caption{Search interface for Maven dependencies.}
-\label{fig:add-dependency01}
-\end{figure}
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht05.png}
-\caption{Search results for \textit{toolkit}}
-\label{fig:add-dependency02}
-\end{figure}
-The Maven plugin adds the dependency to your pom.xml file, which should look like Fig.~\ref{fig:pom01}.
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht06.png}
-\caption{POM with added dependency on the TUD IIR Toolkit.}
-\label{fig:pom01}
-\end{figure}
-\paragraph{Configuring your project} Since Maven by default still uses Java 1.4 (very conservative), but the toolkit depends on Java 1.6 (very visionary) you need to configure the Maven Java compiler plugin to use Java 1.6. This is shown in Fig.~\ref{fig:java601}.
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht07.png}
-\caption{Configure the Maven Java compiler to use Java 1.6 instead of 1.4}
-\label{fig:java601}
-\end{figure}
-The same step is necessary to tell Eclipse that it should use Java 1.6 instead of 1.4. For this purpose open the project properties via the context menu for example. In the tree to the left choose \textit{Java Compiler} and change all three entries to 1.6. This is shown in Fig.~\ref{fig:java602} and Fig.~\ref{fig:java603}.
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht08.png}
-\caption{Eclipse uses Java 1.4 by default for Maven projects}
-\label{fig:java602}
-\end{figure}
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht09.png}
-\caption{configure Eclipse to use Java 1.6}
-\label{fig:java603}
-\end{figure}
-\paragraph{Writing your first toolkit code} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search Bing for the term "Hello Toolkit". The example is also shown in Fig.~\ref{fig:hellotoolkit}.
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht10.png}
-\caption{"Hello Toolkit" Code}
-\label{fig:hellotoolkit}
-\end{figure}
-For the code to work you need three additional files that are already in the config folder in the toolkit project. These are ``crawler.conf'', ``apikeys.conf'' and ``feeds.conf''. You need to copy them to src/main/resources/config. The folder src/main/resources usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht11.png}
-\caption{Create a new Maven project}
-\label{fig:resource01}
-\end{figure}
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht12.png}
-\caption{Create a new Maven project}
-\label{fig:resource02}
-\end{figure}
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht13.png}
-\caption{Create a new Maven project}
-\label{fig:resource03}
-\end{figure}
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht14.png}
-\caption{Create a new Maven project}
-\label{fig:structure}
-\end{figure}
-With the structure from Fig.~\ref{fig:structure} you can run your project. Just open your projects context menu again, choose \textit{Run As $\rightarrow$ Maven Clean}, then open context menu again choose \textit{Run As $\rightarrow$ Maven Install} and finally choose \textit{Run As $\rightarrow$ Java Application}.
 
 \subsection{Source Retriever}
 The source retriever is a module that can query a number of sources such as search engines and web pages with terms and retrieve matching results.
@@ -971,7 +986,7 @@ The TUDIIR Toolkit makes excessive use of third party libraries. We do not inten
 \item NekoHTML \cite{nekohtml} to clean up the HTML of web pages in order to process them correctly.
 \item SimMetrics \cite{simmetrics} to calculate similarities of strings.
 \item Twitter4j \cite{twitter4j} to query the Twitter API.
-\item Weka \cite{weka} for machine learning.
+\item Weka \cite{hall2009weka} for machine learning.
 \end{itemize}
 
 \section{History}
