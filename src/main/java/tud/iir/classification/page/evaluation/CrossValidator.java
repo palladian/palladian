@@ -5,12 +5,11 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.page.ClassificationDocument;
 import tud.iir.classification.page.ClassifierManager;
 import tud.iir.classification.page.TextClassifier;
 import tud.iir.helper.FileHelper;
@@ -154,20 +153,6 @@ public class CrossValidator {
 
                     // add the performance to the evaluation maps
                     ClassifierPerformance cfpc = classifier.getPerformanceCopy();
-                    
-                    
-                    // TODO --------------------------------------------------------------
-                    // do we really need to keep the weighted terms for the CrossValidation evaluation?
-                    // remove them here, this lowers memory consumption by 50 %
-                    // see my Mail/Skype-History, 2010-07-09, 21:20 -- Philipp.
-                    
-                    for (ClassificationDocument d : cfpc.getTestDocuments()) {
-                        d.setWeightedTerms(null);
-                    }
-                    for (ClassificationDocument d : cfpc.getTrainingDocuments()) {
-                        d.setWeightedTerms(null);
-                    }
-                    // --------------------------------------------------------------------
                     
                     performancesDatasetTrainingFolds.add(cfpc);
                     performancesDatasetTrainingFoldsTemp1.add(cfpc);
