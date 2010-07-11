@@ -588,6 +588,21 @@ public class StringHelper {
         return modString.trim();
     }
 
+    public static List<String> tokenize(String inputString) {
+
+        List<String> tokens = new ArrayList<String>();
+
+        Pattern pattern = Pattern.compile("(\\w+)(-(\\w+))*|</?(\\w+)>|(\\$\\d+\\.\\d+)|([^\\w\\s]+)", Pattern.DOTALL
+                | Pattern.CASE_INSENSITIVE);
+
+        Matcher matcher = pattern.matcher(inputString);
+        while (matcher.find()) {
+            tokens.add(matcher.group(0));
+        }
+
+        return tokens;
+    }
+
     /**
      * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
      * gaps.
@@ -1667,19 +1682,19 @@ public class StringHelper {
      * Get the substring between the given sequences.
      * 
      * @param string The string where the substring belongs to.
-     * @param string1 The left border.
-     * @param string2 The right border.
+     * @param leftBorder The left border.
+     * @param rightBorder The right border.
      * @return The substring between the two given strings or an empty string in case of an error.
      */
-    public static String getSubstringBetween(String string, String string1, String string2) {
+    public static String getSubstringBetween(String string, String leftBorder, String rightBorder) {
 
         String substring = "";
 
-        int index1 = string.indexOf(string1);
-        int index2 = string.indexOf(string2, index1);
+        int index1 = string.indexOf(leftBorder);
+        int index2 = string.indexOf(rightBorder, index1);
 
         if (index2 > index1 && index1 > -1) {
-            substring = string.substring(index1 + string1.length(), index2);
+            substring = string.substring(index1 + leftBorder.length(), index2);
         }
 
         return substring;

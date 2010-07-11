@@ -383,4 +383,11 @@ public class StringHelperTest extends TestCase {
         assertEquals("camel_Case_String", StringHelper.camelCaseToWords("camelCaseString", "_"));
     }
 
+    public void testTokenize() {
+
+        List<String> tokens = StringHelper.tokenize("That poster costs $22.40. twenty-one.");
+        CollectionHelper.print(tokens);
+        assertEquals(7, tokens.size());
+    }
+
 }
