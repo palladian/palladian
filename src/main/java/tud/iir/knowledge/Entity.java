@@ -29,30 +29,30 @@ public class Entity extends Extractable {
 
     public Entity(String name, Concept concept, boolean initial) {
         init();
-        this.setName(name);
-        this.setConcept(concept);
-        this.setInitial(initial);
+        setName(name);
+        setConcept(concept);
+        setInitial(initial);
         if (initial) {
-            this.setTrust(1.0);
+            setTrust(1.0);
         }
     }
 
     public Entity(String name, Concept concept, double trust) {
         init();
-        this.setName(name);
-        this.setConcept(concept);
-        this.setTrust(trust);
+        setName(name);
+        setConcept(concept);
+        setTrust(trust);
     }
 
     public Entity(String name, Concept concept) {
         init();
-        this.setName(name);
-        this.setConcept(concept);
+        setName(name);
+        setConcept(concept);
     }
     
     public Entity(String name) {
         init();
-        this.setName(name);
+        setName(name);
     }
 
     private void init() {
@@ -122,7 +122,7 @@ public class Entity extends Extractable {
         }
         // ...otherwise just enter the fact value, checking whether fact value has been entered already is done in Fact class
         else {
-            Fact factEntry = this.getFactForAttribute(fact.getAttribute());
+            Fact factEntry = getFactForAttribute(fact.getAttribute());
             factEntry.addFactValue(factValue);
         }
     }
@@ -164,7 +164,7 @@ public class Entity extends Extractable {
 //        }
 //        return count;
     
-        return this.getSources().size();
+        return getSources().size();
     }
     
 
@@ -185,7 +185,7 @@ public class Entity extends Extractable {
     public HashSet<Integer> getExtractionTypes() {
         HashSet<Integer> extractionTypesUsed = new HashSet<Integer>();
 
-        Iterator<Source> sIt = this.getSources().iterator();
+        Iterator<Source> sIt = getSources().iterator();
         while (sIt.hasNext()) {
             Source s = sIt.next();
             extractionTypesUsed.add(s.getExtractionType());
@@ -194,8 +194,9 @@ public class Entity extends Extractable {
     }
 
     public boolean isCorrect() {
-        if (this.getExtractionCount() >= Filter.minEntityCorroboration)
+        if (getExtractionCount() >= Filter.minEntityCorroboration) {
             return true;
+        }
         return false;
     }
 
@@ -223,7 +224,7 @@ public class Entity extends Extractable {
 
     @Override
     public String toString() {
-        return this.getName() + " (Trust:" + this.getTrust() + ")";
+        return getName() + " (Concept: " + getConcept().getName() + " , Trust:" + getTrust() + ")";
     }
 
     public static void main(String[] a) {
