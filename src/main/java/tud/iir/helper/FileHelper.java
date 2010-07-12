@@ -112,8 +112,9 @@ public class FileHelper {
             String line = "";
             do {
                 line = br.readLine();
-                if (line == null)
+                if (line == null) {
                     break;
+                }
                 contents.append(line).append("\n");
             } while (line != null);
 
@@ -141,8 +142,9 @@ public class FileHelper {
             String line = "";
             do {
                 line = br.readLine();
-                if (line == null)
+                if (line == null) {
                     break;
+                }
                 list.add(line);
             } while (line != null);
 
@@ -171,8 +173,9 @@ public class FileHelper {
             String line = "";
             do {
                 line = br.readLine();
-                if (line == null)
+                if (line == null) {
                     break;
+                }
 
                 la.performAction(line, lineNumber++);
 
@@ -204,8 +207,14 @@ public class FileHelper {
      * @author Philipp Katz
      */
     public static void writeToFile(String filePath, Collection<?> lines) {
+
+        File file = new File(filePath);
+        if (!file.exists()) {
+            new File(file.getParent()).mkdirs();
+        }
+
         try {
-            FileWriter fileWriter = new FileWriter(filePath);
+            FileWriter fileWriter = new FileWriter(file);
             for (Object line : lines) {
                 fileWriter.write(line.toString());
                 fileWriter.write(System.getProperty("line.separator"));
@@ -218,8 +227,14 @@ public class FileHelper {
     }
 
     public static void writeToFile(String filePath, String string) {
+
+        File file = new File(filePath);
+        if (!file.exists()) {
+            new File(file.getParent()).mkdirs();
+        }
+
         try {
-            FileWriter fileWriter = new FileWriter(filePath);
+            FileWriter fileWriter = new FileWriter(file);
             fileWriter.write(string);
             fileWriter.flush();
             fileWriter.close();
@@ -537,8 +552,9 @@ public class FileHelper {
                 ArrayList<File> matchingFiles = new ArrayList<File>();
 
                 for (File file : files) {
-                    if (file.getName().indexOf(substring) > -1)
+                    if (file.getName().indexOf(substring) > -1) {
                         matchingFiles.add(file);
+                    }
                 }
 
                 return matchingFiles.toArray(new File[0]);
@@ -729,7 +745,12 @@ public class FileHelper {
         return false;
     }
 
-    public static void main(String[] a) {
+    public static void main(String[] a) throws IOException {
+
+        // File f = new File("data/datasets/abc/def.txt");
+        // System.out.println(f.getParent());
+        // FileHelper.writeToFile("data/datasets/abc/def.txt", "abc");
+        // System.exit(0);
 
         // //////////////////////// add license to every file //////////////////////////
         // FileHelper.copyDirectory("src/tud", "data/temp/src/tud");

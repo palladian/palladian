@@ -12,6 +12,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
@@ -37,6 +38,11 @@ import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -456,7 +462,7 @@ public class Crawler {
 
             boolean inDomainLink = currentDomain.equalsIgnoreCase(domain);
 
-            if (((inDomainLink && inDomain) || (!inDomainLink && outDomain)) && currentLink.startsWith(prefix)) {
+            if ((inDomainLink && inDomain || !inDomainLink && outDomain) && currentLink.startsWith(prefix)) {
                 pageLinks.add(currentLink);
             }
         }
@@ -1059,8 +1065,9 @@ public class Crawler {
 
         // do not download pdf, ppt or ps files TODO try to download them as
         // well
-        if (urlString.indexOf(".pdf") > -1 || urlString.indexOf(".ps") > -1 || urlString.indexOf(".ppt") > -1)
+        if (urlString.indexOf(".pdf") > -1 || urlString.indexOf(".ps") > -1 || urlString.indexOf(".ppt") > -1) {
             return "";
+        }
 
         boolean isFile = false;
         if (urlString.indexOf("http://") == -1) {
@@ -1708,6 +1715,32 @@ public class Crawler {
     }
 
     /**
+     * Get the string representation of a document.
+     * 
+     * @param document The document.
+     * @return The string representation of the document.
+     */
+    public static String documentToString(Document document) {
+        String documentString = "";
+
+        try {
+            DOMSource domSource = new DOMSource(document);
+            StringWriter writer = new StringWriter();
+            StreamResult result = new StreamResult(writer);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.transform(domSource, result);
+            documentString = writer.toString();
+        } catch (TransformerException e) {
+            LOGGER.error("could not get string representation of document " + e.getMessage());
+        } catch (NullPointerException e) {
+            LOGGER.error("could not get string representation of document " + e.getMessage());
+        }
+
+        return documentString;
+    }
+
+    /**
      * @param args
      */
     public static void main(String[] args) {
@@ -1927,5 +1960,7 @@ public class Crawler {
         // e.printStackTrace();
         // }
     }
+
+
 
 }
