@@ -1,5 +1,7 @@
 package tud.iir.helper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 import junit.framework.Assert;
@@ -57,6 +59,22 @@ public class MathHelperTest {
         double[] alphaBeta = MathHelper.performLinearRegression(weights,heights);
         Assert.assertEquals(-39.062, MathHelper.round(alphaBeta[0],3));
         Assert.assertEquals(61.272, MathHelper.round(alphaBeta[1],3));
+    }
+
+    @Test
+    public void testCalculateRMSE() {
+
+        List<double[]> values = new ArrayList<double[]>();
+
+        values.add(new double[] { 2, 1 });
+        values.add(new double[] { 2, 1 });
+        values.add(new double[] { 5, 10 });
+        values.add(new double[] { 10, 8 });
+        values.add(new double[] { 22, 7 });
+
+        Assert.assertEquals(7.155, MathHelper.round(MathHelper.calculateRMSE(values), 3));
+
+        Assert.assertEquals(3.607, MathHelper.round(MathHelper.calculateRMSE("data/test/rmseInput.csv", ";"), 3));
     }
 
 }

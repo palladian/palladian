@@ -1,5 +1,7 @@
 package tud.iir.helper;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.TreeSet;
 
 import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
@@ -116,10 +118,58 @@ public class MathHelper {
         return Math.max(start1, start2) < Math.min(end1, end2);
     }
 
+    public static double calculateRMSE(String inputFile, String columnSeparator) {
+        // array with correct and predicted values
+        List<double[]> values = new ArrayList<double[]>();
+
+        final Object[] obj = new Object[2];
+        obj[0] = values;
+        obj[1] = columnSeparator;
+
+        LineAction la = new LineAction(obj) {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] parts = line.split((String) obj[1]);
+
+                double[] pair = new double[2];
+                pair[0] = Double.valueOf(parts[0]);
+                pair[1] = Double.valueOf(parts[1]);
+
+                ((List<double[]>) obj[0]).add(pair);
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(inputFile, la);
+
+        return calculateRMSE(values);
+    }
+
+    public static double calculateRMSE(List<double[]> values) {
+        double rmse = -1.0;
+
+        double sum = 0.0;
+        for (double[] d : values) {
+            sum += Math.pow(d[0] - d[1], 2);
+        }
+
+        rmse = Math.sqrt(sum / values.size());
+
+        return rmse;
+    }
+
     /**
      * Calculate the parameters for a regression line. A series of x and y must be given. y = beta * x + alpha
+     * TODO multiple regression model:
+     * http://www.google.com/url?sa=t&source=web&cd=6&ved=0CC8QFjAF&url=http%3A%2F%2Fwww.
+     * bbn-school.org%2Fus%2Fmath%2Fap_stats
+     * %2Fproject_abstracts_folder%2Fproj_student_learning_folder%2Fmultiple_reg__ludlow
+     * .pps&ei=NQQ7TOHNCYacOPan6IoK&usg=AFQjCNEybhIQVP2xwNGHEdYMgqNYelp1lQ&sig2=cwCNr11vMv0PHwdwu_LIAQ,
+     * http://www.stat.ufl.edu/~aa/sta6127/ch11.pdf
      * 
-     * See <a href="http://en.wikipedia.org/wiki/Simple_linear_regression">http://en.wikipedia.org/wiki/Simple_linear_regression</a> for an explanation.
+     * See <a href="http://en.wikipedia.org/wiki/Simple_linear_regression">http://en.wikipedia.org/wiki/
+     * Simple_linear_regression</a> for an explanation.
      * 
      * @param x A series of x values.
      * @param y A series of y values.
