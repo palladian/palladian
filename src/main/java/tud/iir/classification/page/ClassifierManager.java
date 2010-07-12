@@ -5,8 +5,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -1155,6 +1155,12 @@ public class ClassifierManager {
         fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
         fs.setMinNGramLength(4);
         fs.setMaxNGramLength(7);
+        featureSettings.add(fs);
+
+        fs = new FeatureSetting();
+        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        fs.setMinNGramLength(3);
+        fs.setMaxNGramLength(8);
         featureSettings.add(fs);
 
         fs = new FeatureSetting();
