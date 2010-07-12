@@ -580,6 +580,8 @@ public class Helper {
             // this happens when document is ill-formed, we could also throw
             // this exception. This way we have to check if this method returns
             // null;
+        } catch (DOMException e) {
+            LOGGER.error("cloneDocument:DOMException " + e.getMessage());
         }
         return result;
     }
