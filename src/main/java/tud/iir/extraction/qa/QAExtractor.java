@@ -681,7 +681,7 @@ public class QAExtractor extends Extractor {
     public void runQAFromOfflineTestset() {
 
         // load the questions to the web pages in an array
-        ArrayList<String> questions = FileHelper.readFileToArray("data/benchmarkSelection/qa/testset/questions.txt");
+        List<String> questions = FileHelper.readFileToArray("data/benchmarkSelection/qa/testset/questions.txt");
 
         // iterate through all web pages of the qa test set
         File folder = new File("data/benchmarkSelection/qa/testset");
