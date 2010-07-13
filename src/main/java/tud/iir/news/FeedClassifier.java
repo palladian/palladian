@@ -37,17 +37,27 @@ public class FeedClassifier {
     /** all post entries are generated at request time */
     public static final int CLASS_ON_THE_FLY = 6;
 
+    public static int classify(String feedURL) {
+        return classify(feedURL, null);
+    }
     /**
      * Classify a feed by its given URL.
      * 
      * @param feedURL The URL of the feed.
      * @return The class of the feed.
      */
-    public static int classify(String feedURL) {
+    public static int classify(String feedURL, FeedStore feedStore) {
 
         int feedClass = CLASS_UNKNOWN;
 
-        final FeedAggregator feedAggregator = new FeedAggregator();
+        FeedAggregator feedAggregator;
+
+        if (feedStore == null) {
+            feedAggregator = new FeedAggregator();
+        } else {
+            feedAggregator = new FeedAggregator(feedStore);
+        }
+
         try {
 
             List<FeedEntry> entries = feedAggregator.getFeed(feedURL).getEntries();

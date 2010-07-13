@@ -352,6 +352,10 @@ public abstract class TextClassifier {
         return show.toString();
     }
 
+    /**
+     * XXX TextClassifier line 380, calculation must be the same, CrossValidator && console output, see mail Philipp to
+     * David <a href="https://mail.google.com/mail/#inbox/129b348034382d62">mail</a>
+     */
     public String showTestDocuments() {
 
         // for tagging evaluation we calculate average precision, recall and F1 by averaging over all classifications
