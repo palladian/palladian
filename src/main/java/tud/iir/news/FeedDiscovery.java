@@ -1,5 +1,6 @@
 package tud.iir.news;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -42,6 +43,7 @@ import tud.iir.web.SourceRetrieverManager;
  * </ol>
  * 
  * @author Philipp Katz
+ * @author David Urbansky
  * 
  */
 public class FeedDiscovery {
@@ -53,24 +55,36 @@ public class FeedDiscovery {
 
     private boolean debugDump = false;
     
-    /** wether to extract all feeds on a page, or just the first, "preferred" one */
+    /** Whether to extract all feeds on a page, or just the first, "preferred" one. */
     private boolean onlyPreferred = true;
     
-    /** define which search engine to use, see {@link SourceRetrieverManager} for available constants */
+    /** Define which search engine to use, see {@link SourceRetrieverManager} for available constants. */
     private int searchEngine = SourceRetrieverManager.YAHOO_BOSS;
 
     private int maxThreads = MAX_NUMBER_OF_THREADS;
 
-    /** store all sites for which we will do the autodiscovery */
+    /** Store all sites for which we will do the autodiscovery. */
     private Set<String> sites = Collections.synchronizedSet(new HashSet<String>());
 
-    /** store all discovered feeds urls */
+    /** The path of the file where the discovered feeds should be written to. */
+    private String resultFilePath = "";
+    
+    /** If true and resultFilePath != "", the feeds will be written to the file as they are discovered. That prevents losing all data on a crash. */
+    private boolean writeResultFileContinuously = true;
+
+    /** Store a collection of all queries that are used to retrieve sites from a search engine. */
+    private List<String> queries = new ArrayList<String>();
+
+    /** Store all discovered feeds URLs. */
     private Set<String> feeds = Collections.synchronizedSet(new HashSet<String>());
 
-    /** limit results for each query */
+    /** Limit results for each query. */
     private int resultLimit = 10;
 
-    /** ignore list, will be matched with URLs */
+    /** If true, given queries will be combined with each other. For n queries that makes n + n-1 + n-2... */
+    private boolean combineQueries = false;
+
+    /** Ignore list, will be matched with URLs. */
     private Set<String> ignoreList = new HashSet<String>();
 
     ////////////////////////////////
@@ -97,7 +111,7 @@ public class FeedDiscovery {
     /** total time spent for discovery process */
     private long discoveryTime = 0;
 
-    /** traffic counter */
+    /** traffic counter TODO use crawler downloadSize instead? */
     private Counter traffic = new Counter();
 
     @SuppressWarnings("unchecked")
@@ -115,29 +129,38 @@ public class FeedDiscovery {
         LOGGER.trace("<FeedDiscovery");
     }
 
+    public void setResultFilePath(String resultFilePath) {
+        this.resultFilePath = resultFilePath;
+    }
+
+    public String getResultFilePath() {
+        return resultFilePath;
+    }
+
+    public void setWriteResultFileContinuously(boolean writeResultFileOnTheFly) {
+        this.writeResultFileContinuously = writeResultFileOnTheFly;
+    }
+
+    public boolean isWriteResultFileContinuously() {
+        return writeResultFileContinuously;
+    }
+
     /**
      * Add a query for the search engine.
      * 
-     * @param query
+     * @param query The query to add.
      */
     public void addQuery(String query) {
-        LOGGER.trace(">addQuery " + query);
-        Set<String> foundSites = searchSites(query, resultLimit);
-        sites.addAll(foundSites);
-        LOGGER.trace("<addQuery");
+        this.queries.add(query);
     }
 
     /**
      * Add queries for the search engine.
      * 
-     * @param queries
+     * @param queries A collection of queries.
      */
     public void addQueries(Collection<String> queries) {
-        LOGGER.trace(">addQueries");
-        for (String query : queries) {
-            this.addQuery(query);
-        }
-        LOGGER.trace("<addQueries");
+        this.queries.addAll(queries);
     }
 
     /**
@@ -151,7 +174,6 @@ public class FeedDiscovery {
         LOGGER.trace(">searchSites " + query + " " + totalResults);
 
         StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
 
         LOGGER.info("querying for " + query + " num results " + totalResults);
 
@@ -232,7 +254,7 @@ public class FeedDiscovery {
      * @param document
      * @return list of discovered feed URLs or empty list.
      */
-    List<String> discoverFeeds(Document document) {
+    protected List<String> discoverFeeds(Document document) {
 
         List<String> result = new LinkedList<String>();
 
@@ -351,6 +373,45 @@ public class FeedDiscovery {
     }
 
     /**
+     * Use the given queries and combine them.
+     * A set of n queries is increased to have n + n-1 + n-2 ... queries.
+     * For example:
+     * queries: A, B, C
+     * after combining: A, B, C, A B, A C, B C
+     * 
+     */
+    private void combineQueries() {
+        Collection<String> combinedQueries = new HashSet<String>();
+        
+        for (int i = 0; i < queries.size(); i++) {
+            for (int j = i + 1; j < queries.size(); j++) {
+                combinedQueries.add(queries.get(i) + " " + queries.get(j));
+            }
+        }
+
+        queries.addAll(combinedQueries);
+    }
+
+    /**
+     * Fill the stack of sites for discovering feeds.
+     * Use the given queries to query search a search engine.
+     */
+    private void getSitesUsingQueries() {
+
+        if (isCombineQueries()) {
+            combineQueries();
+        }
+
+        for (String query : queries) {
+            Set<String> foundSites = searchSites(query, resultLimit);
+            sites.addAll(foundSites);
+        }
+
+        // free memory
+        queries.clear();
+    }
+
+    /**
      * Find feeds in all pages on the sites tack. We use threading here which
      * yields in much faster results.
      */
@@ -358,8 +419,9 @@ public class FeedDiscovery {
 
         LOGGER.trace(">findFeeds");
 
+        getSitesUsingQueries();
+
         StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
 
         // to count number of running Threads
         final Counter counter = new Counter();
@@ -380,8 +442,17 @@ public class FeedDiscovery {
                     try {
                         List<String> discoveredFeeds = discoverFeeds(site);
                         if (discoveredFeeds != null) {
-                            feeds.addAll(discoveredFeeds);
+                            for (String feed : discoveredFeeds) {
+                                if (feeds.add(feed)) {
+                                    if (isWriteResultFileContinuously()) {
+                                        FileHelper.appendFile(getResultFilePath(), feed + "\n");
+                                    }
+                                }
+                            }
                         }
+                    } catch (IOException e) {
+                        LOGGER.error("could not append to " + getResultFilePath());
+                        errors.increment();
                     } finally {
                         counter.decrement();
                     }
@@ -415,14 +486,14 @@ public class FeedDiscovery {
         LOGGER.trace("<getFeeds " + feeds.size());
         return feeds;
     }
-    
+
     /**
      * Saves the discovered feeds to a file.
      * 
-     * @param resultFile
+     * @param resultFile The file where the feeds should be saved to.
      */
-    public void saveToFile(String resultFile) {
-        FileHelper.writeToFile(resultFile, feeds);
+    public void saveToFile() {
+        FileHelper.writeToFile(getResultFilePath(), feeds);
     }
 
     /**
@@ -536,6 +607,14 @@ public class FeedDiscovery {
         return result;
     }
 
+    public void setCombineQueries(boolean combineQueries) {
+        this.combineQueries = combineQueries;
+    }
+
+    public boolean isCombineQueries() {
+        return combineQueries;
+    }
+
     private boolean isIgnored(String feedUrl) {
         for (String ignore : ignoreList) {
             if (feedUrl.toLowerCase().contains(ignore)) {
@@ -549,7 +628,6 @@ public class FeedDiscovery {
     public static void main(String[] args) {
 
         FeedDiscovery discovery = new FeedDiscovery();
-        String resultFile = null;
 
         CommandLineParser parser = new BasicParser();
 
@@ -557,9 +635,17 @@ public class FeedDiscovery {
         options.addOption(OptionBuilder.withLongOpt("resultLimit").withDescription("maximum results per query").hasArg().withArgName("nn").withType(Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("threads").withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write XML dumps of visited pages").create());
-        options.addOption(OptionBuilder.withLongOpt("output").withDescription("output file for results").hasArg().withArgName("filename").create());
+        options.addOption(OptionBuilder.withLongOpt("outputFile").withDescription("output file for results").hasArg()
+                .withArgName("filename").create());
+        options.addOption(OptionBuilder.withLongOpt("outputCont").withDescription(
+                "write the output file continuously").create());
         options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg().withArgName("query1[,query2,...]").create());
+        options.addOption(OptionBuilder.withLongOpt("queryFile").withDescription(
+                "runs the specified queries from the file (one query per line)").hasArg().withArgName("filename")
+                .create());
         options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg().withArgName("url").create());
+        options.addOption(OptionBuilder.withLongOpt("combineQueries").withDescription(
+                "combine single queries to create more mixed queries").create());
 
         try {
             
@@ -579,27 +665,41 @@ public class FeedDiscovery {
             if (cmd.hasOption("dump")) {
                 discovery.setDebugDump(true);
             }
-            if (cmd.hasOption("output")) {
-                resultFile = cmd.getOptionValue("output");
+            if (cmd.hasOption("outputFile")) {
+                discovery.setResultFilePath(cmd.getOptionValue("outputFile"));
+            }
+            if (cmd.hasOption("outputCont")) {
+                discovery.setWriteResultFileContinuously(true);
+            }
+            if (cmd.hasOption("combineQueries")) {
+                discovery.setCombineQueries(true);
             }
             if (cmd.hasOption("query")) {
 
                 List<String> queries = Arrays.asList(cmd.getOptionValue("query").replace("+", " ").split(","));
                 discovery.addQueries(queries);
 
-                discovery.findFeeds();
+            }
+            if (cmd.hasOption("queryFile")) {
 
-                Collection<String> discoveredFeeds = discovery.getFeeds();
-                CollectionHelper.print(discoveredFeeds);
-                System.out.println(discovery.getStatistics());
-
-                // write result to file
-                if (resultFile != null) {
-                    discovery.saveToFile(resultFile);
-                    System.out.println("wrote result to " + resultFile);
-                }
+                // load queries from the file
+                List<String> queries = FileHelper.readFileToArray(cmd.getOptionValue("queryFile"));
+                discovery.addQueries(queries);
 
             }
+
+            discovery.findFeeds();
+
+            Collection<String> discoveredFeeds = discovery.getFeeds();
+            CollectionHelper.print(discoveredFeeds);
+            System.out.println(discovery.getStatistics());
+
+            // write result to file if a file path was specified and results were not written continuously already
+            if (discovery.getResultFilePath().length() > 0 && !discovery.isWriteResultFileContinuously()) {
+                discovery.saveToFile();
+                System.out.println("wrote result to " + discovery.getResultFilePath());
+            }
+
             if (cmd.hasOption("check")) {
                 List<String> feeds = discovery.discoverFeeds(cmd.getOptionValue("check"));
                 if (feeds.size() > 0) {

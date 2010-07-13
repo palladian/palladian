@@ -3,7 +3,6 @@ package tud.iir.news;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -51,6 +50,8 @@ import com.sun.syndication.io.SyndFeedInput;
  * https://rome.dev.java.net/apidocs/1_0/com/sun/syndication/feed/WireFeed.html#getFeedType()
  * 
  * https://rome.dev.java.net/ *
+ * 
+ * TODO rename class to "NewsAggregator"? since it aggregates news (or feed posts, feed entries) instead of feeds.
  * 
  * @author Philipp Katz
  * 
@@ -558,7 +559,7 @@ public class FeedAggregator {
      */
     public int addFeedsFromFile(String filePath) {
         LOGGER.trace(">addFeedsFromFile");
-        ArrayList<String> feedUrls = FileHelper.readFileToArray(filePath);
+        List<String> feedUrls = FileHelper.readFileToArray(filePath);
         LOGGER.info("adding " + feedUrls.size() + " feeds");
         int result = addFeeds(feedUrls);
         LOGGER.trace("<addFeedsFromFile " + result);
