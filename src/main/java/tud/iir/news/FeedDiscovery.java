@@ -36,9 +36,9 @@ import tud.iir.web.SourceRetrieverManager;
 /**
  * FeedDiscovery works like the following:
  * <ol>
- * <li>Query search engine with some terms (I use Yahoo, as I can get large amounts of results)
- * <li>Get root URLs for hits
- * <li>Check page for feeds using RSS/Atom autodiscovery feature
+ * <li>Query search engine with some terms (I use Yahoo, as I can get large amounts of results)</li>
+ * <li>Get root URLs for hits</li>
+ * <li>Check page for feeds using RSS/Atom autodiscovery feature</li>
  * </ol>
  * 
  * @author Philipp Katz
@@ -46,6 +46,7 @@ import tud.iir.web.SourceRetrieverManager;
  */
 public class FeedDiscovery {
 
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedDiscovery.class);
 
     private static final int MAX_NUMBER_OF_THREADS = 10;
