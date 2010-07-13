@@ -18,6 +18,9 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
@@ -132,8 +135,14 @@ public class FileHelper {
         return contents.toString();
     }
 
-    public static ArrayList<String> readFileToArray(String path) {
-        ArrayList<String> list = new ArrayList<String>();
+    /**
+     * Create a list with each line of the given file as an element.
+     * 
+     * @param path The path of the file.
+     * @return A list with the lines as elements.
+     */
+    public static List<String> readFileToArray(String path) {
+        List<String> list = new ArrayList<String>();
 
         try {
             FileReader in = new FileReader(path);
@@ -160,6 +169,52 @@ public class FileHelper {
         }
 
         return list;
+    }
+
+    /**
+     * Split the contents of a file into lines.
+     * For example: a, b, c becomes
+     * a
+     * b
+     * c
+     * 
+     * when the separator is ",".
+     * 
+     * @param inputFilePath The input file.
+     * @param outputFilePath Where the transformed file should be saved.
+     * @param separator The separator that is used to split.
+     */
+    public static void fileContentToLines(String inputFilePath, String outputFilePath, String separator) {
+        String content = readFileToString(inputFilePath);
+        String[] lines = content.split(separator);
+
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            sb.append(line).append("\n");
+        }
+
+        writeToFile(outputFilePath, sb);
+    }
+
+    /**
+     * Remove identical lines for the given input file and save it to the output file.
+     * 
+     * @param inputFilePath The input file.
+     * @param outputFilePath Where the transformed file should be saved.
+     */
+    public static void removeDuplicateLines(String inputFilePath, String outputFilePath) {
+        List<String> lines = readFileToArray(inputFilePath);
+
+        Set<String> lineSet = new HashSet<String>();
+
+        StringBuilder sb = new StringBuilder();
+        for (String line : lines) {
+            if (lineSet.add(line)) {
+                sb.append(line).append("\n");
+            }
+        }
+
+        writeToFile(outputFilePath, sb);
     }
 
     public static int performActionOnEveryLine(String filePath, LineAction la) {
@@ -745,13 +800,12 @@ public class FileHelper {
         return false;
     }
 
-    public static void main(String[] a) throws IOException {
+    public static void main(String[] a) {
 
-        // File f = new File("data/datasets/abc/def.txt");
-        // System.out.println(f.getParent());
-        // FileHelper.writeToFile("data/datasets/abc/def.txt", "abc");
-        // System.exit(0);
-
+        FileHelper.fileContentToLines("data/temp/queries_backup.txt", "data/temp/queries.txt", ",");
+        FileHelper.removeDuplicateLines("data/temp/queries.txt", "data/temp/queries.txt");
+        System.exit(0);
+        
         // //////////////////////// add license to every file //////////////////////////
         // FileHelper.copyDirectory("src/tud", "data/temp/src/tud");
         // StringBuilder sb = new StringBuilder();

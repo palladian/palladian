@@ -1,6 +1,5 @@
 package tud.iir.news;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -73,7 +72,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
     private static void appendToFileIfNotPresent(String filePath, String string, boolean before) {
         boolean add = true;
         // scan the file, if the line is already present ...
-        ArrayList<String> lines = FileHelper.readFileToArray(filePath);
+        List<String> lines = FileHelper.readFileToArray(filePath);
         for (String line : lines) {
             if (line.equals(string)) {
                 add = false;
