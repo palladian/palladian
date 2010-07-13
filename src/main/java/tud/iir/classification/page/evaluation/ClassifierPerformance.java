@@ -19,7 +19,9 @@ import tud.iir.classification.page.TextClassifier;
 public class ClassifierPerformance {
 
     /** The classifier's categories. */
-    public Categories categories = null;
+    private Categories categories = null;
+
+    private int classificationType = -1;
 
     /** The training documents. */
     private ClassificationDocuments trainingDocuments = null;
@@ -36,6 +38,7 @@ public class ClassifierPerformance {
         categories = classifier.getCategories();
         trainingDocuments = classifier.getTrainingDocuments();
         testDocuments = classifier.getTestDocuments();
+        classificationType = classifier.getClassificationType();
     }
 
     public Categories getCategories() {
@@ -44,6 +47,14 @@ public class ClassifierPerformance {
 
     public void setCategories(Categories categories) {
         this.categories = categories;
+    }
+
+    public void setClassificationType(int classificationType) {
+        this.classificationType = classificationType;
+    }
+
+    public int getClassificationType() {
+        return classificationType;
     }
 
     public void setTrainingDocuments(ClassificationDocuments trainingDocuments) {
@@ -310,29 +321,58 @@ public class ClassifierPerformance {
         double precision = 0.0;
 
         double count = 0.0;
-        for (Category c : getCategories()) {
 
-            // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
-                continue;
+        if (getClassificationType() == ClassificationTypeSetting.TAG) {
+
+            for (ClassificationDocument document : getTestDocuments()) {
+
+                int correctlyAssigned = ((TestDocument) document).getCorrectlyAssignedCategoryEntries().size();
+                int totalAssigned = document.getAssignedCategoryEntries().size();
+
+                if (totalAssigned == 0) {
+                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getUrl());
+                    continue;
+                }
+
+                // for (int i = 1; i <= precisionAtRank; i++) {
+                // totalPrecisionAts[i - 1] += ((TestDocument) document).getPrecisionAt(i);
+                // }
+
+                double microPrecision = (double) correctlyAssigned / (double) totalAssigned;
+
+                precision += microPrecision;
+                count++;
             }
 
-            double pfc = getPrecisionForCategory(c);
-            if (pfc < 0) {
-                continue;
+        } else {
+
+            for (Category c : getCategories()) {
+
+                // skip categories that are not main categories because they are classified according to the main
+                // category
+                if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
+                    continue;
+                }
+
+                double pfc = getPrecisionForCategory(c);
+                if (pfc < 0) {
+                    continue;
+                }
+
+                if (weighted) {
+                    precision += getWeightForCategory(c) * pfc;
+                } else {
+                    precision += pfc;
+                }
+                ++count;
             }
 
             if (weighted) {
-                precision += getWeightForCategory(c) * pfc;
-            } else {
-                precision += pfc;
+                return precision;
             }
-            ++count;
+
         }
 
-        if (weighted) {
-            return precision;
-        }
 
         if (count == 0) {
             return -1.0;
@@ -350,28 +390,52 @@ public class ClassifierPerformance {
         double recall = 0.0;
 
         double count = 0.0;
-        for (Category c : getCategories()) {
 
-            // skip categories that are not main categories because they are classified according to the main category
-            if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
-                continue;
+        if (getClassificationType() == ClassificationTypeSetting.TAG) {
+
+            for (ClassificationDocument document : getTestDocuments()) {
+
+                int correctlyAssigned = ((TestDocument) document).getCorrectlyAssignedCategoryEntries().size();
+                int real = document.getRealCategories().size();
+
+                if (real == 0) {
+                    Logger.getRootLogger().warn("no category has been assigned to document " + document.getUrl());
+                    continue;
+                }
+
+                double microRecall = (double) correctlyAssigned / (double) real;
+
+                recall += microRecall;
+                count++;
             }
 
-            double rfc = getRecallForCategory(c);
-            if (rfc < 0.0) {
-                continue;
+        } else {
+
+            for (Category c : getCategories()) {
+
+                // skip categories that are not main categories because they are classified according to the main
+                // category
+                if (c.getClassType() == ClassificationTypeSetting.HIERARCHICAL && !c.isMainCategory()) {
+                    continue;
+                }
+
+                double rfc = getRecallForCategory(c);
+                if (rfc < 0.0) {
+                    continue;
+                }
+
+                if (weighted) {
+                    recall += getWeightForCategory(c) * rfc;
+                } else {
+                    recall += rfc;
+                }
+                ++count;
             }
 
             if (weighted) {
-                recall += getWeightForCategory(c) * rfc;
-            } else {
-                recall += rfc;
+                return recall;
             }
-            ++count;
-        }
 
-        if (weighted) {
-            return recall;
         }
 
         if (count == 0) {
