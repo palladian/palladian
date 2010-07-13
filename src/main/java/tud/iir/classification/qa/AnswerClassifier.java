@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
 
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
@@ -69,8 +70,8 @@ public class AnswerClassifier extends Classifier {
         if (dirPath.endsWith("/")) {
             dirPath = dirPath.substring(0, dirPath.length() - 1);
         }
-        ArrayList<String> questions = FileHelper.readFileToArray(dirPath + "/questions.txt");
-        ArrayList<String> answers = FileHelper.readFileToArray(dirPath + "/answers.txt");
+        List<String> questions = FileHelper.readFileToArray(dirPath + "/questions.txt");
+        List<String> answers = FileHelper.readFileToArray(dirPath + "/answers.txt");
 
         // iterate through all web pages of the qa test set
         File folder = new File(dirPath);
@@ -173,7 +174,7 @@ public class AnswerClassifier extends Classifier {
         if (dirPath.endsWith("/")) {
             dirPath = dirPath.substring(0, dirPath.length() - 1);
         }
-        ArrayList<String> questions = FileHelper.readFileToArray(dirPath + "/questions.txt");
+        List<String> questions = FileHelper.readFileToArray(dirPath + "/questions.txt");
 
         // iterate through all web pages of the qa test set
         File folder = new File(dirPath);
