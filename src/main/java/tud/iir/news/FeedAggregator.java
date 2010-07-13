@@ -57,19 +57,20 @@ import com.sun.syndication.io.SyndFeedInput;
  */
 public class FeedAggregator {
 
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedAggregator.class);
 
     private int maxThreads = 20;
 
     /**
-     * if enabled we use PageContentExtractor to get extract text for entries directly from their corresponding web
-     * pages if neccesary
+     * If enabled we use PageContentExtractor to get extract text for entries directly from their corresponding web
+     * pages if necessary.
      */
     private boolean useScraping = true;
 
     private final FeedStore store;
 
-    /** used for all downloading purposes */
+    /** Used for all downloading purposes. */
     private final Crawler crawler = new Crawler();
 
     public FeedAggregator() {
@@ -77,7 +78,7 @@ public class FeedAggregator {
         loadConfig();
     }
 
-    /** used primarily for testing to set DummyFeedStore */
+    /** Used primarily for testing to set DummyFeedStore. */
     public FeedAggregator(FeedStore store) {
         this.store = store;
         loadConfig();
@@ -595,7 +596,6 @@ public class FeedAggregator {
 
         // stopwatch for aggregation process
         StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
 
         // reset traffic counter
         crawler.setTotalDownloadSize(0);
@@ -679,8 +679,7 @@ public class FeedAggregator {
             new Thread(runnable).start();
         }
 
-        // keep on running until all Threads have finished and
-        // the Stack is empty
+        // keep on running until all Threads have finished and the stack is empty
         while (threadCounter.getCount() > 0 || feedsStack.size() > 0) {
             ThreadHelper.sleep(1000);
             LOGGER.trace("waiting ... threads:" + threadCounter.getCount() + " stack:" + feedsStack.size());
@@ -779,8 +778,6 @@ public class FeedAggregator {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        FeedAggregator aggregator = new FeedAggregator();
-
         CommandLineParser parser = new BasicParser();
 
         // CLI usage: FeedAggregator [-threads nn] [-noScraping] [-add <feed-Url>] [-addFile <file>] [-aggregate]
@@ -804,6 +801,8 @@ public class FeedAggregator {
                         .hasArg().withArgName("minutes").withType(Number.class).create());
 
         try {
+
+            FeedAggregator aggregator = new FeedAggregator();
 
             CommandLine cmd = parser.parse(options, args);
 
