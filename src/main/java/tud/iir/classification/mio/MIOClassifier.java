@@ -113,7 +113,7 @@ public class MIOClassifier extends Classifier {
          Concept concept = new Concept("printer");
          Entity entity = new Entity("Canon MP990", concept);
          MIOPage mioPage = new MIOPage(
-         "http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/main.html?WT.acCCI_PixmaTour_MP990_Europe", "");
+         "http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/main.html?WT.acCCI_PixmaTour_MP990_Europe");
          mioPage.setDedicatedPageTrust(0.9800000000000001);
         
          MIO mio = new MIO("FLASH", "http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/index.swf",
@@ -128,8 +128,7 @@ public class MIOClassifier extends Classifier {
          // float classification = mioClass.classify(mio);
          mioClass.classify(mio);
 //        
-         MIOPage mioPage2 = new MIOPage("http://www.amazon.com/Canon-Wireless-Inkjet-Printer-3749B002/dp/B002M78HX6",
-         "");
+         MIOPage mioPage2 = new MIOPage("http://www.amazon.com/Canon-Wireless-Inkjet-Printer-3749B002/dp/B002M78HX6");
          MIO mio2 = new MIO("FLASH",
          "http://g-ecx.images-amazon.com/images/G/01/am3/20100615163706920/AMPlayer._V191513928_.swf",
          "http://www.amazon.com/Canon-Wireless-Inkjet-Printer-3749B002/dp/B002M78HX6", entity);
