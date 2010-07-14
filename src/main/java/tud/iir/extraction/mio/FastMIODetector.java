@@ -43,10 +43,11 @@ public class FastMIODetector {
      */
     public List<MIOPage> getMioPages(String pageContent, String pageURL) {
         final List<MIOPage> mioPages = new ArrayList<MIOPage>();
-        String lowerPageContent= pageContent.toLowerCase(Locale.ENGLISH);
+
+        String lowerPageContent = pageContent.toLowerCase(Locale.ENGLISH);
         if (containsMIO(lowerPageContent)) {
 
-            final MIOPage mioPage = new MIOPage(pageURL, pageContent);
+            final MIOPage mioPage = new MIOPage(pageURL);
             mioPages.add(mioPage);
         }
 

@@ -29,7 +29,7 @@ public class MIOPageRetriever {
     private static MIOPageRetriever instance = null;
 
     /** The resultCount determines how many sources (URLs) should be retrieved */
-    private final static int RESULTCOUNT = 20;
+    private final static int RESULTCOUNT = 30;
 
     /**
      * Instantiates a new mIO page retriever.
@@ -74,12 +74,13 @@ public class MIOPageRetriever {
         // analyze the MIOPageCandidates for MIO-existence
         mioPages = analyzeMIOPageCandidates(mioPageCandidates, entity);
 
-        LOGGER.info("PageAnalysis finished, DedicatedPage-Calculation starts..");
+        LOGGER.info("MIOPageCandidateAnalysis finished, DedicatedPage-Calculation starts..");
 
         // detect DedicatedPages
         for (MIOPage mioPage : mioPages) {
             final DedicatedPageDetector dpDetector = new DedicatedPageDetector();
             dpDetector.calculateDedicatedPageTrust(mioPage);
+            // System.out.println(entity.getName() + "  " + mioPage.getUrl());
         }
         LOGGER.info("DedicatedPage-Calculation finished");
 

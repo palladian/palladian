@@ -136,11 +136,11 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
      * @return the mIO page
      */
     private MIOPage generateMIOPage(String iframeSourceURL, String iframePageContent, String parentPageURL) {
-        MIOPage mioPage = new MIOPage(iframeSourceURL, iframePageContent);
+        MIOPage mioPage = new MIOPage(iframeSourceURL);
         mioPage.setIFrameSource(true);
         mioPage.setIframeParentPage(parentPageURL);
 
-        Crawler crawler = new Crawler(5000, 5000, 10000);
+        Crawler crawler = new Crawler();
         crawler.setDocument(parentPageURL);
         mioPage.setIframeParentPageTitle(Crawler.extractTitle(crawler.getDocument()));
         return mioPage;
@@ -154,17 +154,17 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
      */
     public static void main(String[] abc) {
 
-        SearchWordMatcher swMatcher = new SearchWordMatcher("Sennheiser HD800");
-        IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
-
-        String pageContent = iframeAnalyzer
-                .getPage("http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
-        List<MIOPage> mioPages = iframeAnalyzer
-                .getIframeMioPages(pageContent,
-                        "http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
-        for (MIOPage mioPage : mioPages) {
-            System.out.println(mioPage.getUrl() + " is IFRAMESOURCE: " + mioPage.isIFrameSource());
-        }
+        // SearchWordMatcher swMatcher = new SearchWordMatcher("Sennheiser HD800");
+        // IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
+        //
+        // String pageContent = iframeAnalyzer
+        // .getPage("http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
+        // List<MIOPage> mioPages = iframeAnalyzer
+        // .getIframeMioPages(pageContent,
+        // "http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
+        // for (MIOPage mioPage : mioPages) {
+        // System.out.println(mioPage.getUrl() + " is IFRAMESOURCE: " + mioPage.isIFrameSource());
+        // }
     }
 
 }

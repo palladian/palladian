@@ -115,6 +115,8 @@ public final class MIOExtractor extends Extractor {
 
             // System.out.println("Concept: " + currentConcept.getName());
 
+            // currentConcept.loadEntities(false);
+
             if (currentConcept.getName().equals("printer")) {
                 // load Entities from DB for current concept
                 currentConcept.loadEntities(false);
@@ -238,8 +240,8 @@ public final class MIOExtractor extends Extractor {
      * @see tud.iir.extraction.Extractor#isURLallowed(java.lang.String)
      */
     public boolean isURLallowed(final String url) {
-        super.addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
-        super.addSuffixesToBlackList(Extractor.URL_TEXTUAL_BLACKLIST);
+        // super.addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
+        // super.addSuffixesToBlackList(Extractor.URL_TEXTUAL_BLACKLIST);
         return super.isURLallowed(url);
     }
 

@@ -4,6 +4,7 @@
  */
 package tud.iir.extraction.mio;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -13,6 +14,7 @@ import java.util.regex.Pattern;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
@@ -36,10 +38,8 @@ public class GeneralAnalyzer {
      */
     public String getPage(final String urlString) {
         String pageString = "";
-        // // Crawler craw = new Crawler(5000, 5000, 10000);
-        final Crawler craw = new Crawler();
 
-        // page = craw.download(URLString, false, false, false, false);
+        final Crawler craw = new Crawler();
         pageString = craw.downloadNotBlacklisted(urlString);
 
         return pageString;
@@ -84,7 +84,6 @@ public class GeneralAnalyzer {
     public String verifyURL(final String urlCandidate, final String pageURL) {
 
         String returnValue = "";
-        // Crawler crawler = new Crawler(5000, 5000, 10000);
 
         final String modUrlCandidate = urlCandidate.trim();
         if (modUrlCandidate.startsWith("http://")) {
@@ -105,9 +104,9 @@ public class GeneralAnalyzer {
     }
 
     /**
-     * Extract alt text from tag.
+     * Extract alternative text (ALT-Text) from tag.
      * 
-     * @param relevantTag the relevant tag
+     * @param relevantTag the relevant XHTML-Tag
      * @return the string
      */
     public String extractALTTextFromTag(final String relevantTag) {
@@ -125,7 +124,6 @@ public class GeneralAnalyzer {
     }
 
     public MIO extractSurroundingInfos(final String relevantTag, final MIOPage mioPage, final MIO mio) {
-        // XPathHelper xpathHelper = new XPathHelper();
 
         List<String> previousHeadlines = new ArrayList<String>();
         final String lowRelevantTag = relevantTag.toLowerCase(Locale.ENGLISH);
@@ -134,11 +132,9 @@ public class GeneralAnalyzer {
         mioPage.setTitle(Crawler.extractTitle(document));
         String xPath = "";
 
-        if (XPathHelper.hasXMLNS(document)) {
-
-            // if (lowRelevantTag.startsWith("<script")) {
-            // xPath = "//BODY//SCRIPT";
-            // } else {
+        if (lowRelevantTag.startsWith("<script")) {
+            xPath = "//BODY//SCRIPT";
+        } else {
             if (lowRelevantTag.startsWith("<object")) {
                 xPath = "//BODY//OBJECT";
             } else if (lowRelevantTag.startsWith("<embed")) {
@@ -147,52 +143,48 @@ public class GeneralAnalyzer {
                 if (lowRelevantTag.startsWith("<applet")) {
                     xPath = "//BODY//APPLET";
                 }
-                // }
-            }
-            // nodes = new ArrayList<Node>();
-            final List<Node> nodes = XPathHelper.getNodes(document, xPath);
-            // System.out.println("Anzahl nodes: " + nodes.size());
-
-            for (Node node : nodes) {
-
-                final String nodeString = XPathHelper.convertNodeToString(node);
-
-                if (nodeString.toLowerCase(Locale.ENGLISH).contains(mio.getFileName())) {
-                    Node tempNode = node;
-
-                    while (previousHeadlines.isEmpty() && !tempNode.getLocalName().equals("BODY")) {
-
-                        previousHeadlines = extractPreviousHeadlines(tempNode);
-                        tempNode = tempNode.getParentNode();
-                    }
-
-                    if (!previousHeadlines.isEmpty()) {
-
-                        mio.addInfos("previousHeadlines", previousHeadlines);
-                    }
-
-                    // extract surrounding TextContent
-                    String surroundingText = "";
-                    tempNode = node;
-                    while (surroundingText.length() < 2 && !tempNode.getLocalName().equals("BODY")) {
-                        surroundingText = extractNearTextContent(tempNode);
-                        tempNode = tempNode.getParentNode();
-
-                    }
-                    if (surroundingText.length() > 2) {
-                        final List<String> textList = new ArrayList<String>();
-                        textList.add(surroundingText);
-                        mio.addInfos("surroundingText", textList);
-
-                    }
-
-                    break;
-                }
             }
         }
-        // else {
-        // System.out.println("no XHTML NAMESPACE");
-        // }
+
+        final List<Node> nodes = XPathHelper.getNodes(document, xPath);
+        // System.out.println("Anzahl nodes: " + nodes.size());
+
+        for (Node node : nodes) {
+
+            final String nodeString = XPathHelper.convertNodeToString(node);
+
+            if (nodeString.contains(mio.getFileName())) {
+                Node tempNode = node;
+
+                while (previousHeadlines.isEmpty() && !tempNode.getNodeName().equals("BODY")) {
+
+                    previousHeadlines.addAll(extractPreviousHeadlines(tempNode));
+                    tempNode = tempNode.getParentNode();
+                }
+
+                if (!previousHeadlines.isEmpty()) {
+                    mio.addInfos("previousHeadlines", previousHeadlines);
+                }
+
+                // extract surrounding TextContent
+                String surroundingText = "";
+                tempNode = node;
+                while (surroundingText.length() < 2 && !tempNode.getNodeName().equals("BODY")) {
+                    surroundingText = extractNearTextContent(tempNode);
+                    tempNode = tempNode.getParentNode();
+
+                }
+
+                if (surroundingText.length() > 2) {
+                    final List<String> textList = new ArrayList<String>();
+                    textList.add(surroundingText);
+                    mio.addInfos("surroundingText", textList);
+
+                }
+
+                break;
+            }
+        }
 
         return mio;
     }
@@ -200,12 +192,14 @@ public class GeneralAnalyzer {
     private List<String> extractPreviousHeadlines(final Node node) {
         final List<String> headlines = new ArrayList<String>();
         // StringBuffer hrContent = new StringBuffer();
+
         final List<Node> siblingNodes = XPathHelper.getPreviousSiblings(node);
         // System.out.println(siblingNodes.size() + " previousSiblings");
         for (Node siblingNode : siblingNodes) {
-            // System.out.println(siblingNode.getLocalName());
-            if (siblingNode.getLocalName().matches("H[0-6]")) {
+
+            if (siblingNode.getNodeName().matches("H[0-6]")) {
                 // hrContent.append();
+                // System.out.println(siblingNode.getTextContent());
                 headlines.add(siblingNode.getTextContent());
             }
         }
@@ -216,6 +210,7 @@ public class GeneralAnalyzer {
     private String extractNearTextContent(final Node node) {
         final Node parentNode = node.getParentNode();
         String text = parentNode.getTextContent();
+
         // remove Comments
         text = StringHelper.removeConcreteHTMLTag(text, "<!--", "-->");
         // trim
@@ -224,16 +219,39 @@ public class GeneralAnalyzer {
 
     }
 
-    public static void main(String[] args) {
+    public MIO extractXMLInfos(final String relevantTag, final MIO mio) {
 
+        if (relevantTag.toLowerCase(Locale.ENGLISH).contains(".xml")) {
+
+            try {
+                FileHelper.appendFile("f:/xmlcontent.html", mio.getEntity().getName() + " " + mio.getDirectURL()
+                        + " <br>");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+            // String regExp = "\".[^\"]*\\.xml\"";
+            // final Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+            // final Matcher matcher = pattern.matcher(relevantTag);
+            // while (matcher.find()) {
+            // final String xmlName = matcher.group(0).replaceAll("\"", "");
+            // }
+        }
+
+        return mio;
+
+    }
+
+    public static void main(String[] args) {
+        //
         // GeneralAnalyzer geAn = new GeneralAnalyzer();
         // String relevantTag =
-        // "<object type=\"text/javascript\">showSpin(\"http://pic.gsmarena.com/vv/spin/samsung-wave.swf\");</script>";
+        // "<script type=\"text/javascript\">showSpin(\"http://pic.gsmarena.com/vv/spin/samsung-wave-final.swf\");</script>";
         // MIOPage mioPage = new MIOPage("data/test/webPages/headlineTest.html", "nix");
         // Concept concept = new Concept("mobilePhone");
         // Entity entity = new Entity("Samsung S8500 Wave", concept);
         // MIO mio = new MIO("FLASH", "", "", entity);
-        // mio.setFileName("samsung-wave.swf");
+        // mio.setFileName("samsung-wave-final.swf");
         // mio = geAn.extractSurroundingInfos(relevantTag, mioPage, mio);
         // System.out.println(mio.getInfos().toString());
     }

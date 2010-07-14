@@ -16,6 +16,7 @@ import java.util.Locale;
 public class SearchWordMatcher {
 
     List<String> wordList;
+    List<String> initialWordList;
 
     /**
      * By instantiating a list of words is generated out of the given searchwords (entityName).
@@ -24,6 +25,7 @@ public class SearchWordMatcher {
      */
     public SearchWordMatcher(String searchWords) {
 
+        initialWordList = new ArrayList<String>();
         wordList = (prepareWordList(searchWords, false));
 
         // System.out.println("wordList ready: " + wordList.size()
@@ -88,10 +90,15 @@ public class SearchWordMatcher {
 
         final List<String> wordList = new ArrayList<String>();
         final List<String> morphResults = new ArrayList<String>();
-        final String modSearchWords = searchWords.toLowerCase(Locale.ENGLISH);
+        String modSearchWords = searchWords.toLowerCase(Locale.ENGLISH);
+        modSearchWords = modSearchWords.replaceAll(":", "");
+        modSearchWords = modSearchWords.replaceAll("\\s-\\s", "\\s");
+        modSearchWords = modSearchWords.replaceAll("-", "\\s");
         final String[] elements = modSearchWords.split("\\s");
 
         for (String element : elements) {
+
+            initialWordList.add(element);
 
             // add the given SearchWords
             morphResults.addAll(morphSearchWord(element, withoutSpecialWords));
@@ -151,8 +158,8 @@ public class SearchWordMatcher {
     }
 
     /**
-     * Check if a searchword or a kind of morphing is contained in the string If the name of entity consists of more
-     * than one word, more than one word must be
+     * Check if a searchword or a kind of morphing is contained in the string.
+     * If the name of entity consists of more words, than the half of them must minimally be
      * contained in the given string.
      * 
      * @param src the src
@@ -161,11 +168,12 @@ public class SearchWordMatcher {
     public boolean containsSearchWordOrMorphs(String src) {
         if (!("").equals(src)) {
             int matches = getNumberOfSearchWordMatches(src);
-
-            if (wordList.size() == 1 && matches == 1) {
+            // System.out.println("searchWMatches: " + matches + "iniwordListSize: " + initialWordList.size());
+            if (initialWordList.size() == 1 && matches == 1) {
                 return true;
             }
-            if (wordList.size() > 1 && matches > 1) {
+            double wordFactor = ((double) initialWordList.size() / 2);
+            if (matches >= wordFactor) {
                 return true;
             }
 

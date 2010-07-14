@@ -4,11 +4,13 @@
  */
 package tud.iir.extraction.mio;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import tud.iir.helper.FileHelper;
 import tud.iir.knowledge.Entity;
 
 /**
@@ -49,6 +51,12 @@ public class PageAnalyzer {
 
         for (String mioPageCandidate : mioPageCandidates) {
 
+            try {
+                FileHelper.appendFile("f:/mioPageCandidates.html", mioPageCandidate + "<br>");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                // e.printStackTrace();
+            }
             // System.out.println("PageAnalysing started for: " +
             // mioPageCandidate);
             String pageContent = getPage(mioPageCandidate);

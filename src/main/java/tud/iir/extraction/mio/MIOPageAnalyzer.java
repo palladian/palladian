@@ -10,19 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
-import tud.iir.web.Crawler;
 
 /**
  * The MIOPageAnalyzer analyzes MIOPages for relevant MIOs and try to extract them.
  * 
  */
 public class MIOPageAnalyzer extends GeneralAnalyzer {
-
-    // private Entity entity;
-
-    // final String[] nameBlackList = { "footer", "banner", "ticker", "ads", "youtube", "expressinstall" };
 
     /**
      * Extract mios.
@@ -41,6 +35,7 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
             // find swfs by object tag
             final UniversalMIOExtractor mioEx = new UniversalMIOExtractor();
             final List<MIO> mios = mioEx.extractAllMIOs(mioPage, entity);
+            List<String> youtubeMIOs = new ArrayList<String>();
 
             // find swfs from free JS/Comments
             // mios.addAll(extractSWFFromComments(mioPage));
@@ -54,16 +49,29 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
                 // if (isEntityRelevant(mio.getDirectURL())) {
                 // mio.setTrust(1);
                 // }
-                final MIO tempMIO = cleanedMIOs.get(mio.getDirectURL());
-                if (tempMIO == (null)) {
-                    cleanedMIOs.put(mio.getDirectURL(), mio);
-                } else {
-                    final Map<String, List> tempInfos = tempMIO.getInfos();
-                    if (mio.getInfos().size() > tempInfos.size()) {
-                        // TODO: more detailed comparison - trust,
-                        // dptrust, which infos are different and so on
-                        cleanedMIOs.put(mio.getDirectURL(), mio);
+                boolean isYouTube = false;
+                if (mio.getFindPageURL().contains("youtube")) {
+                    if (!youtubeMIOs.contains(mio.getFindPageURL())) {
+                        youtubeMIOs.add(mio.getFindPageURL());
+                    } else {
+                        isYouTube = true;
                     }
+                } else {
+
+                    final MIO tempMIO = cleanedMIOs.get(mio.getDirectURL());
+                    if (!isYouTube) {
+                        if (tempMIO == (null)) {
+                            cleanedMIOs.put(mio.getDirectURL(), mio);
+                        } else {
+                            final Map<String, List> tempInfos = tempMIO.getInfos();
+                            if (mio.getInfos().size() > tempInfos.size()) {
+                                // TODO: more detailed comparison - trust,
+                                // dptrust, which infos are different and so on
+                                cleanedMIOs.put(mio.getDirectURL(), mio);
+                            }
+                        }
+                    }
+
                 }
 
                 // }
@@ -75,67 +83,42 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
         return cleanedMIOs;
     }
 
-    // private boolean isEntityRelevant(String url) {
-    //
-    // SearchWordMatcher swm = new SearchWordMatcher(entity.getName());
-    // if (swm.containsSearchWordOrMorphs(url)) {
-    // return true;
-    // }
-    //
-    // return false;
-    // }
-
-    /**
-     * Checks if is not blacklisted.
-     * 
-     * @param url the url
-     * @return true, if is not blacklisted
-     */
-    // private boolean isNotBlacklisted(String url) {
-    // for (String blackWord : nameBlackList) {
-    // if (url.contains(blackWord)) {
-    // return false;
-    // }
-    // }
-    // return true;
-    // }
-
     /**
      * The main method.
      * 
      * @param args the arguments
      */
     public static void main(final String[] args) {
-        final List<MIOPage> mioPages = new ArrayList<MIOPage>();
-        final Crawler crawler = new Crawler();
-        // String
-        // content=crawler.download("http://www2.razerzone.com/Megalodon/");
-        // MIOPage page = new MIOPage("http://www2.razerzone.com/Megalodon/",
-        // content);
-
-        // String content = crawler
-        // .download("http://www.sennheiser.com/flash/HD_800_2/DE/base.html");
-        // MIOPage page = new MIOPage(
-        // "http://www.sennheiser.com/flash/HD_800_2/DE/base.html",
-        // content);
-
-        final String content = crawler.download("http://www.sennheiser.com/3d-view/hd_800/index.html");
-        final MIOPage page = new MIOPage("http://www.sennheiser.com/3d-view/hd_800/index.html", content);
-
-        // String content = crawler
-        // .download("http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE");
-        // MIOPage page = new MIOPage(
-        // "http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE",
-        // content);
-
-        mioPages.add(page);
-        final MIOPageAnalyzer analyzer = new MIOPageAnalyzer();
-        final Concept headphoneConcept = new Concept("headphone");
-        final Entity headphone1 = new Entity("Razer Megalodon", headphoneConcept);
-        final Entity headphone2 = new Entity("Sennheiser HD800", headphoneConcept);
-        headphoneConcept.addEntity(headphone1);
-        headphoneConcept.addEntity(headphone2);
-        analyzer.extractMIOs(mioPages, headphone2);
+        // final List<MIOPage> mioPages = new ArrayList<MIOPage>();
+        // final Crawler crawler = new Crawler();
+        // // String
+        // // content=crawler.download("http://www2.razerzone.com/Megalodon/");
+        // // MIOPage page = new MIOPage("http://www2.razerzone.com/Megalodon/",
+        // // content);
+        //
+        // // String content = crawler
+        // // .download("http://www.sennheiser.com/flash/HD_800_2/DE/base.html");
+        // // MIOPage page = new MIOPage(
+        // // "http://www.sennheiser.com/flash/HD_800_2/DE/base.html",
+        // // content);
+        //
+        // final String content = crawler.download("http://www.sennheiser.com/3d-view/hd_800/index.html");
+        // final MIOPage page = new MIOPage("http://www.sennheiser.com/3d-view/hd_800/index.html", content);
+        //
+        // // String content = crawler
+        // // .download("http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE");
+        // // MIOPage page = new MIOPage(
+        // // "http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE",
+        // // content);
+        //
+        // mioPages.add(page);
+        // final MIOPageAnalyzer analyzer = new MIOPageAnalyzer();
+        // final Concept headphoneConcept = new Concept("headphone");
+        // final Entity headphone1 = new Entity("Razer Megalodon", headphoneConcept);
+        // final Entity headphone2 = new Entity("Sennheiser HD800", headphoneConcept);
+        // headphoneConcept.addEntity(headphone1);
+        // headphoneConcept.addEntity(headphone2);
+        // analyzer.extractMIOs(mioPages, headphone2);
 
     }
 

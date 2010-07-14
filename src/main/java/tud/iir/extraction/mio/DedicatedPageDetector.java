@@ -150,19 +150,19 @@ public class DedicatedPageDetector {
 
     // method only for testing
     /**
-     * Calculate body content.
+     * Calculate bodyContent.
      * 
-     * @param url the url
+     * @param url the URL
      */
     private void calculateBodyContent(String url) {
-        MIOPage mioPage = new MIOPage(url, url);
-        Crawler crawler = new Crawler(5000, 5000, 10000);
+        MIOPage mioPage = new MIOPage(url);
+        Crawler crawler = new Crawler();
         String content = crawler.downloadNotBlacklisted(url);
         if (!content.equals("")) {
-            mioPage.setContent(crawler.downloadNotBlacklisted(url));
+            // mioPage.setContent(crawler.downloadNotBlacklisted(url));
             calculateDedicatedPageTrust(mioPage);
         } else {
-            System.out.println("Fehler beim content-download!");
+            LOGGER.error("Getting bodyContent from: " + url + " failed!");
 
         }
 
