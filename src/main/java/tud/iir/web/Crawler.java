@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -46,6 +47,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
 import org.cyberneko.html.parsers.DOMParser;
 import org.json.JSONException;
@@ -197,9 +199,9 @@ public class Crawler {
         loadConfig(configPath);
     }
 
-    
     /**
      * Load the configuration file from the specified location and set the variables accordingly.
+     * 
      * @param configPath The location of the configuration file.
      */
     @SuppressWarnings("unchecked")
@@ -509,7 +511,7 @@ public class Crawler {
         // }
         // }
         // }
-        //        
+        //
         // return domain;
 
         // change by Philipp, 2010-06-21
@@ -730,11 +732,11 @@ public class Crawler {
 
     public static String makeFullURL(String pageUrl, String linkUrl) {
         return makeFullURL(pageUrl, null, linkUrl);
-        //        
+        //
         // change by Philipp, 2010-06-21
-        //        
+        //
         // String domain = getDomain(url, true);
-        //        
+        //
         // if (link.startsWith("/")) {
         // link = domain + link;
         // } else if (link.startsWith("../")) {
@@ -759,7 +761,7 @@ public class Crawler {
         // link = url + "/" + link;
         // }
         // }
-        //        
+        //
         // return link;
     }
 
@@ -1031,14 +1033,14 @@ public class Crawler {
     public JSONObject getJSONDocument(String url) {
         String json = download(url);
 
-        // delicous feeds return the whole JSON object wrapped in [square brackets], 
+        // delicous feeds return the whole JSON object wrapped in [square brackets],
         // altough this seems to be valid, our parser doesn't like this, so we remove
         // those brackets before parsing -- Philipp, 2010-07-04
         json = json.trim();
         if (json.startsWith("[") && json.endsWith("]")) {
             json = json.substring(1, json.length() - 1);
         }
-        
+
         JSONObject jsonOBJ = null;
 
         try {
@@ -1489,44 +1491,88 @@ public class Crawler {
     /**
      * Check if an URL is in a valid form and the file-ending is not blacklisted (see Extractor.java for blacklist)
      * 
-     * Avoid to check HTTP-Response because it is very time-expensive!
-     * 
-     * TODO Apache Commons has an UrlValidator class, maybe use this one? :
-     * http://commons.apache.org/validator/apidocs/index.html?org/apache/commons/validator/package-summary.html, --
-     * Philipp
+     * TODO: remove checkHTTPRespParameter
+     *
+     * @param url the URL
+     * @param checkHTTPResp the check http resp
+     * @return true, if is a valid URL
+     * @author Martin Werner
      */
-    public static boolean isValidURL(String pageURL, boolean checkHTTPResp) {
+    public static boolean isValidURL(String url, boolean checkHTTPResp) {
 
-        URLConnection conn = null;
+        // URLConnection conn = null;
+        // URL url = null;
+        boolean returnValue = false;
+
+        if (MIOExtractor.getInstance().isURLallowed(url)) {
+
+            String[] schemes = {"http","https"};
+            UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
+
+            if (urlValidator.isValid(url)) {
+                returnValue = true;
+            }
+
+            // if (pageURL != null && !pageURL.contains(";")) {
+            //
+            // try {
+            // url = new URL(pageURL);
+            // } catch (MalformedURLException e) {
+            // // e.printStackTrace();
+            // return false;
+            // }
+            // if (checkHTTPResp) {
+            // try {
+            // conn = url.openConnection();
+            // } catch (IOException e) {
+            // // e.printStackTrace();
+            // return false;
+            // }
+            // // get HttpResponse StatusCode
+            // String HttpResponseCode = conn.getHeaderField(0);
+            // if (!HttpResponseCode.contains("200")) {
+            // returnValue = false;
+            // }
+            // }
+            // returnValue=true;
+        }
+
+        return returnValue;
+    }
+
+    /**
+     * Download a binary file from specified URL to a given path.
+     *
+     * @param urlString the urlString
+     * @param pathWithFileName the path where the file should be saved
+     * @return the file
+     * @author Martin Werner
+     */
+    public static File downloadBinaryFile(String urlString, String pathWithFileName) {
+        File file = new File(pathWithFileName);
         URL url;
 
-        if (MIOExtractor.getInstance().isURLallowed(pageURL)) {
-
-            if (pageURL != null && !pageURL.contains(";")) {
-
-                try {
-                    url = new URL(pageURL);
-                } catch (MalformedURLException e) {
-                    // e.printStackTrace();
-                    return false;
+        if (Crawler.isValidURL(urlString, false)) {
+            try {
+                url = new URL(urlString);
+                InputStream inStream;
+                inStream = url.openStream();
+                FileOutputStream fOutStream;
+                fOutStream = new FileOutputStream(file);
+                int line = 0;
+                while ((line = inStream.read()) != -1) {
+                    fOutStream.write(line);
                 }
-                if (checkHTTPResp) {
-                    try {
-                        conn = url.openConnection();
-                    } catch (IOException e) {
-                        // e.printStackTrace();
-                        return false;
-                    }
-                    // get HttpResponse StatusCode
-                    String HttpResponseCode = conn.getHeaderField(0);
-                    if (!HttpResponseCode.contains("200")) {
-                        return false;
-                    }
-                }
-                return true;
+                fOutStream.close();
+                inStream.close();
+            } catch (Exception e) {
+                LOGGER.error("Error downloading the file from: " + urlString + " Message: " + e.getMessage());
             }
+        } else {
+            LOGGER.error("Error downloading the file from: " + urlString + " because the URL is not valid!");
         }
-        return false;
+
+        return file;
     }
 
     /**
@@ -1832,7 +1878,7 @@ public class Crawler {
         // xPath = "//a/@href";
         // String url =
         // "http://radio.xmlstoragesystem.com/rcsPublic/rssHotlist";
-        //      
+        //
         // for (int i = 0; i < 1; i++) {
         // String currentURL = url;
         // //System.out.println("use url "+currentURL);
@@ -1893,11 +1939,11 @@ public class Crawler {
         // }
         // Logger.getInstance().saveLogs("data/testlog.txt");
 
-        //      
+        //
         // crawler.downloadImage("http://chart.apis.google.com/chart?cht=p3&chd=t:60,40&chs=250x100&chl=Hello|World",
         // "test.png");
         // crawler.downloadImage("http://www.jfree.org/jfreechart/images/PieChart3DDemo1-170.png","test2.png");
-        //          
+        //
         // crawler.setStopCount(120000);
         crawler.setStopCount(1200);
         // crawler.addOnlyFollow("dir.yahoo.com");
@@ -1937,7 +1983,7 @@ public class Crawler {
         // crawler.addURLRule("Sports Soccer");
         // crawler.addURLRule("Sports Boxing");
         // crawler.addURLRule("Sports Baseball");
-        //      
+        //
         // crawler.startCrawl("http://www.dmoz.org/");
         // // crawler.startCrawl(args[0]);
         // crawler.saveURLDump("data/crawl/urldump.txt");
@@ -1949,7 +1995,7 @@ public class Crawler {
         // } catch (UnsupportedEncodingException e) {
         // e.printStackTrace();
         // }
-        //      
+        //
         // try {
         // DOMParser parser = new DOMParser();
         // parser.parse("http://dir.yahoo.com/thespark/category/Mayan+Civilization");
@@ -1960,7 +2006,5 @@ public class Crawler {
         // e.printStackTrace();
         // }
     }
-
-
 
 }
