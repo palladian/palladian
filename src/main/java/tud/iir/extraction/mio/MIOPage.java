@@ -20,7 +20,7 @@ public class MIOPage {
     private String hostname;
 
     /** The content. */
-    private String content = "";
+    // private String content = "";
 
     /** The title of a MIOPage. */
     private String title = "";
@@ -58,10 +58,10 @@ public class MIOPage {
      * @param url the URL
      * @param content the content
      */
-    public MIOPage(final String url, final String content) {
+    public MIOPage(final String url) {
         // System.out.println("GENERATE NEW MIOPAGE " + url);
         this.url = url;
-        this.content = content;
+        // this.content = content;
         // final Crawler crawler = new Crawler();
         // crawler.setDocument(url);
         this.hostname = Crawler.getDomain(url, false);
@@ -93,12 +93,14 @@ public class MIOPage {
     }
 
     public String getContent() {
+        Crawler crawler = new Crawler();
+        String content = crawler.downloadNotBlacklisted(url);
         return content;
     }
 
-    public void setContent(final String content) {
-        this.content = content;
-    }
+    // public void setContent(final String content) {
+    // this.content = content;
+    // }
 
     public String getLinkName() {
         return linkName;

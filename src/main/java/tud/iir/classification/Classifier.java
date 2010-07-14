@@ -331,7 +331,8 @@ public class Classifier {
         } catch (OutOfMemoryError e) {
             LOGGER.error(filePath, e);
         }
-
+        
+//        System.out.println(featureObjects.size());
         return featureObjects;
     }
 

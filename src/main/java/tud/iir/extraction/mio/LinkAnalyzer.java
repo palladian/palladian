@@ -45,7 +45,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
         Matcher m = p.matcher(parentPageContent);
         while (m.find()) {
             String completeLinkTag = m.group(0);
-
+            // System.out.println(completeLinkTag);
             String linkURL = getLinkURL(completeLinkTag, parentPageURL);
             if (!("").equals(linkURL)) {
 
@@ -58,6 +58,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
                 // check if the linkURL or linkInfo or linkTitle contains entity
                 // relevant words
                 if (isRelevantLinkCheck(linkURL, linkName, linkTitle)) {
+                    // System.out.println("is relevant link: " + linkURL);
                     String linkedPageContent = getPage(linkURL);
                     if (!("").equals(linkedPageContent)) {
                         FastMIODetector mioDetector = new FastMIODetector();
@@ -87,6 +88,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
         String extractedLink = extractElement("href=\"[^>#\"]*\"", linkTag, "href=");
         if (extractedLink.length() <= 3) {
             extractedLink = extractElement("=\\\"?'?http[^>#\\\"']*\\\"?'?", linkTag, "=");
+            // System.out.println(extractedLink);
         }
         return verifyURL(extractedLink, pageURL);
 
@@ -123,7 +125,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
      * @return true, if is relevant link check
      */
     private boolean isRelevantLinkCheck(String linkURL, String linkName, String linkTitle) {
-
+        // System.out.println("linkURL: " +linkURL);
         if (swMatcher.containsSearchWordOrMorphs(linkURL) || swMatcher.containsSearchWordOrMorphs(linkName)
                 || swMatcher.containsSearchWordOrMorphs(linkTitle)) {
             return true;
@@ -152,13 +154,43 @@ public class LinkAnalyzer extends GeneralAnalyzer {
     private MIOPage generateMIOPage(String linkURL, String parentURL, String linkName, String linkTitle,
             String pageContent) {
 
-        MIOPage mioPage = new MIOPage(linkURL, pageContent);
+        MIOPage mioPage = new MIOPage(linkURL);
         mioPage.setLinkParentPage(parentURL);
         mioPage.setLinkName(linkName);
         mioPage.setLinkTitle(linkTitle);
         mioPage.setLinkedPage(true);
 
         return mioPage;
+    }
+
+    public static void main(String[] args) {
+        // System.out.println(Crawler.isValidURL(" ", false));
+        // System.exit(1);
+        //
+        // SearchWordMatcher svm = new SearchWordMatcher("canon mp990");
+        // LinkAnalyzer linkAn = new LinkAnalyzer(svm);
+        // Crawler c = new Crawler();
+        // // String parentPageURL =
+        // "http://www.canon-europe.com/For_Home/Product_Finder/Multifunctionals/Inkjet/PIXMA_MP990/";
+        // String parentPageURL =
+        // "http://www.canon.co.uk/for_home/product_finder/multifunctionals/inkjet/pixma_mp990/index.aspx?specs=1";
+        // String content = c.download(parentPageURL);
+        // if(svm.containsSearchWordOrMorphs(parentPageURL)){
+        // System.out.println("YEAHHHHHHHHHHHHHH");
+        // }else{
+        // System.out.println("MIST");
+        // }
+        // if(linkAn.isRelevantLinkCheck("http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/main.html?WT.acCCI_PixmaTour_MP990_Europe",
+        // "", "")){
+        // System.out.println(true);
+        // }else{
+        // System.out.println(false);
+        // }
+        // List<MIOPage> mioPages = linkAn.getLinkedMioPages(content, parentPageURL);
+        // System.out.println(mioPages.size());
+        // for (MIOPage mioPage : mioPages){
+        // System.out.println(mioPage.getUrl());
+        // }
     }
 
 }

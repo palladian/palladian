@@ -11,6 +11,8 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.Extractable;
 
@@ -21,16 +23,29 @@ import tud.iir.knowledge.Extractable;
  */
 public class MIO extends Extractable {
 
+    /** The Constant LOGGER. */
+    private static final Logger LOGGER = Logger.getLogger(MIO.class);
+
     private double trust = 0;
+    private double mlTrust = 0;
+
     private String mioType = "";
     private String findPageURL = "";
     private String directURL = "";
     private String fileName = "";
+    private double fileSize = 0;
+    private double textContentLength = 0;
 
     private Entity entity;
-    private String interactivityGrade = "";
+    private String interactivityGrade = "unclear";
     private boolean isDedicatedPage = true;
     private Map<String, List> infos;
+
+    /** The Constant FLASH. */
+    private static final String FLASH = "flash";
+
+    /** The Constant APPLET. */
+    private static final String APPLET = "applet";
 
     private Map<String, Double> features;
 
@@ -65,23 +80,41 @@ public class MIO extends Extractable {
      */
     private String extractFileName(String directURL, String type) {
 
-        if (type.equals("swf")) {
-            String regExp = "[/=]?.[^/=]*\\." + type;
-            Pattern p = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-            Matcher m = p.matcher(directURL);
-            while (m.find()) {
-                return m.group(0);
+        String fileEnding = "";
+
+        if (mioType.equals(FLASH)) {
+            fileEnding = "swf";
+        } else {
+            if (mioType.equals(APPLET)) {
+                fileEnding = "class";
+            } else {
+                if ("silverlight".equals(mioType)) {
+                    fileEnding = "xap";
+                } else {
+                    if ("quicktime".equals(mioType)) {
+                        fileEnding = "mov";
+                    }
+                }
             }
         }
+
+        // if (type.equals("swf")) {
+        String regExp = "[/=]?.[^/=]*\\." + fileEnding;
+        Pattern p = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Matcher m = p.matcher(directURL);
+        while (m.find()) {
+            return m.group(0);
+        }
+        // }
         return directURL;
     }
-    
+
     /**
      * Resets the MIOInfos (for saving memory)
      * 
-     */    
-    public void resetMIOInfos(){
-        infos= new HashMap<String, List>();
+     */
+    public void resetMIOInfos() {
+        infos = new HashMap<String, List>();
     }
 
     /**
@@ -261,10 +294,40 @@ public class MIO extends Extractable {
     }
 
     public double getFeature(String name) {
-        return features.get(name);
+        double result = 0;
+        try {
+            result = features.get(name);
+        } catch (Exception e) {
+            LOGGER.info("getFeature for: " + name + " failed!");
+        }
+        return result;
     }
 
     public Map<String, Double> getFeatures() {
         return features;
+    }
+
+    public double getMlTrust() {
+        return mlTrust;
+    }
+
+    public void setMlTrust(double mlTrust) {
+        this.mlTrust = mlTrust;
+    }
+
+    public double getFileSize() {
+        return fileSize;
+    }
+
+    public void setFileSize(double fileSize) {
+        this.fileSize = fileSize;
+    }
+
+    public double getTextContentLength() {
+        return textContentLength;
+    }
+
+    public void setTextContentLength(double textContentLength) {
+        this.textContentLength = textContentLength;
     }
 }

@@ -4,6 +4,7 @@
  */
 package tud.iir.extraction.mio;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,7 +28,6 @@ public class EntityMIOExtractionThread extends Thread {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(EntityMIOExtractionThread.class);
-    // private static final Logger mio_logger = Logger.getLogger("mio");
 
     /** The central entity. */
     private Entity entity = null;
@@ -68,7 +68,7 @@ public class EntityMIOExtractionThread extends Thread {
         MIOComparator mioComp = new MIOComparator();
         Map<String, MIO> mios = mioPAnalyzer.extractMIOs(MIOPages, entity);
 
-        //print the MIOFeatures out
+        // print the MIOFeatures out
         printMIOFeaturesToFile(mios);
 
         Set<MIO> mioResults = new TreeSet<MIO>(mioComp);
@@ -76,9 +76,10 @@ public class EntityMIOExtractionThread extends Thread {
             mioResults.add(mio.getValue());
         }
 
-        // extract features from MIOS for mio scoring
-        // for (MIO mio : mioResults) {
         // MIOClassifier mioClass = new MIOClassifier();
+        // mioClass.trainClassifier("f:/features - printer - allcontextfeat.txt");
+        // for (MIO mio : mioResults) {
+        //
         // mioClass.classify(mio);
         // }
 
@@ -94,30 +95,34 @@ public class EntityMIOExtractionThread extends Thread {
     /**
      * Prints the set to html file.
      * 
-     * @param cleanedMIOs the cleaned mi os
+     * @param cleanedMIOs the cleaned MIOs
      */
     private void printSetToHTMLFile(Set<MIO> cleanedMIOs) {
         // FileHelper filehelper = new FileHelper();
-        FileHelper.appendToFile("f:/test.html", "<html><body>", false);
-        for (MIO mio : cleanedMIOs) {
-            // MIO mio = cleanedMIOs.get(mioURL);
-            StringBuffer sBuffer = new StringBuffer();
-            for (String info : mio.getInfos().keySet()) {
-                sBuffer.append(info);
-                sBuffer.append(" ---- ");
-                sBuffer.append(mio.getInfos().get(info).toString());
+        try {
+            FileHelper.appendFile("f:/test.html", "<html><body>");
+
+            for (MIO mio : cleanedMIOs) {
+                // MIO mio = cleanedMIOs.get(mioURL);
+                // StringBuffer sBuffer = new StringBuffer();
+                // for (String info : mio.getInfos().keySet()) {
+                // sBuffer.append(info);
+                // sBuffer.append(" ---- ");
+                // sBuffer.append(mio.getInfos().get(info).toString());
+                //
+                // }
+                String output = " mlTrust: " + mio.getMlTrust() + " TRUST: " + mio.getTrust() + " <a href=\""
+                        + mio.getDirectURL() + "\">" + mio.getDirectURL() + "</a> founded on <a href=\""
+                        + mio.getFindPageURL() + "\">" + mio.getFindPageURL() + "</a> for Entity: "
+                        + mio.getEntity().getName() + "<br><br>";
+                // System.out.println(output);
+                FileHelper.appendFile("f:/test.html", output + "\r\n");
 
             }
-            String output = " TRUST: " + mio.getTrust() + " <a href=\"" + mio.getDirectURL() + "\">"
-                    + mio.getDirectURL() + "</a> founded on <a href=\"" + mio.getFindPageURL() + "\">"
-                    + mio.getFindPageURL() + "</a> for Entity: " + mio.getEntity().getName() + " Infos: "
-                    + sBuffer.toString() + "<br><br>";
-            // System.out.println(output);
-            FileHelper.appendToFile("f:/test.html", output + "\r\n", false);
-
+            FileHelper.appendFile("f:/test.html", "</body></html>");
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
         }
-        FileHelper.appendToFile("f:/test.html", "</body></html>", false);
-
     }
 
     /**
@@ -127,12 +132,15 @@ public class EntityMIOExtractionThread extends Thread {
      */
     private void printMIOFeaturesToFile(Map<String, MIO> cleanedMIOs) {
 
-        for (String mioURL : cleanedMIOs.keySet()) {
-            MIO mio = cleanedMIOs.get(mioURL);
+        for (Entry<String, MIO> cMio : cleanedMIOs.entrySet()) {
+            MIO mio = cMio.getValue();
             StringBuffer sBuffer = new StringBuffer();
-            Map<String, Double> mioFeatures = cleanedMIOs.get(mioURL).getFeatures();
-            sBuffer.append("# " + mio.getEntity().getName()+" Trust: " + mio.getTrust() + " " + mio.getDirectURL() + "\r\n");
+            Map<String, Double> mioFeatures = mio.getFeatures();
+            ;
+            sBuffer.append("# " + mio.getEntity().getName() + " Trust: " + mio.getTrust() + " " + mio.getDirectURL()
+                    + "\r\n");
             sBuffer.append("# " + mio.getFindPageURL() + "\r\n");
+
             for (Entry<String, Double> feature : mioFeatures.entrySet()) {
                 sBuffer.append(feature.getValue());
                 sBuffer.append(";");
@@ -140,9 +148,31 @@ public class EntityMIOExtractionThread extends Thread {
             }
             String output = sBuffer.toString();
             // System.out.println(output);
-            FileHelper.appendToFile("f:/features.txt", output + "\r\n", false);
+            try {
+                FileHelper.appendFile("f:/features.txt", output + "\r\n");
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            }
 
         }
+
+        // for (String mioURL : cleanedMIOs.keySet()) {
+        // MIO mio = cleanedMIOs.get(mioURL);
+        // StringBuffer sBuffer = new StringBuffer();
+        // Map<String, Double> mioFeatures = cleanedMIOs.get(mioURL).getFeatures();
+        // sBuffer.append("# " + mio.getEntity().getName()+" Trust: " + mio.getTrust() + " " + mio.getDirectURL() +
+        // "\r\n");
+        // sBuffer.append("# " + mio.getFindPageURL() + "\r\n");
+        // for (Entry<String, Double> feature : mioFeatures.entrySet()) {
+        // sBuffer.append(feature.getValue());
+        // sBuffer.append(";");
+        //
+        // }
+        // String output = sBuffer.toString();
+        // // System.out.println(output);
+        // FileHelper.appendToFile("f:/features.txt", output + "\r\n", false);
+        //
+        // }
 
     }
 

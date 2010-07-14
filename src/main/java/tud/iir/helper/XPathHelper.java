@@ -294,7 +294,7 @@ public class XPathHelper {
             final NodeList childNodes = node.getChildNodes();
             if (childNodes != null) {
                 for (int x = 0; x < childNodes.getLength(); x++) {
-                    if (childNodes.item(x).getLocalName() != null && isChildOf(childNodes.item(x), node)) {
+                    if (childNodes.item(x).getNodeName() != null && isChildOf(childNodes.item(x), node)) {
                         children.add(childNodes.item(x));
                     }
                 }
@@ -345,14 +345,17 @@ public class XPathHelper {
     public static List<Node> getPreviousSiblings(final Node node) {
 
         final Node parentNode = node.getParentNode();
+     
         final List<Node> previousSiblings = new ArrayList<Node>();
         final List<Node> childNodes = XPathHelper.getChildNodes(parentNode);
 
         for (Node childNode : childNodes) {
             if (childNode.isSameNode(node)) {
+                
                 break;
             } else {
                 previousSiblings.add(childNode);
+               
             }
         }
         return previousSiblings;

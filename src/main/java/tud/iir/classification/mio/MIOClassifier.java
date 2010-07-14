@@ -27,7 +27,7 @@ public class MIOClassifier extends Classifier {
      * Instantiates a new mIO classifier.
      */
     public MIOClassifier() {
-        // super(Classifier.LINEAR_REGRESSION);
+//         super(Classifier.LINEAR_REGRESSION);
         super(Classifier.NEURAL_NETWORK);
 
     }
@@ -42,14 +42,18 @@ public class MIOClassifier extends Classifier {
 
         // System.out.println(mio.getFeatures().keySet().toString());
         final FeatureObject featObject = new FeatureObject(mio.getFeatures());
-
-        final boolean check = super.classifyBinary(featObject, true);
-        if (check) {
-            // System.out.println("object is classified as positive");
-            LOGGER.info("object is classified as positive");
+        double[] probability = super.classifySoft(featObject);
+//        System.out.println("Probability of beeing positive: " +probability[0]);
+//        System.out.println("Probability of beeing negative: " +probability[1]);
+//        final boolean check = super.classifyBinary(featObject, true);
+        if (probability[0]>0) {
+//             System.out.println(mio.getDirectURL() + " is classified as positive");
+//            LOGGER.info("object is classified as positive");
+            mio.setMlTrust(probability[0]);
         } else {
-            // System.out.println("object is classified as negative");
-            LOGGER.info("object is classified as negative");
+//             System.out.println(mio.getDirectURL() + "object is classified as negative");
+//            LOGGER.info("object is classified as negative");
+            mio.setMlTrust(probability[0]);
         }
 
         // final Instance iUse = createInstance(getFvWekaAttributes(), discretize(featObject.getFeatures()),
@@ -102,38 +106,39 @@ public class MIOClassifier extends Classifier {
      * @param args the arguments
      */
     public static void main(final String[] args) {
-//         MIOClassifier mioClass = new MIOClassifier();
-//         mioClass.trainClassifier("f:/features.txt");
+         MIOClassifier mioClass = new MIOClassifier();
+         mioClass.trainClassifier("f:/features - printer - allcontextfeat.txt");
+//         mioClass.useTrainedClassifier();
 //        
-//         Concept concept = new Concept("printer");
-//         Entity entity = new Entity("Canon MP990", concept);
-//         MIOPage mioPage = new MIOPage(
-//         "http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/main.html?WT.acCCI_PixmaTour_MP990_Europe", "");
-//         mioPage.setDedicatedPageTrust(0.9800000000000001);
-//        
-//         MIO mio = new MIO("FLASH", "http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/index.swf",
-//         "http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/main.html?WT.acCCI_PixmaTour_MP990_Europe",
-//         entity);
-//        
-//         mio.setFeature("ALTTextRelevance", 0.31962481141090393);
-//         MIOContextAnalyzer mioCA = new MIOContextAnalyzer(entity, mioPage);
-//         mioCA.setFeatures(mio);
+         Concept concept = new Concept("printer");
+         Entity entity = new Entity("Canon MP990", concept);
+         MIOPage mioPage = new MIOPage(
+         "http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/main.html?WT.acCCI_PixmaTour_MP990_Europe", "");
+         mioPage.setDedicatedPageTrust(0.9800000000000001);
+        
+         MIO mio = new MIO("FLASH", "http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/index.swf",
+         "http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/main.html?WT.acCCI_PixmaTour_MP990_Europe",
+         entity);
+        
+         mio.setFeature("ALTTextRelevance", 0.31962481141090393);
+         MIOContextAnalyzer mioCA = new MIOContextAnalyzer(entity, mioPage);
+         mioCA.setFeatures(mio);
 //         System.out.println(mio.getFeatures().entrySet().toString());
-//         // mio.setFeature(name, value)
-//         // float classification = mioClass.classify(mio);
-//         mioClass.classify(mio);
+         // mio.setFeature(name, value)
+         // float classification = mioClass.classify(mio);
+         mioClass.classify(mio);
 //        
-//         MIOPage mioPage2 = new MIOPage("http://www.amazon.com/Canon-Wireless-Inkjet-Printer-3749B002/dp/B002M78HX6",
-//         "");
-//         MIO mio2 = new MIO("FLASH",
-//         "http://g-ecx.images-amazon.com/images/G/01/am3/20100615163706920/AMPlayer._V191513928_.swf",
-//         "http://www.amazon.com/Canon-Wireless-Inkjet-Printer-3749B002/dp/B002M78HX6", entity);
-//        
-//         MIOContextAnalyzer mioCA2 = new MIOContextAnalyzer(entity, mioPage2);
-//         mioCA2.setFeatures(mio2);
+         MIOPage mioPage2 = new MIOPage("http://www.amazon.com/Canon-Wireless-Inkjet-Printer-3749B002/dp/B002M78HX6",
+         "");
+         MIO mio2 = new MIO("FLASH",
+         "http://g-ecx.images-amazon.com/images/G/01/am3/20100615163706920/AMPlayer._V191513928_.swf",
+         "http://www.amazon.com/Canon-Wireless-Inkjet-Printer-3749B002/dp/B002M78HX6", entity);
+        
+         MIOContextAnalyzer mioCA2 = new MIOContextAnalyzer(entity, mioPage2);
+         mioCA2.setFeatures(mio2);
 //         System.out.println(mio2.getFeatures().entrySet().toString());
-//         // System.out.println(classification);
-//         mioClass.classify(mio2);
+         // System.out.println(classification);
+         mioClass.classify(mio2);
     }
 
 }

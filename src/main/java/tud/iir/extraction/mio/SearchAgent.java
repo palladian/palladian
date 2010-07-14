@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import tud.iir.web.SourceRetriever;
-import tud.iir.web.WebResult;
 
 /**
  * The SearchAgent uses given queries to initiate a search at a searchEngine.
@@ -41,19 +40,29 @@ public class SearchAgent {
 
         // set focus on english content
         sRetriever.setLanguage(0);
+        sRetriever.setSource(searchEngine);
 
         ArrayList<String> MIOPageCandidateList;
 
-        ArrayList<WebResult> webResultList = new ArrayList<WebResult>();
+        ArrayList<String> resultList = new ArrayList<String>();
 
         for (String searchQuery : searchQueries) {
-
-            ArrayList<WebResult> ResultList = sRetriever.getWebResults(searchQuery, searchEngine, false);
-            webResultList.addAll(ResultList);
+            // System.out.println(searchQuery);
+            ArrayList<String> resultURLList = sRetriever.getURLs(searchQuery, false);
+            // System.out.println("URLLIST: " + ResultURLList.size() + "____");
+            // resultList.add("TEST");
+            // ArrayList<WebResult> ResultList = sRetriever.getWebResults(searchQuery, searchEngine, false);
+            // System.out.println("Webresults: " + ResultList.size());
+            // webResultList.addAll(ResultList);
+            resultList.addAll(resultURLList);
+            // break;
         }
+        // System.out.println(resultList.size());
 
-        MIOPageCandidateList = removeDuplicates(webResultList);
-
+        MIOPageCandidateList = removeDuplicates(resultList);
+        // System.out.println(MIOPageCandidateList.toString());
+        // System.out.println(MIOPageCandidateList.size());
+        // System.exit(1);
         return MIOPageCandidateList;
     }
 
@@ -63,12 +72,12 @@ public class SearchAgent {
      * @param webResultList the web result list
      * @return the array list
      */
-    private ArrayList<String> removeDuplicates(List<WebResult> webResultList) {
+    private ArrayList<String> removeDuplicates(List<String> resultList) {
         ArrayList<String> urlList = new ArrayList<String>();
-        for (WebResult webrsl : webResultList) {
+        for (String webrsl : resultList) {
 
-            if (!urlList.contains(webrsl.getUrl())) {
-                urlList.add(webrsl.getUrl());
+            if (!urlList.contains(webrsl)) {
+                urlList.add(webrsl);
             }
         }
         return urlList;

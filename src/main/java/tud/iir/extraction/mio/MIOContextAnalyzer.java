@@ -4,8 +4,6 @@
  */
 package tud.iir.extraction.mio;
 
-import java.util.Locale;
-
 import org.apache.log4j.Logger;
 
 import tud.iir.knowledge.Entity;
@@ -55,6 +53,10 @@ public class MIOContextAnalyzer {
 
     /** The DedicatedPageTrust (Relevance). */
     private transient double dpTrust = 0;
+
+    private transient double xmlFileNameRelevance = 0;
+
+    private transient double xmlFileContentRelevance = 0;
 
     /** A List of bad words. */
     final transient String[] badWords = { "banner", "tower", "titlefont", "newsletter", "cloud", "footer", "ticker",
@@ -213,56 +215,9 @@ public class MIOContextAnalyzer {
      * @param entity the entity
      * @return the double
      */
-    private double calcStringRelevance(final String inputString, final Entity entity) {
-        return calcStringRelevance(inputString, entity.getName());
-    }
-
-    /**
-     * Calculates the relevance of a string by checking how many terms or morphs of the entityName are included in the
-     * string. A special role play words like
-     * d500 or x500i. Returns: a value from 0 to 1
-     * 
-     * @param inputString the string
-     * @param entityName the entity name
-     * @return the double
-     */
-    private double calcStringRelevance(final String inputString, final String entityName) {
-        final SearchWordMatcher swm = new SearchWordMatcher(entityName);
-
-        final String[] elements = entityName.split("\\s");
-        // String input[] = inputString.split("\\s");
-        // calculate the number of searchWord-Matches
-        final double numOfMatches = (double) swm.getNumberOfSearchWordMatches(inputString);
-        // System.out.println("number of swm: " + NumOfMatches);
-        // calculate the number of searchWord-Matches with ignoring specialWords
-        // like D500x
-        final double numOfMatchesWithoutSW = (double) swm.getNumberOfSearchWordMatches(inputString, true,
-                entityName.toLowerCase(Locale.ENGLISH));
-        // System.out.println("number of swm without SW: " + NumOfMatchesWithoutSW);
-        final double diff = (double) numOfMatches - numOfMatchesWithoutSW;
-
-        double result = (double) ((numOfMatchesWithoutSW * 2) + (diff * 3)) / (double) (elements.length * 2);
-
-        if (diff > 0) {
-
-            result = (double) (numOfMatches - 1) / elements.length + (diff / elements.length)
-                    + (diff / (2 * elements.length));
-            //
-            result = (double) numOfMatches / elements.length + (diff / (2 * elements.length));
-            result = (double) ((numOfMatchesWithoutSW * 2) + (diff * 3)) / (double) (elements.length * 2);
-        } else {
-            result = (double) numOfMatches / elements.length;
-        }
-
-        // final JaroWinkler jaroWinkler = new JaroWinkler();
-        // double result = (double) jaroWinkler.getSimilarity(entityName, inputString);
-
-        if (result > 1) {
-            // System.out.println("result groesser 1!");
-            result = 1;
-        }
-        return result;
-    }
+    // private double calcStringRelevance(final String inputString, final Entity entity) {
+    // return RelevanceCalculator.calcStringRelevance(inputString, entity.getName());
+    // }
 
     /**
      * Check for bad words that are not contained within the entityname.
@@ -287,7 +242,7 @@ public class MIOContextAnalyzer {
      * @param mio the mio
      */
     private void calcFileNameRelevance(final MIO mio) {
-        this.fileNameRelevance = (calcStringRelevance(mio.getFileName(), entity));
+        this.fileNameRelevance = (RelevanceCalculator.calcStringRelevance(mio.getFileName(), entity));
     }
 
     /**
@@ -296,7 +251,7 @@ public class MIOContextAnalyzer {
      * @param mio the mio
      */
     private void calcFilePathRelevance(final MIO mio) {
-        this.filePathRelevance = calcStringRelevance(mio.getDirectURL(), entity);
+        this.filePathRelevance = RelevanceCalculator.calcStringRelevance(mio.getDirectURL(), entity);
 
     }
 
@@ -332,7 +287,7 @@ public class MIOContextAnalyzer {
             }
 
             if (headlines.length() > 1) {
-                this.headlineRelevance = calcStringRelevance(headlines, entity);
+                this.headlineRelevance = RelevanceCalculator.calcStringRelevance(headlines, entity);
             }
         }
 
@@ -354,7 +309,7 @@ public class MIOContextAnalyzer {
             }
 
             if (altText.length() > 1) {
-                this.altTextRelevance = calcStringRelevance(altText, entity);
+                this.altTextRelevance = RelevanceCalculator.calcStringRelevance(altText, entity);
             }
         }
     }
@@ -375,7 +330,7 @@ public class MIOContextAnalyzer {
             }
 
             if (surroundingText.length() > 1) {
-                surroundTextRelevance = calcStringRelevance(surroundingText, entity);
+                surroundTextRelevance = RelevanceCalculator.calcStringRelevance(surroundingText, entity);
             }
         }
     }
@@ -386,7 +341,7 @@ public class MIOContextAnalyzer {
      * @param mioPage the mioPage
      */
     private void calcPageTitleRelevance(final MIOPage mioPage) {
-        this.titleRelevance = calcStringRelevance(mioPage.getTitle(), entity);
+        this.titleRelevance = RelevanceCalculator.calcStringRelevance(mioPage.getTitle(), entity);
     }
 
     /**
@@ -397,8 +352,8 @@ public class MIOContextAnalyzer {
     private void calcLinkedPageRelevance(final MIOPage mioPage) {
 
         if (mioPage.isLinkedPage()) {
-            this.linkNameRelevance = calcStringRelevance(mioPage.getLinkName(), entity);
-            this.linkTitleRelevance = calcStringRelevance(mioPage.getLinkTitle(), entity);
+            this.linkNameRelevance = RelevanceCalculator.calcStringRelevance(mioPage.getLinkName(), entity);
+            this.linkTitleRelevance = RelevanceCalculator.calcStringRelevance(mioPage.getLinkTitle(), entity);
         }
     }
 
@@ -410,7 +365,8 @@ public class MIOContextAnalyzer {
     private void calcIFrameRelevance(final MIOPage mioPage) {
 
         if (mioPage.isIFrameSource()) {
-            this.iframeParentTitleRelevance = calcStringRelevance(mioPage.getIframeParentPageTitle(), entity);
+            this.iframeParentTitleRelevance = RelevanceCalculator.calcStringRelevance(
+                    mioPage.getIframeParentPageTitle(), entity);
         }
     }
 
@@ -420,7 +376,7 @@ public class MIOContextAnalyzer {
      * @param mioPage the mioPage
      */
     private void calcPageURLRelevance(final MIOPage mioPage) {
-        this.urlRelevance = calcStringRelevance(mioPage.getUrl(), entity);
+        this.urlRelevance = RelevanceCalculator.calcStringRelevance(mioPage.getUrl(), entity);
     }
 
 }

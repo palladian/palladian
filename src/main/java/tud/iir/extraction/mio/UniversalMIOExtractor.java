@@ -12,6 +12,7 @@ import java.util.regex.Pattern;
 
 import tud.iir.helper.StringHelper;
 import tud.iir.knowledge.Entity;
+import tud.iir.web.Crawler;
 
 /**
  * The Class UniversalMIOExtractor is a context-based MIO-Extractor.
@@ -33,7 +34,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
     /** The Constant FLASH. */
     private static final String FLASH = "flash";
-    
+
     /** The Constant APPLET. */
     private static final String APPLET = "applet";
 
@@ -62,7 +63,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @param mioType the mio-type
      * @return the list
      */
-    public List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity, final String mioType) {
+    private List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity, final String mioType) {
         this.entity = entity;
         this.mioPageContent = mioPage.getContent();
         this.mioPage = mioPage;
@@ -163,24 +164,25 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
                 for (MIO mio : tempMIOs) {
                     final String tempAltText = extractALTTextFromTag(relevantTag);
                     final List<String> altText = new ArrayList<String>();
-                    if (tempAltText.length() > 2) {                       
+                    if (tempAltText.length() > 2) {
                         altText.add(tempAltText);
                         mio.addInfos("altText", altText);
                     }
                 }
-               
+
                 // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
                 // final List<String> headlines = new ArrayList<String>();
-                // for (MIO mio : tempMIOs) {
-                // mio = extractSurroundingInfos(relevantTag, mioPage, mio);
-                //}
+                for (MIO mio : tempMIOs) {
+                    mio = extractSurroundingInfos(relevantTag, mioPage, mio);
+                    mio = extractXMLInfos(relevantTag, mio);
+                }
             }
 
             retrievedMIOs.addAll(tempMIOs);
         }
 
         // Calculate Trust
-        retrievedMIOs = calcTrust(retrievedMIOs);
+        retrievedMIOs = calcTrustAndInteractivity(retrievedMIOs);
 
         return retrievedMIOs;
     }
@@ -206,7 +208,10 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
                     modURL.append(tempURL);
                 }
             }
-            mio.setDirectURL(modURL.toString());
+            if (Crawler.isValidURL(modURL.toString(), false)) {
+                mio.setDirectURL(modURL.toString());
+            }
+
         }
 
         return mio;
@@ -249,11 +254,14 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
         while (matcher.find()) {
             final String mioAdr = matcher.group(0).replaceAll("\"", "");
             // System.out.println("URL: "+ mioAdr);
+            String mioURL = verifyURL(mioAdr, mioPage.getUrl());
+            if (mioURL.length() > 4 & mioURL.contains(".")) {
+                final MIO mio = new MIO(mioType, mioURL, mioPage.getUrl(), entity);
+                resultList.add(mio);
+            }
 
-            final MIO mio = new MIO(mioType, verifyURL(mioAdr, mioPage.getUrl()), mioPage.getUrl(), entity);
             // System.out.println(verifyURL(mioAdr, mioPage.getUrl()));
             // mio.setDirectURL(verifyURL(mioAdr, mioPage.getUrl()));
-            resultList.add(mio);
 
         }
 
@@ -341,6 +349,20 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
             }
         }
 
+        // extract flashvars.country = "us";
+        String regExp4 = "flashvars\\..*[^;];";
+        Pattern pat4 = Pattern.compile(regExp4, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Matcher matcher4 = pat4.matcher(tagContent);
+        while (matcher4.find()) {
+            String result = matcher4.group(0);
+            result = result.replaceFirst("flashvars.", "");
+            result = result.replaceAll("\"", "");
+            result = result.replaceAll("\\s", "");
+            if (result.length() > 0) {
+                flashVars.add(result);
+            }
+        }
+
         // if (flashVars.size() > 0) {
         // // System.out.println("mehrere FlashVars: ");
         // for (String fVar : flashVars) {
@@ -423,13 +445,15 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
     }
 
     /**
-     * Calc trust.
-     *
-     * @param retrievedMIOs the retrieved mi os
+     * Calculate trust.
+     * 
+     * @param retrievedMIOs the retrieved MIOs
      * @return the list
      */
-    private List<MIO> calcTrust(final List<MIO> retrievedMIOs) {
+    private List<MIO> calcTrustAndInteractivity(final List<MIO> retrievedMIOs) {
         final MIOContextAnalyzer contextAnalyzer = new MIOContextAnalyzer(entity, mioPage);
+        MIOContentAnalyzer contentAnalyzer = new MIOContentAnalyzer();
+        // MIOInteractivityAnalyzer interactivityAnalyzer= new MIOInteractivityAnalyzer();
 
         // System.out.println("MIO-Trust-Calculation!");
 
@@ -437,7 +461,11 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
             contextAnalyzer.calculateTrust(mio);
             contextAnalyzer.setFeatures(mio);
-            //reset MIO-Infos for saving memory
+
+            contentAnalyzer.analyzeContent(mio, entity);
+            contentAnalyzer.calculateTrust(mio);
+            // interactivityAnalyzer.setInteractivityGrade(mio, mioPage);
+            // reset MIO-Infos for saving memory
             mio.resetMIOInfos();
         }
 
@@ -446,7 +474,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
     /**
      * Extract swf from comments.
-     *
+     * 
      * @param args the arguments
      * @return the list
      */
