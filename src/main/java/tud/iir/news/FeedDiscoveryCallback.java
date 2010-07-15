@@ -1,5 +1,6 @@
 package tud.iir.news;
 
+import java.io.IOException;
 import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -8,30 +9,37 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.LineAction;
 import tud.iir.web.Crawler;
 import tud.iir.web.CrawlerCallback;
 
 /**
- * This class is used as a callback to automatically detect news feeds on pages which are downloaded with the {@link Crawler}. Discovered feed URLs are written
- * into a text file. This is singleton as we have potentially multiple Crawler instances, but writing to the list must be coordinated.
+ * This class is used as a callback to automatically detect news feeds on pages which are downloaded with the
+ * {@link Crawler}. Discovered feed URLs are written into a text file. This is singleton as we have potentially multiple
+ * Crawler instances, but writing to the list must be coordinated. See feeds.conf for options concerning the discovery.
  * 
  * @author Philipp Katz
  * 
  */
 public class FeedDiscoveryCallback implements CrawlerCallback {
 
+    /** The singleton. */
     private static final FeedDiscoveryCallback INSTANCE = new FeedDiscoveryCallback();
-    
-    //private static final Logger LOGGER = Logger.getLogger(FeedDiscoveryCallback.class);
 
+    /** The class logger. */
+    private static final Logger LOGGER = Logger.getLogger(FeedDiscoveryCallback.class);
+
+    /** The default file where the discovered feeds are written to. */ 
     private static final String DEFAULT_FILE_PATH = "data/discovered_feeds.txt";
 
+    /** Instance of FeedDiscovery to which we delegate for discovery. */
     private FeedDiscovery feedDiscovery = new FeedDiscovery();
 
+    /** The file where the discovered feeds are written to. */
     private String filePath = DEFAULT_FILE_PATH;
 
     private FeedDiscoveryCallback() {
-        //LOGGER.trace("<init>");
+        Logger.getRootLogger().trace("FeedDiscoveryCallback.<init>");
         try {
             PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
             filePath = config.getString("crawlerDiscoveryList", DEFAULT_FILE_PATH);
@@ -56,7 +64,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
                 // output to the file must be synched, or we will lose data when
                 // writing from multiple crawl threads
                 synchronized (this) {
-                    appendToFileIfNotPresent(filePath, feed, false);
+                    appendLineIfNotPresent(filePath, feed);
                 }
             }
         }
@@ -65,27 +73,40 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
     /**
      * Appends a line to the specified text file if it does not already exist.
      * 
+     * TODO move this to FileHelper?
+     * 
      * @param filePath
      * @param string
-     * @param before
      */
-    private static void appendToFileIfNotPresent(String filePath, String string, boolean before) {
-        boolean add = true;
-        // scan the file, if the line is already present ...
-        List<String> lines = FileHelper.readFileToArray(filePath);
-        for (String line : lines) {
-            if (line.equals(string)) {
-                add = false;
-                break;
+    private static void appendLineIfNotPresent(String filePath, final String string) {
+        final boolean[] add = new boolean[] { true };
+        // if file exists already, check if it contains specified line
+        if (FileHelper.fileExists(filePath)) {
+            FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+                @Override
+                public void performAction(String line, int lineNumber) {
+                    if (line.equals(string)) {
+                        add[0] = false;
+                        breakLineLoop();
+                    }
+                }
+            });
+        }
+        if (add[0]) {
+            try {
+                FileHelper.appendFile(filePath, string + "\n");
+            } catch (IOException e) {
+                LOGGER.error("could not write to file " + filePath);
             }
         }
-        if (add) {
-            FileHelper.appendToFile(filePath, string, before);
-        }
     }
-    
+
     public static void main(String[] args) {
-        FeedDiscoveryCallback.getInstance();
+        // FeedDiscoveryCallback.getInstance();
+        Crawler c = new Crawler();
+        c.setFeedAutodiscovery(true);
+        c.setStopCount(1000000);
+        c.startCrawl("http://www.dmoz.org/", false, true);
     }
 
 }

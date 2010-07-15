@@ -580,7 +580,7 @@ public class FeedDiscovery {
     }
     
     public void setSearchEngine(int searchEngine) {
-        LOGGER.info("using " + SourceRetrieverManager.getName(searchEngine));
+        LOGGER.trace("using " + SourceRetrieverManager.getName(searchEngine));
         this.searchEngine = searchEngine;
     }
     
