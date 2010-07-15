@@ -73,7 +73,7 @@ public class FeedDiscovery {
     private boolean writeResultFileContinuously = true;
 
     /** Store a collection of all queries that are used to retrieve sites from a search engine. */
-    private List<String> queries = new ArrayList<String>();
+    private List<String> queries = Collections.synchronizedList(new ArrayList<String>());
 
     /** Store all discovered feeds URLs. */
     private Set<String> feeds = Collections.synchronizedSet(new HashSet<String>());
@@ -381,6 +381,8 @@ public class FeedDiscovery {
      * 
      */
     private void combineQueries() {
+        LOGGER.debug("combine queries");
+
         Collection<String> combinedQueries = new HashSet<String>();
         
         for (int i = 0; i < queries.size(); i++) {
@@ -388,6 +390,9 @@ public class FeedDiscovery {
                 combinedQueries.add(queries.get(i) + " " + queries.get(j));
             }
         }
+
+        LOGGER.debug("combined queries, originally " + queries.size() + ", now " + queries.size()
+                + combinedQueries.size());
 
         queries.addAll(combinedQueries);
     }
@@ -419,46 +424,62 @@ public class FeedDiscovery {
 
         LOGGER.trace(">findFeeds");
 
-        getSitesUsingQueries();
+        // getSitesUsingQueries();
+
+        if (isCombineQueries()) {
+            combineQueries();
+        }
 
         StopWatch stopWatch = new StopWatch();
 
         // to count number of running Threads
         final Counter counter = new Counter();
 
-        while (sites.size() > 0) {
-            final String site = getSiteFromStack();
+        LOGGER.info("start finding feeds with " + queries.size() + " queries and " + resultLimit
+                + " results per query = " + resultLimit * queries.size() + " sites to check for feeds");
 
-            // if maximum # of Threads are already running, wait here
-            while (counter.getCount() >= maxThreads) {
-                LOGGER.trace("max # of Threads running. waiting ...");
-                ThreadHelper.sleep(1000);
-            }
+        while (queries.size() > 0) {
+            String query = getQueryFromStack();
 
-            counter.increment();
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        List<String> discoveredFeeds = discoverFeeds(site);
-                        if (discoveredFeeds != null) {
-                            for (String feed : discoveredFeeds) {
-                                if (feeds.add(feed)) {
-                                    if (isWriteResultFileContinuously()) {
-                                        FileHelper.appendFile(getResultFilePath(), feed + "\n");
+            Set<String> foundSites = searchSites(query, resultLimit);
+            sites.addAll(foundSites);
+
+            while (sites.size() > 0) {
+
+                final String site = getSiteFromStack();
+
+                // if maximum # of Threads are already running, wait here
+                while (counter.getCount() >= maxThreads) {
+                    LOGGER.trace("max # of Threads running. waiting ...");
+                    ThreadHelper.sleep(1000);
+                }
+
+                counter.increment();
+                Runnable runnable = new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            List<String> discoveredFeeds = discoverFeeds(site);
+                            if (discoveredFeeds != null) {
+                                for (String feed : discoveredFeeds) {
+                                    if (feeds.add(feed)) {
+                                        if (isWriteResultFileContinuously()) {
+                                            FileHelper.appendFile(getResultFilePath(), feed + "\n");
+                                        }
                                     }
                                 }
                             }
+                        } catch (IOException e) {
+                            LOGGER.error("could not append to " + getResultFilePath());
+                            errors.increment();
+                        } finally {
+                            counter.decrement();
                         }
-                    } catch (IOException e) {
-                        LOGGER.error("could not append to " + getResultFilePath());
-                        errors.increment();
-                    } finally {
-                        counter.decrement();
                     }
-                }
-            };
-            new Thread(runnable).start();
+                };
+                new Thread(runnable).start();
+
+            }
         }
 
         // keep on running until all Threads have finished and
@@ -472,7 +493,7 @@ public class FeedDiscovery {
         stopWatch.stop();
         discoveryTime += stopWatch.getElapsedTime();
 
-        LOGGER.debug("found " + feeds.size() + " feeds");
+        LOGGER.info("found " + feeds.size() + " feeds");
         LOGGER.trace("<findFeeds");
     }
 
@@ -603,6 +624,15 @@ public class FeedDiscovery {
         if (sites.iterator().hasNext()) {
             result = sites.iterator().next();
             sites.remove(result);
+        }
+        return result;
+    }
+
+    private synchronized String getQueryFromStack() {
+        String result = null;
+        if (queries.iterator().hasNext()) {
+            result = queries.iterator().next();
+            queries.remove(result);
         }
         return result;
     }
