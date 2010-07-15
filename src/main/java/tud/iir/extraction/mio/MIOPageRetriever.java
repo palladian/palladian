@@ -57,7 +57,7 @@ public class MIOPageRetriever {
      * @param searchVoc the search voc
      * @return the list
      */
-    public List<MIOPage> retrieveMIOs(final Entity entity, final ConceptSearchVocabulary searchVoc) {
+    public List<MIOPage> retrieveMIOPages(final Entity entity, final ConceptSearchVocabulary searchVoc) {
 
         List<MIOPage> mioPages;
 
@@ -129,42 +129,11 @@ public class MIOPageRetriever {
      * @return the list
      */
     private List<MIOPage> analyzeMIOPageCandidates(final List<String> mioPageCandidates, final Entity entity) {
-        final PageAnalyzer pageAnalyzer = new PageAnalyzer(mioPageCandidates);
+        final MIOPageCandidateAnalyzer candidateAnalyzer = new MIOPageCandidateAnalyzer(mioPageCandidates);
         // start and get Results of PageAnalyzing
-        final List<MIOPage> mioPages = pageAnalyzer.analyzePages(entity);
+        final List<MIOPage> mioPages = candidateAnalyzer.identifyMIOPages(entity);
 
         return mioPages;
     }
-
-    /**
-     * Prints the mioPages-URLs
-     * 
-     * @param MIOPages the mioPages
-     * @param entityName the entity name
-     */
-    // private void printMIOPagesURLs(List<MIOPage> MIOPages, String entityName) {
-    // System.out.println("-------fuer " + entityName + " wurden " + MIOPages.size() + " MIOPages gefunden!");
-    // for (MIOPage mioPage : MIOPages) {
-    // if (mioPage.getDedicatedPageTrust() > 0.6) {
-    // System.out.println(mioPage.getHostname() + "  " + entityName + " dpTrust: "
-    // + mioPage.getDedicatedPageTrust() + " isIframeSource: " + mioPage.isIFrameSource()
-    // + " isLinkedPage: " + mioPage.isLinkedPage());
-    // System.out.println(mioPage.getUrl());
-    // }
-    //
-    // }
-    // }
-
-    /**
-     * Prints the role page ur ls.
-     * 
-     * @param rolePages the role pages
-     */
-    // private void printRolePageURLs(List<RolePage> rolePages) {
-    // System.out.println("Size: " + rolePages.size());
-    // for (RolePage rolePage : rolePages) {
-    // System.out.println(rolePage.getHostname() + " Count: " + rolePage.getCount());
-    // }
-    // }
 
 }

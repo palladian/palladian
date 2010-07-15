@@ -21,7 +21,7 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
     /**
      * Extract mios.
      * 
-     * @param mioPages the mio pages
+     * @param mioPages the mioPages
      * @param entity the entity
      * @return the map
      */

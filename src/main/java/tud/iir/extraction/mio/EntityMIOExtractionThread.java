@@ -61,7 +61,7 @@ public class EntityMIOExtractionThread extends Thread {
 
         // DO SOMETHING
         MIOPageRetriever pageRetr = MIOPageRetriever.getInstance();
-        List<MIOPage> MIOPages = pageRetr.retrieveMIOs(entity, searchVoc);
+        List<MIOPage> MIOPages = pageRetr.retrieveMIOPages(entity, searchVoc);
 
         // TODO Detail MIOAnalysis (content&context & trust-calculation)
         MIOPageAnalyzer mioPAnalyzer = new MIOPageAnalyzer();
