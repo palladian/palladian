@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -58,6 +59,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import tud.iir.extraction.PageAnalyzer;
 import tud.iir.extraction.entity.EntityExtractor;
 import tud.iir.extraction.mio.MIOExtractor;
 import tud.iir.helper.CollectionHelper;
@@ -72,6 +74,9 @@ import tud.iir.news.FeedDiscoveryCallback;
 /**
  * The Crawler downloads pages from the web. List of proxies can be found here: http://www.proxy-list.org/en/index.php
  * TODO handle namespace in xpath
+ * TODO some methods here are duplicates from {@link PageAnalyzer} or could be moved there:
+ * {@link #extractBodyContent(Document)}, {@link #extractBodyContent(String, boolean)},
+ * {@link #extractDescription(Document)}, {@link #extractKeywords(Document)}, {@link #extractTitle(Document)}
  * 
  * @author David Urbansky
  * @author Philipp Katz
@@ -134,11 +139,7 @@ public class Crawler {
     public static long sessionDownloadedBytes = 0;
 
     /** the callback that is called after each crawled page */
-    // private CrawlerCallback crawlerCallback = null;
-    private List<CrawlerCallback> crawlerCallbacks = new ArrayList<CrawlerCallback>();
-
-    /** count the number of retrieved pages or requests */
-    private int requestsSent = 0;
+    private Set<CrawlerCallback> crawlerCallbacks = new HashSet<CrawlerCallback>();
 
     /** whether to use HTTP compression or not */
     private boolean useCompression = true;
@@ -175,10 +176,12 @@ public class Crawler {
     private int switchProxyRequests = -1;
 
     /** list of proxies to choose from */
-    private List<String> proxyList = new ArrayList<String>();
+    private LinkedList<Proxy> proxyList = new LinkedList<Proxy>();
 
-    /** index of current proxy */
-    private int proxyIndex = 0;
+    /** number of requests sent with currently used proxy. */
+    private int proxyRequests = 0;
+
+    // ///////////////////// constructors ///////////////////////
 
     public Crawler() {
         initialize("config/crawler.conf");
@@ -213,7 +216,7 @@ public class Crawler {
             inDomain = config.getBoolean("inDomain");
             outDomain = config.getBoolean("outDomain");
             setSwitchProxyRequests(config.getInt("switchProxyRequests"));
-            setProxyList(config.getList("proxyList"));
+            addToProxyList(config.getList("proxyList"));
             setFeedAutodiscovery(config.getBoolean("feedAutoDiscovery"));
         } catch (ConfigurationException e) {
             LOGGER.warn("crawler configuration under " + configPath + " could not be loaded completely: "
@@ -967,7 +970,7 @@ public class Crawler {
         } catch (DOMException e) {
             LOGGER.error(url + ", " + e.getMessage());
         } catch (Exception e) {
-            LOGGER.error(url + ", " + e.getMessage());
+            LOGGER.error(url + ", " + e.getClass() + " " + e.getMessage());
         }
 
     }
@@ -1138,7 +1141,7 @@ public class Crawler {
             } catch (NullPointerException e) {
                 LOGGER.error(urlString + ", " + e.getMessage());
             } catch (Exception e) {
-                LOGGER.error(urlString + ", " + e.getMessage());
+                LOGGER.error(urlString + ", " + e.getClass() + " " + e.getMessage());
             }
 
             // if (ct != null)
@@ -1350,15 +1353,13 @@ public class Crawler {
     }
 
     private void callCrawlerCallback(Document document) {
-        // if (crawlerCallback != null) {
-        // crawlerCallback.crawlerCallback(document);
-        // }
         for (CrawlerCallback crawlerCallback : crawlerCallbacks) {
+            LOGGER.trace("call crawler callback " + crawlerCallback + "  for " + document.getDocumentURI());
             crawlerCallback.crawlerCallback(document);
         }
     }
 
-    public List<CrawlerCallback> getCrawlerCallbacks() {
+    public Set<CrawlerCallback> getCrawlerCallbacks() {
         return crawlerCallbacks;
     }
 
@@ -1390,28 +1391,65 @@ public class Crawler {
         this.threadCount--;
     }
 
+    /**
+     * Returns the current Proxy.
+     * 
+     * @return
+     */
     public Proxy getProxy() {
         return proxy;
     }
 
+    /**
+     * Sets the current Proxy.
+     * 
+     * @param proxy
+     */
     public void setProxy(Proxy proxy) {
         this.proxy = proxy;
     }
 
     /**
-     * Check whether to change the proxy and do it if needed.
+     * Check whether to change the proxy and do it if needed. If a proxy is not working, remove it from the list. If we
+     * have no working proxies left, fall back into normal mode.
      */
     private void checkChangeProxy() {
-        if (switchProxyRequests > -1) {
-            if (requestsSent % switchProxyRequests == 0) {
-                do {
-                    changeProxy();
-                } while (!checkProxy());
-            }
+        if (switchProxyRequests > -1 && (proxyRequests == switchProxyRequests || proxy == null)) {
+            boolean continueChecking = true;
+            do {
+                changeProxy();
+                if (checkProxy()) {
+                    continueChecking = false;
+                } else {
+
+                    // proxy is not working; remove it from the list
+                    LOGGER.warn("proxy " + getProxy().address() + " is not working, removing from the list.");
+                    proxyList.remove(getProxy());
+                    LOGGER.debug("# proxies in list: " + proxyList.size() + " : " + proxyList);
+
+                    // if there are no more proxies left, go to normal mode without proxies.
+                    if (proxyList.isEmpty()) {
+                        LOGGER.error("no more working proxies, falling back to normal mode.");
+                        continueChecking = false;
+                        proxy = null;
+                        setSwitchProxyRequests(-1);
+                    }
+                }
+            } while (continueChecking);
+            proxyRequests = 0;
         }
     }
 
+    /**
+     * Number of requests after the proxy is changed.
+     * 
+     * @param switchProxyRequests number of requests for proxy change. Must be greater than 1 or -1 which means: change
+     *            never.
+     */
     public void setSwitchProxyRequests(int switchProxyRequests) {
+        if (switchProxyRequests == 0) {
+            throw new IllegalArgumentException();
+        }
         this.switchProxyRequests = switchProxyRequests;
     }
 
@@ -1420,36 +1458,52 @@ public class Crawler {
     }
 
     /**
-     * Set a list of proxies. Each entry must be formatted as "HOST:PORT".
+     * Add an entry to the proxy list. The entry must be formatted as "HOST:PORT".
      * 
-     * @param proxyList The list of proxies.
+     * @param proxyEntry The proxy to add.
      */
-    public void setProxyList(List<String> proxyList) {
-        this.proxyList = proxyList;
-    }
-
-    public List<String> getProxyList() {
-        return proxyList;
-    }
-
-    public void changeProxy() {
-        if (proxyList.size() == 0) {
-            LOGGER.warn("proxy could not be changed because proxy list is empty");
-            return;
-        }
-
-        String proxyEntry = proxyList.get(proxyIndex);
+    public void addToProxyList(String proxyEntry) {
         String[] proxySetting = proxyEntry.split(":");
         String host = proxySetting[0];
         int port = Integer.parseInt(proxySetting[1]);
 
         Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(host, port));
-        setProxy(proxy);
+        if (!proxyList.contains(proxy)) {
+            proxyList.add(proxy);
+        }
+    }
 
-        LOGGER.info("changed proxy to " + proxyEntry);
+    /**
+     * Set a list of proxies. Each entry must be formatted as "HOST:PORT".
+     * 
+     * @param proxyList The list of proxies.
+     */
+    public void addToProxyList(List<String> proxyList) {
+        for (String proxy : proxyList) {
+            addToProxyList(proxy);
+        }
+    }
 
-        proxyIndex++;
-        proxyIndex = proxyIndex % proxyList.size();
+    public void setProxyList(List<Proxy> proxyList) {
+        this.proxyList = new LinkedList<Proxy>(proxyList);
+    }
+
+    public List<Proxy> getProxyList() {
+        return proxyList;
+    }
+
+    /**
+     * Cycle the proxies, taking the first item from the queue and adding it to the end.
+     */
+    public void changeProxy() {
+        Proxy selectedProxy = proxyList.poll();
+        if (selectedProxy == null) {
+            LOGGER.warn("proxy could not be changed because proxy list is empty");
+        } else {
+            setProxy(selectedProxy);
+            proxyList.add(selectedProxy);
+            LOGGER.debug("changed proxy to " + selectedProxy.address());
+        }
     }
 
     /**
@@ -1458,18 +1512,21 @@ public class Crawler {
      * @return True if proxy returns result, false otherwise.
      */
     public boolean checkProxy() {
-        String content = download("http://www.google.com");
-        if (content.length() > 0) {
-            return true;
+        boolean result;
+        try {
+            // try to download from Google, if downloading fails we get IOException
+            downloadInputStream("http://www.google.com", false);
+            LOGGER.debug("proxy " + getProxy().address() + " is working.");
+            result = true;
+        } catch (IOException e) {
+            result = false;
         }
-        LOGGER.warn("proxy " + getProxy().address() + " is not working");
-        return false;
+        return result;
     }
 
     /**
      * Get HTTP Headers of an URLConnection to pageURL.
      */
-
     public Map<String, List<String>> getHeaders(String pageURL) {
         URL url;
         URLConnection conn;
@@ -1492,7 +1549,7 @@ public class Crawler {
      * Check if an URL is in a valid form and the file-ending is not blacklisted (see Extractor.java for blacklist)
      * 
      * TODO: remove checkHTTPRespParameter
-     *
+     * 
      * @param url the URL
      * @param checkHTTPResp the check http resp
      * @return true, if is a valid URL
@@ -1506,7 +1563,7 @@ public class Crawler {
 
         if (MIOExtractor.getInstance().isURLallowed(url)) {
 
-            String[] schemes = {"http","https"};
+            String[] schemes = { "http", "https" };
             UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
 
             if (urlValidator.isValid(url)) {
@@ -1542,7 +1599,7 @@ public class Crawler {
 
     /**
      * Download a binary file from specified URL to a given path.
-     *
+     * 
      * @param urlString the urlString
      * @param pathWithFileName the path where the file should be saved
      * @return the file
@@ -1586,12 +1643,25 @@ public class Crawler {
      * @author Philipp Katz
      */
     public InputStream downloadInputStream(URL url) throws IOException {
+        return downloadInputStream(url, true);
+    }
+
+    private InputStream downloadInputStream(String urlString, boolean checkChangeProxy) throws IOException {
+        return downloadInputStream(new URL(urlString), checkChangeProxy);
+    }
+
+    private InputStream downloadInputStream(URL url, boolean checkChangeProxy) throws IOException {
         LOGGER.trace(">download " + url);
 
         ConnectionTimeout timeout = null;
         InputStream result = null;
 
         try {
+
+            if (checkChangeProxy) {
+                checkChangeProxy();
+                proxyRequests++;
+            }
 
             URLConnection urlConnection;
             if (proxy != null) {
@@ -1606,8 +1676,6 @@ public class Crawler {
             if (useCompression) {
                 urlConnection.setRequestProperty("Accept-Encoding", "gzip, deflate");
             }
-            requestsSent++;
-            checkChangeProxy();
 
             // use connection timeout from IIR toolkit
             timeout = new ConnectionTimeout(urlConnection, overallTimeout);
@@ -1694,8 +1762,8 @@ public class Crawler {
             if (useCompression) {
                 urlConnection.setRequestProperty("Accept-Encoding", "gzip, deflate");
             }
-            requestsSent++;
-            checkChangeProxy();
+            // requestsSent++;
+            // TODO checkChangeProxy();
 
             urlConnection.connect();
 
@@ -1791,6 +1859,16 @@ public class Crawler {
      */
     public static void main(String[] args) {
 
+        // proxy checking
+        Crawler crawler = new Crawler();
+        crawler.setSwitchProxyRequests(10);
+        crawler.setFeedAutodiscovery(false);
+        for (int i = 0; i < 10000; i++) {
+            crawler.download("http://www.tu-dresden.de");
+            System.out.println(i);
+        }
+        System.exit(0);
+
         // Proxy instance, proxy ip = 123.0.0.1 with port 8080
         // try {
         // Proxy proxy = new Proxy(Proxy.Type.HTTP, new
@@ -1844,7 +1922,7 @@ public class Crawler {
         proxyList.add("83.244.106.73:8080");
         proxyList.add("83.244.106.73:80");
         proxyList.add("67.159.31.22:8080");
-        c.setProxyList(proxyList);
+        c.addToProxyList(proxyList);
 
         // start the crawling process from a certain page, true = follow links
         // within the start domain, true = follow outgoing links
@@ -1865,7 +1943,7 @@ public class Crawler {
         System.out.println(s);
         System.exit(0);
 
-        Crawler crawler = new Crawler();
+        // Crawler crawler = new Crawler();
         // crawler.getXMLDocument("http://www.forimmediaterelease.biz/rss.xml");
         // System.out.println(crawler.getTotalDownloadSize());
 

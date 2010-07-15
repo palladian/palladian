@@ -106,9 +106,10 @@ public class Helper {
 
     /**
      * Converts a DOM Node or Document into a String.
+     * TODO removing whitspace does not work with documents from the Crawler/Neko?
      * 
      * @param node
-     * @param removeWhitespace whether to remove superfluous whitespace outside of tags.
+     * @param removeWhitespace whether to remove superfluous whitespace outside of tags. 
      * @param prettyPrint wheter to nicely indent the result.
      * @return String representation of the supplied Node, empty String in case of errors.
      */

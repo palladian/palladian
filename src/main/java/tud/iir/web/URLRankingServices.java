@@ -557,6 +557,7 @@ public class URLRankingServices {
         return result;
     }
 
+    // TODO move this to global helper class?
     private static String urlEncodeUtf8(String string) {
         String result;
         try {
