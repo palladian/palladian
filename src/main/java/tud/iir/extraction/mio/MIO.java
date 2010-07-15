@@ -25,27 +25,46 @@ public class MIO extends Extractable {
 
  
 
-    /**
-     * 
-     */
+    /** The Constant serialVersionUID. */
     private static final long serialVersionUID = -7905678837165394359L;
 
     /** The Constant LOGGER. */
     private static final Logger LOGGER = Logger.getLogger(MIO.class);
 
+    /** The trust. */
     private double trust = 0;
+    
+    /** The ml trust. */
     private double mlTrust = 0;
 
+    /** The mio type. */
     private String mioType = "";
+    
+    /** The find page url. */
     private String findPageURL = "";
+    
+    /** The direct url. */
     private String directURL = "";
+    
+    /** The file name. */
     private String fileName = "";
+    
+    /** The file size. */
     private double fileSize = 0;
+    
+    /** The text content length. */
     private double textContentLength = 0;
 
+    /** The entity. */
     private Entity entity;
+    
+    /** The interactivity grade. */
     private String interactivityGrade = "unclear";
+    
+    /** The is dedicated page. */
     private boolean isDedicatedPage = true;
+    
+    /** The infos. */
     private Map<String, List> infos;
 
     /** The Constant FLASH. */
@@ -54,12 +73,13 @@ public class MIO extends Extractable {
     /** The Constant APPLET. */
     private static final String APPLET = "applet";
 
+    /** The features. */
     private Map<String, Double> features;
 
     /**
      * Instantiates a new mIO.
-     * 
-     * @param type the type
+     *
+     * @param mioType the mio type
      * @param directURL the direct url
      * @param findPageURL the find page url
      * @param entity the entity
@@ -117,8 +137,7 @@ public class MIO extends Extractable {
     }
 
     /**
-     * Resets the MIOInfos (for saving memory)
-     * 
+     * Resets the MIOInfos (for saving memory).
      */
     public void resetMIOInfos() {
         infos = new HashMap<String, List>();
@@ -296,10 +315,22 @@ public class MIO extends Extractable {
         this.fileName = fileName;
     }
 
+    /**
+     * Sets the feature.
+     *
+     * @param name the name
+     * @param value the value
+     */
     public void setFeature(String name, double value) {
         features.put(name, value);
     }
 
+    /**
+     * Gets the feature.
+     *
+     * @param name the name
+     * @return the feature
+     */
     public double getFeature(String name) {
         double result = 0;
         try {
@@ -310,30 +341,65 @@ public class MIO extends Extractable {
         return result;
     }
 
+    /**
+     * Gets the features.
+     *
+     * @return the features
+     */
     public Map<String, Double> getFeatures() {
         return features;
     }
 
+    /**
+     * Gets the ml trust.
+     *
+     * @return the ml trust
+     */
     public double getMlTrust() {
         return mlTrust;
     }
 
+    /**
+     * Sets the ml trust.
+     *
+     * @param mlTrust the new ml trust
+     */
     public void setMlTrust(double mlTrust) {
         this.mlTrust = mlTrust;
     }
 
+    /**
+     * Gets the file size.
+     *
+     * @return the file size
+     */
     public double getFileSize() {
         return fileSize;
     }
 
+    /**
+     * Sets the file size.
+     *
+     * @param fileSize the new file size
+     */
     public void setFileSize(double fileSize) {
         this.fileSize = fileSize;
     }
 
+    /**
+     * Gets the text content length.
+     *
+     * @return the text content length
+     */
     public double getTextContentLength() {
         return textContentLength;
     }
 
+    /**
+     * Sets the text content length.
+     *
+     * @param textContentLength the new text content length
+     */
     public void setTextContentLength(double textContentLength) {
         this.textContentLength = textContentLength;
     }
