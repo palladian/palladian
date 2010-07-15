@@ -4,8 +4,11 @@
  */
 package tud.iir.extraction.mio;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+
+import tud.iir.web.Crawler;
 
 /**
  * Detects RolePages
@@ -14,71 +17,103 @@ import java.util.List;
  */
 public class RolePageDetector {
 
-    private List<RolePage> rolePages;
-    private List<RolePage> rolePageCandidates;
-    private int relevanceValue = 5;
-
     /**
-     * Instantiates a new role page detector.
-     * 
-     * @param relevanceValue the relevance value
+     * Detect role pages.
+     *
+     * @param sortedMIOs the sorted MIOs
      */
-    public RolePageDetector(int relevanceValue) {
-        if (relevanceValue > 0) {
-            this.relevanceValue = relevanceValue;
+    public void detectRolePages(final Set<MIO> sortedMIOs) {
+        int mioAmount = sortedMIOs.size();
+        int counter = 0;
+        Set<String> mioDomains = new HashSet<String>();
+
+        // only get relevant domains, but normally less then 50percent of the results are relevant
+        for (MIO mio : sortedMIOs) {
+            String mioURL = mio.getDirectURL();
+            String domain = Crawler.getDomain(mioURL);
+            mioDomains.add(domain);
+            counter++;
+            if (counter >= mioAmount / 2) {
+                break;
+            }
         }
 
-        rolePageCandidates = new ArrayList<RolePage>();
+        analyzeForRolePages(mioDomains);
+
     }
 
     /**
      * Analyze for role pages.
-     * 
-     * @param MIOPages the mIO pages
+     *
+     * @param mioDomains the mio domains
      * @return the list
      */
-    public List<RolePage> analyzeForRolePages(List<MIOPage> MIOPages) {
+    private void analyzeForRolePages(final Set<String> mioDomains) {
 
-        boolean pageFound;
+        List<RolePage> dbRolePages = loadRolePagesFromDB();
 
-        // add new RolePage or recalculate Count
-        for (MIOPage mioPage : MIOPages) {
-            pageFound = false;
-            if (!rolePageCandidates.isEmpty()) {
-                for (RolePage rolePageCandidate : rolePageCandidates) {
-                    if (mioPage.getHostname().equals(rolePageCandidate.getHostname())) {
-                        rolePageCandidate.calcCount();
-                        // System.out.println(rolePageCandidate.getHostname() + " recalculate count to: " +
-                        // rolePageCandidate.getCount());
-                        pageFound = true;
-                        break;
+        // initially set the first mioDomains as dbRolePages
+        if (dbRolePages.isEmpty()) {
+            for (String mioDomain : mioDomains) {
+                RolePage rolePage = new RolePage(mioDomain, 1);
+                dbRolePages.add(rolePage);
+            }
+        } else {
+            for (RolePage dbRolePage : dbRolePages) {
+                String dbRolePageHostname = dbRolePage.getHostname();
+                for (String mioDomain : mioDomains) {
+                    if (mioDomain.equals(dbRolePageHostname)) {
+                        dbRolePage.incrementCount();
+                        mioDomains.remove(mioDomain);
+
                     }
-
                 }
             }
-            if (!pageFound) {
-                RolePage rolePageCand = new RolePage(mioPage.getHostname(), 1);
-                rolePageCandidates.add(rolePageCand);
-                // System.out.println(rolePageCand.getHostname() + " added " + rolePageCand.getCount());
+
+            // if the domain wasn't already in the dbRolePageList then add it now
+            if (!mioDomains.isEmpty()) {
+                for (String mioDomain : mioDomains) {
+                    RolePage rolePage = new RolePage(mioDomain);
+                    dbRolePages.add(rolePage);
+                }
+
             }
+
         }
 
-        findRelevanceRolePages(rolePageCandidates);
-        return rolePages;
+        // update Database
+        saveRolePagesToDB(dbRolePages);
+
     }
 
-    // only return rolePages with counts that match the minimum of the relevanceValue
     /**
-     * Find relevance role pages.
-     * 
-     * @param rolePageCandidates the role page candidates
+     * Load role pages from db.
+     *
+     * @return the list
      */
-    private void findRelevanceRolePages(List<RolePage> rolePageCandidates) {
-        rolePages = new ArrayList<RolePage>();
-        for (RolePage rolePageCand : rolePageCandidates) {
-            if (rolePageCand.getCount() >= relevanceValue) {
-                rolePages.add(rolePageCand);
+    private List<RolePage> loadRolePagesFromDB() {
+        // List<RolePage> rolePages = new ArrayList<RolePage>();
+        RolePageDatabase mioDB = new RolePageDatabase();
+        List<RolePage> rolePages = mioDB.loadRolePages();
+
+        return rolePages;
+
+    }
+
+    /**
+     * Save role pages to db.
+     *
+     * @param rolePages the role pages
+     */
+    private void saveRolePagesToDB(final List<RolePage> rolePages) {
+        RolePageDatabase mioDB = new RolePageDatabase();
+        for (RolePage rolePage : rolePages) {
+            if (rolePage.getId() == 0) {
+                mioDB.insertRolePage(rolePage);
+            } else {
+                mioDB.addRolePage(rolePage);
             }
         }
+
     }
 }

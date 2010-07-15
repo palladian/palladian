@@ -16,7 +16,11 @@ import tud.iir.knowledge.Concept;
  */
 public class MIOQueryFactory {
 
+    /** The search queries. */
     private List<String> searchQueries;
+    
+    /** The value specifies how much a rolePage must be counted to be relevant. */
+    private int rolePageRelevanceValue=5;
 
     /**
      * Generate search queries.
@@ -55,7 +59,10 @@ public class MIOQueryFactory {
         // add rolePages to Searchquery
         if (!rolePages.isEmpty()) {
             for (RolePage rolePage : rolePages) {
-                searchQueries.add(rolePage.getHostname() + " " + entityName);
+                if(rolePage.getCount()>rolePageRelevanceValue){
+                     searchQueries.add(rolePage.getHostname() + " " + entityName);
+                }
+               
             }
 
         }

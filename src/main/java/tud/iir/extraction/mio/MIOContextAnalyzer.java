@@ -4,6 +4,8 @@
  */
 package tud.iir.extraction.mio;
 
+import java.util.Locale;
+
 import org.apache.log4j.Logger;
 
 import tud.iir.knowledge.Entity;
@@ -30,7 +32,7 @@ public class MIOContextAnalyzer {
     /** The headline relevance. */
     private transient double headlineRelevance = 0;
 
-    /** The ALT-Ttext relevance. */
+    /** The ALT-Text relevance. */
     private transient double altTextRelevance = 0;
 
     /** The surround text relevance. */
@@ -60,7 +62,7 @@ public class MIOContextAnalyzer {
 
     /** A List of bad words. */
     final transient String[] badWords = { "banner", "tower", "titlefont", "newsletter", "cloud", "footer", "ticker",
-            "ads", "expressinstall" };
+            "ads", "expressinstall", "header", "advertise", "logo" };
 
     /**
      * Instantiates a new mioContextAnalyzer.
@@ -187,9 +189,15 @@ public class MIOContextAnalyzer {
         calcMIOFeatures(mio);
 
         final double pageContextTrust = calcPageContextTrust();
-
-        final double mioTrust = pageContextTrust + (fileNameRelevance * 4) + (filePathRelevance * 2) + altTextRelevance
+        
+        
+        double mioTrust = pageContextTrust + (fileNameRelevance * 4) + (filePathRelevance) + altTextRelevance
                 + headlineRelevance + surroundTextRelevance;
+        
+        //if badWords are contained in the directLink-URL the whole trust is influenced
+        if(badWordAbsence==0){
+            mioTrust = mioTrust/2;
+        }
 
         mio.setTrust(mioTrust);
         mio.setTrust(checkForBadWords(mio));
@@ -263,7 +271,7 @@ public class MIOContextAnalyzer {
      */
     private void calcBadWordAbsence(final MIO mio) {
         for (String badWord : badWords) {
-            if (!mio.getEntity().getName().contains(badWord) && mio.getDirectURL().contains(badWord)) {
+            if (!mio.getEntity().getName().toLowerCase(Locale.ENGLISH).contains(badWord) && mio.getDirectURL().toLowerCase(Locale.ENGLISH).contains(badWord)) {
                 this.badWordAbsence = 0;
             }
         }

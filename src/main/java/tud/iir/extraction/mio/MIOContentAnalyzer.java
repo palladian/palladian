@@ -324,9 +324,21 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
 
         if (header != null) {
             mio.setFileSize(header.getSize());
+
         }
 
     }
+
+    // An alternative without header-usage.
+    //
+    // private void setFileSize(MIO mio, File mioFile) {
+    // if (mioFile != null) {
+    //
+    // double size = (double)mioFile.length();
+    // mio.setFileSize(size);
+    // }
+    //
+    // }
 
     /**
      * Sets the features for trust calculation.
@@ -422,7 +434,7 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
 
                 inStream.close();
             } catch (Exception e) {
-                LOGGER.error("Extracting textContent from swf-file failed! " + e.getMessage());
+                LOGGER.error("Extracting textContent from swf-file failed! " + file.getName() + " " + e.getMessage());
             }
         }
 
@@ -453,9 +465,15 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
         // String urlString = "http://media.tigerdirect.com/swf/HP EliteBook Flash Presentation.swf";
         //
         // MIOContentAnalyzer mioca = new MIOContentAnalyzer();
-        // // File file = mioca.downloadBinaryFile(urlString, "F:/Temp/hotspots2.swf");
+        // // // File file = mioca.downloadBinaryFile(urlString, "F:/Temp/hotspots2.swf");
         // File file = Crawler.downloadBinaryFile("http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/index.swf",
         // "F:/Temp/index.swf");
+        //
+        // double size = (double)file.length();
+        // System.out.println("FileFileSize: " +size);
+        //
+        // System.out.println(mioca.extractHeader(file).getSize());
+
         //
         // String textContent = mioca.extractTextContent(file);
         // System.out.println(textContent);

@@ -65,16 +65,16 @@ public class EntityMIOExtractionThread extends Thread {
 
         // TODO Detail MIOAnalysis (content&context & trust-calculation)
         MIOPageAnalyzer mioPAnalyzer = new MIOPageAnalyzer();
-        MIOComparator mioComp = new MIOComparator();
-        Map<String, MIO> mios = mioPAnalyzer.extractMIOs(MIOPages, entity);
+//        MIOComparator mioComp = new MIOComparator();
+        Set<MIO> mios = mioPAnalyzer.extractMIOs(MIOPages, entity);
 
         // print the MIOFeatures out
-        printMIOFeaturesToFile(mios);
+//        printMIOFeaturesToFile(mios);
 
-        Set<MIO> mioResults = new TreeSet<MIO>(mioComp);
-        for (Entry<String, MIO> mio : mios.entrySet()) {
-            mioResults.add(mio.getValue());
-        }
+//        Set<MIO> mioResults = new TreeSet<MIO>(mioComp);
+//        for (Entry<String, MIO> mio : mios.entrySet()) {
+//            mioResults.add(mio.getValue());
+//        }
 
         // MIOClassifier mioClass = new MIOClassifier();
         // mioClass.trainClassifier("f:/features - printer - allcontextfeat.txt");
@@ -83,8 +83,8 @@ public class EntityMIOExtractionThread extends Thread {
         // mioClass.classify(mio);
         // }
 
-        // printMapToFile(mios);
-        printSetToHTMLFile(mioResults);
+
+        printSetToHTMLFile(mios);
 
         LOGGER.info("Thread finished in " + DateHelper.getRuntime(t1) + "  " + mios.size() + "s, MIOs for \""
                 + entity.getName() + "\" were found.");
@@ -111,7 +111,7 @@ public class EntityMIOExtractionThread extends Thread {
                 // sBuffer.append(mio.getInfos().get(info).toString());
                 //
                 // }
-                String output = " mlTrust: " + mio.getMlTrust() + " TRUST: " + mio.getTrust() + " <a href=\""
+                String output = " mlTrust: " + mio.getMlTrust() + " TRUST: " + mio.getTrust() + " Interactivity: " + mio.getInteractivityGrade() +" <a href=\""
                         + mio.getDirectURL() + "\">" + mio.getDirectURL() + "</a> founded on <a href=\""
                         + mio.getFindPageURL() + "\">" + mio.getFindPageURL() + "</a> for Entity: "
                         + mio.getEntity().getName() + "<br><br>";
