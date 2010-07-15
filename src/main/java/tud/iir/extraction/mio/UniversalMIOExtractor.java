@@ -464,7 +464,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
             contentAnalyzer.analyzeContent(mio, entity);
             contentAnalyzer.calculateTrust(mio);
-            // interactivityAnalyzer.setInteractivityGrade(mio, mioPage);
+            //interactivityAnalyzer.setInteractivityGrade(mio, mioPage);
             // reset MIO-Infos for saving memory
             mio.resetMIOInfos();
         }
