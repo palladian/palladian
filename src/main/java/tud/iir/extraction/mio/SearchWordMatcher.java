@@ -166,19 +166,30 @@ public class SearchWordMatcher {
      * @return true, if successful
      */
     public boolean containsSearchWordOrMorphs(String src) {
+
+        boolean returnValue = false;
+
         if (!("").equals(src)) {
             int matches = getNumberOfSearchWordMatches(src);
             // System.out.println("searchWMatches: " + matches + "iniwordListSize: " + initialWordList.size());
+
+            // case "avatar"
             if (initialWordList.size() == 1 && matches == 1) {
-                return true;
-            }
-            double wordFactor = ((double) initialWordList.size() / 2);
-            if (matches >= wordFactor) {
-                return true;
+                returnValue = true;
+            } else {
+                // case "canon mp990"
+                if (!(initialWordList.size() == 2 && matches == 1)) {
+
+                    // case more words
+                    double wordFactor = ((double) initialWordList.size() / 2);
+                    if (matches >= wordFactor) {
+                        returnValue = true;
+                    }
+                }
             }
 
         }
-        return false;
+        return returnValue;
     }
 
     /**
@@ -188,8 +199,15 @@ public class SearchWordMatcher {
      */
     public static void main(String[] args) {
 
-        // SearchWordMatcher matcher = new SearchWordMatcher("samsung s8500 wave");
-        // matcher.matchSearchWords("http://pic.gsmarena.com/vv/spin/samsung-wave-s-8500-final.swf");
+        // SearchWordMatcher matcher = new SearchWordMatcher("canon");
+        // // matcher.matchSearchWords("http://pic.gsmarena.com/vv/spin/samsung-wave-s-8500-final.swf");
+        // System.out.println(matcher.getNumberOfSearchWordMatches(" http://www.jr.com/canon/pe/CAN_MP980/"));
+        // if (matcher.containsSearchWordOrMorphs("http://www.jr.com/canon/pe/CAN_MP980/")) {
+        // System.out.println("is relevant link!");
+        // } else {
+        // System.out.println("is no relevant link!");
+        // }
+
         // System.out.println("result: "
         // + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php"));
         // System.out.println("result: "
