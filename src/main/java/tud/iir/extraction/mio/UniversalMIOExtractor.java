@@ -255,9 +255,14 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
             final String mioAdr = matcher.group(0).replaceAll("\"", "");
             // System.out.println("URL: "+ mioAdr);
             String mioURL = verifyURL(mioAdr, mioPage.getUrl());
-            if (mioURL.length() > 4 & mioURL.contains(".")) {
-                final MIO mio = new MIO(mioType, mioURL, mioPage.getUrl(), entity);
-                resultList.add(mio);
+            String testString = mioURL.toLowerCase(Locale.ENGLISH);
+            if (testString.contains("expressinstall") || testString.contains("banner") || testString.contains("header")) {
+                // dont generate new mio
+            } else {
+                if (mioURL.length() > 4 && mioURL.contains(".")) {
+                    final MIO mio = new MIO(mioType, mioURL, mioPage.getUrl(), entity);
+                    resultList.add(mio);
+                }
             }
 
             // System.out.println(verifyURL(mioAdr, mioPage.getUrl()));
@@ -453,7 +458,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
     private List<MIO> calcTrustAndInteractivity(final List<MIO> retrievedMIOs) {
         final MIOContextAnalyzer contextAnalyzer = new MIOContextAnalyzer(entity, mioPage);
         MIOContentAnalyzer contentAnalyzer = new MIOContentAnalyzer();
-        // MIOInteractivityAnalyzer interactivityAnalyzer= new MIOInteractivityAnalyzer();
+        MIOInteractivityAnalyzer interactivityAnalyzer = new MIOInteractivityAnalyzer();
 
         // System.out.println("MIO-Trust-Calculation!");
 
@@ -464,7 +469,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
             contentAnalyzer.analyzeContent(mio, entity);
             contentAnalyzer.calculateTrust(mio);
-            //interactivityAnalyzer.setInteractivityGrade(mio, mioPage);
+            interactivityAnalyzer.setInteractivityGrade(mio, mioPage);
             // reset MIO-Infos for saving memory
             mio.resetMIOInfos();
         }

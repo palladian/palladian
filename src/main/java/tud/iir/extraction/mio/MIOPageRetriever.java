@@ -36,6 +36,8 @@ public class MIOPageRetriever {
      */
     public MIOPageRetriever() {
         rolePageList = new ArrayList<RolePage>();
+//        RolePageDatabase rolePageDB = new RolePageDatabase();
+//        rolePageList = rolePageDB.loadRolePages();
     }
 
     /**

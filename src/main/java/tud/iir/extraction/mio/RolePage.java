@@ -15,7 +15,12 @@ public class RolePage {
     private String hostname;
 
     /** The count. */
-    private int count;
+    private int count=1;
+    
+    /** The id. */
+    private int id=0;
+
+ 
 
     /**
      * Instantiates a new role page.
@@ -27,11 +32,20 @@ public class RolePage {
         this.hostname = hostname;
         this.count = count;
     }
+    
+    /**
+     * Instantiates a new role page.
+     *
+     * @param hostname the hostname
+     */
+    public RolePage(String hostname){
+        this.hostname = hostname;
+    }
 
     /**
      * Calc count.
      */
-    public void calcCount() {
+    public void incrementCount() {
         count++;
     }
 
@@ -69,6 +83,24 @@ public class RolePage {
      */
     public void setCount(int count) {
         this.count = count;
+    }
+    
+    /**
+     * Gets the id.
+     *
+     * @return the id
+     */
+    public int getId() {
+        return id;
+    }
+
+    /**
+     * Sets the id.
+     *
+     * @param id the new id
+     */
+    public void setId(int id) {
+        this.id = id;
     }
 
 }

@@ -9,6 +9,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 import tud.iir.knowledge.Entity;
 
@@ -25,7 +28,7 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
      * @param entity the entity
      * @return the map
      */
-    public Map<String, MIO> extractMIOs(final List<MIOPage> mioPages, final Entity entity) {
+    public Set<MIO> extractMIOs(final List<MIOPage> mioPages, final Entity entity) {
 
         // List<MIO> extractedMIOs = new ArrayList<MIO>();
         final Map<String, MIO> cleanedMIOs = new HashMap<String, MIO>();
@@ -42,13 +45,7 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
 
             // TODO: deduplicate and trust-calculating
             for (MIO mio : mios) {
-                // String entityName = entity.getName();
-                // String[] nameArray = entityName.split(" ");
-                // for (String name : nameArray) {
-                // if (isNotBlacklisted(mio.getDirectURL()) && isNotBlacklisted(mio.getFindPageURL())) {
-                // if (isEntityRelevant(mio.getDirectURL())) {
-                // mio.setTrust(1);
-                // }
+
                 boolean isYouTube = false;
                 if (mio.getFindPageURL().contains("youtube")) {
                     if (!youtubeMIOs.contains(mio.getFindPageURL())) {
@@ -74,13 +71,24 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
 
                 }
 
-                // }
-                // }
             }
         }
-        // System.out.println(cleanedMIOs.toString());
 
-        return cleanedMIOs;
+        // Comparator for a sorted set (sorted by trust)
+        MIOComparator mioComp = new MIOComparator();
+        Set<MIO> sortedMIOs = new TreeSet<MIO>(mioComp);
+        for (Entry<String, MIO> mio : cleanedMIOs.entrySet()) {
+            sortedMIOs.add(mio.getValue());
+        }
+
+        detectRolePages(sortedMIOs);
+
+        return sortedMIOs;
+    }
+
+    private void detectRolePages(Set<MIO> sortedMIOs) {
+        RolePageDetector rpDetector = new RolePageDetector();
+        rpDetector.detectRolePages(sortedMIOs);
     }
 
     /**

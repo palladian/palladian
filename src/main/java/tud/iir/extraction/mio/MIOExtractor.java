@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
@@ -149,43 +150,45 @@ public final class MIOExtractor extends Extractor {
 
             for (Entity currentEntity : conceptEntities) {
 
-                if (isStopped()) {
-                    LOGGER.info("mio extraction process stopped");
-                    break;
-                }
-
-                // System.out.println("Concept: " + currentConcept.getName() + "Entity: " +
-                // currentEntity.getName());
-
-                currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
-
-                LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
-                        + currentEntity.getConcept().getName() + ")");
-                final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
-                        currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, searchVoc);
-                mioThread.start();
-
-                LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
-                // System.out.println("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
-
-                int count = 0;
-                while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                    LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
-                            + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
-                    if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
-                        LOGGER.warn("apparently " + getThreadCount()
-                                + " threads have not finished correctly but thread group is empty, continuing...");
-                        resetThreadCount();
-                        break;
-                    }
-                    // System.out.println("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
-                    ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+                if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("canon")) {
                     if (isStopped()) {
-                        count++;
-                    }
-                    if (count > 1) {
-                        LOGGER.info("waited 25 iterations after stop has been called, breaking now");
+                        LOGGER.info("mio extraction process stopped");
                         break;
+                    }
+
+                    // System.out.println("Concept: " + currentConcept.getName() + "Entity: " +
+                    // currentEntity.getName());
+
+                    currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
+
+                    LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
+                            + currentEntity.getConcept().getName() + ")");
+                    final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
+                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, searchVoc);
+                    mioThread.start();
+
+                    LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
+                    // System.out.println("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
+
+                    int count = 0;
+                    while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
+                        LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
+                                + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
+                        if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
+                            LOGGER.warn("apparently " + getThreadCount()
+                                    + " threads have not finished correctly but thread group is empty, continuing...");
+                            resetThreadCount();
+                            break;
+                        }
+                        // System.out.println("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
+                        ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+                        if (isStopped()) {
+                            count++;
+                        }
+                        if (count > 1) {
+                            LOGGER.info("waited 25 iterations after stop has been called, breaking now");
+                            break;
+                        }
                     }
                 }
 
