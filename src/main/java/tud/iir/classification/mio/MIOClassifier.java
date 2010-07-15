@@ -35,7 +35,7 @@ public class MIOClassifier extends Classifier {
     /**
      * Calculate the regression value for a given MIO.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      * @return the float
      */
     public void classify(final MIO mio) {
@@ -49,7 +49,7 @@ public class MIOClassifier extends Classifier {
         if (probability[0]>0) {
 //             System.out.println(mio.getDirectURL() + " is classified as positive");
 //            LOGGER.info("object is classified as positive");
-            mio.setMlTrust(probability[0]);
+            mio.setMlTrust(probability[1]);
         } else {
 //             System.out.println(mio.getDirectURL() + "object is classified as negative");
 //            LOGGER.info("object is classified as negative");

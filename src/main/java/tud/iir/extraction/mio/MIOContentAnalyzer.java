@@ -184,7 +184,7 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
          */
         public void text(int[] glyphIndices, int[] glyphAdvances) {
 
-            final int[] codes = (int[]) fontCodes.get(fontId);
+            final int[] codes = fontCodes.get(fontId);
             if (codes == null) {
                 // System.out.println("\n**** COULD NOT FIND FONT INFO FOR TEXT ****\n");
                 return;

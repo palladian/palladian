@@ -40,19 +40,19 @@ public class RelevanceCalculator {
         final double numOfMatchesWithoutSW = (double) swm.getNumberOfSearchWordMatches(inputString, true,
                 entityName.toLowerCase(Locale.ENGLISH));
         // System.out.println("number of swm without SW: " + NumOfMatchesWithoutSW);
-        final double diff = (double) numOfMatches - numOfMatchesWithoutSW;
+        final double diff = numOfMatches - numOfMatchesWithoutSW;
 
-        double result = (double) ((numOfMatchesWithoutSW * 2) + (diff * 3)) / (double) (elements.length * 2);
+        double result = ((numOfMatchesWithoutSW * 2) + (diff * 3)) / (double) (elements.length * 2);
 
         if (diff > 0) {
 
-            result = (double) (numOfMatches - 1) / elements.length + (diff / elements.length)
+            result = (numOfMatches - 1) / elements.length + (diff / elements.length)
                     + (diff / (2 * elements.length));
             //
-            result = (double) numOfMatches / elements.length + (diff / (2 * elements.length));
-            result = (double) ((numOfMatchesWithoutSW * 2) + (diff * 3)) / (double) (elements.length * 2);
+            result = numOfMatches / elements.length + (diff / (2 * elements.length));
+            result = ((numOfMatchesWithoutSW * 2) + (diff * 3)) / (double) (elements.length * 2);
         } else {
-            result = (double) numOfMatches / elements.length;
+            result = numOfMatches / elements.length;
         }
 
         // final JaroWinkler jaroWinkler = new JaroWinkler();

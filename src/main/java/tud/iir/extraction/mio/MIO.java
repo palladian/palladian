@@ -23,6 +23,13 @@ import tud.iir.knowledge.Extractable;
  */
 public class MIO extends Extractable {
 
+ 
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -7905678837165394359L;
+
     /** The Constant LOGGER. */
     private static final Logger LOGGER = Logger.getLogger(MIO.class);
 
