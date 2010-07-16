@@ -87,9 +87,7 @@ public class Crawler {
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(Crawler.class);
 
-    /** configs for the crawler can be set in config/crawler.conf */
-    private PropertiesConfiguration config = null;
-
+    // ///////////// constants with default configuration ////////
     /** the user agent string that is used by the crawler */
     private static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-GB; rv:1.9.0.4) Gecko/2008102920 Firefox/3.0.4";
 
@@ -105,6 +103,21 @@ public class Crawler {
     /** the default overall timeout (after which the connection is reset) */
     public static final int DEFAULT_OVERALL_TIMEOUT = 60000;
 
+    /** the default number of retries when downloading fails. */
+    public static final int DEFAULT_NUM_RETRIES = 0;
+
+    public static final int BYTES = 1;
+    public static final int KILO_BYTES = 2;
+    public static final int MEGA_BYTES = 3;
+    public static final int GIGA_BYTES = 4;
+
+    // //////////////////general settings ////////////////////
+    /** configs for the crawler can be set in config/crawler.conf */
+    private PropertiesConfiguration config = null;
+
+    /** the document that is created after retrieving a web page */
+    private Document document = null;
+
     /** the connection timeout which should be used */
     private int connectionTimout = DEFAULT_CONNECTION_TIMEOUT;
 
@@ -114,14 +127,8 @@ public class Crawler {
     /** the overall timeout which should be used */
     private int overallTimeout = DEFAULT_OVERALL_TIMEOUT;
 
-    public static final int BYTES = 1;
-    public static final int KILO_BYTES = 2;
-    public static final int MEGA_BYTES = 3;
-    public static final int GIGA_BYTES = 4;
-
-    // //////////////////general settings ////////////////////
-    /** the document that is created after retrieving a web page */
-    private Document document = null;
+    /** the number of retries when downloading fails. */
+    private int numRetries = DEFAULT_NUM_RETRIES;
 
     /** maximum number of threads used during crawling */
     private int maxThreads = 10;
@@ -216,8 +223,9 @@ public class Crawler {
             inDomain = config.getBoolean("inDomain");
             outDomain = config.getBoolean("outDomain");
             setSwitchProxyRequests(config.getInt("switchProxyRequests"));
-            addToProxyList(config.getList("proxyList"));
+            setProxyList(config.getList("proxyList"));
             setFeedAutodiscovery(config.getBoolean("feedAutoDiscovery"));
+            setNumRetries(config.getInt("numRetries", DEFAULT_NUM_RETRIES));
         } catch (ConfigurationException e) {
             LOGGER.warn("crawler configuration under " + configPath + " could not be loaded completely: "
                     + e.getMessage());
@@ -484,42 +492,6 @@ public class Crawler {
      * @return root URL, or empty String if URL cannot be determined, never <code>null</code>
      */
     public static String getDomain(String url, boolean includeProtocol) {
-        // String domain = "";
-        // int protocolIndex = 0;
-        //
-        // /*
-        // * if (url.indexOf("http://www.") > -1) { startIndex = 11; } else if (url.indexOf("http://") > -1) {
-        // startIndex = 7; protocolIndex = 7; } else if
-        // * (url.indexOf("www.") > -1) { startIndex = 4; }
-        // */
-        //
-        // protocolIndex = url.indexOf("http://");
-        //
-        // int endIndex = url.indexOf("/", protocolIndex + 7);
-        // if (endIndex == -1) {
-        // endIndex = url.length();
-        // }
-        //
-        // if (includeProtocol) {
-        // domain = url.substring(0, endIndex);
-        // if (protocolIndex == -1) {
-        // domain = "http://" + domain;
-        // }
-        // } else {
-        // if (protocolIndex > -1) {
-        // try {
-        // domain = url.substring(protocolIndex + 7, endIndex);
-        // } catch (IndexOutOfBoundsException e) {
-        // LOGGER.error(url + ", " + e.getMessage());
-        // }
-        // }
-        // }
-        //
-        // return domain;
-
-        // change by Philipp, 2010-06-21
-        // use java.net.URL, more robust, less code and easier to understand ...:
-
         String result = "";
         try {
             URL urlObj = new URL(url);
@@ -537,7 +509,6 @@ public class Crawler {
             LOGGER.trace("could not determine domain " + url);
         }
         return result;
-
     }
 
     /**
@@ -735,37 +706,6 @@ public class Crawler {
 
     public static String makeFullURL(String pageUrl, String linkUrl) {
         return makeFullURL(pageUrl, null, linkUrl);
-        //
-        // change by Philipp, 2010-06-21
-        //
-        // String domain = getDomain(url, true);
-        //
-        // if (link.startsWith("/")) {
-        // link = domain + link;
-        // } else if (link.startsWith("../")) {
-        // int lastSlashIndex = url.lastIndexOf("/");
-        // if (lastSlashIndex > -1) {
-        // lastSlashIndex = url.substring(0, lastSlashIndex).lastIndexOf("/");
-        // if (lastSlashIndex > -1) {
-        // link = url.substring(0, lastSlashIndex) + link.substring(2);
-        // } else {
-        // link = url;
-        // }
-        // } else {
-        // link = url;
-        // }
-        // } else if (link.startsWith("javascript") || link.startsWith("mailto:")) {
-        // return "";
-        // } else if (link.indexOf(domain) == -1 && link.indexOf("http://") == -1 && link.indexOf("https://") == -1) {
-        // int lastSlashIndex = url.lastIndexOf("/");
-        // if (lastSlashIndex > -1) {
-        // link = url.substring(0, lastSlashIndex + 1) + link;
-        // } else {
-        // link = url + "/" + link;
-        // }
-        // }
-        //
-        // return link;
     }
 
     public String getSiblingPage(String url) {
@@ -935,8 +875,7 @@ public class Crawler {
             } else {
                 url = url.replaceAll("\\s", "+");
                 URL urlObject = new URL(url);
-
-                InputStream fis = downloadInputStream(urlObject);
+                InputStream fis = getInputStream(urlObject);
 
                 if (isXML) {
                     document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fis);
@@ -1088,34 +1027,12 @@ public class Crawler {
             contentString = FileHelper.readHTMLFileToString(urlString, stripTags);
         } else {
             StringBuilder html = new StringBuilder();
-            // ConnectionTimeout ct = null;
 
             try {
                 urlString = urlString.replaceAll("\\s", "+");
                 URL url = new URL(urlString);
-
-                // replaced this part with downloadInputStream method
-                // which allows compressed downloding via gzip/deflate
-                // Philipp -- 2010-06-05
-
-                // URLConnection urlConnection = null;
-                // if (proxy != null) {
-                // urlConnection = url.openConnection(proxy);
-                // } else {
-                // urlConnection = url.openConnection();
-                // }
-                // requestsSent++;
-                // checkChangeProxy();
-                //
-                // urlConnection.setConnectTimeout(CONNECTION_TIMEOUT);
-                // urlConnection.setReadTimeout(READ_TIMEOUT);
-                // urlConnection.setRequestProperty("User-Agent", getUserAgent());
-                // urlConnection.setRequestProperty("Referer", REFERER);
-                // ct = new ConnectionTimeout(urlConnection, 60000);
-                // System.out.println("download 1");
-                InputStream inputStream = downloadInputStream(url);
+                InputStream inputStream = getInputStream(url);
                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-                // System.out.println("download 2");
                 String line = "";
                 do {
                     line = br.readLine();
@@ -1125,7 +1042,6 @@ public class Crawler {
                     html.append(line).append("\n");
                 } while (line != null);
 
-                // System.out.println("download 3");
                 br.close();
 
             } catch (FileNotFoundException e) {
@@ -1144,11 +1060,7 @@ public class Crawler {
                 LOGGER.error(urlString + ", " + e.getClass() + " " + e.getMessage());
             }
 
-            // if (ct != null)
-            // ct.setActive(false);
-
             contentString = html.toString();
-            // addDownloadSize(contentString.length());
         }
 
         if (stripTags || stripComments || stripJSAndCSS) {
@@ -1412,9 +1324,15 @@ public class Crawler {
     /**
      * Check whether to change the proxy and do it if needed. If a proxy is not working, remove it from the list. If we
      * have no working proxies left, fall back into normal mode.
+     * 
+     * @param force force the proxy change, no matter if the specified number of request for the switch has already been
+     *            reached.
      */
-    private void checkChangeProxy() {
-        if (switchProxyRequests > -1 && (proxyRequests == switchProxyRequests || proxy == null)) {
+    private void checkChangeProxy(boolean force) {
+        if (switchProxyRequests > -1 && (force || proxyRequests == switchProxyRequests || proxy == null)) {
+            if (force) {
+                LOGGER.debug("force-change proxy");
+            }
             boolean continueChecking = true;
             do {
                 changeProxy();
@@ -1478,15 +1396,18 @@ public class Crawler {
      * 
      * @param proxyList The list of proxies.
      */
-    public void addToProxyList(List<String> proxyList) {
+    public void setProxyList(List<String> proxyList) {
+        this.proxyList = new LinkedList<Proxy>();
         for (String proxy : proxyList) {
             addToProxyList(proxy);
         }
     }
 
-    public void setProxyList(List<Proxy> proxyList) {
-        this.proxyList = new LinkedList<Proxy>(proxyList);
-    }
+    /*
+     * public void setProxyList(List<Proxy> proxyList) {
+     * this.proxyList = new LinkedList<Proxy>(proxyList);
+     * }
+     */
 
     public List<Proxy> getProxyList() {
         return proxyList;
@@ -1633,6 +1554,36 @@ public class Crawler {
     }
 
     /**
+     * Gets an input stream, with specified number of retries, if downloading fails (see {@link #setNumRetries(int)}.
+     * After the specified number of retries without success, an IOException is thrown. After each failing attempt the
+     * proxies are cycled, if switching proxies is enabled (see {@link #setSwitchProxyRequests(int)}.
+     * 
+     * @param url
+     * @return
+     * @throws IOException
+     * @author Philipp Katz
+     */
+    private InputStream getInputStream(URL url) throws IOException {
+        InputStream result = null;
+        int retry = 0;
+        boolean keepTrying = true;
+        do {
+            try {
+                result = downloadInputStream(url, true);
+                keepTrying = false;
+            } catch (IOException e) {
+                if (retry >= getNumRetries()) {
+                    throw new IOException("maximum retries of " + getNumRetries() + " reached", e);
+                }
+                retry++;
+                LOGGER.warn("failed to download: " + e.getMessage() + " re-try " + retry + " of " + getNumRetries());
+                checkChangeProxy(true);
+            }
+        } while (keepTrying);
+        return result;
+    }
+
+    /**
      * Download from specified URL. This method caches the incoming InputStream and blocks until all incoming data has
      * been read or the timeout has been
      * reached.
@@ -1644,6 +1595,19 @@ public class Crawler {
      */
     public InputStream downloadInputStream(URL url) throws IOException {
         return downloadInputStream(url, true);
+    }
+
+    /**
+     * Download from specified URL string. This method caches the incoming InputStream and blocks until all incoming
+     * data has been read or the timeout has been
+     * reached.
+     * 
+     * @param urlString
+     * @return
+     * @throws IOException
+     */
+    public InputStream downloadInputStream(String urlString) throws IOException {
+        return downloadInputStream(new URL(urlString));
     }
 
     private InputStream downloadInputStream(String urlString, boolean checkChangeProxy) throws IOException {
@@ -1659,7 +1623,7 @@ public class Crawler {
         try {
 
             if (checkChangeProxy) {
-                checkChangeProxy();
+                checkChangeProxy(false);
                 proxyRequests++;
             }
 
@@ -1718,19 +1682,6 @@ public class Crawler {
     }
 
     /**
-     * Download from specified URL string. This method caches the incoming InputStream and blocks until all incoming
-     * data has been read or the timeout has been
-     * reached.
-     * 
-     * @param urlString
-     * @return
-     * @throws IOException
-     */
-    public InputStream downloadInputStream(String urlString) throws IOException {
-        return downloadInputStream(new URL(urlString));
-    }
-
-    /**
      * Get the response code of the given url after sending a HEAD request.
      * This works only for HTTP connections.
      * 
@@ -1743,6 +1694,10 @@ public class Crawler {
 
         URL url;
         try {
+
+            checkChangeProxy(false);
+            proxyRequests++;
+
             url = new URL(urlString);
 
             HttpURLConnection urlConnection;
@@ -1762,8 +1717,6 @@ public class Crawler {
             if (useCompression) {
                 urlConnection.setRequestProperty("Accept-Encoding", "gzip, deflate");
             }
-            // requestsSent++;
-            // TODO checkChangeProxy();
 
             urlConnection.connect();
 
@@ -1828,6 +1781,14 @@ public class Crawler {
         }
     }
 
+    public void setNumRetries(int numRetries) {
+        this.numRetries = numRetries;
+    }
+
+    public int getNumRetries() {
+        return numRetries;
+    }
+
     /**
      * Get the string representation of a document.
      * 
@@ -1858,17 +1819,6 @@ public class Crawler {
      * @param args
      */
     public static void main(String[] args) {
-
-        // proxy checking
-        Crawler crawler = new Crawler();
-        crawler.setSwitchProxyRequests(10);
-        crawler.setFeedAutodiscovery(false);
-        for (int i = 0; i < 10000; i++) {
-            crawler.download("http://www.tu-dresden.de");
-            System.out.println(i);
-        }
-        System.exit(0);
-
         // Proxy instance, proxy ip = 123.0.0.1 with port 8080
         // try {
         // Proxy proxy = new Proxy(Proxy.Type.HTTP, new
@@ -1922,7 +1872,7 @@ public class Crawler {
         proxyList.add("83.244.106.73:8080");
         proxyList.add("83.244.106.73:80");
         proxyList.add("67.159.31.22:8080");
-        c.addToProxyList(proxyList);
+        c.setProxyList(proxyList);
 
         // start the crawling process from a certain page, true = follow links
         // within the start domain, true = follow outgoing links
@@ -1947,7 +1897,7 @@ public class Crawler {
         // crawler.getXMLDocument("http://www.forimmediaterelease.biz/rss.xml");
         // System.out.println(crawler.getTotalDownloadSize());
 
-        // Crawler crawler = new Crawler();
+        Crawler crawler = new Crawler();
         // PageAnalyzer pa = new PageAnalyzer();
         // String xPath =
         // "/html/body/center/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td/table/tbody/tr/td[5]/a/@href";

@@ -14,6 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.io.Serializable;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -424,7 +425,8 @@ public class FileHelper {
         return obj;
     }
 
-    public static void serialize(Object obj, String filePath) {
+    //public static void serialize(Object obj, String filePath) {
+    public static void serialize(Serializable obj, String filePath) {
         FileOutputStream fos = null;
         ObjectOutputStream out = null;
         try {
