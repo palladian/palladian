@@ -26,8 +26,8 @@ public class DateNormalizer {
         Calendar c = Calendar.getInstance();
         c.setTimeZone(TimeZone.getTimeZone("UTC"));
         c.setTime(date);
-        String dateString = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DATE) + " " + c.get(Calendar.HOUR_OF_DAY) + ":"
-                + c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND);
+        String dateString = c.get(Calendar.YEAR) + "-" + (c.get(Calendar.MONTH) + 1) + "-" + c.get(Calendar.DATE) + " "
+                + c.get(Calendar.HOUR_OF_DAY) + ":" + c.get(Calendar.MINUTE) + ":" + c.get(Calendar.SECOND);
         return normalizeDateFormat(dateString, format);
     }
 
@@ -174,7 +174,7 @@ public class DateNormalizer {
                 month = "0" + month;
             }
             if (year.length() < 4) {
-                year = "19" + year;
+                year = "20" + year;
             }
 
             dateString = year + "-" + month + "-" + day;
@@ -206,7 +206,7 @@ public class DateNormalizer {
                 day = "0" + day;
             }
             if (year.length() < 4) {
-                year = "19" + year;
+                year = "20" + year;
             }
 
             dateString = year + "-" + month + "-" + day;
@@ -237,7 +237,7 @@ public class DateNormalizer {
                 day = "0" + day;
             }
             if (year.length() < 4) {
-                year = "19" + year;
+                year = "20" + year;
             }
 
             dateString = year + "-" + month + "-" + day;
@@ -251,13 +251,16 @@ public class DateNormalizer {
 
         return normalizedDate;
     }
-    
+
     public static void main(String[] args) {
         // System.out.println(normalizeDate("10 Oct 2008 16:34:01 EST"));
-        // System.out.println(DateNormalizer.normalizeDateFormat("Thu Feb 12 01:56:22 CET 2009", "yyyy-MM-dd HH:mm:ss"));
-        System.out.println(DateNormalizer.normalizeDateFormat("Thu Feb 12 01:56:22 CET 2009", "E MMM dd HH:mm:ss Z yyyy"));
+        // System.out.println(DateNormalizer.normalizeDateFormat("Thu Feb 12 01:56:22 CET 2009",
+        // "yyyy-MM-dd HH:mm:ss"));
+        System.out.println(DateNormalizer.normalizeDateFormat("Thu Feb 12 01:56:22 CET 2009",
+                "E MMM dd HH:mm:ss Z yyyy"));
 
-        // System.out.println(DateNormalizer.normalizeDateFormat(new Date(System.currentTimeMillis()),"yyyy-MM-dd HH:mm:ss"));
+        // System.out.println(DateNormalizer.normalizeDateFormat(new
+        // Date(System.currentTimeMillis()),"yyyy-MM-dd HH:mm:ss"));
         System.out.println(DateNormalizer.normalizeDate("Thu Feb 12 01:56:22 CET 2009", true));
 
         System.out.println(DateNormalizer.normalizeDate("03.05.2010", false));
