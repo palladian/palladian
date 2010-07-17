@@ -174,7 +174,7 @@ public class DateNormalizer {
                 month = "0" + month;
             }
             if (year.length() < 4) {
-                year = "20" + year;
+                year = "19" + year;
             }
 
             dateString = year + "-" + month + "-" + day;
@@ -206,7 +206,7 @@ public class DateNormalizer {
                 day = "0" + day;
             }
             if (year.length() < 4) {
-                year = "20" + year;
+                year = "19" + year;
             }
 
             dateString = year + "-" + month + "-" + day;
@@ -237,7 +237,7 @@ public class DateNormalizer {
                 day = "0" + day;
             }
             if (year.length() < 4) {
-                year = "20" + year;
+                year = "19" + year;
             }
 
             dateString = year + "-" + month + "-" + day;
