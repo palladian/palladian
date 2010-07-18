@@ -21,6 +21,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 
 import com.temesoft.google.pr.JenkinsHash;
@@ -109,7 +110,7 @@ public class URLRankingServices {
 
             // Step 1: get the bit.ly hash for the specified URL
             String hash = null;
-            String encUrl = urlEncodeUtf8(getUrl());
+            String encUrl = StringHelper.urlEncode(getUrl());
             JSONObject json = crawler.getJSONDocument("http://api.bit.ly/v3/lookup?login=" + bitlyLogin + "&apiKey="
                     + bitlyApikey + "&url=" + encUrl);
             JSONObject lookup = json.getJSONObject("data").getJSONArray("lookup").getJSONObject(0);
@@ -150,7 +151,7 @@ public class URLRankingServices {
 
         try {
 
-            String encUrl = urlEncodeUtf8(getUrl());
+            String encUrl = StringHelper.urlEncode(getUrl());
             JSONObject json = crawler
                     .getJSONDocument("http://services.digg.com/1.0/endpoint?method=story.getAll&type=json&link="
                             + encUrl);
@@ -184,7 +185,7 @@ public class URLRankingServices {
 
         try {
 
-            String encUrl = urlEncodeUtf8(getUrl());
+            String encUrl = StringHelper.urlEncode(getUrl());
             JSONObject json = crawler.getJSONDocument("http://api.mixx.com/services/v1r1/thingies/show?api_key="
                     + mixxApikey + "&format=json&url=" + encUrl);
 
@@ -237,7 +238,7 @@ public class URLRankingServices {
             URLConnection urlCon = null;
             StringBuilder response = new StringBuilder();
             try {
-                String encUrl = urlEncodeUtf8(getUrl());
+                String encUrl = StringHelper.urlEncode(getUrl());
                 URL infoUrl = new URL("http://www.reddit.com/api/info.json?url=" + encUrl);
                 urlCon = infoUrl.openConnection();
                 urlCon.setDoOutput(true);
@@ -439,7 +440,7 @@ public class URLRankingServices {
         long urlHash = jHash.hash(("info:" + prUrl).getBytes());
 
         String response = crawler.download("http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&"
-                + "ch=6" + urlHash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + urlEncodeUtf8(prUrl));
+                + "ch=6" + urlHash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + StringHelper.urlEncode(prUrl));
 
         if (response != null) {
             if (response.contains(":")) {
@@ -483,7 +484,7 @@ public class URLRankingServices {
 
         int result = -1;
 
-        String encUrl = urlEncodeUtf8(getUrl());
+        String encUrl = StringHelper.urlEncode(getUrl());
 
         Document doc = crawler.getXMLDocument("http://data.alexa.com/data?cli=10&dat=s&url=" + encUrl);
 
@@ -511,7 +512,7 @@ public class URLRankingServices {
 
         int result = -1;
 
-        String encUrl = urlEncodeUtf8(getUrl());
+        String encUrl = StringHelper.urlEncode(getUrl());
         Document doc = crawler.getXMLDocument("http://api.majesticseo.com/getdomainstats.php?apikey=" + majesticApikey
                 + "&url=" + encUrl);
         if (doc != null) {
@@ -557,17 +558,6 @@ public class URLRankingServices {
         return result;
     }
 
-    // TODO move this to global helper class?
-    private static String urlEncodeUtf8(String string) {
-        String result;
-        try {
-            result = URLEncoder.encode(string, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("urlEncodeUtf8 " + e.getMessage());
-            result = string;
-        }
-        return result;
-    }
 
     public static void main(String[] args) throws Exception {
 

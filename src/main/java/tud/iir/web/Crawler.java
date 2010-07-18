@@ -23,7 +23,6 @@ import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -633,17 +632,6 @@ public class Crawler {
         return descriptionWords;
     }
 
-    public static String urlDecode(String url) {
-        try {
-            url = URLDecoder.decode(url, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("unsupportedEncodingException at Crawler for " + url + ", " + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("exception at Crawler for " + url + ", " + e.getMessage());
-        }
-        return url;
-    }
-
     /**
      * Creates a full/absolute URL based on the specified parameters.
      * 
@@ -720,7 +708,7 @@ public class Crawler {
         String siblingURL = "";
         String domain = getDomain(document.getDocumentURI(), true);
 
-        String url = urlDecode(document.getDocumentURI());
+        String url = StringHelper.urlDecode(document.getDocumentURI());
 
         // remove anchors from url
         url = removeAnchors(url);
@@ -750,7 +738,7 @@ public class Crawler {
                 continue;
             }
 
-            currentLink = urlDecode(currentLink);
+            currentLink = StringHelper.urlDecode(currentLink);
 
             // calculate similarity to given url
             double similarity = StringHelper.calculateSimilarity(currentLink, url, false);
