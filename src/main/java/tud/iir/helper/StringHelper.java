@@ -1,5 +1,8 @@
 package tud.iir.helper;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -1744,6 +1747,30 @@ public class StringHelper {
     public static String camelCaseToWords(String camelCasedString) {
         return camelCaseToWords(camelCasedString, " ");
     }
+    
+    public static String urlDecode(String url) {
+        try {
+            url = URLDecoder.decode(url, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Logger.getRootLogger().error("unsupportedEncodingException for " + url + ", " + e.getMessage());
+        } catch (Exception e) {
+            Logger.getRootLogger().error("exception at Crawler for " + url + ", " + e.getMessage());
+        }
+        return url;
+    }
+    
+
+    // TODO move this to global helper class?
+    public static String urlEncode(String string) {
+        String result;
+        try {
+            result = URLEncoder.encode(string, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            Logger.getRootLogger().error("urlEncodeUtf8 " + e.getMessage());
+            result = string;
+        }
+        return result;
+    }
 
 
 
@@ -1873,5 +1900,7 @@ public class StringHelper {
         }
 
     }
+
+
 
 }
