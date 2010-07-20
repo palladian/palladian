@@ -52,6 +52,9 @@ public class FeedDiscovery {
     private static final Logger LOGGER = Logger.getLogger(FeedDiscovery.class);
 
     private static final int MAX_NUMBER_OF_THREADS = 10;
+    
+    /** crawler for downloading pages. */
+    private Crawler crawler = new Crawler();
 
     private boolean debugDump = false;
     
@@ -112,7 +115,7 @@ public class FeedDiscovery {
     private long discoveryTime = 0;
 
     /** traffic counter TODO use crawler downloadSize instead? */
-    private Counter traffic = new Counter();
+    // private Counter traffic = new Counter();
 
     @SuppressWarnings("unchecked")
     public FeedDiscovery() {
@@ -227,11 +230,11 @@ public class FeedDiscovery {
 
         try {
 
-            Crawler crawler = new Crawler();
+            // Crawler crawler = new Crawler();
 
             Document doc = crawler.getWebDocument(pageUrl, false);
             result = discoverFeeds(doc);
-            traffic.increment((int) crawler.getTotalDownloadSize());
+            // traffic.increment((int) crawler.getTotalDownloadSize());
 
         } catch (Throwable t) {
             // NekoHTML produces various types of Exceptions, just catch them
@@ -611,9 +614,12 @@ public class FeedDiscovery {
             sb.append("    total time for discovery: " + DateHelper.getTimeString(discoveryTime)).append(newLine)
                     .append(newLine);
         }
-        if (traffic.getCount() != 0) {
+        /*if (traffic.getCount() != 0) {
             sb.append("    traffic for discovery: " + ((float) traffic.getCount() / (1024 * 1024)) + " MB").append(
                     newLine);
+        }*/
+        if (crawler.getTotalDownloadSize() > 0) {
+            sb.append("    traffic for discovery: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB").append(newLine);
         }
         sb.append("----------------------------------------------");
         return sb.toString();
