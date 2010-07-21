@@ -6,11 +6,11 @@ import org.junit.Test;
 
 public class FeedAggregatorTest {
 
-    private static FeedAggregator aggregator;
+    private static NewsAggregator aggregator;
 
     @BeforeClass
     public static void before() {
-        aggregator = new FeedAggregator(new FeedStoreDummy());
+        aggregator = new NewsAggregator(new FeedStoreDummy());
     }
 
     @Test

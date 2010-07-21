@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 /**
  * The FeedFinder downloads links to feeds on the web and stores them in the database.
  * 
- * @deprecated @see tud.iir.news.FeedAggregator instead
+ * @deprecated @see tud.iir.news.NewsAggregator instead
  * @author David Urbansky
  */
 @Deprecated

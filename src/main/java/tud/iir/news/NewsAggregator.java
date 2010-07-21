@@ -1,3 +1,4 @@
+
 package tud.iir.news;
 
 import java.io.IOException;
@@ -28,6 +29,7 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
+import tud.iir.helper.StringHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
 
@@ -41,7 +43,7 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
 /**
- * FeedAggregator uses ROME library to fetch and parse feeds from the web. Feeds are stored persistently, aggregation
+ * NewsAggregator uses ROME library to fetch and parse feeds from the web. Feeds are stored persistently, aggregation
  * method fetches new entries.
  * 
  * TODO add a "lastSuccessfullAggregation" attribute to feed, so we can filter out obsolute feeds.
@@ -51,15 +53,13 @@ import com.sun.syndication.io.SyndFeedInput;
  * 
  * https://rome.dev.java.net/ *
  * 
- * TODO rename class to "NewsAggregator"? since it aggregates news (or feed posts, feed entries) instead of feeds.
- * 
  * @author Philipp Katz
  * 
  */
-public class FeedAggregator {
+public class NewsAggregator {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(FeedAggregator.class);
+    private static final Logger LOGGER = Logger.getLogger(NewsAggregator.class);
 
     private int maxThreads = 20;
 
@@ -74,13 +74,13 @@ public class FeedAggregator {
     /** Used for all downloading purposes. */
     private final Crawler crawler = new Crawler();
 
-    public FeedAggregator() {
+    public NewsAggregator() {
         store = FeedDatabase.getInstance();
         loadConfig();
     }
 
     /** Used primarily for testing to set DummyFeedStore. */
-    public FeedAggregator(FeedStore store) {
+    public NewsAggregator(FeedStore store) {
         this.store = store;
         loadConfig();
     }
@@ -781,7 +781,7 @@ public class FeedAggregator {
 
         CommandLineParser parser = new BasicParser();
 
-        // CLI usage: FeedAggregator [-threads nn] [-noScraping] [-add <feed-Url>] [-addFile <file>] [-aggregate]
+        // CLI usage: NewsAggregator [-threads nn] [-noScraping] [-add <feed-Url>] [-addFile <file>] [-aggregate]
         // [-aggregateWait <minutes>]
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("threads")
@@ -803,7 +803,7 @@ public class FeedAggregator {
 
         try {
 
-            FeedAggregator aggregator = new FeedAggregator();
+            NewsAggregator aggregator = new NewsAggregator();
 
             CommandLine cmd = parser.parse(options, args);
 
@@ -837,7 +837,7 @@ public class FeedAggregator {
         } catch (ParseException e) {
             // print usage help
             HelpFormatter formatter = new HelpFormatter();
-            formatter.printHelp("FeedAggregator [options]", options);
+            formatter.printHelp("NewsAggregator [options]", options);
         }
 
     }

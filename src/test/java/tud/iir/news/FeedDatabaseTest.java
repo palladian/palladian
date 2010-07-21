@@ -22,8 +22,8 @@ public class FeedDatabaseTest {
     //@Ignore
     public void testAddFeed() throws FeedAggregatorException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedAggregator feedAggregator = new FeedAggregator();
-        Feed feed = feedAggregator.getFeed(feedUrl);
+        NewsAggregator newsAggregator = new NewsAggregator();
+        Feed feed = newsAggregator.getFeed(feedUrl);
         db.addFeed(feed);
     }
 
@@ -31,8 +31,8 @@ public class FeedDatabaseTest {
     @Ignore
     public void testAddDuplicateFeed() throws FeedAggregatorException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedAggregator feedAggregator = new FeedAggregator();
-        Feed feed = feedAggregator.getFeed(feedUrl);
+        NewsAggregator newsAggregator = new NewsAggregator();
+        Feed feed = newsAggregator.getFeed(feedUrl);
         System.out.println(db.addFeed(feed));
     }
 
@@ -40,9 +40,9 @@ public class FeedDatabaseTest {
     @Ignore
     public void testAddEntries() throws FeedAggregatorException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        FeedAggregator feedAggregator = new FeedAggregator();
+        NewsAggregator newsAggregator = new NewsAggregator();
         Feed feed = db.getFeedByUrl(feedUrl);
-        List<FeedEntry> entries = feedAggregator.getEntries(feedUrl);
+        List<FeedEntry> entries = newsAggregator.getEntries(feedUrl);
         for (FeedEntry entry : entries) {
             db.addEntry(feed, entry);
         }
@@ -65,7 +65,7 @@ public class FeedDatabaseTest {
     public void testAddDuplicateEntry() throws FeedAggregatorException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
 
-        FeedAggregator aggregator = new FeedAggregator();
+        NewsAggregator aggregator = new NewsAggregator();
         Feed feed = aggregator.getFeed(feedUrl);
 
         System.out.println(feed);

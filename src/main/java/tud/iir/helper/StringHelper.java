@@ -245,6 +245,8 @@ public class StringHelper {
     /**
      * Removes the special chars.
      * 
+     * TODO this does ... noting?
+     * 
      * @param string the string
      * @return the string
      */

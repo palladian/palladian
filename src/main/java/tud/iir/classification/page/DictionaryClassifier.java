@@ -82,7 +82,8 @@ public class DictionaryClassifier extends TextClassifier {
 
             // get the first category only
             if (classType == ClassificationTypeSetting.SINGLE) {
-                dictionary.updateWord(entry.getKey(), trainingDocument.getFirstRealCategory().getName(), entry.getValue());
+                dictionary.updateWord(entry.getKey(), trainingDocument.getFirstRealCategory().getName(), entry
+                        .getValue());
             }
 
             // get all categories for hierarchical and tag mode
@@ -118,8 +119,8 @@ public class DictionaryClassifier extends TextClassifier {
         // empty the training documents term map to save memory
         trainingDocument.getWeightedTerms().clear();
 
-        System.out.println("added to dictionary in " + DateHelper.getRuntime(t1) + " (" + DateHelper.getRuntime(initTime) + "), "
-                + dictionary.getNumberOfDocuments() + " documents processed");
+        System.out.println("added to dictionary in " + DateHelper.getRuntime(t1) + " ("
+                + DateHelper.getRuntime(initTime) + "), " + dictionary.getNumberOfDocuments() + " documents processed");
     }
 
     @Override
@@ -128,7 +129,8 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     /**
-     * Serialize the dictionary. All category information and parameters will be saved in the .ser file. The actual dictionary will be stored in the dictionary
+     * Serialize the dictionary. All category information and parameters will be saved in the .ser file. The actual
+     * dictionary will be stored in the dictionary
      * index.
      * 
      * @param classType The class type for the dictionary to distinguish the name.
@@ -181,10 +183,12 @@ public class DictionaryClassifier extends TextClassifier {
         loadDictionary(ClassificationTypeSetting.TAG);
     }
 
-    // protected abstract double calculateRelevance(Category category, Map.Entry<String, Double> categoryEntry, Map.Entry<String, Double> weightedTerm);
+    // protected abstract double calculateRelevance(Category category, Map.Entry<String, Double> categoryEntry,
+    // Map.Entry<String, Double> weightedTerm);
     protected double calculateRelevance(CategoryEntry categoryEntry, Map.Entry<String, Double> map) {
-         return 0.0;
-     }
+        return 0.0;
+    }
+
     // weightedTerm);
 
     public ClassificationDocument classify(ClassificationDocument document, boolean loadDictionary) {
@@ -225,7 +229,7 @@ public class DictionaryClassifier extends TextClassifier {
         }
 
         // count the number of categories that are somehow relevant for the current document
-        Map<String, Integer> relevantCategories = new HashMap<String, Integer>();
+        // Map<String, Integer> relevantCategories = new HashMap<String, Integer>();
 
         // iterate through all weighted terms in the document
         for (Map.Entry<Term, Double> weightedTerm : document.getWeightedTerms().entrySet()) {
@@ -234,21 +238,31 @@ public class DictionaryClassifier extends TextClassifier {
 
             if (!dictionaryCategoryEntries.isEmpty()) {
 
-                // add empty category entries for categories that did not match the term
-                for (CategoryEntry ce : bestFitList) {
-                    if (!dictionaryCategoryEntries.hasEntryWithCategory(ce.getCategory())) {
-                        dictionaryCategoryEntries.add(new CategoryEntry(dictionaryCategoryEntries, ce.getCategory(), 0));
-                    } else {
-                        Integer relevanceCount0 = relevantCategories.get(ce.getCategory().getName());
-                        if (relevanceCount0 == null) {
-                            relevantCategories.put(ce.getCategory().getName(), 1);
-                        } else {
-                            int relevanceCount = relevantCategories.get(ce.getCategory().getName());
-                            relevanceCount++;
-                            relevantCategories.put(ce.getCategory().getName(), relevanceCount);
-                        }
-                    }
-                }
+                /**
+                 * XXX Attention: The following loop will create *loads* of CategoryEntry instances, filling up the
+                 * memory in no time. We only need this for Bayes + La Place; which is commented out below. Elsewise
+                 * this code is not neccessary. It will slow down the classification process significantly and consume
+                 * great amounts of memory! -- Philipp, 2010-07-21.
+                 * 
+                 * Performance comparison (1000 Entries, Tagging, Bigrams):
+                 * 4:38 Minutes, 309 MB vs. 0:18 Minutes, 72 MB
+                 * 
+                 */
+                // // add empty category entries for categories that did not match the term
+                // for (CategoryEntry ce : bestFitList) {
+                // if (!dictionaryCategoryEntries.hasEntryWithCategory(ce.getCategory())) {
+                // dictionaryCategoryEntries.add(new CategoryEntry(dictionaryCategoryEntries, ce.getCategory(), 0));
+                // } else {
+                // Integer relevanceCount0 = relevantCategories.get(ce.getCategory().getName());
+                // if (relevanceCount0 == null) {
+                // relevantCategories.put(ce.getCategory().getName(), 1);
+                // } else {
+                // int relevanceCount = relevantCategories.get(ce.getCategory().getName());
+                // relevanceCount++;
+                // relevantCategories.put(ce.getCategory().getName(), relevanceCount);
+                // }
+                // }
+                // }
 
                 // iterate through all categories in the dictionary for the weighted term
                 for (CategoryEntry categoryEntry : dictionaryCategoryEntries) {
@@ -278,7 +292,7 @@ public class DictionaryClassifier extends TextClassifier {
                     // add the absolute weight of the term to the category
                     if (categoryEntry.getRelevance() > 0) {
                         // c.addAbsoluteRelevance(weightedTerm.getValue());
-                        //c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance());
+                        // c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance());
 
                         // use prior AND relevance
                         // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior() * weightedTerm.getValue()
@@ -288,11 +302,13 @@ public class DictionaryClassifier extends TextClassifier {
                         // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior());
 
                         // use relevance
-                        c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance()*categoryEntry.getRelevance());
+                        c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance()
+                                * categoryEntry.getRelevance());
 
-                        //double idf = categoryEntry.getAbsoluteRelevance() / (double) dictionary.getNumberOfDocuments();
-                        //c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance() * idf);
-                       // c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getAbsoluteRelevance());
+                        // double idf = categoryEntry.getAbsoluteRelevance() / (double)
+                        // dictionary.getNumberOfDocuments();
+                        // c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getRelevance() * idf);
+                        // c.addAbsoluteRelevance(weightedTerm.getValue() * categoryEntry.getAbsoluteRelevance());
                     }
 
                     // c.addAbsoluteRelevance(weightedTerm.getValue()*categoryEntry.getRelevance()*categoryEntry.getCategory().getPrior());
@@ -303,6 +319,7 @@ public class DictionaryClassifier extends TextClassifier {
                     // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior());
 
                     // Bayes with La Place smoothing
+                    // see XXX comment above!
                     // if (c.getAbsoluteRelevance() == 0) {
                     // //c.addAbsoluteRelevance(1);
                     // c.addAbsoluteRelevance(categoryEntry.getCategory().getPrior());
@@ -313,7 +330,7 @@ public class DictionaryClassifier extends TextClassifier {
 
             } else {
                 LOGGER.trace("the term \"" + weightedTerm.getKey().getText()
-                                + "\" is not in the learned dictionary and cannot be associated with any category");
+                        + "\" is not in the learned dictionary and cannot be associated with any category");
             }
 
         }
@@ -342,7 +359,8 @@ public class DictionaryClassifier extends TextClassifier {
 
             if (numberOne != null) {
 
-                List<WordCorrelation> correlations = dictionary.getWcm().getCorrelations(numberOne.getCategory().getName(), 1);
+                List<WordCorrelation> correlations = dictionary.getWcm().getCorrelations(
+                        numberOne.getCategory().getName(), 1);
                 for (WordCorrelation wc : correlations) {
                     String cooccuringCategory = wc.getTerm1().getText();
                     if (cooccuringCategory.equalsIgnoreCase(numberOne.getCategory().getName())) {
@@ -384,10 +402,9 @@ public class DictionaryClassifier extends TextClassifier {
                 hiearchyCategories.setRelevancesInPercent(true);
                 document.assignCategoryEntries(hiearchyCategories);
             } catch (Exception e) {
-                Logger.getRootLogger()
-                        .error(
-                                "class " + mc + " was not learned and could not be found in hierarchy tree: "
-                                        + document.getMainCategoryEntry().getCategory().getName(), e);
+                Logger.getRootLogger().error(
+                        "class " + mc + " was not learned and could not be found in hierarchy tree: "
+                                + document.getMainCategoryEntry().getCategory().getName(), e);
                 document.limitCategories(5, 5, 0.0);
             }
         }
@@ -413,8 +430,8 @@ public class DictionaryClassifier extends TextClassifier {
 
         document.setClassifiedAs(classType);
 
-        ClassifierManager.log("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " " + " ("
-                + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
+        ClassifierManager.log("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " "
+                + " (" + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
 
         return document;
     }

@@ -210,6 +210,8 @@ public class ClassificationDocument {
         int n = 0;
         for (CategoryEntry c : getAssignedCategoryEntriesByRelevance(getClassifiedAs())) {
             if (n < minCategories || n < maxCategories && c.getRelevance() >= relevanceThreshold) {
+                // XXX added by Philipp, lower memory consumption.
+                c.setCategoryEntries(limitedCategories);
                 limitedCategories.add(c);
             }
             n++;
