@@ -446,4 +446,6 @@ public abstract class TextClassifier {
         return builder.toString();
     }
 
+    public abstract void save();
+
 }

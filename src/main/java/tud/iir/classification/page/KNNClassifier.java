@@ -1,10 +1,11 @@
 package tud.iir.classification.page;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
@@ -12,6 +13,7 @@ import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Term;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 
 /**
@@ -19,7 +21,9 @@ import tud.iir.helper.StopWatch;
  * 
  * @author David Urbansky
  */
-public class KNNClassifier extends TextClassifier {
+public class KNNClassifier extends TextClassifier implements Serializable {
+
+    private static final long serialVersionUID = 184534402554023419L;
 
     /** Number of nearest neighbors that are allowed to vote. */
     private int k = 3;
@@ -158,6 +162,11 @@ public class KNNClassifier extends TextClassifier {
         return 1.0 / matches;
     }
 
+    @Override
+    public void save() {
+        FileHelper.serialize(this, "data/models/" + getName() + ".ser");
+    }
+    
     public int getK() {
         return k;
     }

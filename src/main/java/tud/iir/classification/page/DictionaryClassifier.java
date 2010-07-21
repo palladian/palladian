@@ -37,6 +37,12 @@ public class DictionaryClassifier extends TextClassifier {
         dictionary = new Dictionary(getName(), ClassificationTypeSetting.SINGLE);
     }
 
+    public DictionaryClassifier(String name) {
+        ClassifierManager.log("DictionaryClassifier created");
+        setName(name);
+        dictionary = new Dictionary(getName(), ClassificationTypeSetting.SINGLE);
+    }
+
     public void init() {
         dictionary.setName(getName());
     }
@@ -116,22 +122,31 @@ public class DictionaryClassifier extends TextClassifier {
                 + dictionary.getNumberOfDocuments() + " documents processed");
     }
 
+    @Override
+    public void save() {
+        saveDictionary(true, true);
+    }
+
     /**
      * Serialize the dictionary. All category information and parameters will be saved in the .ser file. The actual dictionary will be stored in the dictionary
      * index.
      * 
      * @param classType The class type for the dictionary to distinguish the name.
      */
-    public void saveDictionary(int classType, boolean indexFirst, boolean deleteIndexFirst) {
+    public void saveDictionary(boolean indexFirst, boolean deleteIndexFirst) {
 
         LOGGER.info("saving the dictionary");
-        dictionary.serialize("data/models/dictionary_" + getName() + "_" + classType + ".ser", indexFirst, deleteIndexFirst);
+        dictionary.serialize("data/models/" + getName() + ".ser", indexFirst, deleteIndexFirst);
         // dictionary.index("data/models/dictionaryIndex_"+getName()+"_"+classType);
         System.out.println("saved model");
         // dictionary.saveAsCSV();
 
         // we now have to use the index for classification because the in-memory dictionary is empty
-        dictionary.useIndex(classType);
+        dictionary.useIndex(getClassificationType());
+    }
+
+    public void loadDictionary() {
+        loadDictionary(0);
     }
 
     /**
@@ -140,7 +155,7 @@ public class DictionaryClassifier extends TextClassifier {
     public void loadDictionary(int classType) {
 
         if (dictionaries.get(classType) == null) {
-            String modelFilePath = "data/models/dictionary_" + getName() + "_" + classType + ".ser";
+            String modelFilePath = "data/models/dictionary_" + getName() + ".ser";
             dictionary = (Dictionary) FileHelper.deserialize(modelFilePath);
 
             // all serialized dictionaries must use the index since their dictionaries are not serialized
