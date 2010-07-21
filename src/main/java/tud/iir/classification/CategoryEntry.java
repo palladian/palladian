@@ -14,7 +14,7 @@ public class CategoryEntry implements Serializable {
 
     private static final long serialVersionUID = 2420029642880591759L;
 
-    private final CategoryEntries categoryEntries;
+    private CategoryEntries categoryEntries;
     private Category category;
     private double absoluteRelevance;
     private double relativeRelevance = -1.0;
@@ -71,9 +71,24 @@ public class CategoryEntry implements Serializable {
         this.categoryEntries.setRelevancesUpToDate(false);
         this.absoluteRelevance += value;
     }
+    
+    public CategoryEntries getCategoryEntries() {
+        return categoryEntries;
+    }
+    
+    public void setCategoryEntries(CategoryEntries categoryEntries) {
+        this.categoryEntries = categoryEntries;
+    }
 
     @Override
     public String toString() {
         return "CategoryEntry [category=" + category + ", abs. relevance=" + absoluteRelevance + ", rel. relevance=" + getRelevance() + "]";
     }
+    
+//    // TODO only for debugging, remove this later.
+//    @Override
+//    protected void finalize() throws Throwable {
+//        System.out.println("finalizing " + this);
+//        super.finalize();
+//    }
 }

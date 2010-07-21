@@ -25,7 +25,7 @@ class FeedTask extends TimerTask {
 
     @Override
     public void run() {
-        FeedAggregator fa = new FeedAggregator();
+        NewsAggregator fa = new NewsAggregator();
         fa.setUseScraping(false);
 
         try {

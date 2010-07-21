@@ -781,7 +781,7 @@ public final class FeedChecker {
      */
     public static void main(String[] args) {
 
-        // FeedAggregator fa = new FeedAggregator();
+        // NewsAggregator fa = new NewsAggregator();
         // fa.setUseScraping(false);
         // try {
         // Feed f = fa.getFeed("http://www.usa.gov/rss/updates.xml");

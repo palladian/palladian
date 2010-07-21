@@ -50,17 +50,17 @@ public class FeedClassifier {
 
         int feedClass = CLASS_UNKNOWN;
 
-        FeedAggregator feedAggregator;
+        NewsAggregator newsAggregator;
 
         if (feedStore == null) {
-            feedAggregator = new FeedAggregator();
+            newsAggregator = new NewsAggregator();
         } else {
-            feedAggregator = new FeedAggregator(feedStore);
+            newsAggregator = new NewsAggregator(feedStore);
         }
 
         try {
 
-            List<FeedEntry> entries = feedAggregator.getFeed(feedURL).getEntries();
+            List<FeedEntry> entries = newsAggregator.getFeed(feedURL).getEntries();
             FeedPostStatistics fps = new FeedPostStatistics(entries);
             System.out.println(fps);
 
