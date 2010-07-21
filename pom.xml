@@ -82,7 +82,36 @@
         <configuration>
           <configLocation>${basedir}/dev/checkstyle_config.xml</configLocation>
         </configuration>
-      </plugin>			
+      </plugin>		
+      <plugin>
+                <groupId>org.dstovall</groupId>
+                <artifactId>onejar-maven-plugin</artifactId>
+                <version>1.4.3</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <!-- Optional -->
+                            <onejarVersion>0.97</onejarVersion>
+                            <!-- Optional, use only if you need to include native libraries (dll's) 
+                            <binlibs>
+                                <fileSet>
+                                    <directory>${project.build.directory}/dllextract</directory>
+                                    <includes>
+                                        <include>test.dll</include>
+                                    </includes>
+                                </fileSet>
+                            </binlibs>-->
+                            <!-- Optional, default is false -->
+                            <attachToBuild>true</attachToBuild>
+                            <!-- Optional, default is "onejar" -->
+                            <classifier>onejar</classifier>
+                        </configuration>
+                        <goals>
+                            <goal>one-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 	<dependencies>
@@ -318,5 +347,5 @@
       <id>nexus</id>
       <url>http://www.effingo.de/nexus/content/groups/public</url>
     </repository>
-	</repositories>
+   </repositories>
 </project>
