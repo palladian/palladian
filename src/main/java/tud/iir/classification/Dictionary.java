@@ -105,7 +105,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
                         ((DictionaryDBIndexMySQL) dictionaryIndex).setFastMode(false);
                     }
                 } else {
-                    dictionaryIndex = new DictionaryDBIndexH2("dictionary_" + getName() + "_" + classType, "root", "");
+                    dictionaryIndex = new DictionaryDBIndexH2(getName(), "root", "");
                     if (indexType == DB_INDEX_FAST) {
                         ((DictionaryDBIndexH2) dictionaryIndex).setFastMode(true);
                     } else {

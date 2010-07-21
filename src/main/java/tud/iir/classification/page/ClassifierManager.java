@@ -8,6 +8,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
 
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
@@ -89,6 +96,8 @@ public class ClassifierManager {
     private StopWatch stopWatch;
 
     public ClassifierManager() {
+
+        stopWatch = new StopWatch();
 
         // try to find the classification configuration, if it is not present
         // use default values
@@ -480,8 +489,7 @@ public class ClassifierManager {
 
         // save the dictionary (serialize, in-memory dictionary will be deleted at this point)
         if (classifier instanceof DictionaryClassifier && classifier.isSerialize()) {
-            ((DictionaryClassifier) classifier).saveDictionary(classifier.getClassificationType(),
-                    !createDictionaryIteratively, true);
+            ((DictionaryClassifier) classifier).saveDictionary(!createDictionaryIteratively, true);
         }
 
     }
@@ -1053,6 +1061,15 @@ public class ClassifierManager {
         this.trainingDataPercentage = trainingDataPercentage;
     }
 
+    public static TextClassifier load(String classifierName) {
+        TextClassifier classifier;
+
+        classifier = new DictionaryClassifier(classifierName);
+        ((DictionaryClassifier) classifier).loadDictionary();
+
+        return classifier;
+    }
+
     /**
      * This method simplifies the search for the best combination of classifier and feature settings.
      * It automatically learns and evaluates all given combinations.
@@ -1105,17 +1122,95 @@ public class ClassifierManager {
      * 
      * @param args
      */
+    @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        // if (args.length > 0) {
-        // System.out.println("arguments found");
-        // ClassifierManager classifierManager = new ClassifierManager();
-        // classifierManager.setTrainingDataPercentage(Integer.parseInt(args[0]));
-        // classifierManager.trainAndTestClassifier(args[1], Integer.parseInt(args[2]), Integer.parseInt(args[3]),
-        // Integer.parseInt(args[4]));
-        // System.out.println("finished");
-        // System.exit(0);
-        // }
+        // args = new String[4];
+        // // args[0] = "--trainingFile";
+        // args[0] = "--testingFile";
+        // args[1] = "data/temp/opendirectory_urls_noregional_small.txt";
+        // args[2] = "--name";
+        // args[3] = "test";
+
+        CommandLineParser parser = new BasicParser();
+
+        Options options = new Options();
+        options.addOption(OptionBuilder.withLongOpt("trainingFile").withDescription(
+                "train a classifier on the data in the given file").hasArg().withArgName("filename").withType(
+                Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("testingFile").withDescription(
+                "test a classifier on the data in the given file").hasArg().withArgName("filename").withType(
+                Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("name").withDescription(
+                "the name under which the classifier is saved").hasArg().withArgName("string").withType(
+                        Number.class).create());
+        // options.addOption(OptionBuilder.withLongOpt("save").withDescription("save the trained classifier"))
+
+        try {
+
+            if (args.length < 1) {
+                // no options supplied, go to catch clause, print help.
+                throw new ParseException(null);
+            }
+
+            CommandLine cmd = parser.parse(options, args);
+
+            ClassifierManager classifierManager = new ClassifierManager();
+
+            Dataset dataset = new Dataset();
+            TextClassifier classifier = null;
+
+            if (cmd.hasOption("name")) {
+                if (cmd.hasOption("trainingFile")) {
+                    classifier = new DictionaryClassifier(cmd.getOptionValue("name"));// new KNNClassifier();
+                } else if (cmd.hasOption("testingFile")) {
+                    classifier = ClassifierManager.load(cmd.getOptionValue("name"));
+                }
+            } else {
+                classifier = new DictionaryClassifier();// new KNNClassifier();
+                ((DictionaryClassifier) classifier).getDictionary().setIndexType(Dictionary.DB_H2);
+            }
+
+            if (classifier == null) {
+                System.out.println("classifier could not be loaded");
+                return;
+            }
+
+            ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+            FeatureSetting featureSetting = new FeatureSetting();
+            classifier.setClassificationTypeSetting(classificationTypeSetting);
+            classifier.setFeatureSetting(featureSetting);
+
+            // train and test a classifier
+            StopWatch stopWatch = new StopWatch();
+
+            if (cmd.hasOption("trainingFile")) {
+                // train
+                dataset.setPath(cmd.getOptionValue("trainingFile"));
+                classifierManager.trainClassifier(dataset, classifier);
+
+                if (cmd.hasOption("name")) {
+                    classifier.save();
+                }
+
+            }
+
+            if (cmd.hasOption("testingFile")) {
+                // test
+                dataset.setPath(cmd.getOptionValue("testingFile"));
+                classifierManager.testClassifier(dataset, classifier);
+            }
+
+            System.out.println("All actions performed in " + stopWatch.getElapsedTimeString());
+
+            // done, exit.
+            return;
+
+        } catch (ParseException e) {
+            // print usage help
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp("ClassifierManager [options]", options);
+        }
 
         // ///////////////////////// test reading from file index // /////////////////////////////
         // DictionaryIndex dictionaryIndex = new

@@ -89,10 +89,11 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
     private Connection getConnection() {
 
         String url;
-        if (inMemoryMode)
-            url = "jdbc:" + getDbType() + ":data/models/" + dbName;
-        else
+        if (inMemoryMode) {
             url = "jdbc:" + getDbType() + ":mem:data/models/" + dbName + ";DB_CLOSE_DELAY=-1";
+        } else {
+            url = "jdbc:" + getDbType() + ":data/models/" + dbName;
+        }
 
         try {
             Class.forName(getDbDriver());
