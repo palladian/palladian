@@ -17,6 +17,7 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.WordNet;
+import tud.iir.helper.WordTransformer;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.KnowledgeManager;
@@ -447,7 +448,8 @@ public class EntityExtractor extends Extractor {
         Iterator<Concept> conceptIterator = getConcepts().iterator();
         while (conceptIterator.hasNext()) {
             Concept currentConcept = conceptIterator.next();
-            ArrayList<String> retrievedURLs = sr.getURLs("list of " + StringHelper.wordToPlural(currentConcept.getName()), SourceRetrieverManager.GOOGLE, true);
+            ArrayList<String> retrievedURLs = sr.getURLs("list of "
+                    + WordTransformer.wordToPlural(currentConcept.getName()), SourceRetrieverManager.GOOGLE, true);
 
             for (int i = 0; i < retrievedURLs.size(); i++) {
                 String url = retrievedURLs.get(i);
@@ -487,6 +489,7 @@ public class EntityExtractor extends Extractor {
         this.autoSave = autoSave;
     }
 
+    @Override
     public Logger getLogger() {
         return LOGGER;
     }

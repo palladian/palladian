@@ -97,7 +97,7 @@ public class FileHelper {
 
         if (stripTags) {
             contents = StringEscapeUtils.unescapeHtml(contents);
-            contents = StringHelper.removeHTMLTags(contents, true, false, false, false); // TODO remove JS, CSS,
+            contents = HTMLHelper.removeHTMLTags(contents, true, false, false, false); // TODO remove JS, CSS,
                                                                                          // comments and merge?
             return contents;
         }

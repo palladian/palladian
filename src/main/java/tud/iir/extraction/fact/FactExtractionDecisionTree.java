@@ -17,6 +17,7 @@ import tud.iir.extraction.ExtractionType;
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.Tokenizer;
 import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -345,7 +346,7 @@ public class FactExtractionDecisionTree {
                 } else if (considerItFreeText) {
                     // take the whole sentence
                     currentFactStringText = pa.getTextByXPath(document, currentXPath);
-                    currentFactStringText = StringHelper.getSentence(currentFactStringText, indexOfAttribute);
+                    currentFactStringText = Tokenizer.getSentence(currentFactStringText, indexOfAttribute);
                     // do not take facts from questions (end with "?")
                     if (currentFactStringText.endsWith("?")) {
                         currentFactStringText = "";
@@ -439,7 +440,7 @@ public class FactExtractionDecisionTree {
         }
 
         // take text after colon
-        text = StringHelper.getPhraseToEndOfSentence(text.substring(indexOfColon + 1));
+        text = Tokenizer.getPhraseToEndOfSentence(text.substring(indexOfColon + 1));
 
         return text;
     }

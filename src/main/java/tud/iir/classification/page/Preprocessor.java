@@ -9,7 +9,9 @@ import org.w3c.dom.Document;
 
 import tud.iir.classification.Term;
 import tud.iir.classification.page.evaluation.FeatureSetting;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.Tokenizer;
 import tud.iir.web.Crawler;
 
 //import edu.unc.ils.PorterStemmer;
@@ -152,12 +154,12 @@ public final class Preprocessor {
 
         if (getFeatureSetting().getTextFeatureType() == FeatureSetting.CHAR_NGRAMS) {
 
-            ngrams = StringHelper.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
+            ngrams = Tokenizer.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
                     getFeatureSetting().getMaxNGramLength());
 
         } else if (getFeatureSetting().getTextFeatureType() == FeatureSetting.WORD_NGRAMS) {
 
-            ngrams = StringHelper.calculateAllWordNGrams(inputString, getFeatureSetting().getMinNGramLength(),
+            ngrams = Tokenizer.calculateAllWordNGrams(inputString, getFeatureSetting().getMinNGramLength(),
                     getFeatureSetting().getMaxNGramLength());
 
         }
@@ -203,7 +205,7 @@ public final class Preprocessor {
         // remove http(s): and www from URL
         inputString = Crawler.getCleanURL(inputString);
 
-        Set<String> ngrams = StringHelper.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
+        Set<String> ngrams = Tokenizer.calculateAllCharNGrams(inputString, getFeatureSetting().getMinNGramLength(),
                 getFeatureSetting().getMaxNGramLength());
 
         // build the map
@@ -256,7 +258,7 @@ public final class Preprocessor {
         // get body text
         String bodyContent = Crawler.extractBodyContent(webPage).toLowerCase();
 
-        bodyContent = StringHelper.removeHTMLTags(bodyContent, true, true, true, false);
+        bodyContent = HTMLHelper.removeHTMLTags(bodyContent, true, true, true, false);
 
         // remove stop words
         bodyContent = stripStopWords(bodyContent);

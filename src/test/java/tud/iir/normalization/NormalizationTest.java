@@ -1,6 +1,7 @@
 package tud.iir.normalization;
 
 import junit.framework.TestCase;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 
 /**
@@ -29,9 +30,10 @@ public class NormalizationTest extends TestCase {
     }
 
     public void testRemoveHTMLTags() {
-        assertEquals("some text1", StringHelper.removeHTMLTags(
+        assertEquals("some text1", HTMLHelper.removeHTMLTags(
                 "<style type=\"text/css\">#abca{}</style><a>some text\n1</a><br />\n\n\n<script>another text</script>", true, true, true, true));
-        assertEquals("some text 2", StringHelper.removeHTMLTags("<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />", true, true, true, true));
+        assertEquals("some text 2", HTMLHelper.removeHTMLTags(
+                "<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />", true, true, true, true));
     }
 
     public void testGetNormalizedNumber() {

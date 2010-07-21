@@ -15,6 +15,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
@@ -117,7 +118,7 @@ public class GeneralAnalyzer {
         if (beginIndex < endIndex) {
             final String modRelevantTag = relevantTag.substring(beginIndex, endIndex);
             // StringHelper stringHelper = new StringHelper();
-            altText = StringHelper.removeHTMLTags(modRelevantTag, true, true, false, true);
+            altText = HTMLHelper.removeHTMLTags(modRelevantTag, true, true, false, true);
         }
 
         return altText;
@@ -212,7 +213,7 @@ public class GeneralAnalyzer {
         String text = parentNode.getTextContent();
 
         // remove Comments
-        text = StringHelper.removeConcreteHTMLTag(text, "<!--", "-->");
+        text = HTMLHelper.removeConcreteHTMLTag(text, "<!--", "-->");
         // trim
         text = StringHelper.trim(text);
         return text;

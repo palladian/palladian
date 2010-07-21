@@ -29,7 +29,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import tud.iir.helper.CollectionHelper;
-import tud.iir.helper.StringHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.knowledge.Source;
 import tud.iir.multimedia.ExtractedImage;
@@ -97,7 +97,8 @@ public class SourceRetriever {
      * @param matchContent All match content keywords must appear in the caption of the image.
      * @return A list of images.
      */
-    public final ArrayList<ExtractedImage> getImages(String searchQuery, int source, boolean exact, String[] matchContent) {
+    public final ArrayList<ExtractedImage> getImages(String searchQuery, int source, boolean exact,
+            String[] matchContent) {
         if (source != SourceRetrieverManager.GOOGLE && source != SourceRetrieverManager.YAHOO_BOSS) {
             LOGGER.warn("Image search is only supported for Google and Yahoo! BOSS.");
         }
@@ -125,13 +126,14 @@ public class SourceRetriever {
         Crawler c = new Crawler();
 
         int urlsCollected = 0;
-        int grabSize = (int) Math.ceil((double) getResultCount() / 8.0); // divide by 8 because 8 results will be responded by each query
+        int grabSize = (int) Math.ceil(getResultCount() / 8.0); // divide by 8 because 8 results will be responded by
+        // each query
 
         for (int i = 0; i < grabSize; i++) {
 
             // rsz=large will respond 8 results
-            String json = c.download("http://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + (i * 8) + "&rsz=large&safe=off&lr=lang_en&q="
-                    + searchQuery);
+            String json = c.download("http://ajax.googleapis.com/ajax/services/search/images?v=1.0&start=" + (i * 8)
+                    + "&rsz=large&safe=off&lr=lang_en&q=" + searchQuery);
 
             try {
                 JSONObject jsonOBJ = new JSONObject(json);
@@ -139,7 +141,8 @@ public class SourceRetriever {
                 // in the first iteration find the maximum of available pages and limit the search to those
                 if (i == 0) {
                     JSONArray pages;
-                    if (jsonOBJ.getJSONObject("responseData") != null && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
+                    if (jsonOBJ.getJSONObject("responseData") != null
+                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
                             && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
                         pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
                         int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
@@ -207,10 +210,12 @@ public class SourceRetriever {
         // query yahoo for search engine results
         try {
             searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-                    "http://boss.yahooapis.com/ysearch/images/v1/" + searchQuery + "?appid=" + SourceRetrieverManager.getInstance().YAHOO_BOSS_API_KEY
-                            + "&format=xml&count=" + Math.max(50, getResultCount()));
-            LOGGER.debug("Search Results for " + searchQuery + "\n" + "http://boss.yahooapis.com/ysearch/images/v1/" + searchQuery + "?appid="
-                    + SourceRetrieverManager.getInstance().YAHOO_BOSS_API_KEY + "&format=xml&count=" + Math.max(50, getResultCount()));
+                    "http://boss.yahooapis.com/ysearch/images/v1/" + searchQuery + "?appid="
+                            + SourceRetrieverManager.getInstance().YAHOO_BOSS_API_KEY + "&format=xml&count="
+                            + Math.max(50, getResultCount()));
+            LOGGER.debug("Search Results for " + searchQuery + "\n" + "http://boss.yahooapis.com/ysearch/images/v1/"
+                    + searchQuery + "?appid=" + SourceRetrieverManager.getInstance().YAHOO_BOSS_API_KEY
+                    + "&format=xml&count=" + Math.max(50, getResultCount()));
         } catch (SAXException e1) {
             LOGGER.error("yahoo", e1);
         } catch (IOException e1) {
@@ -270,8 +275,8 @@ public class SourceRetriever {
 
                 ExtractedImage image = new ExtractedImage();
                 image.setURL(imageURL);
-                image.setWidth(Integer.valueOf((String) imageWidth));
-                image.setHeight(Integer.valueOf((String) imageHeight));
+                image.setWidth(Integer.valueOf(imageWidth));
+                image.setHeight(Integer.valueOf(imageHeight));
                 image.setRankCount(i);
                 images.add(image);
 
@@ -304,14 +309,18 @@ public class SourceRetriever {
 
         if (getSource() == SourceRetrieverManager.GOOGLE) {
 
-            String json = crawler.download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&rsz=small&safe=off&q=" + searchQuery);
+            String json = crawler
+                    .download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&rsz=small&safe=off&q="
+                            + searchQuery);
 
             try {
                 JSONObject jsonOBJ = new JSONObject(json);
 
-                if (jsonOBJ.getJSONObject("responseData") != null && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
+                if (jsonOBJ.getJSONObject("responseData") != null
+                        && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
                         && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").has("estimatedResultCount")) {
-                    hitCount = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getInt("estimatedResultCount");
+                    hitCount = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getInt(
+                            "estimatedResultCount");
                 }
 
             } catch (JSONException e) {
@@ -415,10 +424,13 @@ public class SourceRetriever {
         // query yahoo for search engine results
         try {
             searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-                    "http://search.yahooapis.com/WebSearchService/V1/webSearch?appid=" + SourceRetrieverManager.getInstance().YAHOO_API_KEY + "&query="
-                            + searchQuery + "&results=" + getResultCount());
-            LOGGER.debug("Search Results for " + searchQuery + "\n" + "http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
-                    + SourceRetrieverManager.getInstance().YAHOO_API_KEY + "&query=" + searchQuery + "&results=" + getResultCount());
+                    "http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
+                            + SourceRetrieverManager.getInstance().YAHOO_API_KEY + "&query=" + searchQuery
+                            + "&results=" + getResultCount());
+            LOGGER.debug("Search Results for " + searchQuery + "\n"
+                    + "http://search.yahooapis.com/WebSearchService/V1/webSearch?appid="
+                    + SourceRetrieverManager.getInstance().YAHOO_API_KEY + "&query=" + searchQuery + "&results="
+                    + getResultCount());
         } catch (SAXException e1) {
             LOGGER.error("yahoo", e1);
         } catch (IOException e1) {
@@ -453,7 +465,8 @@ public class SourceRetriever {
 
                 String currentURL = nodes.item(i).getTextContent();
 
-                WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO, rank, new Source(currentURL), title, summary);
+                WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO, rank, new Source(currentURL), title,
+                        summary);
                 rank++;
 
                 LOGGER.debug("yahoo retrieved url " + currentURL);
@@ -484,7 +497,8 @@ public class SourceRetriever {
     }
 
     /**
-     * General reusable method for processing Yahoo Web Search and Yahoo News Search requests. Only the provided URLs differ.
+     * General reusable method for processing Yahoo Web Search and Yahoo News Search requests. Only the provided URLs
+     * differ.
      * 
      * @param url
      * @return
@@ -508,7 +522,7 @@ public class SourceRetriever {
             XPathExpression totalHitsExpr = xpath.compile("//*[starts-with(name(),'resultset')]/@totalhits");
 
             // determine # of necessary iterations
-            int numIterations = (int) Math.ceil((float) getResultCount() / 50.0);
+            int numIterations = (int) Math.ceil(getResultCount() / 50.0);
 
             int numHits = 0;
 
@@ -524,7 +538,8 @@ public class SourceRetriever {
 
             // construct fix url part for each iteration
             // for avail parameters see -> http://developer.yahoo.com/search/boss/download/handout-boss-v1.1.pdf
-            String fixUrl = endpoint + searchQuery + "?appid=" + SourceRetrieverManager.getInstance().YAHOO_BOSS_API_KEY + "&lang=" + langStr + "&region="
+            String fixUrl = endpoint + searchQuery + "?appid="
+                    + SourceRetrieverManager.getInstance().YAHOO_BOSS_API_KEY + "&lang=" + langStr + "&region="
                     + regStr + "&format=xml&count=" + Math.min(50, getResultCount());
 
             // iterate through result responses
@@ -539,7 +554,7 @@ public class SourceRetriever {
                 // update number of iterations with each step, as values might change
                 // http://developer.yahoo.com/search/boss/boss_guide/ch02s02.html
                 int totalHits = ((Number) totalHitsExpr.evaluate(searchResult, XPathConstants.NUMBER)).intValue();
-                numIterations = (int) Math.ceil((float) Math.min(getResultCount(), totalHits) / 50.0);
+                numIterations = (int) Math.ceil(Math.min(getResultCount(), totalHits) / 50.0);
                 LOGGER.debug("Total hits: " + totalHits + " total iterations: " + numIterations);
 
                 NodeList nodes = (NodeList) resultExpr.evaluate(searchResult, XPathConstants.NODESET);
@@ -552,8 +567,9 @@ public class SourceRetriever {
                     String title = (String) titleExpr.evaluate(currentNode, XPathConstants.STRING);
                     String summary = (String) summExpr.evaluate(currentNode, XPathConstants.STRING);
 
-                    WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO_BOSS, numHits + 1, new Source(resultUrl), StringHelper.removeHTMLTags(
-                            title, true, true, true, true), StringHelper.removeHTMLTags(summary, true, true, true, true));
+                    WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO_BOSS, numHits + 1, new Source(
+                            resultUrl), HTMLHelper.removeHTMLTags(title, true, true, true, true), HTMLHelper
+                            .removeHTMLTags(summary, true, true, true, true));
 
                     LOGGER.debug("yahoo boss retrieved url " + resultUrl);
                     webresults.add(webresult);
@@ -602,15 +618,17 @@ public class SourceRetriever {
 
         int rank = 1;
         int urlsCollected = 0;
-        int grabCount = (int) Math.ceil((double) getResultCount() / 8.0); // divide by 8 because 8 results will be responded by each query
-        // Google returns max. 8 pages/64 results -- http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
+        int grabCount = (int) Math.ceil(getResultCount() / 8.0); // divide by 8 because 8 results will be responded by
+        // each query
+        // Google returns max. 8 pages/64 results --
+        // http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
         grabCount = Math.min(grabCount, 8);
         // System.out.println(grabSize);
         for (int i = 0; i < grabCount; i++) {
 
             // rsz=large will respond 8 results
-            String json = c.download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&start=" + (i * 8) + "&rsz=large&safe=off&lr=" + languageString
-                    + "&q=" + searchQuery);
+            String json = c.download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&start=" + (i * 8)
+                    + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
 
             try {
                 JSONObject jsonOBJ = new JSONObject(json);
@@ -619,7 +637,8 @@ public class SourceRetriever {
                 // in the first iteration find the maximum of available pages and limit the search to those
                 if (i == 0) {
                     JSONArray pages;
-                    if (jsonOBJ.getJSONObject("responseData") != null && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
+                    if (jsonOBJ.getJSONObject("responseData") != null
+                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
                             && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
                         pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
                         int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
@@ -639,7 +658,8 @@ public class SourceRetriever {
 
                         String currentURL = (String) results.getJSONObject(j).get("unescapedUrl");
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank, new Source(currentURL), title, summary);
+                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank,
+                                new Source(currentURL), title, summary);
                         rank++;
 
                         LOGGER.info("google retrieved url " + currentURL);
@@ -689,13 +709,15 @@ public class SourceRetriever {
         for (int i = 0; i < grabSize; i++) {
 
             // rsz=large will respond 8 results
-            String json = c.download("http://api.bing.net/json.aspx?AppId=" + SourceRetrieverManager.getInstance().BING_API_KEY + "&Web.Count=25&Web.Offset="
-                    + ((i * 25) + 1) + "&Sources=Web&JsonType=raw&Adult=Moderate&Market=" + languageString + "&Query=" + searchQuery);
+            String json = c.download("http://api.bing.net/json.aspx?AppId="
+                    + SourceRetrieverManager.getInstance().BING_API_KEY + "&Web.Count=25&Web.Offset=" + ((i * 25) + 1)
+                    + "&Sources=Web&JsonType=raw&Adult=Moderate&Market=" + languageString + "&Query=" + searchQuery);
 
             try {
                 JSONObject jsonOBJ = new JSONObject(json);
 
-                JSONArray results = jsonOBJ.getJSONObject("SearchResponse").getJSONObject("Web").getJSONArray("Results");
+                JSONArray results = jsonOBJ.getJSONObject("SearchResponse").getJSONObject("Web")
+                        .getJSONArray("Results");
                 int resultSize = results.length();
                 for (int j = 0; j < resultSize; ++j) {
                     if (urlsCollected < getResultCount()) {
@@ -707,7 +729,8 @@ public class SourceRetriever {
 
                         String currentURL = (String) results.getJSONObject(j).get("Url");
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank, new Source(currentURL), title, summary);
+                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank,
+                                new Source(currentURL), title, summary);
                         rank++;
 
                         LOGGER.info("bing retrieved url " + currentURL);
@@ -745,7 +768,8 @@ public class SourceRetriever {
 
         int rank = 1;
         int urlsCollected = 0;
-        int grabSize = (int) Math.ceil((double) getResultCount() / 10.0); // divide by 10 because 10 results will be responded by each query
+        int grabSize = (int) Math.ceil(getResultCount() / 10.0); // divide by 10 because 10 results will be responded by
+        // each query
 
         for (int i = 0; i < grabSize; i++) {
 
@@ -789,7 +813,8 @@ public class SourceRetriever {
                             // TODO: setSummary(summary);
                             String summary = null;
 
-                            WebResult webresult = new WebResult(SourceRetrieverManager.MICROSOFT, rank, new Source(currentURL), title, summary);
+                            WebResult webresult = new WebResult(SourceRetrieverManager.MICROSOFT, rank, new Source(
+                                    currentURL), title, summary);
                             rank++;
 
                             LOGGER.info("microsoft retrieved url " + currentURL);
@@ -832,11 +857,13 @@ public class SourceRetriever {
         // query hakia for search engine results
         try {
             searchResult = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(
-                    "http://syndication.hakia.com/searchapi.aspx?search.type=search&search.pid=" + SourceRetrieverManager.getInstance().HAKIA_API_KEY
-                            + "&search.query=" + searchQuery + "&search.language=en&search.numberofresult=" + getResultCount());
-            LOGGER.debug("Search Results for " + searchQuery + "\n" + "http://syndication.hakia.com/searchapi.aspx?search.type=search&search.pid="
-                    + SourceRetrieverManager.getInstance().HAKIA_API_KEY + "&search.query=" + searchQuery + "&search.language=en&search.numberofresult="
-                    + getResultCount());
+                    "http://syndication.hakia.com/searchapi.aspx?search.type=search&search.pid="
+                            + SourceRetrieverManager.getInstance().HAKIA_API_KEY + "&search.query=" + searchQuery
+                            + "&search.language=en&search.numberofresult=" + getResultCount());
+            LOGGER.debug("Search Results for " + searchQuery + "\n"
+                    + "http://syndication.hakia.com/searchapi.aspx?search.type=search&search.pid="
+                    + SourceRetrieverManager.getInstance().HAKIA_API_KEY + "&search.query=" + searchQuery
+                    + "&search.language=en&search.numberofresult=" + getResultCount());
         } catch (SAXException e1) {
             LOGGER.error("hakia", e1);
         } catch (IOException e1) {
@@ -871,7 +898,8 @@ public class SourceRetriever {
 
                 String currentURL = nodes.item(i).getTextContent();
 
-                WebResult webresult = new WebResult(SourceRetrieverManager.HAKIA, rank, new Source(currentURL), title, summary);
+                WebResult webresult = new WebResult(SourceRetrieverManager.HAKIA, rank, new Source(currentURL), title,
+                        summary);
                 rank++;
 
                 LOGGER.info("hakia retrieved url " + currentURL);
@@ -903,7 +931,8 @@ public class SourceRetriever {
 
         int rank = 1;
         int urlsCollected = 0;
-        int grabSize = (int) Math.ceil((double) this.getResultCount() / 100.0); // divide by 8 because 8 results will be responded by each query
+        int grabSize = (int) Math.ceil(this.getResultCount() / 100.0); // divide by 8 because 8 results will be
+        // responded by each query
         for (int i = 0; i < grabSize; i++) {
 
             query.setPage(i + 1);
@@ -931,7 +960,8 @@ public class SourceRetriever {
                         // Assigning the url format regular expression
                         String urlPattern = "^http(s{0,1})://[a-zA-Z0-9_/\\-\\.]+\\.([A-Za-z/]{2,5})[a-zA-Z0-9_/\\&\\?\\=\\-\\.\\~\\%]*";
                         if (currentURL.matches(urlPattern)) {
-                            WebResult webresult = new WebResult(SourceRetrieverManager.TWITTER, rank, new Source(currentURL), title, summary);
+                            WebResult webresult = new WebResult(SourceRetrieverManager.TWITTER, rank, new Source(
+                                    currentURL), title, summary);
                             rank++;
 
                             LOGGER.info("twitter retrieved url " + tweet.getSource());
@@ -966,13 +996,14 @@ public class SourceRetriever {
 
         int rank = 1;
         int urlsCollected = 0;
-        int grabSize = (int) Math.ceil((double) getResultCount() / 8.0); // divide by 8 because 8 results will be responded by each query
+        int grabSize = (int) Math.ceil(getResultCount() / 8.0); // divide by 8 because 8 results will be responded by
+        // each query
         // System.out.println(grabSize);
         for (int i = 0; i < grabSize; i++) {
 
             // rsz=large will respond 8 results
-            String json = c.download("http://ajax.googleapis.com/ajax/services/search/blogs?v=1.0&start=" + (i * 8) + "&rsz=large&safe=off&lr="
-                    + languageString + "&q=" + searchQuery);
+            String json = c.download("http://ajax.googleapis.com/ajax/services/search/blogs?v=1.0&start=" + (i * 8)
+                    + "&rsz=large&safe=off&lr=" + languageString + "&q=" + searchQuery);
 
             try {
                 JSONObject jsonOBJ = new JSONObject(json);
@@ -981,7 +1012,8 @@ public class SourceRetriever {
                 // in the first iteration find the maximum of available pages and limit the search to those
                 if (i == 0) {
                     JSONArray pages;
-                    if (jsonOBJ.getJSONObject("responseData") != null && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
+                    if (jsonOBJ.getJSONObject("responseData") != null
+                            && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor") != null
                             && jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages") != null) {
                         pages = jsonOBJ.getJSONObject("responseData").getJSONObject("cursor").getJSONArray("pages");
                         int lastStartPage = pages.getJSONObject(pages.length() - 1).getInt("start");
@@ -1002,7 +1034,8 @@ public class SourceRetriever {
 
                         String currentURL = (String) results.getJSONObject(j).get("postUrl");
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE_BLOGS, rank, new Source(currentURL), title, summary);
+                        WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE_BLOGS, rank, new Source(
+                                currentURL), title, summary);
                         rank++;
 
                         LOGGER.info("google blogs retrieved url " + currentURL);
@@ -1078,7 +1111,8 @@ public class SourceRetriever {
                         // TODO: setSummary(summary);
                         String summary = null;
 
-                        WebResult webresult = new WebResult(SourceRetrieverManager.MICROSOFT, rank, new Source(currentURL), title, summary);
+                        WebResult webresult = new WebResult(SourceRetrieverManager.MICROSOFT, rank, new Source(
+                                currentURL), title, summary);
                         rank++;
 
                         LOGGER.info("textrunner retrieved url " + currentURL);

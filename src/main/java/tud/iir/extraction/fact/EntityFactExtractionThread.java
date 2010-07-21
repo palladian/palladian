@@ -19,6 +19,7 @@ import tud.iir.extraction.ExtractionType;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.Tokenizer;
 import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.Fact;
@@ -280,7 +281,7 @@ public class EntityFactExtractionThread extends Thread {
                 while (m.find()) {
                     String searchArea = pageString.substring(m.start() + currentPattern.length(), Math.min(
                             m.start() + 150, pageString.length()));
-                    searchArea = StringHelper.getPhraseToEndOfSentence(searchArea);
+                    searchArea = Tokenizer.getPhraseToEndOfSentence(searchArea);
                     FactString factString = new FactString(searchArea, ExtractionType.PATTERN_PHRASE);
                     extractValue(entity, factString, attribute);
                 }

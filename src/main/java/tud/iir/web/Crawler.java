@@ -64,6 +64,7 @@ import tud.iir.extraction.mio.MIOExtractor;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
@@ -562,7 +563,7 @@ public class Crawler {
     public static String extractBodyContent(String pageContent, boolean textOnly) {
 
         String bodyContent = "";
-        List<String> tempList = StringHelper.getConcreteTags(pageContent, "body");
+        List<String> tempList = HTMLHelper.getConcreteTags(pageContent, "body");
 
         if (tempList.size() > 0) {
             bodyContent = tempList.get(0);
@@ -580,7 +581,7 @@ public class Crawler {
             boolean joinTagsAndRemoveNewlines = false;
 
             // Remove all tags, comments, JS and CSS from body
-            bodyContent = StringHelper.removeHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
+            bodyContent = HTMLHelper.removeHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
                     joinTagsAndRemoveNewlines);
             bodyContent = bodyContent.replaceAll("&nbsp;", "");
             bodyContent = bodyContent.replaceAll("&amp", "");
@@ -1052,7 +1053,7 @@ public class Crawler {
         }
 
         if (stripTags || stripComments || stripJSAndCSS) {
-            contentString = StringHelper.removeHTMLTags(contentString, stripTags, stripComments, stripJSAndCSS,
+            contentString = HTMLHelper.removeHTMLTags(contentString, stripTags, stripComments, stripJSAndCSS,
                     joinTagsAndRemoveNewlines);
         }
 

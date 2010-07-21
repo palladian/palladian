@@ -27,6 +27,7 @@ import tud.iir.extraction.PageAnalyzer;
 import tud.iir.gui.GUIManager;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.QA;
@@ -531,7 +532,7 @@ public class QAExtractor extends Extractor {
      */
     public AnswerFeatures getAnswerFeatures(String question, String htmlAnswer) {
 
-        String answer = StringHelper.removeHTMLTags(htmlAnswer, true, true, true, true);
+        String answer = HTMLHelper.removeHTMLTags(htmlAnswer, true, true, true, true);
 
         AnswerFeatures af = new AnswerFeatures();
 
@@ -581,11 +582,11 @@ public class QAExtractor extends Extractor {
         af.setWordDistance(tagAndWordDistanceToQuestion[1]);
 
         // number of tags in the html answer
-        int tagCount = StringHelper.countTags(htmlAnswer, false);
+        int tagCount = HTMLHelper.countTags(htmlAnswer, false);
         af.setTagCount(tagCount);
 
         // number of distinct tags in the html answer
-        int distinctTagCount = StringHelper.countTags(htmlAnswer, true);
+        int distinctTagCount = HTMLHelper.countTags(htmlAnswer, true);
         af.setDistinctTagCount(distinctTagCount);
 
         return af;
@@ -599,7 +600,7 @@ public class QAExtractor extends Extractor {
      */
     private boolean answerHintAvailable(String answer) {
         String pageContent = pa.getDocumentAsString();
-        pageContent = StringHelper.removeHTMLTags(pageContent, true, false, true, true);
+        pageContent = HTMLHelper.removeHTMLTags(pageContent, true, false, true, true);
         pageContent = StringEscapeUtils.unescapeHtml(pageContent);
 
         int indexOfAnswer = pageContent.indexOf(answer);
@@ -643,7 +644,7 @@ public class QAExtractor extends Extractor {
 
         String pageContent = pa.getDocumentAsString();
         pageContent = StringEscapeUtils.unescapeHtml(pageContent);
-        String pageContentNoTags = StringHelper.removeHTMLTags(pageContent, true, true, true, true);
+        String pageContentNoTags = HTMLHelper.removeHTMLTags(pageContent, true, true, true, true);
 
         int answerIndex = pageContentNoTags.indexOf(answer);
 
