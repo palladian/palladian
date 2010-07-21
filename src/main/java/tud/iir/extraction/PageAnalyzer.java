@@ -375,7 +375,9 @@ public class PageAnalyzer {
                     // System.out.println("found "+child.getNodeType()+child.getNodeName()+child.getNodeValue());
 
                     if (wordMatch) {
-                        Pattern pattern = Pattern.compile("(?<!\\w)" + StringHelper.escapeForRegularExpression(keyword) + "(?!\\w)", Pattern.CASE_INSENSITIVE);
+                        Pattern pattern = Pattern.compile("(?<![A-Za-z_-])"
+                                + StringHelper.escapeForRegularExpression(keyword) + "(?![A-Za-z_-])",
+                                Pattern.CASE_INSENSITIVE);
                         Matcher m = pattern.matcher(child.getNodeValue());
                         if (m.find()) {
                             String xpath = constructXPath(child);
