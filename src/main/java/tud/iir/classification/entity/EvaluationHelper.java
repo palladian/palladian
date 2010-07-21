@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import tud.iir.extraction.entity.EntityExtractor;
-import tud.iir.helper.StringHelper;
+import tud.iir.helper.WordTransformer;
 import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -141,10 +141,14 @@ public class EvaluationHelper {
                 // int popularity2 = sr.getHitCount("\"" + entity.getName() + "\"" + " \"" + concept.getName() + "\"");
 
                 int hitCountIsX = sr.getHitCount("\"" + entity.getName() + " is a " + concept.getName() + "\"");
-                int hitCountXSuchAs = sr.getHitCount("\"" + StringHelper.wordToPlural(concept.getName()) + " such as " + entity.getName() + "\"");
-                int hitCountXLike = sr.getHitCount("\"" + StringHelper.wordToPlural(concept.getName()) + " like " + entity.getName() + "\"");
-                int hitCountXIncluding = sr.getHitCount("\"" + StringHelper.wordToPlural(concept.getName()) + " including " + entity.getName() + "\"");
-                int hitCountAndOtherX = sr.getHitCount("\"" + entity.getName() + " and other " + StringHelper.wordToPlural(concept.getName()) + "\"");
+                int hitCountXSuchAs = sr.getHitCount("\"" + WordTransformer.wordToPlural(concept.getName())
+                        + " such as " + entity.getName() + "\"");
+                int hitCountXLike = sr.getHitCount("\"" + WordTransformer.wordToPlural(concept.getName()) + " like "
+                        + entity.getName() + "\"");
+                int hitCountXIncluding = sr.getHitCount("\"" + WordTransformer.wordToPlural(concept.getName())
+                        + " including " + entity.getName() + "\"");
+                int hitCountAndOtherX = sr.getHitCount("\"" + entity.getName() + " and other "
+                        + WordTransformer.wordToPlural(concept.getName()) + "\"");
 
                 System.out.println("is X       :" + hitCountIsX);
                 System.out.println("X such as  :" + hitCountXSuchAs);

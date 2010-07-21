@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -81,7 +80,7 @@ public final class CollectionHelper {
      * @param value The value.
      * @return The key that matches the value.
      */
-    public static <S> Object getKeyByValue(HashMap<S, S> map, Object value) {
+    public static <S> Object getKeyByValue(Map<S, S> map, Object value) {
         for (Entry<S, S> mapEntry : map.entrySet()) {
             if (mapEntry.getValue().equals(value))
                 return mapEntry.getKey();

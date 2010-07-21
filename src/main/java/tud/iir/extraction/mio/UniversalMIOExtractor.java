@@ -10,7 +10,7 @@ import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import tud.iir.helper.StringHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.Entity;
 import tud.iir.web.Crawler;
 
@@ -88,29 +88,29 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
         final List<String> relevantTags = new ArrayList<String>();
 
         // extract all <object>
-        relevantTags.addAll(StringHelper.getConcreteTags(mioPageContent, "object"));
+        relevantTags.addAll(HTMLHelper.getConcreteTags(mioPageContent, "object"));
 
         // remove the object-tags
-        modMioPageContent = StringHelper.removeConcreteHTMLTag(mioPageContent, "object");
+        modMioPageContent = HTMLHelper.removeConcreteHTMLTag(mioPageContent, "object");
 
         // extract all remaining <embed>-tags
-        relevantTags.addAll(StringHelper.getConcreteTags(mioPageContent, "embed"));
+        relevantTags.addAll(HTMLHelper.getConcreteTags(mioPageContent, "embed"));
 
         // remove all <embed>-tags
-        modMioPageContent = StringHelper.removeConcreteHTMLTag(mioPageContent, "embed");
+        modMioPageContent = HTMLHelper.removeConcreteHTMLTag(mioPageContent, "embed");
 
         // extract all <script>-tags
-        relevantTags.addAll(StringHelper.getConcreteTags(mioPageContent, "script"));
+        relevantTags.addAll(HTMLHelper.getConcreteTags(mioPageContent, "script"));
 
         // remove all <script>-tags
-        modMioPageContent = StringHelper.removeConcreteHTMLTag(mioPageContent, "script");
+        modMioPageContent = HTMLHelper.removeConcreteHTMLTag(mioPageContent, "script");
 
         if (mioType.equals(APPLET)) {
             // extract all <object>
-            relevantTags.addAll(StringHelper.getConcreteTags(mioPageContent, APPLET));
+            relevantTags.addAll(HTMLHelper.getConcreteTags(mioPageContent, APPLET));
 
             // remove the object-tags
-            modMioPageContent = StringHelper.removeConcreteHTMLTag(mioPageContent, APPLET);
+            modMioPageContent = HTMLHelper.removeConcreteHTMLTag(mioPageContent, APPLET);
         }
 
         return relevantTags;

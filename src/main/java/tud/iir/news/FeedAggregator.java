@@ -26,8 +26,8 @@ import org.xml.sax.InputSource;
 
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.StringHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
 
@@ -245,7 +245,7 @@ public class FeedAggregator {
 
                 Document pageContent = extractor.getResultDocument();
                 String pageText = Helper.xmlToString(pageContent);
-                pageText = StringHelper.removeHTMLTags(pageText, true, true, true, true);
+                pageText = HTMLHelper.removeHTMLTags(pageText, true, true, true, true);
                 pageText = StringEscapeUtils.unescapeHtml(pageText);
 
                 // first, calculate a similarity based solely on text lengths
@@ -331,7 +331,7 @@ public class FeedAggregator {
             // remove HTML tags and unescape HTML entities from title
             String title = syndEntry.getTitle();
             if (title != null) {
-                title = StringHelper.removeHTMLTags(title, true, true, true, true);
+                title = HTMLHelper.removeHTMLTags(title, true, true, true, true);
                 title = StringEscapeUtils.unescapeHtml(title);
                 title = title.trim();
             }

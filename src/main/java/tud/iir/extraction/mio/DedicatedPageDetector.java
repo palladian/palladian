@@ -8,7 +8,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.StringHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.web.Crawler;
 
 /**
@@ -54,11 +54,11 @@ public class DedicatedPageDetector {
 
             // System.out.println(bodyContent);
             // check for existence of images in the body
-            List<String> imageTags = StringHelper.getConcreteTags(bodyContent, "img");
+            List<String> imageTags = HTMLHelper.getConcreteTags(bodyContent, "img");
             int numberOfImages = imageTags.size();
 
             // check for links in the body
-            List<String> linksList = StringHelper.getConcreteTags(bodyContent, "a");
+            List<String> linksList = HTMLHelper.getConcreteTags(bodyContent, "a");
             int numberOfLinks = linksList.size();
 
             // System.out.println("clean bodyContent started..." +

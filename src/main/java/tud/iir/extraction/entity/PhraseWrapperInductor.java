@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.regex.Matcher;
 
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.Tokenizer;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.Source;
@@ -43,7 +44,8 @@ class PhraseWrapperInductor extends WrapperInductor implements WrapperInductorIn
 
             // do not include the search term for the pattern matching
             index = m.end();
-            currentPhrase = StringHelper.getPhraseToEndOfSentence(page.substring(index, Math.min(page.length(), index + 200)));
+            currentPhrase = Tokenizer.getPhraseToEndOfSentence(page.substring(index, Math.min(page.length(),
+                    index + 200)));
 
             // two spaces raise problems for the pattern matcher so delete them
             currentPhrase = StringHelper.trim(currentPhrase);

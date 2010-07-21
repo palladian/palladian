@@ -4,11 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -24,7 +20,6 @@ import tud.iir.knowledge.RegExp;
 import tud.iir.normalization.StringNormalizer;
 import tud.iir.normalization.UnitNormalizer;
 
-// TODO Separate to several text processing classes and move to correct package.
 /**
  * The StringHelper adds string functionality.
  * 
@@ -34,122 +29,8 @@ import tud.iir.normalization.UnitNormalizer;
  */
 public class StringHelper {
 
-    // list of brackets
-    /** The Constant BRACKETS. */
+    /** The Constant BRACKETS. A list of bracket types. */
     private static final char[] BRACKETS = { '(', ')', '{', '}', '[', ']' };
-
-    // irregular nouns| singular, plural
-    /** The Constant IRREGULAR_NOUNS. */
-    private static final HashMap<String, String> IRREGULAR_NOUNS = new HashMap<String, String>();
-
-    /**
-     * Gets the irregular nouns.
-     * 
-     * @return the irregular nouns
-     */
-    private static HashMap<String, String> getIrregularNouns() {
-
-        IRREGULAR_NOUNS.put("addendum", "addenda");
-        IRREGULAR_NOUNS.put("alga", "algae");
-        IRREGULAR_NOUNS.put("alumna", "alumnae");
-        IRREGULAR_NOUNS.put("alumnus", "alumni");
-        IRREGULAR_NOUNS.put("analysis", "analyses");
-        IRREGULAR_NOUNS.put("antennas", "antenna");
-        IRREGULAR_NOUNS.put("apparatus", "apparatuses");
-        IRREGULAR_NOUNS.put("appendix", "appendices");
-        IRREGULAR_NOUNS.put("axis", "axes");
-        IRREGULAR_NOUNS.put("bacillus", "bacilli");
-        IRREGULAR_NOUNS.put("bacterium", "bacteria");
-        IRREGULAR_NOUNS.put("basis", "bases");
-        IRREGULAR_NOUNS.put("beau", "beaux");
-        IRREGULAR_NOUNS.put("bison", "bison");
-        IRREGULAR_NOUNS.put("calf", "calves");
-        IRREGULAR_NOUNS.put("child", "children");
-        IRREGULAR_NOUNS.put("corps", "corps");
-        IRREGULAR_NOUNS.put("crisis", "crises");
-        IRREGULAR_NOUNS.put("criterion", "criteria");
-        IRREGULAR_NOUNS.put("curriculum", "curricula");
-        IRREGULAR_NOUNS.put("datum", "data");
-        IRREGULAR_NOUNS.put("deer", "deer");
-        IRREGULAR_NOUNS.put("die", "dice");
-        IRREGULAR_NOUNS.put("diagnosis", "diagnoses");
-        IRREGULAR_NOUNS.put("echo", "echoes");
-        IRREGULAR_NOUNS.put("elf", "elves");
-        IRREGULAR_NOUNS.put("ellipsis", "ellipses");
-        IRREGULAR_NOUNS.put("embargo", "embargoes");
-        IRREGULAR_NOUNS.put("emphasis", "emphases");
-        IRREGULAR_NOUNS.put("erratum", "errata");
-        IRREGULAR_NOUNS.put("fireman", "firemen");
-        IRREGULAR_NOUNS.put("fish", "fish");
-        IRREGULAR_NOUNS.put("foot", "feet");
-        IRREGULAR_NOUNS.put("fungus", "fungi");
-        IRREGULAR_NOUNS.put("genus", "genera");
-        IRREGULAR_NOUNS.put("goose", "geese");
-        IRREGULAR_NOUNS.put("half", "halves");
-        IRREGULAR_NOUNS.put("hero", "heroes");
-        IRREGULAR_NOUNS.put("hippopotamus", "hippopotami");
-        IRREGULAR_NOUNS.put("hypothesis", "hypotheses");
-        IRREGULAR_NOUNS.put("index", "indices");
-        IRREGULAR_NOUNS.put("information", "information");
-        IRREGULAR_NOUNS.put("knife", "knives");
-        IRREGULAR_NOUNS.put("leaf", "leaves");
-        IRREGULAR_NOUNS.put("life", "lives");
-        IRREGULAR_NOUNS.put("loaf", "loaves");
-        IRREGULAR_NOUNS.put("louse", "lice");
-        IRREGULAR_NOUNS.put("man", "men");
-        IRREGULAR_NOUNS.put("matrix", "matrices");
-        IRREGULAR_NOUNS.put("means", "means");
-        IRREGULAR_NOUNS.put("medium", "media");
-        IRREGULAR_NOUNS.put("memorandum", "memoranda");
-        IRREGULAR_NOUNS.put("millennium", "milennia");
-        IRREGULAR_NOUNS.put("moose", "moose");
-        IRREGULAR_NOUNS.put("mosquito", "mosquitoes");
-        IRREGULAR_NOUNS.put("mouse", "mice");
-        IRREGULAR_NOUNS.put("movie", "movies");
-        IRREGULAR_NOUNS.put("neurosis", "neuroses");
-        IRREGULAR_NOUNS.put("news", "news");
-        IRREGULAR_NOUNS.put("nucleus", "nuclei");
-        IRREGULAR_NOUNS.put("oasis", "oases");
-        IRREGULAR_NOUNS.put("ovum", "ova");
-        IRREGULAR_NOUNS.put("ox", "oxen");
-        IRREGULAR_NOUNS.put("paralysis", "paralyses");
-        IRREGULAR_NOUNS.put("parenthesis", "parentheses");
-        IRREGULAR_NOUNS.put("person", "people");
-        IRREGULAR_NOUNS.put("phenomenon", "phenomena");
-        IRREGULAR_NOUNS.put("pike", "pike");
-        IRREGULAR_NOUNS.put("potato", "potatoes");
-        IRREGULAR_NOUNS.put("radius", "radiuses");
-        IRREGULAR_NOUNS.put("salmon", "salmon");
-        IRREGULAR_NOUNS.put("scissors", "scissors");
-        IRREGULAR_NOUNS.put("series", "series");
-        IRREGULAR_NOUNS.put("sheep", "sheep");
-        IRREGULAR_NOUNS.put("shelf", "shelves");
-        IRREGULAR_NOUNS.put("species", "species");
-        IRREGULAR_NOUNS.put("status", "status");
-        IRREGULAR_NOUNS.put("stimulus", "stimuli");
-        IRREGULAR_NOUNS.put("stratum", "strata");
-        IRREGULAR_NOUNS.put("swine", "swine");
-        IRREGULAR_NOUNS.put("syllabus", "syllabuses");
-        IRREGULAR_NOUNS.put("symposium", "symposia");
-        IRREGULAR_NOUNS.put("synthesis", "syntheses");
-        IRREGULAR_NOUNS.put("synopsis", "synopses");
-        IRREGULAR_NOUNS.put("tableau", "tableaux");
-        IRREGULAR_NOUNS.put("thesis", "theses");
-        IRREGULAR_NOUNS.put("thief", "thieves");
-        IRREGULAR_NOUNS.put("tomato", "tomatoes");
-        IRREGULAR_NOUNS.put("tooth", "teeth");
-        IRREGULAR_NOUNS.put("torpedo", "torpedoes");
-        IRREGULAR_NOUNS.put("trout", "trout");
-        IRREGULAR_NOUNS.put("vertebra", "vertebrae");
-        IRREGULAR_NOUNS.put("vertex", "vertices");
-        IRREGULAR_NOUNS.put("veto", "vetoes");
-        IRREGULAR_NOUNS.put("vita", "vitae");
-        IRREGULAR_NOUNS.put("wife", "wives");
-        IRREGULAR_NOUNS.put("wolf", "wolves");
-        IRREGULAR_NOUNS.put("woman", "women");
-
-        return IRREGULAR_NOUNS;
-    }
 
     /**
      * In ontologies names can not have certain characters so they have to be changed.
@@ -214,7 +95,7 @@ public class StringHelper {
         for (int i = 0; i < parts.length; i++) {
             String part = parts[i];
             if (i == parts.length - 1 && toSingular) {
-                part = wordToSingular(part);
+                part = WordTransformer.wordToSingular(part);
             }
             camelCasedName += upperCaseFirstLetter(part);
         }
@@ -264,101 +145,7 @@ public class StringHelper {
         return term.substring(0, 1).toLowerCase() + term.substring(1);
     }
 
-    /**
-     * Calculate n-grams for a given string on a character level. The size of the set can be calculated as: Size =
-     * stringLength - n + 1
-     * 
-     * @param string The string that the n-grams should be calculated for.
-     * @param n The number of characters for a gram.
-     * @return A set of n-grams.
-     */
-    public static Set<String> calculateCharNGrams(String string, int n) {
-        Set<String> nGrams = new HashSet<String>();
 
-        if (string.length() < n) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= string.length() - n; i++) {
-
-            StringBuilder nGram = new StringBuilder();
-            for (int j = i; j < i + n; j++) {
-                nGram.append(string.charAt(j));
-            }
-            nGrams.add(nGram.toString());
-
-        }
-
-        return nGrams;
-    }
-
-    /**
-     * Calculate n-grams for a given string on a word level. The size of the set can be calculated as: Size =
-     * numberOfWords - n + 1
-     * 
-     * @param string The string that the n-grams should be calculated for.
-     * @param n The number of words for a gram.
-     * @return A set of n-grams.
-     */
-    public static Set<String> calculateWordNGrams(String string, int n) {
-        Set<String> nGrams = new HashSet<String>();
-
-        String[] words = string.split("\\s");
-
-        if (words.length < n) {
-            return nGrams;
-        }
-
-        for (int i = 0; i <= words.length - n; i++) {
-
-            StringBuilder nGram = new StringBuilder();
-            for (int j = i; j < i + n; j++) {
-                nGram.append(words[j]).append(" ");
-            }
-            nGrams.add(nGram.toString().trim());
-
-        }
-
-        return nGrams;
-    }
-
-    /**
-     * Calculate all n-grams for a string for different n on a character level. The size of the set can be calculated
-     * as: Size = SUM_n(n1,n2)
-     * (stringLength - n + 1)
-     * 
-     * @param string The string the n-grams should be calculated for.
-     * @param n1 The smallest n-gram size.
-     * @param n2 The greatest n-gram size.
-     * @return A set of n-grams.
-     */
-    public static Set<String> calculateAllCharNGrams(String string, int n1, int n2) {
-        Set<String> nGrams = new HashSet<String>();
-        for (int n = n1; n <= n2; n++) {
-            nGrams.addAll(calculateCharNGrams(string, n));
-        }
-
-        return nGrams;
-    }
-
-    /**
-     * Calculate all n-grams for a string for different n on a word level. The size of the set can be calculated as:
-     * Size = SUM_n(n1,n2)
-     * (numberOfWords - n + 1)
-     * 
-     * @param string The string the n-grams should be calculated for.
-     * @param n1 The smallest n-gram size.
-     * @param n2 The greatest n-gram size.
-     * @return A set of n-grams.
-     */
-    public static Set<String> calculateAllWordNGrams(String string, int n1, int n2) {
-        Set<String> nGrams = new HashSet<String>();
-        for (int n = n1; n <= n2; n++) {
-            nGrams.addAll(calculateWordNGrams(string, n));
-        }
-
-        return nGrams;
-    }
 
     /**
      * Replace number before a text. 1.1 Text => Text
@@ -429,145 +216,7 @@ public class StringHelper {
         return false;
     }
 
-    /**
-     * Transform an English plural word to its singular form. Rules:
-     * http://www.englisch-hilfen.de/en/grammar/plural.htm,
-     * http://en.wikipedia.org/wiki/English_plural
-     * 
-     * @param pluralForm the plural form
-     * @return The singular.
-     */
-    public static String wordToSingular(String pluralForm) {
 
-        String plural = pluralForm;
-
-        if (plural == null) {
-            return "";
-        }
-
-        String singular = plural;
-
-        // check exceptions where no rules apply to transformation
-        if (getIrregularNouns().containsValue(plural)) {
-            singular = (String) CollectionHelper.getKeyByValue(getIrregularNouns(), singular);
-
-            if (StringHelper.startsUppercase(plural)) {
-                singular = upperCaseFirstLetter(singular);
-            }
-            return singular;
-        }
-
-        if (singular.length() < 4) {
-            return singular;
-        }
-
-        // substitute ices with x
-        if (plural.toLowerCase().endsWith("ices")) {
-            return plural.substring(0, plural.length() - 4) + "ix";
-        }
-
-        // substitute ies with y after consonants
-        if (plural.toLowerCase().endsWith("ies")) {
-            return plural.substring(0, plural.length() - 3) + "y";
-        }
-
-        // substitute ves with f or fe
-        if (plural.toLowerCase().endsWith("ves")) {
-            char letterBeforeVES = plural.substring(plural.length() - 3, plural.length() - 2).charAt(0);
-            plural = plural.substring(0, plural.length() - 3) + "f";
-            if (!isVowel(letterBeforeVES)
-                    && isVowel(plural.substring(plural.length() - 2, plural.length() - 1).charAt(0))) {
-                plural += "e";
-            }
-            return plural;
-        }
-
-        // remove es
-        if (plural.toLowerCase().endsWith("es") && plural.length() >= 5) {
-            String lettersBeforeES = plural.substring(plural.length() - 4, plural.length() - 2);
-            String letterBeforeES = lettersBeforeES.substring(1);
-            if (lettersBeforeES.equalsIgnoreCase("ss") || lettersBeforeES.equalsIgnoreCase("ch")
-                    || lettersBeforeES.equalsIgnoreCase("sh") || letterBeforeES.equalsIgnoreCase("x")
-                    || isVowel(letterBeforeES.charAt(0))) {
-                return plural.substring(0, plural.length() - 2);
-            }
-        }
-
-        // remove s
-        if (plural.toLowerCase().endsWith("s")) {
-            return plural.substring(0, plural.length() - 1);
-        }
-
-        return plural;
-    }
-
-    /**
-     * Transform an English singular word to its plural form. rules:
-     * http://owl.english.purdue.edu/handouts/grammar/g_spelnoun.html
-     * 
-     * @param singular The singular.
-     * @return The plural.
-     */
-    public static String wordToPlural(String singular) {
-
-        if (singular == null) {
-            return "";
-        }
-
-        String plural = singular;
-
-        // check exceptions where no rules apply to transformation
-        if (getIrregularNouns().containsKey(singular)) {
-            plural = getIrregularNouns().get(singular);
-
-            if (StringHelper.startsUppercase(singular)) {
-                plural = upperCaseFirstLetter(plural);
-            }
-            return plural;
-        }
-
-        // word must be at least two characters long
-        if (singular.length() < 3) {
-            return singular;
-        }
-
-        // get last two letters
-        String lastLetter = singular.substring(singular.length() - 1, singular.length());
-        String secondLastLetter = singular.substring(singular.length() - 2, singular.length() - 1);
-        String lastTwoLetters = secondLastLetter + lastLetter;
-
-        // if word ends in a vowel plus -y (-ay, -ey, -iy, -oy, -uy), add an -s
-        if (lastTwoLetters.equalsIgnoreCase("ay") || lastTwoLetters.equalsIgnoreCase("ey")
-                || lastTwoLetters.equalsIgnoreCase("iy") || lastTwoLetters.equalsIgnoreCase("oy")
-                || lastTwoLetters.equalsIgnoreCase("uy")) {
-            return singular + "s";
-        }
-
-        // if word ends in a consonant plus -y, change the -y into -ie and add
-        // an -s
-        if (lastLetter.equalsIgnoreCase("y")) {
-            return singular.substring(0, singular.length() - 1) + "ies";
-        }
-
-        // if words that end in -is, change the -is to -es
-        if (lastTwoLetters.equalsIgnoreCase("is")) {
-            return singular.substring(0, singular.length() - 2) + "es";
-        }
-
-        // if word ends on -s, -z, -x, -ch or -sh end add an -es
-        if (lastLetter.equalsIgnoreCase("s") || lastLetter.equalsIgnoreCase("z") || lastLetter.equalsIgnoreCase("x")
-                || lastTwoLetters.equalsIgnoreCase("ch") || lastTwoLetters.equalsIgnoreCase("sh")) {
-            return singular + "es";
-        }
-
-        // some words that end in -f or -fe have plurals that end in -ves
-        // if (lastTwoLetters.equalsIgnoreCase("is")) {
-        // return singular.substring(0,singular.length()-2)+"es";
-        // }
-
-        // if no other rule applied just add an s
-        return singular + "s";
-    }
 
     /**
      * Clean the given string from stop words, i.e. words that appear often but have no meaning itself.
@@ -591,161 +240,7 @@ public class StringHelper {
         return modString.trim();
     }
 
-    public static List<String> tokenize(String inputString) {
 
-        List<String> tokens = new ArrayList<String>();
-
-        Pattern pattern = Pattern.compile("(\\w+)(-(\\w+))*|</?(\\w+)>|(\\$\\d+\\.\\d+)|([^\\w\\s]+)", Pattern.DOTALL
-                | Pattern.CASE_INSENSITIVE);
-
-        Matcher matcher = pattern.matcher(inputString);
-        while (matcher.find()) {
-            tokens.add(matcher.group(0));
-        }
-
-        return tokens;
-    }
-
-    /**
-     * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
-     * gaps.
-     * 
-     * @param htmlContent the html content
-     * @param stripTags the strip tags
-     * @param stripComments the strip comments
-     * @param stripJSAndCSS the strip js and css
-     * @param joinTagsAndRemoveNewlines the join tags and remove newlines
-     * @return The text of the web page.
-     */
-    public static String removeHTMLTags(String htmlContent, boolean stripTags, boolean stripComments,
-            boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
-
-        String htmlText = htmlContent;
-        // modified by Martin Werner, 2010-06-02
-
-        if (joinTagsAndRemoveNewlines) {
-            htmlText = htmlText.replaceAll(">\\s*?<", "><");
-            htmlText = htmlText.replaceAll("\n", "");
-        }
-
-        // String regExp = "";
-
-        if (stripComments) {
-            // regExp += "(\\<!--.*?-->)|";
-            htmlText = htmlText.replaceAll("<!--.*?-->", "");
-        }
-
-        if (stripJSAndCSS) {
-            // regExp += "(<style.*?>.*?</style>)|(<script.*?>.*?</script>)|";
-            htmlText = removeConcreteHTMLTag(htmlText, "style");
-            htmlText = removeConcreteHTMLTag(htmlText, "script");
-        }
-
-        if (stripTags) {
-            // regExp += "(\\<.*?>)";
-            // htmlText = removeConcreteHTMLTag(htmlText, "\\<", ">", true);
-            htmlText = htmlText.replaceAll("<.*?>", "");
-        }
-
-        // if (regExp.length() == 0) {
-        // return htmlText;
-        // }
-
-        // if (regExp.endsWith("|")) {
-        // regExp = regExp.substring(0, regExp.length() - 1);
-        // }
-        //
-        // // Pattern pattern =
-        // //
-        // Pattern.compile("((\\<!--.*?-->)|(\\<style.*?>.*?\\</style>)|(\\<script.*?>.*?\\</script>)|(\\<.*?>))",Pattern.DOTALL);
-        // Pattern pattern = Pattern.compile("(" + regExp + ")", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        // Matcher matcher = pattern.matcher(htmlText);
-        //
-        // while (matcher.find()) {
-        // htmlText = htmlText.replace(matcher.group(), " "); // TODO changed
-        // // and untested
-        // // 16/06/2009
-        // // replace with
-        // // whitespace
-        // // instead of
-        // // nothing
-        // }
-
-        // close gaps
-        htmlText = htmlText.replaceAll("(\\s){2,}", " ");
-
-        return htmlText.trim();
-    }
-
-    /**
-     * Removes the concrete html tag.
-     * 
-     * @param pageString the page string
-     * @param tag the tag
-     * @return the string
-     */
-    public static String removeConcreteHTMLTag(String pageString, String tag) {
-        return removeConcreteHTMLTag(pageString, tag, tag);
-    }
-
-    /**
-     * Remove concrete HTMLTags from a string; set isSpecial=true for special-tags like <!-- -->.
-     * 
-     * @param pageContent the page content
-     * @param beginTag the begin tag
-     * @param endTag the end tag
-     * @return the string
-     */
-    public static String removeConcreteHTMLTag(String pageContent, String beginTag, String endTag) {
-        String pageString = pageContent;
-        List<String> removeList;
-        removeList = getConcreteTags(pageString, beginTag, endTag);
-        for (String removeTag : removeList) {
-            pageString = pageString.replace(removeTag, "");
-        }
-        return pageString;
-    }
-
-    /**
-     * Get a list of concrete HTMLTags; begin- and endtag are not different.
-     * 
-     * @param pageString the page string
-     * @param tag the tag
-     * @return the concrete tags
-     */
-    public static List<String> getConcreteTags(String pageString, String tag) {
-        return getConcreteTags(pageString, tag, tag);
-    }
-
-    /**
-     * Get a list of concrete HTMLTags; its possible that begin- and endtag are different like <!-- -->.
-     * 
-     * @param pageString the page string
-     * @param beginTag the begin tag
-     * @param endTag the end tag
-     * @return the concrete tags
-     */
-    public static List<String> getConcreteTags(String pageString, String beginTag, String endTag) {
-
-        List<String> tagList = new ArrayList<String>();
-        String regExp = "";
-        if (beginTag.equals(endTag)) {
-            // regExp = "<"+beginTag+".*?>.*?</"+endTag+">";
-            regExp = "<" + beginTag + ".*?>(.*?</" + endTag + ">)?";
-
-        } else {
-            regExp = beginTag + ".*?" + endTag;
-        }
-
-        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-
-        Matcher matcher = pattern.matcher(pageString);
-        while (matcher.find()) {
-            tagList.add(matcher.group(0));
-        }
-
-        return tagList;
-    }
 
     /**
      * Removes the special chars.
@@ -758,42 +253,7 @@ public class StringHelper {
         return modString;
     }
 
-    /**
-     * Count tags.
-     * 
-     * @param htmlText the html text
-     * @return the int
-     */
-    public static int countTags(String htmlText) {
-        return countTags(htmlText, false);
-    }
 
-    /**
-     * Count tags.
-     * 
-     * @param htmlText the html text
-     * @param distinct the distinct
-     * @return the int
-     */
-    public static int countTags(String htmlText, boolean distinct) {
-        Set<String> tags = new HashSet<String>();
-
-        int tagCount = 0;
-
-        Pattern pattern = Pattern.compile("(\\<.*?>)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher = pattern.matcher(htmlText);
-
-        while (matcher.find()) {
-            tagCount++;
-            tags.add(matcher.group());
-        }
-
-        if (distinct) {
-            tagCount = tags.size();
-        }
-
-        return tagCount;
-    }
 
     /**
      * Removes the brackets.
@@ -1052,199 +512,8 @@ public class StringHelper {
         return false;
     }
 
-    /**
-     * Given a string, find the beginning of the sentence, e.g. "...now. Although, many of them" =>
-     * "Although, many of them". consider !,?,. and : as end of
-     * sentence TODO control character after delimiter makes it end of sentence
-     * 
-     * @param inputString the input string
-     * @return The phrase from the beginning of the sentence.
-     */
-    public static String getPhraseFromBeginningOfSentence(String inputString) {
 
-        String string = inputString;
-        // find the beginning of the current sentence by finding the period at the end
-        int startIndex = string.lastIndexOf(".");
 
-        // make sure point is not between numerals e.g. 30.2% (as this would not
-        // be the end of the sentence, keep searching in this case)
-        boolean pointIsSentenceDelimiter = false;
-        while (!pointIsSentenceDelimiter && startIndex > -1) {
-            if (startIndex >= string.length() - 1) {
-                break;
-            }
-
-            if (startIndex > 0) {
-                pointIsSentenceDelimiter = !isNumber(string.charAt(startIndex - 1))
-                        && Character.isUpperCase(string.charAt(startIndex + 1));
-            }
-            if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = Character.isUpperCase(string.charAt(startIndex + 2))
-                        && string.charAt(startIndex + 1) == ' ';
-            }
-            if (pointIsSentenceDelimiter) {
-                break;
-            }
-
-            if (startIndex < string.length() - 1) {
-                startIndex = string.substring(0, startIndex).lastIndexOf(".");
-            } else {
-                startIndex = -1;
-            }
-        }
-
-        if (string.lastIndexOf("!") > -1 && string.lastIndexOf("!") > startIndex) {
-            startIndex = string.lastIndexOf("!");
-        }
-
-        if (string.lastIndexOf("?") > -1 && string.lastIndexOf("?") > startIndex) {
-            startIndex = string.lastIndexOf("?");
-        }
-
-        if (string.lastIndexOf(":") > -1 && string.lastIndexOf(":") > startIndex) {
-            startIndex = string.lastIndexOf(":");
-        }
-
-        if (startIndex == -1) {
-            startIndex = -1;
-        }
-
-        string = string.substring(startIndex + 1); // cut point
-        if (string.startsWith(" ")) {
-            string = string.substring(1); // cut first space
-        }
-
-        return string;
-    }
-
-    /**
-     * Given a string, find the end of the sentence, e.g. "Although, many of them (30.2%) are good. As long as" =>
-     * "Although, many of them (30.2%) are good."
-     * consider !,?,. and : as end of sentence
-     * 
-     * @param string The string.
-     * @return The phrase to the end of the sentence.
-     */
-    public static String getPhraseToEndOfSentence(String string) {
-
-        // find the end of the current sentence
-        int endIndex = string.indexOf(".");
-
-        // make sure point is not between numerals e.g. 30.2% (as this would not
-        // be the end of the sentence, keep searching in this case)
-        // after point no number because 2 hr. 32 min. would be broken
-        boolean pointIsSentenceDelimiter = false;
-        while (!pointIsSentenceDelimiter && endIndex > -1) {
-
-            // before point
-            if (endIndex > 0) {
-                pointIsSentenceDelimiter = !isNumber(string.charAt(endIndex - 1));
-            }
-            // one digit after point
-            if (endIndex < string.length() - 1) {
-                pointIsSentenceDelimiter = !isNumber(string.charAt(endIndex + 1))
-                        && Character.isUpperCase(string.charAt(endIndex + 1)) || isBracket(string.charAt(endIndex + 1));
-            }
-            // two digits after point
-            if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
-                pointIsSentenceDelimiter = !isNumber(string.charAt(endIndex + 2))
-                        && (Character.isUpperCase(string.charAt(endIndex + 2)) || isBracket(string.charAt(endIndex + 2)))
-                        && string.charAt(endIndex + 1) == ' ';
-            }
-            if (pointIsSentenceDelimiter) {
-                break;
-            }
-
-            if (endIndex < string.length() - 1) {
-                endIndex = string.indexOf(".", endIndex + 1);
-            } else {
-                endIndex = -1;
-            }
-        }
-
-        if (string.indexOf("!") > -1 && (string.indexOf("!") < endIndex || endIndex == -1)) {
-            endIndex = string.indexOf("!");
-        }
-
-        if (string.indexOf("?") > -1 && (string.indexOf("?") < endIndex || endIndex == -1)) {
-            endIndex = string.indexOf("?");
-        }
-
-        if (string.indexOf(":") > -1 && (string.indexOf(":") < endIndex || endIndex == -1)) {
-            int indexColon = string.indexOf(":");
-            if (string.length() > indexColon + 1 && !isNumber(string.charAt(indexColon + 1))) {
-                endIndex = indexColon;
-            }
-
-        }
-        if (endIndex == -1) {
-            endIndex = string.length();
-        }
-
-        else {
-            ++endIndex; // take last character as well
-        }
-
-        return string.substring(0, endIndex);
-    }
-
-    /**
-     * Get the sentence that the specified position is in.
-     * 
-     * @param string The string.
-     * @param position The position in the sentence.
-     * @return The whole sentence.
-     */
-    public static String getSentence(String string, int position) {
-        if (position < 0) {
-            return string;
-        }
-
-        String beginning = getPhraseFromBeginningOfSentence(string.substring(0, position));
-        String end = getPhraseToEndOfSentence(string.substring(position));
-        if (beginning.endsWith(" ")) {
-            end = end.trim();
-        }
-
-        return beginning + end;
-    }
-
-    /**
-     * Get a list of sentences of an input text.
-     * Also see <a
-     * href="http://alias-i.com/lingpipe/demos/tutorial/sentences/read-me.html">http://alias-i.com/lingpipe/demos
-     * /tutorial/sentences/read-me.html</a> for the LingPipe example.
-     * 
-     * @param inputText An input text.
-     * @return A list with sentences.
-     */
-    public static List<String> getSentences(String inputText) {
-
-        List<String> sentences = new ArrayList<String>();
-        String[] sentenceArray = inputText.split("(?<!(\\.|\\())(\\.|\\?+|\\!+)(?!(\\.|\\())");
-
-        // for (String sentence : sentenceArray) {
-        for (int i = 0; i < sentenceArray.length; i++) {
-            String sentence = sentenceArray[i];
-            if (sentence.length() == 0) {
-                continue;
-            }
-
-            // get end of sentence
-            String sentenceTermination = ".";
-
-            if (i < sentenceArray.length - 1) {
-                sentenceTermination = getSubstringBetween(inputText, sentence, sentenceArray[i + 1]);
-            } else {
-                int pos = inputText.lastIndexOf(sentence);
-                sentenceTermination = inputText.substring(pos + sentence.length());
-            }
-
-            sentences.add(sentence.trim() + sentenceTermination);
-        }
-
-        return sentences;
-    }
 
     /**
      * Remove unwanted characters from beginning and end of string.
@@ -1781,7 +1050,7 @@ public class StringHelper {
      */
     public static void main(String[] args) {
         
-        System.out.println(wordToSingular("yves"));
+        System.out.println(WordTransformer.wordToSingular("yves"));
         // gives a java.lang.StringIndexOutOfBoundsException: String index out of range: -1
 
         // System.out.println(StringHelper.makeCamelCase("max_speed car", true));
@@ -1800,10 +1069,7 @@ public class StringHelper {
         // System.out.println(StringHelper.getLongestCommonString("ABCD", "BCDE", false, true));
         // System.out.println(StringHelper.getLongestCommonString("ABCD", "BCDE", false, false));
         System.exit(0);
-        CollectionHelper.print(calculateCharNGrams("allthelilacsinohio", 3));
-        CollectionHelper.print(calculateCharNGrams("hiatt", 3));
-        CollectionHelper.print(calculateAllCharNGrams("allthelilacsinohio", 3, 8));
-        System.exit(0);
+
         //
         // System.out.println(trim("\""));
         // // test

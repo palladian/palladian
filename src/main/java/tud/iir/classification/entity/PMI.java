@@ -12,6 +12,7 @@ import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.WordTransformer;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
 import tud.iir.web.SourceRetriever;
@@ -304,7 +305,7 @@ public class PMI extends EntityAssessor {
                 edQuery = discriminator.replaceAll("Y", entity.getName().replaceAll("\\$", "\\\\\\$"));
                 e.printStackTrace();
             }
-            edQuery = edQuery.replaceAll("XP", StringHelper.wordToPlural(entity.getConcept().getName()));
+            edQuery = edQuery.replaceAll("XP", WordTransformer.wordToPlural(entity.getConcept().getName()));
             edQuery = edQuery.replaceAll("XS", entity.getConcept().getName());
 
             eCount = sr.getHitCount("\"" + eQuery + "\"");

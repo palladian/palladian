@@ -3,7 +3,8 @@ package tud.iir.knowledge;
 /**
  * This class maps the data types (xsd) to regular expressions.
  * 
- * @author David Urbansky and Martin Gregor
+ * @author David Urbansky
+ * @author Martin Gregor
  */
 public class RegExp {
 

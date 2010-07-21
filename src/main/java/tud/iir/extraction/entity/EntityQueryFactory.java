@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.WordTransformer;
 import tud.iir.knowledge.Concept;
 import tud.iir.persistence.DatabaseManager;
 
@@ -88,7 +89,7 @@ public class EntityQueryFactory {
 
     private EntityQuery createPhraseQueryXPSuchAs(Concept concept) {
         EntityQuery eq = new EntityQuery();
-        String xp = StringHelper.wordToPlural(concept.getName());
+        String xp = WordTransformer.wordToPlural(concept.getName());
         String[] querySet = { xp + " such as" };
         eq.setQuerySet(querySet);
         eq.setRegularExpression(xp + "((\\()|(\\,)|(\\s))*such as");
@@ -99,7 +100,7 @@ public class EntityQueryFactory {
 
     private EntityQuery createPhraseQueryXPLike(Concept concept) {
         EntityQuery eq = new EntityQuery();
-        String xp = StringHelper.wordToPlural(concept.getName());
+        String xp = WordTransformer.wordToPlural(concept.getName());
         String[] querySet = { xp + " like" };
         eq.setQuerySet(querySet);
         eq.setRegularExpression(xp + "((\\()|(\\,)|(\\s))*like");
@@ -110,7 +111,7 @@ public class EntityQueryFactory {
 
     private EntityQuery createPhraseQueryXPIncluding(Concept concept) {
         EntityQuery eq = new EntityQuery();
-        String xp = StringHelper.wordToPlural(concept.getName());
+        String xp = WordTransformer.wordToPlural(concept.getName());
         String[] querySet = { xp + " including" };
         eq.setQuerySet(querySet);
         eq.setRegularExpression(xp + "((\\()|(\\,)|(\\s))*including");
@@ -121,7 +122,7 @@ public class EntityQueryFactory {
 
     private EntityQuery createPhraseQueryXPEspecially(Concept concept) {
         EntityQuery eq = new EntityQuery();
-        String xp = StringHelper.wordToPlural(concept.getName());
+        String xp = WordTransformer.wordToPlural(concept.getName());
         String[] querySet = { xp + " especially" };
         eq.setQuerySet(querySet);
         eq.setRegularExpression(xp + "((\\()|(\\,)|(\\s))*especially");
@@ -149,7 +150,7 @@ public class EntityQueryFactory {
 
     private EntityQuery createFocusedCrawlQueryListOfXP(Concept concept) {
         EntityQuery eq = new EntityQuery();
-        String xp = StringHelper.wordToPlural(concept.getName());
+        String xp = WordTransformer.wordToPlural(concept.getName());
         String[] querySet = { "list of " + xp };
         eq.setQuerySet(querySet);
         eq.setRegularExpression("list of " + xp);
@@ -185,7 +186,7 @@ public class EntityQueryFactory {
 
     private EntityQuery createFocusedCrawlQueryBrowseXP(Concept concept) {
         EntityQuery eq = new EntityQuery();
-        String xp = StringHelper.wordToPlural(concept.getName());
+        String xp = WordTransformer.wordToPlural(concept.getName());
         String[] querySet = { "browse " + xp };
         eq.setQuerySet(querySet);
         eq.setRegularExpression("browse " + xp);
@@ -196,7 +197,7 @@ public class EntityQueryFactory {
 
     private EntityQuery createFocusedCrawlQueryIndexOfXP(Concept concept) {
         EntityQuery eq = new EntityQuery();
-        String xp = StringHelper.wordToPlural(concept.getName());
+        String xp = WordTransformer.wordToPlural(concept.getName());
         String[] querySet = { "index of " + xp };
         eq.setQuerySet(querySet);
         eq.setRegularExpression("index of " + xp);
