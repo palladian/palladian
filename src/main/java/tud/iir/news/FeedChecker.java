@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,39 +36,40 @@ import tud.iir.web.Crawler;
  * The FeedChecker reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
  * 
  * @author David Urbansky
+ * @author Klemens Muthmann
  * 
  */
 public final class FeedChecker {
 
-    /** the instance of this class, this class is singleton */
+    /** The instance of this class, this class is singleton. */
     private static final FeedChecker INSTANCE = new FeedChecker();
 
-    /** the logger for this class */
+    /** The logger for this class. */
     public static final Logger LOGGER = Logger.getLogger(FeedChecker.class);
 
-    /** symbols to separate headlines */
+    /** Symbols to separate headlines. */
     private static final String TITLE_SEPARATION = "<###>";
 
-    /** benchmark off */
+    /** Benchmark off. */
     private static final int BENCHMARK_OFF = 0;
 
-    /** benchmark algorithms towards their prediction ability for the next post */
+    /** Benchmark algorithms towards their prediction ability for the next post. */
     private static final int BENCHMARK_MIN_CHECK_TIME = 1;
 
     /**
-     * benchmark algorithms towards their prediction ability for the next almost filled post list
+     * Benchmark algorithms towards their prediction ability for the next almost filled post list.
      */
     private static final int BENCHMARK_MAX_CHECK_TIME = 2;
 
     /**
-     * if true, some output will be generated to evaluate the reading approaches
+     * If true, some output will be generated to evaluate the reading approaches.
      */
     private int benchmark = BENCHMARK_MAX_CHECK_TIME;
 
-    /** list of feeds that are read continuous */
+    /** List of feeds that are read continuous. */
     private List<Feed> feedList = null;
 
-    /** the action that should be performed for each feed that is read */
+    /** The action that should be performed for each feed that is read. */
     private FeedProcessingAction feedProcessingAction = null;
 
     /**
@@ -83,12 +84,12 @@ public final class FeedChecker {
     private final Map<Integer, Integer> probabilisticSwitchMap = new HashMap<Integer, Integer>();
 
     /**
-     * record a list of checkInterval values for each feed: feedID;ci1;...;ciItarationN
+     * Record a list of checkInterval values for each feed: feedID;ci1;...;ciItarationN.
      */
     private final Map<Integer, String> ciMapEvaluation = new LinkedHashMap<Integer, String>();
 
     /**
-     * record a list of checkInterval values for each feed: feedID <minuteOfDay : number of posts in that minute>
+     * Record a list of checkInterval values for each feed: feedID <minuteOfDay : number of posts in that minute>.
      */
     private final Map<Integer, LinkedHashMap<Integer, Integer>> postDistributionMapEvaluation = new LinkedHashMap<Integer, LinkedHashMap<Integer, Integer>>();
 
@@ -106,32 +107,35 @@ public final class FeedChecker {
     private final Map<Integer, HashSet<Date>> tempCheckTimeMapEvaluation = new LinkedHashMap<Integer, HashSet<Date>>();
 
     /**
-     * if a fixed checkInterval could not be learned, this one is taken (in minutes)
+     * If a fixed checkInterval could not be learned, this one is taken (in minutes).
      */
     private static final int DEFAULT_CHECK_TIME = 10;
 
-    // ////////////////// feed checking approaches ////////////////////
-    /** the chosen check approach */
+    /** The chosen check Approach */
     private CheckApproach checkApproach = CheckApproach.CHECK_FIXED;
 
     /**
-     * the check interval in minutes, only used if the checkApproach is {@link CHECK_FIXED} if checkInterval = -1 the
-     * interval will be determined automatically
-     * at the first immediate check of the feed by looking in its past
+     * The check interval in minutes, only used if the checkApproach is {@link CheckApproach.CHECK_FIXED} if
+     * checkInterval = -1 the
+     * interval will be determined automatically at the first immediate check of the feed by looking in its past.
      */
     private int checkInterval = -1;
 
     /**
-     * <p>
-     * A scheduler that checks continously if there are feeds in the {@link #feedList} that need to be updated. A feed
+     * A scheduler that checks continuously if there are feeds in the {@link #feedList} that need to be updated. A feed
      * must be updated whenever the method {@link Feed#getLastChecked()} return value is further away in the past then
      * its {@link Feed#getMaxCheckInterval()} or {@link Feed#getMinCheckInterval()} returns. Which one to use depends on
      * the update strategy.
-     * </p>
      */
     private Timer checkScheduler;
 
-    /** the private constructor */
+    /**
+     * Defines the time in minutes when the FeedChecker should wake up the checkScheduler to see which feeds should be
+     * read.
+     */
+    private final int wakeUpInterval = 5 * DateHelper.MINUTE_MS;
+
+    /** The private constructor. */
     private FeedChecker() {
         super();
         checkScheduler = new Timer();
@@ -162,7 +166,7 @@ public final class FeedChecker {
         feedList = FeedDatabase.getInstance().getFeeds();
 
         SchedulerTask schedulerTask = new SchedulerTask(feedList, 200);
-        checkScheduler.schedule(schedulerTask, 10*DateHelper.MINUTE_MS);
+        checkScheduler.schedule(schedulerTask, wakeUpInterval);
         
         int loopNumber = 0;
         while (!stopWatch.timeIsUp()) {
@@ -203,23 +207,7 @@ public final class FeedChecker {
      */
     public void stopContinuousReading() {
         checkScheduler.cancel();
-        // for (Timer timer : timers) {
-        // timer.cancel();
-        // }
     }
-
-    // /**
-    // * Add a timer for a feed.
-    // *
-    // * @param feed The feed.
-    // * @param delay The delay after which the feed is read again.
-    // */
-    // public synchronized void addTimer(Feed feed, int delay) {
-    // Timer timer = new Timer();
-    // LOGGER.debug("set new timer for " + feed.getFeedUrl() + " to run in " + delay + " minutes");
-    // timer.schedule(new FeedTask(timer, feed), DateHelper.MINUTE_MS * (long) delay);
-    // timers.add(timer);
-    // }
 
     /**
      * Get a separated string with the headlines of all feed entries.
@@ -747,7 +735,7 @@ public final class FeedChecker {
      *            retrained using the new check approach.
      */
     public void setCheckApproach(CheckApproach checkApproach, boolean resetLearnedValues) {
-        if (!(this.checkApproach.equals(checkApproach)) && resetLearnedValues) {
+        if (!this.checkApproach.equals(checkApproach) && resetLearnedValues) {
             FeedDatabase.getInstance().changeCheckApproach();
         }
         this.checkApproach = checkApproach;
@@ -792,6 +780,7 @@ public final class FeedChecker {
      * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
      * checkType=1),
      */
+    @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
         Options options = new Options();
@@ -860,58 +849,46 @@ public final class FeedChecker {
 }
 
 /**
- * <p>
  * A scheduler task handles the distribution of feeds to worker threads that read these feeds.
- * </p>
  * 
- * @author klemens.muthmann@googlemail.com
- * @version 1.0
- * @since 1.0
+ * @author Klemens Muthmann
  * 
  */
 class SchedulerTask extends TimerTask {
 
     /**
-     * <p>
      * The list of all the feeds this scheduler should create update threads for.
-     * </p>
      */
     private final List<Feed> listOfFeeds;
 
     /**
-     * <p>
      * The thread pool managing threads that read feeds from the feed sources provided by {@link #listOfFeeds}.
-     * </p>
      */
     private final ExecutorService threadPool;
 
     /**
-     * <p>
      * Creates a new scheduler task with a maximum allowed number of threads and a list of feeds to read updates from.
-     * </p>
      * 
      * @param listOfFeeds The list of all the feeds this scheduler should create update threads for.
      * @param threadPoolSize The maximum number of threads to distribute reading feeds to.
      */
     public SchedulerTask(List<Feed> listOfFeeds, Integer threadPoolSize) {
         super();
-        if (listOfFeeds == null)
+        if (listOfFeeds == null) {
             throw new IllegalArgumentException("List of feeds " + listOfFeeds + " is not valid!");
-        if (threadPoolSize == null || threadPoolSize <= 0)
+        }
+        if (threadPoolSize == null || threadPoolSize <= 0) {
             throw new IllegalArgumentException("Invalid thread pool size: " + threadPoolSize);
+        }
         this.listOfFeeds = listOfFeeds;
         threadPool = Executors.newFixedThreadPool(threadPoolSize);
     }
 
-    /*
-     * (non-Javadoc)
-     * @see java.util.TimerTask#run()
-     */
     @Override
     public void run() {
         Date now = new Date();
         for (Feed feed : listOfFeeds) {
-            if ((now.getTime() - feed.getLastChecked().getTime()) > (feed.getMaxCheckInterval() * DateHelper.MINUTE_MS)) {
+            if (now.getTime() - feed.getLastChecked().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS) {
                 threadPool.execute(new FeedTask(feed));
             }
             now.setTime(System.currentTimeMillis());

@@ -54,9 +54,7 @@ public class Feed {
     private int maxCheckInterval = 60;
     
     /**
-     * <p>
      * The date this feed was checked for updates the last time.
-     * </p>
      */
     private Date lastChecked;
 

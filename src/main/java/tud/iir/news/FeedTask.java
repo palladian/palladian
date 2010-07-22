@@ -1,29 +1,27 @@
 package tud.iir.news;
 
+import java.util.Date;
 import java.util.List;
 
 /**
- * The {@link FeedChecker} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time the feed is checked and also performs all
+ * The {@link FeedChecker} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
+ * the feed is checked and also performs all
  * set {@link FeedProcessingAction}s.
  * 
  * @author David Urbansky
- * @author klemens.muthmann@googlemail.com
+ * @author Klemens Muthmann
  * @see FeedChecker
  * 
  */
 class FeedTask implements Runnable {
 
     /**
-     * <p>
      * The feed retrieved by this task.
-     * </p>
      */
     private Feed feed = null;
 
     /**
-     * <p>
      * Creates a new retrieval task for a provided feed.
-     * </p>
      *
      * @param feed The feed retrieved by this task.
      */
@@ -51,6 +49,9 @@ class FeedTask implements Runnable {
         } catch (FeedAggregatorException e) {
             FeedChecker.LOGGER.error(e.getMessage());
         }
+
+        // remember the time the feed has been checked
+        feed.setLastChecked(new Date());
 
         // perform actions on this feeds entries
         FeedChecker.getInstance().getFeedProcessingAction().performAction(feed);
