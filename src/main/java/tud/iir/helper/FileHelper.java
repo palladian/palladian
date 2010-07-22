@@ -16,6 +16,8 @@ import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.io.Serializable;
 import java.io.StringReader;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -143,10 +145,38 @@ public class FileHelper {
      * @return A list with the lines as elements.
      */
     public static List<String> readFileToArray(String path) {
+        File contentFile = new File(path);
+        return readFileToArray(contentFile);
+    }
+    
+    /**
+     * <p>
+     * 
+     * </p>
+     *
+     */
+    public static List<String> readFileToArray(URL fileURL) {
+        File contentFile = null;
+        try {
+            contentFile = new File(fileURL.toURI());
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("File: "+fileURL+" was not accessable!");
+        }
+        return readFileToArray(contentFile);
+
+    }
+    
+    /**
+     * Create a list with each line of the given file as an element.
+     * 
+     * @param path The path of the file.
+     * @return A list with the lines as elements.
+     */
+    public static List<String> readFileToArray(File contentFile) {
         List<String> list = new ArrayList<String>();
 
         try {
-            FileReader in = new FileReader(path);
+            FileReader in = new FileReader(contentFile);
             BufferedReader br = new BufferedReader(in);
 
             String line = "";
