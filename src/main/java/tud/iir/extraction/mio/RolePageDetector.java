@@ -111,7 +111,7 @@ public class RolePageDetector {
             if (rolePage.getId() == 0) {
                 mioDB.insertRolePage(rolePage);
             } else {
-                mioDB.addRolePage(rolePage);
+                mioDB.updateRolePage(rolePage);
             }
         }
 

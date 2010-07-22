@@ -195,9 +195,9 @@ public class MIOContextAnalyzer {
                 + headlineRelevance + surroundTextRelevance;
         
         //if badWords are contained in the directLink-URL the whole trust is influenced
-        if(badWordAbsence==0){
-            mioTrust = mioTrust/2;
-        }
+//        if(badWordAbsence==0){
+//            mioTrust = mioTrust/2;
+//        }
 
         mio.setTrust(mioTrust);
         mio.setTrust(checkForBadWords(mio));

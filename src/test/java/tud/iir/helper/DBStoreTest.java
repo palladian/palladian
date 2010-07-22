@@ -1,6 +1,5 @@
 package tud.iir.helper;
 
-import tud.iir.helper.DBStore;
 import junit.framework.TestCase;
 
 /**

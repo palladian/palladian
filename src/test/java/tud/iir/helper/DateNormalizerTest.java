@@ -1,7 +1,7 @@
 package tud.iir.helper;
 
-import tud.iir.normalization.DateNormalizer;
 import junit.framework.TestCase;
+import tud.iir.normalization.DateNormalizer;
 
 ;
 

@@ -10,6 +10,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+//import src.test.java.tud.iir.extraction.FactExtractionTest;
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.ExtractionType;
 import tud.iir.extraction.Extractor;

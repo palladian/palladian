@@ -63,13 +63,11 @@ public class MIOPageRetriever {
 
         List<MIOPage> mioPages;
 
-        // RolePageDetector rolePageDet = new RolePageDetector(2);
-
         // generate searchQueries
         final List<String> searchQueries = generateSearchQueries(entity, searchVoc);
 
         // initiate search with searchEngines
-        final List<String> mioPageCandidates = startSearchAgent(searchQueries);
+        final List<String> mioPageCandidates = getMIOPageCandidates(searchQueries);
 
         LOGGER.info("Analyzing MIOPageCandidates startet..");
 
@@ -86,12 +84,7 @@ public class MIOPageRetriever {
         }
         LOGGER.info("DedicatedPage-Calculation finished");
 
-        // printMIOPagesURLs(MIOPages, entity.getName());
-        //
-        // //check for Role-Pages
-        // rolePageList = rolePageDet.analyzeForRolePages(MIOPages);
-        // }
-        // printRolePageURLs(rolePageList);
+ 
         return mioPages;
     }
 
@@ -116,7 +109,7 @@ public class MIOPageRetriever {
      * @param searchQueries the search queries
      * @return the list
      */
-    private List<String> startSearchAgent(final List<String> searchQueries) {
+    private List<String> getMIOPageCandidates(final List<String> searchQueries) {
         final SearchAgent searchAgent = new SearchAgent(RESULTCOUNT);
         final List<String> mioPageCandidates = searchAgent.initiateSearch(searchQueries);
 

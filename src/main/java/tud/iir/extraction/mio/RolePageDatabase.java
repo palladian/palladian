@@ -84,7 +84,7 @@ public class RolePageDatabase {
      *
      * @param rolePage the role page
      */
-    public void addRolePage(RolePage rolePage) {
+    public void insertRolePage(RolePage rolePage) {
 
         try {
             psInsertRolePage.setString(1, rolePage.getHostname());
@@ -100,11 +100,11 @@ public class RolePageDatabase {
     }
     
     /**
-     * Insert role page.
+     * Update a role page.
      *
      * @param rolePage the role page
      */
-    public void insertRolePage(RolePage rolePage) {
+    public void updateRolePage(RolePage rolePage) {
 
         try {
             psUpdateRolePage.setString(1, rolePage.getHostname());
@@ -124,9 +124,17 @@ public class RolePageDatabase {
      *
      * @param args the arguments
      */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
-    }
+//    public static void main(String[] args) {
+//       RolePageDatabase rpd = new RolePageDatabase();
+//       List<RolePage> rolepages = rpd.loadRolePages();
+//       for (RolePage rp: rolepages){
+//           System.out.println(rp.getHostname());
+//       }
+//       RolePage rp2 = new RolePage("www.cool.de",30);
+//       rp2.setId(2);
+//       rpd.updateRolePage(rp2);
+////       rpd.insertRolePage(rp2);
+//
+//    }
 
 }

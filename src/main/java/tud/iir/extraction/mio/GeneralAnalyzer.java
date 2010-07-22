@@ -78,8 +78,8 @@ public class GeneralAnalyzer {
     /**
      * Check URL for validness and eventually modify e.g. relative path
      * 
-     * @param urlCandidate the url candidate
-     * @param pageURL the page url
+     * @param urlCandidate the URLCandidate
+     * @param pageURL the page URL
      * @return the string
      */
     public String verifyURL(final String urlCandidate, final String pageURL) {

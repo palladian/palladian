@@ -54,8 +54,11 @@ public class MIOPageCandidateAnalyzer {
 
                 // use fast MIO-Detection
                 final FastMIODetector fMIODec = new FastMIODetector();
-                mioPages.addAll(fMIODec.getMioPages(pageContent, mioPageCandidate));
-
+                MIOPage mioPage = fMIODec.getMioPage(pageContent, mioPageCandidate);
+                if(mioPage!=null){
+                    mioPages.add(mioPage);
+                }
+             
                 // IFRAME-Analysis
                 IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
                 mioPages.addAll(iframeAnalyzer.getIframeMioPages(pageContent, mioPageCandidate));

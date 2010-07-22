@@ -3,8 +3,8 @@ package tud.iir.classification.page.evaluation;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import tud.iir.classification.page.TextClassifier;
 
