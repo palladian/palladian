@@ -12,6 +12,7 @@ import java.util.Map.Entry;
  * 
  * @author Philipp Katz
  * @author David Urbansky
+ * @author klemens.muthmann@googlemail.com
  * 
  */
 public class Feed {
@@ -51,6 +52,13 @@ public class Feed {
      * time in minutes until it is expected to find only new but one new entries in the feed
      */
     private int maxCheckInterval = 60;
+    
+    /**
+     * <p>
+     * The date this feed was checked for updates the last time.
+     * </p>
+     */
+    private Date lastChecked;
 
     /** a list of headlines that were found at the last check */
     private String lastHeadlines = "";
@@ -70,9 +78,11 @@ public class Feed {
     private int updateClass = -1;
 
     public Feed() {
+        super();
     }
 
     public Feed(String feedUrl) {
+        this();
         this.feedUrl = feedUrl;
     }
 
@@ -278,5 +288,19 @@ public class Feed {
         // sb.append(" added:").append(added);
         
         return sb.toString();
+    }
+
+    /**
+     * @return The date this feed was checked for updates the last time.
+     */
+    public final Date getLastChecked() {
+        return lastChecked;
+    }
+
+    /**
+     * @param lastChecked The date this feed was checked for updates the last time.
+     */
+    public final void setLastChecked(Date lastChecked) {
+        this.lastChecked = lastChecked;
     }
 }

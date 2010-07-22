@@ -1,25 +1,33 @@
 package tud.iir.news;
 
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
- * The {@link FeedReader} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time the feed is checked and also performs all
+ * The {@link FeedChecker} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time the feed is checked and also performs all
  * set {@link FeedProcessingAction}s.
  * 
  * @author David Urbansky
+ * @author klemens.muthmann@googlemail.com
+ * @see FeedChecker
  * 
  */
-class FeedTask extends TimerTask {
+class FeedTask implements Runnable {
 
-    /** keep a reference to the timer in order to cancel it after the first run so that the thread can be garbage collected */
-    private Timer timer = null;
-
+    /**
+     * <p>
+     * The feed retrieved by this task.
+     * </p>
+     */
     private Feed feed = null;
 
-    public FeedTask(Timer timer, Feed feed) {
-        this.timer = timer;
+    /**
+     * <p>
+     * Creates a new retrieval task for a provided feed.
+     * </p>
+     *
+     * @param feed The feed retrieved by this task.
+     */
+    public FeedTask(Feed feed) {
         this.feed = feed;
     }
 
@@ -49,11 +57,6 @@ class FeedTask extends TimerTask {
 
         // save the feed back to the database
         fa.updateFeed(feed);
-
-        // set up timer for the next reading
-        FeedChecker.getInstance().addTimer(feed, feed.getMaxCheckInterval());
-
-        timer.cancel();
     }
 
 }
