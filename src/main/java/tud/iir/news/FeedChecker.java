@@ -888,7 +888,9 @@ class SchedulerTask extends TimerTask {
     public void run() {
         Date now = new Date();
         for (Feed feed : listOfFeeds) {
-            if (now.getTime() - feed.getLastChecked().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS) {
+            if (feed.getChecks() == 0
+                    || now.getTime() - feed.getLastChecked().getTime() > feed.getMaxCheckInterval()
+                            * DateHelper.MINUTE_MS) {
                 threadPool.execute(new FeedTask(feed));
             }
             now.setTime(System.currentTimeMillis());
