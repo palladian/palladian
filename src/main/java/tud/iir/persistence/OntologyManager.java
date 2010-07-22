@@ -443,10 +443,10 @@ public class OntologyManager {
             // System.out.println(dEntry.getName()+" "+dEntry.getSynonymsToString());
 
             Iterator<Attribute> attributeIterator = dEntry.getAttributes().iterator();
-            while (attributeIterator.hasNext()) {
+            // while (attributeIterator.hasNext()) {
                 //Attribute attribute = attributeIterator.next();
                 // System.out.println(" "+attribute.getName()+" "+attribute.getPredefinedSources().size());
-            }
+            // }
         }
 
         return knowledgeManager;
@@ -629,7 +629,7 @@ public class OntologyManager {
             AnnotationProperty rangeType = m.getAnnotationProperty("http://www.webknox.com/owl/ontology.owl#rangeType");
 
             if (dp.getProperty(hasRange) != null) {
-                Property propHasRange = (Property) dp.getProperty(hasRange).getPredicate();
+                Property propHasRange = dp.getProperty(hasRange).getPredicate();
                 StmtIterator it = dp.listProperties(propHasRange);
                 while (it.hasNext()) {
                     Resource blanknode = it.nextStatement().getResource();
@@ -648,7 +648,7 @@ public class OntologyManager {
                     }
 
                     if (blanknode.hasProperty(rangeValue)) { // check if there are values set
-                        Property propRangeValue = (Property) blanknode.getProperty(rangeValue).getPredicate();
+                        Property propRangeValue = blanknode.getProperty(rangeValue).getPredicate();
                         StmtIterator it2 = blanknode.listProperties(propRangeValue);
                         while (it2.hasNext()) { // get all values
                             String rangeValueString = it2.nextStatement().getString();
@@ -1091,7 +1091,7 @@ public class OntologyManager {
             if (!concept.getAttributesToDelete().isEmpty()) {
                 Iterator<Attribute> itATD = concept.getAttributesToDelete().iterator();
                 while (itATD.hasNext()) {
-                    Attribute attributeToDelete = (Attribute) itATD.next();
+                    Attribute attributeToDelete = itATD.next();
                     DatatypeProperty dp = mSchema.getDatatypeProperty(NAMESPACE_ONTOLOGY + attributeToDelete.getSafeName());
 
                     // REMOVE RANGES
@@ -1131,7 +1131,7 @@ public class OntologyManager {
             // SET ATTRIBUTES
             Iterator<Attribute> itA = concept.getAttributes().iterator();
             while (itA.hasNext()) {
-                Attribute attribute = (Attribute) itA.next();
+                Attribute attribute = itA.next();
                 //				
                 // System.out.println("attr: " + attribute.getName() +
                 // " rangetype" + attribute.getRangeType() +
@@ -1414,7 +1414,7 @@ public class OntologyManager {
                 // update range nodes
                 Iterator<Attribute> itA = concept.getAttributes().iterator();
                 while (itA.hasNext()) {
-                    Attribute attribute = (Attribute) itA.next();
+                    Attribute attribute = itA.next();
                     AttributeRange range = attribute.getRange(concept.getName());
                     Property hasRange = mSchema.getProperty("http://www.webknox.com/owl/ontology.owl#hasRange");
                     DatatypeProperty dp = mSchema.getDatatypeProperty(NAMESPACE_ONTOLOGY + attribute.getSafeName());
@@ -1438,7 +1438,7 @@ public class OntologyManager {
             // update attributes
             Iterator<Attribute> itA = concept.getAttributes().iterator();
             while (itA.hasNext()) {
-                Attribute attribute = (Attribute) itA.next();
+                Attribute attribute = itA.next();
                 DatatypeProperty dp = mSchema.getDatatypeProperty(NAMESPACE_ONTOLOGY + attribute.getSafeName());
 
                 if (dp != null && dp.getDomain() == null) {
@@ -1476,7 +1476,7 @@ public class OntologyManager {
         for (Concept concept : concepts) {
             Iterator<Attribute> itA = concept.getAttributes().iterator();
             while (itA.hasNext()) {
-                Attribute attribute = (Attribute) itA.next();
+                Attribute attribute = itA.next();
                 if (attribute.getID() == attributeId) {
                     DatatypeProperty dp = mSchema.getDatatypeProperty(NAMESPACE_ONTOLOGY + attribute.getSafeName());
                     if (dp != null) {

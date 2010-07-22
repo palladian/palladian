@@ -2292,11 +2292,11 @@ public class KnowledgeManager implements Serializable {
     public static void main(String[] a) {
 
         // add test Concept+Entity
-        KnowledgeManager km1 = new KnowledgeManager();
-        Concept test = new Concept("car");
-        test.addEntity(new Entity("Porsche 911", test));
-        km1.addConcept(test);
-        km1.saveExtractions();
+        // KnowledgeManager km1 = new KnowledgeManager();
+        // Concept test = new Concept("car");
+        // test.addEntity(new Entity("Porsche 911", test));
+        // km1.addConcept(test);
+        // km1.saveExtractions();
 
         // dm.saveExtractions(km);
 
