@@ -4,21 +4,15 @@
 package tud.iir.news;
 
 /**
- * <p>
- * Creates a dataset of feeds.
- * </p>
+ * Creates a dataset of feed entries.
  * 
- * @author klemens.muthmann@googlemail.com
- * @version 1.0
- * @since 1.0
+ * @author Klemens Muthmann
  * 
  */
 public class DatasetCreator {
 
     /**
-     * <p>
      * Run creation of the feed dataset from all feeds in the database if possible.
-     * </p>
      * 
      * @param args
      */
