@@ -101,10 +101,10 @@ public class MIOInteractivityAnalyzer {
     private int getNumberOfInteractivityIndicators(final String checkString, final boolean checkStrong) {
         int returnValue = 0;
         String[] isWeakIndicator = { "unboxing", "video", "preview", "review", "movie", "trailer", "promotion",
-                "youtube", "player", "logo", "image" };
+                "youtube", "player", "logo" };
         if (checkStrong) {
-            final String[] isStrongIndicator = { "interactive", "click", "try out", "360", "view", "index", "main",
-                    "spin", "tour", "virtual", "gallery", "play", "keys", "game", "microsite" };
+            final String[] isStrongIndicator = { "interactive", "click", "try", "360", "view", "index", "main",
+                    "spin", "tour", "virtual", "gallery", "play", "drag", "keys", "game", "microsite"};
             isWeakIndicator = isStrongIndicator;
         }
 

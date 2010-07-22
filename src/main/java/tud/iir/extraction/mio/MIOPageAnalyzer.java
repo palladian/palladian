@@ -20,6 +20,8 @@ import tud.iir.knowledge.Entity;
  * 
  */
 public class MIOPageAnalyzer extends GeneralAnalyzer {
+    
+    private double trustLimit=1;
 
     /**
      * Extract mios.
@@ -80,8 +82,12 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
         for (Entry<String, MIO> mio : cleanedMIOs.entrySet()) {
             sortedMIOs.add(mio.getValue());
         }
+        System.out.println("==vor LowTrustRemoval: " + sortedMIOs.size());
+        
+        sortedMIOs = removeLowTrustedMIOs(sortedMIOs, trustLimit);
 
-        detectRolePages(sortedMIOs);
+        System.out.println("==nach LowTrustRemoval: " + sortedMIOs.size());
+//        detectRolePages(sortedMIOs);
 
         return sortedMIOs;
     }
@@ -89,6 +95,17 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
     private void detectRolePages(Set<MIO> sortedMIOs) {
         RolePageDetector rpDetector = new RolePageDetector();
         rpDetector.detectRolePages(sortedMIOs);
+    }
+    
+    private Set<MIO> removeLowTrustedMIOs(Set<MIO>sortedMIOs, double trustLimit){
+        Set<MIO> resultSet = sortedMIOs;
+     for(MIO mio:resultSet){
+         if (mio.getTrust()<trustLimit){
+             resultSet.remove(mio);
+         }
+     }
+     return resultSet;
+        
     }
 
     /**

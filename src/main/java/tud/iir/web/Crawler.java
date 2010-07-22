@@ -95,13 +95,13 @@ public class Crawler {
     private static final String REFERER = "";
 
     /** the default connection timeout */
-    public static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
+    public static final int DEFAULT_CONNECTION_TIMEOUT = 5000;//10000;
 
     /** the default read timeout when retrieving pages */
-    public static final int DEFAULT_READ_TIMEOUT = 16000;
+    public static final int DEFAULT_READ_TIMEOUT = 5000;//16000;
 
     /** the default overall timeout (after which the connection is reset) */
-    public static final int DEFAULT_OVERALL_TIMEOUT = 60000;
+    public static final int DEFAULT_OVERALL_TIMEOUT = 8000;//60000;
 
     /** the default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;
@@ -152,7 +152,7 @@ public class Crawler {
     private boolean useCompression = true;
 
     /** do feed auto discovery for every parsed page */
-    private boolean feedAutodiscovery = true;
+    private boolean feedAutodiscovery = false;
 
     // ////////////////// crawl settings ////////////////////
     /** whether to crawl within a certain domain */
@@ -180,7 +180,7 @@ public class Crawler {
     private Proxy proxy = null;
 
     /** number of request before switching to another proxy, -1 means never switch */
-    private int switchProxyRequests = -1;
+    private int switchProxyRequests = 20;
 
     /** list of proxies to choose from */
     private LinkedList<Proxy> proxyList = new LinkedList<Proxy>();
@@ -1516,22 +1516,24 @@ public class Crawler {
      * @author Martin Werner
      */
     public static File downloadBinaryFile(String urlString, String pathWithFileName) {
-        File file = new File(pathWithFileName);
+        File file = null;
         URL url;
 
         if (Crawler.isValidURL(urlString, false)) {
             try {
+                File tempFile = new File(pathWithFileName);
                 url = new URL(urlString);
                 InputStream inStream;
                 inStream = url.openStream();
                 FileOutputStream fOutStream;
-                fOutStream = new FileOutputStream(file);
+                fOutStream = new FileOutputStream(tempFile);
                 int line = 0;
                 while ((line = inStream.read()) != -1) {
                     fOutStream.write(line);
                 }
                 fOutStream.close();
                 inStream.close();
+                file=tempFile;
             } catch (Exception e) {
                 LOGGER.error("Error downloading the file from: " + urlString + " Message: " + e.getMessage());
             }

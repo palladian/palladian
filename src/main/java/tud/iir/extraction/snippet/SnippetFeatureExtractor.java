@@ -31,8 +31,8 @@ import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.Tokenizer;
 import com.aliasi.tokenizer.TokenizerFactory;
 import com.representqueens.lingua.en.Fathom;
-import com.representqueens.lingua.en.Readability;
 import com.representqueens.lingua.en.Fathom.Stats;
+import com.representqueens.lingua.en.Readability;
 
 /**
  * Given an extracted snippet, a feature vector is generated.

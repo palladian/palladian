@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
@@ -17,6 +16,7 @@ import tud.iir.extraction.Extractor;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.KnowledgeManager;
 import tud.iir.persistence.DatabaseManager;
 
 public final class MIOExtractor extends Extractor {
@@ -73,41 +73,27 @@ public final class MIOExtractor extends Extractor {
         // // load concepts and attributes from ontology (and rdb) and to know
         // what
         // // to extract
-        // if (!isBenchmark()) {
-        // System.out.println("entires: " + DatabaseManager.getInstance().getTotalConceptsNumber());
-        // System.out.println(con.toString());
-        // OntologyManager.getInstance().clearCompleteKnowledgeBase();
+        
+        if (!isBenchmark()) {
+            KnowledgeManager km = DatabaseManager.getInstance().loadOntology();
+            setKnowledgeManager(km);
+        } else {
+            KnowledgeManager km = new KnowledgeManager();
+            km.createSnippetBenchmarks();
+            setKnowledgeManager(km);
+        }
 
-        // setKnowledgeManager(km);
-        // } else {
-
-        // KnowledgeManager km = new KnowledgeManager();
-
-        // setKnowledgeManager(km);
-        // }
-        //
-        // // loop until exit called
+        // loop until exit called
         // while (!isStopped()) {
 
         // concepts
-        // ArrayList<Concept> concepts1 = km.getConcepts(true);
-        final ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
-
-        // create a new concept without databaseusage
-        // ArrayList<Concept> concepts = new ArrayList<Concept>();
-        // Concept exampleConcept = new Concept("mobilePhone");
-        // Entity exampleEntity_1 = new Entity("Samsung S8500 Wave", exampleConcept);
-        // Entity exampleEntity_2 = new Entity("HTC Desire", exampleConcept);
-        // exampleConcept.addEntity(exampleEntity_1);
-        // exampleConcept.addEntity(exampleEntity_2);
-        // concepts.add(exampleConcept);
-        //
-        // Concept headphoneConcept = new Concept("headphone");
-        // Entity headphone1 = new Entity("Razer Megalodon", headphoneConcept);
-        // Entity headphone2 = new Entity("Sennheiser HD800", headphoneConcept);
-        // headphoneConcept.addEntity(headphone1);
-        // headphoneConcept.addEntity(headphone2);
-        // concepts.add(headphoneConcept);
+        ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
+//             final ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
+//        System.out.println("Anzahl der Concepts: " + concepts.size());
+//        System.exit(1);
+        
+        // loop until exit called
+        // while (!isStopped()) {
 
         // loadSearchVocabulary
         final ConceptSearchVocabulary searchVoc = loadSearchVocabulary();
@@ -118,10 +104,10 @@ public final class MIOExtractor extends Extractor {
 
             // currentConcept.loadEntities(false);
 
-            if (currentConcept.getName().equals("printer")) {
+//            if (currentConcept.getName().equals("printer")) {
                 // load Entities from DB for current concept
                 currentConcept.loadEntities(false);
-            }
+//            }
 
             if (isStopped()) {
                 LOGGER.info("mio extraction process stopped");
@@ -150,7 +136,7 @@ public final class MIOExtractor extends Extractor {
 
             for (Entity currentEntity : conceptEntities) {
 
-                if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("canon")) {
+//                if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("clp")) {
                     if (isStopped()) {
                         LOGGER.info("mio extraction process stopped");
                         break;
@@ -194,7 +180,7 @@ public final class MIOExtractor extends Extractor {
 
             }
         }
-        // }
+//         }
 
         // // save extraction results after each full loop
         // if (!isBenchmark()) {
@@ -206,7 +192,7 @@ public final class MIOExtractor extends Extractor {
         // }
         // }
 
-    }
+//    }
 
     /*
      * (non-Javadoc)

@@ -2,10 +2,8 @@ package tud.iir.multimedia;
 
 import java.awt.image.BufferedImage;
 
-import tud.iir.helper.FileHelper;
-import tud.iir.multimedia.ImageHandler;
-
 import junit.framework.TestCase;
+import tud.iir.helper.FileHelper;
 
 /**
  * Test cases for the image handler.

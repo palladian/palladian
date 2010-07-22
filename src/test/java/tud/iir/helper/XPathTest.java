@@ -2,11 +2,9 @@ package tud.iir.helper;
 
 import java.util.HashSet;
 
-import tud.iir.extraction.PageAnalyzer;
-import tud.iir.helper.XPathHelper;
-import tud.iir.web.Crawler;
-
 import junit.framework.TestCase;
+import tud.iir.extraction.PageAnalyzer;
+import tud.iir.web.Crawler;
 
 /**
  * Test cases for the xPath handling.

@@ -1,11 +1,11 @@
 package tud.iir.persistence;
 
+import junit.framework.TestCase;
 import tud.iir.classification.Categories;
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Dictionary;
-import junit.framework.TestCase;
 
 public class DictionaryDBIndexTest extends TestCase {
 

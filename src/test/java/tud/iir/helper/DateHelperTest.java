@@ -1,6 +1,5 @@
 package tud.iir.helper;
 
-import tud.iir.helper.DateHelper;
 import junit.framework.TestCase;
 
 public class DateHelperTest extends TestCase {

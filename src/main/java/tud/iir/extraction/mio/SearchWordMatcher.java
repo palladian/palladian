@@ -126,7 +126,7 @@ public class SearchWordMatcher {
 
         if (withoutSpecialWords) {
 
-            if (!word.matches("\\w+\\d+\\w*")) {
+            if (!word.matches("[A-Za-z]+[\\d]+\\w*|[\\d]+[A-Za-z]+\\w*")) {
                 morphList.add(word);
             }
 
@@ -135,7 +135,7 @@ public class SearchWordMatcher {
             morphList.add(word);
 
             // get words like "S500" or "500Si"
-            if (word.matches("\\w+\\d+\\w*")) {
+            if (word.matches("[A-Za-z]+[\\d]+\\w*|[\\d]+[A-Za-z]+\\w*")) {
                 for (int i = 1; i < word.length(); i++) {
                     if (word.charAt(i - 1) != word.charAt(i)) {
 

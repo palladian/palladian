@@ -1,5 +1,7 @@
 package tud.iir.control;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import tud.iir.classification.page.ClassifierTest;
 import tud.iir.extraction.FactExtractionTest;
 import tud.iir.extraction.ListDiscoveryTest;
@@ -9,8 +11,6 @@ import tud.iir.multimedia.ImageHandlerTest;
 import tud.iir.normalization.NormalizationTest;
 import tud.iir.persistence.DictionaryFileIndexTest;
 import tud.iir.web.CrawlerTest;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * All tests.

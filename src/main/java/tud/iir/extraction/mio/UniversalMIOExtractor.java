@@ -141,7 +141,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
                 } else {
                     // extract all swf-files from a relevant-tag
-                    tempMIOs.addAll(extractMIOWithURL(relevantTag, mioPage, mioType));
+                    tempMIOs.addAll(extractMioWithURL(relevantTag, mioPage, mioType));
 
                     // check for flashvars
                     if (relevantTag.toLowerCase(Locale.ENGLISH).contains("flashvars")) {
@@ -155,7 +155,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
                     }
                 }
             } else {
-                tempMIOs.addAll(extractMIOWithURL(relevantTag, mioPage, mioType));
+                tempMIOs.addAll(extractMioWithURL(relevantTag, mioPage, mioType));
             }
 
             // extract ALT-Text from object and embed-tags and add to MIO-Infos
@@ -225,7 +225,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @param mioType the mio type
      * @return the list
      */
-    private List<MIO> extractMIOWithURL(final String concreteTag, final MIOPage mioPage, final String mioType) {
+    private List<MIO> extractMioWithURL(final String concreteTag, final MIOPage mioPage, final String mioType) {
         final List<MIO> resultList = new ArrayList<MIO>();
         // String regExp = "\".[^\"]*\\.swf\"";
         String regExp = "";
@@ -285,7 +285,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
         if (mioType.equals(FLASH) && mioPageContent.toLowerCase(Locale.ENGLISH).contains(".swf")) {
 
-            final List<MIO> furtherSWFs = extractMIOWithURL(mioPageContent, mioPage, mioType);
+            final List<MIO> furtherSWFs = extractMioWithURL(mioPageContent, mioPage, mioType);
             // System.out.println("NOCH SWF ENTHALTEN! - " + mioPage.getUrl());
             // for (MIO mio : furtherSWFs) {
             // System.out.println(mio.getDirectURL());
@@ -396,7 +396,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
         if (relevantTag.toLowerCase(Locale.ENGLISH).contains("swfobject.embedswf")
                 || relevantTag.toLowerCase(Locale.ENGLISH).contains("new swfobject(")) {
 
-            tempList = extractMIOWithURL(relevantTag, mioPage, FLASH);
+            tempList = extractMioWithURL(relevantTag, mioPage, FLASH);
 
             // only concentrate on one SWFURL of the relevantTag, because they
             // all are the same
