@@ -437,6 +437,7 @@ CREATE TABLE `feeds_post_distribution` (
   `minuteOfDay` int(10) unsigned,
   `posts` int(10) unsigned,
   `chances` int(10) unsigned,
+  PRIMARY KEY (`feedID`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 -- --------------------------------------------------------
 
@@ -445,8 +446,8 @@ CREATE TABLE `feeds_post_distribution` (
 --
 
 DROP TABLE IF EXISTS `ontology_listeners`;
-CREATE TABLE IF NOT EXISTS `ontology_listeners` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+CREATE TABLE `ontology_listeners` (
+  `id` int(10) unsigned NOT NULL auto_increment,
   `url` varchar(100) NOT NULL,
   `concept` varchar(30) NOT NULL,
   `attribute` varchar(30) NOT NULL,
