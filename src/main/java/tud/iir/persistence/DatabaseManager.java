@@ -510,8 +510,8 @@ public class DatabaseManager {
         ArrayList<Concept> concepts1 = knowledgeManager.getConcepts();
         Iterator<Concept> conceptIterator2 = concepts1.iterator();
         while (conceptIterator2.hasNext()) {
-            // Concept concept = conceptIterator2.next();
-            // System.out.println("concept: "+concept.getName()+" "+concept.getLastSearched());
+             Concept concept = conceptIterator2.next();
+             LOGGER.info("concept: "+concept.getName()+" "+concept.getLastSearched());
             // Iterator<Entity> entityIterator = concept.getEntities().iterator();
             // while (entityIterator.hasNext()) {
             // Entity entity = entityIterator.next();
