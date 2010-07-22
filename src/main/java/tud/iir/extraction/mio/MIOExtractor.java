@@ -79,7 +79,7 @@ public final class MIOExtractor extends Extractor {
             setKnowledgeManager(km);
         } else {
             KnowledgeManager km = new KnowledgeManager();
-            km.createSnippetBenchmarks();
+           // km.createSnippetBenchmarks();
             setKnowledgeManager(km);
         }
 
@@ -90,6 +90,7 @@ public final class MIOExtractor extends Extractor {
         ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
 //             final ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
 //        System.out.println("Anzahl der Concepts: " + concepts.size());
+//
 //        System.exit(1);
         
         // loop until exit called
@@ -100,7 +101,7 @@ public final class MIOExtractor extends Extractor {
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
 
-            // System.out.println("Concept: " + currentConcept.getName());
+//             System.out.println("Concept: " + currentConcept.getName());
 
             // currentConcept.loadEntities(false);
 
