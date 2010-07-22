@@ -192,11 +192,11 @@ public class FileHelper {
             br.close();
 
         } catch (FileNotFoundException e) {
-            LOGGER.error(path + ", " + e.getMessage());
+            LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
         } catch (IOException e) {
-            LOGGER.error(path + ", " + e.getMessage());
+            LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
-            LOGGER.error(path + ", " + e.getMessage());
+            LOGGER.error(contentFile.getPath() + ", " + e.getMessage());
         }
 
         return list;
@@ -834,8 +834,8 @@ public class FileHelper {
 
     public static void main(String[] a) {
 
-        FileHelper.fileContentToLines("data/temp/queries_backup.txt", "data/temp/queries.txt", ",");
-        FileHelper.removeDuplicateLines("data/temp/queries.txt", "data/temp/queries.txt");
+        // FileHelper.fileContentToLines("data/temp/queries_backup.txt", "data/temp/queries.txt", ",");
+        FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
         System.exit(0);
         
         // //////////////////////// add license to every file //////////////////////////
