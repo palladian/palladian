@@ -2,6 +2,8 @@ package tud.iir.daterecognition;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import tud.iir.knowledge.RegExp;
 
@@ -14,6 +16,14 @@ import tud.iir.knowledge.RegExp;
  */
 public class ExtractedDate {
 
+    public static final int TECH_URL = 1;
+    public static final int TECH_HTTP_HEADER = 2;
+    public static final int TECH_HTML_HEAD = 3;
+    public static final int TECH_HTML_STRUC = 4;
+    public static final int TECH_HTML_CONT = 5;
+    public static final int TECH_REFERENCE = 6;
+    public static final int TECH_ARCHIVE = 7;
+
     /**
      * Found date as string.
      */
@@ -21,7 +31,7 @@ public class ExtractedDate {
     /** The format, the dateString is found. */
     private String format;
     /** Technique the ExtractedDate is found. <br> */
-    private int extractionTechnique;
+    private int extractionTechnique = -1;
     private int year = -1;
     private int month = -1;
     private int day = -1;
@@ -29,6 +39,11 @@ public class ExtractedDate {
     private int minute = -1;
     private int second = -1;
     private int diffToUTC;
+    /**
+     * Context, in witch the date was found. <br>
+     * E.g.: URL, tag-name, HTTP-tag, keyword...
+     */
+    private String context = null;
 
     /**
      * Standard constructor.
@@ -72,7 +87,19 @@ public class ExtractedDate {
             return;
         }
         String[] dateParts = new String[3];
-        if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD[1])) {
+        if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD_T[1])) {
+            String separator = "T";
+            final int index = this.dateString.indexOf(separator);
+            if (index == -1) {
+                separator = " ";
+            }
+            final String[] temp = this.dateString.split(separator);
+            dateParts = temp[0].split("-");
+            year = DateGetterHelper.normalizeYear(dateParts[0]);
+            month = Integer.parseInt(dateParts[1]);
+            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[2]));
+            setTimeValues(temp[1]);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD[1])) {
             dateParts = this.dateString.split("-");
             year = DateGetterHelper.normalizeYear(dateParts[0]);
             month = Integer.parseInt(dateParts[1]);
@@ -81,28 +108,49 @@ public class ExtractedDate {
             dateParts = this.dateString.split("-");
             year = DateGetterHelper.normalizeYear(dateParts[0]);
             month = Integer.parseInt(dateParts[1]);
-
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD[1])) {
-            setDatebyWeekOfYear(true);
+            setDatebyWeekOfYear(this.dateString, true, true);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD_T[1])) {
+            String separator;
+            int index;
+            index = this.dateString.indexOf("T");
+            if (index == -1) {
+                separator = " ";
+            } else {
+                separator = "T";
+            }
+            dateParts = this.dateString.split(separator);
+            setDatebyWeekOfYear(dateParts[0], true, true);
+            setTimeValues(dateParts[1]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YW[1])) {
-            setDatebyWeekOfYear(false);
+            setDatebyWeekOfYear(this.dateString, false, true);
 
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD[1])) {
-            dateParts = this.dateString.split("-");
-            final Calendar calendar = new GregorianCalendar();
-            calendar.setMinimalDaysInFirstWeek(4);
-            calendar.setFirstDayOfWeek(Calendar.MONDAY);
-            calendar.set(Calendar.YEAR, Integer.parseInt(dateParts[0]));
-            calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(dateParts[1]));
-            year = calendar.get(Calendar.YEAR);
-            month = calendar.get(Calendar.MONTH);
-            day = calendar.get(Calendar.DAY_OF_MONTH);
-        } else if (format.equalsIgnoreCase(RegExp.URL_DATE_D[1])) {
+            setDateByDayOfYear(true);
+
+        } else if (format.equalsIgnoreCase(RegExp.DATE_URL_D[1])) {
             dateParts = this.dateString.split(DateGetterHelper.getSeparator(this.dateString));
             year = DateGetterHelper.normalizeYear(dateParts[0]);
             month = Integer.parseInt(dateParts[1]);
             day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[2]));
-        } else if (format.equalsIgnoreCase(RegExp.URL_DATE[1])) {
+        } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT[1])) {
+            dateParts = this.dateString.split("/");
+            year = DateGetterHelper.normalizeYear(dateParts[0]);
+            int tempMonth = 0;
+            try {
+                day = Integer.parseInt(dateParts[dateParts.length - 1]);
+                tempMonth = -1;
+            } catch (NumberFormatException exeption) {
+                final String lastField = dateParts[dateParts.length - 1];
+                final String[] tempDateParts = lastField.split(DateGetterHelper.getSeparator(lastField));
+                month = Integer.parseInt(tempDateParts[0]);
+                day = Integer.parseInt(tempDateParts[1]);
+            }
+            if (tempMonth == -1) {
+                month = Integer.parseInt(dateParts[dateParts.length - 2]);
+            }
+
+        } else if (format.equalsIgnoreCase(RegExp.DATE_URL[1])) {
             dateParts = this.dateString.split(DateGetterHelper.getSeparator(this.dateString));
             year = DateGetterHelper.normalizeYear(dateParts[0]);
             month = Integer.parseInt(dateParts[1]);
@@ -166,6 +214,13 @@ public class ExtractedDate {
             this.minute = Integer.parseInt(time[1]);
             this.second = Integer.parseInt(time[2]);
 
+        } else if (format.equalsIgnoreCase(RegExp.DATE_ANSI_C_TZ[1])) {
+            dateParts = this.dateString.split(" ");
+            year = DateGetterHelper.normalizeYear(dateParts[4]);
+            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[1]));
+            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[2]));
+            setTimeValues(dateParts[3] + dateParts[5]);
+
         } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1123[1])) {
             dateParts = this.dateString.split(" ");
             year = DateGetterHelper.normalizeYear(dateParts[3]);
@@ -185,6 +240,16 @@ public class ExtractedDate {
             this.hour = Integer.parseInt(time[0]);
             this.minute = Integer.parseInt(time[1]);
             this.second = Integer.parseInt(time[2]);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD_NO[1])) {
+            year = Integer.parseInt(this.dateString.substring(0, 4));
+            month = Integer.parseInt(this.dateString.substring(4, 6));
+            day = Integer.parseInt(this.dateString.substring(6, 8));
+        } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD_NO[1])) {
+            setDatebyWeekOfYear(this.dateString, true, false);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YW_NO[1])) {
+            setDatebyWeekOfYear(this.dateString, false, false);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD_NO[1])) {
+            setDateByDayOfYear(false);
         }
     }
 
@@ -228,25 +293,203 @@ public class ExtractedDate {
      * Using ISO8601 standard ( First week of a year has four or more days; first day of a week is Monday)
      * 
      * @param withDay flag for the cases, that a day is given or not
-     * @return date in yyyy-mm-dd format
+     * @param withSeparator Is there a separator in the dateString?
+     * 
      */
-    private void setDatebyWeekOfYear(final boolean withDay) {
-        final String[] dateParts = this.dateString.split("-");
+    private void setDatebyWeekOfYear(final String dateString, final boolean withDay, final boolean withSeparator) {
+        String[] dateParts = new String[3];
+
+        if (withSeparator) {
+            dateParts = dateString.split("-");
+        } else {
+            dateParts[0] = dateString.substring(0, 4);
+            dateParts[1] = dateString.substring(4, 7);
+            if (withDay) {
+                dateParts[2] = dateString.substring(7, 8);
+            }
+        }
+
         final Calendar calendar = new GregorianCalendar();
 
         calendar.setMinimalDaysInFirstWeek(4);
         calendar.setFirstDayOfWeek(Calendar.MONDAY);
         calendar.set(Calendar.YEAR, Integer.parseInt(dateParts[0]));
-        calendar.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(dateParts[1]));
+        calendar.set(Calendar.WEEK_OF_YEAR, Integer.parseInt(dateParts[1].substring(1)));
         if (withDay) {
             calendar.set(Calendar.DAY_OF_WEEK, Integer.parseInt(dateParts[2]));
         } else {
             calendar.set(Calendar.DAY_OF_WEEK, Calendar.MONDAY);
         }
         year = calendar.get(Calendar.YEAR);
-        month = calendar.get(Calendar.MONTH);
+        month = calendar.get(Calendar.MONTH) + 1;
         if (withDay) {
             day = calendar.get(Calendar.DAY_OF_MONTH);
+        }
+
+    }
+
+    /**
+     * If a date is given by year and day of year, the date (day, month and year) will be calculated.
+     * Using ISO8601 standard ( First week of a year has four or more days; first day of a week is Monday)
+     * 
+     * @param withSeparator Is there a separator in the dateString?
+     * 
+     * 
+     */
+    private void setDateByDayOfYear(final boolean withSeparator) {
+        final Calendar calendar = new GregorianCalendar();
+        calendar.setMinimalDaysInFirstWeek(4);
+        calendar.setFirstDayOfWeek(Calendar.MONDAY);
+        if (withSeparator) {
+            final String[] dateParts = this.dateString.split("-");
+            calendar.set(Calendar.YEAR, Integer.parseInt(dateParts[0]));
+            calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(dateParts[1]));
+
+        } else {
+            calendar.set(Calendar.YEAR, Integer.parseInt(this.dateString.substring(0, 4)));
+            calendar.set(Calendar.DAY_OF_YEAR, Integer.parseInt(this.dateString.substring(4)));
+        }
+
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH) + 1;
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+    }
+
+    /**
+     * <b>!!! IMPORTANT: call <u>AFTER</u> setting dateparts like year, month and day !!! </b><br>
+     * <br>
+     * 
+     * Set hour, minute and second, if string is in one of the following forms: <br>
+     * <i>HH:MM:SS</i>, <i>HH:MM</i> or <i>HH</i> and has optional a difference to UTC in on of the following formats: <br>
+     * <i>+|- HH:MM</i>, <i>+|- HH</i> or "<i>Z</i>" (stands for UTC timezone).
+     * 
+     * @param time
+     */
+    private void setTimeValues(final String time) {
+        String actualTime = time;
+        String diffToUTC = null;
+        int index;
+        // int milliSec = 0;
+
+        index = actualTime.indexOf('.');
+        if (index != -1) {
+            final String regExp = "\\.(\\d)*";
+            Pattern pattern;
+            Matcher matcher;
+            pattern = Pattern.compile(regExp);
+            matcher = pattern.matcher(actualTime);
+            if (matcher.find()) {
+                /*
+                 * final int start = matcher.start();
+                 * final int end = matcher.end();
+                 * milliSec = Integer.parseInt(actualTime.substring(start + 1, end));
+                 */
+                actualTime = actualTime.replaceAll(regExp, "");
+
+            }
+        }
+
+        String separator = null;
+        index = time.indexOf('Z');
+        if (index == -1) {
+            index = time.indexOf('+');
+            if (index == -1) {
+                index = time.indexOf('-');
+                if (index != -1) {
+                    separator = "-";
+                }
+            } else {
+                separator = "\\+";
+            }
+        } else {
+            separator = "Z";
+        }
+        String cleanedTime = actualTime;
+        if (separator != null) {
+            cleanedTime = actualTime.split(separator)[0];
+            if (!separator.equalsIgnoreCase("Z")) {
+                diffToUTC = actualTime.split(separator)[1];
+            }
+        }
+        setActualTimeValues(cleanedTime);
+        if (diffToUTC != null) {
+            setTimeDiff(diffToUTC, separator);
+        }
+    }
+
+    /**
+     * Refreshes the time with given difference to UTC. <br>
+     * E.g.: time is 14:00 and difference to UTC is +02:00 -> new time is 12:00. <br>
+     * <br>
+     * If only one of hour, day, month or year is not set, we can not calculate a difference to UTC, because we do not
+     * know following or previous date. <br>
+     * E.g.: if year is unknown: what day is following on February 28th? February 29th or March 1st? <br>
+     * If day is unknown, what is following on 23:59:59?
+     * 
+     * @param time must have format: HH:MM or HH.
+     * @param sign must be + or -
+     */
+    private void setTimeDiff(final String time, final String sign) {
+
+        if (this.year == -1 || this.month == -1 || this.day == -1 || this.hour == -1) {
+            return;
+        }
+        int hour;
+        int minute = 0;
+
+        if (time.indexOf(':') == -1) {
+            hour = Integer.parseInt(time);
+        } else {
+            final String[] timeParts = time.split(":");
+            hour = Integer.parseInt(timeParts[0]);
+            minute = Integer.parseInt(timeParts[1]);
+        }
+
+        int actualMinute = 0;
+        if (this.minute != -1) {
+            actualMinute = this.minute;
+
+        }
+        final Calendar calendar = new GregorianCalendar(this.year, this.month - 1, this.day, this.hour, actualMinute);
+
+        if (sign.equalsIgnoreCase("-")) {
+            calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) + hour);
+            calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) + minute);
+        } else {
+            calendar.set(Calendar.HOUR_OF_DAY, calendar.get(Calendar.HOUR_OF_DAY) - hour);
+            calendar.set(Calendar.MINUTE, calendar.get(Calendar.MINUTE) - minute);
+        }
+        this.year = calendar.get(Calendar.YEAR);
+        this.month = calendar.get(Calendar.MONTH) + 1;
+        this.day = calendar.get(Calendar.DAY_OF_MONTH);
+        this.hour = calendar.get(Calendar.HOUR_OF_DAY);
+        if (this.minute != -1 || minute != 0) {
+            this.minute = calendar.get(Calendar.MINUTE);
+        }
+    }
+
+    /**
+     * Sets hour, minute and second by extracting from time-string. <br>
+     * There for the time-string must have one the following forms: HH:MM:SS or HH:MM or HH. <br>
+     * Only the given parts will be set.
+     * 
+     * @param time must have one of the following forms: HH:MM:SS or HH:MM or HH.
+     */
+    private void setActualTimeValues(final String time) {
+        if (time.indexOf(':') == -1) {
+            this.hour = Integer.parseInt(time);
+
+        } else {
+            final String[] timeParts = time.split(":");
+            if (timeParts.length > 0) {
+                this.hour = Integer.parseInt(timeParts[0]);
+                if (timeParts.length > 1) {
+                    this.minute = Integer.parseInt(timeParts[1]);
+                    if (timeParts.length > 2) {
+                        this.second = Integer.parseInt(timeParts[2]);
+                    }
+                }
+            }
         }
     }
 
@@ -364,6 +607,27 @@ public class ExtractedDate {
 
     public void setDiffToUTC(final int diffToUTC) {
         this.diffToUTC = diffToUTC;
+    }
+
+    /**
+     * To set the context in witch the date was found. <br>
+     * E.g.: URL, tag-name, HTTP-tag, keyword...
+     * 
+     * @param context
+     */
+    public void setContext(final String context) {
+        this.context = context;
+    }
+
+    /**
+     * Gets the context in witch the date was found. <br>
+     * E.g.: URL, tag-name, HTTP-tag, keyword...
+     * 
+     * @return A string, that can be a URL, a tag-name, a keyword <br>
+     *         To specify use: getExtractionTechnique() .
+     */
+    public String getContext() {
+        return context;
     }
 
 }
