@@ -301,4 +301,146 @@ public class Feed {
     public final void setLastChecked(Date lastChecked) {
         this.lastChecked = lastChecked;
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((added == null) ? 0 : added.hashCode());
+        result = prime * result + checks;
+        result = prime * result + ((entries == null) ? 0 : entries.hashCode());
+        result = prime * result + ((feedUrl == null) ? 0 : feedUrl.hashCode());
+        result = prime * result + format;
+        result = prime * result + id;
+        result = prime * result + ((language == null) ? 0 : language.hashCode());
+        result = prime * result + ((lastChecked == null) ? 0 : lastChecked.hashCode());
+        result = prime * result + ((lastFeedEntry == null) ? 0 : lastFeedEntry.hashCode());
+        result = prime * result + ((lastHeadlines == null) ? 0 : lastHeadlines.hashCode());
+        result = prime * result + maxCheckInterval;
+        result = prime * result + ((meticulousPostDistribution == null) ? 0 : meticulousPostDistribution.hashCode());
+        result = prime * result + minCheckInterval;
+        result = prime * result + ((siteUrl == null) ? 0 : siteUrl.hashCode());
+        result = prime * result + textType;
+        result = prime * result + ((title == null) ? 0 : title.hashCode());
+        result = prime * result + unreachableCount;
+        result = prime * result + updateClass;
+        return result;
+    }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        Feed other = (Feed) obj;
+        if (added == null) {
+            if (other.added != null) {
+                return false;
+            }
+        } else if (!added.equals(other.added)) {
+            return false;
+        }
+        if (checks != other.checks) {
+            return false;
+        }
+        if (entries == null) {
+            if (other.entries != null) {
+                return false;
+            }
+        } else if (!entries.equals(other.entries)) {
+            return false;
+        }
+        if (feedUrl == null) {
+            if (other.feedUrl != null) {
+                return false;
+            }
+        } else if (!feedUrl.equals(other.feedUrl)) {
+            return false;
+        }
+        if (format != other.format) {
+            return false;
+        }
+        if (id != other.id) {
+            return false;
+        }
+        if (language == null) {
+            if (other.language != null) {
+                return false;
+            }
+        } else if (!language.equals(other.language)) {
+            return false;
+        }
+        if (lastChecked == null) {
+            if (other.lastChecked != null) {
+                return false;
+            }
+        } else if (!lastChecked.equals(other.lastChecked)) {
+            return false;
+        }
+        if (lastFeedEntry == null) {
+            if (other.lastFeedEntry != null) {
+                return false;
+            }
+        } else if (!lastFeedEntry.equals(other.lastFeedEntry)) {
+            return false;
+        }
+        if (lastHeadlines == null) {
+            if (other.lastHeadlines != null) {
+                return false;
+            }
+        } else if (!lastHeadlines.equals(other.lastHeadlines)) {
+            return false;
+        }
+        if (maxCheckInterval != other.maxCheckInterval) {
+            return false;
+        }
+        if (meticulousPostDistribution == null) {
+            if (other.meticulousPostDistribution != null) {
+                return false;
+            }
+        } else if (!meticulousPostDistribution.equals(other.meticulousPostDistribution)) {
+            return false;
+        }
+        if (minCheckInterval != other.minCheckInterval) {
+            return false;
+        }
+        if (siteUrl == null) {
+            if (other.siteUrl != null) {
+                return false;
+            }
+        } else if (!siteUrl.equals(other.siteUrl)) {
+            return false;
+        }
+        if (textType != other.textType) {
+            return false;
+        }
+        if (title == null) {
+            if (other.title != null) {
+                return false;
+            }
+        } else if (!title.equals(other.title)) {
+            return false;
+        }
+        if (unreachableCount != other.unreachableCount) {
+            return false;
+        }
+        if (updateClass != other.updateClass) {
+            return false;
+        }
+        return true;
+    }
+    
+    
 }

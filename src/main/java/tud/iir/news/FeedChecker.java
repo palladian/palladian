@@ -160,8 +160,8 @@ public final class FeedChecker {
         
         LOGGER.debug("Loaded "+feedCollection.size()+" feeds.");
 
-        SchedulerTask schedulerTask = new SchedulerTask(this);//feedCollection, 200);
-        checkScheduler.schedule(schedulerTask, wakeUpInterval);
+        SchedulerTask schedulerTask = new SchedulerTask(this);
+        checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
         
         LOGGER.debug("Scheduled task.");
 
