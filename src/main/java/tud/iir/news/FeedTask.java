@@ -21,12 +21,21 @@ class FeedTask implements Runnable {
     private Feed feed = null;
 
     /**
+     * <p>
+     * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
+     * strategies to a true strategy pattern.
+     * </p>
+     */
+    private final FeedChecker feedChecker;
+
+    /**
      * Creates a new retrieval task for a provided feed.
-     *
+     * 
      * @param feed The feed retrieved by this task.
      */
-    public FeedTask(Feed feed) {
+    public FeedTask(Feed feed, final FeedChecker feedChecker) {
         this.feed = feed;
+        this.feedChecker = feedChecker;
     }
 
     @Override
@@ -35,7 +44,8 @@ class FeedTask implements Runnable {
         fa.setUseScraping(false);
 
         try {
-            // parse the feed and get all its entries, do that here since that takes some time and this is a thread so it can be done in parallel
+            // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
+            // it can be done in parallel
             List<FeedEntry> entries = fa.getEntries(feed.getFeedUrl());
             feed.setEntries(entries);
 
@@ -44,7 +54,7 @@ class FeedTask implements Runnable {
                 FeedClassifier.classify(feed);
             }
 
-            FeedChecker.getInstance().updateCheckIntervals(feed);
+            feedChecker.updateCheckIntervals(feed);
 
         } catch (FeedAggregatorException e) {
             FeedChecker.LOGGER.error(e.getMessage());
@@ -54,10 +64,10 @@ class FeedTask implements Runnable {
         feed.setLastChecked(new Date());
 
         // perform actions on this feeds entries
-        FeedChecker.getInstance().getFeedProcessingAction().performAction(feed);
+        feedChecker.getFeedProcessingAction().performAction(feed);
 
         // save the feed back to the database
-        fa.updateFeed(feed);
+        fa.updateFeed(feed,feedChecker);
     }
 
 }
