@@ -463,8 +463,8 @@ public class NewsAggregator {
         return added;
     }
 
-    public boolean updateFeed(Feed feed) {
-        return store.updateFeed(feed);
+    public boolean updateFeed(Feed feed, final FeedChecker feedChecker) {
+        return store.updateFeed(feed,feedChecker);
     }
 
     /**

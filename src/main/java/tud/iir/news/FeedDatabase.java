@@ -123,7 +123,7 @@ public class FeedDatabase implements FeedStore {
     }
 
     @Override
-    public synchronized boolean updateFeed(Feed feed) {
+    public synchronized boolean updateFeed(Feed feed, final FeedChecker feedChecker) {
         LOGGER.trace(">updateFeed " + feed);
 
         if (feed.getId() == -1) {
@@ -136,9 +136,9 @@ public class FeedDatabase implements FeedStore {
         try {
             PreparedStatement ps = psUpdateFeed;
 
-            switch (FeedChecker.getInstance().getCheckApproach()) {
+            switch (feedChecker.getCheckApproach()) {
                 case CHECK_FIXED:
-                    if (FeedChecker.getInstance().getCheckInterval() == -1) {
+                    if (feedChecker.getCheckInterval() == -1) {
                         ps = psUpdateFeed_fixed_learned;
                     }
                     break;
