@@ -9,6 +9,7 @@ package tud.iir.extraction.mio;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -41,8 +42,12 @@ public class ConceptSearchVocabulary {
      * @return the searchVocabulary by concept name
      */
     public List<String> getVocByConceptName(String conceptName) {
+        String modConceptName = conceptName.toLowerCase(Locale.ENGLISH);
+        if (modConceptName.equals("mobile phone")){
+            modConceptName="mobilePhone";
+        }
         Map<String, List<String>> attributeMap = attributesToMap();
-        return attributeMap.get(conceptName);
+        return attributeMap.get(modConceptName);
 
     }
 

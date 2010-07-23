@@ -144,7 +144,7 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
      * @return the sWF text
      * @throws IOException Signals that an I/O exception has occurred.
      */
-    public SWFText tagDefineText(int id, Rect bounds, Matrix matrix) throws IOException {
+    public SWFText tagDefineText(int someId, Rect bounds, Matrix matrix) throws IOException {
         return new TextDumper();
     }
 
@@ -170,7 +170,7 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
          * (non-Javadoc)
          * @see com.anotherbigidea.flash.interfaces.SWFText#setY(int)
          */
-        public void setY(int y) {
+        public void setY(int yvar) {
             if (firstY) {
                 firstY = false;
             }
@@ -219,7 +219,7 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
          * (non-Javadoc)
          * @see com.anotherbigidea.flash.interfaces.SWFText#setX(int)
          */
-        public void setX(int x) {
+        public void setX(int xvar) {
             // do something
         }
 
@@ -274,7 +274,7 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
             final File mioFile = Crawler.downloadBinaryFile(url, "F:/Temp/" + mio.getFileName());
             if (mioFile != null) {
                 final String textContent = extractTextContent(mioFile);
-                SWFHeader header = extractHeader(mioFile);
+              final SWFHeader header = extractHeader(mioFile);
                 setTextContentLength(mio, textContent);
 
                 setFileSize(mio, header);
@@ -291,9 +291,9 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
      * @param mio the mio
      */
     public void calculateTrust(MIO mio) {
-        double textContentRelevance = mio.getFeature("TextContentRelevance");
-        double resolutionRelevance = mio.getFeature("ResolutionRelevance");
-        double sumRelevances = (textContentRelevance + resolutionRelevance) * 2;
+       final double textContentRelevance = mio.getFeature("TextContentRelevance");
+       final double resolutionRelevance = mio.getFeature("ResolutionRelevance");
+       final double sumRelevances = (textContentRelevance + resolutionRelevance) * 2;
 
         if (sumRelevances > 0) {
             double trust = mio.getTrust();
