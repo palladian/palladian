@@ -125,6 +125,7 @@ public final class MIOExtractor extends Extractor {
             } else {
                 conceptEntities = currentConcept.getEntities();
             }
+            
 
             // wait for a certain time when no entities were found, then
             // restart
@@ -195,9 +196,10 @@ public final class MIOExtractor extends Extractor {
 
 //    }
 
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.Extractor#saveExtractions(boolean)
+    /**
+     * Save the extractionresults to database.
+     * 
+     * 
      */
     @Override
     protected void saveExtractions(boolean saveResults) {
@@ -225,9 +227,10 @@ public final class MIOExtractor extends Extractor {
         return null;
     }
 
-    /*
-     * (non-Javadoc)
-     * @see tud.iir.extraction.Extractor#isURLallowed(java.lang.String)
+    /**
+     * Check if URL is allowed.
+     * 
+     * 
      */
     public boolean isURLallowed(final String url) {
         // super.addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
