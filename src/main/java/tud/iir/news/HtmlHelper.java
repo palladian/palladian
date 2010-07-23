@@ -22,6 +22,7 @@ import tud.iir.web.Crawler;
 
 /**
  * Some HTML specific helper methods.
+ * XXX merge with helper.HTMLHelper
  * 
  * @author Philipp Katz
  * 

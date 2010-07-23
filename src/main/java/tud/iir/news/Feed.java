@@ -12,13 +12,14 @@ import java.util.Map.Entry;
  * 
  * @author Philipp Katz
  * @author David Urbansky
- * @author klemens.muthmann@googlemail.com
+ * @author Klemens Muthmann
  * 
  */
 public class Feed {
 
     /**
-     * different formats of feeds; this has just informational character; the parser of the aggregator will determine the feed's format automatically.
+     * Different formats of feeds; this has just informational character; the parser of the aggregator will determine
+     * the feed's format automatically.
      */
     public static final int FORMAT_ATOM = 1;
     public static final int FORMAT_RSS = 2;
@@ -309,22 +310,22 @@ public class Feed {
     public int hashCode() {
         final int prime = 31;
         int result = 1;
-        result = prime * result + ((added == null) ? 0 : added.hashCode());
+        result = prime * result + (added == null ? 0 : added.hashCode());
         result = prime * result + checks;
-        result = prime * result + ((entries == null) ? 0 : entries.hashCode());
-        result = prime * result + ((feedUrl == null) ? 0 : feedUrl.hashCode());
+        result = prime * result + (entries == null ? 0 : entries.hashCode());
+        result = prime * result + (feedUrl == null ? 0 : feedUrl.hashCode());
         result = prime * result + format;
         result = prime * result + id;
-        result = prime * result + ((language == null) ? 0 : language.hashCode());
-        result = prime * result + ((lastChecked == null) ? 0 : lastChecked.hashCode());
-        result = prime * result + ((lastFeedEntry == null) ? 0 : lastFeedEntry.hashCode());
-        result = prime * result + ((lastHeadlines == null) ? 0 : lastHeadlines.hashCode());
+        result = prime * result + (language == null ? 0 : language.hashCode());
+        result = prime * result + (lastChecked == null ? 0 : lastChecked.hashCode());
+        result = prime * result + (lastFeedEntry == null ? 0 : lastFeedEntry.hashCode());
+        result = prime * result + (lastHeadlines == null ? 0 : lastHeadlines.hashCode());
         result = prime * result + maxCheckInterval;
-        result = prime * result + ((meticulousPostDistribution == null) ? 0 : meticulousPostDistribution.hashCode());
+        result = prime * result + (meticulousPostDistribution == null ? 0 : meticulousPostDistribution.hashCode());
         result = prime * result + minCheckInterval;
-        result = prime * result + ((siteUrl == null) ? 0 : siteUrl.hashCode());
+        result = prime * result + (siteUrl == null ? 0 : siteUrl.hashCode());
         result = prime * result + textType;
-        result = prime * result + ((title == null) ? 0 : title.hashCode());
+        result = prime * result + (title == null ? 0 : title.hashCode());
         result = prime * result + unreachableCount;
         result = prime * result + updateClass;
         return result;

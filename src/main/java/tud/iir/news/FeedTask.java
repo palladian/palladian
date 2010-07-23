@@ -21,10 +21,8 @@ class FeedTask implements Runnable {
     private Feed feed = null;
 
     /**
-     * <p>
      * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
      * strategies to a true strategy pattern.
-     * </p>
      */
     private final FeedChecker feedChecker;
 
@@ -33,7 +31,7 @@ class FeedTask implements Runnable {
      * 
      * @param feed The feed retrieved by this task.
      */
-    public FeedTask(Feed feed, final FeedChecker feedChecker) {
+    public FeedTask(Feed feed, FeedChecker feedChecker) {
         this.feed = feed;
         this.feedChecker = feedChecker;
     }

@@ -60,6 +60,7 @@ public class FeedClassifier {
 
         try {
 
+            newsAggregator.setUseScraping(false);
             List<FeedEntry> entries = newsAggregator.getFeed(feedURL).getEntries();
             FeedPostStatistics fps = new FeedPostStatistics(entries);
             System.out.println(fps);
@@ -81,11 +82,11 @@ public class FeedClassifier {
                 } else {
 
                     // if post intervals have large standard deviations the post is spontaneous
-                    if (fps.getPostGapStandardDeviation() >= (fps.getMedianPostGap() / 10.0) && fps.getMedianPostGap() > DateHelper.DAY_MS) {
+                    if (fps.getPostGapStandardDeviation() >= fps.getMedianPostGap() / 10.0 && fps.getMedianPostGap() > DateHelper.DAY_MS) {
                         feedClass = CLASS_SPONTANUOUS;
                     } else {
                         // long gaps between posts (at night) indicate sliced feeds
-                        if (fps.getLongestPostGap() > (12 * fps.getMedianPostGap()) && fps.getLongestPostGap() > 2 * DateHelper.HOUR_MS) {
+                        if (fps.getLongestPostGap() > 12 * fps.getMedianPostGap() && fps.getLongestPostGap() > 2 * DateHelper.HOUR_MS) {
                             feedClass = CLASS_SLICED;
                         } else {
                             feedClass = CLASS_CONSTANT;

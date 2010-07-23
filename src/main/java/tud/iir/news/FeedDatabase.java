@@ -20,7 +20,7 @@ import tud.iir.persistence.DatabaseManager;
  * 
  * @author Philipp Katz
  * @author David Urbansky
- * @author klemens.muthmann@googlemail.com
+ * @author Klemens Muthmann
  * 
  */
 public class FeedDatabase implements FeedStore {
@@ -136,21 +136,21 @@ public class FeedDatabase implements FeedStore {
         try {
             PreparedStatement ps = psUpdateFeed;
 
-            switch (feedChecker.getCheckApproach()) {
-                case CHECK_FIXED:
-                    if (feedChecker.getCheckInterval() == -1) {
-                        ps = psUpdateFeed_fixed_learned;
-                    }
-                    break;
-                case CHECK_ADAPTIVE:
-                    ps = psUpdateFeed_adaptive;
-                    break;
-                case CHECK_PROBABILISTIC:
-                    ps = psUpdateFeed_probabilistic;
-                    break;
-                default:
-                    break;
-            }
+            // switch (feedChecker.getCheckApproach()) {
+            // case CHECK_FIXED:
+            // if (feedChecker.getCheckInterval() == -1) {
+            // ps = psUpdateFeed_fixed_learned;
+            // }
+            // break;
+            // case CHECK_ADAPTIVE:
+            // ps = psUpdateFeed_adaptive;
+            // break;
+            // case CHECK_PROBABILISTIC:
+            // ps = psUpdateFeed_probabilistic;
+            // break;
+            // default:
+            // break;
+            // }
 
             ps.setString(1, feed.getFeedUrl());
             ps.setString(2, feed.getSiteUrl());

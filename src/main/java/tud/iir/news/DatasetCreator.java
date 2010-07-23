@@ -1,23 +1,142 @@
-/**
- * Created on: 22.07.2010 15:10:31
- */
 package tud.iir.news;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.FileHelper;
+import tud.iir.helper.StringHelper;
+
 /**
- * Creates a dataset of feed entries.
+ * <p>
+ * Creates a dataset of feed posts.
+ * </p>
+ * <p>
+ * For each feed, a csv file is created in the data/datasets/feedPosts/ folder. Each file contains all distinct posts
+ * collected over a period of time. Each file follows the follwowing layout:<br>
  * 
+ * TIMESTAMP;"TITLE";LINK
+ * </p>
+ * <p>
+ * The last line of the file contains meta information:<br>
+ * NUMBER_OF_ENTRIES;AVERAGE_SIZE;FEED_CLASS
+ * </p>
+ * 
+ * @author David Urbansky
  * @author Klemens Muthmann
  * 
  */
 public class DatasetCreator {
-    /**
-     * <p>
-     * 
-     * </p>
-     */
+
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
+
+    /** Path to the folder where the dataset is stored. */
+    private final String dataSetPath = "data/datasets/feedPosts/";
+
+    public void createDataset() {
+
+        FeedChecker feedChecker = new FeedChecker(FeedDatabase.getInstance());
+
+        feedChecker.setCheckApproach(CheckApproach.CHECK_FIXED, true);
+        // feedChecker.setCheckInterval(2);
+        
+        FeedProcessingAction fpa = new FeedProcessingAction() {
+
+            @Override
+            public void performAction(Feed feed) {
+                System.out.println("do stuff with " + feed.getFeedUrl());
+                System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
+                        + feed.getChecks());
+
+                // get the filename of the feed
+                String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
+                        .replaceFirst("www.", ""), 30);
+                String filePath = dataSetPath + feed.getId() + "_" + safeFeedName + ".csv";
+
+                // get entries from the file
+                File postEntryFile = new File(filePath);
+                if (!postEntryFile.exists()) {
+                    new File(postEntryFile.getParent()).mkdirs();
+                    try {
+                        postEntryFile.createNewFile();
+                    } catch (IOException e) {
+                        LOGGER.error("could not create the file " + filePath);
+                    }
+                }
+                List<String> fileEntries = FileHelper.readFileToArray(filePath);
+
+                // get all posts in the feed as timestamp;headline;link
+                List<FeedEntry> feedEntries = feed.getEntries();
+
+                if (feedEntries == null) {
+                    LOGGER.warn("no feed entries for " + feed.getFeedUrl());
+                    return;
+                }
+
+                StringBuilder newEntries = new StringBuilder();
+                int newPosts = 0;
+
+                for (FeedEntry entry : feedEntries) {
+
+                    if (entry == null || entry.getPublished() == null) {
+                        LOGGER.warn("entry has no published date, ignore it: " + entry);
+                        continue;
+                    }
+
+                    String fileEntry = "";
+
+                    fileEntry += entry.getPublished().getTime() + ";";
+                    fileEntry += "\"" + entry.getTitle().replaceAll("\"", "'") + "\";";
+                    fileEntry += "\"" + entry.getLink() + "\"";
+
+                    // add the entry only if it doesn't exist yet in the file
+                    if (!fileEntries.contains(fileEntry)) {
+
+                        newEntries.append(fileEntry).append("\n");
+                        newPosts++;
+
+                    }
+                    
+                }
+
+                // if all entries are new, we might have checked to late and missed some entries, we mark that by a
+                // special line
+                if (newPosts == feedEntries.size() && feed.getChecks() > 0) {
+                    newEntries.append("MISS;MISS;MISS").append("\n");
+                }
+
+                try {
+                    FileHelper.prependFile(filePath, newEntries.toString());
+                } catch (IOException e) {
+                    LOGGER.error("could not prepend new file entries (" + newEntries + ") to " + filePath);
+                }
+
+                LOGGER.debug("added " + newPosts + " new posts to file " + filePath);
+
+            }
+        };
+
+        feedChecker.setFeedProcessingAction(fpa);
+
+        LOGGER.debug("start reading feeds");
+        feedChecker.startContinuousReading();
+
+    }
+
+    /**
+     * Remove all empty files from dataset folder.
+     */
+    public void cleanUp() {
+        File[] files = FileHelper.getFiles(dataSetPath);
+        for (File file : files) {
+            if (file.length() == 0) {
+                file.delete();
+            }
+        }
+    }
 
     /**
      * Run creation of the feed dataset from all feeds in the database if possible.
@@ -25,12 +144,10 @@ public class DatasetCreator {
      * @param args Command line arguments are ignored.
      */
     public static void main(String[] args) {
-        FeedChecker feedChecker = new FeedChecker(new DBFeedSource());
 
-        feedChecker.setCheckApproach(CheckApproach.CHECK_FIXED, true);
-        
-        LOGGER.debug("Start extracting feeds");
-        feedChecker.startContinuousReading();
+        DatasetCreator dc = new DatasetCreator();
+        dc.createDataset();
+        dc.cleanUp();
 
     }
 
