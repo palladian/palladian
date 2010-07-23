@@ -36,13 +36,25 @@ public class StringHelper {
      * In ontologies names can not have certain characters so they have to be changed.
      * 
      * @param name The name.
+     * @param maxLength The maximum length of the string. -1 means no maximum length.
      * @return The safe name.
      */
-    public static String makeSafeName(String name) {
-        return name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "").replaceAll(",",
+    public static String makeSafeName(String name, int maxLength) {
+        String safeName = name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
+                .replaceAll(",",
                 "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll("\\:", "_").replaceAll("\\!", "")
                 .replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll("\\Ä", "Ae").replaceAll("\\ö", "oe")
                 .replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue").replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
+
+        if (maxLength > 0) {
+            safeName = safeName.substring(0, Math.min(safeName.length(), maxLength));
+        }
+
+        return safeName;
+    }
+
+    public static String makeSafeName(String name) {
+        return makeSafeName(name, -1);
     }
 
     /**

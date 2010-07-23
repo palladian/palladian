@@ -9,12 +9,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
-import java.util.TimerTask;
-import java.util.Map.Entry;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -45,7 +42,7 @@ public final class FeedChecker {
     /** The logger for this class. */
     public static final Logger LOGGER = Logger.getLogger(FeedChecker.class);
     
-    public static final Integer MAX_THREAD_POOL_SIZE = 200;
+    public static final Integer MAX_THREAD_POOL_SIZE = 500;
 
     /** Symbols to separate headlines. */
     private static final String TITLE_SEPARATION = "<###>";
@@ -136,10 +133,10 @@ public final class FeedChecker {
     private final int wakeUpInterval = 5 * DateHelper.MINUTE_MS;
     
     /** The private constructor. */
-    public FeedChecker(final FeedSource feedSource) {
+    public FeedChecker(FeedStore feedStore) {
         super();
         checkScheduler = new Timer();
-        feedCollection = feedSource.loadFeeds();
+        feedCollection = feedStore.getFeeds();
     }
     
     // ================================
@@ -158,18 +155,22 @@ public final class FeedChecker {
         stopWatch.setCountDown(duration);
         stopWatch.start();
         
-        LOGGER.debug("Loaded "+feedCollection.size()+" feeds.");
+        LOGGER.debug("loaded " + feedCollection.size() + " feeds");
 
         SchedulerTask schedulerTask = new SchedulerTask(this);
-        checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
+        // checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
+        checkScheduler.schedule(schedulerTask, 0, 1 * DateHelper.MINUTE_MS);
         
-        LOGGER.debug("Scheduled task.");
+        LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
+                + " minutes to check all feeds whether they need to be read or not");
 
         int loopNumber = 0;
         while (!stopWatch.timeIsUp()) {
 
             ThreadHelper.sleep(1 * DateHelper.MINUTE_MS);
             LOGGER.trace("time is not up, keep reading feeds");
+
+            LOGGER.debug("current total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
 
             if (benchmark != BENCHMARK_OFF) {
                 loopNumber++;
@@ -586,6 +587,22 @@ public final class FeedChecker {
                 fixedMinCheckInterval = (int) (fps.getMedianPostGap() / DateHelper.MINUTE_MS);
                 fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
             }
+
+            // FIXME: this is just for dataset creation, to be sure we're not missing anything! DELETE it when merging
+            // branch! check maximum every 5 minutes and minimum once a day
+            fixedMinCheckInterval /= 2;
+            fixedMaxCheckInterval /= 2;
+            if (fixedMinCheckInterval < 5) {
+                fixedMinCheckInterval = 5;
+            } else if (fixedMinCheckInterval > 1440) {
+                fixedMinCheckInterval = 1440;
+            }
+            if (fixedMaxCheckInterval < 5) {
+                fixedMaxCheckInterval = 5;
+            } else if (fixedMaxCheckInterval > 1440) {
+                fixedMaxCheckInterval = 1440;
+            }
+            // //////////////////////////////
         }
 
         feed.setMinCheckInterval(fixedMinCheckInterval);
@@ -849,7 +866,7 @@ public final class FeedChecker {
             checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
         }
 
-        FeedChecker fc = new FeedChecker(new DBFeedSource());
+        FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override
@@ -864,55 +881,5 @@ public final class FeedChecker {
         fc.setFeedProcessingAction(fpa);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
 
-    }
-}
-
-/**
- * A scheduler task handles the distribution of feeds to worker threads that read these feeds.
- * 
- * @author Klemens Muthmann
- * 
- */
-class SchedulerTask extends TimerTask {
-    
-    private static final Logger LOGGER = Logger.getLogger(SchedulerTask.class);
-
-    /**
-     * The collection of all the feeds this scheduler should create update threads for.
-     */
-    private final FeedChecker feedChecker;
-
-    /**
-     * The thread pool managing threads that read feeds from the feed sources provided by {@link #collectionOfFeeds}.
-     */
-    private final ExecutorService threadPool;
-
-    /**
-     * Creates a new scheduler task with a maximum allowed number of threads and a list of feeds to read updates from.
-     * 
-     * @param collectionOfFeeds The collection of all the feeds this scheduler should create update threads for.
-     * @param threadPoolSize The maximum number of threads to distribute reading feeds to.
-     */
-    public SchedulerTask(final FeedChecker feedChecker) {
-        super();
-        threadPool = Executors.newFixedThreadPool(FeedChecker.MAX_THREAD_POOL_SIZE);
-        this.feedChecker = feedChecker;
-    }
-    /*
-     * (non-Javadoc)
-     * @see java.util.TimerTask#run()
-     */
-    @Override
-    public void run() {
-        Date now = new Date();
-        for (Feed feed : feedChecker.getFeeds()) {
-            LOGGER.debug("Checking feed at address: "+feed.getFeedUrl());
-            if (feed.getChecks() == 0
-                    || now.getTime() - feed.getLastChecked().getTime() > feed.getMaxCheckInterval()
-                            * DateHelper.MINUTE_MS) {
-                threadPool.execute(new FeedTask(feed,feedChecker));
-            }
-            now.setTime(System.currentTimeMillis());
-        }
     }
 }

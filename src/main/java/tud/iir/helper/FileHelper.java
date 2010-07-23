@@ -365,9 +365,9 @@ public class FileHelper {
             LOGGER.error(filePath + ", " + e.getMessage());
         }
     }
-    
+
     /**
-     * Appends (i. e. inserts a the end) a String to the specified File.
+     * Appends (i. e. inserts a the end) a string to the specified File.
      * 
      * @param filePath
      * @param stringToAppend
