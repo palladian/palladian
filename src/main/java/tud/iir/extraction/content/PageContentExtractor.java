@@ -100,11 +100,11 @@ public class PageContentExtractor {
 
     private boolean writeDump = false;
 
-    public PageContentExtractor() throws PageContentExtractorException {
+    public PageContentExtractor() {
         setup();
     }
 
-    private void setup() throws PageContentExtractorException {
+    private void setup() {
         LOGGER.trace(">setup");
         // set up the NekoHTML parser
         try {
@@ -121,10 +121,8 @@ public class PageContentExtractor {
 
         } catch (SAXNotSupportedException e) {
             LOGGER.error("initialization of DOMParser failed", e);
-            throw new PageContentExtractorException("initialization of DOMParser failed", e);
         } catch (SAXNotRecognizedException e) {
             LOGGER.error("initialization of DOMParser failed", e);
-            throw new PageContentExtractorException("initialization of DOMParser failed", e);
         }
         LOGGER.trace("<setup");
     }

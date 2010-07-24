@@ -1,0 +1,328 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Panic Blog</title>
+	<atom:link href="http://www.panic.com/blog/feed/" rel="self" type="application/rss+xml" />
+	<link>http://www.panic.com/blog</link>
+	<description>Dispatches from Panic HQ in Portland, Oregon</description>
+	<lastBuildDate>Thu, 15 Jul 2010 18:13:46 +0000</lastBuildDate>
+	<language>en</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+	<generator>http://wordpress.org/?v=abc</generator>
+		<item>
+		<title>Good UI</title>
+		<link>http://www.panic.com/blog/2010/07/good-ui/</link>
+		<comments>http://www.panic.com/blog/2010/07/good-ui/#comments</comments>
+		<pubDate>Thu, 15 Jul 2010 18:13:46 +0000</pubDate>
+		<dc:creator>Cabel</dc:creator>
+				<category><![CDATA[Art Department]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=1928</guid>
+		<description><![CDATA[I don&#8217;t know who designed the iOS &#8220;Unlocking&#8221; UI, but they did a pretty good job. Joby just turned one. (And isn&#8217;t alone!)]]></description>
+			<content:encoded><![CDATA[<p>I don&#8217;t know who designed the iOS &#8220;Unlocking&#8221; UI, but they did a pretty good job.</p>
+<p><img class="poster" src="/blog/wp-content/files/jobyphone/Joby Phone Poster.jpg" border="0" width="700" height="394" onclick="simplePoster(this)" fallback="Sorry, this video requires an HTML5-capable browser, such as Safari, Chrome or Firefox." ogv="/blog/wp-content/files/jobyphone/Joby Phone Longer 960.ogv" mov="/blog/wp-content/files/jobyphone/Joby Phone Longer 960.m4v" /></p>
+<p>Joby just turned one. (And isn&#8217;t <a href="http://twitter.com/dwineman/status/14711407968">alone</a>!)</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/07/good-ui/feed/</wfw:commentRss>
+		<slash:comments>30</slash:comments>
+		</item>
+		<item>
+		<title>Toy Story 3</title>
+		<link>http://www.panic.com/blog/2010/06/toy-story-3/</link>
+		<comments>http://www.panic.com/blog/2010/06/toy-story-3/#comments</comments>
+		<pubDate>Mon, 28 Jun 2010 22:37:07 +0000</pubDate>
+		<dc:creator>Cabel</dc:creator>
+				<category><![CDATA[General]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=1872</guid>
+		<description><![CDATA[A week or so ago, the loose tradition continued: Panic once again took over a Portland movie theater (this time, The Roseway, a classic single-screen neighborhooder that&#8217;s been massively updated) and invited our friends (and a handful of Twitter pals) to join us for a showing of a movie we&#8217;re excited about. This time it [...]]]></description>
+			<content:encoded><![CDATA[<p>A week or so ago, the loose tradition continued: Panic once again took over a Portland movie theater (this time, <a href="http://www.rosewaytheater.com/">The Roseway</a>, a classic single-screen neighborhooder that&#8217;s been massively updated) and invited our friends (and a handful of Twitter pals) to join us for a showing of a movie we&#8217;re excited about.</p>
+<p>This time it was <a href="http://www.toystory3.com">Toy Story 3</a>. And oh, what a great movie. I won&#8217;t say more. If you haven&#8217;t seen it, go right now.</p>
+<p>This post, however, is just an excuse to show off this beautiful thank-you card we received from a guest:</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1874" src="http://www.panic.com/blog/wp-content/uploads/2010/06/IMG_01591.jpg" title="Toy Story 3 thank-you caard" width="700" height="556" /></p>
+<p>Thanks, Crystal. In our digital universe, it&#8217;s so refreshing to see some beautiful watercolors on actual paper!</p>
+<p>Now, just because you don&#8217;t live in Portland, doesn&#8217;t mean you have to miss out on our fun. I&#8217;ve got a special surprise! <strong>We&#8217;re giving away one Toy Story 3 poster &#8212; and it&#8217;s signed by the director, <a href="http://twitter.com/leeunkrich">Lee Unkrich</a></strong><strong>!</strong></p>
+<p><del datetime="2010-06-28T22:57:18+00:00">Be the first in the comments to answer the following Toy Story trivia, and it&#8217;s yours for the taking.</del></p>
+<p>&#8220;Pizza Planet pizza is likely to be delivered in what model of truck, yo?&#8221;</p>
+<p><strong>UPDATE: </strong>Congratulations to Brad in the comments for being the first with the correct answer: it&#8217;s a <strong>Gyoza</strong>!</p>
+<p><img class="aligncenter size-full wp-image-1910" src="http://www.panic.com/blog/wp-content/uploads/2010/06/ts3-gyoza.jpg" title="ts3-gyoza" width="700" height="399" /></p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/06/toy-story-3/feed/</wfw:commentRss>
+		<slash:comments>31</slash:comments>
+		</item>
+		<item>
+		<title>Saving Icons for Snow Leopard</title>
+		<link>http://www.panic.com/blog/2010/06/saving-icons-for-snow-leopard/</link>
+		<comments>http://www.panic.com/blog/2010/06/saving-icons-for-snow-leopard/#comments</comments>
+		<pubDate>Mon, 21 Jun 2010 19:04:11 +0000</pubDate>
+		<dc:creator>Cabel</dc:creator>
+				<category><![CDATA[Art Department]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=767</guid>
+		<description><![CDATA[Obsessive designer? You may have noticed: icons made in Mac OS X 10.6 are often washed-out/lighter. Normally we create .png files of each icon state, then drag them into Icon Composer. But, starting with 10.6, the colors would lighten unexpectedly. It wasn&#8217;t dramatic, but with certain icons (like the one below) it was totally noticeable. [...]]]></description>
+			<content:encoded><![CDATA[<p>Obsessive designer? You may have noticed: icons made in Mac OS X 10.6 are often washed-out/lighter.</p>
+<p>Normally we create .png files of each icon state, then drag them into Icon Composer. But, starting with 10.6, the colors would lighten unexpectedly. It wasn&#8217;t dramatic, but with certain icons (like the one below) it was totally noticeable. The source is on the left. See how the red is washed out in the final icon on the right?</p>
+<p><img class="aligncenter size-full wp-image-1781" src="http://www.panic.com/blog/wp-content/uploads/2010/02/Icon-Problem.png" title="Icon-Problem" width="708" height="323" /></p>
+<p>We spent a long time trying to figure this out, and the story goes something like this:</p>
+<p>Mac OS X is a fully managed color system. Colors aren&#8217;t just RGB, but also include a colorspace that maps RGB to an abstract color. When any bitmap is drawn to the screen, it&#8217;s color-converted. But there&#8217;s always been a loophole: an image can be &#8220;untagged&#8221;, meaning it has no embedded colorspace information. Mac OS X interprets untagged data in respect to the default colorspace of the display.</p>
+<p>Well, in 10.6, that default display colorspace <a href="http://support.apple.com/kb/HT3712">changed quite a lot</a> to be more Windows-like and less old-school Mac-like, which makes untagged images look more or less the same cross-platforms. The bad news? There&#8217;s no way to tag an <em>icon</em> with a colorspace, so icons from 10.5 looked odd &#8212; way darker &#8212; on 10.6. Apple&#8217;s solution? Icons in 10.6 are interpreted in the &#8220;Generic RGB&#8221; colorspace, an approximation of how it was.</p>
+<p>In other words, old icons would look too dark with the colorspace changes in 10.6, but the Generic RGB colorspace being applied lightens them back to exactly what they looked like before. Problem solved?</p>
+<p>Not if you&#8217;re drawing <em>new</em> icons on a 10.6 system that&#8217;s already <em>using</em> the darker colorspace! Since those new icons go through the same Generic RGB colorspace converserion, they&#8217;re lighter than they should be!</p>
+<p>Ok, ok. <strong>So here are the steps we use to guarantee 10.6 icon color accuracy.</strong></p>
+<ol class="fancylist">
+<li>With your final artwork open in Photoshop, choose <strong>Convert to Profile</strong> from the <strong>Edit</strong> menu.<br />
+<img class="aligncenter size-full wp-image-1791" style="margin-top: 10px;" src="http://www.panic.com/blog/wp-content/uploads/2010/06/icon-convertprofile.png" title="icon-convertprofile" width="282" height="185" /></li>
+<li>Choose <strong>Generic RGB Profile </strong>from the Profile pop-up.<img class="aligncenter size-full wp-image-1793" src="http://www.panic.com/blog/wp-content/uploads/2010/06/icon-convertwindow.png" title="icon-convertwindow" width="515" height="315" /></li>
+<li><strong>Do a </strong><strong>Save for Web&#8230; </strong>to make a fresh, Generic RGB .png of the icon. (Uncheck &#8216;Convert to sRGB&#8217;!)<img class="aligncenter size-full wp-image-1813" style="margin-top: 10px;" src="http://www.panic.com/blog/wp-content/uploads/2010/06/icon-files.png" title="icon-files" width="282" height="155" /><br />
+(Warning: the QuickLook preview of this .png will look too <em>dark</em> in the Finder. Ugh. <strong>Do not be alarmed.)</strong></li>
+<li><strong>Drag your color-corrected .png into Icon Composer</strong>, and save.<br />
+<img class="aligncenter size-full wp-image-1818" src="http://www.panic.com/blog/wp-content/uploads/2010/06/icon-composer.png" title="icon-composer" width="549" height="437" /></li>
+</ol>
+<p><strong>That&#8217;s it!</strong> Your final icon, once the system applies the Generic RGB profile, should look exactly as you intended. One possible downside: now your icon will look too dark on 10.5! Hooray! <img src='http://www.panic.com/blog/wp-content/themes/panic/images/icon_sad2.png' alt=':(' class='wp-smiley' /> </p>
+<h6>(Footnote: <span style="font-weight: normal;">Even after solving this problem, Kenichi&#8217;s computer continued to shift the color of icons unexpectedly, lightening his icons. We re-installed Photoshop. We created a new user account. We re-installed Mac OS X. And finally, as a classic joke, I zapped the PRAM. Immediately, colors were rendering correctly. My jaw hit the floor. We rebooted, and colors were broken again. I was so disturbed by this, we just bought him a new machine.)</span></h6>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/06/saving-icons-for-snow-leopard/feed/</wfw:commentRss>
+		<slash:comments>27</slash:comments>
+		</item>
+		<item>
+		<title>Coda Notes: a Safari Extension</title>
+		<link>http://www.panic.com/blog/2010/06/coda-notes-previe/</link>
+		<comments>http://www.panic.com/blog/2010/06/coda-notes-previe/#comments</comments>
+		<pubDate>Mon, 07 Jun 2010 23:38:32 +0000</pubDate>
+		<dc:creator>Cabel</dc:creator>
+				<category><![CDATA[Engineering]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=1729</guid>
+		<description><![CDATA[So, just a few moments ago, Apple introduced Safari 5, the next major version of our favorite web browser. And with Safari 5? Safari Extensions, a new way for developers to add new functionality to Safari. And, also a few moments ago, we have our very first crack at a Safari extension! What is it? [...]]]></description>
+			<content:encoded><![CDATA[<p>So, just a few moments ago, Apple introduced Safari 5, the next major version of our favorite web browser. And with Safari 5? Safari Extensions, a new way for developers to add new functionality to Safari.</p>
+<p>And, also a few moments ago, we have our very first crack at a Safari extension! What is it?</p>
+<p>Well, the pitch goes something like this: we do a pretty good job making life easier for people who hand-code websites using <a href="http://panic.com/coda">Coda</a>, our all-in-one web development environment. But is there anything we can do to make life better for the <em>client?</em> The person who&#8217;s paying the bills, or the marketing person, or the guy or girl who&#8217;s likely to call you and say, &#8220;Hey, can you make that one thing bigger, move that one thing and do that thing? By tomorrow?&#8221; Nobody knows what that means. And that&#8217;s something we thought we could improve.</p>
+<p>Introducing <strong>Coda Notes</strong>, our Safari Extension for website annotation, and a fun little project.</p>
+<p><img class="aligncenter size-full wp-image-1730" style="-webkit-box-shadow: rgba(0,0,0,.5) 0 3px 6px; -moz-box-shadow: rgba(0,0,0,.5) 0 3px 6px;" src="http://www.panic.com/blog/wp-content/uploads/2010/06/CodaNotes1.jpg" alt="Coda Notes" title="Coda Notes" width="700" height="724" /></p>
+<p>When you install Coda Notes, you&#8217;ll get a new button in your toolbar. Click it to see all our annotation tools, built right into Safari. Draw some notes on your favorite website. Communicate changes, ideas, concepts, or problems. Then, when you&#8217;re done, hit the Send Notes button and <strong>the whole page flips over as a postcard</strong>.</p>
+<p><img class="aligncenter size-full wp-image-1767" src="http://www.panic.com/blog/wp-content/uploads/2010/06/codanotes3.jpg" title="Coda Notes" width="700" height="520" /></p>
+<p>Enter your comments, e-mail addresses, hit the nice looking &#8220;Send Notes&#8221; button, and that&#8217;s it! The developer gets an e-mail with your screenshot and notes, instantly. <strong>In short, with Coda Notes, you can communicate in seconds what would have been much harder to communicate before, all without ever leaving Safari.</strong></p>
+<p>And let&#8217;s not forget cool thing #2: <strong>we literally added a new feature to Safari.</strong> In a standards-based, clean way. This, my friends, is awesome.</p>
+<p>(<strong>Tech Note:</strong> The Coda Notes extension is built entirely in JavaScript, HTML, and CSS; the extension bar is basically an HTML file, and the page-flip effect is accomplished using a CSS transform. We draw on a transparent <code>canvas</code> element injected over the target page. Live text editing is done by setting the <code>contentEditable</code> attribute on the body of the page, thus turning Safari into an editor, similar to how Apple Mail works!)</p>
+<p>When will this be available?</p>
+<p>We&#8217;re feeling it out. It&#8217;s certainly &#8220;quick and dirty&#8221; in its current form, and Coda Notes was a bit of an experiment for us &#8212; made in only 4 days! But when Safari Extensions are more available to the public, it&#8217;s likely you&#8217;ll see Coda Notes too. <strong>Keep an eye on this blog and/or follow us on <a href="http://twitter.com/panic/">Twitter!</a></strong></p>
+<p>Thanks to Apple for letting us play with Safari Extensions, and thanks to Neven and Garrett for such great quick work on this project. If you have ideas for Coda Notes, let us know!</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/06/coda-notes-previe/feed/</wfw:commentRss>
+		<slash:comments>140</slash:comments>
+		</item>
+		<item>
+		<title>Quick Notes #4</title>
+		<link>http://www.panic.com/blog/2010/06/quick-notes-4/</link>
+		<comments>http://www.panic.com/blog/2010/06/quick-notes-4/#comments</comments>
+		<pubDate>Tue, 01 Jun 2010 20:57:39 +0000</pubDate>
+		<dc:creator>Cabel</dc:creator>
+				<category><![CDATA[Note]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=1676</guid>
+		<description><![CDATA[&#8220;&#9733;&#9733;&#9733;&#9733;&#9733;&#8221; , exclaimed MacFormat to Unison 2! Then, MacUser said &#8220;&#9733;&#9733;&#9733;&#9733;&#9733;&#8221; to Transmit 4! (But with mice.) ArsTechnica nominated Transmit 4 for their first-ever Ars Design Awards! We love documentaries. We love Winnebago Man. Win-winn. (Language!) Like trains, history, and Japan? Kenichi recommends the The Railway Museum. Cabel is thrilled there&#8217;s a new Divine Comedy album. [...]]]></description>
+			<content:encoded><![CDATA[<ul>
+<li>&#8220;<a href="http://www.techradar.com/reviews/pc-mac/software/home-and-reference-software/panic-software-unison-2-679382/review">&#9733;&#9733;&#9733;&#9733;&#9733;</a>&#8221; , exclaimed MacFormat to Unison 2!</li>
+<li>Then, MacUser said &#8220;<a href="http://www.macuser.co.uk/reviews/277807/transmit-4.html">&#9733;&#9733;&#9733;&#9733;&#9733;</a>&#8221; to Transmit 4! (But with mice.)</li>
+<li>ArsTechnica nominated Transmit 4 for their first-ever <a href="http://arstechnica.com/apple/news/2010/05/readers-choice-poll-for-2010-ars-design-awardsmac-os-x.ars">Ars Design Awards!</a></li>
+<li>We love documentaries. We love <a href="http://winnebagoman.com/">Winnebago Man</a>. Win-winn. (Language!)</li>
+<li>Like trains, history, and Japan? Kenichi recommends the <a href="http://www.railway-museum.jp/en/exhibition.html">The Railway Museum</a>.</li>
+<li>Cabel is thrilled there&#8217;s a new <a href="http://www.amazon.co.uk/Bang-Goes-Knighthood-Divine-Comedy/dp/B003ES5A28/ref=sr_1_3?ie=UTF8&amp;s=music&amp;qid=1273012307&amp;sr=8-3">Divine Comedy</a> album. (UK only. For now!)</li>
+<li>Finally, Wade reminds us: the Flyers made it to the <a href="http://www.nhl.com/cup/round3/index.html">Stanley Cup</a> finals.</li>
+</ul>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/06/quick-notes-4/feed/</wfw:commentRss>
+		<slash:comments>1</slash:comments>
+		</item>
+		<item>
+		<title>New Goods: Locke&#8217;s Lions Shirt</title>
+		<link>http://www.panic.com/blog/2010/05/new-goods-lockes-lions-shirt/</link>
+		<comments>http://www.panic.com/blog/2010/05/new-goods-lockes-lions-shirt/#comments</comments>
+		<pubDate>Tue, 25 May 2010 20:48:49 +0000</pubDate>
+		<dc:creator>Neven</dc:creator>
+				<category><![CDATA[General]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=1573</guid>
+		<description><![CDATA[A while back, we blogged about the official Panic basketball team, PS 208 Locke&#8217;s Lions. As well as helping them buy some equipment, we also whipped up a fancy-pants crest design for their jerseys. Many of you asked the obvious (to you, but somehow not to us!) question: &#8220;When can we buy these shirts?&#8221; Answer: [...]]]></description>
+			<content:encoded><![CDATA[<p>A while back, we blogged about the official Panic basketball team, <a href="http://www.panic.com/blog/2010/04/the-panic-basketball-team"><strong>PS 208 Locke&#8217;s Lions.</strong></a> As well as helping them buy some equipment, we also whipped up a fancy-pants crest design for their jerseys.</p>
+<p>Many of you asked the obvious (to you, but somehow not to us!) question:</p>
+<p>&#8220;When can we buy these shirts?&#8221;</p>
+<p><strong>Answer: right now.</strong></p>
+<p><a style="text-decoration: none;" href="http://panic.com/goods/#panic"><img class="aligncenter size-full wp-image-1574" src="http://www.panic.com/blog/wp-content/uploads/2010/05/lions-shirt.png" title="Locke's Lions Shirt" width="600" height="565" /></a></p>
+<p>Printed on amazing-feeling (and slightly costlier) indigo-colored <a href="http://store.americanapparel.net/tr401.html?cid=198">American Apparel 50/25/25</a> tri-blend track shirts, these are some of the nicest goods we&#8217;ve ever made.</p>
+<p>Even better? <strong>A portion of each sale goes straight to the team.</strong></p>
+<p>We&#8217;ve only got a small sample quantity in stock right now, but we&#8217;ll backorder them so you&#8217;ll be able to place an order no matter what: if they run out, thanks for your patience while we print more.</p>
+<p>Hit the <a href="http://panic.com/goods/#panic"><strong>Panic Goods</strong></a> and help us continue supporting the team. It&#8217;s a win-win-win-win. (That last win is the Lions <em>winning</em> their way through the season.)</p>
+<br /><div class="clip clip-with-details clip-icon clip-shop"><div class="clipTop"></div><div class="clipMiddle"><a href="http://www.panic.com/goods/#panic"><h3>Buy the Locke&#8217;s Lions Shirt</h3><span class="clipDetails">Printed on AA 50/25/25 Track Shirt</span></a></div><div class="clipBottom"></div></div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/05/new-goods-lockes-lions-shirt/feed/</wfw:commentRss>
+		<slash:comments>7</slash:comments>
+		</item>
+		<item>
+		<title>The Best Award</title>
+		<link>http://www.panic.com/blog/2010/05/the-best-award/</link>
+		<comments>http://www.panic.com/blog/2010/05/the-best-award/#comments</comments>
+		<pubDate>Mon, 24 May 2010 18:29:00 +0000</pubDate>
+		<dc:creator>Cabel</dc:creator>
+				<category><![CDATA[General]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=1571</guid>
+		<description><![CDATA[This came in the mail today. We are very lucky to have such nice users.]]></description>
+			<content:encoded><![CDATA[<p>This came in the mail today.</p>
+<div class="quote"><div class="top"></div><div class="middle"></p>
+<p><img class="wp-image-1592" src="http://www.panic.com/blog/wp-content/uploads/2010/05/salbato-stationery.png" title="salbato-stationery" width="53" height="601" style="float: left; position: relative; left: -13px; top: 40px" />
+<div style="margin-left: 65px;">May 11, 2010</p>
+<p>Dear Panic folk,</p>
+<p>When Apple announced that only iPhone apps would be eligible for the Apple Design Awards this year, I was pretty shocked. Every so often we wonder if Apple has forgotten about the Mac in favor of its iPhone OS devices. I really don&#8217;t think they have, but when they do something like this, it&#8217;s… well, a bummer. It does seem like most of the new cool apps coming out are iPhone-based, because while where are a lot of fantastic Mac apps, pretty much all the bases are covered at this point.</p>
+<p>Still, it&#8217;s hard to ignore the fact that Transmit 4 just came out, so the timing is less than ideal.</p>
+<p>I&#8217;ve been using Transmit since version 2. Before it came along, I had nothing but neutral feelings towards FTP programs. The best I could find was Fetch, and it, frankly, was terrible. I&#8217;m not exaggerating in the least in saying that Transmit has changed the way I work, and every version has just made it better. In addition, I could never live without CandyBar, and I love what you guys and The Iconfactory did when it was merged with Pixadex.</p>
+<p>All this praise leads me to why I made this ridiculous box. Transmit 4 was a long time coming, and it was well worth the wait. The UI is possibly the best on the Mac, Transmit Disk has instantly proven invaluable to my work, and even the <em>purchasing</em> page on your website is gorgeous. The progress bar and transitions on the credit card icons were something I&#8217;ve never seen, and it proves that no developer pays attention to detail as much as Panic.</p>
+<p>So for whatever it&#8217;s worth, since Apple cancelled the chance for you to win something that I have little doubt you would have won, I humbly present you with, again, this ridiculous Faux Apple Design Award.</p>
+<p>And also some Pretzel M&amp;Ms, because Cabel&#8217;s lamenting over the empty store display on Twitter made me sad, and I wanted to make sure he got to try them.</p>
+<p>Anyway, thank you for all that you guys do, and I look forward to seeing what you come out with next.</p>
+<p>Michael Salbato
+</p></div>
+<p></div><div class="bottom"></div></div>
+<p><img class="aligncenter size-full wp-image-1572" src="http://www.panic.com/blog/wp-content/uploads/2010/05/ada.png" title="Faux Design Award 2010" width="700" height="550" /></p>
+<p>We are very lucky to have such nice users.</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/05/the-best-award/feed/</wfw:commentRss>
+		<slash:comments>25</slash:comments>
+		</item>
+		<item>
+		<title>QA Lead</title>
+		<link>http://www.panic.com/blog/2010/05/help-wanted-qa-lead/</link>
+		<comments>http://www.panic.com/blog/2010/05/help-wanted-qa-lead/#comments</comments>
+		<pubDate>Fri, 21 May 2010 18:13:33 +0000</pubDate>
+		<dc:creator>Cabel</dc:creator>
+				<category><![CDATA[Jobs]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=1486</guid>
+		<description><![CDATA[We don&#8217;t open the gates to Panic Towers often. &#8220;Hire only when you absolutely need to,&#8221; we say. Well, it&#8217;s time. We need to! Up until now, Panic has depended on fantastic beta testers (nearly 500 bugs filed and fixed during Transmit 4&#8242;s dev cycle), the coordination of our brilliant support and engineering teams, and [...]]]></description>
+			<content:encoded><![CDATA[<p>We don&#8217;t open the gates to Panic Towers often. &#8220;Hire only when you absolutely need to,&#8221; we say.</p>
+<p>Well, it&#8217;s time. We need to!</p>
+<p>Up until now, Panic has depended on fantastic beta testers (nearly 500 bugs filed and fixed during Transmit 4&#8242;s dev cycle), the coordination of our brilliant support and engineering teams, and great user reports, to make our software awesome.</p>
+<p>But as our apps get more complex &#8212; this is good, as we like making meaty things! &#8212; we realize a full-time tester could help everyone.</p>
+<p><strong>We</strong><strong> are looking for an experienced QA lead.</strong></p>
+<p>The ideal candidate will be the foundation of our QA efforts. Ideally, we want somebody with experience who will:</p>
+<ul>
+<li>Take charge of formalizing our QA processes</li>
+<li>Construct and execute rigorous test plans</li>
+<li>Triage and verify incoming bug reports</li>
+<li>Confirm bug fixes developed by engineering</li>
+<li>Liaison with user community on vague issues</li>
+<li>Be familiar with automation and scripting tools</li>
+<li>Enjoy pursuing and solving problems every day</li>
+</ul>
+<p><strong>This position is in Portland, Oregon.</strong></p>
+<p>Sound interesting? <a href="mailto:work@panic.com">E-mail your resume to us</a>. If we&#8217;re interested, we will send you additional details and possibly schedule an interview.</p>
+<p>While we can&#8217;t write back to everyone, we thank you in advance for your interest!</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/05/help-wanted-qa-lead/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+		<item>
+		<title>An Apple //e, an iPad, and Jed</title>
+		<link>http://www.panic.com/blog/2010/05/an-apple-e-an-ipad-and-jed/</link>
+		<comments>http://www.panic.com/blog/2010/05/an-apple-e-an-ipad-and-jed/#comments</comments>
+		<pubDate>Thu, 13 May 2010 01:06:37 +0000</pubDate>
+		<dc:creator>Cabel</dc:creator>
+				<category><![CDATA[Engineering]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=1396</guid>
+		<description><![CDATA[We get e-mails: Sounded like fun to us. Just one problem, though: we knew we had to load Stewart&#8217;s &#8220;cassette tape&#8221; source into the Apple //e&#8217;s audio input. But we didn&#8217;t exactly have a cassette deck lying around. What did we have? An iPad. It&#8217;s an obvious solution in retrospect, but there is something very [...]]]></description>
+			<content:encoded><![CDATA[<p>We get e-mails:</p>
+<div class="quote"><div class="top"></div><div class="middle">
+<p><strong>From:</strong> Stewart Smith / <a href="http://stewdio.org">Stewdio</a> &lt;stewart@xxx.org&gt;<br />
+<strong>Subject:</strong> panic office photos<br />
+<strong>Date:</strong> April 30, 2010 7:44:43 AM PDT</p>
+<p>I just saw some photos of your office and couldn&#8217;t help but notice an Apple //e. I have an odd request. Back in 2005 I created a music video for the band Grandaddy by programming a text animation on an old Apple ][+. <a href="http://stewdio.org/jed">You can see the video here</a>.</p>
+<p>So for my request: would you do me the honor of running the source code on your old Apple //e and sending a few pictures? (Or even posting them to your Flickr?)</p>
+<p>I imagine you could load the code onto the old machine by using my "cassette tape" source code file. <a href="http://stewdio.org/jed/med/jed.code.zip">The source code package is here</a>.</div><div class="bottom"></div></div>
+<p>Sounded like fun to us. Just one problem, though: we knew we had to load Stewart&#8217;s &#8220;cassette tape&#8221; source into the Apple //e&#8217;s audio input. But we didn&#8217;t exactly have a cassette deck lying around.</p>
+<p>What did we have? An iPad.</p>
+<p><img class="poster" src="/blog/wp-content/files/appleii/Apple II Poster.jpg" border="0" width="700" height="394" onclick="simplePoster(this)" fallback="Sorry, this video requires an HTML5-capable browser, such as Safari, Chrome or Firefox." ogv="http://cdn.panic.com/Apple II v2.ogv" mov="http://cdn.panic.com/Apple II.mov" /></p>
+<p>It&#8217;s an obvious solution in retrospect, but there is something very unreal and amazing about tapping a button on a multi-touch screen and watching an Apple //e fill up with data — to quote <a href="http://waxy.org">Andy Baio</a>, &#8220;that&#8217;s like WALL-E connecting to EVE.&#8221;</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/05/an-apple-e-an-ipad-and-jed/feed/</wfw:commentRss>
+		<slash:comments>96</slash:comments>
+		</item>
+		<item>
+		<title>Vegan Co-op Luncheon</title>
+		<link>http://www.panic.com/blog/2010/05/vegan-co-op-luncheon/</link>
+		<comments>http://www.panic.com/blog/2010/05/vegan-co-op-luncheon/#comments</comments>
+		<pubDate>Wed, 05 May 2010 00:30:18 +0000</pubDate>
+		<dc:creator>Neven</dc:creator>
+				<category><![CDATA[Kitchen]]></category>
+
+		<guid isPermaLink="false">http://www.panic.com/blog/?p=1401</guid>
+		<description><![CDATA[As attentive readers of our blog know, the Panic kitchen occasionally turns into a battleground as yours truly and our one and only Les Pozdena compete in a format similar to TV&#8217;s Iron Chef™. Our co-workers judge us &#8211; not very harshly, I must admit &#8211; on presentation, taste, and use of the sort-of-secret ingredient. The last [...]]]></description>
+			<content:encoded><![CDATA[<p>As attentive readers of our blog know, the Panic kitchen occasionally turns into a <a href="http://www.panic.com/blog/2009/12/battle-soup/">battleground</a> as yours truly and our one and only Les Pozdena compete in a format similar to TV&#8217;s Iron Chef™. Our co-workers judge us &#8211; not very harshly, I must admit &#8211; on presentation, taste, and use of the sort-of-secret ingredient.</p>
+<p>The last such event took place two weeks ago and it was both heartwarming and a little sad &#8211; you see, the battle format was put aside as we joined forces to tackle a challenge neither of us had any advantage in:</p>
+<p><em>Vegan cooking</em>.</p>
+<p>The newest addition to our team, Mr. Garrett Moon, is vegan. It would have been downright unfriendly of us to do anything except stretch our cooking muscles and come up with an interesting thing or five to welcome him with. My offerings, prepared while wearing the <a href="http://saltandfat.com/">Salt &amp; Fat</a> cook&#8217;s jacket my pal Jim gifted me, are described below.</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1400" title="The Salt &amp; Fat jacket" src="http://www.panic.com/blog/wp-content/uploads/2010/05/IMG_0695.jpg" alt="" width="700" height="250" /></p>
+<p><strong>Ginger-scallion noodles</strong></p>
+<p>I based this on <a href="http://www.wnyc.org/arts/articles/143591">David Chang&#8217;s recipe</a>, which was itself based on a Noodletown dish. There&#8217;s no sense in reinventing it, but it&#8217;s always helpful to hear how recipes work in the real world.</p>
+<p>First note: fresh ramen noodles make a big difference. If you can&#8217;t find them, go with fresh yakisoba. I&#8217;m sure there&#8217;s an Asian market near you that makes or carries one or the other noodle. (For this lunch we had to use yakisoba since ramen noodles contain egg; I made this with ramen later and it was noticeably better.)</p>
+<p>I topped the noodles with fried cauliflower, tossed in a sauce very similar to the fish-sauce vinaigrette Chang describes. I substituted soy sauce for fish sauce and upped the garlic for extra pungency. Either version of this is really great.</p>
+<p>My presentation was simple &#8211; noodles, cauliflower, and pickled carrots. I also skipped the puffed rice and the mint. This was still a wicked flavorful dish, savory and full of kick.</p>
+<p><strong>Khao Man Tofu</strong></p>
+<p>The definitive recipe for this delicious Thai street food has already been written by <a href="http://www.shesimmers.com/2009/06/how-to-make-khao-man-gai.html">Leela at She Simmers</a>. I have only two things to add to it:</p>
+<ol>
+<li>I add some roasted peanuts to the sauce before chopping,</li>
+<li>Since boiled chicken skin isn&#8217;t very appetizing, I remove it (in giant strips) after cooking and fry it. It makes an awesomely crunchy, salty topping for the rice.</li>
+</ol>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1399" title="Preparing the cauliflower" src="http://www.panic.com/blog/wp-content/uploads/2010/05/IMG_0694.jpg" alt="" width="700" height="250" /></p>
+<p>Khao man gai (&#8220;rice fat chicken&#8221;) is easily made vegetarian or vegan; most of the flavor is in the sauce. For my version, I replaced the boiled chicken with a mix of sautéed tofu cutlets and seitan. In the future, I&#8217;ll try this with mushrooms, as the tofu was a bit boring.</p>
+<p>It didn&#8217;t matter so much &#8211; everything else was delicious. I cooked the rice in veggie stock (with added vegetable oil). My recommendation regarding stock is unchanged: make your own if possible, and if not, use <a href="http://www.superiortouch.com/retail/products/better-than-bouillon/organic-bases/40/organic-vegetable-base">Better Than Bouillon</a> bases. They taste better than Pacific, Imagine, or any other canned or boxed brand, and they&#8217;re infinitely more convenient. How often have you opened a big box of stock only to use half and throw the rest out a week later? This way, you make what you need at whatever strength will work best for the recipe.</p>
+<p>The key to the sauce is yellow soybean paste. Please note that this is NOT interchangeable with miso, and it&#8217;s also not yellow. (It&#8217;s made from yellow soybeans.) Look for something <a href="http://importfood.com/sakh2103.html">like this</a> at your local Asian grocery store. You might have to ask for it; the bottle I got didn&#8217;t have a label in English. Once you do find it, I&#8217;m sure you&#8217;ll like its über-savory taste and ridiculuous price tag ($1.18 at <a href="http://www.uwajimaya.com/">Uwajimaya</a>).</p>
+<p>About that fried chicken skin… I replaced it with fried shallots. They changed the flavor profile a little bit, but me, I&#8217;ll take fried shallots on top of anything.</p>
+<p style="text-align: center;"><img class="aligncenter size-full wp-image-1398" title="Tofu Man Gai" src="http://www.panic.com/blog/wp-content/uploads/2010/05/IMG_2038.jpg" alt="" width="700" height="250" /></p>
+<p>Few US Thai places I&#8217;ve visited serve khao man gai. That&#8217;s a shame &#8211; it&#8217;s a very friendly and distinctive dish. When in Portland, don&#8217;t miss <a href="http://www.khaomangai.com/">Nong&#8217;s Khao Man Gai</a> cart downtown.</p>
+<p><strong>Black garlic sorbet</strong></p>
+<p>More precisely, what I served was apricot sorbet with fried bananas and black garlic sauce. Black garlic is a recent addition to US kitchens, a sweet and caramel-y thing completely unlike the pungent bulb we know. Common garlic is fermented until the cloves turn soft and black; the result is, to my tongue, like a combination of balsamic vinegar and <a href="http://en.wikipedia.org/wiki/Marmite">Marmite</a>. If you can&#8217;t find it (check Whole Foods or <a href="http://blackgarlic.com/">this website</a>) make the balsamic sauce without it; don&#8217;t substitute ordinary garlic.</p>
+<ul>
+<li><strong>1 qt apricot nectar</strong> (I like the <a href="looza.be/">Looza</a> brand)</li>
+<li><strong>3/4 cup sugar</strong></li>
+<li>a bit of <strong>lemon juice</strong></li>
+<li><strong>1 1/2 tbsp port wine</strong></li>
+</ul>
+<p>This recipe requires an ice-cream maker. I&#8217;m very happy with <a href="http://www.amazon.com/gp/product/B00006363E?ie=UTF8&amp;tag=nevmrgsblo-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B00006363E">Cuisinart&#8217;s model</a>. There&#8217;s nothing special you need to know about it except that the bowl should be chilled for at least 24 hours; we just store ours in the freezer so it&#8217;s always ready to go.</p>
+<p>Pour the nectar into a large bowl and stir in the sugar until it dissolves fully. Add a few squirts of lemon juice and the port; stir and chill in the fridge. It&#8217;s crucial that everything (except the electric part of the ice cream maker, of course) be as cold as possible &#8211; the faster your desert chills, the smoother the texture.</p>
+<p>Once the bowl and the juice are sufficiently cold, pour the juice into the maker as directed and take for a 20-25 minute spin. Ice cream and sorbet will always look a bit soft at this point; they need to go in an airtight container and in the freezer for another hour or two.</p>
+<p>During that time, make the sauce:</p>
+<ul>
+<li><strong>1/3 cup balsamic vinegar</strong> (<a href="http://www.amazon.com/gp/product/B000UY0JUC?ie=UTF8&amp;tag=nevmrgsblo-20&amp;linkCode=as2&amp;camp=1789&amp;creative=390957&amp;creativeASIN=B000UY0JUC">Lucini</a> is always a good bet)</li>
+<li><strong>1 tbsp port wine</strong></li>
+<li><strong>1 tbsp brown sugar</strong></li>
+<li><strong>3-4 cloves black garlic</strong></li>
+</ul>
+<p>Stir and heat all of these in a saucepan over low heat until the vinegar reduces by half. Strain and set aside at room temperature.</p>
+<p>Next, fry up some sliced <strong>baby bananas</strong> in a tiny bit of oil. I slice mine the long way so they&#8217;re easier to handle. Fried bananas are great warm, but since sorbet doesn&#8217;t melt as creamy as ice cream does, I let the bananas cool off a bit.</p>
+<p>Top the sorbet with bananas and drizzle the syrup over it. Taste the syrup to gauge how much you&#8217;d like to use; it&#8217;s potent stuff, and also delicious over anything else you might accompany with a sweet sauce.</p>
+<p>Les, my partner in this co-op-mode fight, presented the following menu:</p>
+<ul>
+<li>Mushroom-walnut paté with cornichons</li>
+<li>Cream of asparagus soup</li>
+<li>Squale (sautéed butternut squash and kale)</li>
+</ul>
+<p>It&#8217;s hard to believe we were working with any limitations at all!</p>
+]]></content:encoded>
+			<wfw:commentRss>http://www.panic.com/blog/2010/05/vegan-co-op-luncheon/feed/</wfw:commentRss>
+		<slash:comments>15</slash:comments>
+		</item>
+	</channel>
+</rss>
+
+<!-- Dynamic page generated in 0.247 seconds. -->
+<!-- Cached page generated by WP-Super-Cache on 2010-07-24 11:41:09 -->

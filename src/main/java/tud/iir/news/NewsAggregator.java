@@ -1,12 +1,7 @@
-
 package tud.iir.news;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -23,15 +18,12 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
 
-import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.helper.Counter;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.StringHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
 
@@ -63,18 +55,22 @@ public class NewsAggregator {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(NewsAggregator.class);
 
-    private int maxThreads = 20;
+    private static final int DEFAULT_MAX_THREADS = 20;
 
     /**
-     * If enabled we use PageContentExtractor to get extract text for entries directly from their corresponding web
-     * pages if necessary.
+     * Maximum number of concurrent threads for aggregation.
      */
-    // private boolean useScraping = true;
+    private int maxThreads = DEFAULT_MAX_THREADS;
 
-    private final FeedStore store;
+    /**
+     * If enabled we download associated pages for each feed entry.
+     */
+    private boolean downloadPages = false;
+
+    private FeedStore store;
 
     /** Used for all downloading purposes. */
-    private final Crawler crawler = new Crawler();
+    private Crawler crawler = new Crawler();
 
     public NewsAggregator() {
         store = FeedDatabase.getInstance();
@@ -86,11 +82,12 @@ public class NewsAggregator {
         this.store = store;
         loadConfig();
     }
-    
+
     private void loadConfig() {
         try {
             PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
-            setMaxThreads(config.getInt("maxAggregationThreads", maxThreads));
+            setMaxThreads(config.getInt("maxAggregationThreads", DEFAULT_MAX_THREADS));
+            setDownloadPages(config.getBoolean("downloadAssociatedPages", false));
         } catch (ConfigurationException e) {
             LOGGER.error("error loading configuration " + e.getMessage());
         }
@@ -99,7 +96,7 @@ public class NewsAggregator {
     /**
      * Downloads a feed from the web and parses with ROME.
      * 
-     * To access feeds from outside use {@link #getFeed(String)}.
+     * To access feeds from outside use {@link #downloadFeed(String)}.
      * 
      * @param feedUrl
      * @return
@@ -131,12 +128,7 @@ public class NewsAggregator {
         } catch (IllegalArgumentException e) {
             LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
             throw new NewsAggregatorException(e);
-        }/*
-          * catch (IOException e) {
-          * LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-          * throw new NewsAggregatorException(e);
-          * }
-          */catch (FeedException e) {
+        } catch (FeedException e) {
             LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
             throw new NewsAggregatorException(e);
         }
@@ -176,142 +168,9 @@ public class NewsAggregator {
             result.setFormat(Feed.FORMAT_ATOM);
         }
 
-//        // determine feed type (full, partial, none)
-//        if (useScraping) {
-//            result.setTextType(determineFeedTextType(syndFeed, feedUrl));
-//        }
-
         LOGGER.trace("<getFeed " + result);
         return result;
 
-    }
-
-    /**
-     * Try to determine the extent of text within a feed. We distinguish between no text {@link Feed#TEXT_TYPE_NONE},
-     * partial text {@link Feed#TEXT_TYPE_PARTIAL} and full text {@link Feed#TEXT_TYPE_FULL}.
-     * 
-     * @param syndFeed
-     * @param feedUrl
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private int determineFeedTextType(SyndFeed syndFeed, String feedUrl) {
-        LOGGER.trace(">determineFeedTextType " + feedUrl);
-
-        // count iterations
-        int count = 0;
-        // count types
-        int none = 0, partial = 0, full = 0;
-        // count # errors
-        int errors = 0;
-
-        // check max. 20 feed entries.
-        // stop analyzing if we have more than 5 errors
-        Iterator<SyndEntry> entryIterator = syndFeed.getEntries().iterator();
-        while (entryIterator.hasNext() && count < 20 && errors < 5) {
-
-            SyndEntry entry = entryIterator.next();
-            String entryLink = entry.getLink();
-            String entryText = getEntryText(entry);
-
-            if (entryLink == null || entryLink.length() == 0) {
-                continue;
-            }
-            // some feeds provide relative URLs -- convert.
-            entryLink = Crawler.makeFullURL(feedUrl, entry.getLink());
-
-            // check type of linked file; ignore audio, video or pdf files ...
-            String fileType = FileHelper.getFileType(entryLink);
-            if (FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType) || fileType.equals("pdf")) {
-                LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
-                continue;
-            }
-
-            LOGGER.trace("checking " + entryLink);
-
-            // entry contains no text at all
-            if (entryText == null || entryText.length() == 0) {
-                LOGGER.debug("entry " + entryLink + " contains no text");
-                none++;
-                count++;
-                continue;
-            }
-
-            // get text content from associated web page using
-            // PageContentExtractor and compare with text we got from the feed
-            try {
-                PageContentExtractor extractor = new PageContentExtractor();
-
-                InputStream inputStream = crawler.downloadInputStream(entryLink);
-                extractor.setDocument(new InputSource(inputStream));
-
-                Document pageContent = extractor.getResultDocument();
-                String pageText = Helper.xmlToString(pageContent);
-                pageText = HTMLHelper.removeHTMLTags(pageText, true, true, true, true);
-                pageText = StringEscapeUtils.unescapeHtml(pageText);
-
-                // first, calculate a similarity based solely on text lengths
-                float lengthSim = Helper.getLengthSim(entryText, pageText);
-
-                // only compare text similarities, if lengths of texts do not differ too much
-                if (lengthSim >= 0.9) {
-
-                    // if text from feed entry and from web page are very
-                    // similar, we can assume that we have a full text feed
-                    float textSim = Helper.getLevenshteinSim(entryText, pageText);
-                    if (textSim >= 0.9) {
-                        LOGGER.debug("entry " + entryLink + " seems to contain full text (textSim:" + textSim + ")");
-                        full++;
-                        count++;
-                        continue;
-                    }
-                }
-
-                // feed and page were not similar enough, looks like partial text feed
-                LOGGER.debug("entry " + entryLink + " seems to contain partial text (lengthSim:" + lengthSim + ")");
-                partial++;
-                count++;
-
-            } catch (MalformedURLException e) {
-                LOGGER.error("determineFeedTextType " + entryLink + " " + e.toString() + " " + e.getMessage());
-                errors++;
-            } catch (IOException e) {
-                LOGGER.error("determineFeedTextType " + entryLink + " " + e.toString() + " " + e.getMessage());
-                errors++;
-            } catch (Exception e) {
-                // FIXME in some rare cases PageContentExtractor throws a NPE,
-                // I dont know yet where the problem lies, so we catch it here
-                // and move an as if nothing happened :)
-                LOGGER.error("determineFeedTextType " + entryLink + " " + e.toString() + " " + e.getMessage());
-                errors++;
-            }
-        }
-
-        // determine type of feed by using some simple heuristics ..:
-        // if feed has no entries -> we cannot determine the type
-        // if more than 60 % of feed's entries contain full text -> assume full text
-        // if more than 80 % of feed's entries contain no text -> assume no text
-        // else --> assume partial text
-        int result = Feed.TEXT_TYPE_PARTIAL;
-        String resultStr = "partial";
-        if (syndFeed.getEntries().isEmpty()) {
-            result = Feed.TEXT_TYPE_UNDETERMINED;
-            resultStr = "undetermined, feed has no entries";
-        } else if ((float) full / count >= 0.6) {
-            result = Feed.TEXT_TYPE_FULL;
-            resultStr = "full";
-        } else if ((float) none / count >= 0.8) {
-            result = Feed.TEXT_TYPE_NONE;
-            resultStr = "none";
-        } else if (count == 0) {
-            result = Feed.TEXT_TYPE_UNDETERMINED;
-            resultStr = "undetermined, could not check entries";
-        }
-
-        LOGGER.info("feed " + feedUrl + " none:" + none + " partial:" + partial + " full:" + full + " -> " + resultStr);
-
-        LOGGER.trace("<determineFeedTextType " + result);
-        return result;
     }
 
     /**
@@ -350,7 +209,6 @@ public class NewsAggregator {
             Date publishDate = syndEntry.getPublishedDate();
             if (publishDate == null) {
                 // if no publish date is provided, we take the update instead
-                // TODO there are still some entries without date
                 publishDate = syndEntry.getUpdatedDate();
             }
             entry.setPublished(publishDate);
@@ -412,8 +270,6 @@ public class NewsAggregator {
             for (SyndContent content : contents) {
                 if (content.getValue() != null && content.getValue().length() != 0) {
                     entryText = content.getValue();
-
-                    // TODO treat content by type!
                 }
             }
         }
@@ -423,11 +279,7 @@ public class NewsAggregator {
             }
         }
 
-        // clean up --> strip out HTML tags, unescape HTML code
-        // 2010-07-02 --> we keep the HTML markup for now!
         if (entryText != null) {
-            // entryText = StringHelper.removeHTMLTags(entryText, true, true, true, true);
-            // entryText = StringHelper.unescapeHTMLEntities(entryText);
             entryText = entryText.trim();
         }
         LOGGER.trace("<getEntryText ");
@@ -448,10 +300,9 @@ public class NewsAggregator {
         if (feed == null) {
             try {
                 SyndFeed syndFeed = getFeedWithRome(feedUrl);
-                // TODO check how old feeds is,
-                // dont add feeds which were updated one year ago or more ...
                 feed = getFeed(syndFeed, feedUrl);
                 store.addFeed(feed);
+                addEntries(feed, syndFeed);
                 LOGGER.info("added feed to store " + feedUrl);
                 added = true;
             } catch (NewsAggregatorException e) {
@@ -539,18 +390,6 @@ public class NewsAggregator {
 
         return addCounter.getCount();
 
-        // int addedCount = 0;
-        // for (String feedUrl : feedUrls) {
-        // boolean added = this.addFeed(feedUrl);
-        // if (added) {
-        // addedCount++;
-        // }
-        // }
-        // logger.info("---------------");
-        // logger.info(" added " + addedCount + " new feeds");
-        // logger.info("---------------");
-        // return addedCount;
-
     }
 
     /**
@@ -593,10 +432,6 @@ public class NewsAggregator {
         // count number of encountered errors
         final Counter errors = new Counter();
 
-        // count number of scraped pages
-        final Counter scrapes = new Counter();
-        final Counter scrapeErrors = new Counter();
-
         // stopwatch for aggregation process
         StopWatch stopWatch = new StopWatch();
 
@@ -620,54 +455,7 @@ public class NewsAggregator {
                     LOGGER.debug("aggregating entries from " + feed.getFeedUrl());
                     try {
                         SyndFeed syndFeed = getFeedWithRome(feed.getFeedUrl());
-                        List<FeedEntry> entries = getEntries(syndFeed);
-
-                        // if PageContentExtractor fails more than 10 times, stop scraping
-                        int extractorFails = 0;
-
-                        for (FeedEntry entry : entries) {
-
-                            // TODO stop if way have very muuuuuuch entries
-                            // for example i found a feed with over 1000 entries
-                            // this gets ugly when we use PageContentExtractor :(
-
-                            // if we dont have it, add it
-                            boolean add = (store.getEntryByRawId(entry.getRawId()) == null);
-                            if (add) {
-                                /*if (useScraping && extractorFails < 5 && (feed.getTextType() != Feed.TEXT_TYPE_FULL)) {
-                                    LOGGER.trace("scraping " + entry.getLink());
-                                    // here we scrape content using PageContentExtractor
-                                    try {
-                                        PageContentExtractor extractor = new PageContentExtractor();
-                                        InputStream inpStream = crawler.downloadInputStream(entry.getLink());
-                                        extractor.setDocument(new InputSource(inpStream));
-                                        // entry.setPageText(extractor.getResultText());
-                                        
-                                        // changed 2010-07-02 -- keep the whole markup, not the stripped text
-                                        // we can strip the text later anyway.
-                                        
-                                        String content = Helper.xmlToString(extractor.getResultDocument());
-                                        entry.setPageContent(content);
-                                        
-                                        scrapes.increment();
-                                    } catch (IOException e) {
-                                        LOGGER.trace("aggregate " + feed.getFeedUrl() + " " + e.getMessage());
-                                        extractorFails++;
-                                    } catch (PageContentExtractorException e) {
-                                        LOGGER.trace("aggregate " + feed.getFeedUrl() + " " + e.getMessage());
-                                        extractorFails++;
-                                    }
-                                }*/
-                                store.addEntry(feed, entry);
-                                newEntries++;
-                            }
-                            // boolean added = store.addEntry(feed, entry);
-                            // if (added) {
-                            // logger.trace("added new entry " + entry);
-                            // newEntries++;
-                            // }
-                        }
-                        scrapeErrors.increment(extractorFails);
+                        newEntries = addEntries(feed, syndFeed);
                     } catch (NewsAggregatorException e) {
                         errors.increment();
                     } finally {
@@ -693,9 +481,7 @@ public class NewsAggregator {
         LOGGER.info(" # of aggregated feeds: " + feeds.size());
         LOGGER.info(" # new entries total: " + newEntriesTotal.getCount());
         LOGGER.info(" # errors: " + errors.getCount());
-//        LOGGER.info(" scraping enabled: " + useScraping);
-        LOGGER.info(" # scraped pages: " + scrapes);
-        LOGGER.info(" # scrape errors: " + scrapeErrors);
+        LOGGER.info(" page downloading enabled: " + isDownloadPages());
         LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
         LOGGER.info(" traffic: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB");
         LOGGER.info("-------------------------------");
@@ -711,7 +497,7 @@ public class NewsAggregator {
      * @param waitMinutes the interval in seconds when the aggregation is done.
      * @return
      */
-    public void aggregateContinuously(int waitMinutes) {        
+    public void aggregateContinuously(int waitMinutes) {
         while (true) {
             aggregate();
             LOGGER.info("sleeping for " + waitMinutes + " minutes");
@@ -729,14 +515,17 @@ public class NewsAggregator {
     }
 
     /**
-     * If enabled, we use {@link PageContentExtractor} to analyse feed type and to extract more text from feed entries
-     * with only partial text representations. Keep in mind that this causes heavy traffic and takes a lot of more time
-     * than a simple aggregation process from XML feeds only.
+     * If enabled, we download the linked page for each feed entry. Keep in mind that this causes heavy traffic and
+     * therfor takes a lot more time than a simple aggregation process from XML feeds only.
      * 
-     * @param usePageContentExtractor
+     * @param downloadPages
      */
-    public void setUseScraping(boolean usePageContentExtractor) {
-//        this.useScraping = usePageContentExtractor;
+    public void setDownloadPages(boolean downloadPages) {
+        this.downloadPages = downloadPages;
+    }
+
+    public boolean isDownloadPages() {
+        return downloadPages;
     }
 
     /**
@@ -746,7 +535,7 @@ public class NewsAggregator {
      * @return
      * @throws NewsAggregatorException
      */
-    public Feed getFeed(String feedUrl) throws NewsAggregatorException {
+    public Feed downloadFeed(String feedUrl) throws NewsAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
         Feed feed = getFeed(syndFeed, feedUrl);
         List<FeedEntry> entries = getEntries(syndFeed);
@@ -755,22 +544,30 @@ public class NewsAggregator {
     }
 
     /**
-     * Returns entries from a specified feed URL.
+     * Add entries to the store for a specified feed.
      * 
-     * @param feedUrl
-     * @return
-     * @throws NewsAggregatorException
+     * @param feed
+     * @param syndFeed
+     * @return number of added entries.
      */
-    public List<FeedEntry> getEntries(String feedUrl) throws NewsAggregatorException {
-        SyndFeed syndFeed = getFeedWithRome(feedUrl);
-        return getEntries(syndFeed);
-    }
+    private int addEntries(Feed feed, SyndFeed syndFeed) {
+        int newEntries = 0;
+        List<FeedEntry> entries = getEntries(syndFeed);
 
-    // //////////////////////
-    // just for testing purposes
-    int getFeedTextType(String feedUrl) throws NewsAggregatorException {
-        SyndFeed syndFeed = getFeedWithRome(feedUrl);
-        return determineFeedTextType(syndFeed, feedUrl);
+        for (FeedEntry entry : entries) {
+
+            // if we dont have it, add it
+            boolean add = store.getEntryByRawId(entry.getRawId()) == null;
+            if (add) {
+                if (isDownloadPages()) {
+                    String pageContent = crawler.download(entry.getLink());
+                    entry.setPageContent(pageContent);
+                }
+                store.addEntry(feed, entry);
+                newEntries++;
+            }
+        }
+        return newEntries;
     }
 
     /**
@@ -789,8 +586,8 @@ public class NewsAggregator {
         options.addOption(OptionBuilder.withLongOpt("threads")
                 .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(
                         Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("noScraping").withDescription("disable PageContentExtractor")
-                .create());
+        options.addOption(OptionBuilder.withLongOpt("downloadPages").withDescription(
+                "download associated web page for each feed entry").create());
         options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName(
                 "feedUrl").create());
         options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
@@ -817,9 +614,9 @@ public class NewsAggregator {
             if (cmd.hasOption("threads")) {
                 aggregator.setMaxThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
             }
-//            if (cmd.hasOption("noScraping")) {
-//                aggregator.setUseScraping(false);
-//            }
+            if (cmd.hasOption("downloadPages")) {
+                aggregator.setDownloadPages(true);
+            }
             if (cmd.hasOption("add")) {
                 aggregator.addFeed(cmd.getOptionValue("add"));
             }
@@ -830,7 +627,7 @@ public class NewsAggregator {
                 aggregator.aggregate();
             }
             if (cmd.hasOption("aggregateWait")) {
-                int waitMinutes = ((Number)cmd.getParsedOptionValue("aggregateWait")).intValue();
+                int waitMinutes = ((Number) cmd.getParsedOptionValue("aggregateWait")).intValue();
                 aggregator.aggregateContinuously(waitMinutes);
             }
 

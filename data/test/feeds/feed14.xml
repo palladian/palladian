@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>Gadget Lab</title>
+	<atom:link href="http://www.wired.com/gadgetlab/feed/" rel="self" type="application/rss+xml" />
+	<link>http://www.wired.com/gadgetlab</link>
+	<description>Hardware News and Reviews</description>
+	<lastBuildDate>Fri, 23 Jul 2010 21:25:43 +0000</lastBuildDate>
+	<generator>http://wordpress.org/?v=2.9.2</generator>
+	<language>en</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+			<item>
+		<title>Upstart E-readers Fade to Black as Tablets Gain Momentum</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/ereaders-consolidation/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/ereaders-consolidation/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 19:59:14 +0000</pubDate>
+		<dc:creator>Priya Ganapati</dc:creator>
+				<category><![CDATA[Media Players]]></category>
+		<category><![CDATA[Amazon]]></category>
+		<category><![CDATA[Audiovox]]></category>
+		<category><![CDATA[consoliation]]></category>
+		<category><![CDATA[death]]></category>
+		<category><![CDATA[e-books]]></category>
+		<category><![CDATA[e-readers]]></category>
+		<category><![CDATA[iRex]]></category>
+		<category><![CDATA[Kindle]]></category>
+		<category><![CDATA[shake-out]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44475</guid>
+		<description><![CDATA[
+E-readers are far from dead but many are certainly gasping for breath. A shake-out in the e-reader market has put some smaller companies out of business, leaving the playing field clear for giants like Amazon, Barnes &#38; Noble and Sony.
+The list of e-reader makers running into trouble has grown in the past few weeks:
+
+Audiovox has [...]]]></description>
+			<content:encoded><![CDATA[<p><img class="alignnone size-full wp-image-44536" title="plastic logic" src="http://www.wired.com/images_blogs/gadgetlab/2010/07/plastic-logic.jpg" alt="" width="660" height="440" /></p>
+<p>E-readers are far from dead but many are certainly gasping for breath. A shake-out in the e-reader market has put some smaller companies out of business, leaving the playing field clear for giants like Amazon, Barnes &amp; Noble and Sony.</p>
+<p>The list of e-reader makers running into trouble has grown in the past few weeks:</p>
+<ul>
+<li>Audiovox has <a href="http://www.the-digital-reader.com/2010/07/22/exclusive-audiovox-just-killed-the-rca-lexi/">canceled plans to introduce the RCA Lexi e-reader</a> that it demonstrated at the Consumer Electronics Show this year.</li>
+<li>Last month, e-reader maker <a href="http://paidcontent.org/article/419-e-reader-maker-irex-files-for-bankruptcy/">iRex filed for bankruptcy</a>, citing disappointing sales of its product in the United States.</li>
+<li>Plastic Logic, which also debuted its large screen reader at CES in January, has <a href="http://www.wired.com/gadgetlab/2010/06/plastic-logic-que-e-reader-turns-into-vaporware/">canceled all pre-orders</a> for its device and scrapped plans to ship the product.</li>
+<li>Cool-er, one of the earliest startups to launch a Sony look-alike e-reader, has listed all its products as &#8220;<a href="http://www.coolreaders.com/readers.asp">out of the stock</a>&#8221; in the United States with no mention of when new devices will be available.</li>
+</ul>
+<p>&#8220;Companies that had neither brand nor distribution have failed,&#8221; says Sarah Rotman Epps, an analyst for Forrester Research.</p>
+<p>Price cuts by Amazon and Barnes &amp; Noble, coupled with the shift in consumer interest toward more multi-purpose tablets, have also taken their toll on e-readers.</p>
+<p>&#8220;You are seeing the same kind of proliferation and excitement in tablets now that you saw two years ago for e-readers,&#8221; says Epps.</p>
+<p>After Amazon introduced the Kindle in 2007, e-readers became one of the hottest consumer products. The category attracted large companies such as Samsung and Barnes &amp; Noble, even as lesser-known players such as Plastic Logic, Aluratek and iRiver jumped in.</p>
+<p>Mostly Kindle clones, many of these e-readers were near-identical in how they looked and the features they offered. Almost all sourced their black-and-white screen from a single company: E Ink.</p>
+<p>Meanwhile, Apple launched its iPad this year. At $500, it&#8217;s pricier than most e-readers, but offers relatively long battery life, a color screen and iBooks, an iTunes-like store for digital books. It may not be as ideally suited to reading as a dedicated e-reader, but many iPad customers are finding that it works well enough as a book reader, in addition to its many other functions. </p>
+<p>Apple&#8217;s move sparked a price war in the e-reader market. Amazon dropped the price of its Kindle 2 to $190 from $260. Barnes &amp; Noble released a Wi-Fi-only version of the Nook for $150, while a Nook with Wi-Fi and 3G capability now costs $200.</p>
+<p>The price war put a squeeze on smaller e-reader manufacturers.</p>
+<p>&#8220;As a result of the recent price drops in the market, our primary <a href="http://www.the-digital-reader.com/2010/07/22/exclusive-audiovox-just-killed-the-rca-lexi/">focus has shifted to international opportunities</a>,&#8221; Audiovox told the Digital Reader website.</p>
+<p>All this doesn&#8217;t mean consumers have completely fallen out of love with e-readers, says Epps. Tablets will outpace e-readers in overall sales, she says, but the shift toward digital books is here to stay. Forrester estimates 6.6 million e-readers will be sold in the United States this year. Approximately 29.4 million e-readers may be sold in the United States by 2016, compared to 59 million tablets.</p>
+<p>Earlier this week, Amazon said for the first time <a href="http://www.wired.com/epicenter/2010/07/amazon-more-e-books-than-hardcovers/">sales of e-books are outstripping hardcovers</a>. In June, Amazon sold 180 e-books for every 100 hardcovers. In the first six months of the year, the company sold three times as many e-books as it did in the first half of 2009.</p>
+<p>&#8220;In the e-reader market, price is coming way down and that&#8217;s the major consideration for purchase,&#8221; says Epps. &#8220;If a company can do cheaper and better devices than Amazon, Sony or Barnes &amp; Noble, they still have a chance &#8212; but no one&#8217;s been able to do that yet.&#8221;</p>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="http://www.wired.com/gadgetlab/2010/03/e-readers-future/">E-Readers Will Survive the Onslaught of Tablets</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/02/e-readers-innovations-2010/">5 Things That Will Make E-Readers Better in 2010</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/06/plastic-logic-que-e-reader-turns-into-vaporware/">Plastic Logic Que E-Reader Turns Into Vaporware</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/01/e-readers-gallery/">Gallery: E-Readers Push Boundaries of Books</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/01/apple-ipad-ereaders/">Apple iPad Raises the Stakes for E-Readers</a></li>
+</ul>
+<p>Photo:Jon Snyder/Wired.com
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fereaders-consolidation%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fereaders-consolidation%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/ereaders-consolidation/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Why India&#8217;s $35 Tablet May Be Just a Dream</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/india-35-tablet/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/india-35-tablet/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 17:55:24 +0000</pubDate>
+		<dc:creator>Priya Ganapati</dc:creator>
+				<category><![CDATA[Tablets]]></category>
+		<category><![CDATA[$25]]></category>
+		<category><![CDATA[Adam]]></category>
+		<category><![CDATA[computing]]></category>
+		<category><![CDATA[India]]></category>
+		<category><![CDATA[laptop]]></category>
+		<category><![CDATA[low-cost]]></category>
+		<category><![CDATA[Notion Ink]]></category>
+		<category><![CDATA[OLPC]]></category>
+		<category><![CDATA[tablet]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44529</guid>
+		<description><![CDATA[
+A prototype tablet from India that looks similar to the iPad but costs a few hundred dollars less than the magical device is on its way, according to the country&#8217;s government officials who showed the device at an event Thursday.
+The Linux-based tablet from India is priced at $35 with the potential to drop it to [...]]]></description>
+			<content:encoded><![CDATA[<p><img class="alignnone size-full wp-image-44531" title="lowcostcomputingdevice1" src="http://www.wired.com/images_blogs/gadgetlab/2010/07/lowcostcomputingdevice1.jpg" alt="" width="640" height="485" /></p>
+<p>A prototype tablet from India that looks similar to the iPad but costs a few hundred dollars less than the magical device is on its way, according to the country&#8217;s government officials who showed the device at an event Thursday.</p>
+<p>The Linux-based tablet from India is priced at $35 with the potential to drop it to either $20 or $10. The tablet will support video conferencing and wireless, have open source software on it including Open Office, and will include a media player. It will also have a solar-power option.</p>
+<p>The government has not disclosed details about the tablet&#8217;s processing power, memory or storage. It is also not clear if the device will have a touchscreen or a pen-based input.</p>
+<p>The Indian government hopes to bring the tablet into production in 2011, but first it must find partners to build it. So far, no manufacturers have been announced, though officials claim several have expressed interest.</p>
+<p>The success of Apple&#8217;s iPad and the demand among consumers for a slick media-consumption tablet has spurred the quest for a low-cost device that has the looks of an iPad and the functionality of a laptop. The One Laptop Per Child Project in the United States recently announced that it is planning to create a $75 OLPC tablet. But the first version of that tablet is unlikely to be available before the end of next year. OLPC&#8217;s current low-cost laptop sells for $200.</p>
+<p>In March, chip maker Marvell showed a prototype that will offer web access and high-definition content for just $100. The tablet called Moby will be targeted at students, says Marvell, and it will run Marvell’s Armada 600 series of application processors. So far,  <a href="http://www.wired.com/gadgetlab/2010/03/marvell-teases-with-100-tablet-for-students/">Marvell&#8217;s $100 tablets</a> have yet to go beyond a reference design.</p>
+<p>Current estimates on the cost of components show that getting the cost of a device below $100 isn&#8217;t easy.</p>
+<p>The cheapest version of <a href="http://store.apple.com/us/browse/home/shop_ipad/family/ipad">Apple&#8217;s iPad costs</a> $500. A teardown of the iPad shows the bill of materials alone for it is $230. A six-inch <a href="http://www.isuppli.com/teardowns-manufacturing-and-pricing/news/pages/amazon-s-kindle-2-costs-185-49-to-build-isuppli-teardown-reveals.aspx">black-and-white screen on a Kindle 2</a> alone costs $60, according to  iSuppli.</p>
+<p>To create its $35 tablet, the Indian government says it partnered with some of the country&#8217;s best technical universities including the Indian Institute of Technology (IIT). Students involved in the project created their own motherboard and PCBs for the device, say officials. Interestingly, the government says private companies in the country showed little interest in the idea.</p>
+<p>The bill of materials of a prototype tablet came to $47. But officials didn&#8217;t explain how they think that cost can shrink to $35 and lower.</p>
+<p>&#8220;It could be seen that by customizing the device to the needs of learners across the country, and by utilizing the processor capabilities of the processors suitable for the purpose, it was possible to <a href="http://trak.in/tags/business/2010/07/22/35-usd-computing-device-launched-mhrd-india/">substantially reduce the prices of such access-cum-computing devices</a>,&#8221; a press release from the country&#8217;s Press Information Bureau said.</p>
+<p>Deciphering that is not easy. Even more puzzling is that the announcement of the tablet did not mention <a href="http://www.fashionfunky.com/2010/07/sakshat_india_launches_the_olp.php">who will manufacture the product</a> or how it will be distributed. It is also not clear if the $35 price tag includes a small profit margin or if the product will be sold entirely at cost.</p>
+<p>Despite the introduction of the latest tablet with much fanfare, India doesn&#8217;t have a history of delivering on its much-hyped promises about electronic  devices. For instance, Indian startup <a href="http://www.notionink.com/">Notion Ink</a> has been promising a tablet for months called Adam that is yet to hit the market. In February 2009, Indian government officials announced a <a href="http://www.guardian.co.uk/world/2009/feb/02/india-computer-cheapest">$10 laptop</a> that ultimately proved to be vaporware.</p>
+<p>The $35 tablet could go the same way.</p>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="http://www.wired.com/gadgetlab/2010/03/marvell-teases-with-100-tablet-for-students/">Marvell Teases with $100 Tablet for Students</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2009/08/dell-intel-tablet/">Why 2010 Will Be the Year of the Tablet</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/04/gallery-non-apple-tablets/">Gallery: 8 Tablets That Aren&#8217;t Made by Apple</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/01/hands-on-with-the-apple-ipad/">Hands-On With the Apple iPad</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/01/e-readers-gallery/">Gallery: E-Readers Push Boundaries of Books</a></li>
+</ul>
+<p><em>Photo: <a href="http://trak.in/tags/business/2010/07/22/35-usd-computing-device-launched-mhrd-india/">Trak.in</a></em>
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Findia-35-tablet%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Findia-35-tablet%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/india-35-tablet/feed/</wfw:commentRss>
+		<slash:comments>3</slash:comments>
+		</item>
+		<item>
+		<title>Apple: White iPhone Delayed Until &#8216;Later This Year&#8217;</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/apple-white-iphone-delayed-until-later-this-year/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/apple-white-iphone-delayed-until-later-this-year/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 14:02:32 +0000</pubDate>
+		<dc:creator>Charlie Sorrel</dc:creator>
+				<category><![CDATA[Phones]]></category>
+		<category><![CDATA[any color you want...]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[iPhone]]></category>
+		<category><![CDATA[PR]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44522</guid>
+		<description><![CDATA[
+Apple has been forced to delay the already-late white iPhone 4 yet again. Manufacturing problems are the reason, and the rumors say that getting the paint thick enough to look good, while still leaving space to fit the thing together is the actual cause. Whatever it is, one thing&#8217;s for sure. Apple isn&#8217;t happy. In [...]]]></description>
+			<content:encoded><![CDATA[<p><img alt="" src="http://www.wired.com/images_blogs/gadgetlab/2010/06/iphone4_5a.jpg" class="alignnone" width="670" height="447" /></p>
+<p>Apple has been forced to delay the already-late white iPhone 4 yet again. Manufacturing problems are the reason, and the rumors say that getting the paint thick enough to look good, while still leaving space to fit the thing together is the actual cause. Whatever it is, one thing&#8217;s for sure. Apple isn&#8217;t happy. In fact, so annoyed is the normally professional PR department that it barely bothered to re-write last month&#8217;s press-release. Here they are, side-by-side (or top-by-bottom).</p>
+<p>June 23, 2010:</p>
+<blockquote><p>
+White models of Apple’s new iPhone 4 have proven more challenging to manufacture than expected, and as a result they will not be available until the second half of July. The availability of the more popular iPhone 4 black models is not affected.
+</p></blockquote>
+<p>And today:</p>
+<blockquote><p>
+White models of Apple’s new iPhone® 4 have continued to be more challenging to manufacture than we originally expected, and as a result they will not be available until later this year. The availability of the more popular iPhone 4 black models is not affected.</p>
+</blockquote>
+<p>Can you spot the difference? The new press release gains an &#8220;®&#8221; symbol, a new, much more vague date and the word &#8220;proven&#8221; has been dropped in favor of &#8220;continued&#8221;. My favorite is the unchanged last line, which says that the black iPhone is the more popular model. Could that be, do you think, because <em>Apple hasn&#8217;t yet sold a single white iPhone 4?</em></p>
+<p>The &#8220;later this year&#8221; part at least gets the PR folks off the hook for a while. Even if things don&#8217;t get better at the white iPhone factory, they have over five months before they&#8217;ll have to issue another statement. And a good thing too. What with antennagate, the Bumper Program and Apple&#8217;s record performance this quarter, the poor poppets at Apple Public Relations have had to write almost one release <em>per week</em>. They could do with a break.</p>
+<p><a href="http://www.apple.com/pr/library/2010/07/23iphonestatement.html">Statement by Apple on White iPhone 4 (redux)</a> [Apple]</p>
+<p><em>Photo: Jon Snyder/Wired.com</em></p>
+<p><strong>See Also:</strong><br/></p>
+<ul>
+<li><a href="http://www.wired.com/gadgetlab/2010/06/apple-no-white-iphones-for-at-least-three-weeks/">Apple: No White iPhones for at Least Three Weeks</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/05/iphone-4g-also-available-in-white/">IPhone 4G, Also Available in White?</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2009/06/iphone-3gs-handsets-overheat-turn-brown/">IPhone 3GS Handsets Overheat, Turn Brown</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2008/07/whats-cracking/">What&#39;s Cracking? IPhone 3G, Apparently</a></li>
+</ul>
+<p><em>Follow us for real-time tech news: <a href="http://twitter.com/mistercharlie/">Charlie Sorrel</a> and <a href="http://twitter.com/gadgetlab/">Gadget Lab</a>  on Twitter.</em>.
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fapple-white-iphone-delayed-until-later-this-year%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fapple-white-iphone-delayed-until-later-this-year%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/apple-white-iphone-delayed-until-later-this-year/feed/</wfw:commentRss>
+		<slash:comments>4</slash:comments>
+		</item>
+		<item>
+		<title>Apple Refunds Bumper Case Purchases, Launches Bumper App</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/apple-refunds-bumper-case-purchases-launches-bumper-app/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/apple-refunds-bumper-case-purchases-launches-bumper-app/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 13:33:53 +0000</pubDate>
+		<dc:creator>Charlie Sorrel</dc:creator>
+				<category><![CDATA[Accessories and Peripherals]]></category>
+		<category><![CDATA[antennagate]]></category>
+		<category><![CDATA[Bumpers]]></category>
+		<category><![CDATA[cases]]></category>
+		<category><![CDATA[iPhone]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44517</guid>
+		<description><![CDATA[
+Apple has started to refund buyers of the $30 rubber-band it calls the Bumper Case. The refund was promised to buyers after Apple offered free bumper cases to iPhone 4 owners to fix the signal-dropping death-grip.
+With little fuss, Apple has been refunding customers&#8217; credit-cards for the $30 purchase price plus any tax or shipping. If [...]]]></description>
+			<content:encoded><![CDATA[<p><img src="http://www.wired.com/images_blogs/gadgetlab/2010/07/bumper.jpg" alt="" title="bumper" width="660" height="281" class="alignnone size-full wp-image-44518" /></p>
+<p>Apple has started to refund buyers of the $30 rubber-band it calls the Bumper Case. The refund was promised to buyers after Apple offered free bumper cases to iPhone 4 owners to fix the signal-dropping death-grip.</p>
+<p>With little fuss, Apple has been refunding customers&#8217; credit-cards for the $30 purchase price plus any tax or shipping. If you paid cash, lord knows how you&#8217;ll get your money back. A postal-order or a check, probably. Why not fax Apple to find out?</p>
+<p>Some have looked at the bumper cases, which perfectly cover the troublesome exposed external antenna-band on the iPhone 4 and nothing else, and seen conspiracy. &#8220;Apple knew about the problem all along,&#8221; they cry, &#8220;the Bumper proves it!&#8221;</p>
+<p>That Apple would realize the problem and, instead of fixing it just try to sell a case seems unlikely. I&#8217;m with Daring Fireball&#8217;s John Gruber on this one: I think that Apple just wanted a slice of the lucrative iPhone case market. After all, at Apple&#8217;s entry-level $30 accessory price-point, a rubber-strip costing a few cents will certainly generate a profit.</p>
+<p>For those of you who sensibly held-off buying a $30 piece of stationery, you can now get one free. Apple has also launched its <em><a href="http://www.apple.com/iphone/case-program/">iPhone 4 Case Program</a></em>. This is an actual application, available from the App Store. Download it, log in and order. The Bumper is in there but, as Steve Jobs promised at last Friday&#8217;s press event, there are a number of third-party cases too. These actually look pretty good, and come from respected manufacturers like Speck, Belkin and Griffin. All of the cases, from Apple or anyone else, will take 3-5 weeks to ship.</p>
+<p><a href="http://www.apple.com/iphone/case-program/">iPhone 4 Case Program</a> [Apple]</p>
+<p><a href="http://mashable.com/2010/07/23/iphone-4-bumper-refunds/">Apple Automatically Refunding iPhone 4 Bumper Purchases</a> [Mashable]</p>
+<p><em><a href="http://www.flickr.com/photos/mr_t_in_dc/2747199948/">Photo</a>: By Mr. T in DC/Flickr</em></p>
+<p><strong>See Also:</strong><br/></p>
+<ul>
+<li><a href="http://www.wired.com/gadgetlab/2010/07/fix-iphone-4-reception-troubles-for-1/">Fix iPhone 4 Reception Troubles for $1</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/06/iphone-4-speed-electrical-tape/">Can Black Tape Double the Speed of Your iPhone 4?</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/07/iphone-4/">Apple&#39;s Answer to Antennagate: Free iPhone 4 Cases</a></li>
+</ul>
+<p><em>Follow us for real-time tech news: <a href="http://twitter.com/mistercharlie/">Charlie Sorrel</a> and <a href="http://twitter.com/gadgetlab/">Gadget Lab</a>  on Twitter.</em>
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fapple-refunds-bumper-case-purchases-launches-bumper-app%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fapple-refunds-bumper-case-purchases-launches-bumper-app%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/apple-refunds-bumper-case-purchases-launches-bumper-app/feed/</wfw:commentRss>
+		<slash:comments>12</slash:comments>
+		</item>
+		<item>
+		<title>Death of Film: Last Roll of Kodachrome Processed</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/death-of-film-last-roll-of-kodachrome-processed/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/death-of-film-last-roll-of-kodachrome-processed/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 12:24:09 +0000</pubDate>
+		<dc:creator>Charlie Sorrel</dc:creator>
+				<category><![CDATA[Cameras]]></category>
+		<category><![CDATA[film]]></category>
+		<category><![CDATA[photography]]></category>
+		<category><![CDATA[retro]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44512</guid>
+		<description><![CDATA[
+What do you know about Dwayne&#8217;s Photo Service of Parsons, Kansas? It is the place where the very last roll of the Kodachrome was processed.
+Kodachrome, the slide-film that inspired songs, was discontinued by Kodak last year at 74 years of age. The color emulsion was a victim of its own weird processing requirements, which didn&#8217;t [...]]]></description>
+			<content:encoded><![CDATA[<p><img src="http://www.wired.com/images_blogs/gadgetlab/2010/07/3123942310_82191296fb_z.jpeg" alt="" title="3123942310_82191296fb_z" width="626" height="640" class="aligncenter size-full wp-image-44513" /></p>
+<p>What do you know about Dwayne&#8217;s Photo Service of Parsons, Kansas? It is the place where the very last roll of the Kodachrome was processed.</p>
+<p>Kodachrome, the slide-film that inspired songs, was discontinued by Kodak last year at 74 years of age. The color emulsion was a victim of its own weird processing requirements, which didn&#8217;t use the usual E6 chemistry designed for transparency film, and therefore wasn&#8217;t worth supporting in the age of digital.</p>
+<p>The last roll was shot by National Geographic photographer Steve McCurry, who shot the 36 exposures in New York (actually, the last three shots were exposed in Parsons before dropping off the film at Dwayne&#8217;s). The pictures will be part of a National Geographic piece in the near future.</p>
+<p>McCurry&#8217;s film may have been the official last roll off the production line, but Dwayne&#8217;s will still process any Kodachrome that you might have until December 10th this year. And then it will shut down, forever. People may still shoot analog, but with the death of Kodachrome comes the spiritual death of film.</p>
+<p><a href="http://www.kansas.com/2010/07/14/1403115/last-kodachrome-roll-processed.html">Last Kodachrome roll processed in Parsons</a> [Wichita Eagle via <a href="http://www.retrothing.com/2010/07/kodaks-last-roll-of-kodachrome-has-been-processed.html">Retro Thing</a>]</p>
+<p><em><a href="http://www.flickr.com/photos/fayster/3123942310/">Photo</a>: Fay Ratta/Flickr</em></p>
+<p><strong>See Also:</strong><br/></p>
+<ul>
+<li><a href="http://www.wired.com/gadgetlab/2009/06/mama-they-took-my-kodachrome-away/">Mama, They Took My Kodachrome Away</a></li>
+<li><a href="http://www.wired.com/gadgetlab/tag/film/">Film</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2008/12/five-ways-digit/">Five Ways Digital Cameras Beat Film</a></li>
+</ul>
+<p><em>Follow us for real-time tech news: <a href="http://twitter.com/mistercharlie/">Charlie Sorrel</a> and <a href="http://twitter.com/gadgetlab/">Gadget Lab</a>  on Twitter.</em>
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fdeath-of-film-last-roll-of-kodachrome-processed%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fdeath-of-film-last-roll-of-kodachrome-processed%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/death-of-film-last-roll-of-kodachrome-processed/feed/</wfw:commentRss>
+		<slash:comments>22</slash:comments>
+		</item>
+		<item>
+		<title>Camera+ for iPhone 4 Adds Flash, Exposure Control</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/camera-for-iphone-4-adds-flash-exposure-control/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/camera-for-iphone-4-adds-flash-exposure-control/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 11:16:04 +0000</pubDate>
+		<dc:creator>Charlie Sorrel</dc:creator>
+				<category><![CDATA[Cameras]]></category>
+		<category><![CDATA[iPhone]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44508</guid>
+		<description><![CDATA[
+Camera+ for the iPhone is another case of a third-party app doing things better than Apple itself. It&#8217;s an all-in-one photo-taking and editing application that improves on almost every aspect of the built-in camera app, and it has just gotten a slew of new features with a v1.2 update.
+While the post-processing tricks are nice (cropping [...]]]></description>
+			<content:encoded><![CDATA[<p><img src="http://www.wired.com/images_blogs/gadgetlab/2010/07/Screen-shot-2010-07-23-at-1.09.36-PM.png" alt="" title="Screen shot 2010-07-23 at 1.09.36 PM" width="660" height="483" class="alignnone size-full wp-image-44507" /></p>
+<p>Camera+ for the iPhone is another case of a third-party app doing things better than Apple itself. It&#8217;s an all-in-one photo-taking and editing application that improves on almost every aspect of the built-in camera app, and it has just gotten a slew of new features with a v1.2 update.</p>
+<p>While the post-processing tricks are nice (cropping and special effects) it&#8217;s the shooting tools which impress. New in this version is flash control, which lets you switch on the iPhone 4&#8217;s LED lamp, either as a quick flash or as a continuous light (useful to get an idea of where the shadows will fall). Also very useful is the separation of exposure and focus. In Apple&#8217;s app, you tap the screen and the iPhone sets both exposure and focus on that spot. With Camera+, you can set these independently, still by tapping, for finer control.</p>
+<p>The focus also goes from &#8220;tap&#8221; to &#8220;touch&#8221;. This subtle difference lets you smoosh your finger around the screen and the focus point will follow. This lets you follow things without constantly tap-tap-tapping.</p>
+<p>There also bug fixes and tweaks fixes, most notably a speed increase when shooting, uploading of proper metadata to Flickr and better image stabilization. Best of all, the app is just $2. Available now.</p>
+<p><a href="http://itunes.apple.com/es/app/id329670577?mt=8">Camera+</a> [iTunes]</p>
+<p><strong>See Also:</strong><br/></p>
+<ul>
+<li><a href="http://www.wired.com/gadgetlab/2010/06/why-the-iphone-4-camera-is-so-good/">Why the iPhone 4 Camera Is So Promising</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2009/06/breaking-iphone-3g-s-camera-doesnt-suck/">Breaking: iPhone 3GS Camera Doesn&#39;t Suck</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2009/12/hipstamatic-gentrifies-iphone-camera/">Hipstamatic Gentrifies iPhone Camera</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2009/10/pro-camera-adds-image-stabilization-to-iphone/">Pro-Camera Adds Image Stabilization to iPhone</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2009/05/camera-triggering-iphone-app-allows-remote-viewing/">Camera-Triggering iPhone App Allows Remote Viewing</a></li>
+</ul>
+<p><em>Follow us for real-time tech news: <a href="http://twitter.com/mistercharlie/">Charlie Sorrel</a> and <a href="http://twitter.com/gadgetlab/">Gadget Lab</a>  on Twitter.</em>
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fcamera-for-iphone-4-adds-flash-exposure-control%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fcamera-for-iphone-4-adds-flash-exposure-control%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/camera-for-iphone-4-adds-flash-exposure-control/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Terrifying &#8216;Kid-Friendly&#8217; Syringe Disguised as Mouse</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/terrifying-kid-friendly-syringe-disguised-as-mouse/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/terrifying-kid-friendly-syringe-disguised-as-mouse/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 10:31:11 +0000</pubDate>
+		<dc:creator>Charlie Sorrel</dc:creator>
+				<category><![CDATA[R&D and Inventions]]></category>
+		<category><![CDATA[for kids!]]></category>
+		<category><![CDATA[horror]]></category>
+		<category><![CDATA[medicine]]></category>
+		<category><![CDATA[you know]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44503</guid>
+		<description><![CDATA[
+Designer Jesper Nilsson took one look at the hypodermic needle and had a flash of inspiration: The skin-piercing sharps need to be more kid-friendly, right?
+The result of this terrifying insight is the Syrinx, a needle and syringe made to look like a cute little animal. See the picture above to see just how fun it [...]]]></description>
+			<content:encoded><![CDATA[<p><img src="http://www.wired.com/images_blogs/gadgetlab/2010/07/Syrinx-by-Jesper-Nilsson.jpg" alt="" title="Syrinx by Jesper Nilsson" width="660" height="233" class="alignnone size-full wp-image-44502" /></p>
+<p>Designer Jesper Nilsson took one look at the hypodermic needle and had a flash of inspiration: The skin-piercing sharps need to be more kid-friendly, right?</p>
+<p>The result of this terrifying insight is the Syrinx, a needle and syringe made to look like a cute little animal. See the picture above to see just how fun it is! The idea is that kids will be less scared of a glinting needle if it is disguised as a mouse wearing sunglasses and with the number 13 painted on its haunch, but what is much more likely to happen is that the poor child will probably grow up with a world-class mouse-phobia.</p>
+<p>And is a mouse the best they could do? What about making things a little more educational? As the Syrinx is designed to calm children whilst taking their blood, what about shaping it like a giant mosquito, its proboscis now a razor-sharp, surgical-steel spike that pierces the soft pink skin effortlessly and sucks out the blood within. What could be more kid-friendly than that?</p>
+<p><a href="http://www.yankodesign.com/2010/06/25/prick-of-the-syrinx/">Prick of The Syrinx</a> [Yanko]</p>
+<p><strong>See Also:</strong><br/></p>
+<ul>
+<li><a href="http://www.wired.com/gadgetlab/2009/09/surgical-robots/3/">Surgical Robots Operate With Precision</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2008/09/pox-teddy-conce/">Pox Teddy Concept Could Infect Your Kids For Good</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2008/01/blood-pen-mecha/">Blood Pen: Mechanical Quill Writes in Plasma</a></li>
+</ul>
+<p><em>Follow us for real-time tech news: <a href="http://twitter.com/mistercharlie/">Charlie Sorrel</a> and <a href="http://twitter.com/gadgetlab/">Gadget Lab</a>  on Twitter.</em>.
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fterrifying-kid-friendly-syringe-disguised-as-mouse%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fterrifying-kid-friendly-syringe-disguised-as-mouse%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/terrifying-kid-friendly-syringe-disguised-as-mouse/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Faceplant Adds Missing Features to FaceTime</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/faceplant-adds-missing-features-to-facetime/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/faceplant-adds-missing-features-to-facetime/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 09:50:21 +0000</pubDate>
+		<dc:creator>Charlie Sorrel</dc:creator>
+				<category><![CDATA[Phones]]></category>
+		<category><![CDATA[apps]]></category>
+		<category><![CDATA[FaceTime]]></category>
+		<category><![CDATA[iPhone]]></category>
+		<category><![CDATA[software]]></category>
+		<category><![CDATA[video]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44497</guid>
+		<description><![CDATA[FaceTime is pretty typical of an Apple consumer-level application: it is insanely polished, easy to use and high on the wow-factor, but lacking in the most basic features. That&#8217;s just what Faceplant adds.
+Unlike the most basic chat client, FaceTime has no list of online contacts, no way to leave a message for an offline user. [...]]]></description>
+			<content:encoded><![CDATA[<p><img src="http://www.wired.com/images_blogs/gadgetlab/2010/07/Screen-shot-2010-07-23-at-11.43.44-AM-162x300.png" alt="" title="Screen shot 2010-07-23 at 11.43.44 AM" width="162" height="300" class="alignright size-medium wp-image-44498" />FaceTime is pretty typical of an Apple consumer-level application: it is insanely polished, easy to use and high on the wow-factor, but lacking in the most basic features. That&#8217;s just what Faceplant adds.</p>
+<p>Unlike the most basic chat client, FaceTime has no list of online contacts, no way to leave a message for an offline user. Faceplant is an app (yet to be approved) and service which fixes this. It integrates with your contacts and checks to see if any of them also has Faceplant installed. If so, they show up in a list, and you can call them from there. If they&#8217;re offline, you can leave them a video &#8220;voice-mail&#8221; to be picked up later. These messages can be sent over 3G or Wi-Fi, and the recipient will get a pop-up notification when they receive it.</p>
+<p>This looks like a must-have app for iPhone 4 owners, but suffers from the same problem as any such application: As it isn&#8217;t built in, people will have to go out and install it. And if me-too versions start to appear in the App Store to confuse people, the necessary critical-mass will never be achieved.</p>
+<p><a href="http://www.faceplantapps.com/">Faceplant</a> [Faceplantapp via <a href="http://www.tuaw.com/2010/07/22/faceplant-brings-quick-facetime-chats-and-video-voice-mail-to-th/">TUAW</a>]</p>
+<p><strong>See Also:</strong><br/></p>
+<ul>
+<li><a href="http://www.wired.com/gadgetlab/2010/06/video-iphone-4/">Video: iPhone 4 Looks Gorgeous, But FaceTime Face Plants</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/07/geek-artist-making-50-caricatures-over-facetime-4/">Geek Artist Making $50 Caricatures Over FaceTime</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/06/surprise-wi-fi-only-facetime-doesnt-use-cellular-minutes/">Surprise: Wi-Fi Only FaceTime Doesn&#39;t Use Cellular Minutes &#8230;</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/06/video-shows-iphone-4-facetime-call-over-3g/">Video Shows iPhone 4 FaceTime Call Over 3G</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/07/uk-retailer-leaks-new-ipod-touch-details-camera-facetime/">U.K. Retailer Leaks New iPod Touch Details: Camera, FaceTime &#8230;</a></li>
+</ul>
+<p><em>Follow us for real-time tech news: <a href="http://twitter.com/mistercharlie/">Charlie Sorrel</a> and <a href="http://twitter.com/gadgetlab/">Gadget Lab</a>  on Twitter.</em>.
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Ffaceplant-adds-missing-features-to-facetime%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Ffaceplant-adds-missing-features-to-facetime%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/faceplant-adds-missing-features-to-facetime/feed/</wfw:commentRss>
+		<slash:comments>1</slash:comments>
+		</item>
+		<item>
+		<title>Intel Designs a Slick Touchscreen Cash Register</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/intel-kiosk-retail/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/intel-kiosk-retail/#comments</comments>
+		<pubDate>Thu, 22 Jul 2010 22:59:26 +0000</pubDate>
+		<dc:creator>Priya Ganapati</dc:creator>
+				<category><![CDATA[Miscellaneous]]></category>
+		<category><![CDATA[cash]]></category>
+		<category><![CDATA[check-out]]></category>
+		<category><![CDATA[concept]]></category>
+		<category><![CDATA[demo]]></category>
+		<category><![CDATA[electronic]]></category>
+		<category><![CDATA[Intel]]></category>
+		<category><![CDATA[kiosk]]></category>
+		<category><![CDATA[register]]></category>
+		<category><![CDATA[retail]]></category>
+		<category><![CDATA[stores]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44487</guid>
+		<description><![CDATA[
+If you think Intel chips are just for PCs, take a look at this touchscreen kiosk that the company has created for retailers.
+The hulk of metal, plastic and glass looks like a Star Trek prop but it promises to replace the traditional CRT monitors with green-tinted screens that are still at the check out point [...]]]></description>
+			<content:encoded><![CDATA[<p><img class="alignnone size-full wp-image-44492" title="intel kiosk" src="http://www.wired.com/images_blogs/gadgetlab/2010/07/U3C5163.jpg" alt="" width="660" height="440" /></p>
+<p>If you think Intel chips are just for PCs, take a look at this touchscreen kiosk that the company has created for retailers.</p>
+<p>The hulk of metal, plastic and glass looks like a Star Trek prop but it promises to replace the traditional CRT monitors with green-tinted screens that are still at the check out point in most stores.</p>
+<p>The kiosk tries to bring the best features of online shopping, such as recommendations, history and easy check-out to retail stores, says Ryan Parker, director of marketing and architecture. We first <a href="http://www.wired.com/epicenter/2009/01/intel-cash-regi/">wrote about this</a> last year but Intel had a polished and slicker-than-ever demo ready Wednesday.</p>
+<p>When a customer swipes a card or slides their purchase across the horizontal screen, the display will show the price and payment options &#8211;which include the option to pay by cellphone. As you scan the items, the kiosk also makes recommendations on what else you can buy and gives you a quick snapshot of it.</p>
+<p>The entire kiosk is powered by Intel&#8217;s Core2Duo processors and it uses a solid state drive that helps the overall system work faster and consume less power than existing registers.  The chips also include Intel&#8217;s vPro technology, a virtualization technology that Intel builds into the chip itself, to make it secure and easy to manage.</p>
+<p>The whole set-up is pretty neat, especially when you compare it to the self-check out counters at a Safeway or Lowes. But I can also see something like this potentially slowing down the check out process and longer lines at exit are not something consumers want.</p>
+<p>Intel says it retailers don&#8217;t have to buy this whole idea as it is. They can pick the pieces they want and integrate it into their existing stores.</p>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="http://www.wired.com/epicenter/2010/04/why-intel-wants-to-get-into-energy/">Why Intel Wants to Get into Energy</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/05/intel-atom-smartphones/">Intel Introduces Ultra-Low-Power Processor for Smartphones </a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/07/intel-countertops-into-touchscreens/">Intel Researchers Turn Counter Tops Into Touchscreens</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2009/08/dell-intel-tablet/">Why 2010 Will Be the Year of the Tablet</a></li>
+</ul>
+<p><em>Photo: Stefan Armijo/Wired.com</em>
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fintel-kiosk-retail%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Fintel-kiosk-retail%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/intel-kiosk-retail/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+		<item>
+		<title>Robot Learns to Flip Pancakes</title>
+		<link>http://www.wired.com/gadgetlab/2010/07/robot-learns-to-flip-pancakes/</link>
+		<comments>http://www.wired.com/gadgetlab/2010/07/robot-learns-to-flip-pancakes/#comments</comments>
+		<pubDate>Thu, 22 Jul 2010 20:41:28 +0000</pubDate>
+		<dc:creator>Priya Ganapati</dc:creator>
+				<category><![CDATA[R&D and Inventions]]></category>
+		<category><![CDATA[Flip]]></category>
+		<category><![CDATA[pancake]]></category>
+		<category><![CDATA[robot]]></category>
+		<category><![CDATA[robotics]]></category>
+		<category><![CDATA[video]]></category>
+
+		<guid isPermaLink="false">http://www.wired.com/gadgetlab/?p=44477</guid>
+		<description><![CDATA[A robot learning to flip pancakes from Sylvain Calinon on Vimeo.
+Flipping a pancake  seems like one of those things you can do when you are just barely awake and still to get your morning caffeine.
+Not so, if you are a robot. Then learning how to flip a pancake is quite a task and it can [...]]]></description>
+			<content:encoded><![CDATA[<p><object width="400" height="300"><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="movie" value="http://vimeo.com/moogaloop.swf?clip_id=13387420&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" /><embed src="http://vimeo.com/moogaloop.swf?clip_id=13387420&amp;server=vimeo.com&amp;show_title=1&amp;show_byline=1&amp;show_portrait=0&amp;color=&amp;fullscreen=1" type="application/x-shockwave-flash" allowfullscreen="true" allowscriptaccess="always" width="400" height="300"></embed></object><p><a href="http://vimeo.com/13387420">A robot learning to flip pancakes</a> from <a href="http://vimeo.com/user4274365">Sylvain Calinon</a> on <a href="http://vimeo.com">Vimeo</a>.</p></p>
+<p>Flipping a pancake  seems like one of those things you can do when you are just barely awake and still to get your morning caffeine.</p>
+<p>Not so, if you are a robot. Then learning how to flip a pancake is quite a task and it can take 50 tries to get it right.</p>
+<p>Two researchers at the Italian Institute of Technology&#8211;Petar Kormushev and Sylvain Calinon&#8211;taught a robot the  technique. The robot needs to hold its hand stiff to throw the pancake in the air and then flex the hand so it can catch the pancake without having it bounced off the pan. Initially, one of the researchers holds the robot&#8217;s arm to show it how it is done, after which the robot tries it.</p>
+<p>For the demonstration, the researchers used an artificial pancake that&#8217;s solid and, as you can see in the video above, clunks every time it hits the pan or elsewhere.</p>
+<p>The robot itself is from Barrett Technology, a company that makes an <a href="http://www.barrett.com/robot/index.htm">advanced robotic arm called WAM</a>. The WAM arm has near zero backflash or friction so it makes very smooth movements. It can have up to seven degrees of freedom so it offers a range of motions that&#8217;s similar to what a human arm can do.</p>
+<p>The researchers hope to present the learning from the robot&#8217;s efforts at a conference in October. And if you are wondering, what exactly this experiment has achieved, the answer involves the application of algorithms that help learn by imitation and reinforcement.</p>
+<p><em>Video credits: Petar Kormushev and Sylvain Calinon/Italian Institute of Technology</em></p>
+<p><strong>See Also:</strong></p>
+<ul>
+<li><a href="http://www.wired.com/gadgetlab/2010/05/anybots-robot-telepresence/">Anybots Robot Will Go to the Office for You</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/06/dance-dance-revolution-20-robots-think-they-can-dance/">Dance Dance Revolution: 20 Robots Think They Can Dance</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/04/towel-folding-robot-could-fix-laundry-woes/">Towel-Folding Robot Could Fix Laundry Woes</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/07/butler-robot-can-fetch-drinks-snacks/">Butler Robot Can Fetch Drinks, Snacks</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2010/05/robot-graduation-party/">Willow Garage Holds a &#8216;Graduation Party&#8217; for Its Robots</a></li>
+<li><a href="http://www.wired.com/gadgetlab/2009/09/robot-videos-roboone/">Androids Dance, Slide and Fight at Robo-One Competition</a></li>
+</ul>
+<div class="tweetmeme_button" style="margin-left: 0px;">
+            <a href="http://api.tweetmeme.com/share?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Frobot-learns-to-flip-pancakes%2F"><br />
+                <img src="http://api.tweetmeme.com/imagebutton.gif?url=http%3A%2F%2Fwww.wired.com%2Fgadgetlab%2F2010%2F07%2Frobot-learns-to-flip-pancakes%2F&amp;source=GadgetLab&amp;style=compact&amp;service=bit.ly" height="61" width="50" /><br />
+            </a>
+        </div>
+]]></content:encoded>
+			<wfw:commentRss>http://www.wired.com/gadgetlab/2010/07/robot-learns-to-flip-pancakes/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+	</channel>
+</rss>

@@ -74,6 +74,13 @@ public class FeedEntry {
     public void setPublished(Date published) {
         this.published = published;
     }
+    
+    public Timestamp getPublishedSQLTimestamp() {
+        if (published != null) {
+            return new Timestamp(published.getTime());
+        }
+        return null;
+    }
 
     public Date getAdded() {
         return added;
@@ -126,7 +133,7 @@ public class FeedEntry {
         sb.append(" title:").append(title);
         sb.append(" link:").append(link);
         // sb.append(" rawId:").append(rawId);
-        // sb.append(" published:").append(published);
+        sb.append(" published:").append(published);
         // sb.append(" text:").append(text);
         return sb.toString();
     }

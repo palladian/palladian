@@ -27,10 +27,10 @@ public class FeedDatabase implements FeedStore {
 
     /** the instance of this class */
     private final static FeedDatabase INSTANCE = new FeedDatabase();
-    
+
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
-    
+
     // ////////////////// feed prepared statements ////////////////////
     private PreparedStatement psAddFeedEntry;
     private PreparedStatement psAddFeed;
@@ -49,7 +49,7 @@ public class FeedDatabase implements FeedStore {
     private PreparedStatement psGetEntryByRawId;
     private PreparedStatement psChangeCheckApproach;
     private PreparedStatement psGetEntries;
-    
+
     private FeedDatabase() {
         try {
             prepareStatements();
@@ -61,32 +61,46 @@ public class FeedDatabase implements FeedStore {
     public static FeedDatabase getInstance() {
         return INSTANCE;
     }
-    
+
     private void prepareStatements() throws SQLException {
         // // prepared statements for feeds
         Connection connection = DatabaseManager.getInstance().getConnection();
-        psAddFeedEntry = connection.prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?, tags = ?");
-        psAddFeed = connection.prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ?");
-        psUpdateFeed = connection.prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-        psUpdateFeed_fixed_learned = connection.prepareStatement("UPDATE feeds_fixed_learned SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-        psUpdateFeed_adaptive = connection.prepareStatement("UPDATE feeds_adaptive SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-        psUpdateFeed_probabilistic = connection.prepareStatement("UPDATE feeds_probabilistic SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-        psUpdateFeedPostDistribution = connection.prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
-        psGetFeedPostDistribution = connection.prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
-        psGetFeeds = connection.prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds");
-        psGetFeeds_fixed_learned = connection.prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_fixed_learned");
-        psGetFeeds_adaptive = connection.prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_adaptive");
-        psGetFeeds_probabilistic = connection.prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_probabilistic");
-        psGetFeedByUrl = connection.prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
-        psGetFeedByID = connection.prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
-        psGetEntryByRawId = connection.prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
-        psChangeCheckApproach = connection.prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
-        
-        psGetEntries = connection.prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries LIMIT ? OFFSET ?");
-    }
-    
+        psAddFeedEntry = connection
+                .prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?, tags = ?");
+        psAddFeed = connection
+                .prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ?");
+        psUpdateFeed = connection
+                .prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+        psUpdateFeed_fixed_learned = connection
+                .prepareStatement("UPDATE feeds_fixed_learned SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+        psUpdateFeed_adaptive = connection
+                .prepareStatement("UPDATE feeds_adaptive SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+        psUpdateFeed_probabilistic = connection
+                .prepareStatement("UPDATE feeds_probabilistic SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+        psUpdateFeedPostDistribution = connection
+                .prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
+        psGetFeedPostDistribution = connection
+                .prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
+        psGetFeeds = connection
+                .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds");
+        psGetFeeds_fixed_learned = connection
+                .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_fixed_learned");
+        psGetFeeds_adaptive = connection
+                .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_adaptive");
+        psGetFeeds_probabilistic = connection
+                .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_probabilistic");
+        psGetFeedByUrl = connection
+                .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
+        psGetFeedByID = connection
+                .prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
+        psGetEntryByRawId = connection
+                .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
+        psChangeCheckApproach = connection
+                .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
 
-    
+        psGetEntries = connection
+                .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries LIMIT ? OFFSET ?");
+    }
 
     @Override
     public synchronized boolean addFeed(Feed feed) {
@@ -218,7 +232,8 @@ public class FeedDatabase implements FeedStore {
     }
 
     /**
-     * When the check approach is switched we need to reset learned and calculated values such as check intervals, checks, lastHeadlines etc.
+     * When the check approach is switched we need to reset learned and calculated values such as check intervals,
+     * checks, lastHeadlines etc.
      */
     public synchronized void changeCheckApproach() {
         DatabaseManager.getInstance().runUpdate(psChangeCheckApproach);
@@ -232,19 +247,19 @@ public class FeedDatabase implements FeedStore {
 
             PreparedStatement ps = psGetFeeds;
 
-//            switch (FeedChecker.getInstance().getCheckApproach()) {
-//                case FeedChecker.CHECK_FIXED:
-//                    if (FeedChecker.getInstance().getCheckInterval() == -1) {
-//                        ps = DatabaseManager.getInstance().psGetFeeds_fixed_learned;
-//                    }
-//                    break;
-//                case FeedChecker.CHECK_ADAPTIVE:
-//                    ps = DatabaseManager.getInstance().psGetFeeds_adaptive;
-//                    break;
-//                case FeedChecker.CHECK_PROBABILISTIC:
-//                    ps = DatabaseManager.getInstance().psGetFeeds_probabilistic;
-//                    break;
-//            }
+            // switch (FeedChecker.getInstance().getCheckApproach()) {
+            // case FeedChecker.CHECK_FIXED:
+            // if (FeedChecker.getInstance().getCheckInterval() == -1) {
+            // ps = DatabaseManager.getInstance().psGetFeeds_fixed_learned;
+            // }
+            // break;
+            // case FeedChecker.CHECK_ADAPTIVE:
+            // ps = DatabaseManager.getInstance().psGetFeeds_adaptive;
+            // break;
+            // case FeedChecker.CHECK_PROBABILISTIC:
+            // ps = DatabaseManager.getInstance().psGetFeeds_probabilistic;
+            // break;
+            // }
 
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
             while (resultSet.next()) {
@@ -299,7 +314,7 @@ public class FeedDatabase implements FeedStore {
                 feed.setLastFeedEntry(resultSet.getTimestamp(14));
                 feed.setUpdateClass(resultSet.getInt(15));
             } else {
-            	LOGGER.debug("feed with " + feedUrl + " not found.");
+                LOGGER.debug("feed with " + feedUrl + " not found.");
             }
             resultSet.close();
         } catch (SQLException e) {
@@ -354,7 +369,8 @@ public class FeedDatabase implements FeedStore {
             psAddFeedEntry.setString(2, entry.getTitle());
             psAddFeedEntry.setString(3, entry.getLink());
             psAddFeedEntry.setString(4, entry.getRawId());
-            psAddFeedEntry.setTimestamp(5, entry.getAddedSQLTimestamp());
+            // psAddFeedEntry.setTimestamp(5, entry.getAddedSQLTimestamp());
+            psAddFeedEntry.setTimestamp(5, entry.getPublishedSQLTimestamp());
             psAddFeedEntry.setString(6, entry.getContent());
             psAddFeedEntry.setString(7, entry.getPageContent());
             // store tags in comma separated column
@@ -407,7 +423,7 @@ public class FeedDatabase implements FeedStore {
         LOGGER.trace("<getEntryByRawId");
         return result;
     }
-    
+
     public List<FeedEntry> getFeedEntries(int limit, int offset) {
         LOGGER.trace(">getFeedEntries");
         List<FeedEntry> result = new LinkedList<FeedEntry>();
@@ -443,7 +459,8 @@ public class FeedDatabase implements FeedStore {
     // List<Entry> result = new LinkedList<Entry>();
     // try {
     // PreparedStatement ps;
-    // String sql = "SELECT id, title, link, rawId, published, text FROM entries WHERE feedId = ? ORDER BY published DESC";
+    // String sql =
+    // "SELECT id, title, link, rawId, published, text FROM entries WHERE feedId = ? ORDER BY published DESC";
     // if (limit == -1) {
     // ps = connection.prepareStatement(sql);
     // } else {
@@ -482,10 +499,12 @@ public class FeedDatabase implements FeedStore {
         DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feeds");
         LOGGER.trace("<cleanTables");
     }
-    
+
     public static void main(String[] args) {
         // clear feed specfic tables
         // FeedDatabase.getInstance().clearFeedTables();
+        // System.exit(0);
+
         FeedDatabase fd = FeedDatabase.getInstance();
         List<FeedEntry> result = fd.getFeedEntries(100, -1);
         for (FeedEntry feedEntry : result) {

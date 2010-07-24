@@ -13,20 +13,18 @@ public class NewsAggregatorTest {
         aggregator = new NewsAggregator(new FeedStoreDummy());
     }
 
-    @Test
-    @Ignore
-    public void testExceptions() throws NewsAggregatorException {
-        aggregator.getEntries("http://feeds.smh.com.au/rssheadlines/top.xml");
-        aggregator.getFeedTextType("http://www.carscars.ie/index.php?format=feed&type=atom");
-    }
-
     
     @Test
+    @Ignore
     public void readFeedFromFile() throws NewsAggregatorException {
-        aggregator.setUseScraping(false);
-        aggregator.getFeed("data/test/feeds/feed1.xml");
-        aggregator.getFeed("data/test/feeds/feed2.xml");
-        aggregator.getFeed("http://www.gizmodo.de/feed/atom");
+        aggregator.downloadFeed("data/test/feeds/feed1.xml");
+        aggregator.downloadFeed("data/test/feeds/feed2.xml");
+    }
+    
+    @Test
+    public void downloadFeed() throws NewsAggregatorException {
+        Feed feed = aggregator.downloadFeed("http://www.gizmodo.de/feed/atom");
+        System.out.println(feed);
     }
 
 }
