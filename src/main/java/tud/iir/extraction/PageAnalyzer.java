@@ -1,5 +1,7 @@
 package tud.iir.extraction;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -11,6 +13,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.jaxen.JaxenException;
 import org.jaxen.dom.DOMXPath;
 import org.w3c.dom.DOMException;
@@ -21,6 +25,7 @@ import org.w3c.dom.NodeList;
 
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.StringOutputStream;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
 
@@ -1114,24 +1119,38 @@ public class PageAnalyzer {
         return sb.toString();
     }
 
-    public String getHTMLText(Node node) {
-        StringBuilder sb = new StringBuilder();
+    public static String getHTMLText(Document document) {
 
-        sb.append(getChildHTMLContents(node, new StringBuilder()));
+        OutputStream os = new StringOutputStream();
 
-        return sb.toString();
+        try {
+            OutputFormat format = new OutputFormat(document);
+            XMLSerializer serializer = new XMLSerializer(os, format);
+            serializer.serialize(document);
+
+        } catch (IOException e) {
+            System.err.println(e);
+        }
+
+        return os.toString();
     }
+
 
     public static void main(String[] args) {
 
         String url = "http://www.cinefreaks.com/downloads";
+        url = "data/downloads.htm";
         Crawler c = new Crawler();
         Document document = c.getWebDocument(url);
 
-        String t = PageAnalyzer.getDocumentTextDump(document);
+        PageAnalyzer pa0 = new PageAnalyzer();
 
+        // String t = PageAnalyzer.getDocumentTextDump(document);
+        String t = pa0.getHTMLText(document);
+
+        System.out.println(t.getBytes().length);
         System.out.println(t);
-        System.out.println(t.indexOf("https://sec1.woopra.com"));
+        // System.out.println(t.indexOf("https://sec1.woopra.com"));
 
         System.exit(0);
 

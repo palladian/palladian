@@ -13,6 +13,7 @@ public class FeedClassificationThread implements Runnable {
     @Override
     public void run() {
         FeedClassifier.classify(feed);
+        FeedClassifier.addMetaInformation(feed.getByteSize() / 1024.0, feed.getEntries().size());
         feedStore.updateFeed(feed);
     }
 }
