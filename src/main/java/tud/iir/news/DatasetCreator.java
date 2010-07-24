@@ -22,7 +22,7 @@ import tud.iir.helper.StringHelper;
  * TIMESTAMP;"TITLE";LINK
  * </p>
  * <p>
- * The last line of the file contains meta information:<br>
+ * TODO The last line of the file contains meta information:<br>
  * NUMBER_OF_ENTRIES;AVERAGE_SIZE;FEED_CLASS
  * </p>
  * 
@@ -113,6 +113,7 @@ public class DatasetCreator {
                     fileEntry += entry.getPublished().getTime() + ";";
                     fileEntry += "\"" + entry.getTitle().replaceAll("\"", "'") + "\";";
                     fileEntry += "\"" + entry.getLink() + "\"";
+                    // fileEntry += "\"" + entry.getContent().getBytes().length + "\"";
 
                     // add the entry only if it doesn't exist yet in the file
                     if (!fileEntries.contains(fileEntry)) {
