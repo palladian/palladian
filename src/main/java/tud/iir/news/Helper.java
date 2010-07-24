@@ -109,7 +109,7 @@ public class Helper {
      * TODO removing whitspace does not work with documents from the Crawler/Neko?
      * 
      * @param node
-     * @param removeWhitespace whether to remove superfluous whitespace outside of tags. 
+     * @param removeWhitespace whether to remove superfluous whitespace outside of tags.
      * @param prettyPrint wheter to nicely indent the result.
      * @return String representation of the supplied Node, empty String in case of errors.
      */
@@ -347,9 +347,9 @@ public class Helper {
      * @param xPath
      * @return
      */
-    public static String[] splitXPath(String xPath) {
-        return xPath.split("(/)(?=\\w(?:[^']|'[^']*')*$)");
-    }
+    // public static String[] splitXPath(String xPath) {
+    // return xPath.split("(/)(?=\\w(?:[^']|'[^']*')*$)");
+    // }
 
     /**
      * Determines the longest common XPath from the beginning, in other words: We will return an XPath to an elements
@@ -362,23 +362,23 @@ public class Helper {
      * @param xPath2
      * @return
      */
-    public static String getLargestCommonXPath(String xPath1, String xPath2) {
-        StringBuilder sb = new StringBuilder();
-        String[] split1 = splitXPath(xPath1);
-        String[] split2 = splitXPath(xPath2);
-        int length = Math.min(split1.length, split2.length);
-        if (length > 0 && split1[0].equals(split1[0])) {
-            sb.append(split1[0]);
-            for (int i = 1; i < length; i++) {
-                if (split1[i].equals(split2[i])) {
-                    sb.append("/").append(split1[i]);
-                } else {
-                    break;
-                }
-            }
-        }
-        return sb.toString();
-    }
+    // public static String getLargestCommonXPath(String xPath1, String xPath2) {
+    // StringBuilder sb = new StringBuilder();
+    // String[] split1 = splitXPath(xPath1);
+    // String[] split2 = splitXPath(xPath2);
+    // int length = Math.min(split1.length, split2.length);
+    // if (length > 0 && split1[0].equals(split1[0])) {
+    // sb.append(split1[0]);
+    // for (int i = 1; i < length; i++) {
+    // if (split1[i].equals(split2[i])) {
+    // sb.append("/").append(split1[i]);
+    // } else {
+    // break;
+    // }
+    // }
+    // }
+    // return sb.toString();
+    // }
 
     /**
      * Count number of occurences of pattern withing text. TODO this will fail if pattern contains RegEx metacharacters.

@@ -1,7 +1,9 @@
-package tud.iir.news;
+package tud.iir.helper;
 
 /**
  * Simple and thread safe up/down counter
+ * 
+ * @author Philipp Katz
  */
 public class Counter {
 

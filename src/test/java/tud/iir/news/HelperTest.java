@@ -13,22 +13,28 @@ import org.junit.Test;
  * 
  */
 public class HelperTest {
-	
-//    // this functionality has been moved to the Crawler and can be removed in the future.
-//    @Test
-//    public void testUrlConversion() {
-//
-//        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de", "", "page.html"));
-//        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de", null, "page.html"));
-//        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "", "page.html"));
-//        Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "/directory", "/page.html"));
-//        Assert.assertEquals("http://www.xyz.de/directory/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "/directory", "./page.html"));
-//        Assert.assertEquals("http://www.xyz.de/directory/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
-//
-//        Assert.assertEquals("http://www.abc.de/page.html", Helper.getFullUrl("http://www.xyz.de", "", "http://www.abc.de/page.html"));
-//        Assert.assertEquals("http://www.abc.de/page.html", Helper.getFullUrl("http://www.xyz.de", "http://www.abc.de/", "/page.html"));
-//
-//    }
+
+    // // this functionality has been moved to the Crawler and can be removed in the future.
+    // @Test
+    // public void testUrlConversion() {
+    //
+    // Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de", "", "page.html"));
+    // Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de", null, "page.html"));
+    // Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de/index.html", "",
+    // "page.html"));
+    // Assert.assertEquals("http://www.xyz.de/page.html", Helper.getFullUrl("http://www.xyz.de/index.html",
+    // "/directory", "/page.html"));
+    // Assert.assertEquals("http://www.xyz.de/directory/page.html", Helper.getFullUrl("http://www.xyz.de/index.html",
+    // "/directory", "./page.html"));
+    // Assert.assertEquals("http://www.xyz.de/directory/page.html", Helper.getFullUrl("http://www.xyz.de/index.html",
+    // "/directory/directory", "../page.html"));
+    //
+    // Assert.assertEquals("http://www.abc.de/page.html", Helper.getFullUrl("http://www.xyz.de", "",
+    // "http://www.abc.de/page.html"));
+    // Assert.assertEquals("http://www.abc.de/page.html", Helper.getFullUrl("http://www.xyz.de", "http://www.abc.de/",
+    // "/page.html"));
+    //
+    // }
 
     // @Test
     // public void testGetDurationString() {
@@ -38,25 +44,28 @@ public class HelperTest {
 
     @Test
     public void testGetFirstWords() {
-        Assert.assertEquals("the quick brown fox jumps", Helper.getFirstWords("the quick brown fox jumps over the lazy dog", 5));
-        Assert.assertEquals("the quick brown fox jumps over the lazy dog", Helper.getFirstWords("the quick brown fox jumps over the lazy dog", 15));
+        Assert.assertEquals("the quick brown fox jumps", Helper.getFirstWords(
+                "the quick brown fox jumps over the lazy dog", 5));
+        Assert.assertEquals("the quick brown fox jumps over the lazy dog", Helper.getFirstWords(
+                "the quick brown fox jumps over the lazy dog", 15));
         Assert.assertEquals("", Helper.getFirstWords("", 10));
         Assert.assertEquals("", Helper.getFirstWords(null, 10));
     }
 
-    @Test
-    public void testSplitXPath() {
-        Assert.assertTrue(Arrays.equals(new String[] { "", "a", "b", "c[@attribute='x/yz']" }, Helper.splitXPath("/a/b/c[@attribute='x/yz']")));
-    }
-
-    @Test
-    public void testCommonXPath() {
-        Assert.assertEquals("a/b/c/d", Helper.getLargestCommonXPath("a/b/c/d/e/f", "a/b/c/d/f/e"));
-        Assert.assertEquals("a/b/c/d", Helper.getLargestCommonXPath("a/b/c/d/e/f", "a/b/c/d"));
-        Assert.assertEquals("/a/b", Helper.getLargestCommonXPath("/a/b/c", "/a/b/d"));
-        Assert.assertEquals("//a/b", Helper.getLargestCommonXPath("//a/b/c", "//a/b/d"));
-        Assert.assertEquals("//a[1]/b[2]", Helper.getLargestCommonXPath("//a[1]/b[2]/c[3]", "//a[1]/b[2]/c[4]"));
-    }
+    // @Test
+    // public void testSplitXPath() {
+    // Assert.assertTrue(Arrays.equals(new String[] { "", "a", "b", "c[@attribute='x/yz']" },
+    // Helper.splitXPath("/a/b/c[@attribute='x/yz']")));
+    // }
+    //
+    // @Test
+    // public void testCommonXPath() {
+    // Assert.assertEquals("a/b/c/d", Helper.getLargestCommonXPath("a/b/c/d/e/f", "a/b/c/d/f/e"));
+    // Assert.assertEquals("a/b/c/d", Helper.getLargestCommonXPath("a/b/c/d/e/f", "a/b/c/d"));
+    // Assert.assertEquals("/a/b", Helper.getLargestCommonXPath("/a/b/c", "/a/b/d"));
+    // Assert.assertEquals("//a/b", Helper.getLargestCommonXPath("//a/b/c", "//a/b/d"));
+    // Assert.assertEquals("//a[1]/b[2]", Helper.getLargestCommonXPath("//a[1]/b[2]/c[3]", "//a[1]/b[2]/c[4]"));
+    // }
 
     @Test
     public void testCountOccurences() {
