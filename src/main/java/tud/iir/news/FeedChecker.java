@@ -139,6 +139,24 @@ public final class FeedChecker {
         feedCollection = feedStore.getFeeds();
     }
     
+    /**
+     * Filter feeds, to read only those that have an update class as in the given set.
+     * 
+     * @param updateClasses The update classes that should be read.
+     */
+    public void filterFeeds(Collection<Integer> updateClasses) {
+
+        Collection<Feed> filteredFeedCollection = new ArrayList<Feed>();
+
+        for (Feed feed : feedCollection) {
+            if (updateClasses.contains(feed.getUpdateClass())) {
+                filteredFeedCollection.add(feed);
+            }
+        }
+
+        feedCollection = filteredFeedCollection;
+    }
+
     // ================================
     // === Public interface methods ===
     // ================================

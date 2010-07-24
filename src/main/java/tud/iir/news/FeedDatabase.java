@@ -123,7 +123,7 @@ public class FeedDatabase implements FeedStore {
     }
 
     @Override
-    public synchronized boolean updateFeed(Feed feed, final FeedChecker feedChecker) {
+    public synchronized boolean updateFeed(Feed feed) {
         LOGGER.trace(">updateFeed " + feed);
 
         if (feed.getId() == -1) {

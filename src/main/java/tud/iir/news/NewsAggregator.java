@@ -23,14 +23,16 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+import tud.iir.daterecognition.DateGetterHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.StringHelper;
 import tud.iir.helper.ThreadHelper;
+import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
 
 import com.sun.syndication.feed.WireFeed;
@@ -73,6 +75,9 @@ public class NewsAggregator {
 
     /** Used for all downloading purposes. */
     private final Crawler crawler = new Crawler();
+
+    /** We keep an instance of the plain parsed XML feed to do more operations if SyndFeed fails. */
+    private Document plainXMLFeed;
 
     public NewsAggregator() {
         store = FeedDatabase.getInstance();
@@ -120,11 +125,11 @@ public class NewsAggregator {
 
             // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
             // well, which we use inside the IIR toolkit.
-            Document xmlDocument = crawler.getXMLDocument(feedUrl, false);
-            if (xmlDocument == null) {
+            plainXMLFeed = crawler.getXMLDocument(feedUrl, false);
+            if (plainXMLFeed == null) {
                 throw new FeedAggregatorException("could not get document from " + feedUrl);
             }
-            result = feedInput.build(xmlDocument);
+            result = feedInput.build(plainXMLFeed);
 
         } catch (IllegalArgumentException e) {
             LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
@@ -312,6 +317,56 @@ public class NewsAggregator {
         return result;
     }
 
+    private Date getPublishDate(SyndEntry syndEntry) {
+
+        Date pubDate = null;
+
+        // find the publish date with the given link of the SyndEntry
+        Node node = XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink() + "\"]/pubDate");
+
+        if (node != null) {
+
+            try {
+                pubDate = DateGetterHelper.findDateFormat(node.getTextContent()).getNormalizedDate();
+            } catch (NullPointerException e) {
+                LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
+            }
+
+        } else {
+
+            node = XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink()
+                    + "\"]/*[contains(name(),'date')]");
+
+            if (node != null) {
+
+                try {
+                    pubDate = DateGetterHelper.findDateFormat(node.getTextContent()).getNormalizedDate();
+                } catch (NullPointerException e) {
+                    LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
+                }
+
+            } else {
+
+                // find the publish date with the given title of the SyndEntry
+                node = XPathHelper.getNode(plainXMLFeed, "//item[title=\"" + syndEntry.getTitle() + "\"]/pubDate");
+
+                if (node != null) {
+                    try {
+                        pubDate = DateGetterHelper.findDateFormat(node.getTextContent()).getNormalizedDate();
+                    } catch (NullPointerException e) {
+                        LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
+                    }
+                }
+
+            }
+
+            
+            
+        }
+
+        return pubDate;
+    }
+
     /**
      * Get entries of specified Atom/RSS feed.
      * 
@@ -347,9 +402,19 @@ public class NewsAggregator {
 
             Date publishDate = syndEntry.getPublishedDate();
             if (publishDate == null) {
+
+                // FIXME there are still some entries without date (David: why? does rome not get some date formats?)
+
+                // try to find the date since Rome library failed
+                publishDate = getPublishDate(syndEntry);
+
                 // if no publish date is provided, we take the update instead
-                // TODO there are still some entries without date
-                publishDate = syndEntry.getUpdatedDate();
+                if (publishDate == null) {
+                    publishDate = syndEntry.getUpdatedDate();
+                } else {
+                    LOGGER.debug("found publish date in original feed file: " + publishDate);
+                }
+
             }
             entry.setPublished(publishDate);
 
@@ -463,8 +528,8 @@ public class NewsAggregator {
         return added;
     }
 
-    public boolean updateFeed(Feed feed, final FeedChecker feedChecker) {
-        return store.updateFeed(feed,feedChecker);
+    public boolean updateFeed(Feed feed) {
+        return store.updateFeed(feed);
     }
 
     /**
@@ -630,9 +695,9 @@ public class NewsAggregator {
                             // this gets ugly when we use PageContentExtractor :(
 
                             // if we dont have it, add it
-                            boolean add = (store.getEntryByRawId(entry.getRawId()) == null);
+                            boolean add = store.getEntryByRawId(entry.getRawId()) == null;
                             if (add) {
-                                if (useScraping && extractorFails < 5 && (feed.getTextType() != Feed.TEXT_TYPE_FULL)) {
+                                if (useScraping && extractorFails < 5 && feed.getTextType() != Feed.TEXT_TYPE_FULL) {
                                     LOGGER.trace("scraping " + entry.getLink());
                                     // here we scrape content using PageContentExtractor
                                     try {

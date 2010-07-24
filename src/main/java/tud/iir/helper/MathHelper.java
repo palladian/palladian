@@ -34,8 +34,9 @@ public class MathHelper {
         double numMin = value1 - margin * value1;
         double numMax = value1 + margin * value1;
 
-        if (value1 < numMax && value1 > numMin)
+        if (value1 < numMax && value1 > numMin) {
             return true;
+        }
 
         return false;
     }
@@ -44,8 +45,9 @@ public class MathHelper {
         double numMin = correctValue - correctnessMargin * correctValue;
         double numMax = correctValue + correctnessMargin * correctValue;
 
-        if (questionedValue < numMax && questionedValue > numMin)
+        if (questionedValue < numMax && questionedValue > numMin) {
             return true;
+        }
 
         return false;
     }
@@ -95,7 +97,7 @@ public class MathHelper {
                 lastValue = entry;
                 continue;
             }
-            long gap = (entry - lastValue);
+            long gap = entry - lastValue;
             if (gap > longestGap) {
                 longestGap = gap;
             }
@@ -197,7 +199,7 @@ public class MathHelper {
         }
 
         double beta = (n * sxy - sx * sy) / (n * sxx - sx * sx);
-        double alpha = (sy / n) - (beta * sx / n);
+        double alpha = sy / n - beta * sx / n;
 
         alphaBeta[0] = alpha;
         alphaBeta[1] = beta;

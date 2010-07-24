@@ -18,44 +18,50 @@ import tud.iir.helper.MathHelper;
 public class FeedPostStatistics {
 
     /**
-     * record a list of checkInterval values for each feed: <minuteOfDay : number of posts in that minute
+     * Record a list of checkInterval values for each feed: <minuteOfDay : number of posts in that minute.
      */
     private Map<Integer, Integer> postDistribution = new LinkedHashMap<Integer, Integer>();
 
-    /** the timestamp of the oldest post */
+    /** The timestamp of the oldest post. */
     private long timeOldestPost = -1;
 
-    /** the timestamp of the most recent post */
+    /** The timestamp of the most recent post. */
     private long timeNewestPost = -1;
 
-    /** the median time gap between subsequent posts */
+    /** The median time gap between subsequent posts. */
     private long medianPostGap = -1;
 
-    /** the standard deviation from the average post gap */
+    /** The standard deviation from the average post gap. */
     private long postGapStandardDeviation = -1;
 
-    /** the longest gap between two subsequent posts */
+    /** The longest gap between two subsequent posts. */
     private long longestPostGap = -1;
 
-    public FeedPostStatistics(final List<FeedEntry> feedEntries) {
+    /** The average number of entries per day. */
+    private double avgEntriesPerDay = -1;
+
+    /** Whether or not the statistics are valid, that is, pub dates must have been found and parsed correctly. */
+    private boolean validStatistics = false;
+
+    public FeedPostStatistics(List<FeedEntry> feedEntries) {
         calculateStatistics(feedEntries);
     }
 
-    private final void calculateStatistics(final List<FeedEntry> feedEntries) {
+    private final void calculateStatistics(List<FeedEntry> feedEntries) {
 
         long timeOldestEntry = Long.MAX_VALUE;
         long timeNewestEntry = 0;
 
         // keep a list of times to find out the median of the time differences between posts, average is not good since one very old post can bias the value
-        final TreeSet<Long> timeList = new TreeSet<Long>();
+        TreeSet<Long> timeList = new TreeSet<Long>();
 
         for (FeedEntry entry : feedEntries) {
-            final Date pubDate = entry.getPublished();
+            Date pubDate = entry.getPublished();
             if (pubDate == null) {
                 FeedChecker.LOGGER.warn("entry does not have pub date, feed entry " + entry);
                 continue;
             }
-            final long pubTime = pubDate.getTime();
+            long pubTime = pubDate.getTime();
             if (pubTime > timeNewestEntry) {
                 timeNewestEntry = pubTime;
             }
@@ -81,11 +87,20 @@ public class FeedPostStatistics {
             setMedianPostGap(MathHelper.getMedianDifference(timeList));
             setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
             setLongestPostGap(MathHelper.getLongestGap(timeList));
+            setValidStatistics(true);
         }
+
+        double avgEntriesPerDay = -1;
+        avgEntriesPerDay = (double) feedEntries.size() / (double) getTimeRangeInDays();
+        setAvgEntriesPerDay(avgEntriesPerDay);
     }
 
     public long getTimeRange() {
         return timeNewestPost - timeOldestPost;
+    }
+
+    public int getTimeRangeInDays() {
+        return (int) (getTimeRange() / DateHelper.DAY_MS);
     }
 
     public long getTimeDifferenceToNewestPost() {
@@ -104,7 +119,7 @@ public class FeedPostStatistics {
         return timeOldestPost;
     }
 
-    public final void setTimeOldestPost(final long timeOldestPost) {
+    private void setTimeOldestPost(final long timeOldestPost) {
         this.timeOldestPost = timeOldestPost;
     }
 
@@ -112,7 +127,7 @@ public class FeedPostStatistics {
         return timeNewestPost;
     }
 
-    public final void setTimeNewestPost(final long timeNewestPost) {
+    private void setTimeNewestPost(final long timeNewestPost) {
         this.timeNewestPost = timeNewestPost;
     }
 
@@ -120,11 +135,11 @@ public class FeedPostStatistics {
         return medianPostGap;
     }
 
-    public final void setMedianPostGap(final long medianPostGap) {
+    private void setMedianPostGap(final long medianPostGap) {
         this.medianPostGap = medianPostGap;
     }
 
-    public final void setPostGapStandardDeviation(final long postGapStandardDeviation) {
+    private void setPostGapStandardDeviation(final long postGapStandardDeviation) {
         this.postGapStandardDeviation = postGapStandardDeviation;
     }
 
@@ -132,12 +147,28 @@ public class FeedPostStatistics {
         return postGapStandardDeviation;
     }
 
-    public void setLongestPostGap(long longestPostGap) {
+    private void setLongestPostGap(long longestPostGap) {
         this.longestPostGap = longestPostGap;
     }
 
     public long getLongestPostGap() {
         return longestPostGap;
+    }
+
+    private void setAvgEntriesPerDay(double avgEntriesPerDay) {
+        this.avgEntriesPerDay = avgEntriesPerDay;
+    }
+
+    public double getAvgEntriesPerDay() {
+        return avgEntriesPerDay;
+    }
+
+    private void setValidStatistics(boolean validStatistics) {
+        this.validStatistics = validStatistics;
+    }
+
+    public boolean isValidStatistics() {
+        return validStatistics;
     }
 
     @Override

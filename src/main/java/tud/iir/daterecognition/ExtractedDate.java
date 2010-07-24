@@ -1,10 +1,12 @@
 package tud.iir.daterecognition;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import tud.iir.helper.DateHelper;
 import tud.iir.knowledge.RegExp;
 
 /**
@@ -259,7 +261,7 @@ public class ExtractedDate {
      * @param dateParts
      * @return
      */
-    public String getNormalizedDate() {
+    public String getNormalizedDateString() {
         String normalizedDate;
         if (year == -1) {
             normalizedDate = "0";
@@ -285,6 +287,14 @@ public class ExtractedDate {
         }
         return normalizedDate;
 
+    }
+
+    public Date getNormalizedDate() {
+        return new Date(getTimeStamp());
+    }
+
+    public long getTimeStamp() {
+        return DateHelper.getTimestamp(getNormalizedDateString());
     }
 
     /**
