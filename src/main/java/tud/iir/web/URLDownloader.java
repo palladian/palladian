@@ -8,8 +8,8 @@ import java.util.Stack;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.Counter;
 import tud.iir.helper.ThreadHelper;
-import tud.iir.news.Counter;
 
 /**
  * Allows simultanous downloading of multiple URLs. The resulting InputStreams

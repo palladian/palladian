@@ -8,13 +8,13 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import tud.iir.extraction.content.PageContentExtractor;
+import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
-import tud.iir.news.PageContentExtractor;
-import tud.iir.news.PageContentExtractorException;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;

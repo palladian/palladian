@@ -1,4 +1,4 @@
-package tud.iir.news;
+package tud.iir.extraction.content;
 
 import junit.framework.Assert;
 
@@ -6,6 +6,8 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import tud.iir.extraction.content.PageContentExtractor;
+import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.FileHelper;
 
 public class PageContentExtractorTest {

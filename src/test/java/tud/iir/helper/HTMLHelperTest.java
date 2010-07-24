@@ -1,13 +1,19 @@
 package tud.iir.helper;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.Test;
+import org.w3c.dom.Document;
+
+import tud.iir.web.Crawler;
 
 /**
  * Test cases for the HTMLHelper class.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public class HTMLHelperTest extends TestCase {
 
@@ -30,6 +36,14 @@ public class HTMLHelperTest extends TestCase {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
         assertEquals("this is relevant", HTMLHelper.removeHTMLTags(htmlContent, true, true, true, false));
 
+    }
+    
+    @Test
+    public void testHtmlDocToString() {
+        Crawler c = new Crawler();
+        Document doc = c.getWebDocument("data/test/pageContentExtractor/test001.html");
+        String result = HTMLHelper.htmlDocToString(doc);
+        Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
     }
 
 }

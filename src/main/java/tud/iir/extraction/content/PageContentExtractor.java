@@ -1,4 +1,4 @@
-package tud.iir.news;
+package tud.iir.extraction.content;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -27,6 +27,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
+import tud.iir.helper.HTMLHelper;
+import tud.iir.news.Helper;
 import tud.iir.web.Crawler;
 
 // TODO move to preprocessing package
@@ -236,7 +238,7 @@ public class PageContentExtractor {
      * @return The extracted text from the document.
      */
     public String getResultText() {
-        String result = HtmlHelper.htmlDocToString(getResultDocument());
+        String result = HTMLHelper.htmlDocToString(getResultDocument());
         return result;
     }
 
@@ -252,7 +254,7 @@ public class PageContentExtractor {
         } catch (PageContentExtractorException e) {
             LOGGER.error("location: " + documentLocation + " could not be loaded successfully, " + e.getMessage());
         }
-        return HtmlHelper.htmlDocToString(getResultDocument());
+        return HTMLHelper.htmlDocToString(getResultDocument());
     }
 
     /**

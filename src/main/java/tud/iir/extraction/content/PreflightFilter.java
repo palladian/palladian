@@ -1,4 +1,4 @@
-package tud.iir.news;
+package tud.iir.extraction.content;
 
 import org.apache.log4j.Logger;
 import org.apache.xerces.util.XMLChar;

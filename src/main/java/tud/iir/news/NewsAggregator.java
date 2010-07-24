@@ -25,6 +25,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
+import tud.iir.extraction.content.PageContentExtractor;
+import tud.iir.helper.Counter;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
@@ -67,7 +69,7 @@ public class NewsAggregator {
      * If enabled we use PageContentExtractor to get extract text for entries directly from their corresponding web
      * pages if necessary.
      */
-    private boolean useScraping = true;
+    // private boolean useScraping = true;
 
     private final FeedStore store;
 
@@ -174,10 +176,10 @@ public class NewsAggregator {
             result.setFormat(Feed.FORMAT_ATOM);
         }
 
-        // determine feed type (full, partial, none)
-        if (useScraping) {
-            result.setTextType(determineFeedTextType(syndFeed, feedUrl));
-        }
+//        // determine feed type (full, partial, none)
+//        if (useScraping) {
+//            result.setTextType(determineFeedTextType(syndFeed, feedUrl));
+//        }
 
         LOGGER.trace("<getFeed " + result);
         return result;
@@ -632,7 +634,7 @@ public class NewsAggregator {
                             // if we dont have it, add it
                             boolean add = (store.getEntryByRawId(entry.getRawId()) == null);
                             if (add) {
-                                if (useScraping && extractorFails < 5 && (feed.getTextType() != Feed.TEXT_TYPE_FULL)) {
+                                /*if (useScraping && extractorFails < 5 && (feed.getTextType() != Feed.TEXT_TYPE_FULL)) {
                                     LOGGER.trace("scraping " + entry.getLink());
                                     // here we scrape content using PageContentExtractor
                                     try {
@@ -655,7 +657,7 @@ public class NewsAggregator {
                                         LOGGER.trace("aggregate " + feed.getFeedUrl() + " " + e.getMessage());
                                         extractorFails++;
                                     }
-                                }
+                                }*/
                                 store.addEntry(feed, entry);
                                 newEntries++;
                             }
@@ -691,7 +693,7 @@ public class NewsAggregator {
         LOGGER.info(" # of aggregated feeds: " + feeds.size());
         LOGGER.info(" # new entries total: " + newEntriesTotal.getCount());
         LOGGER.info(" # errors: " + errors.getCount());
-        LOGGER.info(" scraping enabled: " + useScraping);
+//        LOGGER.info(" scraping enabled: " + useScraping);
         LOGGER.info(" # scraped pages: " + scrapes);
         LOGGER.info(" # scrape errors: " + scrapeErrors);
         LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
@@ -734,7 +736,7 @@ public class NewsAggregator {
      * @param usePageContentExtractor
      */
     public void setUseScraping(boolean usePageContentExtractor) {
-        this.useScraping = usePageContentExtractor;
+//        this.useScraping = usePageContentExtractor;
     }
 
     /**
@@ -815,9 +817,9 @@ public class NewsAggregator {
             if (cmd.hasOption("threads")) {
                 aggregator.setMaxThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
             }
-            if (cmd.hasOption("noScraping")) {
-                aggregator.setUseScraping(false);
-            }
+//            if (cmd.hasOption("noScraping")) {
+//                aggregator.setUseScraping(false);
+//            }
             if (cmd.hasOption("add")) {
                 aggregator.addFeed(cmd.getOptionValue("add"));
             }

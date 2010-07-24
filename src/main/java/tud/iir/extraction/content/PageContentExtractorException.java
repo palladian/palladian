@@ -1,4 +1,4 @@
-package tud.iir.news;
+package tud.iir.extraction.content;
 
 public class PageContentExtractorException extends Exception {
 
