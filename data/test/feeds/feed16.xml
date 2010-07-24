@@ -1,0 +1,787 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:atom="http://www.w3.org/2005/Atom"
+	xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+	xmlns:slash="http://purl.org/rss/1.0/modules/slash/"
+	>
+
+<channel>
+	<title>SlashGear</title>
+	<atom:link href="http://www.slashgear.com/feed/" rel="self" type="application/rss+xml" />
+	<link>http://www.slashgear.com</link>
+	<description>Feeding Your Gadget and Tech Obsessions</description>
+	<lastBuildDate>Sat, 24 Jul 2010 18:14:17 +0000</lastBuildDate>
+	<language>en</language>
+	<sy:updatePeriod>hourly</sy:updatePeriod>
+	<sy:updateFrequency>1</sy:updateFrequency>
+	<generator>http://wordpress.org/?v=3.0</generator>
+		<item>
+		<title>HP focus on webOS, eschew Windows Phone 7</title>
+		<link>http://www.slashgear.com/hp-focus-on-webos-eschew-windows-phone-7-2495247/</link>
+		<comments>http://www.slashgear.com/hp-focus-on-webos-eschew-windows-phone-7-2495247/#comments</comments>
+		<pubDate>Sat, 24 Jul 2010 18:14:17 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[HP]]></category>
+		<category><![CDATA[Microsoft]]></category>
+		<category><![CDATA[Palm]]></category>
+		<category><![CDATA[smartphones]]></category>
+		<category><![CDATA[software]]></category>
+		<category><![CDATA[webOS]]></category>
+		<category><![CDATA[Windows Phone 7]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95247</guid>
+		<description><![CDATA[<p>Microsoft&#8217;s list of <a href="http://www.slashgear.com/windows-phone-7-devices-from-dell-asus-lg-htc-htc-salsa-swing-tango-all-spotted-in-roms-2395098/" target="_blank">confirmed Windows Phone 7 partners</a> saw HP conspicuously absent, and now we know the reason why.  In an interview with <a href="http://www.cnbc.com/id/38377919" target="_blank">CNBC</a>, HP Personal Systems Group VP Todd Bradley confirmed that the company intends to push ahead solely with webOS rather than develop handsets using Microsoft&#8217;s latest mobile platform.  &#8221;Our intent&#8221; Bradley explained, &#8220;is to focus those resources and really make webOS the best OS it can be.&#8221;</p>
+<p><img class="alignnone size-full wp-image-95248" title="Pixi-and-Pre" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Pixi-and-Pre.jpg" alt="Pixi and Pre" width="540" height="309" /></p>
+<p></p>
+<blockquote><p>Q: Can you make webOS successful with developers when you&#8217;re selling Windows Phone 7, maybe Android or Linux at the same time?</p>
+<p>A: We continue to be Microsoft&#8217;s biggest customer, and we continue to believe we will drive innovation with Microsoft. At the same time, I think it&#8217;s clear to say, that we&#8217;re very focused on the customer, and giving the customer the experience that&#8217;s important to them. We won&#8217;t do &#8212; will not do a Linux / Android phone. We won&#8217;t do a Microsoft phone.</p>
+<p>Q: So no Windows Phone 7?</p>
+<p>A: We will continue to more broadly deliver the webOS-based phones that are in the market today, and Jon and his team have driven a strong roadmap for the future.</p>
+<p>Q: So does that mean you&#8217;re going webOS only for phones?</p>
+<p>A: For smartphones it does. Our intent is to focus those resources and really make webOS the best OS it can be.</p></blockquote>
+<p>webOS is obviously fresh to the HP stable, and it has been previously suggested that motivation for the company&#8217;s acquisition of Palm was <a href="http://www.slashgear.com/hp-bought-palm-for-webos-ip-not-smartphone-future-0388074/" target="_blank">primarily for the OS IP</a>.  They&#8217;ve since dropped multiple hints about the future of the platform, promising an <a href="http://www.slashgear.com/palm-tip-exciting-next-year-with-new-devices-webos-update-1890408/" target="_blank">&#8220;exciting&#8221; new year</a> with an &#8220;<a href="http://www.slashgear.com/hps-palm-acquisition-finalized-amazing-roadmap-promised-0192539/" target="_blank">amazing roadmap</a>&#8220;.</p>
+<p>As Bradley makes clear, HP&#8217;s involvement with Microsoft isn&#8217;t over: the company will continue to use their mainstream OSes, and the on-again-off-again HP Slate has recently been tipped as <a href="http://www.slashgear.com/hp-slate-headed-for-enterprise-customers-not-mass-market-2295069/" target="_blank">an enterprise model using Windows 7</a>.  For consumers, though, a webOS-based tablet &#8211; believed to be <a href="http://www.slashgear.com/hp-files-for-palmpad-trademark-webos-slate-gets-a-name-1994657/" target="_blank">the PalmPad</a> &#8211; and the possibility of Palm being <a href="http://www.slashgear.com/hp-palm-name-could-remain-as-sub-brand-2295072/" target="_blank">maintained as a sub-brand</a> is likely of more interest.</p>
+<p><object id="cnbcplayer" classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000" width="400" height="380" codebase="http://download.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=6,0,40,0"><param name="type" value="application/x-shockwave-flash" /><param name="allowfullscreen" value="true" /><param name="allowscriptaccess" value="always" /><param name="quality" value="best" /><param name="scale" value="noscale" /><param name="wmode" value="transparent" /><param name="bgcolor" value="#000000" /><param name="salign" value="lt" /><param name="src" value="http://plus.cnbc.com/rssvideosearch/action/player/id/1550389746/code/cnbcplayershare" /><param name="name" value="cnbcplayer" /><embed id="cnbcplayer" type="application/x-shockwave-flash" width="400" height="380" src="http://plus.cnbc.com/rssvideosearch/action/player/id/1550389746/code/cnbcplayershare" name="cnbcplayer" salign="lt" bgcolor="#000000" wmode="transparent" scale="noscale" quality="best" allowscriptaccess="always" allowfullscreen="true"></embed></object></p>
+<p>[<a href="http://www.engadget.com/2010/07/24/hp-not-making-windows-phone-7-devices-focusing-on-webos-instead/" target="_blank">via</a> Engadget]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/hp-hurricane-webos-tablet-leaks-continue-1285291/" rel="bookmark" title="Permanent Link: HP Hurricane webOS tablet leaks continue">HP Hurricane webOS tablet leaks continue</a></strong></li><li><strong><a href="http://www.slashgear.com/hp-no-webos-netbooks-hp-slate-due-october-2010-2186488/" rel="bookmark" title="Permanent Link: HP: no webOS netbooks, HP Slate due October 2010">HP: no webOS netbooks, HP Slate due October 2010</a></strong></li><li><strong><a href="http://www.slashgear.com/microsoft-kin-officially-canned-by-microsoft-3092441/" rel="bookmark" title="Permanent Link: Microsoft KIN Officially Canned by Microsoft">Microsoft KIN Officially Canned by Microsoft</a></strong></li><li><strong><a href="http://www.slashgear.com/hp-delays-android-tablet-plans-1593994/" rel="bookmark" title="Permanent Link: HP delays Android tablet plans">HP delays Android tablet plans</a></strong></li><li><strong><a href="http://www.slashgear.com/the-fate-of-windows-phone-7-1886004/" rel="bookmark" title="Permanent Link: The Fate of Windows Phone 7">The Fate of Windows Phone 7</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/hp-focus-on-webos-eschew-windows-phone-7-2495247/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Apple target DROID X in new antenna test</title>
+		<link>http://www.slashgear.com/apple-target-droid-x-in-new-antenna-test-2495245/</link>
+		<comments>http://www.slashgear.com/apple-target-droid-x-in-new-antenna-test-2495245/#comments</comments>
+		<pubDate>Sat, 24 Jul 2010 18:05:06 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Android]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[carriers]]></category>
+		<category><![CDATA[iPhone 4]]></category>
+		<category><![CDATA[Motorola]]></category>
+		<category><![CDATA[Motorola Droid X]]></category>
+		<category><![CDATA[smartphones]]></category>
+		<category><![CDATA[Verizon]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95245</guid>
+		<description><![CDATA[<p>It looks like Apple intend to continue using their <a href="http://www.slashgear.com/inside-apples-antenna-design-and-test-labs-1794272/" target="_blank">elaborate signal testing equipment</a> to test more and more rival smartphones and highlight their respective antenna performance, with the latest device to be highlighted being the <a href="http://www.slashgear.com/tags/motorola-droid-x" target="_blank">Motorola DROID X</a>.  According to Apple, with a strong grip around its antenna &#8211; behind the lower rear panel near the base of the handset &#8211; Verizon&#8217;s new Android smartphone <a href="http://www.apple.com/antenna/" target="_blank">dropped from three bars to zero</a>.</p>
+<p><img class="alignnone size-medium wp-image-95244" title="Apple antenna test verizon motorola droid x" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Apple-antenna-test-verizon-motorola-droid-x-540x375.jpg" alt="Apple antenna test verizon motorola droid x 540x375" width="540" height="375" /></p>
+<p></p>
+<p>The test is the latest in Apple&#8217;s attempts to share responsibility for smartphone wireless performance with the industry as a whole, rather than allow the iPhone 4 to shoulder the brunt of the blame.  Many iPhone 4 owners have criticized the latest Apple smartphone for its tendency to drop calls when held in a certain way, bridging the external antenna with the hand; in response Apple has <a href="http://www.slashgear.com/free-iphone-4-case-round-up-2395192/" target="_blank">offered all buyers a free case</a>.</p>
+<p>With the DROID X so popular right now &#8211; Verizon are having trouble keeping their shelves filled &#8211; this new batch of testing is not likely to win Apple much approval from Android aficionados.  We&#8217;ve not seen any antenna problems with <a href="http://www.slashgear.com/droid-x-review-0793011/" target="_blank">our DROID X review unit</a>, so we&#8217;d be interested to hear how owners are getting on.</p>
+<p>[<a href="http://androidcommunity.com/droid-x-latest-to-get-apples-antenna-testing-20100724/" target="_blank">via</a> Android Community]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/nokia-n97-mini-gets-apple-antennagate-testing-2194814/" rel="bookmark" title="Permanent Link: Nokia N97 mini gets Apple &#8220;antennagate&#8221; testing">Nokia N97 mini gets Apple &#8220;antennagate&#8221; testing</a></strong></li><li><strong><a href="http://www.slashgear.com/samsung-dismiss-apple-antenna-claims-reception-problems-have-not-happened-1994405/" rel="bookmark" title="Permanent Link: Samsung dismiss Apple antenna claims: &#8220;reception problems have not happened&#8221;">Samsung dismiss Apple antenna claims: &#8220;reception problems have not happened&#8221;</a></strong></li><li><strong><a href="http://www.slashgear.com/apples-july-16th-press-conference-now-available-to-watch-1694244/" rel="bookmark" title="Permanent Link: Apple&#8217;s July 16th Press Conference Now Available to Watch">Apple&#8217;s July 16th Press Conference Now Available to Watch</a></strong></li><li><strong><a href="http://www.slashgear.com/apple-deny-engineers-iphone-4-antenna-warning-1694082/" rel="bookmark" title="Permanent Link: Apple deny engineer&#8217;s iPhone 4 antenna warning">Apple deny engineer&#8217;s iPhone 4 antenna warning</a></strong></li><li><strong><a href="http://www.slashgear.com/apple-engineer-gave-iphone-4-antenna-warning-in-2009-1594042/" rel="bookmark" title="Permanent Link: Apple engineer gave iPhone 4 antenna warning in 2009">Apple engineer gave iPhone 4 antenna warning in 2009</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/apple-target-droid-x-in-new-antenna-test-2495245/feed/</wfw:commentRss>
+		<slash:comments>1</slash:comments>
+		</item>
+		<item>
+		<title>Forrester: iPad Doesn&#8217;t Behave Like Other Consumer Devices</title>
+		<link>http://www.slashgear.com/forrester-ipad-doesnt-behave-like-other-consumer-devices-2395237/</link>
+		<comments>http://www.slashgear.com/forrester-ipad-doesnt-behave-like-other-consumer-devices-2395237/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 21:58:33 +0000</pubDate>
+		<dc:creator>Evan Selleck</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[iPad]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95237</guid>
+		<description><![CDATA[<p>Before the launch of the iPad &#8212; you know, that magical and revolutionary tablet device from Apple? Before it released onto the world, there were plenty of analysts and forecast companies out there projecting their initial estimates on how many tablets Apple would sell out of the gate, and in the future. Numbers ranged from the hundreds of thousands, to the high millions, and now that Apple has come out and declared that they&#8217;ve sold 3.27 million units worldwide, some of those companies are coming out and clarifying their positions. Forrester is doing just that.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Forrester-logo-540x177.png" alt="Forrester logo 540x177" width="540" height="177" class="aligncenter size-medium wp-image-95238" title="Forrester: iPad Doesnt Behave Like Other Consumer Devices" /></p>
+<p></p>
+<p>In the company&#8217;s first projection, Forrester declared that the iPad would sell upwards of 3.5 million to US-based consumers in 2010, and 8.4 million by 2011. By 2015, there would be 59 million consumers out there using Apple&#8217;s shiny gadget. One thing to note here, though: as you can see, Forrester projected these numbers <em>for US-based consumers</em>, not the worldwide market. On top of that, Apple is also including enterprise-based sales, while Forrester did not include that in their projections, either. All this does is add some cushioning to Forrester&#8217;s projections, but it can&#8217;t be ignored, either.</p>
+<p>However, with all of that in mind, the company is now saying that their initial estimates were going to be conservative, to say the least. Basically, they are planning on publishing an update before the end of the year, but only after they get more data to reference the supply side, along with more consumer data. Below, you&#8217;ll find data that Forrester pulled from their own surveys, of nearly 4,000 individuals. It&#8217;s worth the read. And, we do have to admit that Apple blew away the estimates, and they&#8217;re still going strong. Now, as long as LG can get supply to meet demand, Apple will just continue on their warpath.</p>
+<p><em>&#8220;Awareness of the iPad is incredibly high. In our June survey, only 5% of US online consumers claimed that they had never heard of the Apple iPad before the survey. We asked the same question of consumers in a May survey (also of 4,000 US online consumers), and 17% said they’d never heard of the iPad. For context, three years after the Amazon Kindle’s release (another entirely new type of product), 25% of US online consumers in the same survey said they’d never heard of a Kindle.</p>
+<p></em><em>&#8220;Nearly 10 million US consumers say they own or intend to buy an iPad. In our June survey, 1.3%, or 2.5 million, US online consumers reported already owning an Apple iPad, and an additional 3.8% (7.4 million) say they intend to buy one. (No time frame was specified in the survey question.)</em>&#8221;</p>
+<p>[<a href="http://blogs.forrester.com/sarah_rotman_epps/10-07-22-apple_ipad_sales_why_tablets_are_even_bigger_we_thought">via</a> Forrester Blog]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/tablets-to-surpass-desktop-sales-by-2015-analyst-predicts-1790370/" rel="bookmark" title="Permanent Link: Tablets to Surpass Desktop Sales by 2015, Analyst Predicts">Tablets to Surpass Desktop Sales by 2015, Analyst Predicts</a></strong></li><li><strong><a href="http://www.slashgear.com/how-penguin-envisions-books-on-the-ipad-video-0376615/" rel="bookmark" title="Permanent Link: How Penguin envisions books on the iPad [Video]">How Penguin envisions books on the iPad [Video]</a></strong></li><li><strong><a href="http://www.slashgear.com/ipad-camera-adapter-unlocks-other-tasty-usb-capabilities-2683122/" rel="bookmark" title="Permanent Link: iPad camera adapter unlocks other tasty USB capabilities">iPad camera adapter unlocks other tasty USB capabilities</a></strong></li><li><strong><a href="http://www.slashgear.com/ipad-more-likely-to-be-purchased-by-current-apple-owners-2979472/" rel="bookmark" title="Permanent Link: iPad more likely to be purchased by current Apple owners">iPad more likely to be purchased by current Apple owners</a></strong></li><li><strong><a href="http://www.slashgear.com/japanese-docs-use-ipad-to-view-images-during-surgery-0488327/" rel="bookmark" title="Permanent Link: Japanese docs use iPad to view images during surgery">Japanese docs use iPad to view images during surgery</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/forrester-ipad-doesnt-behave-like-other-consumer-devices-2395237/feed/</wfw:commentRss>
+		<slash:comments>6</slash:comments>
+		</item>
+		<item>
+		<title>India&#8217;s $35 Tablet Based on AllGo Systems&#8217; Design, Specifications Revealed?</title>
+		<link>http://www.slashgear.com/indias-35-tablet-based-on-allgo-systems-design-specifications-revealed-2395233/</link>
+		<comments>http://www.slashgear.com/indias-35-tablet-based-on-allgo-systems-design-specifications-revealed-2395233/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 21:40:30 +0000</pubDate>
+		<dc:creator>Evan Selleck</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[tablets]]></category>
+		<category><![CDATA[touchscreen]]></category>
+		<category><![CDATA[wifi]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95233</guid>
+		<description><![CDATA[<p>Remember that $35 tablet unveiled earlier today in India? There weren&#8217;t a lot of details actually unveiled at the event where the tablet, or maybe even a pair of tablets, were shown off. And it left quite a few people (including us) very curious. And now we&#8217;ve got something very curious that has just landed in our laps. Dig in after the break to see what this tablet bears a striking resemblance to.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Indian-tablet.jpg" alt="Indian tablet" width="540" height="360" class="aligncenter size-full wp-image-95234" title="Indias $35 Tablet Based on AllGo Systems Design, Specifications Revealed?" /></p>
+<p></p>
+<p>According to the site <em>ARMDevices</em>, it looks like the $35 tablet is based off the design originally postulated by AllGo Embedded Systems. This company is actually established in Bangalore, India, and they showcased their very own $35 tablet at the Freescale Technology Forum in Orlando last month. The video you&#8217;ll see below is that tablet. So, how does that tablet break down in price? Something like this:</p>
+<p>1. ARM9 processor: $5<br />
+2. Memory: $3<br />
+3. WiFi b/g: $4<br />
+4. Other components: $3<br />
+5. Battery: $5<br />
+6. 7-inch 800&#215;480 resistive touchscreen: $15<br />
+7. Total: $35</p>
+<p>As we said above, it&#8217;s a pretty interesting update, and we&#8217;re curious as to see how closely related these two tablets are in the specifications market. It will be even more interesting to see if the Indian government comes forward and says that their tablet is based on these initial designs, or if they came up with it on their own. While we wait to see if we get some official specifications from the Human Resources Department, go ahead and watch the video below.</p>
+
+<p>[<a href="http://armdevices.net/2010/07/23/indias-35-tablet-is-based-on-my-video/">via</a> ARMDevices; thanks Nathaniel!]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/allgo-15-android-computer-could-enable-super-cheap-tablets-video-2591538/" rel="bookmark" title="Permanent Link: AllGo $15 Android computer could enable super-cheap tablets [Video]">AllGo $15 Android computer could enable super-cheap tablets [Video]</a></strong></li><li><strong><a href="http://www.slashgear.com/freescale-smartbook-tablet-hands-on-0768700/" rel="bookmark" title="Permanent Link: Freescale Smartbook Tablet hands-on">Freescale Smartbook Tablet hands-on</a></strong></li><li><strong><a href="http://www.slashgear.com/hp-pico-projector-notebook-coming-more-slate-tablet-pcs-2170888/" rel="bookmark" title="Permanent Link: HP pico-projector notebook coming; more slate Tablet PCs">HP pico-projector notebook coming; more slate Tablet PCs</a></strong></li><li><strong><a href="http://www.slashgear.com/intel-classmate-convertible-netbook-revealed-0276340/" rel="bookmark" title="Permanent Link: Intel Classmate convertible netbook revealed">Intel Classmate convertible netbook revealed</a></strong></li><li><strong><a href="http://www.slashgear.com/aigo-n700-aigopad-mid-revealed-tegra-2-android-2-1-1080p-hd-0384029/" rel="bookmark" title="Permanent Link: Aigo N700 &#8220;AigoPad&#8221; MID revealed: Tegra 2, Android 2.1 &#038; 1080p HD">Aigo N700 &#8220;AigoPad&#8221; MID revealed: Tegra 2, Android 2.1 &#038; 1080p HD</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/indias-35-tablet-based-on-allgo-systems-design-specifications-revealed-2395233/feed/</wfw:commentRss>
+		<slash:comments>3</slash:comments>
+		</item>
+		<item>
+		<title>CTA Assault Rifle PS3 Controller Unveiled, Costs $65 [Video]</title>
+		<link>http://www.slashgear.com/cta-assault-rifle-ps3-controller-unveiled-costs-65-video-2395230/</link>
+		<comments>http://www.slashgear.com/cta-assault-rifle-ps3-controller-unveiled-costs-65-video-2395230/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 21:09:01 +0000</pubDate>
+		<dc:creator>Evan Selleck</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Accessories]]></category>
+		<category><![CDATA[peripherals]]></category>
+		<category><![CDATA[PlayStation 3]]></category>
+		<category><![CDATA[ps3]]></category>
+		<category><![CDATA[video games]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95230</guid>
+		<description><![CDATA[<p>CTA and their video game accessories are no stranger to these parts. Truth be told, we generally show them off because of the over-the-top nature. There&#8217;s not many times you can say you&#8217;ve <a href="http://www.slashgear.com/cta-digital-inflatable-race-car-accessory-for-the-wii-unveiled-at-e3-1790382/">seen an inflatable race car</a> that works with your Nintendo Wii, now is there? With the company revealing the Assault Rifle PlayStation 3 controller, they&#8217;re keeping up with their ridiculousness, but bringing it into the world of the hardcore gamer.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Assault-Rifle-PS3-540x199.jpg" alt="Assault Rifle PS3 540x199" width="540" height="199" class="aligncenter size-medium wp-image-95231" title="CTA Assault Rifle PS3 Controller Unveiled, Costs $65 [Video]" /></p>
+<p></p>
+<p>The Assault Rifle controller will cost you a cool $65, and it&#8217;s due out some time in August. As you can tell from the description above, it&#8217;s meant for the PlayStation 3, and it even has all of the buttons you&#8217;ll find on a traditional SIXAXIS controller. The R1 shoulder button, usually the trigger in most First Person Shooter titles, has been appropriately mapped to the trigger on the fake assault rifle, hopefully making it so much easier for you to shoot your enemies.</p>
+<p>It works with titles like <em>Call of Duty: Modern Warfare 2</em>, but let&#8217;s face it: PlayStation Move is coming out soon after the Assault Rifle ships, and when that hits, this will probably be considered antiquated. But, if you&#8217;re still interested in seeing it in action, go ahead and check out the video below. Remember: $65. Oh, and did we mention that it will still make sounds, even when you&#8217;re not playing a video game? Because it can. Just food for thought.</p>
+
+<p>[<a href="http://gizmodo.com/5594740/realistic-ps3-assault-rifle-controller-fatigues-optional">via</a> Gizmodo]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/wii-rifle-gun-when-the-wiizapper-just-isnt-big-enough-226349/" rel="bookmark" title="Permanent Link: Wii Rifle Gun &#8211; When the WiiZapper just isn&#8217;t big enough">Wii Rifle Gun &#8211; When the WiiZapper just isn&#8217;t big enough</a></strong></li><li><strong><a href="http://www.slashgear.com/nerf-sniper-rifle-for-budding-assassins-182108/" rel="bookmark" title="Permanent Link: Nerf Sniper Rifle for budding assassins">Nerf Sniper Rifle for budding assassins</a></strong></li><li><strong><a href="http://www.slashgear.com/knex-ak-47-assault-rifle-replica-probably-not-for-kids-1752441/" rel="bookmark" title="Permanent Link: K&#8217;nex AK-47 assault rifle replica probably not for kids">K&#8217;nex AK-47 assault rifle replica probably not for kids</a></strong></li><li><strong><a href="http://www.slashgear.com/gps-sniper-rifle-creepy-094235/" rel="bookmark" title="Permanent Link: GPS Sniper Rifle &#8211; Creepy">GPS Sniper Rifle &#8211; Creepy</a></strong></li><li><strong><a href="http://www.slashgear.com/novint-falcon-force-feedback-controller-makes-actions-feel-real-017711/" rel="bookmark" title="Permanent Link: Novint Falcon force feedback controller makes actions feel real">Novint Falcon force feedback controller makes actions feel real</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/cta-assault-rifle-ps3-controller-unveiled-costs-65-video-2395230/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Mad Catz Announces $500 Worth of Flight Simulator Goodness</title>
+		<link>http://www.slashgear.com/mad-catz-announces-500-worth-of-flight-simulator-goodness-2395224/</link>
+		<comments>http://www.slashgear.com/mad-catz-announces-500-worth-of-flight-simulator-goodness-2395224/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 20:08:10 +0000</pubDate>
+		<dc:creator>Evan Selleck</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Mad Catz]]></category>
+		<category><![CDATA[peripherals]]></category>
+		<category><![CDATA[video games]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95224</guid>
+		<description><![CDATA[<p>We&#8217;re not sure if there&#8217;s still a huge market for flight simulators. It&#8217;s been awhile since we&#8217;ve even seen anything come on the radar about them. Sure, there are plenty of aircraft-based games, where you&#8217;ve got that fighter jet and you&#8217;re blowing things up, but that&#8217;s not a simulator. And, for the most part, you might not need these many buttons to shoot down the enemy. (At least, not in the game.) And, while $500 worth of simulating peripherals may seem like the right thing to do, it&#8217;s troubling when $500 doesn&#8217;t get you <em>everything you need</em>.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Aircraft.jpg" alt="Aircraft" width="500" height="164" class="aligncenter size-full wp-image-95226" title="Mad Catz Announces $500 Worth of Flight Simulator Goodness" /></p>
+<p></p>
+<p>How does it break down? Something like this: $200 for di-cast alloy rudder pedals, $149 back-lit information screen, and a $150 throttle, pitch and mixture system. All of that sounds all well and good, right? You&#8217;ve got everything. Oh, wait, you need a yoke. And a game to play it on. Then again, if you&#8217;re thinking about picking all of these up, then you probably (hopefully) already have a game to play it on.</p>
+<p>But, it might be kind of tough to do that without a yoke. We&#8217;re not sure why Mad Catz would have left that out, but we&#8217;re going to hope that they&#8217;ve got one coming down the pipe, and they just didn&#8217;t get around to announcing it quite yet. Yes, we can dream. The big question now, though, is if $500 is completely and totally worth it to make your flying dreams a reality.</p>
+
+<p>[<a href="http://kotaku.com/5594609/500-worth-of-flight-controllers-for-the-insane-flight-sim-addict?utm_source=feedburner&amp;utm_medium=feed&amp;utm_campaign=Feed:+kotaku/full+(Kotaku)">via</a> Kotaku]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/man-creates-30000-747-flight-simulator-228084/" rel="bookmark" title="Permanent Link: Man creates $30,000 747 Flight Simulator">Man creates $30,000 747 Flight Simulator</a></strong></li><li><strong><a href="http://www.slashgear.com/your-own-private-747-for-only-230k-073794/" rel="bookmark" title="Permanent Link: Your own private 747 for only $230k">Your own private 747 for only $230k</a></strong></li><li><strong><a href="http://www.slashgear.com/outstanding-747-simulator-061469/" rel="bookmark" title="Permanent Link: Outstanding 747 Simulator">Outstanding 747 Simulator</a></strong></li><li><strong><a href="http://www.slashgear.com/mad-catz-cyborg-f-l-y-9-wireless-flight-stick-for-xbox-360-announced-0180046/" rel="bookmark" title="Permanent Link: Mad Catz Cyborg F.L.Y. 9 Wireless Flight Stick for Xbox 360 announced">Mad Catz Cyborg F.L.Y. 9 Wireless Flight Stick for Xbox 360 announced</a></strong></li><li><strong><a href="http://www.slashgear.com/saitek-designs-lcd-screen-gauges-for-flight-sims-266436/" rel="bookmark" title="Permanent Link: Saitek designs LCD screen gauges for flight sims">Saitek designs LCD screen gauges for flight sims</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/mad-catz-announces-500-worth-of-flight-simulator-goodness-2395224/feed/</wfw:commentRss>
+		<slash:comments>1</slash:comments>
+		</item>
+		<item>
+		<title>Sony&#8217;s Blue-Violet Laser Will Bring 20x More Capacity Than Blu-ray</title>
+		<link>http://www.slashgear.com/sonys-blue-violet-laser-will-bring-20x-more-capacity-than-blu-ray-2395219/</link>
+		<comments>http://www.slashgear.com/sonys-blue-violet-laser-will-bring-20x-more-capacity-than-blu-ray-2395219/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 19:38:51 +0000</pubDate>
+		<dc:creator>Evan Selleck</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Blu ray]]></category>
+		<category><![CDATA[Sony]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95219</guid>
+		<description><![CDATA[<p>You didn&#8217;t think Blu-ray would get left behind in the transition to new, upgraded things, did you? No? Good. Because Sony&#8217;s already hard at work on the next laser that&#8217;s going to make the future of Blu-ray (or maybe Violet-ray). Working in conjunction with the Tohoku University, the blue-violet laser is designed to fire ultra-fast bursts of remarkably thin light.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Blue-violet-disc.jpg" alt="Blue violet disc" width="340" height="243" class="aligncenter size-full wp-image-95220" title="Sonys Blue Violet Laser Will Bring 20x More Capacity Than Blu ray" /></p>
+<p></p>
+<p>Getting down into the details, the wavelength measures in at only 405 nanometers, which then pulsates for only 3 picoseconds. As for the light output of the new blue-violet laser, that would be over 100x that of a normal laser. The results would be something like 20x more capacity than the standard Blu-ray disc now. That equals to be about 50 movies <em>on one disc</em>. Right now, the laser is just in testing, and there&#8217;s no definitive word on when this will make it out into the real world.</p>
+<p>[<a href="http://www.examiner.com/x-16352-Japan-Headlines-Examiner~y2010m7d21-Sony-and-Tohoku-University-announce-next-generation-laser-for-disks">via</a> The Examiner]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/sharp-unveils-new-blue-violet-laser-promised-faster-blu-ray-recorder-up-to-6x-1410264/" rel="bookmark" title="Permanent Link: Sharp unveils new Blue-Violet Laser, Promised Faster Blu-Ray Recorder up to 6x">Sharp unveils new Blue-Violet Laser, Promised Faster Blu-Ray Recorder up to 6x</a></strong></li><li><strong><a href="http://www.slashgear.com/sanyo-develops-12x-blu-ray-laser-diode-boosts-twice-the-capacity-and-speed-0618368/" rel="bookmark" title="Permanent Link: Sanyo develops 12x Blu-ray laser diode, boosts twice the capacity and speed">Sanyo develops 12x Blu-ray laser diode, boosts twice the capacity and speed</a></strong></li><li><strong><a href="http://www.slashgear.com/blu-ray-vs-hd-dvd-update-hd-sells-almost-a-million-blue-laser-diodes-drop-to-8-264940/" rel="bookmark" title="Permanent Link: Blu-ray vs HD DVD update: HD sells almost a million &#8211; Blue laser diodes drop to $8">Blu-ray vs HD DVD update: HD sells almost a million &#8211; Blue laser diodes drop to $8</a></strong></li><li><strong><a href="http://www.slashgear.com/violet-mirror-rfid-gizmo-reviewed-fun-moderately-functional-2744921/" rel="bookmark" title="Permanent Link: Violet Mir:ror RFID gizmo reviewed: fun, moderately functional">Violet Mir:ror RFID gizmo reviewed: fun, moderately functional</a></strong></li><li><strong><a href="http://www.slashgear.com/wicked-lasers-spyder-iii-pro-arctic-laser-pointer-isnt-from-a-galaxy-far-far-away-1189447/" rel="bookmark" title="Permanent Link: Wicked Lasers Spyder III Pro Arctic laser pointer isn&#8217;t from a galaxy far, far away">Wicked Lasers Spyder III Pro Arctic laser pointer isn&#8217;t from a galaxy far, far away</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/sonys-blue-violet-laser-will-bring-20x-more-capacity-than-blu-ray-2395219/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>EA: Nintendo&#8217;s 3DS is Magical and Incredibly Cool</title>
+		<link>http://www.slashgear.com/ea-nintendos-3ds-is-a-magical-and-incredibly-cool-2395214/</link>
+		<comments>http://www.slashgear.com/ea-nintendos-3ds-is-a-magical-and-incredibly-cool-2395214/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 18:43:38 +0000</pubDate>
+		<dc:creator>Evan Selleck</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[3DS]]></category>
+		<category><![CDATA[Consoles]]></category>
+		<category><![CDATA[EA]]></category>
+		<category><![CDATA[nintendo]]></category>
+		<category><![CDATA[Nintendo 3DS]]></category>
+		<category><![CDATA[Nintendo DS]]></category>
+		<category><![CDATA[video games]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95214</guid>
+		<description><![CDATA[<p>Out of all the many video game companies out there, EA&#8217;s COO John Schappert is one of the most outspoken individuals you can find. Which, in cases like this, lead to some very interesting, and telling, scenarios. For example, while the Nintendo 3DS isn&#8217;t even out yet, there&#8217;s plenty of speculation about whether or not it&#8217;s going to be a success, or just disappear into the shadows of forgotten tech. If you ask EA&#8217;s COO, well, you&#8217;d get an answer.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Nintendo-3DS.jpg" alt="Nintendo 3DS" width="540" height="463" class="aligncenter size-full wp-image-95215" title="EA: Nintendos 3DS is Magical and Incredibly Cool" /></p>
+<p></p>
+<p>According to Schappert, who was speaking with <em>Industry Gamers</em>, the 3DS is not only &#8220;incredibly cool,&#8221; but also &#8220;magical.&#8221; He believes that the 3D technology, especially with the fact you don&#8217;t need to actually wear glasses to access the tech, is just about as good as it gets, especially considering the platform you&#8217;re playing it on. He goes on to add that the whole experience is amazing, and that he is happy that EA is part of the device&#8217;s existence.</p>
+<p>EA is bringing titles like <em>The Sims</em>, <em>FIFA</em>, and <em>Madden</em> to the platform, so it&#8217;s good to see some of the company&#8217;s biggest franchises making an appearance on the new mobile video game console. Of course, we can&#8217;t say whether or not the new 3DS from Nintendo is magical or even incredibly cool. Not yet, anyway. As soon as we&#8217;re able, we&#8217;ll be sure to take it through its paces, and let you know what we think of it. So, Nintendo &#8212; any day now, thanks.</p>
+<p>[<a href="http://www.tgdaily.com/games-and-entertainment-features/50788-ea-gushes-over-nintendos-magical-3ds?utm_source=feedburner&amp;utm_medium=feed&amp;utm_campaign=Feed:+tgdaily_all_sections+(TG+Daily+-+All+News)">via</a> TG Daily]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/magic-fortune-cookie-has-the-same-user-interface-as-a-magic-8-ball-189099/" rel="bookmark" title="Permanent Link: Magic Fortune Cookie has the same user interface as a Magic 8-ball">Magic Fortune Cookie has the same user interface as a Magic 8-ball</a></strong></li><li><strong><a href="http://www.slashgear.com/the-digimech-clock-only-looks-led-2512243/" rel="bookmark" title="Permanent Link: The Digimech clock only looks LED">The Digimech clock only looks LED</a></strong></li><li><strong><a href="http://www.slashgear.com/the-really-cool-keyboard-is-kinda-full-of-itself-0511910/" rel="bookmark" title="Permanent Link: The Really Cool keyboard is kinda full of itself">The Really Cool keyboard is kinda full of itself</a></strong></li><li><strong><a href="http://www.slashgear.com/rip-game-boy-176277/" rel="bookmark" title="Permanent Link: RIP &#8211; Game Boy?">RIP &#8211; Game Boy?</a></strong></li><li><strong><a href="http://www.slashgear.com/keyboard-keys-used-for-cellphone-charms-049362/" rel="bookmark" title="Permanent Link: Keyboard keys used for Cellphone charms">Keyboard keys used for Cellphone charms</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/ea-nintendos-3ds-is-a-magical-and-incredibly-cool-2395214/feed/</wfw:commentRss>
+		<slash:comments>1</slash:comments>
+		</item>
+		<item>
+		<title>Air Force Believes Drones Can be As Adaptable as Human Pilots</title>
+		<link>http://www.slashgear.com/air-force-believes-drones-can-be-as-adaptable-as-human-pilots-2395210/</link>
+		<comments>http://www.slashgear.com/air-force-believes-drones-can-be-as-adaptable-as-human-pilots-2395210/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 18:22:53 +0000</pubDate>
+		<dc:creator>Evan Selleck</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Military]]></category>
+		<category><![CDATA[Science]]></category>
+		<category><![CDATA[technology]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95210</guid>
+		<description><![CDATA[<p>Unmanned aircraft are getting quite a bit of attention lately, but that&#8217;s not a bad thing. Even if they are, essentially, a pretty basic and straight forward, they&#8217;ve still got the potential to be some of the most advanced pieces of technology running around in the world at any given moment. Flying your robot around is great if you want it to listen to everything you say, but if you want it to start thinking for yourself, well, that&#8217;s when things get tricky. But that&#8217;s not  stopping the Air Force from exploring their options, and obviously free-thinking drones are high on the priority list.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Drone-540x355.jpg" alt="Drone 540x355" width="540" height="355" class="aligncenter size-medium wp-image-95211" title="Air Force Believes Drones Can be As Adaptable as Human Pilots" /></p>
+<p></p>
+<p>One of the most crowded and intrinsically complicated places in the world of flight is the airport. Always busy, and always at the mercy of logistics, timing, and the ever-present entities within the Air Traffic Control towers, that&#8217;s why unmanned aircraft have not been allowed anywhere near them. With all of the information that needs to be processed &#8212; between ATC, pilots, ground crew, and the aircraft both on the ground and in the air, at the moment it&#8217;s just impossible for any drone to process all of that information in a reliable fashion. But the Air Force wants to change that.</p>
+<p>The branch of the United States military wants to reach out to engineers, and ultimately develop an algorithm that would allow for drones to seamlessly integrate with piloted aircraft, as well as ATC and ground crews. They want this done so that the drone can land and take off safely. The drones would be connected to a huge database of terminal procedures, which would then allow those drones to make decisions on their own, &#8220;recognize the intent of other aircraft,&#8221; as well as navigate the congestion of the airport without endangering the lives of crew and passengers.</p>
+<p>The algorithm would be specifically designed to make drones process complex information and scenarios, just as our &#8220;true&#8221; pilots do. There&#8217;s no timeline for something like this, but considering we&#8217;ve already got unmanned aircraft <a href="http://www.slashgear.com/bae-systems-unmanned-stealth-bomber-taranis-still-in-testing-can-think-for-itself-1293728/">that can think for themselves</a> in some regard, then it would look to us like something of this nature will be right around the corner. Anyone want to be on the first publicly-accessible passenger jet drone?</p>
+<p>[<a href="http://www.wired.com/dangerroom/2010/07/air-force-wants-drones-to-sense-other-planes-intent/?utm_source=feedburner&amp;utm_medium=feed&amp;utm_campaign=Feed:+wired/index+(Wired:+Index+3+(Top+Stories+2))">via</a> Wired]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/send-in-the-drones-298750/" rel="bookmark" title="Permanent Link: Send in the Drones">Send in the Drones</a></strong></li><li><strong><a href="http://www.slashgear.com/hp-ink-costs-more-than-human-blood-052329/" rel="bookmark" title="Permanent Link: HP Ink Costs More Than Human Blood">HP Ink Costs More Than Human Blood</a></strong></li><li><strong><a href="http://www.slashgear.com/star-wars-the-force-unleashed-dated-for-september-0711068/" rel="bookmark" title="Permanent Link: Star Wars: The Force Unleashed dated for September">Star Wars: The Force Unleashed dated for September</a></strong></li><li><strong><a href="http://www.slashgear.com/new-force-unleashed-ds-info-revealed-2010819/" rel="bookmark" title="Permanent Link: New Force Unleashed DS info revealed">New Force Unleashed DS info revealed</a></strong></li><li><strong><a href="http://www.slashgear.com/epidermits-toy-concept-is-beyond-frightening-1816604/" rel="bookmark" title="Permanent Link: Epidermits toy concept is beyond frightening">Epidermits toy concept is beyond frightening</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/air-force-believes-drones-can-be-as-adaptable-as-human-pilots-2395210/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Apple iPad Sales Hindered by Display Shortages</title>
+		<link>http://www.slashgear.com/apple-ipad-sales-hindered-by-display-shortages-2395206/</link>
+		<comments>http://www.slashgear.com/apple-ipad-sales-hindered-by-display-shortages-2395206/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 17:33:17 +0000</pubDate>
+		<dc:creator>Evan Selleck</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[iPad]]></category>
+		<category><![CDATA[LG]]></category>
+		<category><![CDATA[news]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95206</guid>
+		<description><![CDATA[<p>Apple&#8217;s iPad is moving off the store shelves. Both on the digital front, and in the brick-and-mortar locations all over the world. It&#8217;s a hot item. Even if you don&#8217;t like Apple or the iPad, there&#8217;s no denying that the public wants it. And, up until now, the magical and revolutionary tablet device from Cupertino has been free to fly off the shelves, with not a care in the world. But a new report from the <em>Wall Street Journal</em> says that sales would still be going strong, if not better, if it weren&#8217;t for the fact LG can&#8217;t keep up with production demand.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Apple-iPad.jpg" alt="Apple iPad" width="540" height="303" class="aligncenter size-full wp-image-95207" title="Apple iPad Sales Hindered by Display Shortages" /></p>
+<p></p>
+<p>Right now, the iPad&#8217;s sold 3.3 million units around the world. But, according to this new report, those numbers could have been even bigger, and the sales would still be rocketing forward if it weren&#8217;t for one big issue. LG, as it stands right now, is unable to keep up with the production of flat panel displays for Apple. As demand increases, LG Display Co. is struggling to produce enough units for everyone to enjoy the product.</p>
+<p>As a result, iPad sales have slowed dramatically. But, what makes it interesting, is the comment from LG about when production will be able to meet demand without a hitch. &#8220;by the second quarter of next year.&#8221; That&#8217;s the second quarter of 2011, for the record, and seems like forever from now. Something worth noting, though, is the fact that LG plans on investing upwards of $512 million in a brand new production line that should be up and running by the fourth quarter 2011, which should also help with production. So, we&#8217;ve got fixes planned for the future, but nothing on the short-term. It&#8217;s better than nothing.</p>
+<p>[<a href="http://online.wsj.com/article/SB10001424052748703467304575383941257969742.html?mod=WSJ_Tech_LEFTTopNews">via</a> Wall Street Journal]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/ipad-sales-higher-than-mac-sales-at-apple-2186539/" rel="bookmark" title="Permanent Link: iPad sales higher than Mac sales at Apple?">iPad sales higher than Mac sales at Apple?</a></strong></li><li><strong><a href="http://www.slashgear.com/ipad-shortage-after-unspecified-production-problem-tips-analyst-0176170/" rel="bookmark" title="Permanent Link: iPad shortage after &#8220;unspecified production problem&#8221; tips analyst">iPad shortage after &#8220;unspecified production problem&#8221; tips analyst</a></strong></li><li><strong><a href="http://www.slashgear.com/300000-ipad-3g-sold-in-first-weekend-claims-analyst-0384014/" rel="bookmark" title="Permanent Link: 300,000 iPad 3G sold in first weekend claims analyst">300,000 iPad 3G sold in first weekend claims analyst</a></strong></li><li><strong><a href="http://www.slashgear.com/lg-cant-keep-up-with-apples-screen-demand-2395127/" rel="bookmark" title="Permanent Link: LG can&#8217;t keep up with Apple&#8217;s screen demand">LG can&#8217;t keep up with Apple&#8217;s screen demand</a></strong></li><li><strong><a href="http://www.slashgear.com/ipad-puts-the-smack-down-on-netbooks-0784741/" rel="bookmark" title="Permanent Link: iPad puts the smack down on netbooks?">iPad puts the smack down on netbooks?</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/apple-ipad-sales-hindered-by-display-shortages-2395206/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Free iPhone 4 case round-up</title>
+		<link>http://www.slashgear.com/free-iphone-4-case-round-up-2395192/</link>
+		<comments>http://www.slashgear.com/free-iphone-4-case-round-up-2395192/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 17:06:59 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[Features]]></category>
+		<category><![CDATA[archive]]></category>
+		<category><![CDATA[Accessories]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[Belkin]]></category>
+		<category><![CDATA[cases]]></category>
+		<category><![CDATA[Griffin]]></category>
+		<category><![CDATA[iPhone 4]]></category>
+		<category><![CDATA[Speck]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95192</guid>
+		<description><![CDATA[<p>Apple are offering a <a href="http://www.slashgear.com/iphone-4-case-program-launches-bumper-belkin-griffin-incase-speck-cases-up-for-grabs-2395172/" target="_blank">choice of difference iPhone 4 cases</a> as part of their free program to address the so-called Antennagate issue, with a new app that&#8217;s fresh to the App Store designed to help you order your favorite.  If you&#8217;re asking what&#8217;s the difference between the various options then you&#8217;ve come to the right place: check out our roundup of the seven different cases after the cut.</p>
+<p><img class="alignnone size-full wp-image-95193" title="iphone_4_bumper_3" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/iphone_4_bumper_3.jpg" alt="iphone 4 bumper 3" width="498" height="302" /></p>
+<p></p>
+<p><strong><a href="http://store.apple.com/us/product/MC597ZM/A?fnode=MTY1NDA0NA&amp;mco=MTgxNTkxODY&amp;s=topSellers" target="_blank">Apple Bumper</a></strong></p>
+<p>The Cupertino company&#8217;s own case for the iPhone 4 is more accurately a rubber band that fits around the outer edge and gives some degree of knock protection while leaving the front and rear of the smartphone open.  Button and switch access is preserved, as is the headphone port and dock connector.  Buying one yourself would normally cost $29.</p>
+<p><strong><a href="http://www.belkin.com/IWCatProductPage.process?Product_Id=512038" target="_blank">Belkin Shield Micra</a></strong></p>
+<p>The Shield Micra is a thin, skin-like case that adds little bulk to the iPhone 4.  It has cut-out holes for the controls, headphones socket and dock connector, together with the camera on the back.  It would normally retail for $25.</p>
+<p><img class="alignnone size-full wp-image-95194" title="belkin_shield_micra" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/belkin_shield_micra.jpg" alt="belkin shield micra" width="219" height="347" /></p>
+<p><strong><a href="http://www.griffintechnology.com/products/reveal-etch-iphone4" target="_blank">Griffin Reveal Etch</a></strong></p>
+<p>The Griffin Reveal Etch for iPhone 4 is another skin-style case, with rubberized edges and a hard polycarbonate back panel.  It too has cut-outs for the controls and ports, and adds 1.6mm to all the dimensions of the Apple smartphone.  It would normally retail for $29.99.</p>
+<p><img class="alignnone size-medium wp-image-95196" title="griffin_reveal_etch" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/griffin_reveal_etch-540x294.jpg" alt="griffin reveal etch 540x294" width="540" height="294" /></p>
+<p><strong><a href="http://www.griffintechnology.com/products/motif-iphone4" target="_blank">Griffin Motif</a></strong></p>
+<p>The Motif is made from a smoked polyurethane plastic that&#8217;s stiffer than a regular silicone case but more flexible than the polycarbonate back panel on the Griffin Reveal Etch.  It has a smooth finish and is scuff resistant, and includes cut-outs for the controls and ports.  It would normally retail for $19.99.</p>
+<p><img class="alignnone size-full wp-image-95195" title="griffin_motif" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/griffin_motif.jpg" alt="griffin motif" width="356" height="299" /></p>
+<p><strong><a href="http://goincase.com/blog/2010/07/13/coming-soon-cases-for-iphone-4/" target="_blank">Incase Snap Case</a></strong></p>
+<p>The Incase Snap case for iPhone 4 is yet to get a product page on the company&#8217;s site, but judging by the <a href="http://www.goincase.com/products/detail/snap-case-cl59165" target="_blank">existing iPhone 3GS/3G version</a> it&#8217;s a simple clip on transparent back cover that protects the rear and edges of the handset.  That leaves the front and controls open, together with the ports.  We&#8217;re expecting it to retail for around $24.95.</p>
+<p><img class="alignnone size-medium wp-image-95199" title="incase_snap" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/incase_snap-540x342.jpg" alt="incase snap 540x342" width="540" height="342" /></p>
+<p><strong><a href="http://www.speckproducts.com/products/fitted/iphone-4/239" target="_blank">Speck Fitted</a></strong></p>
+<p>The Speck Fitted case for iPhone 4 is another hard case, this time with a soft-touch coating.  It comes in two sections, front and rear, with the smartphone sandwiched in-between.  It retails for $29.95.</p>
+<p><img class="alignnone size-medium wp-image-95197" title="speck_fitted" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/speck_fitted-522x500.jpg" alt="speck fitted 522x500" width="522" height="500" /></p>
+<p><strong><a href="https://www.speckproducts.com/products/pixelskin-hd/iphone-4/243" target="_blank">Speck Pixelskin HD</a></strong></p>
+<p>The Speck Pixelskin HD is a rubberized case which stretches to fit over the iPhone 4.  It has cut-outs for the ports and buttons, push-through volume controls and a repeating pixel pattern on the back with contrasting matte and gloss black plastic.  It retails for $29.95.</p>
+<p><img class="alignnone size-medium wp-image-95198" title="speck_pixelskin_hd" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/speck_pixelskin_hd-540x469.jpg" alt="speck pixelskin hd 540x469" width="540" height="469" /></p>
+<p>So, there are your choices: which will you go for?  Let us know in the comments!</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/power-a-unveils-iphone-universal-remote-case-2475416/" rel="bookmark" title="Permanent Link: Power A unveils iPhone Universal Remote Case">Power A unveils iPhone Universal Remote Case</a></strong></li><li><strong><a href="http://www.slashgear.com/dior-iphone-case-more-expensive-than-the-phone-2012161/" rel="bookmark" title="Permanent Link: Dior iPhone case more expensive than the phone">Dior iPhone case more expensive than the phone</a></strong></li><li><strong><a href="http://www.slashgear.com/free-iphone-4-cases-not-due-until-september-1st-2395188/" rel="bookmark" title="Permanent Link: Free iPhone 4 cases not due until September 1st">Free iPhone 4 cases not due until September 1st</a></strong></li><li><strong><a href="http://www.slashgear.com/hard-case-for-iphone-features-a-tether-2553701/" rel="bookmark" title="Permanent Link: Hard case for iPhone features a tether">Hard case for iPhone features a tether</a></strong></li><li><strong><a href="http://www.slashgear.com/louis-vuitton-iphone-cases-176265/" rel="bookmark" title="Permanent Link: Louis Vuitton iPhone cases">Louis Vuitton iPhone cases</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/free-iphone-4-case-round-up-2395192/feed/</wfw:commentRss>
+		<slash:comments>4</slash:comments>
+		</item>
+		<item>
+		<title>Toshiba Satellite L675D-S7022 Review</title>
+		<link>http://www.slashgear.com/toshiba-satellite-l675d-s7022-review-2395119/</link>
+		<comments>http://www.slashgear.com/toshiba-satellite-l675d-s7022-review-2395119/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 16:44:06 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[SlashGear Reviews]]></category>
+		<category><![CDATA[archive]]></category>
+		<category><![CDATA[AMD]]></category>
+		<category><![CDATA[ATI]]></category>
+		<category><![CDATA[benchmarks]]></category>
+		<category><![CDATA[Blu ray]]></category>
+		<category><![CDATA[HDMI]]></category>
+		<category><![CDATA[Laptops]]></category>
+		<category><![CDATA[notebook]]></category>
+		<category><![CDATA[Toshiba]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95119</guid>
+		<description><![CDATA[<p>Desktop replacement notebooks may pull together the computing experience with more of a nod to portability than the average PC tower, but there&#8217;s also a price sacrifice to be made if you want the same crunching abilities.  Into this hotly contested field steps Toshiba with the <a href="http://laptops.toshiba.com/laptops/satellite/L670/L675D-S7022" target="_blank">Satellite L675D-S7022</a>, a 17.3-inch notebook that sneaks in at under the $800 mark.  Is this the budget desktop replacement to beat?  Check out the full SlashGear review after the cut.</p>
+<p><img class="alignnone size-medium wp-image-95148" title="toshiba_laptop_4_slashgear" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/toshiba_laptop_4_slashgear-540x302.jpg" alt="toshiba laptop 4 slashgear 540x302" width="540" height="302" /></p>
+<p></p>
+<p>With an MRSP of $799.99 you know you&#8217;re not going to get the most powerful of components, and sure enough the Satellite L675D-S7022 has a pretty modest spec sheet.  Toshiba has picked a 1.8GHz triple-core AMD Phenom II X3 P820 processor, paired with a 5,400rpm 500GB hard-drive and 4GB of RAM.  Between 256MB and 1,405MB of that RAM can be co-opted by the integrated ATI Mobility Radeon HD 4250 graphics; already you can guess that this isn&#8217;t the machine for gamers.</p>
+
+<p>Meanwhile there&#8217;s a Blu-ray reader/DVD burner, WiFi b/g/n, 10/100 ethernet and an integrated webcam, together with two USB 2.0 ports, a combo USB/eSATA port and an HDMI output.  No Bluetooth, mind, nor gigabit ethernet or a PC Card/ExpressCard slot.  The 6-cell, 48Wh Li-ion battery is rated for up to 3.73hrs runtime.  As is usual with notebooks this size, the Satellite L675D-S7022 has a separate numeric keypad to the right of the keyboard, though the spacebar is slightly smaller than we&#8217;d expect.</p>
+<p><img class="alignnone size-medium wp-image-95150" title="toshiba_laptop_3_slashgear" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/toshiba_laptop_3_slashgear-540x346.jpg" alt="toshiba laptop 3 slashgear 540x346" width="540" height="346" /></p>
+<p>Aesthetically it&#8217;s inoffensive but not exactly eye-catching, while Toshiba&#8217;s plastics don&#8217;t creak or flex but, on the other hand, lack the true quality feel of more expensive machines.  The glossy finish to the lid and palm-rest are prone to collecting fingerprints, and at 6.6lbs it&#8217;s a heavy machine; Apple&#8217;s 17-inch <a href="http://www.slashgear.com/tags/macbook-pro" target="_blank">MacBook Pro</a>, for instance, weighs the same despite having a full metal body.  Unfortunately, the biggest shortcoming is the display.  Toshiba&#8217;s 17.3-inch LCD has reasonable viewing angles, is bright and averagely crisp, but with a native 1,600 x 900 resolution falls short of the Full HD 1080p we&#8217;d expect.</p>
+<p><img class="alignnone size-medium wp-image-95151" title="toshiba_laptop_slashgear" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/toshiba_laptop_slashgear-540x302.jpg" alt="toshiba laptop slashgear 540x302" width="540" height="302" /></p>
+<p>Given the presence of a Blu-ray drive, the miserly resolution is a real disappointment.  It&#8217;s not that the Satellite L675D-S7022 is incapable of support HD video, either; to test its performance we used Geekbench, a synthetic benchmarking tool that measures processor and memory, and the Toshiba scored 3,250 (primarily held back by poor memory bandwidth performance).  That&#8217;s short of the 3,925 scored by the Core i3 based <a href="http://www.slashgear.com/gateway-nv59c-notebook-review-3092347/" target="_blank">Gateway NV59C</a> we reviewed recently, which also comes in at $799.99 though has a 15.6-inch display.</p>
+
+<p>In terms of real-world performance, the AMD Phenom II X3 holds its own for the usual mixture of browsing, media playback and emailing.  We were able to juggle several browser windows, streaming audio in the background and play windowed video without complaints, thanks in part to the 4GB of RAM.  Streaming HD video was also manageable too, but the integrated graphics mean anything above the most basic gaming is beyond the Toshiba&#8217;s abilities.</p>
+<p>Battery life, meanwhile, fell significantly short of Toshiba&#8217;s predictions.  With a combination of browsing and occasional audio/video playback, as described above, the Satellite L675D-S7022 exhausted itself in 2.5hrs; playing video using the optical drive saw that dip to under 2hrs.</p>
+<p><img class="alignnone size-medium wp-image-95149" title="toshiba_laptop_2_slashgear" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/toshiba_laptop_2_slashgear-540x302.jpg" alt="toshiba laptop 2 slashgear 540x302" width="540" height="302" /></p>
+<p>The Satellite L675D-S7022 makes a very good argument for the case that there&#8217;s such a thing as too much cost-cutting.  We can forgive the notebook its moderate performance and disappointing battery life, but Toshiba&#8217;s choice of sub-1080p display on a machine outfitted with a Blu-ray drive seems ridiculous.  That the Satellite L675D-S7022 is obviously capable of smooth HD playback, evidenced by its HDMI output, just rubs salt into the wound.  Without those extra pixels the Toshiba&#8217;s high-def credentials are seriously undermined; if you only ever intend to watch your content on a separate display then the Satellite L675D-S7022 might fit the bill, but we&#8217;d rather spend a little extra and get the 1080p experience in an all-in-one package.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/unboxing-toshiba-satellite-a205-215861/" rel="bookmark" title="Permanent Link: Unboxing &#8211; Toshiba Satellite A205">Unboxing &#8211; Toshiba Satellite A205</a></strong></li><li><strong><a href="http://www.slashgear.com/toshiba-satellite-pro-u400-unboxing-ceremony-2012149/" rel="bookmark" title="Permanent Link: Toshiba Satellite Pro U400 Unboxing Ceremony">Toshiba Satellite Pro U400 Unboxing Ceremony</a></strong></li><li><strong><a href="http://www.slashgear.com/toshiba-to-recall-faulty-batteries-on-satellite-and-dynabook-191704/" rel="bookmark" title="Permanent Link: Toshiba to Recall Faulty Batteries on Satellite and Dynabook">Toshiba to Recall Faulty Batteries on Satellite and Dynabook</a></strong></li><li><strong><a href="http://www.slashgear.com/unboxing-of-toshiba-satellite-u205-s5057-304970/" rel="bookmark" title="Permanent Link: Unboxing of Toshiba Satellite U205-S5057">Unboxing of Toshiba Satellite U205-S5057</a></strong></li><li><strong><a href="http://www.slashgear.com/toshiba-satellite-pro-s300-ez2521-revealed-0840602/" rel="bookmark" title="Permanent Link: Toshiba Satellite Pro S300-EZ2521 revealed">Toshiba Satellite Pro S300-EZ2521 revealed</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/toshiba-satellite-l675d-s7022-review-2395119/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Free iPhone 4 cases not due until September 1st</title>
+		<link>http://www.slashgear.com/free-iphone-4-cases-not-due-until-september-1st-2395188/</link>
+		<comments>http://www.slashgear.com/free-iphone-4-cases-not-due-until-september-1st-2395188/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 16:20:39 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Accessories]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[cases]]></category>
+		<category><![CDATA[iPhone 4]]></category>
+		<category><![CDATA[smartphones]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95188</guid>
+		<description><![CDATA[<p>You don&#8217;t look a gift horse in the mouth, the old saying goes, but if you were hoping <a href="http://www.slashgear.com/iphone-4-case-program-launches-bumper-belkin-griffin-incase-speck-cases-up-for-grabs-2395172/" target="_blank">Apple&#8217;s offer of a free case</a> would fix your iPhone 4 antenna problems sooner rather than later, you might have to think again.  SlashGear reader Freddy has sent in his order confirmation &#8211; he picked an Incase Snap &#8211; and it shows that the free case isn&#8217;t expected to be delivered until September 1st 2010.</p>
+<p><img class="alignnone size-medium wp-image-95189" title="free_iphone_4_case_ship_date" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/free_iphone_4_case_ship_date-540x288.jpg" alt="free iphone 4 case ship date 540x288" width="540" height="288" /></p>
+<p></p>
+<p>Now, Apple did warn that deliveries could take anything from three to five weeks, but this is still on the long side of things.  While we can only imagine that supplies of cases will be dwindling fast, considering how many iPhone 4 buyers there are out there, for the delay to be this long only a few hours after the case program started doesn&#8217;t bode well.  Our advice would be to get your order in sooner rather than later; let us know what your estimated ship date is in the comments.</p>
+<p>[Thanks Freddy!]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/consumer-reports-free-iphone-bumper-isnt-good-enough-1794256/" rel="bookmark" title="Permanent Link: Consumer Reports: free iPhone Bumper isn&#8217;t good enough">Consumer Reports: free iPhone Bumper isn&#8217;t good enough</a></strong></li><li><strong><a href="http://www.slashgear.com/fabrix-cases-fit-new-and-old-iphones-2612277/" rel="bookmark" title="Permanent Link: Fabrix Cases fit new and old iPhones">Fabrix Cases fit new and old iPhones</a></strong></li><li><strong><a href="http://www.slashgear.com/the-color-series-for-iphone-3g-owners-1812698/" rel="bookmark" title="Permanent Link: The Color Series for iPhone 3G owners">The Color Series for iPhone 3G owners</a></strong></li><li><strong><a href="http://www.slashgear.com/wildcharge-add-iphone-3gs-inductive-charging-3150859/" rel="bookmark" title="Permanent Link: WildCharge add iPhone 3GS wireless charging">WildCharge add iPhone 3GS wireless charging</a></strong></li><li><strong><a href="http://www.slashgear.com/iphone-4-case-program-launches-bumper-belkin-griffin-incase-speck-cases-up-for-grabs-2395172/" rel="bookmark" title="Permanent Link: iPhone 4 Case Program launches: Bumper, Belkin, Griffin, Incase &#038; Speck cases up for grabs">iPhone 4 Case Program launches: Bumper, Belkin, Griffin, Incase &#038; Speck cases up for grabs</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/free-iphone-4-cases-not-due-until-september-1st-2395188/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+		<item>
+		<title>Lenovo IdeaPad Y560d 3D notebook on sale now</title>
+		<link>http://www.slashgear.com/lenovo-ideapad-y560d-3d-notebook-on-sale-now-2395184/</link>
+		<comments>http://www.slashgear.com/lenovo-ideapad-y560d-3d-notebook-on-sale-now-2395184/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 15:18:41 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[3D]]></category>
+		<category><![CDATA[ATI]]></category>
+		<category><![CDATA[Core i7]]></category>
+		<category><![CDATA[IdeaPad]]></category>
+		<category><![CDATA[Intel]]></category>
+		<category><![CDATA[Laptops]]></category>
+		<category><![CDATA[Lenovo]]></category>
+		<category><![CDATA[notebook]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95184</guid>
+		<description><![CDATA[<p>Lenovo&#8217;s 3D-capable notebook, <a href="http://www.slashgear.com/lenovo-ideapad-y560d-3d-capable-notebook-revealed-1790274/" target="_blank">the IdeaPad Y560d</a>, has <a href="http://shop.lenovo.com/SEUILibrary/controller/e/web/LenovoPortal/en_US/catalog.workflow:category.details?current-catalog-id=12F0696583E04D86B9B79B0FEC01C087&amp;current-category-id=1A0E6C1F785A4AD8AF8DC04EE2FE8A91" target="_blank">gone up for sale</a> through the company&#8217;s webstore.  Priced at $1,399 &#8211; $200 more than initially expected, and a month late in fact &#8211; the Y560d has a 15.6-inch 1,366 x 768 LCD display, Intel Core i7-720QM 1.6GHz processor and ATI Mobility Radeon HD 5730 1GB graphics, and uses the <a href="http://www.tridef.com/home.html" target="_blank">TriDef 3D system</a>.</p>
+<p><img class="alignnone size-medium wp-image-95186" title="Y560d" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/Y560d-540x388.jpg" alt="Y560d 540x388" width="540" height="388" /></p>
+<p></p>
+<p>The preloaded software means that you can convert 2D photos and videos into 3D versions, and of course there&#8217;s 3D gaming too.  Other specs include 4GB of DDR3 memory, a 500GB 5,400rpm hard-drive, DVD burner and WiFi b/g/n, along with Bluetooth 2.1+EDR and a copy of Windows 7 Home Premium.</p>
+<p>Graphics are switchable between the discrete ATI GPU and the integrated Intel HD chipset, and Lenovo reckon you&#8217;ll see roughly 4hrs battery life on the former and up to 5hrs on the latter.  Ports include a USB/eSATA combo, three regular USB ports, ExpressCard and both VGA and HDMI outputs.  The Lenovo IdeaPad Y560d ships within five days.</p>
+
+<p>[<a href="http://twitter.com/lenovopress/statuses/19345975900" target="_blank">via</a> Twitter]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/lenovo-ideapad-s10-to-get-89-inch-sibling-0613474/" rel="bookmark" title="Permanent Link: Lenovo IdeaPad S10 to get 8.9-inch sibling">Lenovo IdeaPad S10 to get 8.9-inch sibling</a></strong></li><li><strong><a href="http://www.slashgear.com/lenovo-ideapad-y560d-3d-capable-notebook-revealed-1790274/" rel="bookmark" title="Permanent Link: Lenovo IdeaPad Y560d 3D-capable notebook revealed">Lenovo IdeaPad Y560d 3D-capable notebook revealed</a></strong></li><li><strong><a href="http://www.slashgear.com/ideapad-u1-hybrid-coming-soon-reiterates-lenovo-1381415/" rel="bookmark" title="Permanent Link: IdeaPad U1 Hybrid &#8220;coming soon&#8221; reiterates Lenovo">IdeaPad U1 Hybrid &#8220;coming soon&#8221; reiterates Lenovo</a></strong></li><li><strong><a href="http://www.slashgear.com/lenovo-ideapad-u8-mid-goes-on-sale-in-china-1216100/" rel="bookmark" title="Permanent Link: Lenovo IdeaPad U8 MID goes on sale in China">Lenovo IdeaPad U8 MID goes on sale in China</a></strong></li><li><strong><a href="http://www.slashgear.com/lenovo-ideapad-y550-details-revealed-2338603/" rel="bookmark" title="Permanent Link: Lenovo IdeaPad Y550 details revealed">Lenovo IdeaPad Y550 details revealed</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/lenovo-ideapad-y560d-3d-notebook-on-sale-now-2395184/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>inPulse smartwatch one step closer to release</title>
+		<link>http://www.slashgear.com/inpulse-smartwatch-one-step-closer-to-release-2395180/</link>
+		<comments>http://www.slashgear.com/inpulse-smartwatch-one-step-closer-to-release-2395180/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 15:08:54 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Accessories]]></category>
+		<category><![CDATA[Blackberry]]></category>
+		<category><![CDATA[Bluetooth]]></category>
+		<category><![CDATA[peripherals]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95180</guid>
+		<description><![CDATA[<p>It&#8217;s taking a while, but the <a href="http://www.slashgear.com/search/inpulse+smartwatch" target="_blank">inPulse smartwatch</a> for BlackBerry handsets is one step closer to commercial launch, with the news that the components have now turned up <a href="http://inpulse.tumblr.com/post/849749613/lots-of-boxes-have-arrived-now-comes-final" target="_blank">ready for assembly</a>.  The smartwatch basically hooks up to your BlackBerry via Bluetooth and acts as a remote wireless display: you can preview the ID of incoming calls, see message headers and manage alarms without having to take your phone out of your pocket.</p>
+<p><img class="alignnone size-full wp-image-95182" title="inPulse smartwatch boxes" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/inPulse-smartwatch-boxes.jpg" alt="inPulse smartwatch boxes" width="508" height="382" /></p>
+<p></p>
+<p>First spotted <a href="http://www.slashgear.com/inpulse-blackberry-bluetooth-smartwatch-breaks-cover-2061018/" target="_blank">in October last year</a>, the smartwatch isn&#8217;t intended to be a complete replacement for your phone, just a way of better managing your time with it.  You can&#8217;t actually make Dick Tracy style voice calls on it, either, though whether people would actually do that is another question.</p>
+<p>inPulse aren&#8217;t saying when they expect the smartwatch to go on sale &#8211; they don&#8217;t want to promise a date and then let people down, having already missed the previous <a href="http://www.slashgear.com/inpulse-blackberry-bluetooth-watch-up-for-preorder-wont-ship-until-feb-2010-2661820/" target="_blank">February 2010 estimate</a> &#8211; but you can still preorder the watch <a href="http://www.getinpulse.com/" target="_blank">here</a>.  It&#8217;s priced at $149.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/inpulse-blackberry-bluetooth-smartwatch-breaks-cover-2061018/" rel="bookmark" title="Permanent Link: inPulse BlackBerry Bluetooth smartwatch breaks cover">inPulse BlackBerry Bluetooth smartwatch breaks cover</a></strong></li><li><strong><a href="http://www.slashgear.com/allerta-inpulse-blackberry-watch-shows-up-again-2783363/" rel="bookmark" title="Permanent Link: Allerta inPulse BlackBerry Watch Shows Up Again">Allerta inPulse BlackBerry Watch Shows Up Again</a></strong></li><li><strong><a href="http://www.slashgear.com/inpulse-blackberry-bluetooth-watch-up-for-preorder-wont-ship-until-feb-2010-2661820/" rel="bookmark" title="Permanent Link: inPulse BlackBerry Bluetooth watch up for preorder; won&#8217;t ship until Feb 2010">inPulse BlackBerry Bluetooth watch up for preorder; won&#8217;t ship until Feb 2010</a></strong></li><li><strong><a href="http://www.slashgear.com/inpulse-blackberry-bluetooth-watch-gets-pictured-shipping-imminently-0680509/" rel="bookmark" title="Permanent Link: InPulse BlackBerry Bluetooth watch gets pictured; shipping imminently">InPulse BlackBerry Bluetooth watch gets pictured; shipping imminently</a></strong></li><li><strong><a href="http://www.slashgear.com/neoview-kolon-t-oled-display-makes-a-great-heads-up-display-1681981/" rel="bookmark" title="Permanent Link: NeoView KOLON T-OLED Display Makes a Great Heads-Up Display">NeoView KOLON T-OLED Display Makes a Great Heads-Up Display</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/inpulse-smartwatch-one-step-closer-to-release-2395180/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>iOS4 Bluetooth problems reported: patchy connections &amp; shoddy audio?</title>
+		<link>http://www.slashgear.com/ios4-bluetooth-problems-reported-patchy-connections-shoddy-audio-2395177/</link>
+		<comments>http://www.slashgear.com/ios4-bluetooth-problems-reported-patchy-connections-shoddy-audio-2395177/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 13:56:33 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[Bluetooth]]></category>
+		<category><![CDATA[iOS]]></category>
+		<category><![CDATA[iOS4]]></category>
+		<category><![CDATA[iPhone 3GS]]></category>
+		<category><![CDATA[iPhone 4]]></category>
+		<category><![CDATA[Wireless]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95177</guid>
+		<description><![CDATA[<p>How&#8217;s your Bluetooth?  We didn&#8217;t notice any issues with the Bluetooth performance when <a href="http://www.slashgear.com/iphone-4-review-2991634/" target="_blank">we reviewed the iPhone 4</a>, but it looks like others haven&#8217;t been so lucky.  Multiple complaints (see <a href="http://discussions.apple.com/thread.jspa?threadID=2472766&amp;tstart=0" target="_blank">here</a>, <a href="http://discussions.apple.com/thread.jspa?threadID=2205843&amp;tstart=0" target="_blank">here</a>, <a href="http://discussions.apple.com/thread.jspa?threadID=2471357&amp;tstart=0" target="_blank">here</a> and <a href="http://discussions.apple.com/thread.jspa?threadID=2472430&amp;tstart=0" target="_blank">here</a>) have sprung up in the Apple support forums since the release of <a href="http://www.slashgear.com/tags/ios4" target="_blank">iOS4</a>, either for upgraded iPhone 3GS handsets or iPhone 4 units with the latest OS preloaded, with owners describing sporadic connections, an inability to play music wirelessly and poor audio quality during calls.</p>
+<p><img class="alignnone size-medium wp-image-95178" title="iphone_4_2" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/iphone_4_2-540x307.jpg" alt="iphone 4 2 540x307" width="540" height="307" /></p>
+<p></p>
+<p>The issues have arisen with a broad range of third-party devices, including factory-fit ICE systems, aftermarket stereos and headsets from brands including Jawbone and Motorola.  AppleCare is apparently refusing to acknowledge the problem and, since there&#8217;s no official method to downgrade an iPhone 3GS to iOS3.x once it has been updated to iOS4, owners are left with no fix in sight.  As we say, we&#8217;ve not seen the issue ourselves; if you&#8217;re having problems with your iOS4 device&#8217;s Bluetooth, let us know in the comments.</p>
+<p>[<a href="http://www.appleinsider.com/articles/10/07/22/users_report_bluetooth_connectivity_quality_issues_with_ios_4.html" target="_blank">via</a> Apple Insider]</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/half-baked-pandigital-novel-gets-recalled-0989166/" rel="bookmark" title="Permanent Link: Half-baked Pandigital Novel gets recalled [Updated]">Half-baked Pandigital Novel gets recalled [Updated]</a></strong></li><li><strong><a href="http://www.slashgear.com/ios4-for-iphone-3g-and-ipod-touch-gets-redsn0w-hack-2290901/" rel="bookmark" title="Permanent Link: iOS4 for iPhone 3G and iPod touch gets redsn0w hack">iOS4 for iPhone 3G and iPod touch gets redsn0w hack</a></strong></li><li><strong><a href="http://www.slashgear.com/apple-ios4-released-for-iphone-3gs-and-3g-2190793/" rel="bookmark" title="Permanent Link: Apple iOS4 released for iPhone 3GS and 3G">Apple iOS4 released for iPhone 3GS and 3G</a></strong></li><li><strong><a href="http://www.slashgear.com/ios4-iphone-3gs-works-with-ipad-keyboard-dock-video-2290908/" rel="bookmark" title="Permanent Link: iOS4 iPhone 3GS works with iPad Keyboard Dock [Video]">iOS4 iPhone 3GS works with iPad Keyboard Dock [Video]</a></strong></li><li><strong><a href="http://www.slashgear.com/april-21st-bluetooth-30-announcement-confirmed-0940813/" rel="bookmark" title="Permanent Link: April 21st Bluetooth 3.0 announcement confirmed">April 21st Bluetooth 3.0 announcement confirmed</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/ios4-bluetooth-problems-reported-patchy-connections-shoddy-audio-2395177/feed/</wfw:commentRss>
+		<slash:comments>5</slash:comments>
+		</item>
+		<item>
+		<title>iPhone 4 Case Program launches: Bumper, Belkin, Griffin, Incase &amp; Speck cases up for grabs</title>
+		<link>http://www.slashgear.com/iphone-4-case-program-launches-bumper-belkin-griffin-incase-speck-cases-up-for-grabs-2395172/</link>
+		<comments>http://www.slashgear.com/iphone-4-case-program-launches-bumper-belkin-griffin-incase-speck-cases-up-for-grabs-2395172/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 13:16:56 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[App Store]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[Belkin]]></category>
+		<category><![CDATA[cases]]></category>
+		<category><![CDATA[Griffin]]></category>
+		<category><![CDATA[iPhone 4]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[smartphones]]></category>
+		<category><![CDATA[Speck]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95172</guid>
+		<description><![CDATA[<p>The white iPhone 4 may <a href="http://www.slashgear.com/white-iphone-4-now-not-due-until-later-this-year-2395161/" target="_blank">not be available until later in 2010</a>, but what Apple can give you now is a free case for your black handset.  As <a href="http://www.slashgear.com/apple-antenna-problem-is-real-offers-free-cases-1694202/" target="_blank">promised last week</a>, the Cupertino company has kicked off its <a href="http://www.apple.com/iphone/case-program/" target="_blank">iPhone 4 Case Program</a>: a new app for the smartphone allows owners to pick either an Apple Bumper or a third-party case at no charge.</p>
+<p><img class="alignnone size-medium wp-image-95173" title="apple_iphone_4_case_program" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/apple_iphone_4_case_program-540x310.jpg" alt="apple iphone 4 case program 540x310" width="540" height="310" /></p>
+<p></p>
+<p>The app follows word earlier today that Apple had <a href="http://www.slashgear.com/apple-bumper-refunds-start-2395086/" target="_blank">begun refunding those</a> who bought a Bumper through the official Apple Store online, with money automatically being returned to the payment method initially used (and including shipping and taxes).  However that does mean that those iPhone 4 owners won&#8217;t be able to choose a second case under Apple&#8217;s scheme, only get a refund for the Bumper they&#8217;ve already bought.</p>
+<p>Right now there are only black cases available, and aside from the official Bumper you can take your pick from the Belkin Shield Micra, Griffin Motif, Griffin Reveal, Incase Snap Case, Speck Fitted and Speck PixelSkin HD.  Expected delivery time is three to five weeks, and the app checks your handset&#8217;s IMEI number so that you can&#8217;t get more than one.</p>
+<p>In order to qualify, you need to have bought your iPhone 4 before September 30th (obviously that&#8217;s not a problem right now); however, if you bought it prior to July 23rd 2010 you need to apply for your free case no later than August 22nd.  Everyone else has 30 days from the point of purchase to apply.  You can download the app <a href="http://www.itunes.com/iphone4_case_program" target="_blank">here</a> [iTunes link].</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/free-iphone-4-cases-not-due-until-september-1st-2395188/" rel="bookmark" title="Permanent Link: Free iPhone 4 cases not due until September 1st">Free iPhone 4 cases not due until September 1st</a></strong></li><li><strong><a href="http://www.slashgear.com/free-iphone-4-case-round-up-2395192/" rel="bookmark" title="Permanent Link: Free iPhone 4 case round-up">Free iPhone 4 case round-up</a></strong></li><li><strong><a href="http://www.slashgear.com/belkin-unveils-massive-iphone-4-accessory-line-0888966/" rel="bookmark" title="Permanent Link: Belkin unveils massive iPhone 4 accessory line">Belkin unveils massive iPhone 4 accessory line</a></strong></li><li><strong><a href="http://www.slashgear.com/griffin-reflects-on-high-fashion-in-ipod-cases-203998/" rel="bookmark" title="Permanent Link: Griffin Reflects on high-fashion in iPod cases">Griffin Reflects on high-fashion in iPod cases</a></strong></li><li><strong><a href="http://www.slashgear.com/quirky-unveils-tilt-iphone-4-case-1694108/" rel="bookmark" title="Permanent Link: Quirky unveils Tilt iPhone 4 case">Quirky unveils Tilt iPhone 4 case</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/iphone-4-case-program-launches-bumper-belkin-griffin-incase-speck-cases-up-for-grabs-2395172/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+		<item>
+		<title>FrontFace turns Windows UI tablet-centric for happier fingers</title>
+		<link>http://www.slashgear.com/frontface-turns-windows-ui-tablet-centric-for-happier-fingers-2395164/</link>
+		<comments>http://www.slashgear.com/frontface-turns-windows-ui-tablet-centric-for-happier-fingers-2395164/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 13:08:50 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[software]]></category>
+		<category><![CDATA[tablet]]></category>
+		<category><![CDATA[touchscreen]]></category>
+		<category><![CDATA[Windows 7]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95164</guid>
+		<description><![CDATA[<p>Microsoft has done its best (arguably) to make Windows more finger-friendly in its various iterations, but the OS still falls short of dedicated tablet-centric platforms when it comes to keyboard and mouse free use.  That leaves a niche for developers to step in with their own wares, and Mirabyte has done just that.  Their app, <a href="http://frontface.mirabyte.com/" target="_blank">FrontFace</a>, slaps a custom UI on top of &#8211; or co-existing with &#8211; the regular Windows 7 desktop, including a browser, app launcher and social networking integration.</p>
+<p><img class="alignnone size-medium wp-image-95165" title="frontface_1" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/frontface_1-540x316.png" alt="frontface 1 540x316" width="540" height="316" /></p>
+<p></p>
+<p>Out of the box there&#8217;ll be JavaScript, Flash and Silverlight support, and FrontFace can take webapps and integrate them with its own UI rather than leaving them running in separate windows.  There&#8217;s also a notification center, which pulls together new emails, tweets, podcasts and RSS feeds, and a download store in the works that will offer a greater selection of apps.  Mirabyte have borrowed the <a href="http://www.slashgear.com/windows-phone-7-technical-preview-1994365/" target="_blank">Windows Phone 7 &#8220;toasts&#8221;</a> notification system, too, with pop-up alerts discretely sliding down at the top of the display.</p>
+<p>Considering Windows&#8217; usability on touchscreen devices is one of the most common criticisms of the OS, we&#8217;re mildly hopeful about what Mirabyte are putting together.  They&#8217;ll face competition from dedicated platforms like <a href="http://www.slashgear.com/tags/meego" target="_blank">MeeGo</a>, but the benefit of using Windows is the wealth of software already available for the platform.  On the flip side, the deciding factor may be just how deep the interface goes: if you end up dropping out into bare Windows after going a few levels down, it may not be enough.  FrontFace isn&#8217;t available to download yet, but the first public beta is expected to launch in a few weeks time.</p>
+
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/c-motech-mangrove-7-inch-winmo-snapdragon-tablet-debuts-2958383/" rel="bookmark" title="Permanent Link: C-motech Mangrove 7-inch WinMo Snapdragon tablet debuts">C-motech Mangrove 7-inch WinMo Snapdragon tablet debuts</a></strong></li><li><strong><a href="http://www.slashgear.com/cypress-semi-shows-off-14-inchtruetouch-touchscreen-with-unlimited-finger-tracking-2972013/" rel="bookmark" title="Permanent Link: Cypress Semi shows off 14-inchTrueTouch touchscreen with unlimited finger tracking">Cypress Semi shows off 14-inchTrueTouch touchscreen with unlimited finger tracking</a></strong></li><li><strong><a href="http://www.slashgear.com/joojoo-gets-windows-7-install-video-1489701/" rel="bookmark" title="Permanent Link: JooJoo gets Windows 7 install [Video]">JooJoo gets Windows 7 install [Video]</a></strong></li><li><strong><a href="http://www.slashgear.com/thinkpad-x60-tablet-pc-reviewed-opinion-great-152490/" rel="bookmark" title="Permanent Link: ThinkPad X60 Tablet PC reviewed, opinion: great!">ThinkPad X60 Tablet PC reviewed, opinion: great!</a></strong></li><li><strong><a href="http://www.slashgear.com/windows-vista-pen-computing-in-action-272221/" rel="bookmark" title="Permanent Link: Windows Vista Pen Computing in action">Windows Vista Pen Computing in action</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/frontface-turns-windows-ui-tablet-centric-for-happier-fingers-2395164/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+		<item>
+		<title>White iPhone 4 now not due until &#8220;later this year&#8221;</title>
+		<link>http://www.slashgear.com/white-iphone-4-now-not-due-until-later-this-year-2395161/</link>
+		<comments>http://www.slashgear.com/white-iphone-4-now-not-due-until-later-this-year-2395161/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 12:47:43 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[iPhone 4]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[smartphones]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95161</guid>
+		<description><![CDATA[<p>Having promised last week that the white iPhone 4 <a href="http://www.slashgear.com/iphone-4-in-white-launching-at-the-end-of-july-1694229/" target="_blank">would launch at the end of this month</a>, Apple are having to take the embarrassing step of admitting it now won&#8217;t be shipping the handset until &#8220;later this year&#8221;.  In a brief statement issued today, <a href="http://www.apple.com/" target="_blank">Apple</a> said that the white iPhone 4 is &#8220;more challenging to manufacturer than we originally expected,&#8221; though failed to explain exactly what the problems are.</p>
+<p><img class="alignnone size-medium wp-image-95162" title="white_iphone_4_1" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/white_iphone_4_1-540x320.jpg" alt="white iphone 4 1 540x320" width="540" height="320" /></p>
+<p><em>Full statement after the cut</em></p>
+<p></p>
+<blockquote><p>&#8220;White models of Apple&#8217;s new iPhone 4 have continued to be more challenging to manufacture than we originally expected, and as a result they will not be available until later this year. The availability of the more popular iPhone 4 black models is not affected.&#8221; Apple</p></blockquote>
+<p>The news comes shortly after Apple <a href="http://www.slashgear.com/apple-reports-third-quarter-results-2094799/" target="_blank">reported huge sales</a> for the most recent financial quarter, and AT&amp;T announced they had activated <a href="http://www.slashgear.com/at-apple-to-blitz-ipadiphone-4-waiting-lists-this-weekend-2295015/" target="_blank">ten times as many iPhones</a> in the three month period as they did following the iPhone 3GS launch in 2009.  That&#8217;s despite ongoing criticism regarding the iPhone 4&#8242;s antenna, which has seen Apple promise <a href="http://www.slashgear.com/apple-bumper-refunds-start-2395086/" target="_blank">free cases</a> to each buyer.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/white-iphone-4-delayed-until-late-july-2010-2391251/" rel="bookmark" title="Permanent Link: White iPhone 4 delayed until late July 2010">White iPhone 4 delayed until late July 2010</a></strong></li><li><strong><a href="http://www.slashgear.com/apple-iphone-hd-could-come-in-white-offer-simultaneous-voice-data-with-verizon-1986183/" rel="bookmark" title="Permanent Link: Apple iPhone HD Could Come in White; Offer Simultaneous Voice &amp; Data with Verizon">Apple iPhone HD Could Come in White; Offer Simultaneous Voice &amp; Data with Verizon</a></strong></li><li><strong><a href="http://www.slashgear.com/iphone-4-in-white-launching-at-the-end-of-july-1694229/" rel="bookmark" title="Permanent Link: iPhone 4 in White Launching at the End of July">iPhone 4 in White Launching at the End of July</a></strong></li><li><strong><a href="http://www.slashgear.com/apple-iphone-hd-in-white-makes-another-appearance-0288039/" rel="bookmark" title="Permanent Link: Apple iPhone HD in White Makes Another Appearance">Apple iPhone HD in White Makes Another Appearance</a></strong></li><li><strong><a href="http://www.slashgear.com/wwdc-2008-%e2%80%93-3g-iphone-priced-at-199-0911967/" rel="bookmark" title="Permanent Link: WWDC 2008 – 3G iPhone priced at $199">WWDC 2008 – 3G iPhone priced at $199</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/white-iphone-4-now-not-due-until-later-this-year-2395161/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+		<item>
+		<title>Microsoft license ARM chip tech</title>
+		<link>http://www.slashgear.com/microsoft-license-arm-chip-tech-2395154/</link>
+		<comments>http://www.slashgear.com/microsoft-license-arm-chip-tech-2395154/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 12:29:50 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[ARM]]></category>
+		<category><![CDATA[CPU]]></category>
+		<category><![CDATA[Microsoft]]></category>
+		<category><![CDATA[news]]></category>
+		<category><![CDATA[processors]]></category>
+		<category><![CDATA[Windows 7 Embedded]]></category>
+		<category><![CDATA[Windows Phone 7]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95154</guid>
+		<description><![CDATA[<p><img class="size-full wp-image-95158 alignright" title="arm_cortex" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/arm_cortex.jpg" alt="arm cortex" width="168" height="165" />Chipset designer ARM <a href="http://www.arm.com/about/newsroom/microsoft-licenses-arm-architecture.php" target="_blank">has announced</a> that Microsoft is licensing its architecture, signifying a greater interest on the part of the software giant into the processors that power its <a href="http://www.slashgear.com/tags/windows-phone-7" target="_blank">Windows Phone 7</a> smartphone platform.  While no details as to the financial terms of the deal have been made public, according to Microsoft general manager KD Hallman, &#8221;with closer access to the ARM technology we will be able to enhance our research and development activities for ARM-based products.&#8221;</p>
+<p></p>
+<p>That not only encompasses Windows Phone 7 but some devices running <a href="http://www.slashgear.com/tags/windows-7-embedded/" target="_blank">Windows 7 Embedded</a> as well; the latter OS is being positioned as ideally suited to tablets and smartbook-style products, though recently Microsoft has seen brands like <a href="http://www.slashgear.com/asus-eee-pad-ep101tc-ditches-windows-flips-to-android-3-0-2094725/" target="_blank">ASUS abscond to platforms like Android</a>.  Microsoft and ARM have apparently been working closely since 1997, but this new agreement could allow Microsoft to produce their own ARM-based CPU similar to how Apple has struck out on its own with the Apple A4 that powers the iPad and iPhone 4.</p>
+<p><strong>Press Release:</strong></p>
+<blockquote><p><strong>Microsoft Licenses ARM Architecture<br />
+</strong> 23 July 2010</p>
+<p>ARM and Microsoft continue relationship with closer access to ARM IP<br />
+CAMBRIDGE, UK – July 23, 2010 – ARM and Microsoft Corp. today announced that they have signed a new licensing agreement for the ARM® architecture. The agreement extends the collaborative relationship between the two companies. Since 1997 Microsoft and ARM have worked together on software and devices across the embedded, consumer and mobile spaces, enabling many companies to deliver user experiences on a broad portfolio of ARM-based products.</p>
+<p>“Microsoft is an important member of the ARM ecosystem, and has been for many years,” said Mike Muller, CTO ARM. “With this architecture license, Microsoft will be at the forefront of applying and working with ARM technology in concert with a broad range of businesses addressing multiple application areas.”</p>
+<p>“ARM is an important partner for Microsoft and we deliver multiple operating systems on the company’s architecture, most notably Windows Embedded and Windows Phone,” said KD Hallman, general manager, Microsoft. “With closer access to the ARM technology we will be able to enhance our research and development activities for ARM-based products.”</p>
+<p>ARM licenses processor IP under a flexible licensing model, enabling highly integrated solutions for a variety of applications ranging from mobile devices to home electronics and industrial products. ARM customers can license the ARM architecture or specific processor implementations.</p>
+<p>Details of the agreement will remain confidential.</p>
+<p>About Microsoft<br />
+Founded in 1975, Microsoft (Nasdaq “MSFT”) is the worldwide leader in software, services and solutions that help people and businesses realize their full potential.</p>
+<p>About ARM<br />
+ARM designs the technology that lies at the heart of advanced digital products, from wireless, networking and consumer entertainment solutions to imaging, automotive, security and storage devices. ARM&#8217;s comprehensive product offering includes 32-bit RISC microprocessors, graphics processors, video engines, enabling software, cell libraries, embedded memories, high-speed connectivity products, peripherals and development tools. Combined with comprehensive design services, training, support and maintenance, and the company&#8217;s broad Partner community, they provide a total system solution that offers a fast, reliable path to market for leading electronics companies. Find out more about ARM by following these links:</p></blockquote>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/microsoft-explorer-mouse-and-mini-mouse-to-feature-bluetrack-tech-0915645/" rel="bookmark" title="Permanent Link: Microsoft Explorer Mouse and Mini Mouse to feature BlueTrack tech">Microsoft Explorer Mouse and Mini Mouse to feature BlueTrack tech</a></strong></li><li><strong><a href="http://www.slashgear.com/make-your-license-plate-unreadable-24787/" rel="bookmark" title="Permanent Link: Make Your License Plate Unreadable">Make Your License Plate Unreadable</a></strong></li><li><strong><a href="http://www.slashgear.com/microsoft-annouces-vista-release-dates-changes-licensing-terms-032315/" rel="bookmark" title="Permanent Link: Microsoft Annouces Vista Release Dates, Changes Licensing Terms">Microsoft Annouces Vista Release Dates, Changes Licensing Terms</a></strong></li><li><strong><a href="http://www.slashgear.com/slashgear-to-attend-the-amdmicrosoft-tech-tour-205351/" rel="bookmark" title="Permanent Link: Slashgear to attend the AMD/Microsoft Tech Tour">Slashgear to attend the AMD/Microsoft Tech Tour</a></strong></li><li><strong><a href="http://www.slashgear.com/amd-call-intels-bluff-on-x86-license-threat-1844065/" rel="bookmark" title="Permanent Link: AMD call Intel&#8217;s bluff on x86 license threat">AMD call Intel&#8217;s bluff on x86 license threat</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/microsoft-license-arm-chip-tech-2395154/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Umbrella dryer concept does just what you think</title>
+		<link>http://www.slashgear.com/umbrella-dryer-concept-does-just-what-you-think-2395155/</link>
+		<comments>http://www.slashgear.com/umbrella-dryer-concept-does-just-what-you-think-2395155/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 11:52:55 +0000</pubDate>
+		<dc:creator>Shane McGlaun</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[concepts]]></category>
+		<category><![CDATA[dryer]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95155</guid>
+		<description><![CDATA[<p>We all get caught out in the rain on occasion and have to break out the umbrella. I know at my house when the umbrella is all wet we leave them on the front porch. The downside is that with the thunderstorms here in Texas often packing high winds I frequently have to trek through the field next door searching for the umbrella when it blows away.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/umbrelladryer-sg-351x500.jpg" alt="umbrelladryer sg 351x500" width="351" height="500" class="aligncenter size-medium wp-image-95156" title="Umbrella dryer concept does just what you think" /></p>
+<p></p>
+<p>A new concept called the <a href="http://www.yankodesign.com/2010/07/22/umbrella-dryer/">Swan umbrella dryer</a> is one of those things I wonder why we haven&#8217;t seen before. It has a tube that sort of looks like a urinal for the space station. You close your umbrella and then slip it into the Swan where it dries.</p>
+<p>The device also stores all that water in a container below that you can empty when needed. This is an interesting concept and would be welcome in wet areas. Check out the vide below of the dryer in action.</p>
+
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/bluetooth-umbrella-concept-with-touchscreen-hands-free-radio-0912471/" rel="bookmark" title="Permanent Link: Bluetooth Umbrella concept with touchscreen hands-free &#038; radio">Bluetooth Umbrella concept with touchscreen hands-free &#038; radio</a></strong></li><li><strong><a href="http://www.slashgear.com/the-umbrella-fan-keeps-you-cool-in-the-summer-heat-176264/" rel="bookmark" title="Permanent Link: The Umbrella Fan keeps you cool in the summer heat">The Umbrella Fan keeps you cool in the summer heat</a></strong></li><li><strong><a href="http://www.slashgear.com/the-force-is-strong-with-this-umbrella-094684/" rel="bookmark" title="Permanent Link: The Force is strong with this umbrella">The Force is strong with this umbrella</a></strong></li><li><strong><a href="http://www.slashgear.com/twilight-umbrellas-keep-you-dry-brighten-up-the-night-1319087/" rel="bookmark" title="Permanent Link: Twilight Umbrellas keep you dry; brighten up the night">Twilight Umbrellas keep you dry; brighten up the night</a></strong></li><li><strong><a href="http://www.slashgear.com/umbrella-dap-stops-you-from-getting-wet-plays-wet-wet-wet-073416/" rel="bookmark" title="Permanent Link: Umbrella DAP stops you from getting wet, plays Wet Wet Wet">Umbrella DAP stops you from getting wet, plays Wet Wet Wet</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/umbrella-dryer-concept-does-just-what-you-think-2395155/feed/</wfw:commentRss>
+		<slash:comments>2</slash:comments>
+		</item>
+		<item>
+		<title>Android fans can get collectible Android figures</title>
+		<link>http://www.slashgear.com/android-fans-can-get-collectible-android-figures-2395144/</link>
+		<comments>http://www.slashgear.com/android-fans-can-get-collectible-android-figures-2395144/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 11:37:13 +0000</pubDate>
+		<dc:creator>Shane McGlaun</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Android]]></category>
+		<category><![CDATA[Collectibles]]></category>
+		<category><![CDATA[google]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95144</guid>
+		<description><![CDATA[<p>If you are a big fan of the Android OS and like the little green robot figure that serves as the logo, you can get your own Android figure. A company called <a href="http://www.deadzebra.com/dyzplastic/project-android_s1.php">Dyzplastic</a> has teamed with Google to produce an official and approved line of Android Mini Collectibles Series 01 figures.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/androidcollect-sg.jpg" alt="androidcollect sg" width="500" height="375" class="aligncenter size-full wp-image-95145" title="Android fans can get collectible Android figures" /></p>
+<p></p>
+<p>The figures will be sold individually or by the case and you never know what you are going to get. The Android figures are packed in a blind box and come in plain green and several other paint schemes. A case has 16 of the figures in it. Each figure is three inches tall.</p>
+<p>The sets are sold out right now, but more are coming. A complete case sells for $112 and individual figures are $7.25. The plain green Android will be three out of each case with other designs being rarer. Some like the Albino design will be only one out of a case and there are some designs that aren’t found in each case.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/android-market-sees-app-submission-spike-in-march-2010-0880898/" rel="bookmark" title="Permanent Link: Android Market sees app submission spike in March 2010">Android Market sees app submission spike in March 2010</a></strong></li><li><strong><a href="http://www.slashgear.com/google-release-android-2-2-froyo-sdk-for-devs-2086468/" rel="bookmark" title="Permanent Link: Google release Android 2.2 Froyo SDK for devs">Google release Android 2.2 Froyo SDK for devs</a></strong></li><li><strong><a href="http://www.slashgear.com/android-espresso-machine-is-just-plain-weird-1089286/" rel="bookmark" title="Permanent Link: Android espresso machine is just plain weird">Android espresso machine is just plain weird</a></strong></li><li><strong><a href="http://www.slashgear.com/teclast-t58-android-powered-pmp-spotted-2357859/" rel="bookmark" title="Permanent Link: Teclast T58 Android-powered PMP spotted">Teclast T58 Android-powered PMP spotted</a></strong></li><li><strong><a href="http://www.slashgear.com/meego-punches-android-in-the-spleen-wins-javascript-test-0893324/" rel="bookmark" title="Permanent Link: MeeGo punches Android in the spleen, wins Javascript test">MeeGo punches Android in the spleen, wins Javascript test</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/android-fans-can-get-collectible-android-figures-2395144/feed/</wfw:commentRss>
+		<slash:comments>3</slash:comments>
+		</item>
+		<item>
+		<title>Standivarius Aero laptop stand is thin and very lightweight</title>
+		<link>http://www.slashgear.com/standivarius-aero-laptop-stand-is-thin-and-very-lightweight-2395140/</link>
+		<comments>http://www.slashgear.com/standivarius-aero-laptop-stand-is-thin-and-very-lightweight-2395140/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 11:26:23 +0000</pubDate>
+		<dc:creator>Shane McGlaun</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Laptop Stand]]></category>
+		<category><![CDATA[notebook accessory]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95140</guid>
+		<description><![CDATA[<p><a href="http://www.standivarius.com/shop/2-aero-attachable-laptop-stand.html">Standivarius</a> has a new laptop stand that is crazy thin and light making it very portable. The stand is called the Aero, weighs only 135g, and is 2.5mm thick when folded. The thin stand promises to be set up and ready to sue in two seconds.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/stanivarius-sg.jpg" alt="stanivarius sg" width="500" height="185" class="aligncenter size-full wp-image-95141" title="Standivarius Aero laptop stand is thin and very lightweight" /></p>
+<p></p>
+<p>The Aero can be attached to the bottom of your notebook so you always have the stand when you need it. It appears that some sort of hook and loop closure material is used to secure the Aero to the bottom of the notebook.</p>
+<p>Aero has three elevation adjustments for a comfortable height when working. The very thin profile when folded should mean that you can still fit your notebook easily into a bag or sleeve without needing to remove the Aero stand. The Aero sells for $54.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/aviiq-portable-laptop-stand-is-crazy-thin-for-portability-2687083/" rel="bookmark" title="Permanent Link: AViiQ Portable Laptop Stand is crazy thin for portability">AViiQ Portable Laptop Stand is crazy thin for portability</a></strong></li><li><strong><a href="http://www.slashgear.com/cherry-picks-2008-cricket-laptop-stand-069426/" rel="bookmark" title="Permanent Link: Cherry Picks 2008: Cricket Laptop Stand">Cherry Picks 2008: Cricket Laptop Stand</a></strong></li><li><strong><a href="http://www.slashgear.com/tomys-latest-is-super-controllable-rc-plane-145745/" rel="bookmark" title="Permanent Link: Tomy&#8217;s latest is super-controllable RC plane">Tomy&#8217;s latest is super-controllable RC plane</a></strong></li><li><strong><a href="http://www.slashgear.com/macessity-lowkey-stand-frees-up-some-desk-space-3110015/" rel="bookmark" title="Permanent Link: Macessity LowKey Stand frees up some desk space">Macessity LowKey Stand frees up some desk space</a></strong></li><li><strong><a href="http://www.slashgear.com/usb-laptop-stand-cools-swivels-and-tilts-142963/" rel="bookmark" title="Permanent Link: USB laptop stand cools, swivels, and tilts">USB laptop stand cools, swivels, and tilts</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/standivarius-aero-laptop-stand-is-thin-and-very-lightweight-2395140/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Dell settles with SEC for $100M over alleged omissions prior to fiscal 2008</title>
+		<link>http://www.slashgear.com/dell-settles-with-sec-for-100m-over-alleged-omissions-in-fiscal-2008-2395136/</link>
+		<comments>http://www.slashgear.com/dell-settles-with-sec-for-100m-over-alleged-omissions-in-fiscal-2008-2395136/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 11:16:52 +0000</pubDate>
+		<dc:creator>Shane McGlaun</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[dell]]></category>
+		<category><![CDATA[SEC]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95136</guid>
+		<description><![CDATA[<p>Dell had previously announced that it had set up a reserve in the amount of $100 million that would possibly be used to settle a court case field by the SEC against the computer marker. The SEC alleged in its suit that Dell had used disclosure and accounting practices that violated federal securities laws and SEC rules from 2001 to 2006.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/dellxps7100-sg.jpg" alt="dellxps7100 sg" width="500" height="350" class="aligncenter size-full wp-image-95137" title="Dell settles with SEC for $100M over alleged omissions prior to fiscal 2008" /></p>
+<p></p>
+<p>As of today, <a href="http://www.dell.com">Dell</a> has used that $100 million reserve set aside previously to settle the SEC investigation. Part of the settlement included the stipulation that Dell was not admitting to any wrongdoing.</p>
+<p>Michael Dell has also agreed to pay a $4 million civil monetary penalty. The settlement comes with a permanent injunction against future violations but doesn&#8217;t place any restrictions on Dell&#8217;s service with the company.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/bioshock-2-confirmed-for-2009-release-1210707/" rel="bookmark" title="Permanent Link: BioShock 2 confirmed for 2009 release">BioShock 2 confirmed for 2009 release</a></strong></li><li><strong><a href="http://www.slashgear.com/dell-we-did-not-knowingly-ship-faulty-motherboards-0292623/" rel="bookmark" title="Permanent Link: Dell: we &#8220;did not knowingly ship faulty motherboards&#8221;">Dell: we &#8220;did not knowingly ship faulty motherboards&#8221;</a></strong></li><li><strong><a href="http://www.slashgear.com/dell-xps-m1730-is-now-penryn-powered-latitude-is-next-in-line-for-refresh-1510285/" rel="bookmark" title="Permanent Link: Dell XPS M1730 is now Penryn powered &#8211; Latitude is next in line for refresh">Dell XPS M1730 is now Penryn powered &#8211; Latitude is next in line for refresh</a></strong></li><li><strong><a href="http://www.slashgear.com/dell-creates-designed-for-dell-accessories-1412515/" rel="bookmark" title="Permanent Link: Dell creates Designed for Dell accessories">Dell creates Designed for Dell accessories</a></strong></li><li><strong><a href="http://www.slashgear.com/dell-warns-of-possible-job-cuts-after-tough-q3-1616363/" rel="bookmark" title="Permanent Link: Dell warns of possible job cuts after tough Q3">Dell warns of possible job cuts after tough Q3</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/dell-settles-with-sec-for-100m-over-alleged-omissions-in-fiscal-2008-2395136/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>MagicJack femtocell to be sold with a mobile partner</title>
+		<link>http://www.slashgear.com/magicjack-femtocell-to-be-sold-with-a-mobile-partner-2395133/</link>
+		<comments>http://www.slashgear.com/magicjack-femtocell-to-be-sold-with-a-mobile-partner-2395133/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 11:06:07 +0000</pubDate>
+		<dc:creator>Shane McGlaun</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[femtocell]]></category>
+		<category><![CDATA[MagicJack]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95133</guid>
+		<description><![CDATA[<p>We have talked about the <a href="http://www.businessinsider.com/magicjack-femtocell-2010-7">MagicJack VoiP</a> dongle on more than a few occasions around here. The company has merged with VoIP company VocalTec Communications and the newly merged companies are set to offer an interesting new product soon.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/magicjack-sg.jpg" alt="magicjack sg" width="500" height="375" class="aligncenter size-full wp-image-95134" title="MagicJack femtocell to be sold with a mobile partner" /></p>
+<p></p>
+<p>MagicJack will launch its <a href="http://www.businessinsider.com/magicjack-femtocell-2010-7">femtocell product</a> this year that will work with any mobile phone. We have <a href="http://www.slashgear.com/magicjack-femtocell-promises-any-gsm-compatibility-0768847/">heard about</a> this femtocell before. What we didn&#8217;t know was that rather than selling the femtocell product alone, the device would be marketed with a wireless carrier.</p>
+<p>Exactly which wireless carrier will be used is unknown, but odds are it won&#8217;t be AT&amp;T or Verizon but one of the smaller carriers and my money is on a pre-paid carrier. MagicJack apps for the iPad, Android, and Blackberry devices are still in the works and a new softphone service will land in the next month or so from MagicJack to compete with Skype and the offering will be global.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/magicjack-femtocell-detailed-borrows-spectrum-indoors-0869185/" rel="bookmark" title="Permanent Link: magicJack femtocell detailed: &#8220;borrows&#8221; spectrum indoors">magicJack femtocell detailed: &#8220;borrows&#8221; spectrum indoors</a></strong></li><li><strong><a href="http://www.slashgear.com/magicjack-plan-standalone-voip-phone-bbiphone-apps-ceo-slams-nettalk-rivals-2170929/" rel="bookmark" title="Permanent Link: magicJack plan standalone VoIP phone, BB/iPhone apps; CEO slams netTALK rivals">magicJack plan standalone VoIP phone, BB/iPhone apps; CEO slams netTALK rivals</a></strong></li><li><strong><a href="http://www.slashgear.com/magicjack-lose-defamation-case-charged-50000-2375338/" rel="bookmark" title="Permanent Link: MagicJack lose defamation case, charged $50,000">MagicJack lose defamation case, charged $50,000</a></strong></li><li><strong><a href="http://www.slashgear.com/magicjack-femtocell-promises-any-gsm-compatibility-0768847/" rel="bookmark" title="Permanent Link: magicJack Femtocell promises any-GSM compatibility">magicJack Femtocell promises any-GSM compatibility</a></strong></li><li><strong><a href="http://www.slashgear.com/magicjack-too-good-to-be-true-037751/" rel="bookmark" title="Permanent Link: MagicJack &#8211; Too good to be true?">MagicJack &#8211; Too good to be true?</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/magicjack-femtocell-to-be-sold-with-a-mobile-partner-2395133/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>LG can&#8217;t keep up with Apple&#8217;s screen demand</title>
+		<link>http://www.slashgear.com/lg-cant-keep-up-with-apples-screen-demand-2395127/</link>
+		<comments>http://www.slashgear.com/lg-cant-keep-up-with-apples-screen-demand-2395127/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 10:52:28 +0000</pubDate>
+		<dc:creator>Shane McGlaun</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[Apple]]></category>
+		<category><![CDATA[iPad]]></category>
+		<category><![CDATA[iPhone]]></category>
+		<category><![CDATA[LG]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95127</guid>
+		<description><![CDATA[<p>Apple is selling iPads and iPhones in huge numbers but shortages have plagued the device. If Apple were able to offer enough devices to meet the demand of consumers, its sales would be considerably higher. One of the major screen suppliers for Apple has stated that it simply can’t meet the demand.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/iPad-wifi-3g1.jpg" alt="iPad wifi 3g1" width="494" height="282" class="aligncenter size-full wp-image-95131" title="LG cant keep up with Apples screen demand" /></p>
+<p></p>
+<p>LG has stated that at this time it is unable to meet the increasing demand for mobile device screens that Apple is placing on it. However, LG does state that it will be able to meet the demand for mobile device screens from Apple and other firms by Q2 of 2011.</p>
+<p>LG is making a new investment in an additional production line that will total $512 million. The new production line will be able to make 20,000 glass sheets per month for screens in the portable size range of the iPad and iPhone.</p>
+<p>via <a href="http://online.wsj.com/article/SB10001424052748703467304575383941257969742.html?mod=WSJ_Tech_LEFTTopNews">WSJ</a></p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/fruit-slide-is-better-than-tossing-your-apples-in-a-bowl-0372673/" rel="bookmark" title="Permanent Link: Fruit slide is better than tossing your apples in a bowl">Fruit slide is better than tossing your apples in a bowl</a></strong></li><li><strong><a href="http://www.slashgear.com/could-a-foldable-dual-screen-netbook-be-in-apples-future-3017746/" rel="bookmark" title="Permanent Link: Could a foldable, dual-screen netbook be in Apple&#8217;s future?">Could a foldable, dual-screen netbook be in Apple&#8217;s future?</a></strong></li><li><strong><a href="http://www.slashgear.com/apple-files-patent-for-camera-hidden-in-an-lcd-screen-1330203/" rel="bookmark" title="Permanent Link: Apple files patent for camera hidden in an LCD screen">Apple files patent for camera hidden in an LCD screen</a></strong></li><li><strong><a href="http://www.slashgear.com/apples-online-store-down-for-updates-1419131/" rel="bookmark" title="Permanent Link: Apple&#8217;s online store down for updates">Apple&#8217;s online store down for updates</a></strong></li><li><strong><a href="http://www.slashgear.com/parody-the-ofone-microsofts-answer-to-apples-iphone-095167/" rel="bookmark" title="Permanent Link: Parody : The ofone &#8211; Microsoft&#8217;s answer to Apple&#8217;s iPhone?">Parody : The ofone &#8211; Microsoft&#8217;s answer to Apple&#8217;s iPhone?</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/lg-cant-keep-up-with-apples-screen-demand-2395127/feed/</wfw:commentRss>
+		<slash:comments>1</slash:comments>
+		</item>
+		<item>
+		<title>DIY fart detecting remote control</title>
+		<link>http://www.slashgear.com/diy-fart-detecting-remote-control-2395124/</link>
+		<comments>http://www.slashgear.com/diy-fart-detecting-remote-control-2395124/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 10:41:13 +0000</pubDate>
+		<dc:creator>Shane McGlaun</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[DIY]]></category>
+		<category><![CDATA[remote control]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95124</guid>
+		<description><![CDATA[<p>This DIY hack is gross and funny all at the same time. A guy on <a href="http://www.instructables.com/id/Fart-Operated-Random-Channel-TV-Remote/">Instructables</a> going by Schmidt has posted up a how to on building a remote control that will change the channel on the TV to a random channel each time it detects a fart.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/fartoperatedremote-sg.jpg" alt="fartoperatedremote sg" width="500" height="375" class="aligncenter size-full wp-image-95125" title="DIY fart detecting remote control" /></p>
+<p></p>
+<p>The builder came up with the idea after seeing a hack using Arduino to turn a TV on and off using a brainwave headset and an office chair that twittered each time the user farted. Using ingenuity and a love for flatulence the guy cobbled the two together.</p>
+<p>Now each time the builder&#8217;s dad busts a groupie, the TV turns to a random channel. That is a great gag for sure. The parts list includes a methane sensor, Arduino, and a few more items. This would be funny, but my kids would fart on it on purpose.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/microsoft-patent-app-for-sweet-remote-control-surfaces-0692896/" rel="bookmark" title="Permanent Link: Microsoft patent app for sweet remote control surfaces">Microsoft patent app for sweet remote control surfaces</a></strong></li><li><strong><a href="http://www.slashgear.com/i-got-control-turns-iphone-into-learning-remote-1778013/" rel="bookmark" title="Permanent Link: i-Got-Control turns iPhone into learning remote">i-Got-Control turns iPhone into learning remote</a></strong></li><li><strong><a href="http://www.slashgear.com/atari-joystick-gets-second-bloom-as-tv-remote-165310/" rel="bookmark" title="Permanent Link: Atari joystick gets second bloom as TV remote">Atari joystick gets second bloom as TV remote</a></strong></li><li><strong><a href="http://www.slashgear.com/desktop-remote-control-12241/" rel="bookmark" title="Permanent Link: Desktop Remote Control">Desktop Remote Control</a></strong></li><li><strong><a href="http://www.slashgear.com/control-your-man-or-woman-remote-controls-058339/" rel="bookmark" title="Permanent Link: Control Your Man or Woman Remote Controls">Control Your Man or Woman Remote Controls</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/diy-fart-detecting-remote-control-2395124/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Razer gives up slightly less vague launch date for Tron peripherals</title>
+		<link>http://www.slashgear.com/razer-gives-up-slightly-less-vague-launch-date-for-tron-peripherals-2395120/</link>
+		<comments>http://www.slashgear.com/razer-gives-up-slightly-less-vague-launch-date-for-tron-peripherals-2395120/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 10:16:50 +0000</pubDate>
+		<dc:creator>Shane McGlaun</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[computer gaming]]></category>
+		<category><![CDATA[Keyboard]]></category>
+		<category><![CDATA[mouse]]></category>
+		<category><![CDATA[razer]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95120</guid>
+		<description><![CDATA[<p>About this time last month, I mentioned that Razer had a very cool <a href="http://www.slashgear.com/razer-outs-awesome-tron-keyboard-and-mouse-chocked-full-o-win-2491382/">Tron Legacy gaming keyboard</a> that it was showing off. At the time the thing surfaced we really didn’t know when the keyboard and other Tron gaming peripherals would be coming to market for geeks to buy.</p>
+<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/razertronkb-sg.jpg" alt="razertronkb sg" width="500" height="275" class="aligncenter size-full wp-image-95121" title="Razer gives up slightly less vague launch date for Tron peripherals" /></p>
+<p></p>
+<p><a href="http://www.razerzone.com">Razer</a> has offered up a slightly less vague timetable for the launch of the gaming accessories with Tron styling. That Tron gaming keyboard will land in Q4 2010 for $149.99 and will have a detachable modular keypad, lighting effects triggered by in game actions, and macro capability. </p>
+<p>The Tron gaming mouse will also land in Q4 for $99.99 with 5600dpi resolution and more. A bundle with the Tron gaming mouse and a mouse mat that changed colors wherever the mouse is slid across its surface. The bundle with the mat and mouse will sell for $129.99 and land in Q4 as well.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/razer-outs-awesome-tron-keyboard-and-mouse-chocked-full-o-win-2491382/" rel="bookmark" title="Permanent Link: Razer outs awesome Tron keyboard and mouse chocked full o&#8217; win">Razer outs awesome Tron keyboard and mouse chocked full o&#8217; win</a></strong></li><li><strong><a href="http://www.slashgear.com/tron-themed-xbox-360-ps3-and-wii-controllers-shown-off-at-e3-1690194/" rel="bookmark" title="Permanent Link: TRON-Themed Xbox 360, PS3, and Wii Controllers Shown Off at E3">TRON-Themed Xbox 360, PS3, and Wii Controllers Shown Off at E3</a></strong></li><li><strong><a href="http://www.slashgear.com/razer-developing-starcraft-ii-themed-gaming-peripherals-1251944/" rel="bookmark" title="Permanent Link: Razer developing StarCraft II themed gaming peripherals">Razer developing StarCraft II themed gaming peripherals</a></strong></li><li><strong><a href="http://www.slashgear.com/razer-shows-off-starcraft-ii-wings-of-liberty-peripherals-at-e3-1690092/" rel="bookmark" title="Permanent Link: Razer shows off StarCraft II Wings of Liberty peripherals at E3">Razer shows off StarCraft II Wings of Liberty peripherals at E3</a></strong></li><li><strong><a href="http://www.slashgear.com/razer-protype-multimedia-keyboard-with-integrated-zune-dock-15920/" rel="bookmark" title="Permanent Link: Razer Pro|Type Multimedia Keyboard With Integrated Zune Dock">Razer Pro|Type Multimedia Keyboard With Integrated Zune Dock</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/razer-gives-up-slightly-less-vague-launch-date-for-tron-peripherals-2395120/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>AT&amp;T claims WiFi network usage grew to more than 68M connections in Q2</title>
+		<link>http://www.slashgear.com/att-claims-wifi-network-usage-grew-to-more-than-68m-connections-in-q2-2395116/</link>
+		<comments>http://www.slashgear.com/att-claims-wifi-network-usage-grew-to-more-than-68m-connections-in-q2-2395116/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 10:06:53 +0000</pubDate>
+		<dc:creator>Shane McGlaun</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[ATT]]></category>
+		<category><![CDATA[wifi]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95116</guid>
+		<description><![CDATA[<p><img src="http://cdn.slashgear.com/wp-content/uploads/2010/07/att-logo1.jpg" alt="att logo1" width="250" height="113" class="alignright size-full wp-image-95117" title="AT&amp;T claims WiFi network usage grew to more than 68M connections in Q2" />One of the ways that AT&amp;T is trying to reduce some of the workload on its mobile data network is by trying to get some users to offload their data use to the AT&amp;T WiFi network. <a href="http://www.att.com">AT&amp;T</a> has over 20,000 hotspots around the country and gives 3G subscribers access to those hotspots.</p>
+<p></p>
+<p>The wireless provider has announced that during Q2 its WiFi hotspot network supported more than 68 million connections. AT&amp;T says that the rise in connections is fueled by the increasing number of devices on the market that support WiFi.</p>
+<p>In the entire year of 2009, AT&amp;T recorded 85.5 million connections. That means that Q2 2010 alone had about 75% of the number of connections made in all of 2009.</p>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/anyfi-networks-claims-to-make-wifi-a-4g-technology-1485605/" rel="bookmark" title="Permanent Link: Anyfi Networks claims to make WiFi a 4G technology">Anyfi Networks claims to make WiFi a 4G technology</a></strong></li><li><strong><a href="http://www.slashgear.com/november-80-increase-in-xbox-live-users-062788/" rel="bookmark" title="Permanent Link: November: 80% Increase In XBox Live Users">November: 80% Increase In XBox Live Users</a></strong></li><li><strong><a href="http://www.slashgear.com/quantum-cryptography-is-said-to-be-unbreakable-1018861/" rel="bookmark" title="Permanent Link: Quantum Cryptography is said to be &#8220;unbreakable&#8221;">Quantum Cryptography is said to be &#8220;unbreakable&#8221;</a></strong></li><li><strong><a href="http://www.slashgear.com/leds-could-soon-be-used-for-wifi-0818594/" rel="bookmark" title="Permanent Link: LEDs could soon be used for WiFi">LEDs could soon be used for WiFi</a></strong></li><li><strong><a href="http://www.slashgear.com/new-wifi-finder-from-linksys-224442/" rel="bookmark" title="Permanent Link: New WiFi finder from Linksys">New WiFi finder from Linksys</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/att-claims-wifi-network-usage-grew-to-more-than-68m-connections-in-q2-2395116/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+		<item>
+		<title>Onkyo HT-S9300THX home theater system is 3D ready and THX certified</title>
+		<link>http://www.slashgear.com/onkyo-ht-s9300thx-home-theater-system-is-3d-ready-and-thx-certified-2395108/</link>
+		<comments>http://www.slashgear.com/onkyo-ht-s9300thx-home-theater-system-is-3d-ready-and-thx-certified-2395108/#comments</comments>
+		<pubDate>Fri, 23 Jul 2010 10:02:32 +0000</pubDate>
+		<dc:creator>Chris Davies</dc:creator>
+				<category><![CDATA[archive]]></category>
+		<category><![CDATA[AV receiver]]></category>
+		<category><![CDATA[Home Entertainment]]></category>
+		<category><![CDATA[Home Theater]]></category>
+		<category><![CDATA[Onkyo]]></category>
+		<category><![CDATA[surround sound]]></category>
+		<category><![CDATA[THX]]></category>
+
+		<guid isPermaLink="false">http://www.slashgear.com/?p=95108</guid>
+		<description><![CDATA[<p><a href="http://www.onkyousa.com/" target="_blank">Onkyo</a>&#8216;s latest attempt to get us all listening to surround sound has emerged, in the shape of the world&#8217;s first 3D-ready and THX certified integrated home theater system.  The Onkyo HT-S9300THX bundles an HT-R9800 A/V receiver with seven speakers and a 12-inch subwoofer; it has four 3D-ready HDMI 1.4a inputs, 1080p HD upscaling, and Audyssey 2EQ room acoustics correction technology.</p>
+<p><img class="alignnone size-medium wp-image-95111" title="onkyo_ht-s9300thx" src="http://cdn.slashgear.com/wp-content/uploads/2010/07/onkyo_ht-s9300thx-540x145.jpg" alt="onkyo ht s9300thx 540x145" width="540" height="145" /></p>
+<p></p>
+<p>In order to get their THX certification, Onkyo used a special dual-woofer array for the front loudspeakers and THX Surround EX.  There&#8217;s also lossless Dolby and DTS high definition audio processing, Dolby ProLogic IIz height channel processing and various other audio-tweaking systems of Onkyo&#8217;s own design.</p>
+<p>The Onkyo HT-S9300THX Home Theater in a Box system will be available at the end of this month, priced at $1,099.  An iPod/iPhone dock is an optional accessory, as is an HD radio tuner module, and the whole thing is set up via Onkyo&#8217;s new OSD.</p>
+
+<p><strong>Press Release:</strong></p>
+<blockquote><p><strong>Onkyo Debuts the World&#8217;s First 3D-Ready &amp; THX Certified Integrated Home Theater System</strong></p>
+<p>Onkyo, a brand renowned worldwide for quality home entertainment technology, has introduced the world&#8217;s first THX® I/S Plus™ Certified (Integrated System) and 3D-Ready packaged home theater system. This type of system, popularly known as a &#8220;home theater in a box&#8221; or HTiB, consists of seven theater loudspeakers, a subwoofer for deep-bass sound effects, and an audio-video receiver that is fully compatible with state-of-the-art HD video players and video displays, including all the latest 3D technologies. It is compatible with the mandatory formats for 3D video broadcast content of “Side-By-Side (Half)” and “Top-and-Bottom” formats.</p>
+<p>The Onkyo HT-S9300THX receiver has four 3D-Ready HDMI 1.4a inputs for connection to modern audio/video source components, and it can upscale video from any input source to the maximum 1080p HDMI output resolution. The system receiver includes lossless Dolby &amp; DTS high definition audio processing, Dolby ProLogic IIz height channel processing, and numerous other high performance sound processing features from THX, Audyssey, and Onkyo.</p>
+<p>&#8220;With 3D and THX, this package offers remarkable value,&#8221; said Paul Wasek, Onkyo&#8217;s marketing manager. &#8220;As one of the most enthusiastic suppliers of THX Certified components, Onkyo has long recognized the importance ensuring that our customers experience movie sound effects exactly as the producer and sound engineer intended.&#8221;</p>
+<p>“Our collaboration with Onkyo has produced an affordable, all-in-one home theater system with a sonic punch that puts most HTiBs to shame,” said Graham McKenna, Director of PR at THX. “Designed for movie fans and gamers who crave multichannel sound, the HT-S9300THX delivers every bass note, sound effect and dialogue like it was captured in the studio.”</p>
+<p>The Onkyo HT-S9300THX was awarded THX I/S Plus certification based on THX&#8217;s independent testing of the combined audio performance of this system&#8217;s receiver, speakers, and a powerful 12-inch subwoofer. The specially designed front loudspeakers use a THX-developed dual-woofer array that optimizes the sound field for a sonic presentation that is remarkably close to that found in the best THX movie theaters. The system includes THX Surround EX™; THX listening modes for Music, Movies and Games; and THX Loudness Plus™, a sophisticated volume-control technology which maintains surround impact at low listening levels.</p>
+<p>The HT-S9300THX also provides for easy surround sound speaker set up with Audyssey 2EQ room acoustics correction technology, and provides improved sound enjoyment with Audyssey Dynamic EQ and Audyssey Dynamic Volume processing. It includes Onkyo&#8217;s proprietary Music Optimizer, which improves the sound of compressed music files for playback with loudspeakers, and four DSP modes for various gaming scenarios.</p>
+<p>All video inputs can be upscaled to 1080p video, regardless of native resolution, via Faroudja DCDi Cinema™ processor, which also removes the jaggies during the video signal deinterlacing process, resulting in smooth progressive-scan video images.</p>
+<p>The receiver employs Onkyo&#8217;s new overlaid graphical OSD (on screen display) for seamless adjustment of settings while still viewing the program in the background. A proprietary rear-panel Universal Port can be used to connect an optional Onkyo UP-A1 dock for iPod/iPhone and UP-HT1 HD Radio tuner module.  The receiver also includes Onkyo&#8217;s HDMI Thru feature, which provides automatic source-to-TV switching when the receiver is in the standby mode. This allows children to enjoy programs using a TV&#8217;s built-in speakers without the need to use the receiver&#8217;s controls.</p>
+<p>The HT-S9300THX will be available at the end of July with a suggested retail price of $1,099.</p></blockquote>
+<hr /><p>Relevant Entries on SlashGear</p><ul><li><strong><a href="http://www.slashgear.com/onkyo-ht-sp908-71-htib-178025/" rel="bookmark" title="Permanent Link: Onkyo HT-SP908 7.1 HTIB">Onkyo HT-SP908 7.1 HTIB</a></strong></li><li><strong><a href="http://www.slashgear.com/onkyo-tx-sr608-av-receiver-is-thx-certified-and-3d-ready-0977162/" rel="bookmark" title="Permanent Link: Onkyo TX-SR608 AV receiver is THX certified and 3D-ready">Onkyo TX-SR608 AV receiver is THX certified and 3D-ready</a></strong></li><li><strong><a href="http://www.slashgear.com/onkyo-drops-ht-s3300-ht-s5300-and-htx-22hdx-home-theater-in-a-box-systems-0977165/" rel="bookmark" title="Permanent Link: Onkyo drops HT-S3300, HT-S5300, and HTX-22HDX Home Theater in a Box systems">Onkyo drops HT-S3300, HT-S5300, and HTX-22HDX Home Theater in a Box systems</a></strong></li><li><strong><a href="http://www.slashgear.com/onkyo-unveils-ht-s6300-and-ht-s7300-3d-ready-home-theater-in-a-box-systems-0893299/" rel="bookmark" title="Permanent Link: Onkyo unveils HT-S6300 and HT-S7300 3D-ready home theater in a box systems">Onkyo unveils HT-S6300 and HT-S7300 3D-ready home theater in a box systems</a></strong></li><li><strong><a href="http://www.slashgear.com/onkyo-unveils-new-dp312-nettop-and-dc213-minimumpc-netbook-2282773/" rel="bookmark" title="Permanent Link: Onkyo unveils new DP312 nettop and DC213 minimumPC netbook">Onkyo unveils new DP312 nettop and DC213 minimumPC netbook</a></strong></li></ul><br /> ]]></description>
+		<wfw:commentRss>http://www.slashgear.com/onkyo-ht-s9300thx-home-theater-system-is-3d-ready-and-thx-certified-2395108/feed/</wfw:commentRss>
+		<slash:comments>0</slash:comments>
+		</item>
+	</channel>
+</rss>

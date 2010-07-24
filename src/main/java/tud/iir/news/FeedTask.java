@@ -34,11 +34,10 @@ class FeedTask implements Runnable {
     @Override
     public void run() {
         NewsAggregator fa = new NewsAggregator();
-        fa.setUseScraping(false);
 
         try {
             // parse the feed and get all its entries, do that here since that takes some time and this is a thread so it can be done in parallel
-            List<FeedEntry> entries = fa.getEntries(feed.getFeedUrl());
+            List<FeedEntry> entries = fa.downloadFeed(feed.getFeedUrl()).getEntries();
             feed.setEntries(entries);
 
             // classify feed if it has never been classified before

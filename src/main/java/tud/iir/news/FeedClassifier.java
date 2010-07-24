@@ -60,7 +60,7 @@ public class FeedClassifier {
 
         try {
 
-            List<FeedEntry> entries = newsAggregator.getFeed(feedURL).getEntries();
+            List<FeedEntry> entries = newsAggregator.downloadFeed(feedURL).getEntries();
             FeedPostStatistics fps = new FeedPostStatistics(entries);
             System.out.println(fps);
 

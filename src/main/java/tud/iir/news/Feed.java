@@ -286,6 +286,9 @@ public class Feed {
         // sb.append(" format:").append(format);
         // sb.append(" language:").append(language);
         // sb.append(" added:").append(added);
+        if (entries != null) {
+            sb.append(" entries:").append(entries);
+        }
         
         return sb.toString();
     }

@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:sy="http://purl.org/rss/1.0/modules/syndication/"
+  xmlns:admin="http://webns.net/mvcb/"
+  xmlns:content="http://purl.org/rss/1.0/modules/content/"
+  xmlns:cc="http://web.resource.org/cc/"
+  xmlns="http://purl.org/rss/1.0/">
+
+<channel rdf:about="http://www.fscklog.com/">
+<title>fscklog</title>
+<link>http://www.fscklog.com/</link>
+<description>Die täglich interessantesten Themen rund um Mac, iPhone, iPad und iPod.</description>
+<dc:language>en-US</dc:language>
+<dc:creator></dc:creator>
+<dc:date>2010-07-24T12:20:45+02:00</dc:date>
+<admin:generatorAgent rdf:resource="http://www.typepad.com/" />
+
+
+<items>
+<rdf:Seq><rdf:li rdf:resource="http://www.fscklog.com/2010/07/die-%C3%BCberfl%C3%BCssigkeit-von-apples-antennen-pranger-galerie-video.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/ibooks-112-beseitigt-problem-bei-der-aktualisierung.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/kostenlose-h%C3%BClle-f%C3%BCrs-iphone-4-beantragung-per-app.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/wei%C3%9Fes-iphone-4-kommt-erst-zu-einem-sp%C3%A4teren-zeitpunkt-im-laufenden-jahr.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/iphone-4-bumper-r%C3%BCckerstattung-l%C3%A4uft-an.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/iphone-4-aus-uk-borderlinx-%C3%BCberlastet-mehrt%C3%A4gige-verz%C3%B6gerungen.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/verz%C3%B6gerungen-beim-unlock-des-iphone-3g-durch-telekom-bzw-apple-m%C3%B6glich.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/skype-unterst%C3%BCtzt-multitasking-in-ios-4-streicht-geplante-geb%C3%BChren-f%C3%BCr-umts-gespr%C3%A4che.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/safari-4-und-5-automatisches-ausf%C3%BCllen-als-schwachstelle.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/schmorendes-mbp-netzteil-im-video-erinnerung-an-kostenlosen-magsafe-austausch.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/apples-q3-2010-rekord-bei-umsatz-und-mac-verk%C3%A4ufen.html" />
+<rdf:li rdf:resource="http://www.fscklog.com/2010/07/widerlegtes-unsinnsger%C3%BCcht-ios-4-f%C3%BCrs-ipad-ist-und-bleibt-kostenlos.html" />
+</rdf:Seq>
+</items>
+
+</channel>
+
+<item rdf:about="http://www.fscklog.com/2010/07/die-%C3%BCberfl%C3%BCssigkeit-von-apples-antennen-pranger-galerie-video.html">
+<title>Die Überflüssigkeit von Apples Antennen-Pranger-Galerie (Video)</title>
+<link>http://www.fscklog.com/2010/07/die-%C3%BCberfl%C3%BCssigkeit-von-apples-antennen-pranger-galerie-video.html</link>
+<description>Ja, Apple, es mag recht clever gewesen sein, die spezifische Empfangsproblematik des iPhone 4 zu einem branchenweiten Smartphone-Problem umzubiegen und zufriedene wie weniger zufriedene Kunden mit -ok, great- kostenlosen Hüllen und einer Rückgabemöglichkeit (deren Prozedere in Deutschland immer noch unklar ist) zu beglücken. Es konnte auch sicher nichts schaden, die Signalanzeige mit...</description>
+<content:encoded>&lt;p&gt;&lt;object width=&quot;499&quot; height=&quot;306&quot;&gt;&lt;param name=&quot;movie&quot; value=&quot;http://www.youtube.com/v/YJG7pbSRvJ8&amp;amp;hl=en_US&amp;amp;fs=1?rel=0&amp;amp;hd=1&quot;&gt;&lt;/param&gt;&lt;param name=&quot;allowFullScreen&quot; value=&quot;true&quot;&gt;&lt;/param&gt;&lt;param name=&quot;allowscriptaccess&quot; value=&quot;always&quot;&gt;&lt;/param&gt;&lt;embed src=&quot;http://www.youtube.com/v/YJG7pbSRvJ8&amp;amp;hl=en_US&amp;amp;fs=1?rel=0&amp;amp;hd=1&quot; type=&quot;application/x-shockwave-flash&quot; allowscriptaccess=&quot;always&quot; allowfullscreen=&quot;true&quot; width=&quot;499&quot; height=&quot;306&quot;&gt;&lt;/embed&gt;&lt;/object&gt;&lt;/p&gt;
+
+&lt;p&gt;Ja, Apple, es mag recht clever gewesen sein, die spezifische Empfangsproblematik des iPhone 4 zu einem branchenweiten Smartphone-Problem umzubiegen und zufriedene wie weniger zufriedene Kunden mit -ok, great- &lt;a href=&quot;http://www.fscklog.com/2010/07/kostenlose-hülle-fürs-iphone-4-beantragung-per-app.html&quot;&gt;kostenlosen Hüllen&lt;/a&gt; und einer Rückgabemöglichkeit (deren Prozedere in Deutschland immer noch unklar ist) zu beglücken. Es konnte auch sicher nichts schaden, die Signalanzeige &lt;a href=&quot;http://www.fscklog.com/2010/07/ios-401-steht-bereit-bugfixes-und-neue-balkenformel.html&quot;&gt;mit iOS 4.0.1 stimmiger zu gestalten&lt;/a&gt; und selbst an den vergrößerten Balken 1 bis 3 lässt sich wenig aussetzen. Die &lt;a href=&quot;http://www.apple.com/antenna/&quot;&gt;lahme Pranger-Galerie&lt;/a&gt; mit spärlich konkurrierenden Modellen, die sich auch per &quot;Todesgriff&quot; zum Balkenschwund bewegen lassen sollen, ist dahingegen hochgradig albern und ihr Ausbau um zwei weitere Modelle entsprechend überflüssig. Was kümmert mich der Balkenschwund eines N97 mini, wenn an einem iPhone 4 ein Problem auftritt, welches ich in dieser Form niemals zuvor an einer iPhone-Generation feststellen konnte? Zumal ein herstellerübergreifender Vergleich aufgrund der fehlenden Standardisierung der Signalanzeige sowieso keinerlei Aussagekraft aufweist und der entscheidende Faktor (die tatsächliche Signalabschwächung per Handberührung) durch die beliebigen Balken übermalt wird. Die sich aufdrängende Frage wurde auf der Pressekonferenz zwar &lt;a href=&quot;http://live.gdgt.com/2010/07/16/live-iphone-4-press-event-coverage/&quot;&gt;von Ryan Block gestellt&lt;/a&gt;, doch umfuhr Hardware-Chef Bob Mansfield diese lediglich mit einer Nicht-Antwort und somit bleibt Apples Ansicht dazu offen, warum unter Umständen schon die reine Fingerberührung der linken unteren Ecke beim iPhone 4 ein Stoppen der Datenverbindung auszulösen vermag (zumindest bei bestimmten Händen mit bestimmten iPhone 4-Modellen in bestimmten Mobilfunknetzen an bestimmten Aufenthaltsorten).&lt;/p&gt;
+
+&lt;p&gt;Die Schlüsselpassage der Antennen-Pressekonferenz folgte einige Zeit später ebenfalls im langen Q&amp;A-Teil, dessen Mitschnitt Apple leider wie gewohnt nicht veröffentlichte: Auf die Frage, ob Apple-Kunden sich denn zwischen Form und Funktion entscheiden müssten, antwortete Jobs (&lt;a href=&quot;http://www.macworld.com/article/152732/2010/07/iphone4.html&quot;&gt;laut der Macworld-Mitschrift&lt;/a&gt;), dass Apple eine Firma sei, die beides anstrebe. Durch die externe Antenne des iPhone 4 konnte Apple einen größeren Akku verbauen und das iPhone 4 dünner werden lassen, so Jobs, der seine Ausführung um das schöne Idiom &lt;a href=&quot;http://en.wikipedia.org/wiki/Have_one&#39;s_cake_and_eat_it_too&quot;&gt;&quot;we try to have our cake and eat it too&quot;&lt;/a&gt; ergänzte. Im Gegensatz zu den von Jobs im Rahmen der Präsentation abgespulten &quot;Fakten&quot;, die trotz ihrer vehement betonten &quot;Härte&quot; nahezu keinen ernsthaften Erkenntnisgewinn zuließen, scheint darin der Kern der Angelegenheit zu stecken - die Entscheidung für eine externe Antenne weist ihre ganz eigenen Vor- und Nachteile auf oder wie Jobs (in anderem Zusammenhang) &lt;a href=&quot;http://www.fscklog.com/2010/06/steve-jobs-auf-der-d8-das-komplette-interview-video.html&quot;&gt;auf der D8-Konferenz sagte&lt;/a&gt;: &quot;Things are packages of emphasis. Some things are emphasized in a product, some things are not done as well in a product, some things are chosen not to be done at all in a product.&quot;&lt;br /&gt;
+Die außenliegende Antenne lässt mehr Platz im Gehäuse und ermöglicht dadurch einen größeren Akku in Kombination mit einem noch dünneren iPhone und offenbar auch einen in bestimmten Situationen verbesserten Empfang, solange eben der Schwachpunkt nicht per Hand berührt wird - ein Kompromiss den ich grundsätzlich begrüße (und der internen Antenne der Vorgängermodelle jederzeit vorziehen würde), denn auch nach vier Wochen Dauereinsatz konnte ich bei meiner alltäglichen Nutzung (ohne Hülle) im Netz der Telekom &lt;a href=&quot;http://www.fscklog.com/2010/06/schwankende-empfangsanzeige-beim-iphone-4-keine-auswirkungen-im-alltagseinsatz.html&quot;&gt;keine Beeinträchtigung feststellen&lt;/a&gt; während sich die Akkulaufzeit bei meiner gewohnten Nutzung im Vergleich zum 3GS um geschätzte 30 bis 40 Prozent verlängerte. &lt;br /&gt;
+So mag es zwar für einen Inter-Firmen-Pissing-Contest halbwegs lustig sein, der Konkurrenz Stellungnahmen zu entlocken, in denen das Umklammerungsproblem von den eigenen Geräten weit fortgewiesen wird, um dann dessen Auftreten öffentlich vorzuführen (siehe &lt;a href=&quot;http://digitaldaily.allthingsd.com/20100719/nokia-rim-htc-samsung-and-motorola-shut-up-apple/&quot;&gt;Motorolas Stellungnahme&lt;/a&gt; und Apples inzwischen ergänztes oben eingebettetes Video zum Droid X), doch selbst für mich als zufriedenen iPhone 4-Nutzer ist dies bestenfalls ermüdend oder anders ausgedrückt: Am Empfang des iPhone 4 habe ich weiterhin nichts auszusetzen, sehr wohl aber an Apples anhaltender Fehlkommunikation.&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>Apple</dc:subject>
+<dc:subject>iPhone</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-24T12:20:45+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/ibooks-112-beseitigt-problem-bei-der-aktualisierung.html">
+<title>iBooks 1.1.2 beseitigt &quot;Problem bei der Aktualisierung&quot;</title>
+<link>http://www.fscklog.com/2010/07/ibooks-112-beseitigt-problem-bei-der-aktualisierung.html</link>
+<description>Auf das noch junge iBooks 1.1.1, das eine Reihe von deutlichen Verbesserungen mit sich brachte, ließ Apple gestern Abend Version 1.1.2 folgen, die &quot;ein kleines Problem bei der Aktualisierung von iBooks&quot; beseitigt. Möglicherweise ist damit der Bug verschwunden, der unter Umständen nach der Aktualisierung auf iBooks 1.1.1 den kompletten hinterlegten Buchbestand verschwinden...</description>
+<content:encoded>&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20133f28482ac970b-pi&quot; width=&quot;400&quot; height=&quot;357&quot; alt=&quot;aktualisierung_ibooks.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Auf das noch junge iBooks 1.1.1, das eine Reihe von deutlichen Verbesserungen mit sich brachte, ließ Apple gestern Abend Version 1.1.2 folgen, die &quot;ein kleines Problem bei der Aktualisierung von iBooks&quot; beseitigt. Möglicherweise ist damit der Bug verschwunden, der unter Umständen nach der Aktualisierung auf iBooks 1.1.1 den kompletten hinterlegten Buchbestand verschwinden ließ - dieser musste dann erst wieder aus iTunes rückaufgespielt oder erneut aus dem iBookstore heruntergeladen werden. (Danke an &lt;a href=&quot;http://www.baetze.com/&quot;&gt;Michael&lt;/a&gt;, bob, &lt;a href=&quot;http://twitter.com/metaideen&quot;&gt;@metaideen&lt;/a&gt; und alle weiteren Tippgeber!)&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>iPad</dc:subject>
+<dc:subject>iPhone</dc:subject>
+<dc:subject>iPod touch</dc:subject>
+<dc:subject>Software</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-24T09:38:22+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/kostenlose-h%C3%BClle-f%C3%BCrs-iphone-4-beantragung-per-app.html">
+<title>Kostenlose Hülle fürs iPhone 4: Beantragung per App [Update_4]</title>
+<link>http://www.fscklog.com/2010/07/kostenlose-h%C3%BClle-f%C3%BCrs-iphone-4-beantragung-per-app.html</link>
+<description>iPhone 4-Käufer können sich ab sofort einen &quot;Bumper oder eine andere Schützhülle&quot; kostenlos zuschicken lassen, indem sie Apples iPhone-App &quot;iPhone 4 Case Programm&quot; herunterladen und darin das gewünschte Hüllen-Exemplar (auf ihrem iPhone 4) anfordern: iTunes-Affiliate-Link. &quot;Wenn du der Ansicht bist, dass bei deinem iPhone 4 Empfangsprobleme auftreten, hast du Anspruch darauf, einen...</description>
+<content:encoded>&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e2013485a36867970c-pi&quot; width=&quot;500&quot; height=&quot;232&quot; alt=&quot;iphone4_case.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+iPhone 4-Käufer können sich ab sofort einen &quot;Bumper oder eine andere Schützhülle&quot; kostenlos zuschicken lassen, indem sie Apples iPhone-App &quot;iPhone 4 Case Programm&quot; herunterladen und darin das gewünschte Hüllen-Exemplar (auf ihrem iPhone 4) anfordern: &lt;a href=&quot;http://clk.tradedoubler.com/click?p=23761&amp;a=1406376&amp;url=http://itunes.apple.com/de/app/iphone-4-case-programm/id383941000?mt=8&amp;partnerId=2003&quot;&gt;iTunes-Affiliate-Link&lt;/a&gt;. &quot;Wenn du der Ansicht bist, dass bei deinem iPhone 4 Empfangsprobleme auftreten, hast du Anspruch darauf, einen iPhone 4 Bumper oder eine andere ausgewählte Schutzhülle eines anderen Herstellers ohne Zusatzkosten von Apple zu erhalten&quot;, so das Unternehmen im App-Beschreibungstext. &lt;br /&gt;
+Die App überträgt die Mobilfunknummer, das Modell, die Seriennummer und die IMEI an Apple, um die Berechtigung zum Bezug einer kostenlosen Hülle zu validieren - die App muss auf jedem iPhone 4 installiert werden, für das eine Hülle angefordert wird. Für den Versand greift Apple auf die im iTunes-Account hinterlegte Adresse zurück.&lt;br /&gt;
+iPhone 4-Besitzer, die ihr Gerät bis zum 23. Juli erworben haben, können bzw. müssen ihre Hülle bis zum 22. August anfordern. Alle zukünftigen iPhone-Käufer haben ebenfalls jeweils 30 Tage ab Kaufdatum zum Beantragen des kostenlosen Bumpers Zeit. Das &lt;a href=&quot;http://www.apple.com/iphone/case-program/&quot;&gt;Hüllen-Programm&lt;/a&gt; gilt (vorerst) für alle bis zum 30. September getätigten iPhone 4-Käufe.&lt;br /&gt;
+Wer bereits einen Bumper gekauft hat, &lt;a href=&quot;http://www.fscklog.com/2010/07/iphone-4-bumper-rückerstattung-läuft-an.html&quot;&gt;erhält eine Erstattung des Kaufpreises&lt;/a&gt; oder im Falle einer noch laufenden Bestellung wird die Hülle kostenlos ausgeliefert. (Danke an alle Tippgeber!)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 15:15 Uhr&lt;/strong&gt;&lt;br /&gt;
+&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20133f27eff62970b-pi&quot; width=&quot;300&quot; height=&quot;450&quot; alt=&quot;case_wahl.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Es steht derzeit ausschließlich der schwarze Bumper zur Wahl sowie Hüllen von Incase, Belkin, Griffin und Speck. &quot;Apple behält sich das Recht vor, ein Modell eines iPhone 4 Bumpers durch ein anderes oder ein Modell einer anderen Schutzhülle durch ein anderes Modell, abhängig von der jeweiligen Verfügbarkeit, zu ersetzen&quot;, so Apple in den Teilnahmebedingungen. Drei bis fünf Wochen soll es bis zum Versand der Hüllen dauern.&lt;br /&gt;
+&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e2013485a381c0970c-pi&quot; width=&quot;300&quot; height=&quot;450&quot; alt=&quot;3bis5_wochen.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update_2 17:00 Uhr&lt;/strong&gt;&lt;br /&gt;
+&lt;a href=&quot;http://www.ilounge.com/index.php/backstage/comments/apple-iphone-4-case-program-here-are-the-best-worst-picks/&quot;&gt;iLounge bietet Entscheidungshilfe&lt;/a&gt; bei der Auswahl der Hüllen und empfiehlt Specks PixelSkin HD.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update_3 17:45 Uhr&lt;/strong&gt;&lt;br /&gt;
+&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e2013485a44830970c-pi&quot; width=&quot;333&quot; height=&quot;97&quot; alt=&quot;griffin_case.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+&quot;Ihre Bestellung wird voraussichtlich zum 27 Aug, 2010 per Post versandt. Wir rechnen damit, dass die Ware am oder vor dem 01 Sep, 2010 bei Ihrer Lieferadresse eintrifft. Beachten Sie bitte, dass es sich hierbei um geschätzte Datumsangaben handelt, die leicht abweichen können&quot;, schreibt der Apple Store in der Auftragsbestätigung.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update_4 19:50 Uhr&lt;/strong&gt;&lt;br /&gt;
+Auch die &lt;a href=&quot;http://www.apple.com/de/iphone/case-program/&quot;&gt;deutsche Apple-Seite informiert inzwischen&lt;/a&gt; über das &quot;iPhone 4 Case Programm&quot; und erklärt dort auch Einzelheiten zur Rückerstattung bereits gekaufter Bumper: &quot;Zur Kostenerstattung sind ausschließlich iPhone 4 Bumper mit den folgenden Teilenummern berechtigt: MC597ZM, MC669ZM, MC668ZM, MC670ZM, MC671ZM, MC672ZM&quot;, so Apple. &quot;Kunden, die ihren iPhone 4 Bumper im Apple Retail Store per Barzahlung oder unter Verwendung einer Kreditkarte, eines Schecks oder einer Geschenkkarte gekauft haben, müssen die Kostenerstattung in einem Apple Retail Store beantragen, diese kann nur dann erfolgen, wenn der Kunde die Originalrechnung vorlegt. Kostenrückerstattungen müssen bis spätestens 30. September 2010 beantragt werden.&quot;&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>iPhone</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-23T14:55:47+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/wei%C3%9Fes-iphone-4-kommt-erst-zu-einem-sp%C3%A4teren-zeitpunkt-im-laufenden-jahr.html">
+<title>Weißes iPhone 4 kommt erst zu einem späteren Zeitpunkt im laufenden Jahr</title>
+<link>http://www.fscklog.com/2010/07/wei%C3%9Fes-iphone-4-kommt-erst-zu-einem-sp%C3%A4teren-zeitpunkt-im-laufenden-jahr.html</link>
+<description>Der Verkaufsstart des weißen iPhone 4 wird erneut verschoben: Erst an einem nicht näher genannten Datum zu einem &quot;späteren Zeitpunkt im laufenden Jahr&quot; soll es in den Handel kommen, so Apple in einer erneuten Stellungnahme. Als Grund wird weiterhin der unerwartet schwierige Produktionsprozesses angeführt. Zuletzt war das weiße iPhone 4 auf die...</description>
+<content:encoded>&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20133f27ed83c970b-pi&quot; width=&quot;183&quot; height=&quot;294&quot; alt=&quot;whiteiphone_unavail.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Der Verkaufsstart des weißen iPhone 4 wird erneut verschoben: Erst an einem nicht näher genannten Datum zu einem &quot;späteren Zeitpunkt im laufenden Jahr&quot; soll es in den Handel kommen, so &lt;a href=&quot;http://www.prnewswire.com/news-releases/statement-by-apple-on-white-iphone-4-99096524.html&quot;&gt;Apple in einer erneuten Stellungnahme&lt;/a&gt;. Als Grund wird weiterhin der unerwartet schwierige Produktionsprozesses angeführt. Zuletzt war das weiße iPhone 4 auf &lt;a href=&quot;http://www.fscklog.com/2010/06/apple-weißes-iphone-4-erst-ab-zweiter-juli-hälfte.html&quot;&gt;die zweite Juli-Hälfte verschoben worden&lt;/a&gt; und Steve Jobs &lt;a href=&quot;http://www.fscklog.com/2010/07/apples-reaktion-auf-empfangsproblematik-des-iphone-4-branchenweites-problem-überzogene-berichterstattung-kostenlose-hüll.html&quot;&gt;erklärte vergangene Woche nochmals&lt;/a&gt;, dass begrenzte Stückzahlen des weißen iPhone 4 zum Ende des Monats ausgeliefert würden - daraus dürfte nun nichts mehr werden.&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>Apple</dc:subject>
+<dc:subject>iPhone</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-23T14:36:56+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/iphone-4-bumper-r%C3%BCckerstattung-l%C3%A4uft-an.html">
+<title>iPhone 4-Bumper: Rückerstattung läuft an [Update]</title>
+<link>http://www.fscklog.com/2010/07/iphone-4-bumper-r%C3%BCckerstattung-l%C3%A4uft-an.html</link>
+<description>Wie am Freitag vergangener Woche in Aussicht gestellt, erstattet Apple jedem Bumper-Käufer den Kaufpreis und &quot;eventuell angefallene Versandkosten&quot; zurück - darauf weist das Unternehmen heute in einer E-Mail an die Käufer hin. &quot;Wenn Sie mit Kreditkarte gezahlt haben, rechnen Sie bitte mit 3-5 Werktagen, bis der Betrag Ihrem Konto gutgeschrieben wird&quot;, so...</description>
+<content:encoded>&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20133f27a258a970b-pi&quot; width=&quot;500&quot; height=&quot;240&quot; alt=&quot;bumper_rueck.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Wie am Freitag vergangener Woche &lt;a href=&quot;http://www.fscklog.com/2010/07/berichterstattung-zu-apples-kurzfristig-anberaumter-pressekonferenz.html&quot;&gt;in Aussicht gestellt&lt;/a&gt;, erstattet Apple jedem Bumper-Käufer den Kaufpreis und &quot;eventuell angefallene Versandkosten&quot; zurück - darauf weist das Unternehmen heute in einer E-Mail an die Käufer hin. &quot;Wenn Sie mit Kreditkarte gezahlt haben, rechnen Sie bitte mit 3-5 Werktagen, bis der Betrag Ihrem Konto gutgeschrieben wird&quot;, so Apple. Die Bumper können seit knapp einer Woche auch nicht mehr bestellt bzw. erworben werden.&lt;br /&gt;
+Um die Beschwerden und Berichte über die Empfangsproblematik des iPhone 4 zu dämpfen, hatte Steve Jobs Ende vergangener Woche missmutig versprochen, &lt;a href=&quot;http://www.fscklog.com/2010/07/apples-reaktion-auf-empfangsproblematik-des-iphone-4-branchenweites-problem-überzogene-berichterstattung-kostenlose-hüll.html&quot;&gt;kostenlose Hülle an alle iPhone 4-Käufer auszugeben&lt;/a&gt; und für die bereits getätigten Bumper-Käufe aufzukommen. Noch gibt es keine Bestellmöglichkeit für einen kostenlosen Bumper oder die &quot;andere ausgewählte Schutzhülle&quot;, doch entsprechende Informationen dürften spätestens morgen folgen. (Danke an Maik, Markus und alle weiteren Tippgeber!)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 23:05 Uhr&lt;/strong&gt;&lt;br /&gt;
+&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20134859f82e7970c-pi&quot; width=&quot;439&quot; height=&quot;65&quot; alt=&quot;bumper_nocharge.png&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Bereits getätigte aber noch nicht verschickte Bumper-Bestellungen werden kostenlos ausgeliefert. Die in einem Apple-Retail-Store erworbenen Bumper können offenbar vor Ort wieder zurückgegeben werden. (Danke, Gegy!)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 23.07.10 17:20 Uhr&lt;/strong&gt;&lt;br /&gt;
+Die Bumper- bzw. Hüllenbestellung &lt;a href=&quot;http://www.fscklog.com/2010/07/kostenlose-hülle-fürs-iphone-4-beantragung-per-app.html&quot;&gt;ist per App möglich&lt;/a&gt;.&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>Apple</dc:subject>
+<dc:subject>iPhone</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-22T21:57:39+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/iphone-4-aus-uk-borderlinx-%C3%BCberlastet-mehrt%C3%A4gige-verz%C3%B6gerungen.html">
+<title>iPhone 4 aus UK: Borderlinx überlastet, mehrtägige Verzögerungen [Update]</title>
+<link>http://www.fscklog.com/2010/07/iphone-4-aus-uk-borderlinx-%C3%BCberlastet-mehrt%C3%A4gige-verz%C3%B6gerungen.html</link>
+<description>Foto: Borderlinx Drei lange Wochen beträgt allein die Wartezeit auf die Auslieferung einer iPhone 4-Bestellung im Apple Store UK, doch wer den Weiterversand nach Deutschland über Borderlinx heranzog, wird derzeit zusätzliche Geduld aufbringen müssen. Borderlinx kämpft nach eigenen Angaben mit einem &quot;Tsunami&quot; an eintreffenden iPhones - allein 2.000 Stück sollen am 20....</description>
+<content:encoded>&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20134859d05b7970c-pi&quot; width=&quot;344&quot; height=&quot;220&quot; alt=&quot;borderlinx.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Foto: &lt;a href=&quot;http://blog.borderlinx.com/?p=2496&quot;&gt;Borderlinx&lt;/a&gt;&lt;br /&gt;
+Drei lange Wochen beträgt allein die Wartezeit auf die Auslieferung &lt;a href=&quot;http://www.fscklog.com/2010/07/selbstversuch-iphone-4-vertragsfrei-und-entsperrt-bei-apple-in-großbritannien-bestellen.html&quot;&gt;einer iPhone 4-Bestellung im Apple Store UK&lt;/a&gt;, doch wer den Weiterversand nach Deutschland über Borderlinx heranzog, wird derzeit zusätzliche Geduld aufbringen müssen. Borderlinx kämpft nach eigenen Angaben mit einem &quot;Tsunami&quot; an eintreffenden iPhones - allein 2.000 Stück sollen am 20. Juli angeliefert worden sein (oben im Bild) und deshalb spricht &lt;a href=&quot;http://blog.borderlinx.com/?p=2496&quot;&gt;der Frachtweiterleiter in einem Blogeintrag&lt;/a&gt; von &quot;etwas Verzögerung&quot;. Tatsächlich berichten mir Leser über Wartezeiten in Höhe von gut einer Woche, bis das iPhone 4 aus dem Sammelort in Milton Keynes von DHL nach Deutschland weitergeschickt wird. Auch bis die Lieferung überhaupt als angekommen bei Borderlinx verzeichnet wurde, können offenbar mehrere Tage vergehen. Borderlinx will verärgerte Kunden mit einem Gutschein für eine künftige Lieferung beruhigen und will sich auf die schnelle Abarbeitung konzentrieren - ob das Unternehmen die in offenbar größer werdenden Wellen anlandenden iPhone 4-Lieferungen in den kommenden Wochen in den Griff bekommt, bleibt offen. (Danke an Marco, Tim, Iades und alle weiteren Tippgeber!)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 9:45 Uhr&lt;/strong&gt;&lt;br /&gt;
+In einer &lt;a href=&quot;http://spreadsheets.google.com/ccc?key=0AtXBEjmeWxAZdHZDSXdLdk1sZGx1QXU5d1QxTDJHMFE&amp;amp;authkey=CL_w_bgH&amp;amp;hl=de#gid=0&quot;&gt;langen Tabelle sammeln Wartende&lt;/a&gt; die Rahmendaten zu ihrer iPhone 4-Lieferung - wann diese bei bei Borderlinx angeliefert wurde, wann der dortige Eingangsscan erfolgt und wann die Lieferung (vielleicht) schon weitergeleitet worden ist. Eigene Angaben können &lt;a href=&quot;http://spreadsheets.google.com/embeddedform?formkey=dHZDSXdLdk1sZGx1QXU5d1QxTDJHMFE6MQ&quot;&gt;hier eingepflegt werden&lt;/a&gt;. (Danke, Dominik!)&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>iPhone</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-22T16:21:40+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/verz%C3%B6gerungen-beim-unlock-des-iphone-3g-durch-telekom-bzw-apple-m%C3%B6glich.html">
+<title>Verzögerungen beim Unlock des iPhone 3G durch Telekom bzw. Apple möglich [Update]</title>
+<link>http://www.fscklog.com/2010/07/verz%C3%B6gerungen-beim-unlock-des-iphone-3g-durch-telekom-bzw-apple-m%C3%B6glich.html</link>
+<description>Seit dem 11. Juli können Telekom-Kunden ihr iPhone 3G auf offiziellem Wege von der Netzsperre befreien lassen, sobald der iPhone-Kauf (mit Vertrag) 24 Monate zurückliegt. Dazu reicht ein Anruf bei der 2202 und die Vorlage der IMEI des iPhone 3G (zu finden unter Einstellungen - Allgemein - Info), diese wird von der...</description>
+<content:encoded>&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20120a7d276b5970b-pi&quot; width=&quot;500&quot; height=&quot;201&quot; alt=&quot;unlock_complete.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:0px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Seit dem &lt;a href=&quot;http://www.fscklog.com/2008/07/t-mobile-mehr-a.html&quot;&gt;11. Juli&lt;/a&gt; können Telekom-Kunden ihr iPhone 3G auf offiziellem Wege von der Netzsperre befreien lassen, &lt;a href=&quot;http://www.fscklog.com/2009/06/t-mobile-entsperrt-vertrags-iphones-erst-nach-24-monaten-ultrasnow-unlock-folgt-am-freitag-video.html&quot;&gt;sobald der iPhone-Kauf (mit Vertrag) 24 Monate zurückliegt&lt;/a&gt;. Dazu reicht ein Anruf bei der 2202 und die Vorlage der IMEI des iPhone 3G (zu finden unter Einstellungen - Allgemein - Info), diese wird von der Telekom an Apple übermittelt und dort letztendlich als &quot;frei&quot; markiert - das iPhone sollte dann bei der nächsten Verbindung mit iTunes entsperrt werden und lässt sich anschließend mit einer beliebigen SIM verwenden. Dies funktioniert im Regel- bzw. Idealfall innerhalb von rund 1 bis 3 Tagen, doch nach einer Reihe von Leserrückmeldungen sowie meiner eigenen Erfahrung hakt es derzeit (wieder) bei einer bestimmten Zahl von iPhone-Kunden, deren Netlock auch nach über zehn Tagen weiterhin störend vorhanden ist. An der Telekom-Hotline wird inzwischen teils eine Wartezeit von zwei Wochen unter Hinweis auf den &quot;Unlock-Ansturm&quot; in Aussicht gestellt, wann die Entsperrung dann jeweils genau erfolgen soll, bleibt unklar (und die jeweiligen Hotline-Angaben können wie gewohnt weit differieren und müssen mit der Realität wenig gemein haben). Dies ist nicht das erste Mal, dass sich der offizielle iPhone-Unlock der Telekom-Vertragsgeräte verzögert - beim letzten Ansturm auf die Entsperrung der ersten iPhone-Generation musste sich mancher Kunde &lt;a href=&quot;http://www.fscklog.com/2010/01/t-mobile-warten-auf-den-iphone-unlock.html&quot;&gt;sogar zwei Monate gedulden&lt;/a&gt;. (Danke an alle Tippgeber!)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 23.07.10 19:30 Uhr&lt;/strong&gt;&lt;br /&gt;
+Wurde das eigene iPhone 3G bereits ein- oder mehrfach ausgetauscht, gestaltet sich die Freischaltung unter Umständen aufwändiger - dann benötigt die Telekom nämlich den Tauschbeleg, der beide IMEI-Nummern aufweist. (Danke, Steffen!)&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>Apple</dc:subject>
+<dc:subject>iPhone</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-22T13:40:50+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/skype-unterst%C3%BCtzt-multitasking-in-ios-4-streicht-geplante-geb%C3%BChren-f%C3%BCr-umts-gespr%C3%A4che.html">
+<title>Skype unterstützt Multitasking in iOS 4, streicht geplante Gebühren für UMTS-Gespräche</title>
+<link>http://www.fscklog.com/2010/07/skype-unterst%C3%BCtzt-multitasking-in-ios-4-streicht-geplante-geb%C3%BChren-f%C3%BCr-umts-gespr%C3%A4che.html</link>
+<description>Mit der heute veröffentlichten Version 2.0.1 unterstützt Skype unter iOS 4 schließlich Multitasking (iTunes-Affiliate-Link): VoIP-Anrufe können endlich entgegengenommen werden ohne dass Skype die aktive App sein muss und während eines laufenden Gesprächs lässt sich von Skype jederzeit ohne Unterbrechung in andere Apps wechseln. Zudem streicht Skype laut einem Blogeintrag die geplanten Gebühren...</description>
+<content:encoded>&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20133f2738ae0970b-pi&quot; width=&quot;250&quot; height=&quot;375&quot; alt=&quot;skype_background.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Mit der heute veröffentlichten Version 2.0.1 unterstützt Skype unter iOS 4 schließlich Multitasking (&lt;a href=&quot;http://clk.tradedoubler.com/click?p=23761&amp;a=1406376&amp;url=http://itunes.apple.com/de/app/skype/id304878510?mt=8&amp;partnerId=2003&quot;&gt;iTunes-Affiliate-Link&lt;/a&gt;): VoIP-Anrufe können endlich entgegengenommen werden ohne dass Skype die aktive App sein muss und während eines laufenden Gesprächs lässt sich von Skype jederzeit ohne Unterbrechung in andere Apps wechseln. Zudem streicht Skype &lt;a href=&quot;http://blogs.skype.com/en/2010/07/iphone_multitasking_3g.html&quot;&gt;laut einem Blogeintrag&lt;/a&gt; die geplanten Gebühren die nach dem Jahresende &lt;a href=&quot;http://www.fscklog.com/2010/05/skype-20-im-app-store-voip-über-umts-vorübergehend-kostenlos.html&quot;&gt;für VoIP-Gespräche über UMTS eigentlich anfallen sollten&lt;/a&gt;. (Danke an Cornelius und Michael!)&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>iPhone</dc:subject>
+<dc:subject>iPod touch</dc:subject>
+<dc:subject>Software</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-21T21:45:51+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/safari-4-und-5-automatisches-ausf%C3%BCllen-als-schwachstelle.html">
+<title>Safari 4 und 5: Automatisches Ausfüllen als Schwachstelle [Update_2]</title>
+<link>http://www.fscklog.com/2010/07/safari-4-und-5-automatisches-ausf%C3%BCllen-als-schwachstelle.html</link>
+<description>Ist in Safari 4 oder 5 das &quot;automatische Ausfüllen&quot; von Webformularen aktiviert, dann ist eine entsprechend vorbereitete Webseite in der Lage, persönliche Daten wie z.B. Namen, Adresse, E-Mail-Adresse oder z.B. auch die eigene Kreditkartennummer auszulesen, wenn diese Angaben irgendwann zuvor einmal bei einem Formular im Browser eingegeben worden sind. Eine präparierte Webseite...</description>
+<content:encoded>&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20133f2720a2d970b-pi&quot; width=&quot;500&quot; height=&quot;188&quot; alt=&quot;autom_ausfuellen.jpg&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Ist in Safari 4 oder 5 das &quot;automatische Ausfüllen&quot; von Webformularen aktiviert, dann ist eine entsprechend vorbereitete Webseite in der Lage, persönliche Daten wie z.B. Namen, Adresse, E-Mail-Adresse oder z.B. auch die eigene Kreditkartennummer auszulesen, wenn diese Angaben irgendwann zuvor einmal bei einem Formular im Browser eingegeben worden sind. Eine präparierte Webseite würde  diese Daten über die Integration üblicher Formularfelder und durch etwas JavaScript entlocken, das Anfangsbuchstaben sowie Zahlen durchprobiert bis der Browser die vollständige Angabe automatisch ergänzt - dies alles funktioniert &lt;a href=&quot;http://www.theregister.co.uk/2010/07/20/browser_info_disclosure_weaknesses/&quot;&gt;nach Angabe des &quot;White Hat Security&quot;-CTOs Jeremiah Grossman&lt;/a&gt; ohne Nutzerinteraktion und kann auch versteckt ablaufen. Grossman will ein Proof-of-Concept der Angriffsmöglichkeit kommende Woche auf der Black-Hat-Sicherheitskonferenz vorstellen und angeblich wurde Apple über die Schwachstelle am 17. Juni in Kenntnis gesetzt. Bis zu einem Fix empfiehlt es sich, das automatische Ausfüllen in Safari komplett zu deaktivieren. (via &lt;a href=&quot;http://www.heise.de/security/meldung/Autocomplete-Browser-verraten-vertrauliche-Daten-1043008.html&quot;&gt;heise Security&lt;/a&gt;)&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 22.07.10 12:45 Uhr&lt;/strong&gt;&lt;br /&gt;
+Grossman veröffentlichte den Proof-of-Concept-Code inzwischen und &lt;a href=&quot;http://jeremiahgrossman.blogspot.com/2010/07/i-know-who-your-name-where-you-work-and.html&quot;&gt;spezifiziert in einem Blogeintrag&lt;/a&gt;, dass das hauptsächliche Problem im (standardmäßig eingeschalteten) automatischen Ergänzen der Informationen aus der eigenen Adressbuch-Visitenkarte besteht, die eben unmittelbar in entsprechende Formularfelder eingefügt werden (ohne dass diese jemals zuvor manuell in einem Formular eingegeben wurden) - mit einer Zahl startende Felder wie die Telefonnummer ließen sich allerdings aus &quot;irgendeinem Grund&quot; nicht auslesen.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update_2 22.07.10 23:25 Uhr&lt;/strong&gt;&lt;br /&gt;
+&quot;We’re aware of the issue and working on a fix&quot;, so ein Apple-Sprecher &lt;a href=&quot;http://digitaldaily.allthingsd.com/20100722/yes-apples-working-on-fix-for-safari-autofill-hack/?mod=ATD_rss&quot;&gt;gegenüber Digital Daily&lt;/a&gt;.&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>Mac</dc:subject>
+<dc:subject>Software</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-21T17:29:05+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/schmorendes-mbp-netzteil-im-video-erinnerung-an-kostenlosen-magsafe-austausch.html">
+<title>Schmorendes Netzteil im Video, Erinnerung an kostenlosen MagSafe-Austausch</title>
+<link>http://www.fscklog.com/2010/07/schmorendes-mbp-netzteil-im-video-erinnerung-an-kostenlosen-magsafe-austausch.html</link>
+<description>Videolink für iPad und iPhone Auch falls man nicht mit der Ruhe gesegnet sein sollte, sein schmorendes PowerBook-Netzteil noch filmisch zu verewigen, ist dieses Video eine gute Erinnerung, auf Belastungsspuren am MagSafe-Netzteil ebenso wie beim Dock-Connector-auf-USB-Kabel zu achten und bei deren eventuellem Auftauchen das Netzteil bzw. Kabel nicht mehr zu benutzen. Apple...</description>
+<content:encoded>&lt;p&gt;&lt;object type=&quot;application/x-shockwave-flash&quot; width=&quot;500&quot; height=&quot;400&quot; data=&quot;http://www.flickr.com/apps/video/stewart.swf?v=71377&quot; classid=&quot;clsid:D27CDB6E-AE6D-11cf-96B8-444553540000&quot;&gt; &lt;param name=&quot;flashvars&quot; value=&quot;intl_lang=en-us&amp;photo_secret=47f7af47d9&amp;photo_id=4776340421&amp;flickr_show_info_box=true&quot;&gt;&lt;/param&gt; &lt;param name=&quot;movie&quot; value=&quot;http://www.flickr.com/apps/video/stewart.swf?v=71377&quot;&gt;&lt;/param&gt; &lt;param name=&quot;bgcolor&quot; value=&quot;#000000&quot;&gt;&lt;/param&gt; &lt;param name=&quot;allowFullScreen&quot; value=&quot;true&quot;&gt;&lt;/param&gt;&lt;embed type=&quot;application/x-shockwave-flash&quot; src=&quot;http://www.flickr.com/apps/video/stewart.swf?v=71377&quot; bgcolor=&quot;#000000&quot; allowfullscreen=&quot;true&quot; flashvars=&quot;intl_lang=en-us&amp;photo_secret=47f7af47d9&amp;photo_id=4776340421&amp;flickr_show_info_box=true&quot; height=&quot;400&quot; width=&quot;500&quot;&gt;&lt;/embed&gt;&lt;/object&gt;&lt;br /&gt;
+&lt;a href=&quot;http://www.flickr.com/photos/petedanks/4776340421/&quot;&gt;Videolink für iPad und iPhone&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Auch falls man nicht mit der Ruhe gesegnet sein sollte, sein schmorendes PowerBook-Netzteil noch filmisch zu verewigen, ist dieses Video eine gute Erinnerung, auf Belastungsspuren am MagSafe-Netzteil ebenso wie beim Dock-Connector-auf-USB-Kabel zu achten und bei deren eventuellem Auftauchen das Netzteil bzw. Kabel nicht mehr zu benutzen. Apple tauscht &lt;a href=&quot;http://www.fscklog.com/2008/08/macbook-und-mac.html&quot;&gt;seit knapp zwei Jahren&lt;/a&gt; MagSafe-Netzteile mit &quot;Zugentlastungsschäden&quot; &lt;a href=&quot;http://support.apple.com/kb/TS1713?viewlocale=de_DE&quot;&gt;kostenlos außerhalb der Garantiezeit aus&lt;/a&gt; und auch ein Dock-Connector-auf-USB-Kabel mit entsprechendem Schaden sollte gewöhnlich ebenso problemlos ersetzt werden. (Danke, Tim und Thomas!)&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>Apple</dc:subject>
+<dc:subject>Mac</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-21T14:28:06+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/apples-q3-2010-rekord-bei-umsatz-und-mac-verk%C3%A4ufen.html">
+<title>Apples Q3 2010: Neuer Rekord bei Umsatz und Mac-Verkäufen [Update]</title>
+<link>http://www.fscklog.com/2010/07/apples-q3-2010-rekord-bei-umsatz-und-mac-verk%C3%A4ufen.html</link>
+<description>Apple veröffentlichte soeben die Geschäftszahlen für das von April bis Ende Juni reichende zweite Quartal 2010 (Apples fiskalisches Q3 2010). Diese fallen wie folgt aus: 15,7 Milliarden US-Dollar Umsatz, 61% Wachstum zum Vorjahresquartal und der höchste Quartalsumsatz in Apples Geschichte. 3,25 Milliarden US-Dollar Nettogewinn (3,51 US-Dollar pro Aktie). Bruttogewinnspanne: 39,1%. 52% der...</description>
+<content:encoded>&lt;p&gt;Apple veröffentlichte soeben die Geschäftszahlen für das von April bis Ende Juni reichende zweite Quartal 2010 (Apples fiskalisches Q3 2010). Diese fallen wie folgt aus:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20133f26d1344970b-pi&quot; width=&quot;500&quot; height=&quot;376&quot; alt=&quot;umsatz_q32010.png&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;15,7 Milliarden US-Dollar &lt;strong&gt;Umsatz&lt;/strong&gt;, 61% Wachstum zum &lt;a href=&quot;http://www.fscklog.com/2009/07/apples-q3-2009.html&quot;&gt;Vorjahresquartal&lt;/a&gt; und der höchste Quartalsumsatz in Apples Geschichte.&lt;br /&gt;
+3,25 Milliarden US-Dollar &lt;strong&gt;Nettogewinn&lt;/strong&gt; (3,51 US-Dollar pro Aktie).&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Bruttogewinnspanne&lt;/strong&gt;: 39,1%.&lt;/p&gt;
+
+&lt;p&gt;52% der Umsätze erzielte Apple außerhalb der USA.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20133f26d142d970b-pi&quot; width=&quot;500&quot; height=&quot;373&quot; alt=&quot;macs_q32010.png&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+&lt;strong&gt;Verkaufte Macs&lt;/strong&gt;: 3.472.000 - 33% Wachstum zum &lt;a href=&quot;http://www.fscklog.com/2009/07/apples-q3-2009.html&quot;&gt;Vorjahresquartal&lt;/a&gt; und ein neuer Stückzahlenrekord.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e20133f26d1472970b-pi&quot; width=&quot;500&quot; height=&quot;371&quot; alt=&quot;deskport_q32010.png&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+Die Auffrischung der MacBook Pro-Reihe dürfte entscheidend zur erneut sehr starken Nachfrage der portablen Macs beigetragen haben.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e2013485924987970c-pi&quot; width=&quot;500&quot; height=&quot;373&quot; alt=&quot;iphone_q32010.png&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+&lt;strong&gt;Verkaufte iPhones&lt;/strong&gt;: 8.398.000 (61% Wachstum zum &lt;a href=&quot;http://www.fscklog.com/2009/07/apples-q3-2009.html&quot;&gt;Vorjahresquartal&lt;/a&gt;) - darin stecken rund 1,7 Millionen iPhone 4.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Verkaufte iPads&lt;/strong&gt;: 3.270.000.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;http://fscklog.typepad.com/.a/6a00d83451c7b569e2013485924a20970c-pi&quot; width=&quot;500&quot; height=&quot;373&quot; alt=&quot;ipod_q32010.png&quot; style=&quot;margin-top:5px; margin-right:10px; margin-bottom:8px; margin-left:1px; padding-top:0px; padding-right:0px; padding-bottom:0px; padding-left:0px; border:1px #000000 solid;&quot; /&gt;&lt;br /&gt;
+&lt;strong&gt;Verkaufte iPods&lt;/strong&gt;: 9.406.000 - 8% weniger als im &lt;a href=&quot;http://www.fscklog.com/2009/07/apples-q3-2009.html&quot;&gt;Vorjahresquartal&lt;/a&gt; - der mit dem iPod erzielte Umsatz steigerte sich dennoch um 4%). Die Verkäufe des iPod touch allein wuchsen angeblich um 48% im Vergleich zum Vorjahresquartal.&lt;/p&gt;
+
+&lt;p&gt;&quot;It was a phenomenal quarter that exceeded our expectations all around, including the most successful product launch in Apple&#39;s history with iPhone 4,&quot; so &lt;a href=&quot;http://www.apple.com/pr/library/2010/07/20results.html&quot;&gt;Steve Jobs in der Pressemeldung&lt;/a&gt;. &quot;iPad is off to a terrific start, more people are buying Macs than ever before, and we have amazing new products still to come this year.&quot;&lt;/p&gt;
+
+&lt;p&gt;&quot;Wir sind sehr zufrieden über 4 Milliarden Dollar an zusätzlichen Barmitteln in diesem Quartal erwirtschaftet zu haben,&quot; ergänzt Peter Oppenheimer, Finanzchef von Apple. &quot;Vorausschauend auf das vierte Geschäftsquartal 2010 erwarten wir einen Umsatz von 18 Milliarden bzw. 3,44 US-Dollar pro verwässerter Aktie.&quot;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Update 0:20 Uhr&lt;/strong&gt;&lt;br /&gt;
+Einige erwähnenswerte Details aus der Konferenzschaltung:&lt;/p&gt;
+
+&lt;p&gt;Apples Barvermögen (Short-Term-Investments eingerechnet) liegt nun bei 45,8 Milliarden US-Dollar.&lt;/p&gt;
+
+&lt;p&gt;Apple schätzt die Umsatzeinbuße durch die &lt;a href=&quot;http://www.fscklog.com/2010/07/apples-reaktion-auf-empfangsproblematik-des-iphone-4-branchenweites-problem-überzogene-berichterstattung-kostenlose-hüll.html&quot;&gt;für Kunden kostenlosen iPhone 4-Hüllen&lt;/a&gt; auf 175 Millionen US-Dollar.&lt;/p&gt;
+
+&lt;p&gt;Apple wusste auch nicht zu beantworten, wann die Nachfrage nach iPad und iPhone 4 letztendlich gedeckt werden kann.&lt;/p&gt;
+
+&lt;p&gt;Apples massives Datencenter in North Carolina soll plangemäß zum Jahresende fertiggestellt sein. &quot;And we expect [...] to begin to use it.&quot;&lt;/p&gt;
+
+&lt;p&gt;Der Analyst Charles Wolf brachte die Willkür der App Store-Zulassungsregeln ins Gespräch, der allerdings von Apples COO und CFO nur mit der üblichen Leier (Erfolgszahlen zum App Store, kein Porn, blubbblabb) begegnet wurde - Apple sei &quot;sehr offen&quot; für Feedback von Entwicklern und modifiziere die Regeln entsprechend, so Tim Cook.&lt;/p&gt;
+
+&lt;p&gt;Eine Analystenfrage zur Ausweitung von FaceTime auf weitere Geräte bis hin zu Macs und Windows-Rechnern blieb unbeantwortet.&lt;/p&gt;
+
+&lt;p&gt;Kleine Anmerkung zum Schluss: Interessant ist Apples sehr selbstbewusster Umsatzausblick in Rekordhöhe von 18 Milliarden US-Dollar für das laufenden Quartal - gewöhnlich fällt die Prognose des Unternehmens eher konservativ aus.&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>Apple</dc:subject>
+<dc:subject>iPad</dc:subject>
+<dc:subject>iPhone</dc:subject>
+<dc:subject>iPod</dc:subject>
+<dc:subject>iPod touch</dc:subject>
+<dc:subject>Mac</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-20T22:36:46+02:00</dc:date>
+</item>
+<item rdf:about="http://www.fscklog.com/2010/07/widerlegtes-unsinnsger%C3%BCcht-ios-4-f%C3%BCrs-ipad-ist-und-bleibt-kostenlos.html">
+<title>Widerlegtes Unsinnsgerücht: iOS 4 fürs iPad ist und bleibt kostenlos</title>
+<link>http://www.fscklog.com/2010/07/widerlegtes-unsinnsger%C3%BCcht-ios-4-f%C3%BCrs-ipad-ist-und-bleibt-kostenlos.html</link>
+<description>Entwickler einer zukünftigen iPad-App sollen Stuff.tv Apples &quot;streng geheime Pläne&quot; geflüstert haben, das ausstehende iOS 4 für das iPad kostenpflichtig werden zu lassen. Die Quelle sei sich dieser Information sicher, so die Gadgetseite. Statt in stupider Gewissheit über dieses &quot;Top-Secret-Vorhaben&quot; blubbernde &quot;Informanten&quot; heranzuziehen, hätte allerdings ein Blick in den iPad-Softwarelizenzvertrag gereicht, der...</description>
+<content:encoded>&lt;p&gt;Entwickler einer zukünftigen iPad-App sollen Stuff.tv Apples &quot;streng geheime Pläne&quot; &lt;a href=&quot;http://stuff.tv/News/Apple-to-charge-for-iPad-iOS-4-upgrade/14808/&quot;&gt;geflüstert haben&lt;/a&gt;, das ausstehende iOS 4 für das iPad kostenpflichtig werden zu lassen. Die Quelle sei sich dieser Information sicher, so die Gadgetseite. Statt in stupider Gewissheit über dieses &quot;Top-Secret-Vorhaben&quot; blubbernde &quot;Informanten&quot; heranzuziehen, hätte allerdings ein &lt;a href=&quot;http://www.fscklog.com/2010/03/ipad-os-updatepolitik-entspricht-iphone-apple-veröffentlicht-gm-seed-von-iphone-os-32.html&quot;&gt;Blick in den iPad-Softwarelizenzvertrag gereicht&lt;/a&gt;, der unumwunden festhält, dass (mindestens) iOS 4 als kostenloses &quot;großes&quot; Update für das iPad bereitstehen wird. &quot;Apple wird Ihnen sämtliche iPad OS Softwareaktualisierungen, die möglicherweise von Zeit zu Zeit veröffentlicht werden, einschließlich bis zur nächsten großen iPad OS Softwareversion, die auf die Version der iPad OS Software folgt, die ursprünglich von Apple auf Ihrem iPad geliefert wurde, kostenlos bereitstellen. Wenn Ihr iPad beispielsweise ursprünglich mit der iPad 3.x Software geliefert wurde, erhalten Sie alle möglicherweise von Apple veröffentlichten iPad OS Softwareaktualisierungen bis einschließlich der iPad 4.x Software. Solche Aktualisierungen und Versionen umfassen unter Umständen nicht alle neuen Softwarefunktionen, die Apple für neuere iPad Modelle veröffentlicht&quot;, so Apple im Wortlaut. Unklar ist allerdings weiterhin, wann iOS 4 für das iPad erscheint, Apple nannte bislang lediglich den &quot;Herbst&quot; als Veröffentlichungstermin - die &lt;a href=&quot;http://www.fscklog.com/2010/07/apple-veröffentlicht-ios-41-beta-für-entwickler.html&quot;&gt;erste Beta von iOS 4.1&lt;/a&gt; steht jedenfalls nur für iPhone und iPod touch bereit. &lt;/p&gt;
+
+&lt;p&gt;Tatsächlich hatte sich Apple unlängst &lt;a href=&quot;http://www.fscklog.com/2010/02/iphone-os-3x-für-ipod-touch-weiterhin-ein-kostenpflichtiges-update.html&quot;&gt;nach einer buchhaltungsseitigen Umstellung&lt;/a&gt; erstmals dazu entschlossen, iOS 4 auch für den iPod touch (mit iOS 3.x) kostenlos anzubieten, bislang mussten iPod touch-Besitzer sowohl für das Update auf iOS 2 wie iOS 3 jeweils einige Euro bezahlen. (Danke an alle Tippgeber!)&lt;/p&gt;</content:encoded>
+
+
+<dc:subject>Apple</dc:subject>
+<dc:subject>iPad</dc:subject>
+<dc:subject>iPhone</dc:subject>
+<dc:subject>iPod touch</dc:subject>
+<dc:subject>Rumors</dc:subject>
+<dc:subject>Web/Tech</dc:subject>
+
+<dc:creator>Leo</dc:creator>
+<dc:date>2010-07-20T13:17:20+02:00</dc:date>
+</item>
+
+
+</rdf:RDF>
+<!-- ph=1 -->
+<!-- nhm:from_kauri -->
