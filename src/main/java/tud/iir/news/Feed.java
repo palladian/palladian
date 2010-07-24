@@ -39,6 +39,9 @@ public class Feed {
     private String language;
     private int textType = TEXT_TYPE_UNDETERMINED;
     
+    /** The size of the feed in bytes. */
+    private long byteSize = 0;
+
     private List<FeedEntry> entries;
 
     /** number of times the feed has been retrieved and read */
@@ -303,6 +306,14 @@ public class Feed {
         this.lastChecked = lastChecked;
     }
 
+    public void setByteSize(long byteSize) {
+        this.byteSize = byteSize;
+    }
+
+    public long getByteSize() {
+        return byteSize;
+    }
+
     /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
@@ -442,6 +453,5 @@ public class Feed {
         }
         return true;
     }
-    
     
 }

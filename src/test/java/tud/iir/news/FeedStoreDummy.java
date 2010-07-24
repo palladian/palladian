@@ -45,15 +45,15 @@ public class FeedStoreDummy implements FeedStore {
     }
 
     @Override
-    public boolean updateFeed(Feed feed, final FeedChecker feedChecker) {
-        // TODO Auto-generated method stub
-        return false;
-    }
-
-    @Override
     public Feed getFeedByID(int feedID) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    @Override
+    public boolean updateFeed(Feed feed) {
+        // TODO Auto-generated method stub
+        return false;
     }
 
 }

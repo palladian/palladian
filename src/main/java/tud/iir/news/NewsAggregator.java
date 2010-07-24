@@ -27,6 +27,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import tud.iir.daterecognition.DateGetterHelper;
+import tud.iir.extraction.PageAnalyzer;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
@@ -182,6 +183,11 @@ public class NewsAggregator {
         // determine feed type (full, partial, none)
         if (useScraping) {
             result.setTextType(determineFeedTextType(syndFeed, feedUrl));
+        }
+
+        // get the size of the feed
+        if (plainXMLFeed != null) {
+            result.setByteSize(PageAnalyzer.getHTMLText(plainXMLFeed).getBytes().length);
         }
 
         LOGGER.trace("<getFeed " + result);
