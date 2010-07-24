@@ -23,10 +23,9 @@ public interface FeedStore {
      * Update a feed if its feedURL already exists.
      * 
      * @param feed The feed to update.
-     * @param checkApproach Approach used to adapt update intervall of this feed.
-     * @return true if feed was updated successfully
+     * @return True if feed was updated successfully.
      */
-    public abstract boolean updateFeed(Feed feed, final FeedChecker feedChecker);
+    public abstract boolean updateFeed(Feed feed);
 
     /**
      * Get all feeds.

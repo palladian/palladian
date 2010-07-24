@@ -65,7 +65,7 @@ class FeedTask implements Runnable {
         feedChecker.getFeedProcessingAction().performAction(feed);
 
         // save the feed back to the database
-        fa.updateFeed(feed,feedChecker);
+        fa.updateFeed(feed);
     }
 
 }

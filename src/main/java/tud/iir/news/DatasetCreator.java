@@ -2,6 +2,8 @@ package tud.iir.news;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -36,13 +38,33 @@ public class DatasetCreator {
     /** Path to the folder where the dataset is stored. */
     private final String dataSetPath = "data/datasets/feedPosts/";
 
+
+    /**
+     * Start creating the dataset.
+     */
     public void createDataset() {
 
-        FeedChecker feedChecker = new FeedChecker(FeedDatabase.getInstance());
+        FeedStore feedStore = FeedDatabase.getInstance();
+
+        // all feeds need to be classified in advance to filter them accordingly
+        FeedClassifier.classifyFeedInStore(feedStore);
+
+        FeedChecker feedChecker = new FeedChecker(feedStore);
 
         feedChecker.setCheckApproach(CheckApproach.CHECK_FIXED, true);
         // feedChecker.setCheckInterval(2);
         
+        // create the dataset only with feeds that are parsable, have at least one entry, and are alive
+        Collection<Integer> updateClasses = new HashSet<Integer>();
+        updateClasses.add(FeedClassifier.CLASS_ZOMBIE);
+        updateClasses.add(FeedClassifier.CLASS_SPONTANUOUS);
+        updateClasses.add(FeedClassifier.CLASS_SLICED);
+        updateClasses.add(FeedClassifier.CLASS_SINGLE_ENTRY);
+        updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);
+        updateClasses.add(FeedClassifier.CLASS_CONSTANT);
+        updateClasses.add(FeedClassifier.CLASS_CHUNKED);
+        feedChecker.filterFeeds(updateClasses);
+
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override
