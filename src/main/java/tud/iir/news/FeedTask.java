@@ -48,7 +48,7 @@ class FeedTask implements Runnable {
 
             FeedChecker.getInstance().updateCheckIntervals(feed);
 
-        } catch (FeedAggregatorException e) {
+        } catch (NewsAggregatorException e) {
             FeedChecker.LOGGER.error(e.getMessage());
         }
 

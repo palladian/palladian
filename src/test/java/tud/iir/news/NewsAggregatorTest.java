@@ -4,7 +4,7 @@ import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
-public class FeedAggregatorTest {
+public class NewsAggregatorTest {
 
     private static NewsAggregator aggregator;
 
@@ -15,14 +15,14 @@ public class FeedAggregatorTest {
 
     @Test
     @Ignore
-    public void testExceptions() throws FeedAggregatorException {
+    public void testExceptions() throws NewsAggregatorException {
         aggregator.getEntries("http://feeds.smh.com.au/rssheadlines/top.xml");
         aggregator.getFeedTextType("http://www.carscars.ie/index.php?format=feed&type=atom");
     }
 
     
     @Test
-    public void readFeedFromFile() throws FeedAggregatorException {
+    public void readFeedFromFile() throws NewsAggregatorException {
         aggregator.setUseScraping(false);
         aggregator.getFeed("data/test/feeds/feed1.xml");
         aggregator.getFeed("data/test/feeds/feed2.xml");

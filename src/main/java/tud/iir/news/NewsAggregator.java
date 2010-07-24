@@ -101,10 +101,10 @@ public class NewsAggregator {
      * 
      * @param feedUrl
      * @return
-     * @throws FeedAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be
+     * @throws NewsAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be
      *             parsed.
      */
-    private SyndFeed getFeedWithRome(String feedUrl) throws FeedAggregatorException {
+    private SyndFeed getFeedWithRome(String feedUrl) throws NewsAggregatorException {
         LOGGER.trace(">getFeedWithRome " + feedUrl);
 
         SyndFeed result;
@@ -122,21 +122,21 @@ public class NewsAggregator {
             // well, which we use inside the IIR toolkit.
             Document xmlDocument = crawler.getXMLDocument(feedUrl, false);
             if (xmlDocument == null) {
-                throw new FeedAggregatorException("could not get document from " + feedUrl);
+                throw new NewsAggregatorException("could not get document from " + feedUrl);
             }
             result = feedInput.build(xmlDocument);
 
         } catch (IllegalArgumentException e) {
             LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-            throw new FeedAggregatorException(e);
+            throw new NewsAggregatorException(e);
         }/*
           * catch (IOException e) {
           * LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-          * throw new FeedAggregatorException(e);
+          * throw new NewsAggregatorException(e);
           * }
           */catch (FeedException e) {
             LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-            throw new FeedAggregatorException(e);
+            throw new NewsAggregatorException(e);
         }
 
         LOGGER.trace("<getFeedWithRome");
@@ -452,7 +452,7 @@ public class NewsAggregator {
                 store.addFeed(feed);
                 LOGGER.info("added feed to store " + feedUrl);
                 added = true;
-            } catch (FeedAggregatorException e) {
+            } catch (NewsAggregatorException e) {
                 LOGGER.error("error adding feed " + feedUrl + " " + e.getMessage());
             }
         } else {
@@ -666,7 +666,7 @@ public class NewsAggregator {
                             // }
                         }
                         scrapeErrors.increment(extractorFails);
-                    } catch (FeedAggregatorException e) {
+                    } catch (NewsAggregatorException e) {
                         errors.increment();
                     } finally {
                         threadCounter.decrement();
@@ -742,9 +742,9 @@ public class NewsAggregator {
      * 
      * @param feedUrl
      * @return
-     * @throws FeedAggregatorException
+     * @throws NewsAggregatorException
      */
-    public Feed getFeed(String feedUrl) throws FeedAggregatorException {
+    public Feed getFeed(String feedUrl) throws NewsAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
         Feed feed = getFeed(syndFeed, feedUrl);
         List<FeedEntry> entries = getEntries(syndFeed);
@@ -757,16 +757,16 @@ public class NewsAggregator {
      * 
      * @param feedUrl
      * @return
-     * @throws FeedAggregatorException
+     * @throws NewsAggregatorException
      */
-    public List<FeedEntry> getEntries(String feedUrl) throws FeedAggregatorException {
+    public List<FeedEntry> getEntries(String feedUrl) throws NewsAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
         return getEntries(syndFeed);
     }
 
     // //////////////////////
     // just for testing purposes
-    int getFeedTextType(String feedUrl) throws FeedAggregatorException {
+    int getFeedTextType(String feedUrl) throws NewsAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
         return determineFeedTextType(syndFeed, feedUrl);
     }

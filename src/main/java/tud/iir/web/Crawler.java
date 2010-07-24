@@ -1564,10 +1564,10 @@ public class Crawler {
                 keepTrying = false;
             } catch (IOException e) {
                 if (retry >= getNumRetries()) {
-                    throw new IOException("maximum retries of " + getNumRetries() + " reached", e);
+                    throw new IOException("maximum retries of " + getNumRetries() + " reached for " + url, e);
                 }
                 retry++;
-                LOGGER.warn("failed to download: " + e.getMessage() + " re-try " + retry + " of " + getNumRetries());
+                LOGGER.warn("failed to download " + url + " : " + e.getMessage() + " re-try " + retry + " of " + getNumRetries());
                 checkChangeProxy(true);
             }
         } while (keepTrying);
