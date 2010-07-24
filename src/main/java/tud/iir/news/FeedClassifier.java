@@ -97,7 +97,7 @@ public class FeedClassifier {
 
             }
 
-        } catch (FeedAggregatorException e) {
+        } catch (NewsAggregatorException e) {
             LOGGER.error("feed could not be classified, feedURL: " + feedURL + ", " + e.getMessage());
         }
 
