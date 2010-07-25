@@ -5,6 +5,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.w3c.dom.Document;
+
+import tud.iir.helper.HTMLHelper;
+
 /**
  * Represents a news entry within a feed ({@link Feed}).
  * 
@@ -29,10 +34,11 @@ public class FeedEntry {
     /** content directly from the feed entry */
     private String content;
 
-    /** content which we scraped from the corresponding web page */
-    private String pageContent;
+    /** content which we downloaded from the corresponding web page. */
+    // private String pageContent;
+    private Document pageContent;
 
-    // assigned tags
+    /** assigned tags from feed entry. */
     private List<String> tags = new ArrayList<String>();
 
     public int getId() {
@@ -74,7 +80,7 @@ public class FeedEntry {
     public void setPublished(Date published) {
         this.published = published;
     }
-    
+
     public Timestamp getPublishedSQLTimestamp() {
         if (published != null) {
             return new Timestamp(published.getTime());
@@ -105,11 +111,11 @@ public class FeedEntry {
         this.content = content;
     }
 
-    public String getPageContent() {
+    public Document getPageContent() {
         return pageContent;
     }
 
-    public void setPageContent(String pageContent) {
+    public void setPageContent(Document pageContent) {
         this.pageContent = pageContent;
     }
 
@@ -136,6 +142,50 @@ public class FeedEntry {
         sb.append(" published:").append(published);
         // sb.append(" text:").append(text);
         return sb.toString();
+    }
+
+    /**
+     * Get text representation of FeedEntry, without HTML tags. Either from the page content or directly from the feed
+     * entry.
+     * 
+     * @return
+     */
+    public String getText() {
+        String result = getPageText();
+        if (result == null) {
+            result = getEntryText();
+        }
+
+        // if (pageContent != null) {
+        // result = HTMLHelper.htmlDocToString(getPageContent());
+        // result = result.replaceAll("\n", "");
+        // result = result.replace(" {2,}", " ");
+        // } else {
+        // result = HTMLHelper.removeHTMLTags(content, true, true, true, true);
+        // result = StringEscapeUtils.unescapeHtml(result);
+        // }
+
+        return result;
+    }
+
+    String getPageText() {
+        String result = null;
+        if (getPageContent() != null) {
+            result = HTMLHelper.htmlDocToString(getPageContent());
+            result = result.replaceAll("\n", " ");
+            result = result.replaceAll(" {2,}", " ");
+        }
+        return result;
+    }
+
+    String getEntryText() {
+        String result = null;
+        if (getContent() != null) {
+            // result = HTMLHelper.removeHTMLTags(content, true, true, true, true);
+            // result = StringEscapeUtils.unescapeHtml(result);
+            result = HTMLHelper.htmlFragmentsToString(getContent(), true);
+        }
+        return result;
     }
 
 }

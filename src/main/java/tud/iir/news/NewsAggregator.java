@@ -1,5 +1,7 @@
 package tud.iir.news;
 
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.LinkedList;
@@ -18,7 +20,10 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
+import tud.iir.extraction.content.PageContentExtractor;
+import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.Counter;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
@@ -26,6 +31,7 @@ import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
+import tud.iir.web.URLDownloader;
 
 import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.rss.Guid;
@@ -63,7 +69,8 @@ public class NewsAggregator {
     private int maxThreads = DEFAULT_MAX_THREADS;
 
     /**
-     * If enabled we download associated pages for each feed entry.
+     * If enabled we use PageContentExtractor to get extract text for entries directly from their corresponding web
+     * pages if necessary.
      */
     private boolean downloadPages = false;
 
@@ -299,11 +306,23 @@ public class NewsAggregator {
         Feed feed = store.getFeedByUrl(feedUrl);
         if (feed == null) {
             try {
-                SyndFeed syndFeed = getFeedWithRome(feedUrl);
-                feed = getFeed(syndFeed, feedUrl);
+
+                feed = downloadFeed(feedUrl);
+
+                // classify feed's text extent
+                FeedContentClassifier classifier = new FeedContentClassifier();
+                int textType = classifier.determineFeedTextType(feed);
+                feed.setTextType(textType);
+
+                // add feed & entries to the store
                 store.addFeed(feed);
-                addEntries(feed, syndFeed);
-                LOGGER.info("added feed to store " + feedUrl);
+
+                for (FeedEntry feedEntry : feed.getEntries()) {
+                    store.addFeedEntry(feed, feedEntry);
+                }
+
+                LOGGER.info("added feed to store " + feedUrl + " (textType:"
+                        + classifier.getReadableFeedTextType(textType) + ")");
                 added = true;
             } catch (NewsAggregatorException e) {
                 LOGGER.error("error adding feed " + feedUrl + " " + e.getMessage());
@@ -432,6 +451,10 @@ public class NewsAggregator {
         // count number of encountered errors
         final Counter errors = new Counter();
 
+        // count number of scraped pages
+        final Counter downloadedPages = new Counter();
+        // final Counter scrapeErrors = new Counter();
+
         // stopwatch for aggregation process
         StopWatch stopWatch = new StopWatch();
 
@@ -454,8 +477,37 @@ public class NewsAggregator {
                     int newEntries = 0;
                     LOGGER.debug("aggregating entries from " + feed.getFeedUrl());
                     try {
-                        SyndFeed syndFeed = getFeedWithRome(feed.getFeedUrl());
-                        newEntries = addEntries(feed, syndFeed);
+
+                        // first, download feed with all entries, but without downloading link
+                        List<FeedEntry> downloadedEntries = downloadFeed(feed.getFeedUrl(), false).getEntries();
+
+                        // check, which we already have and add the missing ones.
+                        List<FeedEntry> toAdd = new ArrayList<FeedEntry>();
+                        for (FeedEntry feedEntry : downloadedEntries) {
+                            boolean add = store.getFeedEntryByRawId(feedEntry.getRawId()) == null;
+                            if (add) {
+                                // boolean fetchPage = isDownloadPages() && feed.getTextType() != Feed.TEXT_TYPE_FULL;
+                                // if (fetchPage) {
+                                // fetchPageContentForEntry(feedEntry);
+                                // downloadedPages.increment();
+                                // }
+                                // store.addFeedEntry(feed, feedEntry);
+                                // newEntries++;
+                                toAdd.add(feedEntry);
+                            }
+                        }
+                        boolean fetchPages = isDownloadPages() && feed.getTextType() != Feed.TEXT_TYPE_FULL;
+                        if (fetchPages && !toAdd.isEmpty()) {
+                            fetchPageContentForEntries(toAdd);
+                            downloadedPages.increment(toAdd.size());
+                        }
+                        for (FeedEntry feedEntry : toAdd) {
+                            store.addFeedEntry(feed, feedEntry);
+                            newEntries++;
+                        }
+
+                        // SyndFeed syndFeed = getFeedWithRome(feed.getFeedUrl());
+                        // newEntries = addEntries(feed, syndFeed);
                     } catch (NewsAggregatorException e) {
                         errors.increment();
                     } finally {
@@ -482,6 +534,8 @@ public class NewsAggregator {
         LOGGER.info(" # new entries total: " + newEntriesTotal.getCount());
         LOGGER.info(" # errors: " + errors.getCount());
         LOGGER.info(" page downloading enabled: " + isDownloadPages());
+        LOGGER.info(" # downloaded pages: " + downloadedPages);
+        // LOGGER.info(" # scrape errors: " + scrapeErrors);
         LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
         LOGGER.info(" traffic: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB");
         LOGGER.info("-------------------------------");
@@ -515,8 +569,9 @@ public class NewsAggregator {
     }
 
     /**
-     * If enabled, we download the linked page for each feed entry. Keep in mind that this causes heavy traffic and
-     * therfor takes a lot more time than a simple aggregation process from XML feeds only.
+     * If enabled, we use {@link PageContentExtractor} to analyse feed type and to extract more text from feed entries
+     * with only partial text representations. Keep in mind that this causes heavy traffic and therfor takes a lot more
+     * time than a simple aggregation process from XML feeds only.
      * 
      * @param downloadPages
      */
@@ -536,11 +591,129 @@ public class NewsAggregator {
      * @throws NewsAggregatorException
      */
     public Feed downloadFeed(String feedUrl) throws NewsAggregatorException {
+        return downloadFeed(feedUrl, isDownloadPages());
+        // SyndFeed syndFeed = getFeedWithRome(feedUrl);
+        // Feed feed = getFeed(syndFeed, feedUrl);
+        // List<FeedEntry> entries = getEntries(syndFeed);
+        //        
+        // if (isDownloadPages()) {
+        // for (FeedEntry feedEntry : entries) {
+        // LOGGER.debug("downloading page " + feedEntry.getLink());
+        //                
+        // try {
+        // PageContentExtractor extractor = new PageContentExtractor();
+        // extractor.setDocument(feedEntry.getLink());
+        // Document page = extractor.getResultDocument();
+        // feedEntry.setPageContent(page);
+        // } catch (PageContentExtractorException e) {
+        // LOGGER.error("error downloading page " + feedEntry.getLink() + " : " + e);
+        // }
+        // }
+        // }
+        //        
+        // feed.setEntries(entries);
+        // return feed;
+    }
+
+    Feed downloadFeed(String feedUrl, boolean fetchPages) throws NewsAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
         Feed feed = getFeed(syndFeed, feedUrl);
         List<FeedEntry> entries = getEntries(syndFeed);
+
+        if (fetchPages) {
+            // for (FeedEntry feedEntry : entries) {
+            // fetchPageContentForEntry(feedEntry);
+            // }
+            fetchPageContentForEntries(entries);
+        }
+
         feed.setEntries(entries);
         return feed;
+    }
+
+    /**
+     * Fetch associated page content using {@link PageContentExtractor}. Do not download binary files, like PDFs, audio
+     * or video files.
+     * 
+     * TODO parallelize this, we can fetch multiple pages concurrently. -> see below.
+     * 
+     * @param feedEntry
+     */
+    // private void fetchPageContentForEntry(FeedEntry feedEntry) {
+    // LOGGER.debug("downloading page " + feedEntry.getLink());
+    //
+    // try {
+    //
+    // String entryLink = feedEntry.getLink();
+    //
+    // // check type of linked file; ignore audio, video or pdf files ...
+    // String fileType = FileHelper.getFileType(entryLink);
+    // boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
+    // || fileType.equals("pdf");
+    // if (ignore) {
+    // LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
+    // } else {
+    //
+    // PageContentExtractor extractor = new PageContentExtractor();
+    //
+    // InputStream inputStream = crawler.downloadInputStream(entryLink);
+    // extractor.setDocument(new InputSource(inputStream));
+    // // extractor.setDocument(feedEntry.getLink());
+    // Document page = extractor.getResultDocument();
+    // feedEntry.setPageContent(page);
+    //
+    // }
+    // } catch (PageContentExtractorException e) {
+    // LOGGER.error("error downloading page " + feedEntry.getLink() + " : " + e);
+    // } catch (IOException e) {
+    // LOGGER.error("error downloading page " + feedEntry.getLink() + " : " + e);
+    // }
+    // }
+
+    /**
+     * Fetch associated page content using {@link PageContentExtractor} for specified FeedEntries. Do not download
+     * binary files, like PDFs, audio or video files. Downloading is done concurrently.
+     * 
+     * @param feedEntry
+     */
+    private void fetchPageContentForEntries(List<FeedEntry> feedEntries) {
+        LOGGER.debug("downloading " + feedEntries.size() + " pages");
+
+        URLDownloader downloader = new URLDownloader();
+        downloader.setMaxThreads(5);
+        PageContentExtractor extractor = new PageContentExtractor();
+
+        for (FeedEntry feedEntry : feedEntries) {
+            String entryLink = feedEntry.getLink();
+
+            // check type of linked file; ignore audio, video or pdf files ...
+            String fileType = FileHelper.getFileType(entryLink);
+            boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
+                    || fileType.equals("pdf");
+            if (ignore) {
+                LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
+            } else {
+                downloader.add(feedEntry.getLink());
+            }
+        }
+
+        // download in parallel
+        downloader.start();
+
+        // check results
+        for (FeedEntry feedEntry : feedEntries) {
+            InputStream inputStream = downloader.get(feedEntry.getLink());
+            if (inputStream != null) {
+                try {
+                    extractor.setDocument(new InputSource(inputStream));
+                    // extractor.setDocument(feedEntry.getLink());
+                    Document page = extractor.getResultDocument();
+                    feedEntry.setPageContent(page);
+                } catch (PageContentExtractorException e) {
+                    LOGGER.error("PageContentExtractorException " + e);
+                }
+            }
+        }
     }
 
     /**
@@ -550,25 +723,33 @@ public class NewsAggregator {
      * @param syndFeed
      * @return number of added entries.
      */
-    private int addEntries(Feed feed, SyndFeed syndFeed) {
-        int newEntries = 0;
-        List<FeedEntry> entries = getEntries(syndFeed);
-
-        for (FeedEntry entry : entries) {
-
-            // if we dont have it, add it
-            boolean add = store.getEntryByRawId(entry.getRawId()) == null;
-            if (add) {
-                if (isDownloadPages()) {
-                    String pageContent = crawler.download(entry.getLink());
-                    entry.setPageContent(pageContent);
-                }
-                store.addEntry(feed, entry);
-                newEntries++;
-            }
-        }
-        return newEntries;
-    }
+    // private int addEntries(Feed feed, SyndFeed syndFeed) {
+    // int newEntries = 0;
+    // List<FeedEntry> entries = getEntries(syndFeed);
+    //
+    // for (FeedEntry entry : entries) {
+    //
+    // // if we dont have it, add it
+    // boolean add = store.getEntryByRawId(entry.getRawId()) == null;
+    // if (add) {
+    // if (isDownloadPages()) {
+    // try {
+    // PageContentExtractor extractor = new PageContentExtractor();
+    // extractor.setDocument(entry.getLink());
+    // Document pageContent = extractor.getResultDocument();
+    // // String pageContent = crawler.download(entry.getLink());
+    // entry.setPageContent(pageContent);
+    // } catch (PageContentExtractorException e) {
+    // // TODO Auto-generated catch block
+    // e.printStackTrace();
+    // }
+    // }
+    // store.addEntry(feed, entry);
+    // newEntries++;
+    // }
+    // }
+    // return newEntries;
+    // }
 
     /**
      * Main method with command line interface.

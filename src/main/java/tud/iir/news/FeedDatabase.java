@@ -4,14 +4,19 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLXML;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.transform.dom.DOMResult;
+import javax.xml.transform.dom.DOMSource;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import tud.iir.persistence.DatabaseManager;
 
@@ -31,6 +36,9 @@ public class FeedDatabase implements FeedStore {
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
 
+    /** the database connection */
+    private Connection connection;
+    
     // ////////////////// feed prepared statements ////////////////////
     private PreparedStatement psAddFeedEntry;
     private PreparedStatement psAddFeed;
@@ -50,8 +58,10 @@ public class FeedDatabase implements FeedStore {
     private PreparedStatement psChangeCheckApproach;
     private PreparedStatement psGetEntries;
 
+
     private FeedDatabase() {
         try {
+            connection = DatabaseManager.getInstance().getConnection();
             prepareStatements();
         } catch (SQLException e) {
             LOGGER.error("SQLException ", e);
@@ -63,8 +73,7 @@ public class FeedDatabase implements FeedStore {
     }
 
     private void prepareStatements() throws SQLException {
-        // // prepared statements for feeds
-        Connection connection = DatabaseManager.getInstance().getConnection();
+        
         psAddFeedEntry = connection
                 .prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?, tags = ?");
         psAddFeed = connection
@@ -361,7 +370,7 @@ public class FeedDatabase implements FeedStore {
     }
 
     @Override
-    public synchronized boolean addEntry(Feed feed, FeedEntry entry) {
+    public synchronized boolean addFeedEntry(Feed feed, FeedEntry entry) {
         LOGGER.trace(">addEntry " + entry + " to " + feed);
         boolean added = false;
         try {
@@ -369,10 +378,19 @@ public class FeedDatabase implements FeedStore {
             psAddFeedEntry.setString(2, entry.getTitle());
             psAddFeedEntry.setString(3, entry.getLink());
             psAddFeedEntry.setString(4, entry.getRawId());
-            // psAddFeedEntry.setTimestamp(5, entry.getAddedSQLTimestamp());
             psAddFeedEntry.setTimestamp(5, entry.getPublishedSQLTimestamp());
             psAddFeedEntry.setString(6, entry.getContent());
-            psAddFeedEntry.setString(7, entry.getPageContent());
+            
+            // psAddFeedEntry.setString(7, entry.getPageContent());
+            if (entry.getPageContent() != null) {
+                SQLXML pageContent = connection.createSQLXML();
+                DOMResult domResult = pageContent.setResult(DOMResult.class);
+                domResult.setNode(entry.getPageContent());
+                psAddFeedEntry.setSQLXML(7, pageContent);
+            } else {
+                psAddFeedEntry.setSQLXML(7, null);
+            }
+            
             // store tags in comma separated column
             psAddFeedEntry.setString(8, StringUtils.join(entry.getTags(), ","));
 
@@ -395,7 +413,7 @@ public class FeedDatabase implements FeedStore {
     }
 
     @Override
-    public synchronized FeedEntry getEntryByRawId(String rawId) {
+    public synchronized FeedEntry getFeedEntryByRawId(String rawId) {
         LOGGER.trace(">getEntryByRawId");
         FeedEntry result = null;
         try {
@@ -409,7 +427,17 @@ public class FeedDatabase implements FeedStore {
                 result.setRawId(resultSet.getString(4));
                 result.setPublished(resultSet.getDate(5));
                 result.setContent(resultSet.getString(6));
-                result.setPageContent(resultSet.getString(7));
+                
+                // result.setPageContent(resultSet.getString(7));
+                if (result.getPageContent() != null) {
+                    SQLXML pageContent = connection.createSQLXML();
+                    DOMResult domResult = pageContent.setResult(DOMResult.class);
+                    domResult.setNode(result.getPageContent());
+                    psAddFeedEntry.setSQLXML(7, pageContent);
+                } else {
+                    psAddFeedEntry.setSQLXML(7, null);
+                }
+                
                 result.setAdded(resultSet.getDate(8));
                 String tags = resultSet.getString(9);
                 if (tags != null) {
@@ -431,6 +459,7 @@ public class FeedDatabase implements FeedStore {
             psGetEntries.setInt(1, limit);
             psGetEntries.setInt(2, offset);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetEntries);
+            
             while (resultSet.next()) {
                 FeedEntry entry = new FeedEntry();
                 entry.setId(resultSet.getInt(1));
@@ -439,7 +468,14 @@ public class FeedDatabase implements FeedStore {
                 entry.setRawId(resultSet.getString(4));
                 entry.setPublished(resultSet.getDate(5));
                 entry.setContent(resultSet.getString(6));
-                entry.setPageContent(resultSet.getString(7));
+                                
+                // entry.setPageContent(resultSet.getString(7));
+                SQLXML pageContent = resultSet.getSQLXML(7);
+                if (pageContent.getString() != null) {
+                    DOMSource pageContentDOMSource = pageContent.getSource(DOMSource.class);
+                    entry.setPageContent((Document) pageContentDOMSource.getNode());
+                }
+                
                 entry.setAdded(resultSet.getDate(8));
                 String tags = resultSet.getString(9);
                 if (tags != null) {
