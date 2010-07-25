@@ -14,6 +14,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import tud.iir.helper.XPathHelper;
 import tud.iir.knowledge.KeyWords;
 import tud.iir.knowledge.RegExp;
 import tud.iir.web.Crawler;
@@ -101,7 +102,7 @@ public final class DateGetterHelper {
         if (bodyNodeList != null) {
             for (int i = 0; i < bodyNodeList.getLength(); i++) {
                 final Node node = bodyNodeList.item(i);
-                final ArrayList<ExtractedDate> childrernDates = getChildrenDates(node);
+                final ArrayList<ExtractedDate> childrernDates = getChildrenDates(node, 0);
                 if (childrernDates != null) {
                     dates.addAll(childrernDates);
                 }
@@ -110,18 +111,19 @@ public final class DateGetterHelper {
         return dates;
     }
 
-    public static ArrayList<ExtractedDate> getChildrenDates(final Node node) {
-        final ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-        final ExtractedDate date = checkForDate(node);
+    public static ArrayList<ExtractedDate> getChildrenDates(final Node node, int depth) {
+        ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
+        ExtractedDate date = checkForDate(node);
         if (date != null) {
             date.setExtractionTechnique(ExtractedDate.TECH_HTML_STRUC);
+            date.setStructuralDepth(depth);
             dates.add(date);
         }
         final NodeList nodeList = node.getChildNodes();
         if (nodeList != null) {
             for (int i = 0; i < nodeList.getLength(); i++) {
-                final Node childNode = nodeList.item(i);
-                final ArrayList<ExtractedDate> childDates = getChildrenDates(childNode);
+                Node childNode = nodeList.item(i);
+                ArrayList<ExtractedDate> childDates = getChildrenDates(childNode, depth + 1);
                 if (childDates != null) {
                     dates.addAll(childDates);
                 }
@@ -154,7 +156,7 @@ public final class DateGetterHelper {
                 final Node attributeNode = tag.item(i);
                 final String nodeName = attributeNode.getNodeName();
                 if (!nodeName.equalsIgnoreCase("href")) {
-                    date = findDateFormat(attributeNode.getNodeValue());
+                    date = findDate(attributeNode.getNodeValue());
                     if (date == null) {
                         keyword = hasKeyword(attributeNode.getNodeValue(), KeyWords.DATE_BODY_STRUC);
                     } else {
@@ -194,37 +196,32 @@ public final class DateGetterHelper {
             }
             if (head != null) {
 
-                final NodeList headTags = head.getChildNodes();
-
-                for (int i = 0; i < headTags.getLength(); i++) {
-                    final Node node = headTags.item(i);
-                    if (node.getNodeName().equalsIgnoreCase("meta")) {
-                        final NamedNodeMap meta = node.getAttributes();
-                        if (node == null) {
+                Iterator<Node> nodeListIterator = XPathHelper.getChildNodes(head, "meta").iterator();
+                while (nodeListIterator.hasNext()) {
+                    NamedNodeMap attributes = nodeListIterator.next().getAttributes();
+                    String[] nameTags = KeyWords.HEAD_KEYWORDS;
+                    for (int j = 0; j < nameTags.length; j++) {
+                        Node nameTag = attributes.getNamedItem(nameTags[j]);
+                        if (nameTag == null) {
                             continue;
                         }
-                        final String[] nameTags = { "name", "http-equiv" };
-                        for (int j = 0; j < nameTags.length; j++) {
-                            final Node nameTag = meta.getNamedItem(nameTags[j]);
-                            if (nameTag == null) {
-                                continue;
-                            }
-                            final String nodeValue = hasKeyword(nameTag.getNodeValue(), KeyWords.DATE_DOC_HEAD);
-                            if (nodeValue == null) {
-                                continue;
-                            }
-                            final Node contentTag = meta.getNamedItem("content");
-                            if (contentTag == null) {
-                                continue;
-                            }
-                            final ExtractedDate date = findDateFormat(contentTag.getNodeValue());
-                            if (date != null) {
-                                date.setContext(nameTag.getNodeValue());
-                                dates.add(date);
-                            }
+                        String nodeValue = hasKeyword(nameTag.getNodeValue(), KeyWords.DATE_DOC_HEAD);
+                        if (nodeValue == null) {
+                            continue;
+                        }
+                        Node contentTag = attributes.getNamedItem("content");
+                        if (contentTag == null) {
+                            continue;
+                        }
+                        ExtractedDate date = findDate(contentTag.getNodeValue());
+                        if (date != null) {
+                            date.setContext(nameTag.getNodeValue());
+                            date.setExtractionTechnique(ExtractedDate.TECH_HTML_HEAD);
+                            dates.add(date);
                         }
                     }
                 }
+
             }
         }
         return dates;
@@ -237,13 +234,12 @@ public final class DateGetterHelper {
      * @return The found format, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
-    public static ExtractedDate findDateFormat(final String dateString) {
+    public static ExtractedDate findDate(final String dateString) {
+        // Tokenizer.getSentence(string, position)
         ExtractedDate date = null;
         String format = null;
         String newDateString = null;
-        final Object[] regExps = { RegExp.DATE_RFC_1123, RegExp.DATE_RFC_1036, RegExp.DATE_ANSI_C,
-                RegExp.DATE_ISO8601_YMD_T, RegExp.DATE_ISO8601_YMD, RegExp.DATE_ISO8601_YM, RegExp.DATE_ISO8601_YWD,
-                RegExp.DATE_ISO8601_YW, RegExp.DATE_ISO8601_YD };
+        Object[] regExps = RegExp.getAllRegExp();
 
         Pattern pattern;
         Matcher matcher;
@@ -252,8 +248,8 @@ public final class DateGetterHelper {
             pattern = Pattern.compile(((String[]) regExps[i])[0]);
             matcher = pattern.matcher(dateString);
             if (matcher.find()) {
-                final int start = matcher.start();
-                final int end = matcher.end();
+                int start = matcher.start();
+                int end = matcher.end();
                 format = ((String[]) regExps[i])[1];
                 newDateString = dateString.substring(start, end);
                 break;
@@ -350,7 +346,6 @@ public final class DateGetterHelper {
 
         pattern = Pattern.compile(regExp[0]);
         matcher = pattern.matcher(text);
-
         if (matcher.find()) {
             final int start = matcher.start();
             final int end = matcher.end();
@@ -426,8 +421,26 @@ public final class DateGetterHelper {
                 cleardString = datePart.substring(0, index);
             }
         } else {
-
             cleardString = datePart.substring(index + 1, datePart.length());
+        }
+
+        index = cleardString.indexOf(".");
+        if (index != -1) {
+            cleardString = cleardString.substring(0, index);
+        }
+
+        index = cleardString.indexOf("th");
+        if (index == -1) {
+            index = cleardString.indexOf("st");
+            if (index == -1) {
+                index = cleardString.indexOf("nd");
+                if (index == -1) {
+                    index = cleardString.indexOf("rd");
+                }
+            }
+        }
+        if (index != -1) {
+            cleardString = cleardString.substring(0, index);
         }
 
         return cleardString;
@@ -449,7 +462,8 @@ public final class DateGetterHelper {
      * @param month
      * @return month-number as string
      */
-    public static String getMonthNumber(final String month) {
+    public static String getMonthNumber(String month) {
+        month.replaceAll(" ", "");
         String monthNumber = null;
         if (month.equalsIgnoreCase("january") || month.equalsIgnoreCase("januar") || month.equalsIgnoreCase("jan")) {
             monthNumber = "01";

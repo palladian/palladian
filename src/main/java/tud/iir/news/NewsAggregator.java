@@ -333,7 +333,7 @@ public class NewsAggregator {
         if (node != null) {
 
             try {
-                pubDate = DateGetterHelper.findDateFormat(node.getTextContent()).getNormalizedDate();
+                pubDate = DateGetterHelper.findDate(node.getTextContent()).getNormalizedDate();
             } catch (NullPointerException e) {
                 LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
             }
@@ -346,7 +346,7 @@ public class NewsAggregator {
             if (node != null) {
 
                 try {
-                    pubDate = DateGetterHelper.findDateFormat(node.getTextContent()).getNormalizedDate();
+                    pubDate = DateGetterHelper.findDate(node.getTextContent()).getNormalizedDate();
                 } catch (NullPointerException e) {
                     LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
                 }
@@ -358,7 +358,7 @@ public class NewsAggregator {
 
                 if (node != null) {
                     try {
-                        pubDate = DateGetterHelper.findDateFormat(node.getTextContent()).getNormalizedDate();
+                        pubDate = DateGetterHelper.findDate(node.getTextContent()).getNormalizedDate();
                     } catch (NullPointerException e) {
                         LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
                     }

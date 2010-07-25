@@ -13,8 +13,8 @@ import org.apache.log4j.Logger;
 
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.ExtractionType;
-import tud.iir.news.PageContentExtractor;
-import tud.iir.news.PageContentExtractorException;
+import tud.iir.extraction.content.PageContentExtractor;
+import tud.iir.extraction.content.PageContentExtractorException;
 
 import com.temesoft.google.pr.JenkinsHash;
 

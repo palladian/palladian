@@ -6,6 +6,8 @@ import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.math.NumberUtils;
+
 import tud.iir.helper.DateHelper;
 import tud.iir.knowledge.RegExp;
 
@@ -34,18 +36,23 @@ public class ExtractedDate {
     private String format;
     /** Technique the ExtractedDate is found. <br> */
     private int extractionTechnique = -1;
+    /**
+     * Context, in witch the date was found. <br>
+     * E.g.: URL, tag-name, HTTP-tag, keyword...
+     */
+    private String context = null;
+    /**
+     * In witch depth of html-structure the date was found. For rating of date.
+     */
+    private int structuralDepth = -1;
+
+    // date values
     private int year = -1;
     private int month = -1;
     private int day = -1;
     private int hour = -1;
     private int minute = -1;
     private int second = -1;
-    private int diffToUTC;
-    /**
-     * Context, in witch the date was found. <br>
-     * E.g.: URL, tag-name, HTTP-tag, keyword...
-     */
-    private String context = null;
 
     /**
      * Standard constructor.
@@ -96,20 +103,12 @@ public class ExtractedDate {
                 separator = " ";
             }
             final String[] temp = this.dateString.split(separator);
-            dateParts = temp[0].split("-");
-            year = DateGetterHelper.normalizeYear(dateParts[0]);
-            month = Integer.parseInt(dateParts[1]);
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[2]));
+            setDateValues(temp[0].split("-"), 0, 1, 2);
             setTimeValues(temp[1]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD[1])) {
-            dateParts = this.dateString.split("-");
-            year = DateGetterHelper.normalizeYear(dateParts[0]);
-            month = Integer.parseInt(dateParts[1]);
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[2]));
+            setDateValues(this.dateString.split("-"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YM[1])) {
-            dateParts = this.dateString.split("-");
-            year = DateGetterHelper.normalizeYear(dateParts[0]);
-            month = Integer.parseInt(dateParts[1]);
+            setDateValues(this.dateString.split("-"), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD[1])) {
             setDatebyWeekOfYear(this.dateString, true, true);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD_T[1])) {
@@ -126,15 +125,10 @@ public class ExtractedDate {
             setTimeValues(dateParts[1]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YW[1])) {
             setDatebyWeekOfYear(this.dateString, false, true);
-
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD[1])) {
             setDateByDayOfYear(true);
-
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_D[1])) {
-            dateParts = this.dateString.split(DateGetterHelper.getSeparator(this.dateString));
-            year = DateGetterHelper.normalizeYear(dateParts[0]);
-            month = Integer.parseInt(dateParts[1]);
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[2]));
+            setDateValues(this.dateString.split(DateGetterHelper.getSeparator(this.dateString)), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT[1])) {
             dateParts = this.dateString.split("/");
             year = DateGetterHelper.normalizeYear(dateParts[0]);
@@ -153,95 +147,53 @@ public class ExtractedDate {
             }
 
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL[1])) {
-            dateParts = this.dateString.split(DateGetterHelper.getSeparator(this.dateString));
-            year = DateGetterHelper.normalizeYear(dateParts[0]);
-            month = Integer.parseInt(dateParts[1]);
+            setDateValues(this.dateString.split(DateGetterHelper.getSeparator(this.dateString)), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM_Y[1])) {
-            dateParts = this.dateString.split("\\.");
-            year = DateGetterHelper.normalizeYear(dateParts[2]);
-            month = Integer.parseInt(dateParts[1]);
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[0]));
+            setDateValues(this.dateString.split("\\."), 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y[1])) {
-            dateParts = this.dateString.split("/");
-            year = DateGetterHelper.normalizeYear(dateParts[2]);
-            month = Integer.parseInt(dateParts[0]);
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[1]));
+            setDateValues(this.dateString.split("/"), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y[1])) {
-            dateParts[0] = this.dateString.split("\\.")[0];
-            final String[] temp = this.dateString.split("\\.")[1].split(" ");
-            System.arraycopy(temp, 1, dateParts, 1, temp.length - 1);
-            year = DateGetterHelper.normalizeYear(dateParts[2]);
-            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[1]));
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[0]));
+            String[] temp;
+            if (this.dateString.indexOf("\\.") == -1) {
+                dateParts = this.dateString.split(" ");
+            } else {
+                dateParts[0] = this.dateString.split("\\.")[0];
+                temp = this.dateString.split("\\.")[1].split(" ");
+                System.arraycopy(temp, 1, dateParts, 1, temp.length - 1);
+            }
+            setDateValues(dateParts, 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y[1])) {
-            dateParts = this.dateString.split(" ");
-            year = DateGetterHelper.normalizeYear(dateParts[2]);
-            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[0]));
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[1]));
+            setDateValues(this.dateString.split(" "), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_MMMM_Y[1])) {
-            dateParts = this.dateString.split(" ");
-            year = DateGetterHelper.normalizeYear(dateParts[1]);
-            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[0]));
+            setDateValues(this.dateString.split(" "), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_MM_Y[1])) {
-            dateParts = this.dateString.split(".");
-            year = DateGetterHelper.normalizeYear(dateParts[1]);
-            month = Integer.parseInt(dateParts[0]);
+            setDateValues(this.dateString.split("\\."), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM[1])) {
-            dateParts = this.dateString.split(".");
-            month = Integer.parseInt(dateParts[1]);
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[0]));
+            setDateValues(this.dateString.split("\\."), -1, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM[1])) {
-            dateParts = this.dateString.split(".");
-            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[1]));
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[0]));
+            setDateValues(this.dateString.split("\\."), -1, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D[1])) {
-            dateParts = this.dateString.split("/");
-            month = Integer.parseInt(dateParts[0]);
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[1]));
+            setDateValues(this.dateString.split("/"), -1, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D[1])) {
-            dateParts = this.dateString.split(" ");
-            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[0]));
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[1]));
+            setDateValues(this.dateString.split(" "), -1, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_Y[1])) {
-            dateParts = this.dateString.split("/");
-            year = DateGetterHelper.normalizeYear(dateParts[1]);
-            month = Integer.parseInt(dateParts[0]);
+            setDateValues(this.dateString.split("/"), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ANSI_C[1])) {
             dateParts = this.dateString.split(" ");
-            year = DateGetterHelper.normalizeYear(dateParts[4]);
-            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[1]));
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[2]));
-            final String time[] = dateParts[3].split(":");
-            this.hour = Integer.parseInt(time[0]);
-            this.minute = Integer.parseInt(time[1]);
-            this.second = Integer.parseInt(time[2]);
-
+            setDateValues(dateParts, 4, 1, 2);
+            setTimeValues(dateParts[3]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ANSI_C_TZ[1])) {
             dateParts = this.dateString.split(" ");
-            year = DateGetterHelper.normalizeYear(dateParts[4]);
-            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[1]));
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[2]));
+            setDateValues(dateParts, 4, 1, 2);
             setTimeValues(dateParts[3] + dateParts[5]);
-
         } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1123[1])) {
             dateParts = this.dateString.split(" ");
-            year = DateGetterHelper.normalizeYear(dateParts[3]);
-            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[2]));
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[1]));
-            final String time[] = dateParts[4].split(":");
-            this.hour = Integer.parseInt(time[0]);
-            this.minute = Integer.parseInt(time[1]);
-            this.second = Integer.parseInt(time[2]);
+            setDateValues(dateParts, 3, 2, 1);
+            setTimeValues(dateParts[4]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1036[1])) {
-            final String parts[] = this.dateString.split(" ");
-            dateParts = parts[1].split("-");
-            year = DateGetterHelper.normalizeYear(dateParts[2]);
-            month = Integer.parseInt(DateGetterHelper.getMonthNumber(dateParts[1]));
-            day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[0]));
-            final String[] time = parts[2].split(":");
-            this.hour = Integer.parseInt(time[0]);
-            this.minute = Integer.parseInt(time[1]);
-            this.second = Integer.parseInt(time[2]);
+            String parts[] = this.dateString.split(" ");
+            setDateValues(parts[1].split("-"), 2, 1, 0);
+            setTimeValues(parts[2]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD_NO[1])) {
             year = Integer.parseInt(this.dateString.substring(0, 4));
             month = Integer.parseInt(this.dateString.substring(4, 6));
@@ -252,6 +204,135 @@ public class ExtractedDate {
             setDatebyWeekOfYear(this.dateString, false, false);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD_NO[1])) {
             setDateByDayOfYear(false);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1123_UTC[1])) {
+            dateParts = this.dateString.split(" ");
+            setDateValues(dateParts, 3, 2, 1);
+            setTimeValues(dateParts[4] + dateParts[5]);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_RFC_1036_UTC[1])) {
+            String parts[] = this.dateString.split(" ");
+            setDateValues(parts[1].split("-"), 2, 1, 0);
+            setTimeValues(parts[2] + parts[3]);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM_Y_T[1])) {
+            String dateString = this.dateString;
+            String meridiem = hasAMPM(this.dateString);
+            if (meridiem != null) {
+                dateString = removeAMPM(this.dateString, meridiem);
+            }
+            String[] parts = dateString.split(" ");
+            String[] date = parts[0].split("\\.");
+            setDateValues(date, 2, 1, 0);
+            if (parts.length > 2) {
+                setTimeValues(parts[1] + parts[2]);
+            } else {
+                setTimeValues(parts[1]);
+            }
+            set24h(meridiem);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y_T[1])) {
+            String dateString = this.dateString;
+            String meridiem = hasAMPM(this.dateString);
+            if (meridiem != null) {
+                dateString = removeAMPM(this.dateString, meridiem);
+            }
+            String[] parts = dateString.split(" ");
+            setDateValues(parts, 2, 1, 0);
+            if (parts.length > 4) {
+                setTimeValues(parts[3] + parts[4]);
+            } else {
+                setTimeValues(parts[3]);
+            }
+            set24h(meridiem);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y_T[1])) {
+            String dateString = this.dateString;
+            String meridiem = hasAMPM(this.dateString);
+            if (meridiem != null) {
+                dateString = removeAMPM(this.dateString, meridiem);
+            }
+            String[] parts = dateString.split(" ");
+            String[] date = parts[0].split("/");
+            setDateValues(date, 2, 0, 1);
+            if (parts.length > 2) {
+                setTimeValues(parts[1] + parts[2]);
+            } else {
+                setTimeValues(parts[1]);
+            }
+            set24h(meridiem);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y_T[1])) {
+            String dateString = this.dateString;
+            String meridiem = hasAMPM(this.dateString);
+            if (meridiem != null) {
+                dateString = removeAMPM(this.dateString, meridiem);
+            }
+            String[] parts = dateString.split(" ");
+            setDateValues(parts, 2, 0, 1);
+            if (parts.length > 4) {
+                setTimeValues(parts[3] + parts[4]);
+            } else {
+                setTimeValues(parts[3]);
+            }
+            set24h(meridiem);
+        }
+
+    }
+
+    /**
+     * Removes PM and AM from a string and delete double whitespace.
+     * 
+     * @param text String to be cleared.
+     * @param meridiem AM or PM
+     * @return Cleared string.
+     */
+    private String removeAMPM(String text, String meridiem) {
+        String newText;
+        newText = text.replaceAll(meridiem, "");
+        return newText.replaceAll("  ", " ");
+    }
+
+    /**
+     * Checks for AM and PM in a string and returns the found.
+     * 
+     * @param text String to b checked.
+     * @return Am or PM.
+     */
+    private String hasAMPM(String text) {
+        int index;
+        String meridiem = null;
+        index = text.indexOf("AM");
+        if (index == -1) {
+            index = text.indexOf("am");
+            if (index == -1) {
+                index = text.indexOf("PM");
+                if (index == -1) {
+                    index = text.indexOf("pm");
+                    if (index != -1) {
+                        meridiem = "pm";
+                    }
+                } else {
+                    meridiem = "PM";
+                }
+            } else {
+                meridiem = "am";
+            }
+        } else {
+            meridiem = "AM";
+        }
+        return meridiem;
+    }
+
+    /**
+     * If this date has a hour and the date-string has AM or PM values, the hour will be changed in 24h system.
+     * 
+     * @param meridiem Am or PM
+     */
+    private void set24h(String meridiem) {
+
+        if (this.hour != -1 && meridiem != null) {
+            if (meridiem.equalsIgnoreCase("pm")) {
+                if (this.hour > 0 && this.hour < 12) {
+                    this.hour += 12;
+                }
+            } else if (meridiem.equalsIgnoreCase("am") && this.hour == 12) {
+                this.hour = 0;
+            }
         }
     }
 
@@ -290,11 +371,7 @@ public class ExtractedDate {
     }
 
     public Date getNormalizedDate() {
-        return new Date(getTimeStamp());
-    }
-
-    public long getTimeStamp() {
-        return DateHelper.getTimestamp(getNormalizedDateString());
+        return new Date(DateHelper.getTimestamp(getNormalizedDateString()));
     }
 
     /**
@@ -383,7 +460,7 @@ public class ExtractedDate {
 
         index = actualTime.indexOf('.');
         if (index != -1) {
-            final String regExp = "\\.(\\d)*";
+            String regExp = "\\.(\\d)*";
             Pattern pattern;
             Matcher matcher;
             pattern = Pattern.compile(regExp);
@@ -440,17 +517,20 @@ public class ExtractedDate {
      * @param sign must be + or -
      */
     private void setTimeDiff(final String time, final String sign) {
-
         if (this.year == -1 || this.month == -1 || this.day == -1 || this.hour == -1) {
             return;
         }
         int hour;
         int minute = 0;
-
         if (time.indexOf(':') == -1) {
-            hour = Integer.parseInt(time);
+            if (time.length() == 4) {
+                hour = Integer.parseInt(time.substring(0, 2));
+                minute = Integer.parseInt(time.substring(2, 4));
+            } else {
+                hour = Integer.parseInt(time);
+            }
         } else {
-            final String[] timeParts = time.split(":");
+            String[] timeParts = time.split(":");
             hour = Integer.parseInt(timeParts[0]);
             minute = Integer.parseInt(timeParts[1]);
         }
@@ -476,6 +556,7 @@ public class ExtractedDate {
         if (this.minute != -1 || minute != 0) {
             this.minute = calendar.get(Calendar.MINUTE);
         }
+
     }
 
     /**
@@ -500,6 +581,31 @@ public class ExtractedDate {
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * Sets the year, month and day of this date by getting a array with this values and the position of each value in
+     * the array.
+     * 
+     * @param dateParts The array with date-parts.
+     * @param yearPos Position of year in the date-array.
+     * @param monthPos Position of month in the date-array.
+     * @param dayPos Position of day in the date-array.
+     */
+    private void setDateValues(String[] dateParts, int yearPos, int monthPos, int dayPos) {
+        if (yearPos != -1) {
+            this.year = DateGetterHelper.normalizeYear(dateParts[yearPos]);
+        }
+        if (monthPos != -1) {
+            if (!NumberUtils.isNumber(dateParts[monthPos])) {
+                dateParts[monthPos] = DateGetterHelper.getMonthNumber(dateParts[monthPos].replaceAll(" ", ""));
+            }
+            this.month = Integer.parseInt(dateParts[monthPos]);
+
+        }
+        if (dayPos != -1) {
+            this.day = Integer.parseInt(DateGetterHelper.removeNodigits(dateParts[dayPos]));
         }
     }
 
@@ -608,18 +714,6 @@ public class ExtractedDate {
     }
 
     /**
-     * 
-     * @return difference to UTC of extracted date.
-     */
-    public int getDiffToUTC() {
-        return this.diffToUTC;
-    }
-
-    public void setDiffToUTC(final int diffToUTC) {
-        this.diffToUTC = diffToUTC;
-    }
-
-    /**
      * To set the context in witch the date was found. <br>
      * E.g.: URL, tag-name, HTTP-tag, keyword...
      * 
@@ -638,6 +732,21 @@ public class ExtractedDate {
      */
     public String getContext() {
         return context;
+    }
+
+    public void setStructuralDepth(int structuralDepth) {
+        this.structuralDepth = structuralDepth;
+    }
+
+    public int getStructuralDepth() {
+        return structuralDepth;
+    }
+
+    @Override
+    public String toString() {
+        return "datestring: " + dateString + " - datevalues:" + year + " " + month + " " + day + " " + hour + " "
+                + minute + " " + second + " - extraction technique: " + extractionTechnique + " - context: " + context
+                + " - structurPostion: " + structuralDepth;
     }
 
 }
