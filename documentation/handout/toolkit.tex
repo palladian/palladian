@@ -200,7 +200,7 @@ You need to set your username and your password in the server section. This can 
 \item Change to the toolkits root folder.
 \item Type \texttt{mvn clean install} to start the build process.
 \end{enumerate}
-There also is an \href{http://m2eclipse.sonatype.org/}{Eclipse plugin}, that allows you to issue maven build from within Eclipse. It is quite beta so be careful with it.
+There also is an \href{http://m2eclipse.sonatype.org/}{Eclipse plugin}, that allows you to issue maven build from within Eclipse. It is quite beta so be careful with it. To use the toolkit together with the plugin in your own projects you need to update the plugins index (This index stores which libraries are available through Maven) and update it after you have successful run \texttt{maven install}. This can be achieved by choosing \texttt{Window $\rightarrow$ Show View $\rightarrow$ Other $\rightarrow$ Maven $\rightarrow$ Maven Repositories} inside Eclipse. A View appears showing all Maven artifact repositories available to the m2eclipse. Right klick \texttt{Local Repositories $\rightarrow$ Local repository} and choose \texttt{Rebuild Index}.
 \section{Regularly builds and tests using Hudson CI}
 Currently the toolkit is build automatically every week using Hudson CI. Be careful to check in only working code or Hudson will send you and your advisor an E-Mail about broken code. If this happens try to fix your code as fast as possible and check in again. You can get details about the problem by logging into \href{http://www.effingo.de/hudson}{Hudson}. You can get a login by sending an E-Mail stating your advisor and why you nood to work with the toolkit to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de}
 \subsection{The Continuous Integration Game}
@@ -238,6 +238,7 @@ The rules of the game are:
 \caption{Enter detail information about your new Maven Project}
 \label{fig:maven-project03}
 \end{figure}
+\paragraph{Setting correct encoding} On Windows and Mac encoding is set by default to some platform specific format. Since we do a lot of string processing correct and consistent character encoding is very important. Therefore we need to set encoding to UTF-8, which is the standard format that should be used by modern software. To do this right click on your new project. Choose \texttt{Properties} and set \texttt{Text file encoding} on the right side to \texttt{UTF-8} if not already set.
 \paragraph{Adding the toolkit dependency to the project:} Right click on the new project. In the context menu that appears choose \textit{Maven $\rightarrow$ Add Dependency} (See Fig.~\ref{fig:example-project-context-menu01} and \ref{fig:example-project-context-menu02}).
 \begin{figure}
 \includegraphics[scale=1]{img/context02.png}
@@ -268,12 +269,30 @@ The Maven plugin adds the dependency to your pom.xml file, which should look lik
 \caption{POM with added dependency on the TUD IIR Toolkit.}
 \label{fig:pom01}
 \end{figure}
-\paragraph{Configuring your project} Since Maven by default still uses Java 1.4 (very conservative), but the toolkit depends on Java 1.6 (very visionary) you need to configure the Maven Java compiler plugin to use Java 1.6. This is shown in Fig.~\ref{fig:java601}.
-\begin{figure}
-\includegraphics[width=\textwidth]{img/ht07.png}
-\caption{Configure the Maven Java compiler to use Java 1.6 instead of 1.4}
-\label{fig:java601}
-\end{figure}
+\paragraph{Configuring your project} Since Maven by default still uses Java 1.4 (very conservative), but the toolkit depends on Java 1.6 (very visionary) you need to configure the Maven Java compiler plugin to use Java 1.6 by adding the following markup to your pom.xml (add it after the description element):
+\begin{verbatim}
+<build>
+ <plugins>
+  <plugin>
+   <groupId>org.apache.maven.plugins</groupId>
+   <artifactId>maven-compiler-plugin</artifactId>
+   <version>2.3.1</version>
+   <configuration>
+    <compilerArgument>-Xlint:all</compilerArgument>
+    <showWarnings>true</showWarnings>
+    <source>1.6</source>
+    <target>1.6</target>
+    <compilerArguments>
+     <encoding>UTF-8</encoding>
+    </compilerArguments>
+    <showDeprecation>true</showDeprecation>
+    <verbose>true</verbose>
+    <encoding>UTF-8</encoding>
+   </configuration>
+  </plugin>
+ </plugins>
+</build>
+\end{verbatim}
 The same step is necessary to tell Eclipse that it should use Java 1.6 instead of 1.4. For this purpose open the project properties via the context menu for example. In the tree to the left choose \textit{Java Compiler} and change all three entries to 1.6. This is shown in Fig.~\ref{fig:java602} and Fig.~\ref{fig:java603}.
 \begin{figure}
 \includegraphics[width=\textwidth]{img/ht08.png}
