@@ -15,7 +15,7 @@ public class FeedStoreDummy implements FeedStore {
     private static final Logger logger = Logger.getLogger(FeedStoreDummy.class);
 
     @Override
-    public boolean addEntry(Feed feed, FeedEntry entry) {
+    public boolean addFeedEntry(Feed feed, FeedEntry entry) {
         logger.trace("adding " + entry);
         return true;
     }
@@ -39,7 +39,7 @@ public class FeedStoreDummy implements FeedStore {
     }
 
     @Override
-    public FeedEntry getEntryByRawId(String rawId) {
+    public FeedEntry getFeedEntryByRawId(String rawId) {
         // TODO Auto-generated method stub
         return null;
     }

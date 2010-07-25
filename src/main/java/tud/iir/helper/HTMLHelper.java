@@ -1,5 +1,6 @@
 package tud.iir.helper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -16,9 +17,15 @@ import javax.xml.transform.TransformerFactoryConfigurationError;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
 
+import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
+import org.cyberneko.html.parsers.DOMFragmentParser;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.DocumentFragment;
+import org.w3c.dom.Node;
+import org.w3c.dom.html.HTMLDocument;
 import org.xml.sax.Attributes;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
@@ -230,14 +237,16 @@ public class HTMLHelper {
      * Converts HTML markup to a more or less human readable string. For example we insert line breaks for HTML block
      * level elements, filter out comments, scripts and stylesheets, remove unnecessary white space and so on.
      * 
-     * In contrast to @link{@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which just strips out
-     * all tags, this approach tries to keep some structure for displaying HTML content in text mode in a readable form.
+     * In contrast to @link{@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which works in Strings
+     * and just strips out all tags via RegExes, this approach tries to keep some structure for displaying HTML content
+     * in text mode in a readable form.
      * 
      * @param doc
      * @return
      * @author Philipp Katz
      */
-    public static String htmlDocToString(Document doc) {
+//    public static String htmlDocToString(Document doc) {
+    public static String htmlDocToString(Node doc) {
         final StringBuilder builder = new StringBuilder();
         try {
             TransformerFactory transFac = TransformerFactory.newInstance();
@@ -299,7 +308,54 @@ public class HTMLHelper {
         return result;
     }
 
+    /**
+     * TODO work in progress, will change/needs testing.
+     * 
+     * This allows to strip HTML tags from incomplete HTML fragments. It will use the Neko parser to parse the String
+     * first and then remove the tags, based on the document's structure. Advantage instead of using RegExes to strip
+     * the tags is, that whitespace is handled more correctly than in
+     * {@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)} which never worked well for me.
+     * 
+     * @param htmlFragments
+     * @param oneLine
+     * @return
+     * @author Philipp Katz
+     */
+    public static String htmlFragmentsToString(String htmlFragments, boolean oneLine) {
+        DOMFragmentParser parser = new DOMFragmentParser();
+        HTMLDocument document = new HTMLDocumentImpl();
+        
+        // see http://nekohtml.sourceforge.net/usage.html
+        DocumentFragment fragment = document.createDocumentFragment();
+        
+        try {
+            parser.parse(new InputSource(new StringInputStream(htmlFragments)), fragment);
+        } catch (SAXException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (DOMException e) {
+            // attn: catching RTE
+            e.printStackTrace();
+        }
+        
+        String result = htmlDocToString(fragment);
+        
+        if (oneLine) {
+            result = result.replaceAll("\n", " ");
+            result = result.replaceAll(" {2,}", " ");
+        }
+        
+        return result;
+        
+    }
+
     public static void main(String[] args) throws Exception {
+        
+        System.out.println(removeHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
+        System.out.println(htmlFragmentsToString("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
 
         // String html = readHtmlFile("testfiles/readability/test004.html");
         // html = htmlToString(html, true);

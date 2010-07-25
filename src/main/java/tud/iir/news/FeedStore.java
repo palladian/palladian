@@ -17,7 +17,7 @@ public interface FeedStore {
      * @param feed The feed to add.
      * @return true if feed was added successfully
      */
-    public abstract boolean addFeed(Feed feed);
+    boolean addFeed(Feed feed);
 
     /**
      * Update a feed if its feedURL already exists.
@@ -25,14 +25,14 @@ public interface FeedStore {
      * @param feed The feed to update.
      * @return true if feed was updated successfully
      */
-    public abstract boolean updateFeed(Feed feed);
+    boolean updateFeed(Feed feed);
 
     /**
      * Get all feeds.
      * 
      * @return A list of all feeds from the store.
      */
-    public abstract List<Feed> getFeeds();
+    List<Feed> getFeeds();
 
     /**
      * Get a feed by its feedUrl.
@@ -40,7 +40,7 @@ public interface FeedStore {
      * @param feedUrl
      * @return the Feed with specified feedUrl, <code>null</code> if Feed does not exist.
      */
-    public abstract Feed getFeedByUrl(String feedUrl);
+    Feed getFeedByUrl(String feedUrl);
 
     /**
      * If it does not yet exist, add an entry to an existing feed.
@@ -48,7 +48,7 @@ public interface FeedStore {
      * @param feed
      * @param entry
      */
-    public abstract boolean addEntry(Feed feed, FeedEntry entry);
+    boolean addFeedEntry(Feed feed, FeedEntry entry);
 
     /**
      * Get an entry by its rawId.
@@ -56,7 +56,7 @@ public interface FeedStore {
      * @param rawId
      * @return the Feed with specified rawId, <code>null</code> if Feed does not exist.
      */
-    public abstract FeedEntry getEntryByRawId(String rawId);
+    FeedEntry getFeedEntryByRawId(String rawId);
 
     Feed getFeedByID(int feedID);
 

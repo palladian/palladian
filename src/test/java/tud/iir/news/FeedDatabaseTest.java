@@ -44,7 +44,7 @@ public class FeedDatabaseTest {
         Feed feed = db.getFeedByUrl(feedUrl);
         List<FeedEntry> entries = newsAggregator.downloadFeed(feedUrl).getEntries();
         for (FeedEntry entry : entries) {
-            db.addEntry(feed, entry);
+            db.addFeedEntry(feed, entry);
         }
     }
 
@@ -77,9 +77,9 @@ public class FeedDatabaseTest {
         FeedEntry firstEntry = entries.iterator().next();
         System.out.println(firstEntry);
 
-        System.out.println(db.addEntry(feed, firstEntry));
-        System.out.println(db.addEntry(feed, firstEntry));
-        System.out.println(db.addEntry(feed, firstEntry));
+        System.out.println(db.addFeedEntry(feed, firstEntry));
+        System.out.println(db.addFeedEntry(feed, firstEntry));
+        System.out.println(db.addFeedEntry(feed, firstEntry));
 
     }
 
