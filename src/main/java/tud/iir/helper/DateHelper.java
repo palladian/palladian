@@ -12,8 +12,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.log4j.Logger;
-
 import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.RegExp;
 import tud.iir.normalization.DateNormalizer;
@@ -45,8 +43,9 @@ public class DateHelper {
             return false;
         }
         Matcher m = pat.matcher(searchString);
-        if (m.find())
+        if (m.find()) {
             return true;
+        }
         return false;
     }
 
@@ -190,20 +189,16 @@ public class DateHelper {
      * @param normalizedDate A date in normalized form: yyyy-MM-dd [hh:mm:ss[.f]]
      * @return The UNIX timestamp for that date.
      */
-    public static long getTimestamp(String date) {
+    public static long getTimestamp(String date) throws Exception {
 
         Locale.setDefault(Locale.ENGLISH);
         TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
 
         String normalizedDate = "";
-        try {
-            normalizedDate = DateNormalizer.normalizeDate(date, true);
-            return Timestamp.valueOf(normalizedDate).getTime();
-        } catch (IllegalArgumentException e) {
-            Logger.getRootLogger().error("could not determine timestamp, date was not in correct format (" + date + " => " + normalizedDate + ")");
-        }
 
-        return -1l;
+        normalizedDate = DateNormalizer.normalizeDate(date, true);
+
+        return Timestamp.valueOf(normalizedDate).getTime();
     }
     
 

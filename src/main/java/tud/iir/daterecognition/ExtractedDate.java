@@ -370,7 +370,7 @@ public class ExtractedDate {
 
     }
 
-    public Date getNormalizedDate() {
+    public Date getNormalizedDate() throws Exception {
         return new Date(DateHelper.getTimestamp(getNormalizedDateString()));
     }
 

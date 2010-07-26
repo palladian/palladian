@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import tud.iir.helper.XPathHelper;
+
 /**
  * Represents a news feed.
  * 
@@ -453,5 +455,4 @@ public class Feed {
         }
         return true;
     }
-    
 }

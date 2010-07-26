@@ -100,7 +100,7 @@ public class FeedPostStatistics {
     }
 
     public int getTimeRangeInDays() {
-        return (int) (getTimeRange() / DateHelper.DAY_MS);
+        return Math.max(1, (int) (getTimeRange() / DateHelper.DAY_MS));
     }
 
     public long getTimeDifferenceToNewestPost() {
