@@ -56,7 +56,10 @@ public interface FeedStore {
      * @param rawId
      * @return the Feed with specified rawId, <code>null</code> if Feed does not exist.
      */
+    @Deprecated
     FeedEntry getFeedEntryByRawId(String rawId);
+    
+    FeedEntry getFeedEntryByRawId(int feedId, String rawId);
 
     Feed getFeedByID(int feedID);
 

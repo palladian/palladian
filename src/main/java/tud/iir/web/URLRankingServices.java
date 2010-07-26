@@ -4,12 +4,16 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration.ConfigurationException;
@@ -21,6 +25,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 
@@ -37,6 +42,32 @@ import com.temesoft.google.pr.JenkinsHash;
  */
 public class URLRankingServices {
 
+    /** Type safe enum for all available ranking services. */
+    public enum Service {
+        BITLY_CLICKS(1), 
+        DIGGS(2), 
+        MIXX_VOTES(3), 
+        REDDIT_SCORE(4), 
+        DELICIOUS_POSTS(5), 
+        YAHOO_DOMAIN_LINKS(6), 
+        YAHOO_PAGE_LINKS(7), 
+        TWEETS(8), 
+        GOOGLE_PAGE_RANK(9), 
+        GOOGLE_DOMAIN_PAGE_RANK(10), 
+        ALEXA_RANK(11), 
+        MAJESTIC_SEO(12), 
+        COMPETE_RANK(13);
+
+        int serviceId;
+
+        Service(int serviceId) {
+            this.serviceId = serviceId;
+        }
+        int getServiceId() {
+            return serviceId;
+        }
+    }
+
     // TODO potential services to add?
     // http://www.postrank.com/developers/api --> allows only "relative" rankings with respect to one/multiple feeds
     // http://readitlaterlist.com --> no statistical information
@@ -47,8 +78,13 @@ public class URLRankingServices {
     // http://www.fark.com/ --> no official API
     // http://www.archive.org/help/json.php --> found no appropriate API
 
+    /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(URLRankingServices.class);
+    
+    /** Time interval in seconds, after the cached values are considered invalid. */
+    private static final int CACHE_TTL_SECONDS = 60 * 60 * 24;
 
+    /** Various logins, passwords, API keys. */
     private String bitlyLogin;
     private String bitlyApikey;
     private String mixxApikey;
@@ -58,11 +94,20 @@ public class URLRankingServices {
     private String majesticApikey;
     private String competeApikey;
 
+    /** The current URL to check. */
     private String url;
 
+    /** Cache for Reddit Cookie. */
     private String redditCookie;
 
+    /** Crawler for downloading purposes. */
     private Crawler crawler = new Crawler();
+
+    /** Database cache for retrieved ranking values. */
+    private URLRankingCache cache = new URLRankingCache();
+
+    /** The services to check. */
+    private Collection<Service> check;
 
     public URLRankingServices() {
         try {
@@ -79,16 +124,116 @@ public class URLRankingServices {
             // we use a rather short timeout here, as responses are short.
             crawler.setOverallTimeout(5000);
 
+            // set TTL for cache to 24 hours
+            cache.setTtlSeconds(CACHE_TTL_SECONDS);
+
+            // per default, we want to check all services
+            check = Arrays.asList(Service.values());
+
         } catch (ConfigurationException e) {
             LOGGER.error("failed loading configuration " + e.getMessage());
         }
     }
 
-    public String getUrl() {
+    /**
+     * Define the services which to check. Use this, if you do not want to check all available services. For instance,
+     * if you only want to check Google Page Rank and Yahoo! Page links, use:
+     * 
+     * <code>setServices(Arrays.asList(new Service[] { Service.GOOGLE_PAGE_RANK, Service.YAHOO_PAGE_LINKS }));</code>
+     * 
+     * @param services
+     */
+    public void setServices(Collection<Service> services) {
+        check = new HashSet<Service>(services);
+    }
+
+    /**
+     * Get ranking for supplied url from all specified ranking services. By default, all available services are checked,
+     * see {@link Service#values()}. Use {@link #setServices(Collection)} to specify the services to be checked by this
+     * method.
+     * 
+     * @param url
+     * @return
+     */
+    public Map<Service, Float> getRanking(String url) {
+        Map<Service, Float> result = new HashMap<Service, Float>();
+        setUrl(url);
+        // TODO get Rankings in parallel.
+        for (Service service : check) {
+            float value = getRanking(url, service);
+            result.put(service, value);
+        }
+        return result;
+    }
+
+    /**
+     * Retrieve the ranking for a specific url from a specific service.
+     * 
+     * @param url
+     * @param service
+     * @return
+     */
+    public float getRanking(String url, Service service) {
+        float value = cache.get(url, service);
+
+        // if we dont have it cached, get it
+        if (value == -1) {
+
+            switch (service) {
+                case BITLY_CLICKS:
+                    value = getBitlyClicks();
+                    break;
+                case DIGGS:
+                    value = getDiggs();
+                    break;
+                case MIXX_VOTES:
+                    value = getMixxVotes();
+                    break;
+                case REDDIT_SCORE:
+                    value = getRedditScore();
+                    break;
+                case DELICIOUS_POSTS:
+                    value = getDeliciousPosts();
+                    break;
+                case YAHOO_DOMAIN_LINKS:
+                    value = getYahooDomainLinks();
+                    break;
+                case YAHOO_PAGE_LINKS:
+                    value = getYahooPageLinks();
+                    break;
+                case TWEETS:
+                    value = getDomainTweets();
+                    break;
+                case GOOGLE_PAGE_RANK:
+                    value = getGooglePageRank();
+                    break;
+                case GOOGLE_DOMAIN_PAGE_RANK:
+                    value = getGoogleDomainPageRank();
+                    break;
+                case ALEXA_RANK:
+                    value = getAlexaRank();
+                    break;
+                case MAJESTIC_SEO:
+                    value = getMajesticSeoRefDomains();
+                    break;
+                case COMPETE_RANK:
+                    value = getDomainsCompeteRank();
+                    break;
+                default:
+                    break;
+            }
+            
+            cache.add(url, service, value);
+        }
+
+        return value;
+    }
+
+    private String getUrl() {
         return url;
     }
 
-    public void setUrl(String url) {
+    private void setUrl(String url) {
         this.url = url;
     }
 
@@ -102,7 +247,7 @@ public class URLRankingServices {
      * 
      * @return number of clicks on bitly, -1 on error.
      */
-    public int getBitlyClicks() {
+    private int getBitlyClicks() {
 
         int result = -1;
 
@@ -145,7 +290,7 @@ public class URLRankingServices {
      * 
      * @return number of diggs, -1 on error.
      */
-    public int getDiggs() {
+    private int getDiggs() {
 
         int result = -1;
 
@@ -179,7 +324,7 @@ public class URLRankingServices {
      * 
      * @return number of Mixx votes, -1 on error
      */
-    public int getMixxVotes() {
+    private int getMixxVotes() {
 
         int result = -1;
 
@@ -223,7 +368,7 @@ public class URLRankingServices {
      * 
      * @return reddit score, -1 on error.
      */
-    public int getRedditScore() {
+    private int getRedditScore() {
 
         int result = -1;
 
@@ -323,7 +468,7 @@ public class URLRankingServices {
      * 
      * @return number of delicious posts, -1 on error.
      */
-    public int getDeliciousPosts() {
+    private int getDeliciousPosts() {
 
         int result = -1;
 
@@ -352,7 +497,7 @@ public class URLRankingServices {
      * 
      * @return number of domain results from Yahoo!, -1 on error.
      */
-    public int getYahooDomainLinks() {
+    private int getYahooDomainLinks() {
 
         int result = -1;
 
@@ -380,7 +525,7 @@ public class URLRankingServices {
      * 
      * @return number of page result from Yahoo!, -1 on error.
      */
-    public int getYahooPageLinks() {
+    private int getYahooPageLinks() {
 
         int result = -1;
 
@@ -410,7 +555,7 @@ public class URLRankingServices {
      * 
      * @return count of Tweets for URL's domain. Maximum count returned is 100. -1 is returned on error.
      */
-    public int getDomainTweets() {
+    private int getDomainTweets() {
 
         int result = -1;
 
@@ -460,7 +605,7 @@ public class URLRankingServices {
      * 
      * @return PageRank for URL, -1 on error.
      */
-    public int getGooglePageRank() {
+    private int getGooglePageRank() {
         return getGooglePageRank(getUrl());
     }
 
@@ -469,7 +614,7 @@ public class URLRankingServices {
      * 
      * @return PageRank for URL's domain, -1 on error.
      */
-    public int getGoogleDomainPageRank() {
+    private int getGoogleDomainPageRank() {
         return getGooglePageRank(Crawler.getDomain(getUrl(), true));
     }
 
@@ -480,7 +625,7 @@ public class URLRankingServices {
      * 
      * @return popularity rank from Alexa, -1 on error.
      */
-    public int getAlexaRank() {
+    private int getAlexaRank() {
 
         int result = -1;
 
@@ -508,7 +653,7 @@ public class URLRankingServices {
      * 
      * @return Majestic-SEO RefDomains, -1 on error.
      */
-    public int getMajesticSeoRefDomains() {
+    private int getMajesticSeoRefDomains() {
 
         int result = -1;
 
@@ -534,7 +679,7 @@ public class URLRankingServices {
      * 
      * @return Compete rank for domain, -1 on error.
      */
-    public int getDomainsCompeteRank() {
+    private int getDomainsCompeteRank() {
 
         int result = -1;
 
@@ -558,30 +703,31 @@ public class URLRankingServices {
         return result;
     }
 
-
     public static void main(String[] args) throws Exception {
 
         String url = "http://www.engadget.com/2010/05/07/how-would-you-change-apples-ipad/";
 
+        StopWatch sw = new StopWatch();
         URLRankingServices urlRankingServices = new URLRankingServices();
-        urlRankingServices.setUrl(url);
+        Map<Service, Float> ranking = urlRankingServices.getRanking(url);
 
         System.out.println("  URL:                                " + url);
         System.out.println("-----------------------------------------------------------------");
-        System.out.println("  Google PageRank (page):             " + urlRankingServices.getGooglePageRank());
-        System.out.println("  Google PageRank (domain):           " + urlRankingServices.getGoogleDomainPageRank());
-        System.out.println("  # of Diggs:                         " + urlRankingServices.getDiggs());
-        System.out.println("  Reddit score:                       " + urlRankingServices.getRedditScore());
-        System.out.println("  # of Bit.ly clicks:                 " + urlRankingServices.getBitlyClicks());
-        System.out.println("  # of Mixx votes:                    " + urlRankingServices.getMixxVotes());
-        System.out.println("  # of Delicious bookmarks:           " + urlRankingServices.getDeliciousPosts());
-        System.out.println("  # of Yahoo! links (domain):         " + urlRankingServices.getYahooDomainLinks());
-        System.out.println("  # of Yahoo! links (page):           " + urlRankingServices.getYahooPageLinks());
-        System.out.println("  # of Tweets for Domain (max. 100):  " + urlRankingServices.getDomainTweets());
-        System.out.println("  Alexa rank:                         " + urlRankingServices.getAlexaRank());
-        System.out.println("  Majestic-SEO referring domains:     " + urlRankingServices.getMajesticSeoRefDomains());
-        System.out.println("  Compete rank for domain:            " + urlRankingServices.getDomainsCompeteRank());
+        System.out.println("  Google PageRank (page):             " + ranking.get(Service.GOOGLE_PAGE_RANK));
+        System.out.println("  Google PageRank (domain):           " + ranking.get(Service.GOOGLE_DOMAIN_PAGE_RANK));
+        System.out.println("  # of Diggs:                         " + ranking.get(Service.DIGGS));
+        System.out.println("  Reddit score:                       " + ranking.get(Service.REDDIT_SCORE));
+        System.out.println("  # of Bit.ly clicks:                 " + ranking.get(Service.BITLY_CLICKS));
+        System.out.println("  # of Mixx votes:                    " + ranking.get(Service.MIXX_VOTES));
+        System.out.println("  # of Delicious bookmarks:           " + ranking.get(Service.DELICIOUS_POSTS));
+        System.out.println("  # of Yahoo! links (domain):         " + ranking.get(Service.YAHOO_DOMAIN_LINKS));
+        System.out.println("  # of Yahoo! links (page):           " + ranking.get(Service.YAHOO_PAGE_LINKS));
+        System.out.println("  # of Tweets for Domain (max. 100):  " + ranking.get(Service.TWEETS));
+        System.out.println("  Alexa rank:                         " + ranking.get(Service.ALEXA_RANK));
+        System.out.println("  Majestic-SEO referring domains:     " + ranking.get(Service.MAJESTIC_SEO));
+        System.out.println("  Compete rank for domain:            " + ranking.get(Service.COMPETE_RANK));
         System.out.println("-----------------------------------------------------------------");
+        System.out.println(sw.getElapsedTimeString());
 
     }
 

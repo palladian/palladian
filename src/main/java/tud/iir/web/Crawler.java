@@ -974,10 +974,12 @@ public class Crawler {
 
         JSONObject jsonOBJ = null;
 
-        try {
-            jsonOBJ = new JSONObject(json);
-        } catch (JSONException e) {
-            LOGGER.error(url + ", " + e.getMessage());
+        if (json.length() > 0) {
+            try {
+                jsonOBJ = new JSONObject(json);
+            } catch (JSONException e) {
+                LOGGER.error(url + ", " + e.getMessage());
+            }
         }
 
         return jsonOBJ;

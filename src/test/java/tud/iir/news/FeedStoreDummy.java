@@ -56,4 +56,10 @@ public class FeedStoreDummy implements FeedStore {
         return null;
     }
 
+    @Override
+    public FeedEntry getFeedEntryByRawId(int feedId, String rawId) {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
 }

@@ -1,11 +1,9 @@
 package tud.iir.news;
 
-import java.io.IOException;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 
 // TODO introduce MIXED type?
@@ -111,18 +109,16 @@ public class FeedContentClassifier {
             if (pageText == null) {
                 pageText = "";
             }
-            
-            
-            // XXX
-            try {
-                FileHelper.appendFile("data/feedContentClassifierDebug.txt", "=========================\n");
-                FileHelper.appendFile("data/feedContentClassifierDebug.txt", entryText + "\n");
-                FileHelper.appendFile("data/feedContentClassifierDebug.txt", pageText + "\n");
-            } catch (IOException e) {
-                
-            }
-            //FileHelper.appendFile("data/feedContentClassifierDebug.txt", stringToAppend);
-            
+
+            // try {
+            // FileHelper.appendFile("data/feedContentClassifierDebug.txt", "=========================\n");
+            // FileHelper.appendFile("data/feedContentClassifierDebug.txt", entryText + "\n");
+            // FileHelper.appendFile("data/feedContentClassifierDebug.txt", pageText + "\n");
+            // } catch (IOException e) {
+            //                
+            // }
+            // FileHelper.appendFile("data/feedContentClassifierDebug.txt", stringToAppend);
+
             //
 
             // first, calculate a similarity based solely on text lengths
@@ -189,7 +185,7 @@ public class FeedContentClassifier {
             // resultStr = "undetermined, could not check entries";
         }
 
-        LOGGER.info("feed " + feed.getFeedUrl() + " none:" + none + " partial:" + partial + " full:" + full + " -> "
+        LOGGER.debug("feed " + feed.getFeedUrl() + " none:" + none + " partial:" + partial + " full:" + full + " -> "
                 + getReadableFeedTextType(result));
 
         LOGGER.trace("<determineFeedTextType " + result);
@@ -213,20 +209,18 @@ public class FeedContentClassifier {
     }
 
     public static void main(String[] args) {
-        
+
         FeedEntry entry = FeedDatabase.getInstance().getFeedEntryByRawId("http://www.wired.com/gadgetlab/?p=44477");
 
-        
         System.out.println(entry.getContent());
         System.out.println(HTMLHelper.removeHTMLTags(entry.getContent(), true, true, true, true));
         System.out.println(HTMLHelper.htmlFragmentsToString(entry.getContent(), true));
         /*
-        String x = "aa";
-        System.out.println(x.replaceAll("a{2,}", "b"));
-        
-        String test = "imeo. Flipping a pan  cake  seems like one of";
-        System.out.println(test.replaceAll("\\b\\s{2,}\\b", " "));
-        */
+         * String x = "aa";
+         * System.out.println(x.replaceAll("a{2,}", "b"));
+         * String test = "imeo. Flipping a pan  cake  seems like one of";
+         * System.out.println(test.replaceAll("\\b\\s{2,}\\b", " "));
+         */
     }
 
 }
