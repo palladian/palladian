@@ -22,6 +22,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
@@ -336,6 +337,10 @@ public class NewsAggregator {
                 pubDate = DateGetterHelper.findDate(node.getTextContent()).getNormalizedDate();
             } catch (NullPointerException e) {
                 LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
+            } catch (DOMException e) {
+                LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
+            } catch (Exception e) {
+                LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
             }
 
         } else {
@@ -349,6 +354,10 @@ public class NewsAggregator {
                     pubDate = DateGetterHelper.findDate(node.getTextContent()).getNormalizedDate();
                 } catch (NullPointerException e) {
                     LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
+                } catch (DOMException e) {
+                    LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
+                } catch (Exception e) {
+                    LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
                 }
 
             } else {
@@ -360,6 +369,10 @@ public class NewsAggregator {
                     try {
                         pubDate = DateGetterHelper.findDate(node.getTextContent()).getNormalizedDate();
                     } catch (NullPointerException e) {
+                        LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
+                    } catch (DOMException e) {
+                        LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
+                    } catch (Exception e) {
                         LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
                     }
                 }

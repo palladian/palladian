@@ -142,7 +142,7 @@ public class FeedClassifier {
 
             checks++;
 
-            if (checks == 5) {
+            if (checks == 3) {
                 if (crawler.getResponseCode(feedURL) == 200) {
                     return CLASS_UNKNOWN;
                 } else {
@@ -150,12 +150,12 @@ public class FeedClassifier {
                 }
             }
 
-            ThreadHelper.sleep(10 * DateHelper.SECOND_MS);
+            ThreadHelper.sleep(5 * DateHelper.SECOND_MS);
         }
 
         // // use rule based classification
 
-        if (!fps.isValidStatistics()) {
+        if (!fps.isValidStatistics() && entries.size() > 0) {
             feedClass = CLASS_UNKNOWN;
         } else if (entries.size() == 0) {
             feedClass = CLASS_EMPTY;
@@ -213,7 +213,7 @@ public class FeedClassifier {
      * @param classID The integer value of the class.
      * @return The name of the class.
      */
-    public String getClassName(int classID) {
+    public static String getClassName(int classID) {
         switch (classID) {
             case CLASS_UNKNOWN:
                 return "unknown";
@@ -247,8 +247,11 @@ public class FeedClassifier {
      */
     public static void main(String[] args) {
 
-        // FeedClassifier.classifyFeedInStore(FeedDatabase.getInstance());
-        // System.exit(0);
+        FeedClassifier.classifyFeedInStore(FeedDatabase.getInstance());
+        System.exit(0);
+
+        System.out.println(FeedClassifier.getClassName(FeedClassifier
+                .classify("http://www.news-journalonline.com/atom.xml")));
 
         // final String className = fc.getClassName(fc.classify("http://feeds.nydailynews.com/nydnrss/news"));
         // final String className = fc.getClassName(fc.classify("http://feeds.gawker.com/lifehacker/full"));
