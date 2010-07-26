@@ -4,8 +4,10 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.apache.commons.cli.BasicParser;
@@ -32,6 +34,7 @@ import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
 import tud.iir.web.URLDownloader;
+import tud.iir.web.URLDownloader.URLDownloaderCallback;
 
 import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.rss.Guid;
@@ -216,6 +219,7 @@ public class NewsAggregator {
             Date publishDate = syndEntry.getPublishedDate();
             if (publishDate == null) {
                 // if no publish date is provided, we take the update instead
+                // TODO there are still some entries without date
                 publishDate = syndEntry.getUpdatedDate();
             }
             entry.setPublished(publishDate);
@@ -226,7 +230,10 @@ public class NewsAggregator {
             // Entry's assigned Tags, if any
             List<SyndCategory> categories = syndEntry.getCategories();
             for (SyndCategory category : categories) {
-                entry.addTag(category.getName().replace(",", " ").trim());
+                String catName = category.getName();
+                if (catName != null) {
+                    entry.addTag(catName.replace(",", " ").trim());
+                }
             }
 
             // get ID information from raw feed entries
@@ -484,7 +491,7 @@ public class NewsAggregator {
                         // check, which we already have and add the missing ones.
                         List<FeedEntry> toAdd = new ArrayList<FeedEntry>();
                         for (FeedEntry feedEntry : downloadedEntries) {
-                            boolean add = store.getFeedEntryByRawId(feedEntry.getRawId()) == null;
+                            boolean add = store.getFeedEntryByRawId(feed.getId(), feedEntry.getRawId()) == null;
                             if (add) {
                                 // boolean fetchPage = isDownloadPages() && feed.getTextType() != Feed.TEXT_TYPE_FULL;
                                 // if (fetchPage) {
@@ -681,10 +688,15 @@ public class NewsAggregator {
 
         URLDownloader downloader = new URLDownloader();
         downloader.setMaxThreads(5);
-        PageContentExtractor extractor = new PageContentExtractor();
+        // PageContentExtractor extractor = new PageContentExtractor();
+        final Map<String, FeedEntry> entries = new HashMap<String, FeedEntry>();
 
         for (FeedEntry feedEntry : feedEntries) {
             String entryLink = feedEntry.getLink();
+
+            if (entryLink == null) {
+                continue;
+            }
 
             // check type of linked file; ignore audio, video or pdf files ...
             String fileType = FileHelper.getFileType(entryLink);
@@ -694,26 +706,43 @@ public class NewsAggregator {
                 LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
             } else {
                 downloader.add(feedEntry.getLink());
+                entries.put(feedEntry.getLink(), feedEntry);
             }
         }
 
-        // download in parallel
-        downloader.start();
-
-        // check results
-        for (FeedEntry feedEntry : feedEntries) {
-            InputStream inputStream = downloader.get(feedEntry.getLink());
-            if (inputStream != null) {
+        downloader.start(new URLDownloaderCallback() {
+            @Override
+            public void finished(String url, InputStream inputStream) {
                 try {
+                    PageContentExtractor extractor = new PageContentExtractor();
                     extractor.setDocument(new InputSource(inputStream));
-                    // extractor.setDocument(feedEntry.getLink());
                     Document page = extractor.getResultDocument();
-                    feedEntry.setPageContent(page);
+                    entries.get(url).setPageContent(page);
+                    // feedEntry.setPageContent(page);
                 } catch (PageContentExtractorException e) {
                     LOGGER.error("PageContentExtractorException " + e);
                 }
             }
-        }
+        });
+        LOGGER.debug("finished downloading");
+
+        // download in parallel
+        // downloader.start();
+        //
+        // // check results
+        // for (FeedEntry feedEntry : feedEntries) {
+        // InputStream inputStream = downloader.get(feedEntry.getLink());
+        // if (inputStream != null) {
+        // try {
+        // extractor.setDocument(new InputSource(inputStream));
+        // // extractor.setDocument(feedEntry.getLink());
+        // Document page = extractor.getResultDocument();
+        // feedEntry.setPageContent(page);
+        // } catch (PageContentExtractorException e) {
+        // LOGGER.error("PageContentExtractorException " + e);
+        // }
+        // }
+        // }
     }
 
     /**

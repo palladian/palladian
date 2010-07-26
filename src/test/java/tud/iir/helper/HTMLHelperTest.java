@@ -45,5 +45,13 @@ public class HTMLHelperTest extends TestCase {
         String result = HTMLHelper.htmlDocToString(doc);
         Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
     }
+    
+    @Test
+    public void testHtmlFragments() {
+        String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
+        System.out.println(HTMLHelper.htmlFragmentsToString(htmlContent, true));
+        // assertEquals("this is relevant", HTMLHelper.removeHTMLTags(htmlContent, true, true, true, false));
+        
+    }
 
 }

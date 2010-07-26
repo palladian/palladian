@@ -1,14 +1,22 @@
 package tud.iir.news;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
+import org.apache.xerces.parsers.DOMParser;
+import org.cyberneko.html.HTMLConfiguration;
 import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXNotRecognizedException;
+import org.xml.sax.SAXNotSupportedException;
 
 import tud.iir.helper.HTMLHelper;
+import tud.iir.helper.StringInputStream;
 
 /**
  * Represents a news entry within a feed ({@link Feed}).
@@ -155,17 +163,29 @@ public class FeedEntry {
         if (result == null) {
             result = getEntryText();
         }
-
-        // if (pageContent != null) {
-        // result = HTMLHelper.htmlDocToString(getPageContent());
-        // result = result.replaceAll("\n", "");
-        // result = result.replace(" {2,}", " ");
-        // } else {
-        // result = HTMLHelper.removeHTMLTags(content, true, true, true, true);
-        // result = StringEscapeUtils.unescapeHtml(result);
-        // }
-
         return result;
+    }
+    
+    public Document getEntryContent() {
+        Document result = null;
+        try {
+            
+            DOMParser parser = new DOMParser(new HTMLConfiguration());
+            parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
+            parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
+            parser.parse(new InputSource(new StringInputStream(getContent())));
+            result = parser.getDocument();
+            
+        } catch (SAXNotRecognizedException e) {
+            Logger.getRootLogger().error(e);
+        } catch (SAXNotSupportedException e) {
+            Logger.getRootLogger().error(e);
+        } catch (SAXException e) {
+            Logger.getRootLogger().error(e);
+        } catch (IOException e) {
+            Logger.getRootLogger().error(e);
+        }
+        return result;        
     }
 
     String getPageText() {
@@ -181,8 +201,6 @@ public class FeedEntry {
     String getEntryText() {
         String result = null;
         if (getContent() != null) {
-            // result = HTMLHelper.removeHTMLTags(content, true, true, true, true);
-            // result = StringEscapeUtils.unescapeHtml(result);
             result = HTMLHelper.htmlFragmentsToString(getContent(), true);
         }
         return result;

@@ -241,17 +241,16 @@ public class HTMLHelper {
      * and just strips out all tags via RegExes, this approach tries to keep some structure for displaying HTML content
      * in text mode in a readable form.
      * 
-     * @param doc
+     * @param node
      * @return
      * @author Philipp Katz
      */
-//    public static String htmlDocToString(Document doc) {
-    public static String htmlDocToString(Node doc) {
+    public static String htmlDocToString(Node node) {
         final StringBuilder builder = new StringBuilder();
         try {
             TransformerFactory transFac = TransformerFactory.newInstance();
             Transformer trans = transFac.newTransformer();
-            trans.transform(new DOMSource(doc), new SAXResult(new DefaultHandler() {
+            trans.transform(new DOMSource(node), new SAXResult(new DefaultHandler() {
                 boolean ignoreCharacters = false;
 
                 @Override
@@ -324,10 +323,10 @@ public class HTMLHelper {
     public static String htmlFragmentsToString(String htmlFragments, boolean oneLine) {
         DOMFragmentParser parser = new DOMFragmentParser();
         HTMLDocument document = new HTMLDocumentImpl();
-        
+
         // see http://nekohtml.sourceforge.net/usage.html
         DocumentFragment fragment = document.createDocumentFragment();
-        
+
         try {
             parser.parse(new InputSource(new StringInputStream(htmlFragments)), fragment);
         } catch (SAXException e) {
@@ -340,20 +339,20 @@ public class HTMLHelper {
             // attn: catching RTE
             e.printStackTrace();
         }
-        
+
         String result = htmlDocToString(fragment);
-        
+
         if (oneLine) {
             result = result.replaceAll("\n", " ");
             result = result.replaceAll(" {2,}", " ");
         }
-        
+
         return result;
-        
+
     }
 
     public static void main(String[] args) throws Exception {
-        
+
         System.out.println(removeHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
         System.out.println(htmlFragmentsToString("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
 

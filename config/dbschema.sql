@@ -330,7 +330,7 @@ CREATE TABLE IF NOT EXISTS `facts_sources` (
 --
 
 DROP TABLE IF EXISTS `feed_entries`;
-CREATE TABLE IF NOT EXISTS `entries` (
+CREATE TABLE IF NOT EXISTS `feed_entries` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `feedId` int(10) unsigned NOT NULL,
   `title` varchar(255) collate utf8_unicode_ci default NULL,
@@ -620,6 +620,18 @@ CREATE TABLE IF NOT EXISTS `users_in` (
 
 -- --------------------------------------------------------
 
+CREATE TABLE `ranking_features` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `service` tinyint(4) NOT NULL,
+  `ranking` float NOT NULL,
+  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `url_service_unique` (`url`,`service`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
 --
 -- Stand-in structure for view `webknox_development`
 --
@@ -902,6 +914,17 @@ DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
   CLOSE cur1;
 
 END$$
+
+DROP PROCEDURE IF EXISTS `add_update_ranking`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `add_update_ranking`(IN url VARCHAR(255), IN service INTEGER, IN ranking FLOAT)
+BEGIN
+	IF (EXISTS (SELECT * FROM ranking_features AS t WHERE t.url = url AND t.service = service)) THEN
+		UPDATE ranking_features AS t SET t.ranking = ranking, t.updated = CURRENT_TIMESTAMP WHERE t.url = url AND t.service = service;
+	ELSE
+		INSERT INTO ranking_features (url, service, ranking) VALUES (url, service, ranking);
+	END IF;
+END$$
+
 
 --
 -- Functions
