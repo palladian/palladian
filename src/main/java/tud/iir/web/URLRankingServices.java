@@ -169,7 +169,7 @@ public class URLRankingServices {
      */
     public Map<Service, Float> getRanking(String url) {
         Map<Service, Float> result = new HashMap<Service, Float>();
-        setUrl(url);
+        // setUrl(url);
         // TODO get Rankings in parallel.
         for (Service service : check) {
             float value = getRanking(url, service);
@@ -187,6 +187,7 @@ public class URLRankingServices {
      */
     public float getRanking(String url, Service service) {
         
+        setUrl(url);
         String cacheUrl = url;
         
         // if service works on domain level, get the domain from the cache.
@@ -646,7 +647,7 @@ public class URLRankingServices {
      * @return popularity rank from Alexa, -1 on error.
      */
     private int getAlexaRank() {
-
+        
         int result = -1;
 
         String encUrl = StringHelper.urlEncode(getUrl());
