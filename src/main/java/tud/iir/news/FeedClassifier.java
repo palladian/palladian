@@ -123,9 +123,6 @@ public class FeedClassifier {
         // check if feed is not accessible, try 5 times
         Crawler crawler = new Crawler();
 
-        int checks = 0;
-        while (true) {
-
             try {
 
                 newsAggregator.setUseScraping(false);
@@ -134,15 +131,9 @@ public class FeedClassifier {
 
                 LOGGER.debug(fps);
 
-                break;
-
             } catch (FeedAggregatorException e) {
                 LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
-            }
-
-            checks++;
-
-            if (checks == 3) {
+                
                 if (crawler.getResponseCode(feedURL) == 200) {
                     return CLASS_UNKNOWN;
                 } else {
@@ -150,8 +141,7 @@ public class FeedClassifier {
                 }
             }
 
-            ThreadHelper.sleep(5 * DateHelper.SECOND_MS);
-        }
+
 
         // // use rule based classification
 
