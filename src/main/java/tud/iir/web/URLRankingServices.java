@@ -13,7 +13,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration.ConfigurationException;
@@ -44,27 +43,40 @@ public class URLRankingServices {
 
     /** Type safe enum for all available ranking services. */
     public enum Service {
-        BITLY_CLICKS(1), 
-        DIGGS(2), 
-        MIXX_VOTES(3), 
-        REDDIT_SCORE(4), 
-        DELICIOUS_POSTS(5), 
-        YAHOO_DOMAIN_LINKS(6), 
-        YAHOO_PAGE_LINKS(7), 
-        TWEETS(8), 
-        GOOGLE_PAGE_RANK(9), 
-        GOOGLE_DOMAIN_PAGE_RANK(10), 
-        ALEXA_RANK(11), 
-        MAJESTIC_SEO(12), 
-        COMPETE_RANK(13);
+        BITLY_CLICKS(1, false), 
+        DIGGS(2, false), 
+        MIXX_VOTES(3, false), 
+        REDDIT_SCORE(4, false), 
+        DELICIOUS_POSTS(5, false), 
+        YAHOO_DOMAIN_LINKS(6, true), 
+        YAHOO_PAGE_LINKS(7, false), 
+        TWEETS(8, true), 
+        GOOGLE_PAGE_RANK(9, false), 
+        GOOGLE_DOMAIN_PAGE_RANK(10, true), 
+        ALEXA_RANK(11, false), 
+        MAJESTIC_SEO(12, false), 
+        COMPETE_RANK(13, true);
 
         int serviceId;
+        boolean domainLevel;
 
-        Service(int serviceId) {
+        Service(int serviceId, boolean domainLevel) {
             this.serviceId = serviceId;
+            this.domainLevel = domainLevel;
         }
         int getServiceId() {
             return serviceId;
+        }
+
+        /**
+         * Flag which indicates whether this service works on domain or page level. For example, if we have a URL
+         * http://www.engadget.com/2010/07/26/walmart-to-add-rfid-tags-to-individual-items-freak-out-privacy/, page
+         * level rankings are for the URL itself, whereas domain level ranking work on http://www.engadget.com.
+         * 
+         * @return true for domain level, false for page level.
+         */
+        public boolean isDomainLevel() {
+            return domainLevel;
         }
     }
 
@@ -174,7 +186,15 @@ public class URLRankingServices {
      * @return
      */
     public float getRanking(String url, Service service) {
-        float value = cache.get(url, service);
+        
+        String cacheUrl = url;
+        
+        // if service works on domain level, get the domain from the cache.
+        if (service.isDomainLevel()) {
+            cacheUrl = Crawler.getDomain(url);
+        }
+        
+        float value = cache.get(cacheUrl, service);
 
         // if we dont have it cached, get it
         if (value == -1) {
@@ -223,7 +243,7 @@ public class URLRankingServices {
                     break;
             }
             
-            cache.add(url, service, value);
+            cache.add(cacheUrl, service, value);
         }
 
         return value;

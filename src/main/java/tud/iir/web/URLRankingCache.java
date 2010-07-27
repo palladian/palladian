@@ -13,7 +13,7 @@ import tud.iir.persistence.DatabaseManager;
 
 
 /**
- * Cache for {@link URLRankingServices}. As those APIs have a considerable latency, we cache their results for a specific time.
+ * Cache for {@link URLRankingServices}. As those APIs have a considerable latency, we cache their results for a specific time in the database.
  * 
  * 
  * CREATE TABLE `ranking_features` (
@@ -50,7 +50,15 @@ public class URLRankingCache {
     public URLRankingCache() {
         connection = DatabaseManager.getInstance().getConnection();
     }
-    
+
+    /**
+     * Get cached ranking value for specified URL and Service. Returns -1 for cache fail, which either means, the tuple
+     * was not in cache or TTL for specific tuple has ended.
+     * 
+     * @param url
+     * @param service
+     * @return
+     */
     public float get(String url, URLRankingServices.Service service) {
         
         float result = -1;
@@ -71,12 +79,19 @@ public class URLRankingCache {
             
             
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
         
         return result;
     }
     
+    /**
+     * Adds or updates a ranking for a specific URL and Service in the cache.
+     * 
+     * @param url
+     * @param service
+     * @param ranking
+     */
     public void add(String url, URLRankingServices.Service service, float ranking) {
         
         try {
@@ -88,7 +103,7 @@ public class URLRankingCache {
             call.executeUpdate();
             
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
         
     }
