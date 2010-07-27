@@ -1,5 +1,11 @@
 package tud.iir.news;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+
+import java.net.URL;
+import java.util.List;
+
 import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
@@ -27,6 +33,14 @@ public class FeedAggregatorTest {
         aggregator.getFeed("data/test/feeds/feed1.xml");
         aggregator.getFeed("data/test/feeds/feed2.xml");
         aggregator.getFeed("http://www.gizmodo.de/feed/atom");
+    }
+    
+    @Test
+    public void testFeedEntryExtraction() throws Exception {
+        URL testExample = FeedAggregatorTest.class.getResource("test/feeds/tagesschauExample.xml");
+        List<FeedEntry> feedEntries = aggregator.getEntries(testExample.toExternalForm());
+        assertNotNull(feedEntries);
+        assertFalse(feedEntries.isEmpty());
     }
 
 }
