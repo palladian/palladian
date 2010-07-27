@@ -5,8 +5,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-
-import org.apache.log4j.Logger;
+import java.util.logging.Logger;
 
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
@@ -22,8 +21,8 @@ import tud.iir.helper.StringHelper;
  * TIMESTAMP;"TITLE";LINK
  * </p>
  * <p>
- * TODO The last line of the file contains meta information:<br>
- * NUMBER_OF_ENTRIES;AVERAGE_SIZE;FEED_CLASS
+ * TODO The first line of the file contains meta information:<br>
+ * FEED_ID;FEED_URL;NUMBER_OF_ENTRIES(Window Size);AVERAGE_SIZE;FEED_UPDATE_CLASS
  * </p>
  * 
  * @author David Urbansky
