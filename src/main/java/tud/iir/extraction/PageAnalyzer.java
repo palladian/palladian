@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.apache.xerces.dom.DocumentImpl;
 import org.apache.xml.serialize.OutputFormat;
 import org.apache.xml.serialize.XMLSerializer;
 import org.jaxen.JaxenException;
@@ -35,6 +36,8 @@ import tud.iir.web.Crawler;
  * @author David Urbansky
  */
 public class PageAnalyzer {
+    
+    private static final Logger LOGGER = Logger.getLogger(PageAnalyzer.class);
 
     private Document document = null;
 
@@ -1119,7 +1122,7 @@ public class PageAnalyzer {
         return sb.toString();
     }
 
-    public static String getHTMLText(Document document) {
+    public static String getRawMarkup(Document document) {
 
         OutputStream os = new StringOutputStream();
 
@@ -1134,6 +1137,22 @@ public class PageAnalyzer {
 
         return os.toString();
     }
+    
+    /**
+     * <p>
+     * 
+     * </p>
+     *
+     * @param node
+     * @return
+     */
+    public static String getRawMarkup(Node node) {
+        Document doc = new DocumentImpl();
+        Node adoptedNode = doc.adoptNode(node);
+        doc.appendChild(adoptedNode);
+        
+        return getRawMarkup(doc);
+    }
 
 
     public static void main(String[] args) {
@@ -1146,7 +1165,7 @@ public class PageAnalyzer {
         PageAnalyzer pa0 = new PageAnalyzer();
 
         // String t = PageAnalyzer.getDocumentTextDump(document);
-        String t = pa0.getHTMLText(document);
+        String t = pa0.getRawMarkup(document);
 
         System.out.println(t.getBytes().length);
         System.out.println(t);
