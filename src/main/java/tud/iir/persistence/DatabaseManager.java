@@ -136,7 +136,7 @@ public class DatabaseManager {
         try {
             config = new PropertiesConfiguration("config/db.conf");
         } catch (ConfigurationException e) {
-            //LOGGER.error(e.getMessage());
+            // LOGGER.error(e.getMessage());
             // Attention: using the "eager" singleton idiom we must not use the class logger, as it has not yet been
             // instantiated at this point; use the RootLogger instead.
             Logger.getRootLogger().error(e.getMessage());
@@ -145,194 +145,345 @@ public class DatabaseManager {
 
     /**
      * Gets the single instance of DatabaseManager.
-     *
+     * 
      * @return single instance of DatabaseManager
      */
     public static DatabaseManager getInstance() {
         try {
             if (INSTANCE.connection == null || INSTANCE.connection != null && INSTANCE.connection.isClosed()) {
-                INSTANCE.connection = INSTANCE.getConnection();
+                // INSTANCE.connection = INSTANCE.getConnection();
+                INSTANCE.establishConnection();
             }
         } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+        } catch (ClassNotFoundException e) {
             LOGGER.error(e.getMessage());
         }
         return INSTANCE;
     }
 
-
     /**
-     * Gets the logger.
-     *
-     * @return the logger
+     * Load DB driver, establish DB connection, prepare statements.
+     * 
+     * @throws SQLException
+     * @throws ClassNotFoundException
      */
-    public Logger getLogger() {
-        return LOGGER;
+    private void establishConnection() throws SQLException, ClassNotFoundException {
+
+        Class.forName(config.getString("db.driver"));
+        String url = "jdbc:" + config.getString("db.type") + "://" + config.getString("db.host") + ":"
+                + config.getString("db.port") + "/" + config.getString("db.name");
+        url += "?useServerPrepStmts=false&cachePrepStmts=false";
+        connection = DriverManager.getConnection(url, config.getString("db.username"), config.getString("db.password"));
+
+        psLastInsertID = connection.prepareStatement("SELECT LAST_INSERT_ID()");
+        // only get the "master" concepts, not the synonyms -- Philipp, 2010-07-02
+        // psGetConcepts = connection.prepareStatement("SELECT * FROM `concepts`");
+        psGetConcepts = connection
+                .prepareStatement("SELECT * FROM `concepts` WHERE id NOT IN (SELECT conceptID2 FROM concept_synonyms)");
+        psGetConceptSynonyms = connection
+                .prepareStatement("SELECT * FROM `concepts`, `concept_synonyms` WHERE conceptID1 = ? AND conceptID2 = concepts.id");
+
+        psConceptCheck = connection.prepareStatement("SELECT id FROM `concepts` WHERE name = ?");
+        psConceptSynonymCheck = connection
+                .prepareStatement("SELECT id FROM concept_synonyms WHERE (conceptID1 = ? AND conceptID2 = ?) OR (conceptID1 = ? AND conceptID2 = ?)");
+        psAttributeSynonymCheck = connection
+                .prepareStatement("SELECT id FROM attribute_synonyms WHERE (attributeID1 = ? AND attributeID2 = ?) OR (attributeID1 = ? AND attributeID2 = ?)");
+
+        psAttributeConceptCheck = connection
+                .prepareStatement("SELECT id FROM attributes_concepts WHERE attributeID = ? AND conceptID = ?");
+
+        psGetLastSearchedConcept = connection.prepareStatement("SELECT lastSearched FROM concepts WHERE name = ?");
+        psGetLastSearchedAttribute = connection.prepareStatement("SELECT lastSearched FROM attributes WHERE name = ?");
+        psGetLastSearchedEntity = connection.prepareStatement("SELECT lastSearched FROM entities WHERE name = ?");
+        psInsertConcept = connection.prepareStatement("INSERT INTO `concepts` SET name = ?, lastSearched = ?");
+        psUpdateConcept = connection.prepareStatement("UPDATE `concepts` SET lastSearched = ? WHERE id = ?");
+
+        psAttributeCheck = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
+        psInsertAttribute = connection
+                .prepareStatement("INSERT INTO `attributes` SET name = ?,trust = ?, lastSearched = ?");
+        psUpdateAttribute = connection.prepareStatement("UPDATE `attributes` SET lastSearched = ? WHERE id = ?");
+
+        psEntityCheck = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ? AND conceptID = ?");
+        psGetEntityName = connection.prepareStatement("SELECT name FROM `entities` WHERE id = ?");
+        psInsertEntity = connection
+                .prepareStatement("INSERT INTO `entities` SET name = ?,trust = ?,conceptID = ?,lastSearched = ?");
+        psUpdateEntity = connection.prepareStatement("UPDATE `entities` SET lastSearched = ? WHERE id = ?");
+        psLoadEntities1 = connection
+                .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY name ASC LIMIT ?,?");
+        psLoadEntities2 = connection
+                .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY lastSearched ASC LIMIT ?,?");
+        psLoadEntity = connection
+                .prepareStatement("SELECT `entities`.name AS entityName,`entities`.lastSearched,`concepts`.name AS conceptName FROM `entities`,`concepts` WHERE `entities`.conceptID = `concepts`.id AND `entities`.id = ?");
+        psDeleteEmptyEntities = connection.prepareStatement("DELETE FROM entities WHERE LENGTH(TRIM(name)) = 0");
+
+        psGetEntityIDsByName = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ?");
+        psGetAttributeID = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
+        psGetAttributeExtractedAt = connection.prepareStatement("SELECT extractedAt FROM `attributes` WHERE name = ?");
+
+        psFactCheck = connection
+                .prepareStatement("SELECT id FROM `facts` WHERE entityID = ? AND attributeID = ? AND value = ?");
+        psInsertFact = connection
+                .prepareStatement("INSERT INTO `facts` SET entityID = ?,attributeID = ?,value = ?,trust = ?");
+
+        psSnippetCheck = connection.prepareStatement("SELECT id FROM `snippets` WHERE entityID = ? AND text = ?");
+        // psInsertSnippet = connection
+        // .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, f_SearchIndex = ?, f_SearchIndexRank = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_CharacterCount = ?, f_StartsWithEntity = ?, f_WordCount = ?, f_SyllableCount = ?, f_CapitalizedWordCount = ?, regressionRank = ?");
+        psInsertSnippet = connection
+                .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, regressionRank = ?, f_AggregatedRank = ?, f_SearchEngine1 = ?, f_SearchEngine2 = ?, f_SearchEngine3 = ?, f_SearchEngine4 = ?, f_SearchEngine5 = ?, f_SearchEngine6 = ?, f_SearchEngine7 = ?, f_SearchEngine8 = ?, f_SearchEngine9 = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_MainContentCharCount = ?, f_CharacterCount = ?, f_LetterNumberPercentage = ?, f_SyllablesPerWordCount = ?, f_WordCount = ?, f_UniqueWordCount = ?, f_ComplexWordPercentage = ?, f_SentenceCount = ?, f_WordsPerSentenceCount = ?, f_FleschKincaidReadingEase = ?, f_GunningFogScore = ?, f_FleschKincaidGradeLevel = ?, f_AutomatedReadabilityIndex = ?, f_ColemanLiauIndex = ?, f_SmogIndex = ?, f_ContainsProperNoun = ?, f_CapitalizedWordCount = ?, f_StartsWithEntity = ?, f_RelatedEntityCount = ?");
+        // psUpdateSnippetRank =
+        // connection.prepareStatement("UPDATE `snippets` SET regressionRank = ? WHERE id = ?");
+
+        psAttributeSourceCheck = connection
+                .prepareStatement("SELECT id FROM `attributes_sources` WHERE attributeID = ? AND sourceID = ?");
+        psInsertAttributeSource = connection
+                .prepareStatement("INSERT INTO `attributes_sources` SET attributeID = ?,sourceID = ?,extractionType = ?");
+        psGetEntitySources = connection
+                .prepareStatement("SELECT sources.id,url,extractionType FROM `entities`,`entities_sources`,`sources` WHERE `entities`.id = `entities_sources`.entityID AND `entities_sources`.sourceID = `sources`.id  AND `entities`.id = ?");
+        psEntitySourceCheck = connection
+                .prepareStatement("SELECT id FROM `entities_sources` WHERE entityID = ? AND sourceID = ? AND extractionType = ?");
+        psInsertEntitySource = connection
+                .prepareStatement("INSERT INTO `entities_sources` SET entityID = ?,sourceID = ?,extractionType = ?");
+        psFactSourceCheck = connection
+                .prepareStatement("SELECT id FROM `facts_sources` WHERE factID = ? AND sourceID = ?");
+        psInsertFactSource = connection
+                .prepareStatement("INSERT INTO `facts_sources` SET factID = ?,sourceID = ?,extractionType = ?");
+        psSourceCheck = connection.prepareStatement("SELECT id FROM `sources` WHERE url = ?");
+        psInsertSource = connection.prepareStatement("INSERT INTO `sources` SET url = ?");
+        psGetSourceURL = connection.prepareStatement("SELECT url FROM `sources` WHERE id = ?");
+
+        psInsertAssessmentInstance = connection
+                .prepareStatement("INSERT INTO training_samples SET conceptID = ?, entityID = ?, class = ?");
+
+        psGetSeeds = connection
+                .prepareStatement("SELECT entities.name FROM `entities`,`entities_sources` WHERE `entities`.conceptID = ? AND `entities`.id = `entities_sources`.entityID GROUP BY entityID ORDER BY COUNT(entityID) DESC LIMIT 0,2000");
+        psGetEntitiesForSource = connection
+                .prepareStatement("SELECT training_samples.entityID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.sourceID = ?");
+        psGetEntitiesForExtractionType = connection
+                .prepareStatement("SELECT training_samples.entityID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.extractionType = ? AND training_samples.conceptID = ?");
+        psGetExtractionTypesForSource = connection
+                .prepareStatement("SELECT extractionType FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.sourceID = ? AND training_samples.conceptID = ?");
+        psGetSourcesForExtractionType = connection
+                .prepareStatement("SELECT entities_sources.sourceID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.extractionType = ? AND training_samples.conceptID = ?");
+
+        // psSetEntityTrust = connection.prepareStatement("UPDATE entities SET trust = ? WHERE id = ?");
+
+        psGetPMI = connection.prepareStatement("SELECT value FROM facts WHERE entityID = ? AND attributeID = ?");
+
+        psSetTestField = connection.prepareStatement("UPDATE training_samples SET test = ? WHERE entityID = ?");
+
+        // question and answers
+        psAddQ = connection.prepareStatement("INSERT INTO `questions` SET sourceID = ?, question = ?");
+        psAddA = connection.prepareStatement("INSERT INTO `answers` SET answer = ?, questionID = ?");
+
+        // status
+        psUpdateExtractionStatus = connection
+                .prepareStatement("UPDATE extraction_status SET phase = ?, progress = ?, logExcerpt = ?, downloadedBytes = ?, updatedAt = NOW() WHERE id = 1");
+        psGetExtractionStatusDownloadedBytes = connection
+                .prepareStatement("SELECT downloadedBytes FROM extraction_status WHERE id = 1");
+
     }
 
-
     /**
-     * Gets the connection.
-     *
-     * @return the connection
+     * Return the connection.
+     * 
+     * @return
      */
     public Connection getConnection() {
-
-        try {
-            Class.forName(config.getString("db.driver"));
-            String url = "jdbc:" + config.getString("db.type") + "://" + config.getString("db.host") + ":"
-                    + config.getString("db.port") + "/" + config.getString("db.name");
-            url += "?useServerPrepStmts=false&cachePrepStmts=false";
-            connection = DriverManager.getConnection(url, config.getString("db.username"), config
-                    .getString("db.password"));
-
-            psLastInsertID = connection.prepareStatement("SELECT LAST_INSERT_ID()");
-            // only get the "master" concepts, not the synonyms -- Philipp, 2010-07-02
-            // psGetConcepts = connection.prepareStatement("SELECT * FROM `concepts`");
-            psGetConcepts = connection.prepareStatement("SELECT * FROM `concepts` WHERE id NOT IN (SELECT conceptID2 FROM concept_synonyms)");
-            psGetConceptSynonyms = connection.prepareStatement("SELECT * FROM `concepts`, `concept_synonyms` WHERE conceptID1 = ? AND conceptID2 = concepts.id");
-
-            psConceptCheck = connection.prepareStatement("SELECT id FROM `concepts` WHERE name = ?");
-            psConceptSynonymCheck = connection
-                    .prepareStatement("SELECT id FROM concept_synonyms WHERE (conceptID1 = ? AND conceptID2 = ?) OR (conceptID1 = ? AND conceptID2 = ?)");
-            psAttributeSynonymCheck = connection
-                    .prepareStatement("SELECT id FROM attribute_synonyms WHERE (attributeID1 = ? AND attributeID2 = ?) OR (attributeID1 = ? AND attributeID2 = ?)");
-
-            psAttributeConceptCheck = connection
-                    .prepareStatement("SELECT id FROM attributes_concepts WHERE attributeID = ? AND conceptID = ?");
-
-            psGetLastSearchedConcept = connection.prepareStatement("SELECT lastSearched FROM concepts WHERE name = ?");
-            psGetLastSearchedAttribute = connection
-                    .prepareStatement("SELECT lastSearched FROM attributes WHERE name = ?");
-            psGetLastSearchedEntity = connection.prepareStatement("SELECT lastSearched FROM entities WHERE name = ?");
-            psInsertConcept = connection.prepareStatement("INSERT INTO `concepts` SET name = ?, lastSearched = ?");
-            psUpdateConcept = connection.prepareStatement("UPDATE `concepts` SET lastSearched = ? WHERE id = ?");
-
-            psAttributeCheck = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
-            psInsertAttribute = connection
-                    .prepareStatement("INSERT INTO `attributes` SET name = ?,trust = ?, lastSearched = ?");
-            psUpdateAttribute = connection.prepareStatement("UPDATE `attributes` SET lastSearched = ? WHERE id = ?");
-
-            psEntityCheck = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ? AND conceptID = ?");
-            psGetEntityName = connection.prepareStatement("SELECT name FROM `entities` WHERE id = ?");
-            psInsertEntity = connection
-                    .prepareStatement("INSERT INTO `entities` SET name = ?,trust = ?,conceptID = ?,lastSearched = ?");
-            psUpdateEntity = connection.prepareStatement("UPDATE `entities` SET lastSearched = ? WHERE id = ?");
-            psLoadEntities1 = connection
-                    .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY name ASC LIMIT ?,?");
-            psLoadEntities2 = connection
-                    .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY lastSearched ASC LIMIT ?,?");
-            psLoadEntity = connection
-                    .prepareStatement("SELECT `entities`.name AS entityName,`entities`.lastSearched,`concepts`.name AS conceptName FROM `entities`,`concepts` WHERE `entities`.conceptID = `concepts`.id AND `entities`.id = ?");
-            psDeleteEmptyEntities = connection.prepareStatement("DELETE FROM entities WHERE LENGTH(TRIM(name)) = 0");
-
-            psGetEntityIDsByName = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ?");
-            psGetAttributeID = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
-            psGetAttributeExtractedAt = connection
-                    .prepareStatement("SELECT extractedAt FROM `attributes` WHERE name = ?");
-
-            psFactCheck = connection
-                    .prepareStatement("SELECT id FROM `facts` WHERE entityID = ? AND attributeID = ? AND value = ?");
-            psInsertFact = connection
-                    .prepareStatement("INSERT INTO `facts` SET entityID = ?,attributeID = ?,value = ?,trust = ?");
-
-            psSnippetCheck = connection.prepareStatement("SELECT id FROM `snippets` WHERE entityID = ? AND text = ?");
-            // psInsertSnippet = connection
-            // .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, f_SearchIndex = ?, f_SearchIndexRank = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_CharacterCount = ?, f_StartsWithEntity = ?, f_WordCount = ?, f_SyllableCount = ?, f_CapitalizedWordCount = ?, regressionRank = ?");
-            psInsertSnippet = connection
-                    .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, regressionRank = ?, f_AggregatedRank = ?, f_SearchEngine1 = ?, f_SearchEngine2 = ?, f_SearchEngine3 = ?, f_SearchEngine4 = ?, f_SearchEngine5 = ?, f_SearchEngine6 = ?, f_SearchEngine7 = ?, f_SearchEngine8 = ?, f_SearchEngine9 = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_MainContentCharCount = ?, f_CharacterCount = ?, f_LetterNumberPercentage = ?, f_SyllablesPerWordCount = ?, f_WordCount = ?, f_UniqueWordCount = ?, f_ComplexWordPercentage = ?, f_SentenceCount = ?, f_WordsPerSentenceCount = ?, f_FleschKincaidReadingEase = ?, f_GunningFogScore = ?, f_FleschKincaidGradeLevel = ?, f_AutomatedReadabilityIndex = ?, f_ColemanLiauIndex = ?, f_SmogIndex = ?, f_ContainsProperNoun = ?, f_CapitalizedWordCount = ?, f_StartsWithEntity = ?, f_RelatedEntityCount = ?");
-            // psUpdateSnippetRank =
-            // connection.prepareStatement("UPDATE `snippets` SET regressionRank = ? WHERE id = ?");
-
-            psAttributeSourceCheck = connection
-                    .prepareStatement("SELECT id FROM `attributes_sources` WHERE attributeID = ? AND sourceID = ?");
-            psInsertAttributeSource = connection
-                    .prepareStatement("INSERT INTO `attributes_sources` SET attributeID = ?,sourceID = ?,extractionType = ?");
-            psGetEntitySources = connection
-                    .prepareStatement("SELECT sources.id,url,extractionType FROM `entities`,`entities_sources`,`sources` WHERE `entities`.id = `entities_sources`.entityID AND `entities_sources`.sourceID = `sources`.id  AND `entities`.id = ?");
-            psEntitySourceCheck = connection
-                    .prepareStatement("SELECT id FROM `entities_sources` WHERE entityID = ? AND sourceID = ? AND extractionType = ?");
-            psInsertEntitySource = connection
-                    .prepareStatement("INSERT INTO `entities_sources` SET entityID = ?,sourceID = ?,extractionType = ?");
-            psFactSourceCheck = connection
-                    .prepareStatement("SELECT id FROM `facts_sources` WHERE factID = ? AND sourceID = ?");
-            psInsertFactSource = connection
-                    .prepareStatement("INSERT INTO `facts_sources` SET factID = ?,sourceID = ?,extractionType = ?");
-            psSourceCheck = connection.prepareStatement("SELECT id FROM `sources` WHERE url = ?");
-            psInsertSource = connection.prepareStatement("INSERT INTO `sources` SET url = ?");
-            psGetSourceURL = connection.prepareStatement("SELECT url FROM `sources` WHERE id = ?");
-
-            psInsertAssessmentInstance = connection
-                    .prepareStatement("INSERT INTO training_samples SET conceptID = ?, entityID = ?, class = ?");
-
-            psGetSeeds = connection
-                    .prepareStatement("SELECT entities.name FROM `entities`,`entities_sources` WHERE `entities`.conceptID = ? AND `entities`.id = `entities_sources`.entityID GROUP BY entityID ORDER BY COUNT(entityID) DESC LIMIT 0,2000");
-            psGetEntitiesForSource = connection
-                    .prepareStatement("SELECT training_samples.entityID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.sourceID = ?");
-            psGetEntitiesForExtractionType = connection
-                    .prepareStatement("SELECT training_samples.entityID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.extractionType = ? AND training_samples.conceptID = ?");
-            psGetExtractionTypesForSource = connection
-                    .prepareStatement("SELECT extractionType FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.sourceID = ? AND training_samples.conceptID = ?");
-            psGetSourcesForExtractionType = connection
-                    .prepareStatement("SELECT entities_sources.sourceID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.extractionType = ? AND training_samples.conceptID = ?");
-
-            // psSetEntityTrust = connection.prepareStatement("UPDATE entities SET trust = ? WHERE id = ?");
-
-            psGetPMI = connection.prepareStatement("SELECT value FROM facts WHERE entityID = ? AND attributeID = ?");
-
-            psSetTestField = connection.prepareStatement("UPDATE training_samples SET test = ? WHERE entityID = ?");
-
-            // question and answers
-            psAddQ = connection.prepareStatement("INSERT INTO `questions` SET sourceID = ?, question = ?");
-            psAddA = connection.prepareStatement("INSERT INTO `answers` SET answer = ?, questionID = ?");
-
-            // status
-            psUpdateExtractionStatus = connection
-                    .prepareStatement("UPDATE extraction_status SET phase = ?, progress = ?, logExcerpt = ?, downloadedBytes = ?, updatedAt = NOW() WHERE id = 1");
-            psGetExtractionStatusDownloadedBytes = connection
-                    .prepareStatement("SELECT downloadedBytes FROM extraction_status WHERE id = 1");
-
-            // // // prepared statements for feeds
-            // psAddFeedEntry = connection
-            // .prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?, tags = ?");
-            // psAddFeed = connection
-            // .prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ?");
-            // psUpdateFeed = connection
-            // .prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            // psUpdateFeed_fixed_learned = connection
-            // .prepareStatement("UPDATE feeds_fixed_learned SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            // psUpdateFeed_adaptive = connection
-            // .prepareStatement("UPDATE feeds_adaptive SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            // psUpdateFeed_probabilistic = connection
-            // .prepareStatement("UPDATE feeds_probabilistic SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            // psUpdateFeedPostDistribution = connection
-            // .prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
-            // psGetFeedPostDistribution = connection
-            // .prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
-            // psGetFeeds = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds");
-            // psGetFeeds_fixed_learned = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_fixed_learned");
-            // psGetFeeds_adaptive = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_adaptive");
-            // psGetFeeds_probabilistic = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_probabilistic");
-            // psGetFeedByUrl = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
-            // psGetFeedByID = connection
-            // .prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
-            // psGetEntryByRawId = connection
-            // .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
-            // psChangeCheckApproach = connection
-            // .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
-
-        } catch (ClassNotFoundException e) {
-            LOGGER.error(e.getMessage());
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-        }
-
         return connection;
     }
+
+    // /**
+    // * Gets the logger.
+    // * TODO needed?
+    // *
+    // * @return the logger
+    // */
+    // public Logger getLogger() {
+    // return LOGGER;
+    // }
+
+    // /**
+    // * Gets the connection.
+    // *
+    // * @return the connection
+    // */
+    // public Connection getConnection() {
+    //
+    // try {
+    // Class.forName(config.getString("db.driver"));
+    // String url = "jdbc:" + config.getString("db.type") + "://" + config.getString("db.host") + ":"
+    // + config.getString("db.port") + "/" + config.getString("db.name");
+    // url += "?useServerPrepStmts=false&cachePrepStmts=false";
+    // connection = DriverManager.getConnection(url, config.getString("db.username"), config
+    // .getString("db.password"));
+    //
+    // psLastInsertID = connection.prepareStatement("SELECT LAST_INSERT_ID()");
+    // // only get the "master" concepts, not the synonyms -- Philipp, 2010-07-02
+    // // psGetConcepts = connection.prepareStatement("SELECT * FROM `concepts`");
+    // psGetConcepts =
+    // connection.prepareStatement("SELECT * FROM `concepts` WHERE id NOT IN (SELECT conceptID2 FROM concept_synonyms)");
+    // psGetConceptSynonyms =
+    // connection.prepareStatement("SELECT * FROM `concepts`, `concept_synonyms` WHERE conceptID1 = ? AND conceptID2 = concepts.id");
+    //
+    // psConceptCheck = connection.prepareStatement("SELECT id FROM `concepts` WHERE name = ?");
+    // psConceptSynonymCheck = connection
+    // .prepareStatement("SELECT id FROM concept_synonyms WHERE (conceptID1 = ? AND conceptID2 = ?) OR (conceptID1 = ? AND conceptID2 = ?)");
+    // psAttributeSynonymCheck = connection
+    // .prepareStatement("SELECT id FROM attribute_synonyms WHERE (attributeID1 = ? AND attributeID2 = ?) OR (attributeID1 = ? AND attributeID2 = ?)");
+    //
+    // psAttributeConceptCheck = connection
+    // .prepareStatement("SELECT id FROM attributes_concepts WHERE attributeID = ? AND conceptID = ?");
+    //
+    // psGetLastSearchedConcept = connection.prepareStatement("SELECT lastSearched FROM concepts WHERE name = ?");
+    // psGetLastSearchedAttribute = connection
+    // .prepareStatement("SELECT lastSearched FROM attributes WHERE name = ?");
+    // psGetLastSearchedEntity = connection.prepareStatement("SELECT lastSearched FROM entities WHERE name = ?");
+    // psInsertConcept = connection.prepareStatement("INSERT INTO `concepts` SET name = ?, lastSearched = ?");
+    // psUpdateConcept = connection.prepareStatement("UPDATE `concepts` SET lastSearched = ? WHERE id = ?");
+    //
+    // psAttributeCheck = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
+    // psInsertAttribute = connection
+    // .prepareStatement("INSERT INTO `attributes` SET name = ?,trust = ?, lastSearched = ?");
+    // psUpdateAttribute = connection.prepareStatement("UPDATE `attributes` SET lastSearched = ? WHERE id = ?");
+    //
+    // psEntityCheck = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ? AND conceptID = ?");
+    // psGetEntityName = connection.prepareStatement("SELECT name FROM `entities` WHERE id = ?");
+    // psInsertEntity = connection
+    // .prepareStatement("INSERT INTO `entities` SET name = ?,trust = ?,conceptID = ?,lastSearched = ?");
+    // psUpdateEntity = connection.prepareStatement("UPDATE `entities` SET lastSearched = ? WHERE id = ?");
+    // psLoadEntities1 = connection
+    // .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY name ASC LIMIT ?,?");
+    // psLoadEntities2 = connection
+    // .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY lastSearched ASC LIMIT ?,?");
+    // psLoadEntity = connection
+    // .prepareStatement("SELECT `entities`.name AS entityName,`entities`.lastSearched,`concepts`.name AS conceptName FROM `entities`,`concepts` WHERE `entities`.conceptID = `concepts`.id AND `entities`.id = ?");
+    // psDeleteEmptyEntities = connection.prepareStatement("DELETE FROM entities WHERE LENGTH(TRIM(name)) = 0");
+    //
+    // psGetEntityIDsByName = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ?");
+    // psGetAttributeID = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
+    // psGetAttributeExtractedAt = connection
+    // .prepareStatement("SELECT extractedAt FROM `attributes` WHERE name = ?");
+    //
+    // psFactCheck = connection
+    // .prepareStatement("SELECT id FROM `facts` WHERE entityID = ? AND attributeID = ? AND value = ?");
+    // psInsertFact = connection
+    // .prepareStatement("INSERT INTO `facts` SET entityID = ?,attributeID = ?,value = ?,trust = ?");
+    //
+    // psSnippetCheck = connection.prepareStatement("SELECT id FROM `snippets` WHERE entityID = ? AND text = ?");
+    // // psInsertSnippet = connection
+    // //
+    // .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, f_SearchIndex = ?, f_SearchIndexRank = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_CharacterCount = ?, f_StartsWithEntity = ?, f_WordCount = ?, f_SyllableCount = ?, f_CapitalizedWordCount = ?, regressionRank = ?");
+    // psInsertSnippet = connection
+    // .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, regressionRank = ?, f_AggregatedRank = ?, f_SearchEngine1 = ?, f_SearchEngine2 = ?, f_SearchEngine3 = ?, f_SearchEngine4 = ?, f_SearchEngine5 = ?, f_SearchEngine6 = ?, f_SearchEngine7 = ?, f_SearchEngine8 = ?, f_SearchEngine9 = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_MainContentCharCount = ?, f_CharacterCount = ?, f_LetterNumberPercentage = ?, f_SyllablesPerWordCount = ?, f_WordCount = ?, f_UniqueWordCount = ?, f_ComplexWordPercentage = ?, f_SentenceCount = ?, f_WordsPerSentenceCount = ?, f_FleschKincaidReadingEase = ?, f_GunningFogScore = ?, f_FleschKincaidGradeLevel = ?, f_AutomatedReadabilityIndex = ?, f_ColemanLiauIndex = ?, f_SmogIndex = ?, f_ContainsProperNoun = ?, f_CapitalizedWordCount = ?, f_StartsWithEntity = ?, f_RelatedEntityCount = ?");
+    // // psUpdateSnippetRank =
+    // // connection.prepareStatement("UPDATE `snippets` SET regressionRank = ? WHERE id = ?");
+    //
+    // psAttributeSourceCheck = connection
+    // .prepareStatement("SELECT id FROM `attributes_sources` WHERE attributeID = ? AND sourceID = ?");
+    // psInsertAttributeSource = connection
+    // .prepareStatement("INSERT INTO `attributes_sources` SET attributeID = ?,sourceID = ?,extractionType = ?");
+    // psGetEntitySources = connection
+    // .prepareStatement("SELECT sources.id,url,extractionType FROM `entities`,`entities_sources`,`sources` WHERE `entities`.id = `entities_sources`.entityID AND `entities_sources`.sourceID = `sources`.id  AND `entities`.id = ?");
+    // psEntitySourceCheck = connection
+    // .prepareStatement("SELECT id FROM `entities_sources` WHERE entityID = ? AND sourceID = ? AND extractionType = ?");
+    // psInsertEntitySource = connection
+    // .prepareStatement("INSERT INTO `entities_sources` SET entityID = ?,sourceID = ?,extractionType = ?");
+    // psFactSourceCheck = connection
+    // .prepareStatement("SELECT id FROM `facts_sources` WHERE factID = ? AND sourceID = ?");
+    // psInsertFactSource = connection
+    // .prepareStatement("INSERT INTO `facts_sources` SET factID = ?,sourceID = ?,extractionType = ?");
+    // psSourceCheck = connection.prepareStatement("SELECT id FROM `sources` WHERE url = ?");
+    // psInsertSource = connection.prepareStatement("INSERT INTO `sources` SET url = ?");
+    // psGetSourceURL = connection.prepareStatement("SELECT url FROM `sources` WHERE id = ?");
+    //
+    // psInsertAssessmentInstance = connection
+    // .prepareStatement("INSERT INTO training_samples SET conceptID = ?, entityID = ?, class = ?");
+    //
+    // psGetSeeds = connection
+    // .prepareStatement("SELECT entities.name FROM `entities`,`entities_sources` WHERE `entities`.conceptID = ? AND `entities`.id = `entities_sources`.entityID GROUP BY entityID ORDER BY COUNT(entityID) DESC LIMIT 0,2000");
+    // psGetEntitiesForSource = connection
+    // .prepareStatement("SELECT training_samples.entityID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.sourceID = ?");
+    // psGetEntitiesForExtractionType = connection
+    // .prepareStatement("SELECT training_samples.entityID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.extractionType = ? AND training_samples.conceptID = ?");
+    // psGetExtractionTypesForSource = connection
+    // .prepareStatement("SELECT extractionType FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.sourceID = ? AND training_samples.conceptID = ?");
+    // psGetSourcesForExtractionType = connection
+    // .prepareStatement("SELECT entities_sources.sourceID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.extractionType = ? AND training_samples.conceptID = ?");
+    //
+    // // psSetEntityTrust = connection.prepareStatement("UPDATE entities SET trust = ? WHERE id = ?");
+    //
+    // psGetPMI = connection.prepareStatement("SELECT value FROM facts WHERE entityID = ? AND attributeID = ?");
+    //
+    // psSetTestField = connection.prepareStatement("UPDATE training_samples SET test = ? WHERE entityID = ?");
+    //
+    // // question and answers
+    // psAddQ = connection.prepareStatement("INSERT INTO `questions` SET sourceID = ?, question = ?");
+    // psAddA = connection.prepareStatement("INSERT INTO `answers` SET answer = ?, questionID = ?");
+    //
+    // // status
+    // psUpdateExtractionStatus = connection
+    // .prepareStatement("UPDATE extraction_status SET phase = ?, progress = ?, logExcerpt = ?, downloadedBytes = ?, updatedAt = NOW() WHERE id = 1");
+    // psGetExtractionStatusDownloadedBytes = connection
+    // .prepareStatement("SELECT downloadedBytes FROM extraction_status WHERE id = 1");
+    //
+    // // // // prepared statements for feeds
+    // // psAddFeedEntry = connection
+    // //
+    // .prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?, tags = ?");
+    // // psAddFeed = connection
+    // //
+    // .prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ?");
+    // // psUpdateFeed = connection
+    // //
+    // .prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+    // // psUpdateFeed_fixed_learned = connection
+    // //
+    // .prepareStatement("UPDATE feeds_fixed_learned SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+    // // psUpdateFeed_adaptive = connection
+    // //
+    // .prepareStatement("UPDATE feeds_adaptive SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+    // // psUpdateFeed_probabilistic = connection
+    // //
+    // .prepareStatement("UPDATE feeds_probabilistic SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
+    // // psUpdateFeedPostDistribution = connection
+    // //
+    // .prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
+    // // psGetFeedPostDistribution = connection
+    // // .prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
+    // // psGetFeeds = connection
+    // //
+    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds");
+    // // psGetFeeds_fixed_learned = connection
+    // //
+    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_fixed_learned");
+    // // psGetFeeds_adaptive = connection
+    // //
+    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_adaptive");
+    // // psGetFeeds_probabilistic = connection
+    // //
+    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_probabilistic");
+    // // psGetFeedByUrl = connection
+    // //
+    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
+    // // psGetFeedByID = connection
+    // //
+    // .prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
+    // // psGetEntryByRawId = connection
+    // //
+    // .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
+    // // psChangeCheckApproach = connection
+    // //
+    // .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
+    //
+    // } catch (ClassNotFoundException e) {
+    // LOGGER.error(e.getMessage());
+    // } catch (SQLException e) {
+    // LOGGER.error(e.getMessage());
+    // }
+    //
+    // return connection;
+    // }
 
     /*
      * private void closeConnection() { try { connection.close(); } catch (SQLException e) {
@@ -348,7 +499,7 @@ public class DatabaseManager {
 
     /**
      * Write the concepts and their attributes (defined in the ontology) in the database.
-     *
+     * 
      * @param filePath the file path
      */
     public void updateOntology(String filePath) {
@@ -401,7 +552,7 @@ public class DatabaseManager {
 
     /**
      * Update ontology.
-     *
+     * 
      * @param knowledgeManager the knowledge manager
      */
     public void updateOntology(KnowledgeManager knowledgeManager) {
@@ -446,7 +597,7 @@ public class DatabaseManager {
 
     /**
      * Load ontology.
-     *
+     * 
      * @return the knowledge manager
      */
     public KnowledgeManager loadOntology() {
@@ -456,7 +607,7 @@ public class DatabaseManager {
     /**
      * Load the ontology saved in the database into the KnowledgeManager. Update the ontology for the database first
      * from the owl ontology.
-     *
+     * 
      * @param filePath the file path
      * @return the knowledge manager
      */
@@ -510,8 +661,8 @@ public class DatabaseManager {
         ArrayList<Concept> concepts1 = knowledgeManager.getConcepts();
         Iterator<Concept> conceptIterator2 = concepts1.iterator();
         while (conceptIterator2.hasNext()) {
-             Concept concept = conceptIterator2.next();
-             LOGGER.info("concept: "+concept.getName()+" "+concept.getLastSearched());
+            Concept concept = conceptIterator2.next();
+            LOGGER.info("concept: " + concept.getName() + " " + concept.getLastSearched());
             // Iterator<Entity> entityIterator = concept.getEntities().iterator();
             // while (entityIterator.hasNext()) {
             // Entity entity = entityIterator.next();
@@ -530,7 +681,7 @@ public class DatabaseManager {
     // TODO load sources for each entity as well / done but not tested
     /**
      * Load entities (names and lastSearched only) for a specific concept.
-     *
+     * 
      * @param concept the concept
      * @param number Number of Entities to return.
      * @param offset An offset value.
@@ -597,12 +748,10 @@ public class DatabaseManager {
 
         return entities;
     }
-    
-    
 
     /**
      * Load concepts.
-     *
+     * 
      * @return the array list
      */
     public ArrayList<Concept> loadConcepts() {
@@ -627,7 +776,7 @@ public class DatabaseManager {
 
         return concepts;
     }
-    
+
     private HashSet<String> loadConceptSynonyms(Concept concept) {
         HashSet<String> result = new HashSet<String>();
         try {
@@ -645,7 +794,7 @@ public class DatabaseManager {
 
     /**
      * Load evaluation entities.
-     *
+     * 
      * @param concept the concept
      * @return the array list
      */
@@ -681,7 +830,7 @@ public class DatabaseManager {
 
     /**
      * Load entity.
-     *
+     * 
      * @param entityID the entity id
      * @return the entity
      */
@@ -753,16 +902,16 @@ public class DatabaseManager {
 
         for (Concept concept : concepts) {
             // int conceptID = getConceptID(concept.getName());
-            
+
             int conceptID = addConcept(concept);
-            
+
             // save all concept's synonyms
             HashSet<String> synonyms = concept.getSynonyms();
             for (String synonym : synonyms) {
                 int synonymID = addConcept(new Concept(synonym));
                 addConceptSynonym(conceptID, synonymID);
             }
-            
+
             for (Entity entity : concept.getEntities()) {
 
                 // add entity to database
@@ -831,7 +980,7 @@ public class DatabaseManager {
             }
             long ms = System.currentTimeMillis() - t1;
 
-            //System.out.println(t2 - t1);
+            // System.out.println(t2 - t1);
             LOGGER.debug("saved extractions in " + ms + " ms");
 
         } catch (Exception e) {
@@ -841,7 +990,7 @@ public class DatabaseManager {
 
     /**
      * Gets the seeds.
-     *
+     * 
      * @param concept the concept
      * @param maxNumber the max number
      * @return the seeds
@@ -865,7 +1014,7 @@ public class DatabaseManager {
 
     /**
      * Gets the pMI.
-     *
+     * 
      * @param entityID the entity id
      * @param attributeID the attribute id
      * @return the pMI
@@ -888,7 +1037,7 @@ public class DatabaseManager {
 
     /**
      * Gets the benchmark pm is.
-     *
+     * 
      * @return the benchmark pm is
      */
     public HashMap<String, Double> getBenchmarkPMIs() {
@@ -910,7 +1059,7 @@ public class DatabaseManager {
      * *************************************************************************************************
      * reading and writing from the database
      * *************************************************************************************************.
-     *
+     * 
      * @param extractionPhase the extraction phase
      * @param progress the progress
      * @param logExcerpt the log excerpt
@@ -932,7 +1081,7 @@ public class DatabaseManager {
 
     /**
      * Gets the extraction status downloaded bytes.
-     *
+     * 
      * @return the extraction status downloaded bytes
      */
     public long getExtractionStatusDownloadedBytes() {
@@ -950,7 +1099,7 @@ public class DatabaseManager {
 
     /**
      * Set the test field in training_samples database for a certain entity.
-     *
+     * 
      * @param entityID the entity id
      * @param test the test
      */
@@ -971,7 +1120,7 @@ public class DatabaseManager {
 
     /**
      * Gets the entities for source.
-     *
+     * 
      * @param sourceID the source id
      * @return the entities for source
      */
@@ -992,7 +1141,7 @@ public class DatabaseManager {
 
     /**
      * Gets the entities for extraction type.
-     *
+     * 
      * @param extractionType the extraction type
      * @param concept the concept
      * @return the entities for extraction type
@@ -1016,7 +1165,7 @@ public class DatabaseManager {
 
     /**
      * Gets the extraction types for source.
-     *
+     * 
      * @param sourceID the source id
      * @param concept the concept
      * @return the extraction types for source
@@ -1040,7 +1189,7 @@ public class DatabaseManager {
 
     /**
      * Gets the sources for extraction type.
-     *
+     * 
      * @param extractionType the extraction type
      * @param concept the concept
      * @return the sources for extraction type
@@ -1064,7 +1213,7 @@ public class DatabaseManager {
 
     /**
      * Adds the q as.
-     *
+     * 
      * @param qas the qas
      */
     public void addQAs(List<QA> qas) {
@@ -1102,7 +1251,7 @@ public class DatabaseManager {
 
     /**
      * Add a concept to the database, if it exists already, update it.
-     *
+     * 
      * @param concept the concept
      * @return The id of the added concept or of the existing concept.
      */
@@ -1174,7 +1323,7 @@ public class DatabaseManager {
 
     /**
      * Add an attribute for a concept, if it exists already update it.
-     *
+     * 
      * @param attribute the attribute
      * @param conceptID The id of the concept.
      * @return The id of the added attribute.
@@ -1271,7 +1420,7 @@ public class DatabaseManager {
 
     /**
      * Calculate attribute synonym trust.
-     *
+     * 
      * @param attribute1 the attribute1
      * @param attribute2 the attribute2
      * @return the double
@@ -1320,7 +1469,7 @@ public class DatabaseManager {
 
     /**
      * Gets the entity name.
-     *
+     * 
      * @param entityID the entity id
      * @return the entity name
      */
@@ -1344,7 +1493,7 @@ public class DatabaseManager {
 
     /**
      * Gets the entity i ds by name.
-     *
+     * 
      * @param entityName the entity name
      * @return the entity i ds by name
      */
@@ -1367,7 +1516,7 @@ public class DatabaseManager {
 
     /**
      * Adds the assessment instance.
-     *
+     * 
      * @param conceptID the concept id
      * @param entityID the entity id
      * @param classValue the class value
@@ -1385,7 +1534,7 @@ public class DatabaseManager {
 
     /**
      * Add an entity to the database, if it exists already, update it.
-     *
+     * 
      * @param entity the entity
      * @param conceptID The id of the concept of the entity.
      * @return The id of the added entity.
@@ -1642,7 +1791,7 @@ public class DatabaseManager {
 
     /**
      * Adds the entity source.
-     *
+     * 
      * @param source the source
      * @param entityID the entity id
      * @return the int
@@ -1677,7 +1826,7 @@ public class DatabaseManager {
 
     /**
      * Adds the source.
-     *
+     * 
      * @param source the source
      * @return the int
      */
@@ -1708,7 +1857,7 @@ public class DatabaseManager {
 
     /**
      * Gets the source url.
-     *
+     * 
      * @param sourceID the source id
      * @return the source url
      */
@@ -1732,7 +1881,7 @@ public class DatabaseManager {
 
     /**
      * Gets the snippet id.
-     *
+     * 
      * @param snippet the snippet
      * @return the snippet id
      */
@@ -1753,7 +1902,7 @@ public class DatabaseManager {
 
     /**
      * Snippet exists.
-     *
+     * 
      * @param snippet the snippet
      * @return true, if successful
      */
@@ -1767,7 +1916,7 @@ public class DatabaseManager {
 
     /**
      * Check whether a specified table and field has the entry already.
-     *
+     * 
      * @param statement the statement
      * @return The id of the existing record or -1 if entry was not found.
      */
@@ -1807,7 +1956,7 @@ public class DatabaseManager {
 
     /**
      * Gets the last insert id.
-     *
+     * 
      * @return the last insert id
      */
     public int getLastInsertID() {
@@ -1829,7 +1978,7 @@ public class DatabaseManager {
 
     /**
      * Gets the concept id.
-     *
+     * 
      * @param conceptName the concept name
      * @return the concept id
      */
@@ -1851,7 +2000,7 @@ public class DatabaseManager {
 
     /**
      * Gets the attribute id.
-     *
+     * 
      * @param attributeName the attribute name
      * @return the attribute id
      */
@@ -1877,7 +2026,7 @@ public class DatabaseManager {
 
     /**
      * Gets the source id.
-     *
+     * 
      * @param sourceURL the source url
      * @return the source id
      */
@@ -1892,7 +2041,7 @@ public class DatabaseManager {
 
     /**
      * Gets the attribute extracted at.
-     *
+     * 
      * @param attributeName the attribute name
      * @return the attribute extracted at
      */
@@ -1918,7 +2067,7 @@ public class DatabaseManager {
 
     /**
      * Gets the total concepts number.
-     *
+     * 
      * @return the total concepts number
      */
     public int getTotalConceptsNumber() {
@@ -1938,7 +2087,7 @@ public class DatabaseManager {
 
     /**
      * Gets the total attributes number.
-     *
+     * 
      * @return the total attributes number
      */
     public int getTotalAttributesNumber() {
@@ -1958,7 +2107,7 @@ public class DatabaseManager {
 
     /**
      * Gets the total entities number.
-     *
+     * 
      * @return the total entities number
      */
     public int getTotalEntitiesNumber() {
@@ -1967,7 +2116,7 @@ public class DatabaseManager {
 
     /**
      * Gets the total entities number.
-     *
+     * 
      * @param conceptName the concept name
      * @return the total entities number
      */
@@ -2001,7 +2150,7 @@ public class DatabaseManager {
 
     /**
      * Gets the total facts number.
-     *
+     * 
      * @param conceptName the concept name
      * @return the total facts number
      */
@@ -2029,7 +2178,7 @@ public class DatabaseManager {
 
     /**
      * Gets the total sources number.
-     *
+     * 
      * @return the total sources number
      */
     public int getTotalSourcesNumber() {
@@ -2049,7 +2198,7 @@ public class DatabaseManager {
 
     /**
      * Run query.
-     *
+     * 
      * @param query the query
      * @return the result set
      */
@@ -2059,7 +2208,7 @@ public class DatabaseManager {
 
     /**
      * Run query.
-     *
+     * 
      * @param statement the statement
      * @return the result set
      */
@@ -2081,7 +2230,7 @@ public class DatabaseManager {
 
     /**
      * Run query.
-     *
+     * 
      * @param query the query
      * @param text the text
      * @return the result set
@@ -2114,7 +2263,7 @@ public class DatabaseManager {
 
     /**
      * Run query.
-     *
+     * 
      * @param query the query
      * @param texts the texts
      * @return the result set
@@ -2144,7 +2293,7 @@ public class DatabaseManager {
 
     /**
      * Execute a prepared statement.
-     *
+     * 
      * @param preparedStatement The prepared statement.
      * @return the int
      */
@@ -2161,7 +2310,7 @@ public class DatabaseManager {
 
     /**
      * Run update.
-     *
+     * 
      * @param update the update
      * @return the int
      */
@@ -2171,7 +2320,7 @@ public class DatabaseManager {
 
     /**
      * Run update.
-     *
+     * 
      * @param update the update
      * @param text the text
      * @return the int
@@ -2198,7 +2347,7 @@ public class DatabaseManager {
 
     /**
      * Run update.
-     *
+     * 
      * @param update the update
      * @param texts the texts
      * @return the int
@@ -2226,7 +2375,7 @@ public class DatabaseManager {
 
     /**
      * Gets the last searched.
-     *
+     * 
      * @param name the name
      * @param table the table
      * @return the last searched
@@ -2436,7 +2585,7 @@ public class DatabaseManager {
     /**
      * Sql script to grab the worst performing indexes in the whole server. Source:
      * http://forge.mysql.com/tools/tool.php?id=85
-     *
+     * 
      */
     public void getWorstIndices() {
         runQuery("SELECT t.TABLE_SCHEMA AS `db`" + ", t.TABLE_NAME AS `table`" + ", s.INDEX_NAME AS `index name`"
@@ -2461,7 +2610,7 @@ public class DatabaseManager {
 
     /**
      * The main method.
-     *
+     * 
      * @param args the arguments
      * @throws Exception the exception
      */
