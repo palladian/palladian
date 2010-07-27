@@ -237,38 +237,33 @@ public class FeedClassifier {
      */
     public static void main(String[] args) {
 
-        FeedClassifier.classifyFeedInStore(FeedDatabase.getInstance());
-        System.exit(0);
+//        FeedClassifier.classifyFeedInStore(FeedDatabase.getInstance());
+//        System.exit(0);
 
-        System.out.println(FeedClassifier.getClassName(FeedClassifier
-                .classify("http://www.news-journalonline.com/atom.xml")));
+//        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.news-journalonline.com/atom.xml")));
 
         // final String className = fc.getClassName(fc.classify("http://feeds.nydailynews.com/nydnrss/news"));
         // final String className = fc.getClassName(fc.classify("http://feeds.gawker.com/lifehacker/full"));
 
-        // System.out.println(fc.getClassName(FeedClassifier.classify("http://www.artnewscentral.com/rss.php"))); //
-        // sponanuous
-        // System.out.println(fc.getClassName(FeedClassifier.classify("http://www.oikotimes.com/v2/rss.php"))); //
-        // sponanuous
-        // System.out.println(fc.getClassName(FeedClassifier.classify("http://www.gadgetsguru.in/rss/rss.aspx"))); //
-        // sponanuous
-        // System.out.println(fc.getClassName(FeedClassifier
-        // .classify("http://feeds.sophos.com/en/rss2_0-sophos-security-news.xml"))); //
-        // // sponanuous
-        // System.out.println(fc.getClassName(FeedClassifier.classify("http://www.spacedaily.com/spacedaily.xml"))); //
-        // // sponanuous
-        // System.out.println(fc.getClassName(FeedClassifier.classify("http://www.speedtv.com/rss/"))); // sponanuous
-        // System.out.println(fc.getClassName(FeedClassifier
-        // .classify("http://www.charitynavigator.org/feeds/featured.xml")));
-        // // // sponanuous
-        // System.out.println(fc.getClassName(FeedClassifier.classify("http://www.hindu.com/rss/01hdline.xml"))); //
-        // sponanuous
-        // System.out.println(fc.getClassName(FeedClassifier
-        // .classify("http://www.babygiftstoys.com/store/2183249/index.rss")));
-        // // // sponanuous
-        // System.out.println(fc.getClassName(FeedClassifier.classify("http://feeds.feedburner.com/TexasStateNews")));
-        // //
-        // sponanuous
+         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.artnewscentral.com/rss.php"))); //
+
+         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.oikotimes.com/v2/rss.php"))); //s
+         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.gadgetsguru.in/rss/rss.aspx"))); //
+
+         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://feeds.sophos.com/en/rss2_0-sophos-security-news.xml"))); //
+         // sponanuous
+         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.spacedaily.com/spacedaily.xml"))); //
+         // sponanuous
+         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.speedtv.com/rss/"))); // sponanuous
+         System.out.println(FeedClassifier.getClassName(FeedClassifier
+         .classify("http://www.charitynavigator.org/feeds/featured.xml")));
+         // // sponanuous
+         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.hindu.com/rss/01hdline.xml"))); //
+
+         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.babygiftstoys.com/store/2183249/index.rss")));
+         // // sponanuous
+         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://feeds.feedburner.com/TexasStateNews")));
+
 
     }
 

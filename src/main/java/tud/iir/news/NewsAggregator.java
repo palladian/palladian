@@ -1,9 +1,9 @@
-
 package tud.iir.news;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -91,7 +91,7 @@ public class NewsAggregator {
         this.store = store;
         loadConfig();
     }
-    
+
     private void loadConfig() {
         try {
             PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
@@ -188,7 +188,7 @@ public class NewsAggregator {
 
         // get the size of the feed
         if (plainXMLFeed != null) {
-            result.setByteSize(PageAnalyzer.getHTMLText(plainXMLFeed).getBytes().length);
+            result.setByteSize(PageAnalyzer.getRawMarkup(plainXMLFeed).getBytes().length);
         }
 
         LOGGER.trace("<getFeed " + result);
@@ -328,62 +328,46 @@ public class NewsAggregator {
 
         Date pubDate = null;
 
-        // find the publish date with the given link of the SyndEntry
-        Node node = XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink() + "\"]/pubDate");
+        Node node = getFeedEntryNode(syndEntry);
 
-        if (node != null) {
-
-            try {
-                pubDate = DateGetterHelper.findDate(node.getTextContent()).getNormalizedDate();
-            } catch (NullPointerException e) {
-                LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
-            } catch (DOMException e) {
-                LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
-            } catch (Exception e) {
-                LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
-            }
-
-        } else {
-
-            node = XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink()
-                    + "\"]/*[contains(name(),'date')]");
-
-            if (node != null) {
-
-                try {
-                    pubDate = DateGetterHelper.findDate(node.getTextContent()).getNormalizedDate();
-                } catch (NullPointerException e) {
-                    LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
-                } catch (DOMException e) {
-                    LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
-                } catch (Exception e) {
-                    LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
-                }
-
-            } else {
-
-                // find the publish date with the given title of the SyndEntry
-                node = XPathHelper.getNode(plainXMLFeed, "//item[title=\"" + syndEntry.getTitle() + "\"]/pubDate");
-
-                if (node != null) {
-                    try {
-                        pubDate = DateGetterHelper.findDate(node.getTextContent()).getNormalizedDate();
-                    } catch (NullPointerException e) {
-                        LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
-                    } catch (DOMException e) {
-                        LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
-                    } catch (Exception e) {
-                        LOGGER.warn("date format could not be parsed correctly: " + node.getTextContent());
-                    }
-                }
-
-            }
-
-            
-            
+        Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
+        LOGGER.debug("absde");
+        try {
+            pubDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
+        } catch (NullPointerException e) {
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode.getTextContent());
+        } catch (DOMException e) {
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode.getTextContent());
+        } catch (Exception e) {
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode.getTextContent());
         }
 
         return pubDate;
+    }
+
+    /**
+     * <p>
+     * Extracts the DOM node of the provided feed entry from the feed currently processed by the aggregator.
+     * </p>
+     * 
+     * @param syndEntry The feed entry to extract.
+     * @return The extracted DOM node representing the provided feed entry.
+     */
+    private Node getFeedEntryNode(SyndEntry syndEntry) {
+
+        // for rss
+        Node node = XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink() + "\"]");
+
+        if (node == null) {
+            node = XPathHelper.getNode(plainXMLFeed, "//item[title=\"" + syndEntry.getTitle() + "\"]");
+
+            // for atom
+            if (node == null) {
+                node = XPathHelper.getNode(plainXMLFeed, "//entry[id=\"" + syndEntry.getUri() + "\"]");
+            }
+        }
+
+        return node;
     }
 
     /**
@@ -466,6 +450,10 @@ public class NewsAggregator {
                 LOGGER.trace("id is missing, taking link instead");
             }
             entry.setRawId(rawId);
+
+            // Set raw xml content to feed entry.
+            Node feedEntryNode = getFeedEntryNode(syndEntry);
+            entry.setPlainXML(PageAnalyzer.getRawMarkup(feedEntryNode));
 
             // logger.trace(entry);
             result.add(entry);
@@ -724,13 +712,13 @@ public class NewsAggregator {
                                         InputStream inpStream = crawler.downloadInputStream(entry.getLink());
                                         extractor.setDocument(new InputSource(inpStream));
                                         // entry.setPageText(extractor.getResultText());
-                                        
+
                                         // changed 2010-07-02 -- keep the whole markup, not the stripped text
                                         // we can strip the text later anyway.
-                                        
+
                                         String content = Helper.xmlToString(extractor.getResultDocument());
                                         entry.setPageContent(content);
-                                        
+
                                         scrapes.increment();
                                     } catch (IOException e) {
                                         LOGGER.trace("aggregate " + feed.getFeedUrl() + " " + e.getMessage());
@@ -793,7 +781,7 @@ public class NewsAggregator {
      * @param waitMinutes the interval in seconds when the aggregation is done.
      * @return
      */
-    public void aggregateContinuously(int waitMinutes) {        
+    public void aggregateContinuously(int waitMinutes) {
         while (true) {
             aggregate();
             LOGGER.info("sleeping for " + waitMinutes + " minutes");
@@ -833,6 +821,7 @@ public class NewsAggregator {
         Feed feed = getFeed(syndFeed, feedUrl);
         List<FeedEntry> entries = getEntries(syndFeed);
         feed.setEntries(entries);
+        feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
         return feed;
     }
 
@@ -912,7 +901,7 @@ public class NewsAggregator {
                 aggregator.aggregate();
             }
             if (cmd.hasOption("aggregateWait")) {
-                int waitMinutes = ((Number)cmd.getParsedOptionValue("aggregateWait")).intValue();
+                int waitMinutes = ((Number) cmd.getParsedOptionValue("aggregateWait")).intValue();
                 aggregator.aggregateContinuously(waitMinutes);
             }
 

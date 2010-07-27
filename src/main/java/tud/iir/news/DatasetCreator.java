@@ -47,7 +47,7 @@ public class DatasetCreator {
         FeedStore feedStore = FeedDatabase.getInstance();
 
         // all feeds need to be classified in advance to filter them accordingly
-        FeedClassifier.classifyFeedInStore(feedStore);
+        //FeedClassifier.classifyFeedInStore(feedStore);
 
         FeedChecker feedChecker = new FeedChecker(feedStore);
 
@@ -63,7 +63,7 @@ public class DatasetCreator {
         updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);
         updateClasses.add(FeedClassifier.CLASS_CONSTANT);
         updateClasses.add(FeedClassifier.CLASS_CHUNKED);
-        feedChecker.filterFeeds(updateClasses);
+        //feedChecker.filterFeeds(updateClasses);
 
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
@@ -98,6 +98,16 @@ public class DatasetCreator {
                     return;
                 }
 
+                // Calculating size of feed header and footer, which should always stay the same.
+                long summedFeedEntrySize = 0;
+                for(FeedEntry entry:feedEntries) {
+                    summedFeedEntrySize += entry.getPlainXML().getBytes().length;
+                }
+                
+                LOGGER.info("feed: "+feed);
+                LOGGER.info("feed.getPlainXML: "+feed.getPlainXML());
+                long feedContainerSize = feed.getPlainXML().getBytes().length-summedFeedEntrySize;
+                
                 StringBuilder newEntries = new StringBuilder();
                 int newPosts = 0;
 
@@ -112,8 +122,10 @@ public class DatasetCreator {
 
                     fileEntry += entry.getPublished().getTime() + ";";
                     fileEntry += "\"" + entry.getTitle().replaceAll("\"", "'") + "\";";
-                    fileEntry += "\"" + entry.getLink() + "\"";
-                    // fileEntry += "\"" + entry.getContent().getBytes().length + "\"";
+                    fileEntry += "\"" + entry.getLink() + "\";";
+                     fileEntry += entry.getPlainXML().getBytes().length + ";";
+                     fileEntry += feedContainerSize+";";
+                     fileEntry += feedEntries.size();
 
                     // add the entry only if it doesn't exist yet in the file
                     if (!fileEntries.contains(fileEntry)) {
@@ -125,10 +137,12 @@ public class DatasetCreator {
                     
                 }
 
+                
+                
                 // if all entries are new, we might have checked to late and missed some entries, we mark that by a
                 // special line
                 if (newPosts == feedEntries.size() && feed.getChecks() > 0) {
-                    newEntries.append("MISS;MISS;MISS").append("\n");
+                    newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
                 }
 
                 try {
@@ -171,7 +185,19 @@ public class DatasetCreator {
         DatasetCreator dc = new DatasetCreator();
         dc.createDataset();
         dc.cleanUp();
+        dc.addFeedMetaInformation();
 
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     *
+     */
+    private void addFeedMetaInformation() {
+        // TODO Auto-generated method stub
+        
     }
 
 }

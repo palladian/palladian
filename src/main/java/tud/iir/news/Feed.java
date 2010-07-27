@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import tud.iir.helper.XPathHelper;
-
 /**
  * Represents a news feed.
  * 
@@ -80,6 +78,10 @@ public class Feed {
 
     /** the update class of the feed is one of {@link FeedClassifier}s classes */
     private int updateClass = -1;
+    /**
+     * The raw XML markup for this feed.
+     */
+    private String plainXML;
 
     public Feed() {
         super();
@@ -454,5 +456,19 @@ public class Feed {
             return false;
         }
         return true;
+    }
+    
+    /**
+     * @param plainXML The raw XML markup for this feed.
+     */
+    public void setPlainXML(String plainXML) {
+        this.plainXML = plainXML;
+    }
+    
+    /**
+     * @return The raw XML markup for this feed.
+     */
+    public String getPlainXML() {
+        return plainXML;
     }
 }

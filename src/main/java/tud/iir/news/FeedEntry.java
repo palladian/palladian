@@ -34,6 +34,12 @@ public class FeedEntry {
 
     // assigned tags
     private List<String> tags = new ArrayList<String>();
+    /**
+     * <p>
+     * The raw XML markup for this feed entry.
+     * </p>
+     */
+    private String plainXML;
 
     public int getId() {
         return id;
@@ -129,6 +135,20 @@ public class FeedEntry {
         // sb.append(" published:").append(published);
         // sb.append(" text:").append(text);
         return sb.toString();
+    }
+
+    /**
+     * @param plainXML The raw XML markup for this feed entry.
+     */
+    public void setPlainXML(String plainXML) {
+        this.plainXML = plainXML;
+    }
+    
+    /**
+     * @return The raw XML markup for this feed entry.
+     */
+    public String getPlainXML() {
+        return plainXML;
     }
 
 }
