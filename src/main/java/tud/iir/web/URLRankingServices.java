@@ -13,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.configuration.ConfigurationException;
@@ -27,6 +28,7 @@ import org.w3c.dom.Node;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
+import tud.iir.knowledge.Source;
 
 import com.temesoft.google.pr.JenkinsHash;
 
@@ -36,6 +38,10 @@ import com.temesoft.google.pr.JenkinsHash;
  * 
  * http://tools.seobook.com/firefox/seo-for-firefox.html
  * 
+ * TODO add parallelized checking of APIs
+ * TODO possibility to disable caching
+ * TODO specific caching for domains
+ * 
  * @author Philipp Katz
  * 
  */
@@ -43,27 +49,82 @@ public class URLRankingServices {
 
     /** Type safe enum for all available ranking services. */
     public enum Service {
-        BITLY_CLICKS(1, false), 
-        DIGGS(2, false), 
-        MIXX_VOTES(3, false), 
-        REDDIT_SCORE(4, false), 
-        DELICIOUS_POSTS(5, false), 
-        YAHOO_DOMAIN_LINKS(6, true), 
-        YAHOO_PAGE_LINKS(7, false), 
-        TWEETS(8, true), 
-        GOOGLE_PAGE_RANK(9, false), 
-        GOOGLE_DOMAIN_PAGE_RANK(10, true), 
-        ALEXA_RANK(11, false), 
-        MAJESTIC_SEO(12, false), 
+
+        /**
+         * Get the number of clicks for the specified URL on bit.ly. This is now the default URL shortening service on
+         * Twitter, so this measure is a good indicator for the popularity of this URL on microblogging platforms.
+         */
+        BITLY_CLICKS(1, false),
+
+        /**
+         * Get the number of diggs for the specified URL. If there are multiple entries for the URL, sum up all diggs.
+         */
+        DIGGS(2, false),
+
+        /**
+         * Get the number of Mixx votes. Mixx is a mix of social networking and bookmarking platform.
+         */
+        MIXX_VOTES(3, false),
+
+        /**
+         * Get the reddit score. This is determined by the number of up/down votes on the reddit site.
+         */
+        REDDIT_SCORE(4, false),
+
+        /**
+         * Get the number of posts on social bookmarking platform Delicious.
+         */
+        DELICIOUS_POSTS(5, false),
+
+        /**
+         * Get the number of results from Yahoo! pointing to the URL's domain.
+         */
+        YAHOO_DOMAIN_LINKS(6, true),
+
+        /**
+         * Get the number of results from Yahoo! pointing to the URL.
+         */
+        YAHOO_PAGE_LINKS(7, false),
+
+        /**
+         * Get the number of Tweets containing the URL's domain. It makes no sense to search for full page links as they
+         * are too long for Twitter in most cases. Use {@link Service#BITLY_CLICKS} as an indicator instead.
+         */
+        TWEETS(8, true),
+
+        /**
+         * Retrieves the PageRank for specified URL.
+         */
+        GOOGLE_PAGE_RANK(9, false),
+
+        /**
+         * Retrieve the PageRank for URL's domain from Google.
+         */
+        GOOGLE_DOMAIN_PAGE_RANK(10, true),
+
+        /**
+         * Get Alexa popularity rank.
+         */
+        ALEXA_RANK(11, false),
+
+        /**
+         * Get number of referring domains for specified URL from Majestic-SEO.
+         */
+        MAJESTIC_SEO(12, false),
+
+        /**
+         * Get "Domain ranking based on Unique Visitor estimate for month/year" from Compete.
+         */
         COMPETE_RANK(13, true);
 
-        int serviceId;
-        boolean domainLevel;
+        private int serviceId;
+        private boolean domainLevel;
 
         Service(int serviceId, boolean domainLevel) {
             this.serviceId = serviceId;
             this.domainLevel = domainLevel;
         }
+
         int getServiceId() {
             return serviceId;
         }
@@ -75,8 +136,24 @@ public class URLRankingServices {
          * 
          * @return true for domain level, false for page level.
          */
-        public boolean isDomainLevel() {
+        boolean isDomainLevel() {
             return domainLevel;
+        }
+
+        /**
+         * Retrieve a service by its serviceId.
+         * 
+         * @param serviceId
+         * @return Service with specified serviceId.
+         * @throws NoSuchElementException if no service with specified serviceId exits.
+         */
+        static Service getById(int serviceId) {
+            for (Service s : Service.values()) {
+                if (s.getServiceId() == serviceId) {
+                    return s;
+                }
+            }
+            throw new NoSuchElementException("no service with id:" + serviceId);
         }
     }
 
@@ -89,10 +166,11 @@ public class URLRankingServices {
     // http://www.diigo.com/ --> getting only empty results from API
     // http://www.fark.com/ --> no official API
     // http://www.archive.org/help/json.php --> found no appropriate API
+    // http://code.google.com/intl/de/apis/feedburner/awareness_api.html
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(URLRankingServices.class);
-    
+
     /** Time interval in seconds, after the cached values are considered invalid. */
     private static final int CACHE_TTL_SECONDS = 60 * 60 * 24;
 
@@ -122,6 +200,7 @@ public class URLRankingServices {
     private Collection<Service> check;
 
     public URLRankingServices() {
+        StopWatch sw = new StopWatch();
         try {
             PropertiesConfiguration configuration = new PropertiesConfiguration("config/apikeys.conf");
             bitlyLogin = configuration.getString("bitly.api.login");
@@ -145,6 +224,7 @@ public class URLRankingServices {
         } catch (ConfigurationException e) {
             LOGGER.error("failed loading configuration " + e.getMessage());
         }
+        LOGGER.trace("<init> URLRankingServices:" + sw.getElapsedTime());
     }
 
     /**
@@ -168,13 +248,41 @@ public class URLRankingServices {
      * @return
      */
     public Map<Service, Float> getRanking(String url) {
+        Source source = cache.getSource(url);
+        return getRanking(source);
+    }
+
+    /**
+     * Get ranking for supplied Source from all specified ranking services. By default, all available services are checked,
+     * see {@link Service#values()}. Use {@link #setServices(Collection)} to specify the services to be checked by this
+     * method.
+     * 
+     * @param url
+     * @return
+     */
+    public Map<Service, Float> getRanking(Source source) {
+
         Map<Service, Float> result = new HashMap<Service, Float>();
-        // setUrl(url);
-        // TODO get Rankings in parallel.
+
+        // get rankings from the cache
+        Map<Service, Float> cachedRankings = cache.get(source);
+
         for (Service service : check) {
-            float value = getRanking(url, service);
-            result.put(service, value);
+
+            // -1 means : need to get the ranking from web api
+            float ranking = -1;
+
+            if (cachedRankings.containsKey(service)) {
+                ranking = cachedRankings.get(service);
+            }
+
+            if (ranking == -1) {
+                ranking = getRanking(source, service);
+            }
+
+            result.put(service, ranking);
         }
+
         return result;
     }
 
@@ -185,67 +293,56 @@ public class URLRankingServices {
      * @param service
      * @return
      */
-    public float getRanking(String url, Service service) {
-        
-        setUrl(url);
-        String cacheUrl = url;
-        
-        // if service works on domain level, get the domain from the cache.
-        if (service.isDomainLevel()) {
-            cacheUrl = Crawler.getDomain(url);
-        }
-        
-        float value = cache.get(cacheUrl, service);
+    public float getRanking(Source source, Service service) {
 
-        // if we dont have it cached, get it
-        if (value == -1) {
+        setUrl(source.getUrl());
+        float value;
 
-            switch (service) {
-                case BITLY_CLICKS:
-                    value = getBitlyClicks();
-                    break;
-                case DIGGS:
-                    value = getDiggs();
-                    break;
-                case MIXX_VOTES:
-                    value = getMixxVotes();
-                    break;
-                case REDDIT_SCORE:
-                    value = getRedditScore();
-                    break;
-                case DELICIOUS_POSTS:
-                    value = getDeliciousPosts();
-                    break;
-                case YAHOO_DOMAIN_LINKS:
-                    value = getYahooDomainLinks();
-                    break;
-                case YAHOO_PAGE_LINKS:
-                    value = getYahooPageLinks();
-                    break;
-                case TWEETS:
-                    value = getDomainTweets();
-                    break;
-                case GOOGLE_PAGE_RANK:
-                    value = getGooglePageRank();
-                    break;
-                case GOOGLE_DOMAIN_PAGE_RANK:
-                    value = getGoogleDomainPageRank();
-                    break;
-                case ALEXA_RANK:
-                    value = getAlexaRank();
-                    break;
-                case MAJESTIC_SEO:
-                    value = getMajesticSeoRefDomains();
-                    break;
-                case COMPETE_RANK:
-                    value = getDomainsCompeteRank();
-                    break;
-                default:
-                    break;
-            }
-            
-            cache.add(cacheUrl, service, value);
+        switch (service) {
+            case BITLY_CLICKS:
+                value = getBitlyClicks();
+                break;
+            case DIGGS:
+                value = getDiggs();
+                break;
+            case MIXX_VOTES:
+                value = getMixxVotes();
+                break;
+            case REDDIT_SCORE:
+                value = getRedditScore();
+                break;
+            case DELICIOUS_POSTS:
+                value = getDeliciousPosts();
+                break;
+            case YAHOO_DOMAIN_LINKS:
+                value = getYahooDomainLinks();
+                break;
+            case YAHOO_PAGE_LINKS:
+                value = getYahooPageLinks();
+                break;
+            case TWEETS:
+                value = getDomainTweets();
+                break;
+            case GOOGLE_PAGE_RANK:
+                value = getGooglePageRank();
+                break;
+            case GOOGLE_DOMAIN_PAGE_RANK:
+                value = getGoogleDomainPageRank();
+                break;
+            case ALEXA_RANK:
+                value = getAlexaRank();
+                break;
+            case MAJESTIC_SEO:
+                value = getMajesticSeoRefDomains();
+                break;
+            case COMPETE_RANK:
+                value = getDomainsCompeteRank();
+                break;
+            default:
+                value = -1;
         }
+
+        cache.add(source, service, value);
 
         return value;
     }
@@ -647,7 +744,7 @@ public class URLRankingServices {
      * @return popularity rank from Alexa, -1 on error.
      */
     private int getAlexaRank() {
-        
+
         int result = -1;
 
         String encUrl = StringHelper.urlEncode(getUrl());

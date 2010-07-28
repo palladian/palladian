@@ -214,6 +214,14 @@ public class NewsAggregator {
             if (entryLink != null && entryLink.length() > 0) {
                 entryLink = Crawler.makeFullURL(syndFeed.getLink(), entry.getLink());
             }
+            // TODO **** feedproxy URLs ****
+            // some feeds use Google Feed Proxy ...
+            // this URL --> http://feedproxy.google.com/~r/typepad/romanmica/the_first_lemming/~3/x8XidemLPik/and-the-new-2011-msrp-of-the-hottest-subaru-wrx-sti-is.html
+            // is redirected to this URL --> http://www.tflcar.com/2010/07/and-the-new-2011-msrp-of-the-hottest-subaru-wrx-sti-is.html?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+typepad%2Fromanmica%2Fthe_first_lemming+%28TFLcar.com%3A+Automotive+news%2C+views+and+reviews%29
+            // should we resolve this while aggregating? problem --> costly, one HTTP requests for each entry
+            // but: problematic when ranking based upon URLs
+            // web service to resolve --> http://www.therealurl.net/
+            // maybe better: we should already have the URL, when fetching the page content?!
             entry.setLink(syndEntry.getLink());
 
             Date publishDate = syndEntry.getPublishedDate();
