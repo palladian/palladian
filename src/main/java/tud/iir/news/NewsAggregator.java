@@ -3,7 +3,6 @@ package tud.iir.news;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -331,7 +330,7 @@ public class NewsAggregator {
         Node node = getFeedEntryNode(syndEntry);
 
         Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
-        LOGGER.debug("absde");
+
         try {
             pubDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
         } catch (NullPointerException e) {
@@ -382,6 +381,9 @@ public class NewsAggregator {
 
         List<FeedEntry> result = new LinkedList<FeedEntry>();
 
+        // only try a certain amount of times to extract a pub date, if none is found don't keep trying
+        int failedDateExtractions = 0;
+
         List<SyndEntry> syndEntries = syndFeed.getEntries();
         for (SyndEntry syndEntry : syndEntries) {
 
@@ -414,6 +416,7 @@ public class NewsAggregator {
                 // if no publish date is provided, we take the update instead
                 if (publishDate == null) {
                     publishDate = syndEntry.getUpdatedDate();
+                    failedDateExtractions++;
                 } else {
                     LOGGER.debug("found publish date in original feed file: " + publishDate);
                 }
@@ -424,10 +427,14 @@ public class NewsAggregator {
             String entryText = getEntryText(syndEntry);
             entry.setContent(entryText);
 
-            // Entry's assigned Tags, if any
+            // entry's assigned tags, if any
             List<SyndCategory> categories = syndEntry.getCategories();
             for (SyndCategory category : categories) {
-                entry.addTag(category.getName().replace(",", " ").trim());
+                try {
+                    entry.addTag(category.getName().replace(",", " ").trim());
+                } catch (NullPointerException e) {
+                    LOGGER.error(e.getMessage());
+                }
             }
 
             // get ID information from raw feed entries

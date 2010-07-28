@@ -835,8 +835,8 @@ public class FileHelper {
 
     public static void main(String[] a) {
 
-        // FileHelper.fileContentToLines("data/temp/queries_backup.txt", "data/temp/queries.txt", ",");
-        FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
+        FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
+        // FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
         System.exit(0);
         
         // //////////////////////// add license to every file //////////////////////////
