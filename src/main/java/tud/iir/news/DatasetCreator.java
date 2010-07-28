@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.apache.log4j.Logger;
 
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
@@ -35,7 +36,7 @@ public class DatasetCreator {
     private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
 
     /** Path to the folder where the dataset is stored. */
-    private final String dataSetPath = "data/datasets/feedPosts/";
+    protected static final String DATASET_PATH = "data/datasets/feedPosts/";
 
 
     /**
@@ -75,7 +76,7 @@ public class DatasetCreator {
                 // get the filename of the feed
                 String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
                         .replaceFirst("www.", ""), 30);
-                String filePath = dataSetPath + feed.getId() + "_" + safeFeedName + ".csv";
+                String filePath = DATASET_PATH + feed.getId() + "_" + safeFeedName + ".csv";
 
                 // get entries from the file
                 File postEntryFile = new File(filePath);
@@ -166,7 +167,7 @@ public class DatasetCreator {
      * Remove all empty files from dataset folder.
      */
     public void cleanUp() {
-        File[] files = FileHelper.getFiles(dataSetPath);
+        File[] files = FileHelper.getFiles(DATASET_PATH);
         for (File file : files) {
             if (file.length() == 0) {
                 file.delete();
