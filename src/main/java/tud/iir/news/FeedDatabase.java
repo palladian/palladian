@@ -416,6 +416,7 @@ public class FeedDatabase implements FeedStore {
     }
 
     @Override
+    @Deprecated
     public synchronized FeedEntry getFeedEntryByRawId(String rawId) {
         LOGGER.trace(">getEntryByRawId");
         FeedEntry result = null;

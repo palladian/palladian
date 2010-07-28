@@ -398,5 +398,10 @@ public class Source implements Serializable {
         }
         return false;
     }
+    
+    @Override
+    public String toString() {
+        return "Source:" + url;
+    }
 
 }
