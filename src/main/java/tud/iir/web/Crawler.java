@@ -1721,6 +1721,8 @@ public class Crawler {
             LOGGER.error(e.getMessage());
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
         }
 
         return responseCode;
