@@ -23,7 +23,7 @@ public class FeedAggregatorTest {
     @Ignore
     public void testExceptions() throws FeedAggregatorException {
         aggregator.getEntries("http://feeds.smh.com.au/rssheadlines/top.xml");
-        aggregator.getFeedTextType("http://www.carscars.ie/index.php?format=feed&type=atom");
+//        aggregator.getFeedTextType("http://www.carscars.ie/index.php?format=feed&type=atom");
     }
 
     
@@ -37,8 +37,8 @@ public class FeedAggregatorTest {
     
     @Test
     public void testFeedEntryExtraction() throws Exception {
-        URL testExample = FeedAggregatorTest.class.getResource("test/feeds/tagesschauExample.xml");
-        List<FeedEntry> feedEntries = aggregator.getEntries(testExample.toExternalForm());
+        URL testExample = FeedAggregatorTest.class.getResource("/test/feeds/tagesschauExample.xml");
+        List<FeedEntry> feedEntries = aggregator.getEntries(testExample);
         assertNotNull(feedEntries);
         assertFalse(feedEntries.isEmpty());
     }
