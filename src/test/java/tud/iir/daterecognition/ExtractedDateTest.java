@@ -49,7 +49,7 @@ public class ExtractedDateTest {
     }
 
     @Test
-    public void testGetNormalizedDate() {
+    public void testGetNormalizedDate() throws Exception {
         assertEquals(date1.getDateString(), "2010-06-12", date1.getNormalizedDate());
         assertEquals(date2.getDateString(), "2010-06-07", date2.getNormalizedDate());
         assertEquals(date3.getDateString(), "2010-06-07", date3.getNormalizedDate());
