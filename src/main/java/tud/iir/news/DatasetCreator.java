@@ -101,12 +101,16 @@ public class DatasetCreator {
                 // Calculating size of feed header and footer, which should always stay the same.
                 long summedFeedEntrySize = 0;
                 for(FeedEntry entry:feedEntries) {
-                    summedFeedEntrySize += entry.getPlainXML().getBytes().length;
+                    String entryPlainXML = entry.getPlainXML();
+                    Integer entrySize = entryPlainXML.getBytes().length;
+                    summedFeedEntrySize += entrySize;
                 }
                 
                 LOGGER.info("feed: "+feed);
                 LOGGER.info("feed.getPlainXML: "+feed.getPlainXML());
-                long feedContainerSize = feed.getPlainXML().getBytes().length-summedFeedEntrySize;
+                String feedPlainXML = feed.getPlainXML();
+                Integer feedSize = feedPlainXML.getBytes().length;
+                long feedContainerSize = feedSize-summedFeedEntrySize;
                 
                 StringBuilder newEntries = new StringBuilder();
                 int newPosts = 0;
@@ -121,7 +125,7 @@ public class DatasetCreator {
                     String fileEntry = "";
 
                     fileEntry += entry.getPublished().getTime() + ";";
-                    fileEntry += "\"" + entry.getTitle().replaceAll("\"", "'") + "\";";
+                    fileEntry += "\"" + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
                     fileEntry += "\"" + entry.getLink() + "\";";
                      fileEntry += entry.getPlainXML().getBytes().length + ";";
                      fileEntry += feedContainerSize+";";

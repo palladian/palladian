@@ -21,6 +21,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.SocketTimeoutException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
@@ -39,6 +40,7 @@ import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -95,13 +97,13 @@ public class Crawler {
     private static final String REFERER = "";
 
     /** the default connection timeout */
-    public static final int DEFAULT_CONNECTION_TIMEOUT = 5000;//10000;
+    public static final int DEFAULT_CONNECTION_TIMEOUT = 5000;// 10000;
 
     /** the default read timeout when retrieving pages */
-    public static final int DEFAULT_READ_TIMEOUT = 5000;//16000;
+    public static final int DEFAULT_READ_TIMEOUT = 5000;// 16000;
 
     /** the default overall timeout (after which the connection is reset) */
-    public static final int DEFAULT_OVERALL_TIMEOUT = 8000;//60000;
+    public static final int DEFAULT_OVERALL_TIMEOUT = 8000;// 60000;
 
     /** the default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;
@@ -825,8 +827,35 @@ public class Crawler {
         setDocument(url, false, true);
     }
 
+    public void setDocument(URL url, Boolean isXML, boolean callback) {
+        document = null;
+
+        try {
+            File file = new File(url.toURI());
+            BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+
+            parse(is, isXML, url.toExternalForm());
+
+            // only call, if we actually got a Document; so we don't need to check for null within the Callback
+            // implementation itself.
+            if (callback && document != null) {
+                callCrawlerCallback(document);
+            }
+        } catch (URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+
+        } catch (SAXException e) {
+
+        } catch (ParserConfigurationException e) {
+
+        }
+    }
+
     public void setDocument(String url, boolean isXML, boolean callback) {
-        DOMParser parser = new DOMParser();
         document = null;
 
         try {
@@ -850,33 +879,15 @@ public class Crawler {
 
                 // InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(url)));
                 File file = new File(url);
-                InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
+                BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
 
-                if (isXML) {
-                    document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
-                } else {
-                    parser.parse(is);
-                    document = parser.getDocument();
-                }
-
-                document.setDocumentURI(file.toURI().toString());
-
+                parse(is, isXML, file.toURI().toString());
             } else {
                 url = url.replaceAll("\\s", "+");
                 URL urlObject = new URL(url);
                 InputStream fis = getInputStream(urlObject);
 
-                if (isXML) {
-                    document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fis);
-                } else {
-                    // System.out.println("step before parse");
-                    // parser.parse(url);
-                    parser.parse(new InputSource(fis));
-                    document = parser.getDocument();
-                    // System.out.println("step after parse");
-                }
-
-                document.setDocumentURI(url);
+                parse(fis, isXML, url);
             }
 
             // only call, if we actually got a Document; so we don't need to check for null within the Callback
@@ -901,6 +912,34 @@ public class Crawler {
             LOGGER.error(url + ", " + e.getClass() + " " + e.getMessage());
         }
 
+    }
+
+    /**
+     * <p>
+     * Parses a an input stream to a document.
+     * </p>
+     * 
+     * @param dataStream The stream to parse.
+     * @param isXML {@code true} if this document is an XML document and {@code false} otherwise.
+     * @param Uri The URI the provided stream comes from.
+     * @throws SAXException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
+    private void parse(InputStream dataStream, Boolean isXML, String Uri) throws SAXException, IOException,
+            ParserConfigurationException {
+        DOMParser parser = new DOMParser();
+
+        InputSource is = new InputSource(dataStream);
+
+        if (isXML) {
+            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+        } else {
+            parser.parse(is);
+            document = parser.getDocument();
+        }
+
+        document.setDocumentURI(Uri);
     }
 
     public Document getDocument() {
@@ -951,6 +990,11 @@ public class Crawler {
      * @return The XML document.
      */
     public Document getXMLDocument(String url, boolean callback) {
+        setDocument(url, true, callback);
+        return getDocument();
+    }
+
+    public Document getXMLDocument(URL url, boolean callback) {
         setDocument(url, true, callback);
         return getDocument();
     }
@@ -1533,7 +1577,7 @@ public class Crawler {
                 }
                 fOutStream.close();
                 inStream.close();
-                file=tempFile;
+                file = tempFile;
             } catch (Exception e) {
                 LOGGER.error("Error downloading the file from: " + urlString + " Message: " + e.getMessage());
             }

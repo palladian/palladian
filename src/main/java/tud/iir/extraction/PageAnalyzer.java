@@ -1148,10 +1148,13 @@ public class PageAnalyzer {
      */
     public static String getRawMarkup(Node node) {
         Document doc = new DocumentImpl();
-        Node adoptedNode = doc.adoptNode(node);
+        Node clonedNode = node.cloneNode(true);
+        Node adoptedNode = doc.adoptNode(clonedNode);
         doc.appendChild(adoptedNode);
+        String rawMarkupString = getRawMarkup(doc);
+        String ret = rawMarkupString.replaceFirst("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>","").trim();
         
-        return getRawMarkup(doc);
+        return ret; 
     }
 
 
