@@ -8,10 +8,13 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 
@@ -38,7 +41,6 @@ import com.temesoft.google.pr.JenkinsHash;
  * 
  * http://tools.seobook.com/firefox/seo-for-firefox.html
  * 
- * TODO add parallelized checking of APIs
  * TODO possibility to disable caching
  * TODO specific caching for domains
  * 
@@ -249,45 +251,82 @@ public class URLRankingServices {
      */
     public Map<Service, Float> getRanking(String url) {
         Source source = cache.getSource(url);
+        if (source == null) {
+            source = new Source(url);
+        }
         return getRanking(source);
     }
 
     /**
-     * Get ranking for supplied Source from all specified ranking services. By default, all available services are checked,
-     * see {@link Service#values()}. Use {@link #setServices(Collection)} to specify the services to be checked by this
-     * method.
+     * Get ranking for supplied Source from all specified ranking services. By default, all available services are
+     * checked, see {@link Service#values()}. Use {@link #setServices(Collection)} to specify the services to be checked
+     * by this method.
      * 
      * @param url
      * @return
      */
-    public Map<Service, Float> getRanking(Source source) {
+    public Map<Service, Float> getRanking(final Source source) {
 
-        Map<Service, Float> result = new HashMap<Service, Float>();
+        final Map<Service, Float> result = Collections.synchronizedMap(new HashMap<Service, Float>());
 
         // get rankings from the cache
-        Map<Service, Float> cachedRankings = cache.get(source);
+        final Map<Service, Float> cachedRankings = cache.get(source);
 
-        for (Service service : check) {
+        // rankings which we downloaded from the web -- these will be cached
+        final Map<Service, Float> downloadedRankings = Collections.synchronizedMap(new HashMap<Service, Float>());
 
-            // -1 means : need to get the ranking from web api
-            float ranking = -1;
+        // keeps all threads
+        List<Thread> rankingThreads = new ArrayList<Thread>();
 
-            if (cachedRankings.containsKey(service)) {
-                ranking = cachedRankings.get(service);
-            }
+        for (final Service service : check) {
 
-            if (ranking == -1) {
-                ranking = getRanking(source, service);
-            }
+            // This thread will download the rankings from the web APIs if neccessary.
+            Thread rankingThread = new Thread() {
 
-            result.put(service, ranking);
+                @Override
+                public void run() {
+
+                    LOGGER.trace("start thread for " + service + " : " + source);
+
+                    // -1 means : need to get the ranking from web api
+                    float ranking = -1;
+
+                    if (cachedRankings.containsKey(service)) {
+                        ranking = cachedRankings.get(service);
+                    }
+
+                    if (ranking == -1) {
+                        ranking = getRanking(source, service);
+                        downloadedRankings.put(service, ranking);
+                    }
+
+                    result.put(service, ranking);
+
+                    LOGGER.trace("finished thread for " + service + " : " + source);
+
+                }
+            };
+            rankingThreads.add(rankingThread);
+            rankingThread.start();
         }
+
+        // join all the threads
+        for (Thread rankingThread : rankingThreads) {
+            try {
+                rankingThread.join();
+            } catch (InterruptedException e) {
+                LOGGER.error(e);
+            }
+        }
+
+        // add the downloaded rankings to the cache
+        cache.add(source, downloadedRankings);
 
         return result;
     }
 
     /**
-     * Retrieve the ranking for a specific url from a specific service.
+     * Retrieve the ranking for a specific url from a specific service. Results are <i>not</i> cached.
      * 
      * @param url
      * @param service
@@ -342,8 +381,6 @@ public class URLRankingServices {
                 value = -1;
         }
 
-        cache.add(source, service, value);
-
         return value;
     }
 
@@ -376,20 +413,23 @@ public class URLRankingServices {
             String encUrl = StringHelper.urlEncode(getUrl());
             JSONObject json = crawler.getJSONDocument("http://api.bit.ly/v3/lookup?login=" + bitlyLogin + "&apiKey="
                     + bitlyApikey + "&url=" + encUrl);
-            JSONObject lookup = json.getJSONObject("data").getJSONArray("lookup").getJSONObject(0);
-            if (lookup.has("global_hash")) {
-                hash = lookup.getString("global_hash");
-            }
 
-            // Step 2: get the # of clicks using the hash
-            if (hash != null) {
-                json = crawler.getJSONDocument("http://api.bit.ly/v3/clicks?login=" + bitlyLogin + "&apiKey="
-                        + bitlyApikey + "&hash=" + hash);
-                result = json.getJSONObject("data").getJSONArray("clicks").getJSONObject(0).getInt("global_clicks");
+            if (json != null) {
+                JSONObject lookup = json.getJSONObject("data").getJSONArray("lookup").getJSONObject(0);
+                if (lookup.has("global_hash")) {
+                    hash = lookup.getString("global_hash");
+                }
 
-                LOGGER.trace("bit.ly clicks for " + getUrl() + " -> " + result);
-            } else {
-                result = 0;
+                // Step 2: get the # of clicks using the hash
+                if (hash != null) {
+                    json = crawler.getJSONDocument("http://api.bit.ly/v3/clicks?login=" + bitlyLogin + "&apiKey="
+                            + bitlyApikey + "&hash=" + hash);
+                    result = json.getJSONObject("data").getJSONArray("clicks").getJSONObject(0).getInt("global_clicks");
+
+                    LOGGER.trace("bit.ly clicks for " + getUrl() + " -> " + result);
+                } else {
+                    result = 0;
+                }
             }
 
         } catch (JSONException e) {
@@ -418,14 +458,16 @@ public class URLRankingServices {
             JSONObject json = crawler
                     .getJSONDocument("http://services.digg.com/1.0/endpoint?method=story.getAll&type=json&link="
                             + encUrl);
-            JSONArray stories = json.getJSONArray("stories");
-            result = 0;
-            for (int i = 0; i < stories.length(); i++) {
-                JSONObject story = stories.getJSONObject(i);
-                result += story.getInt("diggs");
-            }
+            if (json != null) {
+                JSONArray stories = json.getJSONArray("stories");
+                result = 0;
+                for (int i = 0; i < stories.length(); i++) {
+                    JSONObject story = stories.getJSONObject(i);
+                    result += story.getInt("diggs");
+                }
 
-            LOGGER.trace("diggs for " + getUrl() + " -> " + result);
+                LOGGER.trace("diggs for " + getUrl() + " -> " + result);
+            }
 
         } catch (JSONException e) {
             LOGGER.error("JSONException " + e.getMessage());
@@ -817,6 +859,8 @@ public class URLRankingServices {
                 }
             }
         }
+
+        LOGGER.trace("compete rank for " + getUrl() + " -> " + result);
 
         return result;
     }

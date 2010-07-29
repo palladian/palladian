@@ -161,8 +161,7 @@ public final class CollectionHelper {
         return false;
     }
 
-    @SuppressWarnings("unchecked")
-    public static String getPrint(Collection collection) {
+    public static String getPrint(Collection<?> collection) {
         StringBuilder s = new StringBuilder();
 
         for (Object entry : collection) {
@@ -173,8 +172,7 @@ public final class CollectionHelper {
         return s.toString();
     }
 
-    @SuppressWarnings("unchecked")
-    public static void print(Collection collection) {
+    public static void print(Collection<?> collection) {
         System.out.println(getPrint(collection));
     }
 

@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -37,9 +38,11 @@ public class URLRankingCache {
         Connection connection = DatabaseManager.getInstance().getConnection();
         try {
             getSourceByUrl = connection.prepareStatement("SELECT id FROM sources WHERE url = ?");
-            getSourceRankings = connection.prepareStatement("SELECT ranking, service FROM source_ranking_features WHERE sourceId = ? AND CURRENT_TIMESTAMP - updated < ?");
+            getSourceRankings = connection
+                    .prepareStatement("SELECT ranking, service FROM source_ranking_features WHERE sourceId = ? AND CURRENT_TIMESTAMP - updated < ?");
             addSource = connection.prepareStatement("INSERT IGNORE INTO sources SET url = ?");
-            addSourceRanking = connection.prepareStatement("INSERT INTO source_ranking_features (sourceId, service, ranking) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ranking = VALUES(ranking), updated = CURRENT_TIMESTAMP");
+            addSourceRanking = connection
+                    .prepareStatement("INSERT INTO source_ranking_features (sourceId, service, ranking) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ranking = VALUES(ranking), updated = CURRENT_TIMESTAMP");
         } catch (SQLException e) {
             LOGGER.error(e);
         }
@@ -106,13 +109,12 @@ public class URLRankingCache {
     }
 
     /**
-     * Adds or updates a ranking for a specific Source and Service in the cache.
+     * Adds or updates rankings for a specific Source in the cache.
      * 
-     * @param url
-     * @param service
-     * @param ranking
+     * @param source
+     * @param rankings
      */
-    public void add(Source source, Service service, float ranking) {
+    public void add(Source source, Map<Service, Float> rankings) {
 
         try {
 
@@ -123,12 +125,16 @@ public class URLRankingCache {
                 addSource.setString(1, source.getUrl());
                 addSource.executeUpdate();
                 sourceId = DatabaseManager.getInstance().getLastInsertID();
+                // write the ID of the persistent entry back to the object.
+                source.setID(sourceId);
             }
 
-            addSourceRanking.setInt(1, sourceId);
-            addSourceRanking.setInt(2, service.getServiceId());
-            addSourceRanking.setFloat(3, ranking);
-            addSourceRanking.executeUpdate();
+            for (Entry<Service, Float> ranking : rankings.entrySet()) {
+                addSourceRanking.setInt(1, sourceId);
+                addSourceRanking.setInt(2, ranking.getKey().getServiceId());
+                addSourceRanking.setFloat(3, ranking.getValue());
+                addSourceRanking.executeUpdate();
+            }
 
         } catch (SQLException e) {
             LOGGER.error(e);
@@ -140,18 +146,25 @@ public class URLRankingCache {
         this.ttlSeconds = ttlSeconds;
     }
 
-    // public static void main(String[] args) {
-    //        
-    // URLRankingCache cache = new URLRankingCache();
-    // cache.setTtlSeconds(10);
-    //        
-    // cache.add("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS, 100);
-    // cache.get("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS);
-    // cache.add("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS, 120);
-    // ThreadHelper.sleep(5000);
-    // cache.get("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS);
-    // ThreadHelper.sleep(5000);
-    // cache.get("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS);
-    // }
+    private void clear() {
+        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE sources");
+        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE source_ranking_features");
+    }
+
+    public static void main(String[] args) {
+
+        URLRankingCache cache = new URLRankingCache();
+        cache.clear();
+
+        // cache.setTtlSeconds(10);
+        //        
+        // cache.add("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS, 100);
+        // cache.get("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS);
+        // cache.add("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS, 120);
+        // ThreadHelper.sleep(5000);
+        // cache.get("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS);
+        // ThreadHelper.sleep(5000);
+        // cache.get("http://cnn.com/", URLRankingServices.Service.BITLY_CLICKS);
+    }
 
 }
