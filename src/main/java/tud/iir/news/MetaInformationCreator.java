@@ -85,7 +85,7 @@ public class MetaInformationCreator {
                 Double averageFeedSize = calculateAverageSize(datasetFile, feed.getEntries().size());
                 String feedMetaInformation = getFeedMetaInformation(feed, averageFeedSize);
 
-                FileHelper.prependFile(FILE_PATH.getAbsolutePath() + fileName, feedMetaInformation);
+                FileHelper.prependFile(datasetFile.getAbsolutePath(), feedMetaInformation);
             } catch (IOException e) {
                 LOGGER.error("Could not add meta information to file: " + fileName, e);
             }
@@ -102,17 +102,21 @@ public class MetaInformationCreator {
      * @throws IOException
      */
     @SuppressWarnings("unchecked")
-    private Double calculateAverageSize(File datasetFile, Integer entriesPerFeedAccess) throws IOException {
+    protected Double calculateAverageSize(File datasetFile, Integer entriesPerFeedAccess) throws IOException {
         Double ret = 0.0;
         List<String> datasetEntries = FileUtils.readLines(datasetFile);
-        for (int i = 0; i < datasetEntries.size(); i++) {
-            Double entrySize = getEntrySize(datasetEntries.get(i));
-            if (entrySize != null) {
-                ret += getEntrySize(datasetEntries.get(i));
+        for (int i = 0; i < (datasetEntries.size() - entriesPerFeedAccess); i++) {
+            Double windowSum = 0.0;
+            for (int j = 0; j < entriesPerFeedAccess; j++) {
+                Double entrySize = getEntrySize(datasetEntries.get(i + j));
+                if (entrySize != null) {
+                    windowSum += getEntrySize(datasetEntries.get(i + j));
+                }
             }
+            ret += windowSum;
         }
 
-        Double numberOfWindows = (new Integer(datasetEntries.size())).doubleValue() / entriesPerFeedAccess;
+        Double numberOfWindows = (new Integer(datasetEntries.size())).doubleValue() - entriesPerFeedAccess;
         ret = (ret + getHeaderSize(datasetEntries.get(0)) * numberOfWindows) / (numberOfWindows);
         return ret;
     }
