@@ -3,6 +3,7 @@ package tud.iir.news;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -112,6 +113,55 @@ public class NewsAggregator {
      */
     private SyndFeed getFeedWithRome(String feedUrl) throws FeedAggregatorException {
         LOGGER.trace(">getFeedWithRome " + feedUrl);
+
+        SyndFeed result;
+
+        try {
+
+            SyndFeedInput feedInput = new SyndFeedInput();
+
+            // this preserves the "raw" feed data and gives direct access
+            // to RSS/Atom specific elements
+            // see http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
+            feedInput.setPreserveWireFeed(true);
+
+            // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
+            // well, which we use inside the IIR toolkit.
+            plainXMLFeed = crawler.getXMLDocument(feedUrl, false);
+            if (plainXMLFeed == null) {
+                throw new FeedAggregatorException("could not get document from " + feedUrl);
+            }
+            result = feedInput.build(plainXMLFeed);
+
+        } catch (IllegalArgumentException e) {
+            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
+            throw new FeedAggregatorException(e);
+        }/*
+          * catch (IOException e) {
+          * LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
+          * throw new FeedAggregatorException(e);
+          * }
+          */catch (FeedException e) {
+            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
+            throw new FeedAggregatorException(e);
+        }
+
+        LOGGER.trace("<getFeedWithRome");
+        return result;
+    }
+    
+    /**
+     * Downloads a feed from the web and parses with ROME.
+     * 
+     * To access feeds from outside use {@link #getFeed(String)}.
+     * 
+     * @param feedUrl
+     * @return
+     * @throws FeedAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be
+     *             parsed.
+     */
+    private SyndFeed getFeedWithRome(URL feedUrl) throws FeedAggregatorException {
+        LOGGER.trace(">getFeedWithRome " + feedUrl.toExternalForm());
 
         SyndFeed result;
 
@@ -831,6 +881,21 @@ public class NewsAggregator {
         feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
         return feed;
     }
+//    
+//    public Feed setEntries(Feed feed) throws FeedAggregatorException {
+//        setFeedAttributes(syndFeed, feedUrl, feed)
+//        List<FeedEntry> entries = getEntries(syndFeed);
+//        feed.setEntries(entries);
+//        feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
+//        return feed;
+//    }
+//    
+//    private void setFeedAttributes(SyndFeed syndFeed, String feedUrl, Feed feed) {
+//        Feed tmpfeed = getFeed(syndFeed, feedUrl);
+//        List<FeedEntry> entries = getEntries(syndFeed);
+//        feed.setEntries(entries);
+//        feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
+//    }
 
     /**
      * Returns entries from a specified feed URL.
@@ -840,15 +905,15 @@ public class NewsAggregator {
      * @throws FeedAggregatorException
      */
     public List<FeedEntry> getEntries(String feedUrl) throws FeedAggregatorException {
-        SyndFeed syndFeed = getFeedWithRome(feedUrl);
-        return getEntries(syndFeed);
+        return getFeed(feedUrl).getEntries();
     }
-
-    // //////////////////////
-    // just for testing purposes
-    int getFeedTextType(String feedUrl) throws FeedAggregatorException {
-        SyndFeed syndFeed = getFeedWithRome(feedUrl);
-        return determineFeedTextType(syndFeed, feedUrl);
+    
+    public List<FeedEntry> getEntries(URL feedUrl) throws FeedAggregatorException {
+        return getFeed(feedUrl.toExternalForm()).getEntries();
+    }
+    
+    public List<FeedEntry> getEntries(Feed feed) throws FeedAggregatorException {
+        return getFeed(feed.getFeedUrl()).getEntries();
     }
 
     /**
@@ -920,6 +985,17 @@ public class NewsAggregator {
             formatter.printHelp("NewsAggregator [options]", options);
         }
 
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     *
+     * @return
+     */
+    public Document getPlainXMLFeed() {
+        return plainXMLFeed;
     }
 
 }

@@ -5,6 +5,8 @@ package tud.iir.news;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 
@@ -44,7 +46,7 @@ public class MetaInformationCreator {
      * 
      * </p>
      */
-    private final File FILE_PATH;
+    private File FILE_PATH;
 
     /**
      * <p>
@@ -54,7 +56,12 @@ public class MetaInformationCreator {
      */
     public MetaInformationCreator() {
         feedStore = FeedDatabase.getInstance();
-        FILE_PATH = new File(DatasetCreator.DATASET_PATH);
+        URL datasetFilePath = MetaInformationCreator.class.getResource("/datasets/feedPosts/");
+        try {
+            FILE_PATH = new File(datasetFilePath.toURI());
+        } catch (URISyntaxException e) {
+            new RuntimeException("File at location: /" + DatasetCreator.DATASET_PATH + " not accessible.");
+        }
     }
 
     /**
@@ -65,7 +72,7 @@ public class MetaInformationCreator {
      */
     @SuppressWarnings("unchecked")
     public void createMetaInformation() {
-        Iterator fileIterator = FileUtils.iterateFiles(FILE_PATH, new String[] { ".csv" }, false);
+        Iterator fileIterator = FileUtils.iterateFiles(FILE_PATH, new String[] { "csv" }, false);
         while (fileIterator.hasNext()) {
             File datasetFile = (File) fileIterator.next();
             String fileName = datasetFile.getName();
@@ -73,7 +80,9 @@ public class MetaInformationCreator {
 
             try {
                 Feed feed = feedStore.getFeedByID(Integer.valueOf(feedId));
-                Double averageFeedSize = calculateAverageSize(datasetFile,feed.getEntries().size());
+                feed.updateEntries(false);
+
+                Double averageFeedSize = calculateAverageSize(datasetFile, feed.getEntries().size());
                 String feedMetaInformation = getFeedMetaInformation(feed, averageFeedSize);
 
                 FileHelper.prependFile(FILE_PATH.getAbsolutePath() + fileName, feedMetaInformation);
@@ -90,18 +99,21 @@ public class MetaInformationCreator {
      * 
      * @param datasetFile
      * @return
-     * @throws IOException 
+     * @throws IOException
      */
     @SuppressWarnings("unchecked")
     private Double calculateAverageSize(File datasetFile, Integer entriesPerFeedAccess) throws IOException {
         Double ret = 0.0;
         List<String> datasetEntries = FileUtils.readLines(datasetFile);
-        for(int i=0;i<datasetEntries.size();i ++) {
-        ret = getEntrySize(datasetEntries.get(i));
+        for (int i = 0; i < datasetEntries.size(); i++) {
+            Double entrySize = getEntrySize(datasetEntries.get(i));
+            if (entrySize != null) {
+                ret += getEntrySize(datasetEntries.get(i));
+            }
         }
-        
-        Double numberOfWindows = (new Integer(datasetEntries.size())).doubleValue()/entriesPerFeedAccess;
-        ret = (ret+getHeaderSize(datasetEntries.get(0))*numberOfWindows)/(numberOfWindows);
+
+        Double numberOfWindows = (new Integer(datasetEntries.size())).doubleValue() / entriesPerFeedAccess;
+        ret = (ret + getHeaderSize(datasetEntries.get(0)) * numberOfWindows) / (numberOfWindows);
         return ret;
     }
 
@@ -109,26 +121,34 @@ public class MetaInformationCreator {
      * <p>
      * 
      * </p>
-     *
+     * 
      * @param string
      * @return
      */
     private Double getHeaderSize(String string) {
         String[] entryInformation = string.split(";");
-        return Double.valueOf(entryInformation[4]);
+        try {
+            return Double.valueOf(entryInformation[4]);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**
      * <p>
      * 
      * </p>
-     *
+     * 
      * @param string
      * @return
      */
     private Double getEntrySize(String string) {
         String[] entryInformation = string.split(";");
-        return Double.valueOf(entryInformation[3]);
+        try {
+            return Double.valueOf(entryInformation[3]);
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**

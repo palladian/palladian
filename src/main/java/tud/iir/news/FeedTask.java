@@ -39,24 +39,16 @@ class FeedTask implements Runnable {
     @Override
     public void run() {
         NewsAggregator fa = new NewsAggregator();
-        fa.setUseScraping(false);
 
-        try {
-            // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
-            // it can be done in parallel
-            List<FeedEntry> entries = fa.getEntries(feed.getFeedUrl());
-            feed.setEntries(entries);
+        // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
+        // it can be done in parallel
 
-            // classify feed if it has never been classified before
-            if (feed.getUpdateClass() == -1) {
-                FeedClassifier.classify(feed);
-            }
+        feed.updateEntries(false);
 
-            feedChecker.updateCheckIntervals(feed);
-
-        } catch (FeedAggregatorException e) {
-            FeedChecker.LOGGER.error(e.getMessage());
-        }
+        // classify feed if it has never been classified before
+        if (feed.getUpdateClass() == -1) {
+            FeedClassifier.classify(feed);
+        }        
 
         // remember the time the feed has been checked
         feed.setLastChecked(new Date());
@@ -64,6 +56,8 @@ class FeedTask implements Runnable {
         // perform actions on this feeds entries
         feedChecker.getFeedProcessingAction().performAction(feed);
 
+        feedChecker.updateCheckIntervals(feed);
+        
         // save the feed back to the database
         fa.updateFeed(feed);
     }

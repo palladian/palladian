@@ -1,11 +1,16 @@
 package tud.iir.news;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.apache.log4j.Logger;
+
+import tud.iir.extraction.PageAnalyzer;
 
 /**
  * Represents a news feed.
@@ -16,6 +21,8 @@ import java.util.Map.Entry;
  * 
  */
 public class Feed {
+
+    private static final Logger LOGGER = Logger.getLogger(Feed.class);
 
     /**
      * Different formats of feeds; this has just informational character; the parser of the aggregator will determine
@@ -38,7 +45,7 @@ public class Feed {
     private Date added;
     private String language;
     private int textType = TEXT_TYPE_UNDETERMINED;
-    
+
     /** The size of the feed in bytes. */
     private long byteSize = 0;
 
@@ -56,7 +63,7 @@ public class Feed {
      * time in minutes until it is expected to find only new but one new entries in the feed
      */
     private int maxCheckInterval = 60;
-    
+
     /**
      * The date this feed was checked for updates the last time.
      */
@@ -72,7 +79,8 @@ public class Feed {
     private Date lastFeedEntry = null;
 
     /**
-     * number of news that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a post could have appeared
+     * number of news that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a
+     * post could have appeared
      */
     private Map<Integer, int[]> meticulousPostDistribution = new HashMap<Integer, int[]>();
 
@@ -171,6 +179,26 @@ public class Feed {
         return entries;
     }
 
+    public List<FeedEntry> getEntries(Boolean update, Boolean usePageContentExtractor) {
+        if (update) {
+            updateEntries(usePageContentExtractor);
+        }
+        return getEntries();
+    }
+    
+    public void updateEntries(Boolean usePageContentExtractor) {
+        NewsAggregator aggregator = new NewsAggregator();
+        aggregator.setUseScraping(usePageContentExtractor);
+        List<FeedEntry> entries = new ArrayList<FeedEntry>();
+        try {
+            entries = aggregator.getEntries(getFeedUrl());
+        } catch (FeedAggregatorException e) {
+            LOGGER.error("Unable to load entries for feed at address: ");
+        }
+        setEntries(entries);
+        setPlainXML(PageAnalyzer.getRawMarkup(aggregator.getPlainXMLFeed()));
+    }
+
     public void setChecks(int checks) {
         this.checks = checks;
     }
@@ -241,7 +269,8 @@ public class Feed {
     }
 
     /**
-     * Check whether the checked entries in the feed were spread over at least one day yet. That means in every minute of the day the chances field should be
+     * Check whether the checked entries in the feed were spread over at least one day yet. That means in every minute
+     * of the day the chances field should be
      * greater of equal to one.
      * 
      * @return True, if the entries span at least one day, false otherwise.
@@ -269,16 +298,15 @@ public class Feed {
     }
 
     /**
-     * Returns the update class of the feed which is one of the following: {@link FeedClassifier#CLASS_CONSTANT}, {@link FeedClassifier#CLASS_CHUNKED},
-     * {@link FeedClassifier#CLASS_SLICED} , {@link FeedClassifier#CLASS_ZOMBIE}, {@link FeedClassifier#CLASS_UNKNOWN} or
-     * {@link FeedClassifier#CLASS_ON_THE_FLY}
+     * Returns the update class of the feed which is one of the following: {@link FeedClassifier#CLASS_CONSTANT},
+     * {@link FeedClassifier#CLASS_CHUNKED}, {@link FeedClassifier#CLASS_SLICED} , {@link FeedClassifier#CLASS_ZOMBIE},
+     * {@link FeedClassifier#CLASS_UNKNOWN} or {@link FeedClassifier#CLASS_ON_THE_FLY}
      * 
      * @return The classID of the class. You can get the name using {@link FeedClassifier#getClassName()}
      */
     public int getUpdateClass() {
         return updateClass;
     }
-    
 
     @Override
     public String toString() {
@@ -292,7 +320,7 @@ public class Feed {
         // sb.append(" format:").append(format);
         // sb.append(" language:").append(language);
         // sb.append(" added:").append(added);
-        
+
         return sb.toString();
     }
 
@@ -318,7 +346,8 @@ public class Feed {
         return byteSize;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -346,7 +375,8 @@ public class Feed {
         return result;
     }
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -457,14 +487,14 @@ public class Feed {
         }
         return true;
     }
-    
+
     /**
      * @param plainXML The raw XML markup for this feed.
      */
     public void setPlainXML(String plainXML) {
         this.plainXML = plainXML;
     }
-    
+
     /**
      * @return The raw XML markup for this feed.
      */
