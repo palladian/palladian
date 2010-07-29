@@ -42,7 +42,7 @@ public final class FeedChecker {
     /** The logger for this class. */
     public static final Logger LOGGER = Logger.getLogger(FeedChecker.class);
     
-    public static final Integer MAX_THREAD_POOL_SIZE = 400;
+    public static final Integer MAX_THREAD_POOL_SIZE = 200;
 
     /** Symbols to separate headlines. */
     private static final String TITLE_SEPARATION = "<###>";
@@ -176,8 +176,8 @@ public final class FeedChecker {
         LOGGER.debug("loaded " + feedCollection.size() + " feeds");
 
         SchedulerTask schedulerTask = new SchedulerTask(this);
-        // checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
-        checkScheduler.schedule(schedulerTask, 0, 1 * DateHelper.MINUTE_MS);
+        checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
+        //checkScheduler.schedule(schedulerTask, 0, 1 * DateHelper.MINUTE_MS);
         
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
                 + " minutes to check all feeds whether they need to be read or not");

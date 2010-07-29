@@ -106,6 +106,8 @@ public class DatasetCreator {
                     summedFeedEntrySize += entrySize;
                 }
                 
+                //LOGGER.info("feed: "+feed);
+                //LOGGER.debug("feed.getPlainXML: "+feed.getPlainXML());
                 String feedPlainXML = feed.getPlainXML();
                 Integer feedSize = feedPlainXML.getBytes().length;
                 long feedContainerSize = feedSize-summedFeedEntrySize;

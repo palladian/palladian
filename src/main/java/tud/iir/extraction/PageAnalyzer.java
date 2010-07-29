@@ -1132,7 +1132,7 @@ public class PageAnalyzer {
             serializer.serialize(document);
 
         } catch (IOException e) {
-            System.err.println(e);
+            LOGGER.error("could not serialize document, " + e.getMessage());
         }
 
         return os.toString();
