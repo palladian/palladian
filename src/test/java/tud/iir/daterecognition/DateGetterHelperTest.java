@@ -13,7 +13,7 @@ import tud.iir.knowledge.RegExp;
 public class DateGetterHelperTest {
 
     @Test
-    public void testGetURLDate() {
+    public void testGetURLDate() throws Exception {
         final String url1 = "http://www.example.com/2010-06-30/example.html";
         final String url2 = "http://www.zeit.de/sport/2010-06/example";
         final String url3 = "http://www.nytimes.com/2010/06/30/business/economy/30leonhardt.html?hp";
@@ -51,7 +51,7 @@ public class DateGetterHelperTest {
     }
 
     @Test
-    public void testGetDateFromString() {
+    public void testGetDateFromString() throws Exception {
 
         ExtractedDate date;
         String text = "2010-06-05";
