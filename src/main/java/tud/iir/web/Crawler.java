@@ -938,7 +938,8 @@ public class Crawler {
      * @return The XML document.
      */
     public Document getXMLDocument(String url) {
-        setDocument(url, true, true);
+        //setDocument(url, true, true);
+        setDocument(url, true, false);
         return getDocument();
     }
 
