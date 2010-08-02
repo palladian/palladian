@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -47,7 +47,7 @@ public final class FeedChecker {
     public static final Logger LOGGER = Logger.getLogger(FeedChecker.class);
 
     /** symbols to separate headlines */
-    private static final String TITLE_SEPARATION = "<###>";
+    private static final String TITLE_SEPARATION = "#-#";
 
     /** benchmark off */
     private static final int BENCHMARK_OFF = 0;
@@ -747,7 +747,7 @@ public final class FeedChecker {
      *            retrained using the new check approach.
      */
     public void setCheckApproach(CheckApproach checkApproach, boolean resetLearnedValues) {
-        if (!(this.checkApproach.equals(checkApproach)) && resetLearnedValues) {
+        if (!this.checkApproach.equals(checkApproach) && resetLearnedValues) {
             FeedDatabase.getInstance().changeCheckApproach();
         }
         this.checkApproach = checkApproach;
@@ -895,10 +895,12 @@ class SchedulerTask extends TimerTask {
      */
     public SchedulerTask(List<Feed> listOfFeeds, Integer threadPoolSize) {
         super();
-        if (listOfFeeds == null)
+        if (listOfFeeds == null) {
             throw new IllegalArgumentException("List of feeds " + listOfFeeds + " is not valid!");
-        if (threadPoolSize == null || threadPoolSize <= 0)
+        }
+        if (threadPoolSize == null || threadPoolSize <= 0) {
             throw new IllegalArgumentException("Invalid thread pool size: " + threadPoolSize);
+        }
         this.listOfFeeds = listOfFeeds;
         threadPool = Executors.newFixedThreadPool(threadPoolSize);
     }
@@ -911,7 +913,7 @@ class SchedulerTask extends TimerTask {
     public void run() {
         Date now = new Date();
         for (Feed feed : listOfFeeds) {
-            if ((now.getTime() - feed.getLastChecked().getTime()) > (feed.getMaxCheckInterval() * DateHelper.MINUTE_MS)) {
+            if (now.getTime() - feed.getLastChecked().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS) {
                 threadPool.execute(new FeedTask(feed));
             }
             now.setTime(System.currentTimeMillis());
