@@ -155,6 +155,8 @@ public class DatasetCreator {
                     LOGGER.error("could not prepend new file entries (" + newEntries + ") to " + filePath);
                 }
 
+                feed.freeMemory();
+
                 LOGGER.debug("added " + newPosts + " new posts to file " + filePath);
 
             }

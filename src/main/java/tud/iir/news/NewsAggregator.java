@@ -384,11 +384,11 @@ public class NewsAggregator {
         try {
             pubDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
         } catch (NullPointerException e) {
-            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode.getTextContent());
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode);
         } catch (DOMException e) {
-            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode.getTextContent());
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode);
         } catch (Exception e) {
-            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode.getTextContent());
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode);
         }
 
         return pubDate;
