@@ -102,11 +102,13 @@ public class DatasetCreator {
 
         // mark up all seed entities
         for (Entity entity : seedEntities) {
-            webPageContent = webPageContent.replaceAll(entity.getName(), "<" + entity.getConcept().getName()
+            webPageContent = webPageContent.replaceAll(entity.getName(), "<"
+                    + entity.getConcept().getName().toUpperCase()
                     + " style=\"background-color:red; color:white;\">"
-                    + entity.getName() + "</" + entity.getConcept().getName() + ">");
+                    + entity.getName() + "</" + entity.getConcept().getName().toUpperCase() + ">");
             webPageText = webPageText.replaceAll(entity.getName(),
-                    "<" + entity.getConcept().getName() + ">" + entity.getName() + "</" + entity.getConcept().getName()
+ "<" + entity.getConcept().getName().toUpperCase()
+                    + ">" + entity.getName() + "</" + entity.getConcept().getName().toUpperCase()
                             + ">");
 
             LOGGER.debug("marked up page " + url + " with entity " + entity.getName());
