@@ -199,6 +199,11 @@ public class Feed {
         setPlainXML(PageAnalyzer.getRawMarkup(aggregator.getPlainXMLFeed()));
     }
 
+    public void freeMemory() {
+        setPlainXML("");
+        setEntries(new ArrayList<FeedEntry>());
+    }
+
     public void setChecks(int checks) {
         this.checks = checks;
     }
