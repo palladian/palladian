@@ -52,11 +52,11 @@ class FeedTask implements Runnable {
         // remember the time the feed has been checked
         feed.setLastChecked(new Date());
 
+        feedChecker.updateCheckIntervals(feed);
+
         // perform actions on this feeds entries
         feedChecker.getFeedProcessingAction().performAction(feed);
 
-        feedChecker.updateCheckIntervals(feed);
-        
         // save the feed back to the database
         fa.updateFeed(feed);
     }
