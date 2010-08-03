@@ -140,12 +140,10 @@ public class DatasetCreator {
                     }
                     
                 }
-
-                
                 
                 // if all entries are new, we might have checked to late and missed some entries, we mark that by a
                 // special line
-                if (newPosts == feedEntries.size() && feed.getChecks() > 0) {
+                if (newPosts == feedEntries.size() && feed.getChecks() > 1) {
                     newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
                     LOGGER.fatal("MISS: " + feed.getFeedUrl() + ", checks: " + feed.getChecks());
                 }
