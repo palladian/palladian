@@ -63,16 +63,17 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
         mioList = removeMIODuplicates(mioList);
 
-        int doubleCounter = 0;
-        List<String> tempMioList = new ArrayList<String>();
+        // int doubleCounter = 0;
+        final List<String> tempMioList = new ArrayList<String>();
 
         for (MIO mio : mioList) {
 
             if (!tempMioList.contains(mio.getDirectURL())) {
                 tempMioList.add(mio.getDirectURL());
-            } else {
-                doubleCounter++;
             }
+            // } else {
+            // doubleCounter++;
+            // }
         }
         // if (doubleCounter > 0) {
         // System.out.println("Soooo viele doppelte MIOs vor der FeatureBerechnung: " + doubleCounter);
@@ -91,10 +92,10 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @param mioList the mio list
      * @return the list
      */
-    private List<MIO> removeMIODuplicates(List<MIO> mioList) {
+    private List<MIO> removeMIODuplicates(final List<MIO> mioList) {
 
-        List<MIO> resultList = new ArrayList<MIO>();
-        Map<String, MIO> mioMap = new HashMap<String, MIO>();
+        final List<MIO> resultList = new ArrayList<MIO>();
+        final Map<String, MIO> mioMap = new HashMap<String, MIO>();
 
         MIO targetMIO;
         MIO slaveMIO;
@@ -105,7 +106,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
             } else {
 
                 // merge
-                MIO existingMIO = mioMap.get(mio.getDirectURL());
+                final MIO existingMIO = mioMap.get(mio.getDirectURL());
                 if (existingMIO.isDedicatedPage()) {
                     targetMIO = existingMIO;
                     slaveMIO = mio;
@@ -114,8 +115,8 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
                     slaveMIO = existingMIO;
                 }
 
-                Map<String, List<String>> targetInfoMap = targetMIO.getInfos();
-                Map<String, List<String>> infoMap = slaveMIO.getInfos();
+                final Map<String, List<String>> targetInfoMap = targetMIO.getInfos();
+                final Map<String, List<String>> infoMap = slaveMIO.getInfos();
                 for (String info : infoMap.keySet()) {
                     if (!targetInfoMap.containsKey(info)) {
                         targetInfoMap.put(info, infoMap.get(info));
@@ -206,7 +207,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      */
     private List<MIO> analyzeRelevantTags(final List<String> relevantTags, final String mioType) {
 
-        List<MIO> retrievedMIOs = new ArrayList<MIO>();
+        final List<MIO> retrievedMIOs = new ArrayList<MIO>();
 
         // try to extract swf-file-URLs
         for (String relevantTag : relevantTags) {
@@ -330,11 +331,11 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
         while (matcher.find()) {
             final String mioAdr = matcher.group(0).replaceAll("\"", "");
             // System.out.println("URL: "+ mioAdr);
-            String mioURL = verifyURL(mioAdr, mioPage.getUrl());
-            String testString = mioURL.toLowerCase(Locale.ENGLISH);
-            if (testString.contains("expressinstall") || testString.contains("banner") || testString.contains("header")) {
-                // dont generate new mio
-            } else {
+            final String mioURL = verifyURL(mioAdr, mioPage.getUrl());
+            final String testString = mioURL.toLowerCase(Locale.ENGLISH);
+            if (!(testString.contains("expressinstall") || testString.contains("banner") || testString
+                    .contains("header"))) {
+
                 if (mioURL.length() > 4 && mioURL.contains(".")) {
                     final MIO mio = new MIO(mioType, mioURL, mioPage.getUrl(), entity);
                     resultList.add(mio);
@@ -402,8 +403,8 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
         // extract <param name="FlashVars"
         // value="myURL=http://weblogs.adobe.com/">
         String regExp2 = "<param[^>]*flashvars[^>]*>";
-        final Pattern pat2 = Pattern.compile(regExp2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        final Matcher matcher2 = pat2.matcher(tagContent);
+         Pattern pat2 = Pattern.compile(regExp2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+         Matcher matcher2 = pat2.matcher(tagContent);
         while (matcher2.find()) {
             // result has the form: <param name="FlashVars"
             // value="myURL=http://weblogs.adobe.com/">
@@ -418,9 +419,9 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
         }
 
         // extract FlashVars="myURL=http://weblogs.adobe.com/"
-        String regExp3 = "flashvars=\"[^\"]*\"";
-        Pattern pat3 = Pattern.compile(regExp3, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher3 = pat3.matcher(tagContent);
+         String regExp3 = "flashvars=\"[^\"]*\"";
+         Pattern pat3 = Pattern.compile(regExp3, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+         Matcher matcher3 = pat3.matcher(tagContent);
         while (matcher3.find()) {
             String result = matcher3.group(0);
             String pattern = "flashvars=\"[^\"]*\"";
@@ -432,8 +433,8 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
         // extract flashvars.country = "us";
         String regExp4 = "flashvars\\..*[^;];";
-        Pattern pat4 = Pattern.compile(regExp4, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher matcher4 = pat4.matcher(tagContent);
+        final Pattern pat4 = Pattern.compile(regExp4, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        final Matcher matcher4 = pat4.matcher(tagContent);
         while (matcher4.find()) {
             String result = matcher4.group(0);
             result = result.replaceFirst("flashvars.", "");
@@ -482,7 +483,7 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
 
             // check for flashvars
             if (relevantTag.toLowerCase(Locale.ENGLISH).contains("flashvars")) {
-                List<String> flashVars = extractFlashVars(relevantTag);
+                final List<String> flashVars = extractFlashVars(relevantTag);
 
                 if (!flashVars.isEmpty()) {
                     for (MIO mio : tempList) {
@@ -502,9 +503,9 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
                 // queryParamValue = queryParamValue.substring(0,
                 // queryParamValue.length()-1);
 
-                Pattern pat = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-                Matcher matcher = pat.matcher(relevantTag);
-                List<String> queryParamValues = new ArrayList<String>();
+                final Pattern pat = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+                final Matcher matcher = pat.matcher(relevantTag);
+                final List<String> queryParamValues = new ArrayList<String>();
                 while (matcher.find()) {
                     // result has the form: flashvars = {cool};
                     String result = matcher.group(0);
@@ -534,8 +535,8 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
     private List<MIO> calcFeaturesAndInteractivity(final List<MIO> retrievedMIOs) {
 
         final MIOContextAnalyzer contextAnalyzer = new MIOContextAnalyzer(entity, mioPage);
-        MIOContentAnalyzer contentAnalyzer = new MIOContentAnalyzer();
-        MIOInteractivityAnalyzer interactivityAnalyzer = new MIOInteractivityAnalyzer();
+        final MIOContentAnalyzer contentAnalyzer = new MIOContentAnalyzer();
+        final MIOInteractivityAnalyzer interactivityAnalyzer = new MIOInteractivityAnalyzer();
 
         for (MIO mio : retrievedMIOs) {
 
@@ -580,60 +581,60 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
     // }
     // return resultList;
     // }
+    //
+    // /**
+    // * The main method.
+    // *
+    // * @param args the arguments
+    // */
+    // public static void main(String[] args) {
 
-    /**
-     * The main method.
-     * 
-     * @param args the arguments
-     */
-    public static void main(String[] args) {
+    // Crawler crawler = new Crawler();
+    // String
+    // content=crawler.download("http://www2.razerzone.com/Megalodon/");
+    // MIOPage page = new MIOPage("http://www2.razerzone.com/Megalodon/",
+    // content);
 
-        // Crawler crawler = new Crawler();
-        // String
-        // content=crawler.download("http://www2.razerzone.com/Megalodon/");
-        // MIOPage page = new MIOPage("http://www2.razerzone.com/Megalodon/",
-        // content);
+    // String content = crawler
+    // .download("http://www.sennheiser.com/flash/HD_800_2/DE/base.html");
+    // MIOPage page = new MIOPage(
+    // "http://www.sennheiser.com/flash/HD_800_2/DE/base.html",
+    // content);
 
-        // String content = crawler
-        // .download("http://www.sennheiser.com/flash/HD_800_2/DE/base.html");
-        // MIOPage page = new MIOPage(
-        // "http://www.sennheiser.com/flash/HD_800_2/DE/base.html",
-        // content);
+    // String content = crawler
+    // .download("http://www.sennheiser.com/3d-view/hd_800/index.html");
+    // MIOPage page = new MIOPage(
+    // "http://www.sennheiser.com/3d-view/hd_800/index.html", content);
 
-        // String content = crawler
-        // .download("http://www.sennheiser.com/3d-view/hd_800/index.html");
-        // MIOPage page = new MIOPage(
-        // "http://www.sennheiser.com/3d-view/hd_800/index.html", content);
+    // String content = crawler
+    // .download("http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE");
+    // MIOPage page = new MIOPage(
+    // "http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE",
+    // content);
 
-        // String content = crawler
-        // .download("http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE");
-        // MIOPage page = new MIOPage(
-        // "http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE",
-        // content);
+    // String content = crawler.download("http://s8500.samsungmobile.de/");
+    // MIOPage page = new MIOPage("http://s8500.samsungmobile.de/", content);
 
-        // String content = crawler.download("http://s8500.samsungmobile.de/");
-        // MIOPage page = new MIOPage("http://s8500.samsungmobile.de/", content);
+    // String content = crawler
+    // .download("http://www.canon-europe.com/z/pixma_tour/de/mp990/" +
+    // "swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE");
+    // MIOPage page = new MIOPage(
+    // "http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html" +
+    // "?WT.ac=CCI_PixmaTour_MP990_DE", content);
 
-        // String content = crawler
-        // .download("http://www.canon-europe.com/z/pixma_tour/de/mp990/" +
-        // "swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE");
-        // MIOPage page = new MIOPage(
-        // "http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html" +
-        // "?WT.ac=CCI_PixmaTour_MP990_DE", content);
+    // Concept headphoneConcept = new Concept("printer");
+    // Entity headphone1 = new Entity("Razer Megalodon", headphoneConcept);
+    // Entity headphone2 = new Entity("Canon MP990", headphoneConcept);
+    // headphoneConcept.addEntity(headphone1);
+    // headphoneConcept.addEntity(headphone2);
+    // analyzer.extractMIOs(mioPages, headphone2);
+    // UniversalMIOExtractor flashEx = new UniversalMIOExtractor();
+    // List<MIO> resultList = flashEx.extractAllMIOs(page, headphone2);
 
-        // Concept headphoneConcept = new Concept("printer");
-        // Entity headphone1 = new Entity("Razer Megalodon", headphoneConcept);
-        // Entity headphone2 = new Entity("Canon MP990", headphoneConcept);
-        // headphoneConcept.addEntity(headphone1);
-        // headphoneConcept.addEntity(headphone2);
-        // analyzer.extractMIOs(mioPages, headphone2);
-        // UniversalMIOExtractor flashEx = new UniversalMIOExtractor();
-        // List<MIO> resultList = flashEx.extractAllMIOs(page, headphone2);
+    // for (MIO mio : resultList) {
+    // System.out.println(mio.getDirectURL() + "  " + mio.getFindPageURL() + " TRUST: " + mio.getTrust());
+    // }
 
-        // for (MIO mio : resultList) {
-        // System.out.println(mio.getDirectURL() + "  " + mio.getFindPageURL() + " TRUST: " + mio.getTrust());
-        // }
-
-    }
+    // }
 
 }

@@ -198,8 +198,8 @@ public final class MIOExtractor extends Extractor {
     /**
      * Check if URL is allowed.
      * 
-     * @param url the url
-     * @return true, if is uR lallowed
+     * @param url the URL
+     * @return true, if the URL allowed
      */
     public boolean isURLallowed(final String url) {
         // super.addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);

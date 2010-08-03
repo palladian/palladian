@@ -54,7 +54,7 @@ public class RolePageDatabase {
      */
     private void prepareStatements() throws SQLException {
         // // prepared statements for feeds
-        Connection connection = DatabaseManager.getInstance().getConnection();
+        final Connection connection = DatabaseManager.getInstance().getConnection();
         psGetRolePages = connection.prepareStatement("SELECT * FROM rolepages WHERE conceptID = ?"); // `rolepages`
         psUpdateRolePage = connection.prepareStatement("UPDATE rolepages SET url = ?, count = ? WHERE id = ?");
         psInsertRolePage = connection.prepareStatement("INSERT INTO rolepages SET url = ?,count = ?, conceptID = ?");
@@ -70,11 +70,11 @@ public class RolePageDatabase {
      * @param entity the entity
      * @return the array list
      */
-    public ArrayList<RolePage> loadNotUsedRolePagesForEntity(Entity entity) {
-        ArrayList<RolePage> rolePages = new ArrayList<RolePage>();
+    public List<RolePage> loadNotUsedRolePagesForEntity(final Entity entity) {
+        final ArrayList<RolePage> rolePages = new ArrayList<RolePage>();
 
-        List<RolePage> allRolePagesForConcept = loadAllRolePagesForConcept(entity.getConcept());
-        List<Integer> usedRolePageIDsForEntity = loadUsedRolePageIDsForEntity(entity);
+        final List<RolePage> allRolePagesForConcept = loadAllRolePagesForConcept(entity.getConcept());
+        final List<Integer> usedRolePageIDsForEntity = loadUsedRolePageIDsForEntity(entity);
 
         for (RolePage rolePage : allRolePagesForConcept) {
 
@@ -92,26 +92,21 @@ public class RolePageDatabase {
      * @param entity the entity
      * @return the array list
      */
-    public ArrayList<Integer> loadUsedRolePageIDsForEntity(Entity entity) {
+    public List<Integer> loadUsedRolePageIDsForEntity(final Entity entity) {
 
-        ArrayList<Integer> rolePageIDs = new ArrayList<Integer>();
+        final ArrayList<Integer> rolePageIDs = new ArrayList<Integer>();
         ResultSet resultSet = null;
 
         try {
             psGetRolePageUsages.setInt(1, entity.getID());
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        resultSet = DatabaseManager.getInstance().runQuery(psGetRolePageUsages);
-        try {
+            resultSet = DatabaseManager.getInstance().runQuery(psGetRolePageUsages);
             while (resultSet.next()) {
-                int rolePageID = resultSet.getInt("rolepageID");
+                final int rolePageID = resultSet.getInt("rolepageID");
                 rolePageIDs.add(rolePageID);
             }
-        } catch (SQLException e) {
 
-            e.printStackTrace();
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
         }
 
         return rolePageIDs;
@@ -123,31 +118,27 @@ public class RolePageDatabase {
      * @param concept the concept
      * @return the array list
      */
-    public ArrayList<RolePage> loadAllRolePagesForConcept(Concept concept) {
+    public List<RolePage> loadAllRolePagesForConcept(final Concept concept) {
 
-        ArrayList<RolePage> dbRolePages = new ArrayList<RolePage>();
+        final ArrayList<RolePage> dbRolePages = new ArrayList<RolePage>();
 
         ResultSet resultSet = null;
         try {
             psGetRolePages.setInt(1, concept.getID());
-        } catch (SQLException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-        resultSet = DatabaseManager.getInstance().runQuery(psGetRolePages);
-        try {
+            resultSet = DatabaseManager.getInstance().runQuery(psGetRolePages);
             while (resultSet.next()) {
-                int rolePageID = resultSet.getInt("id");
-                String url = resultSet.getString("url");
-                int count = resultSet.getInt("count");
+                final int rolePageID = resultSet.getInt("id");
+                final String url = resultSet.getString("url");
+                final int count = resultSet.getInt("count");
                 // int conceptID = resultSet.getInt("conceptID");
-                RolePage rolePage = new RolePage(url, count, concept.getID());
+                final RolePage rolePage = new RolePage(url, count, concept.getID());
                 rolePage.setID(rolePageID);
 
                 dbRolePages.add(rolePage);
             }
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
+
+        } catch (SQLException e1) {
+            LOGGER.error(e1.getMessage());
         }
 
         return dbRolePages;
@@ -156,9 +147,9 @@ public class RolePageDatabase {
     /**
      * Adds the rolePage to database.
      * 
-     * @param rolePage the role page
+     * @param rolePage the rolePage
      */
-    public void insertRolePage(RolePage rolePage) {
+    public void insertRolePage(final RolePage rolePage) {
 
         try {
             psInsertRolePage.setString(1, rolePage.getHostname());
@@ -174,20 +165,19 @@ public class RolePageDatabase {
     }
 
     /**
-     * Insert role page usage.
+     * Insert rolePage usage.
      * 
-     * @param rolePage the role page
+     * @param rolePage the rolePage
      * @param entity the entity
      */
-    public void insertRolePageUsage(RolePage rolePage, Entity entity) {
+    public void insertRolePageUsage(final RolePage rolePage, final Entity entity) {
         try {
             psInsertRolePageUsage.setInt(1, rolePage.getID());
             psInsertRolePageUsage.setInt(2, entity.getID());
 
             DatabaseManager.getInstance().runUpdate(psInsertRolePageUsage);
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
     }
@@ -195,17 +185,15 @@ public class RolePageDatabase {
     /**
      * Update a rolePage in database.
      * 
-     * @param rolePage the role page
+     * @param rolePage the rolePage
      */
-    public void updateRolePage(RolePage rolePage) {
+    public void updateRolePage(final RolePage rolePage) {
 
         try {
             psUpdateRolePage.setString(1, rolePage.getHostname());
             psUpdateRolePage.setInt(2, rolePage.getCount());
             psUpdateRolePage.setInt(3, rolePage.getID());
-
             DatabaseManager.getInstance().runUpdate(psUpdateRolePage);
-
         } catch (SQLException e) {
             LOGGER.error("addRolePage", e);
         }
@@ -215,15 +203,14 @@ public class RolePageDatabase {
     /**
      * Remove all rolePages from database that don't fit a concrete minimalCount.
      * 
-     * @param minCount the min count
+     * @param minCount the minimalCount
      */
-    public void removeUnrelevantRolePages(int minCount) {
+    public void removeUnrelevantRolePages(final int minCount) {
         try {
             psRemoveUnrelevantRolePage.setInt(1, minCount);
             DatabaseManager.getInstance().runUpdate(psRemoveUnrelevantRolePage);
         } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e.getMessage());
         }
 
     }

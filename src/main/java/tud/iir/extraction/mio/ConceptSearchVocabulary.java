@@ -42,12 +42,12 @@ public class ConceptSearchVocabulary {
      * @return the searchVocabulary by concept name
      */
     public List<String> getVocByConceptName(String conceptName) {
-        String modConceptName = conceptName.toLowerCase(Locale.ENGLISH);
-        if (modConceptName.equals("mobile phone")) {
-            modConceptName = "mobilePhone";
+//        String modConceptName = conceptName.toLowerCase(Locale.ENGLISH);
+        if ("mobile phone".equalsIgnoreCase(conceptName)) {
+            conceptName = "mobilePhone";
         }
         Map<String, List<String>> attributeMap = attributesToMap();
-        return attributeMap.get(modConceptName);
+        return attributeMap.get(conceptName);
 
     }
 

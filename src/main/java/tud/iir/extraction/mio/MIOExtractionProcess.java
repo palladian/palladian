@@ -5,19 +5,15 @@ public class MIOExtractionProcess extends Thread {
     /** The benchmark. */
     private boolean benchmark = false;
 
-    public MIOExtractionProcess() {
-        super();
-    }
-
-    /**
-     * Instantiates a new MIOExtraction-process.
-     * 
-     * @param benchmark the benchmark
-     */
-    public MIOExtractionProcess(boolean benchmark) {
-        super();
-        this.setBenchmark(benchmark);
-    }
+ 
+//    /**
+//     * Instantiates a new MIOExtraction-process.
+//     * 
+//     */
+//    public MIOExtractionProcess() {
+//        super();
+//        //this.setBenchmark(benchmark);
+//    }
 
     @Override
     public void run() {
@@ -34,7 +30,7 @@ public class MIOExtractionProcess extends Thread {
         return benchmark;
     }
 
-    public void setBenchmark(boolean benchmark) {
+    public void setBenchmark(final boolean benchmark) {
         this.benchmark = benchmark;
     }
 
