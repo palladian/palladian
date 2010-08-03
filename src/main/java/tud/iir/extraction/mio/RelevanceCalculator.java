@@ -46,8 +46,7 @@ public class RelevanceCalculator {
 
         if (diff > 0) {
 
-            result = (numOfMatches - 1) / elements.length + (diff / elements.length)
-                    + (diff / (2 * elements.length));
+            result = (numOfMatches - 1) / elements.length + (diff / elements.length) + (diff / (2 * elements.length));
             //
             result = numOfMatches / elements.length + (diff / (2 * elements.length));
             result = ((numOfMatchesWithoutSW * 2) + (diff * 3)) / (double) (elements.length * 2);
@@ -64,6 +63,11 @@ public class RelevanceCalculator {
         return result;
     }
 
+    /**
+     * The main method.
+     * 
+     * @param args the arguments
+     */
     public static void main(String[] args) {
         // TODO Auto-generated method stub
 

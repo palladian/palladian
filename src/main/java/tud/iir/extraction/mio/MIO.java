@@ -23,8 +23,6 @@ import tud.iir.knowledge.Extractable;
  */
 public class MIO extends Extractable {
 
- 
-
     /** The Constant serialVersionUID. */
     private static final long serialVersionUID = -7905678837165394359L;
 
@@ -33,39 +31,39 @@ public class MIO extends Extractable {
 
     /** The trust. */
     private double trust = 0;
-    
+
     /** The ml trust. */
     private double mlTrust = 0;
 
-    /** The mio type. */
+    /** The MIO type. */
     private String mioType = "";
-    
-    /** The find page url. */
+
+    /** The find page URL. */
     private String findPageURL = "";
-    
-    /** The direct url. */
+
+    /** The direct URL. */
     private String directURL = "";
-    
+
     /** The file name. */
     private String fileName = "";
-    
+
     /** The file size. */
     private double fileSize = 0;
-    
+
     /** The text content length. */
     private double textContentLength = 0;
 
     /** The entity. */
     private Entity entity;
-    
+
     /** The interactivity grade. */
     private String interactivityGrade = "unclear";
-    
+
     /** The is dedicated page. */
     private boolean isDedicatedPage = true;
-    
+
     /** The infos. */
-    private Map<String, List> infos;
+    private Map<String, List<String>> infos;
 
     /** The Constant FLASH. */
     private static final String FLASH = "flash";
@@ -77,14 +75,14 @@ public class MIO extends Extractable {
     private Map<String, Double> features;
 
     /**
-     * Instantiates a new mIO.
-     *
-     * @param mioType the mio type
-     * @param directURL the direct url
-     * @param findPageURL the find page url
+     * Instantiates a new MIO.
+     * 
+     * @param mioType the MIOtype
+     * @param directURL the directLinkURL
+     * @param findPageURL the find page URL
      * @param entity the entity
      */
-    public MIO(String mioType, String directURL, String findPageURL, Entity entity) {
+    public MIO(final String mioType, final String directURL, final String findPageURL, final Entity entity) {
 
         this.features = new HashMap<String, Double>();
         this.mioType = mioType;
@@ -95,17 +93,17 @@ public class MIO extends Extractable {
 
         setExtractedAt(new Date(System.currentTimeMillis()));
 
-        infos = new HashMap<String, List>();
+        infos = new HashMap<String, List<String>>();
     }
 
     /**
      * Extract file name.
      * 
-     * @param directURL the direct url
-     * @param type the type
+     * @param directURL the directLinkURL
+     * @param mioType the mio type
      * @return the string
      */
-    private String extractFileName(String directURL, String type) {
+    private String extractFileName(String directURL, String mioType) {
 
         String fileEnding = "";
 
@@ -127,10 +125,10 @@ public class MIO extends Extractable {
 
         // if (type.equals("swf")) {
         String regExp = "[/=]?.[^/=]*\\." + fileEnding;
-        Pattern p = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        Matcher m = p.matcher(directURL);
-        while (m.find()) {
-            return m.group(0);
+        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        final Matcher matcher = pattern.matcher(directURL);
+        while (matcher.find()) {
+            return matcher.group(0);
         }
         // }
         return directURL;
@@ -140,7 +138,7 @@ public class MIO extends Extractable {
      * Resets the MIOInfos (for saving memory).
      */
     public void resetMIOInfos() {
-        infos = new HashMap<String, List>();
+        infos = new HashMap<String, List<String>>();
     }
 
     /**
@@ -157,32 +155,32 @@ public class MIO extends Extractable {
      * 
      * @param trust the new trust
      */
-    public void setTrust(double trust) {
+    public void setTrust(final double trust) {
         this.trust = trust;
     }
 
     /**
-     * Gets the find page url.
+     * Gets the find page URL.
      * 
-     * @return the find page url
+     * @return the find page URL
      */
     public String getFindPageURL() {
         return findPageURL;
     }
 
     /**
-     * Sets the find page url.
+     * Sets the find page URL.
      * 
-     * @param findPageURL the new find page url
+     * @param findPageURL the new find page URL
      */
-    public void setFindPageURL(String findPageURL) {
+    public void setFindPageURL(final String findPageURL) {
         this.findPageURL = findPageURL;
     }
 
     /**
-     * Gets the direct url.
+     * Gets the direct URL.
      * 
-     * @return the direct url
+     * @return the direct URL
      */
     public String getDirectURL() {
         return directURL;
@@ -193,7 +191,7 @@ public class MIO extends Extractable {
      * 
      * @param directURL the new direct url
      */
-    public void setDirectURL(String directURL) {
+    public void setDirectURL(final String directURL) {
         this.directURL = directURL;
     }
 
@@ -274,26 +272,26 @@ public class MIO extends Extractable {
      * 
      * @return the infos
      */
-    public Map<String, List> getInfos() {
+    public Map<String, List<String>> getInfos() {
         return infos;
     }
 
     /**
-     * Sets the infos.
+     * Sets specific infos like surroundingText needed for feature calculation.
      * 
      * @param infos the infos
      */
-    public void setInfos(Map<String, List> infos) {
+    public void setInfos(Map<String, List<String>> infos) {
         this.infos = infos;
     }
 
     /**
-     * Adds the infos.
+     * Adds the specific info like surroundingText needed for feature calculation.
      * 
      * @param infoName the info name
      * @param infoList the info list
      */
-    public void addInfos(String infoName, List infoList) {
+    public void addInfos(String infoName, List<String> infoList) {
         infos.put(infoName, infoList);
     }
 
@@ -317,7 +315,7 @@ public class MIO extends Extractable {
 
     /**
      * Sets the feature.
-     *
+     * 
      * @param name the name
      * @param value the value
      */
@@ -327,7 +325,7 @@ public class MIO extends Extractable {
 
     /**
      * Gets the feature.
-     *
+     * 
      * @param name the name
      * @return the feature
      */
@@ -343,7 +341,7 @@ public class MIO extends Extractable {
 
     /**
      * Gets the features.
-     *
+     * 
      * @return the features
      */
     public Map<String, Double> getFeatures() {
@@ -352,7 +350,7 @@ public class MIO extends Extractable {
 
     /**
      * Gets the ml trust.
-     *
+     * 
      * @return the ml trust
      */
     public double getMlTrust() {
@@ -361,7 +359,7 @@ public class MIO extends Extractable {
 
     /**
      * Sets the ml trust.
-     *
+     * 
      * @param mlTrust the new ml trust
      */
     public void setMlTrust(double mlTrust) {
@@ -370,7 +368,7 @@ public class MIO extends Extractable {
 
     /**
      * Gets the file size.
-     *
+     * 
      * @return the file size
      */
     public double getFileSize() {
@@ -379,7 +377,7 @@ public class MIO extends Extractable {
 
     /**
      * Sets the file size.
-     *
+     * 
      * @param fileSize the new file size
      */
     public void setFileSize(double fileSize) {
@@ -388,7 +386,7 @@ public class MIO extends Extractable {
 
     /**
      * Gets the text content length.
-     *
+     * 
      * @return the text content length
      */
     public double getTextContentLength() {
@@ -397,10 +395,20 @@ public class MIO extends Extractable {
 
     /**
      * Sets the text content length.
-     *
+     * 
      * @param textContentLength the new text content length
      */
     public void setTextContentLength(double textContentLength) {
         this.textContentLength = textContentLength;
     }
+
+    /**
+     * Sets the features.
+     * 
+     * @param features the features
+     */
+    public void setFeatures(Map<String, Double> features) {
+        this.features = features;
+    }
+
 }

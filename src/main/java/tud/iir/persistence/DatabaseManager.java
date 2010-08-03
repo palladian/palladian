@@ -35,6 +35,7 @@ import tud.iir.knowledge.Source;
  * @author David Urbansky
  * @author Christopher Friedrich
  * @author Philipp Katz
+ * @author Martin Werner
  */
 public class DatabaseManager {
 
@@ -876,7 +877,8 @@ public class DatabaseManager {
     }
 
     /**
-     * Save instance knowledge (entities, their facts, their snippets and their sources). If entries exist, link them.
+     * Save instance knowledge (entities, their facts(also MIOs), their snippets and their sources). If entries exist,
+     * link them.
      * 
      * @param knowledgeManager The knowledgeManager.
      */
@@ -945,21 +947,43 @@ public class DatabaseManager {
                         addAttributeSource(attributeSource, attributeID);
                     }
 
-                    // add first three fact values with highest trust or more if value count is higher
-                    ArrayList<FactValue> highTrustFactValues = fact.getValues(true, Math.max(3, fact.getAttribute()
-                            .getValueCount()));
-                    for (int i = 0, l = highTrustFactValues.size(); i < l; i++) {
-                        FactValue highTrustFV = highTrustFactValues.get(i);
-                        int factID = addFact(highTrustFV, entityID, attributeID);
+                    // special case for saving mios
+                    if (attribute.getName().contains("mio")) {
 
-                        // error occurred, continue
-                        if (factID == -1) {
-                            continue;
+                        List<FactValue> factValues = fact.getValues();
+                        for (FactValue factValue : factValues) {
+
+                            int factID = addFact(factValue, entityID, attributeID, factValue.getTrust());
+                            // System.out.println("====== " + factValue.getValue() + " eingefuegt!");
+
+                            // error occurred, continue
+                            if (factID == -1) {
+                                continue;
+                            }
+
+                            for (Source factSource : factValue.getSources()) {
+                                addFactSource(factSource, factID);
+                            }
                         }
 
-                        // add source(s) for that value
-                        for (Source fvSource : highTrustFV.getSources()) {
-                            addFactSource(fvSource, factID);
+                    } else {
+
+                        // add first three fact values with highest trust or more if value count is higher
+                        ArrayList<FactValue> highTrustFactValues = fact.getValues(true,
+                                Math.max(3, fact.getAttribute().getValueCount()));
+                        for (int i = 0, l = highTrustFactValues.size(); i < l; i++) {
+                            FactValue highTrustFV = highTrustFactValues.get(i);
+                            int factID = addFact(highTrustFV, entityID, attributeID);
+
+                            // error occurred, continue
+                            if (factID == -1) {
+                                continue;
+                            }
+
+                            // add source(s) for that value
+                            for (Source fvSource : highTrustFV.getSources()) {
+                                addFactSource(fvSource, factID);
+                            }
                         }
                     }
                 }
@@ -1690,6 +1714,47 @@ public class DatabaseManager {
                 psInsertFact.setInt(2, attributeID);
                 psInsertFact.setString(3, factValue.getValue());
                 psInsertFact.setDouble(4, 1.0);// factValue.getRelativeTrust());
+
+                if (runUpdate(psInsertFact) == -1) {
+                    return -1;
+                }
+            } catch (SQLException e) {
+                LOGGER.error(e.getMessage());
+                return -1;
+            }
+            return getLastInsertID();
+        }
+        return entryID;
+    }
+
+    /**
+     * Add a factValue (especially for MIOs).
+     * 
+     * @param factValue the fact value
+     * @param entityID the entity id
+     * @param attributeID the attribute id
+     * @param trust the trust
+     * @return the int
+     */
+    public int addFact(FactValue factValue, int entityID, int attributeID, double trust) {
+
+        int entryID = -1;
+        try {
+            psFactCheck.setInt(1, entityID);
+            psFactCheck.setInt(2, attributeID);
+            psFactCheck.setString(3, factValue.getValue());
+            entryID = entryExists(psFactCheck);
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        if (entryID == -1) {
+
+            try {
+                psInsertFact.setInt(1, entityID);
+                psInsertFact.setInt(2, attributeID);
+                psInsertFact.setString(3, factValue.getValue());
+                psInsertFact.setDouble(4, trust);
 
                 if (runUpdate(psInsertFact) == -1) {
                     return -1;
@@ -2617,7 +2682,7 @@ public class DatabaseManager {
     public static void main(String[] args) throws Exception {
 
         // DatabaseManager.getInstance().clearCompleteDatabase();
-        //        
+        //
         // KnowledgeManager km = new KnowledgeManager();
         // Concept c = new Concept("smartphone");
         // c.addSynonym("cell phone");
@@ -2626,10 +2691,10 @@ public class DatabaseManager {
         // c.addSynonym("handphone");
         // c.addEntity(new Entity("Apple iPhone"));
         // km.addConcept(c);
-        //        
+        //
         // c = new Concept("car");
         // km.addConcept(c);
-        //        
+        //
         // km.saveExtractions();
         // DatabaseManager.getInstance().updateOntology(km);
 
@@ -2658,10 +2723,10 @@ public class DatabaseManager {
         // Connection con = DatabaseManager.getInstance().getConnection();
         // System.out.println(DatabaseManager.getInstance().getTotalConceptsNumber());
 
-        //		
+        //
         // //System.out.println("URL: " + con.getCatalog());
         // System.out.println("Connection: " + con);
-        //	      
+        //
         // Statement stmt = con.createStatement();
         //
         // //stmt.executeUpdate("CREATE TABLE t1 (id int,name varchar(255))");
@@ -2669,7 +2734,7 @@ public class DatabaseManager {
         // stmt.executeUpdate("INSERT INTO `values` SET value='abc'");
         // System.out.println(DatabaseManager.getInstance().getLastInsertID());
         // con.close();
-        //		
+        //
         // DatabaseManager.getInstance().clearCompleteDatabase();
         // domainManager.createBenchmarkConcepts();
         // KnowledgeManager domainManager = new KnowledgeManager();
@@ -2685,7 +2750,7 @@ public class DatabaseManager {
         // System.out.println(al.get(i).getName() + al.get(i).getLastSearched());
         // }
         // } catch (Exception e) {
-        //			
+        //
         // e.printStackTrace();
         // }
 
@@ -2717,11 +2782,11 @@ public class DatabaseManager {
         // DatabaseManager.getInstance().runUpdate("INSERT INTO `entities` SET name = 'te',trust = 0.1,conceptID = 4,lastSearched = '"
         // + ds + "'");
         // //
-        //		
+        //
         // Concept concept = new Concept("Actor");
         // String dateString = DatabaseManager.getInstance().getField("lastSearched","concepts","name = '" +
         // concept.getName() + "'");
-        //		
+        //
         // java.util.Date lastSearched = null;
         // if (dateString != null) lastSearched = new java.util.Date(Timestamp.valueOf(dateString).getTime());
         // concept.setLastSearched(lastSearched);
@@ -2767,11 +2832,11 @@ public class DatabaseManager {
         // System.out.println(r);
 
         // long t1 = System.currentTimeMillis();
-        //		
+        //
         // // insert performance test
         // DatabaseManager dbm = DatabaseManager.getInstance();
         // dbm.connection.setAutoCommit(false);
-        //		
+        //
         // java.sql.PreparedStatement ps = null;
         // java.sql.PreparedStatement ps2 = null;
         // java.sql.PreparedStatement ps3 = null;
@@ -2782,11 +2847,11 @@ public class DatabaseManager {
         // } catch (SQLException e) {
         // e.printStackTrace();
         // }
-        //		
+        //
         // for (int i = 0; i < 3000; i++) {
-        //			
+        //
         // int randomNumber = (int) Math.floor((Math.random()*10000));
-        //			
+        //
         // //java.sql.PreparedStatement ps = null;
         // int entryID = -1;
         // try {
@@ -2794,14 +2859,14 @@ public class DatabaseManager {
         // randomNumber);
         // ps.setString(1, "vbydferwer"+randomNumber);
         // ps.setInt(2, randomNumber);
-        //			
+        //
         // // entities can belong to different concepts, therefore check name and concept
         // //entryID = dbm.entryExists(ps);
-        //			
+        //
         // } catch (SQLException e) {
         // e.printStackTrace();
         // }
-        //		
+        //
         // // insert or update
         // if (entryID == -1) {
         // ps2.setString(1, "asdfvcxyv"+randomNumber);
@@ -2818,24 +2883,24 @@ public class DatabaseManager {
         // // dbm.runUpdate("UPDATE t1 SET name = '"+"asdfxc"+randomNumber+"', foreignKeyField = " + randomNumber);
         // }
         // }
-        //		
+        //
         // //ps2.executeBatch();
         // //ps3.executeBatch();
         // dbm.connection.commit();
         // long t2 = System.currentTimeMillis();
-        //		
+        //
         // System.out.println(t2-t1);
-        //		
+        //
         // // 44 839 with autocommit=yes
         // // 1 877 with autocommit=no
-        //		
+        //
         // // 3000: 3601,2948 with batch
         // // 3000: 6304,5414 without batch
         // // 3000: 125125 without autocommit
-        //		
+        //
         // long t3 = System.currentTimeMillis();
         // DatabaseManager dbm2 = DatabaseManager.getInstance();
-        //		
+        //
         // PreparedStatement ps5 =
         // dbm.connection.prepareStatement("SELECT id FROM `t1` WHERE name = ? AND foreignKeyField > ?");
         //
@@ -2845,9 +2910,9 @@ public class DatabaseManager {
         // ps5.setInt(2, (int)(randomNumber / 10));
         // dbm2.runQuery(ps5);
         // }
-        //		
+        //
         // long t4 = System.currentTimeMillis();
-        //		
+        //
         // System.out.println(t4-t3);
     }
 }

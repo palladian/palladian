@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import tud.iir.web.Crawler;
+
 /**
  * The LinkAnalyzer checks if some of the Links of MIOPageCandidates have targets with MIOs (simulates an indirect
  * search)
@@ -17,6 +19,7 @@ import java.util.regex.Pattern;
  */
 public class LinkAnalyzer extends GeneralAnalyzer {
 
+    /** The sw matcher. */
     private SearchWordMatcher swMatcher;
 
     /**
@@ -38,6 +41,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
      */
     public List<MIOPage> getLinkedMioPages(String parentPageContent, String parentPageURL) {
         List<MIOPage> mioPages = new ArrayList<MIOPage>();
+        final Crawler craw = new Crawler();
 
         // find all <a>-tags
         // Pattern p = Pattern.compile("<a[^>]*href=\\\"?[^(>|)]*\\\"?[^>]*>[^<]*</a>", Pattern.CASE_INSENSITIVE);
@@ -59,7 +63,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
                 // relevant words
                 if (isRelevantLinkCheck(linkURL, linkName, linkTitle)) {
                     // System.out.println("is relevant link: " + linkURL);
-                    String linkedPageContent = getPage(linkURL);
+                    String linkedPageContent = getPage(linkURL, craw);
                     if (!("").equals(linkedPageContent)) {
                         FastMIODetector mioDetector = new FastMIODetector();
                         if (mioDetector.containsMIO(linkedPageContent)) {
@@ -163,6 +167,11 @@ public class LinkAnalyzer extends GeneralAnalyzer {
         return mioPage;
     }
 
+    /**
+     * The main method.
+     * 
+     * @param args the arguments
+     */
     public static void main(String[] args) {
         // System.out.println(Crawler.isValidURL(" ", false));
         // System.exit(1);

@@ -15,12 +15,15 @@ import java.util.Locale;
  */
 public class FastMIODetector {
 
-    List<String> mioIndicator = new ArrayList<String>();
+    /** A List of MIOIndicators. */
+    private List<String> mioIndicator;
 
     /**
-     * Instantiates a new fast mio detector.
+     * Instantiates a new fast MIODetector.
      */
     public FastMIODetector() {
+        mioIndicator = new ArrayList<String>();
+
         mioIndicator.add(".swf");
         mioIndicator.add(".mov");
         mioIndicator.add(".xap");
@@ -35,43 +38,42 @@ public class FastMIODetector {
     }
 
     /**
-     * Gets the mio pages.
+     * Gets the MIOPage.
      * 
-     * @param pageContent the page content
-     * @param pageURL the page url
-     * @return the mio pages
+     * @param pageContent the pageContent
+     * @param pageURL the page URL
+     * @return the MIOpages
      */
-    public MIOPage getMioPage(String pageContent, String pageURL) {
-//        final List<MIOPage> mioPages = new ArrayList<MIOPage>();
-        MIOPage mioPage=null;
+    public MIOPage getMioPage(final String pageContent, final String pageURL) {
 
-        String lowerPageContent = pageContent.toLowerCase(Locale.ENGLISH);
+        MIOPage mioPage = null;
+
+        final String lowerPageContent = pageContent.toLowerCase(Locale.ENGLISH);
         if (containsMIO(lowerPageContent)) {
 
             mioPage = new MIOPage(pageURL);
-//            mioPages.add(mioPage);
-        }
 
+        }
         return mioPage;
     }
 
     /**
      * check if a MIO-Indicator is contained.
      * 
-     * @param mioPageContent the mio page content
+     * @param mioPageContent the MIOPageContent
      * @return true, if successful
      */
-    public boolean containsMIO(String mioPageContent) {
-
+    public boolean containsMIO(final String mioPageContent) {
+        boolean returnValue = false;
         for (String mioInd : mioIndicator) {
             if (mioPageContent.contains(mioInd)) {
                 // break after a first indicator was detected
-                return true;
+                returnValue = true;
 
             }
         }
 
-        return false;
+        return returnValue;
 
     }
 

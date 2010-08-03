@@ -16,17 +16,11 @@ import tud.iir.web.SourceRetriever;
  */
 public class SearchAgent {
 
-    int resultCount = 20;
-    int searchEngine = 2;
+    /** The resultCount determines how many sources (URLs) should be retrieved. */
+    private final static int RESULTCOUNT = 10;
 
-    /**
-     * Instantiates a new search agent.
-     * 
-     * @param resultCount the result count
-     */
-    public SearchAgent(int resultCount) {
-        this.resultCount = resultCount;
-    }
+    /** The search engine. */
+    int searchEngine = 2;
 
     /**
      * Initiate search.
@@ -36,7 +30,7 @@ public class SearchAgent {
      */
     public List<String> initiateSearch(List<String> searchQueries) {
         SourceRetriever sRetriever = new SourceRetriever();
-        sRetriever.setResultCount(resultCount);
+        sRetriever.setResultCount(RESULTCOUNT);
 
         // set focus on english content
         sRetriever.setLanguage(0);
@@ -69,7 +63,7 @@ public class SearchAgent {
     /**
      * remove duplicates.
      * 
-     * @param webResultList the web result list
+     * @param resultList the result list
      * @return the array list
      */
     private ArrayList<String> removeDuplicates(List<String> resultList) {

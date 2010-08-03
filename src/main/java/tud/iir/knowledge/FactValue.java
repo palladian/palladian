@@ -33,6 +33,10 @@ public class FactValue implements Serializable {
 
     // identification
     private String value = "";
+    
+    private double trust=0;
+
+
 
     // value of fact before normalization
     private String originalValue = "";
@@ -433,6 +437,14 @@ public class FactValue implements Serializable {
 
     public void setExtractedAt(Date extractedAt) {
         this.extractedAt = extractedAt;
+    }
+    
+    public double getTrust() {
+        return trust;
+    }
+
+    public void setTrust(double trust) {
+        this.trust = trust;
     }
 
     @Override

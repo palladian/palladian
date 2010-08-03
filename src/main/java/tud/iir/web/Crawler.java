@@ -1334,7 +1334,9 @@ public class Crawler {
 
                     // proxy is not working; remove it from the list
                     LOGGER.warn("proxy " + getProxy().address() + " is not working, removing from the list.");
+                    System.out.println("proxylistsize: "+ proxyList.size());
                     proxyList.remove(getProxy());
+                    System.out.println("proxylistsize after: "+ proxyList.size());
                     LOGGER.debug("# proxies in list: " + proxyList.size() + " : " + proxyList);
 
                     // if there are no more proxies left, go to normal mode without proxies.

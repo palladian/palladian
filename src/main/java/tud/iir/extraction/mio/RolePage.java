@@ -15,31 +15,36 @@ public class RolePage {
     private String hostname;
 
     /** The count. */
-    private int count=1;
-    
-    /** The id. */
-    private int id=0;
+    private int count = 1;
 
- 
+    /** The id. */
+    private int id = 0;
+
+    /** The concept id. */
+    private int conceptID;
 
     /**
-     * Instantiates a new role page.
+     * Instantiates a new rolePage.
+     * 
+     * @param hostname the hostname
+     * @param conceptID the concept id
+     */
+    public RolePage(String hostname, int conceptID) {
+        this.hostname = hostname;
+        this.conceptID = conceptID;
+    }
+
+    /**
+     * Instantiates a new rolePage (especially for loading from database).
      * 
      * @param hostname the hostname
      * @param count the count
+     * @param conceptID the concept id
      */
-    public RolePage(String hostname, int count) {
+    public RolePage(String hostname, int count, int conceptID) {
         this.hostname = hostname;
         this.count = count;
-    }
-    
-    /**
-     * Instantiates a new role page.
-     *
-     * @param hostname the hostname
-     */
-    public RolePage(String hostname){
-        this.hostname = hostname;
+        this.conceptID = conceptID;
     }
 
     /**
@@ -84,23 +89,41 @@ public class RolePage {
     public void setCount(int count) {
         this.count = count;
     }
-    
+
     /**
      * Gets the id.
-     *
+     * 
      * @return the id
      */
-    public int getId() {
+    public int getID() {
         return id;
     }
 
     /**
      * Sets the id.
-     *
+     * 
      * @param id the new id
      */
-    public void setId(int id) {
+    public void setID(int id) {
         this.id = id;
+    }
+
+    /**
+     * Gets the concept id.
+     * 
+     * @return the concept id
+     */
+    public int getConceptID() {
+        return conceptID;
+    }
+
+    /**
+     * Sets the concept id.
+     * 
+     * @param conceptID the new concept id
+     */
+    public void setConceptID(int conceptID) {
+        this.conceptID = conceptID;
     }
 
 }

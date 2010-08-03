@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import tud.iir.control.Controller;
 import tud.iir.extraction.entity.EntityExtractionProcess;
 import tud.iir.extraction.fact.FactExtractionProcess;
+import tud.iir.extraction.mio.MIOExtractionProcess;
 import tud.iir.extraction.qa.QAExtractionProcess;
 import tud.iir.extraction.snippet.SnippetExtractionProcess;
 import tud.iir.helper.DateHelper;
@@ -24,10 +25,12 @@ public class ExtractionProcessManager {
     public static boolean factExtractionIsRunning = false;
     public static boolean qaExtractionIsRunning = false;
     public static boolean snippetExtractionIsRunning = false;
+    public static boolean mioExtractionIsRunning = false;
     private static EntityExtractionProcess ep;
     private static FactExtractionProcess fp;
     private static QAExtractionProcess qp;
     private static SnippetExtractionProcess sp;
+    private static MIOExtractionProcess mp;
 
     private static boolean useConceptSynonyms = false;
     private static boolean useAttributeSynonyms = false;
@@ -129,14 +132,36 @@ public class ExtractionProcessManager {
             snippetExtractionIsRunning = true;
             sp = new SnippetExtractionProcess();
             sp.start();
-        } else
+        } else {
             System.out.println("already running");
+        }
     }
 
     public static boolean stopSnippetExtraction() {
         if (snippetExtractionIsRunning) {
             boolean stopped = sp.stopExtraction();
             snippetExtractionIsRunning = false;
+            return stopped;
+        } else {
+            System.out.println("not running");
+        }
+        return false;
+    }
+
+    public static void startMIOExtraction() {
+        if (!mioExtractionIsRunning) {
+            mioExtractionIsRunning = true;
+            mp = new MIOExtractionProcess();
+            mp.start();
+        } else {
+            System.out.println("already running");
+        }
+    }
+
+    public static boolean stopMIOExtraction() {
+        if (mioExtractionIsRunning) {
+            boolean stopped = mp.stopExtraction();
+            mioExtractionIsRunning = false;
             return stopped;
         } else {
             System.out.println("not running");
@@ -163,7 +188,8 @@ public class ExtractionProcessManager {
 
             if (Controller.getConfig().getInt("extraction.entitySlot") > 0) {
                 startEntityExtraction();
-                waitingLoop(Controller.getConfig().getInt("extraction.entitySlot") * DateHelper.MINUTE_MS, extractionStatusUpdateInteraval);
+                waitingLoop(Controller.getConfig().getInt("extraction.entitySlot") * DateHelper.MINUTE_MS,
+                        extractionStatusUpdateInteraval);
                 Logger.getRootLogger().info("stop entity extraction now...");
                 stopEntityExtraction();
                 Logger.getRootLogger().info("entity extraction stopped, continue");
@@ -171,15 +197,26 @@ public class ExtractionProcessManager {
 
             if (Controller.getConfig().getInt("extraction.factSlot") > 0) {
                 startFactExtraction();
-                waitingLoop(Controller.getConfig().getInt("extraction.factSlot") * DateHelper.MINUTE_MS, extractionStatusUpdateInteraval);
+                waitingLoop(Controller.getConfig().getInt("extraction.factSlot") * DateHelper.MINUTE_MS,
+                        extractionStatusUpdateInteraval);
                 Logger.getRootLogger().info("stop fact extraction now...");
                 stopFactExtraction();
                 Logger.getRootLogger().info("fact extraction stopped, continue");
             }
 
+            if (Controller.getConfig().getInt("extraction.mioSlot") > 0) {
+                startMIOExtraction();
+                waitingLoop(Controller.getConfig().getInt("extraction.mioSlot") * DateHelper.MINUTE_MS,
+                        extractionStatusUpdateInteraval);
+                Logger.getRootLogger().info("stop mio extraction now...");
+                stopMIOExtraction();
+                Logger.getRootLogger().info("mio extraction stopped, continue");
+            }
+
             if (Controller.getConfig().getInt("extraction.qaSlot") > 0) {
                 startQAExtraction();
-                waitingLoop(Controller.getConfig().getInt("extraction.qaSlot") * DateHelper.MINUTE_MS, extractionStatusUpdateInteraval);
+                waitingLoop(Controller.getConfig().getInt("extraction.qaSlot") * DateHelper.MINUTE_MS,
+                        extractionStatusUpdateInteraval);
                 Logger.getRootLogger().info("stop qa extraction now...");
                 stopQAExtraction();
                 Logger.getRootLogger().info("qa extraction stopped, continue");
@@ -187,11 +224,13 @@ public class ExtractionProcessManager {
 
             if (Controller.getConfig().getInt("extraction.snippetSlot") > 0) {
                 startSnippetExtraction();
-                waitingLoop(Controller.getConfig().getInt("extraction.snippetSlot") * DateHelper.MINUTE_MS, extractionStatusUpdateInteraval);
+                waitingLoop(Controller.getConfig().getInt("extraction.snippetSlot") * DateHelper.MINUTE_MS,
+                        extractionStatusUpdateInteraval);
                 Logger.getRootLogger().info("stop snippet extraction now...");
                 stopSnippetExtraction();
                 Logger.getRootLogger().info("snippet extraction stopped, continue");
             }
+
         }
     }
 
@@ -201,8 +240,8 @@ public class ExtractionProcessManager {
             ThreadHelper.sleep(intervalMS);
             int progress = (int) Math.floor((double) 100 * i / steps);
             System.out.println("progress: " + progress + "%");
-            DatabaseManager.getInstance()
-                    .updateExtractionStatus(getExtractionPhase(), progress, getCurrentPhaseLoggerExcerpt(), Crawler.sessionDownloadedBytes);
+            DatabaseManager.getInstance().updateExtractionStatus(getExtractionPhase(), progress,
+                    getCurrentPhaseLoggerExcerpt(), Crawler.sessionDownloadedBytes);
         }
     }
 
@@ -216,10 +255,12 @@ public class ExtractionProcessManager {
             return 1;
         if (factExtractionIsRunning)
             return 2;
-        if (qaExtractionIsRunning)
+        if (mioExtractionIsRunning)
             return 3;
-        if (snippetExtractionIsRunning)
+        if (qaExtractionIsRunning)
             return 4;
+        if (snippetExtractionIsRunning)
+            return 5;
         return -1;
     }
 

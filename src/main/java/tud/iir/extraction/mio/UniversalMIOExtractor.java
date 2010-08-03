@@ -5,8 +5,11 @@
 package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,6 +41,12 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
     /** The Constant APPLET. */
     private static final String APPLET = "applet";
 
+    /** The Constant SILVERLIGHT. */
+    private static final String SILVERLIGHT = "silverlight";
+
+    /** The Constant QUICKTIME. */
+    private static final String QUICKTIME = "quicktime";
+
     /**
      * Extract all MIOs.
      * 
@@ -46,13 +55,84 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @return the list
      */
     public List<MIO> extractAllMIOs(final MIOPage mioPage, final Entity entity) {
-        final List<MIO> mioList = new ArrayList<MIO>();
+        List<MIO> mioList = new ArrayList<MIO>();
         mioList.addAll(extractMIOsByType(mioPage, entity, FLASH));
         mioList.addAll(extractMIOsByType(mioPage, entity, APPLET));
-        mioList.addAll(extractMIOsByType(mioPage, entity, "silverlight"));
-        mioList.addAll(extractMIOsByType(mioPage, entity, "quicktime"));
+        mioList.addAll(extractMIOsByType(mioPage, entity, SILVERLIGHT));
+        mioList.addAll(extractMIOsByType(mioPage, entity, QUICKTIME));
+
+        mioList = removeMIODuplicates(mioList);
+
+        int doubleCounter = 0;
+        List<String> tempMioList = new ArrayList<String>();
+
+        for (MIO mio : mioList) {
+
+            if (!tempMioList.contains(mio.getDirectURL())) {
+                tempMioList.add(mio.getDirectURL());
+            } else {
+                doubleCounter++;
+            }
+        }
+        // if (doubleCounter > 0) {
+        // System.out.println("Soooo viele doppelte MIOs vor der FeatureBerechnung: " + doubleCounter);
+        //
+        // }
+
+        // Calculate Trust
+        mioList = calcFeaturesAndInteractivity(mioList);
 
         return mioList;
+    }
+
+    /**
+     * Removes the mio duplicates.
+     * 
+     * @param mioList the mio list
+     * @return the list
+     */
+    private List<MIO> removeMIODuplicates(List<MIO> mioList) {
+
+        List<MIO> resultList = new ArrayList<MIO>();
+        Map<String, MIO> mioMap = new HashMap<String, MIO>();
+
+        MIO targetMIO;
+        MIO slaveMIO;
+
+        for (MIO mio : mioList) {
+            if (!mioMap.containsKey(mio.getDirectURL())) {
+                mioMap.put(mio.getDirectURL(), mio);
+            } else {
+
+                // merge
+                MIO existingMIO = mioMap.get(mio.getDirectURL());
+                if (existingMIO.isDedicatedPage()) {
+                    targetMIO = existingMIO;
+                    slaveMIO = mio;
+                } else {
+                    targetMIO = mio;
+                    slaveMIO = existingMIO;
+                }
+
+                Map<String, List<String>> targetInfoMap = targetMIO.getInfos();
+                Map<String, List<String>> infoMap = slaveMIO.getInfos();
+                for (String info : infoMap.keySet()) {
+                    if (!targetInfoMap.containsKey(info)) {
+                        targetInfoMap.put(info, infoMap.get(info));
+                    }
+
+                }
+                targetMIO.setInfos(targetInfoMap);
+
+            }
+
+        }
+
+        for (Entry<String, MIO> mio : mioMap.entrySet()) {
+            resultList.add(mio.getValue());
+        }
+
+        return resultList;
     }
 
     /**
@@ -169,20 +249,16 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
                         mio.addInfos("altText", altText);
                     }
                 }
-
-                // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
-                // final List<String> headlines = new ArrayList<String>();
-                for (MIO mio : tempMIOs) {
-                    mio = extractSurroundingInfos(relevantTag, mioPage, mio);
-                    mio = extractXMLInfos(relevantTag, mio);
-                }
+            }
+            // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
+            // final List<String> headlines = new ArrayList<String>();
+            for (MIO mio : tempMIOs) {
+                extractSurroundingInfo(relevantTag, mioPage, mio);
+                extractXMLInfo(relevantTag, mio);
             }
 
             retrievedMIOs.addAll(tempMIOs);
         }
-
-        // Calculate Trust
-        retrievedMIOs = calcTrustAndInteractivity(retrievedMIOs);
 
         return retrievedMIOs;
     }
@@ -235,10 +311,10 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
             if (mioType.equals(APPLET)) {
                 regExp = "(\".[^\"]*\\.class\")|(\".[^\"]*\\.class\\?.[^\"]*\")";
             } else {
-                if ("silverlight".equals(mioType)) {
+                if (mioType.equals(SILVERLIGHT)) {
                     regExp = "(\".[^\"]*\\.xap\")|(\".[^\"]*\\.xap\\?.[^\"]*\")";
                 } else {
-                    if ("quicktime".equals(mioType)) {
+                    if (mioType.equals(QUICKTIME)) {
                         regExp = "(\".[^\"]*\\.mov\")|(\".[^\"]*\\.mov\\?.[^\"]*\")";
                     }
                 }
@@ -455,20 +531,20 @@ public class UniversalMIOExtractor extends GeneralAnalyzer {
      * @param retrievedMIOs the retrieved MIOs
      * @return the list
      */
-    private List<MIO> calcTrustAndInteractivity(final List<MIO> retrievedMIOs) {
+    private List<MIO> calcFeaturesAndInteractivity(final List<MIO> retrievedMIOs) {
+
         final MIOContextAnalyzer contextAnalyzer = new MIOContextAnalyzer(entity, mioPage);
         MIOContentAnalyzer contentAnalyzer = new MIOContentAnalyzer();
         MIOInteractivityAnalyzer interactivityAnalyzer = new MIOInteractivityAnalyzer();
 
-        // System.out.println("MIO-Trust-Calculation!");
-
         for (MIO mio : retrievedMIOs) {
 
-            contextAnalyzer.calculateTrust(mio);
+            // contextAnalyzer.calculateTrust(mio);
             contextAnalyzer.setFeatures(mio);
 
-            contentAnalyzer.analyzeContent(mio, entity);
-            contentAnalyzer.calculateTrust(mio);
+            contentAnalyzer.analyzeContentAndSetFeatures(mio, entity);
+            // contentAnalyzer.calculateTrust(mio);
+
             interactivityAnalyzer.setInteractivityGrade(mio, mioPage);
             // reset MIO-Infos for saving memory
             mio.resetMIOInfos();

@@ -99,7 +99,12 @@ public class Controller {
 
                 ExtractionProcessManager.startQAExtraction();
 
-            } else if (args[0].equalsIgnoreCase("loop")) {
+            } else if(args[0].equalsIgnoreCase("mioextraction")){
+               
+                ExtractionProcessManager.startMIOExtraction();
+          
+            }
+            else if (args[0].equalsIgnoreCase("loop")) {
 
                 ExtractionProcessManager.startFullExtractionLoop();
 
@@ -138,7 +143,11 @@ public class Controller {
                         System.out.println("start Q/A extraction process...");
                         ExtractionProcessManager.startQAExtraction();
 
-                    } else if (line.equalsIgnoreCase("evaluate benchmark facts")) {
+                    } else if(line.equalsIgnoreCase("extract mios")){
+                        System.out.println("start mio extraction process...");
+                        ExtractionProcessManager.startMIOExtraction();
+                    }
+                    else if (line.equalsIgnoreCase("evaluate benchmark facts")) {
 
                         System.out.println("start evaluation process...");
                         FactExtractor.getInstance().getKnowledgeManager().evaluateBenchmarkExtractions();

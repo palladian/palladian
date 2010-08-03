@@ -18,7 +18,7 @@ import tud.iir.web.Crawler;
  */
 public class DedicatedPageDetector {
 
-    /** the logger for this class */
+    /** the logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DedicatedPageDetector.class);
 
     /**

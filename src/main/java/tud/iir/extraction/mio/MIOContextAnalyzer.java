@@ -4,11 +4,16 @@
  */
 package tud.iir.extraction.mio;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
 import tud.iir.knowledge.Entity;
+import tud.iir.web.Crawler;
 
 /**
  * The Class MIOContextAnalyzer analyze the context and sets the features.
@@ -21,6 +26,7 @@ public class MIOContextAnalyzer {
     /** The entity. */
     private transient Entity entity;
 
+    /** The file name relevance. */
     private transient double fileNameRelevance = 0;
 
     /** The file path relevance. */
@@ -56,8 +62,10 @@ public class MIOContextAnalyzer {
     /** The DedicatedPageTrust (Relevance). */
     private transient double dpTrust = 0;
 
+    /** The xml file name relevance. */
     private transient double xmlFileNameRelevance = 0;
 
+    /** The xml file content relevance. */
     private transient double xmlFileContentRelevance = 0;
 
     /** A List of bad words. */
@@ -115,6 +123,8 @@ public class MIOContextAnalyzer {
         mio.setFeature("ALTTextRelevance", altTextRelevance);
         mio.setFeature("HeadlineRelevance", headlineRelevance);
         mio.setFeature("SurroundingTextRelevance", surroundTextRelevance);
+        mio.setFeature("XMLFileNameRelevance", xmlFileNameRelevance);
+        mio.setFeature("XMLFileContentRelevance", xmlFileContentRelevance);
     }
 
     /**
@@ -133,9 +143,9 @@ public class MIOContextAnalyzer {
     }
 
     /**
-     * Calculates features of the mio itself.
+     * Calculates features of the MIO itself.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      */
     private void calcMIOFeatures(final MIO mio) {
         calcFileFeatures(mio);
@@ -145,18 +155,20 @@ public class MIOContextAnalyzer {
     /**
      * Calculate file features.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      */
     private void calcFileFeatures(final MIO mio) {
         calcFileNameRelevance(mio);
         calcFilePathRelevance(mio);
         calcBadWordAbsence(mio);
+        calcXMLNameRelevance(mio);
+        calcXMLContentRelevance(mio);
     }
 
     /**
      * Calculates the features of a relevant HTML-Tag.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      */
     private void calcTagFeatures(final MIO mio) {
         calcHeadlineRelevance(mio);
@@ -167,7 +179,7 @@ public class MIOContextAnalyzer {
     /**
      * Calculates the features of the mioPage.
      * 
-     * @param mioPage the mio page
+     * @param mioPage the MIOPage
      */
     private void calcPageFeatures(final MIOPage mioPage) {
         calcPageTitleRelevance(mioPage);
@@ -178,76 +190,25 @@ public class MIOContextAnalyzer {
     }
 
     /**
-     * Calculates trust.
-     * 
-     * @param mio the mio
-     */
-    public void calculateTrust(final MIO mio) {
-        this.entity = mio.getEntity();
-
-        // calculate the MIOFeatures first
-        calcMIOFeatures(mio);
-
-        final double pageContextTrust = calcPageContextTrust();
-        
-        
-        double mioTrust = pageContextTrust + (fileNameRelevance * 4) + (filePathRelevance) + altTextRelevance
-                + headlineRelevance + surroundTextRelevance;
-        
-        //if badWords are contained in the directLink-URL the whole trust is influenced
-//        if(badWordAbsence==0){
-//            mioTrust = mioTrust/2;
-//        }
-
-        mio.setTrust(mioTrust);
-        mio.setTrust(checkForBadWords(mio));
-    }
-
-    /**
-     * Initially calculate the trust for a mioPage which influences all its containing MIOs.
-     * 
-     * @return the double
-     */
-    private double calcPageContextTrust() {
-
-        final double pcTrust = titleRelevance + linkNameRelevance + linkTitleRelevance + iframeParentTitleRelevance
-                + urlRelevance + (dpTrust * 4);
-        return pcTrust;
-
-    }
-
-    /**
-     * Calculates string relevance.
-     * 
-     * @param inputString the input string
-     * @param entity the entity
-     * @return the double
-     */
-    // private double calcStringRelevance(final String inputString, final Entity entity) {
-    // return RelevanceCalculator.calcStringRelevance(inputString, entity.getName());
-    // }
-
-    /**
-     * Check for bad words that are not contained within the entityname.
+     * Checks for resolution information like 120x200 which is often an indicator for an advertisement.
      * 
      * @param mio the MIO
-     * @return the double
+     * @return true, if successful
      */
-    private double checkForBadWords(final MIO mio) {
-
-        for (String badWord : badWords) {
-            if (!mio.getEntity().getName().contains(badWord) && mio.getDirectURL().contains(badWord)) {
-                final double result = mio.getTrust();
-                return (result / 2);
-            }
+    private boolean hasResolution(final MIO mio) {
+        boolean returnValue;
+        if (mio.getFileName().toLowerCase(Locale.ENGLISH).matches(".*\\d+x\\d+.*")) {
+            returnValue = true;
+        } else {
+            returnValue = false;
         }
-        return mio.getTrust();
+        return returnValue;
     }
 
     /**
      * Calculates file name relevance.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      */
     private void calcFileNameRelevance(final MIO mio) {
         this.fileNameRelevance = (RelevanceCalculator.calcStringRelevance(mio.getFileName(), entity));
@@ -256,7 +217,7 @@ public class MIOContextAnalyzer {
     /**
      * Calculates file path relevance.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      */
     private void calcFilePathRelevance(final MIO mio) {
         this.filePathRelevance = RelevanceCalculator.calcStringRelevance(mio.getDirectURL(), entity);
@@ -267,11 +228,16 @@ public class MIOContextAnalyzer {
      * Calculates the absence of badWords.
      * Initially the badWordAbsence is 1. If a badWord was find it is set to 0.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      */
     private void calcBadWordAbsence(final MIO mio) {
         for (String badWord : badWords) {
-            if (!mio.getEntity().getName().toLowerCase(Locale.ENGLISH).contains(badWord) && mio.getDirectURL().toLowerCase(Locale.ENGLISH).contains(badWord)) {
+            if (!mio.getEntity().getName().toLowerCase(Locale.ENGLISH).contains(badWord)
+                    && mio.getDirectURL().toLowerCase(Locale.ENGLISH).contains(badWord)) {
+                this.badWordAbsence = 0;
+            }
+            // check for Resolution Information
+            if ((badWordAbsence >= 0) && hasResolution(mio)) {
                 this.badWordAbsence = 0;
             }
         }
@@ -280,7 +246,7 @@ public class MIOContextAnalyzer {
     /**
      * Calculates headline relevance.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      */
     private void calcHeadlineRelevance(final MIO mio) {
 
@@ -304,7 +270,7 @@ public class MIOContextAnalyzer {
     /**
      * Calculates ALT-Text relevance.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      */
     private void calcALTTextRelevance(final MIO mio) {
 
@@ -320,6 +286,100 @@ public class MIOContextAnalyzer {
                 this.altTextRelevance = RelevanceCalculator.calcStringRelevance(altText, entity);
             }
         }
+    }
+
+    /**
+     * Calculates XMLFileNameRelevance.
+     * 
+     * @param mio the MIO
+     */
+    private void calcXMLNameRelevance(final MIO mio) {
+
+        // if (mio.getInfos().containsKey("xmlFileName")) {
+        final List<String> xmlFileNames = mio.getInfos().get("xmlFileName");
+
+        if (xmlFileNames != null) {
+            double highestRelevance = 0;
+            // check every xmlFileName for Relevance, the most relevanced file dominates the result
+            for (String xmlfileName : xmlFileNames) {
+                final double tempRelevance = RelevanceCalculator.calcStringRelevance(xmlfileName, entity);
+                if (tempRelevance > highestRelevance) {
+                    highestRelevance = tempRelevance;
+                }
+
+            }
+            this.xmlFileNameRelevance = highestRelevance;
+        }
+    }
+
+    // }
+
+    /**
+     * Calculates XMLFileContentRelevance.
+     * 
+     * @param mio the MIO
+     */
+    private void calcXMLContentRelevance(final MIO mio) {
+
+        final List<String> xmlFileURLs = mio.getInfos().get("xmlFileURL");
+        if (xmlFileURLs != null) {
+            for (String xmlFileURL : xmlFileURLs) {
+                final String xmlContent = extractXMLContent(xmlFileURL);
+
+                final double tempContentRelevance = RelevanceCalculator.calcStringRelevance(xmlContent, entity);
+                if (tempContentRelevance > xmlFileContentRelevance) {
+                    xmlFileContentRelevance = tempContentRelevance;
+                }
+            }
+        }
+
+    }
+
+    /**
+     * Extract the content of an XML-File.
+     * 
+     * @param xmlFileURL the XML-File-URL
+     * @return the complete Content(incl. tags) as String
+     */
+    public static String extractXMLContent(final String xmlFileURL) {
+        String result = "";
+        // Document document = null;
+        // SAXBuilder builder = new SAXBuilder(false);
+        // try {
+        // URL url = new URL(xmlFileURL);
+        // document = builder.build(url);
+        // DocType docType = new DocType("html", "-//W3C...", "http://...");
+        // document.setDocType(docType);
+        //
+        // } catch (Exception e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        // if (document != null) {
+        // // List<Comment> contentList = document.getContent();
+        // System.out.println(document.toString());
+        // // for(Comment content:contentList){
+        // // System.out.println(content.toString());
+        // // }
+        //
+        // }
+
+        try {
+            final File contentFile = Crawler.downloadBinaryFile(xmlFileURL, "F:Temp");
+            final FileReader fReader = new FileReader(contentFile);
+            final BufferedReader bufReader = new BufferedReader(fReader);
+            final StringBuffer output = new StringBuffer();
+            String tempString;
+            while ((tempString = bufReader.readLine()) != null) {
+                output.append(tempString.trim());
+            }
+            result = output.toString();
+            bufReader.close();
+        } catch (Exception fx) {
+            LOGGER.error(fx.getMessage());
+        }
+
+        return result;
     }
 
     /**
@@ -386,5 +446,14 @@ public class MIOContextAnalyzer {
     private void calcPageURLRelevance(final MIOPage mioPage) {
         this.urlRelevance = RelevanceCalculator.calcStringRelevance(mioPage.getUrl(), entity);
     }
+
+    // /**
+    // * The main method.
+    // *
+    // * @param args the arguments
+    // */
+    // public static void main(String[] args) {
+    // MIOContextAnalyzer.extractXMLContent("http://wave.samsungmobile.com/flash/bin/xml/config.xml");
+    // }
 
 }

@@ -4,7 +4,6 @@
  */
 package tud.iir.extraction.mio;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -22,34 +21,20 @@ public class MIOPageRetriever {
     /** The LOGGER. */
     private static final Logger LOGGER = Logger.getLogger(MIOPageRetriever.class);
 
-    /** The rolePage-List. */
-    final private List<RolePage> rolePageList;
-
-    /** The instance of MIOPageRetriever. */
-    private static MIOPageRetriever instance = null;
-
-    /** The resultCount determines how many sources (URLs) should be retrieved */
-    private final static int RESULTCOUNT = 30;
-
     /**
-     * Instantiates a new mIO page retriever.
-     */
-    public MIOPageRetriever() {
-        rolePageList = new ArrayList<RolePage>();
-//        RolePageDatabase rolePageDB = new RolePageDatabase();
-//        rolePageList = rolePageDB.loadRolePages();
-    }
-
-    /**
-     * Gets the single instance of MIOPageRetriever.
+     * The rolePage-List.
      * 
-     * @return single instance of MIOPageRetriever
+     * @param entity the entity
      */
-    public static MIOPageRetriever getInstance() {
-        if (instance == null) {
-            instance = new MIOPageRetriever();
-        }
-        return instance;
+    // private List<RolePage> rolePageList;
+
+    /**
+     * Instantiates a new MIOPageRetriever.
+     */
+    public MIOPageRetriever(Entity entity) {
+        // rolePageList = new ArrayList<RolePage>();
+        // RolePageDatabase rolePageDB = new RolePageDatabase();
+        // rolePageList = rolePageDB.loadNotUsedRolePagesForEntity(entity);
     }
 
     /**
@@ -69,12 +54,13 @@ public class MIOPageRetriever {
         // initiate search with searchEngines
         final List<String> mioPageCandidates = getMIOPageCandidates(searchQueries);
 
-        LOGGER.info("Analyzing MIOPageCandidates startet..");
+        LOGGER.info("Analyzing MIOPageCandidates startet..for " + entity.getName() + " Count: "
+                + mioPageCandidates.size());
 
         // analyze the MIOPageCandidates for MIO-existence
         mioPages = analyzeMIOPageCandidates(mioPageCandidates, entity);
 
-        LOGGER.info("MIOPageCandidateAnalysis finished, DedicatedPage-Calculation starts..");
+        LOGGER.info("MIOPageCandidateAnalysis finished, DedicatedPage-Calculation starts..for " + entity.getName());
 
         // detect DedicatedPages
         for (MIOPage mioPage : mioPages) {
@@ -82,9 +68,8 @@ public class MIOPageRetriever {
             dpDetector.calculateDedicatedPageTrust(mioPage);
             // System.out.println(entity.getName() + "  " + mioPage.getUrl());
         }
-        LOGGER.info("DedicatedPage-Calculation finished");
+        LOGGER.info("DedicatedPage-Calculation finished..for " + entity.getName());
 
- 
         return mioPages;
     }
 
@@ -96,9 +81,8 @@ public class MIOPageRetriever {
      * @return the list
      */
     private List<String> generateSearchQueries(final Entity entity, final ConceptSearchVocabulary conceptVocabulary) {
-        final MIOQueryFactory searchQueryFac = new MIOQueryFactory();
-        final List<String> searchQueries = searchQueryFac.generateSearchQueries(entity.getName(), entity.getConcept(),
-                rolePageList, conceptVocabulary);
+        final MIOQueryFactory searchQueryFac = new MIOQueryFactory(entity);
+        final List<String> searchQueries = searchQueryFac.generateSearchQueries(conceptVocabulary);
 
         return searchQueries;
     }
@@ -110,7 +94,7 @@ public class MIOPageRetriever {
      * @return the list
      */
     private List<String> getMIOPageCandidates(final List<String> searchQueries) {
-        final SearchAgent searchAgent = new SearchAgent(RESULTCOUNT);
+        final SearchAgent searchAgent = new SearchAgent();
         final List<String> mioPageCandidates = searchAgent.initiateSearch(searchQueries);
 
         return mioPageCandidates;
