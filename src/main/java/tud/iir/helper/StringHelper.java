@@ -42,7 +42,8 @@ public class StringHelper {
     public static String makeSafeName(String name, int maxLength) {
         String safeName = name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
                 .replaceAll(",",
-                "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll("\\:", "_").replaceAll("\\!", "")
+ "_").replaceAll("\\*", "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll(
+                        "\\:", "_").replaceAll("\\!", "")
                 .replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll("\\Ä", "Ae").replaceAll("\\ö", "oe")
                 .replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue").replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
 

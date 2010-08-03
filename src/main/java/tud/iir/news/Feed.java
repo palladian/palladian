@@ -193,7 +193,7 @@ public class Feed {
         try {
             entries = aggregator.getEntries(getFeedUrl());
         } catch (FeedAggregatorException e) {
-            LOGGER.error("Unable to load entries for feed at address: ");
+            LOGGER.error("Unable to load entries for feed at address: " + getFeedUrl() + ", " + e.getMessage());
         }
         setEntries(entries);
         setPlainXML(PageAnalyzer.getRawMarkup(aggregator.getPlainXMLFeed()));

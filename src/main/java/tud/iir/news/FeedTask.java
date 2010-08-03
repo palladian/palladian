@@ -1,7 +1,6 @@
 package tud.iir.news;
 
 import java.util.Date;
-import java.util.List;
 
 /**
  * The {@link FeedChecker} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time

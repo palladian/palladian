@@ -29,7 +29,6 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
@@ -933,9 +932,6 @@ public class FileHelper {
      * @param i
      */
     public static void removeLine(File file, int i) throws IOException {
-        List<String> fileContent = null;
-        fileContent = FileUtils.readLines(file);
-        fileContent.remove(i);
-        FileUtils.writeLines(file, fileContent);
+
     }
 }
