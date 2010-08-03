@@ -58,6 +58,8 @@ import com.sun.syndication.io.SyndFeedInput;
  * https://rome.dev.java.net/ *
  * 
  * @author Philipp Katz
+ * @author David Urbansky
+ * @author Klemens Muthmann
  * 
  */
 public class NewsAggregator {
@@ -150,55 +152,6 @@ public class NewsAggregator {
         return result;
     }
     
-    /**
-     * Downloads a feed from the web and parses with ROME.
-     * 
-     * To access feeds from outside use {@link #getFeed(String)}.
-     * 
-     * @param feedUrl
-     * @return
-     * @throws FeedAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be
-     *             parsed.
-     */
-    private SyndFeed getFeedWithRome(URL feedUrl) throws FeedAggregatorException {
-        LOGGER.trace(">getFeedWithRome " + feedUrl.toExternalForm());
-
-        SyndFeed result;
-
-        try {
-
-            SyndFeedInput feedInput = new SyndFeedInput();
-
-            // this preserves the "raw" feed data and gives direct access
-            // to RSS/Atom specific elements
-            // see http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
-            feedInput.setPreserveWireFeed(true);
-
-            // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
-            // well, which we use inside the IIR toolkit.
-            plainXMLFeed = crawler.getXMLDocument(feedUrl, false);
-            if (plainXMLFeed == null) {
-                throw new FeedAggregatorException("could not get document from " + feedUrl);
-            }
-            result = feedInput.build(plainXMLFeed);
-
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-            throw new FeedAggregatorException(e);
-        }/*
-          * catch (IOException e) {
-          * LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-          * throw new FeedAggregatorException(e);
-          * }
-          */catch (FeedException e) {
-            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-            throw new FeedAggregatorException(e);
-        }
-
-        LOGGER.trace("<getFeedWithRome");
-        return result;
-    }
-
     /**
      * Get feed information about a Atom/RSS feed, using ROME library.
      * 
@@ -408,7 +361,8 @@ public class NewsAggregator {
         Node node = XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink() + "\"]");
 
         if (node == null) {
-            node = XPathHelper.getNode(plainXMLFeed, "//item[title=\"" + syndEntry.getTitle() + "\"]");
+            node = XPathHelper.getNode(plainXMLFeed, "//item[title=\"" + syndEntry.getTitle().replaceAll("\"", "\\\"")
+                    + "\"]");
 
             // for atom
             if (node == null) {

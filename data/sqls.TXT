@@ -1,0 +1,8 @@
+# get percentage of feeds that were checked at least once so far
+SELECT COUNT(*) INTO @checked FROM feeds WHERE checks > 0;
+SELECT COUNT(*) INTO @total FROM feeds WHERE 1;
+SELECT 100*@checked/@total AS checkPercentage;
+
+# reset feeds
+UPDATE feeds SET checks = 0, lastHeadlines = "", minCheckInterval = 10, maxCheckInterval = 10, lastFeedEntry = NULL;
+

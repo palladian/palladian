@@ -47,6 +47,7 @@ class SchedulerTask extends TimerTask {
      */
     @Override
     public void run() {
+        LOGGER.info("wake up to check feeds");
         Date now = new Date();
         for (Feed feed : feedChecker.getFeeds()) {
             LOGGER.debug("Checking feed at address: " + feed.getFeedUrl());
