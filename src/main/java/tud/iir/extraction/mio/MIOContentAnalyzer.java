@@ -54,6 +54,9 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
     /** The text content. */
     private StringBuffer textContent = new StringBuffer();
 
+    /** The Constant DOWNLOADPATH. */
+    private static final String DOWNLOADPATH = "F:/Temp/";
+
     /**
      * Instantiates a new MIOContentAnalyzer.
      */
@@ -138,7 +141,7 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
     /**
      * SWFTagTypes interface.
      * 
-     * @param id the id
+     * @param someId the some id
      * @param bounds the bounds
      * @param matrix the matrix
      * @return the sWF text
@@ -257,9 +260,15 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
      * @param mio the SWF-MIO
      * @param entity the entity
      */
-    public void analyzeContent(final MIO mio, Entity entity) {
+    public void analyzeContentAndSetFeatures(final MIO mio, Entity entity) {
+
         String url = mio.getDirectURL();
 
+        // initially set content features
+        mio.setFeature("TextContentRelevance", 0);
+        mio.setFeature("ResolutionRelevance", 0);
+
+        // only analyze content of swf-files
         if (!url.toLowerCase(Locale.ENGLISH).endsWith(".swf")) {
             if (url.toLowerCase(Locale.ENGLISH).contains(".swf")) {
                 final int swfIndex = (url.toLowerCase(Locale.ENGLISH).indexOf(".swf")) + 4;
@@ -271,10 +280,10 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
 
         }
         if (!("").equals(url)) {
-            final File mioFile = Crawler.downloadBinaryFile(url, "F:/Temp/" + mio.getFileName());
+            final File mioFile = Crawler.downloadBinaryFile(url, DOWNLOADPATH + mio.getFileName());
             if (mioFile != null) {
                 final String textContent = extractTextContent(mioFile);
-              final SWFHeader header = extractHeader(mioFile);
+                final SWFHeader header = extractHeader(mioFile);
                 setTextContentLength(mio, textContent);
 
                 setFileSize(mio, header);
@@ -283,24 +292,6 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
             }
         }
 
-    }
-
-    /**
-     * An own implementation of calculating a (content)trust.
-     * 
-     * @param mio the mio
-     */
-    public void calculateTrust(MIO mio) {
-       final double textContentRelevance = mio.getFeature("TextContentRelevance");
-       final double resolutionRelevance = mio.getFeature("ResolutionRelevance");
-       final double sumRelevances = (textContentRelevance + resolutionRelevance) * 2;
-
-        if (sumRelevances > 0) {
-            double trust = mio.getTrust();
-            trust = trust + sumRelevances;
-            mio.setTrust(trust);
-
-        }
     }
 
     /**

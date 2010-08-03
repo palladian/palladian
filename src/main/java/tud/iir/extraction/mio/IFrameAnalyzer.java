@@ -18,12 +18,13 @@ import tud.iir.web.Crawler;
  */
 public class IFrameAnalyzer extends GeneralAnalyzer {
 
+    /** The sw matcher. */
     private SearchWordMatcher swMatcher;
 
     /**
      * Instantiates a new i frame analyzer.
      * 
-     * @param swMatcher the sw matcher
+     * @param swMatcher the searchWordMatcher
      */
     public IFrameAnalyzer(SearchWordMatcher swMatcher) {
         this.swMatcher = swMatcher;
@@ -33,11 +34,12 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
      * Gets the iframe mio pages.
      * 
      * @param parentPageContent the parent page content
-     * @param parentPageURL the parent page url
+     * @param parentPageURL the parent page URL
      * @return the iframe mio pages
      */
     public List<MIOPage> getIframeMioPages(String parentPageContent, String parentPageURL) {
         List<MIOPage> mioPages = new ArrayList<MIOPage>();
+        final Crawler craw = new Crawler();
 
         List<String> iframeSources = analyzeForIframe(parentPageContent, parentPageURL);
 
@@ -45,7 +47,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
             for (String iframeSourceURL : iframeSources) {
                 // only analyze if the url contains hints for the entity
                 if (swMatcher.containsSearchWordOrMorphs(iframeSourceURL)) {
-                    String iframePageContent = getPage(iframeSourceURL);
+                    String iframePageContent = getPage(iframeSourceURL, craw);
                     // check for MIOs
                     if (!iframePageContent.equals("")) {
                         FastMIODetector mioDetector = new FastMIODetector();
@@ -146,25 +148,26 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
         return mioPage;
 
     }
-
-    /**
-     * The main method.
-     * 
-     * @param abc the arguments
-     */
-    public static void main(String[] abc) {
-
-        // SearchWordMatcher swMatcher = new SearchWordMatcher("Sennheiser HD800");
-        // IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
-        //
-        // String pageContent = iframeAnalyzer
-        // .getPage("http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
-        // List<MIOPage> mioPages = iframeAnalyzer
-        // .getIframeMioPages(pageContent,
-        // "http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
-        // for (MIOPage mioPage : mioPages) {
-        // System.out.println(mioPage.getUrl() + " is IFRAMESOURCE: " + mioPage.isIFrameSource());
-        // }
-    }
+    //
+    // /**
+    // * The main method.
+    // *
+    // * @param abc the arguments
+    // */
+    // public static void main(String[] abc) {
+    //
+    // // SearchWordMatcher swMatcher = new SearchWordMatcher("Sennheiser HD800");
+    // // IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
+    // //
+    // // String pageContent = iframeAnalyzer
+    // //
+    // .getPage("http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
+    // // List<MIOPage> mioPages = iframeAnalyzer
+    // // .getIframeMioPages(pageContent,
+    // // "http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
+    // // for (MIOPage mioPage : mioPages) {
+    // // System.out.println(mioPage.getUrl() + " is IFRAMESOURCE: " + mioPage.isIFrameSource());
+    // // }
+    // }
 
 }

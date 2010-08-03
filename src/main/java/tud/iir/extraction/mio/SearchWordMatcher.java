@@ -15,7 +15,10 @@ import java.util.Locale;
  */
 public class SearchWordMatcher {
 
+    /** The word list. */
     List<String> wordList;
+
+    /** The initial word list. */
     List<String> initialWordList;
 
     /**

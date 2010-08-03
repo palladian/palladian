@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
@@ -28,7 +29,7 @@ public final class MIOExtractor extends Extractor {
     private static MIOExtractor instance = null;
 
     /** The Constant MAX_EXTRACTION_THREADS. */
-    protected static final int MAX_EXTRACTION_THREADS = 3;
+    protected static final int MAX_EXTRACTION_THREADS = 2;
 
     /**
      * Instantiates a new mIO extractor.
@@ -70,45 +71,26 @@ public final class MIOExtractor extends Extractor {
         // reset stopped command
         setStopped(false);
 
-        // // load concepts and attributes from ontology (and rdb) and to know
-        // what
-        // // to extract
-        
-        if (!isBenchmark()) {
-            KnowledgeManager km = DatabaseManager.getInstance().loadOntology();
-            setKnowledgeManager(km);
-        } else {
-            KnowledgeManager km = new KnowledgeManager();
-           // km.createSnippetBenchmarks();
-            setKnowledgeManager(km);
-        }
+        // load concepts and attributes from ontology (and rdb)
+        KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
+        setKnowledgeManager(kManager);
 
         // loop until exit called
         // while (!isStopped()) {
 
         // concepts
-        ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
-//             final ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
-//        System.out.println("Anzahl der Concepts: " + concepts.size());
-//
-//        System.exit(1);
-        
-        // loop until exit called
-        // while (!isStopped()) {
+        final ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
+        // final ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
 
         // loadSearchVocabulary
         final ConceptSearchVocabulary searchVoc = loadSearchVocabulary();
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
 
-//             System.out.println("Concept: " + currentConcept.getName());
-
-            // currentConcept.loadEntities(false);
-
-//            if (currentConcept.getName().equals("printer")) {
+            if (currentConcept.getName().contains("Mobile")) {
                 // load Entities from DB for current concept
                 currentConcept.loadEntities(false);
-//            }
+            }
 
             if (isStopped()) {
                 LOGGER.info("mio extraction process stopped");
@@ -116,16 +98,13 @@ public final class MIOExtractor extends Extractor {
             }
 
             // iterate through all entities for current concept
-            // if (!isBenchmark()) {
-            // currentConcept.loadEntities(continueFromLastExtraction);
-            // }
+
             ArrayList<Entity> conceptEntities;
             if (continueFromLastExtraction) {
                 conceptEntities = currentConcept.getEntitiesByDate();
             } else {
                 conceptEntities = currentConcept.getEntities();
             }
-            
 
             // wait for a certain time when no entities were found, then
             // restart
@@ -138,21 +117,19 @@ public final class MIOExtractor extends Extractor {
 
             for (Entity currentEntity : conceptEntities) {
 
-//                if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("clp")) {
+                if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("wave")) {
                     if (isStopped()) {
                         LOGGER.info("mio extraction process stopped");
                         break;
                     }
-
-                    // System.out.println("Concept: " + currentConcept.getName() + "Entity: " +
-                    // currentEntity.getName());
 
                     currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
 
                     LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
                             + currentEntity.getConcept().getName() + ")");
                     final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
-                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, searchVoc);
+                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, searchVoc,
+                            getKnowledgeManager());
                     mioThread.start();
 
                     LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
@@ -178,31 +155,22 @@ public final class MIOExtractor extends Extractor {
                             break;
                         }
                     }
+
                 }
 
             }
+
         }
-//         }
 
-        // // save extraction results after each full loop
-        // if (!isBenchmark()) {
-        // getKnowledgeManager().saveExtractions();
-        // } else {
-        // getKnowledgeManager().evaluateBenchmarkExtractions();
-        // logger.info("finished benchmark");
-        // // break;
-        // }
-        // }
-
-//    }
+    }
 
     /**
-     * Save the extractionresults to database.
+     * Save the extractionResults to database.
      * 
-     * 
+     * @param saveResults the save results
      */
     @Override
-    protected void saveExtractions(boolean saveResults) {
+    protected void saveExtractions(final boolean saveResults) {
         if (saveResults && !isBenchmark()) {
             // System.out.println("save extractions now");
             getKnowledgeManager().saveExtractions();
@@ -230,7 +198,8 @@ public final class MIOExtractor extends Extractor {
     /**
      * Check if URL is allowed.
      * 
-     * 
+     * @param url the url
+     * @return true, if is uR lallowed
      */
     public boolean isURLallowed(final String url) {
         // super.addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);

@@ -49,7 +49,7 @@ public class Entity extends Extractable {
         setName(name);
         setConcept(concept);
     }
-    
+
     public Entity(String name) {
         init();
         setName(name);
@@ -110,6 +110,10 @@ public class Entity extends Extractable {
         while (factIterator.hasNext()) {
             Fact factEntry = factIterator.next();
             if (factEntry.getAttribute().getName().equalsIgnoreCase(fact.getAttribute().getName())) {
+
+                // Fact factEntry = getFactForAttribute(fact.getAttribute());
+                factEntry.addFactValue(factValue);
+                // this.facts.add(factEntry);
                 factForAttributeEntered = true;
                 break;
             }
@@ -120,11 +124,13 @@ public class Entity extends Extractable {
             fact.addFactValue(factValue);
             this.facts.add(fact);
         }
-        // ...otherwise just enter the fact value, checking whether fact value has been entered already is done in Fact class
-        else {
-            Fact factEntry = getFactForAttribute(fact.getAttribute());
-            factEntry.addFactValue(factValue);
-        }
+        // ...otherwise just enter the fact value, checking whether fact value has been entered already is done in Fact
+        // class
+        // else {
+        // Fact factEntry = getFactForAttribute(fact.getAttribute());
+        // factEntry.addFactValue(factValue);
+        //
+        // }
     }
 
     public int getNumberOfExtractions(int extractionType) {
@@ -155,18 +161,17 @@ public class Entity extends Extractable {
      * @return Number of times the entity has been extracted.
      */
     public int getExtractionCount() {
-//        int count = 0;
-//
-//        Iterator<Source> sIt = this.getSources().iterator();
-//        while (sIt.hasNext()) {
-//            sIt.next();
-//            count++;
-//        }
-//        return count;
-    
+        // int count = 0;
+        //
+        // Iterator<Source> sIt = this.getSources().iterator();
+        // while (sIt.hasNext()) {
+        // sIt.next();
+        // count++;
+        // }
+        // return count;
+
         return getSources().size();
     }
-    
 
     /**
      * Return the distinct number extraction types used to extract the entity.

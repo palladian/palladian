@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import tud.iir.knowledge.Entity;
+import tud.iir.web.Crawler;
 
 /**
  * The PageAnalyzer analyzes MIOPageCandidates for MIO-Existence. Also some links and IFRAMEs are analyzed.
@@ -44,21 +45,22 @@ public class MIOPageCandidateAnalyzer {
      */
     public List<MIOPage> identifyMIOPages(Entity entity) {
 
+        final Crawler craw = new Crawler();
         // initialize SearchWordMatcher
         final SearchWordMatcher swMatcher = new SearchWordMatcher(entity.getName());
 
         for (String mioPageCandidate : mioPageCandidates) {
 
-            String pageContent = getPage(mioPageCandidate);
+            String pageContent = getPage(mioPageCandidate, craw);
             if (!("").equals(pageContent)) {
 
                 // use fast MIO-Detection
                 final FastMIODetector fMIODec = new FastMIODetector();
                 MIOPage mioPage = fMIODec.getMioPage(pageContent, mioPageCandidate);
-                if(mioPage!=null){
+                if (mioPage != null) {
                     mioPages.add(mioPage);
                 }
-             
+
                 // IFRAME-Analysis
                 IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
                 mioPages.addAll(iframeAnalyzer.getIframeMioPages(pageContent, mioPageCandidate));
@@ -76,11 +78,15 @@ public class MIOPageCandidateAnalyzer {
      * get WebPage as String.
      * 
      * @param urlString the URL
+     * @param craw the craw
      * @return the page
      */
-    private String getPage(String urlString) {
-        GeneralAnalyzer generalAnalyzer = new GeneralAnalyzer();
-        return generalAnalyzer.getPage(urlString);
+    private String getPage(String urlString, Crawler craw) {
+
+        // GeneralAnalyzer generalAnalyzer = new GeneralAnalyzer();
+        // final Crawler craw = new Crawler();
+        String pageString = craw.downloadNotBlacklisted(urlString);
+        return pageString;
     }
 
     /**

@@ -9,9 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
 
 import tud.iir.knowledge.Entity;
 
@@ -20,92 +17,136 @@ import tud.iir.knowledge.Entity;
  * 
  */
 public class MIOPageAnalyzer extends GeneralAnalyzer {
-    
-    private double trustLimit=1;
+
+    // private double trustLimit = 2;
 
     /**
-     * Extract mios.
+     * Extract MIOs.
      * 
      * @param mioPages the mioPages
      * @param entity the entity
      * @return the map
      */
-    public Set<MIO> extractMIOs(final List<MIOPage> mioPages, final Entity entity) {
+    public Map<String, MIO> extractMIOs(final List<MIOPage> mioPages, final Entity entity) {
 
         // List<MIO> extractedMIOs = new ArrayList<MIO>();
         final Map<String, MIO> cleanedMIOs = new HashMap<String, MIO>();
-
+        List<MIO> mios = new ArrayList<MIO>();
+        // int threadCount=0;
+        // System.out.println("Anzahl mioPages: " + mioPages.size());
         for (MIOPage mioPage : mioPages) {
 
-            // find swfs by object tag
+            // final ThreadGroup mioThreadGroup = new ThreadGroup("mioThreadGroup");
+            // final Thread mioThread = new MIOExtractorAndFeaturesCalcThread(mioThreadGroup, mioPage.getTitle() +
+            // "MIOExtractionThread",mios, mioPage, entity);
+            //
+            // mioThread.start();
+            // // threadCount++;
+            // //
+            // try {
+            // mioThread.join();
+            // threadCount++;
+            //
+            // } catch (InterruptedException e) {
+            // // TODO Auto-generated catch block
+            // e.printStackTrace();
+            // }
+            // while (threadCount >= 3) {
+            // ThreadHelper.sleep(10000);
+            // }
+
+            // extract MIOs and calculate features
             final UniversalMIOExtractor mioEx = new UniversalMIOExtractor();
-            final List<MIO> mios = mioEx.extractAllMIOs(mioPage, entity);
-            List<String> youtubeMIOs = new ArrayList<String>();
+            mios.addAll(mioEx.extractAllMIOs(mioPage, entity));
 
-            // find swfs from free JS/Comments
-            // mios.addAll(extractSWFFromComments(mioPage));
+        }
 
-            // TODO: deduplicate and trust-calculating
-            for (MIO mio : mios) {
+        // System.out.println("miosSize: " + mios.size());
+        // System.exit(1);
 
-                boolean isYouTube = false;
-                if (mio.getFindPageURL().contains("youtube")) {
-                    if (!youtubeMIOs.contains(mio.getFindPageURL())) {
-                        youtubeMIOs.add(mio.getFindPageURL());
-                    } else {
-                        isYouTube = true;
-                    }
+        // System.out.println("Anzahl MIOs vor Dublettenerkennung: " + mios.size());
+
+        for (MIO mio : mios) {
+
+            // first merge youtube-doubles
+            // boolean isYouTube = false;
+            // if (mio.getFindPageURL().contains("youtube")) {
+            // if (!youtubeMIOs.contains(mio.getFindPageURL())) {
+            // youtubeMIOs.add(mio.getFindPageURL());
+            //
+            // } else {
+            // isYouTube = true;
+            // }
+            // }
+
+            final MIO existingMIO = cleanedMIOs.get(mio.getDirectURL());
+
+            if (true/* !isYouTube */) {
+                if (existingMIO == (null)) {
+                    cleanedMIOs.put(mio.getDirectURL(), mio);
                 } else {
+                    // the case that a MIO with this directURL was already found
+                    // final Map<String, List<String>> tempInfos = existingMIO.getInfos();
+                    Map<String, Double> mergedFeatures = mergeMIOFeatures(existingMIO, mio);
 
-                    final MIO tempMIO = cleanedMIOs.get(mio.getDirectURL());
-                    if (!isYouTube) {
-                        if (tempMIO == (null)) {
-                            cleanedMIOs.put(mio.getDirectURL(), mio);
-                        } else {
-                            final Map<String, List> tempInfos = tempMIO.getInfos();
-                            if (mio.getInfos().size() > tempInfos.size()) {
-                                // TODO: more detailed comparison - trust,
-                                // dptrust, which infos are different and so on
-                                cleanedMIOs.put(mio.getDirectURL(), mio);
-                            }
-                        }
+                    if (mio.getTrust() > existingMIO.getTrust()) {
+
+                        mio.setFeatures(mergedFeatures);
+                        cleanedMIOs.put(mio.getDirectURL(), mio);
+                    } else {
+                        existingMIO.setFeatures(mergedFeatures);
+                        cleanedMIOs.put(existingMIO.getDirectURL(), existingMIO);
                     }
-
                 }
+            }
 
+        }
+        // System.out.println("Anzahl MIOs nach Dublettenerkennung: " + cleanedMIOs.size());
+
+        // MIOComparator mioComp = new MIOComparator();
+        // Set<MIO> mioSet = new HashSet<MIO>();
+        // for (Entry<String, MIO> mio : cleanedMIOs.entrySet()) {
+        // mioSet.add(mio.getValue());
+        // }
+
+        // detectRolePages(sortedMIOs, entity);
+
+        return cleanedMIOs;
+    }
+
+    // private void detectRolePages(Set<MIO> sortedMIOs, Entity entity) {
+    // RolePageDetector rpDetector = new RolePageDetector(entity);
+    // rpDetector.detectRolePages(sortedMIOs);
+    // }
+
+    /**
+     * Merge MIO-Features.
+     * 
+     * @param mio1 the mio1
+     * @param mio2 the mio2
+     * @return the map
+     */
+    private Map<String, Double> mergeMIOFeatures(MIO mio1, MIO mio2) {
+
+        Map<String, Double> mergedFeaturesMap = new HashMap<String, Double>();
+
+        Map<String, Double> featuresMap1 = mio1.getFeatures();
+        Map<String, Double> featuresMap2 = mio2.getFeatures();
+
+        // System.out.println(featuresMap1.toString());
+        // System.out.println(featuresMap2.toString());
+
+        for (String featureName : featuresMap1.keySet()) {
+            double feature1 = featuresMap1.get(featureName);
+            double feature2 = featuresMap2.get(featureName);
+            if (feature1 >= feature2) {
+                mergedFeaturesMap.put(featureName, feature1);
+            } else {
+                mergedFeaturesMap.put(featureName, feature2);
             }
         }
 
-        // Comparator for a sorted set (sorted by trust)
-        MIOComparator mioComp = new MIOComparator();
-        Set<MIO> sortedMIOs = new TreeSet<MIO>(mioComp);
-        for (Entry<String, MIO> mio : cleanedMIOs.entrySet()) {
-            sortedMIOs.add(mio.getValue());
-        }
-        System.out.println("==vor LowTrustRemoval: " + sortedMIOs.size());
-        
-        sortedMIOs = removeLowTrustedMIOs(sortedMIOs, trustLimit);
-
-        System.out.println("==nach LowTrustRemoval: " + sortedMIOs.size());
-//        detectRolePages(sortedMIOs);
-
-        return sortedMIOs;
-    }
-
-    private void detectRolePages(Set<MIO> sortedMIOs) {
-        RolePageDetector rpDetector = new RolePageDetector();
-        rpDetector.detectRolePages(sortedMIOs);
-    }
-    
-    private Set<MIO> removeLowTrustedMIOs(Set<MIO>sortedMIOs, double trustLimit){
-        Set<MIO> resultSet = sortedMIOs;
-     for(MIO mio:resultSet){
-         if (mio.getTrust()<trustLimit){
-             resultSet.remove(mio);
-         }
-     }
-     return resultSet;
-        
+        return mergedFeaturesMap;
     }
 
     /**

@@ -4,7 +4,6 @@
  */
 package tud.iir.extraction.mio;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -14,7 +13,6 @@ import java.util.regex.Pattern;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
@@ -27,22 +25,16 @@ import tud.iir.web.Crawler;
  */
 public class GeneralAnalyzer {
 
-    // TODO Think over to change the methods to final for override-protection or
-    // to protected for only package usage
-
     /**
      * Get WebPage as String.
      * 
-     * @param urlString the uRL string
-     * @param removeJS the remove js
+     * @param urlString the URL string
+     * @param craw the Crawler
      * @return the page
      */
-    public String getPage(final String urlString) {
-        String pageString = "";
+    public String getPage(final String urlString, final Crawler craw) {
 
-        final Crawler craw = new Crawler();
-        pageString = craw.downloadNotBlacklisted(urlString);
-
+        final String pageString = craw.downloadNotBlacklisted(urlString);
         return pageString;
     }
 
@@ -60,7 +52,7 @@ public class GeneralAnalyzer {
         final Matcher elementMatcher = elementPattern.matcher(content);
         while (elementMatcher.find()) {
             String result = elementMatcher.group(0);
-            if (!removeTerm.equals("")) {
+            if (!("").equals(removeTerm)) {
                 // remove the remove term
                 result = result.replaceFirst(removeTerm, "");
                 result = result.replaceFirst(removeTerm.toUpperCase(Locale.ENGLISH), "");
@@ -79,8 +71,8 @@ public class GeneralAnalyzer {
      * Check URL for validness and eventually modify e.g. relative path
      * 
      * @param urlCandidate the URLCandidate
-     * @param pageURL the page URL
-     * @return the string
+     * @param pageURL the pageURL
+     * @return the verified URL
      */
     public String verifyURL(final String urlCandidate, final String pageURL) {
 
@@ -89,14 +81,14 @@ public class GeneralAnalyzer {
         final String modUrlCandidate = urlCandidate.trim();
         if (modUrlCandidate.startsWith("http://")) {
             if (Crawler.isValidURL(modUrlCandidate, false)) {
-                return modUrlCandidate;
+                returnValue = modUrlCandidate;
             }
         } else {
 
             if (modUrlCandidate.length() > 2) {
                 final String modifiedURL = Crawler.makeFullURL(pageURL, modUrlCandidate);
                 if (Crawler.isValidURL(modifiedURL, false)) {
-                    return modifiedURL;
+                    returnValue = modifiedURL;
                 }
             }
 
@@ -124,9 +116,16 @@ public class GeneralAnalyzer {
         return altText;
     }
 
-    public MIO extractSurroundingInfos(final String relevantTag, final MIOPage mioPage, final MIO mio) {
+    /**
+     * Extract surrounding information.
+     * 
+     * @param relevantTag the relevant tag
+     * @param mioPage the MIOPage
+     * @param mio the MIO
+     */
+    public void extractSurroundingInfo(final String relevantTag, final MIOPage mioPage, final MIO mio) {
 
-        List<String> previousHeadlines = new ArrayList<String>();
+        final List<String> previousHeadlines = new ArrayList<String>();
         final String lowRelevantTag = relevantTag.toLowerCase(Locale.ENGLISH);
         final Crawler crawler = new Crawler();
         final Document document = crawler.getWebDocument(mioPage.getUrl());
@@ -182,14 +181,18 @@ public class GeneralAnalyzer {
                     mio.addInfos("surroundingText", textList);
 
                 }
-
                 break;
             }
         }
 
-        return mio;
     }
 
+    /**
+     * Extract previous headlines.
+     * 
+     * @param node the node
+     * @return the list
+     */
     private List<String> extractPreviousHeadlines(final Node node) {
         final List<String> headlines = new ArrayList<String>();
         // StringBuffer hrContent = new StringBuffer();
@@ -208,6 +211,12 @@ public class GeneralAnalyzer {
         return headlines;
     }
 
+    /**
+     * Extract near text content.
+     * 
+     * @param node the node
+     * @return the string
+     */
     private String extractNearTextContent(final Node node) {
         final Node parentNode = node.getParentNode();
         String text = parentNode.getTextContent();
@@ -220,41 +229,91 @@ public class GeneralAnalyzer {
 
     }
 
-    public MIO extractXMLInfos(final String relevantTag, final MIO mio) {
-
+    /**
+     * Extract XMLInformation.
+     * 
+     * @param relevantTag the relevant tag
+     * @param mio the MIO
+     */
+    public void extractXMLInfo(final String relevantTag, final MIO mio) {
         if (relevantTag.toLowerCase(Locale.ENGLISH).contains(".xml")) {
 
-            try {
-                FileHelper.appendFile("f:/xmlcontent.html", mio.getEntity().getName() + " " + mio.getDirectURL()
-                        + " <br>");
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-            // String regExp = "\".[^\"]*\\.xml\"";
-            // final Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-            // final Matcher matcher = pattern.matcher(relevantTag);
-            // while (matcher.find()) {
-            // final String xmlName = matcher.group(0).replaceAll("\"", "");
-            // }
+            extractXMLNameFromTag(relevantTag, mio);
+            extractXMLFileURLFromTag(relevantTag, mio);
         }
 
-        return mio;
+    }
+
+    /**
+     * Extract XML-File-Name.
+     * 
+     * @param relevantTag the relevant tag
+     * @param mio the MIO
+     */
+    private void extractXMLNameFromTag(final String relevantTag, final MIO mio) {
+
+        // TODO regExp überprüfen auf verschiedene formate
+        final String regExp = "\".[^\"]*\\.xml\"";
+        final Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        final Matcher matcher = pattern.matcher(relevantTag);
+        final List<String> xmlFileNames = new ArrayList<String>();
+        while (matcher.find()) {
+            final String xmlName = matcher.group(0).replaceAll("\"", "");
+            // FileHelper.appendFile("f:/xmlcontent.html",xmlName + " <br>");
+            xmlFileNames.add(xmlName);
+
+        }
+        if (!xmlFileNames.isEmpty()) {
+            mio.addInfos("xmlFileName", xmlFileNames);
+        }
 
     }
 
-    public static void main(String[] args) {
-        //
-        // GeneralAnalyzer geAn = new GeneralAnalyzer();
-        // String relevantTag =
-        // "<script type=\"text/javascript\">showSpin(\"http://pic.gsmarena.com/vv/spin/samsung-wave-final.swf\");</script>";
-        // MIOPage mioPage = new MIOPage("data/test/webPages/headlineTest.html", "nix");
-        // Concept concept = new Concept("mobilePhone");
-        // Entity entity = new Entity("Samsung S8500 Wave", concept);
-        // MIO mio = new MIO("FLASH", "", "", entity);
-        // mio.setFileName("samsung-wave-final.swf");
-        // mio = geAn.extractSurroundingInfos(relevantTag, mioPage, mio);
-        // System.out.println(mio.getInfos().toString());
+    /**
+     * Extract XMLFile URL.
+     * 
+     * @param relevantTag the relevant tag
+     * @param mio the MIO
+     */
+    private void extractXMLFileURLFromTag(final String relevantTag, final MIO mio) {
+
+        // TODO regExp überprüfen auf verschiedene formate
+        final String regExp = "\".[^\"]*\\.xml\"";
+        final Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        final Matcher matcher = pattern.matcher(relevantTag);
+        final List<String> xmlFileNames = new ArrayList<String>();
+        while (matcher.find()) {
+            final String xmlName = matcher.group(0).replaceAll("\"", "");
+            // FileHelper.appendFile("f:/xmlcontent.html",xmlName + " <br>");
+            xmlFileNames.add(xmlName);
+
+        }
+
+        verifyURL("", mio.getFindPageURL());
+        if (!xmlFileNames.isEmpty()) {
+            mio.addInfos("xmlFileURL", xmlFileNames);
+        }
+
     }
+
+    // /**
+    // * The main method.
+    // *
+    // * @param args the arguments
+    // */
+    // public static void main(String[] args) {
+    // //
+    // // GeneralAnalyzer geAn = new GeneralAnalyzer();
+    // // String relevantTag =
+    // // "<script type=\"text/javascript\">showSpin(\"http://pic.gsmarena.com
+    // /vv/spin/samsung-wave-final.swf\");</script>";
+    // // MIOPage mioPage = new MIOPage("data/test/webPages/headlineTest.html", "nix");
+    // // Concept concept = new Concept("mobilePhone");
+    // // Entity entity = new Entity("Samsung S8500 Wave", concept);
+    // // MIO mio = new MIO("FLASH", "", "", entity);
+    // // mio.setFileName("samsung-wave-final.swf");
+    // // mio = geAn.extractSurroundingInfos(relevantTag, mioPage, mio);
+    // // System.out.println(mio.getInfos().toString());
+    // }
 
 }

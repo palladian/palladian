@@ -13,14 +13,13 @@ public class MIOInteractivityAnalyzer {
      * @param mioPage the mioPage
      */
     public void setInteractivityGrade(final MIO mio, final MIOPage mioPage) {
-        
+
         if (mio.getTextContentLength() > 2) {
             mio.setInteractivityGrade("strong");
         } else {
-            if(mio.getFileSize()>1048576){
+            if (mio.getFileSize() > 1048576) {
                 mio.setInteractivityGrade("weak");
-            }
-            else{
+            } else {
                 mio.setInteractivityGrade(calcInteractivityGrade(mio, mioPage));
             }
         }
@@ -73,7 +72,7 @@ public class MIOInteractivityAnalyzer {
      * @return the double
      */
     private double calcSingleValue(final String checkString) {
-        String modCheckString= checkString.toLowerCase(Locale.ENGLISH);
+        String modCheckString = checkString.toLowerCase(Locale.ENGLISH);
         double returnValue = 0;
 
         int weakIndicators = getNumberOfInteractivityIndicators(modCheckString, false);
@@ -103,8 +102,8 @@ public class MIOInteractivityAnalyzer {
         String[] isWeakIndicator = { "unboxing", "video", "preview", "review", "movie", "trailer", "promotion",
                 "youtube", "player", "logo" };
         if (checkStrong) {
-            final String[] isStrongIndicator = { "interactive", "click", "try", "360", "view", "index", "main",
-                    "spin", "tour", "virtual", "gallery", "play", "drag", "keys", "game", "microsite"};
+            final String[] isStrongIndicator = { "interactive", "click", "try", "360", "view", "index", "main", "spin",
+                    "tour", "virtual", "gallery", "play", "drag", "keys", "game", "microsite" };
             isWeakIndicator = isStrongIndicator;
         }
 
@@ -117,11 +116,16 @@ public class MIOInteractivityAnalyzer {
 
     }
 
+    /**
+     * The main method.
+     * 
+     * @param args the arguments
+     */
     public static void main(String[] args) {
-//        MIOInteractivityAnalyzer iAn = new MIOInteractivityAnalyzer();
-//        System.out
-//                .println(iAn
-//                        .calcSingleValue("http://g-ecx.images-amazon.com/images/G/01/am3/20100615163706920/AMPlayer._V191513928_.swf"));
+        // MIOInteractivityAnalyzer iAn = new MIOInteractivityAnalyzer();
+        // System.out
+        // .println(iAn
+        // .calcSingleValue("http://g-ecx.images-amazon.com/images/G/01/am3/20100615163706920/AMPlayer._V191513928_.swf"));
     }
 
 }

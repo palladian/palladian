@@ -43,8 +43,8 @@ public class ConceptSearchVocabulary {
      */
     public List<String> getVocByConceptName(String conceptName) {
         String modConceptName = conceptName.toLowerCase(Locale.ENGLISH);
-        if (modConceptName.equals("mobile phone")){
-            modConceptName="mobilePhone";
+        if (modConceptName.equals("mobile phone")) {
+            modConceptName = "mobilePhone";
         }
         Map<String, List<String>> attributeMap = attributesToMap();
         return attributeMap.get(modConceptName);

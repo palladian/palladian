@@ -9,9 +9,7 @@ import java.util.Comparator;
 
 public class MIOComparator implements Comparator<Object>, Serializable {
 
-    /**
-     * 
-     */
+    /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 5521460766618769610L;
 
     /*
