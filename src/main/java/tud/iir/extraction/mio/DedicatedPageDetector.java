@@ -6,8 +6,6 @@ package tud.iir.extraction.mio;
 
 import java.util.List;
 
-import org.apache.log4j.Logger;
-
 import tud.iir.helper.HTMLHelper;
 import tud.iir.web.Crawler;
 
@@ -19,22 +17,16 @@ import tud.iir.web.Crawler;
 public class DedicatedPageDetector {
 
     /** the logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(DedicatedPageDetector.class);
-
-    /**
-     * Instantiates a new dedicated page detector.
-     */
-    public DedicatedPageDetector() {
-    }
+//    private static final Logger LOGGER = Logger.getLogger(DedicatedPageDetector.class);
 
     /**
      * Calculate dedicated page trust.
      * 
-     * @param mioPage the mio page
+     * @param mioPage the mioPage
      */
-    public void calculateDedicatedPageTrust(MIOPage mioPage) {
+    public void calculateDedicatedPageTrust(final MIOPage mioPage) {
 
-        String pageContent = mioPage.getContent();
+        final String pageContent = mioPage.getContent();
 
         // check for existence of Flash-DedicatedPage-Indicators
         int flashInd = 0;
@@ -49,31 +41,32 @@ public class DedicatedPageDetector {
         // crawler.extractBodyContent(crawler.getDocument());
 
         // System.out.println("extract bodyContent of: " + mioPage.getUrl());
-        String bodyContent = Crawler.extractBodyContent(pageContent, false);
-        if (!bodyContent.equals("error")) {
+        final String bodyContent = Crawler.extractBodyContent(pageContent, false);
+        if (!("error").equalsIgnoreCase(bodyContent)) {
 
             // System.out.println(bodyContent);
             // check for existence of images in the body
-            List<String> imageTags = HTMLHelper.getConcreteTags(bodyContent, "img");
-            int numberOfImages = imageTags.size();
+            final List<String> imageTags = HTMLHelper.getConcreteTags(bodyContent, "img");
+            final int numberOfImages = imageTags.size();
 
             // check for links in the body
-            List<String> linksList = HTMLHelper.getConcreteTags(bodyContent, "a");
-            int numberOfLinks = linksList.size();
+            final List<String> linksList = HTMLHelper.getConcreteTags(bodyContent, "a");
+            final int numberOfLinks = linksList.size();
 
             // System.out.println("clean bodyContent started..." +
             // mioPage.getUrl());
             // get the textual content of the body only
-            String trimmedBodyContent = Crawler.extractBodyContent(pageContent, true);
+            final String trimmedBodyContent = Crawler.extractBodyContent(pageContent, true);
 
             // get length of textual body content
-            int trimmedBodyContentLength = trimmedBodyContent.length();
+            final int trimmedBodyContentLength = trimmedBodyContent.length();
             // System.out.println("strippedBodyContentLength: "
             // + bodyContentLength);
             // System.out.println(trimmedBodyContent);
 
             // calculate the DedicatedPage-Trust with the values
-            double dpTrust = calculateDPTrustFactor(trimmedBodyContentLength, numberOfLinks, numberOfImages, flashInd);
+            final double dpTrust = calculateDPTrustFactor(trimmedBodyContentLength, numberOfLinks, numberOfImages,
+                    flashInd);
             // System.out.println("_____DP-TRUST: " + dpTrust + " _____");
 
             mioPage.setDedicatedPageTrust(dpTrust);
@@ -86,13 +79,15 @@ public class DedicatedPageDetector {
      * @param contentLength the content length
      * @param numberOfLinks the number of links
      * @param numberOfImages the number of images
-     * @param flashInd the flash ind
+     * @param flashInd the flashIndicator
      * @return the double
      */
-    private double calculateDPTrustFactor(int contentLength, int numberOfLinks, int numberOfImages, int flashInd) {
-        double result = 0;
-        double linkValue = calcSingleTrust(numberOfLinks, false);
-        double imageValue = calcSingleTrust(numberOfImages, false);
+    private double calculateDPTrustFactor(final int contentLength, final int numberOfLinks, final int numberOfImages,
+            final int flashInd) {
+
+        double returnValue = 0;
+        final double linkValue = calcSingleTrust(numberOfLinks, false);
+        final double imageValue = calcSingleTrust(numberOfImages, false);
         double contentValue = calcSingleTrust(contentLength, true);
 
         // System.out.println("contentLength: " + contentLength
@@ -104,20 +99,17 @@ public class DedicatedPageDetector {
         //
         // } else {
         // ignore blank-pages
-        if (flashInd == 0 && numberOfLinks == 0 && numberOfImages == 0 && contentLength == 0) {
-            return 0;
-        } else {
+        if (!(flashInd == 0 && numberOfLinks == 0 && numberOfImages == 0 && contentLength == 0)) {
+
             // result = (linkValue + imageValue + contentValue) / 3;
-            result = (linkValue + imageValue + contentValue + flashInd) / (4 + flashInd);
+            returnValue = (linkValue + imageValue + contentValue + flashInd) / (4 + flashInd);
         }
 
-        // }
-
-        if (result > 1) {
-            result = 1;
+        if (returnValue > 1) {
+            returnValue = 1;
         }
 
-        return result;
+        return returnValue;
 
     }
 
@@ -128,7 +120,7 @@ public class DedicatedPageDetector {
      * @param isContentLength the is content length
      * @return the double
      */
-    private double calcSingleTrust(int singleValue, boolean isContentLength) {
+    private double calcSingleTrust(final int singleValue, final boolean isContentLength) {
         double singleTrust = 0;
         int divisor = 1;
         if (isContentLength) {
@@ -149,33 +141,33 @@ public class DedicatedPageDetector {
     }
 
     // method only for testing
-    /**
-     * Calculate bodyContent.
-     * 
-     * @param url the URL
-     */
-    private void calculateBodyContent(String url) {
-        MIOPage mioPage = new MIOPage(url);
-        Crawler crawler = new Crawler();
-        String content = crawler.downloadNotBlacklisted(url);
-        if (!content.equals("")) {
-            // mioPage.setContent(crawler.downloadNotBlacklisted(url));
-            calculateDedicatedPageTrust(mioPage);
-        } else {
-            LOGGER.error("Getting bodyContent from: " + url + " failed!");
-
-        }
-
-    }
+//    /**
+//     * Calculate bodyContent.
+//     * 
+//     * @param url the URL
+//     */
+//    private void calculateBodyContent(final String url) {
+//        final MIOPage mioPage = new MIOPage(url);
+//        final Crawler crawler = new Crawler();
+//        final String content = crawler.downloadNotBlacklisted(url);
+//        if (!("").equals(content)) {
+//            // mioPage.setContent(crawler.downloadNotBlacklisted(url));
+//            calculateDedicatedPageTrust(mioPage);
+//        } else {
+//            LOGGER.error("Getting bodyContent from: " + url + " failed!");
+//
+//        }
+//
+//    }
 
     /**
      * The main method.
      * 
      * @param abc the arguments
      */
-    public static void main(String[] abc) {
-        DedicatedPageDetector dpDet = new DedicatedPageDetector();
-        dpDet.calculateBodyContent("http://www.canon.de/For_Home/Product_Finder/Multifunctionals/Inkjet/PIXMA_MP990/");
+//    public static void main(String[] abc) {
+//        DedicatedPageDetector dpDet = new DedicatedPageDetector();
+//        dpDet.calculateBodyContent("http://www.canon.de/For_Home/Product_Finder/Multifunctionals/Inkjet/PIXMA_MP990/");
         // dpDet.calculateBodyContent("http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE");
         // dpDet.calculateBodyContent("http://content.bmwusa.com/microsite/x52007/indexFlash.html");
         // dpDet.calculateBodyContent("http://www.sennheiser.com/3d-view/hd_800/index.html");
@@ -190,6 +182,6 @@ public class DedicatedPageDetector {
         // dpDet.calculateBodyContent("http://www.cnet.com.au/sennheiser-hd-800-339294779.htm");
         // dpDet.calculateBodyContent("http://www.sennheiser.com/flash/HD_800_2/DE/base.html");
 
-    }
+//    }
 
 }
