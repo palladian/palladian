@@ -147,6 +147,7 @@ public class DatasetCreator {
                 // special line
                 if (newPosts == feedEntries.size() && feed.getChecks() > 0) {
                     newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
+                    LOGGER.fatal("MISS: " + feed.getFeedUrl() + ", checks: " + feed.getChecks());
                 }
 
                 try {
@@ -156,6 +157,7 @@ public class DatasetCreator {
                 }
 
                 feed.freeMemory();
+                feed.setLastHeadlines("");
 
                 LOGGER.debug("added " + newPosts + " new posts to file " + filePath);
 

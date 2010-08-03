@@ -9,9 +9,9 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.Timer;
+import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -249,7 +249,7 @@ public final class FeedChecker {
 
         // calculate new update times depending on approach chosen
         if (CheckApproach.CHECK_FIXED.equals(checkApproach)
-                && (checkInterval == -1 && feed.getChecks() > 0 || checkInterval != -1)) {
+                && ((checkInterval == -1 && feed.getChecks() > 0) || checkInterval != -1)) {
 
             // the checkInterval for the feed must have been determined at the
             // first check so don't do anything now OR the checkInterval is
@@ -259,10 +259,10 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(checkInterval);
             }
 
-        } else if ((CheckApproach.CHECK_FIXED.equals(checkApproach) && checkInterval == -1
-                || CheckApproach.CHECK_ADAPTIVE.equals(checkApproach) || CheckApproach.CHECK_PROBABILISTIC
+        } else if ((CheckApproach.CHECK_FIXED.equals(checkApproach) && checkInterval == -1)
+                || ((CheckApproach.CHECK_ADAPTIVE.equals(checkApproach) || CheckApproach.CHECK_PROBABILISTIC
                 .equals(checkApproach))
-                && feed.getChecks() == 0) {
+ && feed.getChecks() == 0)) {
 
             updateIntervalFixed(feed, fps);
 
@@ -621,6 +621,9 @@ public final class FeedChecker {
                 fixedMaxCheckInterval = 1440;
             }
             // //////////////////////////////
+        } else {
+            feed.setMinCheckInterval(3 * fixedMinCheckInterval);
+            feed.setMaxCheckInterval(3 * fixedMaxCheckInterval);
         }
 
         feed.setMinCheckInterval(fixedMinCheckInterval);
@@ -836,6 +839,14 @@ public final class FeedChecker {
      */
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
+
+        FeedChecker fch = new FeedChecker(new FeedStoreDummy());
+        fch.setCheckApproach(CheckApproach.CHECK_FIXED, true);
+        Feed feed = new Feed("http://bring.mn/feed.rss");
+        feed.updateEntries(false);
+        // feed.increaseChecks();
+        fch.updateCheckIntervals(feed);
+        System.exit(0);
 
         Options options = new Options();
 
