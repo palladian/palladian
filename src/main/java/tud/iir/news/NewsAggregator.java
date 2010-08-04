@@ -443,8 +443,11 @@ public class NewsAggregator {
 
     /**
      * Do the aggregation process. New entries from all known feeds will be aggregated. Use {@link #setMaxThreads(int)}
-     * to set the number of maximum parallel
-     * threads.
+     * to set the number of maximum parallel threads.
+     * 
+     * TODO use Thread Pools?
+     * http://developer.amd.com/documentation/articles/pages/1121200683.aspx
+     * http://www.ibm.com/developerworks/library/j-jtp0730.html
      * 
      * @return number of aggregated new entries.
      */

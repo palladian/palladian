@@ -8,20 +8,16 @@ import java.util.Map;
  * Currently it can transform English singular to plural and vice versa.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  * 
  */
 public class WordTransformer {
 
     /** The Constant IRREGULAR_NOUNS <singular, plural>. */
     private static final Map<String, String> IRREGULAR_NOUNS = new HashMap<String, String>();
-
-    /**
-     * Get a map of irregular nouns.
-     * 
-     * @return The map of irregular nouns.
-     */
-    private static Map<String, String> getIrregularNouns() {
-
+    
+    static {
+        
         IRREGULAR_NOUNS.put("addendum", "addenda");
         IRREGULAR_NOUNS.put("alga", "algae");
         IRREGULAR_NOUNS.put("alumna", "alumnae");
@@ -120,7 +116,21 @@ public class WordTransformer {
         IRREGULAR_NOUNS.put("wife", "wives");
         IRREGULAR_NOUNS.put("wolf", "wolves");
         IRREGULAR_NOUNS.put("woman", "women");
+        
+        // added by Philipp
+        IRREGULAR_NOUNS.put("automaton", "automata");
+        IRREGULAR_NOUNS.put("service", "services"); // would be converted to singular "servix"
+        IRREGULAR_NOUNS.put("archive", "archives"); // would be converted to singular "archife"
 
+    }
+
+    /**
+     * Get a map of irregular nouns.
+     * 
+     * @return The map of irregular nouns.
+     */
+    private static Map<String, String> getIrregularNouns() {
+        // moved initialization to static block, only initialize once -> speed up.
         return IRREGULAR_NOUNS;
     }
 
@@ -263,6 +273,20 @@ public class WordTransformer {
 
         // if no other rule applied just add an s
         return singular + "s";
+    }
+    
+    public static void main(String[] args) {
+        
+        // 335ms
+        
+        StopWatch sw = new StopWatch();
+        System.out.println(WordTransformer.wordToSingular("women"));
+        System.out.println(WordTransformer.wordToSingular("services")); // wrong
+        System.out.println(WordTransformer.wordToSingular("series"));
+        System.out.println(WordTransformer.wordToSingular("species"));
+        System.out.println(WordTransformer.wordToSingular("automata")); // wrong
+        System.out.println(WordTransformer.wordToSingular("archives")); // wrong
+        System.out.println(sw.getElapsedTimeString());
     }
 
 }

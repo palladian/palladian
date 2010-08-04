@@ -7,6 +7,7 @@ import java.util.HashMap;
  * A term is a sequence of characters.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  * 
  */
 public class Term implements Serializable {
@@ -40,6 +41,11 @@ public class Term implements Serializable {
         Term t = (Term) obj;
         return this.text.equals(t.text);
     }
+    
+    @Override
+    public int hashCode() {
+        return text.hashCode();
+    }
 
     @Override
     public String toString() {
@@ -48,7 +54,8 @@ public class Term implements Serializable {
 
     public static void main(String[] a) {
         Term t1 = new Term("abc");
-        Term t2 = new Term("abc");
+        // Term t2 = new Term("abc");
+        Term t2 = new Term("ab"+"c");
         Term t3 = new Term("def");
         System.out.println(t1.equals(t2));
         System.out.println(t1.equals(t3));

@@ -303,7 +303,7 @@ public class Helper {
     // }
     //	
     /**
-     * @deprecated was already existing in DateHelper Get a human readable duration string from milliseconds. For
+     * @deprec-ated was already existing in DateHelper Get a human readable duration string from milliseconds. For
      *             example: 273823872 -> 3d 4h 3min 43s 872ms
      * 
      * @param msInput
@@ -331,6 +331,9 @@ public class Helper {
         StringBuilder sb = new StringBuilder();
         if (string != null && num > 0) {
             String[] split = string.split("\\s");
+            if (split.length == 0) { // XXX
+                return "";
+            }
             sb.append(split[0]);
             for (int i = 1; i < Math.min(num, split.length); i++) {
                 sb.append(" ").append(split[i]);

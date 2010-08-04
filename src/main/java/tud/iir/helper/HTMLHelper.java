@@ -330,14 +330,15 @@ public class HTMLHelper {
         try {
             parser.parse(new InputSource(new StringInputStream(htmlFragments)), fragment);
         } catch (SAXException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (DOMException e) {
             // attn: catching RTE
-            e.printStackTrace();
+            LOGGER.error(e);
+        } catch (Exception e) {
+            // TODO
+            LOGGER.error(e);
         }
 
         String result = htmlDocToString(fragment);
