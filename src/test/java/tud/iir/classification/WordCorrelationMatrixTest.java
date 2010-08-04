@@ -2,20 +2,30 @@ package tud.iir.classification;
 
 import junit.framework.Assert;
 
+import org.junit.Before;
 import org.junit.Test;
 
+import tud.iir.helper.FileHelper;
+
+/**
+ * 
+ * @author Philipp Katz
+ *
+ */
 public class WordCorrelationMatrixTest {
+    
+    private WordCorrelationMatrix wcm;
+    
+    Term term1 = new Term("sanfrancisco");
+    Term term2 = new Term("cablecar");
+    Term term3 = new Term("goldengatebridge");
+    Term term4 = new Term("california");
+    Term term5 = new Term("cali" + "fornia");
 
-    @Test
-    public void testWordCorrelationMatrx() {
-
-        WordCorrelationMatrix wcm = new WordCorrelationMatrix();
-
-        Term term1 = new Term("sanfrancisco");
-        Term term2 = new Term("cablecar");
-        Term term3 = new Term("goldengatebridge");
-        Term term4 = new Term("california");
-        Term term5 = new Term("cali" + "fornia");
+    @Before
+    public void setUpMatrix() {
+        
+        wcm = new WordCorrelationMatrix();
 
         // 5 x sanfrancisco <-> cabelcar
         wcm.updatePair(term1, term2);
@@ -39,6 +49,11 @@ public class WordCorrelationMatrixTest {
         wcm.updatePair(term1, term4);
 
         wcm.makeRelativeScores();
+        
+    }
+
+    @Test
+    public void testWordCorrelationMatrix() {
 
         // check absolute correlations
         Assert.assertEquals(5.0, wcm.getCorrelation(term1, term2).getAbsoluteCorrelation());
@@ -59,6 +74,20 @@ public class WordCorrelationMatrixTest {
         Assert.assertEquals(1, wcm.getCorrelations("cablecar", -1).size());
         Assert.assertEquals(0, wcm.getCorrelations("losangeles", -1).size());
 
+    }
+    
+    
+    @Test
+    public void testWordCorrelationMatrixSerialization() {
+        
+        String fileName = "data/tmp_wcm_test_"+System.currentTimeMillis()+".ser";
+        FileHelper.serialize(wcm, fileName);
+        
+        WordCorrelationMatrix deserialized = (WordCorrelationMatrix) FileHelper.deserialize(fileName);
+        Assert.assertEquals(5.0 / 15.0, deserialized.getCorrelation(term1, term2).getRelativeCorrelation());
+        
+        // clean up
+        FileHelper.delete(fileName);
     }
 
 }
