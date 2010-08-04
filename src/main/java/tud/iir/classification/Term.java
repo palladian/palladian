@@ -25,9 +25,12 @@ public class Term implements Serializable {
         return text;
     }
 
-    public void setText(String text) {
-        this.text = text;
-    }
+    // removed the setter, as an assumption of immutable Terms allows us speed improvements inside the Matrix(tm)
+    // Philipp, 2010-08-04
+    
+    // public void setText(String text) {
+    // this.text = text;
+    // }
 
     public void lowerCaseText() {
         this.text = this.text.toLowerCase();
@@ -41,7 +44,7 @@ public class Term implements Serializable {
         Term t = (Term) obj;
         return this.text.equals(t.text);
     }
-    
+
     @Override
     public int hashCode() {
         return text.hashCode();
@@ -55,7 +58,7 @@ public class Term implements Serializable {
     public static void main(String[] a) {
         Term t1 = new Term("abc");
         // Term t2 = new Term("abc");
-        Term t2 = new Term("ab"+"c");
+        Term t2 = new Term("ab" + "c");
         Term t3 = new Term("def");
         System.out.println(t1.equals(t2));
         System.out.println(t1.equals(t3));

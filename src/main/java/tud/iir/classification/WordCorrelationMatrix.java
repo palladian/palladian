@@ -1,10 +1,13 @@
 package tud.iir.classification;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -13,19 +16,27 @@ import tud.iir.helper.StopWatch;
 /**
  * Correlation matrix.
  * 
+ * 2010-08-04 changed data structure from HashSet to HashMap for performance optimizations. Serializations which have
+ * been created for the old class will not be compatible. Sorry.
+ * 
  * @author David Urbansky
  * @author Klemens Muthmann
  * @author Sandro Reichert
  * @author Philipp Katz
+ * 
  */
-public class WordCorrelationMatrix extends HashSet<WordCorrelation> {
+public class WordCorrelationMatrix implements Serializable {
 
+    private static final long serialVersionUID = 8049650115039222181L;
+
+    /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(WordCorrelationMatrix.class);
 
-    private static final long serialVersionUID = 2L;
-
-    /** Internal Cache for all Terms, to keep the number instances small. */
+    /** Internal cache for all Terms, to keep the number of instances small. */
     private Map<String, Term> termMap = new HashMap<String, Term>();
+
+    /** Map with Term names and a List of their correlations. */
+    private Map<String, List<WordCorrelation>> termCorrelations = new HashMap<String, List<WordCorrelation>>();
 
     /**
      * Add one to the correlation count of two terms.
@@ -36,15 +47,6 @@ public class WordCorrelationMatrix extends HashSet<WordCorrelation> {
      */
     public void updatePair(Term word1, Term word2) {
         updatePair(word1.getText(), word2.getText());
-        // WordCorrelation wc = getCorrelation(word1, word2);
-        //
-        // if (wc == null) {
-        // wc = new WordCorrelation(word1, word2);
-        // wc.setAbsoluteCorrelation(1.0);
-        // add(wc);
-        // } else {
-        // wc.increaseAbsoluteCorrelation(1.0);
-        // }
     }
 
     /**
@@ -55,15 +57,11 @@ public class WordCorrelationMatrix extends HashSet<WordCorrelation> {
      * @param word2 The second term.
      */
     public void updatePair(String word1, String word2) {
-        Term term1 = getTerm(word1);
-        Term term2 = getTerm(word2);
 
         WordCorrelation wc = getCorrelation(word1, word2);
 
         if (wc == null) {
-            wc = new WordCorrelation(term1, term2);
-            wc.setAbsoluteCorrelation(1.0);
-            add(wc);
+            createWordCorrelation(word1, word2);
         } else {
             wc.increaseAbsoluteCorrelation(1.0);
         }
@@ -82,6 +80,22 @@ public class WordCorrelationMatrix extends HashSet<WordCorrelation> {
             termMap.put(word, term);
         }
         return term;
+    }
+
+    private void createWordCorrelation(String word1, String word2) {
+        WordCorrelation wc = new WordCorrelation(getTerm(word1), getTerm(word2));
+        wc.setAbsoluteCorrelation(1.0);
+        putToCorrelationsMap(word1, wc);
+        putToCorrelationsMap(word2, wc);
+    }
+
+    private void putToCorrelationsMap(String word, WordCorrelation correlation) {
+        List<WordCorrelation> correlations = termCorrelations.get(word);
+        if (correlations == null) {
+            correlations = new ArrayList<WordCorrelation>();
+            termCorrelations.put(word, correlations);
+        }
+        correlations.add(correlation);
     }
 
     /*
@@ -104,30 +118,30 @@ public class WordCorrelationMatrix extends HashSet<WordCorrelation> {
             int rowSum = getRowSum(term);
             rowSums.put(term, rowSum);
         }
-        LOGGER.debug("calculated row sums in " + sw.getElapsedTimeString());
+        LOGGER.trace("calculated row sums in " + sw.getElapsedTimeString());
 
         sw = new StopWatch();
-        for (WordCorrelation entry : this) {
+        for (WordCorrelation entry : getCorrelations()) {
             // absolute correlation (frequency of co-occurrence)
             double absoluteCorrelation = entry.getAbsoluteCorrelation();
 
             double sumCorrelation = 0.0;
             if (entry.getTerm1().equals(entry.getTerm2())) {
-                // sumCorrelation = getRowSum(entry.getTerm1());
                 sumCorrelation = rowSums.get(entry.getTerm1());
             } else {
-                // sumCorrelation = getRowSum(entry.getTerm1()) + getRowSum(entry.getTerm2()) - absoluteCorrelation;
                 sumCorrelation = rowSums.get(entry.getTerm1()) + rowSums.get(entry.getTerm2()) - absoluteCorrelation;
             }
             double relativeCorrelation = absoluteCorrelation / sumCorrelation;
             entry.setRelativeCorrelation(relativeCorrelation);
         }
-        LOGGER.debug("calculated relative scores in " + sw.getElapsedTimeString());
+        LOGGER.trace("calculated relative scores in " + sw.getElapsedTimeString());
     }
 
     private int getRowSum(Term term) {
         int rowSum = 0;
-        for (WordCorrelation entry : this) {
+
+        List<WordCorrelation> correlations = termCorrelations.get(term.getText());
+        for (WordCorrelation entry : correlations) {
             if (entry.getTerm1().getText().equals(term.getText()) || entry.getTerm2().getText().equals(term.getText())) {
                 rowSum += entry.getAbsoluteCorrelation();
             }
@@ -142,24 +156,49 @@ public class WordCorrelationMatrix extends HashSet<WordCorrelation> {
 
     public WordCorrelation getCorrelation(String word1, String word2) {
 
-        for (WordCorrelation entry : this) {
-            if (entry.getTerm1().getText().equals(word1) && entry.getTerm2().getText().equals(word2)
-                    || entry.getTerm1().getText().equals(word2) && entry.getTerm2().getText().equals(word1)) {
-                return entry;
+        WordCorrelation correlation = null;
+        List<WordCorrelation> correlations = termCorrelations.get(word1);
+
+        if (correlations != null) {
+            for (WordCorrelation entry : correlations) {
+                if (entry.getTerm1().getText().equals(word1) && entry.getTerm2().getText().equals(word2)
+                        || entry.getTerm1().getText().equals(word2) && entry.getTerm2().getText().equals(word1)) {
+                    correlation = entry;
+                    break;
+                }
             }
         }
 
-        return null;
+        return correlation;
     }
 
     public List<WordCorrelation> getCorrelations(String word1, int minCooccurrences) {
-        ArrayList<WordCorrelation> correlations = new ArrayList<WordCorrelation>();
+        List<WordCorrelation> correlations = new ArrayList<WordCorrelation>();
+        List<WordCorrelation> toCheck = termCorrelations.get(word1);
 
-        for (WordCorrelation entry : this) {
-            if ((entry.getTerm1().getText().equals(word1) || entry.getTerm2().getText().equals(word1))
-                    && entry.getAbsoluteCorrelation() >= minCooccurrences) {
-                correlations.add(entry);
+        if (toCheck != null) {
+            for (WordCorrelation entry : toCheck) {
+                if ((entry.getTerm1().getText().equals(word1) || entry.getTerm2().getText().equals(word1))
+                        && entry.getAbsoluteCorrelation() >= minCooccurrences) {
+                    correlations.add(entry);
+                }
             }
+        }
+
+        return correlations;
+    }
+
+    /**
+     * Return all correlation pairs.
+     * 
+     * @return
+     */
+    public Set<WordCorrelation> getCorrelations() {
+        Set<WordCorrelation> correlations = new HashSet<WordCorrelation>();
+
+        Set<Entry<String, List<WordCorrelation>>> termCorrelationEntries = termCorrelations.entrySet();
+        for (Entry<String, List<WordCorrelation>> wordCorrelation : termCorrelationEntries) {
+            correlations.addAll(wordCorrelation.getValue());
         }
 
         return correlations;
@@ -168,7 +207,7 @@ public class WordCorrelationMatrix extends HashSet<WordCorrelation> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (WordCorrelation entry : this) {
+        for (WordCorrelation entry : getCorrelations()) {
             sb.append(entry.getTerm1().getText()).append("+").append(entry.getTerm2().getText()).append("=>").append(
                     entry.getAbsoluteCorrelation()).append("\n");
         }
