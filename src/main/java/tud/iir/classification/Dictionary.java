@@ -30,6 +30,9 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
     private int numberOfDocuments = 0;
     private String name = "dictionary";
+
+    private String indexPath = "data/models/";
+
     private Categories categories = new Categories();
 
     private WordCorrelationMatrix wcm = new WordCorrelationMatrix();
@@ -91,21 +94,21 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
      * 
      * @param classType The class type distinguishes certain indexes. There can be several indexes with the same name but only with different class types.
      */
-    public void useIndex(int classType) {
+    public void useIndex() {
 
         if (dictionaryIndex == null) {
 
             if (indexType == DB_INDEX_FAST || indexType == DB_INDEX_NORMALIZED) {
 
                 if (databaseType == DB_MYSQL) {
-                    dictionaryIndex = new DictionaryDBIndexMySQL("dictionary_" + getName() + "_" + classType, "root", "");
+                    dictionaryIndex = new DictionaryDBIndexMySQL(getName(), "root", "", getIndexPath());
                     if (indexType == DB_INDEX_FAST) {
                         ((DictionaryDBIndexMySQL) dictionaryIndex).setFastMode(true);
                     } else {
                         ((DictionaryDBIndexMySQL) dictionaryIndex).setFastMode(false);
                     }
                 } else {
-                    dictionaryIndex = new DictionaryDBIndexH2(getName(), "root", "");
+                    dictionaryIndex = new DictionaryDBIndexH2(getName(), "root", "", getIndexPath());
                     if (indexType == DB_INDEX_FAST) {
                         ((DictionaryDBIndexH2) dictionaryIndex).setFastMode(true);
                     } else {
@@ -114,10 +117,10 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
                 }
 
             } else if (indexType == LUCENE_INDEX) {
-                dictionaryIndex = new DictionaryFileIndex("data/models/dictionary_" + getName() + "_" + classType);
+                dictionaryIndex = new DictionaryFileIndex(getName());
             } else {
                 Logger.getRootLogger().error(
-                        "no dictionary index could be found for the dictionary " + getName() + " with the class type " + classType + " and the index type "
+                        "no dictionary index could be found for the dictionary " + getName() + " with the index type "
                                 + indexType);
             }
 
@@ -147,6 +150,10 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
     public void useMemory() {
         this.useIndex = false;
+    }
+
+    public boolean isUseIndex() {
+        return useIndex;
     }
 
     /**
@@ -464,7 +471,7 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
      */
     public void index(boolean deleteIndexFirst) {
         calculateCategoryPriors();
-        useIndex(classType);
+        useIndex();
 
         if (deleteIndexFirst) {
             emptyIndex();
@@ -596,6 +603,14 @@ public class Dictionary extends HashMap<Term, CategoryEntries> implements Serial
 
     public int getIndexType() {
         return indexType;
+    }
+
+    public String getIndexPath() {
+        return indexPath;
+    }
+
+    public void setIndexPath(String indexPath) {
+        this.indexPath = indexPath;
     }
 
     public void setDatabaseType(int databaseType) {

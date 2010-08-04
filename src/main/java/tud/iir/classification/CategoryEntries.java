@@ -2,6 +2,8 @@ package tud.iir.classification;
 
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 
 import org.apache.log4j.Logger;
 
@@ -21,6 +23,13 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
     // in order to avoid recalculating all relative relevance scores for each category entry
     // we update them only if new entries were added
     private boolean relevancesUpToDate = false;
+
+    /** Comparator to sort categories by relevance. */
+    private transient Comparator<CategoryEntry> comparator = new Comparator<CategoryEntry>() {
+        public int compare(CategoryEntry o1, CategoryEntry o2) {
+            return ((Comparable<Double>) o2.getRelevance()).compareTo(o1.getRelevance());
+        }
+    };
 
     public boolean isRelevancesUpToDate() {
         return relevancesUpToDate;
@@ -111,6 +120,15 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
          * lowestRelevance; } if (totalPlusRelevance > 0) { for (Category category : this) { category.setRelevance((category.getRelevance()-lowestRelevance) /
          * totalPlusRelevance); } } }
          */
+    }
+
+    public void sortByRelevance() {
+        Collections.sort(this, comparator);
+    }
+
+    public CategoryEntry getMostLikelyCategoryEntry() {
+        sortByRelevance();
+        return get(0);
     }
 
     /**

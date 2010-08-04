@@ -1,10 +1,11 @@
 package tud.iir.tagging;
 
 import java.io.File;
-import java.util.HashSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import ner.Annotations;
+import ner.FileFormatParser;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.knowledge.RegExp;
@@ -31,32 +32,29 @@ public class StringTagger {
             // s = s.replaceAll(m.group(), "#" + m.group() + "#");
         }
 
-        String entityTag = "§$0#";
+        String entityTag = "<CANDIDATE>$0</CANDIDATE>";
 
         // tag entities in quotes
         s = s.replaceAll("\".*?\"", entityTag);
 
         // tag obvious entities that are noun patterns
         // s = s.replaceAll("(?<!§.{0,20})"+RegExp.ENTITY+"(?!.*?#)", entityTag);
-        s = s.replaceAll("(?<!§\"[^#]{0,40})" + RegExp.ENTITY, entityTag);
+        // s = s.replaceAll("(?<!§\"[^#]{0,40})" + RegExp.ENTITY, entityTag);
+        s = s.replaceAll("(?<!\\<CANDIDATE\\>)" + RegExp.ENTITY, entityTag);
 
         return s;
     }
 
-    public static HashSet<String> getTaggedEntities(String text) {
+    public static Annotations getTaggedEntities(String text) {
 
-        HashSet<String> taggedEntities = new HashSet<String>();
+        Annotations annotations = new Annotations();
 
         String taggedText = tagString(text);
         System.out.println(taggedText);
 
-        Pattern pat = Pattern.compile("§.*?#");
-        Matcher m = pat.matcher(taggedText);
-        while (m.find()) {
-            taggedEntities.add(m.group().replaceAll("§", "").replaceAll("#", ""));
-        }
+        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
 
-        return taggedEntities;
+        return annotations;
     }
 
     /**
@@ -70,7 +68,7 @@ public class StringTagger {
         Crawler c = new Crawler();
         testText = c.download("http://localhost:8081/ManKB/testpageGerman.html", false, true, true, true);
 
-        HashSet<String> taggedEntities = StringTagger.getTaggedEntities(testText);
+        Annotations taggedEntities = StringTagger.getTaggedEntities(testText);
         CollectionHelper.print(taggedEntities);
 
         // StringTagger.tagAndSaveString(new File("data/test/sampleTextForTagging.txt"));

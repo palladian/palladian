@@ -49,6 +49,14 @@ public class DictionaryDBIndexMySQL extends DictionaryIndex {
     /** if fastmode = true, only one table will be used to store all information */
     private boolean fastMode = true;
 
+    public DictionaryDBIndexMySQL(String dbName, String dbUsername, String dbPassword, String indexPath) {
+        setDbName(dbName);
+        setDbUsername(dbUsername);
+        setDbPassword(dbPassword);
+        setIndexPath(indexPath);
+        connection = getConnection();
+    }
+
     public DictionaryDBIndexMySQL(String dbName, String dbUsername, String dbPassword) {
         setDbName(dbName);
         setDbUsername(dbUsername);

@@ -31,11 +31,21 @@ public abstract class DictionaryIndex {
 
     public abstract boolean openReader();
 
+    private String indexPath = "data/models/";
+
     public Dictionary getDictionary() {
         return dictionary;
     }
 
     public void setDictionary(Dictionary dictionary) {
         this.dictionary = dictionary;
+    }
+
+    public void setIndexPath(String indexPath) {
+        this.indexPath = indexPath;
+    }
+
+    public String getIndexPath() {
+        return indexPath;
     }
 }

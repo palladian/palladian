@@ -442,7 +442,7 @@ public class ClassifierManager {
             // if index should be created iteratively, we do not keep it in memory
             // but write it to disk right away
             if (createDictionaryIteratively) {
-                ((DictionaryClassifier) classifier).dictionary.useIndex(classifier.getClassificationType());
+                ((DictionaryClassifier) classifier).dictionary.useIndex();
 
                 // in training mode, the dictionary will be deleted first
                 if (classifier.isSerialize()) {
