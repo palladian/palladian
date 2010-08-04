@@ -75,11 +75,21 @@ public class FileHelper {
         return false;
     }
 
-    public static String getFileName(String path) {
+    public static String getFilePath(String path) {
         String fileName = "";
         int lastDot = path.lastIndexOf(".");
         if (lastDot > -1) {
             fileName = path.substring(0, lastDot);
+        }
+        return fileName;
+    }
+
+    public static String getFileName(String path) {
+        String fileName = path;
+        int lastDot = path.lastIndexOf(".");
+        int lastSeparator = path.lastIndexOf("/") + 1;
+        if (lastDot > -1) {
+            fileName = path.substring(lastSeparator, lastDot);
         }
         return fileName;
     }
@@ -730,7 +740,7 @@ public class FileHelper {
 
     public static void unzipFile(String filenameInput) {
         String unzippedContent = unzipFileToString(filenameInput);
-        String filenameOutput = getFileName(filenameInput);
+        String filenameOutput = getFilePath(filenameInput);
         writeToFile(filenameOutput, unzippedContent);
     }
 

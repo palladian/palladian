@@ -59,6 +59,13 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
      */
     private boolean inMemoryMode = false;
 
+    public DictionaryDBIndexH2(String dbName, String dbUsername, String dbPassword, String indexPath) {
+        setDbName(dbName);
+        setDbUsername(dbUsername);
+        setDbPassword(dbPassword);
+        setIndexPath(indexPath);
+        connection = getConnection();
+    }
     public DictionaryDBIndexH2(String dbName, String dbUsername, String dbPassword) {
         setDbName(dbName);
         setDbUsername(dbUsername);
@@ -90,9 +97,9 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
 
         String url;
         if (inMemoryMode) {
-            url = "jdbc:" + getDbType() + ":mem:data/models/" + dbName + ";DB_CLOSE_DELAY=-1";
+            url = "jdbc:" + getDbType() + ":mem:" + getIndexPath() + dbName + ";DB_CLOSE_DELAY=-1";
         } else {
-            url = "jdbc:" + getDbType() + ":data/models/" + dbName;
+            url = "jdbc:" + getDbType() + ":" + getIndexPath() + dbName;
         }
 
         try {

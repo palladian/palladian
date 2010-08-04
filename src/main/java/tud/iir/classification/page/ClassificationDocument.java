@@ -1,7 +1,5 @@
 package tud.iir.classification.page;
 
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
@@ -47,16 +45,6 @@ public class ClassificationDocument {
     /** Type of classification (tags or hierarchy). */
     private int classifiedAs = ClassificationTypeSetting.TAG;
 
-    /** Comparator to sort categories by relevance. */
-    Comparator<CategoryEntry> comparator = new Comparator<CategoryEntry>() {
-        public int compare(CategoryEntry o1, CategoryEntry o2) {
-            return ((Comparable<Double>) o2.getRelevance()).compareTo(o1.getRelevance());
-        }
-        /*
-         * public int compare(CategoryEntry o1, CategoryEntry o2) { return ((Comparable<Double>) ((CategoryEntry) (o2)).bayesRelevance)
-         * .compareTo(((CategoryEntry) (o1)).bayesRelevance); }
-         */
-    };
 
     /**
      * The constructor.
@@ -153,14 +141,14 @@ public class ClassificationDocument {
     }
 
     public void sortCategoriesByRelevance() {
-        Collections.sort(assignedCategoryEntries, comparator);
+        assignedCategoryEntries.sortByRelevance();
     }
 
     public CategoryEntries getAssignedCategoryEntriesByRelevance(int classType) {
         if (classType == ClassificationTypeSetting.HIERARCHICAL) {
             return assignedCategoryEntries;
         }
-        Collections.sort(assignedCategoryEntries, comparator);
+        sortCategoriesByRelevance();
         return assignedCategoryEntries;
     }
 

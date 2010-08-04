@@ -47,8 +47,8 @@ public class DictionaryClassifier extends TextClassifier {
         dictionary.setName(getName());
     }
 
-    public void useIndex(int classType) {
-        dictionary.useIndex(classType);
+    public void useIndex() {
+        dictionary.useIndex();
     }
 
     public void useMemory() {
@@ -74,7 +74,7 @@ public class DictionaryClassifier extends TextClassifier {
         ClassifierManager.log("dictionary built");
     }
 
-    protected void addToDictionary(ClassificationDocument trainingDocument, int classType) {
+    public void addToDictionary(ClassificationDocument trainingDocument, int classType) {
 
         long t1 = System.currentTimeMillis();
 
@@ -144,7 +144,7 @@ public class DictionaryClassifier extends TextClassifier {
         // dictionary.saveAsCSV();
 
         // we now have to use the index for classification because the in-memory dictionary is empty
-        dictionary.useIndex(getClassificationType());
+        dictionary.useIndex();
     }
 
     public void loadDictionary() {
@@ -157,11 +157,11 @@ public class DictionaryClassifier extends TextClassifier {
     public void loadDictionary(int classType) {
 
         if (dictionaries.get(classType) == null) {
-            String modelFilePath = "data/models/dictionary_" + getName() + ".ser";
+            String modelFilePath = "data/models/" + getName() + ".ser";
             dictionary = (Dictionary) FileHelper.deserialize(modelFilePath);
 
             // all serialized dictionaries must use the index since their dictionaries are not serialized
-            dictionary.useIndex(classType);
+            dictionary.useIndex();
 
             dictionaries.put(classType, dictionary);
         } else {

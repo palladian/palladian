@@ -6,7 +6,7 @@ import junit.framework.TestCase;
 import tud.iir.knowledge.RegExp;
 
 /**
- * Test cases for the String Helper class.
+ * Test cases for the StringHelper class.
  * 
  * @author David Urbansky
  */
