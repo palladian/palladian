@@ -5,8 +5,10 @@ package tud.iir.news;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -162,13 +164,31 @@ public class MetaInformationCreator {
      * 
      */
     private String getFeedMetaInformation(Feed feed, Double averageSize) {
-        // FEED_ID;FEED_URL;NUMBER_OF_ENTRIES(Window Size);AVERAGE_SIZE;FEED_UPDATE_CLASS
+        // FEED_ID;FEED_URL;NUMBER_OF_ENTRIES(Window Size);AVERAGE_SIZE;FEED_UPDATE_CLASS;SUPPORTS_LAST_MODIFIED_SINCE;SUPPORTS_ETAG;SUPPORTS_COMPRESSION;NUMBER_OF_CHECKS
         StringBuilder headerLine = new StringBuilder();
         headerLine.append(feed.getId() + ";");
         headerLine.append(feed.getFeedUrl() + ";");
         headerLine.append(feed.getEntries().size() + ";");
         headerLine.append(averageSize + ";");
-        headerLine.append(feed.getUpdateClass());
+        headerLine.append(feed.getUpdateClass()+";");
+        boolean lastModified = false;
+        boolean etag = false;
+        boolean compression = false;
+        try {
+            URL feedURL = new URL(feed.getFeedUrl());
+            URLConnection connection = feedURL.openConnection();
+            lastModified = connection.getHeaderField("Last-Modified")==null;
+            etag = connection.getHeaderField("Etag")==null;
+            compression = connection.getHeaderField("Content-Encoding")==null;
+        } catch (MalformedURLException e) {
+            LOGGER.error("URL of feed: "+feed.getFeedUrl()+" is malformed!");
+        } catch (IOException e) {
+            LOGGER.error("Could not get HTTP header information for feed at address: "+feed.getFeedUrl()+".");
+        }
+        headerLine.append(lastModified+";");
+        headerLine.append(etag+";");
+        headerLine.append(compression+";");
+        headerLine.append(feed.getChecks());
         headerLine.append("\n");
 
         return headerLine.toString();
