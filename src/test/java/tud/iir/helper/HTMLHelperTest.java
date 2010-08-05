@@ -14,6 +14,7 @@ import tud.iir.web.Crawler;
  * 
  * @author David Urbansky
  * @author Philipp Katz
+ * @author Martin Werner
  */
 public class HTMLHelperTest extends TestCase {
 
@@ -36,8 +37,12 @@ public class HTMLHelperTest extends TestCase {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
         assertEquals("this is relevant", HTMLHelper.removeHTMLTags(htmlContent, true, true, true, false));
 
+        Crawler crawler = new Crawler();
+        String content = crawler.download("data/test/webPages/removeHTMLContentTest1.html");
+        String result = HTMLHelper.removeHTMLTags(content, true, true, true, false);
+        Assert.assertEquals("ecf0720bd7f9afc0dc40ec100ca8e96f", DigestUtils.md5Hex(result));
     }
-    
+
     @Test
     public void testHtmlDocToString() {
         Crawler c = new Crawler();
@@ -45,13 +50,13 @@ public class HTMLHelperTest extends TestCase {
         String result = HTMLHelper.htmlDocToString(doc);
         Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
     }
-    
+
     @Test
     public void testHtmlFragments() {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
         System.out.println(HTMLHelper.htmlFragmentsToString(htmlContent, true));
         // assertEquals("this is relevant", HTMLHelper.removeHTMLTags(htmlContent, true, true, true, false));
-        
+
     }
 
 }
