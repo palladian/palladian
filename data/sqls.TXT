@@ -4,5 +4,5 @@ SELECT COUNT(*) INTO @total FROM feeds WHERE 1;
 SELECT 100*@checked/@total AS checkPercentage;
 
 # reset feeds
-UPDATE feeds SET checks = 0, lastHeadlines = "", minCheckInterval = 10, maxCheckInterval = 10, lastFeedEntry = NULL;
+#UPDATE feeds SET checks = 0, lastHeadlines = "", minCheckInterval = 10, maxCheckInterval = 10, lastFeedEntry = NULL;
 
