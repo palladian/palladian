@@ -433,10 +433,11 @@ CREATE TABLE `feeds_probabilistic` (
 
 DROP TABLE IF EXISTS `feeds_post_distribution`;
 CREATE TABLE `feeds_post_distribution` (
-  `feedID` int(10) unsigned NOT NULL auto_increment,
+  `feedID` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `minuteOfDay` int(10) unsigned,
   `posts` int(10) unsigned,
   `chances` int(10) unsigned,
+   PRIMARY KEY  (`feedID`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 -- --------------------------------------------------------
 
