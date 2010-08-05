@@ -109,13 +109,13 @@ public class HTMLHelper {
         String htmlText = htmlContent;
         // modified by Martin Werner, 2010-06-02
 
-        if (joinTagsAndRemoveNewlines) {
+        // String regExp = "";
+        
+           if (joinTagsAndRemoveNewlines) {
             htmlText = htmlText.replaceAll(">\\s*?<", "><");
             htmlText = htmlText.replaceAll("\n", "");
         }
-
-        // String regExp = "";
-
+           
         if (stripComments) {
             // regExp += "(\\<!--.*?-->)|";
             htmlText = htmlText.replaceAll("<!--.*?-->", "");
@@ -129,9 +129,11 @@ public class HTMLHelper {
 
         if (stripTags) {
             // regExp += "(\\<.*?>)";
-            // htmlText = removeConcreteHTMLTag(htmlText, "\\<", ">", true);
-            htmlText = htmlText.replaceAll("<.*?>", "");
+            htmlText = removeConcreteHTMLTag(htmlText, "\\<", ">");
+//            htmlText = htmlText.replaceAll("<.*?>", "");
         }
+        
+
 
         // if (regExp.length() == 0) {
         // return htmlText;
@@ -175,7 +177,7 @@ public class HTMLHelper {
     }
 
     /**
-     * Remove concrete HTMLTags from a string; set isSpecial=true for special-tags like <!-- -->.
+     * Remove concrete HTMLTags from a string; this version is for special-tags like <!-- -->.
      * 
      * @param pageContent The html text.
      * @param beginTag The begin tag.

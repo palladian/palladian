@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
 import tud.iir.extraction.Extractor;
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -66,7 +67,10 @@ public final class MIOExtractor extends Extractor {
      */
     public void startExtraction(boolean continueFromLastExtraction) {
 
+        
         LOGGER.info("start MIO extraction");
+        
+        System.exit(1);
 
         // reset stopped command
         setStopped(false);
@@ -94,11 +98,12 @@ public final class MIOExtractor extends Extractor {
 
             if (isStopped()) {
                 LOGGER.info("mio extraction process stopped");
+                //Clean the SWF-File-DownloadDirectory
+//                FileHelper.cleanDirectory("F:/Temp/");
                 break;
             }
 
-            // iterate through all entities for current concept
-
+            // iterate through all entities of current concept
             ArrayList<Entity> conceptEntities;
             if (continueFromLastExtraction) {
                 conceptEntities = currentConcept.getEntitiesByDate();
@@ -171,8 +176,8 @@ public final class MIOExtractor extends Extractor {
      */
     @Override
     protected void saveExtractions(final boolean saveResults) {
-        if (saveResults && !isBenchmark()) {
-            // System.out.println("save extractions now");
+        if (saveResults) {
+            LOGGER.info("..Saving MIOExtractionResults");
             getKnowledgeManager().saveExtractions();
         }
     }
@@ -202,8 +207,6 @@ public final class MIOExtractor extends Extractor {
      * @return true, if the URL allowed
      */
     public boolean isURLallowed(final String url) {
-        // super.addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
-        // super.addSuffixesToBlackList(Extractor.URL_TEXTUAL_BLACKLIST);
         return super.isURLallowed(url);
     }
 
@@ -218,11 +221,9 @@ public final class MIOExtractor extends Extractor {
         // long t1 = System.currentTimeMillis();
         final MIOExtractor mioEx = MIOExtractor.getInstance();
 
-        // mioEx.setKnowledgeManager(DatabaseManager.getInstance().loadOntology());
-        // se.setBenchmark(true);
 
         mioEx.startExtraction(false);
-        // se.stopExtraction(true);
+        // mioEx.stopExtraction(true);
 
         // DateHelper.getRuntime(t1, true);
     }

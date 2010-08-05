@@ -280,6 +280,11 @@ public class MIOContentAnalyzer extends SWFTagTypesImpl {
 
         }
         if (!("").equals(url)) {
+            //make directory if not exists
+            File tempFile = new File(DOWNLOADPATH);
+            if (!tempFile.isDirectory()){
+               tempFile.mkdir(); 
+            }
             final File mioFile = Crawler.downloadBinaryFile(url, DOWNLOADPATH + mio.getFileName());
             if (mioFile != null) {
                 final String textContent = extractTextContent(mioFile);

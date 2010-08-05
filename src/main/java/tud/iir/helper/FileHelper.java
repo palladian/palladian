@@ -38,11 +38,19 @@ import org.apache.log4j.Logger;
  * 
  * @author David Urbansky
  * @author Philipp Katz
+ * @author Martin Werner
  */
 public class FileHelper {
 
+    /** The Constant LOGGER. */
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
 
+    /**
+     * Checks if is file name.
+     *
+     * @param name the name
+     * @return true, if is file name
+     */
     public static boolean isFileName(String name) {
         name = name.trim();
 
@@ -57,6 +65,12 @@ public class FileHelper {
         return false;
     }
 
+    /**
+     * Checks if is video file.
+     *
+     * @param fileType the file type
+     * @return true, if is video file
+     */
     public static boolean isVideoFile(String fileType) {
         fileType = fileType.toLowerCase();
         if (fileType.equals("mp4") || fileType.equals("flv") || fileType.equals("avi") || fileType.equals("mpeg2")
@@ -66,6 +80,12 @@ public class FileHelper {
         return false;
     }
 
+    /**
+     * Checks if is audio file.
+     *
+     * @param fileType the file type
+     * @return true, if is audio file
+     */
     public static boolean isAudioFile(String fileType) {
         fileType = fileType.toLowerCase();
         if (fileType.equals("mp3") || fileType.equals("ogg") || fileType.equals("aac") || fileType.equals("wav")
@@ -75,6 +95,12 @@ public class FileHelper {
         return false;
     }
 
+    /**
+     * Gets the file path.
+     *
+     * @param path the path
+     * @return the file path
+     */
     public static String getFilePath(String path) {
         String fileName = "";
         int lastDot = path.lastIndexOf(".");
@@ -84,6 +110,12 @@ public class FileHelper {
         return fileName;
     }
 
+    /**
+     * Gets the file name.
+     *
+     * @param path the path
+     * @return the file name
+     */
     public static String getFileName(String path) {
         String fileName = path;
         int lastDot = path.lastIndexOf(".");
@@ -94,6 +126,12 @@ public class FileHelper {
         return fileName;
     }
 
+    /**
+     * Gets the file type.
+     *
+     * @param path the path
+     * @return the file type
+     */
     public static String getFileType(String path) {
         String fileType = "";
         int lastDot = path.lastIndexOf(".");
@@ -103,6 +141,13 @@ public class FileHelper {
         return fileType;
     }
 
+    /**
+     * Read html file to string.
+     *
+     * @param path the path
+     * @param stripTags the strip tags
+     * @return the string
+     */
     public static String readHTMLFileToString(String path, boolean stripTags) {
 
         String contents = readFileToString(path);
@@ -117,6 +162,12 @@ public class FileHelper {
         return contents;
     }
 
+    /**
+     * Read file to string.
+     *
+     * @param path the path
+     * @return the string
+     */
     public static String readFileToString(String path) {
 
         StringBuilder contents = new StringBuilder();
@@ -162,8 +213,10 @@ public class FileHelper {
     /**
      * <p>
      * 
-     * </p>
+     * </p>.
      *
+     * @param fileURL the file url
+     * @return the list
      */
     public static List<String> readFileToArray(URL fileURL) {
         File contentFile = null;
@@ -178,8 +231,8 @@ public class FileHelper {
     
     /**
      * Create a list with each line of the given file as an element.
-     * 
-     * @param path The path of the file.
+     *
+     * @param contentFile the content file
      * @return A list with the lines as elements.
      */
     public static List<String> readFileToArray(File contentFile) {
@@ -258,6 +311,13 @@ public class FileHelper {
         writeToFile(outputFilePath, sb);
     }
 
+    /**
+     * Perform action on every line.
+     *
+     * @param filePath the file path
+     * @param la the la
+     * @return the int
+     */
     public static int performActionOnEveryLine(String filePath, LineAction la) {
 
         int lineNumber = 1;
@@ -291,15 +351,21 @@ public class FileHelper {
         return lineNumber - 1;
     }
 
+    /**
+     * Write to file.
+     *
+     * @param filePath the file path
+     * @param string the string
+     */
     public static void writeToFile(String filePath, StringBuilder string) {
         writeToFile(filePath, string.toString());
     }
 
     /**
      * Writes a Collection of Objects to a file. Each Object's {{@link #toString()} invocation represents a line.
-     * 
-     * @param filePath
-     * @param lines
+     *
+     * @param filePath the file path
+     * @param lines the lines
      * @author Philipp Katz
      */
     public static void writeToFile(String filePath, Collection<?> lines) {
@@ -322,6 +388,12 @@ public class FileHelper {
         }
     }
 
+    /**
+     * Write to file.
+     *
+     * @param filePath the file path
+     * @param string the string
+     */
     public static void writeToFile(String filePath, String string) {
 
         File file = new File(filePath);
@@ -357,6 +429,13 @@ public class FileHelper {
         appendToFile(filePath, string.toString(), before);
     }
 
+    /**
+     * Append to file.
+     *
+     * @param filePath the file path
+     * @param string the string
+     * @param before the before
+     */
     @Deprecated
     public static void appendToFile(String filePath, String string, boolean before) {
         try {
@@ -378,10 +457,10 @@ public class FileHelper {
     
     /**
      * Appends (i. e. inserts a the end) a String to the specified File.
-     * 
-     * @param filePath
-     * @param stringToAppend
-     * @throws IOException
+     *
+     * @param filePath the file path
+     * @param stringToAppend the string to append
+     * @throws IOException Signals that an I/O exception has occurred.
      * @author Philipp Katz
      */
     public static void appendFile(String filePath, String stringToAppend) throws IOException {
@@ -397,10 +476,10 @@ public class FileHelper {
      * Prepends (i. e. inserts a the beginning) a String to the specified File.
      * 
      * Inspired by http://stackoverflow.com/questions/2537944/prepend-lines-to-file-in-java
-     * 
-     * @param filePath
-     * @param stringToPrepend
-     * @throws IOException
+     *
+     * @param filePath the file path
+     * @param stringToPrepend the string to prepend
+     * @throws IOException Signals that an I/O exception has occurred.
      * @author Philipp Katz
      */
     public static void prependFile(String filePath, String stringToPrepend) throws IOException {
@@ -444,6 +523,12 @@ public class FileHelper {
 
     }
 
+    /**
+     * Deserialize.
+     *
+     * @param filePath the file path
+     * @return the object
+     */
     public static Object deserialize(String filePath) {
         FileInputStream fis = null;
         ObjectInputStream in = null;
@@ -466,6 +551,12 @@ public class FileHelper {
     }
 
     //public static void serialize(Object obj, String filePath) {
+    /**
+     * Serialize.
+     *
+     * @param obj the obj
+     * @param filePath the file path
+     */
     public static void serialize(Serializable obj, String filePath) {
         FileOutputStream fos = null;
         ObjectOutputStream out = null;
@@ -487,6 +578,13 @@ public class FileHelper {
         }
     }
 
+    /**
+     * Rename.
+     *
+     * @param inputFile the input file
+     * @param newName the new name
+     * @return the string
+     */
     public static String rename(File inputFile, String newName) {
         String fullPath = inputFile.getAbsolutePath();
 
@@ -525,10 +623,22 @@ public class FileHelper {
         }
     }
 
+    /**
+     * Copy directory.
+     *
+     * @param srcPath the src path
+     * @param dstPath the dst path
+     */
     public static void copyDirectory(String srcPath, String dstPath) {
         copyDirectory(new File(srcPath), new File(dstPath));
     }
 
+    /**
+     * Copy directory.
+     *
+     * @param srcPath the src path
+     * @param dstPath the dst path
+     */
     public static void copyDirectory(File srcPath, File dstPath) {
 
         if (srcPath.isDirectory()) {
@@ -608,10 +718,47 @@ public class FileHelper {
         return f.delete();
     }
 
+    /**
+     * Delete.
+     *
+     * @param filename the filename
+     * @return true, if successful
+     */
     public static boolean delete(String filename) {
         return delete(filename, true);
     }
+    
+    /**
+     * Delete all files inside a directory.
+     *
+     * @param dirPath the directoryPath
+     * @return true, if successful
+     */
+    public static boolean cleanDirectory(String dirPath) {
+        File file = new File(dirPath);
+        boolean returnValue = false;
+      
+        if (file.isDirectory()) {
+            String[] files = file.list();
+            if (files.length > 0) {
+                for (File directoryFile : file.listFiles()) {
+                    directoryFile.delete();
+                }
+                returnValue = true;
+            }
+        }
+        return returnValue;
 
+    }
+
+
+    /**
+     * Move.
+     *
+     * @param file the file
+     * @param newPath the new path
+     * @return true, if successful
+     */
     public static boolean move(File file, String newPath) {
         File newFile = new File(newPath);
         return file.renameTo(new File(newFile, file.getName()));
@@ -640,6 +787,13 @@ public class FileHelper {
         return getFiles(folderPath, "");
     }
 
+    /**
+     * Gets the files.
+     *
+     * @param folderPath the folder path
+     * @param substring the substring
+     * @return the files
+     */
     public static File[] getFiles(String folderPath, String substring) {
         File folder = new File(folderPath);
         if (folder.exists() && folder.isDirectory()) {
@@ -706,6 +860,12 @@ public class FileHelper {
         return true;
     }
 
+    /**
+     * Zip string.
+     *
+     * @param text the text
+     * @return the string
+     */
     public static String zipString(String text) {
         StringOutputStream out = null;
         try {
@@ -738,12 +898,22 @@ public class FileHelper {
         writeToFile(filenameOutput, unzippedContent);
     }
 
+    /**
+     * Unzip file.
+     *
+     * @param filenameInput the filename input
+     */
     public static void unzipFile(String filenameInput) {
         String unzippedContent = unzipFileToString(filenameInput);
         String filenameOutput = getFilePath(filenameInput);
         writeToFile(filenameOutput, unzippedContent);
     }
 
+    /**
+     * Unzip file7z.
+     *
+     * @param filenameInput the filename input
+     */
     public static void unzipFile7z(String filenameInput) {
         try {
             Process p = Runtime.getRuntime().exec("7z e " + filenameInput);
@@ -756,6 +926,12 @@ public class FileHelper {
         }
     }
 
+    /**
+     * Unzip file cmd.
+     *
+     * @param filenameInput the filename input
+     * @param consoleCommand the console command
+     */
     public static void unzipFileCmd(String filenameInput, String consoleCommand) {
         Process p = null;
         try {
@@ -791,8 +967,8 @@ public class FileHelper {
 
     /**
      * Unzip a string.
-     * 
-     * @param zippedString The zipped string.
+     *
+     * @param in the in
      * @return The unzipped string.
      */
     /*
@@ -834,6 +1010,12 @@ public class FileHelper {
         return out.toString();
     }
 
+    /**
+     * File exists.
+     *
+     * @param filePath the file path
+     * @return true, if successful
+     */
     public static boolean fileExists(String filePath) {
         File file = new File(filePath);
         if (file.exists() && !file.isDirectory()) {
@@ -842,6 +1024,11 @@ public class FileHelper {
         return false;
     }
 
+    /**
+     * The main method.
+     *
+     * @param a the arguments
+     */
     public static void main(String[] a) {
 
         // FileHelper.fileContentToLines("data/temp/queries_backup.txt", "data/temp/queries.txt", ",");
