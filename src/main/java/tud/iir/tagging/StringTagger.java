@@ -4,12 +4,8 @@ import java.io.File;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import ner.Annotations;
-import ner.FileFormatParser;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.knowledge.RegExp;
-import tud.iir.web.Crawler;
 
 public class StringTagger {
 
@@ -45,33 +41,26 @@ public class StringTagger {
         return s;
     }
 
-    public static Annotations getTaggedEntities(String text) {
-
-        Annotations annotations = new Annotations();
-
-        String taggedText = tagString(text);
-        System.out.println(taggedText);
-
-        annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
-
-        return annotations;
-    }
-
-    /**
-     * @param args
+    /*
+     * public static Annotations getTaggedEntities(String text) {
+     * Annotations annotations = new Annotations();
+     * String taggedText = tagString(text);
+     * System.out.println(taggedText);
+     * annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
+     * return annotations;
+     * }
+     * public static void main(String[] args) {
+     * String testText =
+     * "\"All the Lilacs in Ohio Great Song John Hiatt\" is a song from John Hiatt's album THE TIKI BAR IS OPEN.";
+     * System.out.println(StringTagger.tagString(testText));
+     * //
+     * System.out.println(StringTagger.tagString("Spiderman 3 is a movie. The new Nokia N95 is another mobile phone."));
+     * Crawler c = new Crawler();
+     * testText = c.download("http://localhost:8081/ManKB/testpageGerman.html", false, true, true, true);
+     * Annotations taggedEntities = StringTagger.getTaggedEntities(testText);
+     * CollectionHelper.print(taggedEntities);
+     * // StringTagger.tagAndSaveString(new File("data/test/sampleTextForTagging.txt"));
+     * }
      */
-    public static void main(String[] args) {
-        String testText = "\"All the Lilacs in Ohio Great Song John Hiatt\" is a song from John Hiatt's album THE TIKI BAR IS OPEN.";
-        System.out.println(StringTagger.tagString(testText));
-        // System.out.println(StringTagger.tagString("Spiderman 3 is a movie. The new Nokia N95 is another mobile phone."));
-
-        Crawler c = new Crawler();
-        testText = c.download("http://localhost:8081/ManKB/testpageGerman.html", false, true, true, true);
-
-        Annotations taggedEntities = StringTagger.getTaggedEntities(testText);
-        CollectionHelper.print(taggedEntities);
-
-        // StringTagger.tagAndSaveString(new File("data/test/sampleTextForTagging.txt"));
-    }
 
 }
