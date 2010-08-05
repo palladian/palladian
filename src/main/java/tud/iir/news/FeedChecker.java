@@ -601,13 +601,34 @@ public final class FeedChecker {
             fixedMaxCheckInterval = (int) (fps.getTimeRange() / DateHelper.MINUTE_MS);
 
             // use median
-            if (fps.getMedianPostGap() != -1) {
+            if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
                 fixedMinCheckInterval = (int) (fps.getMedianPostGap() / DateHelper.MINUTE_MS);
                 fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
             }
 
+            if (feed.getUpdateClass() == FeedClassifier.CLASS_DEAD) {
+                fixedMinCheckInterval = 800;
+                fixedMaxCheckInterval = 1440;
+            } else if (feed.getUpdateClass() == FeedClassifier.CLASS_CHUNKED) {
+
+                // for chunked entries the median post gap is likely to be zero so we set it to the time to the last
+                // post
+                fixedMinCheckInterval = (int) (fps.getTimeNewestPost() / DateHelper.MINUTE_MS);
+                fixedMaxCheckInterval = fixedMinCheckInterval;
+
+            } else if (feed.getUpdateClass() == FeedClassifier.CLASS_ON_THE_FLY) {
+
+                fixedMinCheckInterval = 50;
+                fixedMaxCheckInterval = 100;
+
+            }
+
             // FIXME: this is just for dataset creation, to be sure we're not missing anything! DELETE it when merging
             // branch! check maximum every 5 minutes and minimum once a day
+
+            fixedMinCheckInterval += fps.getTimeDifferenceToNewestPost() / (10 * DateHelper.MINUTE_MS);
+            fixedMaxCheckInterval += fps.getTimeDifferenceToNewestPost() / (10 * DateHelper.MINUTE_MS);
+
             fixedMinCheckInterval /= 2;
             fixedMaxCheckInterval /= 2;
             if (fixedMinCheckInterval < 5) {
@@ -620,10 +641,11 @@ public final class FeedChecker {
             } else if (fixedMaxCheckInterval > 1440) {
                 fixedMaxCheckInterval = 1440;
             }
+
             // //////////////////////////////
         } else {
-            feed.setMinCheckInterval(3 * fixedMinCheckInterval);
-            feed.setMaxCheckInterval(3 * fixedMaxCheckInterval);
+            fixedMinCheckInterval *= 3;
+            fixedMaxCheckInterval *= 3;
         }
 
         feed.setMinCheckInterval(fixedMinCheckInterval);
@@ -842,7 +864,8 @@ public final class FeedChecker {
 
         FeedChecker fch = new FeedChecker(new FeedStoreDummy());
         fch.setCheckApproach(CheckApproach.CHECK_FIXED, true);
-        Feed feed = new Feed("http://bring.mn/feed.rss");
+        Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
+        feed.setUpdateClass(FeedClassifier.CLASS_SLICED);
         feed.updateEntries(false);
         // feed.increaseChecks();
         fch.updateCheckIntervals(feed);
