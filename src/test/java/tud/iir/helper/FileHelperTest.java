@@ -21,4 +21,16 @@ public class FileHelperTest extends TestCase {
         assertEquals("abc", FileHelper.getFileName("abc.jpg"));
         assertEquals("abc", FileHelper.getFileName("abc"));
     }
+
+    @Test
+    public void testGetFilePath() {
+        assertEquals("data/temp/", FileHelper.getFilePath("data/temp/abc.jpg"));
+        assertEquals("", FileHelper.getFilePath("abc.jpg"));
+    }
+
+    @Test
+    public void testAppendToFileName() {
+        assertEquals("data/temp/abc_0.jpg", FileHelper.appendToFileName("data/temp/abc.jpg", "_0"));
+        assertEquals("abcX123.jpg", FileHelper.appendToFileName("abc.jpg", "X123"));
+    }
 }

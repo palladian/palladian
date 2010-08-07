@@ -102,10 +102,11 @@ public class FileHelper {
      * @return the file path
      */
     public static String getFilePath(String path) {
-        String fileName = "";
+        String fileName = path;
         int lastDot = path.lastIndexOf(".");
+        int lastSeparator = path.lastIndexOf("/") + 1;
         if (lastDot > -1) {
-            fileName = path.substring(0, lastDot);
+            fileName = path.substring(0, lastSeparator);
         }
         return fileName;
     }
@@ -124,6 +125,10 @@ public class FileHelper {
             fileName = path.substring(lastSeparator, lastDot);
         }
         return fileName;
+    }
+
+    public static String appendToFileName(String filePath, String appendix) {
+        return getFilePath(filePath) + getFileName(filePath) + appendix + "." + getFileType(filePath);
     }
 
     /**
@@ -905,7 +910,7 @@ public class FileHelper {
      */
     public static void unzipFile(String filenameInput) {
         String unzippedContent = unzipFileToString(filenameInput);
-        String filenameOutput = getFilePath(filenameInput);
+        String filenameOutput = getFilePath(filenameInput) + getFileName(filenameInput);
         writeToFile(filenameOutput, unzippedContent);
     }
 

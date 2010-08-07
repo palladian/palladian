@@ -242,7 +242,10 @@ final class DataHelper {
         };
         FileHelper.performActionOnEveryLine("data/temp/odp/" + sourceFile, la);
 
-        FileHelper.writeToFile("data/temp/odp/" + FileHelper.getFilePath(sourceFile) + "_sample" + sampleSize + ".txt", sampleFile);
+        // FileHelper.writeToFile("data/temp/odp/" + FileHelper.getFilePath(sourceFile) + "_sample" + sampleSize +
+        // ".txt", sampleFile);
+        FileHelper.writeToFile("data/temp/odp/" + FileHelper.appendToFileName(sourceFile, "_sample" + sampleSize),
+                sampleFile);
     }
 
     /**
