@@ -5,26 +5,61 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import tud.iir.classification.Term;
+import tud.iir.classification.WordCorrelationMatrix;
 import tud.iir.helper.FileHelper;
 
 /**
  * 
+ * Example for the test case:
+ * 
+ * <pre>
+ * 
+ *                          +--------------+----------+------------------+------------+--------+
+ *         Absolute values  | sanfrancisco | cablecar | goldengatebridge | california | rowSum |
+ *   +---+------------------+--------------+----------+------------------+------------+--------+
+ *   | 1 | sanfrancisco     |              |    5     |        3         |     7      |   15   |
+ *   | 2 | cablecar         |      5       |          |        2         |            |    7   |
+ *   | 3 | goldengatebridge |      3       |    2     |                  |            |    5   |
+ *   | 4 | california       |      7       |          |                  |            |    7   |
+ *   +---+------------------+--------------+----------+------------------+------------+--------+
+ *   
+ *   calculation of relative values:
+ *   
+ *                           rel(t1, t2) = abs(t1, t2) / ( rowSum(t1) + rowSum(t2) - abs(t1, t2) )
+ *   
+ *           rel(sanfrancisco, cablecar) = 5 / (15 + 7 - 5) = 0.294
+ *   rel(sanfrancisco, goldengatebridge) = 3 / (15 + 5 - 3) = 0.176
+ *         rel(sanfrancisco, california) = 7 / (15 + 7 - 7) = 0.467
+ *       rel(cablecar, goldengatebridge) = 2 / (7 + 5 - 2)  = 0.2
+ *   
+ *   
+ *                          +--------------+----------+------------------+------------+
+ *         Relative values  | sanfrancisco | cablecar | goldengatebridge | california |
+ *   +---+------------------+--------------+----------+------------------+------------+
+ *   | 1 | sanfrancisco     |              |   0.294  |       0.176      |    0.467   |
+ *   | 2 | cablecar         |    0.294     |          |       0.2        |            |
+ *   | 3 | goldengatebridge |    0.176     |   0.2    |                  |            |
+ *   | 4 | california       |    0.467     |          |                  |            |
+ *   +---+------------------+--------------+----------+------------------+------------+
+ * </pre>
+ * 
  * @author Philipp Katz
- *
+ * 
  */
 public class WordCorrelationMatrixTest {
-    
+
     private WordCorrelationMatrix wcm;
-    
-    Term term1 = new Term("sanfrancisco");
-    Term term2 = new Term("cablecar");
-    Term term3 = new Term("goldengatebridge");
-    Term term4 = new Term("california");
-    Term term5 = new Term("cali" + "fornia");
+
+    private Term term1 = new Term("sanfrancisco");
+    private Term term2 = new Term("cablecar");
+    private Term term3 = new Term("goldengatebridge");
+    private Term term4 = new Term("california");
+    private Term term5 = new Term("cali" + "fornia"); // to test proper handling of String equality
 
     @Before
     public void setUpMatrix() {
-        
+
         wcm = new WordCorrelationMatrix();
 
         // 5 x sanfrancisco <-> cabelcar
@@ -48,8 +83,12 @@ public class WordCorrelationMatrixTest {
         wcm.updatePair(term4, term1);
         wcm.updatePair(term1, term4);
 
+        // 2 x cablecar <-> goldengatebridge
+        wcm.updatePair(term2, term3);
+        wcm.updatePair(term3, term2);
+
         wcm.makeRelativeScores();
-        
+
     }
 
     @Test
@@ -61,31 +100,34 @@ public class WordCorrelationMatrixTest {
         Assert.assertEquals(3.0, wcm.getCorrelation(term1, term3).getAbsoluteCorrelation());
         Assert.assertEquals(7.0, wcm.getCorrelation(term1, term4).getAbsoluteCorrelation());
         Assert.assertEquals(7.0, wcm.getCorrelation(term1, term5).getAbsoluteCorrelation());
+        Assert.assertEquals(2.0, wcm.getCorrelation(term2, term3).getAbsoluteCorrelation());
         // TODO can't we return a Correlation object with 0.0 when we have no correlation?
-        Assert.assertEquals(null, wcm.getCorrelation(term2, term3));
+        Assert.assertEquals(null, wcm.getCorrelation(term3, term4));
 
-        Assert.assertEquals(5.0 / 15.0, wcm.getCorrelation(term1, term2).getRelativeCorrelation());
-        Assert.assertEquals(5.0 / 15.0, wcm.getCorrelation(term2, term1).getRelativeCorrelation());
-        Assert.assertEquals(3.0 / 15.0, wcm.getCorrelation(term1, term3).getRelativeCorrelation());
-        Assert.assertEquals(7.0 / 15.0, wcm.getCorrelation(term1, term4).getRelativeCorrelation());
-        Assert.assertEquals(7.0 / 15.0, wcm.getCorrelation(term1, term5).getRelativeCorrelation());
+        Assert.assertEquals(5.0 / (15.0 + 7.0 - 5.0), wcm.getCorrelation(term2, term1).getRelativeCorrelation());
+        Assert.assertEquals(5.0 / (15.0 + 7.0 - 5.0), wcm.getCorrelation(term1, term2).getRelativeCorrelation());
+        Assert.assertEquals(3.0 / (15.0 + 5.0 - 3.0), wcm.getCorrelation(term1, term3).getRelativeCorrelation());
+        Assert.assertEquals(7.0 / (15.0 + 7.0 - 7.0), wcm.getCorrelation(term1, term4).getRelativeCorrelation());
+        Assert.assertEquals(7.0 / (15.0 + 7.0 - 7.0), wcm.getCorrelation(term1, term5).getRelativeCorrelation());
+        Assert.assertEquals(2.0 / (7.0 + 5.0 - 2.0), wcm.getCorrelation(term2, term3).getRelativeCorrelation());
 
         Assert.assertEquals(3, wcm.getCorrelations("sanfrancisco", -1).size());
-        Assert.assertEquals(1, wcm.getCorrelations("cablecar", -1).size());
+        Assert.assertEquals(2, wcm.getCorrelations("cablecar", -1).size());
+        Assert.assertEquals(1, wcm.getCorrelations("california", -1).size());
         Assert.assertEquals(0, wcm.getCorrelations("losangeles", -1).size());
 
     }
-    
-    
+
     @Test
     public void testWordCorrelationMatrixSerialization() {
-        
-        String fileName = "data/tmp_wcm_test_"+System.currentTimeMillis()+".ser";
+
+        String fileName = "data/tmp_wcm_test_" + System.currentTimeMillis() + ".ser";
         FileHelper.serialize(wcm, fileName);
-        
+
         WordCorrelationMatrix deserialized = (WordCorrelationMatrix) FileHelper.deserialize(fileName);
-        Assert.assertEquals(5.0 / 15.0, deserialized.getCorrelation(term1, term2).getRelativeCorrelation());
-        
+        Assert.assertEquals(5.0 / (15.0 + 7.0 - 5.0), deserialized.getCorrelation(term1, term2)
+                .getRelativeCorrelation());
+
         // clean up
         FileHelper.delete(fileName);
     }

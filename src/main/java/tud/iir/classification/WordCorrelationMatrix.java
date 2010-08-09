@@ -14,10 +14,18 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.StopWatch;
 
 /**
+ * <p>
  * Correlation matrix.
+ * </p>
  * 
- * 2010-08-04 changed data structure from HashSet to HashMap for performance optimizations. Serializations which have
- * been created for the old class will not be compatible. Sorry.
+ * <p>
+ * See corresponding test case {@link WordCorrelationMatrixTest} for an example.
+ * </p>
+ * <p>
+ * 2010-08-04 -- changed internal data structure from HashSet to HashMap for performance optimizations. Serializations
+ * which have been created for the old class will not be compatible. Sorry.
+ * </p>
+ * 
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
@@ -30,7 +38,7 @@ public class WordCorrelationMatrix implements Serializable {
     private static final long serialVersionUID = 8049650115039222181L;
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(WordCorrelationMatrix.class);
+    protected static final Logger LOGGER = Logger.getLogger(WordCorrelationMatrix.class);
 
     /** Internal cache for all Terms, to keep the number of instances small. */
     private Map<String, Term> termMap = new HashMap<String, Term>();
@@ -73,7 +81,7 @@ public class WordCorrelationMatrix implements Serializable {
      * @param word
      * @return
      */
-    private Term getTerm(String word) {
+    protected Term getTerm(String word) {
         Term term = termMap.get(word);
         if (term == null) {
             term = new Term(word);
@@ -82,7 +90,7 @@ public class WordCorrelationMatrix implements Serializable {
         return term;
     }
 
-    private void createWordCorrelation(String word1, String word2) {
+    protected void createWordCorrelation(String word1, String word2) {
         WordCorrelation wc = new WordCorrelation(getTerm(word1), getTerm(word2));
         wc.setAbsoluteCorrelation(1.0);
         putToCorrelationsMap(word1, wc);
@@ -137,10 +145,11 @@ public class WordCorrelationMatrix implements Serializable {
         LOGGER.trace("calculated relative scores in " + sw.getElapsedTimeString());
     }
 
-    private int getRowSum(Term term) {
+    protected int getRowSum(Term term) {
         int rowSum = 0;
 
-        List<WordCorrelation> correlations = termCorrelations.get(term.getText());
+        // List<WordCorrelation> correlations = termCorrelations.get(term.getText());
+        List<WordCorrelation> correlations = getCorrelations(term.getText(), -1);
         for (WordCorrelation entry : correlations) {
             if (entry.getTerm1().getText().equals(term.getText()) || entry.getTerm2().getText().equals(term.getText())) {
                 rowSum += entry.getAbsoluteCorrelation();
@@ -172,13 +181,13 @@ public class WordCorrelationMatrix implements Serializable {
         return correlation;
     }
 
-    public List<WordCorrelation> getCorrelations(String word1, int minCooccurrences) {
+    public List<WordCorrelation> getCorrelations(String word, int minCooccurrences) {
         List<WordCorrelation> correlations = new ArrayList<WordCorrelation>();
-        List<WordCorrelation> toCheck = termCorrelations.get(word1);
+        List<WordCorrelation> toCheck = termCorrelations.get(word);
 
         if (toCheck != null) {
             for (WordCorrelation entry : toCheck) {
-                if ((entry.getTerm1().getText().equals(word1) || entry.getTerm2().getText().equals(word1))
+                if ((entry.getTerm1().getText().equals(word) || entry.getTerm2().getText().equals(word))
                         && entry.getAbsoluteCorrelation() >= minCooccurrences) {
                     correlations.add(entry);
                 }
