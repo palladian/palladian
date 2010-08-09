@@ -6,13 +6,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.commons.collections15.Bag;
@@ -116,7 +116,7 @@ public class ControlledTagger implements Serializable {
 
     // //////// misc. ///////////
 
-    /** The Stemmer. This is not serializable and must be re-created opun de-serialization, see {@link #setup()} */
+    /** The Stemmer. This is not serializable and must be re-created opun de-serialization, see {@link #setup()}. */
     private transient SnowballStemmer stemmer;
 
     // //////// constuctor /////////
@@ -143,7 +143,8 @@ public class ControlledTagger implements Serializable {
         addToIndex(text);
 
         if (correlationType != TaggingCorrelationType.NO_CORRELATIONS) {
-            addToWcm(stemmedTags);
+            // addToWcm(stemmedTags);
+            addToWcm(stemmedTags.uniqueSet());
         }
 
         trainCount++;
@@ -158,8 +159,9 @@ public class ControlledTagger implements Serializable {
      * 
      * @param tags
      */
-    private void addToWcm(Bag<String> tags) {
-        String[] tagArray = tags.uniqueSet().toArray(new String[0]);
+    // private void addToWcm(Bag<String> tags) {
+    private void addToWcm(Set<String> tags) {
+        String[] tagArray = tags.toArray(new String[0]);
 
         for (int i = 0; i < tagArray.length; i++) {
             for (int j = i + 1; j < tagArray.length; j++) {
@@ -385,8 +387,7 @@ public class ControlledTagger implements Serializable {
             // of correctly assigning a tag which is "popular" is higher.
             // if (usePriors) {
             if (priorWeight != -1) {
-                float priorBoost = (float) Math.log10(1.0 + (float) stemmedTagVocabulary.getCount(tag)
-                        / averageTagOccurence);
+                float priorBoost = (float) Math.log10(1.0 + stemmedTagVocabulary.getCount(tag) / averageTagOccurence);
                 assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
                 termFreqInvDocFreq *= priorWeight * priorBoost;
             }
@@ -471,7 +472,7 @@ public class ControlledTagger implements Serializable {
     private void limitToWeight(List<Tag> tags, float minWeight) {
         ListIterator<Tag> iterator = tags.listIterator();
         while (iterator.hasNext()) {
-            if (iterator.next().weight < minWeight) {
+            if (iterator.next().getWeight() < minWeight) {
                 iterator.remove();
             }
         }
@@ -494,9 +495,10 @@ public class ControlledTagger implements Serializable {
             while (tagIterator.hasNext()) {
                 Tag currentTag = tagIterator.next();
 
-                WordCorrelation correlation = wcm.getCorrelation(topTag.name, currentTag.name);
+                WordCorrelation correlation = wcm.getCorrelation(topTag.getName(), currentTag.getName());
                 if (correlation != null) {
-                    currentTag.weight += correlationWeight * correlation.getRelativeCorrelation();
+                    // currentTag.weight += correlationWeight * correlation.getRelativeCorrelation();
+                    currentTag.increaseWeight((float) (correlationWeight * correlation.getRelativeCorrelation()));
                 }
             }
         }
@@ -508,13 +510,15 @@ public class ControlledTagger implements Serializable {
                 Tag outerTag = tagsArray[i];
                 for (int j = i; j < tagsArray.length; j++) {
                     Tag innerTag = tagsArray[j];
-                    WordCorrelation correlation = wcm.getCorrelation(outerTag.name, innerTag.name);
+                    WordCorrelation correlation = wcm.getCorrelation(outerTag.getName(), innerTag.getName());
                     if (correlation != null) {
-                        double reRanking = ((float) correlationWeight / tagsArray.length)
-                                * correlation.getRelativeCorrelation();
+                        float reRanking = (float) ((correlationWeight / tagsArray.length) * correlation
+                                .getRelativeCorrelation());
                         assert !Double.isInfinite(reRanking) && !Double.isNaN(reRanking);
-                        innerTag.weight += reRanking;
-                        outerTag.weight += reRanking;
+                        // innerTag.weight += reRanking;
+                        // outerTag.weight += reRanking;
+                        innerTag.increaseWeight(reRanking);
+                        outerTag.increaseWeight(reRanking);
                     }
                 }
             }
@@ -691,10 +695,17 @@ public class ControlledTagger implements Serializable {
 
     private void unstem(List<Tag> stemmedTags) {
         for (Tag tag : stemmedTags) {
-            tag.name = unstem(tag.name);
+            String unstemmed = unstem(tag.getName());
+            tag.setName(unstemmed);
         }
     }
 
+    /**
+     * Normalize a list of Tags according to the stemming rules. We need this for the evaluation process, as the the
+     * test Tags need to be normalized the same way.
+     * 
+     * @param tags
+     */
     Bag<String> normalize(Bag<String> tags) {
         Bag<String> normalizedTags = new HashBag<String>();
         for (String tag : tags.uniqueSet()) {
@@ -836,62 +847,6 @@ public class ControlledTagger implements Serializable {
         tagger.addToVocabulary(Arrays.asList(tags));
         tagger.tag(Arrays.asList(new String[] { d1, d2, d3, d4, d5 }));
 
-    }
-
-}
-
-// TODO move to their own files, add getter/setter.
-
-/**
- * Represents a Tag.
- * 
- * @author Philipp Katz
- * 
- */
-class Tag {
-
-    String name;
-    float weight;
-
-    public Tag() {
-
-    }
-
-    public Tag(String name, float weight) {
-        this.name = name;
-        this.weight = weight;
-    }
-
-    @Override
-    public String toString() {
-        return name + ":" + weight;
-    }
-
-}
-
-/**
- * Compare Tags based on their weights.
- * 
- * @author Philipp Katz
- * 
- */
-class TagComparator implements Comparator<Tag> {
-
-    private int sign = 1;
-
-    public TagComparator() {
-        this(true);
-    }
-
-    public TagComparator(boolean descending) {
-        if (descending) {
-            sign = -1;
-        }
-    }
-
-    @Override
-    public int compare(Tag t1, Tag t2) {
-        return new Float(t1.weight).compareTo(t2.weight) * sign;
     }
 
 }

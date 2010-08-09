@@ -1,6 +1,7 @@
 package tud.iir.helper;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import edu.smu.tspell.wordnet.Synset;
 import edu.smu.tspell.wordnet.SynsetType;
@@ -50,6 +51,85 @@ public class WordNet {
         synonyms.toArray(str);
         return str;
     }
+    
+    // TODO works, but I dont use it any more. keep? remove?
+    /**
+     * <p>
+     * Try to transform a gerund back to its infinitive form. The following code is very "ad hoc" and depends on the
+     * WordNet database. We simply try out different infinitive possibilities and check their occurence and counts in
+     * WordNet. We assume that the occurence with the highest count in WordNet is the correct infinitive form of the
+     * supplied gerund. Basically, there are three possibilities when transforming an infinitive to gerund:
+     * </p>
+     * 
+     * <ol>
+     * <li>think > thinking: Most simple variant by just appending the -ing suffix.</li>
+     * <li>hit > hit<u>t</u>ing: The ending consonant is doubled, then -ing is appended.</li>
+     * <li>take > tak<s>e</s><u>ing</u>: The -e is removed before appending -ing.</li>
+     * </ol>
+     * 
+     * <p>
+     * The problem when doing a revese-transformation is, that we cannot know from the gerund form itself which of the
+     * above rules was applied (e. g. "thinking" vs. "taking"), so have to try out all three back-transformations.
+     * </p>
+     * 
+     * @see <a href="http://web2.uvcs.uvic.ca/elc/studyzone/410/grammar/gerund.htm">Forming Gerunds</a>
+     * @see <a href="http://wordnet.princeton.edu">Wordnet</a>
+     * 
+     * @param gerund the gerund to transform.
+     * @return infinitive form of the gerund, or the supplied word, if no transformation can be applied.
+     * 
+     * @author Philipp Katz
+     */
+    public static String gerundToInfinitive(String gerund) {
+
+        String infinitive = gerund;
+
+        if (gerund.endsWith("ing") && gerund.length() > 4) {
+
+            List<String> candidates = new ArrayList<String>(3);
+
+            // simply remove -ing suffix
+            String stem = gerund.substring(0, gerund.length() - 3).toLowerCase();
+
+            candidates.add(stem);
+            candidates.add(stem.concat("e"));
+
+            // check if stemmed form ends on a doubled consonant, like "hitting"
+            // if so, add "hit" to candidates
+            char firstLast = stem.charAt(stem.length() - 1);
+            char secondLast = stem.charAt(stem.length() - 2);
+            boolean removeConsonant = true;
+            removeConsonant = removeConsonant && !StringHelper.isVowel(firstLast);
+            removeConsonant = removeConsonant && firstLast == secondLast;
+            if (removeConsonant) {
+                candidates.add(stem.substring(0, stem.length() - 1));
+            }
+
+            // now we check all candidates (two or three) for their plausibilities
+            WordNetDatabase database = WordNetDatabase.getFileInstance();
+
+            int maxCount = 0;
+            for (String candidate : candidates) {
+                Synset[] synsets = database.getSynsets(candidate, SynsetType.VERB);
+                int currentCount = 0;
+                for (Synset synset : synsets) {
+                    for (String word : synset.getWordForms()) {
+                        if (word.equals(candidate)) {
+                            currentCount += 1 + synset.getTagCount(word);
+                        }
+                    }
+                }
+                if (currentCount > maxCount) {
+                    infinitive = candidate;
+                    maxCount = currentCount;
+                }
+            }
+        }
+        // System.out.println(gerund + " -> " + infinitive);
+        return infinitive;
+
+    }
+
 
     /**
      * @param args
