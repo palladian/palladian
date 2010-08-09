@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
@@ -28,6 +29,7 @@ import tud.iir.web.URLDownloader.URLDownloaderCallback;
 public class EventAggregator {
 	/** The logger for this class. */
 	private static final Logger LOGGER = Logger.getLogger(NewsAggregator.class);
+	
 	/** Used for all downloading purposes. */
 	private Crawler crawler = new Crawler();
 
@@ -36,34 +38,35 @@ public class EventAggregator {
 	private int resultCount = 10;
 
 	private List<Event> events = new ArrayList<Event>();
-	private String query = new String();
+	
+	private String query;
 
-	private static final HashMap<String, Event> eventMap = new HashMap<String, Event>();
+	private final Map<String, Event> eventMap;
 
 	private int maxThreads = DEFAULT_MAX_THREADS;
 
 	public EventAggregator() {
-
+		this.eventMap = new HashMap<String, Event>();
 	}
 
 	public void aggregate() {
 
-		SourceRetriever s = new SourceRetriever();
+		final SourceRetriever sourceRetriever = new SourceRetriever();
 
 		// setting resultCount
-		s.setResultCount(this.resultCount);
+		sourceRetriever.setResultCount(this.resultCount);
 
 		// set search result language to english
-		s.setLanguage(SourceRetriever.LANGUAGE_ENGLISH);
+		sourceRetriever.setLanguage(SourceRetriever.LANGUAGE_ENGLISH);
 
-		Event tmp = new Event();
-		tmp.setWebresults(s.getWebResults(query,
+		final Event tmp = new Event();
+		tmp.setWebresults(sourceRetriever.getWebResults(query,
 				SourceRetrieverManager.GOOGLE, false));
 		events.add(tmp);
 		LOGGER.info("query: " + query);
 
 		// initiating eventStack
-		Stack<Event> eventStack = new Stack<Event>();
+		final Stack<Event> eventStack = new Stack<Event>();
 		eventStack.addAll(events);
 
 		// count number of running Threads
@@ -138,7 +141,7 @@ public class EventAggregator {
 
 	}
 
-	private void fetchPageContentIntoEvents(ArrayList<WebResult> webresults) {
+	private void fetchPageContentIntoEvents(List<WebResult> webresults) {
 
 		LOGGER.info("downloading " + webresults.size() + " pages");
 
@@ -169,7 +172,7 @@ public class EventAggregator {
 
 	}
 
-	public HashMap<String, Event> getEventmap() {
+	public Map<String, Event> getEventmap() {
 		return eventMap;
 	}
 

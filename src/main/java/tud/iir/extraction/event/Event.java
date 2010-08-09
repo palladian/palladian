@@ -1,8 +1,8 @@
 package tud.iir.extraction.event;
 
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import tud.iir.classification.FeatureObject;
@@ -22,12 +22,12 @@ public class Event extends Extractable {
 	 */
 	private static final long serialVersionUID = 1023303092784471374L;
 	private FeatureObject features;
-	private HashMap<Integer, FeatureObject> entityFeatures;
-	private HashMap<Integer, Set<Chunk>> entityChunks;
+	private Map<Integer, FeatureObject> entityFeatures;
+	private Map<Integer, Set<Chunk>> entityChunks;
 	private String text;
 	private String title;
 	private String url;
-	private ArrayList<WebResult> webresults;
+	private List<WebResult> webresults;
 
 	private String who;
 	private String where;
@@ -37,11 +37,14 @@ public class Event extends Extractable {
 	private String how;
 
 	public Event() {
+		super();
 		setExtractedAt(new Date(System.currentTimeMillis()));
 	}
 
 	public Event(String url) {
+		super();
 		this.url = url;
+		
 		setExtractedAt(new Date(System.currentTimeMillis()));
 	}
 
@@ -75,19 +78,19 @@ public class Event extends Extractable {
 		this.features = features;
 	}
 
-	public HashMap<Integer, FeatureObject> getEntityFeatures() {
+	public Map<Integer, FeatureObject> getEntityFeatures() {
 		return entityFeatures;
 	}
 
-	public void setEntityFeatures(HashMap<Integer, FeatureObject> entityFeatures) {
+	public void setEntityFeatures(Map<Integer, FeatureObject> entityFeatures) {
 		this.entityFeatures = entityFeatures;
 	}
 
-	public HashMap<Integer, Set<Chunk>> getEntityChunks() {
+	public Map<Integer, Set<Chunk>> getEntityChunks() {
 		return entityChunks;
 	}
 
-	public void setEntityChunks(HashMap<Integer, Set<Chunk>> entityChunks) {
+	public void setEntityChunks(Map<Integer, Set<Chunk>> entityChunks) {
 		this.entityChunks = entityChunks;
 	}
 
@@ -99,11 +102,11 @@ public class Event extends Extractable {
 		this.url = url;
 	}
 
-	public ArrayList<WebResult> getWebresults() {
+	public List<WebResult> getWebresults() {
 		return webresults;
 	}
 
-	public void setWebresults(ArrayList<WebResult> webresult) {
+	public void setWebresults(List<WebResult> webresult) {
 		this.webresults = webresult;
 	}
 

@@ -20,6 +20,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.FeatureObject;
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 import tud.iir.knowledge.Entity;
@@ -47,9 +48,7 @@ import com.aliasi.spell.WeightedEditDistance;
 import com.aliasi.tag.Tagging;
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;
-import com.aliasi.util.AbstractExternalizable;
 import com.aliasi.util.FastCache;
-import com.aliasi.util.ScoredObject;
 import com.representqueens.lingua.en.Fathom;
 import com.representqueens.lingua.en.Readability;
 import com.representqueens.lingua.en.Fathom.Stats;
@@ -62,14 +61,14 @@ import com.representqueens.lingua.en.Fathom.Stats;
 public class EventFeatureExtractor {
 
 	/** model file for lingpipe rescoring chunker from muc6 */
-	static final File modelFile = new File("data/models/ne-en-news-muc6.AbstractCharLmRescoringChunker");
+	private static final String CHUNK_MODEL = "ne-en-news-muc6.AbstractCharLmRescoringChunker";
 
 	/** brown hidden markov model */
-	static final String BROWN_HMM = "pos-en-general-brown.HiddenMarkovModel";
+	private static final String BROWN_HMM = "pos-en-general-brown.HiddenMarkovModel";
 
-	static final Pattern MALE_PRONOUNS = Pattern
+	private static final Pattern MALE_PRONOUNS = Pattern
 			.compile("\\b(He|he|Him|him|His|his)\\b");
-	static final Pattern FEMALE_PRONOUNS = Pattern
+	private static final Pattern FEMALE_PRONOUNS = Pattern
 			.compile("\\b(She|she|Her|her|Hers|hers)\\b");
 
 	/** the logger for this class */
@@ -77,6 +76,7 @@ public class EventFeatureExtractor {
 
 	/**
 	 * sets the features of an event
+	 * 
 	 * @param event
 	 */
 	public static void setFeatures(Event event) {
@@ -85,15 +85,16 @@ public class EventFeatureExtractor {
 		setEntityFeatures(event);
 	}
 
-	
 	/**
 	 * sets the entityFeatures for a whole Map of Events
+	 * 
 	 * @param eventMap
 	 */
-	private static void setEntityFeatures(HashMap<String, Event> eventMap) {
+	@SuppressWarnings("unused")
+	private static void setEntityFeatures(Map<String, Event> eventMap) {
 
 		for (Entry<String, Event> entry : eventMap.entrySet()) {
-			Event event = entry.getValue();
+			final Event event = entry.getValue();
 			if (event != null && event.getText() != null) {
 				setEntityFeatures(event);
 			}
@@ -103,34 +104,32 @@ public class EventFeatureExtractor {
 
 	/**
 	 * sets text features for event
+	 * 
 	 * @param event
 	 */
 	private static void setTextFeatures(Event event) {
 
-		Stats fs = Fathom.analyze(event.getText());
-
-		HashMap<String, Double> features = new HashMap<String, Double>();
-
-		Map<String, Integer> uniqueWords = fs.getUniqueWords();
+		final Stats fstats = Fathom.analyze(event.getText());
+		final HashMap<String, Double> features = new HashMap<String, Double>();
+		final Map<String, Integer> uniqueWords = fstats.getUniqueWords();
 
 		features.put("UniqueWords", (double) uniqueWords.size());
-		features.put("WordCount", (double) fs.getNumWords());
-		features.put("SentenceCount", (double) fs.getNumSentences());
-		features.put("SyllablesCount", (double) fs.getNumSyllables());
+		features.put("WordCount", (double) fstats.getNumWords());
+		features.put("SentenceCount", (double) fstats.getNumSentences());
+		features.put("SyllablesCount", (double) fstats.getNumSyllables());
 
 		features.put("ComplexWordPercentage", (double) Readability
-				.percentComplexWords(fs));
+				.percentComplexWords(fstats));
 		// Gunning-Fog Score
-		features.put("FogIndex", (double) Readability.calcFog(fs));
+		features.put("FogIndex", (double) Readability.calcFog(fstats));
 		// Flesch-Kincaid Reading Ease
-		features.put("Flesh", (double) Readability.calcFlesch(fs));
+		features.put("Flesh", (double) Readability.calcFlesch(fstats));
 		features.put("WordsPerSentence", (double) Readability
-				.wordsPerSentence(fs));
+				.wordsPerSentence(fstats));
 
 		event.setFeatures(new FeatureObject(features));
 
 	}
-	
 
 	/**
 	 * sets the EntityFeatures for a given event
@@ -139,79 +138,76 @@ public class EventFeatureExtractor {
 	 */
 	private static void setEntityFeatures(Event event) {
 
-		
-		HashMap<Integer, Set<Chunk>> corefChunkSet = getCoreferenceChunks(event);
-		
-		//setting coreferenceChunkSet
-		event.setEntityChunks(corefChunkSet);
+		final HashMap<Integer, Set<Chunk>> corefChunkSet = (HashMap<Integer, Set<Chunk>>) getCoreferenceChunks(event);
+		final HashMap<Integer, FeatureObject> featureObjects = new HashMap<Integer, FeatureObject>();
 
-		HashMap<Integer, FeatureObject> featureObjects = new HashMap<Integer, FeatureObject>();
+		// setting coreferenceChunkSet
+		event.setEntityChunks(corefChunkSet);
 
 		for (Entry<Integer, Set<Chunk>> entry : corefChunkSet.entrySet()) {
 			featureObjects.put(entry.getKey(), calculateEntityChunkSetFeatures(
 					event, entry.getValue()));
 		}
 
-		//setting entity features for the chunks
+		// setting entity features for the chunks
 		event.setEntityFeatures(featureObjects);
 
 	}
-	
 
-	
 	/**
 	 * performs coreference chunking on an Event
 	 * 
 	 * @param event
 	 * @return
 	 */
-	private static HashMap<Integer, Set<Chunk>> getCoreferenceChunks(Event event){
-	
-		
-		LOGGER.info("performing coreference: " + event.getUrl());
-		
-		MentionFactory mf = new EnglishMentionFactory();
-		WithinDocCoref coref = new WithinDocCoref(mf);
+	private static Map<Integer, Set<Chunk>> getCoreferenceChunks(Event event) {
 
-		Set<Chunk> chunkSet = getEntityChunks(event);
+		LOGGER.info("performing coreference: " + event.getUrl());
+
+		final MentionFactory mfactory = new EnglishMentionFactory();
+		final WithinDocCoref coref = new WithinDocCoref(mfactory);
+
+		final Set<Chunk> chunkSet = getEntityChunks(event);
+		final HashMap<Integer, Set<Chunk>> corefChunkMap = new HashMap<Integer, Set<Chunk>>();
+
+		int mentionId;
+		Mention mention;
+		String phrase;
+		Chunk chunk;
+		Set<Chunk> tmpChunkSet;
 
 		addPronouns(MALE_PRONOUNS, "MALE_PRONOUN", event.getText(), chunkSet);
 		addPronouns(FEMALE_PRONOUNS, "FEMALE_PRONOUN", event.getText(),
 				chunkSet);
 
-		HashMap<Integer, Set<Chunk>> corefChunkMap = new HashMap<Integer, Set<Chunk>>();
+		Iterator<Chunk> iterator = chunkSet.iterator();
 
-		Iterator<Chunk> it = chunkSet.iterator();
+		while (iterator.hasNext()) {
 
-		while (it.hasNext()) {
+			chunk = iterator.next();
 
-			Chunk chunk = it.next();
+			phrase = event.getText().substring(chunk.start(), chunk.end())
+					.toLowerCase();
 
-			String phrase = event.getText().substring(chunk.start(),
-					chunk.end()).toLowerCase();
-
-			Mention mention = mf.create(phrase, chunk.type());
-			int mentionId = coref.resolveMention(mention, 1);
+			mention = mfactory.create(phrase, chunk.type());
+			mentionId = coref.resolveMention(mention, 1);
 
 			if (corefChunkMap.containsKey(mentionId)) {
-				Set<Chunk> tmpChunkSet = corefChunkMap.get(mentionId);
+				tmpChunkSet = corefChunkMap.get(mentionId);
 				tmpChunkSet.add(chunk);
 				corefChunkMap.put(mentionId, tmpChunkSet);
 
 			} else {
-				Set<Chunk> tmpChunkSet = new HashSet<Chunk>();
+				tmpChunkSet = new HashSet<Chunk>();
 				tmpChunkSet.add(chunk);
 				corefChunkMap.put(mentionId, tmpChunkSet);
 
 			}
 
 		}
-		
+
 		return corefChunkMap;
 	}
-	
-	
-	
 
 	/**
 	 * calculates features for a Set of Chunks
@@ -231,18 +227,20 @@ public class EventFeatureExtractor {
 		double type = 0.0;
 		double start = 0.0;
 		double end = 0.0;
+		String phrase;
 
 		for (Chunk chunk : chunkSet) {
-			String phrase = event.getText().substring(chunk.start(),
-					chunk.end()).toLowerCase();
+			phrase = event.getText().substring(chunk.start(), chunk.end())
+					.toLowerCase();
 
 			if (phrase.length() > 3) {
 
 				textEntityCount += 1.0;
+				density = 0.0;
 
 				if (titleEntityCount == 0.0) {
 					titleEntityCount = (double) countEntityOccurrences(
-							new Entity(phrase), event.getTitle(), false);
+							new Entity(phrase), event.getTitle());
 				}
 
 				if (chunk.type().equals("PERSON")) {
@@ -271,36 +269,21 @@ public class EventFeatureExtractor {
 
 	}
 
-
 	/**
 	 * simply extracts chunks
+	 * 
 	 * @param event
 	 * @return
 	 */
 	private static Set<Chunk> getEntityChunks(Event event) {
 
-		Chunker mEntityChunker;
+		Set<Chunk> chunkSet = new TreeSet<Chunk>(Chunk.TEXT_ORDER_COMPARATOR);
+		chunkSet.addAll(nBestNEChunking(event.getText()));
 
-		try {
-			mEntityChunker = (Chunker) AbstractExternalizable
-					.readObject(modelFile);
+		return chunkSet;
 
-			Chunking mentionChunking = mEntityChunker.chunk(event.getText());
-
-			Set<Chunk> chunkSet = new TreeSet<Chunk>(
-					Chunk.LONGEST_MATCH_ORDER_COMPARATOR);
-			chunkSet.addAll(mentionChunking.chunkSet());
-
-			return chunkSet;
-		} catch (IOException e) {
-			LOGGER.error(e);
-		} catch (ClassNotFoundException e) {
-			LOGGER.error(e);
-		}
-		return null;
 	}
-	
-	
+
 	/**
 	 * Extract a list of part-of-speech tags from a sentence.
 	 * 
@@ -308,6 +291,7 @@ public class EventFeatureExtractor {
 	 *            - The sentence
 	 * @return The part of speach tags.
 	 */
+	@SuppressWarnings("unused")
 	private static Set<Chunk> getPhraseChunks(String sentence) {
 
 		ObjectInputStream oi = null;
@@ -326,7 +310,7 @@ public class EventFeatureExtractor {
 				DataHolder.getInstance().putDataObject(BROWN_HMM, hmm);
 			}
 
-			int cacheSize = Integer.valueOf(100);
+			final int cacheSize = Integer.valueOf(100);
 			FastCache<String, double[]> cache = new FastCache<String, double[]>(
 					cacheSize);
 
@@ -376,14 +360,13 @@ public class EventFeatureExtractor {
 		return null;
 	}
 
-
 	/**
 	 * Return the set of occurrences of a certain entity in a provided string,
 	 * including different spellings of the entity.
 	 * 
 	 * An optional parameter allows to specify whether the entity might be
 	 * prefixed by "the", "an" or "a".
-	 *
+	 * 
 	 * @param entity
 	 * @param text
 	 * @param includePrefixes
@@ -416,20 +399,25 @@ public class EventFeatureExtractor {
 						.getName()));
 		if (includePrefixes) {
 			for (String prefix : prefixes) {
-				dict.addEntry(new DictionaryEntry<String>(prefix + " "
-						+ entityName, entity.getName()));
+				DictionaryEntry<String> dictEntry = new DictionaryEntry<String>(
+						prefix + " " + entityName, entity.getName());
+				dict.addEntry(dictEntry);
 			}
 		}
 
 		// synonyms
 		for (String synonym : synonyms) {
-			dict
-					.addEntry(new DictionaryEntry<String>(synonym, entity
-							.getName()));
+
+			DictionaryEntry<String> dictEntry = new DictionaryEntry<String>(synonym,
+					entity.getName());
+
+			dict.addEntry(dictEntry);
+
 			if (includePrefixes) {
 				for (String prefix : prefixes) {
-					dict.addEntry(new DictionaryEntry<String>(prefix + " "
-							+ synonym, entity.getName()));
+					DictionaryEntry<String> dEntry = new DictionaryEntry<String>(
+							prefix + " " + synonym, entity.getName());
+					dict.addEntry(dEntry);
 				}
 			}
 		}
@@ -448,10 +436,12 @@ public class EventFeatureExtractor {
 	 * Split a provided string into sentences and return a set of sentence
 	 * chunks.
 	 */
+	@SuppressWarnings("unused")
 	private static Set<Chunk> getSentenceChunks(String text) {
 
-		if (text == null)
+		if (text == null) {
 			return null;
+		}
 
 		TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
 		SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
@@ -464,8 +454,6 @@ public class EventFeatureExtractor {
 		return chunking.chunkSet();
 	}
 
-	
-	
 	private static void addPronouns(Pattern pattern, String tag,
 			String sentenceText, Set<Chunk> chunkSet) {
 		java.util.regex.Matcher matcher = pattern.matcher(sentenceText);
@@ -475,12 +463,13 @@ public class EventFeatureExtractor {
 					.end(), tag);
 			// incredibly inefficient quadratic algorithm here, but bounded by
 			// sentence
-			Iterator<Chunk> it = chunkSet.iterator();
-			while (it.hasNext()) {
-				Chunk chunk = it.next();
+			Iterator<Chunk> iterator = chunkSet.iterator();
+			while (iterator.hasNext()) {
+				Chunk chunk = iterator.next();
 				if (overlap(chunk.start(), chunk.end(), proChunk.start(),
-						proChunk.end()))
-					it.remove();
+						proChunk.end())) {
+					iterator.remove();
+				}
 			}
 			chunkSet.add(proChunk);
 			pos = matcher.end();
@@ -489,11 +478,11 @@ public class EventFeatureExtractor {
 
 	@SuppressWarnings("unused")
 	private static String resolveChunkSet(Set<Chunk> chunkSet, Event event) {
-		Iterator<Chunk> it = chunkSet.iterator();
+		Iterator<Chunk> iterator = chunkSet.iterator();
 		StringBuilder sb = new StringBuilder();
-		while (it.hasNext()) {
+		while (iterator.hasNext()) {
 
-			Chunk chunk = it.next();
+			Chunk chunk = iterator.next();
 
 			String phrase = event.getText().substring(chunk.start(),
 					chunk.end()).toLowerCase();
@@ -530,7 +519,6 @@ public class EventFeatureExtractor {
 		return density;
 	}
 
-	
 	/**
 	 * counts Entity occurences with the help of dictonaryChunker
 	 * 
@@ -541,8 +529,7 @@ public class EventFeatureExtractor {
 	 * @param includePrefixes
 	 * @return count of occurrences
 	 */
-	private static int countEntityOccurrences(Entity entity, String article,
-			boolean includePrefixes) {
+	private static int countEntityOccurrences(Entity entity, String article) {
 
 		return getDictionaryChunksForEntity(entity, article, false).size();
 
@@ -556,16 +543,28 @@ public class EventFeatureExtractor {
 	 * @return
 	 */
 	@SuppressWarnings(value = { "unused" })
-	private static Iterator<Chunk> firstBestNEChunking(String text) {
+	private static Set<Chunk> firstBestNEChunking(String text) {
 
 		Chunker chunker;
 		try {
-			chunker = (Chunker) AbstractExternalizable.readObject(modelFile);
-			return chunker.chunk(text).chunkSet().iterator();
+
+			if (DataHolder.getInstance().containsDataObject(CHUNK_MODEL)) {
+				chunker = (Chunker) DataHolder.getInstance().getDataObject(
+						CHUNK_MODEL);
+			} else {
+				ObjectInputStream oi = new ObjectInputStream(
+						new FileInputStream("data" + File.separator + "models"
+								+ File.separator + CHUNK_MODEL));
+				chunker = (Chunker) oi.readObject();
+				DataHolder.getInstance().putDataObject(CHUNK_MODEL, chunker);
+			}
+
+			return chunker.chunk(text).chunkSet();
+
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 		}
 		return null;
 	}
@@ -582,17 +581,27 @@ public class EventFeatureExtractor {
 
 		ConfidenceChunker chunker;
 		try {
-			chunker = (ConfidenceChunker) AbstractExternalizable
-					.readObject(modelFile);
+
+			if (DataHolder.getInstance().containsDataObject(CHUNK_MODEL)) {
+				chunker = (ConfidenceChunker) DataHolder.getInstance()
+						.getDataObject(CHUNK_MODEL);
+			} else {
+				ObjectInputStream oi = new ObjectInputStream(
+						new FileInputStream("data" + File.separator + "models"
+								+ File.separator + CHUNK_MODEL));
+				chunker = (ConfidenceChunker) oi.readObject();
+				DataHolder.getInstance().putDataObject(CHUNK_MODEL, chunker);
+			}
+
 			char[] cs = text.toCharArray();
 
 			return chunker.nBestChunks(cs, 0, cs.length, 30);
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 
 		}
 		return null;
@@ -606,23 +615,31 @@ public class EventFeatureExtractor {
 	 *            - string to chunk
 	 * @return
 	 */
-	@SuppressWarnings(value = { "unused" })
-	private static Iterator<ScoredObject<Chunking>> nBestNEChunking(String text) {
+	private static Set<Chunk> nBestNEChunking(String text) {
 
 		NBestChunker chunker;
 		try {
-			chunker = (NBestChunker) AbstractExternalizable
-					.readObject(modelFile);
+
+			if (DataHolder.getInstance().containsDataObject(CHUNK_MODEL)) {
+				chunker = (NBestChunker) DataHolder.getInstance()
+						.getDataObject(CHUNK_MODEL);
+			} else {
+				ObjectInputStream oi = new ObjectInputStream(
+						new FileInputStream("data" + File.separator + "models"
+								+ File.separator + CHUNK_MODEL));
+				chunker = (NBestChunker) oi.readObject();
+				DataHolder.getInstance().putDataObject(CHUNK_MODEL, chunker);
+			}
+
 			char[] cs = text.toCharArray();
 
-			return chunker.nBest(cs, 0, cs.length, 5);
+			return chunker.chunk(cs, 0, cs.length).chunkSet();
 
 		} catch (IOException e) {
-			e.printStackTrace();
+			LOGGER.error(e);
 
 		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-
+			LOGGER.error(e);
 		}
 
 		return null;
@@ -635,7 +652,7 @@ public class EventFeatureExtractor {
 	 *            - the query
 	 * @return
 	 */
-	public static HashMap<String, Event> aggregateEvents(String query) {
+	public static Map<String, Event> aggregateEvents(String query) {
 
 		EventAggregator ea = new EventAggregator();
 		ea.setMaxThreads(5);
@@ -654,8 +671,9 @@ public class EventFeatureExtractor {
 	 * @param whats
 	 * @return
 	 */
-	private static String buildQuery(ArrayList<String> whos,
-			ArrayList<String> wheres, ArrayList<String> whats) {
+	@SuppressWarnings("unused")
+	private static String buildQuery(List<String> whos, List<String> wheres,
+			List<String> whats) {
 
 		StringBuilder sb = new StringBuilder();
 
@@ -682,9 +700,8 @@ public class EventFeatureExtractor {
 	 * @param whats
 	 * @param append
 	 */
-	public static void writeCSV(HashMap<String, Event> eventMap,
-			ArrayList<String> whos, ArrayList<String> wheres,
-			ArrayList<String> whats, boolean append) {
+	public static void writeCSV(Map<String, Event> eventMap, List<String> whos,
+			List<String> wheres, List<String> whats, boolean append) {
 
 		FileWriter fileWriter;
 		try {
@@ -704,13 +721,13 @@ public class EventFeatureExtractor {
 				Event ev = eentry.getValue();
 				if (ev != null && ev.getText() != null) {
 
-					HashMap<Integer, FeatureObject> featureMap = ev
+					Map<Integer, FeatureObject> featureMap = ev
 							.getEntityFeatures();
-					HashMap<Integer, Set<Chunk>> chunkMap = ev
+					Map<Integer, Set<Chunk>> chunkMap = ev
 							.getEntityChunks();
 					// hm.put(url, e);
 
-					if (chunkMap.size() > 0
+					if (chunkMap.size() != 0
 							&& featureMap.size() == chunkMap.size()) {
 
 						for (Entry<Integer, FeatureObject> eeentry : featureMap
@@ -757,7 +774,7 @@ public class EventFeatureExtractor {
 					}
 
 				}
-				ev = null;
+
 			}
 
 			// fileWriter.write("\n");
@@ -765,18 +782,19 @@ public class EventFeatureExtractor {
 			fileWriter.close();
 
 		} catch (IOException ex) {
-			ex.printStackTrace();
+			LOGGER.error(ex);
 		}
 	}
 
 	/**
 	 * featureObject 2 HashMap function
 	 * 
-	 * @param fo -  the featureObject
+	 * @param fo
+	 *            - the featureObject
 	 * @return hashMap
 	 */
 	@SuppressWarnings("unused")
-	private static HashMap<String, Double> fo2map(FeatureObject fo) {
+	private static Map<String, Double> fo2map(FeatureObject fo) {
 
 		List<String> fn = Arrays.asList(fo.getFeatureNames());
 		List<Double> fv = Arrays.asList(fo.getFeatures());
@@ -794,8 +812,8 @@ public class EventFeatureExtractor {
 	 */
 	public static void main(String[] args) {
 
-		// Event e =
-		// ee.extractEventFromURL("http://www.bbc.co.uk/news/world-asia-pacific-10707945");
+		Event e = EventExtractor
+				.extractEventFromURL("http://www.bbc.co.uk/news/world-asia-pacific-10707945");
 
 		// findWhat(e);
 		// NER + Feature Extraction of each Entity
@@ -809,83 +827,68 @@ public class EventFeatureExtractor {
 		 * queries.add("mexican border prison dead 14");
 		 */
 
-		ArrayList<String> whos = new ArrayList<String>();
-		whos.add("medics");
-		whos.add("workers");
-		// whos.add("foreign");
-		whos.add("british");
-		whos.add("taliban");
-		whos.add("Karen Woo");
-		whos.add("doctors");
-		whos.add("Doctors");
-
-		ArrayList<String> wheres = new ArrayList<String>();
-		wheres.add("Afghanistan");
-		wheres.add("afghanistan");
-		wheres.add("Badakhshan");
-		wheres.add("province");
-
-		ArrayList<String> whats = new ArrayList<String>();
-		whats.add("killed");
-		whats.add("kill");
-		whats.add("died");
-
-		// Michelle Obama visits Spanish city of Ronda
-		ArrayList<String> whos1 = new ArrayList<String>();
-		whos1.add("Michelle Obama");
-		whos1.add("Sasha");
-		whos1.add("dautgher");
-		whos1.add("first lady");
-
-		ArrayList<String> wheres1 = new ArrayList<String>();
-		wheres1.add("Ronda");
-		wheres1.add("Spanish");
-		wheres1.add("city");
-		wheres1.add("spain");
-		wheres1.add("Casa del Rey Moro");
-
-		ArrayList<String> whats1 = new ArrayList<String>();
-		whats1.add("visits");
-		whats1.add("visit");
-
-		// russia fire
-		ArrayList<String> whos2 = new ArrayList<String>();
-		whos2.add("Putin");
-
-		ArrayList<String> wheres2 = new ArrayList<String>();
-		wheres2.add("russia");
-		wheres2.add("moscow");
-
-		ArrayList<String> whats2 = new ArrayList<String>();
-		whats2.add("fire");
-		whats2.add("fires");
-		whats2.add("wildfires");
-
-		HashMap<String, Event> eventMap = aggregateEvents(buildQuery(whos,
-				wheres, whats));
-
-		HashMap<String, Event> eventMap1 = aggregateEvents(buildQuery(whos1,
-				wheres1, whats1));
-		HashMap<String, Event> eventMap2 = aggregateEvents(buildQuery(whos2,
-				wheres2, whats2));
+		/*
+		 * ArrayList<String> whos = new ArrayList<String>(); whos.add("medics");
+		 * whos.add("workers"); // whos.add("foreign"); whos.add("british");
+		 * whos.add("taliban"); whos.add("Karen Woo"); whos.add("doctors");
+		 * whos.add("Doctors");
+		 * 
+		 * ArrayList<String> wheres = new ArrayList<String>();
+		 * wheres.add("Afghanistan"); wheres.add("afghanistan");
+		 * wheres.add("Badakhshan"); wheres.add("province");
+		 * 
+		 * ArrayList<String> whats = new ArrayList<String>();
+		 * whats.add("killed"); whats.add("kill"); whats.add("died");
+		 * 
+		 * // Michelle Obama visits Spanish city of Ronda ArrayList<String>
+		 * whos1 = new ArrayList<String>(); whos1.add("Michelle Obama");
+		 * whos1.add("Sasha"); whos1.add("dautgher"); whos1.add("first lady");
+		 * 
+		 * ArrayList<String> wheres1 = new ArrayList<String>();
+		 * wheres1.add("Ronda"); wheres1.add("Spanish"); wheres1.add("city");
+		 * wheres1.add("spain"); wheres1.add("Casa del Rey Moro");
+		 * 
+		 * ArrayList<String> whats1 = new ArrayList<String>();
+		 * whats1.add("visits"); whats1.add("visit");
+		 * 
+		 * // russia fire ArrayList<String> whos2 = new ArrayList<String>();
+		 * whos2.add("Putin");
+		 * 
+		 * ArrayList<String> wheres2 = new ArrayList<String>();
+		 * wheres2.add("russia"); wheres2.add("moscow");
+		 * 
+		 * ArrayList<String> whats2 = new ArrayList<String>();
+		 * whats2.add("fire"); whats2.add("fires"); whats2.add("wildfires");
+		 * 
+		 * HashMap<String, Event> eventMap = aggregateEvents(buildQuery(whos,
+		 * wheres, whats));
+		 * 
+		 * HashMap<String, Event> eventMap1 = aggregateEvents(buildQuery(whos1,
+		 * wheres1, whats1)); HashMap<String, Event> eventMap2 =
+		 * aggregateEvents(buildQuery(whos2, wheres2, whats2));
+		 * 
+		 * StopWatch sw = new StopWatch(); sw.start();
+		 * setEntityFeatures(eventMap); setEntityFeatures(eventMap1);
+		 * setEntityFeatures(eventMap2);
+		 * 
+		 * writeCSV(eventMap, whos, wheres, whats, false); writeCSV(eventMap1,
+		 * whos1, wheres1, whats1, true); writeCSV(eventMap2, whos2, wheres2,
+		 * whats2, true);
+		 * 
+		 * sw.stop(); LOGGER.info("time elapsed: " + sw.getElapsedTimeString());
+		 */
 
 		StopWatch sw = new StopWatch();
 		sw.start();
-		setEntityFeatures(eventMap);
-		setEntityFeatures(eventMap1);
-		setEntityFeatures(eventMap2);
 
-		writeCSV(eventMap, whos, wheres, whats, false);
-		writeCSV(eventMap1, whos1, wheres1, whats1, true);
-		writeCSV(eventMap2, whos2, wheres2, whats2, true);
+		CollectionHelper.print(getEntityChunks(e).toArray());
 
 		sw.stop();
 		LOGGER.info("time elapsed: " + sw.getElapsedTimeString());
 
-		
-		getPhraseChunks("This is a test late at night.");
-		getSentenceChunks("");
-		
+		// getPhraseChunks("This is a test late at night.");
+		// getSentenceChunks("");
+
 	}
 
 }

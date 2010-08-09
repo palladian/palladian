@@ -1,16 +1,11 @@
 package tud.iir.extraction.event;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 
 import tud.iir.extraction.Extractor;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.StopWatch;
-
-import com.aliasi.hmm.HmmDecoder;
-import com.aliasi.tag.Tagging;
 
 /**
  * Event Extractor
@@ -26,7 +21,6 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 	/** the logger for this class */
 	private static final Logger LOGGER = Logger.getLogger(EventExtractor.class);
 
-	
 	/**
 	 * @return EventExtractor
 	 */
@@ -38,6 +32,7 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 	 * construtor of this class
 	 */
 	private EventExtractor() {
+		super();
 		// do not analyze any binary files
 		addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
 
@@ -56,7 +51,6 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 
 	@Override
 	protected void saveExtractions(boolean saveExtractions) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -67,42 +61,28 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 	 *            - url of a news article
 	 * @return Event - The event
 	 */
-	public Event extractEventFromURL(String url) {
+	public static Event extractEventFromURL(String url) {
+
 		try {
 
-			
-			PageContentExtractor pce = new PageContentExtractor();
+			final PageContentExtractor pce = new PageContentExtractor();
 			pce.setDocument(url);
 
 			return new Event(pce.getResultTitle(), pce.getResultText(), url);
 
 		} catch (PageContentExtractorException e) {
 
-			e.printStackTrace();
+			LOGGER.error(e);
 			LOGGER.error("URL not found: " + url);
 			return null;
 		}
-	}
-
-
-	/**
-	 * first best Chunking
-	 * 
-	 * @param tokenList
-	 * @param decoder
-	 */
-	static void firstBest(List<String> tokenList, HmmDecoder decoder) {
-		Tagging<String> tagging = decoder.tag(tokenList);
-		LOGGER.trace("\nFIRST BEST");
-		for (int i = 0; i < tagging.size(); ++i) {
-			LOGGER.trace(tagging.token(i) + "_" + tagging.tag(i) + " ");
-		}
-		LOGGER.trace("");
 
 	}
+
+	
 
 	@SuppressWarnings(value = { "unused" })
-	private static void trySRL(){
+	private static void trySRL() {
 
 		/*
 		 * LexicalizedParser lp = new LexicalizedParser(
@@ -134,8 +114,6 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 		// CollectionHelper.print(Tokenizer.calculateWordNGrams("Hello how are you",2));
 
 	}
-	
-	
 
 	/**
 	 * @param args
@@ -145,11 +123,9 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 		System.setProperty("wordnet.database.dir",
 				"/usr/local/WordNet-3.0/dict");
 
-		EventExtractor eventExtractor = EventExtractor.getInstance();
-
 		// Event e =
 		// ee.extractEventFromURL("http://www.bbc.co.uk/news/world-asia-pacific-10707945");
-		Event event = eventExtractor
+		Event event = EventExtractor
 				.extractEventFromURL("http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
 
 		// System.out.println(e.getText());
@@ -161,11 +137,9 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 		StopWatch sw = new StopWatch();
 		sw.start();
 		EventFeatureExtractor.setFeatures(event);
-		
+
 		// EventFeatureExtractor.coreference(event);
 
-	
-		
 		sw.stop();
 		LOGGER.info("Time elapsed:" + sw.getElapsedTime());
 
