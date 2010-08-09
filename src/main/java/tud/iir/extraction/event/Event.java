@@ -1,0 +1,165 @@
+package tud.iir.extraction.event;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Set;
+
+import tud.iir.classification.FeatureObject;
+import tud.iir.knowledge.Extractable;
+import tud.iir.web.WebResult;
+
+import com.aliasi.chunk.Chunk;
+
+/**
+ * @author Martin Wunderwald
+ *
+ */
+public class Event extends Extractable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1023303092784471374L;
+	private FeatureObject features;
+	private HashMap<Integer, FeatureObject> entityFeatures;
+	private HashMap<Integer, Set<Chunk>> entityChunks;
+	private String text;
+	private String title;
+	private String url;
+	private ArrayList<WebResult> webresults;
+
+	private String who;
+	private String where;
+	private String what;
+	private String why;
+	private String when;
+	private String how;
+
+	public Event() {
+		setExtractedAt(new Date(System.currentTimeMillis()));
+	}
+
+	public Event(String url) {
+		this.url = url;
+		setExtractedAt(new Date(System.currentTimeMillis()));
+	}
+
+	public Event(String title, String text) {
+		this.text = text;
+		this.title = title;
+		setExtractedAt(new Date(System.currentTimeMillis()));
+	}
+
+	public Event(String title, String text, String url) {
+		this.text = text;
+		this.title = title;
+		this.url = url;
+
+		setExtractedAt(new Date(System.currentTimeMillis()));
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public FeatureObject getFeatures() {
+		return features;
+	}
+
+	public void setFeatures(FeatureObject features) {
+		this.features = features;
+	}
+
+	public HashMap<Integer, FeatureObject> getEntityFeatures() {
+		return entityFeatures;
+	}
+
+	public void setEntityFeatures(HashMap<Integer, FeatureObject> entityFeatures) {
+		this.entityFeatures = entityFeatures;
+	}
+
+	public HashMap<Integer, Set<Chunk>> getEntityChunks() {
+		return entityChunks;
+	}
+
+	public void setEntityChunks(HashMap<Integer, Set<Chunk>> entityChunks) {
+		this.entityChunks = entityChunks;
+	}
+
+	public String getUrl() {
+		return url;
+	}
+
+	public void setUrl(String url) {
+		this.url = url;
+	}
+
+	public ArrayList<WebResult> getWebresults() {
+		return webresults;
+	}
+
+	public void setWebresults(ArrayList<WebResult> webresult) {
+		this.webresults = webresult;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
+	public String getWho() {
+		return who;
+	}
+
+	public void setWho(String who) {
+		this.who = who;
+	}
+
+	public String getWhere() {
+		return where;
+	}
+
+	public void setWhere(String where) {
+		this.where = where;
+	}
+
+	public String getWhat() {
+		return what;
+	}
+
+	public void setWhat(String what) {
+		this.what = what;
+	}
+
+	public String getWhy() {
+		return why;
+	}
+
+	public void setWhy(String why) {
+		this.why = why;
+	}
+
+	public String getWhen() {
+		return when;
+	}
+
+	public void setWhen(String when) {
+		this.when = when;
+	}
+
+	public String getHow() {
+		return how;
+	}
+
+	public void setHow(String how) {
+		this.how = how;
+	}
+}
