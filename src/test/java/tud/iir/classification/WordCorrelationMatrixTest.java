@@ -5,8 +5,6 @@ import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import tud.iir.classification.Term;
-import tud.iir.classification.WordCorrelationMatrix;
 import tud.iir.helper.FileHelper;
 
 /**

@@ -357,6 +357,16 @@
 			<artifactId>javaswf</artifactId>
 			<version>1.0</version>
 		</dependency>
+		<dependency>
+			<groupId>net.sourceforge.collections</groupId>
+			<artifactId>collections-generic</artifactId>
+			<version>4.01</version>
+		</dependency>
+		<dependency>
+			<groupId>org.tartarus.snowball</groupId>
+			<artifactId>snowball</artifactId>
+			<version>2010-08-04</version>
+		</dependency>
 	</dependencies>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
