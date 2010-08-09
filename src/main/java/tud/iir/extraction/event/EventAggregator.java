@@ -1,0 +1,224 @@
+package tud.iir.extraction.event;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Stack;
+
+import org.apache.log4j.Logger;
+import org.xml.sax.InputSource;
+
+import tud.iir.extraction.content.PageContentExtractor;
+import tud.iir.extraction.content.PageContentExtractorException;
+import tud.iir.helper.Counter;
+import tud.iir.helper.StopWatch;
+import tud.iir.helper.ThreadHelper;
+import tud.iir.news.NewsAggregator;
+import tud.iir.web.Crawler;
+import tud.iir.web.SourceRetriever;
+import tud.iir.web.SourceRetrieverManager;
+import tud.iir.web.URLDownloader;
+import tud.iir.web.WebResult;
+import tud.iir.web.URLDownloader.URLDownloaderCallback;
+
+/**
+ * @author Martin Wunderwald
+ */
+public class EventAggregator {
+	/** The logger for this class. */
+	private static final Logger LOGGER = Logger.getLogger(NewsAggregator.class);
+	/** Used for all downloading purposes. */
+	private Crawler crawler = new Crawler();
+
+	private static final int DEFAULT_MAX_THREADS = 20;
+
+	private int resultCount = 10;
+
+	private List<Event> events = new ArrayList<Event>();
+	private String query = new String();
+
+	private static final HashMap<String, Event> eventMap = new HashMap<String, Event>();
+
+	private int maxThreads = DEFAULT_MAX_THREADS;
+
+	public EventAggregator() {
+
+	}
+
+	public void aggregate() {
+
+		SourceRetriever s = new SourceRetriever();
+
+		// setting resultCount
+		s.setResultCount(this.resultCount);
+
+		// set search result language to english
+		s.setLanguage(SourceRetriever.LANGUAGE_ENGLISH);
+
+		Event tmp = new Event();
+		tmp.setWebresults(s.getWebResults(query,
+				SourceRetrieverManager.GOOGLE, false));
+		events.add(tmp);
+		LOGGER.info("query: " + query);
+
+		// initiating eventStack
+		Stack<Event> eventStack = new Stack<Event>();
+		eventStack.addAll(events);
+
+		// count number of running Threads
+		final Counter threadCounter = new Counter();
+
+		// count number of new entries
+		final Counter newEntriesTotal = new Counter();
+
+		// count number of encountered errors
+		final Counter errors = new Counter();
+
+		// count number of scraped pages
+		final Counter downloadedPages = new Counter();
+		// final Counter scrapeErrors = new Counter();
+
+		// stopwatch for aggregation process
+		StopWatch stopWatch = new StopWatch();
+
+		// reset traffic counter
+		crawler.setTotalDownloadSize(0);
+
+		while (eventStack.size() > 0) {
+			final Event event = eventStack.pop();
+
+			// if maximum # of Threads are already running, wait here
+			while (threadCounter.getCount() >= maxThreads) {
+				LOGGER.trace("max # of Threads running. waiting ...");
+				ThreadHelper.sleep(1000);
+			}
+
+			threadCounter.increment();
+			Runnable runnable = new Runnable() {
+				@Override
+				public void run() {
+
+					LOGGER.info("aggregating news");
+					try {
+
+						fetchPageContentIntoEvents(event.getWebresults());
+						downloadedPages.increment(event.getWebresults().size());
+						newEntriesTotal.increment();
+
+					} catch (Exception e) {
+						errors.increment();
+						LOGGER.error(e);
+					} finally {
+						threadCounter.decrement();
+					}
+
+				}
+			};
+			new Thread(runnable).start();
+		}
+		while (threadCounter.getCount() > 0 || eventStack.size() > 0) {
+			ThreadHelper.sleep(1000);
+			LOGGER.trace("waiting ... threads:" + threadCounter.getCount()
+					+ " stack:" + eventStack.size());
+		}
+		stopWatch.stop();
+
+		LOGGER.info("-------------------------------");
+		LOGGER.info(" # of aggregated events: " + events.size());
+		LOGGER.info(" # new entries total: " + newEntriesTotal.getCount());
+		LOGGER.info(" # errors: " + errors.getCount());
+		LOGGER.info(" # downloaded pages: " + downloadedPages);
+		// LOGGER.info(" # scrape errors: " + scrapeErrors);
+		LOGGER.info(" elapsed time: " + stopWatch.getElapsedTimeString());
+		LOGGER.info(" traffic: "
+				+ crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB");
+		LOGGER.info("-------------------------------");
+		LOGGER.trace("<aggregate");
+
+	}
+
+	private void fetchPageContentIntoEvents(ArrayList<WebResult> webresults) {
+
+		LOGGER.info("downloading " + webresults.size() + " pages");
+
+		URLDownloader downloader = new URLDownloader();
+		downloader.setMaxThreads(5);
+
+		for (WebResult wr : webresults) {
+			downloader.add(wr.getUrl());
+			eventMap.put(wr.getUrl(), new Event(wr.getUrl()));
+		}
+
+		downloader.start(new URLDownloaderCallback() {
+			@Override
+			public void finished(String url, InputStream inputStream) {
+				try {
+					PageContentExtractor extractor = new PageContentExtractor();
+					extractor.setDocument(new InputSource(inputStream));
+					// Document page = extractor.getResultDocument();
+					eventMap.get(url).setText(extractor.getResultText());
+					eventMap.get(url).setTitle(extractor.getResultTitle());
+
+				} catch (PageContentExtractorException e) {
+					LOGGER.error("PageContentExtractorException " + e);
+				}
+			}
+		});
+		LOGGER.info("finished downloading");
+
+	}
+
+	public HashMap<String, Event> getEventmap() {
+		return eventMap;
+	}
+
+	/**
+	 * Sets the maximum number of parallel threads when aggregating or adding
+	 * multiple new feeds.
+	 * 
+	 * @param maxThreads
+	 */
+	public void setMaxThreads(int maxThreads) {
+		this.maxThreads = maxThreads;
+	}
+
+	public List<Event> getEvents() {
+		return events;
+	}
+
+	public void setEvents(List<Event> events) {
+		this.events = events;
+	}
+
+	public String getQuery() {
+		return query;
+	}
+
+	public void setQuery(String query) {
+		this.query = query;
+	}
+
+	public int getResultCount() {
+		return resultCount;
+	}
+
+	public void setResultCount(int resultCount) {
+		this.resultCount = resultCount;
+	}
+
+	public int getMaxThreads() {
+		return maxThreads;
+	}
+
+	public static void main(String[] args) {
+
+	
+		EventAggregator ea = new EventAggregator();
+		ea.setMaxThreads(10);
+		ea.setQuery("pakistan flood");
+		ea.aggregate();
+
+	}
+
+}
