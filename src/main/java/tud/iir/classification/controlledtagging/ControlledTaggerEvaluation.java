@@ -27,7 +27,7 @@ public class ControlledTaggerEvaluation {
     private DeliciousDatasetReader reader = new DeliciousDatasetReader();
 
     private int trainOffset = 0;
-    private int trainLimit = 50000;
+    private int trainLimit = 20000;
 
     private int testOffset = 60000;
     private int testLimit = 500;
@@ -183,7 +183,7 @@ public class ControlledTaggerEvaluation {
                 int correctlyAssigned = 0;
                 for (Tag assignedTag : assignedTags) {
                     for (String realTag : realTagsNormalized.uniqueSet()) {
-                        if (assignedTag.name.equals(realTag)) {
+                        if (assignedTag.getName().equals(realTag)) {
                             correctlyAssigned++;
                         }
                     }

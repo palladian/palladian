@@ -22,6 +22,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 
+// TODO this should go into another package?
 /**
  * Parser for Delicious data set from http://nlp.uned.es/social-tagging/delicioust140/
  * 
@@ -90,7 +91,7 @@ public class DeliciousDatasetReader {
         public Bag<String> getTags() {
             Bag<String> resultBag = new HashBag<String>();
             for (Tag tag : tags) {
-                resultBag.add(tag.name, (int) tag.weight);
+                resultBag.add(tag.getName(), (int) tag.getWeight());
             }
             return resultBag;
         }
@@ -137,7 +138,7 @@ public class DeliciousDatasetReader {
         }
 
         protected boolean accept(Tag tag, DatasetEntry entry) {
-            boolean accept = tag.weight / entry.getNumUsers() >= minUserTagRatio;
+            boolean accept = tag.getWeight() / entry.getNumUsers() >= minUserTagRatio;
             return accept;
         }
 
@@ -176,9 +177,9 @@ public class DeliciousDatasetReader {
             } else if (qName.equals("users")) {
                 entry.numUsers = Integer.parseInt(getText());
             } else if (qName.equals("name")) {
-                tag.name = getText();
+                tag.setName(getText());
             } else if (qName.equals("weight")) {
-                tag.weight = Integer.parseInt(getText());
+                tag.setWeight(Integer.parseInt(getText()));
             } else if (qName.equals("tag")) {
                 if (filter.accept(tag, entry)) {
                     entry.tags.add(tag);
