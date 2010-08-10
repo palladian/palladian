@@ -69,9 +69,9 @@ public class DatasetCreator {
 
             @Override
             public void performAction(Feed feed) {
-                System.out.println("do stuff with " + feed.getFeedUrl());
-                System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
-                        + feed.getChecks());
+//                System.out.println("do stuff with " + feed.getFeedUrl());
+//                System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
+//                        + feed.getChecks());
 
                 // get the filename of the feed
                 String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
@@ -125,7 +125,11 @@ public class DatasetCreator {
                     String fileEntry = "";
 
                     fileEntry += entry.getPublished().getTime() + ";";
-                    fileEntry += "\"" + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
+                    if (entry.getTitle() == null || entry.getTitle().length() == 0) {
+                    	fileEntry += "\"###NO_TITLE###\";";
+                    } else {
+                    	fileEntry += "\"" + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
+                    }                    
                     fileEntry += "\"" + entry.getLink() + "\";";
                      fileEntry += entry.getPlainXML().getBytes().length + ";";
                      fileEntry += feedContainerSize+";";
