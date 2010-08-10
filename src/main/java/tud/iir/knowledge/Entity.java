@@ -229,7 +229,7 @@ public class Entity extends Extractable {
 
     @Override
     public String toString() {
-        return getName() + " (Concept: " + getConcept().getName() + " , Trust:" + getTrust() + ")";
+        return getName() + " (Concept: " + getConcept() + " , Trust:" + getTrust() + ")";
     }
 
     public static void main(String[] a) {
