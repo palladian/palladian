@@ -1,0 +1,7 @@
+Number of tags: 3
+Confusion Matrix:
+predicted\real;MOBILEPHONE;PERSON;CITY;#OTHER#;#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1
+MOBILEPHONE;0;0;0;0;0;-1.0;0.0;-1.0;-1.0;0.0;-1.0
+PERSON;0;0;0;0;0;-1.0;0.0;-1.0;-1.0;0.0;-1.0
+CITY;0;0;0;0;0;-1.0;0.0;-1.0;-1.0;0.0;-1.0
+ALL TAGS;0;0;0;0;0;tag averaged:0.0, overall:0.0;tag averaged:0.0, overall:0.0;tag averaged:0.0, overall:0.0;tag averaged:0.0, overall:0.0;tag averaged:0.0, overall:0.0;tag averaged:0.0, overall:0.0
