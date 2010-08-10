@@ -358,16 +358,24 @@ public class NewsAggregator {
     private Node getFeedEntryNode(SyndEntry syndEntry) {
 
         // for rss
-        Node node = XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink() + "\"]");
+        Node node = null;
 
-        if (node == null) {
-            node = XPathHelper.getNode(plainXMLFeed, "//item[title=\"" + syndEntry.getTitle().replaceAll("\"", "\\\"")
-                    + "\"]");
+        try {
 
-            // for atom
+            XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink() + "\"]");
+
             if (node == null) {
-                node = XPathHelper.getNode(plainXMLFeed, "//entry[id=\"" + syndEntry.getUri() + "\"]");
+                node = XPathHelper.getNode(plainXMLFeed,
+                        "//item[title=\"" + syndEntry.getTitle().replaceAll("\"", "\\\"") + "\"]");
+
+                // for atom
+                if (node == null) {
+                    node = XPathHelper.getNode(plainXMLFeed, "//entry[id=\"" + syndEntry.getUri() + "\"]");
+                }
             }
+
+        } catch (Exception e) {
+            LOGGER.error("synd entry was not complete, " + e.getMessage());
         }
 
         return node;
