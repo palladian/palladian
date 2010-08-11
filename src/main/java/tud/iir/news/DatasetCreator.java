@@ -149,7 +149,8 @@ public class DatasetCreator {
                 // special line
                 if (newPosts == feedEntries.size() && feed.getChecks() > 1 && newPosts > 0) {
                     newEntries.append("MISS;MISS;MISS;MISS;MISS;MISS").append("\n");
-                    LOGGER.fatal("MISS: " + feed.getFeedUrl() + ", checks: " + feed.getChecks());
+                    LOGGER.fatal("MISS: " + feed.getFeedUrl() + "(" + +feed.getId() + ")" + ", checks: "
+                            + feed.getChecks());
                 }
 
                 try {
