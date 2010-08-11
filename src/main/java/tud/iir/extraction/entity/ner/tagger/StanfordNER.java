@@ -1,0 +1,452 @@
+package tud.iir.extraction.entity.ner.tagger;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.OptionGroup;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
+
+import tud.iir.extraction.entity.ner.Annotations;
+import tud.iir.extraction.entity.ner.FileFormatParser;
+import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
+import tud.iir.extraction.entity.ner.TaggingFormat;
+import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.FileHelper;
+import edu.stanford.nlp.ie.AbstractSequenceClassifier;
+import edu.stanford.nlp.ie.crf.CRFClassifier;
+import edu.stanford.nlp.ling.CoreAnnotations.AnswerAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.util.StringUtils;
+
+
+/**
+ * <p>
+ * This class wraps the Stanford Named Entity Recognizer which is based on conditional random fields (CRF).<br>
+ * The NER has been described in the following paper:
+ * </p>
+ * 
+ * <p>
+ * Jenny Rose Finkel, Trond Grenager, and Christopher Manning<br>
+ * "Incorporating Non-local Information into Information Extraction Systems", 2005<br>
+ * Proceedings of the 43nd Annual Meeting of the Association for Computational Linguistics (ACL 2005), pp. 363-370<br>
+ * <a href="http://nlp.stanford.edu/~manning/papers/gibbscrf3.pdf">Read Paper</a>
+ * </p>
+ * 
+ * <p>
+ * See also <a
+ * href="http://www-nlp.stanford.edu/software/crf-faq.shtml">http://www-nlp.stanford.edu/software/crf-faq.shtml</a>
+ * </p>
+ * 
+ * @author David Urbansky
+ * 
+ */
+public class StanfordNER extends NamedEntityRecognizer {
+
+    public StanfordNER() {
+        setName("Stanford NER");
+    }
+
+    public void demo(String inputText) throws IOException {
+
+        String serializedClassifier = "data/temp/stanfordner/classifiers/ner-eng-ie.crf-3-all2008.ser.gz";
+
+        AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(serializedClassifier);
+
+        String inputTextPath = "data/temp/inputText.txt";
+        FileHelper.writeToFile(inputTextPath, inputText);
+
+        /*
+         * For either a file to annotate or for the hardcoded text example,
+         * this demo file shows two ways to process the output, for teaching
+         * purposes. For the file, it shows both how to run NER on a String
+         * and how to run it on a whole file. For the hard-coded String,
+         * it shows how to run it on a single sentence, and how to do this
+         * and produce an inline XML output format.
+         */
+        if (inputTextPath.length() > 1) {
+            String fileContents = StringUtils.slurpFile(inputTextPath);
+            List<List<CoreLabel>> out = classifier.classify(fileContents);
+            for (List<CoreLabel> sentence : out) {
+                for (CoreLabel word : sentence) {
+                    LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
+                }
+            }
+            out = classifier.classifyFile(inputTextPath);
+            for (List<CoreLabel> sentence : out) {
+                for (CoreLabel word : sentence) {
+                    LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
+                }
+            }
+
+        } else {
+            String s1 = "Good afternoon Rajat Raina, how are you today?";
+            String s2 = "I go to school at Stanford University, which is located in California.";
+            LOGGER.info(classifier.classifyToString(s1));
+            LOGGER.info(classifier.classifyWithInlineXML(s2));
+            LOGGER.info(classifier.classifyToString(s2, "xml", true));
+        }
+    }
+
+    @Override
+    public boolean train(String trainingFilePath, String modelFilePath) {
+
+        String[] args = new String[2];
+        args[0] = "-props";
+        args[1] = modelFilePath;
+
+        Properties props = StringUtils.argsToProperties(args);
+        CRFClassifier crf = new CRFClassifier(props);
+        String loadPath = crf.flags.loadClassifier;
+        String loadTextPath = crf.flags.loadTextClassifier;
+        String serializeTo = crf.flags.serializeTo;
+        String serializeToText = crf.flags.serializeToText;
+
+        if (loadPath != null) {
+            crf.loadClassifierNoExceptions(loadPath, props);
+        } else if (loadTextPath != null) {
+            System.err.println("Warning: this is now only tested for Chinese Segmenter");
+            System.err.println("(Sun Dec 23 00:59:39 2007) (pichuan)");
+            try {
+                crf.loadTextClassifier(loadTextPath, props);
+                // System.err.println("DEBUG: out from crf.loadTextClassifier");
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException("error loading " + loadTextPath);
+            }
+        } else if (crf.flags.loadJarClassifier != null) {
+            crf.loadJarClassifier(crf.flags.loadJarClassifier, props);
+        } else if (crf.flags.trainFile != null || crf.flags.trainFileList != null) {
+            crf.train();
+        } else {
+            crf.loadDefaultClassifier();
+        }
+
+        if (serializeTo != null) {
+            crf.serializeClassifier(serializeTo);
+        }
+
+        if (serializeToText != null) {
+            crf.serializeTextClassifier(serializeToText);
+        }
+
+        return true;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+
+        Annotations annotations = new Annotations();
+
+        try {
+            AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(configModelFilePath);
+
+            String inputTextPath = "data/temp/inputText.txt";
+            FileHelper.writeToFile(inputTextPath, inputText);
+
+            String fileContents = StringUtils.slurpFile(inputTextPath);
+
+            List<List<CoreLabel>> out = classifier.classify(fileContents);
+            StringBuilder taggedText = new StringBuilder();
+            for (List<CoreLabel> sentence : out) {
+                for (CoreLabel word : sentence) {
+                    LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
+
+                    taggedText.append(word.word()).append("/").append(word.get(AnswerAnnotation.class).toUpperCase())
+                            .append(" ");
+
+                    // String tag = word.get(AnswerAnnotation.class);
+                    // if (!tag.equalsIgnoreCase("o")) {
+                    // taggedText.append("<").append(word.get(AnswerAnnotation.class)).append(">");
+                    // taggedText.append(word.word());
+                    // taggedText.append("</").append(word.get(AnswerAnnotation.class)).append(">");
+                    // }
+
+                }
+            }
+
+            String taggedTextFilePath = "data/temp/taggedText.txt";
+            FileHelper.writeToFile(taggedTextFilePath, taggedText);
+
+            FileFormatParser ffp = new FileFormatParser();
+            ffp.slashToXML(taggedTextFilePath, taggedTextFilePath);
+            annotations = ffp.getAnnotationsFromXMLFile(taggedTextFilePath);
+
+        } catch (IOException e) {
+            LOGGER.error(getName() + " could not tag input, " + e.getMessage());
+        }
+
+        CollectionHelper.print(annotations);
+
+        return annotations;
+    }
+
+    @Deprecated
+    public void useLearnedNER(String modelFilePath, String inputText) throws IOException {
+
+        AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(modelFilePath);
+
+        String inputTextPath = "data/temp/inputText.txt";
+        FileHelper.writeToFile(inputTextPath, inputText);
+
+        String fileContents = StringUtils.slurpFile(inputTextPath);
+        List<List<CoreLabel>> out = classifier.classify(fileContents);
+        StringBuilder taggedText = new StringBuilder();
+        for (List<CoreLabel> sentence : out) {
+            for (CoreLabel word : sentence) {
+                LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
+
+                taggedText.append(word.word()).append("/").append(word.get(AnswerAnnotation.class).toUpperCase())
+                        .append(" ");
+
+                // String tag = word.get(AnswerAnnotation.class);
+                // if (!tag.equalsIgnoreCase("o")) {
+                // taggedText.append("<").append(word.get(AnswerAnnotation.class)).append(">");
+                // taggedText.append(word.word());
+                // taggedText.append("</").append(word.get(AnswerAnnotation.class)).append(">");
+                // }
+
+            }
+        }
+
+        String taggedTextFilePath = "data/temp/taggedText.txt";
+        FileHelper.writeToFile(taggedTextFilePath, taggedText);
+
+        FileFormatParser ffp = new FileFormatParser();
+        ffp.slashToXML(taggedTextFilePath, taggedTextFilePath);
+        Annotations annotations = ffp.getAnnotationsFromXMLFile(taggedTextFilePath);
+
+        CollectionHelper.print(annotations);
+
+        // edu.stanford.nlp.ie.crf.CRFClassifier -textFile sample.txt
+        // CRFClassifier classifier = new CRFClassifier();
+
+    }
+
+    @Deprecated
+    public void trainNER(String configFilePath) throws Exception {
+        String[] args = new String[2];
+        args[0] = "-props";
+        args[1] = configFilePath;
+
+        Properties props = StringUtils.argsToProperties(args);
+        CRFClassifier crf = new CRFClassifier(props);
+        String loadPath = crf.flags.loadClassifier;
+        String loadTextPath = crf.flags.loadTextClassifier;
+        String serializeTo = crf.flags.serializeTo;
+        String serializeToText = crf.flags.serializeToText;
+
+        if (loadPath != null) {
+            crf.loadClassifierNoExceptions(loadPath, props);
+        } else if (loadTextPath != null) {
+            System.err.println("Warning: this is now only tested for Chinese Segmenter");
+            System.err.println("(Sun Dec 23 00:59:39 2007) (pichuan)");
+            try {
+                crf.loadTextClassifier(loadTextPath, props);
+                // System.err.println("DEBUG: out from crf.loadTextClassifier");
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException("error loading " + loadTextPath);
+            }
+        } else if (crf.flags.loadJarClassifier != null) {
+            crf.loadJarClassifier(crf.flags.loadJarClassifier, props);
+        } else if (crf.flags.trainFile != null || crf.flags.trainFileList != null) {
+            crf.train();
+        } else {
+            crf.loadDefaultClassifier();
+        }
+
+        if (serializeTo != null) {
+            crf.serializeClassifier(serializeTo);
+        }
+
+        if (serializeToText != null) {
+            crf.serializeTextClassifier(serializeToText);
+        }
+
+    }
+
+    public void evaluateNER(String modelFilePath, String testFilePath) throws Exception {
+
+        String[] args = new String[4];
+        args[0] = "-loadClassifier";
+        args[1] = modelFilePath;
+        args[2] = "-testFile";
+        args[3] = testFilePath;
+
+        Properties props = StringUtils.argsToProperties(args);
+        CRFClassifier crf = new CRFClassifier(props);
+        String testFile = crf.flags.testFile;
+        String loadPath = crf.flags.loadClassifier;
+
+        if (loadPath != null) {
+            crf.loadClassifierNoExceptions(loadPath, props);
+        } else {
+            crf.loadDefaultClassifier();
+        }
+
+        if (testFile != null) {
+            if (crf.flags.searchGraphPrefix != null) {
+                crf.classifyAndWriteViterbiSearchGraph(testFile, crf.flags.searchGraphPrefix);
+            } else if (crf.flags.printFirstOrderProbs) {
+                crf.printFirstOrderProbs(testFile);
+            } else if (crf.flags.printProbs) {
+                crf.printProbs(testFile);
+            } else if (crf.flags.useKBest) {
+                int k = crf.flags.kBest;
+                crf.classifyAndWriteAnswersKBest(testFile, k);
+            } else if (crf.flags.printLabelValue) {
+                crf.printLabelInformation(testFile);
+            } else {
+                // crf.classifyAndWriteAnswers(testFile);
+
+                String testText = FileHelper.readFileToString(testFilePath);
+                String classifiedString = crf.classifyToString(testText, "inlineXML", true);
+                LOGGER.info("cs:" + classifiedString);
+
+                FileHelper.writeToFile("data/temp/stanfordClassified.xml", classifiedString);
+
+                FileFormatParser ffp = new FileFormatParser();
+                ffp.xmlToColumn("data/temp/stanfordClassified.xml", "data/temp/stanfordClassifiedColumn.tsv", "\t");
+
+                /*
+                 * List<List<CoreLabel>> out = crf.classify(testFile);
+                 * for (List<CoreLabel> sentence : out) {
+                 * for (CoreLabel word : sentence) {
+                 * System.out.println(word.word());
+                 * System.out.println(word.get(AnswerAnnotation.class));
+                 * System.out.println(word.value());
+                 * System.out.println(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
+                 * }
+                 * System.out.println();
+                 * }
+                 */
+            }
+        }
+
+        // port to Java: http://www.cnts.ua.ac.be/conll2002/ner/bin/conlleval.txt
+    }
+
+    /**
+     * @param args
+     * @throws Exception
+     */
+    @SuppressWarnings("static-access")
+    public static void main(String[] args) throws Exception {
+
+        StanfordNER tagger = new StanfordNER();
+
+        if (args.length > 0) {
+
+            Options options = new Options();
+            options.addOption(OptionBuilder.withLongOpt("mode").withDescription("whether to tag or train a model")
+                    .create());
+
+            OptionGroup modeOptionGroup = new OptionGroup();
+            modeOptionGroup.addOption(OptionBuilder.withArgName("tg").withLongOpt("tag").withDescription("tag a text")
+                    .create());
+            modeOptionGroup.addOption(OptionBuilder.withArgName("tr").withLongOpt("train")
+                    .withDescription("train a model").create());
+            modeOptionGroup.addOption(OptionBuilder.withArgName("ev").withLongOpt("evaluate")
+                    .withDescription("evaluate a model").create());
+            modeOptionGroup.addOption(OptionBuilder.withArgName("dm").withLongOpt("demo")
+                    .withDescription("demo mode of the tagger").create());
+            modeOptionGroup.setRequired(true);
+            options.addOptionGroup(modeOptionGroup);
+
+            options.addOption(OptionBuilder.withLongOpt("trainingFile")
+                    .withDescription("the path and name of the training file for the tagger (only if mode = train)")
+                    .hasArg().withArgName("text").withType(String.class).create());
+
+            options.addOption(OptionBuilder
+                    .withLongOpt("testFile")
+                    .withDescription(
+                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    .hasArg().withArgName("text").withType(String.class).create());
+
+            options.addOption(OptionBuilder.withLongOpt("configFile")
+                    .withDescription("the path and name of the config file for the tagger").hasArg()
+                    .withArgName("text").withType(String.class).create());
+
+            options.addOption(OptionBuilder.withLongOpt("inputText")
+                    .withDescription("the text that should be tagged (only if mode = tag)").hasArg()
+                    .withArgName("text").withType(String.class).create());
+
+            options.addOption(OptionBuilder.withLongOpt("outputFile")
+                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
+                    .withArgName("text").withType(String.class).create());
+
+            HelpFormatter formatter = new HelpFormatter();
+
+            CommandLineParser parser = new PosixParser();
+            CommandLine cmd = null;
+            try {
+                cmd = parser.parse(options, args);
+
+                if (cmd.hasOption("tag")) {
+
+                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
+
+                    if (cmd.hasOption("outputFile")) {
+                        FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
+                    } else {
+                        System.out.println("No output file given so tagged text will be printed to the console:");
+                        System.out.println(taggedText);
+                    }
+
+                } else if (cmd.hasOption("train")) {
+
+                    tagger.train(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"));
+
+                } else if (cmd.hasOption("evaluate")) {
+
+                    tagger.evaluate(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"),
+                            TaggingFormat.XML);
+
+                } else if (cmd.hasOption("demo")) {
+
+                    try {
+                        tagger.demo(cmd.getOptionValue("inputText"));
+                    } catch (IOException e) {
+                        LOGGER.error(e.getMessage());
+                    }
+
+                }
+
+            } catch (ParseException e) {
+                LOGGER.debug("Command line arguments could not be parsed!");
+                formatter.printHelp("FeedChecker", options);
+            }
+
+        }
+
+        // // HOW TO USE ////
+        // tagger.tag(
+        // "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.",
+        // "data/temp/ner-model-mobilePhone.ser.gz");
+        // demo
+        // st.demo("John J. Smith and the Nexus One location mention Seattle in the text.");
+        // learn
+        // st.trainNER("data/temp/stanfordner/example/austen.prop");
+        // st.trainNER("data/temp/mobilephone.prop");
+
+        // use
+        // st.useLearnedNER("data/temp/stanfordner/example/ner-model.ser.gz","John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle.");
+        // tagger.useLearnedNER(
+        // "data/temp/ner-model-mobilePhone.ser.gz",
+        // "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.");
+        // st.useLearnedNER("data/temp/stanfordner/classifiers/ner-eng-ie.crf-3-all2008.ser.gz","John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle.");
+
+        // evaluate
+        // st.evaluateNER("data/temp/stanfordner/example/ner-model.ser.gz","data/temp/stanfordner/example/jane-austen-emma-ch2.tsv");
+        // st.evaluateNER("data/temp/ner-model-mobilePhone.ser.gz", "data/temp/allUntagged.xml");
+
+    }
+
+}

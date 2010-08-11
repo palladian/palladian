@@ -1,0 +1,439 @@
+package tud.iir.extraction.entity.ner;
+
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.log4j.Logger;
+
+import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.FileHelper;
+import tud.iir.helper.HTMLHelper;
+import tud.iir.helper.LineAction;
+import tud.iir.helper.StringHelper;
+import tud.iir.helper.Tokenizer;
+import tud.iir.knowledge.Concept;
+import tud.iir.knowledge.Entity;
+
+/**
+ * Transform file formats for NER learning.
+ * 
+ * @author David Urbansky
+ * 
+ */
+public class FileFormatParser {
+
+    private static String getTextFromXML(String inputFilePath) {
+
+        String xmlText = FileHelper.readFileToString(inputFilePath);
+
+        return HTMLHelper.removeHTMLTags(xmlText, true, true, true, false);
+
+    }
+
+    public static String getText(String inputFilePath, TaggingFormat format) {
+
+        if (format.equals(TaggingFormat.XML)) {
+            return getTextFromXML(inputFilePath);
+        } else if (format.equals(TaggingFormat.COLUMN)) {
+            String outputFilePath = FileHelper.appendToFileName(inputFilePath, "_temp");
+            columnToXML(inputFilePath, outputFilePath, "\t");
+            return getText(outputFilePath, TaggingFormat.XML);
+        }
+
+        return "";
+    }
+
+    /**
+     * Transform column format to XML.
+     * word [tab] type
+     * =>
+     * &lt;type&gt;word&lt;/type&gt;
+     * 
+     * @param inputFilePath The location of the input file.
+     * @param outputFilePath The location where the transformed file should be written to.
+     * @param columnSeparator The separator for the columns.
+     */
+    public static void columnToXML(String inputFilePath, String outputFilePath, String columnSeparator) {
+
+        final Object[] obj = new Object[3];
+        obj[0] = new StringBuilder();
+        obj[1] = "";
+        obj[2] = columnSeparator;
+
+        LineAction la = new LineAction(obj) {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                String[] parts = line.split((String) obj[2]);
+
+                if (parts.length < 2) {
+                    return;
+                }
+
+                boolean openTag = false;
+
+                if (!((String) obj[1]).equalsIgnoreCase(parts[1])) {
+
+                    if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
+                        ((StringBuilder) obj[0]).append("</").append((String) obj[1]).append(">");
+                    }
+
+                    if (!parts[1].equalsIgnoreCase("o")) {
+                        if (lineNumber > 1) {
+                            ((StringBuilder) obj[0]).append(" ");
+                        }
+                        ((StringBuilder) obj[0]).append("<").append(parts[1]).append(">");
+                        openTag = true;
+                    }
+
+                }
+
+                obj[1] = parts[1];
+
+                if (Character.isLetterOrDigit(parts[0].charAt(0)) && !openTag && lineNumber > 1) {
+                    ((StringBuilder) obj[0]).append(" ");
+                }
+                ((StringBuilder) obj[0]).append(parts[0]);
+
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(inputFilePath, la);
+
+        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+    }
+
+    public static void columnToBracket(String inputFilePath, String outputFilePath, String columnSeparator) {
+
+        final Object[] obj = new Object[3];
+        obj[0] = new StringBuilder();
+        obj[1] = "";
+        obj[2] = columnSeparator;
+
+        LineAction la = new LineAction(obj) {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                String[] parts = line.split((String) obj[2]);
+
+                if (parts.length < 2) {
+                    return;
+                }
+
+                boolean openTag = false;
+
+                if (!((String) obj[1]).equalsIgnoreCase(parts[1])) {
+
+                    if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
+                        ((StringBuilder) obj[0]).append(" ]");
+                    }
+
+                    if (!parts[1].equalsIgnoreCase("o")) {
+                        if (lineNumber > 1) {
+                            ((StringBuilder) obj[0]).append(" ");
+                        }
+                        ((StringBuilder) obj[0]).append("[").append(parts[1]).append(" ");
+                        openTag = true;
+                    }
+
+                }
+
+                obj[1] = parts[1];
+
+                if (Character.isLetterOrDigit(parts[0].charAt(0)) && !openTag) {
+                    ((StringBuilder) obj[0]).append(" ");
+                }
+                ((StringBuilder) obj[0]).append(parts[0]);
+
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(inputFilePath, la);
+
+        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+    }
+
+    public static void columnToColumnBIO(String inputFilePath, String outputFilePath, String columnSeparator) {
+
+        final Object[] obj = new Object[3];
+        // the bio format string
+        obj[0] = new StringBuilder();
+
+        // the last tag
+        obj[1] = "";
+
+        // the column separator
+        obj[2] = columnSeparator;
+
+        LineAction la = new LineAction(obj) {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                String[] parts = line.split((String) obj[2]);
+
+                if (parts.length < 2) {
+                    return;
+                }
+
+                String bioTag = "O";
+
+                if (!parts[1].equalsIgnoreCase("o")) {
+
+                    if (!((String) obj[1]).equalsIgnoreCase(parts[1])) {
+
+                        bioTag = "B-" + parts[1];
+
+                    } else if (((String) obj[1]).equalsIgnoreCase(parts[1])) {
+
+                        bioTag = "I-" + parts[1];
+
+                    }
+
+                }
+
+                // assign last tag
+                obj[1] = parts[1];
+
+                // create transformed line
+                ((StringBuilder) obj[0]).append(parts[0]).append((String) obj[2]).append(bioTag).append("\n");
+
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(inputFilePath, la);
+
+        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+    }
+
+    public static void columnBIOToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
+
+        final Object[] obj = new Object[2];
+        obj[0] = new StringBuilder();
+        obj[1] = columnSeparator;
+
+        LineAction la = new LineAction(obj) {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                String[] parts = line.split((String) obj[1]);
+
+                if (parts.length < 2) {
+                    return;
+                }
+
+                String tag = parts[1];
+
+                // remove BIO tag parts (B- or I-)
+                tag = tag.replaceFirst("B-", "").replaceFirst("I-", "");
+
+                ((StringBuilder) obj[0]).append(parts[0]).append((String) obj[1]).append(tag).append("\n");
+
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(inputFilePath, la);
+
+        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+    }
+
+    public static void xmlToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
+
+        String inputText = FileHelper.readFileToString(inputFilePath);
+
+        List<String> tokens = Tokenizer.tokenize(inputText);
+
+        StringBuilder columnFile = new StringBuilder();
+
+        String openTag = "O";
+        for (String token : tokens) {
+            if (token.startsWith("</")) {
+                openTag = "O";
+            } else if (token.startsWith("<")) {
+                openTag = StringHelper.getSubstringBetween(token, "<", ">");
+            } else {
+                columnFile.append(token).append(columnSeparator).append(openTag).append("\n");
+            }
+        }
+
+        // CollectionHelper.print(tokens);
+
+        FileHelper.writeToFile(outputFilePath, columnFile);
+    }
+
+    public static void slashToXML(String slashFilePath, String xmlFilePath) {
+
+        slashToColumn(slashFilePath, xmlFilePath, "\t");
+        columnToXML(xmlFilePath, xmlFilePath, "\t");
+
+    }
+
+    public static void slashToColumn(String slashFilePath, String columnFilePath, String columnSeparator) {
+
+        StringBuilder columnString = new StringBuilder();
+
+        String inputString = FileHelper.readFileToString(slashFilePath);
+
+        Pattern pattern = Pattern.compile("(.+?)/([A-Z0-9_]*?)\\s", Pattern.DOTALL);
+
+        Matcher matcher = pattern.matcher(inputString);
+        while (matcher.find()) {
+            columnString.append(matcher.group(1));
+            columnString.append(columnSeparator);
+            columnString.append(matcher.group(2));
+            columnString.append("\n");
+        }
+
+        FileHelper.writeToFile(columnFilePath, columnString);
+
+    }
+
+    public static void bracketToXML(String inputFilePath, String outputFilePath) {
+
+        String inputText = FileHelper.readFileToString(inputFilePath);
+        String outputText = inputText;
+
+        Pattern pattern = Pattern.compile("\\[(\\w+)\\s(.+?)(\\s(.+?))*?\\s{1,2}\\]", Pattern.DOTALL
+                | Pattern.CASE_INSENSITIVE);
+
+        Matcher matcher = pattern.matcher(inputText);
+        while (matcher.find()) {
+            String tagName = StringHelper.getSubstringBetween(matcher.group(0), "[", " ");
+            String tagContent = StringHelper.getSubstringBetween(matcher.group(0), " ", " ]");
+
+            String xmlTag = "<" + tagName + ">" + tagContent + "</" + tagName + ">";
+            outputText = outputText.replaceAll(StringHelper.escapeForRegularExpression(matcher.group(0)), xmlTag);
+        }
+
+        FileHelper.writeToFile(outputFilePath, outputText);
+    }
+
+    public static void bracketToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
+
+        bracketToXML(inputFilePath, outputFilePath);
+        xmlToColumn(outputFilePath, outputFilePath, columnSeparator);
+
+    }
+
+    public static void columnTrainingToTest(String inputFilePath, String outputFilePath, String columnSeparator) {
+        String inputFile = FileHelper.readFileToString(inputFilePath);
+        inputFile = inputFile.replaceAll(columnSeparator, columnSeparator + columnSeparator);
+        FileHelper.writeToFile(outputFilePath, inputFile);
+    }
+
+    public static void tsvToSsv(String inputFilePath, String outputFilePath) {
+        String inputFile = FileHelper.readFileToString(inputFilePath);
+        inputFile = inputFile.replaceAll("\\t", " ");
+        FileHelper.writeToFile(outputFilePath, inputFile);
+    }
+
+    public static Annotations getAnnotations(String taggedTextFilePath, TaggingFormat format) {
+
+        if (format.equals(TaggingFormat.XML)) {
+            return getAnnotationsFromXMLFile(taggedTextFilePath);
+        } else if (format.equals(TaggingFormat.COLUMN)) {
+            return getAnnotationsFromColumn(taggedTextFilePath);
+        } else {
+            Logger.getRootLogger().error("format " + format + " not supported for getAnnotations");
+        }
+
+        return null;
+    }
+
+    public static Annotations getAnnotationsFromColumn(String taggedTextFilePath) {
+        columnToXML(taggedTextFilePath, taggedTextFilePath + "_t", "\t");
+        return getAnnotationsFromXMLFile(taggedTextFilePath + "_t");
+    }
+
+    public static Annotations getAnnotationsFromXMLText(String taggedText) {
+        Annotations annotations = new Annotations();
+
+        // count offset that is caused by the tags, this should be taken into account when calculating the offset of the
+        // entities in the plain text
+        int cumulatedTagOffset = 0;
+
+        // get locations of annotations
+        Pattern pattern = Pattern.compile("<(.*?)>(.*?)</(.*?)>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+
+        Matcher matcher = pattern.matcher(taggedText);
+        while (matcher.find()) {
+
+            // if opening and closing tag are not the same continue
+            if (!matcher.group(1).equals(matcher.group(3))) {
+                continue;
+            }
+
+            String conceptName = matcher.group(1);
+            String entityName = matcher.group(2);
+
+            // add tag < + name + > to cumulated tag offset
+            int tagOffset = conceptName.length() + 2;
+            cumulatedTagOffset += tagOffset;
+
+            int offset = matcher.start() + tagOffset - cumulatedTagOffset;
+
+            Entity namedEntity = new Entity(entityName, new Concept(conceptName));
+
+            Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getConcept().getName());
+            annotations.add(annotation);
+
+            // String annotationText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
+            // System.out.println("annotation text: " + annotationText);
+
+            // add tag </ + name + > to cumulated tag offset
+            cumulatedTagOffset += conceptName.length() + 3;
+        }
+
+        return annotations;
+    }
+
+    public static Annotations getAnnotationsFromXMLFile(String taggedTextFilePath) {
+        String taggedText = FileHelper.readFileToString(taggedTextFilePath);
+        return getAnnotationsFromXMLText(taggedText);
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+
+        FileFormatParser.xmlToColumn("data/datasets/ner/taggedTextTraining.xml",
+                "data/datasets/ner/taggedTextTrainingColumn.tsv", "\t");
+        FileFormatParser.xmlToColumn("data/datasets/ner/taggedTextTesting.xml",
+                "data/datasets/ner/taggedTextTestingColumn.tsv", "\t");
+        System.exit(0);
+
+        FileFormatParser ffp = new FileFormatParser();
+
+        ffp.columnToXML("data/temp/columnFormat.tsv", "data/temp/xmlFormat.xml", "\\t");
+        ffp.xmlToColumn("data/temp/xmlFormat.xml", "data/temp/columnFormat2.tsv", "\\t");
+        ffp.xmlToColumn("data/temp/allTagged.xml", "data/temp/allTaggedColumn.tsv", "\\t");
+
+        ffp.xmlToColumn("data/datasets/ner/mobilephone/text/all.xml",
+                "data/datasets/ner/mobilephone/text/allColumn.tsv", "\t");
+
+        ffp.columnTrainingToTest("data/temp/allColumn.tsv", "data/temp/allColumnTest.tsv", "\t");
+
+        ffp.columnToColumnBIO("data/temp/allColumn.tsv", "data/temp/allColumnBIO.tsv", "\t");
+
+        ffp.columnToBracket("data/temp/allColumn.tsv", "data/temp/allBracket.tsv", "\t");
+        ffp.bracketToXML("data/temp/allBracket.tsv", "data/temp/allXMLFromBracket.tsv");
+        ffp.bracketToColumn("data/temp/allBracket.tsv", "data/temp/allColumnFromBracket.tsv", "\t");
+
+        ffp.columnToXML("data/temp/allColumn.tsv", "data/temp/allXML.xml", "\t");
+        ffp.xmlToColumn("data/temp/allXML.xml", "data/temp/allColumnFromXML.tsv", "\t");
+
+        ffp.slashToXML("data/temp/slashedText.txt", "data/temp/xmlFromSlashed.xml");
+        ffp.slashToColumn("data/temp/slashedText.txt", "data/temp/columnFromSlashed.tsv", "\t");
+
+        Annotations annotations = ffp.getAnnotationsFromXMLFile("data/temp/xmlFromSlashed.xml");
+        CollectionHelper.print(annotations);
+
+    }
+
+
+}
