@@ -49,6 +49,7 @@ class SchedulerTask extends TimerTask {
     public void run() {
         LOGGER.info("wake up to check feeds");
         Date now = new Date();
+        int feedCount = 0;
         for (Feed feed : feedChecker.getFeeds()) {
             LOGGER.debug("Checking feed at address: " + feed.getFeedUrl());
             if (feed.getChecks() == 0
@@ -56,8 +57,10 @@ class SchedulerTask extends TimerTask {
                     || now.getTime() - feed.getLastChecked().getTime() > feed.getMaxCheckInterval()
                             * DateHelper.MINUTE_MS) {
                 threadPool.execute(new FeedTask(feed, feedChecker));
+                feedCount++;
             }
             now.setTime(System.currentTimeMillis());
         }
+        LOGGER.info("scheduled " + feedCount + " feeds for reading");
     }
 }
