@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
-import java.util.Map.Entry;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -25,7 +24,6 @@ import org.apache.log4j.Logger;
 
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
-import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
@@ -249,7 +247,7 @@ public final class FeedChecker {
 
         // calculate new update times depending on approach chosen
         if (CheckApproach.CHECK_FIXED.equals(checkApproach)
-                && ((checkInterval == -1 && feed.getChecks() > 0) || checkInterval != -1)) {
+                && (checkInterval == -1 && feed.getChecks() > 0 || checkInterval != -1)) {
 
             // the checkInterval for the feed must have been determined at the
             // first check so don't do anything now OR the checkInterval is
@@ -259,10 +257,10 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(checkInterval);
             }
 
-        } else if ((CheckApproach.CHECK_FIXED.equals(checkApproach) && checkInterval == -1)
-                || ((CheckApproach.CHECK_ADAPTIVE.equals(checkApproach) || CheckApproach.CHECK_PROBABILISTIC
+        } else if (CheckApproach.CHECK_FIXED.equals(checkApproach) && checkInterval == -1
+                || (CheckApproach.CHECK_ADAPTIVE.equals(checkApproach) || CheckApproach.CHECK_PROBABILISTIC
                 .equals(checkApproach))
- && feed.getChecks() == 0)) {
+ && feed.getChecks() == 0) {
 
             updateIntervalFixed(feed, fps);
 
@@ -436,60 +434,61 @@ public final class FeedChecker {
      * Save the feed ids and the percentage new scores in a csv for evaluation.
      */
     private void writeRecordedMaps() {
-        StringBuilder csv = new StringBuilder();
-        int totalChecks = 0;
-        for (Entry<Integer, String> entry : pnMapEvaluation.entrySet()) {
-            Feed feed = FeedDatabase.getInstance().getFeedByID(entry.getKey());
-
-            // the feed id
-            csv.append(entry.getKey()).append(";");
-
-            // the feed url
-            csv.append(feed.getFeedUrl()).append(";");
-
-            // the feed class
-            csv.append(feed.getUpdateClass()).append(";");
-
-            // which iteration the probabilistic approach took over
-            Integer iteration = probabilisticSwitchMap.get(entry.getKey());
-            if (iteration == null) {
-                iteration = -1;
-            }
-            csv.append(iteration).append(";");
-
-            // the pn data
-            csv.append(entry.getValue()).append("\n");
-
-            // count how many time the feed has been checked
-            totalChecks += entry.getValue().split(";").length;
-        }
-
-        // total number of megabytes dowloaded
-        csv.append("total downloaded MB:;").append(Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES)).append(" MB")
-                .append("\n");
-
-        // total number of checks
-        csv.append("total checks:;").append(totalChecks).append("\n");
-        FileHelper.writeToFile("data/temp/feedCheckerPnMap_Evaluation_" + getCheckApproachName() + "_"
-                + System.currentTimeMillis() + ".csv", csv);
-
-        csv = new StringBuilder();
-        for (Entry<Integer, String> entry : ciMapEvaluation.entrySet()) {
-            csv.append(entry.getKey()).append(";").append(entry.getValue()).append("\n");
-        }
-        FileHelper.writeToFile("data/temp/feedCheckerCiMap_" + getCheckApproachName() + "_"
-                + System.currentTimeMillis() + ".csv", csv);
-
-        csv = new StringBuilder();
-        for (Entry<Integer, LinkedHashMap<Integer, Integer>> entry : postDistributionMapEvaluation.entrySet()) {
-            csv.append(entry.getKey());
-            for (Entry<Integer, Integer> minuteEntry : entry.getValue().entrySet()) {
-                csv.append(";").append(minuteEntry.getValue());
-            }
-            csv.append("\n");
-        }
-        FileHelper.writeToFile("data/temp/feedCheckerPdMap_" + getCheckApproachName() + "_"
-                + System.currentTimeMillis() + ".csv", csv);
+        // commented because of concurrent modification exception
+        // StringBuilder csv = new StringBuilder();
+        // int totalChecks = 0;
+        // for (Entry<Integer, String> entry : pnMapEvaluation.entrySet()) {
+        // Feed feed = FeedDatabase.getInstance().getFeedByID(entry.getKey());
+        //
+        // // the feed id
+        // csv.append(entry.getKey()).append(";");
+        //
+        // // the feed url
+        // csv.append(feed.getFeedUrl()).append(";");
+        //
+        // // the feed class
+        // csv.append(feed.getUpdateClass()).append(";");
+        //
+        // // which iteration the probabilistic approach took over
+        // Integer iteration = probabilisticSwitchMap.get(entry.getKey());
+        // if (iteration == null) {
+        // iteration = -1;
+        // }
+        // csv.append(iteration).append(";");
+        //
+        // // the pn data
+        // csv.append(entry.getValue()).append("\n");
+        //
+        // // count how many time the feed has been checked
+        // totalChecks += entry.getValue().split(";").length;
+        // }
+        //
+        // // total number of megabytes dowloaded
+        // csv.append("total downloaded MB:;").append(Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES)).append(" MB")
+        // .append("\n");
+        //
+        // // total number of checks
+        // csv.append("total checks:;").append(totalChecks).append("\n");
+        // FileHelper.writeToFile("data/temp/feedCheckerPnMap_Evaluation_" + getCheckApproachName() + "_"
+        // + System.currentTimeMillis() + ".csv", csv);
+        //
+        // csv = new StringBuilder();
+        // for (Entry<Integer, String> entry : ciMapEvaluation.entrySet()) {
+        // csv.append(entry.getKey()).append(";").append(entry.getValue()).append("\n");
+        // }
+        // FileHelper.writeToFile("data/temp/feedCheckerCiMap_" + getCheckApproachName() + "_"
+        // + System.currentTimeMillis() + ".csv", csv);
+        //
+        // csv = new StringBuilder();
+        // for (Entry<Integer, LinkedHashMap<Integer, Integer>> entry : postDistributionMapEvaluation.entrySet()) {
+        // csv.append(entry.getKey());
+        // for (Entry<Integer, Integer> minuteEntry : entry.getValue().entrySet()) {
+        // csv.append(";").append(minuteEntry.getValue());
+        // }
+        // csv.append("\n");
+        // }
+        // FileHelper.writeToFile("data/temp/feedCheckerPdMap_" + getCheckApproachName() + "_"
+        // + System.currentTimeMillis() + ".csv", csv);
     }
     
 
@@ -607,8 +606,8 @@ public final class FeedChecker {
             }
 
             if (feed.getUpdateClass() == FeedClassifier.CLASS_DEAD) {
-                fixedMinCheckInterval = 800;
-                fixedMaxCheckInterval = 1440;
+                fixedMinCheckInterval = 800 + (int) (Math.random() * 20);
+                fixedMaxCheckInterval = 1440 + (int) (Math.random() * 400);
             } else if (feed.getUpdateClass() == FeedClassifier.CLASS_CHUNKED) {
 
                 // for chunked entries the median post gap is likely to be zero so we set it to the time to the last
@@ -618,8 +617,8 @@ public final class FeedChecker {
 
             } else if (feed.getUpdateClass() == FeedClassifier.CLASS_ON_THE_FLY) {
 
-                fixedMinCheckInterval = 50;
-                fixedMaxCheckInterval = 100;
+                fixedMinCheckInterval = 50 + (int) (Math.random() * 10);
+                fixedMaxCheckInterval = 100 + (int) (Math.random() * 20);
 
             }
 
