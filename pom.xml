@@ -54,6 +54,7 @@
 					<excludes>
 						<exclude>**/DictionaryDBIndexTest.java</exclude>
 						<exclude>**/FeedDatabaseTest.java</exclude>
+						<exclude>**/FeedCheckerTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
