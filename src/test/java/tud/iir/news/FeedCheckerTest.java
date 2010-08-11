@@ -3,8 +3,6 @@
  */
 package tud.iir.news;
 
-import static org.junit.Assert.fail;
-
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -17,23 +15,23 @@ import tud.iir.helper.DateHelper;
  * <p>
  * Tests whether the feed checker can correctly access feeds.
  * </p>
- *
+ * 
  * @author klemens.muthmann@googlemail.com
  * @version 1.0
  * @since 1.0
- *
+ * 
  */
 public class FeedCheckerTest {
-    
+
     private Collection<Feed> fixture;
-    
+
     private FeedChecker objectOfClassUnderTest;
 
     /**
      * <p>
      * 
      * </p>
-     *
+     * 
      * @throws java.lang.Exception
      */
     @Before
@@ -48,7 +46,7 @@ public class FeedCheckerTest {
      */
     @Test
     public void testContinuousReading() {
-        objectOfClassUnderTest.startContinuousReading(10*DateHelper.MINUTE_MS);
+        objectOfClassUnderTest.startContinuousReading(10 * DateHelper.SECOND_MS);
         objectOfClassUnderTest.stopContinuousReading();
     }
 
