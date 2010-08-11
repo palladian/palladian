@@ -1,8 +1,23 @@
 package tud.iir.extraction.mio;
 
+import java.util.List;
 import java.util.Locale;
 
 public class MIOInteractivityAnalyzer {
+
+    /** The weak interaction indicators. */
+    final transient private List<String> weakInteractionIndicators;
+    
+    /** The strong interaction indicators. */
+    final transient private List<String> strongInteractionIndicators;
+
+    /**
+     * Instantiates a new mIO interactivity analyzer.
+     */
+    public MIOInteractivityAnalyzer() {
+        this.weakInteractionIndicators = InCoFiConfiguration.getInstance().getWeakInteractionIndicators();
+        this.strongInteractionIndicators = InCoFiConfiguration.getInstance().getStrongInteractionIndicators();
+    }
 
     /**
      * Sets the interactivity grade.
@@ -72,11 +87,11 @@ public class MIOInteractivityAnalyzer {
      * @return the double
      */
     private double calcSingleValue(final String checkString) {
-        String modCheckString = checkString.toLowerCase(Locale.ENGLISH);
+        final String modCheckString = checkString.toLowerCase(Locale.ENGLISH);
         double returnValue = 0;
 
-        int weakIndicators = getNumberOfInteractivityIndicators(modCheckString, false);
-        int strongIndicators = getNumberOfInteractivityIndicators(modCheckString, true);
+        final int weakIndicators = getNumberOfInteractivityIndicators(modCheckString, false);
+        final int strongIndicators = getNumberOfInteractivityIndicators(modCheckString, true);
 
         if (weakIndicators > 0) {
 
@@ -99,15 +114,18 @@ public class MIOInteractivityAnalyzer {
      */
     private int getNumberOfInteractivityIndicators(final String checkString, final boolean checkStrong) {
         int returnValue = 0;
-        String[] isWeakIndicator = { "unboxing", "video", "preview", "review", "movie", "trailer", "promotion",
-                "youtube", "player", "logo" };
+        List<String> interactionIndicators = weakInteractionIndicators;
+        // String[] isWeakIndicator = { "unboxing", "video", "preview", "review", "movie", "trailer", "promotion",
+        // "youtube", "player", "logo" };
         if (checkStrong) {
-            final String[] isStrongIndicator = { "interactive", "click", "try", "360", "view", "index", "main", "spin",
-                    "tour", "virtual", "gallery", "play", "drag", "keys", "game", "microsite" };
-            isWeakIndicator = isStrongIndicator;
+            // final String[] isStrongIndicator = { "interactive", "click", "try", "360", "view", "index", "main",
+            // "spin",
+            // "tour", "virtual", "gallery", "play", "drag", "keys", "game", "microsite" };
+            // isWeakIndicator = isStrongIndicator;
+            interactionIndicators = strongInteractionIndicators;
         }
 
-        for (String indicator : isWeakIndicator) {
+        for (String indicator : interactionIndicators) {
             if (checkString.contains(indicator)) {
                 returnValue++;
             }
@@ -115,17 +133,18 @@ public class MIOInteractivityAnalyzer {
         return returnValue;
 
     }
-
-    /**
-     * The main method.
-     * 
-     * @param args the arguments
-     */
-    public static void main(String[] args) {
-        // MIOInteractivityAnalyzer iAn = new MIOInteractivityAnalyzer();
-        // System.out
-        // .println(iAn
-        // .calcSingleValue("http://g-ecx.images-amazon.com/images/G/01/am3/20100615163706920/AMPlayer._V191513928_.swf"));
-    }
+    //
+    // /**
+    // * The main method.
+    // *
+    // * @param args the arguments
+    // */
+    // public static void main(String[] args) {
+    // // MIOInteractivityAnalyzer iAn = new MIOInteractivityAnalyzer();
+    // // System.out
+    // // .println(iAn
+    // //
+    // .calcSingleValue("http://g-ecx.images-amazon.com/images/G/01/am3/20100615163706920/AMPlayer._V191513928_.swf"));
+    // }
 
 }

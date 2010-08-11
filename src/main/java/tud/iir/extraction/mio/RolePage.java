@@ -18,7 +18,7 @@ public class RolePage {
     private int count = 1;
 
     /** The id. */
-    private int id = 0;
+    private transient int id = 0;
 
     /** The concept id. */
     private int conceptID;
@@ -29,7 +29,7 @@ public class RolePage {
      * @param hostname the hostname
      * @param conceptID the concept id
      */
-    public RolePage(String hostname, int conceptID) {
+    public RolePage(final String hostname, final int conceptID) {
         this.hostname = hostname;
         this.conceptID = conceptID;
     }
@@ -41,7 +41,7 @@ public class RolePage {
      * @param count the count
      * @param conceptID the concept id
      */
-    public RolePage(String hostname, int count, int conceptID) {
+    public RolePage(final String hostname, final int count, final int conceptID) {
         this.hostname = hostname;
         this.count = count;
         this.conceptID = conceptID;
@@ -68,7 +68,7 @@ public class RolePage {
      * 
      * @param hostname the new hostname
      */
-    public void setHostname(String hostname) {
+    public void setHostname(final String hostname) {
         this.hostname = hostname;
     }
 
@@ -86,7 +86,7 @@ public class RolePage {
      * 
      * @param count the new count
      */
-    public void setCount(int count) {
+    public void setCount(final int count) {
         this.count = count;
     }
 
@@ -104,7 +104,7 @@ public class RolePage {
      * 
      * @param id the new id
      */
-    public void setID(int id) {
+    public void setID(final int id) {
         this.id = id;
     }
 
@@ -122,7 +122,7 @@ public class RolePage {
      * 
      * @param conceptID the new concept id
      */
-    public void setConceptID(int conceptID) {
+    public void setConceptID(final int conceptID) {
         this.conceptID = conceptID;
     }
 

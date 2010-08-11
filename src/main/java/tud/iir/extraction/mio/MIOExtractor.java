@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
 import tud.iir.extraction.Extractor;
-import tud.iir.helper.FileHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -30,10 +29,10 @@ public final class MIOExtractor extends Extractor {
     private static MIOExtractor instance = null;
 
     /** The Constant MAX_EXTRACTION_THREADS. */
-    protected static final int MAX_EXTRACTION_THREADS = 2;
+    private static final int MAX_EXTRACTION_THREADS = 2;
 
     /**
-     * Instantiates a new mIO extractor.
+     * Instantiates a new MIOExtractor.
      */
     private MIOExtractor() {
         super();
@@ -65,18 +64,18 @@ public final class MIOExtractor extends Extractor {
      * 
      * @param continueFromLastExtraction the continue from last extraction
      */
-    public void startExtraction(boolean continueFromLastExtraction) {
+    public void startExtraction(final boolean continueFromLastExtraction) {
 
         
         LOGGER.info("start MIO extraction");
         
-        System.exit(1);
+//        System.exit(1);
 
         // reset stopped command
         setStopped(false);
 
         // load concepts and attributes from ontology (and rdb)
-        KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
+        final KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
         setKnowledgeManager(kManager);
 
         // loop until exit called
@@ -86,8 +85,14 @@ public final class MIOExtractor extends Extractor {
         final ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
         // final ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
 
-        // loadSearchVocabulary
-        final ConceptSearchVocabulary searchVoc = loadSearchVocabulary();
+        // loadInCoFiConfiguration and prepare as Singleton
+        final InCoFiConfiguration configuration = loadConfiguration();        
+        InCoFiConfiguration.instance=configuration;
+        
+//        System.out.println(InCoFiConfiguration.getInstance().getStrongInteractionIndicators().toString());
+//        System.out.println(InCoFiConfiguration.getInstance().getWeakInteractionIndicators().toString());
+//        System.exit(1);
+        
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
 
@@ -99,7 +104,8 @@ public final class MIOExtractor extends Extractor {
             if (isStopped()) {
                 LOGGER.info("mio extraction process stopped");
                 //Clean the SWF-File-DownloadDirectory
-//                FileHelper.cleanDirectory("F:/Temp/");
+               
+//                FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
                 break;
             }
 
@@ -133,7 +139,7 @@ public final class MIOExtractor extends Extractor {
                     LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
                             + currentEntity.getConcept().getName() + ")");
                     final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
-                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, searchVoc,
+                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity,
                             getKnowledgeManager());
                     mioThread.start();
 
@@ -187,17 +193,19 @@ public final class MIOExtractor extends Extractor {
      * 
      * @return the concept search vocabulary
      */
-    private ConceptSearchVocabulary loadSearchVocabulary() {
+    private InCoFiConfiguration loadConfiguration() {
+        InCoFiConfiguration returnValue=null;
         try {
-            final ConceptSearchVocabulary cSearchVoc = Yaml.loadType(new File(
-                    "data/knowledgeBase/conceptSearchVocabulary.yml"), ConceptSearchVocabulary.class);
+            final InCoFiConfiguration config = Yaml.loadType(new File(
+                    "data/knowledgeBase/inCoFiConfigurations.yml"), InCoFiConfiguration.class);
 
-            return cSearchVoc;
+            returnValue= config;
         } catch (FileNotFoundException e) {
 
             LOGGER.error(e.getMessage());
         }
-        return null;
+        return returnValue;
+       
     }
 
     /**

@@ -5,7 +5,9 @@
 package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import tud.iir.web.SourceRetriever;
 
@@ -17,10 +19,18 @@ import tud.iir.web.SourceRetriever;
 public class SearchAgent {
 
     /** The resultCount determines how many sources (URLs) should be retrieved. */
-    private final static int RESULTCOUNT = 10;
+    private final transient int resultCount;
 
     /** The search engine. */
-    int searchEngine = 2;
+    private final transient int searchEngine;
+    
+    /**
+     * Instantiates a new search agent.
+     */
+    public SearchAgent(){
+        this.searchEngine = InCoFiConfiguration.getInstance().searchEngine;
+        this.resultCount = InCoFiConfiguration.getInstance().resultCount;
+    }
 
     /**
      * Initiate search.
@@ -28,35 +38,27 @@ public class SearchAgent {
      * @param searchQueries the search queries
      * @return the list
      */
-    public List<String> initiateSearch(List<String> searchQueries) {
-        SourceRetriever sRetriever = new SourceRetriever();
-        sRetriever.setResultCount(RESULTCOUNT);
+    public List<String> initiateSearch(final List<String> searchQueries) {
+        final SourceRetriever sRetriever = new SourceRetriever();
+        sRetriever.setResultCount(resultCount);
 
         // set focus on english content
         sRetriever.setLanguage(0);
         sRetriever.setSource(searchEngine);
 
-        ArrayList<String> MIOPageCandidateList;
+        List<String> MIOPageCandidateList;
 
-        ArrayList<String> resultList = new ArrayList<String>();
+        final List<String> resultList = new ArrayList<String>();
 
         for (String searchQuery : searchQueries) {
-            // System.out.println(searchQuery);
-            ArrayList<String> resultURLList = sRetriever.getURLs(searchQuery, false);
-            // System.out.println("URLLIST: " + ResultURLList.size() + "____");
-            // resultList.add("TEST");
-            // ArrayList<WebResult> ResultList = sRetriever.getWebResults(searchQuery, searchEngine, false);
-            // System.out.println("Webresults: " + ResultList.size());
-            // webResultList.addAll(ResultList);
+//            System.out.println(searchQuery);
+            final List<String> resultURLList = sRetriever.getURLs(searchQuery, false);
+
             resultList.addAll(resultURLList);
-            // break;
         }
-        // System.out.println(resultList.size());
 
         MIOPageCandidateList = removeDuplicates(resultList);
-        // System.out.println(MIOPageCandidateList.toString());
-        // System.out.println(MIOPageCandidateList.size());
-        // System.exit(1);
+
         return MIOPageCandidateList;
     }
 
@@ -66,15 +68,12 @@ public class SearchAgent {
      * @param resultList the result list
      * @return the array list
      */
-    private ArrayList<String> removeDuplicates(List<String> resultList) {
-        ArrayList<String> urlList = new ArrayList<String>();
-        for (String webrsl : resultList) {
+    private List<String> removeDuplicates(final List<String> resultList) {
+        final Set<String> hashSet = new HashSet<String>(resultList);
+        resultList.clear();
+        resultList.addAll(hashSet);
 
-            if (!urlList.contains(webrsl)) {
-                urlList.add(webrsl);
-            }
-        }
-        return urlList;
+        return resultList;
 
     }
 

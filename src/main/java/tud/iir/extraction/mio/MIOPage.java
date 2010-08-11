@@ -4,6 +4,8 @@
  */
 package tud.iir.extraction.mio;
 
+import org.w3c.dom.Document;
+
 import tud.iir.web.Crawler;
 
 /**
@@ -17,16 +19,13 @@ public class MIOPage {
     private String url;
 
     /** The hostname. */
-    private String hostname;
+   final transient private String hostname;
 
-    /** The content. */
-    // private String content = "";
-
-    /** The title of a MIOPage. */
+   /** The title of a MIOPage. */
     private String title = "";
 
     /** To check if this MIOPage was linked. */
-    private boolean isLinkedPage = false;
+    private transient boolean isLinkedPage = false;
 
     /** The name of the link. */
     private String linkName = "";
@@ -38,7 +37,7 @@ public class MIOPage {
     private String linkParentPage = "";
 
     /** To check if this MIOPage is an iframe-source. */
-    private boolean isIFrameSource = false;
+    private transient boolean isIFrameSource = false;
 
     /** The iframe-Page that embeds this MIOPage. */
     private String iframeParentPage = "";
@@ -50,7 +49,8 @@ public class MIOPage {
     private double dedicatedPageTrust = 0;
 
     // /** the document that is created after retrieving a web page */
-    // private Document webDocument = null;
+    /** The web document. */
+    final transient private Document webDocument;
 
     /**
      * Instantiates a new mIO page.
@@ -58,17 +58,25 @@ public class MIOPage {
      * @param url the URL
      */
     public MIOPage(final String url) {
-        // System.out.println("GENERATE NEW MIOPAGE " + url);
+        final Crawler crawler = new Crawler();
+        
         this.url = url;
-        // this.content = content;
-        // final Crawler crawler = new Crawler();
-        // crawler.setDocument(url);
+        this.webDocument = crawler.getWebDocument(url);
         this.hostname = Crawler.getDomain(url, false);
-        // this.webDocument = crawler.getWebDocument(url);
-        // Document doc = crawler.getWebDocument(url);
-        // System.out.println("READY!");
-        // this.title = Crawler.extractTitle(doc);
+        this.title = Crawler.extractTitle(webDocument).trim();
+    }
 
+    /**
+     * Instantiates a new mIO page.
+     *
+     * @param url the url
+     * @param webDocument the web document
+     */
+    public MIOPage(final String url, final Document webDocument) {
+        this.url = url;
+        this.webDocument = webDocument;
+        this.hostname = Crawler.getDomain(url, false);
+        this.title = Crawler.extractTitle(webDocument).trim();
     }
 
     /**
@@ -121,15 +129,11 @@ public class MIOPage {
      * 
      * @return the content
      */
-    public String getContent() {
-        Crawler crawler = new Crawler();
-        String content = crawler.downloadNotBlacklisted(url);
-        return content;
+    public String getContentAsString() {
+        return Crawler.documentToString(webDocument);
+
     }
 
-    // public void setContent(final String content) {
-    // this.content = content;
-    // }
 
     /**
      * Gets the link name.
@@ -271,7 +275,7 @@ public class MIOPage {
      * 
      * @param title the new title
      */
-    public void setTitle(String title) {
+    public void setTitle(final String title) {
         this.title = title;
     }
 
@@ -279,8 +283,24 @@ public class MIOPage {
     // this.webDocument = document;
     // }
     //
-    // public Document getDocument() {
-    // return webDocument;
-    // }
+    /**
+     * Gets the web document.
+     *
+     * @return the web document
+     */
+    public Document getWebDocument() {
+        return webDocument;
+    }
+
+//    /**
+//     * The main method.
+//     *
+//     * @param abc the arguments
+//     */
+//    public static void main(final String[] abc) {
+//
+//        MIOPage mioPage = new MIOPage("http://www.jr.com/canon/pe/CAN_MP990/");
+//        // MIOPage mioPage2 = new MIOPage("http://www.gsmarena.com/samsung_s8500_wave-3d-spin-3146.php");
+//    }
 
 }

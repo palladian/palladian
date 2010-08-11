@@ -954,8 +954,7 @@ public class DatabaseManager {
                         for (FactValue factValue : factValues) {
 
                             int factID = addFact(factValue, entityID, attributeID, factValue.getTrust());
-                            // System.out.println("====== " + factValue.getValue() + " eingefuegt!");
-
+                          
                             // error occurred, continue
                             if (factID == -1) {
                                 continue;

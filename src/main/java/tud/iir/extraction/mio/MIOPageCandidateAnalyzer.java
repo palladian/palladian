@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Document;
+
 import tud.iir.knowledge.Entity;
 import tud.iir.web.Crawler;
 
@@ -19,18 +21,18 @@ import tud.iir.web.Crawler;
  */
 public class MIOPageCandidateAnalyzer {
 
-    /** The mio page candidates. */
-    private List<String> mioPageCandidates;
+    /** The MIOPageCandidates. */
+    private final transient List<String> mioPageCandidates;
 
-    /** The mio pages. */
-    private List<MIOPage> mioPages;
+    /** The MIOPages. */
+    private final transient List<MIOPage> mioPages;
 
     /**
-     * Instantiates a new page analyzer.
+     * Instantiates a new PageAnalyzer.
      * 
      * @param mioPageCandidates the mIO page candidates
      */
-    public MIOPageCandidateAnalyzer(List<String> mioPageCandidates) {
+    public MIOPageCandidateAnalyzer(final List<String> mioPageCandidates) {
 
         this.mioPageCandidates = mioPageCandidates;
         mioPages = new ArrayList<MIOPage>();
@@ -43,51 +45,60 @@ public class MIOPageCandidateAnalyzer {
      * @param entity the entity
      * @return the identified mioPages as list
      */
-    public List<MIOPage> identifyMIOPages(Entity entity) {
+    public final List<MIOPage> identifyMIOPages(final Entity entity) {
 
         final Crawler craw = new Crawler();
         // initialize SearchWordMatcher
         final SearchWordMatcher swMatcher = new SearchWordMatcher(entity.getName());
+        final FastMIODetector fMIODec = new FastMIODetector();
+        final IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
+        final LinkAnalyzer linkAnalyzer = new LinkAnalyzer(swMatcher);
 
         for (String mioPageCandidate : mioPageCandidates) {
 
-            String pageContent = getPage(mioPageCandidate, craw);
-            if (!("").equals(pageContent)) {
+            final Document webDocument = craw.getWebDocument(mioPageCandidate);
+            final String pageContent = Crawler.documentToString(webDocument);
 
-                // use fast MIO-Detection
-                final FastMIODetector fMIODec = new FastMIODetector();
-                MIOPage mioPage = fMIODec.getMioPage(pageContent, mioPageCandidate);
-                if (mioPage != null) {
-                    mioPages.add(mioPage);
-                }
-
-                // IFRAME-Analysis
-                IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
-                mioPages.addAll(iframeAnalyzer.getIframeMioPages(pageContent, mioPageCandidate));
-
-                // Link-Analysis
-                LinkAnalyzer linkAnalyzer = new LinkAnalyzer(swMatcher);
-                mioPages.addAll(linkAnalyzer.getLinkedMioPages(pageContent, mioPageCandidate));
+            if (("").equals(pageContent)) {
+                continue;
             }
+
+            if (fMIODec.containsMIO(pageContent)) {
+                final MIOPage mioPage = new MIOPage(mioPageCandidate, webDocument);
+                mioPages.add(mioPage);
+            }
+
+            // IFRAME-Analysis
+            mioPages.addAll(iframeAnalyzer.getIframeMioPages(pageContent, mioPageCandidate));
+
+            // Link-Analysis
+            mioPages.addAll(linkAnalyzer.getLinkedMioPages(pageContent, mioPageCandidate));
+
         }
 
         return removeDuplicates(mioPages);
     }
 
     /**
-     * get WebPage as String.
+     * check if a MIO-Indicator is contained.
      * 
-     * @param urlString the URL
-     * @param craw the craw
-     * @return the page
+     * @param mioPages the mio pages
+     * @return true, if successful
      */
-    private String getPage(String urlString, Crawler craw) {
-
-        // GeneralAnalyzer generalAnalyzer = new GeneralAnalyzer();
-        // final Crawler craw = new Crawler();
-        String pageString = craw.downloadNotBlacklisted(urlString);
-        return pageString;
-    }
+    // private boolean containsMIOIndicator(final String mioPageContent) {
+    // String modPageContent = mioPageContent.toLowerCase(Locale.ENGLISH);
+    // boolean returnValue = false;
+    // for (String mioInd : mioIndicators) {
+    // if (modPageContent.contains(mioInd)) {
+    // // break after a first indicator was detected
+    // returnValue = true;
+    //
+    // }
+    // }
+    //
+    // return returnValue;
+    //
+    // }
 
     /**
      * Remove duplicates, but pay attention to the different ways of retrieving a MIO.
@@ -95,16 +106,16 @@ public class MIOPageCandidateAnalyzer {
      * @param mioPages the mioPages
      * @return the list without duplicates
      */
-    private List<MIOPage> removeDuplicates(List<MIOPage> mioPages) {
-        // System.out.println("Anzahl MIOPAGES vor DublicateRemoiving: " + mioPages.size());
-        List<MIOPage> resultList = new ArrayList<MIOPage>();
+    private List<MIOPage> removeDuplicates(final List<MIOPage> mioPages) {
 
-        Map<String, MIOPage> tempMap = new HashMap<String, MIOPage>();
+        final List<MIOPage> resultList = new ArrayList<MIOPage>();
+
+        final Map<String, MIOPage> tempMap = new HashMap<String, MIOPage>();
         for (MIOPage mioPage : mioPages) {
 
             if (tempMap.containsKey(mioPage.getUrl())) {
 
-                MIOPage tempMIOPage = tempMap.get(mioPage.getUrl());
+                final MIOPage tempMIOPage = tempMap.get(mioPage.getUrl());
 
                 // organize the different ways of finding the same miopage
                 if (mioPage.isLinkedPage()) {
@@ -120,11 +131,9 @@ public class MIOPageCandidateAnalyzer {
                     }
                 }
 
-                if (mioPage.isIFrameSource()) {
-                    if (!tempMIOPage.isIFrameSource()) {
-                        tempMIOPage.setIFrameSource(mioPage.isIFrameSource());
-                        tempMIOPage.setIframeParentPage(mioPage.getIframeParentPage());
-                    }
+                if (mioPage.isIFrameSource() && !tempMIOPage.isIFrameSource()) {
+                    tempMIOPage.setIFrameSource(mioPage.isIFrameSource());
+                    tempMIOPage.setIframeParentPage(mioPage.getIframeParentPage());
                 }
 
             } else {
@@ -140,22 +149,22 @@ public class MIOPageCandidateAnalyzer {
 
     }
 
-    /**
-     * The main method.
-     * 
-     * @param args the arguments
-     */
-    public static void main(String[] args) {
-        // List<String> testList = new ArrayList<String>();
-        // testList.add("http://www.canon.co.uk/for_home/product_finder/multifunctionals/inkjet/pixma_mp990/index.aspx");
-        // PageAnalyzer pageAnalyzer = new PageAnalyzer(testList);
-        // // start and get Results of PageAnalyzing
-        // Concept pconcept = new Concept("printer");
-        // Entity printer = new Entity("canon mp990", pconcept);
-        // List<MIOPage> MIOPages = pageAnalyzer.analyzePages(printer);
-        //
-        // for (MIOPage mioPage : MIOPages) {
-        // System.out.println(mioPage.getUrl() + "  linkName: " + mioPage.getLinkName());
-        // }
-    }
+//    /**
+//     * The main method.
+//     * 
+//     * @param args the arguments
+//     */
+//    public static void main(String[] args) {
+//        // List<String> testList = new ArrayList<String>();
+//        // testList.add("http://www.canon.co.uk/for_home/product_finder/multifunctionals/inkjet/pixma_mp990/index.aspx");
+//        // PageAnalyzer pageAnalyzer = new PageAnalyzer(testList);
+//        // // start and get Results of PageAnalyzing
+//        // Concept pconcept = new Concept("printer");
+//        // Entity printer = new Entity("canon mp990", pconcept);
+//        // List<MIOPage> MIOPages = pageAnalyzer.analyzePages(printer);
+//        //
+//        // for (MIOPage mioPage : MIOPages) {
+//        // System.out.println(mioPage.getUrl() + "  linkName: " + mioPage.getLinkName());
+//        // }
+//    }
 }
