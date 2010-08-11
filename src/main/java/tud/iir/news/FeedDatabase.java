@@ -1,5 +1,7 @@
 package tud.iir.news;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -11,12 +13,16 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import tud.iir.persistence.DatabaseManager;
 
@@ -455,7 +461,7 @@ public class FeedDatabase implements FeedStore {
         LOGGER.trace("<getEntryByRawId");
         return result;
     }
-    
+
     @Override
     public synchronized FeedEntry getFeedEntryByRawId(int feedId, String rawId) {
         LOGGER.trace(">getEntryByRawId");
@@ -517,8 +523,25 @@ public class FeedDatabase implements FeedStore {
                 // entry.setPageContent(resultSet.getString(7));
                 SQLXML pageContent = resultSet.getSQLXML(7);
                 if (pageContent.getString() != null) {
-                    DOMSource pageContentDOMSource = pageContent.getSource(DOMSource.class);
-                    entry.setPageContent((Document) pageContentDOMSource.getNode());
+                    // DOMSource pageContentDOMSource = pageContent.getSource(DOMSource.class);
+                    // entry.setPageContent((Document) pageContentDOMSource.getNode());
+
+                    try {
+                        InputStream binaryStream = pageContent.getBinaryStream();
+                        DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                        Document doc = parser.parse(binaryStream);
+                        entry.setPageContent(doc);
+                    } catch (ParserConfigurationException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (SAXException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        // TODO Auto-generated catch block
+                        e.printStackTrace();
+                    }
+
                 }
 
                 entry.setAdded(resultSet.getDate(8));
@@ -528,6 +551,7 @@ public class FeedDatabase implements FeedStore {
                 }
                 result.add(entry);
             }
+            resultSet.close();
         } catch (SQLException e) {
             LOGGER.error("getFeedEntries", e);
         }
@@ -576,8 +600,11 @@ public class FeedDatabase implements FeedStore {
 
     public void clearFeedTables() {
         LOGGER.trace(">cleanTables");
-        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries");
-        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feeds");
+        // DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries");
+        // DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feeds");
+        // DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE tags");
+        // DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entry_tag");
+
         LOGGER.trace("<cleanTables");
     }
 

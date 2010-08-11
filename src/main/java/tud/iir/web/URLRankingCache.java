@@ -69,6 +69,7 @@ public class URLRankingCache {
             } else {
                 LOGGER.debug("source for " + url + " not found.");
             }
+            rs.close();
 
         } catch (SQLException e) {
             LOGGER.error(e);
@@ -99,6 +100,7 @@ public class URLRankingCache {
                 result.put(service, ranking);
                 LOGGER.debug("cache hit for " + source + " : " + service + ":" + ranking);
             }
+            rs.close();
 
         } catch (SQLException e) {
             LOGGER.error(e);
