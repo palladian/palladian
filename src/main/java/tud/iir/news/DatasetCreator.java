@@ -161,7 +161,7 @@ public class DatasetCreator {
                 feed.freeMemory();
                 feed.setLastHeadlines("");
 
-                LOGGER.debug("added " + newPosts + " new posts to file " + filePath);
+                LOGGER.debug("added " + newPosts + " new posts to file " + filePath + " (feed: " + feed.getId() + ")");
 
             }
         };
