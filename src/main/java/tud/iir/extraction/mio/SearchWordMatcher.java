@@ -16,17 +16,17 @@ import java.util.Locale;
 public class SearchWordMatcher {
 
     /** The word list. */
-    List<String> wordList;
+    private final List<String> wordList;
 
     /** The initial word list. */
-    List<String> initialWordList;
+    private final List<String> initialWordList;
 
     /**
      * By instantiating a list of words is generated out of the given searchwords (entityName).
      * 
      * @param searchWords the search words
      */
-    public SearchWordMatcher(String searchWords) {
+    public SearchWordMatcher(final String searchWords) {
 
         initialWordList = new ArrayList<String>();
         wordList = (prepareWordList(searchWords, false));
@@ -66,7 +66,8 @@ public class SearchWordMatcher {
      * @param searchWords the search words
      * @return the number of search word matches
      */
-    public int getNumberOfSearchWordMatches(final String src, boolean withoutSpecialWords, String searchWords) {
+    public int getNumberOfSearchWordMatches(final String src, final boolean withoutSpecialWords,
+            final String searchWords) {
         int counter = 0;
         if (!("").equals(src)) {
             final String modSrc = src.toLowerCase(Locale.ENGLISH);
@@ -89,7 +90,7 @@ public class SearchWordMatcher {
      * @param withoutSpecialWords the without special words
      * @return the list
      */
-    private List<String> prepareWordList(String searchWords, boolean withoutSpecialWords) {
+    private List<String> prepareWordList(final String searchWords, final boolean withoutSpecialWords) {
 
         final List<String> wordList = new ArrayList<String>();
         final List<String> morphResults = new ArrayList<String>();
@@ -123,9 +124,9 @@ public class SearchWordMatcher {
      * @param withoutSpecialWords the without special words
      * @return the list
      */
-    private List<String> morphSearchWord(String word, boolean withoutSpecialWords) {
-        String[] separators = { "_", "-" };
-        List<String> morphList = new ArrayList<String>();
+    private List<String> morphSearchWord(final String word, final boolean withoutSpecialWords) {
+        final String[] separators = { "_", "-" };
+        final List<String> morphList = new ArrayList<String>();
 
         if (withoutSpecialWords) {
 
@@ -142,11 +143,11 @@ public class SearchWordMatcher {
                 for (int i = 1; i < word.length(); i++) {
                     if (word.charAt(i - 1) != word.charAt(i)) {
 
-                        String morphPart1 = word.substring(0, i);
-                        String morphPart2 = word.substring(i);
+                        final String morphPart1 = word.substring(0, i);
+                        final String morphPart2 = word.substring(i);
                         // use every separator-sign
                         for (int x = 0; x < separators.length; x++) {
-                            String morphWord = morphPart1 + separators[x] + morphPart2;
+                            final String morphWord = morphPart1 + separators[x] + morphPart2;
                             morphList.add(morphWord);
                         }
 
@@ -168,12 +169,12 @@ public class SearchWordMatcher {
      * @param src the src
      * @return true, if successful
      */
-    public boolean containsSearchWordOrMorphs(String src) {
+    public boolean containsSearchWordOrMorphs(final String src) {
 
         boolean returnValue = false;
 
         if (!("").equals(src)) {
-            int matches = getNumberOfSearchWordMatches(src);
+           final int matches = getNumberOfSearchWordMatches(src);
             // System.out.println("searchWMatches: " + matches + "iniwordListSize: " + initialWordList.size());
 
             // case "avatar"
@@ -184,7 +185,7 @@ public class SearchWordMatcher {
                 if (!(initialWordList.size() == 2 && matches == 1)) {
 
                     // case more words
-                    double wordFactor = ((double) initialWordList.size() / 2);
+                    final double wordFactor = ((double) initialWordList.size() / 2);
                     if (matches >= wordFactor) {
                         returnValue = true;
                     }
@@ -200,7 +201,7 @@ public class SearchWordMatcher {
      * 
      * @param args the arguments
      */
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
 
         // SearchWordMatcher matcher = new SearchWordMatcher("canon");
         // // matcher.matchSearchWords("http://pic.gsmarena.com/vv/spin/samsung-wave-s-8500-final.swf");
@@ -216,6 +217,6 @@ public class SearchWordMatcher {
         // System.out.println("result: "
         // + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php",
         // true, "samsung s8500 wave"));
-    }
+//    }
 
 }

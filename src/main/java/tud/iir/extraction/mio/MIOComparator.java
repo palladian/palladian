@@ -16,14 +16,14 @@ public class MIOComparator implements Comparator<Object>, Serializable {
      * (non-Javadoc)
      * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
      */
-    public int compare(Object obj1, Object obj2) {
+    public int compare(final Object obj1, final Object obj2) {
         // for rank-comparison
-        double mioTrust1 = ((MIO) obj1).getTrust();
-        double mioTrust2 = ((MIO) obj2).getTrust();
+        final double mioTrust1 = ((MIO) obj1).getTrust();
+        final double mioTrust2 = ((MIO) obj2).getTrust();
 
         // for alphabetic comparison
-        String labelTitle1 = ((MIO) obj1).getFileName();
-        String labelTitle2 = ((MIO) obj1).getFileName();
+        final String fileName1 = ((MIO) obj1).getFileName();
+        final String fileName2 = ((MIO) obj1).getFileName();
 
         if (mioTrust1 > mioTrust2) {
             return -1;
@@ -33,7 +33,7 @@ public class MIOComparator implements Comparator<Object>, Serializable {
             return 1;
         }
 
-        else if (labelTitle1.equals(labelTitle2)) {
+        else if (fileName1.equals(fileName2)) {
             return -1;
         }
 

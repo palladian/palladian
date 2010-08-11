@@ -31,9 +31,11 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
 
         // List<MIO> extractedMIOs = new ArrayList<MIO>();
         final Map<String, MIO> cleanedMIOs = new HashMap<String, MIO>();
-        List<MIO> mios = new ArrayList<MIO>();
+        final List<MIO> mios = new ArrayList<MIO>();
         // int threadCount=0;
         // System.out.println("Anzahl mioPages: " + mioPages.size());
+        final UniversalMIOExtractor mioEx = new UniversalMIOExtractor();
+        
         for (MIOPage mioPage : mioPages) {
 
             // final ThreadGroup mioThreadGroup = new ThreadGroup("mioThreadGroup");
@@ -55,8 +57,7 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
             // ThreadHelper.sleep(10000);
             // }
 
-            // extract MIOs and calculate features
-            final UniversalMIOExtractor mioEx = new UniversalMIOExtractor();
+            // extract MIOs and calculate features         
             mios.addAll(mioEx.extractAllMIOs(mioPage, entity));
 
         }
@@ -81,13 +82,13 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
 
             final MIO existingMIO = cleanedMIOs.get(mio.getDirectURL());
 
-            if (true/* !isYouTube */) {
+//            if (true/* !isYouTube */) {
                 if (existingMIO == (null)) {
                     cleanedMIOs.put(mio.getDirectURL(), mio);
                 } else {
                     // the case that a MIO with this directURL was already found
                     // final Map<String, List<String>> tempInfos = existingMIO.getInfos();
-                    Map<String, Double> mergedFeatures = mergeMIOFeatures(existingMIO, mio);
+                   final Map<String, Double> mergedFeatures = mergeMIOFeatures(existingMIO, mio);
 
                     if (mio.getTrust() > existingMIO.getTrust()) {
 
@@ -98,7 +99,7 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
                         cleanedMIOs.put(existingMIO.getDirectURL(), existingMIO);
                     }
                 }
-            }
+//            }
 
         }
         // System.out.println("Anzahl MIOs nach Dublettenerkennung: " + cleanedMIOs.size());
@@ -126,19 +127,19 @@ public class MIOPageAnalyzer extends GeneralAnalyzer {
      * @param mio2 the mio2
      * @return the map
      */
-    private Map<String, Double> mergeMIOFeatures(MIO mio1, MIO mio2) {
+    private Map<String, Double> mergeMIOFeatures(final MIO mio1, final MIO mio2) {
 
-        Map<String, Double> mergedFeaturesMap = new HashMap<String, Double>();
+        final Map<String, Double> mergedFeaturesMap = new HashMap<String, Double>();
 
-        Map<String, Double> featuresMap1 = mio1.getFeatures();
-        Map<String, Double> featuresMap2 = mio2.getFeatures();
+        final Map<String, Double> featuresMap1 = mio1.getFeatures();
+        final Map<String, Double> featuresMap2 = mio2.getFeatures();
 
         // System.out.println(featuresMap1.toString());
         // System.out.println(featuresMap2.toString());
 
         for (String featureName : featuresMap1.keySet()) {
-            double feature1 = featuresMap1.get(featureName);
-            double feature2 = featuresMap2.get(featureName);
+            final double feature1 = featuresMap1.get(featureName);
+            final double feature2 = featuresMap2.get(featureName);
             if (feature1 >= feature2) {
                 mergedFeaturesMap.put(featureName, feature1);
             } else {

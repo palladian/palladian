@@ -17,71 +17,75 @@ import tud.iir.knowledge.Entity;
  */
 public class MIOQueryFactory {
 
-    /** The search queries. */
-    private List<String> searchQueries;
-
     /** The role pages. */
-    private List<RolePage> rolePages;
+    private transient List<RolePage> rolePages;
 
     /** The entity. */
-    Entity entity;
+    private final transient Entity entity;
 
     /** The concept. */
-    Concept concept;
+    private final transient Concept concept;
 
     /** The value specifies how much a rolePage must be counted to be relevant. */
-    private int rolePageRelevanceValue = 5;
+    private transient int rolePageRelevanceValue = 5;
 
     /**
      * Instantiates a new mIO query factory.
      * 
      * @param entity the entity
      */
-    MIOQueryFactory(Entity entity) {
+    MIOQueryFactory(final Entity entity) {
         this.entity = entity;
         this.concept = entity.getConcept();
 
         // load the RolePages from Database that where not already used with this entity
         rolePages = new ArrayList<RolePage>();
-        RolePageDatabase rolePageDB = new RolePageDatabase();
+        final RolePageDatabase rolePageDB = new RolePageDatabase();
         rolePages = rolePageDB.loadNotUsedRolePagesForEntity(entity);
     }
 
     /**
      * Generate search queries.
      * 
-     * @param searchVoc the searchVocabulary
      * @return the list
      */
-    public List<String> generateSearchQueries(ConceptSearchVocabulary searchVoc) {
+    public List<String> generateSearchQueries() {
 
-        searchQueries = new ArrayList<String>();
-        String entityName = entity.getName();
-        List<String> conceptVocabulary = searchVoc.getVocByConceptName(concept.getName());
+        /** The search queries. */
+        final List<String> searchQueries = new ArrayList<String>();
+        final String entityName = entity.getName();
+        // List<String> conceptVocabulary = searchVoc.getVocByConceptName(concept.getName());
+
+        // load conceptSearchVocabulary from InCoFiConfiguration
+        final List<String> conceptSearchVocabulary = InCoFiConfiguration.getInstance().getVocByConceptName(
+                concept.getName());
 
         searchQueries.add(entityName);
-        for (String searchWord : conceptVocabulary) {
+        for (String searchWord : conceptSearchVocabulary) {
 
-            if (!searchWord.endsWith("_")) {
+            if (searchWord.endsWith("_")) {
+                // for the case: "play Quantum of Solice"
+                int pos = searchWord.lastIndexOf("_");
+                final String modSearchWord = searchWord.substring(0, pos--);
+                searchQueries.add("\"" + modSearchWord + " " + entityName + "\"");
+            } else {
                 searchQueries.add(entityName + " \"" + searchWord + "\"");
                 // System.out.println(entityName + " \"" + searchWord + "\"");
 
-            } else {
-                // for the case: "play Quantum of Solice"
-                int pos = searchWord.lastIndexOf("_");
-                String modSearchWord = searchWord.substring(0, pos--);
-                searchQueries.add("\"" + modSearchWord + " " + entityName + "\"");
             }
         }
 
         // add rolePages to Searchquery
         if (!rolePages.isEmpty()) {
+            // load rolePageRelevanceValue from InCoFiConfiguration
+            this.rolePageRelevanceValue = InCoFiConfiguration.getInstance().rolePageRelevanceValue;
+
             for (RolePage rolePage : rolePages) {
                 if (rolePage.getCount() >= rolePageRelevanceValue) {
                     searchQueries.add(rolePage.getHostname() + " " + entityName);
 
                     // add RolePageUsage information to database
-                    RolePageDatabase rpDB = new RolePageDatabase();
+                    final RolePageDatabase rpDB = new RolePageDatabase();
                     rpDB.insertRolePageUsage(rolePage, entity);
                 }
 

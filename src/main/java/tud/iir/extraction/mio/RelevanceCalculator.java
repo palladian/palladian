@@ -4,7 +4,11 @@ import java.util.Locale;
 
 import tud.iir.knowledge.Entity;
 
-public class RelevanceCalculator {
+public final class RelevanceCalculator {
+    
+    private RelevanceCalculator(){
+        
+    }
 
     /**
      * Calculates string relevance.
@@ -61,16 +65,6 @@ public class RelevanceCalculator {
             result = 1;
         }
         return result;
-    }
-
-    /**
-     * The main method.
-     * 
-     * @param args the arguments
-     */
-    public static void main(String[] args) {
-        // TODO Auto-generated method stub
-
     }
 
 }

@@ -1,0 +1,38 @@
+             
+             # set the conceptSearchVocabulary
+             mobilePhone:               "360 view, 3D, overview, key features, drag to rotate"
+             printer:                   "view product tour, view demo, product tour, interactive tour, gallery"
+             headphone:                 "view product tour, view demo, view 360, product tour, 360 view, virtual tour"
+             movie:                     "game, keys, play_, flashgame, games, click here to play, arrow keys"
+             car:                       "campaign, picture viewer, silverlight, flash, microsite, 360 view, virtual tour"
+             
+             # set the searchVocabulary for retrieving of weakMIOs
+             weakMIOs:                  "unboxing, video tour, preview, review, movie, trailer, presentation, campaign, promotion, youtube"
+             
+             # set how many results from a searchEngine-Query should be analyzed (e.g. 5 = TOP5)
+             resultCount: 5
+             
+             # set which searchEngine should be used (1=Yahoo, 2=google, 6=bing)
+             searchEngine: 2
+             
+             # set the directory which is used for downloading SWF and XML-Files
+             tempDirPath: "F:/Temp/"
+             
+             # set a count-value which defines a RolePage as relevant
+             rolePageRelevanceValue: 5
+             
+             # set if SWFContent should be downloaded and analyzed
+             analyzeSWFContent: "true"
+             
+             # set which mioTypes should be retrieved (possible are: flash, applet, silverlight, quicktime, html5canvas)
+             mioTypes: "flash, applet, silverlight, quicktime, html5canvas"
+             
+             # set which words indicate a low relevant MIO
+             badWords: "banner, tower, titlefont, newsletter, cloud, footer, ticker, ads, expressinstall, header, advertise, logo" 
+             
+             # set which words indicate a weak interactive MIO
+             weakInteractionIndicators:  "unboxing, video, preview, review, movie, trailer, promotion, youtube, player, logo"
+             
+             # set which words indicate a strong interactive MIO
+             strongInteractionIndicators: "interactive, click, try, 360, view, index, main, spin, tour, virtual, gallery, play, drag, keys, game, microsite"
+                         

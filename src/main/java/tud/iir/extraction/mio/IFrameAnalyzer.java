@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.w3c.dom.Document;
+
 import tud.iir.web.Crawler;
 
 /**
@@ -19,14 +21,14 @@ import tud.iir.web.Crawler;
 public class IFrameAnalyzer extends GeneralAnalyzer {
 
     /** The sw matcher. */
-    private SearchWordMatcher swMatcher;
+    private final transient SearchWordMatcher swMatcher;
 
     /**
      * Instantiates a new i frame analyzer.
      * 
      * @param swMatcher the searchWordMatcher
      */
-    public IFrameAnalyzer(SearchWordMatcher swMatcher) {
+    public IFrameAnalyzer(final SearchWordMatcher swMatcher) {
         this.swMatcher = swMatcher;
     }
 
@@ -37,24 +39,31 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
      * @param parentPageURL the parent page URL
      * @return the iframe mio pages
      */
-    public List<MIOPage> getIframeMioPages(String parentPageContent, String parentPageURL) {
-        List<MIOPage> mioPages = new ArrayList<MIOPage>();
+    public List<MIOPage> getIframeMioPages(final String parentPageContent, final String parentPageURL) {
+        final List<MIOPage> mioPages = new ArrayList<MIOPage>();
         final Crawler craw = new Crawler();
 
-        List<String> iframeSources = analyzeForIframe(parentPageContent, parentPageURL);
+        final List<String> iframeSources = analyzeForIframe(parentPageContent, parentPageURL);
 
         if (!iframeSources.isEmpty()) {
+            final FastMIODetector mioDetector = new FastMIODetector();
             for (String iframeSourceURL : iframeSources) {
-                // only analyze if the url contains hints for the entity
+
+                // only analyze if the URL contains hints for the entity
                 if (swMatcher.containsSearchWordOrMorphs(iframeSourceURL)) {
-                    String iframePageContent = getPage(iframeSourceURL, craw);
+                    final Document webDocument = craw.getWebDocument(iframeSourceURL);
+                    final String iframePageContent = Crawler.documentToString(webDocument);
+
                     // check for MIOs
-                    if (!iframePageContent.equals("")) {
-                        FastMIODetector mioDetector = new FastMIODetector();
+                    if (!("").equals(iframePageContent)) {
+
                         if (mioDetector.containsMIO(iframePageContent)) {
 
-                            MIOPage iframeMIOPage = generateMIOPage(iframeSourceURL, iframePageContent, parentPageURL);
-                            mioPages.add(iframeMIOPage);
+                            final String parentPageTitle = extractParentPageTitle(parentPageContent);
+
+                            final MIOPage mioPage = generateMIOPage(iframeSourceURL, parentPageURL, parentPageTitle,
+                                    webDocument);
+                            mioPages.add(mioPage);
                         }
                     }
                 }
@@ -71,17 +80,17 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
      * @param pageURL the page url
      * @return the list
      */
-    private List<String> analyzeForIframe(String pageContent, String pageURL) {
+    private List<String> analyzeForIframe(final String pageContent, final String pageURL) {
         List<String> iframeURLs;
-        List<String> iframeURLCandidates = new ArrayList<String>();
+        final List<String> iframeURLCandidates = new ArrayList<String>();
         if (pageContent.contains("<iframe") || pageContent.contains("<IFRAME")) {
 
-            Pattern p = Pattern.compile("<iframe[^>]*src=[^>]*>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-            Matcher m = p.matcher(pageContent);
-            while (m.find()) {
+            Pattern pattern = Pattern.compile("<iframe[^>]*src=[^>]*>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+            Matcher matcher = pattern.matcher(pageContent);
+            while (matcher.find()) {
                 // first get the complete iframe-tag Result:
                 // <iframe src="http://..."
-                String iframeTag = m.group(0);
+                final String iframeTag = matcher.group(0);
                 // extract the source; keep attention to ' vs " Result:
                 // http://...
                 iframeURLCandidates.addAll(getSrcFromIframe(iframeTag, "\""));
@@ -100,10 +109,10 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
      * @param quotMark the quot mark
      * @return the src from iframe
      */
-    private List<String> getSrcFromIframe(String iframeTag, String quotMark) {
-        List<String> iframeURLs = new ArrayList<String>();
-        String pattern = "src=" + quotMark + "[^>" + quotMark + "]*" + quotMark + "";
-        String iframeSrc = extractElement(pattern, iframeTag, "src=");
+    private List<String> getSrcFromIframe(final String iframeTag, final String quotMark) {
+        final List<String> iframeURLs = new ArrayList<String>();
+        String pattern = "src=" + quotMark + "[^>" + quotMark + "]*" + quotMark;
+        final String iframeSrc = extractElement(pattern, iframeTag, "src=");
         iframeURLs.add(iframeSrc);
 
         return iframeURLs;
@@ -116,12 +125,12 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
      * @param parentPageURL the parent page url
      * @return the list
      */
-    private List<String> checkURLs(List<String> urlCandidates, String parentPageURL) {
-        List<String> validURLs = new ArrayList<String>();
+    private List<String> checkURLs(final List<String> urlCandidates, final String parentPageURL) {
+       final List<String> validURLs = new ArrayList<String>();
 
         for (String urlCandidate : urlCandidates) {
-            String validURL = verifyURL(urlCandidate, parentPageURL);
-            if (!validURL.equals("")) {
+            final String validURL = verifyURL(urlCandidate, parentPageURL);
+            if (!("").equals(validURL)) {
                 validURLs.add(validURL);
             }
         }
@@ -133,20 +142,38 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
      * Create a new MIOPage.
      * 
      * @param iframeSourceURL the iframe source url
-     * @param iframePageContent the iframe page content
      * @param parentPageURL the parent page url
+     * @param parentPageTitle the parent page title
+     * @param webDocument the web document
      * @return the mIO page
      */
-    private MIOPage generateMIOPage(String iframeSourceURL, String iframePageContent, String parentPageURL) {
-        MIOPage mioPage = new MIOPage(iframeSourceURL);
+    private MIOPage generateMIOPage(final String iframeSourceURL, final String parentPageURL, final String parentPageTitle,
+            final Document webDocument) {
+        final MIOPage mioPage = new MIOPage(iframeSourceURL, webDocument);
         mioPage.setIFrameSource(true);
         mioPage.setIframeParentPage(parentPageURL);
+        mioPage.setIframeParentPageTitle(parentPageTitle);
 
-        Crawler crawler = new Crawler();
-        crawler.setDocument(parentPageURL);
-        mioPage.setIframeParentPageTitle(Crawler.extractTitle(crawler.getDocument()));
         return mioPage;
 
+    }
+
+    /**
+     * Extract parent page title.
+     * 
+     * @param pageContent the page content
+     * @return the string
+     */
+    private String extractParentPageTitle(final String pageContent) {
+        String title = "";
+        String regExp = "<title>.*?</title>";
+        final Pattern titlePattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        final Matcher titleMatcher = titlePattern.matcher(pageContent);
+        while (titleMatcher.find()) {
+            title = titleMatcher.group(0);
+            break;
+        }
+        return title.trim();
     }
     //
     // /**

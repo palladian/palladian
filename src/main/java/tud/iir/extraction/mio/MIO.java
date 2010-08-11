@@ -4,7 +4,6 @@
  */
 package tud.iir.extraction.mio;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,17 +13,13 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import tud.iir.knowledge.Entity;
-import tud.iir.knowledge.Extractable;
 
 /**
  * An interactive multimedia object.
  * 
  * @author Martin Werner
  */
-public class MIO extends Extractable {
-
-    /** The Constant serialVersionUID. */
-    private static final long serialVersionUID = -7905678837165394359L;
+public class MIO {
 
     /** The Constant LOGGER. */
     private static final Logger LOGGER = Logger.getLogger(MIO.class);
@@ -36,7 +31,7 @@ public class MIO extends Extractable {
     private double mlTrust = 0;
 
     /** The MIO type. */
-    private String mioType = "";
+    private transient String mioType = "";
 
     /** The find page URL. */
     private String findPageURL = "";
@@ -65,12 +60,6 @@ public class MIO extends Extractable {
     /** The infos. */
     private Map<String, List<String>> infos;
 
-    /** The Constant FLASH. */
-    private static final String FLASH = "flash";
-
-    /** The Constant APPLET. */
-    private static final String APPLET = "applet";
-
     /** The features. */
     private Map<String, Double> features;
 
@@ -91,9 +80,32 @@ public class MIO extends Extractable {
         this.directURL = directURL;
         this.fileName = extractFileName(directURL, mioType);
 
-        setExtractedAt(new Date(System.currentTimeMillis()));
-
         infos = new HashMap<String, List<String>>();
+    }
+    
+    /**
+     * Initialize features.
+     */
+    public void initializeFeatures(){
+        
+        features.put("FileNameRelevance", 0.);
+        features.put("FilePathRelevance", 0.);
+        features.put("BadWordAbsence", 1.);
+        features.put("ALTTextRelevance", 0.);
+        features.put("HeadlineRelevance", 0.);
+        features.put("SurroundingTextRelevance", 0.);
+        features.put("XMLFileNameRelevance", 0.);
+        features.put("XMLFileContentRelevance", 0.);
+        features.put("TitleRelevance", 0.);
+        features.put("LinkNameRelevance", 0.);
+        features.put("LinkTitleRelevance", 0.);
+        features.put("IFrameParentRelevance", 0.);
+        features.put("PageURLRelevance", 0.);
+        features.put("DedicatedPageTrustRelevance", 0.);
+        features.put("TextContentRelevance", 0.);
+        features.put("ResolutionRelevance", 0.);
+        
+        
     }
 
     /**
@@ -103,34 +115,35 @@ public class MIO extends Extractable {
      * @param mioType the mio type
      * @return the string
      */
-    private String extractFileName(String directURL, String mioType) {
+    private String extractFileName(final String directURL, final String mioType) {
 
         String fileEnding = "";
 
-        if (mioType.equals(FLASH)) {
+        if ("flash".equalsIgnoreCase(mioType)) {
             fileEnding = "swf";
         } else {
-            if (mioType.equals(APPLET)) {
+            if ("applet".equalsIgnoreCase(mioType)) {
                 fileEnding = "class";
             } else {
-                if ("silverlight".equals(mioType)) {
+                if ("silverlight".equalsIgnoreCase(mioType)) {
                     fileEnding = "xap";
                 } else {
-                    if ("quicktime".equals(mioType)) {
+                    if ("quicktime".equalsIgnoreCase(mioType)) {
                         fileEnding = "mov";
                     }
                 }
             }
         }
 
-        // if (type.equals("swf")) {
-        String regExp = "[/=]?.[^/=]*\\." + fileEnding;
-        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        final Matcher matcher = pattern.matcher(directURL);
-        while (matcher.find()) {
-            return matcher.group(0);
+        if (!("").equals(fileEnding)) {
+
+            final String regExp = "[/=]?.[^/=]*\\." + fileEnding;
+            Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+            final Matcher matcher = pattern.matcher(directURL);
+            while (matcher.find()) {
+                return matcher.group(0);
+            }
         }
-        // }
         return directURL;
     }
 
@@ -209,7 +222,7 @@ public class MIO extends Extractable {
      * 
      * @param entity the new entity
      */
-    public void setEntity(Entity entity) {
+    public void setEntity(final Entity entity) {
         this.entity = entity;
     }
 
@@ -227,7 +240,7 @@ public class MIO extends Extractable {
      * 
      * @param interactivityGrade the new interactivity grade
      */
-    public void setInteractivityGrade(String interactivityGrade) {
+    public void setInteractivityGrade(final String interactivityGrade) {
         this.interactivityGrade = interactivityGrade;
     }
 
@@ -245,7 +258,7 @@ public class MIO extends Extractable {
      * 
      * @param isDedicatedPage the new dedicated page
      */
-    public void setDedicatedPage(boolean isDedicatedPage) {
+    public void setDedicatedPage(final boolean isDedicatedPage) {
         this.isDedicatedPage = isDedicatedPage;
     }
 
@@ -263,7 +276,7 @@ public class MIO extends Extractable {
      * 
      * @param type the new type
      */
-    public void setMIOType(String type) {
+    public void setMIOType(final String type) {
         this.mioType = type;
     }
 
@@ -281,7 +294,7 @@ public class MIO extends Extractable {
      * 
      * @param infos the infos
      */
-    public void setInfos(Map<String, List<String>> infos) {
+    public void setInfos(final Map<String, List<String>> infos) {
         this.infos = infos;
     }
 
@@ -291,7 +304,7 @@ public class MIO extends Extractable {
      * @param infoName the info name
      * @param infoList the info list
      */
-    public void addInfos(String infoName, List<String> infoList) {
+    public void addInfos(final String infoName, final List<String> infoList) {
         infos.put(infoName, infoList);
     }
 
@@ -309,7 +322,7 @@ public class MIO extends Extractable {
      * 
      * @param fileName the new file name
      */
-    public void setFileName(String fileName) {
+    public void setFileName(final String fileName) {
         this.fileName = fileName;
     }
 
@@ -319,7 +332,7 @@ public class MIO extends Extractable {
      * @param name the name
      * @param value the value
      */
-    public void setFeature(String name, double value) {
+    public void setFeature(final String name, final double value) {
         features.put(name, value);
     }
 
@@ -329,7 +342,7 @@ public class MIO extends Extractable {
      * @param name the name
      * @return the feature
      */
-    public double getFeature(String name) {
+    public double getFeature(final String name) {
         double result = 0;
         try {
             result = features.get(name);
@@ -362,7 +375,7 @@ public class MIO extends Extractable {
      * 
      * @param mlTrust the new ml trust
      */
-    public void setMlTrust(double mlTrust) {
+    public void setMlTrust(final double mlTrust) {
         this.mlTrust = mlTrust;
     }
 
@@ -380,7 +393,7 @@ public class MIO extends Extractable {
      * 
      * @param fileSize the new file size
      */
-    public void setFileSize(double fileSize) {
+    public void setFileSize(final double fileSize) {
         this.fileSize = fileSize;
     }
 
@@ -398,7 +411,7 @@ public class MIO extends Extractable {
      * 
      * @param textContentLength the new text content length
      */
-    public void setTextContentLength(double textContentLength) {
+    public void setTextContentLength(final double textContentLength) {
         this.textContentLength = textContentLength;
     }
 
@@ -407,7 +420,7 @@ public class MIO extends Extractable {
      * 
      * @param features the features
      */
-    public void setFeatures(Map<String, Double> features) {
+    public void setFeatures(final Map<String, Double> features) {
         this.features = features;
     }
 

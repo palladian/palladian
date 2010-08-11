@@ -35,15 +35,13 @@ public class EntityMIOExtractionThread extends Thread {
     private static final Logger LOGGER = Logger.getLogger(EntityMIOExtractionThread.class);
 
     /** The central entity. */
-    private Entity entity = null;
-
-    /** The search-vocabulary. */
-    private ConceptSearchVocabulary searchVoc = null;
+    private final transient Entity entity;
 
     /** The trust limit. */
-    final private double trustLimit = 2;
+    private static double trustLimit = 2;
 
-    KnowledgeManager knowledgeManager;
+    /** The knowledge manager. */
+    private final transient KnowledgeManager knowledgeManager;
 
     /**
      * Instantiates a new entity MIOExtractionThread.
@@ -51,13 +49,12 @@ public class EntityMIOExtractionThread extends Thread {
      * @param threadGroup the thread group
      * @param entityName the entityName
      * @param entity the entity
-     * @param searchVoc the searchVocabulary
+     * @param knowledgeManager the knowledge manager
      */
     public EntityMIOExtractionThread(final ThreadGroup threadGroup, final String entityName, final Entity entity,
-            final ConceptSearchVocabulary searchVoc, KnowledgeManager knowledgeManager) {
+            final KnowledgeManager knowledgeManager) {
         super(threadGroup, entityName);
         this.entity = entity;
-        this.searchVoc = searchVoc;
         this.knowledgeManager = knowledgeManager;
     }
 
@@ -71,19 +68,19 @@ public class EntityMIOExtractionThread extends Thread {
         final long timeStamp1 = System.currentTimeMillis();
 
         // get MIO containing pages
-        final MIOPageRetriever pageRetr = new MIOPageRetriever(entity);
-        final List<MIOPage> mioPages = pageRetr.retrieveMIOPages(entity, searchVoc);
+        final MIOPageRetriever pageRetr = new MIOPageRetriever();
+        final List<MIOPage> mioPages = pageRetr.retrieveMIOPages(entity);
 
-        // System.out.println("GETTING MIO containing Pages: "+ DateHelper.getRuntime(timeStamp1));
-        // final long timeStamp2 = System.currentTimeMillis();
+//        System.out.println("GETTING MIO containing Pages: " + DateHelper.getRuntime(timeStamp1));
+//        final long timeStamp2 = System.currentTimeMillis();
 
         // MIOAnalysis (content & context)
         final MIOPageAnalyzer mioPAnalyzer = new MIOPageAnalyzer();
         // MIOComparator mioComp = new MIOComparator();
         final Map<String, MIO> mios = mioPAnalyzer.extractMIOs(mioPages, entity);
 
-        // System.out.println("EXTRACTING AND ANALYZING MIOs: "+ DateHelper.getRuntime(timeStamp2));
-        // final long timeStamp3 = System.currentTimeMillis();
+//        System.out.println("EXTRACTING AND ANALYZING MIOs: " + DateHelper.getRuntime(timeStamp2));
+//        final long timeStamp3 = System.currentTimeMillis();
         // System.out.println("Anzahl MIOs vor lowTrustRemoval: " + mios.size());
 
         // Calculate Trust and sort by trust with Comparator
@@ -94,8 +91,8 @@ public class EntityMIOExtractionThread extends Thread {
             calculateTrust(mio);
             sortedMIOs.add(mio);
         }
-        // System.out.println("SORTING AND TRUST CALCULATION: "+ DateHelper.getRuntime(timeStamp3));
-        // final long timeStamp4 = System.currentTimeMillis();
+//        System.out.println("SORTING AND TRUST CALCULATION: " + DateHelper.getRuntime(timeStamp3));
+//        final long timeStamp4 = System.currentTimeMillis();
 
         // MIOClassifier mioClass = new MIOClassifier();
         // mioClass.trainClassifier("f:/features - printer - allcontextfeat.txt");
@@ -111,16 +108,19 @@ public class EntityMIOExtractionThread extends Thread {
 
         // detect and save rolePages
         detectRolePages(sortedMIOs, entity);
-        // System.out.println("REMOVING LOW-TRUSTED AND DETECTING ROLEPAGES: "+ DateHelper.getRuntime(timeStamp4));
+//        System.out.println("REMOVING LOW-TRUSTED AND DETECTING ROLEPAGES: " + DateHelper.getRuntime(timeStamp4));
 
         // print the MIOFeatures out
-        // printMIOFeaturesToFile(mios);
+//        printMIOFeaturesToFile(mios);
         printSetToHTMLFile(sortedMIOs);
 
         // System.out.println("PREPARE SAVING EXTRACTIONRESULTS! " + sortedMIOs.size() + " MIOs gefunden!");
         for (MIO mio : sortedMIOs) {
-
-            prepareSavingResults(mio);
+            if (mio.getDirectURL().length() <= 500) {
+                prepareSavingResults(mio);
+            } else {
+                LOGGER.error("DirectURL zu lang fuer DB!!!" + mio.getTrust());
+            }
 
         }
 
@@ -208,7 +208,8 @@ public class EntityMIOExtractionThread extends Thread {
                 final String output = " mlTrust: " + mio.getMlTrust() + " TRUST: " + mio.getTrust()
                         + " Interactivity: " + mio.getInteractivityGrade() + " <a href=\"" + mio.getDirectURL() + "\">"
                         + mio.getDirectURL() + "</a> founded on <a href=\"" + mio.getFindPageURL() + "\">"
-                        + mio.getFindPageURL() + "</a> for Entity: " + mio.getEntity().getName() + "<br><br>";
+                        + mio.getFindPageURL() + "</a> for Entity: " + mio.getEntity().getName() + " Typ: "
+                        + mio.getMIOType() + "<br><br>";
                 // System.out.println(output);
                 FileHelper.appendFile("f:/test.html", output + "\r\n");
 
@@ -226,7 +227,7 @@ public class EntityMIOExtractionThread extends Thread {
      */
     private void calculateTrust(final MIO mio) {
 
-        final int factor = 4;
+        int factor = 4;
 
         final Map<String, Double> mioFeatures = mio.getFeatures();
         // System.out.println("Calculate Trust loading " + mioFeatures.size() + " Features.. "
@@ -272,32 +273,33 @@ public class EntityMIOExtractionThread extends Thread {
      * 
      * @param cleanedMIOs the cleaned MIOs
      */
-    // private void printMIOFeaturesToFile(Map<String, MIO> cleanedMIOs) {
-    //
-    // for (Entry<String, MIO> cMio : cleanedMIOs.entrySet()) {
-    // MIO mio = cMio.getValue();
-    // StringBuffer sBuffer = new StringBuffer();
-    // Map<String, Double> mioFeatures = mio.getFeatures();
-    // ;
-    // sBuffer.append("# " + mio.getEntity().getName() + " Trust: " + mio.getTrust() + " " + mio.getDirectURL()
-    // + "\r\n");
-    // sBuffer.append("# " + mio.getFindPageURL() + "\r\n");
-    //
-    // for (Entry<String, Double> feature : mioFeatures.entrySet()) {
-    // sBuffer.append(feature.getValue());
-    // sBuffer.append(";");
-    //
-    // }
-    // String output = sBuffer.toString();
-    // // System.out.println(output);
-    // try {
-    // FileHelper.appendFile("f:/features.txt", output + "\r\n");
-    // } catch (IOException e) {
-    // LOGGER.error(e.getMessage());
-    // }
-    //
-    // }
-    //
-    // }
+//    private void printMIOFeaturesToFile(final Map<String, MIO> cleanedMIOs) {
+//
+//        for (Entry<String, MIO> cMio : cleanedMIOs.entrySet()) {
+//            final MIO mio = cMio.getValue();
+//            final StringBuffer sBuffer = new StringBuffer();
+//           final Map<String, Double> mioFeatures = mio.getFeatures();
+//
+//            sBuffer.append("# " + mio.getEntity().getName() + " Trust: " + mio.getTrust() + " " + mio.getDirectURL()
+//                    + "\r\n");
+//            sBuffer.append("# " + mio.getFindPageURL() + "\r\n");
+//            sBuffer.append(mio.getFeatures().keySet().toString() + "\r\n");
+//
+//            for (Entry<String, Double> feature : mioFeatures.entrySet()) {
+//                sBuffer.append(feature.getValue());
+//                sBuffer.append(";");
+//
+//            }
+//            final String output = sBuffer.toString();
+//            // System.out.println(output);
+//            try {
+//                FileHelper.appendFile("f:/features.txt", output + "\r\n");
+//            } catch (IOException e) {
+//                LOGGER.error(e.getMessage());
+//            }
+//
+//        }
+//
+//    }
 
 }

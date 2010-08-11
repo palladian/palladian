@@ -19,22 +19,22 @@ public class RolePageDatabase {
     private static final Logger LOGGER = Logger.getLogger(RolePageDatabase.class);
 
     /** The ps update role page. */
-    private PreparedStatement psUpdateRolePage;
+    private transient PreparedStatement psUpdateRolePage;
 
     /** The ps get role pages. */
-    private PreparedStatement psGetRolePages;
+    private transient PreparedStatement psGetRolePages;
 
     /** The ps insert role page. */
-    private PreparedStatement psInsertRolePage;
+    private transient PreparedStatement psInsertRolePage;
 
     /** The ps remove unrelevant role page. */
-    private PreparedStatement psRemoveUnrelevantRolePage;
+    private transient PreparedStatement psRemoveUnrelevantRolePage;
 
     /** The ps get role page usages. */
-    private PreparedStatement psGetRolePageUsages;
+    private transient PreparedStatement psGetRolePageUsages;
 
     /** The ps insert role page usage. */
-    private PreparedStatement psInsertRolePageUsage;
+    private transient PreparedStatement psInsertRolePageUsage;
 
     /**
      * Instantiates a new RolePageDatabase.

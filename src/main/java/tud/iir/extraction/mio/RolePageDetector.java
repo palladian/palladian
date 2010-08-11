@@ -21,18 +21,14 @@ import tud.iir.web.Crawler;
 public class RolePageDetector {
 
     /** The concept. */
-    private Concept concept;
-
-    /** The entity. */
-    // private Entity entity;
+    private final transient Concept concept;
 
     /**
      * Instantiates a new role page detector.
      * 
      * @param entity the entity
      */
-    RolePageDetector(Entity entity) {
-        // this.entity = entity;
+    RolePageDetector(final Entity entity) {
         this.concept = entity.getConcept();
     }
 
@@ -42,15 +38,15 @@ public class RolePageDetector {
      * @param sortedMIOs the sorted MIOs
      */
     public void detectRolePages(final Set<MIO> sortedMIOs) {
-        double mioAmount = sortedMIOs.size();
+        final double mioAmount = sortedMIOs.size();
         // System.out.println("number Of sortedMIOs: "+ mioAmount);
         double counter = 0;
-        Set<String> mioDomains = new HashSet<String>();
+        final Set<String> mioDomains = new HashSet<String>();
 
         // only get relevant domains, but normally less then 50percent of the results are relevant
         for (MIO mio : sortedMIOs) {
-            String mioURL = mio.getDirectURL();
-            String domain = Crawler.getDomain(mioURL);
+            final String mioURL = mio.getDirectURL();
+            final String domain = Crawler.getDomain(mioURL);
             // System.out.println("Domain von " + mioURL +" " + domain);
             mioDomains.add(domain);
             counter++;
@@ -72,21 +68,22 @@ public class RolePageDetector {
      */
     private void analyzeForRolePages(final Set<String> mioDomains) {
 
-        List<RolePage> dbRolePages = loadRolePagesFromDB();
+        final List<RolePage> dbRolePages = loadRolePagesFromDB();
         // System.out.println(dbRolePages.size() + " RolePages aus der Datenbank geladen, fuer Concept " +
         // concept.getName());
 
         // initially set the first mioDomains as dbRolePages
         if (dbRolePages.isEmpty()) {
             for (String mioDomain : mioDomains) {
-                RolePage rolePage = new RolePage(mioDomain, 1, concept.getID());
+                final RolePage rolePage = new RolePage(mioDomain, 1, concept.getID());
                 dbRolePages.add(rolePage);
             }
         } else {
+            final List<String> removingList = new ArrayList<String>();
             for (RolePage dbRolePage : dbRolePages) {
-                String dbRolePageHostname = dbRolePage.getHostname();
+                final String dbRolePageHostname = dbRolePage.getHostname();
                 // System.out.println("dbRolePageHostname: " + dbRolePageHostname);
-                List<String> removingList = new ArrayList<String>();
+                removingList.clear();
 
                 for (String mioDomain : mioDomains) {
                     if (mioDomain.equals(dbRolePageHostname)) {
@@ -103,7 +100,7 @@ public class RolePageDetector {
             // if the domain wasn't already in the dbRolePageList then add it now
             if (!mioDomains.isEmpty()) {
                 for (String mioDomain : mioDomains) {
-                    RolePage rolePage = new RolePage(mioDomain, concept.getID());
+                    final RolePage rolePage = new RolePage(mioDomain, concept.getID());
                     dbRolePages.add(rolePage);
                 }
 
@@ -123,8 +120,8 @@ public class RolePageDetector {
      */
     private List<RolePage> loadRolePagesFromDB() {
 
-        RolePageDatabase mioDB = new RolePageDatabase();
-        List<RolePage> rolePages = mioDB.loadAllRolePagesForConcept(concept);
+        final RolePageDatabase mioDB = new RolePageDatabase();
+        final List<RolePage> rolePages = mioDB.loadAllRolePagesForConcept(concept);
 
         return rolePages;
 
@@ -136,7 +133,7 @@ public class RolePageDetector {
      * @param rolePages the role pages
      */
     private void saveRolePagesToDB(final List<RolePage> rolePages) {
-        RolePageDatabase mioDB = new RolePageDatabase();
+        final RolePageDatabase mioDB = new RolePageDatabase();
         // ArrayList<Integer> rolePageIDs = mioDB.loadUsedRolePageIDsForEntity(entity);
         for (RolePage rolePage : rolePages) {
             if (rolePage.getID() == 0) {

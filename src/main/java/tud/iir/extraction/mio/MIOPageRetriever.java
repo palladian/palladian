@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.DateHelper;
 import tud.iir.knowledge.Entity;
 
 /**
@@ -22,52 +23,42 @@ public class MIOPageRetriever {
     private static final Logger LOGGER = Logger.getLogger(MIOPageRetriever.class);
 
     /**
-     * The rolePage-List.
-     * 
-     * @param entity the entity
-     */
-    // private List<RolePage> rolePageList;
-
-    /**
-     * Instantiates a new MIOPageRetriever.
-     */
-    public MIOPageRetriever(Entity entity) {
-        // rolePageList = new ArrayList<RolePage>();
-        // RolePageDatabase rolePageDB = new RolePageDatabase();
-        // rolePageList = rolePageDB.loadNotUsedRolePagesForEntity(entity);
-    }
-
-    /**
      * Retrieve MIOs.
      * 
      * @param entity the entity
-     * @param searchVoc the search voc
      * @return the list
      */
-    public List<MIOPage> retrieveMIOPages(final Entity entity, final ConceptSearchVocabulary searchVoc) {
+    public List<MIOPage> retrieveMIOPages(final Entity entity) {
 
         List<MIOPage> mioPages;
+       
+//        final long timeStamp1 = System.currentTimeMillis();
 
         // generate searchQueries
-        final List<String> searchQueries = generateSearchQueries(entity, searchVoc);
+        final List<String> searchQueries = generateSearchQueries(entity);
 
         // initiate search with searchEngines
         final List<String> mioPageCandidates = getMIOPageCandidates(searchQueries);
-
+        
+//        System.out.println("GENERATING SearchQueries and GETTING mioPageCandidates finished in: "+ DateHelper.getRuntime(timeStamp1));
         LOGGER.info("Analyzing MIOPageCandidates startet..for " + entity.getName() + " Count: "
                 + mioPageCandidates.size());
-
+        
+//        final long timeStamp2 = System.currentTimeMillis();
         // analyze the MIOPageCandidates for MIO-existence
         mioPages = analyzeMIOPageCandidates(mioPageCandidates, entity);
-
+        
+//        System.out.println("Analyzing MIOPAGECANDIDATES finished in: "+ DateHelper.getRuntime(timeStamp2));
         LOGGER.info("MIOPageCandidateAnalysis finished, DedicatedPage-Calculation starts..for " + entity.getName());
-
+      
+//        final long timeStamp3 = System.currentTimeMillis();
         // detect DedicatedPages
-        for (MIOPage mioPage : mioPages) {
-            final DedicatedPageDetector dpDetector = new DedicatedPageDetector();
+        final DedicatedPageDetector dpDetector = new DedicatedPageDetector();
+        for (MIOPage mioPage : mioPages) {            
             dpDetector.calculateDedicatedPageTrust(mioPage);
             // System.out.println(entity.getName() + "  " + mioPage.getUrl());
         }
+//        System.out.println("DedicatedPageDetection finished in: "+ DateHelper.getRuntime(timeStamp3));
         LOGGER.info("DedicatedPage-Calculation finished..for " + entity.getName());
 
         return mioPages;
@@ -75,14 +66,13 @@ public class MIOPageRetriever {
 
     /**
      * Generate specific SearchQueries for every entity.
-     * 
+     *
      * @param entity the entity
-     * @param conceptVocabulary the concept vocabulary
      * @return the list
      */
-    private List<String> generateSearchQueries(final Entity entity, final ConceptSearchVocabulary conceptVocabulary) {
+    private List<String> generateSearchQueries(final Entity entity) {
         final MIOQueryFactory searchQueryFac = new MIOQueryFactory(entity);
-        final List<String> searchQueries = searchQueryFac.generateSearchQueries(conceptVocabulary);
+        final List<String> searchQueries = searchQueryFac.generateSearchQueries();
 
         return searchQueries;
     }
