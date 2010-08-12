@@ -210,9 +210,10 @@ public class NewsAggregator {
             entry.setTitle(title);
 
             // some feeds provide relative URLs -- convert.
-            String entryLink = entry.getLink();
+            String entryLink = syndEntry.getLink();
             if (entryLink != null && entryLink.length() > 0) {
-                entryLink = Crawler.makeFullURL(syndFeed.getLink(), entry.getLink());
+                entryLink = entryLink.trim();
+                entryLink = Crawler.makeFullURL(syndFeed.getLink(), entryLink);
             }
             // TODO **** feedproxy URLs ****
             // some feeds use Google Feed Proxy ...
@@ -222,7 +223,7 @@ public class NewsAggregator {
             // but: problematic when ranking based upon URLs
             // web service to resolve --> http://www.therealurl.net/
             // maybe better: we should already have the URL, when fetching the page content?!
-            entry.setLink(syndEntry.getLink());
+            entry.setLink(entryLink);
 
             Date publishDate = syndEntry.getPublishedDate();
             if (publishDate == null) {
