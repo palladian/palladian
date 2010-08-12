@@ -60,7 +60,8 @@ class SchedulerTask extends TimerTask {
                     || now.getTime() - feed.getLastChecked().getTime() > feed.getMaxCheckInterval()
                             * DateHelper.MINUTE_MS) {
                 synchronized (feed) {
-                    THREAD_POOL_QUEUE_SIZE++; 
+                    THREAD_POOL_QUEUE_SIZE++;
+                    LOGGER.info("Queue size: " + SchedulerTask.THREAD_POOL_QUEUE_SIZE);
                 }
                 threadPool.execute(new FeedTask(feed, feedChecker));
                 feedCount++;
