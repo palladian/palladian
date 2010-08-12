@@ -19,6 +19,12 @@ import org.apache.log4j.Logger;
 
 import tud.iir.helper.StopWatch;
 
+/**
+ * TODO this is messy, clean up.
+ * 
+ * @author Philipp Katz
+ *
+ */
 public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
 
     private static final Logger LOGGER = Logger.getLogger(ShinglesIndexH2.class);
@@ -367,6 +373,21 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
         }
 
         return rs;
+    }
+    
+    /**
+     * Clear all data in tables.
+     */
+    public void clearTables() {
+        
+        try {
+            connection.prepareStatement("TRUNCATE TABLE documentsHashes").executeUpdate();
+            connection.prepareStatement("TRUNCATE TABLE documentSimilarities").executeUpdate();
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+        }
+        
+        
     }
 
 

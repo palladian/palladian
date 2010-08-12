@@ -19,7 +19,9 @@ public class ShinglesIndexTest {
 
     @Test
     public void testShinglesIndexH2() {
-        testProcedure(new ShinglesIndexH2());
+        ShinglesIndexH2 h2Index = new ShinglesIndexH2();
+        h2Index.clearTables();
+        testProcedure(h2Index);
     }
 
     @Test
