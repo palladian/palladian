@@ -59,6 +59,7 @@ class FeedTask implements Runnable {
 
         // save the feed back to the database
         fa.updateFeed(feed);
+        SchedulerTask.THREAD_POOL_QUEUE_SIZE--;
     }
 
 }
