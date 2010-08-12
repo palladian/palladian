@@ -264,7 +264,7 @@ public class NewsAggregator {
                 rawId = syndEntry.getLink();
                 LOGGER.trace("id is missing, taking link instead");
             }
-            entry.setRawId(rawId);
+            entry.setRawId(rawId.trim());
 
             // logger.trace(entry);
             result.add(entry);
