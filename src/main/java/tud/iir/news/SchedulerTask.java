@@ -41,6 +41,8 @@ class SchedulerTask extends TimerTask {
         this.feedChecker = feedChecker;
     }
 
+    public static int THREAD_POOL_QUEUE_SIZE = 0;
+    
     /*
      * (non-Javadoc)
      * @see java.util.TimerTask#run()
@@ -56,8 +58,10 @@ class SchedulerTask extends TimerTask {
                     || feed.getLastChecked() == null
                     || now.getTime() - feed.getLastChecked().getTime() > feed.getMaxCheckInterval()
                             * DateHelper.MINUTE_MS) {
+                THREAD_POOL_QUEUE_SIZE++;
                 threadPool.execute(new FeedTask(feed, feedChecker));
                 feedCount++;
+                LOGGER.info("Queue size: "+THREAD_POOL_QUEUE_SIZE);
             }
             now.setTime(System.currentTimeMillis());
         }
