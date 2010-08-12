@@ -40,7 +40,7 @@ public final class FeedChecker {
     /** The logger for this class. */
     public static final Logger LOGGER = Logger.getLogger(FeedChecker.class);
     
-    public static final Integer MAX_THREAD_POOL_SIZE = 50;
+    public static final Integer MAX_THREAD_POOL_SIZE = 1;
 
     /** Symbols to separate headlines. */
     private static final String TITLE_SEPARATION = "#-#";
