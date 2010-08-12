@@ -90,6 +90,7 @@ public class URLDownloader {
         logger.trace("<start");
     }
 
+    @Deprecated
     public void start() {
         logger.trace(">start");
 

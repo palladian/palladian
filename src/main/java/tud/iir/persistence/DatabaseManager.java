@@ -136,6 +136,7 @@ public class DatabaseManager {
     private DatabaseManager() {
         try {
             config = new PropertiesConfiguration("config/db.conf");
+            config.setThrowExceptionOnMissing(true);
         } catch (ConfigurationException e) {
             // LOGGER.error(e.getMessage());
             // Attention: using the "eager" singleton idiom we must not use the class logger, as it has not yet been

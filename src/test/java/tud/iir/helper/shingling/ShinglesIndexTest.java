@@ -10,6 +10,12 @@ import java.util.Set;
 import org.junit.Ignore;
 import org.junit.Test;
 
+/**
+ * TODO clean up after testing.
+ * 
+ * @author Philipp Katz
+ *
+ */
 public class ShinglesIndexTest {
 
     @Test

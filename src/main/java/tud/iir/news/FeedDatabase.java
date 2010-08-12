@@ -11,15 +11,16 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.dom.DOMResult;
-import javax.xml.transform.dom.DOMSource;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -28,6 +29,7 @@ import org.xml.sax.SAXException;
 
 import tud.iir.classification.controlledtagging.Tag;
 import tud.iir.classification.controlledtagging.TagComparator;
+import tud.iir.helper.StopWatch;
 import tud.iir.persistence.DatabaseManager;
 
 /**
@@ -44,7 +46,7 @@ public class FeedDatabase implements FeedStore {
     private final static FeedDatabase INSTANCE = new FeedDatabase();
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
+    static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
 
     /** the database connection */
     private Connection connection;
@@ -72,6 +74,7 @@ public class FeedDatabase implements FeedStore {
     private PreparedStatement psGetTagId;
     private PreparedStatement psInsertTag;
     private PreparedStatement psTagFeedEntry;
+    private PreparedStatement getEntryIdByTag;
 
     private FeedDatabase() {
         try {
@@ -133,6 +136,8 @@ public class FeedDatabase implements FeedStore {
         psInsertTag = connection.prepareStatement("INSERT INTO tags SET name = ?");
         psTagFeedEntry = connection
                 .prepareStatement("INSERT INTO feed_entry_tag SET entryId = ?, tagId = ?, weight = ?");
+        getEntryIdByTag = connection
+                .prepareStatement("SELECT entryId FROM feed_entry_tag, tags WHERE tagId = tags.id AND name = ?");
 
     }
 
@@ -595,6 +600,13 @@ public class FeedDatabase implements FeedStore {
         return result;
     }
 
+    /**
+     * Get FeedEntries by using a custom SQL query. The SELECT part must contain all appropriate columns with their
+     * names from the feed_entries table.
+     * 
+     * @param sqlQuery
+     * @return
+     */
     public List<FeedEntry> getFeedEntries(String sqlQuery) {
         List<FeedEntry> result = new LinkedList<FeedEntry>();
         try {
@@ -656,8 +668,8 @@ public class FeedDatabase implements FeedStore {
 
         entry.setId(resultSet.getInt("id"));
         entry.setTitle(resultSet.getString("title"));
-        entry.setLink(resultSet.getString("link").trim());
-        entry.setRawId(resultSet.getString("rawId").trim());
+        entry.setLink(resultSet.getString("link"));
+        entry.setRawId(resultSet.getString("rawId"));
         entry.setPublished(resultSet.getDate("published"));
         entry.setContent(resultSet.getString("text"));
 
@@ -749,6 +761,26 @@ public class FeedDatabase implements FeedStore {
         }
     }
 
+    public Set<Integer> getEntryIdsTaggedAs(String tag) {
+        StopWatch sw = new StopWatch();
+
+        Set<Integer> entryIds = new HashSet<Integer>();
+
+        try {
+            getEntryIdByTag.setString(1, tag);
+            ResultSet rs = getEntryIdByTag.executeQuery();
+            while (rs.next()) {
+                entryIds.add(rs.getInt(1));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        LOGGER.trace("getEntryIdsTaggedAs " + tag + " : " + sw.getElapsedTimeString());
+        return entryIds;
+    }
+
     public void clearFeedTables() {
         LOGGER.trace(">cleanTables");
         // DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries");
@@ -775,6 +807,8 @@ public class FeedDatabase implements FeedStore {
         dummy.setId(123);
         List<Tag> tags = fd.getTags(dummy);
         System.out.println(tags);
+        
+        
     }
 
 }

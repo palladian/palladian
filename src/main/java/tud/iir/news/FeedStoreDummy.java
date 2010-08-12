@@ -1,6 +1,8 @@
 package tud.iir.news;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -60,6 +62,16 @@ public class FeedStoreDummy implements FeedStore {
     public FeedEntry getFeedEntryByRawId(int feedId, String rawId) {
         // TODO Auto-generated method stub
         return null;
+    }
+
+    public Set<Integer> getEntryIdsTaggedAs(String tag) {
+        logger.trace("getEntryIdsTaggedAs " + tag);
+        return Collections.emptySet();
+    }
+
+    public List<FeedEntry> getFeedEntries(String sqlQuery) {
+        logger.trace("getFeedEntries " + sqlQuery);
+        return Collections.emptyList();
     }
 
 }
