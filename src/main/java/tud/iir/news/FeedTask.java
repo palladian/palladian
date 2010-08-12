@@ -43,6 +43,10 @@ class FeedTask implements Runnable {
     public void run() {
         synchronized (this) {
             SchedulerTask.THREADS_ALIVE++;
+            SchedulerTask.THREAD_POOL_QUEUE_SIZE--;
+            LOGGER.info("Beginning of thread.");
+            LOGGER.info("Threads alive: " + SchedulerTask.THREADS_ALIVE);
+            LOGGER.info("Queue size: " + SchedulerTask.THREAD_POOL_QUEUE_SIZE);
         }
         NewsAggregator fa = new NewsAggregator();
 
@@ -67,11 +71,11 @@ class FeedTask implements Runnable {
         // save the feed back to the database
         fa.updateFeed(feed);
         synchronized (this) {
-            SchedulerTask.THREAD_POOL_QUEUE_SIZE--;
             SchedulerTask.THREADS_ALIVE--;
-
-            LOGGER.info("Queue size: " + SchedulerTask.THREAD_POOL_QUEUE_SIZE);
+            LOGGER.info("End of Thread");
             LOGGER.info("Threads alive: " + SchedulerTask.THREADS_ALIVE);
+            LOGGER.info("Queue size: " + SchedulerTask.THREAD_POOL_QUEUE_SIZE);
+            
         }
     }
 
