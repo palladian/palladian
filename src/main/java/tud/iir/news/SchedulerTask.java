@@ -42,6 +42,7 @@ class SchedulerTask extends TimerTask {
     }
 
     public static int THREAD_POOL_QUEUE_SIZE = 0;
+    public static int THREADS_ALIVE = 0;
     
     /*
      * (non-Javadoc)
@@ -62,6 +63,7 @@ class SchedulerTask extends TimerTask {
                 threadPool.execute(new FeedTask(feed, feedChecker));
                 feedCount++;
                 LOGGER.info("Queue size: "+THREAD_POOL_QUEUE_SIZE);
+                LOGGER.info("Threads alive: "+THREADS_ALIVE);
             }
             now.setTime(System.currentTimeMillis());
         }

@@ -37,6 +37,7 @@ class FeedTask implements Runnable {
 
     @Override
     public void run() {
+        SchedulerTask.THREADS_ALIVE++;
         NewsAggregator fa = new NewsAggregator();
 
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
@@ -60,6 +61,7 @@ class FeedTask implements Runnable {
         // save the feed back to the database
         fa.updateFeed(feed);
         SchedulerTask.THREAD_POOL_QUEUE_SIZE--;
+        SchedulerTask.THREADS_ALIVE--;
     }
 
 }
