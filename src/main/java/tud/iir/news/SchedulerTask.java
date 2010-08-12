@@ -1,9 +1,12 @@
 package tud.iir.news;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TimerTask;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
@@ -29,6 +32,8 @@ class SchedulerTask extends TimerTask {
      */
     private final ExecutorService threadPool;
 
+    private final Map<Integer, Future<?>> scheduledTasks;
+
     /**
      * Creates a new scheduler task with a maximum allowed number of threads and a list of feeds to read updates from.
      * 
@@ -39,11 +44,12 @@ class SchedulerTask extends TimerTask {
         super();
         threadPool = Executors.newFixedThreadPool(FeedChecker.MAX_THREAD_POOL_SIZE);
         this.feedChecker = feedChecker;
+        scheduledTasks = new HashMap<Integer, Future<?>>();
     }
 
     public static int THREAD_POOL_QUEUE_SIZE = 0;
     public static int THREADS_ALIVE = 0;
-    
+
     /*
      * (non-Javadoc)
      * @see java.util.TimerTask#run()
@@ -51,23 +57,61 @@ class SchedulerTask extends TimerTask {
     @Override
     public void run() {
         LOGGER.info("wake up to check feeds");
-        Date now = new Date();
         int feedCount = 0;
         for (Feed feed : feedChecker.getFeeds()) {
             LOGGER.debug("Checking feed at address: " + feed.getFeedUrl());
-            if (feed.getChecks() == 0
-                    || feed.getLastChecked() == null
-                    || now.getTime() - feed.getLastChecked().getTime() > feed.getMaxCheckInterval()
-                            * DateHelper.MINUTE_MS) {
+            if (isScheduled(feed.getId())) {
+                continue;
+            }
+
+            if (needsLookup(feed)) {
                 synchronized (feed) {
                     THREAD_POOL_QUEUE_SIZE++;
                     LOGGER.info("Queue size: " + SchedulerTask.THREAD_POOL_QUEUE_SIZE);
                 }
-                threadPool.execute(new FeedTask(feed, feedChecker));
+                scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedChecker)));
                 feedCount++;
             }
-            now.setTime(System.currentTimeMillis());
         }
         LOGGER.info("scheduled " + feedCount + " feeds for reading");
+    }
+
+    /**
+     * <p>
+     * Returns whether the last time the provided feed was checked for updates is further in the past than its update
+     * intervall.
+     * </p>
+     * 
+     * @param feed The feed to check.
+     * @return {@code true} if this feeds check intervall is over and {@code false} otherwise.
+     */
+    private Boolean needsLookup(Feed feed) {
+        long now = System.currentTimeMillis();
+        return feed.getChecks() == 0 || feed.getLastChecked() == null
+                || now - feed.getLastChecked().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS;
+    }
+
+    /**
+     * <p>
+     * Checks if this feed is already queued for updates. If this is the case one should not queue it a second time to
+     * reduce traffic.
+     * </p>
+     * 
+     * @param feedId
+     *            The id of the feed to check.
+     * @return {@code true} if this feed is already queued and {@code false} otherwise.
+     */
+    private Boolean isScheduled(final Integer feedId) {
+        Future<?> future = scheduledTasks.get(feedId);
+        if (future == null) {
+            return false;
+        } else {
+            if (future.isDone()) {
+                scheduledTasks.remove(feedId);
+                return false;
+            } else {
+                return true;
+            }
+        }
     }
 }
