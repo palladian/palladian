@@ -22,6 +22,7 @@ import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
 import tud.iir.classification.FastWordCorrelationMatrix;
+import tud.iir.classification.Stopwords;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.classification.WordCorrelationMatrix;
 import tud.iir.helper.FileHelper;
@@ -65,6 +66,7 @@ public class ControlledTagger implements Serializable {
     private static final float DEFAULT_PRIOR_WEIGHT = 1.0f;
 
     // //////// index collections ///////////
+    // TODO factor out the index into its own class, should simplify handling of serialized models.
 
     /** Index over all documents with tags, to calculate IDF. Counts how many documents contain a specific tag. */
     private Bag<String> idfIndex = new HashBag<String>();
@@ -165,7 +167,8 @@ public class ControlledTagger implements Serializable {
     }
 
     /**
-     * Add a list of tags to the WordCorrelationMatrix.
+     * Add a list of tags to the WordCorrelationMatrix, for a set with size n, we will add
+     * <code>(n - 1) + (n - 2) + ... + 1 = (n * (n - 1)) / 2</code> correlations.
      * 
      * @param tags
      */
@@ -305,7 +308,7 @@ public class ControlledTagger implements Serializable {
 
         boolean inVocabulary = stemmedTagVocabulary.contains(tag);
         inVocabulary = inVocabulary && !stopwords.contains(tag);
-        
+
         return inVocabulary;
 
         // return stemmedTagVocabulary.contains(tag);
@@ -793,6 +796,11 @@ public class ControlledTagger implements Serializable {
         this.fastMode = fastMode;
     }
 
+    /**
+     * Set the Set of Stopwords to use, for example {@link Stopwords}.
+     * 
+     * @param stopwords
+     */
     public void setStopwords(Set<String> stopwords) {
         this.stopwords = stopwords;
     }

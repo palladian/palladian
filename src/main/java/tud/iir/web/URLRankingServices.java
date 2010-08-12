@@ -572,6 +572,7 @@ public class URLRankingServices {
             if (response.length() > 0) {
                 JSONObject json = new JSONObject(response.toString());
                 JSONArray children = json.getJSONObject("data").getJSONArray("children");
+                result = 0;
                 for (int i = 0; i < children.length(); i++) {
                     JSONObject child = children.getJSONObject(i);
                     // all post have "kind" : "t3" -- there is no documentation, what this means,

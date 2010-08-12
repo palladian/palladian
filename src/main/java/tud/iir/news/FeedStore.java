@@ -1,6 +1,7 @@
 package tud.iir.news;
 
 import java.util.List;
+import java.util.Set;
 
 // TODO move to persistence
 /**
@@ -60,7 +61,7 @@ public interface FeedStore {
      */
     @Deprecated
     FeedEntry getFeedEntryByRawId(String rawId);
-    
+
     /**
      * Get an entry for a specific feed by its rawId.
      * 
@@ -71,6 +72,17 @@ public interface FeedStore {
     FeedEntry getFeedEntryByRawId(int feedId, String rawId);
 
     Feed getFeedByID(int feedID);
+
+    /**
+     * Get FeedEntries by using a custom SQL query. The SELECT part must contain all appropriate columns with their
+     * names from the feed_entries table.
+     * 
+     * @param sqlQuery
+     * @return
+     */
+    List<FeedEntry> getFeedEntries(String sqlQuery);
+
+    Set<Integer> getEntryIdsTaggedAs(String tag);
 
     // /**
     // * Get specified number of entries from a feed.
