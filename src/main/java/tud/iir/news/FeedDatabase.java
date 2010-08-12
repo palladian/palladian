@@ -7,7 +7,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLXML;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,6 +26,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
+import tud.iir.classification.controlledtagging.Tag;
+import tud.iir.classification.controlledtagging.TagComparator;
 import tud.iir.persistence.DatabaseManager;
 
 /**
@@ -64,6 +68,10 @@ public class FeedDatabase implements FeedStore {
     private PreparedStatement psGetEntryByRawId2;
     private PreparedStatement psChangeCheckApproach;
     private PreparedStatement psGetEntries;
+    private PreparedStatement psGetEntrysTags;
+    private PreparedStatement psGetTagId;
+    private PreparedStatement psInsertTag;
+    private PreparedStatement psTagFeedEntry;
 
     private FeedDatabase() {
         try {
@@ -112,12 +120,20 @@ public class FeedDatabase implements FeedStore {
                 .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
         psGetEntryByRawId2 = connection
                 .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE feedId = ? AND rawID = ?");
-
         psChangeCheckApproach = connection
                 .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
-
         psGetEntries = connection
                 .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries LIMIT ? OFFSET ?");
+
+        // tagging specific
+        psGetEntrysTags = connection
+                .prepareStatement("SELECT name, weight FROM tags, feed_entry_tag WHERE tags.id = feed_entry_tag.tagId AND feed_entry_tag.entryId = ?");
+
+        psGetTagId = connection.prepareStatement("SELECT id FROM tags WHERE name = ?");
+        psInsertTag = connection.prepareStatement("INSERT INTO tags SET name = ?");
+        psTagFeedEntry = connection
+                .prepareStatement("INSERT INTO feed_entry_tag SET entryId = ?, tagId = ?, weight = ?");
+
     }
 
     @Override
@@ -281,22 +297,7 @@ public class FeedDatabase implements FeedStore {
 
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
             while (resultSet.next()) {
-                Feed feed = new Feed();
-                feed.setId(resultSet.getInt(1));
-                feed.setFeedUrl(resultSet.getString(2));
-                feed.setSiteUrl(resultSet.getString(3));
-                feed.setTitle(resultSet.getString(4));
-                feed.setFormat(resultSet.getInt(5));
-                feed.setTextType(resultSet.getInt(6));
-                feed.setLanguage(resultSet.getString(7));
-                feed.setAdded(resultSet.getTimestamp(8));
-                feed.setChecks(resultSet.getInt(9));
-                feed.setMinCheckInterval(resultSet.getInt(10));
-                feed.setMaxCheckInterval(resultSet.getInt(11));
-                feed.setLastHeadlines(resultSet.getString(12));
-                feed.setUnreachableCount(resultSet.getInt(13));
-                feed.setLastFeedEntry(resultSet.getTimestamp(14));
-                feed.setUpdateClass(resultSet.getInt(15));
+                Feed feed = getFeed(resultSet);
                 result.add(feed);
             }
             resultSet.close();
@@ -307,6 +308,27 @@ public class FeedDatabase implements FeedStore {
         return result;
     }
 
+    // create Feed from ResultSet
+    private Feed getFeed(ResultSet resultSet) throws SQLException {
+        Feed feed = new Feed();
+        feed.setId(resultSet.getInt(1));
+        feed.setFeedUrl(resultSet.getString(2));
+        feed.setSiteUrl(resultSet.getString(3));
+        feed.setTitle(resultSet.getString(4));
+        feed.setFormat(resultSet.getInt(5));
+        feed.setTextType(resultSet.getInt(6));
+        feed.setLanguage(resultSet.getString(7));
+        feed.setAdded(resultSet.getTimestamp(8));
+        feed.setChecks(resultSet.getInt(9));
+        feed.setMinCheckInterval(resultSet.getInt(10));
+        feed.setMaxCheckInterval(resultSet.getInt(11));
+        feed.setLastHeadlines(resultSet.getString(12));
+        feed.setUnreachableCount(resultSet.getInt(13));
+        feed.setLastFeedEntry(resultSet.getTimestamp(14));
+        feed.setUpdateClass(resultSet.getInt(15));
+        return feed;
+    }
+
     @Override
     public synchronized Feed getFeedByUrl(String feedUrl) {
         LOGGER.trace(">getFeedByUrl " + feedUrl);
@@ -315,22 +337,25 @@ public class FeedDatabase implements FeedStore {
             psGetFeedByUrl.setString(1, feedUrl);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetFeedByUrl);
             if (resultSet.next()) {
-                feed = new Feed();
-                feed.setId(resultSet.getInt(1));
-                feed.setFeedUrl(resultSet.getString(2));
-                feed.setSiteUrl(resultSet.getString(3));
-                feed.setTitle(resultSet.getString(4));
-                feed.setFormat(resultSet.getInt(5));
-                feed.setTextType(resultSet.getInt(6));
-                feed.setLanguage(resultSet.getString(7));
-                feed.setAdded(resultSet.getTimestamp(8));
-                feed.setChecks(resultSet.getInt(9));
-                feed.setMinCheckInterval(resultSet.getInt(10));
-                feed.setMaxCheckInterval(resultSet.getInt(11));
-                feed.setLastHeadlines(resultSet.getString(12));
-                feed.setUnreachableCount(resultSet.getInt(13));
-                feed.setLastFeedEntry(resultSet.getTimestamp(14));
-                feed.setUpdateClass(resultSet.getInt(15));
+                /*
+                 * feed = new Feed();
+                 * feed.setId(resultSet.getInt(1));
+                 * feed.setFeedUrl(resultSet.getString(2));
+                 * feed.setSiteUrl(resultSet.getString(3));
+                 * feed.setTitle(resultSet.getString(4));
+                 * feed.setFormat(resultSet.getInt(5));
+                 * feed.setTextType(resultSet.getInt(6));
+                 * feed.setLanguage(resultSet.getString(7));
+                 * feed.setAdded(resultSet.getTimestamp(8));
+                 * feed.setChecks(resultSet.getInt(9));
+                 * feed.setMinCheckInterval(resultSet.getInt(10));
+                 * feed.setMaxCheckInterval(resultSet.getInt(11));
+                 * feed.setLastHeadlines(resultSet.getString(12));
+                 * feed.setUnreachableCount(resultSet.getInt(13));
+                 * feed.setLastFeedEntry(resultSet.getTimestamp(14));
+                 * feed.setUpdateClass(resultSet.getInt(15));
+                 */
+                feed = getFeed(resultSet);
             } else {
                 LOGGER.debug("feed with " + feedUrl + " not found.");
             }
@@ -352,22 +377,25 @@ public class FeedDatabase implements FeedStore {
 
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetFeedByID);
             if (resultSet.next()) {
-                feed = new Feed();
-                feed.setId(feedID);
-                feed.setFeedUrl(resultSet.getString(1));
-                feed.setSiteUrl(resultSet.getString(2));
-                feed.setTitle(resultSet.getString(3));
-                feed.setFormat(resultSet.getInt(4));
-                feed.setTextType(resultSet.getInt(5));
-                feed.setLanguage(resultSet.getString(6));
-                feed.setAdded(resultSet.getTimestamp(7));
-                feed.setChecks(resultSet.getInt(8));
-                feed.setMinCheckInterval(resultSet.getInt(9));
-                feed.setMaxCheckInterval(resultSet.getInt(10));
-                feed.setLastHeadlines(resultSet.getString(11));
-                feed.setUnreachableCount(resultSet.getInt(12));
-                feed.setLastFeedEntry(resultSet.getTimestamp(13));
-                feed.setUpdateClass(resultSet.getInt(14));
+                /*
+                 * feed = new Feed();
+                 * feed.setId(feedID);
+                 * feed.setFeedUrl(resultSet.getString(1));
+                 * feed.setSiteUrl(resultSet.getString(2));
+                 * feed.setTitle(resultSet.getString(3));
+                 * feed.setFormat(resultSet.getInt(4));
+                 * feed.setTextType(resultSet.getInt(5));
+                 * feed.setLanguage(resultSet.getString(6));
+                 * feed.setAdded(resultSet.getTimestamp(7));
+                 * feed.setChecks(resultSet.getInt(8));
+                 * feed.setMinCheckInterval(resultSet.getInt(9));
+                 * feed.setMaxCheckInterval(resultSet.getInt(10));
+                 * feed.setLastHeadlines(resultSet.getString(11));
+                 * feed.setUnreachableCount(resultSet.getInt(12));
+                 * feed.setLastFeedEntry(resultSet.getTimestamp(13));
+                 * feed.setUpdateClass(resultSet.getInt(14));
+                 */
+                feed = getFeed(resultSet);
             }
             resultSet.close();
         } catch (SQLException e) {
@@ -430,29 +458,30 @@ public class FeedDatabase implements FeedStore {
             psGetEntryByRawId.setString(1, rawId);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetEntryByRawId);
             if (resultSet.next()) {
-                result = new FeedEntry();
-                result.setId(resultSet.getInt(1));
-                result.setTitle(resultSet.getString(2));
-                result.setLink(resultSet.getString(3));
-                result.setRawId(resultSet.getString(4));
-                result.setPublished(resultSet.getDate(5));
-                result.setContent(resultSet.getString(6));
-
-                // result.setPageContent(resultSet.getString(7));
-                if (result.getPageContent() != null) {
-                    SQLXML pageContent = connection.createSQLXML();
-                    DOMResult domResult = pageContent.setResult(DOMResult.class);
-                    domResult.setNode(result.getPageContent());
-                    psAddFeedEntry.setSQLXML(7, pageContent);
-                } else {
-                    psAddFeedEntry.setSQLXML(7, null);
-                }
-
-                result.setAdded(resultSet.getDate(8));
-                String tags = resultSet.getString(9);
-                if (tags != null) {
-                    result.setTags(new LinkedList<String>(Arrays.asList(tags.split(","))));
-                }
+                /*
+                 * result = new FeedEntry();
+                 * result.setId(resultSet.getInt(1));
+                 * result.setTitle(resultSet.getString(2));
+                 * result.setLink(resultSet.getString(3));
+                 * result.setRawId(resultSet.getString(4));
+                 * result.setPublished(resultSet.getDate(5));
+                 * result.setContent(resultSet.getString(6));
+                 * // result.setPageContent(resultSet.getString(7));
+                 * if (result.getPageContent() != null) {
+                 * SQLXML pageContent = connection.createSQLXML();
+                 * DOMResult domResult = pageContent.setResult(DOMResult.class);
+                 * domResult.setNode(result.getPageContent());
+                 * psAddFeedEntry.setSQLXML(7, pageContent);
+                 * } else {
+                 * psAddFeedEntry.setSQLXML(7, null);
+                 * }
+                 * result.setAdded(resultSet.getDate(8));
+                 * String tags = resultSet.getString(9);
+                 * if (tags != null) {
+                 * result.setTags(new LinkedList<String>(Arrays.asList(tags.split(","))));
+                 * }
+                 */
+                result = getFeedEntry(resultSet);
             }
             resultSet.close();
         } catch (SQLException e) {
@@ -471,29 +500,30 @@ public class FeedDatabase implements FeedStore {
             psGetEntryByRawId2.setString(2, rawId);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetEntryByRawId2);
             if (resultSet.next()) {
-                result = new FeedEntry();
-                result.setId(resultSet.getInt(1));
-                result.setTitle(resultSet.getString(2));
-                result.setLink(resultSet.getString(3));
-                result.setRawId(resultSet.getString(4));
-                result.setPublished(resultSet.getDate(5));
-                result.setContent(resultSet.getString(6));
-
-                // result.setPageContent(resultSet.getString(7));
-                if (result.getPageContent() != null) {
-                    SQLXML pageContent = connection.createSQLXML();
-                    DOMResult domResult = pageContent.setResult(DOMResult.class);
-                    domResult.setNode(result.getPageContent());
-                    psAddFeedEntry.setSQLXML(7, pageContent);
-                } else {
-                    psAddFeedEntry.setSQLXML(7, null);
-                }
-
-                result.setAdded(resultSet.getDate(8));
-                String tags = resultSet.getString(9);
-                if (tags != null) {
-                    result.setTags(new LinkedList<String>(Arrays.asList(tags.split(","))));
-                }
+                /*
+                 * result = new FeedEntry();
+                 * result.setId(resultSet.getInt(1));
+                 * result.setTitle(resultSet.getString(2));
+                 * result.setLink(resultSet.getString(3));
+                 * result.setRawId(resultSet.getString(4));
+                 * result.setPublished(resultSet.getDate(5));
+                 * result.setContent(resultSet.getString(6));
+                 * // result.setPageContent(resultSet.getString(7));
+                 * if (result.getPageContent() != null) {
+                 * SQLXML pageContent = connection.createSQLXML();
+                 * DOMResult domResult = pageContent.setResult(DOMResult.class);
+                 * domResult.setNode(result.getPageContent());
+                 * psAddFeedEntry.setSQLXML(7, pageContent);
+                 * } else {
+                 * psAddFeedEntry.setSQLXML(7, null);
+                 * }
+                 * result.setAdded(resultSet.getDate(8));
+                 * String tags = resultSet.getString(9);
+                 * if (tags != null) {
+                 * result.setTags(new LinkedList<String>(Arrays.asList(tags.split(","))));
+                 * }
+                 */
+                result = getFeedEntry(resultSet);
             }
             resultSet.close();
         } catch (SQLException e) {
@@ -503,6 +533,13 @@ public class FeedDatabase implements FeedStore {
         return result;
     }
 
+    /**
+     * Get the specified count of feed entries, starting at offset.
+     * 
+     * @param limit
+     * @param offset
+     * @return
+     */
     public List<FeedEntry> getFeedEntries(int limit, int offset) {
         LOGGER.trace(">getFeedEntries");
         List<FeedEntry> result = new LinkedList<FeedEntry>();
@@ -512,50 +549,64 @@ public class FeedDatabase implements FeedStore {
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetEntries);
 
             while (resultSet.next()) {
-                FeedEntry entry = new FeedEntry();
-                entry.setId(resultSet.getInt(1));
-                entry.setTitle(resultSet.getString(2));
-                entry.setLink(resultSet.getString(3));
-                entry.setRawId(resultSet.getString(4));
-                entry.setPublished(resultSet.getDate(5));
-                entry.setContent(resultSet.getString(6));
-
-                // entry.setPageContent(resultSet.getString(7));
-                SQLXML pageContent = resultSet.getSQLXML(7);
-                if (pageContent.getString() != null) {
-                    // DOMSource pageContentDOMSource = pageContent.getSource(DOMSource.class);
-                    // entry.setPageContent((Document) pageContentDOMSource.getNode());
-
-                    try {
-                        InputStream binaryStream = pageContent.getBinaryStream();
-                        DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-                        Document doc = parser.parse(binaryStream);
-                        entry.setPageContent(doc);
-                    } catch (ParserConfigurationException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (SAXException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    } catch (IOException e) {
-                        // TODO Auto-generated catch block
-                        e.printStackTrace();
-                    }
-
-                }
-
-                entry.setAdded(resultSet.getDate(8));
-                String tags = resultSet.getString(9);
-                if (tags != null) {
-                    entry.setTags(new LinkedList<String>(Arrays.asList(tags.split(","))));
-                }
-                result.add(entry);
+                /*
+                 * FeedEntry entry = new FeedEntry();
+                 * entry.setId(resultSet.getInt(1));
+                 * entry.setTitle(resultSet.getString(2));
+                 * entry.setLink(resultSet.getString(3));
+                 * entry.setRawId(resultSet.getString(4));
+                 * entry.setPublished(resultSet.getDate(5));
+                 * entry.setContent(resultSet.getString(6));
+                 * // entry.setPageContent(resultSet.getString(7));
+                 * SQLXML pageContent = resultSet.getSQLXML(7);
+                 * if (pageContent.getString() != null) {
+                 * // DOMSource pageContentDOMSource = pageContent.getSource(DOMSource.class);
+                 * // entry.setPageContent((Document) pageContentDOMSource.getNode());
+                 * try {
+                 * InputStream binaryStream = pageContent.getBinaryStream();
+                 * DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                 * Document doc = parser.parse(binaryStream);
+                 * entry.setPageContent(doc);
+                 * } catch (ParserConfigurationException e) {
+                 * // TODO Auto-generated catch block
+                 * e.printStackTrace();
+                 * } catch (SAXException e) {
+                 * // TODO Auto-generated catch block
+                 * e.printStackTrace();
+                 * } catch (IOException e) {
+                 * // TODO Auto-generated catch block
+                 * e.printStackTrace();
+                 * }
+                 * }
+                 * entry.setAdded(resultSet.getDate(8));
+                 * String tags = resultSet.getString(9);
+                 * if (tags != null) {
+                 * entry.setTags(new LinkedList<String>(Arrays.asList(tags.split(","))));
+                 * }
+                 * result.add(entry);
+                 */
+                result.add(getFeedEntry(resultSet));
             }
             resultSet.close();
         } catch (SQLException e) {
             LOGGER.error("getFeedEntries", e);
         }
         LOGGER.trace("<getFeedEntries");
+        return result;
+    }
+
+    public List<FeedEntry> getFeedEntries(String sqlQuery) {
+        List<FeedEntry> result = new LinkedList<FeedEntry>();
+        try {
+            ResultSet rs = connection.createStatement().executeQuery(sqlQuery);
+            while (rs.next()) {
+                result.add(getFeedEntry(rs));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            LOGGER.error(sqlQuery + " : " + e);
+
+        }
         return result;
     }
 
@@ -598,27 +649,132 @@ public class FeedDatabase implements FeedStore {
     // return this.getEntries(feed, -1);
     // }
 
+    // create FeedEntry from ResultSet
+    private FeedEntry getFeedEntry(ResultSet resultSet) throws SQLException {
+
+        FeedEntry entry = new FeedEntry();
+
+        entry.setId(resultSet.getInt("id"));
+        entry.setTitle(resultSet.getString("title"));
+        entry.setLink(resultSet.getString("link").trim());
+        entry.setRawId(resultSet.getString("rawId").trim());
+        entry.setPublished(resultSet.getDate("published"));
+        entry.setContent(resultSet.getString("text"));
+
+        SQLXML pageContent = resultSet.getSQLXML("pageText");
+        if (pageContent.getString() != null) {
+
+            try {
+                InputStream binaryStream = pageContent.getBinaryStream();
+                DocumentBuilder parser = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                Document doc = parser.parse(binaryStream);
+                entry.setPageContent(doc);
+            } catch (ParserConfigurationException e) {
+                LOGGER.error(e);
+            } catch (SAXException e) {
+                LOGGER.error(e);
+            } catch (IOException e) {
+                LOGGER.error(e);
+            }
+        }
+
+        entry.setAdded(resultSet.getDate("added"));
+        String tags = resultSet.getString("tags");
+        if (tags != null) {
+            entry.setTags(new LinkedList<String>(Arrays.asList(tags.split(","))));
+        }
+
+        return entry;
+    }
+
+    /**
+     * Get tags for specified FeedEntry. Result as sorted descendingly.
+     * 
+     * @param entry
+     * @return
+     */
+    public List<Tag> getTags(FeedEntry entry) {
+        List<Tag> tags = new ArrayList<Tag>();
+
+        try {
+            psGetEntrysTags.setInt(1, entry.getId());
+            ResultSet rs = psGetEntrysTags.executeQuery();
+            while (rs.next()) {
+                String tagName = rs.getString("name");
+                float tagWeight = rs.getFloat("weight");
+                Tag tag = new Tag(tagName, tagWeight);
+                tags.add(tag);
+            }
+            Collections.sort(tags, new TagComparator());
+            rs.close();
+        } catch (SQLException e) {
+            LOGGER.error(e);
+        }
+
+        return tags;
+    }
+
+    public void assignTags(FeedEntry entry, List<Tag> tags) {
+
+        try {
+
+            for (Tag tag : tags) {
+
+                // get tag ID from database, or add tag to DB if not exists
+                psGetTagId.setString(1, tag.getName());
+                ResultSet rsGetTagId = psGetTagId.executeQuery();
+                int tagId;
+                if (rsGetTagId.next()) {
+
+                    tagId = rsGetTagId.getInt(1);
+
+                } else {
+
+                    psInsertTag.setString(1, tag.getName());
+                    psInsertTag.executeUpdate();
+                    tagId = DatabaseManager.getInstance().getLastInsertID();
+
+                }
+                rsGetTagId.close();
+
+                // add relation between tag and feed
+                psTagFeedEntry.setInt(1, entry.getId());
+                psTagFeedEntry.setInt(2, tagId);
+                psTagFeedEntry.setFloat(3, tag.getWeight());
+                psTagFeedEntry.executeUpdate();
+
+            }
+        } catch (SQLException e) {
+            LOGGER.error(e);
+        }
+    }
+
     public void clearFeedTables() {
         LOGGER.trace(">cleanTables");
         // DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries");
         // DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feeds");
-        // DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE tags");
-        // DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entry_tag");
+        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE tags");
+        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entry_tag");
 
         LOGGER.trace("<cleanTables");
     }
 
     public static void main(String[] args) {
+
         // clear feed specfic tables
-        // FeedDatabase.getInstance().clearFeedTables();
-        // System.exit(0);
+        FeedDatabase.getInstance().clearFeedTables();
+        System.exit(0);
 
         FeedDatabase fd = FeedDatabase.getInstance();
-        List<FeedEntry> result = fd.getFeedEntries(100, -1);
-        for (FeedEntry feedEntry : result) {
-            System.out.println(feedEntry);
-        }
-        System.out.println(result.size());
+        // List<FeedEntry> result = fd.getFeedEntries(100, -1);
+        // for (FeedEntry feedEntry : result) {
+        // System.out.println(feedEntry);
+        // }
+        // System.out.println(result.size());
+        FeedEntry dummy = new FeedEntry();
+        dummy.setId(123);
+        List<Tag> tags = fd.getTags(dummy);
+        System.out.println(tags);
     }
 
 }
