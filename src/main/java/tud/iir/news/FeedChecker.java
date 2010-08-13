@@ -607,7 +607,7 @@ public final class FeedChecker {
 
             if (feed.getUpdateClass() == FeedClassifier.CLASS_DEAD) {
                 fixedMinCheckInterval = 800 + (int) (Math.random() * 20);
-                fixedMaxCheckInterval = 1440 + (int) (Math.random() * 400);
+                fixedMaxCheckInterval = 1440;
             } else if (feed.getUpdateClass() == FeedClassifier.CLASS_CHUNKED) {
 
                 // for chunked entries the median post gap is likely to be zero so we set it to the time to the last
@@ -633,12 +633,12 @@ public final class FeedChecker {
             if (fixedMinCheckInterval < 5) {
                 fixedMinCheckInterval = 5;
             } else if (fixedMinCheckInterval > 1440) {
-                fixedMinCheckInterval = 1440;
+                fixedMinCheckInterval = 1440 + (int) (Math.random() * 400);
             }
             if (fixedMaxCheckInterval < 5) {
                 fixedMaxCheckInterval = 5;
             } else if (fixedMaxCheckInterval > 1440) {
-                fixedMaxCheckInterval = 1440;
+                fixedMaxCheckInterval = 1440 + (int) (Math.random() * 400);
             }
 
             // //////////////////////////////
