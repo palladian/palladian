@@ -74,22 +74,22 @@ class SchedulerTask extends TimerTask {
     
     public static synchronized void incrementThreadPoolSize() {
         threadPoolQueueSize++;
-        LOGGER.info("Queue size: " + threadPoolQueueSize);
+        LOGGER.info("inc queue size to: " + threadPoolQueueSize);
     }
     
     public static synchronized void decrementThreadPoolSize() {
         threadPoolQueueSize--;
-        LOGGER.info("Queue size: " + threadPoolQueueSize);
+        LOGGER.info("dec queue size to: " + threadPoolQueueSize);
     }
     
     public static synchronized void incrementThreadsAlive() {
         threadsAlive++;
-        LOGGER.info("Threads alive: " + threadsAlive);
+        LOGGER.info("inc threads alive to: " + threadsAlive);
     }
     
     public static synchronized void decrementThreadsAlive() {
         threadsAlive--;
-        LOGGER.info("Threads alive: " + threadsAlive);
+        LOGGER.info("dec threads alive to: " + threadsAlive);
     }
 
     /**
