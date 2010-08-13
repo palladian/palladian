@@ -41,13 +41,9 @@ class FeedTask implements Runnable {
 
     @Override
     public void run() {
-        synchronized (this) {
-            SchedulerTask.THREADS_ALIVE++;
-            SchedulerTask.THREAD_POOL_QUEUE_SIZE--;
-            LOGGER.info("Beginning of thread.");
-            LOGGER.info("Threads alive: " + SchedulerTask.THREADS_ALIVE);
-            LOGGER.info("Queue size: " + SchedulerTask.THREAD_POOL_QUEUE_SIZE);
-        }
+        LOGGER.info("Beginning of thread.");
+        SchedulerTask.decrementThreadPoolSize();
+        SchedulerTask.incrementThreadsAlive();
         NewsAggregator fa = new NewsAggregator();
 
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
@@ -70,13 +66,9 @@ class FeedTask implements Runnable {
 
         // save the feed back to the database
         fa.updateFeed(feed);
-        synchronized (this) {
-            SchedulerTask.THREADS_ALIVE--;
-            LOGGER.info("End of Thread");
-            LOGGER.info("Threads alive: " + SchedulerTask.THREADS_ALIVE);
-            LOGGER.info("Queue size: " + SchedulerTask.THREAD_POOL_QUEUE_SIZE);
-            
-        }
+        
+        LOGGER.info("End of Thread");
+        SchedulerTask.decrementThreadsAlive();
     }
 
 }

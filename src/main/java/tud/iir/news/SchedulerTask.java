@@ -1,6 +1,5 @@
 package tud.iir.news;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimerTask;
@@ -47,8 +46,8 @@ class SchedulerTask extends TimerTask {
         scheduledTasks = new HashMap<Integer, Future<?>>();
     }
 
-    public static int THREAD_POOL_QUEUE_SIZE = 0;
-    public static int THREADS_ALIVE = 0;
+    private static int threadPoolQueueSize = 0;
+    private static int threadsAlive = 0;
 
     /*
      * (non-Javadoc)
@@ -65,15 +64,32 @@ class SchedulerTask extends TimerTask {
             }
 
             if (needsLookup(feed)) {
-                synchronized (feed) {
-                    THREAD_POOL_QUEUE_SIZE++;
-                    LOGGER.info("Queue size: " + SchedulerTask.THREAD_POOL_QUEUE_SIZE);
-                }
+                incrementThreadPoolSize();
                 scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedChecker)));
                 feedCount++;
             }
         }
         LOGGER.info("scheduled " + feedCount + " feeds for reading");
+    }
+    
+    public static synchronized void incrementThreadPoolSize() {
+        threadPoolQueueSize++;
+        LOGGER.info("Queue size: " + threadPoolQueueSize);
+    }
+    
+    public static synchronized void decrementThreadPoolSize() {
+        threadPoolQueueSize--;
+        LOGGER.info("Queue size: " + threadPoolQueueSize);
+    }
+    
+    public static synchronized void incrementThreadsAlive() {
+        threadsAlive++;
+        LOGGER.info("Threads alive: " + threadsAlive);
+    }
+    
+    public static synchronized void decrementThreadsAlive() {
+        threadsAlive--;
+        LOGGER.info("Threads alive: " + threadsAlive);
     }
 
     /**
