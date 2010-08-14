@@ -1,22 +1,7 @@
 package tud.iir.news;
 
-import java.io.IOException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
-
-import org.apache.log4j.Logger;
-import org.apache.xerces.parsers.DOMParser;
-import org.cyberneko.html.HTMLConfiguration;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-import org.xml.sax.SAXNotRecognizedException;
-import org.xml.sax.SAXNotSupportedException;
-
-import tud.iir.helper.HTMLHelper;
-import tud.iir.helper.StringInputStream;
 
 /**
  * Represents a news entry within a feed ({@link Feed}).
@@ -39,15 +24,14 @@ public class FeedEntry {
     /** when the entry was aggregated */
     private Date added;
 
-    /** content directly from the feed entry */
-    private String content;
+    /** entryText directly from the feed entry */
+    private String entryText;
 
-    /** content which we downloaded from the corresponding web page. */
-    // private String pageContent;
-    private Document pageContent;
+    /** entryText which we downloaded from the corresponding web page. */
+    private String pageText;
 
-    /** assigned tags from feed entry. */
-    private List<String> tags = new ArrayList<String>();
+    // /** assigned tags from feed entry. */
+    // private List<String> tags = new ArrayList<String>();
 
     public int getId() {
         return id;
@@ -111,33 +95,53 @@ public class FeedEntry {
         return null;
     }
 
-    public String getContent() {
-        return content;
+    public String getEntryText() {
+        return entryText;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setEntryText(String entryText) {
+        this.entryText = entryText;
     }
 
-    public Document getPageContent() {
-        return pageContent;
+    public String getPageText() {
+        return pageText;
     }
 
-    public void setPageContent(Document pageContent) {
-        this.pageContent = pageContent;
+    public void setPageText(String pageText) {
+        this.pageText = pageText;
     }
 
-    public List<String> getTags() {
-        return tags;
+    /**
+     * Get entry's text, either (preferably) from the page or from the feed. Never return <code>null</code>.
+     * 
+     * @return
+     */
+    public String getText() {
+
+        String text = getPageText();
+
+        if (text == null || text.isEmpty()) {
+            text = getEntryText();
+        }
+
+        if (text == null) {
+            text = "";
+        }
+
+        return text;
     }
 
-    public void setTags(List<String> tags) {
-        this.tags = tags;
-    }
-
-    public void addTag(String tag) {
-        tags.add(tag);
-    }
+    // public List<String> getTags() {
+    // return tags;
+    // }
+    //
+    // public void setTags(List<String> tags) {
+    // this.tags = tags;
+    // }
+    //
+    // public void addTag(String tag) {
+    // tags.add(tag);
+    // }
 
     @Override
     public String toString() {
@@ -148,62 +152,8 @@ public class FeedEntry {
         sb.append(" link:").append(link);
         // sb.append(" rawId:").append(rawId);
         sb.append(" published:").append(published);
-        // sb.append(" text:").append(text);
+        // sb.append(" entryText:").append(entryText);
         return sb.toString();
-    }
-
-    /**
-     * Get text representation of FeedEntry, without HTML tags. Either from the page content or directly from the feed
-     * entry.
-     * 
-     * @return
-     */
-    public String getText() {
-        String result = getPageText();
-        if (result == null) {
-            result = getEntryText();
-        }
-        return result;
-    }
-    
-    public Document getEntryContent() {
-        Document result = null;
-        try {
-            
-            DOMParser parser = new DOMParser(new HTMLConfiguration());
-            parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
-            parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
-            parser.parse(new InputSource(new StringInputStream(getContent())));
-            result = parser.getDocument();
-            
-        } catch (SAXNotRecognizedException e) {
-            Logger.getRootLogger().error(e);
-        } catch (SAXNotSupportedException e) {
-            Logger.getRootLogger().error(e);
-        } catch (SAXException e) {
-            Logger.getRootLogger().error(e);
-        } catch (IOException e) {
-            Logger.getRootLogger().error(e);
-        }
-        return result;        
-    }
-
-    String getPageText() {
-        String result = null;
-        if (getPageContent() != null) {
-            result = HTMLHelper.htmlDocToString(getPageContent());
-            result = result.replaceAll("\n", " ");
-            result = result.replaceAll(" {2,}", " ");
-        }
-        return result;
-    }
-
-    String getEntryText() {
-        String result = null;
-        if (getContent() != null) {
-            result = HTMLHelper.htmlFragmentsToString(getContent(), true);
-        }
-        return result;
     }
 
 }

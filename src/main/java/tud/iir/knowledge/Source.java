@@ -83,7 +83,7 @@ public class Source implements Serializable {
         if (url == null) {
             Logger.getRootLogger().error("source url was set with NULL value");
             new Error().printStackTrace();
-            System.exit(1);
+            // System.exit(1);
         }
         this.url = url;
     }
