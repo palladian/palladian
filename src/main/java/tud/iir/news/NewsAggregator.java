@@ -38,7 +38,6 @@ import tud.iir.web.URLDownloader.URLDownloaderCallback;
 
 import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.rss.Guid;
-import com.sun.syndication.feed.synd.SyndCategory;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
@@ -53,6 +52,8 @@ import com.sun.syndication.io.SyndFeedInput;
  * TODO we should check if an entry was modified and update.
  * TODO determine feed format for statistics? -->
  * https://rome.dev.java.net/apidocs/1_0/com/sun/syndication/feed/WireFeed.html#getFeedType()
+ * TODO add a general filter to ignore specific types of feeds, for example by language, count of entries, URL pattern,
+ * etc.
  * 
  * https://rome.dev.java.net/ *
  * 
@@ -65,6 +66,15 @@ public class NewsAggregator {
     private static final Logger LOGGER = Logger.getLogger(NewsAggregator.class);
 
     private static final int DEFAULT_MAX_THREADS = 20;
+
+    /**
+     * Maximum number of feed entries. Feeds with more entries will be ignored when adding. This is to speed up the
+     * aggregation process, especially when downloading the linked web pages. There is no common, maximum limit for feed
+     * entries, altough there are hardly any feeds with more than 100 entries. On the other hand, as extreme example, I
+     * found a feed with over 20,000 entries (http://ameblo.jp/ameblo_ror.xml). Hardcoded for now, could be moved to
+     * a general filter class in the future, see todo-note.
+     */
+    private static final int MAX_FEED_ENTRIES = 200;
 
     /**
      * Maximum number of concurrent threads for aggregation.
@@ -217,8 +227,10 @@ public class NewsAggregator {
             }
             // TODO **** feedproxy URLs ****
             // some feeds use Google Feed Proxy ...
-            // this URL --> http://feedproxy.google.com/~r/typepad/romanmica/the_first_lemming/~3/x8XidemLPik/and-the-new-2011-msrp-of-the-hottest-subaru-wrx-sti-is.html
-            // is redirected to this URL --> http://www.tflcar.com/2010/07/and-the-new-2011-msrp-of-the-hottest-subaru-wrx-sti-is.html?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+typepad%2Fromanmica%2Fthe_first_lemming+%28TFLcar.com%3A+Automotive+news%2C+views+and+reviews%29
+            // this URL -->
+            // http://feedproxy.google.com/~r/typepad/romanmica/the_first_lemming/~3/x8XidemLPik/and-the-new-2011-msrp-of-the-hottest-subaru-wrx-sti-is.html
+            // is redirected to this URL -->
+            // http://www.tflcar.com/2010/07/and-the-new-2011-msrp-of-the-hottest-subaru-wrx-sti-is.html?utm_source=feedburner&utm_medium=feed&utm_campaign=Feed%3A+typepad%2Fromanmica%2Fthe_first_lemming+%28TFLcar.com%3A+Automotive+news%2C+views+and+reviews%29
             // should we resolve this while aggregating? problem --> costly, one HTTP requests for each entry
             // but: problematic when ranking based upon URLs
             // web service to resolve --> http://www.therealurl.net/
@@ -234,16 +246,16 @@ public class NewsAggregator {
             entry.setPublished(publishDate);
 
             String entryText = getEntryText(syndEntry);
-            entry.setContent(entryText);
+            entry.setEntryText(entryText);
 
             // Entry's assigned Tags, if any
-            List<SyndCategory> categories = syndEntry.getCategories();
-            for (SyndCategory category : categories) {
-                String catName = category.getName();
-                if (catName != null) {
-                    entry.addTag(catName.replace(",", " ").trim());
-                }
-            }
+            // List<SyndCategory> categories = syndEntry.getCategories();
+            // for (SyndCategory category : categories) {
+            // String catName = category.getName();
+            // if (catName != null) {
+            // entry.addTag(catName.replace(",", " ").trim());
+            // }
+            // }
 
             // get ID information from raw feed entries
             String rawId = null;
@@ -264,7 +276,11 @@ public class NewsAggregator {
                 rawId = syndEntry.getLink();
                 LOGGER.trace("id is missing, taking link instead");
             }
-            entry.setRawId(rawId.trim());
+            if (rawId != null) {
+                entry.setRawId(rawId.trim());
+            } else {
+                LOGGER.warn("could not get id for entry");
+            }
 
             // logger.trace(entry);
             result.add(entry);
@@ -302,7 +318,10 @@ public class NewsAggregator {
             }
         }
 
+        // clean up --> strip out HTML tags, unescape HTML code
         if (entryText != null) {
+            entryText = HTMLHelper.htmlFragmentsToString(entryText, false);
+            entryText = StringEscapeUtils.unescapeHtml(entryText);
             entryText = entryText.trim();
         }
         LOGGER.trace("<getEntryText ");
@@ -325,21 +344,26 @@ public class NewsAggregator {
 
                 feed = downloadFeed(feedUrl);
 
-                // classify feed's text extent
-                FeedContentClassifier classifier = new FeedContentClassifier();
-                int textType = classifier.determineFeedTextType(feed);
-                feed.setTextType(textType);
+                if (feed.getEntries().size() <= MAX_FEED_ENTRIES) {
 
-                // add feed & entries to the store
-                store.addFeed(feed);
+                    // classify feed's text extent
+                    FeedContentClassifier classifier = new FeedContentClassifier();
+                    int textType = classifier.determineFeedTextType(feed);
+                    feed.setTextType(textType);
 
-                for (FeedEntry feedEntry : feed.getEntries()) {
-                    store.addFeedEntry(feed, feedEntry);
+                    // add feed & entries to the store
+                    store.addFeed(feed);
+
+                    for (FeedEntry feedEntry : feed.getEntries()) {
+                        store.addFeedEntry(feed, feedEntry);
+                    }
+
+                    LOGGER.info("added feed to store " + feedUrl + " (textType:"
+                            + classifier.getReadableFeedTextType(textType) + ")");
+                    added = true;
+
                 }
 
-                LOGGER.info("added feed to store " + feedUrl + " (textType:"
-                        + classifier.getReadableFeedTextType(textType) + ")");
-                added = true;
             } catch (NewsAggregatorException e) {
                 LOGGER.error("error adding feed " + feedUrl + " " + e.getMessage());
             }
@@ -639,7 +663,9 @@ public class NewsAggregator {
         Feed feed = getFeed(syndFeed, feedUrl);
         List<FeedEntry> entries = getEntries(syndFeed);
 
-        if (fetchPages) {
+        // if (fetchPages) {
+        // dont fetch pages if we have masses of entries ...
+        if (fetchPages && entries.size() <= MAX_FEED_ENTRIES) {
             // for (FeedEntry feedEntry : entries) {
             // fetchPageContentForEntry(feedEntry);
             // }
@@ -653,8 +679,6 @@ public class NewsAggregator {
     /**
      * Fetch associated page content using {@link PageContentExtractor}. Do not download binary files, like PDFs, audio
      * or video files.
-     * 
-     * TODO parallelize this, we can fetch multiple pages concurrently. -> see below.
      * 
      * @param feedEntry
      */
@@ -728,8 +752,8 @@ public class NewsAggregator {
                 try {
                     PageContentExtractor extractor = new PageContentExtractor();
                     extractor.setDocument(new InputSource(inputStream));
-                    Document page = extractor.getResultDocument();
-                    entries.get(url).setPageContent(page);
+                    String pageText = extractor.getResultText();
+                    entries.get(url).setPageText(pageText);
                     // feedEntry.setPageContent(page);
                 } catch (PageContentExtractorException e) {
                     LOGGER.error("PageContentExtractorException " + e);
@@ -781,7 +805,6 @@ public class NewsAggregator {
     // // String pageContent = crawler.download(entry.getLink());
     // entry.setPageContent(pageContent);
     // } catch (PageContentExtractorException e) {
-    // // TODO Auto-generated catch block
     // e.printStackTrace();
     // }
     // }

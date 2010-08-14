@@ -263,7 +263,6 @@ CREATE TABLE `feed_entries` (
   `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `text` text COLLATE utf8_unicode_ci,
   `pageText` text COLLATE utf8_unicode_ci COMMENT 'text which we scraped from the corresponding page',
-  `tags` text COLLATE utf8_unicode_ci COMMENT 'tags as comma separated list',
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedId_rawId_unique` (`feedId`,`rawId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
