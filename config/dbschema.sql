@@ -366,6 +366,8 @@ CREATE TABLE `feeds` (
   `maxCheckInterval` int(11) unsigned NOT NULL default '60' COMMENT 'time in minutes between two consecutive checks',
   `lastHeadlines` text collate utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
   `unreachableCount` int(11) unsigned NOT NULL default '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
+  `updateClass` int(11) DEFAULT '0',
+  `lastFeedEntry` text COLLATE utf8_unicode_ci,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
