@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 
+import tud.iir.helper.HTMLHelper;
 import tud.iir.web.Crawler;
 
 /**
@@ -18,7 +19,7 @@ import tud.iir.web.Crawler;
  * 
  * @author Martin Werner
  */
-public class IFrameAnalyzer extends GeneralAnalyzer {
+public class IFrameAnalyzer {
 
     /** The sw matcher. */
     private final transient SearchWordMatcher swMatcher;
@@ -112,7 +113,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
     private List<String> getSrcFromIframe(final String iframeTag, final String quotMark) {
         final List<String> iframeURLs = new ArrayList<String>();
         String pattern = "src=" + quotMark + "[^>" + quotMark + "]*" + quotMark;
-        final String iframeSrc = extractElement(pattern, iframeTag, "src=");
+        final String iframeSrc = HTMLHelper.extractTagElement(pattern, iframeTag, "src=");
         iframeURLs.add(iframeSrc);
 
         return iframeURLs;
@@ -129,7 +130,7 @@ public class IFrameAnalyzer extends GeneralAnalyzer {
        final List<String> validURLs = new ArrayList<String>();
 
         for (String urlCandidate : urlCandidates) {
-            final String validURL = verifyURL(urlCandidate, parentPageURL);
+            final String validURL = Crawler.verifyURL(urlCandidate, parentPageURL);
             if (!("").equals(validURL)) {
                 validURLs.add(validURL);
             }

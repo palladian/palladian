@@ -16,7 +16,7 @@ import tud.iir.knowledge.Entity;
  * The MIOPageAnalyzer analyzes MIOPages for relevant MIOs and try to extract them.
  * 
  */
-public class MIOPageAnalyzer extends GeneralAnalyzer {
+public class MIOPageAnalyzer{
 
     // private double trustLimit = 2;
 

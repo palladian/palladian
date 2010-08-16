@@ -13,6 +13,7 @@ import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.knowledge.Entity;
+import tud.iir.web.Crawler;
 
 public abstract class AbstractMIOTypeExtractor {
 
@@ -67,7 +68,7 @@ public abstract class AbstractMIOTypeExtractor {
         while (matcher.find()) {
             final String mioAdr = matcher.group(0).replaceAll("\"", "");
             // System.out.println("URL: "+ mioAdr);
-            final String mioURL = GeneralAnalyzer.verifyURL(mioAdr, mioPage.getUrl());
+            final String mioURL = Crawler.verifyURL(mioAdr, mioPage.getUrl());
             final String testString = mioURL.toLowerCase(Locale.ENGLISH);
 
             if (!(testString.contains("expressinstall") || testString.contains("banner") || testString
@@ -267,7 +268,7 @@ public abstract class AbstractMIOTypeExtractor {
 
         }
 
-        GeneralAnalyzer.verifyURL("", mio.getFindPageURL());
+        Crawler.verifyURL("", mio.getFindPageURL());
         if (!xmlFileNames.isEmpty()) {
             mio.addInfos("xmlFileURL", xmlFileNames);
         }

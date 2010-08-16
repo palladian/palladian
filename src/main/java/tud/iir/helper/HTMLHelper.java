@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -352,6 +353,35 @@ public class HTMLHelper {
 
         return result;
 
+    }
+    
+    /**
+     * Extract values e.g for: src=, href= or title=
+     * 
+     * @param pattern the pattern
+     * @param content the content
+     * @param removeTerm the term which should be removed e.g. " or '
+     * @return the string
+     */
+    public static String extractTagElement(final String pattern, final String content, final String removeTerm) {
+        String element = "";
+        final Pattern elementPattern = Pattern.compile(pattern, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        final Matcher elementMatcher = elementPattern.matcher(content);
+        while (elementMatcher.find()) {
+            String result = elementMatcher.group(0);
+            if (!("").equals(removeTerm)) {
+                // remove the remove term
+                result = result.replaceFirst(removeTerm, "");
+                result = result.replaceFirst(removeTerm.toUpperCase(Locale.ENGLISH), "");
+                result = result.replaceFirst(removeTerm.toLowerCase(Locale.ENGLISH), "");
+            }
+            // remove the quotation-marks
+            result = result.replaceAll("\"", "");
+            result = result.replaceAll("'", "");
+
+            element = result;
+        }
+        return element;
     }
 
     public static void main(String[] args) throws Exception {

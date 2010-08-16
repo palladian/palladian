@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.DateHelper;
 import tud.iir.knowledge.Entity;
 
 /**

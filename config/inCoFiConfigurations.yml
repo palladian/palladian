@@ -1,6 +1,6 @@
              
              # set the conceptSearchVocabulary
-             mobilePhone:               "360 view, 3D, overview, key features, drag to rotate"
+             mobilephone:               "360 view, 3D, overview, key features, drag to rotate"
              printer:                   "view product tour, view demo, product tour, interactive tour, gallery"
              headphone:                 "view product tour, view demo, view 360, product tour, 360 view, virtual tour"
              movie:                     "game, keys, play_, flashgame, games, click here to play, arrow keys"
@@ -28,11 +28,11 @@
              mioTypes: "flash, applet, silverlight, quicktime, html5canvas"
              
              # set which words indicate a low relevant MIO
-             badWords: "banner, tower, titlefont, newsletter, cloud, footer, ticker, ads, expressinstall, header, advertise, logo" 
+             badWords: "banner, tower, titlefont, newsletter, cloud, footer, ticker, ads, expressinstall, header, advertise, logo, macromedia, audio_player, audio-player" 
              
              # set which words indicate a weak interactive MIO
-             weakInteractionIndicators:  "unboxing, video, preview, review, movie, trailer, promotion, youtube, player, logo"
+             weakInteractionIndicators:  "unboxing, video, preview, review, overview, movie, trailer, promotion, youtube, player, logo"
              
              # set which words indicate a strong interactive MIO
-             strongInteractionIndicators: "interactive, click, try, 360, view, index, main, spin, tour, virtual, gallery, play, drag, keys, game, microsite"
+             strongInteractionIndicators: "interactive, click, try, 360, view, index, main, spin, tour, virtual, gallery, play, drag, keys, game, showroom, microsite, minisite, xap"
                          
