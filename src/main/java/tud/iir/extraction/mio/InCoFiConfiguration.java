@@ -9,6 +9,7 @@ package tud.iir.extraction.mio;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
@@ -17,7 +18,7 @@ import java.util.Map;
 public class InCoFiConfiguration {
 
     /** The mobile phone. */
-    public transient String mobilePhone;
+    public transient String mobilephone;
 
     /** The printer. */
     public transient String printer;
@@ -117,10 +118,10 @@ public class InCoFiConfiguration {
      * @return the searchVocabulary by concept name
      */
     public List<String> getVocByConceptName(final String conceptName) {
-        String cName= conceptName;
-//        String modConceptName = conceptName.toLowerCase(Locale.ENGLISH);
+
+        String cName= conceptName.toLowerCase(Locale.ENGLISH);
         if ("mobile phone".equalsIgnoreCase(conceptName)) {
-            cName = "mobilePhone";
+            cName = "mobilephone";
         }
         final Map<String, List<String>> attributeMap = attributesToMap();
         return attributeMap.get(cName);
@@ -134,7 +135,7 @@ public class InCoFiConfiguration {
      */
     private Map<String, List<String>> attributesToMap() {
        final Map<String, List<String>> attributeMap = new HashMap<String, List<String>>();
-        attributeMap.put("mobilePhone", parseStringToList(mobilePhone));
+        attributeMap.put("mobilephone", parseStringToList(mobilephone));
         attributeMap.put("printer", parseStringToList(printer));
         attributeMap.put("headphone", parseStringToList(headphone));
         attributeMap.put("movie", parseStringToList(movie));
