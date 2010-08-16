@@ -291,13 +291,18 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
                 }
                 final File mioFile = Crawler.downloadBinaryFile(url, downloadPath + mio.getFileName());
                 if (mioFile != null) {
+                    try{
                     final String textContent = extractTextContent(mioFile);
                     final SWFHeader header = extractHeader(mioFile);
-                    setTextContentLength(mio, textContent);
+//                    setTextContentLength(mio, textContent);
 
                     setFileSize(mio, header);
                     setFeatures(mio, entity, textContent, header);
-
+                    
+                    }
+                    catch(Exception e){
+                        LOGGER.error("Analyzing SWFContent failed! " +e.getMessage());
+                    }
                 }
             }
         }
@@ -310,10 +315,10 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      * @param mio the mio
      * @param textContent the text content
      */
-    private void setTextContentLength(MIO mio, String textContent) {
-
-        mio.setTextContentLength(textContent.length());
-    }
+//    private void setTextContentLength(MIO mio, String textContent) {
+//
+//        mio.setTextContentLength(textContent.length());
+//    }
 
     /**
      * Sets the fileSize.
@@ -351,18 +356,17 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      */
     private void setFeatures(final MIO mio, Entity entity, String textContent, SWFHeader header) {
 
-        double textContentRelevance = 0;
-        double resolutionRelevance = 0;
+//        double textContentRelevance = 0;
+//        double resolutionRelevance = 0;
 
-        if (!("").equals(textContent)) {
-            textContentRelevance = calcTextContentRelevance(textContent, entity);
-        }
-        mio.setFeature("TextContentRelevance", textContentRelevance);
+        if (!("").equals(textContent)) {           
+             mio.setFeature("TextContentRelevance", calcTextContentRelevance(textContent, entity));
+        }       
 
         if (header != null) {
-            resolutionRelevance = calcResolutionRelevance(header);
+             mio.setFeature("ResolutionRelevance", calcResolutionRelevance(header));
         }
-        mio.setFeature("ResolutionRelevance", resolutionRelevance);
+        
 
     }
 
@@ -458,26 +462,27 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
         //
         // // System.exit(1);
         //
-        // // String urlString = "http://www.sennheiser.com/flash/hotspots/EN/HD-800.swf";
+        String urlString = "http://l.yimg.com/dv/i/izmo/2/16762/audiosystem.swf";
         // // String urlString = "http://www.pentagonstrike.co.uk/pentagon_ge.swf";
         // // URL url = new URL("http://www.sennheiser.com/flash/hotspots/EN/HD-800.swf");
         // // String urlString = "http://www2.razerzone.com/Megalodon/main.swf";
         // // String urlString = "http://www.vivalagames.com/play/antbuster/game.swf";
         // String urlString = "http://media.tigerdirect.com/swf/HP EliteBook Flash Presentation.swf";
         //
-        // MIOContentAnalyzer mioca = new MIOContentAnalyzer();
-        // // // File file = mioca.downloadBinaryFile(urlString, "F:/Temp/hotspots2.swf");
+         SWFContentAnalyzer mioca = new SWFContentAnalyzer();
+//         System.exit(1);
+        File file = Crawler.downloadBinaryFile(urlString, "F:/Temp/audiosystem4.swf");
         // File file = Crawler.downloadBinaryFile("http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/index.swf",
         // "F:/Temp/index.swf");
         //
         // double size = (double)file.length();
         // System.out.println("FileFileSize: " +size);
         //
-        // System.out.println(mioca.extractHeader(file).getSize());
+         System.out.println(mioca.extractHeader(file).getSize());
 
         //
-        // String textContent = mioca.extractTextContent(file);
-        // System.out.println(textContent);
+         String textContent = mioca.extractTextContent(file);
+         System.out.println(textContent);
         // System.out.println(textContent.length());
         //
         // System.out.println(mioca.extractHeader(file).toString());

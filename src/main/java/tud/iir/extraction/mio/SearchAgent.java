@@ -51,7 +51,7 @@ public class SearchAgent {
         final List<String> resultList = new ArrayList<String>();
 
         for (String searchQuery : searchQueries) {
-//            System.out.println(searchQuery);
+            System.out.println(searchQuery);
             final List<String> resultURLList = sRetriever.getURLs(searchQuery, false);
 
             resultList.addAll(resultURLList);

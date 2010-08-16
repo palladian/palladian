@@ -46,7 +46,7 @@ public class MIO {
     private double fileSize = 0;
 
     /** The text content length. */
-    private double textContentLength = 0;
+//    private double textContentLength = 0;
 
     /** The entity. */
     private Entity entity;
@@ -402,18 +402,18 @@ public class MIO {
      * 
      * @return the text content length
      */
-    public double getTextContentLength() {
-        return textContentLength;
-    }
+//    public double getTextContentLength() {
+//        return textContentLength;
+//    }
 
     /**
      * Sets the text content length.
      * 
      * @param textContentLength the new text content length
      */
-    public void setTextContentLength(final double textContentLength) {
-        this.textContentLength = textContentLength;
-    }
+//    public void setTextContentLength(final double textContentLength) {
+//        this.textContentLength = textContentLength;
+//    }
 
     /**
      * Sets the features.

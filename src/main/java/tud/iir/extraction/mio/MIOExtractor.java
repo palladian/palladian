@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
 import tud.iir.extraction.Extractor;
+import tud.iir.helper.DateHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -29,13 +30,13 @@ public final class MIOExtractor extends Extractor {
     private static MIOExtractor instance = null;
 
     /** The Constant MAX_EXTRACTION_THREADS. */
-    private static final int MAX_EXTRACTION_THREADS = 2;
+    private static final int MAX_EXTRACTION_THREADS = 4;
 
     /**
      * Instantiates a new MIOExtractor.
      */
     private MIOExtractor() {
-        super();
+//        super();
         addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
         addSuffixesToBlackList(Extractor.URL_TEXTUAL_BLACKLIST);
     }
@@ -66,10 +67,11 @@ public final class MIOExtractor extends Extractor {
      */
     public void startExtraction(final boolean continueFromLastExtraction) {
 
-        
         LOGGER.info("start MIO extraction");
         
-//        System.exit(1);
+        final long timeStamp1 = System.currentTimeMillis();
+
+        // System.exit(1);
 
         // reset stopped command
         setStopped(false);
@@ -86,49 +88,49 @@ public final class MIOExtractor extends Extractor {
         // final ArrayList<Concept> concepts = DatabaseManager.getInstance().loadConcepts();
 
         // loadInCoFiConfiguration and prepare as Singleton
-        final InCoFiConfiguration configuration = loadConfiguration();        
-        InCoFiConfiguration.instance=configuration;
-        
-//        System.out.println(InCoFiConfiguration.getInstance().getStrongInteractionIndicators().toString());
-//        System.out.println(InCoFiConfiguration.getInstance().getWeakInteractionIndicators().toString());
-//        System.exit(1);
-        
+        final InCoFiConfiguration configuration = loadConfiguration();
+        InCoFiConfiguration.instance = configuration;
+
+//         System.out.println(InCoFiConfiguration.getInstance().getVocByConceptName("car").toString());
+//         System.out.println(InCoFiConfiguration.getInstance().getWeakInteractionIndicators().toString());
+//         System.exit(1);
+
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
-
-            if (currentConcept.getName().contains("Mobile")) {
+            
+            if (currentConcept.getName().toLowerCase().contains("car")) {
                 // load Entities from DB for current concept
                 currentConcept.loadEntities(false);
-            }
+                // }
 
-            if (isStopped()) {
-                LOGGER.info("mio extraction process stopped");
-                //Clean the SWF-File-DownloadDirectory
-               
-//                FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
-                break;
-            }
+                if (isStopped()) {
+                    LOGGER.info("mio extraction process stopped");
+                    // Clean the SWF-File-DownloadDirectory
 
-            // iterate through all entities of current concept
-            ArrayList<Entity> conceptEntities;
-            if (continueFromLastExtraction) {
-                conceptEntities = currentConcept.getEntitiesByDate();
-            } else {
-                conceptEntities = currentConcept.getEntities();
-            }
+                    // FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
+                    break;
+                }
 
-            // wait for a certain time when no entities were found, then
-            // restart
-            if (conceptEntities.isEmpty()) {
-                LOGGER.info("no entities for mio extraction, continue with next concept");
-                continue;
-            }
+                // iterate through all entities of current concept
+                ArrayList<Entity> conceptEntities;
+                if (continueFromLastExtraction) {
+                    conceptEntities = currentConcept.getEntitiesByDate();
+                } else {
+                    conceptEntities = currentConcept.getEntities();
+                }
 
-            final ThreadGroup extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
+                // wait for a certain time when no entities were found, then
+                // restart
+                if (conceptEntities.isEmpty()) {
+                    LOGGER.info("no entities for mio extraction, continue with next concept");
+                    continue;
+                }
 
-            for (Entity currentEntity : conceptEntities) {
+                final ThreadGroup extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
 
-                if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("wave")) {
+                for (Entity currentEntity : conceptEntities) {
+
+                    // if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("wave")) {
                     if (isStopped()) {
                         LOGGER.info("mio extraction process stopped");
                         break;
@@ -139,10 +141,9 @@ public final class MIOExtractor extends Extractor {
                     LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
                             + currentEntity.getConcept().getName() + ")");
                     final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
-                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity,
-                            getKnowledgeManager());
+                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, getKnowledgeManager());
                     mioThread.start();
-
+                    
                     LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
                     // System.out.println("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
 
@@ -172,6 +173,7 @@ public final class MIOExtractor extends Extractor {
             }
 
         }
+        System.out.println("ExtractionTime: " +DateHelper.getRuntime(timeStamp1));
 
     }
 
@@ -194,18 +196,18 @@ public final class MIOExtractor extends Extractor {
      * @return the concept search vocabulary
      */
     private InCoFiConfiguration loadConfiguration() {
-        InCoFiConfiguration returnValue=null;
+        InCoFiConfiguration returnValue = null;
         try {
-            final InCoFiConfiguration config = Yaml.loadType(new File(
-                    "data/knowledgeBase/inCoFiConfigurations.yml"), InCoFiConfiguration.class);
+            final InCoFiConfiguration config = Yaml.loadType(new File("data/knowledgeBase/inCoFiConfigurations.yml"),
+                    InCoFiConfiguration.class);
 
-            returnValue= config;
+            returnValue = config;
         } catch (FileNotFoundException e) {
 
             LOGGER.error(e.getMessage());
         }
         return returnValue;
-       
+
     }
 
     /**
@@ -228,7 +230,6 @@ public final class MIOExtractor extends Extractor {
 
         // long t1 = System.currentTimeMillis();
         final MIOExtractor mioEx = MIOExtractor.getInstance();
-
 
         mioEx.startExtraction(false);
         // mioEx.stopExtraction(true);

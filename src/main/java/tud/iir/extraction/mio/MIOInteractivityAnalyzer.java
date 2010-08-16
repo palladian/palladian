@@ -22,22 +22,22 @@ public class MIOInteractivityAnalyzer {
     /**
      * Sets the interactivity grade.
      * If textual content exists, mostly the MIO is strong.
-     * If the fileSize is bigger than 1048576 Byte (=1MB), mostly the MIO is a video and thats why weak.
+     * If the fileSize is bigger than 2097152 Byte (=2MB), mostly the MIO is a video and thats why weak.
      * 
      * @param mio the mio
      * @param mioPage the mioPage
      */
     public void setInteractivityGrade(final MIO mio, final MIOPage mioPage) {
 
-        if (mio.getTextContentLength() > 2) {
-            mio.setInteractivityGrade("strong");
-        } else {
-            if (mio.getFileSize() > 1048576) {
+//        if (mio.getTextContentLength() > 2) {
+//            mio.setInteractivityGrade("strong");
+//        } else {
+            if (mio.getFileSize() > 2097152) {
                 mio.setInteractivityGrade("weak");
             } else {
                 mio.setInteractivityGrade(calcInteractivityGrade(mio, mioPage));
             }
-        }
+//        }
 
     }
 
@@ -53,7 +53,7 @@ public class MIOInteractivityAnalyzer {
 
         final double fileNameiGrade = calcSingleValue(mio.getFileName());
         final double pageTitleiGrade = calcSingleValue(mioPage.getTitle());
-        double headlineiGrade = (double) 0;
+        double headlineiGrade = 0.;
         if (mio.getInfos().containsKey("previousHeadlines")) {
             final String headline = (String) mio.getInfos().get("previousHeadlines").get(0);
             if (headline.length() > 1) {

@@ -203,14 +203,14 @@ public class SearchWordMatcher {
      */
 //    public static void main(String[] args) {
 
-        // SearchWordMatcher matcher = new SearchWordMatcher("canon");
-        // // matcher.matchSearchWords("http://pic.gsmarena.com/vv/spin/samsung-wave-s-8500-final.swf");
-        // System.out.println(matcher.getNumberOfSearchWordMatches(" http://www.jr.com/canon/pe/CAN_MP980/"));
-        // if (matcher.containsSearchWordOrMorphs("http://www.jr.com/canon/pe/CAN_MP980/")) {
-        // System.out.println("is relevant link!");
-        // } else {
-        // System.out.println("is no relevant link!");
-        // }
+//         SearchWordMatcher matcher = new SearchWordMatcher("Audi A4");
+//         // matcher.matchSearchWords("http://pic.gsmarena.com/vv/spin/samsung-wave-s-8500-final.swf");
+////         System.out.println(matcher.getNumberOfSearchWordMatches(" http://www.jr.com/canon/pe/CAN_MP980/"));
+//         if (matcher.containsSearchWordOrMorphs("http://www.audi-a4.com/canon/pe/CAN_MP980/")) {
+//         System.out.println("is relevant link!");
+//         } else {
+//         System.out.println("is no relevant link!");
+//         }
 
         // System.out.println("result: "
         // + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php"));
