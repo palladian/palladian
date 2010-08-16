@@ -193,17 +193,17 @@ public class EntityMIOExtractionThread extends Thread {
      * @param trustLimit the trustLimit
      * @return the set of MIOs which fulfill the trustLimit
      */
-    private Set<MIO> removeLowTrustedMIOs(final Set<MIO> sortedMIOs, final double trustLimit) {
-        final MIOComparator mioComp = new MIOComparator();
-        final Set<MIO> resultSet = new TreeSet<MIO>(mioComp);
-        for (MIO mio : sortedMIOs) {
-            if (mio.getTrust() >= trustLimit) {
-                resultSet.add(mio);
-            }
-        }
-        return resultSet;
-
-    }
+//    private Set<MIO> removeLowTrustedMIOs(final Set<MIO> sortedMIOs, final double trustLimit) {
+//        final MIOComparator mioComp = new MIOComparator();
+//        final Set<MIO> resultSet = new TreeSet<MIO>(mioComp);
+//        for (MIO mio : sortedMIOs) {
+//            if (mio.getTrust() >= trustLimit) {
+//                resultSet.add(mio);
+//            }
+//        }
+//        return resultSet;
+//
+//    }
 
     /**
      * Prints the set to HTML-File.

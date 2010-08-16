@@ -16,7 +16,7 @@ import tud.iir.knowledge.Entity;
  * The Class UniversalMIOExtractor is a context-based MIO-Extractor.
  * 
  */
-public class UniversalMIOExtractor extends GeneralAnalyzer {
+public class UniversalMIOExtractor {
 
     /**
      * Extract all MIOs.

@@ -8,7 +8,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;

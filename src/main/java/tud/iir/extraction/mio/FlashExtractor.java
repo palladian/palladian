@@ -262,7 +262,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
             String result = matcher2.group();
             String pattern = "value=\"[^>]*\"";
             // System.out.println("---------" + result);
-            result = GeneralAnalyzer.extractElement(pattern, result, "value=");
+            result = HTMLHelper.extractTagElement(pattern, result, "value=");
             if (result.length() > 0) {
                 flashVars.add(result);
             }
@@ -276,7 +276,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
         while (matcher3.find()) {
             String result = matcher3.group(0);
             String pattern = "flashvars=\"[^\"]*\"";
-            result = GeneralAnalyzer.extractElement(pattern, result, "flashvars=");
+            result = HTMLHelper.extractTagElement(pattern, result, "flashvars=");
             if (result.length() > 0) {
                 flashVars.add(result);
             }

@@ -1730,6 +1730,36 @@ public class Crawler {
 
         return responseCode;
     }
+    
+
+    /**
+     * Check URL for validness and eventually modify e.g. relative path
+     * 
+     * @param urlCandidate the URLCandidate
+     * @param pageURL the pageURL
+     * @return the verified URL
+     */
+    public static String verifyURL(final String urlCandidate, final String pageURL) {
+
+        String returnValue = "";
+
+        final String modUrlCandidate = urlCandidate.trim();
+        if (modUrlCandidate.startsWith("http://")) {
+            if (Crawler.isValidURL(modUrlCandidate, false)) {
+                returnValue = modUrlCandidate;
+            }
+        } else {
+
+            if (modUrlCandidate.length() > 2) {
+                final String modifiedURL = Crawler.makeFullURL(pageURL, modUrlCandidate);
+                if (Crawler.isValidURL(modifiedURL, false)) {
+                    returnValue = modifiedURL;
+                }
+            }
+
+        }
+        return returnValue;
+    }
 
     /**
      * Use to disable compression.

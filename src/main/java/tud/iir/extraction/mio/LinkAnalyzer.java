@@ -11,6 +11,7 @@ import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 
+import tud.iir.helper.HTMLHelper;
 import tud.iir.web.Crawler;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
 
@@ -20,7 +21,7 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
  * 
  * @author Martin Werner
  */
-public class LinkAnalyzer extends GeneralAnalyzer {
+public class LinkAnalyzer{
 
     /** The SearchWordMatcher. */
     private final transient SearchWordMatcher swMatcher;
@@ -168,12 +169,12 @@ public class LinkAnalyzer extends GeneralAnalyzer {
      * @return the link url
      */
     private String getLinkURL(final String linkTag, final String pageURL) {
-        String extractedLink = extractElement("href=\"[^>#\"]*\"", linkTag, "href=");
+        String extractedLink = HTMLHelper.extractTagElement("href=\"[^>#\"]*\"", linkTag, "href=");
         if (extractedLink.length() <= 3) {
-            extractedLink = extractElement("=\\\"?'?http[^>#\\\"']*\\\"?'?", linkTag, "=");
+            extractedLink = HTMLHelper.extractTagElement("=\\\"?'?http[^>#\\\"']*\\\"?'?", linkTag, "=");
             // System.out.println(extractedLink);
         }
-        return verifyURL(extractedLink, pageURL);
+        return Crawler.verifyURL(extractedLink, pageURL);
 
     }
 
@@ -184,7 +185,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
      * @return the link name
      */
     private String getLinkName(final String linkTag) {
-        String result = extractElement(">[^<]*<", linkTag, "");
+        String result = HTMLHelper.extractTagElement(">[^<]*<", linkTag, "");
         result = result.replaceAll("[<>]", "");
         return result;
     }
@@ -196,7 +197,7 @@ public class LinkAnalyzer extends GeneralAnalyzer {
      * @return the link title
      */
     private String getLinkTitle(final String linkTag) {
-        return extractElement("title=\"[^>\"]*\"", linkTag, "title=");
+        return HTMLHelper.extractTagElement("title=\"[^>\"]*\"", linkTag, "title=");
     }
 
     /**
