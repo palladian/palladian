@@ -156,12 +156,21 @@ public class ControlledTagger implements Serializable {
 
     }
 
-    // TODO testing, can be removed afterwards
+    /**
+     * Allows training, only with text. This can be used to build up an initial IDF index.
+     * 
+     * @param text
+     */
     public void train(String text) {
         train(text, new HashBag<String>());
     }
 
-    // TODO testing, can be removed afterwards
+    /**
+     * Allows training, only with tags. Each Bag of tags is considered as one training instance, e.g. one document. This
+     * builds up the tag vocabulary and the tag correlations.
+     * 
+     * @param tags
+     */
     public void train(Bag<String> tags) {
         train("", tags);
     }
@@ -173,7 +182,7 @@ public class ControlledTagger implements Serializable {
      * @param tags
      */
     private void addToWcm(Set<String> tags) {
-        String[] tagArray = tags.toArray(new String[0]);
+        String[] tagArray = tags.toArray(new String[tags.size()]);
 
         for (int i = 0; i < tagArray.length; i++) {
             for (int j = i + 1; j < tagArray.length; j++) {
