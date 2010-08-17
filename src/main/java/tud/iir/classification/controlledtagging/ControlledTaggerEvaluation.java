@@ -19,7 +19,9 @@ import tud.iir.helper.StopWatch;
 import tud.iir.news.Helper;
 
 /**
- * Evaluator for the {@link ControlledTagger} using delicious data set.
+ * Evaluator for the {@link ControlledTagger} using the delicious data set T140.
+ * 
+ * Important: VM args -Xmx1024M
  * 
  * @author Philipp Katz
  */
@@ -35,8 +37,9 @@ public class ControlledTaggerEvaluation {
     private int testLimit = 1000;
 
     public ControlledTaggerEvaluation() {
-        
-        tagger = ControlledTagger.load("data/controlledTagger20000_David_idf.ser");
+
+        // ControlledTagger tagger = new ControlledTagger();
+        tagger.load("data/controlledTagger20000_T140.ser");
 
         // ////////////// tagging with threshold
         // tagger.setTaggingType(TaggingType.THRESHOLD);
@@ -52,28 +55,23 @@ public class ControlledTaggerEvaluation {
         tagger.setCorrelationWeight(25);
         tagger.setFastMode(true);
 
-        
         // tagger.stopwords = new Stopwords(Stopwords.STOP_WORDS_EN);
-        tagger.setStopwords(Collections.<String>emptySet());
-        
+        tagger.setStopwords(Collections.<String> emptySet());
+
         DatasetFilter filter = new DatasetFilter();
         filter.addAllowedFiletype("html");
         filter.setMinUsers(50);
         reader.setFilter(filter);
-        
-        
-        
-        
-        
-        
-        
+
+        // System.out.println(tagger);
+        // System.exit(0);
+
         // tagger.writeDataToReport();
         // correlationWeight(25) average pr:0,31 rc:0,16 f1:0,21
         // correlationWeight(40) average pr:0,33 rc:0,17 f1:0,22
         // correlationWeight(100) average pr:0,40 rc:0,20 f1:0,27
         // correlationWeight(200) average pr:0,44 rc:0,22 f1:0,29
         // correlationWeight(500) average pr:0,45 rc:0,23 f1:0,30
-
 
         // tagger.setCorrelationWeight(4000);
     }

@@ -367,6 +367,22 @@ CREATE TABLE `feeds_probabilistic` (
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE `feed_entries_tags` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+CREATE TABLE `feed_entry_tag` (
+  `entryId` int(10) unsigned NOT NULL,
+  `tagId` int(10) unsigned NOT NULL,
+  `weight` float unsigned NOT NULL,
+  PRIMARY KEY (`entryId`,`tagId`),
+  KEY `tagId_index` (`tagId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+
 /*Table structure for table `ontology_listeners` */
 
 DROP TABLE IF EXISTS `ontology_listeners`;

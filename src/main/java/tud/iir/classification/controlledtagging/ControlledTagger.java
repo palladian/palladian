@@ -1,7 +1,6 @@
 package tud.iir.classification.controlledtagging;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -21,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
-import tud.iir.classification.FastWordCorrelationMatrix;
 import tud.iir.classification.Stopwords;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.classification.WordCorrelationMatrix;
@@ -38,9 +36,7 @@ import tud.iir.helper.Tokenizer;
  * @author Philipp Katz
  * 
  */
-public class ControlledTagger implements Serializable {
-
-    private static final long serialVersionUID = -6610563240124430257L;
+public class ControlledTagger {
 
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(ControlledTagger.class);
@@ -51,6 +47,8 @@ public class ControlledTagger implements Serializable {
         THRESHOLD, FIXED_COUNT
     }
 
+    // attn: If TaggingCorrelationType is set to NO_CORRELATIONS, no correlation matrix is built, so it's not possible
+    // to switch afterwards.
     public enum TaggingCorrelationType {
         NO_CORRELATIONS, SHALLOW_CORRELATIONS, DEEP_CORRELATIONS
     }
@@ -66,39 +64,9 @@ public class ControlledTagger implements Serializable {
     private static final float DEFAULT_PRIOR_WEIGHT = 1.0f;
 
     // //////// index collections ///////////
-    // TODO factor out the index into its own class, should simplify handling of serialized models.
 
-    /** Index over all documents with tags, to calculate IDF. Counts how many documents contain a specific tag. */
-    private Bag<String> idfIndex = new HashBag<String>();
-
-    /** The controlled vocabulary with all available tags. */
-    private Bag<String> tagVocabulary = new HashBag<String>();
-
-    /** The controlled vocabulary with all available tags, in stemmed form. */
-    private Bag<String> stemmedTagVocabulary = new HashBag<String>();
-
-    /** Map with stemmed tags and their most common, unstemmed form. For example: softwar > software */
-    private Map<String, String> unstemMap = new HashMap<String, String>();
-
-    /** Number of documents in the idf index. */
-    private int idfCount = 0;
-
-    /** Number of documents with which the tagger was trained. */
-    private int trainCount = 0;
-
-    /** Average occurence a tag in the controlled vocabulary has been assigned. */
-    private float averageTagOccurence = 0;
-
-    /**
-     * The WordCorrelationMatrix keeps correlations between pairs of tags from the vocabulary to improve tagging
-     * accuracy.
-     */
-    // private WordCorrelationMatrix wcm = new WordCorrelationMatrix();
-    private WordCorrelationMatrix wcm = new FastWordCorrelationMatrix();
-
-    /** Flag to indicate that index has changed and data, like stems and correlations have to be re-calculated. */
-    private boolean dirtyIndex = false;
-
+    private ControlledTaggerIndex index = new ControlledTaggerIndex();
+    
     // //////// customizable settings ///////////
     // see their corresponding setters for documentation.
 
@@ -142,8 +110,8 @@ public class ControlledTagger implements Serializable {
 
         Bag<String> stemmedTags = stem(tags);
 
-        tagVocabulary.addAll(tags); // XXX this should be the unique set?
-        stemmedTagVocabulary.addAll(stemmedTags); // XXX dto.
+        index.getTagVocabulary().addAll(tags); // XXX this should be the unique set?
+        index.getStemmedTagVocabulary().addAll(stemmedTags); // XXX dto.
 
         addToIdf(text);
 
@@ -151,8 +119,8 @@ public class ControlledTagger implements Serializable {
             addToWcm(stemmedTags.uniqueSet());
         }
 
-        trainCount++;
-        dirtyIndex = true;
+        index.setTrainCount(index.getTrainCount() + 1);
+        index.setDirtyIndex(true);
 
     }
 
@@ -186,7 +154,7 @@ public class ControlledTagger implements Serializable {
 
         for (int i = 0; i < tagArray.length; i++) {
             for (int j = i + 1; j < tagArray.length; j++) {
-                wcm.updatePair(tagArray[i], tagArray[j]);
+                index.getWcm().updatePair(tagArray[i], tagArray[j]);
             }
         }
     }
@@ -196,30 +164,30 @@ public class ControlledTagger implements Serializable {
      */
     private void updateIndex() {
 
-        if (dirtyIndex) {
+        if (index.isDirtyIndex()) {
 
             LOGGER.info("updating index ...");
-            LOGGER.info("# of train documents " + trainCount);
-            LOGGER.info("# of documents in idf " + idfCount);
+            LOGGER.info("# of train documents " + index.getTrainCount());
+            LOGGER.info("# of documents in idf " + index.getIdfCount());
 
             createUnstemMap();
             calculateAverageTagOccurence();
 
             StopWatch sw = new StopWatch();
-            wcm.makeRelativeScores();
+            index.getWcm().makeRelativeScores();
             LOGGER.info("created relative scores for wcm in " + sw.getElapsedTimeString());
-            LOGGER.info("# of correlations in wcm " + wcm.getCorrelations().size());
+            LOGGER.info("# of correlations in wcm " + index.getWcm().getCorrelations().size());
             LOGGER.info("... finished updating index");
 
-            dirtyIndex = false;
+            index.setDirtyIndex(false);
 
         }
     }
 
     private boolean addToIdf(String text) {
         Bag<String> tokens = extractTags(text);
-        idfCount++;
-        return idfIndex.addAll(tokens.uniqueSet());
+        index.setIdfCount(index.getIdfCount() + 1);
+        return index.getIdfIndex().addAll(tokens.uniqueSet());
     }
 
     /**
@@ -229,29 +197,29 @@ public class ControlledTagger implements Serializable {
      * @return
      */
     private float getInvDocFreq(String tag) {
-        int tagCount = idfIndex.getCount(tag);
+        int tagCount = index.getIdfIndex().getCount(tag);
         assert tagCount > 0 : tag + " is not in index, index must be built in advance.";
-        float result = (float) Math.log10((float) idfCount / (tagCount + 1));
+        float result = (float) Math.log10((float) index.getIdfCount() / (tagCount + 1));
         return result;
     }
 
     @Deprecated
     public void addToVocabulary(String tag) {
-        tagVocabulary.add(tag);
+        index.getTagVocabulary().add(tag);
         // calculateAverageTagOccurence();
-        dirtyIndex = true;
+        index.setDirtyIndex(true);
     }
 
     @Deprecated
     public int addToVocabulary(Collection<String> tags) {
         int addCount = 0;
         for (String tag : tags) {
-            if (tagVocabulary.add(tag)) {
+            if (index.getTagVocabulary().add(tag)) {
                 addCount++;
             }
         }
         // calculateAverageTagOccurence();
-        dirtyIndex = true;
+        index.setDirtyIndex(true);
         LOGGER.debug("added " + addCount + " tags to vocabulary.");
         return addCount;
     }
@@ -281,14 +249,14 @@ public class ControlledTagger implements Serializable {
                 String[] split = line.split("#");
                 String tagName = split[0];
                 int tagCount = Integer.valueOf(split[1]);
-                if (tagVocabulary.add(tagName, tagCount)) {
+                if (index.getTagVocabulary().add(tagName, tagCount)) {
                     addCount[0]++;
                 }
             }
         });
         // calculateAverageTagOccurence();
-        dirtyIndex = true;
-        LOGGER.debug("added " + addCount[0] + " tags to vocabulary. avg. tag occurence: " + averageTagOccurence);
+        index.setDirtyIndex(true);
+        LOGGER.debug("added " + addCount[0] + " tags to vocabulary. avg. tag occurence: " + index.getAverageTagOccurence());
         return addCount[0];
     }
 
@@ -299,12 +267,12 @@ public class ControlledTagger implements Serializable {
     private void calculateAverageTagOccurence() {
         float result = 0;
         // TODO cant we write result = stemmedTagVocabulary.size() / stemmedTagVocabulary.uniqueSet().size(); ?
-        for (String tag : stemmedTagVocabulary.uniqueSet()) {
-            result += stemmedTagVocabulary.getCount(tag);
+        for (String tag : index.getStemmedTagVocabulary().uniqueSet()) {
+            result += index.getStemmedTagVocabulary().getCount(tag);
         }
-        result /= stemmedTagVocabulary.uniqueSet().size();
+        result /= index.getStemmedTagVocabulary().uniqueSet().size();
         LOGGER.info("average tag occurence " + result);
-        averageTagOccurence = result;
+        index.setAverageTagOccurence(result);
     }
 
     /**
@@ -315,7 +283,7 @@ public class ControlledTagger implements Serializable {
      */
     private boolean isAcceptedTag(String tag) {
 
-        boolean inVocabulary = stemmedTagVocabulary.contains(tag);
+        boolean inVocabulary = index.getStemmedTagVocabulary().contains(tag);
         inVocabulary = inVocabulary && !stopwords.contains(tag);
 
         return inVocabulary;
@@ -415,7 +383,7 @@ public class ControlledTagger implements Serializable {
             // of correctly assigning a tag which is "popular" is higher.
             // if (usePriors) {
             if (priorWeight != -1) {
-                float priorBoost = (float) Math.log10(1.0 + stemmedTagVocabulary.getCount(tag) / averageTagOccurence);
+                float priorBoost = (float) Math.log10(1.0 + index.getStemmedTagVocabulary().getCount(tag) / index.getAverageTagOccurence());
                 assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
                 termFreqInvDocFreq *= priorWeight * priorBoost;
             }
@@ -434,7 +402,7 @@ public class ControlledTagger implements Serializable {
 
         // when using tag correlations, do the re-ranking
 
-        if (correlationType != TaggingCorrelationType.NO_CORRELATIONS && wcm != null && !assignedTags.isEmpty()) {
+        if (correlationType != TaggingCorrelationType.NO_CORRELATIONS && index.getWcm() != null && !assignedTags.isEmpty()) {
 
             // TODO experimental optimization -- we have a huge list with Tags and their weights which have to be
             // checked for correlations, which is expensive. Assumption: We can shrink this list of tags before
@@ -523,7 +491,7 @@ public class ControlledTagger implements Serializable {
             while (tagIterator.hasNext()) {
                 Tag currentTag = tagIterator.next();
 
-                WordCorrelation correlation = wcm.getCorrelation(topTag.getName(), currentTag.getName());
+                WordCorrelation correlation = index.getWcm().getCorrelation(topTag.getName(), currentTag.getName());
                 if (correlation != null) {
                     // currentTag.weight += correlationWeight * correlation.getRelativeCorrelation();
                     currentTag.increaseWeight((float) (correlationWeight * correlation.getRelativeCorrelation()));
@@ -540,7 +508,7 @@ public class ControlledTagger implements Serializable {
                 Tag outerTag = tagsArray[i];
                 for (int j = i; j < tagsArray.length; j++) {
                     Tag innerTag = tagsArray[j];
-                    WordCorrelation correlation = wcm.getCorrelation(outerTag.getName(), innerTag.getName());
+                    WordCorrelation correlation = index.getWcm().getCorrelation(outerTag.getName(), innerTag.getName());
                     if (correlation != null) {
                         float reRanking = (float) ((correlationWeight / tagsArray.length) * correlation
                                 .getRelativeCorrelation());
@@ -660,7 +628,7 @@ public class ControlledTagger implements Serializable {
         Map<String, List<String>> stemUnstemMap = new HashMap<String, List<String>>();
 
         // iterate through the vocabulary, fill temporary map
-        for (String tag : tagVocabulary.uniqueSet()) {
+        for (String tag : index.getTagVocabulary().uniqueSet()) {
 
             String stemmedTag = stem(tag);
 
@@ -674,7 +642,7 @@ public class ControlledTagger implements Serializable {
         }
 
         // create a new unstemMap
-        unstemMap = new HashMap<String, String>();
+        index.setUnstemMap(new HashMap<String, String>());
 
         // iterate through the temporary map from above and pick unstemmedTag with highest count
         for (Entry<String, List<String>> entry : stemUnstemMap.entrySet()) {
@@ -684,7 +652,7 @@ public class ControlledTagger implements Serializable {
             String bestCandidate = null;
 
             for (String unstemmedTag : entry.getValue()) {
-                int count = tagVocabulary.getCount(unstemmedTag);
+                int count = index.getTagVocabulary().getCount(unstemmedTag);
                 if (count > bestCount) {
                     bestCandidate = unstemmedTag;
                     bestCount = count;
@@ -693,7 +661,7 @@ public class ControlledTagger implements Serializable {
 
             // we only need to keep those mappings where the stemmed form is different from the unstemmed
             if (!bestCandidate.equals(stemmedTag)) {
-                unstemMap.put(entry.getKey(), bestCandidate);
+                index.getUnstemMap().put(entry.getKey(), bestCandidate);
             }
         }
     }
@@ -716,7 +684,7 @@ public class ControlledTagger implements Serializable {
     }
 
     private String unstem(String stemmed) {
-        String unstem = unstemMap.get(stemmed);
+        String unstem = index.getUnstemMap().get(stemmed);
         if (unstem == null) {
             unstem = stemmed;
         }
@@ -751,7 +719,7 @@ public class ControlledTagger implements Serializable {
     }
 
     public void setWordCorrelationMatrix(WordCorrelationMatrix wcm) {
-        this.wcm = wcm;
+        this.index.setWcm(wcm);
     }
 
     public void setCorrelationWeight(float correlationWeight) {
@@ -822,7 +790,8 @@ public class ControlledTagger implements Serializable {
     public void save(String filePath) {
         updateIndex();
         StopWatch sw = new StopWatch();
-        FileHelper.serialize(this, filePath);
+        // FileHelper.serialize(this, filePath);
+        FileHelper.serialize(index, filePath);
         LOGGER.info("saved index to " + filePath + " in " + sw.getElapsedTimeString());
     }
 
@@ -832,7 +801,7 @@ public class ControlledTagger implements Serializable {
      * @param filePath
      * @return
      */
-    public static ControlledTagger load(String filePath) {
+    /*public static ControlledTagger load(String filePath) {
         StopWatch sw = new StopWatch();
         ControlledTagger tagger = (ControlledTagger) FileHelper.deserialize(filePath);
         if (tagger == null) {
@@ -842,6 +811,20 @@ public class ControlledTagger implements Serializable {
             LOGGER.info("loaded index from " + filePath + " in " + sw.getElapsedTimeString());
         }
         return tagger;
+    }*/
+    
+    /**
+     * Load safed tagger index {@link ControlledTaggerIndex} from disk.
+     */
+    public void load(String filePath) {
+        StopWatch sw = new StopWatch();
+        ControlledTaggerIndex index = (ControlledTaggerIndex) FileHelper.deserialize(filePath);
+        if (index == null) {
+            LOGGER.error("could not read from " + filePath + ", starting with new instance.");
+        } else {
+            LOGGER.info("loaded index from " + filePath + " in " + sw.getElapsedTimeString());
+            this.index = index;
+        }
     }
 
     /**
@@ -851,25 +834,29 @@ public class ControlledTagger implements Serializable {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+    /*private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
         in.defaultReadObject();
         setup();
-    }
+    }*/
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("ControlledTagger");
-        sb.append("\nsize idfIndex=").append(idfIndex.uniqueSet().size());
-        sb.append("\nsize tagVocabulary=").append(tagVocabulary.uniqueSet().size());
-        sb.append("\nsize stemmedTagVocabulary=").append(stemmedTagVocabulary.uniqueSet().size());
-        sb.append("\nsize unstemMap=").append(unstemMap.size());
-        sb.append("\nsize wcm=").append(wcm.getCorrelations().size());
-        sb.append("\nidfCount=").append(idfCount);
-        sb.append("\ntrainCount=").append(trainCount);
-        sb.append("\navergateTagOccurence=").append(averageTagOccurence);
-        sb.append("\ndirtyIndex=").append(dirtyIndex);
+//        sb.append("\nsize idfIndex=").append(index.getIdfIndex().uniqueSet().size());
+//        sb.append("\nsize tagVocabulary=").append(index.getTagVocabulary().uniqueSet().size());
+//        sb.append("\nsize stemmedTagVocabulary=").append(index.getStemmedTagVocabulary().uniqueSet().size());
+//        sb.append("\nsize unstemMap=").append(index.getUnstemMap().size());
+//        sb.append("\nsize wcm=").append(index.getWcm().getCorrelations().size());
+//        sb.append("\nidfCount=").append(index.getIdfCount());
+//        sb.append("\ntrainCount=").append(index.getTrainCount());
+//        sb.append("\navergateTagOccurence=").append(index.getAverageTagOccurence());
+//        sb.append("\ndirtyIndex=").append(index.isDirtyIndex());
+        
+        
+        sb.append("\n").append(index);
+        
         sb.append("\ntaggingType=").append(taggingType);
         sb.append("\ncorrelationType=").append(correlationType);
         sb.append("\ntfidfThreshold=").append(tfidfThreshold);
@@ -881,31 +868,34 @@ public class ControlledTagger implements Serializable {
         return sb.toString();
     }
 
-    public void writeDataToReport() {
+    /*public void writeDataToReport() {
 
         // write IDF index
         StringBuilder sb = new StringBuilder();
-        for (String tag : idfIndex.uniqueSet()) {
+        for (String tag : index.getIdfIndex().uniqueSet()) {
             sb.append(tag).append("#");
-            sb.append(idfIndex.getCount(tag));
+            sb.append(index.getIdfIndex().getCount(tag));
             sb.append("\n");
         }
         FileHelper.writeToFile("data/temp/idf_index.txt", sb);
 
         // write stemmed vocabulary
         sb = new StringBuilder();
-        for (String tag : stemmedTagVocabulary.uniqueSet()) {
+        for (String tag : index.getStemmedTagVocabulary().uniqueSet()) {
             sb.append(tag).append("#");
-            sb.append(stemmedTagVocabulary.getCount(tag));
+            sb.append(index.getStemmedTagVocabulary().getCount(tag));
             sb.append("\n");
         }
         FileHelper.writeToFile("data/temp/stemmed_vocabulary_index.txt", sb);
 
-    }
+    }*/
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
-        ControlledTagger tagger = ControlledTagger.load("data/controlledTagger20000_David_idf.ser");
+        // ControlledTagger tagger = ControlledTagger.load("data/controlledTagger20000_David_idf.ser");
+        
+        ControlledTagger tagger = new ControlledTagger();
+        
         System.out.println(tagger);
 
         // ControlledTagger tagger = new ControlledTagger();
