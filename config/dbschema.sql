@@ -376,7 +376,7 @@ CREATE TABLE `feed_entries_tags` (
 
 CREATE TABLE `feed_entry_tag` (
   `entryId` int(10) unsigned NOT NULL,
-  `tagId` int(10) unsigned NOT NULL,
+  `tagId` int(10) NOT NULL,
   `weight` float unsigned NOT NULL,
   PRIMARY KEY (`entryId`,`tagId`),
   KEY `tagId_index` (`tagId`)
