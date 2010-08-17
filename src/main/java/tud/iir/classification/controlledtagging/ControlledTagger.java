@@ -66,7 +66,7 @@ public class ControlledTagger {
     // //////// index collections ///////////
 
     private ControlledTaggerIndex index = new ControlledTaggerIndex();
-    
+
     // //////// customizable settings ///////////
     // see their corresponding setters for documentation.
 
@@ -82,7 +82,7 @@ public class ControlledTagger {
 
     private float priorWeight = DEFAULT_PRIOR_WEIGHT;
 
-    private boolean fastMode = true;
+    // private boolean fastMode = true;
 
     // //////// misc. ///////////
 
@@ -256,7 +256,8 @@ public class ControlledTagger {
         });
         // calculateAverageTagOccurence();
         index.setDirtyIndex(true);
-        LOGGER.debug("added " + addCount[0] + " tags to vocabulary. avg. tag occurence: " + index.getAverageTagOccurence());
+        LOGGER.debug("added " + addCount[0] + " tags to vocabulary. avg. tag occurence: "
+                + index.getAverageTagOccurence());
         return addCount[0];
     }
 
@@ -383,7 +384,8 @@ public class ControlledTagger {
             // of correctly assigning a tag which is "popular" is higher.
             // if (usePriors) {
             if (priorWeight != -1) {
-                float priorBoost = (float) Math.log10(1.0 + index.getStemmedTagVocabulary().getCount(tag) / index.getAverageTagOccurence());
+                float priorBoost = (float) Math.log10(1.0 + index.getStemmedTagVocabulary().getCount(tag)
+                        / index.getAverageTagOccurence());
                 assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
                 termFreqInvDocFreq *= priorWeight * priorBoost;
             }
@@ -402,20 +404,24 @@ public class ControlledTagger {
 
         // when using tag correlations, do the re-ranking
 
-        if (correlationType != TaggingCorrelationType.NO_CORRELATIONS && index.getWcm() != null && !assignedTags.isEmpty()) {
+        if (correlationType != TaggingCorrelationType.NO_CORRELATIONS && index.getWcm() != null
+                && !assignedTags.isEmpty()) {
 
             // TODO experimental optimization -- we have a huge list with Tags and their weights which have to be
             // checked for correlations, which is expensive. Assumption: We can shrink this list of tags before
             // re-ranking without actually losing any accuracy. This needs to be evaluated thoroughly.
-            if (fastMode) {
-                if (taggingType == TaggingType.THRESHOLD) {
-                    // in contrast to FIXED_COUNT mode, the limit has no big impact here :(
-                    // TODO trick: get position of threshold and then use count limit from below?
-                    limitToWeight(assignedTags, tfidfThreshold * 0.0001f);
-                } else if (taggingType == TaggingType.FIXED_COUNT) {
-                    limitToCount(assignedTags, tagCount * 10);
-                }
-            }
+            
+            // this is obsolete with FastWordCorrelationMatrix :)
+            
+            // if (fastMode) {
+            // if (taggingType == TaggingType.THRESHOLD) {
+            // // in contrast to FIXED_COUNT mode, the limit has no big impact here :(
+            // // TODO trick: get position of threshold and then use count limit from below?
+            // limitToWeight(assignedTags, tfidfThreshold * 0.0001f);
+            // } else if (taggingType == TaggingType.FIXED_COUNT) {
+            // limitToCount(assignedTags, tagCount * 10);
+            // }
+            // }
 
             correlationReRanking(assignedTags);
         }
@@ -500,18 +506,24 @@ public class ControlledTagger {
         }
 
         // do a "deep" re-ranking, considering correlations between each possible combination
-        // XXX (n-1) + ... + 1 = ( n * (n-1) ) / 2
         else if (correlationType == TaggingCorrelationType.DEEP_CORRELATIONS) {
             Tag[] tagsArray = assignedTags.toArray(new Tag[assignedTags.size()]);
-            // XXX int normalizer = (tagsArray.length * (tagsArray.length-1)) / 2;
+
+            // experimental:
+            // normalization factor; we have (n - 1) + (n - 2) + ... + 1 = n * (n - 1) / 2 re-rankings.
+            int numReRanking = tagsArray.length * (tagsArray.length - 1) / 2;
+
             for (int i = 0; i < tagsArray.length; i++) {
                 Tag outerTag = tagsArray[i];
                 for (int j = i; j < tagsArray.length; j++) {
                     Tag innerTag = tagsArray[j];
                     WordCorrelation correlation = index.getWcm().getCorrelation(outerTag.getName(), innerTag.getName());
                     if (correlation != null) {
-                        float reRanking = (float) ((correlationWeight / tagsArray.length) * correlation
+                        // float reRanking = (float) ((correlationWeight / tagsArray.length) *
+                        // correlation.getRelativeCorrelation());
+                        float reRanking = (float) ((correlationWeight / numReRanking) * correlation
                                 .getRelativeCorrelation());
+
                         assert !Double.isInfinite(reRanking) && !Double.isNaN(reRanking);
                         // innerTag.weight += reRanking;
                         // outerTag.weight += reRanking;
@@ -524,11 +536,19 @@ public class ControlledTagger {
 
         // re-sort the list, as rankings have changed.
         Collections.sort(assignedTags, new TagComparator());
+        
+        // TODO re-scale tags?
 
         LOGGER.trace("correlation reranking for " + assignedTags.size() + " in " + sw.getElapsedTimeString());
 
     }
 
+    /**
+     * Tag the supplied text.
+     * 
+     * @param text
+     * @return Array with assigned Tags, sorted by weight or empty List. Never <code>null</code>.
+     */
     public List<Tag> tag(String text) {
 
         addToIdf(text);
@@ -769,9 +789,9 @@ public class ControlledTagger {
      * 
      * @param fastMode
      */
-    public void setFastMode(boolean fastMode) {
-        this.fastMode = fastMode;
-    }
+    // public void setFastMode(boolean fastMode) {
+    // this.fastMode = fastMode;
+    // }
 
     /**
      * Set the Set of Stopwords to use, for example {@link Stopwords}.
@@ -801,18 +821,20 @@ public class ControlledTagger {
      * @param filePath
      * @return
      */
-    /*public static ControlledTagger load(String filePath) {
-        StopWatch sw = new StopWatch();
-        ControlledTagger tagger = (ControlledTagger) FileHelper.deserialize(filePath);
-        if (tagger == null) {
-            LOGGER.error("could not read from " + filePath + ", starting with new instance.");
-            tagger = new ControlledTagger();
-        } else {
-            LOGGER.info("loaded index from " + filePath + " in " + sw.getElapsedTimeString());
-        }
-        return tagger;
-    }*/
-    
+    /*
+     * public static ControlledTagger load(String filePath) {
+     * StopWatch sw = new StopWatch();
+     * ControlledTagger tagger = (ControlledTagger) FileHelper.deserialize(filePath);
+     * if (tagger == null) {
+     * LOGGER.error("could not read from " + filePath + ", starting with new instance.");
+     * tagger = new ControlledTagger();
+     * } else {
+     * LOGGER.info("loaded index from " + filePath + " in " + sw.getElapsedTimeString());
+     * }
+     * return tagger;
+     * }
+     */
+
     /**
      * Load safed tagger index {@link ControlledTaggerIndex} from disk.
      */
@@ -834,68 +856,68 @@ public class ControlledTagger {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    /*private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
-        in.defaultReadObject();
-        setup();
-    }*/
+    /*
+     * private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
+     * in.defaultReadObject();
+     * setup();
+     * }
+     */
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
 
         sb.append("ControlledTagger");
-//        sb.append("\nsize idfIndex=").append(index.getIdfIndex().uniqueSet().size());
-//        sb.append("\nsize tagVocabulary=").append(index.getTagVocabulary().uniqueSet().size());
-//        sb.append("\nsize stemmedTagVocabulary=").append(index.getStemmedTagVocabulary().uniqueSet().size());
-//        sb.append("\nsize unstemMap=").append(index.getUnstemMap().size());
-//        sb.append("\nsize wcm=").append(index.getWcm().getCorrelations().size());
-//        sb.append("\nidfCount=").append(index.getIdfCount());
-//        sb.append("\ntrainCount=").append(index.getTrainCount());
-//        sb.append("\navergateTagOccurence=").append(index.getAverageTagOccurence());
-//        sb.append("\ndirtyIndex=").append(index.isDirtyIndex());
-        
-        
+        // sb.append("\nsize idfIndex=").append(index.getIdfIndex().uniqueSet().size());
+        // sb.append("\nsize tagVocabulary=").append(index.getTagVocabulary().uniqueSet().size());
+        // sb.append("\nsize stemmedTagVocabulary=").append(index.getStemmedTagVocabulary().uniqueSet().size());
+        // sb.append("\nsize unstemMap=").append(index.getUnstemMap().size());
+        // sb.append("\nsize wcm=").append(index.getWcm().getCorrelations().size());
+        // sb.append("\nidfCount=").append(index.getIdfCount());
+        // sb.append("\ntrainCount=").append(index.getTrainCount());
+        // sb.append("\navergateTagOccurence=").append(index.getAverageTagOccurence());
+        // sb.append("\ndirtyIndex=").append(index.isDirtyIndex());
+
         sb.append("\n").append(index);
-        
+
         sb.append("\ntaggingType=").append(taggingType);
         sb.append("\ncorrelationType=").append(correlationType);
         sb.append("\ntfidfThreshold=").append(tfidfThreshold);
         sb.append("\ntagCount=").append(tagCount);
         sb.append("\ncorrelationWeight=").append(correlationWeight);
         sb.append("\npriorWeight=").append(priorWeight);
-        sb.append("\nfastMode=").append(fastMode);
+        // sb.append("\nfastMode=").append(fastMode);
 
         return sb.toString();
     }
 
-    /*public void writeDataToReport() {
-
-        // write IDF index
-        StringBuilder sb = new StringBuilder();
-        for (String tag : index.getIdfIndex().uniqueSet()) {
-            sb.append(tag).append("#");
-            sb.append(index.getIdfIndex().getCount(tag));
-            sb.append("\n");
-        }
-        FileHelper.writeToFile("data/temp/idf_index.txt", sb);
-
-        // write stemmed vocabulary
-        sb = new StringBuilder();
-        for (String tag : index.getStemmedTagVocabulary().uniqueSet()) {
-            sb.append(tag).append("#");
-            sb.append(index.getStemmedTagVocabulary().getCount(tag));
-            sb.append("\n");
-        }
-        FileHelper.writeToFile("data/temp/stemmed_vocabulary_index.txt", sb);
-
-    }*/
+    /*
+     * public void writeDataToReport() {
+     * // write IDF index
+     * StringBuilder sb = new StringBuilder();
+     * for (String tag : index.getIdfIndex().uniqueSet()) {
+     * sb.append(tag).append("#");
+     * sb.append(index.getIdfIndex().getCount(tag));
+     * sb.append("\n");
+     * }
+     * FileHelper.writeToFile("data/temp/idf_index.txt", sb);
+     * // write stemmed vocabulary
+     * sb = new StringBuilder();
+     * for (String tag : index.getStemmedTagVocabulary().uniqueSet()) {
+     * sb.append(tag).append("#");
+     * sb.append(index.getStemmedTagVocabulary().getCount(tag));
+     * sb.append("\n");
+     * }
+     * FileHelper.writeToFile("data/temp/stemmed_vocabulary_index.txt", sb);
+     * }
+     */
 
     public static void main(String[] args) throws Exception {
 
         // ControlledTagger tagger = ControlledTagger.load("data/controlledTagger20000_David_idf.ser");
-        
+
         ControlledTagger tagger = new ControlledTagger();
-        
+
         System.out.println(tagger);
 
         // ControlledTagger tagger = new ControlledTagger();

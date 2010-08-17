@@ -739,6 +739,15 @@ public class FeedDatabase implements FeedStore {
     public void assignTags(FeedEntry entry, List<Tag> tags) {
 
         try {
+            
+            // if we have no tags, we add a relation with -1 to indicate that no tags could be assigned.
+            // TODO experimental
+            if (tags.isEmpty()) {
+                psTagFeedEntry.setInt(1, entry.getId());
+                psTagFeedEntry.setInt(2, -1);
+                psTagFeedEntry.setFloat(3, 0);
+                psTagFeedEntry.executeUpdate();
+            }
 
             for (Tag tag : tags) {
 
@@ -803,8 +812,8 @@ public class FeedDatabase implements FeedStore {
     public static void main(String[] args) {
 
         // clear feed specfic tables
-        FeedDatabase.getInstance().clearFeedTables();
-        System.exit(0);
+        // FeedDatabase.getInstance().clearFeedTables();
+        // System.exit(0);
 
         FeedDatabase fd = FeedDatabase.getInstance();
         // List<FeedEntry> result = fd.getFeedEntries(100, -1);

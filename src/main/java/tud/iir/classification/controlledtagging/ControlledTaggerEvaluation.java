@@ -2,7 +2,6 @@ package tud.iir.classification.controlledtagging;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
-import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.collections15.Bag;
@@ -33,13 +32,14 @@ public class ControlledTaggerEvaluation {
     private int trainOffset = 0;
     private int trainLimit = 20000;
 
-    private int testOffset = 60000;
-    private int testLimit = 1000;
+    private int testOffset = 50000;
+    private int testLimit = 5000;
 
     public ControlledTaggerEvaluation() {
 
         // ControlledTagger tagger = new ControlledTagger();
-        tagger.load("data/controlledTagger20000_T140.ser");
+        // tagger.load("data/controlledTagger20000_T140.ser");
+        tagger.load("/Users/pk/Studium/Diplomarbeit/workspace/newsseecr/data/controlledTagger40000_David.ser");
 
         // ////////////// tagging with threshold
         // tagger.setTaggingType(TaggingType.THRESHOLD);
@@ -48,32 +48,21 @@ public class ControlledTaggerEvaluation {
         // ////////////// tagging with fixed tag count
         tagger.setTaggingType(TaggingType.FIXED_COUNT);
         tagger.setTagCount(10);
+        // tagger.setTagCount(100);
 
         // ///////////// general settings
         tagger.setPriorWeight(1.0f);
         tagger.setCorrelationType(TaggingCorrelationType.DEEP_CORRELATIONS);
-        tagger.setCorrelationWeight(25);
-        tagger.setFastMode(true);
-
-        // tagger.stopwords = new Stopwords(Stopwords.STOP_WORDS_EN);
-        tagger.setStopwords(Collections.<String> emptySet());
+        // tagger.setCorrelationWeight(40000);
+        // tagger.setCorrelationWeight(60000);
+        tagger.setCorrelationWeight(50000);
+        tagger.setStopwords(new Stopwords(Stopwords.STOP_WORDS_EN));
 
         DatasetFilter filter = new DatasetFilter();
         filter.addAllowedFiletype("html");
         filter.setMinUsers(50);
         reader.setFilter(filter);
 
-        // System.out.println(tagger);
-        // System.exit(0);
-
-        // tagger.writeDataToReport();
-        // correlationWeight(25) average pr:0,31 rc:0,16 f1:0,21
-        // correlationWeight(40) average pr:0,33 rc:0,17 f1:0,22
-        // correlationWeight(100) average pr:0,40 rc:0,20 f1:0,27
-        // correlationWeight(200) average pr:0,44 rc:0,22 f1:0,29
-        // correlationWeight(500) average pr:0,45 rc:0,23 f1:0,30
-
-        // tagger.setCorrelationWeight(4000);
     }
 
     private void train() {
@@ -111,8 +100,7 @@ public class ControlledTaggerEvaluation {
 
     private void evaluate() {
 
-        final int[] counter = new int[] { 0 };
-        final double[] stats = new double[] { 0, 0 };
+        final double[] stats = new double[4];
         final NumberFormat format = new DecimalFormat("0.00");
         StopWatch sw = new StopWatch();
 
@@ -150,8 +138,10 @@ public class ControlledTaggerEvaluation {
                 }
                 double recall = (double) correctlyAssigned / realCount;
 
-                stats[0] += precision;
-                stats[1] += recall;
+                stats[0]++;
+                stats[1] += precision;
+                stats[2] += recall;
+                stats[3] += totalAssigned;
 
                 System.out.println("doc: " + Helper.getFirstWords(content, 10));
                 System.out.println("real tags: " + realTagsNormalized);
@@ -161,20 +151,21 @@ public class ControlledTaggerEvaluation {
                 assert precision <= 1.0;
                 assert recall <= 1.0;
 
-                counter[0]++;
-
             }
         };
         reader.read(callback, testLimit, testOffset);
 
-        double averagePrecision = stats[0] / counter[0];
-        double averageRecall = stats[1] / counter[0];
+        double averagePrecision = stats[1] / stats[0];
+        double averageRecall = stats[2] / stats[0];
         double averageFOne = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
+        double averageTagCount = stats[3] / stats[0];
 
         System.out.println("---------------------------------------------------------------------");
-        System.out.println("average pr:" + format.format(averagePrecision) + " rc:" + format.format(averageRecall)
-                + " f1:" + format.format(averageFOne));
-        System.out.println(sw.getElapsedTimeString());
+        System.out.println("average pr: " + format.format(averagePrecision) + " rc: " + format.format(averageRecall)
+                + " f1: " + format.format(averageFOne));
+        System.out.println("average # assigned tags: " + format.format(averageTagCount));
+        System.out.println("tagged entries: " + stats[0]);
+        System.out.println("elapsed time for tagging: " + sw.getElapsedTimeString());
 
         // System.out.println(counter[0]);
 
