@@ -2,6 +2,8 @@ package tud.iir.news;
 
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Represents a news entry within a feed ({@link Feed}).
@@ -32,6 +34,10 @@ public class FeedEntry {
 
     // /** assigned tags from feed entry. */
     // private List<String> tags = new ArrayList<String>();
+    
+    /** arbitrary, numeric features, used for feature extraction and classification. */
+    // TODO change from Float to Number
+    private Map<String, Float> features = new HashMap<String, Float>();
 
     public int getId() {
         return id;
@@ -142,6 +148,22 @@ public class FeedEntry {
     // public void addTag(String tag) {
     // tags.add(tag);
     // }
+    
+    public Map<String, Float> getFeatures() {
+        return features;
+    }
+    
+    public void setFeatures(Map<String, Float> features) {
+        this.features = features;
+    }
+
+    public Float getFeature(String key) {
+        return features.get(key);
+    }
+
+    public Float putFeature(String key, Float value) {
+        return features.put(key, value);
+    }
 
     @Override
     public String toString() {

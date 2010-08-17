@@ -23,6 +23,8 @@ import tud.iir.persistence.DatabaseManager;
 /**
  * The FeedDatabase is an implementation of the FeedStore that stores feeds and entries in a relational database.
  * 
+ * TODO change schema to InnoDB?
+ * 
  * @author Philipp Katz
  * @author David Urbansky
  * @author klemens.muthmann@googlemail.com
@@ -106,7 +108,7 @@ public class FeedDatabase implements FeedStore {
         psGetFeedByUrl = connection
                 .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
         psGetFeedByID = connection
-                .prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
+                .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
         psGetEntryByRawId = connection
                 .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added FROM feed_entries WHERE rawID = ?");
         psGetEntryByRawId2 = connection
@@ -118,14 +120,14 @@ public class FeedDatabase implements FeedStore {
 
         // tagging specific
         psGetEntrysTags = connection
-                .prepareStatement("SELECT name, weight FROM tags, feed_entry_tag WHERE tags.id = feed_entry_tag.tagId AND feed_entry_tag.entryId = ?");
+                .prepareStatement("SELECT name, weight FROM feed_entries_tags, feed_entry_tag WHERE feed_entries_tags = feed_entry_tag.tagId AND feed_entry_tag.entryId = ?");
 
-        psGetTagId = connection.prepareStatement("SELECT id FROM tags WHERE name = ?");
-        psInsertTag = connection.prepareStatement("INSERT INTO tags SET name = ?");
+        psGetTagId = connection.prepareStatement("SELECT id FROM feed_entries_tags WHERE name = ?");
+        psInsertTag = connection.prepareStatement("INSERT INTO feed_entries_tags SET name = ?");
         psTagFeedEntry = connection
                 .prepareStatement("INSERT INTO feed_entry_tag SET entryId = ?, tagId = ?, weight = ?");
         getEntryIdByTag = connection
-                .prepareStatement("SELECT entryId FROM feed_entry_tag, tags WHERE tagId = tags.id AND name = ?");
+                .prepareStatement("SELECT entryId FROM feed_entry_tag, feed_entries_tags WHERE tagId = feed_entries_tags.id AND name = ?");
 
     }
 
@@ -304,21 +306,21 @@ public class FeedDatabase implements FeedStore {
     // create Feed from ResultSet
     private Feed getFeed(ResultSet resultSet) throws SQLException {
         Feed feed = new Feed();
-        feed.setId(resultSet.getInt(1));
-        feed.setFeedUrl(resultSet.getString(2));
-        feed.setSiteUrl(resultSet.getString(3));
-        feed.setTitle(resultSet.getString(4));
-        feed.setFormat(resultSet.getInt(5));
-        feed.setTextType(resultSet.getInt(6));
-        feed.setLanguage(resultSet.getString(7));
-        feed.setAdded(resultSet.getTimestamp(8));
-        feed.setChecks(resultSet.getInt(9));
-        feed.setMinCheckInterval(resultSet.getInt(10));
-        feed.setMaxCheckInterval(resultSet.getInt(11));
-        feed.setLastHeadlines(resultSet.getString(12));
-        feed.setUnreachableCount(resultSet.getInt(13));
-        feed.setLastFeedEntry(resultSet.getTimestamp(14));
-        feed.setUpdateClass(resultSet.getInt(15));
+        feed.setId(resultSet.getInt("id"));
+        feed.setFeedUrl(resultSet.getString("feedUrl"));
+        feed.setSiteUrl(resultSet.getString("siteUrl"));
+        feed.setTitle(resultSet.getString("title"));
+        feed.setFormat(resultSet.getInt("format"));
+        feed.setTextType(resultSet.getInt("textType"));
+        feed.setLanguage(resultSet.getString("language"));
+        feed.setAdded(resultSet.getTimestamp("added"));
+        feed.setChecks(resultSet.getInt("checks"));
+        feed.setMinCheckInterval(resultSet.getInt("minCheckInterval"));
+        feed.setMaxCheckInterval(resultSet.getInt("maxCheckInterval"));
+        feed.setLastHeadlines(resultSet.getString("lastHeadlines"));
+        feed.setUnreachableCount(resultSet.getInt("unreachableCount"));
+        feed.setLastFeedEntry(resultSet.getTimestamp("lastFeedEntry"));
+        feed.setUpdateClass(resultSet.getInt("updateClass"));
         return feed;
     }
 
@@ -610,6 +612,23 @@ public class FeedDatabase implements FeedStore {
         }
         return result;
     }
+    
+    public List<FeedEntry> getFeedEntriesForEvaluation(String sqlQuery) {
+        List<FeedEntry> result = new LinkedList<FeedEntry>();
+        try {
+            ResultSet rs = connection.createStatement().executeQuery(sqlQuery);
+            while (rs.next()) {
+                FeedEntry entry = getFeedEntry(rs);
+                result.add(entry);
+                entry.putFeature("relevant", rs.getFloat("relevant"));
+            }
+            rs.close();
+        } catch (SQLException e) {
+            LOGGER.error(sqlQuery + " : " + e);
+
+        }
+        return result;
+    }
 
     // public List<Entry> getEntries(Feed feed, int limit) {
     // logger.trace(">getEntries " + feed + " limit:" + limit);
@@ -776,7 +795,7 @@ public class FeedDatabase implements FeedStore {
         LOGGER.trace(">cleanTables");
         DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries");
         DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feeds");
-        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE tags");
+        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries_tags");
         DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entry_tag");
         LOGGER.trace("<cleanTables");
     }

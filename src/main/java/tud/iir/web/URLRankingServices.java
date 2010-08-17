@@ -335,50 +335,52 @@ public class URLRankingServices {
     public float getRanking(Source source, Service service) {
 
         setUrl(source.getUrl());
-        float value;
+        float value = -1;
 
-        switch (service) {
-            case BITLY_CLICKS:
-                value = getBitlyClicks();
-                break;
-            case DIGGS:
-                value = getDiggs();
-                break;
-            case MIXX_VOTES:
-                value = getMixxVotes();
-                break;
-            case REDDIT_SCORE:
-                value = getRedditScore();
-                break;
-            case DELICIOUS_POSTS:
-                value = getDeliciousPosts();
-                break;
-            case YAHOO_DOMAIN_LINKS:
-                value = getYahooDomainLinks();
-                break;
-            case YAHOO_PAGE_LINKS:
-                value = getYahooPageLinks();
-                break;
-            case TWEETS:
-                value = getDomainTweets();
-                break;
-            case GOOGLE_PAGE_RANK:
-                value = getGooglePageRank();
-                break;
-            case GOOGLE_DOMAIN_PAGE_RANK:
-                value = getGoogleDomainPageRank();
-                break;
-            case ALEXA_RANK:
-                value = getAlexaRank();
-                break;
-            case MAJESTIC_SEO:
-                value = getMajesticSeoRefDomains();
-                break;
-            case COMPETE_RANK:
-                value = getDomainsCompeteRank();
-                break;
-            default:
-                value = -1;
+        try {
+            switch (service) {
+                case BITLY_CLICKS:
+                    value = getBitlyClicks();
+                    break;
+                case DIGGS:
+                    value = getDiggs();
+                    break;
+                case MIXX_VOTES:
+                    value = getMixxVotes();
+                    break;
+                case REDDIT_SCORE:
+                    value = getRedditScore();
+                    break;
+                case DELICIOUS_POSTS:
+                    value = getDeliciousPosts();
+                    break;
+                case YAHOO_DOMAIN_LINKS:
+                    value = getYahooDomainLinks();
+                    break;
+                case YAHOO_PAGE_LINKS:
+                    value = getYahooPageLinks();
+                    break;
+                case TWEETS:
+                    value = getDomainTweets();
+                    break;
+                case GOOGLE_PAGE_RANK:
+                    value = getGooglePageRank();
+                    break;
+                case GOOGLE_DOMAIN_PAGE_RANK:
+                    value = getGoogleDomainPageRank();
+                    break;
+                case ALEXA_RANK:
+                    value = getAlexaRank();
+                    break;
+                case MAJESTIC_SEO:
+                    value = getMajesticSeoRefDomains();
+                    break;
+                case COMPETE_RANK:
+                    value = getDomainsCompeteRank();
+                    break;
+            }
+        } catch (Exception e) {
+            LOGGER.error(e);
         }
 
         return value;
