@@ -46,9 +46,9 @@ public class ShinglesIndexTest {
 
         assertEquals("we need to start with an empty index", 0, index.getNumberOfDocuments());
 
-        Set<Long> sketch = new HashSet<Long>(Arrays.asList(new Long[] { 28372738L, 30948342L, -12093182L }));
-        Set<Long> sketch2 = new HashSet<Long>(Arrays.asList(new Long[] { 28372738L, 30948342L, -12093182L, 18327378L }));
-        Set<Long> sketch3 = new HashSet<Long>(Arrays.asList(new Long[] { 39892238L, 58979347L, 18337847L, 34673743L }));
+        Set<Long> sketch = new HashSet<Long>(Arrays.asList(28372738L, 30948342L, -12093182L));
+        Set<Long> sketch2 = new HashSet<Long>(Arrays.asList(28372738L, 30948342L, -12093182L, 18327378L));
+        Set<Long> sketch3 = new HashSet<Long>(Arrays.asList(39892238L, 58979347L, 18337847L, 34673743L));
 
         index.addDocument(1, sketch);
         index.addDocument(2, sketch2);

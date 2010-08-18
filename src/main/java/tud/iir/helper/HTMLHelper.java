@@ -42,13 +42,12 @@ public class HTMLHelper {
     private static final Logger LOGGER = Logger.getLogger(HTMLHelper.class);
 
     /** HTML block level elements. */
-    private static final List<String> BLOCK_ELEMENTS = Arrays.asList(new String[] { "address", "blockquote", "div",
-            "dl", "fieldset", "form", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "noscript", "ol", "p", "pre", "table",
-            "ul", "dd", "dt", "li", "tbody", "td", "tfoot", "th", "thead", "tr", "button", "del", "ins", "map",
-            "object", "script" });
+    private static final List<String> BLOCK_ELEMENTS = Arrays.asList("address", "blockquote", "div", "dl", "fieldset",
+            "form", "h1", "h2", "h3", "h4", "h5", "h6", "hr", "noscript", "ol", "p", "pre", "table", "ul", "dd", "dt",
+            "li", "tbody", "td", "tfoot", "th", "thead", "tr", "button", "del", "ins", "map", "object", "script");
 
     /** "Junk" elements which do not contain relevant content. */
-    private static final List<String> IGNORE_INSIDE = Arrays.asList(new String[] { "script", "style" });
+    private static final List<String> IGNORE_INSIDE = Arrays.asList("script", "style");
 
     private static Pattern normalizeLines = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
 

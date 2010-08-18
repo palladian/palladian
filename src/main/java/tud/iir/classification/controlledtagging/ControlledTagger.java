@@ -284,6 +284,9 @@ public class ControlledTagger {
      * @return
      */
     private boolean isAcceptedTag(String tag) {
+        
+        // TODO add possibility for configurable RegExp based filtering. 
+        // For example I do not want tags like "-".
 
         boolean inVocabulary = index.getStemmedTagVocabulary().contains(tag);
         inVocabulary = inVocabulary && !stopwords.contains(tag);
@@ -411,7 +414,9 @@ public class ControlledTagger {
         //if (correlationType != TaggingCorrelationType.NO_CORRELATIONS && index.getWcm() != null
         //        && !assignedTags.isEmpty()) {
         
-        if (!assignedTags.isEmpty()) {
+        // if (!assignedTags.isEmpty()) {
+        // reRanking only makes sense, if we have at least two tags :)
+        if (assignedTags.size() > 1) {
 
             // TODO experimental optimization -- we have a huge list with Tags and their weights which have to be
             // checked for correlations, which is expensive. Assumption: We can shrink this list of tags before

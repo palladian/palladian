@@ -896,4 +896,12 @@ public class URLRankingServices {
 
     }
 
+    /**
+     * @param ttlSeconds
+     * @see tud.iir.web.URLRankingCache#setTtlSeconds(int)
+     */
+    public void setCacheTtlSeconds(int ttlSeconds) {
+        cache.setTtlSeconds(ttlSeconds);
+    }
+
 }

@@ -64,7 +64,7 @@ public class FeedStoreDummy implements FeedStore {
         return null;
     }
 
-    public Set<Integer> getEntryIdsTaggedAs(String tag) {
+    public Set<Integer> getFeedEntryIdsTaggedAs(String tag) {
         logger.trace("getEntryIdsTaggedAs " + tag);
         return Collections.emptySet();
     }
