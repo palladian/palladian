@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import tud.iir.control.AllTests;
@@ -248,10 +249,10 @@ public class DateGetterHelperTest {
         final String date3 = "2010.05.06";
         final String date4 = "2010/05/06";
 
-        assertEquals("-", DateGetterHelper.getSeparator(date1));
-        assertEquals("_", DateGetterHelper.getSeparator(date2));
-        assertEquals("\\.", DateGetterHelper.getSeparator(date3));
-        assertEquals("/", DateGetterHelper.getSeparator(date4));
+        assertEquals("-", ExtractedDateHelper.getSeparator(date1));
+        assertEquals("_", ExtractedDateHelper.getSeparator(date2));
+        assertEquals("\\.", ExtractedDateHelper.getSeparator(date3));
+        assertEquals("/", ExtractedDateHelper.getSeparator(date4));
 
     }
 
@@ -280,23 +281,95 @@ public class DateGetterHelperTest {
 
     @Test
     public void testGetStructureDate() {
-        final String url = "data/test/webPages/webPageW3C.htm";
-        final String[] urlDates = { "2010-07-08T08:02:04-05:00", "2010-07-20T11:50:47-05:00",
-                "2010-07-13T14:55:57-05:00", "2010-07-13T14:46:56-05:00", "2010-07-20", "2010-07-16", "2010-07-07" };
+        String url = "data/test/webPages/webPageW3C.htm";
+        String[] urlDates = { "2010-07-08T08:02:04-05:00", "2010-07-20T11:50:47-05:00", "2010-07-13T14:55:57-05:00",
+                "2010-07-13T14:46:56-05:00", "2010-07-20", "2010-07-16", "2010-07-07" };
         if (!AllTests.ALL_TESTS) {
-            final ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             // date.addAll(DateGetterHelper
             // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
             // date.addAll(DateGetterHelper
             // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
-            date.addAll(DateGetterHelper.getStructureDate(url));
-            final Iterator<ExtractedDate> dateIterator = date.iterator();
+            DateGetter dateGetter = new DateGetter(url);
+            dateGetter.setAllFalse();
+            dateGetter.setTechHTMLStruct(true);
+            date.addAll(dateGetter.getDate());
+            Iterator<ExtractedDate> dateIterator = date.iterator();
             int index = 0;
             while (dateIterator.hasNext()) {
                 final ExtractedDate extractedDate = dateIterator.next();
                 assertEquals(urlDates[index], extractedDate.getDateString());
                 index++;
             }
+        }
+    }
+
+    @Test
+    public void testGetStructureDate2() {
+        String url = "http://www.aftonbladet.se/wendela/ledig/article3476060.ab";
+        if (!AllTests.ALL_TESTS) {
+            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+            DateGetter dateGetter = new DateGetter(url);
+            dateGetter.setAllFalse();
+            dateGetter.setTechHTMLStruct(true);
+            date.addAll(dateGetter.getDate());
+            ExtractedDateHelper.printDateArray(date);
+        }
+    }
+
+    @Test
+    public void testGetContentDates() {
+        final String url = "data/test/webPages/dateExtraction/kullin.htm";
+
+        if (!AllTests.ALL_TESTS) {
+            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+            // date.addAll(DateGetterHelper
+            // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
+            // date.addAll(DateGetterHelper
+            // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
+            DateGetter dateGetter = new DateGetter(url);
+            dateGetter.setAllFalse();
+            dateGetter.setTechHTMLContent(true);
+            date.addAll(dateGetter.getDate());
+            ExtractedDateHelper.printDateArray(date);
+
+        }
+    }
+
+    @Test
+    public void testGetDate() {
+        final String url = "data/test/webPages/dateExtraction/alltop.htm";
+
+        if (!AllTests.ALL_TESTS) {
+            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+            DateGetter dateGetter = new DateGetter(url);
+            dateGetter.setAllFalse();
+            dateGetter.setTechHTMLContent(false);
+            dateGetter.setTechHTMLStruct(true);
+            dateGetter.setTechReference(false);
+            date.addAll(dateGetter.getDate());
+            ExtractedDateHelper.printDateArray(date);
+
+        }
+    }
+
+    @Ignore
+    @Test
+    public void testGetReferenceDates() {
+        final String url = "data/test/webPages/dateExtraction/kullin.htm";
+
+        if (!AllTests.ALL_TESTS) {
+            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+            // date.addAll(DateGetterHelper
+            // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
+            // date.addAll(DateGetterHelper
+            // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
+            DateGetter dateGetter = new DateGetter(url);
+            dateGetter.setAllFalse();
+            dateGetter.setTechReference(true);
+            date.addAll(dateGetter.getDate());
+            ExtractedDateHelper.printDateArray(date);
+
         }
     }
 }

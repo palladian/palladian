@@ -114,10 +114,10 @@ public class RegExp {
     /** ISO8601 YYYY-WW . */
     public static final String[] DATE_ISO8601_YW = { YEAR_SHORT_LONG + "-" + WEEK_OF_YEAR, "YYYY-WW" };
     /** ISO8601 YYYY-DDD TIME+UTC. */
-    public static final String[] DATE_ISO8601_YD_T = { YEAR_SHORT_LONG + "-" + DAY_OF_YEAR + ISO_TIME,
+    public static final String[] DATE_ISO8601_YD_T = { LONG_YEAR + "-" + DAY_OF_YEAR + ISO_TIME,
             "YYYY-DDDTHH:MM:SS+HH:MM" };
     /** ISO8601 YYYY-DDD . */
-    public static final String[] DATE_ISO8601_YD = { YEAR_SHORT_LONG + "-" + DAY_OF_YEAR, "YYYY-DDD" };
+    public static final String[] DATE_ISO8601_YD = { LONG_YEAR + "-" + DAY_OF_YEAR, "YYYY-DDD" };
     /**
      * Year, month and day written without separator.<br>
      * YYYYMMMDD
@@ -137,7 +137,7 @@ public class RegExp {
      * Year and month written without separator.<br>
      * YYYYDDD
      */
-    public static final String[] DATE_ISO8601_YD_NO = { YEAR_SHORT_LONG + DAY_OF_YEAR, "YYYYDDD" };
+    public static final String[] DATE_ISO8601_YD_NO = { LONG_YEAR + DAY_OF_YEAR, "YYYYDDD" };
 
     // Possible dates in URLs.
     /**
