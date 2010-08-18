@@ -72,19 +72,19 @@ public class ExtractedDateTest {
 
     @Test
     public void testSetDateParts() {
-        assertEquals(2010, date1.getYear());
-        assertEquals(6, date1.getMonth());
-        assertEquals(12, date1.getDay());
-        assertEquals(-1, date15.getDay());
-        assertEquals(7, date16.getHour());
-        assertEquals(6, date16.getMinute());
-        assertEquals(5, date16.getSecond());
-        assertEquals(7, date17.getHour());
-        assertEquals(6, date17.getMinute());
-        assertEquals(5, date17.getSecond());
-        assertEquals(7, date18.getHour());
-        assertEquals(6, date18.getMinute());
-        assertEquals(5, date18.getSecond());
+        assertEquals(2010, date1.get(ExtractedDate.YEAR));
+        assertEquals(6, date1.get(ExtractedDate.MONTH));
+        assertEquals(12, date1.get(ExtractedDate.DAY));
+        assertEquals(-1, date15.get(ExtractedDate.DAY));
+        assertEquals(7, date16.get(ExtractedDate.HOUR));
+        assertEquals(6, date16.get(ExtractedDate.MINUTE));
+        assertEquals(5, date16.get(ExtractedDate.SECOND));
+        assertEquals(7, date17.get(ExtractedDate.HOUR));
+        assertEquals(6, date17.get(ExtractedDate.MINUTE));
+        assertEquals(5, date17.get(ExtractedDate.SECOND));
+        assertEquals(7, date18.get(ExtractedDate.HOUR));
+        assertEquals(6, date18.get(ExtractedDate.MINUTE));
+        assertEquals(5, date18.get(ExtractedDate.SECOND));
 
     }
 
