@@ -51,12 +51,9 @@ public class ControlledTaggerEvaluation {
         // tagger.setTagCount(100);
 
         // ///////////// general settings
-//        tagger.setPriorWeight(1.0f);
         tagger.setPriorWeight(5.0f);
         tagger.setCorrelationType(TaggingCorrelationType.DEEP_CORRELATIONS);
-        // tagger.setCorrelationWeight(40000);
-        // tagger.setCorrelationWeight(60000);
-        tagger.setCorrelationWeight(50000);
+        tagger.setCorrelationWeight(40000);
         tagger.setStopwords(new Stopwords(Stopwords.STOP_WORDS_EN));
 
         DatasetFilter filter = new DatasetFilter();

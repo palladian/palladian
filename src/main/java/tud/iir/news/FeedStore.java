@@ -82,7 +82,7 @@ public interface FeedStore {
      */
     List<FeedEntry> getFeedEntries(String sqlQuery);
 
-    Set<Integer> getEntryIdsTaggedAs(String tag);
+    Set<Integer> getFeedEntryIdsTaggedAs(String tag);
 
     // /**
     // * Get specified number of entries from a feed.

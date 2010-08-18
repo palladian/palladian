@@ -65,6 +65,8 @@ public class FeedDatabase implements FeedStore {
     private PreparedStatement psInsertTag;
     private PreparedStatement psTagFeedEntry;
     private PreparedStatement getEntryIdByTag;
+    private PreparedStatement psGetEntryById;
+
 
     private FeedDatabase() {
         try {
@@ -117,10 +119,12 @@ public class FeedDatabase implements FeedStore {
                 .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
         psGetEntries = connection
                 .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added FROM feed_entries LIMIT ? OFFSET ?");
+        psGetEntryById = connection.prepareStatement("SELECT * FROM feed_entries WHERE id = ?");
 
         // tagging specific
         psGetEntrysTags = connection
-                .prepareStatement("SELECT name, weight FROM feed_entries_tags, feed_entry_tag WHERE feed_entries_tags = feed_entry_tag.tagId AND feed_entry_tag.entryId = ?");
+                //.prepareStatement("SELECT name, weight FROM feed_entries_tags, feed_entry_tag WHERE feed_entries_tags = feed_entry_tag.tagId AND feed_entry_tag.entryId = ?");
+                .prepareStatement("SELECT name, weight FROM feed_entries_tags ets, feed_entry_tag et WHERE ets.id = et.tagId AND et.entryId = ?");
 
         psGetTagId = connection.prepareStatement("SELECT id FROM feed_entries_tags WHERE name = ?");
         psInsertTag = connection.prepareStatement("INSERT INTO feed_entries_tags SET name = ?");
@@ -528,6 +532,23 @@ public class FeedDatabase implements FeedStore {
         LOGGER.trace("<getEntryByRawId");
         return result;
     }
+    
+    public FeedEntry getFeedEntryById(int id) {
+        LOGGER.trace(">getEntryById");
+        FeedEntry result = null;
+        try {
+            psGetEntryById.setInt(1, id);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetEntryById);
+            if (resultSet.next()) {
+                result = getFeedEntry(resultSet);
+            }
+            resultSet.close();
+        } catch (SQLException e) {
+            LOGGER.error("getEntryById", e);
+        }
+        LOGGER.trace("<getEntryById");
+        return result;
+    }
 
     /**
      * Get the specified count of feed entries, starting at offset.
@@ -780,7 +801,7 @@ public class FeedDatabase implements FeedStore {
         }
     }
 
-    public Set<Integer> getEntryIdsTaggedAs(String tag) {
+    public Set<Integer> getFeedEntryIdsTaggedAs(String tag) {
         StopWatch sw = new StopWatch();
 
         Set<Integer> entryIds = new HashSet<Integer>();
