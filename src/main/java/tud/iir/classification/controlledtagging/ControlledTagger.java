@@ -41,7 +41,7 @@ public class ControlledTagger {
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(ControlledTagger.class);
 
-    // //////// enumarations for settings ///////////
+    // //////// enumerations for settings ///////////
 
     public enum TaggingType {
         THRESHOLD, FIXED_COUNT
@@ -65,6 +65,7 @@ public class ControlledTagger {
 
     // //////// index collections ///////////
 
+    // TODO we could move some methods from here to the Index class.
     private ControlledTaggerIndex index = new ControlledTaggerIndex();
 
     // //////// customizable settings ///////////
@@ -382,13 +383,16 @@ public class ControlledTagger {
             // prior boosting will boost/weaken the tf-idf values based on the relative count of occurences
             // of this particular tag in the controlled vocabulary. The underlying assumption is, that the probability
             // of correctly assigning a tag which is "popular" is higher.
+            
+            // moved this to the reRanking method, as the normalization also applies.
+            
             // if (usePriors) {
-            if (priorWeight != -1) {
-                float priorBoost = (float) Math.log10(1.0 + index.getStemmedTagVocabulary().getCount(tag)
-                        / index.getAverageTagOccurence());
-                assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
-                termFreqInvDocFreq *= priorWeight * priorBoost;
-            }
+            // if (priorWeight != -1) {
+            //    float priorBoost = (float) Math.log10(1.0 + index.getStemmedTagVocabulary().getCount(tag)
+            //            / index.getAverageTagOccurence());
+            //    assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
+            //    termFreqInvDocFreq *= priorWeight * priorBoost;
+            //}
 
             assert !Float.isInfinite(termFreqInvDocFreq) && !Float.isNaN(termFreqInvDocFreq);
 
@@ -404,15 +408,17 @@ public class ControlledTagger {
 
         // when using tag correlations, do the re-ranking
 
-        if (correlationType != TaggingCorrelationType.NO_CORRELATIONS && index.getWcm() != null
-                && !assignedTags.isEmpty()) {
+        //if (correlationType != TaggingCorrelationType.NO_CORRELATIONS && index.getWcm() != null
+        //        && !assignedTags.isEmpty()) {
+        
+        if (!assignedTags.isEmpty()) {
 
             // TODO experimental optimization -- we have a huge list with Tags and their weights which have to be
             // checked for correlations, which is expensive. Assumption: We can shrink this list of tags before
             // re-ranking without actually losing any accuracy. This needs to be evaluated thoroughly.
-            
+
             // this is obsolete with FastWordCorrelationMatrix :)
-            
+
             // if (fastMode) {
             // if (taggingType == TaggingType.THRESHOLD) {
             // // in contrast to FIXED_COUNT mode, the limit has no big impact here :(
@@ -423,7 +429,7 @@ public class ControlledTagger {
             // }
             // }
 
-            correlationReRanking(assignedTags);
+            reRankTags(assignedTags);
         }
 
         LOGGER.trace("re-ranked tags:" + assignedTags);
@@ -481,15 +487,38 @@ public class ControlledTagger {
     }
 
     /**
-     * Do a re-ranking based on Tag correlations.
+     * Do a re-ranking based on priors + tag correlations.
      * 
-     * @param assignedTags
+     * @param assignedTags in/out: assigned tags, sorted by relevance, descending.
      */
-    private void correlationReRanking(List<Tag> assignedTags) {
+    private void reRankTags(List<Tag> assignedTags) {
 
         StopWatch sw = new StopWatch();
 
-        // do a "shallow" re-ranking, only considering top-tag (n)
+        // experimental: to normalize the range of the re-ranked tags back to their original range,
+        // by keeping the lower/upper bounds, so we keep the general properties of the TF/IDF -- elsewise 
+        // we will get outliers which are considerably bigger than most of the other tag weights.
+        float oldMin = assignedTags.get(0).getWeight();
+        float oldMax = assignedTags.get(assignedTags.size() - 1).getWeight();
+        
+        // do the prior-based re-ranking
+        if (priorWeight != -1) {
+
+            for (Tag tag : assignedTags) {
+                int count = index.getStemmedTagVocabulary().getCount(tag.getName());
+                float priorBoost = (float) Math.log10(1.0 + priorWeight * count / index.getAverageTagOccurence());
+                assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
+                float weight = tag.getWeight() * priorBoost;
+                // weight *= priorWeight * priorBoost;
+                tag.setWeight(weight);
+
+            }
+
+        }
+        
+        Collections.sort(assignedTags, new TagComparator());
+
+        // Option 1: do a "shallow" re-ranking, only considering top-tag (n)
         if (correlationType == TaggingCorrelationType.SHALLOW_CORRELATIONS) {
             Iterator<Tag> tagIterator = assignedTags.iterator();
             Tag topTag = tagIterator.next();
@@ -505,7 +534,7 @@ public class ControlledTagger {
             }
         }
 
-        // do a "deep" re-ranking, considering correlations between each possible combination
+        // Option 2: do a "deep" re-ranking, considering correlations between each possible combination
         else if (correlationType == TaggingCorrelationType.DEEP_CORRELATIONS) {
             Tag[] tagsArray = assignedTags.toArray(new Tag[assignedTags.size()]);
 
@@ -532,12 +561,25 @@ public class ControlledTagger {
                     }
                 }
             }
+
         }
 
-        // re-sort the list, as rankings have changed.
+        // re-sort the list, as ranking weights have changed
         Collections.sort(assignedTags, new TagComparator());
-        
-        // TODO re-scale tags?
+
+        // do the scaling back to the original range (see comment above)
+        float newMin = assignedTags.get(0).getWeight();
+        float newMax = assignedTags.get(assignedTags.size() - 1).getWeight();
+
+        if (newMin != newMax) { // avoid division by zero
+            for (Tag tag : assignedTags) {
+
+                // http://de.wikipedia.org/wiki/Normalisierung_(Mathematik)
+                float normalizedWeight = (tag.getWeight() - newMin) * ((oldMax - oldMin) / (newMax - newMin)) + oldMin;
+                tag.setWeight(normalizedWeight);
+
+            }
+        }
 
         LOGGER.trace("correlation reranking for " + assignedTags.size() + " in " + sw.getElapsedTimeString());
 
@@ -686,6 +728,12 @@ public class ControlledTagger {
         }
     }
 
+    /**
+     * Stem with Snowball.
+     * 
+     * @param unstemmed
+     * @return
+     */
     private String stem(String unstemmed) {
         stemmer.setCurrent(unstemmed);
         stemmer.stem();
@@ -693,6 +741,12 @@ public class ControlledTagger {
         return stem;
     }
 
+    /**
+     * Stem with Snowball.
+     * 
+     * @param unstemmed
+     * @return
+     */
     private Bag<String> stem(Bag<String> unstemmed) {
         Bag<String> stemmed = new HashBag<String>();
         for (String tag : unstemmed.uniqueSet()) {

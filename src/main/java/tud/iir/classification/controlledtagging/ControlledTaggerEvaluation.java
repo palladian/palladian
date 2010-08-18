@@ -51,7 +51,8 @@ public class ControlledTaggerEvaluation {
         // tagger.setTagCount(100);
 
         // ///////////// general settings
-        tagger.setPriorWeight(1.0f);
+//        tagger.setPriorWeight(1.0f);
+        tagger.setPriorWeight(5.0f);
         tagger.setCorrelationType(TaggingCorrelationType.DEEP_CORRELATIONS);
         // tagger.setCorrelationWeight(40000);
         // tagger.setCorrelationWeight(60000);
@@ -164,7 +165,7 @@ public class ControlledTaggerEvaluation {
         System.out.println("average pr: " + format.format(averagePrecision) + " rc: " + format.format(averageRecall)
                 + " f1: " + format.format(averageFOne));
         System.out.println("average # assigned tags: " + format.format(averageTagCount));
-        System.out.println("tagged entries: " + stats[0]);
+        System.out.println("tagged entries: " + (int) stats[0]);
         System.out.println("elapsed time for tagging: " + sw.getElapsedTimeString());
 
         // System.out.println(counter[0]);
