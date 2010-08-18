@@ -111,12 +111,12 @@ public class HTMLHelper {
         // modified by Martin Werner, 2010-06-02
 
         // String regExp = "";
-        
-           if (joinTagsAndRemoveNewlines) {
+
+        if (joinTagsAndRemoveNewlines) {
             htmlText = htmlText.replaceAll(">\\s*?<", "><");
             htmlText = htmlText.replaceAll("\n", "");
         }
-           
+
         if (stripComments) {
             // regExp += "(\\<!--.*?-->)|";
             htmlText = htmlText.replaceAll("<!--.*?-->", "");
@@ -131,10 +131,8 @@ public class HTMLHelper {
         if (stripTags) {
             // regExp += "(\\<.*?>)";
             htmlText = removeConcreteHTMLTag(htmlText, "\\<", ">");
-//            htmlText = htmlText.replaceAll("<.*?>", "");
+            // htmlText = htmlText.replaceAll("<.*?>", "");
         }
-        
-
 
         // if (regExp.length() == 0) {
         // return htmlText;
@@ -354,7 +352,7 @@ public class HTMLHelper {
         return result;
 
     }
-    
+
     /**
      * Extract values e.g for: src=, href= or title=
      * 
@@ -382,6 +380,27 @@ public class HTMLHelper {
             element = result;
         }
         return element;
+    }
+
+    /**
+     * Checks, if a node is simple like &ltu&gt,&ltb&gt,&lti&gt,...
+     * 
+     * @param node
+     * @return true if simple, else false.
+     */
+    public static boolean isSimpleElement(Node node) {
+        boolean value = false;
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            String name = node.getNodeName();
+            if (name.equalsIgnoreCase("b") || name.equalsIgnoreCase("i") || name.equalsIgnoreCase("em")
+                    || name.equalsIgnoreCase("ins") || name.equalsIgnoreCase("del") || name.equalsIgnoreCase("s")
+                    || name.equalsIgnoreCase("small") || name.equalsIgnoreCase("big")
+                    || name.equalsIgnoreCase("strong") || name.equalsIgnoreCase("u")) {
+                value = true;
+            }
+        }
+        return value;
+
     }
 
     public static void main(String[] args) throws Exception {
