@@ -51,7 +51,7 @@ public class ControlledTaggerEvaluation {
         // tagger.setTagCount(100);
 
         // ///////////// general settings
-        tagger.setPriorWeight(5.0f);
+        tagger.setPriorWeight(5.0f); // TODO optimize.
         tagger.setCorrelationType(TaggingCorrelationType.DEEP_CORRELATIONS);
         tagger.setCorrelationWeight(40000);
         tagger.setStopwords(new Stopwords(Stopwords.STOP_WORDS_EN));
@@ -60,6 +60,8 @@ public class ControlledTaggerEvaluation {
         filter.addAllowedFiletype("html");
         filter.setMinUsers(50);
         reader.setFilter(filter);
+        
+        tagger.writeDataToReport();
 
     }
 

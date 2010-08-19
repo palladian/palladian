@@ -7,12 +7,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
@@ -23,6 +25,7 @@ import org.tartarus.snowball.ext.englishStemmer;
 import tud.iir.classification.Stopwords;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.classification.WordCorrelationMatrix;
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StopWatch;
@@ -82,6 +85,9 @@ public class ControlledTagger {
     private float correlationWeight = DEFAULT_CORRELATION_WEIGHT;
 
     private float priorWeight = DEFAULT_PRIOR_WEIGHT;
+    
+    /** Tags must match this pattern, to be accepted. This way we drop tags which contain no "word" character, like "," */
+    private Pattern tagMatchPattern = Pattern.compile(".*\\w.*");
 
     // private boolean fastMode = true;
 
@@ -280,18 +286,16 @@ public class ControlledTagger {
     /**
      * Determine, if a stemmed tag is in the vocabulary and is not a stopword.
      * 
-     * @param tag
+     * @param stemmedTag
      * @return
      */
-    private boolean isAcceptedTag(String tag) {
-        
-        // TODO add possibility for configurable RegExp based filtering. 
-        // For example I do not want tags like "-".
+    protected boolean isAcceptedTag(String stemmedTag) {
 
-        boolean inVocabulary = index.getStemmedTagVocabulary().contains(tag);
-        inVocabulary = inVocabulary && !stopwords.contains(tag);
+        boolean isAccepted = index.getStemmedTagVocabulary().contains(stemmedTag);
+        isAccepted = isAccepted && !stopwords.contains(stemmedTag);
+        isAccepted = isAccepted && tagMatchPattern.matcher(stemmedTag).matches();
 
-        return inVocabulary;
+        return isAccepted;
 
         // return stemmedTagVocabulary.contains(tag);
     }
@@ -303,7 +307,7 @@ public class ControlledTagger {
      * @param text
      * @return
      */
-    private Bag<String> extractTags(String text) {
+    protected Bag<String> extractTags(String text) {
         Bag<String> extractedTags = new HashBag<String>();
 
         Bag<String> tokens = tokenize(text);
@@ -326,7 +330,7 @@ public class ControlledTagger {
      * @param text
      * @return
      */
-    private Bag<String> tokenize(String text) {
+    protected Bag<String> tokenize(String text) {
         String toTokenize = text.toLowerCase();
 
         Bag<String> tokens = new HashBag<String>();
@@ -511,7 +515,8 @@ public class ControlledTagger {
 
             for (Tag tag : assignedTags) {
                 int count = index.getStemmedTagVocabulary().getCount(tag.getName());
-                float priorBoost = (float) Math.log10(1.0 + priorWeight * count / index.getAverageTagOccurence());
+                // float priorBoost = (float) Math.log10(1.0 + priorWeight * count / index.getAverageTagOccurence());
+                float priorBoost = (float) Math.log10(1.0 + priorWeight * count / index.getAverageTagOccurence()) + 1;
                 assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
                 float weight = tag.getWeight() * priorBoost;
                 // weight *= priorWeight * priorBoost;
@@ -739,7 +744,7 @@ public class ControlledTagger {
      * @param unstemmed
      * @return
      */
-    private String stem(String unstemmed) {
+    protected String stem(String unstemmed) {
         stemmer.setCurrent(unstemmed);
         stemmer.stem();
         String stem = stemmer.getCurrent();
@@ -860,6 +865,10 @@ public class ControlledTagger {
     public void setStopwords(Set<String> stopwords) {
         this.stopwords = stopwords;
     }
+    
+    public void setTagMatchPattern(Pattern tagMatchPattern) {
+        this.tagMatchPattern = tagMatchPattern;
+    }
 
     /**
      * Serialize this tagger to disk.
@@ -950,26 +959,41 @@ public class ControlledTagger {
         return sb.toString();
     }
 
-    /*
-     * public void writeDataToReport() {
-     * // write IDF index
-     * StringBuilder sb = new StringBuilder();
-     * for (String tag : index.getIdfIndex().uniqueSet()) {
-     * sb.append(tag).append("#");
-     * sb.append(index.getIdfIndex().getCount(tag));
-     * sb.append("\n");
-     * }
-     * FileHelper.writeToFile("data/temp/idf_index.txt", sb);
-     * // write stemmed vocabulary
-     * sb = new StringBuilder();
-     * for (String tag : index.getStemmedTagVocabulary().uniqueSet()) {
-     * sb.append(tag).append("#");
-     * sb.append(index.getStemmedTagVocabulary().getCount(tag));
-     * sb.append("\n");
-     * }
-     * FileHelper.writeToFile("data/temp/stemmed_vocabulary_index.txt", sb);
-     * }
-     */
+    public void writeDataToReport() {
+        // write IDF index
+        // StringBuilder sb = new StringBuilder();
+        // for (String tag : index.getIdfIndex().uniqueSet()) {
+        // sb.append(tag).append("#");
+        // sb.append(index.getIdfIndex().getCount(tag));
+        // sb.append("\n");
+        // }
+        // FileHelper.writeToFile("data/temp/idf_index.txt", sb);
+        // write stemmed vocabulary
+
+        Map<String, Integer> tagCountMap = new HashMap<String, Integer>();
+        for (String stemmedTag : index.getStemmedTagVocabulary().uniqueSet()) {
+            String tagName = unstem(stemmedTag);
+            int tagCount = index.getStemmedTagVocabulary().getCount(stemmedTag);
+            tagCountMap.put(tagName, tagCount);
+        }
+
+        LinkedHashMap<String, Integer> sorted = CollectionHelper.sortByValue(tagCountMap.entrySet(), false);
+
+        StringBuilder sb = new StringBuilder();
+        for (Entry<String, Integer> tagEntry : sorted.entrySet()) {
+            sb.append(tagEntry.getKey()).append("#");
+            sb.append(tagEntry.getValue());
+            sb.append("\n");
+        }
+
+        // sb = new StringBuilder();
+        // for (String tag : index.getStemmedTagVocabulary().uniqueSet()) {
+        // sb.append(tag).append("#");
+        // sb.append(index.getStemmedTagVocabulary().getCount(tag));
+        // sb.append("\n");
+        // }
+        FileHelper.writeToFile("data/temp/vocabulary_index.txt", sb);
+    }
 
     public static void main(String[] args) throws Exception {
 
