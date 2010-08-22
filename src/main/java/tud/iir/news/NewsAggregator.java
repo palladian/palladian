@@ -321,7 +321,7 @@ public class NewsAggregator {
 
         // clean up --> strip out HTML tags, unescape HTML code
         if (entryText != null) {
-            entryText = HTMLHelper.htmlFragmentsToString(entryText, false);
+            entryText = HTMLHelper.htmlToString(entryText, false);
             entryText = StringEscapeUtils.unescapeHtml(entryText);
             entryText = entryText.trim();
         }

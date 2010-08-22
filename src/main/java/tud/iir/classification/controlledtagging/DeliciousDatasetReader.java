@@ -342,7 +342,7 @@ public class DeliciousDatasetReader {
             public void callback(DatasetEntry entry) {
 
                 String content = FileHelper.readFileToString(entry.getPath());
-                String cleanContent = HTMLHelper.htmlFragmentsToString(content, true);
+                String cleanContent = HTMLHelper.htmlToString(content, true);
                 System.out.println(entry);
                 System.out.println(cleanContent);
 

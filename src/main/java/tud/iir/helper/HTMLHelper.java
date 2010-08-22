@@ -1,6 +1,5 @@
 package tud.iir.helper;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -21,7 +20,6 @@ import javax.xml.transform.sax.SAXResult;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
 import org.cyberneko.html.parsers.DOMFragmentParser;
-import org.w3c.dom.DOMException;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
 import org.w3c.dom.html.HTMLDocument;
@@ -245,7 +243,7 @@ public class HTMLHelper {
      * @return
      * @author Philipp Katz
      */
-    public static String htmlDocToString(Node node) {
+    public static String htmlToString(Node node) {
         final StringBuilder builder = new StringBuilder();
         try {
             TransformerFactory transFac = TransformerFactory.newInstance();
@@ -308,40 +306,37 @@ public class HTMLHelper {
     }
 
     /**
-     * TODO work in progress, will change/needs testing.
+     * Allows to strip HTML tags from HTML fragments. It will use the Neko parser to parse the String first and then
+     * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
+     * whitespace is handled more correctly than in {@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}
+     * which never worked well for me.
      * 
-     * This allows to strip HTML tags from incomplete HTML fragments. It will use the Neko parser to parse the String
-     * first and then remove the tags, based on the document's structure. Advantage instead of using RegExes to strip
-     * the tags is, that whitespace is handled more correctly than in
-     * {@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)} which never worked well for me.
-     * 
-     * @param htmlFragments
+     * @param html
      * @param oneLine
      * @return
      * @author Philipp Katz
      */
-    public static String htmlFragmentsToString(String htmlFragments, boolean oneLine) {
-        DOMFragmentParser parser = new DOMFragmentParser();
-        HTMLDocument document = new HTMLDocumentImpl();
+    public static String htmlToString(String html, boolean oneLine) {
 
-        // see http://nekohtml.sourceforge.net/usage.html
-        DocumentFragment fragment = document.createDocumentFragment();
+        String result;
 
         try {
-            parser.parse(new InputSource(new StringInputStream(htmlFragments)), fragment);
-        } catch (SAXException e) {
-            LOGGER.error(e);
-        } catch (IOException e) {
-            LOGGER.error(e);
-        } catch (DOMException e) {
-            // attn: catching RTE
-            LOGGER.error(e);
-        } catch (Exception e) {
-            // TODO
-            LOGGER.error(e);
-        }
 
-        String result = htmlDocToString(fragment);
+            DOMFragmentParser parser = new DOMFragmentParser();
+            HTMLDocument document = new HTMLDocumentImpl();
+
+            // see http://nekohtml.sourceforge.net/usage.html
+            DocumentFragment fragment = document.createDocumentFragment();
+            parser.parse(new InputSource(new StringInputStream(html)), fragment);
+            result = htmlToString(fragment);
+
+        } catch (Exception e) {
+
+            // fall back, remove tags directly from the string without parsing
+            LOGGER.debug("encountered error while parsing, will just strip tags : " + e.getMessage());
+            result = removeHTMLTags(html, true, true, true, false);
+
+        }
 
         if (oneLine) {
             result = result.replaceAll("\n", " ");
@@ -349,7 +344,6 @@ public class HTMLHelper {
         }
 
         return result;
-
     }
 
     /**
@@ -405,7 +399,7 @@ public class HTMLHelper {
     public static void main(String[] args) throws Exception {
 
         System.out.println(removeHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
-        System.out.println(htmlFragmentsToString("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
+        System.out.println(htmlToString("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
 
         // String html = readHtmlFile("testfiles/readability/test004.html");
         // html = htmlToString(html, true);

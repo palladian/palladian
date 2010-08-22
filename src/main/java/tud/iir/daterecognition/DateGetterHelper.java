@@ -418,7 +418,7 @@ public final class DateGetterHelper {
     public static ArrayList<ContentDate> getContentDates(Document document) {
         ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
         NodeList body = document.getElementsByTagName("body");
-        String doc = HTMLHelper.htmlDocToString(body.item(0));
+        String doc = HTMLHelper.htmlToString(body.item(0));
         NodeList nodeList = document.getElementsByTagName("*");
         Node node = null;
         /*
