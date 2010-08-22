@@ -77,15 +77,8 @@ public class ControlledTaggerEvaluation {
             public void callback(DatasetEntry entry) {
 
                 String content = FileHelper.readFileToString(entry.getPath());
+                content = HTMLHelper.htmlToString(content, true);
 
-                // There are some huuuuuge HTML files in the dataset which will cause the HTML parser to stall.
-                // We will simply skip them here.
-                // TODO absolete?
-//                if (content.length() > 600000) {
-//                    return;
-//                }
-
-                content = HTMLHelper.htmlFragmentsToString(content, true);
                 tagger.train(content, entry.getTags());
                 if (++counter[0] % 100 == 0) {
                     System.out.println(counter[0]);
@@ -113,11 +106,8 @@ public class ControlledTaggerEvaluation {
             public void callback(DatasetEntry entry) {
 
                 String content = FileHelper.readFileToString(entry.getPath());
-//                if (content.length() > 600000) {
-//                    return;
-//                }
-
-                content = HTMLHelper.htmlFragmentsToString(content, true);
+                content = HTMLHelper.htmlToString(content, true);
+                
                 Bag<String> realTags = entry.getTags();
                 Bag<String> realTagsNormalized = tagger.normalize(realTags);
 
