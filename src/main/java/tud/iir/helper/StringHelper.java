@@ -480,6 +480,10 @@ public class StringHelper {
     public static int letterNumberCount(String string) {
         return string.replaceAll("[^a-zA-Z0-9]", "").length();
     }
+    
+    public static int numberCount(String string) {
+        return string.replaceAll("[^0-9]", "").length();
+    }
 
     /**
      * Capitalized word count.
@@ -1052,7 +1056,9 @@ public class StringHelper {
      */
     public static void main(String[] args) {
         
-        System.out.println(WordTransformer.wordToSingular("yves"));
+        System.out.println(StringHelper.numberCount("123abcdefg"));
+        
+        // System.out.println(WordTransformer.wordToSingular("yves"));
         // gives a java.lang.StringIndexOutOfBoundsException: String index out of range: -1
 
         // System.out.println(StringHelper.makeCamelCase("max_speed car", true));

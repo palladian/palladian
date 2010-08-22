@@ -238,7 +238,7 @@ public class Shingles {
         // we treat the document with the lowest ID as "master" document which references
         // all similar/identical documents
         if (similarDocuments.size() > 0) {
-            LOGGER.info(debugMessage);
+            LOGGER.debug(debugMessage);
             index.addDocumentSimilarity(Collections.min(similarDocuments), documentId);
             result = true;
         } else {

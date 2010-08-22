@@ -112,13 +112,13 @@ public class FeedDatabase implements FeedStore {
         psGetFeedByID = connection
                 .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
         psGetEntryByRawId = connection
-                .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added FROM feed_entries WHERE rawID = ?");
+                .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_entries WHERE rawID = ?");
         psGetEntryByRawId2 = connection
-                .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added FROM feed_entries WHERE feedId = ? AND rawID = ?");
+                .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_entries WHERE feedId = ? AND rawID = ?");
         psChangeCheckApproach = connection
                 .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
         psGetEntries = connection
-                .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added FROM feed_entries LIMIT ? OFFSET ?");
+                .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_entries LIMIT ? OFFSET ?");
         psGetEntryById = connection.prepareStatement("SELECT * FROM feed_entries WHERE id = ?");
 
         // tagging specific
@@ -696,6 +696,7 @@ public class FeedDatabase implements FeedStore {
         FeedEntry entry = new FeedEntry();
 
         entry.setId(resultSet.getInt("id"));
+        entry.setFeedId(resultSet.getInt("feedId"));
         entry.setTitle(resultSet.getString("title"));
         entry.setLink(resultSet.getString("link"));
         entry.setRawId(resultSet.getString("rawId"));
@@ -762,7 +763,6 @@ public class FeedDatabase implements FeedStore {
         try {
             
             // if we have no tags, we add a relation with -1 to indicate that no tags could be assigned.
-            // TODO experimental
             if (tags.isEmpty()) {
                 psTagFeedEntry.setInt(1, entry.getId());
                 psTagFeedEntry.setInt(2, -1);

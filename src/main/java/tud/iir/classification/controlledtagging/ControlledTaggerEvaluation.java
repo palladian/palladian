@@ -39,7 +39,8 @@ public class ControlledTaggerEvaluation {
 
         // ControlledTagger tagger = new ControlledTagger();
         // tagger.load("data/controlledTagger20000_T140.ser");
-        tagger.load("/Users/pk/Studium/Diplomarbeit/workspace/newsseecr/data/controlledTagger40000_David.ser");
+        // tagger.load("/Users/pk/Studium/Diplomarbeit/workspace/newsseecr/data/controlledTagger40000_David_semantic.ser"); --> use 40.000 correlation
+        tagger.load("/Users/pk/Studium/Diplomarbeit/workspace/newsseecr/data/controlledTagger20000_David_semantic.ser");
 
         // ////////////// tagging with threshold
         // tagger.setTaggingType(TaggingType.THRESHOLD);
@@ -51,16 +52,17 @@ public class ControlledTaggerEvaluation {
         // tagger.setTagCount(100);
 
         // ///////////// general settings
-        tagger.setPriorWeight(5.0f); // TODO optimize.
+        tagger.setPriorWeight(1.0f);
         tagger.setCorrelationType(TaggingCorrelationType.DEEP_CORRELATIONS);
-        tagger.setCorrelationWeight(40000);
+        tagger.setCorrelationWeight(30000);
         tagger.setStopwords(new Stopwords(Stopwords.STOP_WORDS_EN));
 
         DatasetFilter filter = new DatasetFilter();
         filter.addAllowedFiletype("html");
         filter.setMinUsers(50);
+        filter.setMaxFileSize(600000);
         reader.setFilter(filter);
-        
+
         tagger.writeDataToReport();
 
     }
@@ -78,9 +80,10 @@ public class ControlledTaggerEvaluation {
 
                 // There are some huuuuuge HTML files in the dataset which will cause the HTML parser to stall.
                 // We will simply skip them here.
-                if (content.length() > 600000) {
-                    return;
-                }
+                // TODO absolete?
+//                if (content.length() > 600000) {
+//                    return;
+//                }
 
                 content = HTMLHelper.htmlFragmentsToString(content, true);
                 tagger.train(content, entry.getTags());
@@ -110,9 +113,9 @@ public class ControlledTaggerEvaluation {
             public void callback(DatasetEntry entry) {
 
                 String content = FileHelper.readFileToString(entry.getPath());
-                if (content.length() > 600000) {
-                    return;
-                }
+//                if (content.length() > 600000) {
+//                    return;
+//                }
 
                 content = HTMLHelper.htmlFragmentsToString(content, true);
                 Bag<String> realTags = entry.getTags();
