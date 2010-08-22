@@ -65,6 +65,7 @@ public class FeedContentClassifier {
 
             String entryLink = entry.getLink();
 
+            // TODO neccessary?
             if (entryLink == null || entryLink.length() == 0) {
                 continue;
             }

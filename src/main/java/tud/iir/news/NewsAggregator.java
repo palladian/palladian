@@ -166,13 +166,14 @@ public class NewsAggregator {
     private Feed getFeed(SyndFeed syndFeed, String feedUrl) {
 
         LOGGER.trace(">getFeed " + feedUrl);
-        Feed result = null;
 
         WireFeed wireFeed = syndFeed.originalWireFeed();
 
-        result = new Feed();
+        Feed result = new Feed();
         result.setFeedUrl(feedUrl);
-        result.setSiteUrl(syndFeed.getLink());
+        if (syndFeed.getLink() != null) {
+            result.setSiteUrl(syndFeed.getLink().trim());
+        }
         if (syndFeed.getTitle() != null && syndFeed.getTitle().length() > 0) {
             result.setTitle(syndFeed.getTitle().trim());
         } else {

@@ -87,6 +87,11 @@ public class DeliciousDatasetReader {
             return dataPath + "/fdocuments/" + filename.substring(0, 2) + "/" + filename;
         }
 
+        /** get associated file. */
+        public File getFile() {
+            return new File(getPath());
+        }
+
         @Deprecated
         public Bag<String> getTags() {
             Bag<String> resultBag = new HashBag<String>();
@@ -95,7 +100,7 @@ public class DeliciousDatasetReader {
             }
             return resultBag;
         }
-        
+
         public List<Tag> getAssignedTags() {
             return tags;
         }
@@ -114,6 +119,7 @@ public class DeliciousDatasetReader {
         protected Collection<String> allowedFiletypes = new LinkedList<String>();
         protected int minUsers = -1;
         protected double minUserTagRatio = -1;
+        protected int maxFileSize = -1;
 
         public void setAllowedFiletypes(Collection<String> allowedFiletypes) {
             this.allowedFiletypes = allowedFiletypes;
@@ -131,9 +137,20 @@ public class DeliciousDatasetReader {
             this.minUserTagRatio = minUserTagRatio;
         }
 
+        /**
+         * Limit for maximum accepted file size in bytes. This is useful, because very big HTML files can cause the
+         * HTML parser to stall. I usually set this to 600.000, to skip files above 600 kB. Set to -1 for no limit.
+         * 
+         * @param maxFileSize
+         */
+        public void setMaxFileSize(int maxFileSize) {
+            this.maxFileSize = maxFileSize;
+        }
+
         protected boolean accept(DatasetEntry entry) {
             boolean accept = allowedFiletypes.isEmpty() || allowedFiletypes.contains(entry.filetype);
             accept = accept && entry.numUsers >= minUsers;
+            accept = accept && (maxFileSize == -1 || entry.getFile().length() <= maxFileSize);
             return accept;
         }
 
@@ -309,11 +326,13 @@ public class DeliciousDatasetReader {
         // reader.setDataPath("/Users/pk/Studium/Diplomarbeit/delicioust140/");
 
         // configure filter to get only HTML files, bookmarked by at least 50 users,
-        // and only those tags which have been assigned by at least 10 % of the users
+        // only those tags which have been assigned by at least 10 % of the users,
+        // and only files which have a maximum size of 600.000 bytes
         DatasetFilter filter = new DatasetFilter();
         filter.addAllowedFiletype("html");
         filter.setMinUsers(50);
         filter.setMinUserTagRatio(0.1);
+        filter.setMaxFileSize(600000);
         reader.setFilter(filter);
 
         // callback for every entry in the data set

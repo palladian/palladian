@@ -2,8 +2,9 @@ package tud.iir.news;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Represents a news entry within a feed ({@link Feed}).
@@ -14,6 +15,9 @@ import java.util.Map;
 public class FeedEntry {
 
     private int id = -1;
+    
+    private int feedId = -1;
+    
     private String title;
     private String link;
 
@@ -37,7 +41,8 @@ public class FeedEntry {
     
     /** arbitrary, numeric features, used for feature extraction and classification. */
     // TODO change from Float to Number
-    private Map<String, Float> features = new HashMap<String, Float>();
+    // private Map<String, Float> features = new HashMap<String, Float>();
+    private SortedMap<String, Float> features = new TreeMap<String, Float>();
 
     public int getId() {
         return id;
@@ -45,6 +50,14 @@ public class FeedEntry {
 
     public void setId(int id) {
         this.id = id;
+    }
+    
+    public int getFeedId() {
+        return feedId;
+    }
+    
+    public void setFeedId(int feedId) {
+        this.feedId = feedId;
     }
 
     public String getTitle() {
@@ -149,11 +162,11 @@ public class FeedEntry {
     // tags.add(tag);
     // }
     
-    public Map<String, Float> getFeatures() {
+    public SortedMap<String, Float> getFeatures() {
         return features;
     }
     
-    public void setFeatures(Map<String, Float> features) {
+    public void setFeatures(SortedMap<String, Float> features) {
         this.features = features;
     }
 

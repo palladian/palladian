@@ -120,14 +120,18 @@ public class ControlledTagger {
         index.getTagVocabulary().addAll(tags); // XXX this should be the unique set?
         index.getStemmedTagVocabulary().addAll(stemmedTags); // XXX dto.
 
-        addToIdf(text);
+        if (text.length() > 0) {
+            addToIdf(text);
+        }
 
         if (correlationType != TaggingCorrelationType.NO_CORRELATIONS) {
             addToWcm(stemmedTags.uniqueSet());
         }
 
-        index.setTrainCount(index.getTrainCount() + 1);
-        index.setDirtyIndex(true);
+        if (tags.size() > 0) {
+            index.setTrainCount(index.getTrainCount() + 1);
+            index.setDirtyIndex(true);
+        }
 
     }
 
@@ -908,6 +912,7 @@ public class ControlledTagger {
      */
     public void load(String filePath) {
         StopWatch sw = new StopWatch();
+        LOGGER.info("loading index from " + filePath);
         ControlledTaggerIndex index = (ControlledTaggerIndex) FileHelper.deserialize(filePath);
         if (index == null) {
             LOGGER.error("could not read from " + filePath + ", starting with new instance.");
@@ -959,6 +964,9 @@ public class ControlledTagger {
         return sb.toString();
     }
 
+    /**
+     * Write some statistical information concerning the index.
+     */
     public void writeDataToReport() {
         // write IDF index
         // StringBuilder sb = new StringBuilder();
@@ -970,6 +978,25 @@ public class ControlledTagger {
         // FileHelper.writeToFile("data/temp/idf_index.txt", sb);
         // write stemmed vocabulary
 
+        Map<String, Integer> idfMap = new HashMap<String, Integer>();
+        for (String stemmedTag : index.getIdfIndex().uniqueSet()) {
+            String tagName = unstem(stemmedTag);
+            int tagCount = index.getIdfIndex().getCount(stemmedTag);
+            idfMap.put(tagName, tagCount);
+        }
+        
+        LinkedHashMap<String, Integer> idfMapSorted = CollectionHelper.sortByValue(idfMap.entrySet(), false);
+        
+        StringBuilder idfBuilder = new StringBuilder();
+        for (Entry<String, Integer> tagEntry : idfMapSorted.entrySet()) {
+            idfBuilder.append(tagEntry.getKey()).append("#");
+            idfBuilder.append(tagEntry.getValue());
+            idfBuilder.append("\n");
+        }
+        
+        
+        
+        // write controlled vocabulary
         Map<String, Integer> tagCountMap = new HashMap<String, Integer>();
         for (String stemmedTag : index.getStemmedTagVocabulary().uniqueSet()) {
             String tagName = unstem(stemmedTag);
@@ -992,6 +1019,7 @@ public class ControlledTagger {
         // sb.append(index.getStemmedTagVocabulary().getCount(tag));
         // sb.append("\n");
         // }
+        FileHelper.writeToFile("data/temp/idf_index.txt", idfBuilder);
         FileHelper.writeToFile("data/temp/vocabulary_index.txt", sb);
     }
 
