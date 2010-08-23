@@ -245,14 +245,21 @@ public class StringHelper {
     /**
      * Removes the special chars.
      * 
-     * TODO this does ... noting?
+     * TODO this does ... nothing?
+     * Marked this as deprecated -- Philipp.
      * 
      * @param string the string
      * @return the string
      */
+    @Deprecated
     public static String removeSpecialChars(String string) {
         String modString = string.replaceAll(" ", " ");
         return modString;
+    }
+    
+    public static String removeNonAsciiCharacters(String string) {
+        // http://forums.sun.com/thread.jspa?threadID=5370865
+        return string.replaceAll("[^\\p{ASCII}]", "");
     }
 
 
@@ -628,6 +635,18 @@ public class StringHelper {
         return string;
     }
 
+    // TODO
+    
+    public static String removeControlCharacters(String string) {
+        for (int i = 0, l = string.length(); i < l; ++i) {
+            // < 33 means all control characters are not wanted as well
+            if (string.charAt(i) < 33) {
+                string = string.replace(string.charAt(i), ' ');
+            }
+
+        }
+        return string;
+    }
     /**
      * Trim.
      * 
@@ -1056,7 +1075,9 @@ public class StringHelper {
      */
     public static void main(String[] args) {
         
-        System.out.println(StringHelper.numberCount("123abcdefg"));
+        System.out.println(removeNonAsciiCharacters("öüäaslkjd¡“¶{}|"));
+        
+        // System.out.println(StringHelper.numberCount("123abcdefg"));
         
         // System.out.println(WordTransformer.wordToSingular("yves"));
         // gives a java.lang.StringIndexOutOfBoundsException: String index out of range: -1

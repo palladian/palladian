@@ -14,17 +14,14 @@ import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.Map.Entry;
-import java.util.regex.Pattern;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
-import org.tartarus.snowball.SnowballStemmer;
-import org.tartarus.snowball.ext.englishStemmer;
 
-import tud.iir.classification.Stopwords;
 import tud.iir.classification.WordCorrelation;
-import tud.iir.classification.WordCorrelationMatrix;
+import tud.iir.classification.controlledtagging.ControlledTaggerSettings.TaggingCorrelationType;
+import tud.iir.classification.controlledtagging.ControlledTaggerSettings.TaggingType;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
@@ -44,74 +41,24 @@ public class ControlledTagger {
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(ControlledTagger.class);
 
-    // //////// enumerations for settings ///////////
-
-    public enum TaggingType {
-        THRESHOLD, FIXED_COUNT
-    }
-
-    // attn: If TaggingCorrelationType is set to NO_CORRELATIONS, no correlation matrix is built, so it's not possible
-    // to switch afterwards.
-    public enum TaggingCorrelationType {
-        NO_CORRELATIONS, SHALLOW_CORRELATIONS, DEEP_CORRELATIONS
-    }
-
-    // //////// default settings ///////////
-
-    private static final float DEFAULT_TFIDF_THRESHOLD = 0.005f;
-
-    private static final int DEFAULT_TAG_COUNT = 10;
-
-    private static final float DEFAULT_CORRELATION_WEIGHT = 50.0f;
-
-    private static final float DEFAULT_PRIOR_WEIGHT = 1.0f;
-
     // //////// index collections ///////////
-
     // TODO we could move some methods from here to the Index class.
     private ControlledTaggerIndex index = new ControlledTaggerIndex();
 
-    // //////// customizable settings ///////////
-    // see their corresponding setters for documentation.
-
-    private TaggingType taggingType = TaggingType.THRESHOLD;
-
-    private TaggingCorrelationType correlationType = TaggingCorrelationType.NO_CORRELATIONS;
-
-    private float tfidfThreshold = DEFAULT_TFIDF_THRESHOLD;
-
-    private int tagCount = DEFAULT_TAG_COUNT;
-
-    private float correlationWeight = DEFAULT_CORRELATION_WEIGHT;
-
-    private float priorWeight = DEFAULT_PRIOR_WEIGHT;
-    
-    /** Tags must match this pattern, to be accepted. This way we drop tags which contain no "word" character, like "," */
-    private Pattern tagMatchPattern = Pattern.compile(".*\\w.*");
-
-    // private boolean fastMode = true;
-
-    // //////// misc. ///////////
-
-    /** The Stopwords which are ignored as tags; no stopwords by default. */
-    private Set<String> stopwords = Collections.emptySet();
-
-    /** The Stemmer. This is not serializable and must be re-created upon de-serialization, see {@link #setup()}. */
-    private transient SnowballStemmer stemmer;
-
-    // //////// constuctor /////////
+    // /////// customizable settings ///////
+    private ControlledTaggerSettings settings = new ControlledTaggerSettings();
 
     /** Default constructor. */
     public ControlledTagger() {
-        setup();
+        // setup();
     }
 
     // //////// methods ////////////
 
-    private void setup() {
-        // re-create the stemmer, which is transient, on initialization/deserialization
-        stemmer = new englishStemmer();
-    }
+    // private void setup() {
+    // // re-create the stemmer, which is transient, on initialization/deserialization
+    // settings.setStemmer(new englishStemmer());
+    // }
 
     public void train(String text, Bag<String> tags) {
 
@@ -124,7 +71,7 @@ public class ControlledTagger {
             addToIdf(text);
         }
 
-        if (correlationType != TaggingCorrelationType.NO_CORRELATIONS) {
+        if (settings.getCorrelationType() != TaggingCorrelationType.NO_CORRELATIONS) {
             addToWcm(stemmedTags.uniqueSet());
         }
 
@@ -296,8 +243,8 @@ public class ControlledTagger {
     protected boolean isAcceptedTag(String stemmedTag) {
 
         boolean isAccepted = index.getStemmedTagVocabulary().contains(stemmedTag);
-        isAccepted = isAccepted && !stopwords.contains(stemmedTag);
-        isAccepted = isAccepted && tagMatchPattern.matcher(stemmedTag).matches();
+        isAccepted = isAccepted && !settings.getStopwords().contains(stemmedTag);
+        isAccepted = isAccepted && settings.getTagMatchPattern().matcher(stemmedTag).matches();
 
         return isAccepted;
 
@@ -394,16 +341,16 @@ public class ControlledTagger {
             // prior boosting will boost/weaken the tf-idf values based on the relative count of occurences
             // of this particular tag in the controlled vocabulary. The underlying assumption is, that the probability
             // of correctly assigning a tag which is "popular" is higher.
-            
+
             // moved this to the reRanking method, as the normalization also applies.
-            
+
             // if (usePriors) {
             // if (priorWeight != -1) {
-            //    float priorBoost = (float) Math.log10(1.0 + index.getStemmedTagVocabulary().getCount(tag)
-            //            / index.getAverageTagOccurence());
-            //    assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
-            //    termFreqInvDocFreq *= priorWeight * priorBoost;
-            //}
+            // float priorBoost = (float) Math.log10(1.0 + index.getStemmedTagVocabulary().getCount(tag)
+            // / index.getAverageTagOccurence());
+            // assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
+            // termFreqInvDocFreq *= priorWeight * priorBoost;
+            // }
 
             assert !Float.isInfinite(termFreqInvDocFreq) && !Float.isNaN(termFreqInvDocFreq);
 
@@ -419,9 +366,9 @@ public class ControlledTagger {
 
         // when using tag correlations, do the re-ranking
 
-        //if (correlationType != TaggingCorrelationType.NO_CORRELATIONS && index.getWcm() != null
-        //        && !assignedTags.isEmpty()) {
-        
+        // if (correlationType != TaggingCorrelationType.NO_CORRELATIONS && index.getWcm() != null
+        // && !assignedTags.isEmpty()) {
+
         // if (!assignedTags.isEmpty()) {
         // reRanking only makes sense, if we have at least two tags :)
         if (assignedTags.size() > 1) {
@@ -449,22 +396,22 @@ public class ControlledTagger {
 
         // create final tag result set
         // 1) either by removing those tags which are under the defined threshold
-        if (taggingType == TaggingType.THRESHOLD) {
+        if (settings.getTaggingType() == TaggingType.THRESHOLD) {
             // ListIterator<Tag> iterator = assignedTags.listIterator();
             // while (iterator.hasNext()) {
             // if (iterator.next().weight < tfidfThreshold) {
             // iterator.remove();
             // }
             // }
-            limitToWeight(assignedTags, tfidfThreshold);
+            limitToWeight(assignedTags, settings.getTfidfThreshold());
         }
 
         // 2) or by keeping a fixed number of top tags.
-        else if (taggingType == TaggingType.FIXED_COUNT) {
+        else if (settings.getTaggingType() == TaggingType.FIXED_COUNT) {
             // if (assignedTags.size() > tagCount) {
             // assignedTags.subList(tagCount, assignedTags.size()).clear();
             // }
-            limitToCount(assignedTags, tagCount);
+            limitToCount(assignedTags, settings.getTagCount());
         }
 
         LOGGER.trace("final tags:" + assignedTags);
@@ -509,18 +456,19 @@ public class ControlledTagger {
         StopWatch sw = new StopWatch();
 
         // experimental: to normalize the range of the re-ranked tags back to their original range,
-        // by keeping the lower/upper bounds, so we keep the general properties of the TF/IDF -- elsewise 
+        // by keeping the lower/upper bounds, so we keep the general properties of the TF/IDF -- elsewise
         // we will get outliers which are considerably bigger than most of the other tag weights.
         float oldMin = assignedTags.get(0).getWeight();
         float oldMax = assignedTags.get(assignedTags.size() - 1).getWeight();
-        
+
         // do the prior-based re-ranking
-        if (priorWeight != -1) {
+        if (settings.getPriorWeight() != -1) {
 
             for (Tag tag : assignedTags) {
                 int count = index.getStemmedTagVocabulary().getCount(tag.getName());
                 // float priorBoost = (float) Math.log10(1.0 + priorWeight * count / index.getAverageTagOccurence());
-                float priorBoost = (float) Math.log10(1.0 + priorWeight * count / index.getAverageTagOccurence()) + 1;
+                float priorBoost = (float) Math.log10(1.0 + settings.getPriorWeight() * count
+                        / index.getAverageTagOccurence()) + 1;
                 assert !Float.isInfinite(priorBoost) && !Float.isNaN(priorBoost);
                 float weight = tag.getWeight() * priorBoost;
                 // weight *= priorWeight * priorBoost;
@@ -529,11 +477,11 @@ public class ControlledTagger {
             }
 
         }
-        
+
         Collections.sort(assignedTags, new TagComparator());
 
         // Option 1: do a "shallow" re-ranking, only considering top-tag (n)
-        if (correlationType == TaggingCorrelationType.SHALLOW_CORRELATIONS) {
+        if (settings.getCorrelationType() == TaggingCorrelationType.SHALLOW_CORRELATIONS) {
             Iterator<Tag> tagIterator = assignedTags.iterator();
             Tag topTag = tagIterator.next();
 
@@ -543,13 +491,14 @@ public class ControlledTagger {
                 WordCorrelation correlation = index.getWcm().getCorrelation(topTag.getName(), currentTag.getName());
                 if (correlation != null) {
                     // currentTag.weight += correlationWeight * correlation.getRelativeCorrelation();
-                    currentTag.increaseWeight((float) (correlationWeight * correlation.getRelativeCorrelation()));
+                    currentTag.increaseWeight((float) (settings.getCorrelationWeight() * correlation
+                            .getRelativeCorrelation()));
                 }
             }
         }
 
         // Option 2: do a "deep" re-ranking, considering correlations between each possible combination
-        else if (correlationType == TaggingCorrelationType.DEEP_CORRELATIONS) {
+        else if (settings.getCorrelationType() == TaggingCorrelationType.DEEP_CORRELATIONS) {
             Tag[] tagsArray = assignedTags.toArray(new Tag[assignedTags.size()]);
 
             // experimental:
@@ -564,7 +513,7 @@ public class ControlledTagger {
                     if (correlation != null) {
                         // float reRanking = (float) ((correlationWeight / tagsArray.length) *
                         // correlation.getRelativeCorrelation());
-                        float reRanking = (float) ((correlationWeight / numReRanking) * correlation
+                        float reRanking = (float) ((settings.getCorrelationWeight() / numReRanking) * correlation
                                 .getRelativeCorrelation());
 
                         assert !Double.isInfinite(reRanking) && !Double.isNaN(reRanking);
@@ -749,9 +698,9 @@ public class ControlledTagger {
      * @return
      */
     protected String stem(String unstemmed) {
-        stemmer.setCurrent(unstemmed);
-        stemmer.stem();
-        String stem = stemmer.getCurrent();
+        settings.getStemmer().setCurrent(unstemmed);
+        settings.getStemmer().stem();
+        String stem = settings.getStemmer().getCurrent();
         return stem;
     }
 
@@ -802,49 +751,6 @@ public class ControlledTagger {
         return normalizedTags;
     }
 
-    public void setCorrelationType(TaggingCorrelationType correlationType) {
-        this.correlationType = correlationType;
-    }
-
-    public void setWordCorrelationMatrix(WordCorrelationMatrix wcm) {
-        this.index.setWcm(wcm);
-    }
-
-    public void setCorrelationWeight(float correlationWeight) {
-        this.correlationWeight = correlationWeight;
-    }
-
-    public void setTaggingType(TaggingType taggingType) {
-        this.taggingType = taggingType;
-    }
-
-    /**
-     * Set max. number of tags to assign when in {@link TaggingType#FIXED_COUNT} mode.
-     * 
-     * @param tagCount
-     */
-    public void setTagCount(int tagCount) {
-        this.tagCount = tagCount;
-    }
-
-    /**
-     * When enabled, tags from the controlled vocabulary which have a high occurence are preferred.
-     * Set to -1 to disable.
-     * 
-     * @param usePriors
-     */
-    public void setPriorWeight(float priorWeight) {
-        this.priorWeight = priorWeight;
-    }
-
-    /**
-     * Set the threshold for the TFIDF value when in {@link TaggingType#THRESHOLD} mode.
-     * 
-     * @param tfidfThreshold
-     */
-    public void setTfidfThreshold(float tfidfThreshold) {
-        this.tfidfThreshold = tfidfThreshold;
-    }
 
     /**
      * Set the fast mode. This is only relevant when using correlations,
@@ -861,17 +767,13 @@ public class ControlledTagger {
     // this.fastMode = fastMode;
     // }
 
-    /**
-     * Set the Set of Stopwords to use, for example {@link Stopwords}.
-     * 
-     * @param stopwords
-     */
-    public void setStopwords(Set<String> stopwords) {
-        this.stopwords = stopwords;
+    
+    public ControlledTaggerSettings getSettings() {
+        return settings;
     }
     
-    public void setTagMatchPattern(Pattern tagMatchPattern) {
-        this.tagMatchPattern = tagMatchPattern;
+    public void setSettings(ControlledTaggerSettings settings) {
+        this.settings = settings;
     }
 
     /**
@@ -953,13 +855,15 @@ public class ControlledTagger {
 
         sb.append("\n").append(index);
 
-        sb.append("\ntaggingType=").append(taggingType);
-        sb.append("\ncorrelationType=").append(correlationType);
-        sb.append("\ntfidfThreshold=").append(tfidfThreshold);
-        sb.append("\ntagCount=").append(tagCount);
-        sb.append("\ncorrelationWeight=").append(correlationWeight);
-        sb.append("\npriorWeight=").append(priorWeight);
+//        sb.append("\ntaggingType=").append(settings.getTaggingType());
+//        sb.append("\ncorrelationType=").append(settings.getCorrelationType());
+//        sb.append("\ntfidfThreshold=").append(settings.getTfidfThreshold());
+//        sb.append("\ntagCount=").append(settings.getTagCount());
+//        sb.append("\ncorrelationWeight=").append(settings.getCorrelationWeight());
+//        sb.append("\npriorWeight=").append(settings.getPriorWeight());
         // sb.append("\nfastMode=").append(fastMode);
+        
+        sb.append("\n").append(settings);
 
         return sb.toString();
     }
@@ -984,18 +888,16 @@ public class ControlledTagger {
             int tagCount = index.getIdfIndex().getCount(stemmedTag);
             idfMap.put(tagName, tagCount);
         }
-        
+
         LinkedHashMap<String, Integer> idfMapSorted = CollectionHelper.sortByValue(idfMap.entrySet(), false);
-        
+
         StringBuilder idfBuilder = new StringBuilder();
         for (Entry<String, Integer> tagEntry : idfMapSorted.entrySet()) {
             idfBuilder.append(tagEntry.getKey()).append("#");
             idfBuilder.append(tagEntry.getValue());
             idfBuilder.append("\n");
         }
-        
-        
-        
+
         // write controlled vocabulary
         Map<String, Integer> tagCountMap = new HashMap<String, Integer>();
         for (String stemmedTag : index.getStemmedTagVocabulary().uniqueSet()) {
