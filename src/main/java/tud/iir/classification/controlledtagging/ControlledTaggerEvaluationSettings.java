@@ -81,7 +81,7 @@ public class ControlledTaggerEvaluationSettings extends ControlledTaggerSettings
         
         StringBuilder sb = new StringBuilder();
         sb.append("ControlledTaggerEvaluationSettings:");
-        sb.append("trainLimit:").append(getTestLimit());
+        sb.append("trainLimit:").append(getTrainLimit());
         sb.append(",testLimit:").append(getTestLimit());
         sb.append(",").append(super.toString());
         

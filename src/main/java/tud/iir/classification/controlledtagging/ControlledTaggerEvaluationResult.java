@@ -9,10 +9,11 @@ import java.text.NumberFormat;
 import tud.iir.helper.StopWatch;
 
 /**
- * Keeps results concerning the Tagger evaluation like Pr/Rc/F1, etc.
+ * Keeps results concerning the Tagger evaluation for specific {@link ControlledTaggerEvaluationSettings} like
+ * Pr/Rc/F1, etc.
  * 
  * @author Philipp Katz
- *
+ * 
  */
 public class ControlledTaggerEvaluationResult {
 
