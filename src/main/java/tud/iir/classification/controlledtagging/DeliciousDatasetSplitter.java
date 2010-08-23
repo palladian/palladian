@@ -19,8 +19,15 @@ public abstract class DeliciousDatasetSplitter extends DeliciousDatasetReader {
     private int trainLimit = 100;
     
     private int testLimit = 100;
+    
+    public DeliciousDatasetSplitter() {
+        calculateSplit();
+    }
 
-    private void calculateSplit() {
+    /**
+     * The split is calculated upon initialization. Call this, to calculate a new split.
+     */
+    public void calculateSplit() {
 
         // create split list, use 50:50 split for now
         Random random = new Random();
@@ -45,8 +52,6 @@ public abstract class DeliciousDatasetSplitter extends DeliciousDatasetReader {
     }
 
     public void read() {
-        
-        calculateSplit();
 
         ///////////////// training ////////////////
         startTrain();

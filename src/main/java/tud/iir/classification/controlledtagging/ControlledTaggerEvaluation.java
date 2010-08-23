@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.commons.collections15.Bag;
 
-import tud.iir.classification.Stopwords;
 import tud.iir.classification.controlledtagging.ControlledTaggerSettings.TaggingCorrelationType;
 import tud.iir.classification.controlledtagging.ControlledTaggerSettings.TaggingType;
 import tud.iir.helper.FileHelper;
@@ -24,7 +23,7 @@ import tud.iir.news.Helper;
  */
 public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
     
-    private ControlledTagger tagger = new ControlledTagger();
+    private ControlledTagger tagger;
     private ControlledTaggerEvaluationResult evaluationResult;
 
     private NumberFormat format = new DecimalFormat("0.00");
@@ -33,21 +32,21 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
 
     }
     
-    public ControlledTaggerEvaluationResult evaluate(int trainLimit, int testLimit, ControlledTaggerSettings settings) {
-        
-        System.out.println("evaluating with " + settings);
-        
-        evaluationResult = new ControlledTaggerEvaluationResult();
-        
-        tagger.setSettings(settings);        
-        setTrainLimit(trainLimit);
-        setTestLimit(testLimit);
-        
-        read();
-        
-        return evaluationResult;
-        
-    }
+//    public ControlledTaggerEvaluationResult evaluate(int trainLimit, int testLimit, ControlledTaggerSettings settings) {
+//        
+//        System.out.println("evaluating with " + settings);
+//        
+//        evaluationResult = new ControlledTaggerEvaluationResult();
+//        
+//        tagger.setSettings(settings);        
+//        setTrainLimit(trainLimit);
+//        setTestLimit(testLimit);
+//        
+//        read();
+//        
+//        return evaluationResult;
+//        
+//    }
     
     public ControlledTaggerEvaluationResult evaluate(ControlledTaggerEvaluationSettings settings) {
         
@@ -55,6 +54,7 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
         
         evaluationResult = new ControlledTaggerEvaluationResult();
         
+        tagger = new ControlledTagger();
         tagger.setSettings(settings);
         setTrainLimit(settings.getTrainLimit());
         setTestLimit(settings.getTestLimit());
@@ -65,11 +65,19 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
         
     }
     
+    /**
+     * Do validation with a list of different settings, save result to textfile.
+     * The result file contains one line for each validation step with settings and corresponding results.
+     * 
+     * @param settings
+     * @param resultFilePath
+     */
     public void evaluate(List<ControlledTaggerEvaluationSettings> settings, String resultFilePath) {
         
         System.out.println("start evaluation for " + settings.size() + " settings");
         
         for (ControlledTaggerEvaluationSettings setting : settings) {
+            
             ControlledTaggerEvaluationResult result = evaluate(setting);
             StringBuilder fileLine = new StringBuilder();
             fileLine.append(setting.toString());
@@ -170,59 +178,31 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
         filter.addAllowedFiletype("html");
         filter.setMinUsers(50);
         filter.setMaxFileSize(600000);
-        evaluation.setFilter(filter);
+        evaluation.setFilter(filter);        
         
-        // ////// set up the tagger ////////
-        // ControlledTagger tagger = new ControlledTagger();
-        // tagger.load("data/controlledTagger20000_T140.ser");
-        // tagger.load("/Users/pk/Studium/Diplomarbeit/workspace/newsseecr/data/controlledTagger40000_David_semantic.ser");
-        // --> use 40.000 correlation
-        // tagger.load("/Users/pk/Studium/Diplomarbeit/workspace/newsseecr/data/controlledTagger20000_David_semantic.ser");
+        ControlledTaggerEvaluationSettings s1 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 100, 1.0f);
+        ControlledTaggerEvaluationSettings s2 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 500, 1.0f);
+        ControlledTaggerEvaluationSettings s3 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 5000, 1.0f);
+        ControlledTaggerEvaluationSettings s4 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 10000, 1.0f);
+        ControlledTaggerEvaluationSettings s5 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 20000, 1.0f);
+        ControlledTaggerEvaluationSettings s6 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
+        ControlledTaggerEvaluationSettings s7 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 40000, 1.0f);
+        ControlledTaggerEvaluationSettings s8 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 50000, 1.0f);
         
-        ControlledTaggerEvaluationSettings s1 = new ControlledTaggerEvaluationSettings(1000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
-        ControlledTaggerEvaluationSettings s2 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
-        ControlledTaggerEvaluationSettings s3 = new ControlledTaggerEvaluationSettings(3000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
-        ControlledTaggerEvaluationSettings s4 = new ControlledTaggerEvaluationSettings(5000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
-        ControlledTaggerEvaluationSettings s5 = new ControlledTaggerEvaluationSettings(6000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
         
-        List<ControlledTaggerEvaluationSettings> settings = Arrays.asList(s1, s2, s3, s4, s5);
+        
+        
+        
+        //ControlledTaggerEvaluationSettings s2 = new ControlledTaggerEvaluationSettings(2000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
+        //ControlledTaggerEvaluationSettings s3 = new ControlledTaggerEvaluationSettings(3000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
+        //ControlledTaggerEvaluationSettings s4 = new ControlledTaggerEvaluationSettings(5000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
+        //ControlledTaggerEvaluationSettings s5 = new ControlledTaggerEvaluationSettings(6000, 1000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 30000, 1.0f);
+        
+        List<ControlledTaggerEvaluationSettings> settings = Arrays.asList(s1, s2, s3, s4, s5, s6, s7, s8);
         
         evaluation.evaluate(settings, "data/ControlledTaggerEvaluationResult.txt");
 
 
-
-        // 1000/1000 average pr: 0,46 rc: 0,22 f1: 0,30
-        // 2000/1000 average pr: 0,47 rc: 0,23 f1: 0,31
-        // 3000/1000 average pr: 0,48 rc: 0,23 f1: 0,31
-        // 5000/1000 average pr: 0,48 rc: 0,23 f1: 0,31
-        // 10000/1000 average pr: 0,48 rc: 0,23 f1: 0,31
-        // 20000/1000 average pr: 0,49 rc: 0,24 f1: 0,32
-        // 20000/20000 average pr: 0,50 rc: 0,25 f1: 0,33
-        // 40000/1000 average pr: 0,49 rc: 0,25 f1: 0,33
-        // 60000/1000 average pr: 0,49 rc: 0,24 f1: 0,32
-
-        
-//        // ////////////// tagging with fixed tag count /////////////////
-//        ControlledTaggerEvaluationSettings settings = new ControlledTaggerEvaluationSettings();
-//        settings.setTaggingType(TaggingType.FIXED_COUNT);
-//        settings.setTagCount(10);
-//        // tagger.setTagCount(100);
-//
-//        // ///////////// general settings ////////////////////
-//        settings.setPriorWeight(1.0f);
-//        settings.setCorrelationType(TaggingCorrelationType.DEEP_CORRELATIONS);
-//        settings.setCorrelationWeight(30000);
-//        settings.setStopwords(new Stopwords(Stopwords.STOP_WORDS_EN));
-//        
-//        // ////////////// evaluation specific ///////////////////
-//        settings.setTrainLimit(1000);
-//        settings.setTestLimit(1000);
-//        
-//        ControlledTaggerEvaluationResult result = evaluation.evaluate(s1);
-//        System.out.println(result);
-
-        // ////////////////////////////////////////////////////
-        // evaluation.read();
     }
 
 }
