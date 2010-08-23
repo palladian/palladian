@@ -235,7 +235,7 @@ public class HTMLHelper {
      * Converts HTML markup to a more or less human readable string. For example we insert line breaks for HTML block
      * level elements, filter out comments, scripts and stylesheets, remove unnecessary white space and so on.
      * 
-     * In contrast to @link{@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which works in Strings
+     * In contrast to @link{@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which works on Strings
      * and just strips out all tags via RegExes, this approach tries to keep some structure for displaying HTML content
      * in text mode in a readable form.
      * 
@@ -332,7 +332,7 @@ public class HTMLHelper {
 
         } catch (Exception e) {
 
-            // fall back, remove tags directly from the string without parsing
+            // parser failed -> fall back, remove tags directly from the string without parsing
             LOGGER.debug("encountered error while parsing, will just strip tags : " + e.getMessage());
             result = removeHTMLTags(html, true, true, true, false);
 
