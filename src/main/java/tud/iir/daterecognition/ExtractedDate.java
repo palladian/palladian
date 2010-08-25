@@ -46,6 +46,8 @@ public class ExtractedDate {
     private int minute = -1;
     private int second = -1;
 
+    private String timezone = null;
+
     /**
      * Standard constructor.
      */
@@ -89,6 +91,12 @@ public class ExtractedDate {
         }
 
         String dateString = this.dateString;
+
+        String[] tempArray = ExtractedDateHelper.removeTimezone(dateString);
+        timezone = tempArray[1];
+        if (timezone != null) {
+            dateString = tempArray[0];
+        }
 
         String[] dateParts = new String[3];
         if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD_T[1])) {
@@ -144,7 +152,8 @@ public class ExtractedDate {
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL[1])) {
             setDateValues(dateString.split(ExtractedDateHelper.getSeparator(dateString)), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM_Y[1])) {
-            setDateValues(dateString.split("\\."), 2, 1, 0);
+            String separator = ExtractedDateHelper.getSeparator(dateString);
+            setDateValues(dateString.split(separator), 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y[1])) {
             setDateValues(dateString.split("/"), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y[1])) {
@@ -164,7 +173,8 @@ public class ExtractedDate {
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_MM_Y[1])) {
             setDateValues(dateString.split("\\."), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM[1])) {
-            setDateValues(dateString.split("\\."), -1, 1, 0);
+            String separator = ExtractedDateHelper.getSeparator(dateString);
+            setDateValues(dateString.split(separator), -1, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM[1])) {
             int index = dateString.indexOf(".");
             if (index == -1) {
@@ -220,7 +230,9 @@ public class ExtractedDate {
                 dateString = removeAMPM(dateString, meridiem);
             }
             String[] parts = dateString.split(" ");
-            String[] date = parts[0].split("\\.");
+
+            String separator = ExtractedDateHelper.getSeparator(parts[0]);
+            String[] date = parts[0].split(separator);
             setDateValues(date, 2, 1, 0);
             if (parts.length > 2) {
                 setTimeValues(parts[1] + parts[2]);
@@ -682,10 +694,12 @@ public class ExtractedDate {
     }
 
     public String toString() {
-        return dateString + " -> " + this.getNormalizedDate() + " Format: " + this.format;
+        return dateString + " -> " + this.getNormalizedDate() + " Format: " + this.format + " Technique: "
+                + ExtractedDateHelper.getTypString(getType());
     }
 
     public int getType() {
         return 0;
     }
+
 }

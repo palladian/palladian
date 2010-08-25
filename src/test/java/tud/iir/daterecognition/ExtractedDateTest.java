@@ -87,5 +87,4 @@ public class ExtractedDateTest {
         assertEquals(5, date18.get(ExtractedDate.SECOND));
 
     }
-
 }

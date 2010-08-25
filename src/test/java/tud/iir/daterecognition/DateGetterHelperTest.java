@@ -160,6 +160,8 @@ public class DateGetterHelperTest {
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
         date = DateGetterHelper.getDateFromString("07.2010", RegExp.DATE_EU_MM_Y);
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("June 2010", RegExp.DATE_EUSA_MMMM_Y);
+        assertEquals(date.getDateString(), "2010-06", date.getNormalizedDate());
         text = "0-07-25";
         date = DateGetterHelper.getDateFromString("25.07.", RegExp.DATE_EU_D_MM);
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
@@ -216,6 +218,12 @@ public class DateGetterHelperTest {
         text = "2010-07-02 19:07:49";
         date = DateGetterHelper.getDateFromString("02.07.2010 20:07:49 +0100", RegExp.DATE_EU_D_MM_Y_T);
         assertEquals(text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("02-07-2010 20:07:49 +0100", RegExp.DATE_EU_D_MM_Y_T);
+        assertEquals(text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("02/07/2010 20:07:49 +0100", RegExp.DATE_EU_D_MM_Y_T);
+        assertEquals(text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("02_07_2010 20:07:49 +0100", RegExp.DATE_EU_D_MM_Y_T);
+        assertEquals(text, date.getNormalizedDate());
         date = DateGetterHelper.getDateFromString("02. Juli 2010 20:07:49 +0100", RegExp.DATE_EU_D_MMMM_Y_T);
         assertEquals(text, date.getNormalizedDate());
         date = DateGetterHelper.getDateFromString("07/02/2010 20:07:49 +0100", RegExp.DATE_USA_MM_D_Y_T);
@@ -239,6 +247,41 @@ public class DateGetterHelperTest {
         assertEquals("2010-07-25", DateGetterHelper.findDate("Sun, 25 Jul 2010").getNormalizedDate());
         assertEquals("2010-03-07 22:53:50", DateGetterHelper.findDate("Sun 7 Mar 2010 10:53:50 PM GMT")
                 .getNormalizedDate());
+        assertEquals("2010-08-18 13:20", DateGetterHelper.findDate("Wednesday August 18, 2010, 8:20 PM GMT +07:00")
+                .getNormalizedDate());
+        assertEquals("2010-08-18 13:20", DateGetterHelper.findDate("Wednesday August 18, 2010 8:20 PM GMT +07:00")
+                .getNormalizedDate());
+        assertEquals("2010-08-18 13:20", DateGetterHelper.findDate("Wednesday August 18, 2010, 8:20 PM +07:00")
+                .getNormalizedDate());
+        assertEquals("2010-07-29", DateGetterHelper.findDate("29/07/2010").getNormalizedDate());
+        assertEquals("2010-09-07", DateGetterHelper.findDate("09/07/2010").getNormalizedDate());
+
+    }
+
+    @Test
+    public void testFindAllDates() {
+        assertEquals("2010-01", (DateGetterHelper.findALLDates("Januar 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-02", (DateGetterHelper.findALLDates("Februar 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-03", (DateGetterHelper.findALLDates("März 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-04", (DateGetterHelper.findALLDates("April 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-05", (DateGetterHelper.findALLDates("Mai 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-06", (DateGetterHelper.findALLDates("Juni 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-07", (DateGetterHelper.findALLDates("Juli 2010")).get(0).getNormalizedDate());
+        System.out.println("August 2010");
+        assertEquals("2010-08", (DateGetterHelper.findALLDates("August 2010")).get(0).getNormalizedDate());
+        assertEquals("MMMM YYYY", (DateGetterHelper.findALLDates("August 2010")).get(0).getFormat());
+        assertEquals("2010-09", (DateGetterHelper.findALLDates("September 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-10", (DateGetterHelper.findALLDates("Oktober 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-11", (DateGetterHelper.findALLDates("November 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-12", (DateGetterHelper.findALLDates("Dezember 2010")).get(0).getNormalizedDate());
+
+    }
+
+    @Test
+    public void testFindDate() {
+        String text = "2010-08-03";
+        assertEquals(text, (DateGetterHelper.findDate("2010-08-03")).getNormalizedDate());
+        assertEquals("2010-06", (DateGetterHelper.findDate("June 2010")).getNormalizedDate());
 
     }
 
@@ -317,6 +360,7 @@ public class DateGetterHelperTest {
         }
     }
 
+    @Ignore
     @Test
     public void testGetContentDates() {
         final String url = "data/test/webPages/dateExtraction/kullin.htm";
@@ -337,15 +381,52 @@ public class DateGetterHelperTest {
     }
 
     @Test
+    public void testGetContentDates2() {
+        final String url = "data/test/webPages/dateExtraction/Bangkok.htm";
+
+        if (!AllTests.ALL_TESTS) {
+            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+            // date.addAll(DateGetterHelper
+            // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
+            // date.addAll(DateGetterHelper
+            // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
+            DateGetter dateGetter = new DateGetter(url);
+            dateGetter.setAllFalse();
+            dateGetter.setTechHTMLContent(true);
+            date.addAll(dateGetter.getDate());
+            ExtractedDateHelper.printDateArray(date);
+
+        }
+    }
+
+    @Ignore
+    @Test
     public void testGetDate() {
         final String url = "data/test/webPages/dateExtraction/alltop.htm";
 
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
+            dateGetter.setAllTrue();
+            dateGetter.setTechReference(false);
+            dateGetter.setTechArchive(false);
+            date.addAll(dateGetter.getDate());
+            ExtractedDateHelper.printDateArray(date, ExtractedDate.TECH_HTML_CONT);
+
+        }
+    }
+
+    @Ignore
+    @Test
+    public void testGetDate2() {
+        final String url = "http://www.friendfeed.com/share?title=Google+displays+incorrect+dates+from+news+sites&link=http://www.kullin.net/2010/05/google-displays-incorrect-dates-from-news-sites/";
+
+        if (!AllTests.ALL_TESTS) {
+            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+            DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllFalse();
-            dateGetter.setTechHTMLContent(false);
-            dateGetter.setTechHTMLStruct(true);
+            dateGetter.setTechHTMLContent(true);
+            dateGetter.setTechHTMLStruct(false);
             dateGetter.setTechReference(false);
             date.addAll(dateGetter.getDate());
             ExtractedDateHelper.printDateArray(date);
@@ -356,7 +437,8 @@ public class DateGetterHelperTest {
     @Ignore
     @Test
     public void testGetReferenceDates() {
-        final String url = "data/test/webPages/dateExtraction/kullin.htm";
+        String url = "http://www.spiegel.de/index.html";
+        // String url = "data/test/webPages/dateExtraction/kullin.htm";
 
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
