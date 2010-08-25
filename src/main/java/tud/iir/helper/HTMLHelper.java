@@ -3,6 +3,7 @@ package tud.iir.helper;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -27,6 +28,8 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
+
+import tud.iir.knowledge.HTMLSymbols;
 
 /**
  * Some HTML specific helper methods.
@@ -394,6 +397,18 @@ public class HTMLHelper {
         }
         return value;
 
+    }
+
+    public static String replaceHTMLSymbols(String text) {
+        String result = text;
+        if (result != null) {
+            Iterator<String[]> htmlSymbols = HTMLSymbols.getHTMLSymboles().iterator();
+            while (htmlSymbols.hasNext()) {
+                String[] symbol = htmlSymbols.next();
+                result = result.replaceAll(symbol[0], symbol[1]);
+            }
+        }
+        return result;
     }
 
     public static void main(String[] args) throws Exception {

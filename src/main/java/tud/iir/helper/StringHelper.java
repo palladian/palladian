@@ -145,8 +145,6 @@ public class StringHelper {
         return term.substring(0, 1).toLowerCase() + term.substring(1);
     }
 
-
-
     /**
      * Replace number before a text. 1.1 Text => Text
      * 
@@ -216,8 +214,6 @@ public class StringHelper {
         return false;
     }
 
-
-
     /**
      * Clean the given string from stop words, i.e. words that appear often but have no meaning itself.
      * 
@@ -240,8 +236,6 @@ public class StringHelper {
         return modString.trim();
     }
 
-
-
     /**
      * Removes the special chars.
      * 
@@ -261,8 +255,6 @@ public class StringHelper {
         // http://forums.sun.com/thread.jspa?threadID=5370865
         return string.replaceAll("[^\\p{ASCII}]", "");
     }
-
-
 
     /**
      * Removes the brackets.
@@ -524,9 +516,6 @@ public class StringHelper {
         }
         return false;
     }
-
-
-
 
     /**
      * Remove unwanted characters from beginning and end of string.
@@ -996,9 +985,10 @@ public class StringHelper {
 
         return substring;
     }
-    
+
     /**
      * Transforms a CamelCased String into a split String.
+     * 
      * @param camelCasedString The String to split.
      * @param separator The separator to insert between the camelCased fragments.
      * @return The separated String.
@@ -1006,21 +996,21 @@ public class StringHelper {
      */
     public static String camelCaseToWords(String camelCasedString, String separator) {
         StringBuilder result = new StringBuilder();
-        
+
         if (camelCasedString != null && !camelCasedString.isEmpty()) {
-            
+
             char[] chars = camelCasedString.toCharArray();
-            
+
             // append first character
-            result.append(chars[0]);            
-    
+            result.append(chars[0]);
+
             // append the rest
             for (int i = 1; i < chars.length; i++) {
-                
+
                 char current = chars[i];
                 boolean currentIsUpper = Character.getType(current) == Character.UPPERCASE_LETTER;
                 boolean previousIsLower = Character.getType(chars[i - 1]) == Character.LOWERCASE_LETTER;
-    
+
                 if (currentIsUpper && previousIsLower) {
                     result.append(separator);
                 }
@@ -1030,10 +1020,11 @@ public class StringHelper {
 
         return result.toString();
     }
-    
+
     /**
-     * Transforms a CamelCased String into a space separated String. For example:
-     * <code>camelCaseString</code> is converted to <code>camel Case String</code>.
+     * Transforms a CamelCased String into a space separated String. For example: <code>camelCaseString</code> is
+     * converted to <code>camel Case String</code>.
+     * 
      * @param camelCasedString The String to split.
      * @return The separated String.
      * @author Philipp Katz
@@ -1041,7 +1032,7 @@ public class StringHelper {
     public static String camelCaseToWords(String camelCasedString) {
         return camelCaseToWords(camelCasedString, " ");
     }
-    
+
     public static String urlDecode(String url) {
         try {
             url = URLDecoder.decode(url, "UTF-8");
@@ -1052,7 +1043,6 @@ public class StringHelper {
         }
         return url;
     }
-    
 
     // TODO move this to global helper class?
     public static String urlEncode(String string) {
@@ -1066,7 +1056,33 @@ public class StringHelper {
         return result;
     }
 
+    /**
+     * Looks for a regular expression in string. Removes found substring from source-string. <br>
+     * Only the first found match will be deleted. <br>
+     * Return value consists of a two-field-array. First value is cleared string, second is removed substring.
+     * 
+     * @param string to be cleared.
+     * @param regExp A regular expression.
+     * @return Cleared string and removed string in an array.
+     */
+    public static String[] removeFirstStringpart(String string, String regExp) {
+        String returnString = null;
+        String removedString = null;
+        Matcher matcher;
+        Pattern pattern;
 
+        pattern = Pattern.compile(regExp.toLowerCase());
+        matcher = pattern.matcher(string.toLowerCase());
+        if (matcher.find()) {
+            int start = matcher.start();
+            int end = matcher.end();
+            removedString = string.substring(start, end);
+            returnString = string.replace(removedString, "");
+            returnString = returnString.replaceAll("  ", " ");
+        }
+        String[] result = { returnString, removedString };
+        return result;
+    }
 
     /**
      * The main method.
@@ -1074,7 +1090,7 @@ public class StringHelper {
      * @param args the arguments
      */
     public static void main(String[] args) {
-        
+
         System.out.println(removeNonAsciiCharacters("öüäaslkjd¡“¶{}|"));
         
         // System.out.println(StringHelper.numberCount("123abcdefg"));
@@ -1195,7 +1211,5 @@ public class StringHelper {
         }
 
     }
-
-
 
 }

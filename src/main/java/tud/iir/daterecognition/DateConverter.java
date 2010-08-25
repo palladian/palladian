@@ -18,4 +18,12 @@ public class DateConverter {
         return structureDate;
     }
 
+    public static ContentDate convertToContentDate(ExtractedDate date) {
+        ContentDate contentDate = null;
+        if (date != null) {
+            contentDate = new ContentDate(date.getDateString(), date.getFormat());
+        }
+        return contentDate;
+    }
+
 }

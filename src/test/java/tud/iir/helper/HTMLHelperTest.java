@@ -59,4 +59,10 @@ public class HTMLHelperTest extends TestCase {
 
     }
 
+    @Test
+    public void testReplaceHTMLSymbols() {
+        String htmlText = "&nbsp; &Auml; &auml; &Ouml; &ouml; &Uuml; &uuml; &szlig; &lt; &gt; &amp; &quot;";
+        String clearText = "  Ä ä Ö ö Ü ü ß < > & \"";
+        assertEquals(clearText, HTMLHelper.replaceHTMLSymbols(htmlText));
+    }
 }

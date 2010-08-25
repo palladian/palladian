@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.w3c.dom.Document;
 
+import tud.iir.helper.ArrayHelper;
 import tud.iir.web.Crawler;
 
 /**
@@ -71,9 +72,11 @@ public class DateGetter {
                 }
                 if (tech_reference) {
                     dates.addAll(DateGetterHelper.getReferenceDates(document));
+                    // TODO: evaluate each link, so only the best date for each link is left.
                 }
             }
         }
+        dates = ArrayHelper.removeNullElements(dates);
         return dates;
 
     }

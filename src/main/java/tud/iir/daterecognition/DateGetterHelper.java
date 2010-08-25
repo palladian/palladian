@@ -3,6 +3,7 @@ package tud.iir.daterecognition;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -271,60 +272,68 @@ public final class DateGetterHelper {
      * @return The found format, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
-    public static ArrayList<ContentDate> findALLDates(final String dateString) {
-        // Tokenizer.getSentence(string, position)
-        boolean hasPrePostNum = false;
-        String text = dateString;
-        ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
-        String format = null;
-        String newDateString = null;
+    public static ArrayList<ContentDate> findALLDates(String dateString) {
+        ArrayList<ContentDate> contentDates = new ArrayList<ContentDate>();
+        ExtractedDate date = null;
         Object[] regExps = RegExp.getAllRegExp();
 
-        Pattern pattern;
-        Matcher matcher;
-
         for (int i = 0; i < regExps.length; i++) {
-
-            pattern = Pattern.compile(((String[]) regExps[i])[0]);
-            matcher = pattern.matcher(text);
-            while (matcher.find()) {
-                int start = matcher.start();
-                int end = matcher.end();
-                if (start > 0) {
-                    String temp = text.substring(start - 1, start);
-                    try {
-                        int num = Integer.parseInt(temp);
-                        hasPrePostNum = true;
-
-                    } catch (NumberFormatException e) {
-                    }
-                }
-                if (end < text.length()) {
-                    String temp = text.substring(end, end + 1);
-                    try {
-                        int num = Integer.parseInt(temp);
-                        hasPrePostNum = true;
-
-                    } catch (NumberFormatException e) {
-
-                    }
-                }
-                if (!hasPrePostNum) {
-                    newDateString = text.substring(start, end);
-                    format = ((String[]) regExps[i])[1];
-
-                    ContentDate date = new ContentDate(newDateString, format);
-
-                    date.set(ContentDate.DATEPOS_IN_TAGTEXT, start);
-                    dates.add(date);
-                    text = text.replace(newDateString, getWhitespaces(newDateString));
-                    matcher = pattern.matcher(text);
-                }
+            date = getDateFromString(dateString, (String[]) regExps[i]);
+            if (date != null) {
+                contentDates.add(DateConverter.convertToContentDate(date));
+                dateString = dateString.replace(date.getDateString(), getWhitespaces(date.getDateString()));
             }
-            matcher.reset();
 
         }
-        return dates;
+        return contentDates;
+
+        // Tokenizer.getSentence(string, position)
+        /*
+         * String text = " " + dateString;
+         * ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
+         * String format = null;
+         * String newDateString = null;
+         * Object[] regExps = RegExp.getAllRegExp();
+         * Pattern pattern;
+         * Matcher matcher;
+         * for (int i = 0; i < regExps.length; i++) {
+         * String[] regExpr = (String[]) regExps[i];
+         * pattern = Pattern.compile(regExpr[0]);
+         * matcher = pattern.matcher(text);
+         * matcher.reset();
+         * while (matcher.find()) {
+         * boolean hasPrePostNum = false;
+         * int start = matcher.start();
+         * int end = matcher.end();
+         * if (start > 0) {
+         * String temp = text.substring(start - 1, start);
+         * try {
+         * Integer.parseInt(temp);
+         * hasPrePostNum = true;
+         * } catch (NumberFormatException e) {
+         * }
+         * }
+         * if (end < text.length()) {
+         * String temp = text.substring(end, end + 1);
+         * try {
+         * Integer.parseInt(temp);
+         * hasPrePostNum = true;
+         * } catch (NumberFormatException e) {
+         * }
+         * }
+         * if (!hasPrePostNum) {
+         * newDateString = text.substring(start, end);
+         * format = ((String[]) regExps[i])[1];
+         * ContentDate date = new ContentDate(newDateString, format);
+         * date.set(ContentDate.DATEPOS_IN_TAGTEXT, start);
+         * dates.add(date);
+         * text = text.replace(newDateString, getWhitespaces(newDateString));
+         * matcher = pattern.matcher(text);
+         * }
+         * }
+         * }
+         * return dates;
+         */
     }
 
     public static String getWhitespaces(String text) {
@@ -382,9 +391,9 @@ public final class DateGetterHelper {
         ExtractedDate date = null;
         Pattern pattern;
         Matcher matcher;
-
         pattern = Pattern.compile(regExp[0]);
         matcher = pattern.matcher(text);
+
         if (matcher.find()) {
             final int start = matcher.start();
             final int end = matcher.end();
@@ -400,13 +409,14 @@ public final class DateGetterHelper {
             if (end < text.length()) {
                 String temp = text.substring(end, end + 1);
                 try {
-                    int num = Integer.parseInt(temp);
+                    Integer.parseInt(temp);
                     hasPrePostNum = true;
 
                 } catch (NumberFormatException e) {
 
                 }
             }
+
             if (!hasPrePostNum) {
                 date = new ExtractedDate(text.substring(start, end), regExp[1]);
             }
@@ -419,28 +429,16 @@ public final class DateGetterHelper {
         ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
         NodeList body = document.getElementsByTagName("body");
         String doc = HTMLHelper.htmlToString(body.item(0));
-        NodeList nodeList = document.getElementsByTagName("*");
-        Node node = null;
-        /*
-         * for (int i = 0; i < nodeList.getLength(); i++) {
-         * node = nodeList.item(i);
-         * if (node.hasChildNodes()) {
-         * node = node.getFirstChild();
-         * }
-         * System.out.println(i + ": " + node.getNodeName());
-         * if (node.getNodeType() == Node.TEXT_NODE) {
-         * dates.addAll(checkTextnode((Text) node, doc, -1));
-         * }
-         * }
-         */
 
-        dates.addAll(enterTextnodes(body.item(0), doc, 0));
-
+        if (body.getLength() > 0) {
+            dates.addAll(enterTextnodes(body.item(0), doc, 0));
+        }
         return dates;
     }
 
     public static ArrayList<ContentDate> enterTextnodes(Node node, String doc, int depth) {
         ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
+
         if (node.getNodeType() == Node.TEXT_NODE) {
             dates.addAll(checkTextnode((Text) node, doc, depth));
         } else {
@@ -448,7 +446,6 @@ public final class DateGetterHelper {
             for (int i = 0; i < children.getLength(); i++) {
                 if (!children.item(i).getNodeName().equalsIgnoreCase("script"))
                     dates.addAll(enterTextnodes(children.item(i), doc, depth + 1));
-
             }
 
         }
@@ -461,14 +458,11 @@ public final class DateGetterHelper {
         int index = doc.indexOf(text);
 
         Node parent = node.getParentNode();
-        int i = 0;
         while (HTMLHelper.isSimpleElement(parent)) {
             parent = parent.getParentNode();
         }
-
         ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
-        Iterator<ContentDate> iterator = findALLDates(text).iterator();
-
+        Iterator<ContentDate> iterator = findALLDates(HTMLHelper.replaceHTMLSymbols(text)).iterator();
         while (iterator.hasNext()) {
 
             ContentDate date = iterator.next();
@@ -524,7 +518,7 @@ public final class DateGetterHelper {
         int keyEnd;
         int temp;
         for (int i = 0; i < keys.length; i++) {
-            keyBegin = text.indexOf(keys[i]);
+            keyBegin = text.toLowerCase(Locale.ENGLISH).indexOf(keys[i].toLowerCase(Locale.ENGLISH));
             if (keyBegin != -1) {
                 keyEnd = keyBegin + keys[i].length();
                 temp = Math.min(Math.abs(dateBegin - keyEnd), Math.abs(dateEnd - keyBegin));

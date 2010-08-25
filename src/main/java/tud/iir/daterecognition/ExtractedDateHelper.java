@@ -76,7 +76,8 @@ public class ExtractedDateHelper {
         } else if (month.equalsIgnoreCase("february") || month.equalsIgnoreCase("februar")
                 || month.equalsIgnoreCase("feb")) {
             monthNumber = "02";
-        } else if (month.equalsIgnoreCase("march") || month.equalsIgnoreCase("märz") || month.equalsIgnoreCase("mar")) {
+        } else if (month.equalsIgnoreCase("march") || month.equalsIgnoreCase("märz") || month.equalsIgnoreCase("mär")
+                || month.equalsIgnoreCase("mar")) {
             monthNumber = "03";
         } else if (month.equalsIgnoreCase("april") || month.equalsIgnoreCase("apr")) {
             monthNumber = "04";
@@ -91,12 +92,12 @@ public class ExtractedDateHelper {
         } else if (month.equalsIgnoreCase("september") || month.equalsIgnoreCase("sep")) {
             monthNumber = "09";
         } else if (month.equalsIgnoreCase("october") || month.equalsIgnoreCase("oktober")
-                || month.equalsIgnoreCase("oct")) {
+                || month.equalsIgnoreCase("oct") || month.equalsIgnoreCase("okt")) {
             monthNumber = "10";
         } else if (month.equalsIgnoreCase("november") || month.equalsIgnoreCase("nov")) {
             monthNumber = "11";
         } else if (month.equalsIgnoreCase("december") || month.equalsIgnoreCase("dezember")
-                || month.equalsIgnoreCase("dec")) {
+                || month.equalsIgnoreCase("dec") || month.equalsIgnoreCase("dez")) {
             monthNumber = "12";
         }
         return monthNumber;
@@ -123,13 +124,12 @@ public class ExtractedDateHelper {
         int index;
 
         index = datePart.indexOf('\'');
-        if (index == -1) {
-            index = datePart.indexOf(',');
-            if (index != -1) {
-                cleardString = datePart.substring(0, index);
-            }
-        } else {
+        if (index != -1) {
             cleardString = datePart.substring(index + 1, datePart.length());
+        }
+        index = datePart.indexOf(',');
+        if (index != -1) {
+            cleardString = datePart.substring(0, index);
         }
 
         index = cleardString.indexOf(".");
@@ -305,4 +305,39 @@ public class ExtractedDateHelper {
         return temp.toString();
     }
 
+    public static String[] removeTimezone(String dateString) {
+        String timezoneRegRex = RegExp.getTimezones();
+        return tud.iir.helper.StringHelper.removeFirstStringpart(dateString, timezoneRegRex);
+    }
+
+    public static String getTypString(int typ) {
+        String typeString;
+        switch (typ) {
+            case ExtractedDate.TECH_ARCHIVE:
+                typeString = "archive";
+                break;
+            case ExtractedDate.TECH_URL:
+                typeString = "URL";
+                break;
+            case ExtractedDate.TECH_HTTP_HEADER:
+                typeString = "HTTP";
+                break;
+            case ExtractedDate.TECH_HTML_HEAD:
+                typeString = "HTML head";
+                break;
+            case ExtractedDate.TECH_HTML_STRUC:
+                typeString = "HTML structure";
+                break;
+            case ExtractedDate.TECH_HTML_CONT:
+                typeString = "HTML content";
+                break;
+            case ExtractedDate.TECH_REFERENCE:
+                typeString = "reference";
+                break;
+            default:
+                typeString = "other";
+        }
+        return typeString;
+
+    }
 }
