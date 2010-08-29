@@ -86,17 +86,19 @@ public class PageContentExtractorTest {
         Assert.assertEquals("test009.html", "11b3f8cbd9bc774588da6327f280a1ab", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test009.html").getResultText()));
         Assert.assertEquals("test010.html", "829687fa8a170b3971db50f76d41a8ca", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test010.html").getResultText()));
         Assert.assertEquals("test011.html", "b17d23137b7693a92e02646c0e83dd12", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test011.html").getResultText()));
-        Assert.assertEquals("test012.html", "1477d0b73b0376b028f57ec35ceb35f0", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test012.html").getResultText()));
+        Assert.assertEquals("test012.html", "3f8eb27a5bc33d2d71f1314595e7594b", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test012.html").getResultText()));
         Assert.assertEquals("test013.html", "af25ba7317e8df1aca75fc1956372d54", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test013.html").getResultText()));
         Assert.assertEquals("test014.html", "afeabbbfb8c3f1c3943a05ba772da59f", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test014.html").getResultText()));
         Assert.assertEquals("test015.html", "1788005daaedfcb997c64802f5c42a46", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test015.html").getResultText()));
     }
     
-    /*
-    public static void main(String[] args) throws PageContentExtractorException {
+    
+    /*public static void main(String[] args) throws PageContentExtractorException {
         PageContentExtractor e = new PageContentExtractor();
-        FileHelper.writeToFile("data/test/pageContentExtractor/result/test010_new.txt", e.setDocument("data/test/pageContentExtractor/test010.html").getResultText());
-    }
-    */
+        String resultText = e.setDocument("data/test/pageContentExtractor/test012.html").getResultText();
+        System.out.println(DigestUtils.md5Hex(resultText));
+        FileHelper.writeToFile("data/test/pageContentExtractor/result/test012_new.txt", resultText);
+    }*/
+    
 
 }
