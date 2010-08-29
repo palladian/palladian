@@ -158,6 +158,47 @@ public class MathHelper {
 
         return rmse;
     }
+    
+    /**
+     * Calculate similarity of two lists of the same size. 
+     * @param list1 The first list.
+     * @param list2 The second list.
+     * @return The similarity of the two lists.
+     */
+    public static double calculateListSimilarity(List<String> list1, List<String> list2) {
+    	
+    	double similarity = 0;
+    	
+    	
+    	// get maximum possible distance
+    	int summedMaxDistance = 0;
+    	int distance = list1.size() - 1;
+    	for (int i = list1.size(); i > 0; i -=2) {
+    		summedMaxDistance += 2 * distance;
+    		distance -= 2;
+    	}
+    	
+    	// get real distance between lists
+    	int summedRealDistance = 0;
+    	int position1 = 0;
+    	for (String entry1 : list1) {
+    		
+    		int position2 = 0;
+    		for (String entry2 : list2) {
+    			if (entry1.equals(entry2)) {
+    				summedRealDistance += Math.abs(position1 - position2);
+    				break;
+    			}
+    			position2++;
+    		}
+    		
+    		position1++;    		
+    	}
+    	
+    	similarity = 1 - ((double) summedRealDistance / (double) summedMaxDistance);
+    	
+    	return similarity;    	
+    }
 
     /**
      * Calculate the parameters for a regression line. A series of x and y must be given. y = beta * x + alpha
