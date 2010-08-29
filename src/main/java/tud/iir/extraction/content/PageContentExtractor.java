@@ -32,10 +32,15 @@ import tud.iir.news.Helper;
 import tud.iir.web.Crawler;
 
 // TODO move to preprocessing package
-// TODO possible improvements:
-// - maybe add frame handling? -> low priority
-// - paging detection + appending of all following pages ... I just discovered, that newer versions of the script
-// implement this functionality. i will try to port this when a have time. -- Philipp.
+//
+// possible improvements:
+// TODO add frame handling? -> low priority
+// TODO paging detection + appending of all following pages ... I just discovered, that newer versions of the script
+// implement this functionality. I will try to port this when a have time. -- Philipp.
+// TODO weight negative indicators more than positives, found two examples, where this would improve results
+// - http://crimewatch.gaeatimes.com/2010/08/29/two-police-officers-among-12-killed-in-chechnya-46005/
+// - http://www.codinghorror.com/blog/2010/05/on-working-remotely.html
+// need to test this extensively though
 /**
  * <p>
  * A quick <s>and dirty</s> port of the JavaScript browser bookmarklet "Readability" by Arc90 -- a great tool for
@@ -893,6 +898,7 @@ public class PageContentExtractor {
         if (e.hasAttribute("class")) {
             if (NEGATIVE_RE.matcher(e.getAttribute("class")).find()) {
                 weight -= 25;
+                // weight -= 50; // TODO could improve accuracy, see TODOnote above. 
             }
 
             if (POSITIVE_RE.matcher(e.getAttribute("class")).find()) {
