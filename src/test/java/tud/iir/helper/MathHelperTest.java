@@ -60,6 +60,29 @@ public class MathHelperTest {
         Assert.assertEquals(-39.062, MathHelper.round(alphaBeta[0],3));
         Assert.assertEquals(61.272, MathHelper.round(alphaBeta[1],3));
     }
+    
+    @Test
+    public void testCalculateListSimilarity() {
+    	List<String> list1 = new ArrayList<String>();
+    	List<String> list2 = new ArrayList<String>();
+    	list1.add("a");
+    	list1.add("b");
+    	list1.add("c");
+    	list2.add("c");
+    	list2.add("b");
+    	list2.add("a");
+    	Assert.assertEquals(0.0, MathHelper.calculateListSimilarity(list1, list2));
+    	
+    	list1 = new ArrayList<String>();
+    	list2 = new ArrayList<String>();
+    	list1.add("a");
+    	list1.add("b");
+    	list1.add("c");
+    	list2.add("a");
+    	list2.add("b");
+    	list2.add("c");
+    	Assert.assertEquals(1.0, MathHelper.calculateListSimilarity(list1, list2));
+    }
 
     @Test
     public void testCalculateRMSE() {
