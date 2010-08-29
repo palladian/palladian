@@ -1,3 +1,5 @@
+KDE Plasma has a revamped notification area
+
 The developers behind the KDE desktop environment have released the first beta of version 4.5. Although the major focus during this development cycle is stability, the release also brings some nice new features and user interface improvements.
 
 One of the additions that I'm particularly enthusiastic about is support for tiled window management in KDE's KWin window manager. This feature allows users to snap windows together in non-overlapping arrangements and resize them together, much like the behavior of Ion and other tiled desktop environments. The feature was implemented as a Summer of Code project last year and was finally merged last month. I've long been a fan of tiled window management, so I've been looking forward to seeing this feature land ever since work on it was started.

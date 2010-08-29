@@ -32,9 +32,10 @@ import tud.iir.news.Helper;
 import tud.iir.web.Crawler;
 
 // TODO move to preprocessing package
-// possible improvements
-// - frame handling
-// - paging detection + appending of all following pages
+// TODO possible improvements:
+// - maybe add frame handling? -> low priority
+// - paging detection + appending of all following pages ... I just discovered, that newer versions of the script
+// implement this functionality. i will try to port this when a have time. -- Philipp.
 /**
  * <p>
  * A quick <s>and dirty</s> port of the JavaScript browser bookmarklet "Readability" by Arc90 -- a great tool for
@@ -78,10 +79,10 @@ public class PageContentExtractor {
      * All of the regular expressions in use within readability. Defined up here so we don't instantiate them repeatedly
      * in loops.
      **/
-    private static final Pattern UNLIKELY_CANDIDATES_RE = Pattern.compile("combx|comment|disqus|foot|header|menu|rss|shoutbox|sidebar|sponsor|ad-break", Pattern.CASE_INSENSITIVE);
-    private static final Pattern OK_MAYBE_ITS_A_CANDIDATE_RE = Pattern.compile("and|article|body|column|main", Pattern.CASE_INSENSITIVE);
-    private static final Pattern POSITIVE_RE = Pattern.compile("article|body|content|entry|hentry|page|pagination|post|text|blog", Pattern.CASE_INSENSITIVE);
-    private static final Pattern NEGATIVE_RE = Pattern.compile("combx|comment|contact|foot|footer|footnote|link|masthead|media|meta|promo|related|scroll|shoutbox|sponsor|tags|widget", Pattern.CASE_INSENSITIVE);
+    private static final Pattern UNLIKELY_CANDIDATES_RE = Pattern.compile("combx|comment|community|disqus|extra|foot|header|menu|remark|rss|shoutbox|sidebar|sponsor|ad-break|agegate|pagination|pager|popup", Pattern.CASE_INSENSITIVE);
+    private static final Pattern OK_MAYBE_ITS_A_CANDIDATE_RE = Pattern.compile("and|article|body|column|main|shadow", Pattern.CASE_INSENSITIVE);
+    private static final Pattern POSITIVE_RE = Pattern.compile("article|body|content|entry|hentry|main|page|pagination|post|text|blog|story", Pattern.CASE_INSENSITIVE);
+    private static final Pattern NEGATIVE_RE = Pattern.compile("combx|comment|com-|contact|foot|footer|footnote|link|masthead|media|meta|outbrain|promo|related|scroll|shoutbox|sidebar|sponsor|shopping|tags|tool|widget", Pattern.CASE_INSENSITIVE);
     private static final Pattern DIV_TO_P_ELEMENTS_RE = Pattern.compile("<(a|blockquote|dl|div|img|ol|p|pre|table|ul)", Pattern.CASE_INSENSITIVE);
     // private static final Pattern trimRe = Pattern.compile("^\\s+|\\s+$");
     private static final Pattern NORMALIZE_RE = Pattern.compile("\\s{2,}");
