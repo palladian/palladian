@@ -82,6 +82,8 @@ public class MathHelperTest {
     	list2.add("b");
     	list2.add("c");
     	Assert.assertEquals(1.0, MathHelper.calculateListSimilarity(list1, list2));
+    	
+    	Assert.assertEquals(0.37, MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv","#"),2));
     }
 
     @Test
