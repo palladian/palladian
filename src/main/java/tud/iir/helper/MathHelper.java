@@ -199,6 +199,36 @@ public class MathHelper {
     	
     	return similarity;    	
     }
+    
+    public static double calculateListSimilarity(String listFile, String separator) {
+    	
+    	// two list
+        List<String> list1 = new ArrayList<String>();
+        List<String> list2 = new ArrayList<String>();
+
+        final Object[] obj = new Object[3];
+        obj[0] = list1;
+        obj[1] = list2;
+        obj[2] = separator;
+
+        LineAction la = new LineAction(obj) {
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] parts = line.split((String) obj[2]);
+
+                ((List) obj[0]).add(parts[0]);
+                ((List) obj[1]).add(parts[1]);
+
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(listFile, la);
+
+        
+        return calculateListSimilarity(list1, list2);
+    }
 
     /**
      * Calculate the parameters for a regression line. A series of x and y must be given. y = beta * x + alpha
