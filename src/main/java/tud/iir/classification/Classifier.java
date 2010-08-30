@@ -171,7 +171,7 @@ public class Classifier {
         testClassifier();
     }
 
-    private void testClassifier() {
+    protected void testClassifier() {
         if (testingObjects.isEmpty()) {
             return;
         }
