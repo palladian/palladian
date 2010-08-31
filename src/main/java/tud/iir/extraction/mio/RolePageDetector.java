@@ -22,6 +22,8 @@ public class RolePageDetector {
 
     /** The concept. */
     private final transient Concept concept;
+    
+    private final transient double rolePageTrustLimit;
 
     /**
      * Instantiates a new role page detector.
@@ -30,6 +32,7 @@ public class RolePageDetector {
      */
     RolePageDetector(final Entity entity) {
         this.concept = entity.getConcept();
+        rolePageTrustLimit= InCoFiConfiguration.getInstance().rolePageTrustLimit;
     }
 
     /**
@@ -38,21 +41,20 @@ public class RolePageDetector {
      * @param sortedMIOs the sorted MIOs
      */
     public void detectRolePages(final Set<MIO> sortedMIOs) {
-        final double mioAmount = sortedMIOs.size();
+       
         // System.out.println("number Of sortedMIOs: "+ mioAmount);
-        double counter = 0;
+      
         final Set<String> mioDomains = new HashSet<String>();
 
         // only get relevant domains, but normally less then 50percent of the results are relevant
         for (MIO mio : sortedMIOs) {
-            final String mioURL = mio.getDirectURL();
-            final String domain = Crawler.getDomain(mioURL);
-            // System.out.println("Domain von " + mioURL +" " + domain);
-            mioDomains.add(domain);
-            counter++;
-            // System.out.println("Counter: " +counter);
-            if (counter >= (mioAmount / 2)) {
-                break;
+            if (mio.getTrust() >= rolePageTrustLimit) {
+
+                final String mioURL = mio.getDirectURL();
+                final String domain = Crawler.getDomain(mioURL);
+                 System.out.println("RolePage Domain " + domain);
+                mioDomains.add(domain);
+               
             }
         }
         // System.out.println("number of rolePages for Analyzing: " + mioDomains.size());

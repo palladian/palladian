@@ -8,10 +8,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Locale;
 
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
+import tud.iir.classification.mio.MIOClassifier;
 import tud.iir.extraction.Extractor;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.ThreadHelper;
@@ -29,13 +31,13 @@ public final class MIOExtractor extends Extractor {
     private static MIOExtractor instance = null;
 
     /** The Constant MAX_EXTRACTION_THREADS. */
-    private static final int MAX_EXTRACTION_THREADS = 4;
+    private static final int MAX_EXTRACTION_THREADS = 3;
 
     /**
      * Instantiates a new MIOExtractor.
      */
     private MIOExtractor() {
-//        super();
+        // super();
         addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
         addSuffixesToBlackList(Extractor.URL_TEXTUAL_BLACKLIST);
     }
@@ -65,10 +67,16 @@ public final class MIOExtractor extends Extractor {
      * @param continueFromLastExtraction the continue from last extraction
      */
     public void startExtraction(final boolean continueFromLastExtraction) {
+        
+    
+//        MIOClassifier mioClass = new MIOClassifier();
+//        if (!mioClass.doesTrainedMIOClassifierExists()){
+//            mioClass.trainClassifier("data/miofeatures_scored.txt");
+//            mioClass.saveTrainedClassifier();
+//        }
+
 
         LOGGER.info("start MIO extraction");
-        
-        final long timeStamp1 = System.currentTimeMillis();
 
         // System.exit(1);
 
@@ -90,14 +98,14 @@ public final class MIOExtractor extends Extractor {
         final InCoFiConfiguration configuration = loadConfiguration();
         InCoFiConfiguration.instance = configuration;
 
-//         System.out.println(InCoFiConfiguration.getInstance().getVocByConceptName("car").toString());
-//         System.out.println(InCoFiConfiguration.getInstance().getWeakInteractionIndicators().toString());
-//         System.exit(1);
+        // System.out.println(InCoFiConfiguration.getInstance().getVocByConceptName("car").toString());
+        // System.out.println(InCoFiConfiguration.getInstance().getWeakInteractionIndicators().toString());
+        // System.exit(1);
 
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
-            
-            if (currentConcept.getName().toLowerCase().contains("car")) {
+
+            if (currentConcept.getName().toLowerCase().contains("movie")) {
                 // load Entities from DB for current concept
                 currentConcept.loadEntities(false);
                 // }
@@ -129,50 +137,54 @@ public final class MIOExtractor extends Extractor {
 
                 for (Entity currentEntity : conceptEntities) {
 
-                    // if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("wave")) {
-                    if (isStopped()) {
-                        LOGGER.info("mio extraction process stopped");
-                        break;
-                    }
-
-                    currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
-
-                    LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
-                            + currentEntity.getConcept().getName() + ")");
-                    final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
-                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, getKnowledgeManager());
-                    mioThread.start();
-                    
-                    LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
-                    // System.out.println("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
-
-                    int count = 0;
-                    while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                        LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
-                                + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
-                        if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
-                            LOGGER.warn("apparently " + getThreadCount()
-                                    + " threads have not finished correctly but thread group is empty, continuing...");
-                            resetThreadCount();
-                            break;
-                        }
-                        // System.out.println("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
-                        ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+//                    if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("avant")) {
                         if (isStopped()) {
-                            count++;
-                        }
-                        if (count > 1) {
-                            LOGGER.info("waited 25 iterations after stop has been called, breaking now");
+                            LOGGER.info("mio extraction process stopped");
                             break;
                         }
+
+                        currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
+
+                        LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
+                                + currentEntity.getConcept().getName() + ")");
+                        final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
+                                currentEntity.getSafeName() + "MIOExtractionThread", currentEntity,
+                                getKnowledgeManager());
+                        mioThread.start();
+
+                        LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
+                        // System.out.println("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
+
+                        int count = 0;
+                        while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
+                            LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
+                                    + extractionThreadGroup.activeCount() + ","
+                                    + extractionThreadGroup.activeGroupCount());
+                            if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
+                                LOGGER.warn("apparently "
+                                        + getThreadCount()
+                                        + " threads have not finished correctly but thread group is empty, continuing...");
+                                resetThreadCount();
+                                break;
+                            }
+                            // System.out.println("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
+                            ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+                            if (isStopped()) {
+                                count++;
+                            }
+                            if (count > 1) {
+                                LOGGER.info("waited 25 iterations after stop has been called, breaking now");
+                                break;
+                            }
+                        }
+
                     }
 
                 }
 
-            }
 
         }
-        System.out.println("ExtractionTime: " +DateHelper.getRuntime(timeStamp1));
+  
 
     }
 
@@ -197,7 +209,7 @@ public final class MIOExtractor extends Extractor {
     private InCoFiConfiguration loadConfiguration() {
         InCoFiConfiguration returnValue = null;
         try {
-            final InCoFiConfiguration config = Yaml.loadType(new File("data/knowledgeBase/inCoFiConfigurations.yml"),
+            final InCoFiConfiguration config = Yaml.loadType(new File("config/inCoFiConfigurations.yml"),
                     InCoFiConfiguration.class);
 
             returnValue = config;

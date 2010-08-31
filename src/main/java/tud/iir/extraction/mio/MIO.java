@@ -94,8 +94,8 @@ public class MIO {
         features.put("ALTTextRelevance", 0.);
         features.put("HeadlineRelevance", 0.);
         features.put("SurroundingTextRelevance", 0.);
-        features.put("XMLFileNameRelevance", 0.);
-        features.put("XMLFileContentRelevance", 0.);
+//        features.put("XMLFileNameRelevance", 0.);
+//        features.put("XMLFileContentRelevance", 0.);
         features.put("TitleRelevance", 0.);
         features.put("LinkNameRelevance", 0.);
         features.put("LinkTitleRelevance", 0.);

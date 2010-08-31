@@ -58,7 +58,8 @@ public class MIOPage {
      * @param url the URL
      */
     public MIOPage(final String url) {
-        final Crawler crawler = new Crawler();
+//        final Crawler crawler = new Crawler();
+        final Crawler crawler = new Crawler(5000,6000,9000);
         
         this.url = url;
         this.webDocument = crawler.getWebDocument(url);

@@ -176,17 +176,19 @@ public class SearchWordMatcher {
         if (!("").equals(src)) {
            final int matches = getNumberOfSearchWordMatches(src);
             // System.out.println("searchWMatches: " + matches + "iniwordListSize: " + initialWordList.size());
-
+           
+           final int numberOfEntityWords= initialWordList.size();
+           
             // case "avatar"
-            if (initialWordList.size() == 1 && matches == 1) {
+            if (numberOfEntityWords == 1 && matches == 1) {
                 returnValue = true;
             } else {
                 // case "canon mp990"
-                if (!(initialWordList.size() == 2 && matches == 1)) {
+                if (!(numberOfEntityWords == 2 && matches == 1)) {
 
                     // case more words
-                    final double wordFactor = ((double) initialWordList.size() / 2);
-                    if (matches >= wordFactor) {
+                    final double wordFactor = ((double) numberOfEntityWords / 2);
+                    if (matches > wordFactor) {
                         returnValue = true;
                     }
                 }
@@ -201,22 +203,23 @@ public class SearchWordMatcher {
      * 
      * @param args the arguments
      */
-//    public static void main(String[] args) {
+    public static void main(String[] args) {
 
-//         SearchWordMatcher matcher = new SearchWordMatcher("Audi A4");
+         SearchWordMatcher matcher = new SearchWordMatcher("Audi A4 1.8T Avant");
 //         // matcher.matchSearchWords("http://pic.gsmarena.com/vv/spin/samsung-wave-s-8500-final.swf");
 ////         System.out.println(matcher.getNumberOfSearchWordMatches(" http://www.jr.com/canon/pe/CAN_MP980/"));
-//         if (matcher.containsSearchWordOrMorphs("http://www.audi-a4.com/canon/pe/CAN_MP980/")) {
-//         System.out.println("is relevant link!");
-//         } else {
-//         System.out.println("is no relevant link!");
-//         }
+         System.out.println(matcher.getNumberOfSearchWordMatches("http://audi.de/a4/jo"));
+         if (matcher.containsSearchWordOrMorphs("http://audi.de/a4/jo")) {
+         System.out.println("is relevant link!");
+         } else {
+         System.out.println("is no relevant link!");
+         }
 
         // System.out.println("result: "
         // + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php"));
         // System.out.println("result: "
         // + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php",
         // true, "samsung s8500 wave"));
-//    }
+    }
 
 }

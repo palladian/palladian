@@ -4,14 +4,19 @@
  */
 package tud.iir.extraction.mio;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
+import tud.iir.knowledge.Concept;
 import tud.iir.web.Crawler;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
 
@@ -21,30 +26,40 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
  * 
  * @author Martin Werner
  */
-public class LinkAnalyzer{
+public class LinkAnalyzer {
 
     /** The SearchWordMatcher. */
     private final transient SearchWordMatcher swMatcher;
 
+    /** The relevant vocabulary. */
+    private transient List<String> relevantVocabulary = null;
+
+    private final transient boolean limitLinkAnalyzing;
+
     /**
-     * Instantiates a new link analyzer.
+     * Instantiates a new LinkAnalyzer.
      * 
-     * @param swMatcher the sw matcher
+     * @param swMatcher the SearchWordMatcher
+     * @param concept the concept
      */
-    public LinkAnalyzer(final SearchWordMatcher swMatcher) {
-        super();
+    public LinkAnalyzer(final SearchWordMatcher swMatcher, final Concept concept) {
+
         this.swMatcher = swMatcher;
+        this.limitLinkAnalyzing = InCoFiConfiguration.getInstance().limitLinkAnalyzing;
+        if (limitLinkAnalyzing) {
+            this.relevantVocabulary = prepareRelevantVoc(concept.getName());
+        }
+
     }
 
     /**
-     * Gets the linked mio pages.
+     * Gets the linked MIOpages.
      * 
      * @param parentPageContent the parent page content
-     * @param parentPageURL the parent page url
-     * @return the linked mio pages
+     * @param parentPageURL the parent pageURL
+     * @return the linked MIOPages
      */
     public List<MIOPage> getLinkedMioPages(final String parentPageContent, final String parentPageURL) {
-
         final List<String> linkTags = new ArrayList<String>();
 
         // find all <a>-tags
@@ -59,7 +74,6 @@ public class LinkAnalyzer{
                 linkTags.add(completeLinkTag);
             }
         }
-
         return analyzeLinkTags(linkTags, parentPageURL);
     }
 
@@ -71,9 +85,13 @@ public class LinkAnalyzer{
      * @return the list
      */
     private List<MIOPage> analyzeLinkTags(final List<String> linkTags, final String parentPageURL) {
+        // final long timeStamp4 = System.currentTimeMillis();
+
         final List<MIOPage> mioPages = new ArrayList<MIOPage>();
         final FastMIODetector mioDetector = new FastMIODetector();
-        final Crawler craw = new Crawler();
+        // final Crawler craw = new Crawler();
+        final Crawler craw = new Crawler(4000, 5000, 5000);
+        // linkURLs save the URLs that were already found
         final List<String> linkURLs = new ArrayList<String>();
         final JaroWinkler jaroWinkler = new JaroWinkler();
 
@@ -89,11 +107,17 @@ public class LinkAnalyzer{
             if (!linkURLs.isEmpty()) {
 
                 for (String checkURL : linkURLs) {
-                    if (checkURL.equalsIgnoreCase(linkURL)) {
-                        // System.out.println(linkURL + " EQUALS " + checkURL);
+                    final double similarity = (double) jaroWinkler.getSimilarity(checkURL, linkURL);
+                    if (similarity > 0.99) {
+                        // isSimilare = true;
                         isExisting = true;
                         break;
                     }
+                    // if (checkURL.equalsIgnoreCase(linkURL)) {
+                    // // System.out.println(linkURL + " EQUALS " + checkURL);
+                    // isExisting = true;
+                    // break;
+                    // }
                 }
             }
 
@@ -107,56 +131,59 @@ public class LinkAnalyzer{
 
                 // check if the linkURL or linkInfo or linkTitle contains entity
                 // relevant words
-                if (isRelevantLinkCheck(linkURL, linkName, linkTitle)) {
-                    boolean isSimilare = false;
-                    for (String checkURL : linkURLs) {
+                if (isRelevantLinkCheck(linkURL, linkName, linkTitle)
+                        && hasConceptRelevance(linkURL, linkName, linkTitle)) {
 
-                        final double similarity = (double) jaroWinkler.getSimilarity(checkURL, linkURL);
-                        if (similarity > 0.99) {
-                            isSimilare = true;
-                            // System.out.println(linkURL + " aussortiert! da " + checkURL);
-                            break;
-                            // int checkStartIndex = checkURL.lastIndexOf("/");
-                            // int checkEndIndex = checkURL.length();
-                            // String lastCharacters = checkURL.substring(checkStartIndex, checkEndIndex);
-                            //
-                            // int linkStartIndex = linkURL.lastIndexOf("/");
-                            // int linkEndIndex = linkURL.length();
-                            // String lastCharacters2 = linkURL.substring(linkStartIndex, linkEndIndex);
-                            // if (lastCharacters2.length() > 1 && lastCharacters.length() > 1) {
-                            // double endingSimilarity = jaroWinkler.getSimilarity(lastCharacters, lastCharacters2);
-                            //
-                            // if (endingSimilarity > 0.93) {
-                            // // linkURLs.add(linkURL);
-                            // isExisting = true;
-                            // System.out.println(linkURL + " aussortiert! da " + checkURL);
-                            // break;
-                            // }
-                            // }
+                    // boolean isSimilare = false;
+                    // for (String checkURL : linkURLs) {
+                    //
+                    // final double similarity = (double) jaroWinkler.getSimilarity(checkURL, linkURL);
+                    // if (similarity > 0.99) {
+                    // isSimilare = true;
+                    // // System.out.println(linkURL + " aussortiert! da " + checkURL);
+                    // break;
+                    // // int checkStartIndex = checkURL.lastIndexOf("/");
+                    // // int checkEndIndex = checkURL.length();
+                    // // String lastCharacters = checkURL.substring(checkStartIndex, checkEndIndex);
+                    // //
+                    // // int linkStartIndex = linkURL.lastIndexOf("/");
+                    // // int linkEndIndex = linkURL.length();
+                    // // String lastCharacters2 = linkURL.substring(linkStartIndex, linkEndIndex);
+                    // // if (lastCharacters2.length() > 1 && lastCharacters.length() > 1) {
+                    // // double endingSimilarity = jaroWinkler.getSimilarity(lastCharacters, lastCharacters2);
+                    // //
+                    // // if (endingSimilarity > 0.93) {
+                    // // // linkURLs.add(linkURL);
+                    // // isExisting = true;
+                    // // System.out.println(linkURL + " aussortiert! da " + checkURL);
+                    // // break;
+                    // // }
+                    // // }
+                    //
+                    // }
+                    // }
+                    // if (!isSimilare) {
 
-                        }
+                    linkURLs.add(linkURL);
+
+                    // System.out.println("download: " + linkURL);
+                    final Document webDocument = craw.getWebDocument(linkURL);
+                    final String linkedPageContent = Crawler.documentToString(webDocument);
+
+                    if (linkedPageContent != null && linkedPageContent.length() > 5
+                            && mioDetector.containsMIO(linkedPageContent)) {
+
+                        final MIOPage mioPage = generateMIOPage(linkURL, webDocument, parentPageURL, linkName,
+                                linkTitle);
+                        mioPages.add(mioPage);
+
                     }
-                    if (!isSimilare) {
-
-                        linkURLs.add(linkURL);
-
-                        // System.out.println("download: " + linkURL);
-                        final Document webDocument = craw.getWebDocument(linkURL);
-                        final String linkedPageContent = Crawler.documentToString(webDocument);
-
-                        if (linkedPageContent != null && linkedPageContent.length() > 5
-                                && mioDetector.containsMIO(linkedPageContent)) {
-
-                            final MIOPage mioPage = generateMIOPage(linkURL, webDocument, parentPageURL, linkName,
-                                    linkTitle);
-                            mioPages.add(mioPage);
-
-                        }
-                    }
+                    // }
 
                 }
             }
         }
+        // System.out.println("======> Analyzing LinkTags dauerte: " + DateHelper.getRuntime(timeStamp4));
 
         return mioPages;
     }
@@ -216,6 +243,65 @@ public class LinkAnalyzer{
         }
 
         return returnValue;
+    }
+
+    /**
+     * Checks for concept relevance.
+     * 
+     * @param linkURL the link url
+     * @param linkName the link name
+     * @param linkTitle the link title
+     * @return true, if successful
+     */
+    private boolean hasConceptRelevance(final String linkURL, final String linkName, final String linkTitle) {
+        boolean returnValue = false;
+        if (limitLinkAnalyzing) {
+
+            for (String keyword : relevantVocabulary) {
+                // System.out.println(keyword);
+
+                if (linkURL.toLowerCase(Locale.ENGLISH).contains(keyword)
+                        || linkName.toLowerCase(Locale.ENGLISH).contains(keyword)
+                        || linkTitle.toLowerCase(Locale.ENGLISH).contains(keyword)) {
+                    returnValue = true;
+                    break;
+                }
+            }
+        } else {
+            returnValue = true;
+        }
+        return returnValue;
+    }
+
+    /**
+     * Prepare a list of relevant vocabulary for Link-Relevance-Analyzing.
+     * 
+     * @param conceptName the concept name
+     * @return the list of relevant vocabulary
+     */
+    private List<String> prepareRelevantVoc(String conceptName) {
+        List<String> relevantVoc = new ArrayList<String>();
+        List<String> conceptVoc = InCoFiConfiguration.getInstance().getVocByConceptName(conceptName);
+        conceptVoc.addAll(InCoFiConfiguration.getInstance().getVocByConceptName("weakMIOs"));
+
+        for (String keyword : conceptVoc) {
+            // if (keyword.contains(" ")) {
+            // // also add 360 and view of "360 view" for example
+            // String splittedKeyword[] = keyword.split(" ");
+            // for (String sKeyWord : splittedKeyword) {
+            // relevantVoc.add(sKeyWord);
+            // }
+            // } else {
+            relevantVoc.add(keyword);
+            // }
+        }
+
+        // remove duplicates
+        HashSet<String> hashSet = new HashSet<String>(relevantVoc);
+        relevantVoc.clear();
+        relevantVoc.addAll(hashSet);
+
+        return relevantVoc;
     }
 
     /**

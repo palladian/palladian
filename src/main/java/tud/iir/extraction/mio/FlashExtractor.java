@@ -7,6 +7,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import tud.iir.helper.HTMLHelper;
+import tud.iir.helper.MathHelper;
 import tud.iir.knowledge.Entity;
 import tud.iir.web.Crawler;
 
@@ -84,9 +85,9 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
     }
 
     /**
-     * Find out of tag mi os.
+     * Find out of tag MIOs.
      * 
-     * @param mioPageContent the mio page content
+     * @param mioPageContent the MIOPageContent
      * @return the list
      */
     private List<MIO> findOutOfTagMIOs(final String mioPageContent) {
@@ -121,7 +122,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
 
             tempMIOs.clear();
             if (relevantTag.toLowerCase(Locale.ENGLISH).contains("swfobject")) {
-
+//                System.out.println(relevantTag);
                 tempMIOs.addAll(checkSWFObject(relevantTag, mioPage));
 
             } else {
@@ -130,6 +131,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
 
                 // check for flashvars
                 if (relevantTag.toLowerCase(Locale.ENGLISH).contains(fVString)) {
+
                     final List<String> flashVars = extractFlashVars(relevantTag);
                     if (!flashVars.isEmpty()) {
                         for (MIO mio : tempMIOs) {
@@ -185,6 +187,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
             // check for flashvars
             if (relevantTag.toLowerCase(Locale.ENGLISH).contains(fVString)) {
                 final List<String> flashVars = extractFlashVars(relevantTag);
+                // System.out.println(flashVars.toString());
 
                 if (!flashVars.isEmpty()) {
                     for (MIO mio : tempList) {
@@ -240,11 +243,13 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
         while (matcher1.find()) {
             // result has the form: flashvars = {cool};
             String result = matcher1.group(0);
+//            System.out.println("#### " + result);
             result = result.replaceAll("flashvars(\\s?)=(\\s?)", "");
             result = result.trim();
             result = result.substring(0, result.length() - 1);
             result = result.replaceAll("[\\{,\\}]", "");
             result = result.trim();
+//            System.out.println(result);
             // result has the form: cool
             if (result.length() > 0) {
                 flashVars.add(result);
@@ -260,6 +265,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
             // result has the form: <param name="FlashVars"
             // value="myURL=http://weblogs.adobe.com/">
             String result = matcher2.group();
+//            System.out.println(result);
             String pattern = "value=\"[^>]*\"";
             // System.out.println("---------" + result);
             result = HTMLHelper.extractTagElement(pattern, result, "value=");
@@ -275,6 +281,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
         Matcher matcher3 = pat3.matcher(tagContent);
         while (matcher3.find()) {
             String result = matcher3.group(0);
+//            System.out.println(result);
             String pattern = "flashvars=\"[^\"]*\"";
             result = HTMLHelper.extractTagElement(pattern, result, "flashvars=");
             if (result.length() > 0) {
@@ -283,16 +290,19 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
         }
 
         // extract flashvars.country = "us";
-        String regExp4 = "flashvars\\..*[^;];";
+        String regExp4 = "flashvars\\..[^;]*;";
         final Pattern pat4 = Pattern.compile(regExp4, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         final Matcher matcher4 = pat4.matcher(tagContent);
         while (matcher4.find()) {
             String result = matcher4.group(0);
+//            System.out.println("--" + result);
             result = result.replaceFirst("flashvars.", "");
             result = result.replaceAll("\"", "");
+            result = result.replaceAll(";", "");
             result = result.replaceAll("\\s", "");
             if (result.length() > 0) {
                 flashVars.add(result);
+//                System.out.println(result);
             }
         }
 
@@ -309,21 +319,34 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
     private MIO adaptFlashVarsToURL(final MIO mio, final List<String> flashVars) {
 
         final String url = mio.getDirectURL();
+
         final StringBuffer modURL = new StringBuffer();
+        // Prepare directURL for adding flashVars
+        modURL.append(url + "?");
+        // add each flashVar
         for (String flashVar : flashVars) {
-            if (!flashVar.contains("\"") && !modURL.toString().contains(flashVar)) {
-                if (modURL.length() < 1) {
-                    final String tempURL = url + "?" + flashVar;
-                    modURL.append(tempURL);
+//            System.out.println(flashVar);
+            // only concate not existing flashVars
+            if (!modURL.toString().contains(flashVar)) {
+                if (!flashVar.contains("\"")) {
+                  
+                        final String tempURL = flashVar+"&";
+                        modURL.append(tempURL);
+                    
                 } else {
-                    final String tempURL = modURL + "&" + flashVar;
-                    modURL.append(tempURL);
+                    // adapt vars of style:
+                    // videoRef:"/uk/assets/cms/6d8a4d0c-9659-4fa0-a62c-e884980879ee/Video.flv?p=081007_09:24"
+                    String tempURL = flashVar.replaceAll("\"", "");
+                    tempURL = tempURL.replaceFirst(":", "=");
+                    modURL.append(tempURL + "&");
+
                 }
             }
-            if (Crawler.isValidURL(modURL.toString(), false)) {
-                mio.setDirectURL(modURL.toString());
-            }
 
+        }
+        if (Crawler.isValidURL(modURL.toString(), false)) {
+            mio.setDirectURL(modURL.toString());
+//            System.out.println(modURL.toString());
         }
 
         return mio;
@@ -356,5 +379,17 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
     // *
     // * @param args the arguments
     // */
+
+    public static void main(final String[] abc) {
+        
+        System.out.println(MathHelper.calculateRMSE("F:/rmse.csv", ","));
+        System.exit(1);
+
+        MIOPage mioPage = new MIOPage("http://www.topgear.com/uk/audi/rs4-avant");
+        Entity entity = new Entity("Audi Avant");
+        FlashExtractor flashEx = new FlashExtractor();
+        flashEx.extractMIOsByType(mioPage, entity);
+
+    }
 
 }

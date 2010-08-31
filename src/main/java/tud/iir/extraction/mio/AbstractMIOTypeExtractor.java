@@ -1,5 +1,6 @@
 package tud.iir.extraction.mio;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -9,6 +10,7 @@ import java.util.regex.Pattern;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
@@ -24,7 +26,7 @@ public abstract class AbstractMIOTypeExtractor {
      * @param entity the entity
      * @return the list
      */
-    abstract List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity);
+   abstract List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity);
 
     /**
      * Extract relevant tags.
@@ -32,7 +34,7 @@ public abstract class AbstractMIOTypeExtractor {
      * @param mioPageContent the mio page content
      * @return the list
      */
-    abstract List<String> extractRelevantTags(final String mioPageContent);
+   abstract List<String> extractRelevantTags(final String mioPageContent);
 
     /**
      * Analyze relevant tags.
@@ -147,7 +149,7 @@ public abstract class AbstractMIOTypeExtractor {
                 // extract surrounding TextContent
                 String surroundingText = "";
                 tempNode = node;
-                
+
                 while (surroundingText.length() < 2 && !tempNode.getNodeName().equals("BODY")) {
                     surroundingText = extractNearTextContent(tempNode);
                     tempNode = tempNode.getParentNode();
@@ -215,11 +217,19 @@ public abstract class AbstractMIOTypeExtractor {
      * @param mio the mio
      */
     protected void extractXMLInfo(final String relevantTag, final MIO mio) {
-        if (relevantTag.toLowerCase(Locale.ENGLISH).contains(".xml")) {
-
-            extractXMLNameFromTag(relevantTag, mio);
-            extractXMLFileURLFromTag(relevantTag, mio);
-        }
+//        if (relevantTag.toLowerCase(Locale.ENGLISH).contains(".xml")) {
+//            
+//            try {
+//                FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
+//                FileHelper.appendFile("f:/xmlinfos.txt", relevantTag + "\r\n");
+//            } catch (IOException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//
+////            extractXMLNameFromTag(relevantTag, mio);
+////            extractXMLFileURLFromTag(relevantTag, mio);
+//        }
 
     }
 
@@ -232,7 +242,7 @@ public abstract class AbstractMIOTypeExtractor {
     private void extractXMLNameFromTag(final String relevantTag, final MIO mio) {
 
         // TODO regExp überprüfen auf verschiedene formate
-        String regExp = "\".[^\"]*\\.xml\"";
+        String regExp = "\\\\.[^\"\\\\]*\\.xml";
         Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         final Matcher matcher = pattern.matcher(relevantTag);
         final List<String> xmlFileNames = new ArrayList<String>();
@@ -244,6 +254,13 @@ public abstract class AbstractMIOTypeExtractor {
         }
         if (!xmlFileNames.isEmpty()) {
             mio.addInfos("xmlFileName", xmlFileNames);
+            try {
+                FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
+                FileHelper.appendFile("f:/xmlinfos.txt", "XMLName: "+xmlFileNames.toString() + "\r\n");
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
         }
 
     }
@@ -260,17 +277,26 @@ public abstract class AbstractMIOTypeExtractor {
         final String regExp = "\".[^\"]*\\.xml\"";
         final Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         final Matcher matcher = pattern.matcher(relevantTag);
-        final List<String> xmlFileNames = new ArrayList<String>();
+        final List<String> xmlFileURLs = new ArrayList<String>();
         while (matcher.find()) {
-            final String xmlName = matcher.group(0).replaceAll("\"", "");
-            // FileHelper.appendFile("f:/xmlcontent.html",xmlName + " <br>");
-            xmlFileNames.add(xmlName);
+            String xmlName = matcher.group(0).replaceAll("\"", "");
+//            xmlName = Crawler.verifyURL(xmlName, mio.getFindPageURL());
+            if (!xmlName.equals("")) {
+                xmlFileURLs.add(xmlName);
+                try {
+                    FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
+                    FileHelper.appendFile("f:/xmlinfos.txt", xmlName + "\r\n");
+                } catch (IOException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+            }
 
         }
 
-        Crawler.verifyURL("", mio.getFindPageURL());
-        if (!xmlFileNames.isEmpty()) {
-            mio.addInfos("xmlFileURL", xmlFileNames);
+        if (!xmlFileURLs.isEmpty()) {
+            mio.addInfos("xmlFileURL", xmlFileURLs);
+
         }
 
     }
