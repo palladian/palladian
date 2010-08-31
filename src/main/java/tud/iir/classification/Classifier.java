@@ -170,6 +170,12 @@ public class Classifier {
         testingObjects = readFeatureObjects(conceptID, getPsFeatureStatement());
         testClassifier();
     }
+    
+    public void testClassifier(String filePath) {
+        // load testing data
+        testingObjects = readFeatureObjects(filePath);
+        testClassifier();
+    }
 
     protected void testClassifier() {
         if (testingObjects.isEmpty()) {
