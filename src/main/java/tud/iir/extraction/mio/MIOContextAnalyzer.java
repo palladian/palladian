@@ -49,11 +49,6 @@ public class MIOContextAnalyzer {
 
     /** The DedicatedPageTrust (Relevance). */
     private transient double dpTrust = 0;
-
-
-    /** A List of bad words. */
-//    final transient String[] badWords = { "banner", "tower", "titlefont", "newsletter", "cloud", "footer", "ticker",
-//            "ads", "expressinstall", "header", "advertise", "logo" };
     
     private final transient List<String> badWords = InCoFiConfiguration.getInstance().getBadWords();
 
@@ -103,8 +98,8 @@ public class MIOContextAnalyzer {
         mio.setFeature("ALTTextRelevance", calcALTTextRelevance());
         mio.setFeature("HeadlineRelevance", calcHeadlineRelevance());
         mio.setFeature("SurroundingTextRelevance", calcSurroundingTextRelevance());
-        mio.setFeature("XMLFileNameRelevance", calcXMLNameRelevance());
-        mio.setFeature("XMLFileContentRelevance", calcXMLContentRelevance());
+//        mio.setFeature("XMLFileNameRelevance", calcXMLNameRelevance());
+//        mio.setFeature("XMLFileContentRelevance", calcXMLContentRelevance());
     }
 
     /**

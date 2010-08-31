@@ -42,7 +42,8 @@ public class IFrameAnalyzer {
      */
     public List<MIOPage> getIframeMioPages(final String parentPageContent, final String parentPageURL) {
         final List<MIOPage> mioPages = new ArrayList<MIOPage>();
-        final Crawler craw = new Crawler();
+//        final Crawler craw = new Crawler();
+        final Crawler craw = new Crawler(5000,6000,9000);
 
         final List<String> iframeSources = analyzeForIframe(parentPageContent, parentPageURL);
 

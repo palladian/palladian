@@ -251,6 +251,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
         } catch (Exception e) {
             LOGGER.error("SWFHeader extraction failed! " + e.getMessage());
         }
+
         return swfHeader;
     }
 
@@ -265,44 +266,41 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
 
         String url = mio.getDirectURL();
 
-//        // initially set content features
-//        mio.setFeature("TextContentRelevance", 0);
-//        mio.setFeature("ResolutionRelevance", 0);
-        
-
-        // only analyze content of swf-files
-        if (mio.getMIOType().equalsIgnoreCase("flash")) {
-
-            if (!url.toLowerCase(Locale.ENGLISH).endsWith(".swf")) {
-                if (url.toLowerCase(Locale.ENGLISH).contains(".swf")) {
-                    final int swfIndex = (url.toLowerCase(Locale.ENGLISH).indexOf(".swf")) + 4;
-                    url = url.substring(0, swfIndex);
-                } else {
-                    LOGGER.info("MIO-URL contains no swf");
-                    url = "";
-                }
-
+        if (!url.toLowerCase(Locale.ENGLISH).endsWith(".swf")) {
+            if (url.toLowerCase(Locale.ENGLISH).contains(".swf")) {
+                final int swfIndex = (url.toLowerCase(Locale.ENGLISH).indexOf(".swf")) + 4;
+                url = url.substring(0, swfIndex);
+            } else {
+                LOGGER.info("MIO-URL contains no swf");
+                url = "";
             }
-            if (!("").equals(url)) {
-                // make directory if not exists
-                File tempFile = new File(downloadPath);
-                if (!tempFile.isDirectory()) {
-                    tempFile.mkdir();
-                }
-                final File mioFile = Crawler.downloadBinaryFile(url, downloadPath + mio.getFileName());
-                if (mioFile != null) {
-                    try{
+
+        }
+        if (!("").equals(url)) {
+            // make directory if not exists
+            File tempFile = new File(downloadPath);
+            if (!tempFile.isDirectory()) {
+                tempFile.mkdir();
+            }
+            final File mioFile = Crawler.downloadBinaryFile(url, downloadPath + mio.getFileName());
+
+            if (mioFile != null) {
+
+//                double size = (double) mioFile.length();
+//                System.out.println(mio.getFileName() + " --- " + size);
+                try {
                     final String textContent = extractTextContent(mioFile);
                     final SWFHeader header = extractHeader(mioFile);
-//                    setTextContentLength(mio, textContent);
+                    // setTextContentLength(mio, textContent);
 
                     setFileSize(mio, header);
+//                    setFileSize(mio, mioFile);
                     setFeatures(mio, entity, textContent, header);
-                    
-                    }
-                    catch(Exception e){
-                        LOGGER.error("Analyzing SWFContent failed! " +e.getMessage());
-                    }
+
+                } catch (Exception exception) {
+                    LOGGER.error("Analyzing SWFContent failed for "+entity.getName() + " and FileName: " + mio.getFileName() + exception.getMessage());
+                } catch (Error error) {
+                    LOGGER.error("Analyzing SWFContent failed for "+entity.getName() + " and FileName: " + mio.getFileName() + error.getMessage());
                 }
             }
         }
@@ -315,10 +313,10 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      * @param mio the mio
      * @param textContent the text content
      */
-//    private void setTextContentLength(MIO mio, String textContent) {
-//
-//        mio.setTextContentLength(textContent.length());
-//    }
+    // private void setTextContentLength(MIO mio, String textContent) {
+    //
+    // mio.setTextContentLength(textContent.length());
+    // }
 
     /**
      * Sets the fileSize.
@@ -337,14 +335,14 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
 
     // An alternative without header-usage.
     //
-    // private void setFileSize(MIO mio, File mioFile) {
-    // if (mioFile != null) {
-    //
-    // double size = (double)mioFile.length();
-    // mio.setFileSize(size);
-    // }
-    //
-    // }
+//     private void setFileSize(MIO mio, File mioFile) {
+//     if (mioFile != null) {
+//    
+//     double size = (double)mioFile.length();
+//     mio.setFileSize(size);
+//     }
+//    
+//     }
 
     /**
      * Sets the features for trust calculation.
@@ -356,17 +354,16 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      */
     private void setFeatures(final MIO mio, Entity entity, String textContent, SWFHeader header) {
 
-//        double textContentRelevance = 0;
-//        double resolutionRelevance = 0;
+        // double textContentRelevance = 0;
+        // double resolutionRelevance = 0;
 
-        if (!("").equals(textContent)) {           
-             mio.setFeature("TextContentRelevance", calcTextContentRelevance(textContent, entity));
-        }       
+        if (!("").equals(textContent)) {
+            mio.setFeature("TextContentRelevance", calcTextContentRelevance(textContent, entity));
+        }
 
         if (header != null) {
-             mio.setFeature("ResolutionRelevance", calcResolutionRelevance(header));
+            mio.setFeature("ResolutionRelevance", calcResolutionRelevance(header));
         }
-        
 
     }
 
@@ -411,17 +408,15 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      * 
      * @param file the file
      * @return the string
+     * @throws FileNotFoundException 
      */
-    private String extractTextContent(File file) {
+    private String extractTextContent(File file) throws FileNotFoundException {
         String result = "";
 
         FileInputStream inStream = null;
-        try {
+       
             inStream = new FileInputStream(file);
-        } catch (FileNotFoundException e1) {
-
-            LOGGER.error(e1.getMessage());
-        }
+      
 
         if (inStream != null) {
             try {
@@ -469,8 +464,8 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
         // // String urlString = "http://www.vivalagames.com/play/antbuster/game.swf";
         // String urlString = "http://media.tigerdirect.com/swf/HP EliteBook Flash Presentation.swf";
         //
-         SWFContentAnalyzer mioca = new SWFContentAnalyzer();
-//         System.exit(1);
+        SWFContentAnalyzer mioca = new SWFContentAnalyzer();
+        // System.exit(1);
         File file = Crawler.downloadBinaryFile(urlString, "F:/Temp/audiosystem4.swf");
         // File file = Crawler.downloadBinaryFile("http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/index.swf",
         // "F:/Temp/index.swf");
@@ -478,11 +473,11 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
         // double size = (double)file.length();
         // System.out.println("FileFileSize: " +size);
         //
-         System.out.println(mioca.extractHeader(file).getSize());
+        System.out.println(mioca.extractHeader(file).getSize());
 
         //
-         String textContent = mioca.extractTextContent(file);
-         System.out.println(textContent);
+        String textContent = mioca.extractTextContent(file);
+        System.out.println(textContent);
         // System.out.println(textContent.length());
         //
         // System.out.println(mioca.extractHeader(file).toString());

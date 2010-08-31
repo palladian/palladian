@@ -208,6 +208,7 @@ public class DateHelper {
     
 
     public static void main(String[] t) {
+        System.out.println(DateHelper.getCurrentDatetime());
         System.out.println(getTimeString(-1));
         System.out.println(getCurrentDatetime("yyyy-MM-dd HH:mm:ss"));
         System.out.println(getCurrentDatetime());

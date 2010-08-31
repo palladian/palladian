@@ -41,16 +41,22 @@ public class InCoFiConfiguration {
     /** The search engine. */
     public transient int searchEngine;
     
-    /** The temp dir path. */
+    /** The tempDirectoryPath. */
     public transient String tempDirPath;
+    
+    /** The RolePage Trust Limit **/
+    public transient double rolePageTrustLimit;
     
     /** The role page relevance value. */
     public transient int rolePageRelevanceValue;
     
-    /** The analyze swf content. */
+    /** Analyze SWFContent. */
     public transient boolean analyzeSWFContent;
     
-    /** The mio types. */
+    /** Indicator for limiting the linkAnalyzing. */
+    public transient boolean limitLinkAnalyzing;
+    
+    /** The relevant MIOTypes. */
     public transient String mioTypes;
     
     /** The bad words. */
@@ -141,7 +147,7 @@ public class InCoFiConfiguration {
         attributeMap.put("movie", parseStringToList(movie));
         attributeMap.put("car", parseStringToList(car));
 
-        attributeMap.put("weakMIOs", parseStringToList(weakMIOs));
+        attributeMap.put("weakmios", parseStringToList(weakMIOs));
 
         return attributeMap;
     }

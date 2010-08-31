@@ -1,9 +1,9 @@
              
-             # set the conceptSearchVocabulary
+             # set the conceptSearchVocabulary (be carefully, every further word can arise the processing time immensely)
              mobilephone:               "360 view, 3D, overview, key features, drag to rotate"
              printer:                   "view product tour, view demo, product tour, interactive tour, gallery"
              headphone:                 "view product tour, view demo, view 360, product tour, 360 view, virtual tour"
-             movie:                     "game, keys, play_, flashgame, games, click here to play, arrow keys"
+             movie:                     "game, play_, flashgame, click here to play, arrow keys, minisite"
              car:                       "campaign, picture viewer, silverlight, flash, microsite, 360 view, virtual tour"
              
              # set the searchVocabulary for retrieving of weakMIOs
@@ -18,11 +18,18 @@
              # set the directory which is used for downloading SWF and XML-Files
              tempDirPath: "F:/Temp/"
              
+             # set a minimal trust-limit which defines when a MIOPage is qualified to be a RolePage
+             rolePageTrustLimit: 0.5
+             
              # set a count-value which defines a RolePage as relevant
-             rolePageRelevanceValue: 5
+             rolePageRelevanceValue: 100
              
              # set if SWFContent should be downloaded and analyzed
              analyzeSWFContent: "true"
+             
+             # set if the Analyzing of Links should be limited to that which contains concept-vocabulary
+             # this speeds up linkAnalyzing but reduces the result-amount
+             limitLinkAnalyzing: "false"
              
              # set which mioTypes should be retrieved (possible are: flash, applet, silverlight, quicktime, html5canvas)
              mioTypes: "flash, applet, silverlight, quicktime, html5canvas"

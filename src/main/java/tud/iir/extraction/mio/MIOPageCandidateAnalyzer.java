@@ -4,6 +4,7 @@
  */
 package tud.iir.extraction.mio;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -11,6 +12,8 @@ import java.util.Map;
 
 import org.w3c.dom.Document;
 
+import tud.iir.helper.DateHelper;
+import tud.iir.helper.FileHelper;
 import tud.iir.knowledge.Entity;
 import tud.iir.web.Crawler;
 
@@ -47,34 +50,46 @@ public class MIOPageCandidateAnalyzer {
      */
     public final List<MIOPage> identifyMIOPages(final Entity entity) {
 
-        final Crawler craw = new Crawler();
+//        final Crawler craw = new Crawler();
+        final Crawler craw = new Crawler(4000,5000,5000);
+        final long timeStamp1 = System.currentTimeMillis();
         // initialize SearchWordMatcher
         final SearchWordMatcher swMatcher = new SearchWordMatcher(entity.getName());
         final FastMIODetector fMIODec = new FastMIODetector();
         final IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
-        final LinkAnalyzer linkAnalyzer = new LinkAnalyzer(swMatcher);
-
+        final LinkAnalyzer linkAnalyzer = new LinkAnalyzer(swMatcher, entity.getConcept());
+       
         for (String mioPageCandidate : mioPageCandidates) {
-
+            
+                       
+//            final long timeStamp3 = System.currentTimeMillis();
             final Document webDocument = craw.getWebDocument(mioPageCandidate);
             final String pageContent = Crawler.documentToString(webDocument);
 
             if (("").equals(pageContent)) {
                 continue;
             }
-
+            
+//            System.out.println("Downloading Page finished in: " +DateHelper.getRuntime(timeStamp3) + " " + mioPageCandidate);
+//            final long timeStamp2 = System.currentTimeMillis();
+            
             if (fMIODec.containsMIO(pageContent)) {
                 final MIOPage mioPage = new MIOPage(mioPageCandidate, webDocument);
                 mioPages.add(mioPage);
             }
-
+//            System.out.println("PRE-MIOPageCandidateAnalyzing finished in: " +DateHelper.getRuntime(timeStamp3));
+       
             // IFRAME-Analysis
             mioPages.addAll(iframeAnalyzer.getIframeMioPages(pageContent, mioPageCandidate));
-
+//            final long timeStamp4 = System.currentTimeMillis();
             // Link-Analysis
             mioPages.addAll(linkAnalyzer.getLinkedMioPages(pageContent, mioPageCandidate));
+//            System.out.println("linkAnalyzing finished in: " +DateHelper.getRuntime(timeStamp4));
+//            System.out.println("MIOPageCandidate Analyzing finished in: " +DateHelper.getRuntime(timeStamp3));
+
 
         }
+        System.out.println("Analyzing all MIOPageCandidates finished in: " +DateHelper.getRuntime(timeStamp1));
 
         return removeDuplicates(mioPages);
     }
@@ -112,6 +127,16 @@ public class MIOPageCandidateAnalyzer {
 
         final Map<String, MIOPage> tempMap = new HashMap<String, MIOPage>();
         for (MIOPage mioPage : mioPages) {
+            
+//            try {
+//
+//                FileHelper.appendFile("f:/mioPageCandidates.txt",mioPage.getUrl() + "\r\n");
+//
+//            } catch (IOException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+                  
 
             if (tempMap.containsKey(mioPage.getUrl())) {
 
