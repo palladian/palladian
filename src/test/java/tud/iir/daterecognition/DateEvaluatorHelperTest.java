@@ -1,17 +1,15 @@
 package tud.iir.daterecognition;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
 
 import org.junit.Test;
 
-import tud.iir.control.AllTests;
+import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.knowledge.RegExp;
 
 public class DateEvaluatorHelperTest {
@@ -33,22 +31,7 @@ public class DateEvaluatorHelperTest {
         assertFalse(DateEvaluatorHelper.isDateInRange(date));
         date = new ExtractedDate("2090-11-12T00:00:00Z", RegExp.DATE_ISO8601_YMD_T[1]);
         assertFalse(DateEvaluatorHelper.isDateInRange(date));
-    }
-
-    @Test
-    public void testFilter() {
-        final String url = "data/test/webPages/dateExtraction/zeit1.htm";
-        if (!AllTests.ALL_TESTS) {
-            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
-            DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllTrue();
-            dateGetter.setTechArchive(false);
-            dateGetter.setTechReference(false);
-            date.addAll(dateGetter.getDate());
-            ArrayList<ExtractedDate> filter = DateEvaluatorHelper.filter(date, ExtractedDate.TECH_HTML_CONT);
-            assertEquals(6, filter.size());
-            filter = DateEvaluatorHelper.filter(date, ExtractedDate.TECH_HTML_STRUC);
-            assertEquals(4, filter.size());
-        }
+        date = new ExtractedDate("Nov 8, 2007", RegExp.DATE_USA_MMMM_D_Y[1]);
+        assertTrue(DateEvaluatorHelper.isDateInRange(date));
     }
 }

@@ -1,5 +1,10 @@
 package tud.iir.daterecognition;
 
+import tud.iir.daterecognition.dates.ContentDate;
+import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.daterecognition.dates.StructureDate;
+import tud.iir.daterecognition.dates.URLDate;
+
 public class DateConverter {
 
     public static URLDate convertToURLDate(ExtractedDate date) {

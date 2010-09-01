@@ -37,6 +37,7 @@ import tud.iir.knowledge.HTMLSymbols;
  * @author David Urbansky
  * @author Martin Werner
  * @author Philipp Katz
+ * @author Martin Gregor
  */
 public class HTMLHelper {
 

@@ -1,10 +1,11 @@
 package tud.iir.helper;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
 
-import tud.iir.daterecognition.ExtractedDate;
+import tud.iir.daterecognition.dates.ExtractedDate;
 
 public class DateComparator implements Comparator<ExtractedDate> {
 
@@ -184,5 +185,16 @@ public class DateComparator implements Comparator<ExtractedDate> {
         }
 
         return diff;
+    }
+
+    public <T, V> ArrayList<T> getEqualDate(V date, ArrayList<T> dates) {
+        ArrayList<T> returnDate = new ArrayList<T>();
+        for (int i = 0; i < dates.size(); i++) {
+            int compare = compare((ExtractedDate) date, (ExtractedDate) dates.get(i), STOP_DAY);
+            if (compare == 0) {
+                returnDate.add(dates.get(i));
+            }
+        }
+        return returnDate;
     }
 }

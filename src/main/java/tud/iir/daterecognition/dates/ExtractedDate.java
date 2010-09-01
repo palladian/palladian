@@ -1,10 +1,11 @@
-package tud.iir.daterecognition;
+package tud.iir.daterecognition.dates;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import tud.iir.daterecognition.ExtractedDateHelper;
 import tud.iir.knowledge.RegExp;
 
 /**
@@ -37,6 +38,10 @@ public class ExtractedDate {
     private String dateString = null;
     /** The format, the dateString is found. */
     private String format;
+    
+    /**URL*/
+    private String url=null;
+    
 
     // date values
     private int year = -1;
@@ -700,6 +705,14 @@ public class ExtractedDate {
 
     public int getType() {
         return 0;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public String getUrl() {
+        return url;
     }
 
 }

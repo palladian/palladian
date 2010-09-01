@@ -9,6 +9,8 @@ import org.junit.Ignore;
 import org.junit.Test;
 
 import tud.iir.control.AllTests;
+import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.helper.DateArrayHelper;
 import tud.iir.knowledge.RegExp;
 
 public class DateGetterHelperTest {
@@ -255,6 +257,7 @@ public class DateGetterHelperTest {
                 .getNormalizedDate());
         assertEquals("2010-07-29", DateGetterHelper.findDate("29/07/2010").getNormalizedDate());
         assertEquals("2010-09-07", DateGetterHelper.findDate("09/07/2010").getNormalizedDate());
+        assertEquals("2010-08-23", DateGetterHelper.findDate("Monday, August 23, 2010").getNormalizedDate());
 
     }
 
@@ -349,22 +352,25 @@ public class DateGetterHelperTest {
 
     @Test
     public void testGetStructureDate2() {
+
         String url = "http://www.aftonbladet.se/wendela/ledig/article3476060.ab";
+
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllFalse();
             dateGetter.setTechHTMLStruct(true);
             date.addAll(dateGetter.getDate());
-            ExtractedDateHelper.printDateArray(date);
+            DateArrayHelper.printDateArray(date);
         }
     }
 
-    @Ignore
     @Test
     public void testGetContentDates() {
-        final String url = "data/test/webPages/dateExtraction/kullin.htm";
-
+        // final String url = "data/test/webPages/dateExtraction/kullin.htm";
+        // String url =
+        // "http://www.gatorsports.com/article/20100823/ARTICLES/100829802/1136?Title=Meyer-has-concerns-with-season-fast-approaching";
+        String url = "http://www.truthdig.com/arts_culture/item/20071108_mark_sarvas_on_the_hot_zone/";
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             // date.addAll(DateGetterHelper
@@ -375,7 +381,7 @@ public class DateGetterHelperTest {
             dateGetter.setAllFalse();
             dateGetter.setTechHTMLContent(true);
             date.addAll(dateGetter.getDate());
-            ExtractedDateHelper.printDateArray(date);
+            DateArrayHelper.printDateArray(date);
 
         }
     }
@@ -394,7 +400,7 @@ public class DateGetterHelperTest {
             dateGetter.setAllFalse();
             dateGetter.setTechHTMLContent(true);
             date.addAll(dateGetter.getDate());
-            ExtractedDateHelper.printDateArray(date);
+            DateArrayHelper.printDateArray(date);
 
         }
     }
@@ -411,7 +417,7 @@ public class DateGetterHelperTest {
             dateGetter.setTechReference(false);
             dateGetter.setTechArchive(false);
             date.addAll(dateGetter.getDate());
-            ExtractedDateHelper.printDateArray(date, ExtractedDate.TECH_HTML_CONT);
+            DateArrayHelper.printDateArray(date, ExtractedDate.TECH_HTML_CONT);
 
         }
     }
@@ -429,7 +435,7 @@ public class DateGetterHelperTest {
             dateGetter.setTechHTMLStruct(false);
             dateGetter.setTechReference(false);
             date.addAll(dateGetter.getDate());
-            ExtractedDateHelper.printDateArray(date);
+            DateArrayHelper.printDateArray(date);
 
         }
     }
@@ -450,7 +456,7 @@ public class DateGetterHelperTest {
             dateGetter.setAllFalse();
             dateGetter.setTechReference(true);
             date.addAll(dateGetter.getDate());
-            ExtractedDateHelper.printDateArray(date);
+            DateArrayHelper.printDateArray(date);
 
         }
     }

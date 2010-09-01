@@ -1,13 +1,13 @@
 /**
  * 
  */
-package tud.iir.daterecognition;
+package tud.iir.daterecognition.dates;
 
 /**
  * @author salco
  * 
  */
-public class HTTPDate extends ExtractedDate {
+public class HeadDate extends ExtractedDate {
     /**
      * Context, in witch the date was found. <br>
      * E.g.: URL, tag-name, HTTP-tag, keyword...
@@ -17,14 +17,14 @@ public class HTTPDate extends ExtractedDate {
     /**
      * 
      */
-    public HTTPDate() {
+    public HeadDate() {
         // TODO Auto-generated constructor stub
     }
 
     /**
      * @param dateString
      */
-    public HTTPDate(String dateString) {
+    public HeadDate(String dateString) {
         super(dateString);
         // TODO Auto-generated constructor stub
     }
@@ -33,7 +33,7 @@ public class HTTPDate extends ExtractedDate {
      * @param dateString
      * @param format
      */
-    public HTTPDate(String dateString, String format) {
+    public HeadDate(String dateString, String format) {
         super(dateString, format);
         // TODO Auto-generated constructor stub
     }
@@ -44,8 +44,7 @@ public class HTTPDate extends ExtractedDate {
      */
     @Override
     public int getType() {
-        // TODO Auto-generated method stub
-        return TECH_HTTP_HEADER;
+        return TECH_HTML_HEAD;
     }
 
     @Override
