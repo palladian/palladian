@@ -10,6 +10,9 @@ public class Tag {
 
     private String name;
     private float weight;
+    
+    // tfidf field to keep the original values, as weight is reranked.
+    private float originalWeight;
 
     public Tag() {
 
@@ -18,6 +21,7 @@ public class Tag {
     public Tag(String name, float weight) {
         this.name = name;
         this.weight = weight;
+        this.originalWeight = weight;
     }
     
     
@@ -30,6 +34,11 @@ public class Tag {
         this.name = name;
     }
 
+    /**
+     * The Tag's weight, which is based on tf-idf, but which may be altered by various re-ranking processes.
+     * 
+     * @return
+     */
     public float getWeight() {
         return weight;
     }
@@ -40,6 +49,19 @@ public class Tag {
     
     public void increaseWeight(float by) {
         this.weight += by;
+    }
+
+    /**
+     * The Tag's weight, determined by tf-idf. Immutable.
+     * 
+     * TODO I dont like this solution. Think this over again, remove this method/field to weight and the other one to
+     * "internal"/"ranking" weight etc., make it accessible just for the tagger, as it makes no sense to expose this
+     * to the outside.
+     * 
+     * @return
+     */
+    public float getOriginalWeight() {
+        return originalWeight;
     }
 
     @Override

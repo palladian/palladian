@@ -44,6 +44,9 @@ public class AnswerClassifier extends Classifier {
 
     /**
      * Use an already trained classifier.
+     * 
+     * TODO pull this method up? I have copied this to NewsRankingClassifier for now. We should have the possibility to
+     * set file names for the serialized model to avoid conflicts between different Classifier subclasses -- Philipp.
      */
     public void useTrainedClassifier() {
         weka.classifiers.Classifier trainedAnswerClassifier;

@@ -2,7 +2,6 @@ package tud.iir.news;
 
 import java.sql.Timestamp;
 import java.util.Date;
-import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
@@ -40,9 +39,8 @@ public class FeedEntry {
     // private List<String> tags = new ArrayList<String>();
     
     /** arbitrary, numeric features, used for feature extraction and classification. */
-    // TODO change from Float to Number
     // private Map<String, Float> features = new HashMap<String, Float>();
-    private SortedMap<String, Float> features = new TreeMap<String, Float>();
+    private SortedMap<String, Double> features = new TreeMap<String, Double>();
 
     public int getId() {
         return id;
@@ -162,20 +160,20 @@ public class FeedEntry {
     // tags.add(tag);
     // }
     
-    public SortedMap<String, Float> getFeatures() {
+    public SortedMap<String, Double> getFeatures() {
         return features;
     }
     
-    public void setFeatures(SortedMap<String, Float> features) {
+    public void setFeatures(SortedMap<String, Double> features) {
         this.features = features;
     }
 
-    public Float getFeature(String key) {
+    public double getFeature(String key) {
         return features.get(key);
     }
 
-    public Float putFeature(String key, Float value) {
-        return features.put(key, value);
+    public void putFeature(String key, double value) {
+        features.put(key, value);
     }
 
     @Override

@@ -658,6 +658,8 @@ public class URLRankingServices {
     /**
      * Get the number of results from Yahoo! pointing to the URL's domain.
      * 
+     * http://www.pandia.com/sw-2004/23-yahoo.html
+     * 
      * @return number of domain results from Yahoo!, -1 on error.
      */
     private int getYahooDomainLinks() {
@@ -685,6 +687,8 @@ public class URLRankingServices {
 
     /**
      * Get the number of results from Yahoo! pointing to the URL.
+     * 
+     * http://www.pandia.com/sw-2004/23-yahoo.html
      * 
      * @return number of page result from Yahoo!, -1 on error.
      */
@@ -749,8 +753,8 @@ public class URLRankingServices {
 
         String response = crawler.download("http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&"
                 + "ch=6" + urlHash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + StringHelper.urlEncode(prUrl));
-
-        if (response != null) {
+        
+        if (response != null && !response.isEmpty()) {
             if (response.contains(":")) {
                 response = response.split(":")[2].trim();
                 result = Integer.valueOf(response);
