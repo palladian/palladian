@@ -1,12 +1,16 @@
 package tud.iir.classification;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import tud.iir.helper.CollectionHelper;
 
 /**
  * An object holding features.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  * 
  */
 public class FeatureObject {
@@ -140,6 +144,25 @@ public class FeatureObject {
      */
     public void setClassAssociation(final int classAssociation) {
         this.classAssociation = classAssociation;
+    }
+    
+    /**
+     * Get a feature by its featureName.
+     * 
+     * @param featureName
+     * @return value of the specified featureName, or <code>null</code> if no feature with specified name, or no
+     *         featureNames specified at all.
+     * @author Philipp Katz
+     */
+    public Double getFeature(String featureName) {
+        Double feature = null;
+        if (featureNames != null) {
+            int position = Arrays.asList(featureNames).indexOf(featureName);
+            if (position != -1) {
+                feature = features[position];
+            }
+        }
+        return feature;
     }
 
     /*

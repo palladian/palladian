@@ -185,6 +185,9 @@ public class ControlledTaggerSettings {
         if (getPriorWeight() != -1) {
             sb.append(",priorWeight=").append(this.getPriorWeight());
         }
+        if (!getStopwords().isEmpty()) {
+            sb.append(",numberStopwords=").append(getStopwords());
+        }
 
         return sb.toString();
     }

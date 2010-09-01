@@ -515,6 +515,7 @@ public class ControlledTagger {
                         // correlation.getRelativeCorrelation());
                         float reRanking = (float) ((settings.getCorrelationWeight() / numReRanking) * correlation
                                 .getRelativeCorrelation());
+                        // FIXME why dont we put the numReRanking division outside the loop?
 
                         assert !Double.isInfinite(reRanking) && !Double.isNaN(reRanking);
                         // innerTag.weight += reRanking;
@@ -774,6 +775,10 @@ public class ControlledTagger {
     
     public void setSettings(ControlledTaggerSettings settings) {
         this.settings = settings;
+    }
+    
+    public ControlledTaggerIndex getIndex() {
+        return index;
     }
 
     /**

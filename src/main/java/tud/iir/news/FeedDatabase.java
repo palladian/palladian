@@ -36,7 +36,7 @@ public class FeedDatabase implements FeedStore {
     private final static FeedDatabase INSTANCE = new FeedDatabase();
 
     /** the logger for this class */
-    static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
+    private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
 
     /** the database connection */
     private Connection connection;
@@ -700,10 +700,10 @@ public class FeedDatabase implements FeedStore {
         entry.setTitle(resultSet.getString("title"));
         entry.setLink(resultSet.getString("link"));
         entry.setRawId(resultSet.getString("rawId"));
-        entry.setPublished(resultSet.getDate("published"));
+        entry.setPublished(resultSet.getTimestamp("published"));
         entry.setEntryText(resultSet.getString("text"));
         entry.setPageText(resultSet.getString("pageText"));
-
+        
         /*
          * SQLXML pageContent = resultSet.getSQLXML("pageText");
          * if (pageContent.getString() != null) {
@@ -722,7 +722,7 @@ public class FeedDatabase implements FeedStore {
          * }
          */
 
-        entry.setAdded(resultSet.getDate("added"));
+        entry.setAdded(resultSet.getTimestamp("added"));
         // String tags = resultSet.getString("tags");
         // if (tags != null) {
         // entry.setTags(new LinkedList<String>(Arrays.asList(tags.split(","))));
@@ -792,7 +792,7 @@ public class FeedDatabase implements FeedStore {
                 // add relation between tag and feed
                 psTagFeedEntry.setInt(1, entry.getId());
                 psTagFeedEntry.setInt(2, tagId);
-                psTagFeedEntry.setFloat(3, tag.getWeight());
+                psTagFeedEntry.setFloat(3, tag.getOriginalWeight());
                 psTagFeedEntry.executeUpdate();
 
             }

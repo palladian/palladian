@@ -46,6 +46,7 @@ public class ControlledTaggerEvaluationSettings extends ControlledTaggerSettings
         setTfidfThreshold(tfidfThreshold);
         setTagCount(tagCount);
         setCorrelationWeight(correlationWeight);
+        setPriorWeight(priorWeight);
         
         this.trainLimit = trainLimit;
         this.testLimit = testLimit;
