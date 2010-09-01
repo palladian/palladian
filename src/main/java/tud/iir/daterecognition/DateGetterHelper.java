@@ -14,6 +14,11 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
+import tud.iir.daterecognition.dates.ContentDate;
+import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.daterecognition.dates.HeadDate;
+import tud.iir.daterecognition.dates.StructureDate;
+import tud.iir.daterecognition.dates.URLDate;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.knowledge.KeyWords;
@@ -52,6 +57,7 @@ public final class DateGetterHelper {
         }
         if (date != null) {
             temp = DateConverter.convertToURLDate(date);
+            temp.setUrl(url);
         }
         return temp;
     }
@@ -280,7 +286,10 @@ public final class DateGetterHelper {
         for (int i = 0; i < regExps.length; i++) {
             date = getDateFromString(dateString, (String[]) regExps[i]);
             if (date != null) {
-                contentDates.add(DateConverter.convertToContentDate(date));
+                ContentDate cDate = DateConverter.convertToContentDate(date);
+                int index = dateString.indexOf(date.getDateString());
+                cDate.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
+                contentDates.add(cDate);
                 dateString = dateString.replace(date.getDateString(), getWhitespaces(date.getDateString()));
             }
 
@@ -476,7 +485,7 @@ public final class DateGetterHelper {
                 date.setKeyword(keyword);
                 date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
             } else {
-                date = setNearestTextkeyword(text, date);
+                date = setNearestTextkeyword(HTMLHelper.replaceHTMLSymbols(text), date);
             }
             dates.add(date);
         }

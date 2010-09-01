@@ -1,4 +1,4 @@
-package tud.iir.daterecognition;
+package tud.iir.daterecognition.dates;
 
 public class URLDate extends ExtractedDate {
 
@@ -22,4 +22,8 @@ public class URLDate extends ExtractedDate {
         return TECH_URL;
     }
 
+    @Override
+    public String toString() {
+        return super.toString();// + " url: " + getUrl() + "<<";
+    }
 }

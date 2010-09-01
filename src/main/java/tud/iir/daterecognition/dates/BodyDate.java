@@ -1,4 +1,4 @@
-package tud.iir.daterecognition;
+package tud.iir.daterecognition.dates;
 
 public abstract class BodyDate extends ExtractedDate {
 

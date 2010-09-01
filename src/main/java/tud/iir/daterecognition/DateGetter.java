@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import org.w3c.dom.Document;
 
+import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.ArrayHelper;
 import tud.iir.web.Crawler;
 
@@ -27,6 +28,8 @@ public class DateGetter {
     /** URL that will be called */
     private String url;
 
+    private Document document;
+
     public DateGetter() {
         super();
     }
@@ -40,6 +43,15 @@ public class DateGetter {
         this.url = url;
     }
 
+    public DateGetter(final Document document) {
+        this.document = document;
+    }
+
+    public DateGetter(final String url, Document document) {
+        this.url = url;
+        this.document = document;
+    }
+
     /**
      * Analyzes a webpage by different techniques to find dates. The techniques are found in DateGetterHelper. <br>
      * Type of the found dates are ExtractedDate.
@@ -51,28 +63,34 @@ public class DateGetter {
         ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
         Crawler crawler = new Crawler();
         if (url != null) {
-            Document document = crawler.getWebDocument(url);
-            if (document != null) {
-                // final Document document = crawler.getWebDocument(this.url, false);
 
-                if (tech_HTTP) {
-                    dates.add(DateGetterHelper.getHTTPHeaderDate(url));
+            // final Document document = crawler.getWebDocument(this.url, false);
+
+            if (tech_HTTP) {
+                dates.add(DateGetterHelper.getHTTPHeaderDate(url));
+            }
+            if (tech_URL) {
+                dates.add(DateGetterHelper.getURLDate(url));
+            }
+            if (tech_HTML_head || tech_HTML_struct || tech_HTML_content || tech_reference) {
+                Document document = this.document;
+                if (document == null) {
+                    document = crawler.getWebDocument(url);
                 }
-                if (tech_URL) {
-                    dates.add(DateGetterHelper.getURLDate(url));
-                }
-                if (tech_HTML_head) {
-                    dates.addAll(DateGetterHelper.getHeadDates(document));
-                }
-                if (tech_HTML_struct) {
-                    dates.addAll(DateGetterHelper.getStructureDate(document));
-                }
-                if (tech_HTML_content) {
-                    dates.addAll(DateGetterHelper.getContentDates(document));
-                }
-                if (tech_reference) {
-                    dates.addAll(DateGetterHelper.getReferenceDates(document));
-                    // TODO: evaluate each link, so only the best date for each link is left.
+                if (document != null) {
+                    if (tech_HTML_head) {
+                        dates.addAll(DateGetterHelper.getHeadDates(document));
+                    }
+                    if (tech_HTML_struct) {
+                        dates.addAll(DateGetterHelper.getStructureDate(document));
+                    }
+                    if (tech_HTML_content) {
+                        dates.addAll(DateGetterHelper.getContentDates(document));
+                    }
+                    if (tech_reference) {
+                        dates.addAll(DateGetterHelper.getReferenceDates(document));
+                        // TODO: evaluate each link, so only the best date for each link is left.
+                    }
                 }
             }
         }

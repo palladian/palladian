@@ -1,7 +1,7 @@
 /**
  * 
  */
-package tud.iir.daterecognition;
+package tud.iir.daterecognition.dates;
 
 /**
  * @author salco

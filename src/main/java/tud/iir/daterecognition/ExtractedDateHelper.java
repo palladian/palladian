@@ -1,66 +1,13 @@
 package tud.iir.daterecognition;
 
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Iterator;
 import java.util.TimeZone;
 
+import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.knowledge.RegExp;
 
 public class ExtractedDateHelper {
-
-    /**
-     * Same as printeDateArray() with filter of techniques. These are found in ExtracedDate as static properties. <br>
-     * And a format, found as second value of RegExp.
-     * 
-     * @param <T>
-     * 
-     * @param dates
-     * @param filterTechnique
-     * @param format
-     */
-    public static <T> void printDateArray(ArrayList<T> dates, int filterTechnique, String format) {
-        ArrayList<T> temp = dates;
-        if (filterTechnique != 0) {
-            System.out.println("enter filter");
-            temp = filterDatesByTechnique(temp, filterTechnique);
-        }
-
-        Iterator<T> dateIterator = temp.iterator();
-        while (dateIterator.hasNext()) {
-
-            T date = dateIterator.next();
-            if (format == null || format == ((ExtractedDate) date).getFormat()) {
-                System.out.println(date.toString());
-                System.out
-                        .println("------------------------------------------------------------------------------------------------");
-            }
-        }
-    }
-
-    /**
-     * Same as printeDateArray() with filter of techniques. These are found in ExtracedDate as static properties.
-     * 
-     * @param <T>
-     * 
-     * @param dates
-     * @param filterTechnique
-     */
-    public static <T> void printDateArray(ArrayList<T> dates, int filterTechnique) {
-        printDateArray(dates, filterTechnique, null);
-    }
-
-    /**
-     * System.out.println for each date in dates, with some properties.
-     * 
-     * @param <T>
-     * 
-     * @param dates
-     */
-    public static <T> void printDateArray(ArrayList<T> dates) {
-        printDateArray(dates, 0);
-    }
 
     /**
      * convert month-name in a number; January is 01..
@@ -207,55 +154,6 @@ public class ExtractedDateHelper {
     }
 
     /**
-     * Filters a List of extracted dates by its extraction technique.
-     * 
-     * @param <T>
-     * 
-     * @param dates
-     * @param filter Found in ExtractedDate as static property.
-     * @return
-     */
-    public static <T> ArrayList<T> filterDatesByTechnique(ArrayList<T> dates, int filter) {
-        ArrayList<T> returnDates = new ArrayList<T>();
-        Iterator<T> iterator = dates.iterator();
-
-        while (iterator.hasNext()) {
-            T date = iterator.next();
-            if (((ExtractedDate) date).getType() == filter || filter == 0) {
-                returnDates.add(date);
-            }
-        }
-
-        return returnDates;
-    }
-
-    /**
-     * Returns an array of dates, where every date has the specified datepart.(Is not -1)<br>
-     * year = 1;
-     * month =2;
-     * day=3;
-     * hour = 4;
-     * minute = 5;
-     * second=6;
-     * 
-     * 
-     * @param filter
-     * @return
-     */
-    public static ArrayList<ExtractedDate> filterDateswithDatepart(ArrayList<ExtractedDate> dates, int filter) {
-        ArrayList<ExtractedDate> returnDates = new ArrayList<ExtractedDate>();
-        Iterator<ExtractedDate> iterator = dates.iterator();
-
-        while (iterator.hasNext()) {
-            ExtractedDate date = iterator.next();
-            if (date.get(filter) != -1) {
-                returnDates.add(date);
-            }
-        }
-        return returnDates;
-    }
-
-    /**
      * Adds a leading zero for numbers less then ten. <br>
      * E.g.: 3 ->"03"; 12 -> "12"; 386 -> "376" ...
      * 
@@ -291,25 +189,22 @@ public class ExtractedDateHelper {
     }
 
     /**
-     * Removes trailing whitespace at the end.
+     * Removes timezone acronyms.
      * 
-     * @param dateString String to be cleared.
-     * @return Cleared string.
+     * @param dateString
+     * @return
      */
-    public static String removeLastWhitespace(String dateString) {
-        StringBuffer temp = new StringBuffer(dateString);
-
-        while (temp.charAt(temp.length() - 1) == ' ') {
-            temp.deleteCharAt(temp.length() - 1);
-        }
-        return temp.toString();
-    }
-
     public static String[] removeTimezone(String dateString) {
         String timezoneRegRex = RegExp.getTimezones();
         return tud.iir.helper.StringHelper.removeFirstStringpart(dateString, timezoneRegRex);
     }
 
+    /**
+     * Returns a extracted date type in a human readable string.
+     * 
+     * @param typ
+     * @return
+     */
     public static String getTypString(int typ) {
         String typeString;
         switch (typ) {

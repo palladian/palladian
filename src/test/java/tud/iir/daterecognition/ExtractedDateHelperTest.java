@@ -15,7 +15,7 @@ public class ExtractedDateHelperTest {
 
     /**
      * Test method for
-     * {@link tud.iir.daterecognition.ExtractedDateHelper#printDateArray(java.util.ArrayList, int, java.lang.String)}.
+     * {@link tud.iir.helper.DateArrayHelper#printDateArray(java.util.ArrayList, int, java.lang.String)}.
      */
     @Test
     public void testPrintDateArrayArrayListOfTIntString() {
@@ -23,7 +23,7 @@ public class ExtractedDateHelperTest {
     }
 
     /**
-     * Test method for {@link tud.iir.daterecognition.ExtractedDateHelper#printDateArray(java.util.ArrayList, int)}.
+     * Test method for {@link tud.iir.helper.DateArrayHelper#printDateArray(java.util.ArrayList, int)}.
      */
     @Test
     public void testPrintDateArrayArrayListOfTInt() {
@@ -31,7 +31,7 @@ public class ExtractedDateHelperTest {
     }
 
     /**
-     * Test method for {@link tud.iir.daterecognition.ExtractedDateHelper#printDateArray(java.util.ArrayList)}.
+     * Test method for {@link tud.iir.helper.DateArrayHelper#printDateArray(java.util.ArrayList)}.
      */
     @Test
     public void testPrintDateArrayArrayListOfT() {
@@ -164,7 +164,7 @@ public class ExtractedDateHelperTest {
     }
 
     /**
-     * Test method for {@link tud.iir.daterecognition.ExtractedDateHelper#removeLastWhitespace(java.lang.String)}.
+     * Test method for {@link tud.iir.helper.StringHelper#removeLastWhitespace(java.lang.String)}.
      */
     @Test
     public void testRemoveLastWhitespace() {

@@ -26,6 +26,7 @@ import tud.iir.normalization.UnitNormalizer;
  * @author David Urbansky
  * @author Martin Werner
  * @author Philipp Katz
+ * @author Martin Gregor
  */
 public class StringHelper {
 
@@ -250,7 +251,7 @@ public class StringHelper {
         String modString = string.replaceAll(" ", " ");
         return modString;
     }
-    
+
     public static String removeNonAsciiCharacters(String string) {
         // http://forums.sun.com/thread.jspa?threadID=5370865
         return string.replaceAll("[^\\p{ASCII}]", "");
@@ -479,7 +480,7 @@ public class StringHelper {
     public static int letterNumberCount(String string) {
         return string.replaceAll("[^a-zA-Z0-9]", "").length();
     }
-    
+
     public static int numberCount(String string) {
         return string.replaceAll("[^0-9]", "").length();
     }
@@ -625,7 +626,7 @@ public class StringHelper {
     }
 
     // TODO
-    
+
     public static String removeControlCharacters(String string) {
         for (int i = 0, l = string.length(); i < l; ++i) {
             // < 33 means all control characters are not wanted as well
@@ -636,6 +637,7 @@ public class StringHelper {
         }
         return string;
     }
+
     /**
      * Trim.
      * 
@@ -1092,9 +1094,9 @@ public class StringHelper {
     public static void main(String[] args) {
 
         System.out.println(removeNonAsciiCharacters("öüäaslkjd¡“¶{}|"));
-        
+
         // System.out.println(StringHelper.numberCount("123abcdefg"));
-        
+
         // System.out.println(WordTransformer.wordToSingular("yves"));
         // gives a java.lang.StringIndexOutOfBoundsException: String index out of range: -1
 
@@ -1210,6 +1212,21 @@ public class StringHelper {
             colonIndex = nextColonIndex;
         }
 
+    }
+
+    /**
+     * Removes trailing whitespace at the end.
+     * 
+     * @param dateString String to be cleared.
+     * @return Cleared string.
+     */
+    public static String removeLastWhitespace(String dateString) {
+        StringBuffer temp = new StringBuffer(dateString);
+    
+        while (temp.charAt(temp.length() - 1) == ' ') {
+            temp.deleteCharAt(temp.length() - 1);
+        }
+        return temp.toString();
     }
 
 }
