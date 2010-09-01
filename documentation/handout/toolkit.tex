@@ -140,47 +140,12 @@ The TUDIIR toolkit is managed using \href{http://subversion.apache.org/}{Subvers
 At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
 \section{Building the toolkit using Apache Maven}
 \label{sec:buildingthetoolkitusingapachemaven}
-Apache \textbf{Maven needs to be installed} before building the toolkit. How to do this is explained here: \href{http://maven.apache.org/download.html#Installation}{Maven installation}. There is one necessary manual step before you can start building the toolkit. You need to add our Nexus repository to your local maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content:
+Apache \textbf{Maven needs to be installed} before building the toolkit. How to do this is explained here: \href{http://maven.apache.org/download.html#Installation}{Maven installation}. There is one necessary manual step before you can start building the toolkit. You need to add your personal credentials for the TU Nexus repository to your local maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content:
 \begin{verbatim}
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
-<mirrors>
-    <mirror>
-      <!--This sends everything else to /public -->
-      <id>nexus</id>
-      <mirrorOf>*</mirrorOf>
-      <url>http://www.effingo.de/nexus/content/groups/public</url>
-    </mirror>
-  </mirrors>
-  <profiles>
-    <profile>
-      <id>nexus</id>
-      <!--Enable snapshots for the built in central repo to direct -->
-      <!--all requests to nexus via the mirror -->
-      <repositories>
-        <repository>
-          <id>central</id>
-          <url>http://central</url>
-          <releases><enabled>true</enabled></releases>
-          <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-      </repositories>
-     <pluginRepositories>
-        <pluginRepository>
-          <id>central</id>
-          <url>http://central</url>
-          <releases><enabled>true</enabled></releases>
-          <snapshots><enabled>true</enabled></snapshots>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
-  </profiles>
-  <activeProfiles>
-    <!--make the profile active all the time -->
-    <activeProfile>nexus</activeProfile>
-  </activeProfiles>
   <servers>
     <server>
       <id>nexus</id>
@@ -193,7 +158,7 @@ Apache \textbf{Maven needs to be installed} before building the toolkit. How to 
   </servers>
 </settings>
 \end{verbatim}
-You need to set your username and your password in the server section. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. After completing the installation perform the following steps to build the toolkit using Maven:
+You need to set your username and your password. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. After completing the installation, perform the following steps to build the toolkit using Maven:
 \begin{enumerate}
 \item Check out the code from SVN!
 \item Open your favorite command line.
