@@ -71,7 +71,7 @@ public class MathHelperTest {
     	list2.add("c");
     	list2.add("b");
     	list2.add("a");
-    	Assert.assertEquals(0.0, MathHelper.calculateListSimilarity(list1, list2));
+    	Assert.assertEquals(0.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy());
     	
     	list1 = new ArrayList<String>();
     	list2 = new ArrayList<String>();
@@ -81,9 +81,13 @@ public class MathHelperTest {
     	list2.add("a");
     	list2.add("b");
     	list2.add("c");
-    	Assert.assertEquals(1.0, MathHelper.calculateListSimilarity(list1, list2));
+    	Assert.assertEquals(1.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy());
     	
-    	Assert.assertEquals(0.37, MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv","#"),2));
+    	Assert.assertEquals(0.37, MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv","#").getShiftSimilartiy(),2));
+    	
+    	Assert.assertEquals(0.57, MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv","#").getSquaredShiftSimilartiy(),2));
+    	
+    	Assert.assertEquals(4.16, MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv","#").getRmse(), 2));
     }
 
     @Test

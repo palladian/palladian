@@ -165,28 +165,40 @@ public class MathHelper {
      * @param list2 The second list.
      * @return The similarity of the two lists.
      */
-    public static double calculateListSimilarity(List<String> list1, List<String> list2) {
+    public static ListSimilarity calculateListSimilarity(List<String> list1, List<String> list2) {
+    	
+    	ListSimilarity ls = new ListSimilarity();
     	
     	double similarity = 0;
-    	
-    	
+    	    	
     	// get maximum possible distance
     	int summedMaxDistance = 0;
+    	int summedMaxSquaredDistance = 0;
     	int distance = list1.size() - 1;
     	for (int i = list1.size(); i > 0; i -=2) {
     		summedMaxDistance += 2 * distance;
+    		summedMaxSquaredDistance += 2 * Math.pow(distance, 2);
     		distance -= 2;
     	}
     	
     	// get real distance between lists
     	int summedRealDistance = 0;
+    	int summedRealSquaredDistance = 0;
     	int position1 = 0;
+    	List<double[]> positionValues = new ArrayList<double[]>();
+    	
     	for (String entry1 : list1) {
     		
     		int position2 = 0;
     		for (String entry2 : list2) {
     			if (entry1.equals(entry2)) {
     				summedRealDistance += Math.abs(position1 - position2);
+    				summedRealSquaredDistance += Math.pow(position1 - position2, 2);
+    				
+    				double[] values = new double[2];
+    				values[0] = position1;
+    				values[1] = position2;
+    				positionValues.add(values);
     				break;
     			}
     			position2++;
@@ -196,11 +208,16 @@ public class MathHelper {
     	}
     	
     	similarity = 1 - ((double) summedRealDistance / (double) summedMaxDistance);
+    	double squaredShiftSimilarity = 1 - ((double) summedRealSquaredDistance / (double) summedMaxSquaredDistance);
     	
-    	return similarity;    	
+    	ls.setShiftSimilartiy(similarity);
+    	ls.setSquaredShiftSimilartiy(squaredShiftSimilarity);
+    	ls.setRmse(calculateRMSE(positionValues));
+    	
+    	return ls;    	
     }
     
-    public static double calculateListSimilarity(String listFile, String separator) {
+    public static ListSimilarity calculateListSimilarity(String listFile, String separator) {
     	
     	// two list
         List<String> list1 = new ArrayList<String>();
@@ -225,7 +242,6 @@ public class MathHelper {
         };
 
         FileHelper.performActionOnEveryLine(listFile, la);
-
         
         return calculateListSimilarity(list1, list2);
     }
