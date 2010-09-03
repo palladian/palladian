@@ -22,7 +22,8 @@ public class DateArrayHelperTest {
             dateGetter.setAllTrue();
             dateGetter.setTechArchive(false);
             dateGetter.setTechReference(false);
-            date.addAll(dateGetter.getDate());
+            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            date.addAll(dates);
             ArrayList<ExtractedDate> filter = DateArrayHelper.filter(date, ExtractedDate.TECH_HTML_CONT);
             assertEquals(6, filter.size());
             filter = DateArrayHelper.filter(date, ExtractedDate.TECH_HTML_STRUC);
@@ -87,7 +88,8 @@ public class DateArrayHelperTest {
             dateGetter.setAllTrue();
             dateGetter.setTechArchive(false);
             dateGetter.setTechReference(false);
-            date.addAll(dateGetter.getDate());
+            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            date.addAll(dates);
             ArrayList<ArrayList<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(date);
             for (int i = 0; i < arrangedArray.size(); i++) {
                 System.out.println("==============================================================================");

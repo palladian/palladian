@@ -1,8 +1,6 @@
 package tud.iir.daterecognition;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -34,7 +32,7 @@ public class testCrawler {
                 DateGetter dg = new DateGetter(url);
                 dg.setAllFalse();
                 dg.setTechURL(true);
-                ExtractedDate urlDate = dg.getDate().get(0);
+                ExtractedDate urlDate = (ExtractedDate) (dg.getDate()).get(0);
 
                 if (urlDate != null) {
                     if (DateEvaluatorHelper.isDateInRange(urlDate)) {
@@ -92,34 +90,40 @@ public class testCrawler {
                                     break;
                                 }
                             }
-                            boolean existHighestDate = highestDate != null;
+                            // boolean existHighestDate = highestDate != null;
 
-                            try {
-                                String statsString;
-                                synchronized (stats) {
-                                    statsString = "AllURLs: " + stats[0] + " AllDates: " + stats[1] + " Dates rest: "
-                                            + stats[2] + " Dates content: " + stats[3] + " rate100: " + stats[4]
-                                            + " rate80: " + stats[5] + " rate50: " + stats[6] + " rate25: " + stats[7]
-                                            + " rate>0: " + stats[8] + " rate0: " + stats[9];
-                                }
-                                File file = new File(
-                                        "E:\\_Uni\\_semester15\\Beleg\\eclipse workspace\\logger\\ausgabe.txt");
-                                synchronized (file) {
-                                    FileWriter fwirter = new FileWriter(file, true);
-                                    BufferedWriter bw = new BufferedWriter(fwirter);
-                                    if (highestDate != null) {
-                                        bw
-                                                .write(urlDate.getDateString() + " --- " + highestDate.getDateString()
-                                                        + "\n");
-                                    }
-                                    bw.write(statsString + "\n");
-                                    bw.close();
-                                }
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
+                            /*
+                             * try {
+                             * String statsString;
+                             * synchronized (stats) {
+                             * statsString = "AllURLs: " + stats[0] + " AllDates: " + stats[1] + " Dates rest: "
+                             * + stats[2] + " Dates content: " + stats[3] + " rate100: " + stats[4]
+                             * + " rate80: " + stats[5] + " rate50: " + stats[6] + " rate25: " + stats[7]
+                             * + " rate>0: " + stats[8] + " rate0: " + stats[9];
+                             * }
+                             * File file = new File(
+                             * "E:\\_Uni\\_semester15\\Beleg\\eclipse workspace\\logger\\ausgabe.txt");
+                             * synchronized (file) {
+                             * FileWriter fwirter = new FileWriter(file, true);
+                             * BufferedWriter bw = new BufferedWriter(fwirter);
+                             * if (highestDate != null) {
+                             * bw
+                             * .write(urlDate.getDateString() + " --- " + highestDate.getDateString()
+                             * + "\n");
+                             * }
+                             * bw.write(statsString + "\n");
+                             * bw.close();
+                             * }
+                             * } catch (Exception e) {
+                             * e.printStackTrace();
+                             * }
+                             */
                         }
                     }
+                    System.out.println("AllURLs: " + stats[0] + " AllDates: " + stats[1] + " Dates rest: " + stats[2]
+                            + " Dates content: " + stats[3] + " rate100: " + stats[4] + " rate80: " + stats[5]
+                            + " rate50: " + stats[6] + " rate25: " + stats[7] + " rate>0: " + stats[8] + " rate0: "
+                            + stats[9]);
                 }
             }
         };

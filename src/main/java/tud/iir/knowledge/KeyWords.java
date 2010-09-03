@@ -2,11 +2,15 @@ package tud.iir.knowledge;
 
 public final class KeyWords {
 
-    public static final String[] DATE_DOC_HEAD = { "date", "last-modified", "date-last-modified",
-            "date_first_released", "date_last_published", "displaydate", "pdate" };
-    public static final String[] DATE_BODY_STRUC = { "published", "posted", "pubdate", "date", "update", "dc:date",
-            "xsd:date" };
+    /** Keywords found in HTML head of documents. */
+    public static final String[] DATE_DOC_HEAD = { "published", "pubdate", "posted", "released", "displaydate",
+            "pdate", "last-modified", "modified", "update", "changed", "date" };
+    /** Keywords found in HTML structure of documents. */
+    public static final String[] DATE_BODY_STRUC = { "published", "posted", "released", "pubdate", "pdate",
+            "date_first_released", "date_last_published", "displaydate", "last-modified", "date-last-modified",
+            "update", "dc:date", "xsd:date", "date" };
+    /** Keywords found in HTTP header of connections. */
     public static final String[] HEAD_KEYWORDS = { "name", "http-equiv" };
-    public static final String[] BODY_CONTENT_KEYWORDS = { "published", "pubdate", "posted", "date_first_released",
-            "date_last_published", "displaydate", "last-modified", "date-last-modified" };
+    /** Keywords found in HTML content of documents. */
+    public static final String[] BODY_CONTENT_KEYWORDS = { "published", "pubdate", "posted", "released", "update" };
 }

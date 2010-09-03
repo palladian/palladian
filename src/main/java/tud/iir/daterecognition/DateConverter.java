@@ -2,6 +2,7 @@ package tud.iir.daterecognition;
 
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.daterecognition.dates.HTTPDate;
 import tud.iir.daterecognition.dates.StructureDate;
 import tud.iir.daterecognition.dates.URLDate;
 
@@ -29,6 +30,14 @@ public class DateConverter {
             contentDate = new ContentDate(date.getDateString(), date.getFormat());
         }
         return contentDate;
+    }
+
+    public static HTTPDate convertToHTTPDate(ExtractedDate date) {
+        HTTPDate httpDate = null;
+        if (date != null) {
+            httpDate = new HTTPDate(date.getDateString(), date.getFormat());
+        }
+        return httpDate;
     }
 
 }

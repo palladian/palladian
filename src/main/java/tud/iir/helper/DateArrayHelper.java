@@ -1,7 +1,9 @@
 package tud.iir.helper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 import tud.iir.daterecognition.DateEvaluatorHelper;
 import tud.iir.daterecognition.dates.ExtractedDate;
@@ -14,13 +16,21 @@ import tud.iir.daterecognition.dates.ExtractedDate;
  */
 public class DateArrayHelper {
 
+    /** Filter dates in range (1993 - today). */
     public static final int FILTER_IS_IN_RANGE = 0;
+    /** Filter URLDates. */
     public static final int FILTER_TECH_URL = ExtractedDate.TECH_URL; // 1
+    /** Filter HTTPHeaderDates. */
     public static final int FILTER_TECH_HTTP_HEADER = ExtractedDate.TECH_HTTP_HEADER;// 2
+    /** Filter HTMLHeadDates. */
     public static final int FILTER_TECH_HTML_HEAD = ExtractedDate.TECH_HTML_HEAD;// 3
+    /** Filter HTMLStructureDates. */
     public static final int FILTER_TECH_HTML_STRUC = ExtractedDate.TECH_HTML_STRUC;// 4
+    /** Filter HTMLContentDates. */
     public static final int FILTER_TECH_HTML_CONT = ExtractedDate.TECH_HTML_CONT;// 5
+    /** Filter ReferenceDates. */
     public static final int FILTER_TECH_REFERENCE = ExtractedDate.TECH_REFERENCE;// 6
+    /** Filter ArchiveDates. */
     public static final int FILTER_TECH_ARCHIVE = ExtractedDate.TECH_ARCHIVE;// 7
 
     /**
@@ -61,6 +71,37 @@ public class DateArrayHelper {
 
     }
 
+    public static <T> HashMap<T, Double> filter(HashMap<T, Double> dates, int filter) {
+        HashMap<T, Double> temp = new HashMap<T, Double>();
+        T date;
+        Double rate;
+        for (Entry<T, Double> e : dates.entrySet()) {
+            date = e.getKey();
+            rate = e.getValue();
+            switch (filter) {
+                case FILTER_IS_IN_RANGE:
+                    if (DateEvaluatorHelper.isDateInRange((ExtractedDate) date)) {
+                        temp.put(date, rate);
+                    }
+                    break;
+                case FILTER_TECH_URL:
+                case FILTER_TECH_HTTP_HEADER:
+                case FILTER_TECH_HTML_HEAD:
+                case FILTER_TECH_HTML_STRUC:
+                case FILTER_TECH_HTML_CONT:
+                case FILTER_TECH_REFERENCE:
+                case FILTER_TECH_ARCHIVE:
+                    if (((ExtractedDate) date).getType() == filter) {
+                        temp.put(date, rate);
+                    }
+                    break;
+            }
+
+        }
+        return temp;
+
+    }
+
     public static <T> ArrayList<T> filterFormat(ArrayList<T> dates, String format) {
         ArrayList<T> temp = new ArrayList<T>();
         T date;
@@ -75,7 +116,7 @@ public class DateArrayHelper {
     }
 
     /**
-     * Groups dates in array lists, that are equal. <br>
+     * Group equal dates in array lists. <br>
      * E.g. d1=May 2010; d2=05.2010; d3=01.05.10; d4=01st May '10 --> (d1&d2) & (d3&d4). <br>
      * Every date can be only in one group.<br>
      * A group is a array list of dates.
@@ -106,6 +147,19 @@ public class DateArrayHelper {
             }
         }
         return result;
+    }
+
+    public static <T> int countDates(T date, ArrayList<T> dates) {
+        int count = 0;
+        DateComparator dc = new DateComparator();
+        for (int i = 0; i < dates.size(); i++) {
+            if (!date.equals(dates.get(i))) {
+                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i)) == 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     /**

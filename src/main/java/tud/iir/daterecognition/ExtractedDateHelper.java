@@ -177,7 +177,8 @@ public class ExtractedDateHelper {
     public static ExtractedDate createActualDate() {
         Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
 
-        String dateString = cal.get(Calendar.YEAR) + "-" + ExtractedDateHelper.get2Digits(cal.get(Calendar.MONTH))
+        // cal.getMonth + 1 = month, because in Calendar Jan has number 0.
+        String dateString = cal.get(Calendar.YEAR) + "-" + ExtractedDateHelper.get2Digits(cal.get(Calendar.MONTH) + 1)
                 + "-" + ExtractedDateHelper.get2Digits(cal.get(Calendar.DAY_OF_MONTH)) + "T"
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.HOUR_OF_DAY)) + ":"
                 + ExtractedDateHelper.get2Digits(cal.get(Calendar.MINUTE)) + ":"

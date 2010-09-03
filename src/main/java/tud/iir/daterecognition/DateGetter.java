@@ -1,10 +1,10 @@
 package tud.iir.daterecognition;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.w3c.dom.Document;
 
-import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.ArrayHelper;
 import tud.iir.web.Crawler;
 
@@ -12,6 +12,7 @@ import tud.iir.web.Crawler;
  * DateGetter provides methods for getting dates from URL and rate them.
  * 
  * @author Martin Gregor (mail@m-gregor.de)
+ * @param <T>
  * 
  * 
  */
@@ -56,21 +57,23 @@ public class DateGetter {
      * Analyzes a webpage by different techniques to find dates. The techniques are found in DateGetterHelper. <br>
      * Type of the found dates are ExtractedDate.
      * 
+     * @param <T>
+     * 
      * @return A array of ExtractedDates.
      */
-    public ArrayList<ExtractedDate> getDate() {
+    public <T> ArrayList<T> getDate() {
 
-        ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
+        ArrayList<T> dates = new ArrayList<T>();
         Crawler crawler = new Crawler();
         if (url != null) {
 
             // final Document document = crawler.getWebDocument(this.url, false);
 
             if (tech_HTTP) {
-                dates.add(DateGetterHelper.getHTTPHeaderDate(url));
+                dates.add((T) DateGetterHelper.getHTTPHeaderDate(url));
             }
             if (tech_URL) {
-                dates.add(DateGetterHelper.getURLDate(url));
+                dates.add((T) DateGetterHelper.getURLDate(url));
             }
             if (tech_HTML_head || tech_HTML_struct || tech_HTML_content || tech_reference) {
                 Document document = this.document;
@@ -79,16 +82,16 @@ public class DateGetter {
                 }
                 if (document != null) {
                     if (tech_HTML_head) {
-                        dates.addAll(DateGetterHelper.getHeadDates(document));
+                        dates.addAll((Collection<? extends T>) DateGetterHelper.getHeadDates(document));
                     }
                     if (tech_HTML_struct) {
-                        dates.addAll(DateGetterHelper.getStructureDate(document));
+                        dates.addAll((Collection<? extends T>) DateGetterHelper.getStructureDate(document));
                     }
                     if (tech_HTML_content) {
-                        dates.addAll(DateGetterHelper.getContentDates(document));
+                        dates.addAll((Collection<? extends T>) DateGetterHelper.getContentDates(document));
                     }
                     if (tech_reference) {
-                        dates.addAll(DateGetterHelper.getReferenceDates(document));
+                        dates.addAll((Collection<? extends T>) DateGetterHelper.getReferenceDates(document));
                         // TODO: evaluate each link, so only the best date for each link is left.
                     }
                 }
