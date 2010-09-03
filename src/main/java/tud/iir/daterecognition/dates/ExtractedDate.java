@@ -38,10 +38,9 @@ public class ExtractedDate {
     private String dateString = null;
     /** The format, the dateString is found. */
     private String format;
-    
-    /**URL*/
-    private String url=null;
-    
+
+    /** URL */
+    private String url = null;
 
     // date values
     private int year = -1;
@@ -176,7 +175,8 @@ public class ExtractedDate {
         } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_MMMM_Y[1])) {
             setDateValues(dateString.split(" "), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_MM_Y[1])) {
-            setDateValues(dateString.split("\\."), 1, 0, -1);
+            String separator = ExtractedDateHelper.getSeparator(dateString);
+            setDateValues(dateString.split(separator), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MM[1])) {
             String separator = ExtractedDateHelper.getSeparator(dateString);
             setDateValues(dateString.split(separator), -1, 1, 0);

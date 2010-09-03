@@ -187,6 +187,15 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return diff;
     }
 
+    /**
+     * Filters a set of dates out of an array, that have same extraction date like a given date.
+     * 
+     * @param <T> Type of array of dates.
+     * @param <V> Type of given date.
+     * @param date defines the extraction date.
+     * @param dates array to be filtered.
+     * @return Array of dates, that are equal to the date.
+     */
     public <T, V> ArrayList<T> getEqualDate(V date, ArrayList<T> dates) {
         ArrayList<T> returnDate = new ArrayList<T>();
         for (int i = 0; i < dates.size(); i++) {

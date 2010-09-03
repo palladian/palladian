@@ -1,6 +1,7 @@
 package tud.iir.daterecognition;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -16,6 +17,7 @@ import org.w3c.dom.Text;
 
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.daterecognition.dates.HTTPDate;
 import tud.iir.daterecognition.dates.HeadDate;
 import tud.iir.daterecognition.dates.StructureDate;
 import tud.iir.daterecognition.dates.URLDate;
@@ -68,11 +70,12 @@ public final class DateGetterHelper {
      * @param url
      * @return The extracted Date.
      */
-    public static ExtractedDate getHTTPHeaderDate(final String url) {
+    public static HTTPDate getHTTPHeaderDate(final String url) {
 
         final Crawler crawler = new Crawler();
         final Map<String, List<String>> headers = crawler.getHeaders(url);
         ExtractedDate date = null;
+        HTTPDate httpDate = null;
         final Object[] regExpArray = RegExp.getHTTPRegExp();
         if (headers.containsKey("Last-Modified")) {
             final List<String> dateList = headers.get("Last-Modified");
@@ -84,13 +87,16 @@ public final class DateGetterHelper {
                     date = getDateFromString(dateString, (String[]) regExpArray[index]);
                     index++;
                 }
+                if (date != null) {
+                    httpDate = DateConverter.convertToHTTPDate(date);
+                }
             }
         }
-        return date;
+        return httpDate;
     }
 
-    public static ArrayList<ExtractedDate> getStructureDate(Document document) {
-        ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
+    public static ArrayList<StructureDate> getStructureDate(Document document) {
+        ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
 
         if (document != null) {
             ArrayList<StructureDate> structureDates = getBodyStructureDates(document);
@@ -480,12 +486,19 @@ public final class DateGetterHelper {
                 date.set(ContentDate.DATEPOS_IN_DOC, index + date.get(ContentDate.DATEPOS_IN_TAGTEXT));
             }
             date.setTag(parent.getNodeName());
-            String keyword = findNodeKeyword(parent);
+            String keyword = findNodeKeyword(parent, KeyWords.BODY_CONTENT_KEYWORDS);
             if (keyword != null) {
                 date.setKeyword(keyword);
                 date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
             } else {
                 date = setNearestTextkeyword(HTMLHelper.replaceHTMLSymbols(text), date);
+            }
+            if (date.getKeyword() == null) {
+                keyword = findNodeKeyword(parent, KeyWords.DATE_BODY_STRUC);
+                if (keyword != null) {
+                    date.setKeyword(keyword);
+                    date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
+                }
             }
             dates.add(date);
         }
@@ -493,13 +506,12 @@ public final class DateGetterHelper {
         return dates;
     }
 
-    public static String findNodeKeyword(Node node) {
+    public static String findNodeKeyword(Node node, String[] keyWords) {
         String keyword = null;
         NamedNodeMap attrMap = node.getAttributes();
         if (attrMap != null) {
-            String[] lookUpKeys = KeyWords.BODY_CONTENT_KEYWORDS;
-            for (int j = 0; j < lookUpKeys.length; j++) {
-                String lookUp = lookUpKeys[j];
+            for (int j = 0; j < keyWords.length; j++) {
+                String lookUp = keyWords[j];
                 for (int i = 0; i < attrMap.getLength(); i++) {
                     Node attr = attrMap.item(i);
                     if (lookUp.equalsIgnoreCase(attr.getNodeValue())) {
@@ -546,8 +558,8 @@ public final class DateGetterHelper {
         return returnDate;
     }
 
-    public static ArrayList<ExtractedDate> getReferenceDates(Document document) {
-        ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
+    public static <T> ArrayList<T> getReferenceDates(Document document) {
+        ArrayList<T> dates = new ArrayList<T>();
         if (document != null) {
             Crawler c = new Crawler();
             Iterator<String> linksTo = c.getLinks(document, true, true).iterator();
@@ -557,7 +569,7 @@ public final class DateGetterHelper {
             while (linksTo.hasNext()) {
                 String link = linksTo.next();
                 dateGetter.setURL(link);
-                dates.addAll(dateGetter.getDate());
+                dates.addAll((Collection<? extends T>) dateGetter.getDate());
             }
         }
         return dates;

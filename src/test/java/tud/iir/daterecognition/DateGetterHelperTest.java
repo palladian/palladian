@@ -339,7 +339,8 @@ public class DateGetterHelperTest {
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllFalse();
             dateGetter.setTechHTMLStruct(true);
-            date.addAll(dateGetter.getDate());
+            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            date.addAll(dates);
             Iterator<ExtractedDate> dateIterator = date.iterator();
             int index = 0;
             while (dateIterator.hasNext()) {
@@ -360,11 +361,13 @@ public class DateGetterHelperTest {
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllFalse();
             dateGetter.setTechHTMLStruct(true);
-            date.addAll(dateGetter.getDate());
+            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            date.addAll(dates);
             DateArrayHelper.printDateArray(date);
         }
     }
 
+    @Ignore
     @Test
     public void testGetContentDates() {
         // final String url = "data/test/webPages/dateExtraction/kullin.htm";
@@ -380,7 +383,8 @@ public class DateGetterHelperTest {
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllFalse();
             dateGetter.setTechHTMLContent(true);
-            date.addAll(dateGetter.getDate());
+            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            date.addAll(dates);
             DateArrayHelper.printDateArray(date);
 
         }
@@ -399,7 +403,8 @@ public class DateGetterHelperTest {
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllFalse();
             dateGetter.setTechHTMLContent(true);
-            date.addAll(dateGetter.getDate());
+            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            date.addAll(dates);
             DateArrayHelper.printDateArray(date);
 
         }
@@ -416,13 +421,13 @@ public class DateGetterHelperTest {
             dateGetter.setAllTrue();
             dateGetter.setTechReference(false);
             dateGetter.setTechArchive(false);
-            date.addAll(dateGetter.getDate());
+            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            date.addAll(dates);
             DateArrayHelper.printDateArray(date, ExtractedDate.TECH_HTML_CONT);
 
         }
     }
 
-    @Ignore
     @Test
     public void testGetDate2() {
         final String url = "http://www.friendfeed.com/share?title=Google+displays+incorrect+dates+from+news+sites&link=http://www.kullin.net/2010/05/google-displays-incorrect-dates-from-news-sites/";
@@ -434,7 +439,8 @@ public class DateGetterHelperTest {
             dateGetter.setTechHTMLContent(true);
             dateGetter.setTechHTMLStruct(false);
             dateGetter.setTechReference(false);
-            date.addAll(dateGetter.getDate());
+            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            date.addAll(dates);
             DateArrayHelper.printDateArray(date);
 
         }
@@ -455,7 +461,8 @@ public class DateGetterHelperTest {
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllFalse();
             dateGetter.setTechReference(true);
-            date.addAll(dateGetter.getDate());
+            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+            date.addAll(dates);
             DateArrayHelper.printDateArray(date);
 
         }
