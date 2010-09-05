@@ -140,12 +140,47 @@ The TUDIIR toolkit is managed using \href{http://subversion.apache.org/}{Subvers
 At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
 \section{Building the toolkit using Apache Maven}
 \label{sec:buildingthetoolkitusingapachemaven}
-Apache \textbf{Maven needs to be installed} before building the toolkit. How to do this is explained here: \href{http://maven.apache.org/download.html#Installation}{Maven installation}. There is one necessary manual step before you can start building the toolkit. You need to add your personal credentials for the TU Nexus repository to your local maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content:
+Apache \textbf{Maven needs to be installed} before building the toolkit. How to do this is explained here: \href{http://maven.apache.org/download.html#Installation}{Maven installation}. There is one necessary manual step before you can start building the toolkit. You need to add our Nexus repository to your local maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content:
 \begin{verbatim}
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<mirrors>
+    <mirror>
+      <!--This sends everything else to /public -->
+      <id>nexus</id>
+      <mirrorOf>*</mirrorOf>
+      <url>http://www.effingo.de/nexus/content/groups/public</url>
+    </mirror>
+  </mirrors>
+  <profiles>
+    <profile>
+      <id>nexus</id>
+      <!--Enable snapshots for the built in central repo to direct -->
+      <!--all requests to nexus via the mirror -->
+      <repositories>
+        <repository>
+          <id>central</id>
+          <url>http://central</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </repository>
+      </repositories>
+     <pluginRepositories>
+        <pluginRepository>
+          <id>central</id>
+          <url>http://central</url>
+          <releases><enabled>true</enabled></releases>
+          <snapshots><enabled>true</enabled></snapshots>
+        </pluginRepository>
+      </pluginRepositories>
+    </profile>
+  </profiles>
+  <activeProfiles>
+    <!--make the profile active all the time -->
+    <activeProfile>nexus</activeProfile>
+  </activeProfiles>
   <servers>
     <server>
       <id>nexus</id>
@@ -158,7 +193,7 @@ Apache \textbf{Maven needs to be installed} before building the toolkit. How to 
   </servers>
 </settings>
 \end{verbatim}
-You need to set your username and your password. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. After completing the installation, perform the following steps to build the toolkit using Maven:
+You need to set your username and your password in the server section. This can be obtained by sending an E-Mail to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} stating who is your advisor and why you need to work with the toolkit. After completing the installation perform the following steps to build the toolkit using Maven:
 \begin{enumerate}
 \item Check out the code from SVN!
 \item Open your favorite command line.
@@ -604,11 +639,11 @@ Content oriented web pages such as blogs or news articles contain not only the t
 
 \begin{figure}[ht!]
 \includegraphics[width=\textwidth]{img/webpagecontentextractor.png}
-\caption{Create a new Maven Project.}
+\caption{Article content of a web page marked with a green box.}
 \label{fig:webpagecontentextractor}
 \end{figure}
 
-To perform this kind of extraction we could use wrapper approaches which are explained in more detail in \cite{ckcs06}. However, these approaches require manual wrapper construction or semi-supervised learning which is too cumbersome.
+To perform this kind of extraction we could use wrapper approaches which are explained in more detail in \cite{ckgs2006}. However, these approaches require manual wrapper construction or semi-supervised learning which is too cumbersome.
 Another approach would be to detect the template of the web page and get only the contents of the main block (the green box). Template detection usually works by comparing one page with several other pages of the same domain to find the fix and changeable contents. This however requires several http requests and therefore more time and bandwidth.
 In TOOLKIT we use an approach that is based on a hierarchical analyzis of the web page's DOM tree. Each DOM element is analyzed and ranked based on the length of the contained text, the link density, and the frequency of other elements in relation to the text length. Longer text fragments usually indicate a relevant part of the article, while a high link density is more likely to indicate that the analyzed element is part of the navigation for example. Also the attributes ``id'' and ``class'' are analyzed. If the attribute values contain keywords such as ``entry'', ``content'', or ``text'', the element is more likely to contain relevant content as if the attribute values contain keywords such as ``header'', ``footer'', or ``sidebar''. The implementation of the web page content extraction adopted great parts of the Firefox extension ``Readability''\footnote{\url{http://lab.arc90.com/experiments/readability/}}. The used heuristics in Readability have shown to be quite accurate for a wide range of web pages.
 
