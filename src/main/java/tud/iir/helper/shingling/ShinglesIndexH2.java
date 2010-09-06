@@ -1,12 +1,10 @@
 package tud.iir.helper.shingling;
 
 import java.sql.Connection;
-import java.sql.DatabaseMetaData;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.sql.Types;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,113 +12,64 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 
 /**
- * TODO this is messy, clean up.
  * 
  * @author Philipp Katz
- *
+ * 
  */
 public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
 
     private static final Logger LOGGER = Logger.getLogger(ShinglesIndexH2.class);
 
-    private Connection connection = null;
     private String dbType = "h2";
     private String dbDriver = "org.h2.Driver";
-    private String dbHost = "localhost";
-    private String dbPort = "3306";
-    private String dbName = "shingles";
     private String dbUsername = "root";
     private String dbPassword = "";
 
-    // private PreparedStatement psGetHashById;
-    // private PreparedStatement psAddHash;
-    // private PreparedStatement psAddDocHash;
     private PreparedStatement psGetDocsByHash;
     private PreparedStatement psGetAllSim;
     private PreparedStatement psGetSim;
     private PreparedStatement psAddDocSim;
     private PreparedStatement psGetNumberOfDocs;
-    // private PreparedStatement psLastInsertID;
     private PreparedStatement psGetHashesForDocument;
-
     private PreparedStatement psGetDocumentsForHashes;
-
     private PreparedStatement psAddDocument;
 
-    private int getDocumentsForHashesTime = 0;
-    private int getHashesForDocumentTime = 0;
-
     public ShinglesIndexH2() {
-        connection = getConnection();
-        // TODO Auto-generated constructor stub
-    }
-
-    private Connection getConnection() {
-
-        String url;
-
-        // XXX url = "jdbc:" + dbType + ":mem:data/models/" + dbName + ";DB_CLOSE_DELAY=-1";
-        // url = "jdbc:" + dbType + ":data/models/" + dbName + ";DB_CLOSE_DELAY=-1";
-        url = "jdbc:" + dbType + ":" + INDEX_FILE_BASE_PATH + getIndexName() + ";DB_CLOSE_DELAY=-1";
 
         try {
 
             Class.forName(dbDriver);
-            connection = DriverManager.getConnection(url, dbUsername, dbPassword);
+            String url = "jdbc:" + dbType + ":" + INDEX_FILE_BASE_PATH + getIndexName() + ";DB_CLOSE_DELAY=-1";
+            Connection connection = DriverManager.getConnection(url, dbUsername, dbPassword);
 
-            // XXX try nonunique index?
             PreparedStatement psCreateTableShingles = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentsHashes (documentId INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, hash BIGINT, PRIMARY KEY(documentId, hash))");/*
-                                                                                                                                                                                       * CREATE
-                                                                                                                                                                                       * INDEX
-                                                                                                                                                                                       * IF
-                                                                                                                                                                                       * NOT
-                                                                                                                                                                                       * EXISTS
-                                                                                                                                                                                       * hashIndex
-                                                                                                                                                                                       * ON
-                                                                                                                                                                                       * documentsHashes
-                                                                                                                                                                                       * (
-                                                                                                                                                                                       * hash
-                                                                                                                                                                                       * )
-                                                                                                                                                                                       * ;
-                                                                                                                                                                                       * ");
-                                                                                                                                                                                       */
-            // PreparedStatement psCreateTableShingleDocument = connection
-            // .prepareStatement("CREATE TABLE IF NOT EXISTS documentsHashes (id INTEGER UNSIGNED NOT NULL, hashId INTEGER UNSIGNED NOT NULL, PRIMARY KEY (id, hashId));");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentsHashes (documentId INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, hash BIGINT, PRIMARY KEY(documentId, hash))");
+
             PreparedStatement psCreateTableDocumentSimilarities = connection
                     .prepareStatement("CREATE TABLE IF NOT EXISTS documentSimilarities (masterId INTEGER UNSIGNED NOT NULL, simId INTEGER UNSIGNED NOT NULL, PRIMARY KEY (masterId, simId));");
 
             psCreateTableShingles.executeUpdate();
-            // psCreateTableShingleDocument.executeUpdate();
             psCreateTableDocumentSimilarities.executeUpdate();
-
-            // psGetHashById = connection.prepareStatement("SELECT id FROM hashes WHERE hash = ?");
 
             psAddDocument = connection.prepareStatement("INSERT INTO documentsHashes VALUES(?, ?)");
 
-            // psAddHash = connection.prepareStatement("INSERT INTO hashes VALUES(null, ?)");
-            // psAddDocHash = connection.prepareStatement("INSERT INTO documentsHashes VALUES(?, ?)");
             psGetDocsByHash = connection.prepareStatement("SELECT documentId FROM documentsHashes WHERE hash = ?");
             psGetAllSim = connection.prepareStatement("SELECT masterId FROM documentSimilarities");
             psGetSim = connection.prepareStatement("SELECT simId FROM documentSimilarities WHERE masterId = ?");
             psAddDocSim = connection.prepareStatement("INSERT INTO documentSimilarities VALUES(?, ?)");
             psGetNumberOfDocs = connection.prepareStatement("SELECT COUNT(DISTINCT documentId) FROM documentsHashes");
-            // psLastInsertID = connection.prepareStatement("SELECT LAST_INSERT_ID()");
             psGetHashesForDocument = connection
                     .prepareStatement("SELECT hash FROM documentsHashes WHERE documentId = ?");
 
+            // TODO hardcoded 200 hashes for now
             psGetDocumentsForHashes = connection
                     .prepareStatement("SELECT documentId FROM documentsHashes WHERE hash IN (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
-
-            // DatabaseMetaData metaData = connection.getMetaData();
-            // System.out.println("batch updates supported: " + metaData.supportsBatchUpdates());
 
         } catch (ClassNotFoundException e) {
             LOGGER.error(e);
@@ -128,7 +77,6 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             LOGGER.error(e);
         }
 
-        return connection;
     }
 
     @Override
@@ -138,25 +86,9 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
 
             for (Long hash : sketch) {
 
-                // // check if we already have the hash
-                // psGetHashById.setLong(1, hash);
-                // int hashId = runQueryID(psGetHashById);
-                //
-                // if (hashId == -1) {
-                // psAddHash.setLong(1, hash);
-                // runUpdate(psAddHash);
-                // hashId = runQueryID(psLastInsertID);
-                // }
-                //
-                // // add relation to documentId
-                // psAddDocHash.setInt(1, documentId);
-                // psAddDocHash.setInt(2, hashId);
-                // runUpdate(psAddDocHash);
-
                 psAddDocument.setLong(1, documentId);
                 psAddDocument.setLong(2, hash);
                 runUpdate(psAddDocument);
-                // System.out.println(result);
 
             }
 
@@ -186,38 +118,27 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
 
         return result;
     }
-    
+
     @Override
     public Map<Integer, Set<Long>> getDocumentsForSketch(Set<Long> sketch) {
-        
+
         Map<Integer, Set<Long>> result = new HashMap<Integer, Set<Long>>();
 
-        
         Set<Integer> idsToCheck = getDocumentIdsForSketch(sketch);
         for (Integer integer : idsToCheck) {
             Set<Long> documentSketch = getSketchForDocument(integer);
             result.put(integer, documentSketch);
         }
-        
-        // TODO Auto-generated method stub
+
         return result;
     }
 
     private Set<Integer> getDocumentIdsForSketch(Set<Long> sketch) {
         LOGGER.trace(">getDocumentsForSketch " + sketch);
-        StopWatch sw = new StopWatch();
 
         Set<Integer> result = new HashSet<Integer>();
 
         try {
-            /*
-             * // dynamically create the statement ...
-             * String statement = "SELECT d.id FROM documentsHashes AS d, hashes AS h WHERE hashId = h.id AND hash IN ("
-             * + StringUtils.join(hashes, ",") + ")";
-             * // System.out.println(statement);
-             * Statement sqlStatement = connection.createStatement();
-             * ResultSet resultSet = sqlStatement.executeQuery(statement);
-             */
 
             int count = 1;
 
@@ -233,7 +154,6 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             }
 
             ResultSet resultSet = psGetDocumentsForHashes.executeQuery();
-
             while (resultSet.next()) {
                 result.add(resultSet.getInt(1));
             }
@@ -243,26 +163,16 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             LOGGER.error(e);
         }
 
-        getDocumentsForHashesTime += sw.getElapsedTime();
         LOGGER.trace("<getDocumentsForSketch " + result.size() + " " + result);
         return result;
     }
 
     public Set<Long> getSketchForDocument(int documentId) {
         LOGGER.trace(">getSketchForDocument " + documentId);
-        StopWatch sw = new StopWatch();
 
         Set<Long> result = new HashSet<Long>();
 
         try {
-
-            // String statement =
-            // "SELECT hash FROM hashes, documentsHashes WHERE hashes.id = hashId AND documentsHashes.Id = " +
-            // documentId;
-            // System.out.println(statement);
-
-            // Statement sqlStatement = connection.createStatement();
-            // ResultSet resultSet = sqlStatement.executeQuery(statement);
 
             psGetHashesForDocument.setInt(1, documentId);
             ResultSet resultSet = runQuery(psGetHashesForDocument);
@@ -274,7 +184,6 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             LOGGER.error(e);
         }
 
-        getHashesForDocumentTime += sw.getElapsedTime();
         LOGGER.trace("<getSketchForDocument " + result.size() + " " + result);
         return result;
     }
@@ -376,33 +285,17 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
 
         return rs;
     }
-    
-    /**
-     * Clear all data in tables.
-     */
-    public void clearTables() {
-        
-        try {
-            connection.prepareStatement("TRUNCATE TABLE documentsHashes").executeUpdate();
-            connection.prepareStatement("TRUNCATE TABLE documentSimilarities").executeUpdate();
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-        }
-        
-        
-    }
-    
+
     @Override
     public void deleteIndex() {
-        
+
         String file = INDEX_FILE_BASE_PATH + getIndexName() + ".h2.db";
-        
+
         if (FileHelper.fileExists(file)) {
             FileHelper.delete(file);
         }
-        
-    }
 
+    }
 
     public static void main(String[] args) {
 
@@ -426,9 +319,6 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
          * document lookup : 52433 ----> 3199 :)
          */
 
-
     }
-
-
 
 }

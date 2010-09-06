@@ -10,6 +10,7 @@ import java.util.Set;
 import org.junit.Test;
 
 /**
+ * Test for various ShinglesIndex implementations.
  * 
  * @author Philipp Katz
  * 

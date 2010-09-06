@@ -79,8 +79,9 @@ public class ShinglesIndexJava extends ShinglesIndexBaseImpl {
     @Override
     public void openIndex() {
 
-        data = (ShinglesIndexJavaData) FileHelper.deserialize(getIndexFileName());
-        if (data == null) {
+        if (FileHelper.fileExists(getIndexFileName())) {
+            data = (ShinglesIndexJavaData) FileHelper.deserialize(getIndexFileName());
+        } else {
             data = new ShinglesIndexJavaData();
         }
 
@@ -104,6 +105,7 @@ public class ShinglesIndexJava extends ShinglesIndexBaseImpl {
 
     /**
      * Get the file name of this index.
+     * 
      * @return
      */
     private String getIndexFileName() {
