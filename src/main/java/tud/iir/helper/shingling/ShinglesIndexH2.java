@@ -17,6 +17,7 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 
 /**
@@ -66,7 +67,8 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
         String url;
 
         // XXX url = "jdbc:" + dbType + ":mem:data/models/" + dbName + ";DB_CLOSE_DELAY=-1";
-        url = "jdbc:" + dbType + ":data/models/" + dbName + ";DB_CLOSE_DELAY=-1";
+        // url = "jdbc:" + dbType + ":data/models/" + dbName + ";DB_CLOSE_DELAY=-1";
+        url = "jdbc:" + dbType + ":" + INDEX_FILE_BASE_PATH + getIndexName() + ";DB_CLOSE_DELAY=-1";
 
         try {
 
@@ -387,6 +389,17 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             LOGGER.error(e.getMessage());
         }
         
+        
+    }
+    
+    @Override
+    public void deleteIndex() {
+        
+        String file = INDEX_FILE_BASE_PATH + getIndexName() + ".h2.db";
+        
+        if (FileHelper.fileExists(file)) {
+            FileHelper.delete(file);
+        }
         
     }
 

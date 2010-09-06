@@ -41,6 +41,8 @@ import tud.iir.helper.FileHelper;
  * Various more or less feed specific helper functions.
  * TODO most of these methods can be moved to the global Helper classes.
  * 
+ * TODO move methods, which are used by PageContentExtractor to global HTMLHelper!
+ * 
  * @author Philipp Katz
  * 
  */
@@ -605,8 +607,7 @@ public class Helper {
 
     /**
      * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
-     * similarity which is computationally
-     * expensive.
+     * similarity which is computationally expensive.
      * 
      * @param s1
      * @param s2

@@ -4,7 +4,45 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Base ShinglesIndex implementation, with common functionality. {@link #openIndex()} and {@link #saveIndex()} can be
+ * overridden by subclasses as necessary.
+ * 
+ * @author Philipp Katz
+ * 
+ */
 public abstract class ShinglesIndexBaseImpl implements ShinglesIndex {
+    
+    /** default directory where to store serialized shingles. */
+    public static final String INDEX_FILE_BASE_PATH = "data/models/shingles/";
+    
+    /** name of the index. */
+    private String indexName = "shingles";
+    
+    @Override
+    public String getIndexName() {
+        return indexName;
+    }
+    
+    @Override
+    public void setIndexName(String indexName) {
+        this.indexName = indexName;
+    }
+    
+    @Override
+    public void openIndex() {
+        // do nothing by default, override if necessary.
+    }
+    
+    @Override
+    public void saveIndex() {
+        // do nothing by default, override if necessary.
+    }
+    
+    @Override
+    public void deleteIndex() {
+        // do nothing by default, override if necessary.
+    }
 
     @Override
     public Map<Integer, Set<Long>> getDocumentsForSketch(Set<Long> sketch) {

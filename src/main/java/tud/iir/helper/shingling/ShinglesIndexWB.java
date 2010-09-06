@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import tud.iir.helper.FileHelper;
 import wb.Han;
 
 /**
@@ -29,22 +30,47 @@ public class ShinglesIndexWB extends ShinglesIndexBaseImpl {
     private Han documentsSketch;
     private Han similarDocuments;
 
-    public ShinglesIndexWB() {
+    @Override
+    public void openIndex() {
+
         initWb(75, 150, 4096);
-        wb.Seg seg = makeSeg("tmp_" + System.currentTimeMillis(), 4096);
+        wb.Seg seg = makeSeg(getIndexFileName(), 4096);
 
         hashesDocuments = createDb(seg, 'T', "hashesDocuments");
         documentsSketch = createDb(seg, 'T', "documentsSketch");
-        similarDocuments = createDb(seg, 'T', "similarDocuments");        
+        similarDocuments = createDb(seg, 'T', "similarDocuments");
 
     }
+    
+    @Override
+    public void deleteIndex() {
+        
+        if (FileHelper.fileExists(getIndexFileName())) {
+            FileHelper.delete(getIndexFileName());
+        }
+        
+    }
+
+    private String getIndexFileName() {
+        return INDEX_FILE_BASE_PATH + getIndexName() + "_wb";
+    }
+
+    // public ShinglesIndexWB() {
+    // initWb(75, 150, 4096);
+    // wb.Seg seg = makeSeg("tmp_" + System.currentTimeMillis(), 4096);
+    //
+    // hashesDocuments = createDb(seg, 'T', "hashesDocuments");
+    // documentsSketch = createDb(seg, 'T', "documentsSketch");
+    // similarDocuments = createDb(seg, 'T', "similarDocuments");
+    //
+    // }
 
     @Override
     public void addDocument(int documentId, Set<Long> sketch) {
 
         int count = 0;
         for (Long hash : sketch) {
-            
+
             // insert documentId -> hash
             bt_Put(documentsSketch, documentId + "_" + count, String.valueOf(hash));
             count++;
@@ -63,7 +89,7 @@ public class ShinglesIndexWB extends ShinglesIndexBaseImpl {
 
     @Override
     public void addDocumentSimilarity(int masterDocumentId, int similarDocumentId) {
-        
+
         int count = 0;
         while (bt_Get(similarDocuments, masterDocumentId + "_" + count) != null) {
             count++;
@@ -88,20 +114,20 @@ public class ShinglesIndexWB extends ShinglesIndexBaseImpl {
 
     @Override
     public int getNumberOfDocuments() {
-        
+
         int result = 0;
         String key = "";
         while ((key = bt_Next(documentsSketch, key)) != null) {
             result = Integer.valueOf(key.split("_")[0]);
         }
         return result;
-        
+
     }
 
     @Override
     public Set<Integer> getSimilarDocuments(int documentId) {
         Set<Integer> result = new HashSet<Integer>();
-        
+
         int count = 0;
         String tmp;
         while ((tmp = bt_Get(similarDocuments, documentId + "_" + count)) != null) {
@@ -117,7 +143,7 @@ public class ShinglesIndexWB extends ShinglesIndexBaseImpl {
         Map<Integer, Set<Integer>> result = new HashMap<Integer, Set<Integer>>();
         Set<Integer> similarDocs = null;
         int currentMaster = -1;
-        
+
         String key = "";
         while ((key = bt_Next(similarDocuments, key)) != null) {
             String[] split = key.split("_");

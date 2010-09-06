@@ -129,4 +129,29 @@ public class ShinglesIndexTracer implements ShinglesIndex {
         return sb.toString();
     }
 
+    @Override
+    public void deleteIndex() {
+        profiled.deleteIndex();
+    }
+
+    @Override
+    public String getIndexName() {
+        return profiled.getIndexName();
+    }
+
+    @Override
+    public void openIndex() {
+        profiled.openIndex();
+    }
+
+    @Override
+    public void saveIndex() {
+        profiled.saveIndex();
+    }
+
+    @Override
+    public void setIndexName(String name) {
+        profiled.setIndexName(name);
+    }
+
 }

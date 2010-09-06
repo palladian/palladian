@@ -19,6 +19,8 @@ import jdbm.helper.TupleBrowser;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.FileHelper;
+
 /**
  * Implementation of a ShinglesIndex which uses B+Trees via JDBM.
  * 
@@ -48,14 +50,17 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
     /**
      * For testing purposes, will use a temp. file with random name as index.
      */
-    ShinglesIndexJDBM() {
-        this("tmp_" + System.currentTimeMillis());
-    }
+    // ShinglesIndexJDBM() {
+    // this("tmp_" + System.currentTimeMillis());
+    // }
 
-    public ShinglesIndexJDBM(String indexFile) {
+    @Override
+    public void openIndex() {
+
         try {
 
-            recordManager = RecordManagerFactory.createRecordManager(indexFile, new Properties());
+            recordManager = RecordManagerFactory.createRecordManager(INDEX_FILE_BASE_PATH + getIndexName() + "_jdbm",
+                    new Properties());
 
             hashesDocuments = loadOrCreateBTree(recordManager, "hashesDocuments", new LongComparator());
             documentsSketch = loadOrCreateBTree(recordManager, "documentsSketch", new IntegerComparator());
@@ -64,7 +69,37 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
         } catch (IOException e) {
             LOGGER.error(e);
         }
+
     }
+
+    @Override
+    public void deleteIndex() {
+
+        String indexFiles = INDEX_FILE_BASE_PATH + getIndexName() + "_jdbm";
+
+        if (FileHelper.fileExists(indexFiles + ".db")) {
+            FileHelper.delete(indexFiles + ".db");
+        }
+
+        if (FileHelper.fileExists(indexFiles + ".lg")) {
+            FileHelper.delete(indexFiles + ".lg");
+        }
+
+    }
+
+    // public ShinglesIndexJDBM(String indexFile) {
+    // try {
+    //
+    // recordManager = RecordManagerFactory.createRecordManager(indexFile, new Properties());
+    //
+    // hashesDocuments = loadOrCreateBTree(recordManager, "hashesDocuments", new LongComparator());
+    // documentsSketch = loadOrCreateBTree(recordManager, "documentsSketch", new IntegerComparator());
+    // similarDocuments = loadOrCreateBTree(recordManager, "similarDocuments", new IntegerComparator());
+    //
+    // } catch (IOException e) {
+    // LOGGER.error(e);
+    // }
+    // }
 
     @SuppressWarnings("unchecked")
     @Override
@@ -195,7 +230,7 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
      * @return the BTree with that name.
      * @throws IOException if an I/O error happens.
      */
-    public static BTree loadOrCreateBTree(RecordManager aRecordManager, String aName, Comparator<?> aComparator)
+    private static BTree loadOrCreateBTree(RecordManager aRecordManager, String aName, Comparator<?> aComparator)
             throws IOException {
         // So you can't remember the recordID of the B-Tree? Well, let's
         // try to remember it from its name...
