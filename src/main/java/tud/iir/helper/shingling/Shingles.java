@@ -75,7 +75,10 @@ public class Shingles {
     public Shingles(ShinglesIndex index) {
         LOGGER.debug("using " + index);
         this.index = index;
+        index.openIndex();
     }
+    
+    
 
     /**
      * Calculate the sketch for a String, consisting of a subset of size {@link #getSketchSize()} of all hashed word
@@ -460,6 +463,14 @@ public class Shingles {
         // System.out.println("checked in " + stopWatch.getElapsedTimeString());
         // System.out.println(s.getSimilarityReport());
 
+    }
+
+    /**
+     * 
+     * @see tud.iir.helper.shingling.ShinglesIndex#saveIndex()
+     */
+    public void saveIndex() {
+        index.saveIndex();
     }
 
 }
