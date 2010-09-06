@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -52,13 +51,13 @@ public class Shingles {
     /** the index to store all shingles and mappings between similar documents. */
     private ShinglesIndex index;
 
-    public static final int DEFAULT_SHINGLE_LENGTH = 3;
+    public static final int DEFAULT_N_GRAM_LENGTH = 3;
 
     public static final int DEFAULT_SKETCH_SIZE = 200;
 
     public static final float DEFAULT_SIMILARITY_THRESHOLD = 0.1f;
 
-    private int shingleLength = DEFAULT_SHINGLE_LENGTH;
+    private int nGramLength = DEFAULT_N_GRAM_LENGTH;
 
     private int sketchSize = DEFAULT_SKETCH_SIZE;
 
@@ -90,7 +89,7 @@ public class Shingles {
         string = preprocess(string);
 
         // calculate all w-Shingles
-        Set<String> shingles = Tokenizer.calculateWordNGrams(string, getShingleLength());
+        Set<String> shingles = Tokenizer.calculateWordNGrams(string, getnGramLength());
 
         // calculate all hashes for w-Shingles
         Set<Long> shingleHashes = new HashSet<Long>();
@@ -271,17 +270,17 @@ public class Shingles {
         return report.toString();
     }
 
-    public int getShingleLength() {
-        return shingleLength;
+    public int getnGramLength() {
+        return nGramLength;
     }
 
     /**
      * Set length of shingles/n-grams.
      * 
-     * @param shingleLength
+     * @param nGramLength
      */
-    public void setShingleLength(int shingleLength) {
-        this.shingleLength = shingleLength;
+    public void setnGramLength(int shingleLength) {
+        this.nGramLength = shingleLength;
     }
 
     public int getSketchSize() {

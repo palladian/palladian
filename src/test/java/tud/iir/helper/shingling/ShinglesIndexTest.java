@@ -7,14 +7,12 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
- * TODO clean up after testing.
  * 
  * @author Philipp Katz
- *
+ * 
  */
 public class ShinglesIndexTest {
 
@@ -25,9 +23,7 @@ public class ShinglesIndexTest {
 
     @Test
     public void testShinglesIndexH2() {
-        ShinglesIndexH2 h2Index = new ShinglesIndexH2();
-        h2Index.clearTables();
-        testProcedure(h2Index);
+        testProcedure(new ShinglesIndexH2());
     }
 
     @Test
@@ -42,7 +38,7 @@ public class ShinglesIndexTest {
 
     private void testProcedure(ShinglesIndex index) {
 
-        index.getNumberOfDocuments();
+        index.openIndex();
 
         assertEquals("we need to start with an empty index", 0, index.getNumberOfDocuments());
 
@@ -74,6 +70,11 @@ public class ShinglesIndexTest {
         assertEquals(2, index.getSimilarDocuments(1).size());
         assertEquals(4, (int) index.getSimilarDocuments(2).iterator().next()); // should return doc no. 4
         assertEquals(2, index.getSimilarDocuments().size());
+
+        index.saveIndex();
+
+        // clean up
+        index.deleteIndex();
 
     }
 

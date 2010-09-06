@@ -15,7 +15,38 @@ import java.util.Set;
 public interface ShinglesIndex {
 
     /**
+     * Set the name of this index. For instance, we might have different document collections which use their own
+     * indices.
+     * 
+     * @param name
+     */
+    void setIndexName(String name);
+
+    /**
+     * Get the name of this index.
+     * 
+     * @return
+     */
+    String getIndexName();
+
+    /**
+     * Open the index for usage. This must be the first call to the index instance.
+     */
+    void openIndex();
+
+    /**
+     * Save the index, if necessary.
+     */
+    void saveIndex();
+
+    /**
+     * Delete the index, e.g. its corresponding files. This is intended for clean up after unit testing.
+     */
+    void deleteIndex();
+
+    /**
      * Add a document which is represented by an ID and its sketch (aka. set of hashes) to the index.
+     * 
      * @param documentId
      * @param sketch
      */
@@ -23,6 +54,7 @@ public interface ShinglesIndex {
 
     /**
      * Get all document IDs for the specified hash.
+     * 
      * @param hash
      * @return
      */
@@ -74,5 +106,5 @@ public interface ShinglesIndex {
      * @return
      */
     Map<Integer, Set<Integer>> getSimilarDocuments();
-    
+
 }
