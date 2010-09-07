@@ -147,7 +147,7 @@ public final class Preprocessor {
         // create a new term map for the classification document
         map = new HashMap<Term, Double>();
 
-        // remove http(s): and www from URL
+        // remove http(s): and www from URL XXX
         inputString = Crawler.getCleanURL(inputString);
 
         Set<String> ngrams = null;

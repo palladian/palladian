@@ -237,9 +237,9 @@ public abstract class TextClassifier {
      * @param document The web document that should be prepared for classification.
      * @return A document that can be classified.
      */
-    public abstract ClassificationDocument preprocessDocument(String url);
+    public abstract ClassificationDocument preprocessDocument(String text);
 
-    public abstract ClassificationDocument preprocessDocument(String url, ClassificationDocument classificationDocument);
+    public abstract ClassificationDocument preprocessDocument(String text, ClassificationDocument classificationDocument);
 
     /**
      * Classify a document that is given with an URL. This method is implemented in concrete classifiers.
@@ -247,10 +247,10 @@ public abstract class TextClassifier {
      * @param url The URL of the document that has to be classified.
      * @return A classified document.
      */
-    public ClassificationDocument classify(String url) {
+    public ClassificationDocument classify(String text) {
         ClassificationDocument processedDocument;
-        processedDocument = preprocessDocument(url);
-        processedDocument.setUrl(url);
+        processedDocument = preprocessDocument(text);
+        processedDocument.setUrl(text);
         return classify(processedDocument);
     }
 
