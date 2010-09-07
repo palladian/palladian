@@ -448,13 +448,13 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     @Override
-    public ClassificationDocument preprocessDocument(String url, ClassificationDocument classificationDocument) {
-        return preprocessor.preProcessDocument(url, classificationDocument);
+    public ClassificationDocument preprocessDocument(String text, ClassificationDocument classificationDocument) {
+        return preprocessor.preProcessDocument(text, classificationDocument);
     }
 
     @Override
-    public ClassificationDocument preprocessDocument(String url) {
-        return preprocessor.preProcessDocument(url);
+    public ClassificationDocument preprocessDocument(String text) {
+        return preprocessor.preProcessDocument(text);
     }
 
     public Dictionary getDictionary() {
