@@ -66,7 +66,7 @@ public class DateArrayHelperTest {
         array.add(date);
         ArrayList<ArrayList<ExtractedDate>> arrangedArray = DateArrayHelper.arrangeByDate(array);
         DateComparator dc = new DateComparator();
-        for (int i = 0; i < arrangedArray.size(); i++) {
+        for (int i = 0; i < 5; i++) {
             // ExtractedDateHelper.printDateArray(arrangedArray.get(i));
             // one time 2010-08-01, two time 2010-08-02, three time 2010-08-03
             assertEquals(i + 1, arrangedArray.get(i).size());

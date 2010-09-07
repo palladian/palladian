@@ -22,7 +22,6 @@ import tud.iir.daterecognition.dates.HeadDate;
 import tud.iir.daterecognition.dates.StructureDate;
 import tud.iir.daterecognition.dates.URLDate;
 import tud.iir.helper.HTMLHelper;
-import tud.iir.helper.XPathHelper;
 import tud.iir.knowledge.KeyWords;
 import tud.iir.knowledge.RegExp;
 import tud.iir.web.Crawler;
@@ -51,7 +50,7 @@ public final class DateGetterHelper {
     public static URLDate getURLDate(final String url) {
         ExtractedDate date = null;
         URLDate temp = null;
-        final Object[] regExpArray = RegExp.getURLRegExp();
+        Object[] regExpArray = RegExp.getURLRegExp();
         int index = 0;
         while (date == null && index < regExpArray.length) {
             date = getDateFromString(url, (String[]) regExpArray[index]);
@@ -214,34 +213,36 @@ public final class DateGetterHelper {
                 }
             }
             if (head != null) {
-
-                Iterator<Node> nodeListIterator = XPathHelper.getChildNodes(head, "meta").iterator();
-                while (nodeListIterator.hasNext()) {
-                    NamedNodeMap attributes = nodeListIterator.next().getAttributes();
-                    String[] nameTags = KeyWords.HEAD_KEYWORDS;
-                    for (int j = 0; j < nameTags.length; j++) {
-                        Node nameTag = attributes.getNamedItem(nameTags[j]);
-                        if (nameTag == null) {
-                            continue;
-                        }
-                        String nodeValue = hasKeyword(nameTag.getNodeValue(), KeyWords.DATE_DOC_HEAD);
-                        if (nodeValue == null) {
-                            continue;
-                        }
-                        Node contentTag = attributes.getNamedItem("content");
-                        if (contentTag == null) {
-                            continue;
-                        }
-                        HeadDate date = (HeadDate) findDate(contentTag.getNodeValue());
-                        if (date != null) {
-                            date.setKeyword(nameTag.getNodeValue());
-                            dates.add(date);
-                        }
+                NodeList headList = head.getChildNodes();
+                for (int i = 0; i < headList.getLength(); i++) {
+                    Node metaNode = headList.item(i);
+                    if (!metaNode.getNodeName().equalsIgnoreCase("meta")) {
+                        continue;
                     }
+                    Node nameAttr = metaNode.getAttributes().getNamedItem("name");
+                    if (nameAttr == null) {
+                        nameAttr = metaNode.getAttributes().getNamedItem("http-equiv");
+                    }
+                    Node contentAttr = metaNode.getAttributes().getNamedItem("content");
+                    if (nameAttr == null || contentAttr == null) {
+                        continue;
+                    }
+                    String keyword = hasKeyword(nameAttr.getNodeValue(), KeyWords.HEAD_KEYWORDS);
+                    if (keyword == null) {
+                        continue;
+                    }
+                    ExtractedDate temp = findDate(contentAttr.getNodeValue(), RegExp.getHEADRegExp());
+                    if (temp == null) {
+                        continue;
+                    }
+                    HeadDate headDate = DateConverter.convertToHeadDate(temp);
+                    headDate.setKeyword(keyword);
+                    headDate.setTag(nameAttr.getNodeName());
+                    dates.add(headDate);
                 }
-
             }
         }
+
         return dates;
     }
 
@@ -253,27 +254,31 @@ public final class DateGetterHelper {
      *         If no match is found return <b>null</b>.
      */
     public static ExtractedDate findDate(final String dateString) {
-        // Tokenizer.getSentence(string, position)
+
+        return findDate(dateString, null);
+    }
+
+    /**
+     * Tries to match a date in a dateformat. The format is given by the regular expressions of RegExp.
+     * 
+     * @param dateString a date to match.
+     * @param regExpArray regular expressions of dates to match. If this is null {@link RegExp}.getAllRegExp will be
+     *            called.
+     * @return The found format, defined in RegExp constants. <br>
+     *         If no match is found return <b>null</b>.
+     */
+    public static ExtractedDate findDate(final String dateString, Object[] regExpArray) {
+        Object[] regExps = regExpArray;
+        if (regExps == null) {
+            regExps = RegExp.getAllRegExp();
+        }
         ExtractedDate date = null;
-        Object[] regExps = RegExp.getAllRegExp();
 
         for (int i = 0; i < regExps.length; i++) {
             date = getDateFromString(dateString, (String[]) regExps[i]);
             if (date != null) {
                 break;
             }
-            /*
-             * pattern = Pattern.compile(((String[]) regExps[i])[0]);
-             * matcher = pattern.matcher(dateString);
-             * if (matcher.find()) {
-             * int start = matcher.start();
-             * int end = matcher.end();
-             * format = ((String[]) regExps[i])[1];
-             * newDateString = dateString.substring(start, end);
-             * date = new ExtractedDate(newDateString, format);
-             * break;
-             * }
-             */
         }
         return date;
     }

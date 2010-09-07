@@ -13,6 +13,7 @@ public class HeadDate extends ExtractedDate {
      * E.g.: URL, tag-name, HTTP-tag, keyword...
      */
     private String keyword = null;
+    private String tag = null;
 
     /**
      * 
@@ -58,6 +59,14 @@ public class HeadDate extends ExtractedDate {
 
     public String getKeyword() {
         return keyword;
+    }
+
+    public String getTag() {
+        return this.tag;
+    }
+
+    public void setTag(String tag) {
+        this.tag = tag;
     }
 
 }

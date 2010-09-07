@@ -92,6 +92,8 @@ class DateGetterThread extends Thread {
 
     public void run() {
         DateGetter dg = new DateGetter();
+        dg.setAllFalse();
+        dg.setTechHTTP(true);
         dg.setTechReference(false);
         dg.setTechArchive(false);
         dg.setURL(url);
@@ -106,8 +108,10 @@ class DateGetterThread extends Thread {
         int countHead = 0;
         int counCont = 0;
         int counStruc = 0;
+
         for (Entry<ExtractedDate, Double> e : evaluatedDates.entrySet()) {
             Double rate = e.getValue();
+            System.out.println(e.getKey() + " rate: " + rate);
             if (rate == 1) {
                 switch (e.getKey().getType()) {
                     case ExtractedDate.TECH_URL:

@@ -7,11 +7,14 @@ import java.util.Iterator;
 
 import org.junit.Ignore;
 import org.junit.Test;
+import org.w3c.dom.Document;
 
 import tud.iir.control.AllTests;
 import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.daterecognition.dates.HeadDate;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.knowledge.RegExp;
+import tud.iir.web.Crawler;
 
 public class DateGetterHelperTest {
 
@@ -410,10 +413,10 @@ public class DateGetterHelperTest {
         }
     }
 
-    @Ignore
     @Test
     public void testGetDate() {
-        final String url = "data/test/webPages/dateExtraction/alltop.htm";
+        String url = "data/test/webPages/dateExtraction/alltop.htm";
+        url = "http://www.zeit.de/2010/36/Wirtschaft-Konjunktur-Deutschland";
 
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
@@ -466,5 +469,27 @@ public class DateGetterHelperTest {
             DateArrayHelper.printDateArray(date);
 
         }
+    }
+
+    @Test
+    public void TestGetHeadDates() {
+        String url = "data/test/webPages/dateExtraction/zeit2.htm";
+        ArrayList<HeadDate> compareDates = new ArrayList<HeadDate>();
+        compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+        compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+        compareDates.add(new HeadDate("2010-09-03T09:44:12.597203+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+        compareDates.add(new HeadDate("2010-09-03T09:41:54.059727+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+        compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+        compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+
+        Crawler c = new Crawler();
+        c.setDocument(url);
+        Document document = c.getDocument();
+        ArrayList<HeadDate> headDates = DateGetterHelper.getHeadDates(document);
+        assertEquals(6, headDates.size());
+        for (int i = 0; i < headDates.size(); i++) {
+            assertEquals(compareDates.get(i).getDateString(), headDates.get(i).getDateString());
+        }
+
     }
 }
