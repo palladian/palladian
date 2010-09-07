@@ -3,7 +3,6 @@ package tud.iir.daterecognition;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
@@ -22,13 +21,53 @@ public class DateEvaluator {
     public <T> HashMap<T, Double> evaluate(ArrayList<T> extractedDates) {
         HashMap<T, Double> evaluatedDates = new HashMap<T, Double>();
         ArrayList<T> dates = DateArrayHelper.filter(extractedDates, DateArrayHelper.FILTER_IS_IN_RANGE);
-        ArrayList<ArrayList<T>> dateGroups = DateArrayHelper.arrangeByDate(dates);
+        HashMap<T, Double> urlResult = new HashMap<T, Double>();
+        HashMap<T, Double> httpResult = new HashMap<T, Double>();
+        HashMap<T, Double> headResult = new HashMap<T, Double>();
+        HashMap<T, Double> structResult = new HashMap<T, Double>();
+        HashMap<T, Double> contResult = new HashMap<T, Double>();
 
-        for (int i = 0; i < dateGroups.size(); i++) {
-            HashMap<T, Double> temp = evaluateGroup(dateGroups.get(i));
-            evaluatedDates.putAll(temp);
+        ArrayList<URLDate> urlDates = (ArrayList<URLDate>) DateArrayHelper.filter(dates, ExtractedDate.TECH_URL);
+        ArrayList<HTTPDate> httpDates = (ArrayList<HTTPDate>) DateArrayHelper.filter(dates,
+                ExtractedDate.TECH_HTTP_HEADER);
+        ArrayList<HeadDate> headDates = (ArrayList<HeadDate>) DateArrayHelper.filter(dates,
+                ExtractedDate.TECH_HTML_HEAD);
+        ArrayList<StructureDate> structDates = (ArrayList<StructureDate>) DateArrayHelper.filter(dates,
+                ExtractedDate.TECH_HTML_STRUC);
+        ArrayList<ContentDate> contDates = (ArrayList<ContentDate>) DateArrayHelper.filter(dates,
+                ExtractedDate.TECH_HTML_CONT);
+        ArrayList<ReferenceDate> refDates = (ArrayList<ReferenceDate>) DateArrayHelper.filter(dates,
+                ExtractedDate.TECH_REFERENCE);
+
+        if (urlDates != null && urlDates.size() > 0) {
+            urlResult.putAll((Map<? extends T, ? extends Double>) evaluateURLDate(urlDates));
+        }
+        if (httpDates != null && httpDates.size() > 0) {
+            httpResult.putAll((Map<? extends T, ? extends Double>) evaluateHTTPDate(httpDates));
+        }
+        if (headDates != null && headDates.size() > 0) {
+            headResult.putAll((Map<? extends T, ? extends Double>) evaluateHeadDate(headDates));
+        }
+        if (structDates != null && structDates.size() > 0) {
+            structResult.putAll((Map<? extends T, ? extends Double>) evaluateStructDate(structDates));
+        }
+        if (contDates != null && contDates.size() > 0) {
+            contResult.putAll((Map<? extends T, ? extends Double>) evaluateContentDate(contDates));
         }
 
+        evaluatedDates.putAll(urlResult);
+        evaluatedDates.putAll(httpResult);
+        evaluatedDates.putAll(headResult);
+        evaluatedDates.putAll(structResult);
+        evaluatedDates.putAll(contResult);
+
+        /*
+         * ArrayList<ArrayList<T>> dateGroups = DateArrayHelper.arrangeByDate(dates);
+         * for (int i = 0; i < dateGroups.size(); i++) {
+         * HashMap<T, Double> temp = evaluateGroup(dateGroups.get(i));
+         * evaluatedDates.putAll(temp);
+         * }
+         */
         /*
          * HashMap<ContentDate, Double> allContentDates = (HashMap<ContentDate, Double>) DateArrayHelper.filter(
          * evaluatedDates, DateArrayHelper.FILTER_TECH_HTML_CONT);
@@ -75,15 +114,6 @@ public class DateEvaluator {
             contResult.putAll((Map<? extends T, ? extends Double>) evaluateContentDate(contDates));
         }
 
-        int groupFactor = 0;
-        int urlFactor = 0;
-        int httpFactor = 0;
-        int headFactor = 0;
-        int contentFactor = 0;
-        int structureFactor = 0;
-        if (urlResult.size() > 0) {
-
-        }
         result.putAll(urlResult);
         result.putAll(httpResult);
         result.putAll(headResult);
@@ -94,7 +124,7 @@ public class DateEvaluator {
 
     public HashMap<StructureDate, Double> evaluateStructDate(ArrayList<StructureDate> structDates) {
         HashMap<StructureDate, Double> result = new HashMap<StructureDate, Double>();
-        double rate = 0;
+        double rate;
         for (int i = 0; i < structDates.size(); i++) {
             StructureDate date = structDates.get(i);
             String keyword = date.getKeyword();
@@ -105,15 +135,22 @@ public class DateEvaluator {
             } else if (keyword.equalsIgnoreCase("update") || keyword.equalsIgnoreCase("changed")
                     || keyword.equalsIgnoreCase("modified")) {
                 rate = 0.7; // TODO: rate bestimmen.
+            } else {
+                rate = 0;
             }
             result.put(date, rate);
         }
         return result;
     }
 
+    // zuerst high prio keywors bewerten - darumter das ältestte datum wählen rest abwerten
+    // mittlere prio nur bewerten, wenn keine high prio -älteste datum auf 1, rest abwerten
+    // rest daten nur wenn andere nicht vorhanden - bewertung 1/anz.
     public HashMap<HeadDate, Double> evaluateHeadDate(ArrayList<HeadDate> headDates) {
         HashMap<HeadDate, Double> result = new HashMap<HeadDate, Double>();
-        double rate = 0;
+        double rate;
+        boolean hasHighRate = false;
+        boolean hasMiddleRate = false;
         for (int i = 0; i < headDates.size(); i++) {
             HeadDate date = headDates.get(i);
             String keyword = date.getKeyword();
@@ -121,12 +158,53 @@ public class DateEvaluator {
                     || keyword.equalsIgnoreCase("posted") || keyword.equalsIgnoreCase("released")
                     || keyword.equalsIgnoreCase("pdate")) {
                 rate = 1;
+                hasHighRate = true;
             } else if (keyword.equalsIgnoreCase("update") || keyword.equalsIgnoreCase("changed")
-                    || keyword.equalsIgnoreCase("modified")) {
-                rate = 0.7; // TODO: rate bestimmen.
+                    || keyword.equalsIgnoreCase("modified") || keyword.equalsIgnoreCase("last-modified")) {
+                rate = -1; // TODO: rate bestimmen.
+                hasMiddleRate = true;
+            } else {
+                rate = -2;
             }
             result.put(date, rate);
         }
+        if (hasHighRate) {
+            ArrayList<HeadDate> otherDates = DateArrayHelper.getRatedDates(result, 1, false);
+            for (int i = 0; i < otherDates.size(); i++) {
+                result.put(otherDates.get(i), 0.0);
+            }
+
+        } else if (hasMiddleRate) {
+            ArrayList<HeadDate> ratenNegDates = DateArrayHelper.getRatedDates(result, -1, true);
+            for (int i = 0; i < ratenNegDates.size(); i++) {
+                result.put(ratenNegDates.get(i), 1.0);
+            }
+            ArrayList<HeadDate> otherDates = DateArrayHelper.getRatedDates(result, 1, false);
+            for (int i = 0; i < otherDates.size(); i++) {
+                result.put(otherDates.get(i), 0.0);
+            }
+
+        } else {
+            ArrayList<HeadDate> ratenNegDates = DateArrayHelper.getRatedDates(result, -2, true);
+            for (int i = 0; i < ratenNegDates.size(); i++) {
+                result.put(ratenNegDates.get(i), 1.0);
+            }
+        }
+
+        ArrayList<HeadDate> rate1dates = DateArrayHelper.getRatedDates(result, 1);
+        DateComparator dc = new DateComparator();
+        rate1dates = dc.orderDates(rate1dates);
+
+        HeadDate oldest = rate1dates.get(0);
+        for (int i = 1; i < rate1dates.size(); i++) {
+            double diff = dc.getDifference(oldest, rate1dates.get(i), DateComparator.MEASURE_HOUR);
+            if (diff > 24) {
+                diff = 24;
+            }
+            double newRate = Math.round((1.0 - (diff / 24.0)) * 100) / 100.0;
+            result.put(rate1dates.get(i), newRate);
+        }
+
         return result;
     }
 
@@ -180,71 +258,24 @@ public class DateEvaluator {
     public HashMap<ExtractedDate, Double> evaluateContentDate(ArrayList<ContentDate> dates) {
         HashMap<ExtractedDate, Double> result = new HashMap<ExtractedDate, Double>();
 
-        for (int i = 0; i < dates.size(); i++) {
-            ContentDate date = dates.get(i);
-            Double value = 1.0;
-            double factor = 0;
+        ArrayList<ContentDate> attrDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_ATTR);
+        ArrayList<ContentDate> contDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_CONT);
+        ArrayList<ContentDate> nokeywordDates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_KEYLOC_NO);
 
-            String key = date.getKeyword();
+        HashMap<ContentDate, Double> attrResult = DateEvaluatorHelper.evaluateKeyLocAttr(attrDates);
+        HashMap<ContentDate, Double> contResult = DateEvaluatorHelper.evaluateKeyLocCont(contDates);
+        HashMap<ContentDate, Double> nokeywordResult = new HashMap<ContentDate, Double>();
 
-            if (key != null) {
-                if (key.equalsIgnoreCase("published") || key.equalsIgnoreCase("posted")
-                        || key.equalsIgnoreCase("pubdate") || key.equalsIgnoreCase("released")
-                        || key.equalsIgnoreCase("pdate")) {
-                    factor = 1;
-                } else {
-                    factor = -1;
-                }
-                int keyLocation = date.get(ContentDate.KEYWORDLOCATION);
-                switch (keyLocation) {
-                    case ContentDate.KEY_LOC_ATTR:
-                        factor = factor * 1;
-                        break;
-                    case ContentDate.KEY_LOC_CONTENT:
-                        int distance = date.get(ContentDate.DISTANCE_DATE_KEYWORD);
-                        // factor = factor * Math.round((Math.pow((-x + 40), (1 / 1.5)) / 11.69607) * 100) / 100;
-                        double distanceFactor;
-                        if (distance < 0) {
-                            distanceFactor = 0;
-                        } else if (distance < 7) {
-                            distanceFactor = 1;
-                        } else if (distance < 16) {
-                            distanceFactor = 0.6;
-                        } else if (distance < 30) {
-                            distanceFactor = 0.4;
-                        } else {
-                            distanceFactor = 0;
-                        }
-                        factor = factor * distanceFactor;
-                        break;
-                    default:
-                        factor = 0;
-                }
-
-            } else {
-                factor = 0;
-            }
-            value = value * factor;
-            result.put(date, value);
+        // Run through dates without keyword.
+        for (int i = 0; i < nokeywordDates.size(); i++) {
+            ContentDate date = nokeywordDates.get(i);
+            nokeywordResult.put(date, 0.0);
         }
+
+        result.putAll(attrResult);
+        result.putAll(contResult);
+        result.putAll(nokeywordResult);
+
         return result;
-    }
-
-    public void evaluateContentDateByNumber(HashMap<ContentDate, Double> dates) {
-        ArrayList<ContentDate> temp = new ArrayList<ContentDate>();
-        // number of contentDates
-        double rateOthers = 0;
-        for (Entry<ContentDate, Double> e : dates.entrySet()) {
-            Double rate = e.getValue();
-            if (rate == -1) {
-                temp.add(e.getKey());
-            }
-        }
-        if (temp != null) {
-            double numberDates = temp.size();
-            for (int i = 0; i < numberDates; i++) {
-                dates.put(temp.get(i), (1 - rateOthers) / numberDates);
-            }
-        }
     }
 }

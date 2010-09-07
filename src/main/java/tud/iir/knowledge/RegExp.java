@@ -94,7 +94,7 @@ public class RegExp {
     private static final String APOSROPH = "('?)";
     private static final String ST_ND_RD_TH_OPT = "(((st)|(nd)|(rd)|(th))?)";
     private static final String YEAR_SHORT_LONG = "(" + LONG_YEAR + "|(" + APOSROPH + SHOR_YEAR + "))"; // YYYY|(')?YY
-    private static final String URL_SYM = "[/\\._]"; // [/._] - symbols in URLs
+    private static final String URL_SYM = "[/\\._-]"; // [/._-] - symbols in URLs
     private static final String SEP_SYM = "[/\\._-]"; // [/._-] - symbols to separate dateparts
 
     // RegExp are a array with 2 fields, field one is the regExp; field two is the format
@@ -149,16 +149,18 @@ public class RegExp {
     private static final String DATE_URL_D_1 = YEAR_SHORT_LONG + "(/)" + MONTH_NUMBER_DOUBLE + "(/)" + DAY_OF_MONTH;
     private static final String DATE_URL_D_2 = YEAR_SHORT_LONG + "(_)" + MONTH_NUMBER_DOUBLE + "(_)" + DAY_OF_MONTH;
     private static final String DATE_URL_D_3 = YEAR_SHORT_LONG + "(\\.)" + MONTH_NUMBER_DOUBLE + "(\\.)" + DAY_OF_MONTH;
+    private static final String DATE_URL_D_4 = YEAR_SHORT_LONG + "(-)" + MONTH_NUMBER_DOUBLE + "(-)" + DAY_OF_MONTH;
     /**
      * Dates in URL. YYYY_MM_DD .<br>
-     * "_" can also be "." or "-"
+     * "_" can also be "." or "-" or "/"
      */
     public static final String[] DATE_URL_D = {
-            "((" + DATE_URL_D_1 + ")|(" + DATE_URL_D_2 + ")|(" + DATE_URL_D_3 + "))", "YYYY_MM_DD" };
+            "((" + DATE_URL_D_1 + ")|(" + DATE_URL_D_2 + ")|(" + DATE_URL_D_3 + ")|(" + DATE_URL_D_4 + "))",
+            "YYYY_MM_DD" };
 
     /**
      * Dates in URL. YYYY_MM .<br>
-     * "_" can also be "." or "-"
+     * "_" can also be "." or "-" or"/"
      */
     public static final String[] DATE_URL = { YEAR_SHORT_LONG + URL_SYM + MONTH_NUMBER_DOUBLE, "YYYY_MM" };
 
@@ -364,9 +366,8 @@ public class RegExp {
      * @return Array with <a title="String[] = {regular expression, description}" > <u>regular expressions</u> </a>
      */
     public static Object[] getURLRegExp() {
-        final Object[] regExp = { RegExp.DATE_ISO8601_YMD, RegExp.DATE_URL_D, RegExp.DATE_ISO8601_YMD_NO,
-                RegExp.DATE_URL_SPLIT, RegExp.DATE_ISO8601_YWD, RegExp.DATE_ISO8601_YD, RegExp.DATE_ISO8601_YM,
-                RegExp.DATE_URL, RegExp.DATE_ISO8601_YW };
+        final Object[] regExp = { RegExp.DATE_URL_D, RegExp.DATE_URL_SPLIT, RegExp.DATE_ISO8601_YMD_NO,
+                RegExp.DATE_ISO8601_YWD, RegExp.DATE_ISO8601_YD, RegExp.DATE_URL, RegExp.DATE_ISO8601_YW };
         return regExp;
     }
 

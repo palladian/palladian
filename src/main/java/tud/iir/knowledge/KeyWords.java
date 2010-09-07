@@ -10,7 +10,8 @@ public final class KeyWords {
             "date_first_released", "date_last_published", "displaydate", "last-modified", "date-last-modified",
             "update", "dc:date", "xsd:date", "date" };
     /** Keywords found in HTTP header of connections. */
-    public static final String[] HEAD_KEYWORDS = { "name", "http-equiv" };
+    public static final String[] HEAD_KEYWORDS = { "published", "pubdate", "posted", "released", "update",
+            "last-modified", "pdate", "date", "change" };
     /** Keywords found in HTML content of documents. */
     public static final String[] BODY_CONTENT_KEYWORDS = { "published", "pubdate", "posted", "released", "update" };
 }

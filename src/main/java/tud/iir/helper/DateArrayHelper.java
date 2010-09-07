@@ -6,7 +6,12 @@ import java.util.Iterator;
 import java.util.Map.Entry;
 
 import tud.iir.daterecognition.DateEvaluatorHelper;
+import tud.iir.daterecognition.ExtractedDateHelper;
+import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.daterecognition.dates.HTTPDate;
+import tud.iir.daterecognition.dates.HeadDate;
+import tud.iir.daterecognition.dates.StructureDate;
 
 /**
  * Helper functions for arrays consisting extracted dates or subclasses.
@@ -32,6 +37,11 @@ public class DateArrayHelper {
     public static final int FILTER_TECH_REFERENCE = ExtractedDate.TECH_REFERENCE;// 6
     /** Filter ArchiveDates. */
     public static final int FILTER_TECH_ARCHIVE = ExtractedDate.TECH_ARCHIVE;// 7
+    /** Filter contentDates with key-location in attribute. */
+    public static final int FILTER_KEYLOC_ATTR = ContentDate.KEY_LOC_ATTR; // 201
+    /** Filter contentDates with key-location in content. */
+    public static final int FILTER_KEYLOC_CONT = ContentDate.KEY_LOC_CONTENT;// 202
+    public static final int FILTER_KEYLOC_NO = 203;;
 
     /**
      * Filters an array-list.
@@ -62,6 +72,27 @@ public class DateArrayHelper {
                 case FILTER_TECH_ARCHIVE:
                     if (((ExtractedDate) date).getType() == filter) {
                         temp.add(date);
+                    }
+                    break;
+                case FILTER_KEYLOC_ATTR:
+                    if (((ExtractedDate) date).getType() == FILTER_TECH_HTML_CONT) {
+                        if (((ContentDate) date).get(ContentDate.KEYWORDLOCATION) == filter) {
+                            temp.add(date);
+                        }
+                    }
+                    break;
+                case FILTER_KEYLOC_CONT:
+                    if (((ExtractedDate) date).getType() == FILTER_TECH_HTML_CONT) {
+                        if (((ContentDate) date).get(ContentDate.KEYWORDLOCATION) == filter) {
+                            temp.add(date);
+                        }
+                    }
+                    break;
+                case FILTER_KEYLOC_NO:
+                    if (((ExtractedDate) date).getType() == FILTER_TECH_HTML_CONT) {
+                        if (((ContentDate) date).get(ContentDate.KEYWORDLOCATION) == -1) {
+                            temp.add(date);
+                        }
                     }
                     break;
             }
@@ -228,6 +259,54 @@ public class DateArrayHelper {
             T date = dates.get(i);
             if (!((ExtractedDate) date).getFormat().equalsIgnoreCase(format)) {
                 result.add(date);
+            }
+        }
+        return result;
+    }
+
+    public static <T> void printDateMap(HashMap<T, Double> dateMap) {
+        printDateMap(dateMap, 0);
+    }
+
+    public static <T> void printDateMap(HashMap<T, Double> dateMap, int filter) {
+        for (Entry<T, Double> e : dateMap.entrySet()) {
+            T date = e.getKey();
+            String dateString = ((ExtractedDate) date).getDateString();
+            String normDate = ((ExtractedDate) date).getNormalizedDate();
+            String type = ExtractedDateHelper.getTypString(((ExtractedDate) date).getType());
+            String keyword = "";
+            switch (((ExtractedDate) date).getType()) {
+                case ExtractedDate.TECH_HTML_CONT:
+                    keyword = ((ContentDate) date).getKeyword();
+                    break;
+                case ExtractedDate.TECH_HTML_STRUC:
+                    keyword = ((StructureDate) date).getKeyword();
+                    break;
+                case ExtractedDate.TECH_HTML_HEAD:
+                    keyword = ((HeadDate) date).getKeyword();
+                    break;
+                case ExtractedDate.TECH_HTTP_HEADER:
+                    keyword = ((HTTPDate) date).getKeyword();
+                    break;
+            }
+            if (((ExtractedDate) e.getKey()).getType() == filter || filter == 0) {
+                System.out.println("Rate: " + e.getValue() + " Type: " + type + " Keyword: " + keyword);
+                System.out.println(dateString + " --> " + normDate);
+                System.out
+                        .println("-------------------------------------------------------------------------------------");
+            }
+        }
+    }
+
+    public static <T> ArrayList<T> getRatedDates(HashMap<T, Double> dates, double rate) {
+        return getRatedDates(dates, rate, true);
+    }
+
+    public static <T> ArrayList<T> getRatedDates(HashMap<T, Double> dates, double rate, boolean include) {
+        ArrayList<T> result = new ArrayList<T>();
+        for (Entry<T, Double> e : dates.entrySet()) {
+            if ((e.getValue() == rate) == include) {
+                result.add(e.getKey());
             }
         }
         return result;

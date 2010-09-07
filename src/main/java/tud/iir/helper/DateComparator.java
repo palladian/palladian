@@ -84,10 +84,31 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return returnValue;
     }
 
+    public int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable) {
+        int compare = compare(date1, date2, ignoreComparable, STOP_SECOND);
+        if (compare == -2) {
+            compare = 1;
+        } else if (compare == -3) {
+            compare = -1;
+        }
+        return compare;
+    }
+
+    public int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable, int compareDepth) {
+        int compare;
+        if (ignoreComparable) {
+            compare = compare(date1, date2);
+        } else {
+            compare = compare(date1, date2, compareDepth);
+        }
+        return compare;
+    }
+
     /**
      * Compares a parameter of two dates. (date1.getYear() and date2.getYear()). <br>
      * If i or k equals -1, then -2 will be returned.<br>
-     * Otherwise -1 for i > k, 0 for i=k, 1 for i<k;
+     * Otherwise -1 for i > k, 0 for i=k, 1 for i&lt; k; <br>
+     * If k=i=-1 -> 0 will be returned.
      * 
      * @param i
      * @param k
@@ -103,6 +124,12 @@ public class DateComparator implements Comparator<ExtractedDate> {
                     returnValue = 1;
                 } else {
                     returnValue = -1;
+                }
+            } else {
+                if (i == -1) {
+                    returnValue = -2;
+                } else {
+                    returnValue = -3;
                 }
             }
         }
@@ -205,5 +232,73 @@ public class DateComparator implements Comparator<ExtractedDate> {
             }
         }
         return returnDate;
+    }
+
+    public <T> ArrayList<T> orderDates(ArrayList<T> dates) {
+        return orderDates(dates, false);
+    }
+
+    public <T> ArrayList<T> orderDates(ArrayList<T> dates, boolean reverse) {
+        T[] result = orderDatesArray(dates);
+        ArrayList<T> resultList = new ArrayList<T>();
+        if (reverse) {
+            for (int i = 0; i < result.length; i++) {
+                resultList.add(result[i]);
+            }
+        } else {
+            for (int i = result.length - 1; i >= 0; i--) {
+                resultList.add(result[i]);
+            }
+        }
+
+        return resultList;
+    }
+
+    /**
+     * Orders a datelist, beginning with oldest date.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public <T> T[] orderDatesArray(ArrayList<T> dates) {
+        T[] dateArray = (T[]) dates.toArray();
+        quicksort(0, dateArray.length - 1, dateArray);
+        return dateArray;
+
+    }
+
+    private <T> void quicksort(int left, int right, T[] dates) {
+        if (left < right) {
+            int divide = divide(left, right, dates);
+            quicksort(left, divide - 1, dates);
+            quicksort(divide + 1, right, dates);
+        }
+    }
+
+    private <T> int divide(int left, int right, T[] dates) {
+        int i = left;
+        int j = right - 1;
+        T pivot = dates[right];
+        while (i < j) {
+            while (compare((ExtractedDate) dates[i], (ExtractedDate) pivot, true) < 1 && i < right) {
+                i++;
+            }
+            while (compare((ExtractedDate) dates[j], (ExtractedDate) pivot, true) > -1 && j > left) {
+                j--;
+            }
+            if (i < j) {
+                T help = dates[i];
+                dates[i] = dates[j];
+                dates[j] = help;
+            }
+        }
+        if (compare((ExtractedDate) dates[i], (ExtractedDate) pivot, true) > 0) {
+            T help = dates[i];
+            dates[i] = dates[right];
+            dates[right] = help;
+        }
+        return i;
     }
 }

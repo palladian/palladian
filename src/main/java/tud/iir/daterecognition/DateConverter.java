@@ -3,6 +3,7 @@ package tud.iir.daterecognition;
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.HTTPDate;
+import tud.iir.daterecognition.dates.HeadDate;
 import tud.iir.daterecognition.dates.StructureDate;
 import tud.iir.daterecognition.dates.URLDate;
 
@@ -38,6 +39,14 @@ public class DateConverter {
             httpDate = new HTTPDate(date.getDateString(), date.getFormat());
         }
         return httpDate;
+    }
+
+    public static HeadDate convertToHeadDate(ExtractedDate date) {
+        HeadDate headdDate = null;
+        if (date != null) {
+            headdDate = new HeadDate(date.getDateString(), date.getFormat());
+        }
+        return headdDate;
     }
 
 }

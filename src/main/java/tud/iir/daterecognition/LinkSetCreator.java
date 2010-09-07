@@ -60,7 +60,11 @@ public class LinkSetCreator {
             // url =
             // "http://techcrunch.com/2010/09/01/as-facebook-and-orkut-duke-it-out-in-india-sms-gupshup-hits-35-million-users/";
             // url = "http://spreeblick.com";
-            url = "http://www.bangkokpost.com/news/local/194115/schoolboy-killed-in-shooting-in-bangkok";
+            // url = "http://www.bangkokpost.com/news/local/194115/schoolboy-killed-in-shooting-in-bangkok";
+            // url = "http://www.techeblog.com/";
+            // url = "http://www.washingtonpost.com/";
+            // url = "http://mashable.com/2010/09/03/nasa-visit-the-sun/";
+            url = "http://www.huffingtonpost.com/";
         }
         c.setDocument(url);
         HashSet<String> links = c.getLinks(false, true);

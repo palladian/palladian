@@ -1,26 +1,32 @@
 package tud.iir.daterecognition;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.junit.Test;
 
 import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.helper.DateArrayHelper;
 
 public class DateEvaluatorTest {
 
     @Test
     public final void testEvaluate() {
-        DateGetter dg = new DateGetter(
-                "http://www.basicthinking.de/blog/2010/08/24/the-fridge-so-wie-facebook-nur-mit-echten-freunden/");
+        // DateGetter dg = new DateGetter("http://www.zeit.de/karriere/beruf/2010-08/karrierestrategien-frauen");
+        DateGetter dg = new DateGetter("data/test/webPages/dateExtraction/zeit2.htm");
         dg.setTechReference(false);
         dg.setTechArchive(false);
         ArrayList<ExtractedDate> dates = dg.getDate();
 
         DateEvaluator de = new DateEvaluator();
         HashMap<ExtractedDate, Double> dateMap = de.evaluate(dates);
-        DateEvaluatorHelper.printMap(dateMap);
 
+        DateArrayHelper.printDateArray(dates);
+        DateArrayHelper.printDateMap(dateMap);
+
+        assertEquals(dates.size(), dateMap.size());
     }
 
     @Test

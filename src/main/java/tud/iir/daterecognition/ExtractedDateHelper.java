@@ -2,6 +2,7 @@ package tud.iir.daterecognition;
 
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 import java.util.TimeZone;
 
 import tud.iir.daterecognition.dates.ExtractedDate;
@@ -175,7 +176,17 @@ public class ExtractedDateHelper {
      * @return Extracted date.
      */
     public static ExtractedDate createActualDate() {
-        Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        return createActualDate(null);
+
+    }
+
+    public static ExtractedDate createActualDate(Locale local) {
+        Calendar cal;
+        if (local != null) {
+            cal = new GregorianCalendar(local);
+        } else {
+            cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
+        }
 
         // cal.getMonth + 1 = month, because in Calendar Jan has number 0.
         String dateString = cal.get(Calendar.YEAR) + "-" + ExtractedDateHelper.get2Digits(cal.get(Calendar.MONTH) + 1)
@@ -187,6 +198,7 @@ public class ExtractedDateHelper {
 
         ExtractedDate date = new ExtractedDate(dateString, format);
         return date;
+
     }
 
     /**
