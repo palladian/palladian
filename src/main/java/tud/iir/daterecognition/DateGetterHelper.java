@@ -95,6 +95,7 @@ public final class DateGetterHelper {
     }
 
     public static ArrayList<StructureDate> getStructureDate(Document document) {
+
         ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
 
         if (document != null) {
@@ -164,20 +165,21 @@ public final class DateGetterHelper {
     public static StructureDate checkForDate(final Node node) {
 
         StructureDate date = null;
-        final NamedNodeMap tag = node.getAttributes();
+        NamedNodeMap tag = node.getAttributes();
         if (tag != null) {
-
             String keyword = null;
             String dateTagName = null;
             for (int i = 0; i < tag.getLength(); i++) {
-                final Node attributeNode = tag.item(i);
-                final String nodeName = attributeNode.getNodeName();
+                Node attributeNode = tag.item(i);
+                String nodeName = attributeNode.getNodeName();
                 if (!nodeName.equalsIgnoreCase("href")) {
+                    StructureDate tempDate = DateConverter
+                            .convertToStructureDate(findDate(attributeNode.getNodeValue()));
 
-                    date = DateConverter.convertToStructureDate(findDate(attributeNode.getNodeValue()));
-                    if (date == null) {
+                    if (tempDate == null) {
                         keyword = hasKeyword(attributeNode.getNodeValue(), KeyWords.DATE_BODY_STRUC);
                     } else {
+                        date = tempDate;
                         dateTagName = nodeName;
                     }
                 }
@@ -189,6 +191,7 @@ public final class DateGetterHelper {
                 } else {
                     date.setKeyword(keyword);
                 }
+                date.setTag(node.getNodeName());
             }
         }
         return date;
@@ -289,7 +292,8 @@ public final class DateGetterHelper {
      * @return The found format, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
-    public static ArrayList<ContentDate> findALLDates(String dateString) {
+    public static ArrayList<ContentDate> findALLDates(String text) {
+        String dateString = text;
         ArrayList<ContentDate> contentDates = new ArrayList<ContentDate>();
         ExtractedDate date = null;
         Object[] regExps = RegExp.getAllRegExp();
@@ -303,57 +307,8 @@ public final class DateGetterHelper {
                 contentDates.add(cDate);
                 dateString = dateString.replace(date.getDateString(), getWhitespaces(date.getDateString()));
             }
-
         }
         return contentDates;
-
-        // Tokenizer.getSentence(string, position)
-        /*
-         * String text = " " + dateString;
-         * ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
-         * String format = null;
-         * String newDateString = null;
-         * Object[] regExps = RegExp.getAllRegExp();
-         * Pattern pattern;
-         * Matcher matcher;
-         * for (int i = 0; i < regExps.length; i++) {
-         * String[] regExpr = (String[]) regExps[i];
-         * pattern = Pattern.compile(regExpr[0]);
-         * matcher = pattern.matcher(text);
-         * matcher.reset();
-         * while (matcher.find()) {
-         * boolean hasPrePostNum = false;
-         * int start = matcher.start();
-         * int end = matcher.end();
-         * if (start > 0) {
-         * String temp = text.substring(start - 1, start);
-         * try {
-         * Integer.parseInt(temp);
-         * hasPrePostNum = true;
-         * } catch (NumberFormatException e) {
-         * }
-         * }
-         * if (end < text.length()) {
-         * String temp = text.substring(end, end + 1);
-         * try {
-         * Integer.parseInt(temp);
-         * hasPrePostNum = true;
-         * } catch (NumberFormatException e) {
-         * }
-         * }
-         * if (!hasPrePostNum) {
-         * newDateString = text.substring(start, end);
-         * format = ((String[]) regExps[i])[1];
-         * ContentDate date = new ContentDate(newDateString, format);
-         * date.set(ContentDate.DATEPOS_IN_TAGTEXT, start);
-         * dates.add(date);
-         * text = text.replace(newDateString, getWhitespaces(newDateString));
-         * matcher = pattern.matcher(text);
-         * }
-         * }
-         * }
-         * return dates;
-         */
     }
 
     public static String getWhitespaces(String text) {
@@ -406,14 +361,14 @@ public final class DateGetterHelper {
      *            "abcd" offsetStart=1: "bcd" offsetStart=-1: "abcd"
      * @return found substring or null
      */
-    public static ExtractedDate getDateFromString(final String text, final String[] regExp) {
+    public static ExtractedDate getDateFromString(final String dateString, final String[] regExp) {
+        String text = dateString.replaceAll("  ", " ");
         boolean hasPrePostNum = false;
         ExtractedDate date = null;
         Pattern pattern;
         Matcher matcher;
         pattern = Pattern.compile(regExp[0]);
         matcher = pattern.matcher(text);
-
         if (matcher.find()) {
             final int start = matcher.start();
             final int end = matcher.end();
@@ -499,16 +454,43 @@ public final class DateGetterHelper {
                 date = setNearestTextkeyword(HTMLHelper.replaceHTMLSymbols(text), date);
             }
             if (date.getKeyword() == null) {
+
                 keyword = findNodeKeyword(parent, KeyWords.DATE_BODY_STRUC);
+
                 if (keyword != null) {
                     date.setKeyword(keyword);
                     date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
                 }
             }
+            if (date.getKeyword() == null) {
+                text = HTMLHelper.htmlToString(parent.getParentNode());
+                date = setNearestTextkeyword(HTMLHelper.replaceHTMLSymbols(text), date);
+            }
             dates.add(date);
         }
 
         return dates;
+    }
+
+    public static String findNodeKeywordPart(Node node, String[] keyWords) {
+        String keyword = null;
+        NamedNodeMap attrMap = node.getAttributes();
+        if (attrMap != null) {
+            for (int j = 0; j < keyWords.length; j++) {
+                String lookUp = keyWords[j];
+                for (int i = 0; i < attrMap.getLength(); i++) {
+                    Node attr = attrMap.item(i);
+                    if (attr.getNodeValue().indexOf(lookUp) != -1) {
+                        keyword = lookUp;
+                        break;
+                    }
+                }
+                if (keyword != null) {
+                    break;
+                }
+            }
+        }
+        return keyword;
     }
 
     public static String findNodeKeyword(Node node, String[] keyWords) {

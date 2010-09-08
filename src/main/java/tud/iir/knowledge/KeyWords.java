@@ -8,10 +8,11 @@ public final class KeyWords {
     /** Keywords found in HTML structure of documents. */
     public static final String[] DATE_BODY_STRUC = { "published", "posted", "released", "pubdate", "pdate",
             "date_first_released", "date_last_published", "displaydate", "last-modified", "date-last-modified",
-            "update", "dc:date", "xsd:date", "date" };
+            "update", "dc:date", "xsd:date", "date", "time", "datetime" };
     /** Keywords found in HTTP header of connections. */
-    public static final String[] HEAD_KEYWORDS = { "published", "pubdate", "posted", "released", "update",
+    public static final String[] HEAD_KEYWORDS = { "published", "pubdate", "posted", "released", "update", "updated",
             "last-modified", "pdate", "date", "change" };
     /** Keywords found in HTML content of documents. */
-    public static final String[] BODY_CONTENT_KEYWORDS = { "published", "pubdate", "posted", "released", "update" };
+    public static final String[] BODY_CONTENT_KEYWORDS = { "published", "pubdate", "posted", "released", "updated",
+            "update" };
 }

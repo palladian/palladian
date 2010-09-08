@@ -16,8 +16,10 @@ public class ExtractedDateHelper {
      * @param month
      * @return month-number as string
      */
-    public static String getMonthNumber(String month) {
-        month.replaceAll(" ", "");
+    public static String getMonthNumber(String monthString) {
+        String month = monthString;
+        month = month.replaceAll(",", "");
+        month = month.replaceAll(" ", "");
         String monthNumber = null;
         if (month.equalsIgnoreCase("january") || month.equalsIgnoreCase("januar") || month.equalsIgnoreCase("jan")) {
             monthNumber = "01";

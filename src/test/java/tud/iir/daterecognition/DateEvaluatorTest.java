@@ -1,9 +1,8 @@
 package tud.iir.daterecognition;
 
-import static org.junit.Assert.assertEquals;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 import org.junit.Test;
 
@@ -15,7 +14,9 @@ public class DateEvaluatorTest {
     @Test
     public final void testEvaluate() {
         // DateGetter dg = new DateGetter("http://www.zeit.de/karriere/beruf/2010-08/karrierestrategien-frauen");
-        DateGetter dg = new DateGetter("data/test/webPages/dateExtraction/zeit2.htm");
+        // DateGetter dg = new DateGetter("data/test/webPages/dateExtraction/zeit2.htm");
+        DateGetter dg = new DateGetter(
+                "http://www.sueddeutsche.de/wissen/jahre-weltraumteleskop-huebsch-gemacht-hubble-1.935571");
         dg.setTechReference(false);
         dg.setTechArchive(false);
         ArrayList<ExtractedDate> dates = dg.getDate();
@@ -23,10 +24,11 @@ public class DateEvaluatorTest {
         DateEvaluator de = new DateEvaluator();
         HashMap<ExtractedDate, Double> dateMap = de.evaluate(dates);
 
-        DateArrayHelper.printDateArray(dates);
-        DateArrayHelper.printDateMap(dateMap);
+        // DateArrayHelper.printDateArray(dates);
+        Entry<ExtractedDate, Double>[] orderedDates = DateArrayHelper.orderHashMap(dateMap, true);
+        DateArrayHelper.printDateMap(orderedDates);
 
-        assertEquals(dates.size(), dateMap.size());
+        // assertEquals(dates.size(), dateMap.size());
     }
 
     @Test

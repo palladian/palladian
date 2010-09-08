@@ -26,8 +26,6 @@ public class DateArrayHelperTest {
             date.addAll(dates);
             ArrayList<ExtractedDate> filter = DateArrayHelper.filter(date, ExtractedDate.TECH_HTML_CONT);
             assertEquals(6, filter.size());
-            filter = DateArrayHelper.filter(date, ExtractedDate.TECH_HTML_STRUC);
-            assertEquals(4, filter.size());
         }
     }
 
