@@ -11,6 +11,7 @@ import java.util.Set;
 
 import jdbm.RecordManager;
 import jdbm.RecordManagerFactory;
+import jdbm.RecordManagerOptions;
 import jdbm.btree.BTree;
 import jdbm.helper.IntegerComparator;
 import jdbm.helper.LongComparator;
@@ -59,8 +60,12 @@ public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
 
         try {
 
+            // disable transactions, yields in a great speed up and we do not need rollback :)
+            Properties properties = new Properties();
+            properties.setProperty(RecordManagerOptions.DISABLE_TRANSACTIONS, "true");
+            
             recordManager = RecordManagerFactory.createRecordManager(INDEX_FILE_BASE_PATH + getIndexName() + "_jdbm",
-                    new Properties());
+                    properties);
 
             hashesDocuments = loadOrCreateBTree(recordManager, "hashesDocuments", new LongComparator());
             documentsSketch = loadOrCreateBTree(recordManager, "documentsSketch", new IntegerComparator());

@@ -17,6 +17,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.collections15.Bag;
+import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.FileHelper;
@@ -46,10 +48,10 @@ import com.planetj.math.rabinhash.RabinHashFunction64;
 public class Shingles {
 
     /** class logger. */
-    private static final Logger LOGGER = Logger.getLogger(Shingles.class);
+    protected static final Logger LOGGER = Logger.getLogger(Shingles.class);
 
     /** the index to store all shingles and mappings between similar documents. */
-    private ShinglesIndex index;
+    protected ShinglesIndex index;
 
     public static final int DEFAULT_N_GRAM_LENGTH = 3;
 
@@ -77,8 +79,6 @@ public class Shingles {
         this.index = index;
         index.openIndex();
     }
-    
-    
 
     /**
      * Calculate the sketch for a String, consisting of a subset of size {@link #getSketchSize()} of all hashed word
@@ -169,70 +169,74 @@ public class Shingles {
      * @param sketch
      * @return <code>true</code>, if document was similar/duplicate.
      */
-    private boolean checkSimilarity(int documentId, Set<Long> sketch) {
+    protected boolean checkSimilarity(int documentId, Set<Long> sketch) {
 
         boolean result = false;
         StringBuilder debugMessage = new StringBuilder();
         debugMessage.append("doc:" + documentId + ":");
 
+        // //////////////////////// old implementation, slow ////////////////////
         // get all documents we need to check, i.e. all documents which contain one of the hashes
-        Map<Integer, Set<Long>> documentsToCheck = index.getDocumentsForSketch(sketch);
 
-        // Map<Integer, Set<Long>> documentsToCheck = new HashMap<Integer, Set<Long>>();
+        // Map<Integer, Set<Long>> documentsToCheck = index.getDocumentsForSketch(sketch);
+
+        // determine all similar/identical documents by calculating the Jaccard distance
+        // Set<Integer> similarDocuments = new HashSet<Integer>();
+        // Iterator<Entry<Integer, Set<Long>>> iterator = documentsToCheck.entrySet().iterator();
         //        
-        // if (index instanceof ShinglesIndexH2) {
-        //            
-        // ShinglesIndexH2 h2index = (ShinglesIndexH2) index;
-        // Set<Integer> idsToCheck = h2index.getDocumentsForHashes(sketch);
-        // for (Integer integer : idsToCheck) {
-        // Set<Long> hashes = h2index.getHashesForDocument(integer);
-        // documentsToCheck.put(integer, hashes);
+        // while (iterator.hasNext()) {
+        // Entry<Integer, Set<Long>> document = iterator.next();
+        // // don't count the current document itself
+        // if (document.getKey() == documentId) {
+        // continue;
         // }
-        //            
-        // }
-        // else if (index instanceof ShinglesIndexH2_1T) {
-        //            
-        // ShinglesIndexH2_1T h2index = (ShinglesIndexH2_1T) index;
-        // Set<Integer> idsToCheck = h2index.getDocumentsForSketch(sketch);
-        // for (Integer integer : idsToCheck) {
-        // Set<Long> hashes = h2index.getSketchForDocument(integer);
-        // documentsToCheck.put(integer, hashes);
-        // }
-        //            
-        // } else {
-        //        
-        // for (Long hash : sketch) {
-        // Set<Integer> documentsForShingle = index.getDocumentsForHash(hash);
-        // for (Integer document : documentsForShingle) {
-        // Set<Long> documentShingles = documentsToCheck.get(document);
-        // if (documentShingles == null) {
-        // documentShingles = new HashSet<Long>();
-        // documentsToCheck.put(document, documentShingles);
-        // }
-        // documentShingles.add(hash);
+        // float distance = jaccardDistance(document.getValue(), sketch);
+        // if (distance == 0) {
+        // // identical document
+        // debugMessage.append(" id:" + document.getKey());
+        // similarDocuments.add(document.getKey());
+        // } else if (distance < getSimilarityThreshold()) {
+        // // similar document
+        // debugMessage.append(" sim(" + distance + "):" + document.getKey());
+        // similarDocuments.add(document.getKey());
         // }
         // }
-        //            
-        // }
+
+        // //////////////////////// try to speed up /////////////////////////
+        Bag<Integer> matchingDocs = new HashBag<Integer>();
+        for (long hash : sketch) {
+            Set<Integer> docsForHash = index.getDocumentsForHash(hash);
+            matchingDocs.addAll(docsForHash);
+        }
+
+        // similarity candidates are in the Bag, which counts the number of matching hashes
+        Set<Integer> similarDocs = new HashSet<Integer>();
+        for (int curDocId : matchingDocs.uniqueSet()) {
+            if (1 - (float) matchingDocs.getCount(curDocId) / sketch.size() < similarityThreshold) {
+                similarDocs.add(curDocId);
+            }
+        }
 
         // determine all similar/identical documents by calculating the Jaccard distance
         Set<Integer> similarDocuments = new HashSet<Integer>();
-        Iterator<Entry<Integer, Set<Long>>> iterator = documentsToCheck.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Entry<Integer, Set<Long>> document = iterator.next();
+
+        for (int simDocId : similarDocs) {
+
+            Set<Long> simSketch = index.getSketchForDocument(simDocId);
+
             // don't count the current document itself
-            if (document.getKey() == documentId) {
+            if (simDocId == documentId) {
                 continue;
             }
-            float distance = jaccardDistance(document.getValue(), sketch);
+            float distance = jaccardDistance(simSketch, sketch);
             if (distance == 0) {
                 // identical document
-                debugMessage.append(" id:" + document.getKey());
-                similarDocuments.add(document.getKey());
+                debugMessage.append(" id:" + simDocId);
+                similarDocuments.add(simDocId);
             } else if (distance < getSimilarityThreshold()) {
                 // similar document
-                debugMessage.append(" sim(" + distance + "):" + document.getKey());
-                similarDocuments.add(document.getKey());
+                debugMessage.append(" sim(" + distance + "):" + simDocId);
+                similarDocuments.add(simDocId);
             }
         }
 
@@ -370,20 +374,18 @@ public class Shingles {
     public static void main(String[] args) throws Exception {
 
         /*
-        // List<String> test = Collections.emptyList();
-        // test.iterator();
-        // System.exit(0);
-
-        // ShinglesIndexTracer tracer = new ShinglesIndexTracer(new ShinglesIndexJDBM());
-        // ShinglesIndexTracer tracer = new ShinglesIndexTracer(new ShinglesIndexJava());
-        ShinglesIndexTracer tracer = new ShinglesIndexTracer(new ShinglesIndexH2());
-        // ShinglesIndexTracer tracer = new ShinglesIndexTracer(new ShinglesIndexWB());
-        Shingles s = new Shingles(tracer);
-        s.addDocumentsFromFile("data/test_entries_10000.txt");
-        System.out.println(tracer.getTraceResult());
-
-        System.exit(0);
-        */
+         * // List<String> test = Collections.emptyList();
+         * // test.iterator();
+         * // System.exit(0);
+         * // ShinglesIndexTracer tracer = new ShinglesIndexTracer(new ShinglesIndexJDBM());
+         * // ShinglesIndexTracer tracer = new ShinglesIndexTracer(new ShinglesIndexJava());
+         * ShinglesIndexTracer tracer = new ShinglesIndexTracer(new ShinglesIndexH2());
+         * // ShinglesIndexTracer tracer = new ShinglesIndexTracer(new ShinglesIndexWB());
+         * Shingles s = new Shingles(tracer);
+         * s.addDocumentsFromFile("data/test_entries_10000.txt");
+         * System.out.println(tracer.getTraceResult());
+         * System.exit(0);
+         */
         // ///////////////////////////////////////////////////
 
         CommandLineParser parser = new BasicParser();

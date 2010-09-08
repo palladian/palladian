@@ -49,10 +49,13 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             Connection connection = DriverManager.getConnection(url, dbUsername, dbPassword);
 
             PreparedStatement psCreateTableShingles = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentsHashes (documentId INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, hash BIGINT, PRIMARY KEY(documentId, hash))");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentsHashes (documentId INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, hash BIGINT, PRIMARY KEY(documentId, hash)); " +
+                    		"CREATE INDEX IF NOT EXISTS hashIndex ON documentsHashes(documentId); " +
+                    		"CREATE INDEX IF NOT EXISTS documentIdIndex ON documentsHashes(hash);");
 
             PreparedStatement psCreateTableDocumentSimilarities = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentSimilarities (masterId INTEGER UNSIGNED NOT NULL, simId INTEGER UNSIGNED NOT NULL, PRIMARY KEY (masterId, simId));");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentSimilarities (masterId INTEGER UNSIGNED NOT NULL, simId INTEGER UNSIGNED NOT NULL, PRIMARY KEY (masterId, simId)); " +
+                    		"CREATE INDEX IF NOT EXISTS masterIdIndex ON documentSimilarities(masterId);");
 
             psCreateTableShingles.executeUpdate();
             psCreateTableDocumentSimilarities.executeUpdate();

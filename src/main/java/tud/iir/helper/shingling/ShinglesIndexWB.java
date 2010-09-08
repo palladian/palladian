@@ -19,6 +19,8 @@ import wb.Han;
  * ShinglesIndex implementation using "WB B-Tree Database". The API is plain shocking and seems to be ported directly
  * from C.
  * 
+ * TODO this does not work if we have non contiuous IDs ... like 1, 2, 9, 17, ...
+ * 
  * http://people.csail.mit.edu/jaffer/WB
  * 
  * @author Philipp Katz
