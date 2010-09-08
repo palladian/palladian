@@ -136,6 +136,8 @@ public class ExtractedDate {
             setDateByDayOfYear(true);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_D[1])) {
             setDateValues(dateString.split(ExtractedDateHelper.getSeparator(dateString)), 0, 1, 2);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_URL_MMMM_D[1])) {
+            setDateValues(dateString.split("/"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT[1])) {
             dateParts = dateString.split("/");
             year = ExtractedDateHelper.normalizeYear(dateParts[0]);
@@ -239,11 +241,14 @@ public class ExtractedDate {
             String separator = ExtractedDateHelper.getSeparator(parts[0]);
             String[] date = parts[0].split(separator);
             setDateValues(date, 2, 1, 0);
-            if (parts.length > 2) {
-                setTimeValues(parts[1] + parts[2]);
-            } else {
-                setTimeValues(parts[1]);
+            StringBuffer sb = new StringBuffer();
+            for (int i = 1; i < parts.length; i++) {
+                if (parts[i].indexOf("/") == -1) {
+                    sb.append(parts[i]);
+                }
             }
+            setTimeValues(sb.toString());
+
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y_T[1])) {
 
@@ -253,11 +258,13 @@ public class ExtractedDate {
             }
             String[] parts = dateString.split(" ");
             setDateValues(parts, 2, 1, 0);
-            if (parts.length > 4) {
-                setTimeValues(parts[3] + parts[4]);
-            } else {
-                setTimeValues(parts[3]);
+            StringBuffer sb = new StringBuffer();
+            for (int i = 3; i < parts.length; i++) {
+                if (parts[i].indexOf("/") == -1) {
+                    sb.append(parts[i]);
+                }
             }
+            setTimeValues(sb.toString());
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y_T[1])) {
 
@@ -268,11 +275,13 @@ public class ExtractedDate {
             String[] parts = dateString.split(" ");
             String[] date = parts[0].split("/");
             setDateValues(date, 2, 0, 1);
-            if (parts.length > 2) {
-                setTimeValues(parts[1] + parts[2]);
-            } else {
-                setTimeValues(parts[1]);
+            StringBuffer sb = new StringBuffer();
+            for (int i = 1; i < parts.length; i++) {
+                if (parts[i].indexOf("/") == -1) {
+                    sb.append(parts[i]);
+                }
             }
+            setTimeValues(sb.toString());
             set24h(meridiem);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y_T[1])) {
 
@@ -282,11 +291,13 @@ public class ExtractedDate {
             }
             String[] parts = dateString.split(" ");
             setDateValues(parts, 2, 0, 1);
-            if (parts.length > 4) {
-                setTimeValues(parts[3] + parts[4]);
-            } else {
-                setTimeValues(parts[3]);
+            StringBuffer sb = new StringBuffer();
+            for (int i = 3; i < parts.length; i++) {
+                if (parts[i].indexOf("/") == -1) {
+                    sb.append(parts[i]);
+                }
             }
+            setTimeValues(sb.toString());
             set24h(meridiem);
         }
 
@@ -713,6 +724,29 @@ public class ExtractedDate {
 
     public String getUrl() {
         return url;
+    }
+
+    public int getExactness() {
+        int exactness = 0;
+        if (this.year != -1) {
+            exactness++;
+            if (this.month != -1) {
+                exactness++;
+                if (this.day != -1) {
+                    exactness++;
+                    if (this.hour != -1) {
+                        exactness++;
+                        if (this.minute != -1) {
+                            exactness++;
+                            if (this.second != -1) {
+                                exactness++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return exactness;
     }
 
 }

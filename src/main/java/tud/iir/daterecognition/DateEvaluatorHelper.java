@@ -8,6 +8,7 @@ import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.RegExp;
 
 public class DateEvaluatorHelper {
@@ -63,18 +64,33 @@ public class DateEvaluatorHelper {
         double factor = 0;
         if (distance < 0) {
             factor = 0;
-        } else if (distance < 7) {
+        } else if (distance < 10) {
             factor = 1;
-        } else if (distance < 16) {
-            factor = 0.6;
+        } else if (distance < 20) {
+            factor = 0.7;
         } else if (distance < 30) {
-            factor = 0.4;
+            factor = 0.5;
+        } else if (distance < 50) {
+            factor = 0.25;
+        } else if (distance < 150) {
+            factor = 0.1;
         } else {
-            factor = 0;
+            factor = 0.0;
         }
 
         return factor;
 
+    }
+
+    public static HashMap<ContentDate, Double> evaluateTag(HashMap<ContentDate, Double> contentDates) {
+        HashMap<ContentDate, Double> result = contentDates;
+        for (Entry<ContentDate, Double> e : contentDates.entrySet()) {
+            if (HTMLHelper.isHeadlineTag(e.getKey().getTag())) {
+                double newRate = (1 - e.getValue()) * 0.1 + e.getValue();
+                result.put(e.getKey(), Math.round(newRate * 100) / 100.0);
+            }
+        }
+        return result;
     }
 
     public static HashMap<ContentDate, Double> evaluateKeyLocAttr(ArrayList<ContentDate> attrDates) {
@@ -100,7 +116,8 @@ public class DateEvaluatorHelper {
             ArrayList<ArrayList<ContentDate>> groupedDates = DateArrayHelper.arrangeByDate(rate1Dates);
             for (int k = 0; k < groupedDates.size(); k++) {
                 for (int i = 0; i < groupedDates.get(k).size(); i++) {
-                    attrResult.put(groupedDates.get(k).get(i), (1.0 * groupedDates.get(k).size()) / rate1Dates.size());
+                    double newRate = (Math.round(((1.0 * groupedDates.get(k).size()) / rate1Dates.size()) * 100) / 100.0);
+                    attrResult.put(groupedDates.get(k).get(i), newRate);
                 }
             }
 
@@ -108,8 +125,8 @@ public class DateEvaluatorHelper {
             ArrayList<ArrayList<ContentDate>> groupedDates = DateArrayHelper.arrangeByDate(negRatedDates);
             for (int k = 0; k < groupedDates.size(); k++) {
                 for (int i = 0; i < groupedDates.get(k).size(); i++) {
-                    attrResult.put(groupedDates.get(k).get(i), (1.0 * groupedDates.get(k).size())
-                            / negRatedDates.size());
+                    double newRate = (Math.round(((1.0 * groupedDates.get(k).size()) / negRatedDates.size()) * 100) / 100.0);
+                    attrResult.put(groupedDates.get(k).get(i), newRate);
                 }
             }
         }
@@ -122,15 +139,20 @@ public class DateEvaluatorHelper {
         for (int i = 0; i < contDates.size(); i++) {
             double rate;
             ContentDate date = contDates.get(i);
-            rate = calcContDateAttr(date);
-            contResult.put(date, rate);
+            double factor_content = calcContDateContent(date);
+            double factor_keyword = calcContDateAttr(date);
+            if (factor_keyword == -1) {
+                factor_keyword = 0.7;
+            }
+            contResult.put(date, factor_content * factor_keyword);
         }
         ArrayList<ContentDate> rate1dates = DateArrayHelper.getRatedDates(contResult, 1.0);
         ArrayList<ArrayList<ContentDate>> rate1groupe = DateArrayHelper.arrangeByDate(rate1dates);
         for (int k = 0; k < rate1groupe.size(); k++) {
             for (int i = 0; i < rate1groupe.get(k).size(); i++) {
                 // anz der dates mit gleichen werten / anz aller dates
-                contResult.put(rate1groupe.get(k).get(i), (1.0 * rate1groupe.get(k).size()) / rate1dates.size());
+                double newRate = Math.round(((1.0 * rate1groupe.get(k).size()) / rate1dates.size()) * 100) / 100.0;
+                contResult.put(rate1groupe.get(k).get(i), newRate);
             }
         }
         ArrayList<ContentDate> rateRestDates = DateArrayHelper.getRatedDates(contResult, 1.0, false);
@@ -138,11 +160,11 @@ public class DateEvaluatorHelper {
         for (int k = 0; k < rateRestGroupe.size(); k++) {
             for (int i = 0; i < rateRestGroupe.get(k).size(); i++) {
                 ContentDate key = rateRestGroupe.get(k).get(i);
-                contResult.put(key, (contResult.get(key) * rateRestGroupe.get(k).size()) / contDates.size());
+                double newRate = Math.round(((1.0 * contResult.get(key) * rateRestGroupe.get(k).size()) / contDates
+                        .size()) * 100) / 100.0;
+                contResult.put(key, newRate);
             }
         }
-
         return contResult;
-
     }
 }

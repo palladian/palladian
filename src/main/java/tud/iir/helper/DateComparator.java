@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
+import java.util.Map.Entry;
 
 import tud.iir.daterecognition.dates.ExtractedDate;
 
@@ -254,6 +256,22 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return resultList;
     }
 
+    public <T> ArrayList<T> orderDates(HashMap<T, Double> dates) {
+        ArrayList<T> temp = new ArrayList<T>();
+        for (Entry<T, Double> e : dates.entrySet()) {
+            temp.add(e.getKey());
+        }
+        return orderDates(temp);
+    }
+
+    public <T> ArrayList<T> orderDates(HashMap<T, Double> dates, boolean reverse) {
+        ArrayList<T> temp = new ArrayList<T>();
+        for (Entry<T, Double> e : dates.entrySet()) {
+            temp.add(e.getKey());
+        }
+        return orderDates(temp, reverse);
+    }
+
     /**
      * Orders a datelist, beginning with oldest date.
      * 
@@ -300,5 +318,15 @@ public class DateComparator implements Comparator<ExtractedDate> {
             dates[right] = help;
         }
         return i;
+    }
+
+    public <T> T getOldestDate(HashMap<T, Double> dates) {
+        ArrayList<T> orderDates = orderDates(dates, false);
+        T date = null;
+        if (orderDates.size() > 0) {
+            date = orderDates.get(0);
+        }
+        return date;
+
     }
 }

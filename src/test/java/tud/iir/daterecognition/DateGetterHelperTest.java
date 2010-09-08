@@ -34,6 +34,7 @@ public class DateGetterHelperTest {
         final String url12 = "http://www.example.com/text/2010/othertext/06/30example.html";
         final String url13 = "http://www.example.com/text/2010/other/text/06_30example.html";
         final String url14 = "http://www.example.com/text/othertext/20100630example.html";
+        final String url15 = "http://www.guardian.co.uk/world/2002/aug/06/iraq.johnhooper";
 
         // Cases with given day
         String time = "2010-06-30";
@@ -47,6 +48,7 @@ public class DateGetterHelperTest {
         assertEquals(url12, time, DateGetterHelper.getURLDate(url12).getNormalizedDate());
         assertEquals(url13, time, DateGetterHelper.getURLDate(url13).getNormalizedDate());
         assertEquals(url14, time, DateGetterHelper.getURLDate(url14).getNormalizedDate());
+        assertEquals(url14, "2002-08-06", DateGetterHelper.getURLDate(url15).getNormalizedDate());
 
         // Cases without given day, so day will be set to 1st
         time = "2010-06";
@@ -124,6 +126,8 @@ public class DateGetterHelperTest {
         date = DateGetterHelper.getDateFromString("2010_06_30", RegExp.DATE_URL_D);
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
         date = DateGetterHelper.getDateFromString("2010/06/30", RegExp.DATE_URL_D);
+        assertEquals(date.getDateString(), text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("2010/June/30", RegExp.DATE_URL_MMMM_D);
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
 
         // URL
@@ -235,6 +239,18 @@ public class DateGetterHelperTest {
         assertEquals(text, date.getNormalizedDate());
         date = DateGetterHelper.getDateFromString("July 02nd, 2010 20:07:49 +0100", RegExp.DATE_USA_MMMM_D_Y_T);
         assertEquals(text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("04.08.2006 / 14:52", RegExp.DATE_EU_D_MM_Y_T);
+        assertEquals("2006-08-04 14:52", date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("08/04/2006 / 14:52", RegExp.DATE_USA_MM_D_Y_T);
+        assertEquals("2006-08-04 14:52", date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("04 August 2006 / 14:52", RegExp.DATE_EU_D_MMMM_Y_T);
+        assertEquals("2006-08-04 14:52", date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("aug 4, 2006 / 14:52", RegExp.DATE_USA_MMMM_D_Y_T);
+        assertEquals("2006-08-04 14:52", date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("aug 4, 2006 14:52", RegExp.DATE_USA_MMMM_D_Y_T);
+        assertEquals("2006-08-04 14:52", date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("aug 4, 2006  14:52", RegExp.DATE_USA_MMMM_D_Y_T);
+        assertEquals("2006-08-04 14:52", date.getNormalizedDate());
 
         // others
         text = "2010-07-02 19:07:49";
@@ -287,7 +303,12 @@ public class DateGetterHelperTest {
     public void testFindDate() {
         String text = "2010-08-03";
         assertEquals(text, (DateGetterHelper.findDate("2010-08-03")).getNormalizedDate());
+        assertEquals("2002-08-06 03:08", (DateGetterHelper.findDate("2002-08-06T03:08BST")).getNormalizedDate());
         assertEquals("2010-06", (DateGetterHelper.findDate("June 2010")).getNormalizedDate());
+        assertEquals("2010-08-31", (DateGetterHelper.findDate("Aug 31 2010")).getNormalizedDate());
+        assertEquals("2009-04-06 15:11", (DateGetterHelper.findDate("April  6, 2009  3:11 PM")).getNormalizedDate());
+        ExtractedDate date = DateGetterHelper.findDate("aug 4, 2006 / 14:52");
+        assertEquals("2006-08-04 14:52", date.getNormalizedDate());
 
     }
 
@@ -357,7 +378,8 @@ public class DateGetterHelperTest {
     @Test
     public void testGetStructureDate2() {
 
-        String url = "http://www.aftonbladet.se/wendela/ledig/article3476060.ab";
+        // String url = "http://www.aftonbladet.se/wendela/ledig/article3476060.ab";
+        String url = "http://www.guardian.co.uk/world/2002/aug/06/iraq.johnhooper";
 
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
@@ -370,13 +392,13 @@ public class DateGetterHelperTest {
         }
     }
 
-    @Ignore
     @Test
     public void testGetContentDates() {
         // final String url = "data/test/webPages/dateExtraction/kullin.htm";
         // String url =
         // "http://www.gatorsports.com/article/20100823/ARTICLES/100829802/1136?Title=Meyer-has-concerns-with-season-fast-approaching";
-        String url = "http://www.truthdig.com/arts_culture/item/20071108_mark_sarvas_on_the_hot_zone/";
+        // String url = "http://www.truthdig.com/arts_culture/item/20071108_mark_sarvas_on_the_hot_zone/";
+        String url = "http://blogs.physicstoday.org/newspicks/2009/04/2009-laquila-earthquake.html";
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             // date.addAll(DateGetterHelper

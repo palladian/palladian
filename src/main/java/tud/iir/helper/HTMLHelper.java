@@ -400,6 +400,25 @@ public class HTMLHelper {
 
     }
 
+    /**
+     * Checks, if tag is a headline.
+     * 
+     * @param tag
+     * @return
+     */
+    public static boolean isHeadlineTag(String tag) {
+        boolean result = false;
+        if (tag.equalsIgnoreCase("h1") || tag.equalsIgnoreCase("h2") || tag.equalsIgnoreCase("h3")
+                || tag.equalsIgnoreCase("h4") || tag.equalsIgnoreCase("h5") || tag.equalsIgnoreCase("h6")) {
+            result = true;
+        }
+        return result;
+    }
+
+    public static boolean isHeadlineTag(Node tag) {
+        return isHeadlineTag(tag.getNodeName());
+    }
+
     public static String replaceHTMLSymbols(String text) {
         String result = text;
         if (result != null) {
