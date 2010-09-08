@@ -66,7 +66,9 @@ public interface ShinglesIndex {
      * 
      * @param sketch
      * @return
+     * @deprecated this is generally slow.
      */
+    @Deprecated
     Map<Integer, Set<Long>> getDocumentsForSketch(Set<Long> sketch);
 
     /**
