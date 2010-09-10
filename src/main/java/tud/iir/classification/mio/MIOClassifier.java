@@ -5,7 +5,6 @@
 package tud.iir.classification.mio;
 
 import java.io.File;
-import java.util.ArrayList;
 
 import org.apache.log4j.Logger;
 
@@ -16,8 +15,6 @@ import tud.iir.extraction.mio.MIOContextAnalyzer;
 import tud.iir.extraction.mio.MIOPage;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
-import weka.classifiers.Evaluation;
-import weka.core.Instance;
 
 /**
  * The MIOClassifier calculate scores for ranking of MIOs.
@@ -68,7 +65,7 @@ public class MIOClassifier extends Classifier {
         if (trust<=0){
             normalizedTrust=0.;
         }
-        normalizedTrust = Math.round( normalizedTrust * 100. ) / 100.;
+        normalizedTrust = Math.round( normalizedTrust * 1000. )/ 10.;
         return normalizedTrust;
     }
 
@@ -89,7 +86,7 @@ public class MIOClassifier extends Classifier {
     public void loadTrainedClassifier() {
         weka.classifiers.Classifier trainedMIOClassifier;
         try {
-            trainedMIOClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper.read("data/models/"
+            trainedMIOClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper.read("config/"
                     + "MIOClassifier" + getChosenClassifierName() + ".model");
 
             setClassifier(trainedMIOClassifier);
@@ -105,7 +102,7 @@ public class MIOClassifier extends Classifier {
         weka.classifiers.Classifier trainedMIOClassifier = super.getClassifier();
         try {
             weka.core.SerializationHelper.write(
-                    "data/models/" + "MIOClassifier" + getChosenClassifierName() + ".model", trainedMIOClassifier);
+                    "config/" + "MIOClassifier" + getChosenClassifierName() + ".model", trainedMIOClassifier);
 
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -117,7 +114,7 @@ public class MIOClassifier extends Classifier {
      */
     public boolean doesTrainedMIOClassifierExists() {
         boolean returnValue = false;
-        File trainedClassifierModel = new File("data/models/MIOClassifierLinearRegression.model");
+        File trainedClassifierModel = new File("config/MIOClassifierLinearRegression.model");
         if (trainedClassifierModel.exists()) {
             returnValue = true;
         }
@@ -132,7 +129,7 @@ public class MIOClassifier extends Classifier {
     public static void main(final String[] args) {
         MIOClassifier mioClass = new MIOClassifier();
          mioClass.trainClassifier("data/miofeatures_scored.txt");
-        // mioClass.saveTrainedClassifier();
+         mioClass.saveTrainedClassifier();
 //        mioClass.loadTrainedClassifier();
          mioClass.testClassifier("f:/features_bewertet_august_ohnexml_bkp.txt");
          System.out.println(mioClass.getEvaluation().rootMeanSquaredError());
@@ -162,7 +159,7 @@ public class MIOClassifier extends Classifier {
         // mio.setFeature(name, value)
         // float classification = mioClass.classify(mio);
         mioClass.classify(mio);
-        System.out.println("LRTrust: " + mio.getMlTrust());
+//        System.out.println("LRTrust: " + mio.getMlTrust());
         System.exit(1);
         //
         MIOPage mioPage2 = new MIOPage("http://www.amazon.com/Canon-Wireless-Inkjet-Printer-3749B002/dp/B002M78HX6");

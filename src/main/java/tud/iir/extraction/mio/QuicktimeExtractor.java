@@ -74,7 +74,7 @@ public class QuicktimeExtractor extends AbstractMIOTypeExtractor {
     final List<MIO> analyzeRelevantTags(final List<String> relevantTags) {
 
         final List<MIO> retrievedMIOs = new ArrayList<MIO>();
-        final List<String> altText = new ArrayList<String>();
+//        final List<String> altText = new ArrayList<String>();
         final List<MIO> tempMIOs = new ArrayList<MIO>();
 
         for (String relevantTag : relevantTags) {
@@ -86,10 +86,10 @@ public class QuicktimeExtractor extends AbstractMIOTypeExtractor {
 
                 for (MIO mio : tempMIOs) {
                     final String tempAltText = extractALTTextFromTag(relevantTag);
-                    altText.clear();
+//                    altText.clear();
                     if (tempAltText.length() > 2) {
-                        altText.add(tempAltText);
-                        mio.addInfos("altText", altText);
+//                        altText.add(tempAltText);
+                        mio.setAltText(tempAltText);
                     }
                 }
             }

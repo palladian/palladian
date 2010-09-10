@@ -28,7 +28,7 @@ public class MIOQueryFactory {
 
     /** The value specifies how much a rolePage must be counted to be relevant. */
     private transient int rolePageRelevanceValue;
-    
+
     private final List<String> conceptSearchVocabulary;
 
     /**
@@ -36,15 +36,20 @@ public class MIOQueryFactory {
      * 
      * @param entity the entity
      */
-    MIOQueryFactory(final Entity entity) {
+    MIOQueryFactory(final Entity entity, boolean weakFlag) {
         this.entity = entity;
         this.concept = entity.getConcept();
-        
-        // load conceptSearchVocabulary from InCoFiConfiguration
-        this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getVocByConceptName(
-                concept.getName());
-        
-        //load rolePageRelevanceValue from InCoFiConfiguration
+
+        // weakFlag is true than load the vocabulary for weak mios
+        if (weakFlag) {
+            this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getWeakMIOVocabulary();
+        } else {
+            // load conceptSearchVocabulary from InCoFiConfiguration
+            this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getVocByConceptName(concept.getName());
+
+        }
+
+        // load rolePageRelevanceValue from InCoFiConfiguration
         this.rolePageRelevanceValue = InCoFiConfiguration.getInstance().rolePageRelevanceValue;
 
         // load the RolePages from Database that where not already used with this entity
@@ -67,7 +72,7 @@ public class MIOQueryFactory {
 
         searchQueries.add(entityName);
         for (String searchWord : conceptSearchVocabulary) {
-        
+
             if (searchWord.endsWith("_")) {
                 // for the case: "play Quantum of Solice"
                 int pos = searchWord.lastIndexOf("_");
@@ -81,7 +86,7 @@ public class MIOQueryFactory {
         }
 
         // add rolePages to Searchquery
-        if (!rolePages.isEmpty()) {           
+        if (!rolePages.isEmpty()) {
 
             for (RolePage rolePage : rolePages) {
                 if (rolePage.getCount() >= rolePageRelevanceValue) {

@@ -193,20 +193,20 @@ public class MIOContextAnalyzer {
     private double calcHeadlineRelevance() {
         
         double returnValue=0;
-        String headlines = "";
-        if (mio.getInfos().containsKey("previousHeadlines")) {
-            try {
-                // get the nearest previousHeadline
-                headlines = (String) mio.getInfos().get("previousHeadlines").get(0);
-            } catch (Exception e) {
-                // its not relevant, so info is enough
-                LOGGER.info(e.getMessage());
-            }
+        String headlines = mio.getPreviousHeadlines();
+//        if (mio.getInfos().containsKey("previousHeadlines")) {
+//            try {
+//                // get the nearest previousHeadline
+//                headlines = (String) mio.getInfos().get("previousHeadlines").get(0);
+//            } catch (Exception e) {
+//                // its not relevant, so info is enough
+//                LOGGER.info(e.getMessage());
+//            }
 
             if (headlines.length() > 1) {
                 returnValue = RelevanceCalculator.calcStringRelevance(headlines, entity);
             }
-        }
+//        }
         return returnValue;
 
     }
@@ -219,18 +219,18 @@ public class MIOContextAnalyzer {
     private double calcALTTextRelevance() {
         double returnValue=0;
 
-        String altText = "";
-        if (mio.getInfos().containsKey("altText")) {
-            try {
-                altText = (String) mio.getInfos().get("altText").get(0);
-            } catch (Exception e) {
-                LOGGER.info("NO ERROR: " + e.getMessage());
-            }
+        String altText = mio.getAltText();
+//        if (mio.getInfos().containsKey("altText")) {
+//            try {
+//                altText = (String) mio.getInfos().get("altText").get(0);
+//            } catch (Exception e) {
+//                LOGGER.info("NO ERROR: " + e.getMessage());
+//            }
 
             if (altText.length() > 1) {
                 returnValue = RelevanceCalculator.calcStringRelevance(altText, entity);
             }
-        }
+//        }
         return returnValue;
     }
 
@@ -243,20 +243,20 @@ public class MIOContextAnalyzer {
         
         double returnValue=0;
         // if (mio.getInfos().containsKey("xmlFileName")) {
-        final List<String> xmlFileNames = mio.getInfos().get("xmlFileName");
-
-        if (xmlFileNames != null) {
-            double highestRelevance = 0;
-            // check every xmlFileName for Relevance, the most relevanced file dominates the result
-            for (String xmlfileName : xmlFileNames) {
-                final double tempRelevance = RelevanceCalculator.calcStringRelevance(xmlfileName, entity);
-                if (tempRelevance > highestRelevance) {
-                    highestRelevance = tempRelevance;
-                }
-
-            }
-            returnValue = highestRelevance;
-        }
+//        final List<String> xmlFileNames = mio.getInfos().get("xmlFileName");
+//
+//        if (xmlFileNames != null) {
+//            double highestRelevance = 0;
+//            // check every xmlFileName for Relevance, the most relevanced file dominates the result
+//            for (String xmlfileName : xmlFileNames) {
+//                final double tempRelevance = RelevanceCalculator.calcStringRelevance(xmlfileName, entity);
+//                if (tempRelevance > highestRelevance) {
+//                    highestRelevance = tempRelevance;
+//                }
+//
+//            }
+//            returnValue = highestRelevance;
+//        }
         
         return returnValue;
     }
@@ -272,17 +272,17 @@ public class MIOContextAnalyzer {
         
         double returnValue=0;
 
-        final List<String> xmlFileURLs = mio.getInfos().get("xmlFileURL");
-        if (xmlFileURLs != null) {
-            for (String xmlFileURL : xmlFileURLs) {
-                final String xmlContent = extractXMLContent(xmlFileURL);
-
-                final double tempContentRelevance = RelevanceCalculator.calcStringRelevance(xmlContent, entity);
-                if (tempContentRelevance > returnValue) {
-                    returnValue = tempContentRelevance;
-                }
-            }
-        }
+//        final List<String> xmlFileURLs = mio.getInfos().get("xmlFileURL");
+//        if (xmlFileURLs != null) {
+//            for (String xmlFileURL : xmlFileURLs) {
+//                final String xmlContent = extractXMLContent(xmlFileURL);
+//
+//                final double tempContentRelevance = RelevanceCalculator.calcStringRelevance(xmlContent, entity);
+//                if (tempContentRelevance > returnValue) {
+//                    returnValue = tempContentRelevance;
+//                }
+//            }
+//        }
         return returnValue;
 
     }
@@ -322,19 +322,19 @@ public class MIOContextAnalyzer {
      */
     private double calcSurroundingTextRelevance() {
         double returnValue=0;
-        String surroundingText = "";
-        if (mio.getInfos().containsKey("surroundingText")) {
-            try {
-                surroundingText = (String) mio.getInfos().get("surroundingText").get(0);
-            } catch (Exception e) {
-                // its not relevant, so info is enough
-                LOGGER.info(e.getMessage());
-            }
+        String surroundingText = mio.getSurroundingText();
+//        if (mio.getInfos().containsKey("surroundingText")) {
+//            try {
+//                surroundingText = (String) mio.getInfos().get("surroundingText").get(0);
+//            } catch (Exception e) {
+//                // its not relevant, so info is enough
+//                LOGGER.info(e.getMessage());
+//            }
 
             if (surroundingText.length() > 1) {
                 returnValue = RelevanceCalculator.calcStringRelevance(surroundingText, entity);
             }
-        }
+//        }
         return returnValue;
     }
 

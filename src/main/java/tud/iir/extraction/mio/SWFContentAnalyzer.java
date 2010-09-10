@@ -271,7 +271,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
                 final int swfIndex = (url.toLowerCase(Locale.ENGLISH).indexOf(".swf")) + 4;
                 url = url.substring(0, swfIndex);
             } else {
-                LOGGER.info("MIO-URL contains no swf");
+//                LOGGER.info("MIO-URL contains no swf");
                 url = "";
             }
 
@@ -293,14 +293,14 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
                     final SWFHeader header = extractHeader(mioFile);
                     // setTextContentLength(mio, textContent);
 
-                    setFileSize(mio, header);
-//                    setFileSize(mio, mioFile);
+//                    setFileSize(mio, header);
+                    setFileSize(mio, mioFile);
                     setFeatures(mio, entity, textContent, header);
 
                 } catch (Exception exception) {
                     LOGGER.error("Analyzing SWFContent failed for "+entity.getName() + " and FileName: " + mio.getFileName() + exception.getMessage());
                 } catch (Error error) {
-                    LOGGER.error("Analyzing SWFContent failed for "+entity.getName() + " and FileName: " + mio.getFileName() + error.getMessage());
+                    LOGGER.error("Analyzing SWFContent failed for "+entity.getName() + " and FileName: " + mio.getFileName() +" "+ error.getMessage());
                 }
             }
         }
@@ -324,25 +324,25 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      * @param mio the mio
      * @param header the header
      */
-    private void setFileSize(MIO mio, SWFHeader header) {
-
-        if (header != null) {
-            mio.setFileSize(header.getSize());
-
-        }
-
-    }
+//    private void setFileSize(MIO mio, SWFHeader header) {
+//
+//        if (header != null) {
+//            mio.setFileSize(header.getSize());
+//
+//        }
+//
+//    }
 
     // An alternative without header-usage.
     //
-//     private void setFileSize(MIO mio, File mioFile) {
-//     if (mioFile != null) {
-//    
-//     double size = (double)mioFile.length();
-//     mio.setFileSize(size);
-//     }
-//    
-//     }
+     private void setFileSize(MIO mio, File mioFile) {
+     if (mioFile != null) {
+    
+     double size = (double)mioFile.length();
+     mio.setFileSize(size);
+     }
+    
+     }
 
     /**
      * Sets the features for trust calculation.
@@ -435,12 +435,14 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
                 inStream.close();
             } catch (Exception e) {
                 LOGGER.error("Extracting textContent from swf-file failed! " + file.getName() + " " + e.getMessage());
+               result="";
             }
         }
 
         return result;
     }
-
+    
+  
     /**
      * The main method.
      * 
@@ -466,18 +468,21 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
         //
         SWFContentAnalyzer mioca = new SWFContentAnalyzer();
         // System.exit(1);
-        File file = Crawler.downloadBinaryFile(urlString, "F:/Temp/audiosystem4.swf");
+//        File file = Crawler.downloadBinaryFile(urlString, "F:/Temp/audiosystem4.swf");
         // File file = Crawler.downloadBinaryFile("http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/index.swf",
         // "F:/Temp/index.swf");
         //
         // double size = (double)file.length();
         // System.out.println("FileFileSize: " +size);
         //
-        System.out.println(mioca.extractHeader(file).getSize());
+        System.out.println("tewst");
+        File file = new File("F:/Temp/gallery.swf");
+//        System.out.println(file.length());
+        System.out.println(mioca.extractHeader(file).toString());
 
         //
-        String textContent = mioca.extractTextContent(file);
-        System.out.println(textContent);
+//        String textContent = mioca.extractTextContent(file);
+//        System.out.println(textContent);
         // System.out.println(textContent.length());
         //
         // System.out.println(mioca.extractHeader(file).toString());

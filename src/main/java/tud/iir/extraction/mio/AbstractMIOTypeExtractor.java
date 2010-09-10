@@ -143,7 +143,7 @@ public abstract class AbstractMIOTypeExtractor {
                 }
 
                 if (!previousHeadlines.isEmpty()) {
-                    mio.addInfos("previousHeadlines", previousHeadlines);
+                    mio.setPreviousHeadlines(previousHeadlines.toString());
                 }
 
                 // extract surrounding TextContent
@@ -157,9 +157,9 @@ public abstract class AbstractMIOTypeExtractor {
                 }
 
                 if (surroundingText.length() > 2) {
-                    final List<String> textList = new ArrayList<String>();
-                    textList.add(surroundingText);
-                    mio.addInfos("surroundingText", textList);
+//                    final List<String> textList = new ArrayList<String>();
+//                    textList.add(surroundingText);
+                    mio.setSurroundingText(surroundingText);//.addInfos("surroundingText", textList);
 
                 }
                 break;
@@ -253,7 +253,7 @@ public abstract class AbstractMIOTypeExtractor {
 
         }
         if (!xmlFileNames.isEmpty()) {
-            mio.addInfos("xmlFileName", xmlFileNames);
+      //      mio.addInfos("xmlFileName", xmlFileNames);
             try {
                 FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
                 FileHelper.appendFile("f:/xmlinfos.txt", "XMLName: "+xmlFileNames.toString() + "\r\n");
@@ -295,7 +295,7 @@ public abstract class AbstractMIOTypeExtractor {
         }
 
         if (!xmlFileURLs.isEmpty()) {
-            mio.addInfos("xmlFileURL", xmlFileURLs);
+         //   mio.addInfos("xmlFileURL", xmlFileURLs);
 
         }
 

@@ -13,9 +13,7 @@ import java.util.Locale;
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
-import tud.iir.classification.mio.MIOClassifier;
 import tud.iir.extraction.Extractor;
-import tud.iir.helper.DateHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -86,7 +84,7 @@ public final class MIOExtractor extends Extractor {
         // load concepts and attributes from ontology (and rdb)
         final KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
         setKnowledgeManager(kManager);
-
+     
         // loop until exit called
         // while (!isStopped()) {
 
@@ -105,7 +103,7 @@ public final class MIOExtractor extends Extractor {
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
 
-            if (currentConcept.getName().toLowerCase().contains("movie")) {
+            if (currentConcept.getName().toLowerCase().contains("movie")||currentConcept.getName().toLowerCase().contains("car")) {
                 // load Entities from DB for current concept
                 currentConcept.loadEntities(false);
                 // }
@@ -132,12 +130,17 @@ public final class MIOExtractor extends Extractor {
                     LOGGER.info("no entities for mio extraction, continue with next concept");
                     continue;
                 }
+     
+//                for (Entity currentEntity : conceptEntities) {
+//                    System.out.println(currentEntity.getName());
+//                }
+//                System.exit(1);
 
                 final ThreadGroup extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
 
                 for (Entity currentEntity : conceptEntities) {
 
-//                    if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("avant")) {
+                    if (currentEntity.getName().toLowerCase(Locale.ENGLISH).contains("x5")) {
                         if (isStopped()) {
                             LOGGER.info("mio extraction process stopped");
                             break;
@@ -182,7 +185,7 @@ public final class MIOExtractor extends Extractor {
 
                 }
 
-
+            }
         }
   
 

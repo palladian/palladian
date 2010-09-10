@@ -1,6 +1,7 @@
 package tud.iir.web;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -938,7 +939,7 @@ public class Crawler {
      * @return The XML document.
      */
     public Document getXMLDocument(String url) {
-        //setDocument(url, true, true);
+        // setDocument(url, true, true);
         setDocument(url, true, false);
         return getDocument();
     }
@@ -1334,9 +1335,9 @@ public class Crawler {
 
                     // proxy is not working; remove it from the list
                     LOGGER.warn("proxy " + getProxy().address() + " is not working, removing from the list.");
-                    System.out.println("proxylistsize: "+ proxyList.size());
+                    System.out.println("proxylistsize: " + proxyList.size());
                     proxyList.remove(getProxy());
-                    System.out.println("proxylistsize after: "+ proxyList.size());
+                    System.out.println("proxylistsize after: " + proxyList.size());
                     LOGGER.debug("# proxies in list: " + proxyList.size() + " : " + proxyList);
 
                     // if there are no more proxies left, go to normal mode without proxies.
@@ -1521,32 +1522,32 @@ public class Crawler {
      * @author Martin Werner
      */
     public static File downloadBinaryFile(String urlString, String pathWithFileName) {
-        File file = null;
-        URL url;
-
+        File binFile = null;
         if (Crawler.isValidURL(urlString, false)) {
+            URL u;
+            binFile = new File(pathWithFileName);
             try {
-                File tempFile = new File(pathWithFileName);
-                url = new URL(urlString);
-                InputStream inStream;
-                inStream = url.openStream();
-                FileOutputStream fOutStream;
-                fOutStream = new FileOutputStream(tempFile);
-                int line = 0;
-                while ((line = inStream.read()) != -1) {
-                    fOutStream.write(line);
-                }
-                fOutStream.close();
-                inStream.close();
-                file=tempFile;
-            } catch (Exception e) {
-                LOGGER.error("Error downloading the file from: " + urlString + " Message: " + e.getMessage());
-            }
-        } else {
-            LOGGER.error("Error downloading the file from: " + urlString + " because the URL is not valid!");
-        }
+                u = new URL(urlString);
+                final BufferedInputStream in = new BufferedInputStream(u.openStream());
+                final BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
 
-        return file;
+                final byte[] buffer = new byte[4096];
+
+                int n = 0;
+                while ((n = in.read(buffer)) != -1)
+                    out.write(buffer, 0, n);
+
+                in.close();
+                out.close();
+
+            } catch (Exception e) {
+
+                LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
+                binFile = null;
+            }
+
+        }
+        return binFile;
     }
 
     /**
@@ -1572,7 +1573,8 @@ public class Crawler {
                     throw new IOException("maximum retries of " + getNumRetries() + " reached for " + url, e);
                 }
                 retry++;
-                LOGGER.warn("failed to download " + url + " : " + e.getMessage() + " re-try " + retry + " of " + getNumRetries());
+                LOGGER.warn("failed to download " + url + " : " + e.getMessage() + " re-try " + retry + " of "
+                        + getNumRetries());
                 checkChangeProxy(true);
             }
         } while (keepTrying);
@@ -1730,7 +1732,6 @@ public class Crawler {
 
         return responseCode;
     }
-    
 
     /**
      * Check URL for validness and eventually modify e.g. relative path
