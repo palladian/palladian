@@ -95,11 +95,11 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
 
         if (mioPageContent.toLowerCase(Locale.ENGLISH).contains(".swf")) {
 
-            final List<MIO> furtherSWFs = extractMioURL(mioPageContent, mioPage, regExp, entity, mioType);
-            // System.out.println("NOCH SWF ENTHALTEN! - " + mioPage.getUrl());
-            // for (MIO mio : furtherSWFs) {
-            // System.out.println(mio.getDirectURL());
-            // }
+            final List<MIO> furtherSWFs = extractMioURL(mioPageContent, mioPage, "(\".[^\",;]*\\.swf\")|(\".[^\",;]*\\.swf\\?.[^\"]*\")", entity, mioType);
+//             System.out.println("NOCH SWF ENTHALTEN! - " + mioPage.getUrl());
+//             for (MIO mio : furtherSWFs) {
+//             System.out.println(mio.getDirectURL());
+//             }
             flashMIOs.addAll(furtherSWFs);
 
         }
@@ -116,7 +116,8 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
         final List<MIO> retrievedMIOs = new ArrayList<MIO>();
         final List<MIO> tempMIOs = new ArrayList<MIO>();
 
-        final List<String> altText = new ArrayList<String>();
+//        final List<String> altText = new ArrayList<String>();
+//        StringBuffer altTextBuffer;
         // try to extract swf-file-URLs
         for (String relevantTag : relevantTags) {
 
@@ -136,7 +137,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
                     if (!flashVars.isEmpty()) {
                         for (MIO mio : tempMIOs) {
                             mio = adaptFlashVarsToURL(mio, flashVars);
-                            mio.addInfos(fVString, flashVars);
+//                            mio.addInfos(fVString, flashVars);
                         }
                     }
                 }
@@ -147,10 +148,12 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
 
                 for (MIO mio : tempMIOs) {
                     final String tempAltText = extractALTTextFromTag(relevantTag);
-                    altText.clear();
+//                    altText.clear();
+                   
                     if (tempAltText.length() > 2) {
-                        altText.add(tempAltText);
-                        mio.addInfos("altText", altText);
+//                         altTextBuffer = new StringBuffer();
+//                        altText.add(tempAltText);
+                        mio.setAltText(tempAltText);
                     }
                 }
             }
@@ -192,35 +195,35 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
                 if (!flashVars.isEmpty()) {
                     for (MIO mio : tempList) {
                         mio = adaptFlashVarsToURL(mio, flashVars);
-                        mio.addInfos(fVString, flashVars);
+//                        mio.addInfos(fVString, flashVars);
                     }
                 }
             }
 
             // analyze for queryParamValues
-            if (relevantTag.contains("getQueryParamValue")) {
-
-                String regExp = "getQueryParamValue\\(.[^\\)]*\\)";
-                // String queryParamValue= extractElement(regExp, relevantTag,
-                // "getQueryParamValue(");
-                // //remove the closing ")"
-                // queryParamValue = queryParamValue.substring(0,
-                // queryParamValue.length()-1);
-
-                final Pattern pat = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-                final Matcher matcher = pat.matcher(relevantTag);
-                final List<String> queryParamValues = new ArrayList<String>();
-                while (matcher.find()) {
-                    // result has the form: flashvars = {cool};
-                    final String result = matcher.group(0);
-                    queryParamValues.add(result);
-
-                }
-                for (MIO mio : tempList) {
-                    mio.addInfos("queryParamValues", queryParamValues);
-                }
-
-            }
+//            if (relevantTag.contains("getQueryParamValue")) {
+//
+//                String regExp = "getQueryParamValue\\(.[^\\)]*\\)";
+//                // String queryParamValue= extractElement(regExp, relevantTag,
+//                // "getQueryParamValue(");
+//                // //remove the closing ")"
+//                // queryParamValue = queryParamValue.substring(0,
+//                // queryParamValue.length()-1);
+//
+//                final Pattern pat = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+//                final Matcher matcher = pat.matcher(relevantTag);
+//                final List<String> queryParamValues = new ArrayList<String>();
+//                while (matcher.find()) {
+//                    // result has the form: flashvars = {cool};
+//                    final String result = matcher.group(0);
+//                    queryParamValues.add(result);
+//
+//                }
+//                for (MIO mio : tempList) {
+//                    mio.addInfos("queryParamValues", queryParamValues);
+//                }
+//
+//            }
 
         }
 
@@ -234,6 +237,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
      * @return the list
      */
     private List<String> extractFlashVars(final String tagContent) {
+//        System.out.println(tagContent);
         final List<String> flashVars = new ArrayList<String>();
 
         // extract var flashVars = {}
@@ -258,7 +262,8 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
 
         // extract <param name="FlashVars"
         // value="myURL=http://weblogs.adobe.com/">
-        String regExp2 = "<param[^>]*flashvars[^>]*>";
+//        String regExp2 = "<param[^>]*flashvars[^>]*>";
+        String regExp2 = "param name=\"flashvars\"[^>]*value=\".[^\"]+\"";
         Pattern pat2 = Pattern.compile(regExp2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher2 = pat2.matcher(tagContent);
         while (matcher2.find()) {
@@ -266,10 +271,20 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
             // value="myURL=http://weblogs.adobe.com/">
             String result = matcher2.group();
 //            System.out.println(result);
-            String pattern = "value=\"[^>]*\"";
+            String pattern ="";
+            if (result.contains(";")){
+                // if result has the comment or CDATA-form: flashObj = flashObj + '&lt;param name="flashVars"
+                // value="xmlUrl=/us/consumer/detail/galleryXML.do?model_cd=CLP-770ND/XAA&amp;amp;disMod=L&amp;"
+                pattern = "value=\".[^\"]*";
+            }else{
+           
+                 pattern = "value=\"[^>]*\"";
+            }
+           
             // System.out.println("---------" + result);
             result = HTMLHelper.extractTagElement(pattern, result, "value=");
             if (result.length() > 0) {
+                result.replaceAll(";", "");
                 flashVars.add(result);
             }
 
@@ -382,14 +397,18 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
 
     public static void main(final String[] abc) {
         
-        System.out.println(MathHelper.calculateRMSE("F:/rmse.csv", ","));
-        System.exit(1);
+//        System.out.println(MathHelper.calculateRMSE("F:/rmse.csv", ","));
+//        System.exit(1);
 
-        MIOPage mioPage = new MIOPage("http://www.topgear.com/uk/audi/rs4-avant");
-        Entity entity = new Entity("Audi Avant");
+//        MIOPage mioPage = new MIOPage("http://www.samsung.com/us/consumer/office/printers-multifunction/color-laser-printers/CLP-770ND/XAA/index.idx?pagetype=prd_detail");
+//        Entity entity = new Entity("Samsung CLP-770ND");
+      MIOPage mioPage = new MIOPage("http://beepdf.com/doc/16/hp_printer_a4_mobile_officejet_h470_iy318.html");
+      Entity entity = new Entity("HP Officejet H470");
         FlashExtractor flashEx = new FlashExtractor();
-        flashEx.extractMIOsByType(mioPage, entity);
-
+       List<MIO> mios =  flashEx.extractMIOsByType(mioPage, entity);
+       for(MIO mio:mios){
+           System.out.println(mio.getDirectURL());
+       }
     }
 
 }

@@ -4,7 +4,6 @@
  */
 package tud.iir.extraction.mio;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,7 +12,6 @@ import java.util.Map;
 import org.w3c.dom.Document;
 
 import tud.iir.helper.DateHelper;
-import tud.iir.helper.FileHelper;
 import tud.iir.knowledge.Entity;
 import tud.iir.web.Crawler;
 

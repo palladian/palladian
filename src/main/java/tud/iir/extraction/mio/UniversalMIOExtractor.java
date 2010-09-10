@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import tud.iir.knowledge.Entity;
 
@@ -18,6 +19,29 @@ import tud.iir.knowledge.Entity;
  */
 public class UniversalMIOExtractor {
 
+    final Entity entity;
+
+    public UniversalMIOExtractor(final Entity entity) {
+        this.entity = entity;
+    }
+
+    public List<MIO> analyzeMIOPages(final List<MIOPage> mioPages) {
+        List<MIO> mios = new ArrayList<MIO>();
+
+        for (MIOPage mioPage : mioPages) {
+
+            // extract MIOs and calculate features
+            mios.addAll(extractAllMIOs(mioPage));
+
+        }
+
+        System.out.println("Anzahl MIOs vor DuplicateRemoval: " + mios.size());
+        mios = removeMIODuplicates(mios);
+        System.out.println("Anzahl MIOs nach DuplicateRemoval: " + mios.size());
+
+        return mios;
+    }
+
     /**
      * Extract all MIOs.
      * 
@@ -25,7 +49,7 @@ public class UniversalMIOExtractor {
      * @param entity the entity
      * @return the list
      */
-    public List<MIO> extractAllMIOs(final MIOPage mioPage, final Entity entity) {
+    private List<MIO> extractAllMIOs(final MIOPage mioPage) {
 
         final List<String> relevantMIOTypes = InCoFiConfiguration.getInstance().getMIOTypes();
         List<MIO> mioList = new ArrayList<MIO>();
@@ -55,17 +79,6 @@ public class UniversalMIOExtractor {
             mioList.addAll(canvasExtractor.extractMIOsByType(mioPage, entity));
         }
 
-        mioList = removeMIODuplicates(mioList);
-
-        final List<String> tempMioList = new ArrayList<String>();
-
-        for (MIO mio : mioList) {
-
-            if (!tempMioList.contains(mio.getDirectURL())) {
-                tempMioList.add(mio.getDirectURL());
-            }
-        }
-
         // Calculate Features and Interactivity
         mioList = calcFeaturesAndInteractivity(mioList, mioPage, entity);
 
@@ -83,34 +96,57 @@ public class UniversalMIOExtractor {
         final List<MIO> resultList = new ArrayList<MIO>();
         final Map<String, MIO> mioMap = new HashMap<String, MIO>();
 
-        MIO targetMIO;
-        MIO slaveMIO;
-
         for (MIO mio : mioList) {
             if (mioMap.containsKey(mio.getDirectURL())) {
 
-                // merge
-                final MIO existingMIO = mioMap.get(mio.getDirectURL());
-                if (existingMIO.isDedicatedPage()) {
-                    targetMIO = existingMIO;
-                    slaveMIO = mio;
-                } else {
-                    targetMIO = mio;
-                    slaveMIO = existingMIO;
-                }
+                final MIO existingMio = mioMap.get(mio.getDirectURL());
 
-                final Map<String, List<String>> targetInfoMap = targetMIO.getInfos();
-                final Map<String, List<String>> infoMap = slaveMIO.getInfos();
-                for (String info : infoMap.keySet()) {
-                    if (!targetInfoMap.containsKey(info)) {
-                        targetInfoMap.put(info, infoMap.get(info));
-                    }
-
-                }
-                targetMIO.setInfos(targetInfoMap);
+                MIO mergedMIO = mergeMIOs(existingMio, mio);
+                mioMap.put(mergedMIO.getDirectURL(), mergedMIO);
 
             } else {
-                mioMap.put(mio.getDirectURL(), mio);
+
+                String testMioDirectURL = mio.getDirectURL();
+                boolean isContained = false;
+                MIO mergedMIO = null;
+                String existingMIODirectURL = "";
+                String removalMIOURL = "";
+                for (Entry<String, MIO> mioEntry : mioMap.entrySet()) {
+                    MIO existingMIO = mioEntry.getValue();
+                    existingMIODirectURL = existingMIO.getDirectURL();
+
+                    // check if a shorter version of the directURL is already existing
+                    if (existingMIODirectURL.contains(testMioDirectURL)) {
+                        mergedMIO = mergeMIOs(mio, existingMIO);
+                        isContained = true;
+                        removalMIOURL = testMioDirectURL;
+                        break;
+                    } else {
+                        if (testMioDirectURL.contains(existingMIODirectURL)) {
+                            mergedMIO = mergeMIOs(mio, existingMIO);
+                            isContained = true;
+                            removalMIOURL = existingMIODirectURL;
+                            break;
+
+                        }
+                        // else {
+                        // mergedMIO = mergeMIOs(mio, existingMIO);
+                        // isContained = true;
+                        // break;
+                        // }
+
+                    }
+                }
+                if (!isContained) {
+                    mioMap.put(mio.getDirectURL(), mio);
+                } else {
+
+                    if (mergedMIO != null) {
+                        mioMap.put(mergedMIO.getDirectURL(), mergedMIO);
+                        mioMap.remove(removalMIOURL);
+                    }
+                }
+
             }
 
         }
@@ -120,6 +156,41 @@ public class UniversalMIOExtractor {
         }
 
         return resultList;
+    }
+
+    private MIO mergeMIOs(MIO masterMIO, MIO slaveMIO) {
+        MIO returnValue = null;
+
+        double featureCountExistingMio = 0;
+        for (Entry<String, Double> feature : masterMIO.getFeatures().entrySet()) {
+            featureCountExistingMio = +feature.getValue();
+        }
+
+        double featureCountNewMio = 0;
+        for (Entry<String, Double> feature : slaveMIO.getFeatures().entrySet()) {
+            featureCountNewMio = +feature.getValue();
+        }
+        // detect the longest directURL because this mostly works
+        String masterMIOURL = masterMIO.getDirectURL();
+        String slaveMIOURL = slaveMIO.getDirectURL();
+        String mergedMIOURL = "";
+        if (masterMIOURL.length() <= slaveMIOURL.length()) {
+            mergedMIOURL = slaveMIOURL;
+
+        } else {
+            mergedMIOURL = masterMIOURL;
+        }
+     
+        // prefer that MIO with the most 1-features
+        if (featureCountExistingMio < featureCountNewMio) {
+            slaveMIO.setDirectURL(mergedMIOURL);
+            returnValue = slaveMIO;
+
+        } else {
+            masterMIO.setDirectURL(mergedMIOURL);
+            returnValue = masterMIO;
+        }
+        return returnValue;
     }
 
     /**
@@ -157,7 +228,7 @@ public class UniversalMIOExtractor {
             // calculate Interactivity
             interactivityAnalyzer.setInteractivityGrade(mio, mioPage);
             // reset MIO-Infos for saving memory
-            mio.resetMIOInfos();
+            // mio.resetMIOInfos();
         }
 
         return retrievedMIOs;

@@ -59,6 +59,8 @@ public class InCoFiConfiguration {
     /** The relevant MIOTypes. */
     public transient String mioTypes;
     
+    public transient boolean redoWeak;
+    
     /** The bad words. */
     public transient String badWords;
     
@@ -115,6 +117,10 @@ public class InCoFiConfiguration {
      */
     public List<String> getWeakInteractionIndicators(){
         return parseStringToList(weakInteractionIndicators);
+    }
+    
+    public List<String> getWeakMIOVocabulary(){
+        return parseStringToList(weakMIOs);
     }
 
     /**

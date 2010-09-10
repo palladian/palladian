@@ -7,7 +7,7 @@ public class MIOInteractivityAnalyzer {
 
     /** The weak interaction indicators. */
     final transient private List<String> weakInteractionIndicators;
-    
+
     /** The strong interaction indicators. */
     final transient private List<String> strongInteractionIndicators;
 
@@ -29,15 +29,15 @@ public class MIOInteractivityAnalyzer {
      */
     public void setInteractivityGrade(final MIO mio, final MIOPage mioPage) {
 
-//        if (mio.getTextContentLength() > 2) {
-//            mio.setInteractivityGrade("strong");
-//        } else {
-            if (mio.getFileSize() > 2097152) {
-                mio.setInteractivityGrade("weak");
-            } else {
-                mio.setInteractivityGrade(calcInteractivityGrade(mio, mioPage));
-            }
-//        }
+        // if (mio.getTextContentLength() > 2) {
+        // mio.setInteractivityGrade("strong");
+        // } else {
+        if (mio.getFileSize() > 2097152||mio.getMIOType().equalsIgnoreCase("quicktime")) {
+            mio.setInteractivityGrade("weak");
+        } else {
+            mio.setInteractivityGrade(calcInteractivityGrade(mio, mioPage));
+        }
+        // }
 
     }
 
@@ -54,20 +54,19 @@ public class MIOInteractivityAnalyzer {
         final double fileNameiGrade = calcSingleValue(mio.getFileName());
         final double pageTitleiGrade = calcSingleValue(mioPage.getTitle());
         double headlineiGrade = 0.;
-        if (mio.getInfos().containsKey("previousHeadlines")) {
-            final String headline = (String) mio.getInfos().get("previousHeadlines").get(0);
-            if (headline.length() > 1) {
-                headlineiGrade = calcSingleValue(headline);
-            }
 
+        final String headline = mio.getPreviousHeadlines();
+        if (headline.length() > 1) {
+            headlineiGrade = calcSingleValue(headline);
         }
+
         double surroundingTextiGrade = (double) 0;
-        if (mio.getInfos().containsKey("surroundingText")) {
-            final String surroundingText = (String) mio.getInfos().get("surroundingText").get(0);
-            if (surroundingText.length() > 1) {
-                surroundingTextiGrade = calcSingleValue(surroundingText);
-            }
+
+        final String surroundingText = mio.getSurroundingText();
+        if (surroundingText.length() > 1) {
+            surroundingTextiGrade = calcSingleValue(surroundingText);
         }
+
         final double result = fileNameiGrade + pageTitleiGrade + headlineiGrade + surroundingTextiGrade;
         if (result > 0) {
             returnValue = "strong";

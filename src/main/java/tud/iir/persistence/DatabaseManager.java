@@ -915,16 +915,16 @@ public class DatabaseManager {
                 addConceptSynonym(conceptID, synonymID);
             }
 
-            for (Entity entity : concept.getEntities()) {
-
-                // add entity to database
-                int entityID = addEntity(entity, conceptID);
+            for (Entity entity : concept.getEntities()) {                
 
                 // do not enter entities with a too short name
                 entity.normalizeName();
                 if (entity.getName().length() <= 1) {
                     continue;
                 }
+                
+                // add entity to database
+                int entityID = addEntity(entity, conceptID);
 
                 // add source(s) for that entity
                 for (Source entitySource : entity.getSources()) {

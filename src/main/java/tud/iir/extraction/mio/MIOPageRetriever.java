@@ -27,14 +27,14 @@ public class MIOPageRetriever {
      * @param entity the entity
      * @return the list
      */
-    public List<MIOPage> retrieveMIOPages(final Entity entity) {
+    public List<MIOPage> retrieveMIOPages(final Entity entity, boolean weakFlag) {
 
         List<MIOPage> mioPages;
        
 //        final long timeStamp1 = System.currentTimeMillis();
 
         // generate searchQueries
-        final List<String> searchQueries = generateSearchQueries(entity);
+        final List<String> searchQueries = generateSearchQueries(entity, weakFlag);
 
         // initiate search with searchEngines
         final List<String> mioPageCandidates = getMIOPageCandidates(searchQueries);
@@ -69,8 +69,8 @@ public class MIOPageRetriever {
      * @param entity the entity
      * @return the list
      */
-    private List<String> generateSearchQueries(final Entity entity) {
-        final MIOQueryFactory searchQueryFac = new MIOQueryFactory(entity);
+    private List<String> generateSearchQueries(final Entity entity, boolean weakFlag) {
+        final MIOQueryFactory searchQueryFac = new MIOQueryFactory(entity, weakFlag);
         final List<String> searchQueries = searchQueryFac.generateSearchQueries();
 
         return searchQueries;

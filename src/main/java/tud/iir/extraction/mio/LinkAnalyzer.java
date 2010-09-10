@@ -4,7 +4,6 @@
  */
 package tud.iir.extraction.mio;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.regex.Pattern;
 
 import org.w3c.dom.Document;
 
-import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.web.Crawler;

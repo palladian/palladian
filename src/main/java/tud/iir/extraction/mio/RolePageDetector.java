@@ -52,7 +52,7 @@ public class RolePageDetector {
 
                 final String mioURL = mio.getDirectURL();
                 final String domain = Crawler.getDomain(mioURL);
-                 System.out.println("RolePage Domain " + domain);
+//                 System.out.println("RolePage Domain " + domain);
                 mioDomains.add(domain);
                
             }

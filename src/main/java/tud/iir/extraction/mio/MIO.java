@@ -27,9 +27,6 @@ public class MIO {
     /** The trust. */
     private double trust = 0;
 
-    /** The ml trust. */
-    private double mlTrust = 0;
-
     /** The MIO type. */
     private transient String mioType = "";
 
@@ -45,9 +42,6 @@ public class MIO {
     /** The file size. */
     private double fileSize = 0;
 
-    /** The text content length. */
-//    private double textContentLength = 0;
-
     /** The entity. */
     private Entity entity;
 
@@ -58,10 +52,12 @@ public class MIO {
     private boolean isDedicatedPage = true;
 
     /** The infos. */
-    private Map<String, List<String>> infos;
+//    private Map<String, List<String>> infos;
 
     /** The features. */
     private Map<String, Double> features;
+    
+
 
     /**
      * Instantiates a new MIO.
@@ -80,7 +76,7 @@ public class MIO {
         this.directURL = directURL;
         this.fileName = extractFileName(directURL, mioType);
 
-        infos = new HashMap<String, List<String>>();
+//        infos = new HashMap<String, List<String>>();
     }
     
     /**
@@ -150,9 +146,9 @@ public class MIO {
     /**
      * Resets the MIOInfos (for saving memory).
      */
-    public void resetMIOInfos() {
-        infos = new HashMap<String, List<String>>();
-    }
+//    public void resetMIOInfos() {
+//        infos = new HashMap<String, List<String>>();
+//    }
 
     /**
      * Gets the trust.
@@ -285,18 +281,18 @@ public class MIO {
      * 
      * @return the infos
      */
-    public Map<String, List<String>> getInfos() {
-        return infos;
-    }
+//    public Map<String, List<String>> getInfos() {
+//        return infos;
+//    }
 
     /**
      * Sets specific infos like surroundingText needed for feature calculation.
      * 
      * @param infos the infos
      */
-    public void setInfos(final Map<String, List<String>> infos) {
-        this.infos = infos;
-    }
+//    public void setInfos(final Map<String, List<String>> infos) {
+//        this.infos = infos;
+//    }
 
     /**
      * Adds the specific info like surroundingText needed for feature calculation.
@@ -304,9 +300,9 @@ public class MIO {
      * @param infoName the info name
      * @param infoList the info list
      */
-    public void addInfos(final String infoName, final List<String> infoList) {
-        infos.put(infoName, infoList);
-    }
+//    public void addInfos(final String infoName, final List<String> infoList) {
+//        infos.put(infoName, infoList);
+//    }
 
     /**
      * Gets the file name.
@@ -362,24 +358,6 @@ public class MIO {
     }
 
     /**
-     * Gets the ml trust.
-     * 
-     * @return the ml trust
-     */
-    public double getMlTrust() {
-        return mlTrust;
-    }
-
-    /**
-     * Sets the ml trust.
-     * 
-     * @param mlTrust the new ml trust
-     */
-    public void setMlTrust(final double mlTrust) {
-        this.mlTrust = mlTrust;
-    }
-
-    /**
      * Gets the file size.
      * 
      * @return the file size
@@ -398,24 +376,6 @@ public class MIO {
     }
 
     /**
-     * Gets the text content length.
-     * 
-     * @return the text content length
-     */
-//    public double getTextContentLength() {
-//        return textContentLength;
-//    }
-
-    /**
-     * Sets the text content length.
-     * 
-     * @param textContentLength the new text content length
-     */
-//    public void setTextContentLength(final double textContentLength) {
-//        this.textContentLength = textContentLength;
-//    }
-
-    /**
      * Sets the features.
      * 
      * @param features the features
@@ -423,5 +383,35 @@ public class MIO {
     public void setFeatures(final Map<String, Double> features) {
         this.features = features;
     }
+    
+    public String getAltText() {
+        return altText;
+    }
+
+    public void setAltText(String altText) {
+        this.altText = altText;
+    }
+
+    public String getPreviousHeadlines() {
+        return previousHeadlines;
+    }
+
+    public void setPreviousHeadlines(String previousHeadlines) {
+        this.previousHeadlines = previousHeadlines;
+    }
+
+    public String getSurroundingText() {
+        return surroundingText;
+    }
+
+    public void setSurroundingText(String surroundingText) {
+        this.surroundingText = surroundingText;
+    }
+
+    private String altText="";
+    
+    private String previousHeadlines="";
+    
+    private String surroundingText="";
 
 }

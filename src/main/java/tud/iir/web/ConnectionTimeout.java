@@ -47,8 +47,13 @@ public final class ConnectionTimeout implements Runnable {
 
         // close URLConnection
         if (urlConnection instanceof HttpURLConnection && isActive()) {
-            ((HttpURLConnection) urlConnection).disconnect();
+            try {
+                ((HttpURLConnection) urlConnection).disconnect();
             Logger.getRootLogger().error("urlConnection had to be timed out " + urlConnection.getURL());
+            }catch(Exception e){
+                Logger.getRootLogger().error("urlConnection time-out failed" + urlConnection.getURL());
+            }
+            
         } else {
             // System.out.println("Disconnect not attempted.");
         }

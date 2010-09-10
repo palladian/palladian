@@ -57,16 +57,16 @@ public class HTML5CanvasExtractor extends AbstractMIOTypeExtractor {
 
         final List<MIO> retrievedMIOs = new ArrayList<MIO>();
         final MIO mio = new MIO(mioType, mioPage.getUrl(), mioPage.getUrl(), entity);
-        final List<String> altText = new ArrayList<String>();
+//        final List<String> altText = new ArrayList<String>();
         
         for (String relevantTag : relevantTags) {
 
             // extract ALT-Text from object and embed-tags and add to MIO-Infos
             final String tempAltText = extractALTTextFromTag(relevantTag);
-           altText.clear();
+//           altText.clear();
             if (tempAltText.length() > 2) {
-                altText.add(tempAltText);
-                mio.addInfos("altText", altText);
+//                altText.add(tempAltText);
+                mio.setAltText(tempAltText);
             }
 
             // extract surrounding Information(Headlines, TextContent) and add to MIO-infos

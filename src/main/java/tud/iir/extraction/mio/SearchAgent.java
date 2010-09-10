@@ -23,11 +23,11 @@ public class SearchAgent {
 
     /** The search engine. */
     private final transient int searchEngine;
-    
+
     /**
      * Instantiates a new search agent.
      */
-    public SearchAgent(){
+    public SearchAgent() {
         this.searchEngine = InCoFiConfiguration.getInstance().searchEngine;
         this.resultCount = InCoFiConfiguration.getInstance().resultCount;
     }
@@ -39,6 +39,19 @@ public class SearchAgent {
      * @return the list
      */
     public List<String> initiateSearch(final List<String> searchQueries) {
+
+        List<String> mioPageCandidateList = querySearchEngine(searchEngine, searchQueries);
+
+//        mioPageCandidateList.addAll(querySearchEngine(6, searchQueries));
+
+        mioPageCandidateList = removeDuplicates(mioPageCandidateList);
+        System.out.println("Anzahl der mioPageCandidates: " + mioPageCandidateList.size());
+//        System.exit(1);
+
+        return mioPageCandidateList;
+    }
+
+    private List<String> querySearchEngine(int searchEngine, List<String> searchQueries) {
         final SourceRetriever sRetriever = new SourceRetriever();
         sRetriever.setResultCount(resultCount);
 
@@ -46,20 +59,19 @@ public class SearchAgent {
         sRetriever.setLanguage(0);
         sRetriever.setSource(searchEngine);
 
-        List<String> MIOPageCandidateList;
+        // List<String> MIOPageCandidateList = null;
 
         final List<String> resultList = new ArrayList<String>();
 
         for (String searchQuery : searchQueries) {
-            System.out.println(searchQuery);
+            // System.out.println(searchQuery);
             final List<String> resultURLList = sRetriever.getURLs(searchQuery, false);
 
             resultList.addAll(resultURLList);
         }
 
-        MIOPageCandidateList = removeDuplicates(resultList);
+        return resultList;
 
-        return MIOPageCandidateList;
     }
 
     /**
