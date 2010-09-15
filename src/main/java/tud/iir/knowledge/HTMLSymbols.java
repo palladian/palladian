@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 public class HTMLSymbols {
 
+    public static final String[] emptyWhitsp = { "&#8203;", " " };
     /** Protected whitespace. */
     public static final String[] NBSP = { "&nbsp;", " " };
     /** Protected whitespace. */
@@ -30,6 +31,8 @@ public class HTMLSymbols {
     public static final String[] UUUML = { "&Uuml;", "Ü" };
     /** Letter ß. */
     public static final String[] SZLIG = { "&szlig;", "ß" };
+    /** New Line \\ */
+    public static final String[] NL = { "\n", " " };
 
     // TODO complete HTML-symbols.
 
@@ -40,6 +43,7 @@ public class HTMLSymbols {
      */
     public static ArrayList<String[]> getHTMLSymboles() {
         ArrayList<String[]> array = new ArrayList<String[]>();
+        array.add(NL);
         array.add(NBSP);
         array.add(NBSP2);
         array.add(QUOT);
@@ -53,6 +57,7 @@ public class HTMLSymbols {
         array.add(UUML);
         array.add(UUUML);
         array.add(SZLIG);
+        array.add(emptyWhitsp);
         // TODO enter all HTML-symboles.
         return array;
     }

@@ -329,4 +329,34 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return date;
 
     }
+
+    public <T> T getYoungestDate(HashMap<T, Double> dates) {
+        ArrayList<T> orderDates = orderDates(dates, true);
+        T date = null;
+        if (orderDates.size() > 0) {
+            date = orderDates.get(0);
+        }
+        return date;
+
+    }
+
+    public <T> T getOldestDate(ArrayList<T> dates) {
+        ArrayList<T> orderDates = orderDates(dates, false);
+        T date = null;
+        if (orderDates.size() > 0) {
+            date = orderDates.get(0);
+        }
+        return date;
+
+    }
+
+    public <T> T getYoungestDate(ArrayList<T> dates) {
+        ArrayList<T> orderDates = orderDates(dates, true);
+        T date = null;
+        if (orderDates.size() > 0) {
+            date = orderDates.get(0);
+        }
+        return date;
+
+    }
 }

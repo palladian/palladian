@@ -29,4 +29,13 @@ public class ArrayHelper {
         }
         return returnArray;
     }
+
+    public static String[] concat(String[] array1, String[] array2) {
+        String[] helpArray = new String[array1.length + array2.length];
+        System.arraycopy(array1, 0, helpArray, 0, array1.length);
+        System.arraycopy(array2, 0, helpArray, array1.length, array2.length);
+
+        return helpArray;
+    }
+
 }

@@ -1,6 +1,6 @@
 package tud.iir.daterecognition.dates;
 
-public abstract class BodyDate extends ExtractedDate {
+public abstract class BodyDate extends KeywordDate {
 
     public static final int STRUCTURE_DEPTH = 101;
 
@@ -8,11 +8,7 @@ public abstract class BodyDate extends ExtractedDate {
      * The surrounding tag of the datestring.
      */
     private String tag = null;
-    /**
-     * Context, in witch the date was found. <br>
-     * E.g.: URL, tag-name, HTTP-tag, keyword...
-     */
-    private String keyword = null;
+
     /**
      * In witch depth of html-structure the date was found. For rating of date.
      */
@@ -40,14 +36,6 @@ public abstract class BodyDate extends ExtractedDate {
     public BodyDate(String dateString, String format) {
         super(dateString, format);
         // TODO Auto-generated constructor stub
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
-
-    public String getKeyword() {
-        return keyword;
     }
 
     public void setTag(String tag) {
@@ -85,7 +73,7 @@ public abstract class BodyDate extends ExtractedDate {
 
     @Override
     public String toString() {
-        return super.toString() + "\n" + "Keyword: " + keyword + " Tagname: " + tag + "\n" + "Stucturedepth: "
-                + structuralDepth;
+        return super.toString() + "\n" + "Keyword: " + super.getKeyword() + " Tagname: " + tag + "\n"
+                + "Stucturedepth: " + structuralDepth;
     }
 }
