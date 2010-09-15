@@ -1,5 +1,6 @@
 package tud.iir.daterecognition.dates;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
@@ -105,15 +106,15 @@ public class ExtractedDate {
         String[] dateParts = new String[3];
         if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD_T[1])) {
             String separator = "T";
-            final int index = dateString.indexOf(separator);
+            int index = dateString.indexOf(separator);
             if (index == -1) {
                 separator = " ";
             }
-            final String[] temp = dateString.split(separator);
-            setDateValues(temp[0].split("-"), 0, 1, 2);
+            String[] temp = dateString.split(separator);
+            setDateValues(temp[0].split(ExtractedDateHelper.getSeparator(temp[0])), 0, 1, 2);
             setTimeValues(temp[1]);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YMD[1])) {
-            setDateValues(dateString.split("-"), 0, 1, 2);
+            setDateValues(dateString.split(ExtractedDateHelper.getSeparator(dateString)), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YM[1])) {
             setDateValues(dateString.split("-"), 0, 1, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD[1])) {
@@ -161,7 +162,7 @@ public class ExtractedDate {
             String separator = ExtractedDateHelper.getSeparator(dateString);
             setDateValues(dateString.split(separator), 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y[1])) {
-            setDateValues(dateString.split("/"), 2, 0, 1);
+            setDateValues(dateString.split(ExtractedDateHelper.getSeparator(dateString)), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y[1])) {
             String[] temp;
             if (dateString.indexOf("\\.") == -1) {
@@ -219,6 +220,7 @@ public class ExtractedDate {
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YWD_NO[1])) {
             setDatebyWeekOfYear(dateString, true, false);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YW_NO[1])) {
+            System.out.println(dateString);
             setDatebyWeekOfYear(dateString, false, false);
         } else if (format.equalsIgnoreCase(RegExp.DATE_ISO8601_YD_NO[1])) {
             setDateByDayOfYear(false);
@@ -686,6 +688,66 @@ public class ExtractedDate {
         return value;
     }
 
+    public ArrayList<Object> getAll() {
+        ArrayList<Object> result = new ArrayList<Object>();
+        result.add(this.dateString);
+        result.add(this.format);
+        result.add(this.year);
+        result.add(this.month);
+        result.add(this.day);
+        result.add(this.hour);
+        result.add(this.minute);
+        result.add(this.second);
+        result.add(this.timezone);
+        result.add(this.url);
+        return result;
+    }
+
+    public void setAll(ArrayList<Object> values) {
+        for (int i = 0; i < values.size(); i++) {
+            switch (i) {
+                case 0:
+                    this.dateString = (String) values.get(i);
+                    break;
+                case 1:
+                    this.format = (String) values.get(i);
+                    break;
+                case 2:
+                    this.year = (Integer) values.get(i);
+                    ;
+                    break;
+                case 3:
+                    this.month = (Integer) values.get(i);
+                    ;
+                    break;
+                case 4:
+                    this.day = (Integer) values.get(i);
+                    ;
+                    break;
+                case 5:
+                    this.hour = (Integer) values.get(i);
+                    ;
+                    break;
+                case 6:
+                    this.minute = (Integer) values.get(i);
+                    ;
+                    break;
+
+                case 7:
+                    this.second = (Integer) values.get(i);
+                    ;
+                    break;
+                case 8:
+                    this.timezone = (String) values.get(i);
+                    ;
+                    break;
+                case 9:
+                    this.url = (String) values.get(i);
+                    ;
+            }
+        }
+    }
+
     public void set(int field, int value) {
         switch (field) {
             case YEAR:
@@ -749,4 +811,7 @@ public class ExtractedDate {
         return exactness;
     }
 
+    public String getKeyword() {
+        return "";
+    }
 }

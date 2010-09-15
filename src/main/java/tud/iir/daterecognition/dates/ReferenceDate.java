@@ -2,7 +2,7 @@ package tud.iir.daterecognition.dates;
 
 public class ReferenceDate extends ExtractedDate {
 
-    private static final int RATE = 101;
+    public static final int RATE = 101;
     private int rate = -1;
 
     public ReferenceDate() {

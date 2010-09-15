@@ -1222,11 +1222,41 @@ public class StringHelper {
      */
     public static String removeLastWhitespace(String dateString) {
         StringBuffer temp = new StringBuffer(dateString);
-    
+
         while (temp.charAt(temp.length() - 1) == ' ') {
             temp.deleteCharAt(temp.length() - 1);
         }
         return temp.toString();
+    }
+
+    /**
+     * Replaces two or more trailing whitespaces by one.
+     * 
+     * @param text
+     * @return
+     */
+    public static String removeDoubleWhitespaces(String text) {
+        String temp = text;
+        while (temp.indexOf("  ") != -1) {
+            temp = temp.replaceAll("  ", " ");
+        }
+        return temp;
+    }
+
+    /**
+     * Counts whitespace in a text.
+     * 
+     * @param text
+     * @return
+     */
+    public static int countWhitespaces(String text) {
+        int count = 0;
+        String t = text;
+        while (t.indexOf(" ") != -1) {
+            t = t.replace(" ", "");
+            count++;
+        }
+        return count;
     }
 
 }

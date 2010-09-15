@@ -65,12 +65,13 @@ public class DateGetter {
 
         ArrayList<T> dates = new ArrayList<T>();
         Crawler crawler = new Crawler();
+
         if (url != null) {
 
             // final Document document = crawler.getWebDocument(this.url, false);
 
             if (tech_HTTP) {
-                dates.add((T) DateGetterHelper.getHTTPHeaderDate(url));
+                dates.addAll((Collection<? extends T>) DateGetterHelper.getHTTPHeaderDate(url));
             }
             if (tech_URL) {
                 dates.add((T) DateGetterHelper.getURLDate(url));

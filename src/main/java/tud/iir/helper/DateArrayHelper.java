@@ -205,6 +205,45 @@ public class DateArrayHelper {
         return arrangeByDate(dates, DateComparator.STOP_DAY);
     }
 
+    /**
+     * Orders a map by dates.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
+    public static <T> ArrayList<HashMap<T, Double>> arrangeMapByDate(HashMap<T, Double> dates) {
+        return arrangeMapByDate(dates, DateComparator.STOP_DAY);
+    }
+
+    public static <T> ArrayList<HashMap<T, Double>> arrangeMapByDate(HashMap<T, Double> dates, int stopFlag) {
+        ArrayList<HashMap<T, Double>> result = new ArrayList<HashMap<T, Double>>();
+        DateComparator dc = new DateComparator();
+        for (Entry<T, Double> e : dates.entrySet()) {
+            boolean sameDatestamp = false;
+            T date = e.getKey();
+            for (int resultIndex = 0; resultIndex < result.size(); resultIndex++) {
+                T firstDate = null;
+                for (Entry<T, Double> temp : result.get(resultIndex).entrySet()) {
+                    firstDate = temp.getKey();
+                    break;
+                }
+                int compare = dc.compare((ExtractedDate) firstDate, (ExtractedDate) date, stopFlag);
+                if (compare == 0) {
+                    result.get(resultIndex).put(date, e.getValue());
+                    sameDatestamp = true;
+                    break;
+                }
+            }
+            if (!sameDatestamp) {
+                HashMap<T, Double> newDate = new HashMap<T, Double>();
+                newDate.put(date, e.getValue());
+                result.add(newDate);
+            }
+        }
+        return result;
+    }
+
     public static <T> int countDates(T date, ArrayList<T> dates) {
         int count = 0;
         DateComparator dc = new DateComparator();
@@ -218,6 +257,14 @@ public class DateArrayHelper {
         return count;
     }
 
+    /**
+     * Count equal dates.
+     * 
+     * @param <T>
+     * @param date
+     * @param dates
+     * @return
+     */
     public static <T> int countDates(T date, HashMap<T, Double> dates) {
         return countDates(date, dates, DateComparator.STOP_DAY);
     }
@@ -248,7 +295,6 @@ public class DateArrayHelper {
     public static <T> void printDateArray(ArrayList<T> dates, int filterTechnique, String format) {
         ArrayList<T> temp = dates;
         if (filterTechnique > 0) {
-            System.out.println("enter filter");
             temp = filter(dates, filterTechnique);
         }
 
@@ -288,7 +334,7 @@ public class DateArrayHelper {
     }
 
     /**
-     * Removes dates out of the array.
+     * Remove dates from the array.
      * 
      * @param <T>
      * @param dates
@@ -374,6 +420,14 @@ public class DateArrayHelper {
         }
     }
 
+    /**
+     * Returns an array of dates, that have a given rate.
+     * 
+     * @param <T>
+     * @param dates
+     * @param rate
+     * @return
+     */
     public static <T> ArrayList<T> getRatedDates(HashMap<T, Double> dates, double rate) {
         return getRatedDates(dates, rate, true);
     }
@@ -388,6 +442,14 @@ public class DateArrayHelper {
         return result;
     }
 
+    /**
+     * Returns an array of dates that are equal to a given date.
+     * 
+     * @param <T>
+     * @param date
+     * @param dates
+     * @return
+     */
     public static <T> ArrayList<T> getSameDates(ExtractedDate date, ArrayList<T> dates) {
         return getSameDates(date, dates, DateComparator.STOP_DAY);
     }
@@ -403,6 +465,14 @@ public class DateArrayHelper {
         return result;
     }
 
+    /**
+     * Returns a hashmap of date are equal to given date.
+     * 
+     * @param <T>
+     * @param date
+     * @param dates
+     * @return
+     */
     public static <T> HashMap<T, Double> getSameDatesMap(ExtractedDate date, HashMap<T, Double> dates) {
         return getSameDatesMap(date, dates, DateComparator.STOP_DAY);
     }
@@ -418,10 +488,40 @@ public class DateArrayHelper {
         return result;
     }
 
+    public static <T> HashMap<T, Double> getDifferentDatesMap(ExtractedDate date, HashMap<T, Double> dates) {
+        return getDifferentDatesMap(date, dates, DateComparator.STOP_DAY);
+    }
+
+    public static <T> HashMap<T, Double> getDifferentDatesMap(ExtractedDate date, HashMap<T, Double> dates, int stopFlag) {
+        DateComparator dc = new DateComparator();
+        HashMap<T, Double> result = new HashMap<T, Double>();
+        for (Entry<T, Double> e : dates.entrySet()) {
+            if (dc.compare(date, (ExtractedDate) e.getKey(), stopFlag) != 0) {
+                result.put(e.getKey(), e.getValue());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Order by rate.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public static <T> Entry<T, Double>[] orderHashMap(HashMap<T, Double> dates) {
         return orderHashMap(dates, false);
     }
 
+    /**
+     * Order by rate. Lowest is first.
+     * 
+     * @param <T>
+     * @param dates
+     * @param reverse
+     * @return
+     */
     public static <T> Entry<T, Double>[] orderHashMap(HashMap<T, Double> dates, boolean reverse) {
         Entry<T, Double>[] dateArray = hashMapToArray(dates);
         quicksort(0, dateArray.length - 1, dateArray);
@@ -436,6 +536,7 @@ public class DateArrayHelper {
     }
 
     private static <T> void quicksort(int left, int right, Entry<T, Double>[] dates) {
+
         if (left < right) {
             int divide = divide(left, right, dates);
             quicksort(left, divide - 1, dates);
@@ -521,6 +622,36 @@ public class DateArrayHelper {
                     result.put(e.getKey(), dates.get(e.getKey()));
                 }
             }
+        }
+        return result;
+    }
+
+    /**
+     * Returns the highest rate in a map.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
+    public static <T> double getHighestRate(HashMap<T, Double> dates) {
+        double result = 0;
+        for (Entry<T, Double> e : dates.entrySet()) {
+            result = Math.max(result, e.getValue());
+        }
+        return result;
+    }
+
+    /**
+     * Returns first element of a hashmap.
+     * 
+     * @param <T>
+     * @param map
+     * @return
+     */
+    public static <T, V> T getFirstElement(HashMap<T, V> map) {
+        T result = null;
+        for (Entry<T, V> e : map.entrySet()) {
+            result = e.getKey();
         }
         return result;
     }

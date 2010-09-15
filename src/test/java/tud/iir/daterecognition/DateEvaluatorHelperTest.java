@@ -35,6 +35,8 @@ public class DateEvaluatorHelperTest {
         assertTrue(DateEvaluatorHelper.isDateInRange(date));
         date = new ExtractedDate("3.9.2010", RegExp.DATE_EU_D_MM_Y[1]);
         assertTrue(DateEvaluatorHelper.isDateInRange(date));
+        date = new ExtractedDate("2010-09", RegExp.DATE_ISO8601_YM[1]);
+        assertTrue(DateEvaluatorHelper.isDateInRange(date));
 
     }
 }

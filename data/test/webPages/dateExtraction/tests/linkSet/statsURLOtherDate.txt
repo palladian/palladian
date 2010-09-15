@@ -1,0 +1,24 @@
+all: 1 match: 0 2010-05-21 rate: 1.0  <--> rate:0.0 Wed, 15 Sep 2010 21:08:00 GMT WD, DD MMM YYYY HH:MM:SS TZ sameother rate:   
+2010/05/21 -> 2010-05-21 Format: YYYY_MM_DD Technique: URL
+all: 2 match: 1 2010-09-07 rate: 1.0  <--> rate:1.0 07/09/2010 MM/DD/YYYY sameother rate: 1.0 07/09/2010 MM/DD/YYYY
+2010/09/07 -> 2010-09-07 Format: YYYY_MM_DD Technique: URL
+all: 3 match: 1 2009-01-01 rate: 1.0  <--> rate:0.0 Wed, 15 Sep 2010 21:24:02 GMT WD, DD MMM YYYY HH:MM:SS TZ sameother rate:   
+2009_01_01 -> 2009-01-01 Format: YYYY_MM_DD Technique: URL
+all: 4 match: 1 2010-09-07 rate: 1.0  <--> rate:0.4 March 2007 MMMM YYYY sameother rate: 0.0 September 7, 2010 MMMM DD, YYYY
+2010/09/07 -> 2010-09-07 Format: YYYY_MM_DD Technique: URL
+all: 5 match: 2 2010-09-07 rate: 1.0  <--> rate:1.0 Tue, 07 Sep 2010 17:09:31 EST WD, DD MMM YYYY HH:MM:SS TZ sameother rate: 1.0 Tue, 07 Sep 2010 17:09:31 EST WD, DD MMM YYYY HH:MM:SS TZ
+2010/09/07 -> 2010-09-07 Format: YYYY_MM_DD Technique: URL
+all: 6 match: 3 2010-09-08 rate: 1.0  <--> rate:1.0 9/08/2010 MM/DD/YYYY sameother rate: 1.0 9/08/2010 MM/DD/YYYY
+2010/09/08 -> 2010-09-08 Format: YYYY_MM_DD Technique: URL
+all: 7 match: 3 2010-09-08 rate: 1.0  <--> rate:1.0 2010.09.15 YYYY_MM_DD sameother rate:   
+2010.09.08 -> 2010-09-08 Format: YYYY_MM_DD Technique: URL
+all: 8 match: 3 2010-03-01 rate: 1.0  <--> rate:0.33 2010/04/12 YYYY_MM_DD sameother rate: 0.0 March 1, 2010 MMMM DD, YYYY
+2010/03/01 -> 2010-03-01 Format: YYYY_MM_DD Technique: URL
+all: 1 match: 0 2010-05-21 rate: 1.0  <--> rate:0.0 Wed, 15 Sep 2010 21:26:16 GMT WD, DD MMM YYYY HH:MM:SS TZ sameother rate:   
+http://www.scifisquad.com/2010/05/21/fridays-sci-fi-tv-its-a-spy-game-on-stargate-universe?icid=sphere_wpcom_tagsidebar/
+all: 2 match: 1 2010-09-07 rate: 1.0  <--> rate:1.0 07/09/2010 MM/DD/YYYY sameother rate: 1.0 07/09/2010 MM/DD/YYYY
+http://www.lepost.fr/article/2010/09/07/2210979_mis-en-difficulte-sur-l-affaire-bettencourt-eric-woerth-denonce-une-campagne-de-denigrment.html
+all: 3 match: 1 2009-01-01 rate: 1.0  <--> rate:0.0 Wed, 15 Sep 2010 21:26:29 GMT WD, DD MMM YYYY HH:MM:SS TZ sameother rate:   
+http://billboardom.blogspot.com/2009_01_01_archive.html
+all: 4 match: 1 2010-09-07 rate: 1.0  <--> rate:0.4 March 2007 MMMM YYYY sameother rate: 0.0 September 7, 2010 MMMM DD, YYYY
+http://www.kendallharmon.net/t19/index.php/t19/2010/09/07/

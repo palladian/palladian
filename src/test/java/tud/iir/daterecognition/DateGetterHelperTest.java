@@ -11,6 +11,7 @@ import org.w3c.dom.Document;
 
 import tud.iir.control.AllTests;
 import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.daterecognition.dates.HTTPDate;
 import tud.iir.daterecognition.dates.HeadDate;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.knowledge.RegExp;
@@ -88,6 +89,18 @@ public class DateGetterHelperTest {
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
         date = DateGetterHelper.getDateFromString("2010-07-02 19:07:49.123", RegExp.DATE_ISO8601_YMD_T);
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("2010/07/02 19:07:49.123", RegExp.DATE_ISO8601_YMD_SEPARATOR_T);
+        assertEquals(date.getDateString(), text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("2010/07/02", RegExp.DATE_ISO8601_YMD_SEPARATOR);
+        assertEquals(date.getDateString(), "2010-07-02", date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("2010.07.02 19:07:49.123", RegExp.DATE_ISO8601_YMD_SEPARATOR_T);
+        assertEquals(date.getDateString(), text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("2010.07.02", RegExp.DATE_ISO8601_YMD_SEPARATOR);
+        assertEquals(date.getDateString(), "2010-07-02", date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("2010_07_02 19:07:49.123", RegExp.DATE_ISO8601_YMD_SEPARATOR_T);
+        assertEquals(date.getDateString(), text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("2010_07_02", RegExp.DATE_ISO8601_YMD_SEPARATOR);
+        assertEquals(date.getDateString(), "2010-07-02", date.getNormalizedDate());
 
         // ISO_YMD
         text = "2010-06-05";
@@ -185,6 +198,10 @@ public class DateGetterHelperTest {
         text = "2010-07";
         date = DateGetterHelper.getDateFromString("07/2010", RegExp.DATE_USA_MM_Y);
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("09/8/10 04:56 PM", RegExp.DATE_USA_MM_D_Y_T);
+        assertEquals(date.getDateString(), "2010-09-08 16:56", date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("August 10, 2010", RegExp.DATE_USA_MMMM_D_Y);
+        assertEquals(date.getDateString(), "2010-08-10", date.getNormalizedDate());
 
         // DATE_RFC & ANSI C
         text = "2010-07-02 19:07:49";
@@ -196,6 +213,8 @@ public class DateGetterHelperTest {
         assertEquals(text, date.getNormalizedDate());
         date = DateGetterHelper.getDateFromString("Tuesday, 02-Jul-10 19:07:49 GMT", RegExp.DATE_RFC_1036);
         assertEquals(text, date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("Wed, 08 Sep 2010 08:09:15 EST", RegExp.DATE_RFC_1123);
+        assertEquals("2010-09-08 08:09:15", date.getNormalizedDate());
 
         // ISO without separator
         text = "2010-07-25";
@@ -341,10 +360,17 @@ public class DateGetterHelperTest {
     @Test
     public void testGetHTTPHeaderDate() {
         System.out.println("testGetHTTPHeaderDate:");
-        if (!AllTests.ALL_TESTS) {
-            ExtractedDate date = DateGetterHelper
-                    .getHTTPHeaderDate("http://www.spreeblick.com/2010/07/08/william-shatner-hat-leonard-nimoys-fahrrad-geklaut/");
-            System.out.println(date.getDateString());
+
+        /*
+         * ExtractedDate date = DateGetterHelper
+         * .getHTTPHeaderDate("http://www.spreeblick.com/2010/07/08/william-shatner-hat-leonard-nimoys-fahrrad-geklaut/"
+         * );
+         */
+        // String url = "http://www.zeit.de/politik/ausland/2010-09/russland-waldbraende-siedlungen";
+        String url = "http://www.spreeblick.com/2010/07/08/william-shatner-hat-leonard-nimoys-fahrrad-geklaut/";
+        ArrayList<HTTPDate> dates = DateGetterHelper.getHTTPHeaderDate(url);
+        for (int i = 0; i < dates.size(); i++) {
+            System.out.println(dates.get(i).getDateString());
         }
 
     }
@@ -369,6 +395,7 @@ public class DateGetterHelperTest {
             int index = 0;
             while (dateIterator.hasNext()) {
                 final ExtractedDate extractedDate = dateIterator.next();
+
                 assertEquals(urlDates[index], extractedDate.getDateString());
                 index++;
             }
@@ -398,8 +425,9 @@ public class DateGetterHelperTest {
         // String url =
         // "http://www.gatorsports.com/article/20100823/ARTICLES/100829802/1136?Title=Meyer-has-concerns-with-season-fast-approaching";
         // String url = "http://www.truthdig.com/arts_culture/item/20071108_mark_sarvas_on_the_hot_zone/";
-        String url = "http://blogs.physicstoday.org/newspicks/2009/04/2009-laquila-earthquake.html";
+        String url = "http://www.scifisquad.com/2010/05/21/fridays-sci-fi-tv-its-a-spy-game-on-stargate-universe?icid=sphere_wpcom_tagsidebar/";
         if (!AllTests.ALL_TESTS) {
+
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             // date.addAll(DateGetterHelper
             // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
@@ -491,6 +519,18 @@ public class DateGetterHelperTest {
             DateArrayHelper.printDateArray(date);
 
         }
+    }
+
+    @Test
+    public void TestGetHeadDates2() {
+        String url = "http://www.huffingtonpost.com/2010/09/08/mark-hurds-salary-at-orac_n_708676.html";
+
+        Crawler c = new Crawler();
+        c.setDocument(url);
+        Document document = c.getDocument();
+        ArrayList<HeadDate> headDates = DateGetterHelper.getHeadDates(document);
+        DateArrayHelper.printDateArray(headDates);
+
     }
 
     @Test

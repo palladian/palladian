@@ -7,12 +7,8 @@ package tud.iir.daterecognition.dates;
  * @author salco
  * 
  */
-public class HeadDate extends ExtractedDate {
-    /**
-     * Context, in witch the date was found. <br>
-     * E.g.: URL, tag-name, HTTP-tag, keyword...
-     */
-    private String keyword = null;
+public class HeadDate extends KeywordDate {
+
     private String tag = null;
 
     /**
@@ -46,19 +42,6 @@ public class HeadDate extends ExtractedDate {
     @Override
     public int getType() {
         return TECH_HTML_HEAD;
-    }
-
-    @Override
-    public String toString() {
-        return super.toString() + "\n" + "Keyword: " + keyword;
-    }
-
-    public void setKeyword(String keyword) {
-        this.keyword = keyword;
-    }
-
-    public String getKeyword() {
-        return keyword;
     }
 
     public String getTag() {
