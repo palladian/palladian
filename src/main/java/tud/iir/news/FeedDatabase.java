@@ -66,6 +66,7 @@ public class FeedDatabase implements FeedStore {
     private PreparedStatement psTagFeedEntry;
     private PreparedStatement getEntryIdByTag;
     private PreparedStatement psGetEntryById;
+    private PreparedStatement psDeleteEntryById;
 
 
     private FeedDatabase() {
@@ -120,6 +121,8 @@ public class FeedDatabase implements FeedStore {
         psGetEntries = connection
                 .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_entries LIMIT ? OFFSET ?");
         psGetEntryById = connection.prepareStatement("SELECT * FROM feed_entries WHERE id = ?");
+        
+        psDeleteEntryById = connection.prepareStatement("DELETE FROM feed_entries WHERE id = ?");
 
         // tagging specific
         psGetEntrysTags = connection
@@ -814,11 +817,22 @@ public class FeedDatabase implements FeedStore {
             }
             rs.close();
         } catch (SQLException e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
 
         LOGGER.trace("getEntryIdsTaggedAs " + tag + " : " + sw.getElapsedTimeString());
         return entryIds;
+    }
+    
+    public void deleteFeedEntryById(int id) {
+        
+        try {
+            psDeleteEntryById.setInt(1, id);
+            DatabaseManager.getInstance().runUpdate(psDeleteEntryById);
+        } catch (SQLException e) {
+            LOGGER.error(e);
+        }
+        
     }
 
     public void clearFeedTables() {

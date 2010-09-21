@@ -28,6 +28,8 @@ public abstract class DeliciousDatasetSplitter extends DeliciousDatasetReader {
      * The split is calculated upon initialization. Call this, to calculate a new split.
      */
     public void calculateSplit() {
+        
+        System.out.println("calculating split");
 
         // create split list, use 50:50 split for now
         Random random = new Random();
@@ -53,6 +55,41 @@ public abstract class DeliciousDatasetSplitter extends DeliciousDatasetReader {
 
     public void read() {
 
+        readTrain();
+
+        readTest();
+
+    }
+
+    public void readTest() {
+        ///////////////// testing ////////////////
+        startTest();
+        final int[] data2 = new int[2];
+        read(new DatasetCallback() {
+            // int index = 0;
+            // int count = 0;
+
+            @Override
+            public void callback(DatasetEntry entry) {
+                if (!trainTestSplit.get(data2[0]++)) {
+                    test(entry, data2[0]);
+                    if (testLimit == -1 || ++data2[1] == testLimit) {
+                        stop();
+                    }
+                    if (data2[1] % 100 == 0) {
+                        System.out.println("tested " + data2[1] + " documents");
+                    }
+                }
+            }
+        });
+        finishTest();
+        
+        if (data2[1] < testLimit) {
+            System.err.println("attention: not enough test documents " + data2[1]);
+        }
+    }
+
+    public void readTrain() {
         ///////////////// training ////////////////
         startTrain();
         final int[] data = new int[2]; // 0:index, 1:count
@@ -64,7 +101,7 @@ public abstract class DeliciousDatasetSplitter extends DeliciousDatasetReader {
             public void callback(DatasetEntry entry) {
                 if (trainTestSplit.get(data[0]++)) {
                     train(entry, data[0]);
-                    if (++data[1] == trainLimit) {
+                    if (trainLimit == -1 || ++data[1] == trainLimit) {
                         stop();
                     }
                     if (data[1] % 100 == 0) {
@@ -78,33 +115,6 @@ public abstract class DeliciousDatasetSplitter extends DeliciousDatasetReader {
         if (data[1] < trainLimit) {
             System.err.println("attention: not enough train documents " + data[1]);
         }
-
-        ///////////////// testing ////////////////
-        startTest();
-        final int[] data2 = new int[2];
-        read(new DatasetCallback() {
-            // int index = 0;
-            // int count = 0;
-
-            @Override
-            public void callback(DatasetEntry entry) {
-                if (!trainTestSplit.get(data2[0]++)) {
-                    test(entry, data2[0]);
-                    if (++data2[1] == testLimit) {
-                        stop();
-                    }
-                    if (data2[1] % 100 == 0) {
-                        System.out.println("tested " + data2[1] + " documents");
-                    }
-                }
-            }
-        });
-        finishTest();
-        
-        if (data2[1] < testLimit) {
-            System.err.println("attention: not enough test documents " + data[1]);
-        }
-
     }
 
     // hook methods for training/testing ////////////////////////

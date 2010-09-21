@@ -660,6 +660,8 @@ public class URLRankingServices {
      * 
      * http://www.pandia.com/sw-2004/23-yahoo.html
      * 
+     * TODO change to use BOSS-API, more liberal.
+     * 
      * @return number of domain results from Yahoo!, -1 on error.
      */
     private int getYahooDomainLinks() {
@@ -689,6 +691,8 @@ public class URLRankingServices {
      * Get the number of results from Yahoo! pointing to the URL.
      * 
      * http://www.pandia.com/sw-2004/23-yahoo.html
+     * 
+     * TODO change to use BOSS-API, more liberal.
      * 
      * @return number of page result from Yahoo!, -1 on error.
      */
@@ -876,8 +880,9 @@ public class URLRankingServices {
 
         String url = "http://www.engadget.com/2010/05/07/how-would-you-change-apples-ipad/";
 
-        StopWatch sw = new StopWatch();
         URLRankingServices urlRankingServices = new URLRankingServices();
+        urlRankingServices.setCacheTtlSeconds(-1);
+        StopWatch sw = new StopWatch();
         Map<Service, Float> ranking = urlRankingServices.getRanking(url);
 
         System.out.println("  URL:                                " + url);
