@@ -1028,6 +1028,10 @@ public class FileHelper {
         }
         return false;
     }
+    
+    public static boolean createDirectory(String directoryPath) {
+        return new File(directoryPath).mkdir();
+    }
 
     /**
      * The main method.

@@ -83,8 +83,8 @@ public class ControlledTaggerEvaluationResult {
         StringBuilder sb = new StringBuilder();
         sb.append("ControlledTaggerEvaluationResult:");
         sb.append("taggedEntries:").append(taggedEntryCount);
-        sb.append(",timeForTraining:").append(trainStop.getElapsedTimeString());
-        sb.append(",timeForTesting:").append(testStop.getElapsedTimeString());
+        if (trainStop != null) sb.append(",timeForTraining:").append(trainStop.getElapsedTimeString());
+        if (testStop != null) sb.append(",timeForTesting:").append(testStop.getElapsedTimeString());
         sb.append(",averageTagCount:").append(getAvgTagCount());
         sb.append(",averagePr:").append(getAvgPrecision());
         sb.append(",averageRc:").append(getAvgRecall());
@@ -100,8 +100,8 @@ public class ControlledTaggerEvaluationResult {
         System.out.println("average # assigned tags: " + format.format(getAvgTagCount()));
         System.out.println("tagged entries: " + getTaggedEntryCount());
 
-        System.out.println("time for training " + getTrainStop().getElapsedTimeString());
-        System.out.println("time for testing " + getTestStop().getElapsedTimeString());
+        if (getTrainStop() != null) System.out.println("time for training " + getTrainStop().getElapsedTimeString());
+        if (getTestStop() != null) System.out.println("time for testing " + getTestStop().getElapsedTimeString());
 
     }
 }

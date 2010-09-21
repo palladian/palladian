@@ -742,7 +742,8 @@ public class ControlledTagger {
      * 
      * @param tags
      */
-    Bag<String> normalize(Bag<String> tags) {
+    //Bag<String> normalize(Bag<String> tags) {
+    public    Bag<String> normalize(Bag<String> tags) {
         Bag<String> normalizedTags = new HashBag<String>();
         for (String tag : tags.uniqueSet()) {
             String normalizedTag = unstem(stem(tag));
@@ -751,7 +752,6 @@ public class ControlledTagger {
         }
         return normalizedTags;
     }
-
 
     /**
      * Set the fast mode. This is only relevant when using correlations,

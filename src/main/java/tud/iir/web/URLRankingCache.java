@@ -19,6 +19,8 @@ import tud.iir.web.URLRankingServices.Service;
  * Cache for {@link URLRankingServices}. As those APIs have a considerable latency, we cache their results for a
  * specific time in the database.
  * 
+ * TODO caching ttl sometimes does not work correctly. 
+ * 
  * @author Philipp Katz
  * 
  */
@@ -30,6 +32,7 @@ public class URLRankingCache {
 
     private PreparedStatement getSourceByUrl;
     private PreparedStatement getSourceRankings;
+    private PreparedStatement getSourceRankings2;
     private PreparedStatement addSource;
     private PreparedStatement addSourceRanking;
 
@@ -40,6 +43,9 @@ public class URLRankingCache {
             getSourceByUrl = connection.prepareStatement("SELECT id FROM sources WHERE url = ?");
             getSourceRankings = connection
                     .prepareStatement("SELECT ranking, service FROM source_ranking_features WHERE sourceId = ? AND CURRENT_TIMESTAMP - updated < ?");
+            getSourceRankings2 = connection
+                    .prepareStatement("SELECT ranking, service FROM source_ranking_features WHERE sourceId = ?");
+
             addSource = connection.prepareStatement("INSERT IGNORE INTO sources SET url = ?");
             addSourceRanking = connection
                     .prepareStatement("INSERT INTO source_ranking_features (sourceId, service, ranking) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ranking = VALUES(ranking), updated = CURRENT_TIMESTAMP");
@@ -90,10 +96,20 @@ public class URLRankingCache {
         Map<Service, Float> result = new HashMap<Service, Float>();
 
         try {
+            
+            PreparedStatement ps;
+            if (ttlSeconds == -1) {
+                // System.out.println("without ttl");
+                ps = getSourceRankings2;
+            } else {
+                // System.out.println("with ttl");
+                ps = getSourceRankings;
+                ps.setInt(2, ttlSeconds);
+            }
+            ps.setInt(1, source.getID());
+            LOGGER.trace(ps.toString());
 
-            getSourceRankings.setInt(1, source.getID());
-            getSourceRankings.setInt(2, ttlSeconds);
-            ResultSet rs = getSourceRankings.executeQuery();
+            ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 float ranking = rs.getFloat(1);
                 Service service = Service.getById(rs.getInt(2));
@@ -144,6 +160,11 @@ public class URLRankingCache {
 
     }
 
+    /**
+     * Set the TTL for the cache. Set to -1 to never expire the cached data.
+     * 
+     * @param ttlSeconds
+     */
     public void setTtlSeconds(int ttlSeconds) {
         this.ttlSeconds = ttlSeconds;
     }

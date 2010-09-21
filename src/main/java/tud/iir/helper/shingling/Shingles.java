@@ -38,6 +38,9 @@ import com.planetj.math.rabinhash.RabinHashFunction64;
  * http://www.ida.liu.se/~TDDC03/oldprojects/2005/final-projects/prj10.pdf
  * http://www.cs.princeton.edu/courses/archive/spr05/cos598E/bib/Princeton.pdf
  * http://phpir.com/shingling-near-duplicate-detection
+ * http://www.std.org/~msm/common/clustering.html
+ * http://isabel-drost.de/projects/tuberlin/imsem2010/dups_paper_2010.pdf
+ * http://codingplayground.blogspot.com/2008/06/shingling-and-text-clustering.html
  * 
  * TODO useful preprocessing steps?
  * make lower case, remove punctation, remove duplicate white space?
@@ -125,9 +128,14 @@ public class Shingles {
      */
     public boolean addDocument(int documentId, String documentContent) {
         Set<Long> sketch = getSketch(documentContent);
-        index.addDocument(documentId, sketch);
-        return checkSimilarity(documentId, sketch);
+        boolean similar = checkSimilarity(documentId, sketch);
+        if (!similar) {
+            index.addDocument(documentId, sketch);
+        }
+        return similar;
     }
+    
+    int count = 1;
 
     /**
      * Add a file to the shingle collection.
@@ -137,7 +145,8 @@ public class Shingles {
      */
     public boolean addFile(String filePath) {
         String fileContent = FileHelper.readFileToString(filePath);
-        int documentId = index.getNumberOfDocuments() + 1;
+        // int documentId = index.getNumberOfDocuments() + 1;
+        int documentId = count++;
         return addDocument(documentId, fileContent);
     }
 
@@ -170,6 +179,8 @@ public class Shingles {
      * @return <code>true</code>, if document was similar/duplicate.
      */
     protected boolean checkSimilarity(int documentId, Set<Long> sketch) {
+        
+//        System.out.println("------ " + documentId + " -----");
 
         boolean result = false;
         StringBuilder debugMessage = new StringBuilder();
@@ -216,6 +227,8 @@ public class Shingles {
                 similarDocs.add(curDocId);
             }
         }
+        
+//        System.out.println("1->"+similarDocs);
 
         // determine all similar/identical documents by calculating the Jaccard distance
         Set<Integer> similarDocuments = new HashSet<Integer>();
@@ -238,7 +251,11 @@ public class Shingles {
                 debugMessage.append(" sim(" + distance + "):" + simDocId);
                 similarDocuments.add(simDocId);
             }
+            
+            // TODO we could break the loop, when we found a similarity?
         }
+        
+//        System.out.println("2->"+similarDocuments);
 
         // if we found similar documents, add the similarity relation to the index;
         // we treat the document with the lowest ID as "master" document which references
