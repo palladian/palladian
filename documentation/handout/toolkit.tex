@@ -579,7 +579,7 @@ distance(d1,d2) = \frac{1}{numberOfMatchingNGrams}
 \end{equation}
 
 \paragraph{Dictionary-Based Classifier}
-The dictionary-based classifier\footnote{This classifier won the first Research Garden (\url{http://www.research-garden.de}) competition where the goal was to classify product descriptions into 8 different categories.} learns how probable each n-gram is for each given category and assigns the most probable category (or categories) to the input document.
+The dictionary-based classifier\footnote{This classifier won the first Research Garden (\url{http://www.research-garden.de}) competition where the goal was to classify product descriptions into 8 different categories. See press release at \url{http://www.research-garden.de/c/document_library/get_file?uuid=e60fa8da-4f76-4e64-a692-f74d5ffcf475&groupId=10137}} learns how probable each n-gram is for each given category and assigns the most probable category (or categories) to the input document.
 
 A dictionary is built at training stage by counting and normalizing the co-occurrences of one n-gram and a category. The dictionary might then look as shown in Table \ref{tab:dictionary} where each column is a category (finance, travel, and science) and each row is an n-gram. In each cell we now have the learned relevance for each n-gram and category $relevance(ngram,category)$. The sum of the relevances in each row must add up to one.
 
