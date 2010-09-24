@@ -68,6 +68,30 @@ public class HTMLHelper {
     }
 
     /**
+     * <p>
+     * Count the number of characters used for tags in the given string.
+     * </p>
+     * <p>
+     * For example, &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; => 15
+     * </p>
+     * 
+     * @param taggedText The text with tags.
+     * @return The cumulated number of characters used for tags in the given text.
+     */
+    public static int countTagLength(String taggedText) {
+        int totalTagLength = 0;
+
+        Pattern pattern = Pattern.compile("<(.*?)>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+
+        Matcher matcher = pattern.matcher(taggedText);
+        while (matcher.find()) {
+            totalTagLength += matcher.group(1).length() + 2;
+        }
+
+        return totalTagLength;
+    }
+
+    /**
      * Count tags.
      * 
      * @param htmlText The html text.
@@ -163,6 +187,10 @@ public class HTMLHelper {
         htmlText = htmlText.replaceAll("(\\s){2,}", " ");
 
         return htmlText.trim();
+    }
+
+    public static String removeHTMLTags(String htmlContent) {
+        return removeHTMLTags(htmlContent, true, true, true, true);
     }
 
     /**
@@ -364,7 +392,7 @@ public class HTMLHelper {
         final Matcher elementMatcher = elementPattern.matcher(content);
         while (elementMatcher.find()) {
             String result = elementMatcher.group(0);
-            if (!("").equals(removeTerm)) {
+            if (!"".equals(removeTerm)) {
                 // remove the remove term
                 result = result.replaceFirst(removeTerm, "");
                 result = result.replaceFirst(removeTerm.toUpperCase(Locale.ENGLISH), "");
@@ -458,5 +486,6 @@ public class HTMLHelper {
         // System.out.println(result);
 
     }
+
 
 }

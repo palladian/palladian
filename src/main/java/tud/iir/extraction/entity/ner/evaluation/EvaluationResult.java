@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.helper.CountMap;
 
 /**
@@ -316,4 +317,25 @@ public class EvaluationResult {
     public void setAssignments(Map<String, CountMap> assignments) {
         this.assignments = assignments;
     }
+
+    @Override
+    public String toString() {
+        // StringBuilder builder = new StringBuilder();
+        // builder.append("EvaluationResult [precision exact=");
+        // builder.append(getPrecision(EXACT_MATCH));
+        // builder.append(", precision MUC=");
+        // builder.append(getPrecision(MUC));
+        // builder.append(", recall exact=");
+        // builder.append(getRecall(EXACT_MATCH));
+        // builder.append(", recall MUC=");
+        // builder.append(getRecall(MUC));
+        // builder.append(", F1 exact=");
+        // builder.append(getF1(EXACT_MATCH));
+        // builder.append(", F1 MUC=");
+        // builder.append(getF1(MUC));
+        // builder.append("]");
+        // return builder.toString();
+        return NamedEntityRecognizer.printEvaluationDetails(this).toString();
+    }
+
 }

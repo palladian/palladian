@@ -120,6 +120,8 @@ public class Annotation {
         builder.append(length);
         builder.append(", entity=");
         builder.append(entity);
+        builder.append(", tag=");
+        builder.append(getMostLikelyTagName());
         builder.append("]");
         return builder.toString();
     }

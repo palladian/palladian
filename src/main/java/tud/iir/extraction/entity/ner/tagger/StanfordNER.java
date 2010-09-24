@@ -25,11 +25,19 @@ import edu.stanford.nlp.ling.CoreAnnotations.AnswerAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.StringUtils;
 
-
 /**
  * <p>
  * This class wraps the Stanford Named Entity Recognizer which is based on conditional random fields (CRF).<br>
  * The NER has been described in the following paper:
+ * </p>
+ * 
+ * <p>
+ * The following models exist already for this recognizer:
+ * <ul>
+ * <li>Person</li>
+ * <li>Location</li>
+ * <li>Organization</li>
+ * </ul>
  * </p>
  * 
  * <p>
@@ -421,7 +429,7 @@ public class StanfordNER extends NamedEntityRecognizer {
 
             } catch (ParseException e) {
                 LOGGER.debug("Command line arguments could not be parsed!");
-                formatter.printHelp("FeedChecker", options);
+                formatter.printHelp("StanfordNER", options);
             }
 
         }

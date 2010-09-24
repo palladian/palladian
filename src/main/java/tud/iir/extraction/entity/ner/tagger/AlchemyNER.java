@@ -30,7 +30,7 @@ import tud.iir.web.Crawler;
  * 
  * <p>
  * The Alchemy service for Named Entity Recognition. This class uses the Alchemy API and therefore requires the
- * application to have access to the internet.<br />
+ * application to have access to the Internet.<br />
  * <a href="http://www.alchemyapi.com/api/entity/textc.html">http://www.alchemyapi.com/api/entity/textc.html</a>
  * </p>
  * 
