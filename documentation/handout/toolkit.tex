@@ -120,6 +120,7 @@ The program is licensed under a NCSA style license.
 The toolkit is licensed under the Apache 2.0 license.
 \item \textbf{OpenCalais} \cite{opencalais} is a web service that performs named entity recognition, fact and event extraction.
 The web service is free for commercial and non-commercial use but limited to 50,000 transactions a day. A professional plan is available too including more transactions and an service license agreement.
+\item \textbf{OpenNLP} \cite{opennlp} is a toolkit of various open source natural language processing packages. The goal of this toolkit is to integrate several stand-alone projects to increase the interoperability. Algorithms in this toolkit include but are not limited to tokenization and named entity recognition.
 \item The \textbf{RASP System} \cite{briscoe2006second} is a C and Lisp-based toolkit for natural language processing (English only). Its main features are tokenization, PoS tagging, lemmatization, morphological analysis, and grammar-based parsing.
 The toolkit is free for non-commercial use and licensed under the RASP System License.
 \item The \textbf{Rosette Linguistic Platform} \cite{rosette} is a software suite that can perform name translation, name matching, named entity recognition, morphological analysis, and language identification. The suite works for 55 European, Asian, and Arabic languages.
@@ -651,6 +652,29 @@ In TOOLKIT we use an approach that is based on a hierarchical analyzis of the we
 \subsection{Date Extraction}
 \subsection{Named Entity Recognition}
 
+TODO whatis
+
+\subsubsection{Taggers}
+The TOOLKIT wraps 7 Named Entity Recognizers (NER) using a single interface making it easier to test and substitute them in real world applications.
+
+\paragraph{Alchemy} The Alchemy API is a web-based service that also offers Named Entity Recognition. Using this NER requires the application to have a developer key and Internet access. Alchemy covers a wide range of concepts. For more details see \url{http://www.alchemyapi.com/api/entity/types.html} or the JavaDoc.
+
+\paragraph{Illinois Learning-based Java} Students from the University of Illinois developed this Recognizer \cite{illinoisccg}. The recognizer comes with a large set of lists that help the recognizer to tag concepts such as corporations, countries, jobs, movies, people, songs, and more. More information can also be found on \url{http://l2r.cs.uiuc.edu/~cogcomp/asoftware.php?skey=FLBJNE}.
+
+\paragraph{LingPipe} The LingPipe library \cite{lingpipe} also offers an NER. Unfortunately the tagger comes with no models. Models for each desired concept need to be trained manually More information can be found on \url{http://alias-i.com/lingpipe/demos/tutorial/ne/read-me.html}.
+
+\paragraph{OpenCalais} The Open Calais API \cite{opencalais} is a web-based service that also offers Named Entity Recognition. The service requires a developer key and access to the Internet. Open Calais covers many concept as covered on the documentation \url{http://www.opencalais.com/documentation/calais-web-service-api/api-metadata/entity-index-and-definitions} and in the JavaDoc.
+
+\paragraph{OpenNLP} The OpenNLP toolkit \cite{opennlp} provides a maximum entropy based approach for named entity recognition. The toolkit comes with a small set of pre-trained models covering concepts such as locations, organizations, and persons. More details can be found in the JavaDoc.
+
+\paragraph{Stanford} As part of the Stanford NLP library \cite{stanfordnlp} \citet{finkel2005stanfordner} developed a named entity recognizer that is based on conditional random fields (CRF). The tagger was trained on the CoNLL 2003 data and comes with a small set of classifiers that can recognize persons, locations, and organizations. For more details see \url{http://www-nlp.stanford.edu/software/crf-faq.shtml} and the JavaDoc.
+
+\paragraph{TUD} The TUD named entity recognizer was developed at the Dresden University of Technology. The recognizer is based on a list lookup and dictionary classification approach. So far no trained models exist for this tagger.
+
+\subsubsection{Tagging a Text}
+\subsubsection{Training a Tagger}
+\subsubsection{Evaluating a Tagger}
+
 \section{Retrieval}
 \paragraph{Web Crawling}
 \paragraph{Web Information Retrieval}
@@ -1048,7 +1072,7 @@ The code is in development by students of the Dresden University of Technology. 
 \item Martin Werner
 \end{itemize}
 
-\chapter{References}
+%\chapter{References}
 \bibliographystyle{abbrv}
 \bibliography{references}
 

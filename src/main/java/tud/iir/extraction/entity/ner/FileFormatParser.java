@@ -349,6 +349,12 @@ public class FileFormatParser {
         return getAnnotationsFromXMLFile(taggedTextFilePath + "_t");
     }
 
+    /**
+     * Get XML annotations from a text. Nested annotations are discarded.
+     * 
+     * @param taggedText The XML tagged text. For example "The &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; is a phone."
+     * @return A list of annotations that were found in the text.
+     */
     public static Annotations getAnnotationsFromXMLText(String taggedText) {
         Annotations annotations = new Annotations();
 
@@ -356,19 +362,36 @@ public class FileFormatParser {
         // entities in the plain text
         int cumulatedTagOffset = 0;
 
+        // remove nested annotations
+        // FIXME
+        // text <PERSON><PHONE>John J</PHONE>. Smith</PERSON> lives
+        // text <PERSON><PHONE>John J</PHONE>. <PHONE>Smith</PHONE></PERSON> lives
+        // text <PERSON><PHONE>John <PERSON>J</PERSON></PHONE>. <PHONE>Smith</PHONE></PERSON> lives
+        
         // get locations of annotations
-        Pattern pattern = Pattern.compile("<(.*?)>(.*?)</(.*?)>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("<(.*?)>(.*?)</\\1>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = pattern.matcher(taggedText);
         while (matcher.find()) {
 
             // if opening and closing tag are not the same continue
-            if (!matcher.group(1).equals(matcher.group(3))) {
-                continue;
-            }
+            /*
+             * if (!matcher.group(1).equals(matcher.group(3))) {
+             * Logger.getRootLogger()
+             * .warn("annotations are not well formed (start tag does not match end tag at " + matcher.start()
+             * + ")");
+             * continue;
+             * }
+             */
 
             String conceptName = matcher.group(1);
             String entityName = matcher.group(2);
+
+            // count number of characters of possibly nested tags (add to cumulated offset)
+            int nestedTagLength = HTMLHelper.countTagLength(entityName);
+
+            // remove nested tags
+            entityName = HTMLHelper.removeHTMLTags(matcher.group(2));
 
             // add tag < + name + > to cumulated tag offset
             int tagOffset = conceptName.length() + 2;
@@ -384,8 +407,8 @@ public class FileFormatParser {
             // String annotationText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
             // System.out.println("annotation text: " + annotationText);
 
-            // add tag </ + name + > to cumulated tag offset
-            cumulatedTagOffset += conceptName.length() + 3;
+            // add tag </ + name + > and nested tag length to cumulated tag offset
+            cumulatedTagOffset += nestedTagLength + conceptName.length() + 3;
         }
 
         return annotations;

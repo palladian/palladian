@@ -33,6 +33,13 @@ public class HTMLHelperTest extends TestCase {
     }
 
     @Test
+    public void testCountTagLength() {
+        assertEquals(0, HTMLHelper.countTagLength("iphone 4"));
+        assertEquals(15, HTMLHelper.countTagLength("<phone>iphone 4</Phone>"));
+        assertEquals(20, HTMLHelper.countTagLength("everybody is <b>here<br /></b> to do some <p>work</p>"));
+    }
+
+    @Test
     public void testRemoveHTMLTags() {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
         assertEquals("this is relevant", HTMLHelper.removeHTMLTags(htmlContent, true, true, true, false));

@@ -7,9 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-
 import org.apache.log4j.Logger;
-
 
 import tud.iir.extraction.entity.ner.evaluation.EvaluationAnnotation;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
@@ -311,7 +309,10 @@ public abstract class NamedEntityRecognizer {
         return evaluationResult;
     }
 
-    private void printEvaluationDetails(EvaluationResult evaluationResult, String targetPath) {
+    public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult) {
+        return printEvaluationDetails(evaluationResult, null);
+    }
+    public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult, String targetPath) {
 
         // write evaluation results to file
         StringBuilder results = new StringBuilder();
@@ -409,7 +410,11 @@ public abstract class NamedEntityRecognizer {
                 .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getF1(EvaluationResult.MUC), 4)).append("\n");
 
-        FileHelper.writeToFile(targetPath, results);
+        if (targetPath != null) {
+            FileHelper.writeToFile(targetPath, results);
+        }
+
+        return results;
     }
 
     public void setName(String name) {

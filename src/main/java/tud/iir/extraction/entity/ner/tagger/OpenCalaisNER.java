@@ -29,7 +29,7 @@ import tud.iir.web.Crawler;
 /**
  * <p>
  * The Open Calais service for Named Entity Recognition. This class uses the Open Calais API and therefore requires the
- * application to have access to the internet.
+ * application to have access to the Internet.
  * </p>
  * 
  * <p>
