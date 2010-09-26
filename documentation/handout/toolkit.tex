@@ -543,14 +543,7 @@ The TOOLKIT supports simple single category classification, tagging, and hierarc
 This information is stored in the $tud.iir.classification.page.evaluation.ClassificationTypeSetting$ object which is then passed to the classifier. Please read the Javadoc of that class for more detailed information.
 
 \subsubsection{Features}
-Features are the input for a classifier. In text classification we have a long string as an input from which we can derive several features. All of the TOOLKIT classifiers work with n-grams. N-grams are sets of tokens of the length n. The TOOLKIT can preprocess text with character or word-level n-grams:
-
-\begin{enumerate}
-\item \textbf{Character level n-grams} use each character of the string as a token. For example, from the string ``It is sunny'' we can create the following set of 3-grams: ${it ,t i, is,is ,s s, su,sun,unn,nny}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $9 = 11 - 3 + 1$.
-\item \textbf{Word level n-grams} use each word (separated with white space) of the string as a token. For example, from the string ``It is so nice and sunny today'' we can create the following set of 3-grams: ${It is so,is so nice,so nice and,nice and sunny,and sunny today}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $5 = 7 - 3 + 1$. If you want to have single words as features for the text classifier you can simply use unigrams or bigrams which are n-grams with $n=1$ or $n=2$ respectively.
-\end{enumerate}
-
-The document preprocessor allows you to create a set of n-grams with different length too. For example, you can create all 2-grams, 3-grams, and 4-grams for the given input text and use them as features for the classifier.
+Features are the input for a classifier. In text classification we have a long string as an input from which we can derive several features. All of the TOOLKIT classifiers work with n-grams. N-grams are sets of tokens of the length n. The TOOLKIT can preprocess text with character or word-level n-grams. See Section \ref{sec:ngrams} for more details.
 
 Sometimes you do not want to have all n-grams to be features for the classifier. You can simply disallow certain features by putting them in a stop word list. These n-grams will then be ignored for the classification.
 
@@ -634,12 +627,42 @@ The output of the evaluation will be three csv files that hold information about
 %TODO learn bestclassifier
 
 \section{Extraction}
+
+\subsection{Keyword Extraction / Controlled Tagging}
+It is often interesting which words describe a given text most. These words are often called ``keywords'' or ``tags''. TOOLKIT is able to use a weighted, controlled vocabulary and perform tagging of a text using TF-IDF and tag correlations.
+
+The ControlledTaggerIndex is the basis for the tagging. This index contains information about the controlled tag vocabulary, tag frequencies, a stem-map, and a correlation table for all tags. The tag index is built using training data of single text files that have been assigned with weighted tags. This index is serialized as a model file for later usage.
+
+To tag a new text with the most relevant keywords, the ControlledTagger tokenizes the input text and stems the tokens using the SnowballStemmer. Tokens are now in their stemmed form, that is, tokens such as ``blogging'' and ``blogs'' became ``blog''.
+
+All tokens that match a tag from the controlled vocabulary in the index are held in a bag-of-words which also stores the frequencies of the tokens in the input text. Using this data, we can calculate the TF-IDF values for each tag candidate. The TF-IDF scores are used to rank the tags initially. Another ranking step is performed by using the tag correlation table from the index.
+
+The ControlledTagger can be configured using the ControlledTaggerSettings class. You can configure the following behaviors:
+\begin{enumerate}
+\item TF-IDF threshold under which the tags should be discarded OR alternatively, the number of fixed tags per document.
+\item The correlation re-ranking modus.
+\item The stemmer to use
+\item The stop words list
+\item A list of regular expression that the tags need to match in order to be assigned
+\end{enumerate}
+
+\begin{codelisting}
+\label{listing:useNER}
+\begin{lstlisting}[frame=tb]
+ControlledTagger tagger = new ControlledTagger();
+System.out.println(tagger);
+\end{lstlisting}
+\end{codelisting}
+
+The keyword extraction is state-of-the art and beats the comparable system ``Maui''\cite{medelyan2009human} by 18.9\% in the F1-Score.
+More information about the controlled tagging can be found in \cite{katz2010diploma}.
+
 \subsection{Web Page Content Extraction}
 Content oriented web pages such as blogs or news articles contain not only the text of interest but also clutter such as the navigation, footer, header, and ads. In order to automatically process the text without the clutter, we need to extract the text content. Figure \ref{fig:webpagecontentextractor} shows an example web page where the main article is in the green box. Everything else is just clutter and should not be extracted when looking for the unique article.
 
 \begin{figure}[ht!]
 \includegraphics[width=\textwidth]{img/webpagecontentextractor.png}
-\caption{Article content of a web page marked with a green box.}
+\caption{Article content of a web page marked with a green box  \cite{katz2010diploma}.}
 \label{fig:webpagecontentextractor}
 \end{figure}
 
@@ -675,8 +698,27 @@ The TOOLKIT wraps 7 Named Entity Recognizers using a single interface making it 
 \paragraph{TUD} The TUD named entity recognizer was developed at the Dresden University of Technology. The recognizer is based on a list lookup and dictionary classification approach. So far no trained models exist for this tagger.
 
 \subsubsection{Tagging a Text}
+To use an NER you need two things: A text that you want to tag and a model for the tagger that has been trained to recognize the entities you want to find in the given text.
+The tagging works the same for all NERs and is shown in Listing \ref{listing:useNER}.
+
+\begin{codelisting}
+\label{listing:useNER}
+\begin{lstlisting}[frame=tb]
+NamedEntityRecognizer ner = new TUDNER();
+String inputText = "The iphone 4 is the successor of the iphone 3gs.";
+String modelPath = "data/models/tudner/phone.model";
+String taggedText = ner.tag(inputText, modelPath);
+System.out.println(taggedText);
+// desired output
+// The <PHONE>iphone 4</PHONE> is the successor of the <PHONE>iphone 3gs</PHONE>.
+\end{lstlisting}
+\end{codelisting}
 
 \subsubsection{Training a Tagger}
+
+Some of the available taggers come with trained models that can be used to detect entities. However, the concepts they were trained for might not be sufficient for the application you have in mind, therefore, you need to create your own training set with entities from your domain and learn a tagger using that data. This section explains which tagging formats are available and how models for the available taggers can be trained.
+
+First we start with the tagging formats which can be used to create a training set.
 
 \paragraph{Tagging Formats}
 Many tagging types have been developed which makes interoperability between different systems harder. TOOLKIT can handle many of these formats and is able to transform a tagged text within these formats. 
@@ -746,6 +788,57 @@ The FileFormatParser can transform the formats back and forth as shown in Figure
 \label{fig:taggingFormats}
 \end{figure}
 
+\paragraph{Using the training set}
+Once you have created your training set, you should use the FileFormatParser to transform it into a tab separated column tagging format (if it isn't in this format already).
+
+It is not possible to train a model for the web-based taggers Alchemy and OpenCalais. All other taggers can be trained using the train method, that requires the training file and a model configuration parameter which is different for each tagger.
+
+Let us assume we want to train a model for each trainable tagger to recognize mobile phone names. You should have tagged training data in column separated form as shown below. Usually, the more training data you have, the more stable the trained model. This training data is stored in a tsv file called ``phoneTraining.tsv''.
+
+\begin{verbatim}
+The	O
+iphone	PHONE
+4	PHONE
+sells	O
+very	O
+well O
+.	O
+\end{verbatim}
+
+Each tagger can be trained as shown in Listing \ref{listing:trainNER}. The only parameter which is used differently for each tagger is the ``modelConfig''. Table \ref{tab:nerConfig} shows what that parameter means for each trainable recognizer.
+
+\begin{table}[ht]
+\centering
+\caption{Configuration parameters to train named entity recognizers.}
+\begin{tabular}{|l|l|l|}
+\hline
+NER		& Parameter meaning & Example \\
+\hline
+IllinoisLbjNER	& Path to a configuration file, in this file you can specify which features and parameters should be used and where the trained model should be saved &	data/models/illinoisner/training/baselineFeatures.config \\
+\hline
+LingPipeNER	& Output path for the trained model &	data/models/lingpipe/phoneModel.model \\
+\hline
+OpenNLPNER	& Output path for the trained model, the filename must follow the format ``openNLP_TAG.bin.gz'' since you can only train one tag per model &	data/models/opennlp/openNLP_phone.bin.gz \\
+\hline
+StanfordNER	& Path to a configuration file, in this file you can specify which features and parameters should be used and where the trained model should be saved &	data/models/lingpipe/training/austen.prop \\
+\hline
+TUDNER	& Output path for the trained model &	data/models/tudner/phoneModel.model \\
+\hline
+\end{tabular} 
+\label{tab:nerConfig}
+\end{table}
+
+\begin{codelisting}
+\label{listing:trainNER}
+\begin{lstlisting}[frame=tb]
+NamedEntityRecognizer ner = new StanfordNER();
+boolean successful = ner.train("phoneTraining.tsv", modelConfig);
+String successfulOutput = "successful";
+if (!successful) {successfulOutput = "not successful";}
+System.out.println("Training of " + ner.getName() + " was " + successfulOutput);
+\end{lstlisting}
+\end{codelisting}
+
 \subsubsection{Evaluating a Tagger}
 
 \section{Retrieval}
@@ -754,6 +847,30 @@ The FileFormatParser can transform the formats back and forth as shown in Figure
 \paragraph{Feed Retrieval}
 
 \section{Preprocessing}
+\subsection{Tokenization}
+A \textit{Token} is a sequence of characters that can be categorized according to the tokenization rules. \textit{Tokenization} is the process of transforming a text into a sequence of tokens. Table \ref{tab:tokenTypes} shows example token types. The text ``Today I lost \$1000 dollar playing poker.'' could consists of 8 tokens for example. What token types exist depend on the application. The dollar sign could be a single token for example. TOOLKIT uses regular expressions to perform the tokenization.
+
+\begin{table}[ht!]
+\centering
+\caption{Example types of tokens.}
+\begin{tabular}{|l|l|}
+\hline
+Character sequence		& Token type \\
+\hline
+many			& word \\
+\hline
+\$1000		& amount of money  \\
+\hline
+26.09.2010	& date \\
+\hline
+.				& punctuation \\
+\hline
+\end{tabular} 
+\label{tab:tokenTypes}
+\end{table}
+
+One can also see each sentence of a text as a token, in this case the tokenization process is called sentence splitting as explained int he next section.
+
 \subsection{Sentence Splitting}
 TOOLKIT has a rudimentary implementation for the common need for sentence splitting. TOOLKIT's implementation works with hand-crafted rules and thus does not require a model. Sentences try to be splitted on periods, question marks, and exclamation marks but there are also rules that try to prevent splitting sentences at ellipses. For example, the following is online one sentence although it contains several periods: ``Sometimes sentenes contain many periods...really!''.
 
@@ -771,8 +888,18 @@ CollectionHelper.print(sentences);
 
 You can also get a specific sentence by providing a phrase that is part of the sentence using the getSentence method.
 
-\subsection{Tokenization}
 \subsection{Creating N-Grams}
+\label{sec:ngrams}
+
+N-grams are sets of tokens of the length n. We can distinguish two main types of n-grams:
+
+\begin{enumerate}
+\item \textbf{Character level n-grams} use each character of the string as a token. For example, from the string ``It is sunny'' we can create the following set of 3-grams: ${it ,t i, is,is ,s s, su,sun,unn,nny}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $9 = 11 - 3 + 1$.
+\item \textbf{Word level n-grams} use each word (separated with white space) of the string as a token. For example, from the string ``It is so nice and sunny today'' we can create the following set of 3-grams: ${It is so,is so nice,so nice and,nice and sunny,and sunny today}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $5 = 7 - 3 + 1$. If you want to have single words as features for the text classifier you can simply use unigrams or bigrams which are n-grams with $n=1$ or $n=2$ respectively.
+\end{enumerate}
+
+The document preprocessor allows you to create a set of n-grams with different length too. For example, you can create all 2-grams, 3-grams, and 4-grams for the given input text.
+
 \subsection{Noun Pluralization and Singularization}
 TOOLKIT is able to transform most English singular nouns to their plural and back. For example, ``city'' becomes ``cities'' and ``index'' becomes ``indices''.
 
