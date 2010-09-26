@@ -334,15 +334,14 @@ The TUDIIR Toolkit is managed using subversion. The top level folder structure f
 toolkit
  |- config
  |- data
+    |- datasets
     |- knowledgeBase
     |- models
     |- test
  |- documentation
     |- handout
     |- javadoc
-    |- other
  |- exe
- |- libs
  |- src
     |- main
        |- java
@@ -652,10 +651,14 @@ In TOOLKIT we use an approach that is based on a hierarchical analyzis of the we
 \subsection{Date Extraction}
 \subsection{Named Entity Recognition}
 
-TODO whatis
+{\it Named Entity Recognition} (NER) is the task of recognizing and disambiguating known and unknown entities in documents. In order to understand the task we need to understand what an {\it entity} is. An entity is a collection of rigidly designated chunks of text that refer to exactly one or multiple identical, real or abstract concept instances. These instances can have several aliases and one name can refer to different instance \cite{webknoxblogne}. So for example ``Iron Man 2'' and ``Iron-Man 2'' are two different chunks of text which however refer to the same movie. Common types of entities are people (e.g. ``Jim Carrey''), locations (e.g. ``Los Angeles''), and organizations (e.g. ``Google Inc.'').
+
+A named entity recognizer is therefore a system or technique that tries to detect entities in a given natural language text. For example, an NER system that is used to detect people, locations, and organizations should be able to find the bold entities in the following text:
+
+{\textbf Bill Gates} founded {\textbf Microsoft} with {\textbf Paul Allen} in 1975 in {\textbf Albuquerque, New Mexico}. The headquarter is located in {\textbf Redmond, Washington} and the company is led by CEO {\textbf Steve Ballmer}.
 
 \subsubsection{Taggers}
-The TOOLKIT wraps 7 Named Entity Recognizers (NER) using a single interface making it easier to test and substitute them in real world applications.
+The TOOLKIT wraps 7 Named Entity Recognizers using a single interface making it easier to test and substitute them in real world applications.
 
 \paragraph{Alchemy} The Alchemy API is a web-based service that also offers Named Entity Recognition. Using this NER requires the application to have a developer key and Internet access. Alchemy covers a wide range of concepts. For more details see \url{http://www.alchemyapi.com/api/entity/types.html} or the JavaDoc.
 
@@ -672,7 +675,77 @@ The TOOLKIT wraps 7 Named Entity Recognizers (NER) using a single interface maki
 \paragraph{TUD} The TUD named entity recognizer was developed at the Dresden University of Technology. The recognizer is based on a list lookup and dictionary classification approach. So far no trained models exist for this tagger.
 
 \subsubsection{Tagging a Text}
+
 \subsubsection{Training a Tagger}
+
+\paragraph{Tagging Formats}
+Many tagging types have been developed which makes interoperability between different systems harder. TOOLKIT can handle many of these formats and is able to transform a tagged text within these formats. 
+
+The different tagging are explained in this section using the same example text: ``Bill Gates founded Microsoft in 1975.''.
+
+\subparagraph{Slash} The slash notation tags a given text with a slash and the tag right after the word. The sample text in the slash notation would look as show below.
+
+\begin{verbatim}
+Bill/PERSON Gates/PERSON founded Microsoft/ORGANIZATION in 1975/DATE.
+\end{verbatim}
+
+\subparagraph{Bracket} The bracket notation wraps the word in brackets. The sample tags would look as shown below.
+
+\begin{verbatim}
+[Bill Gates PERSON] founded [Microsoft ORGANIZATION] in [1975 DATE].
+\end{verbatim}
+
+\subparagraph{Column (BIO)} The column notation is one of the most widely used. For example the CoNLL NER dataset uses this format. The text is tokenized and on each line of the tagged text there is only one token (word) with its related tag separated by a space or tab. The BIO format means {\textbf B}eginning, cont{\textbf I}nue, and {\textbf O}utside. The BIO format can help to distinguish entities of the same type that are written close together.
+
+The sample text in the column format would look as shown below. The ``O'' tag stands for ``outside'', that is no matching tag has been found.
+
+\begin{verbatim}
+Bill PERSON
+Gates PERSON
+founded O
+Microsoft ORGANIZATION
+in O
+1975 DATE
+. O
+\end{verbatim}
+
+The sample text in the column BIO format would look as shown below.
+
+\begin{verbatim}
+Bill B-PERSON
+Gates I-PERSON
+founded O
+Microsoft B-ORGANIZATION
+in O
+1975 B-DATE
+. O
+\end{verbatim}
+
+If we had another person name right after the first one, our tagger might think that it was only one person if we use the column notation. In the column BIO notation, both persons could be distinguished because the second one would start with B-PERSON.
+
+\subparagraph{XML} The XML notation is very common too and is the favored one in TOOLKIT. Similarly to the brackets notation, the XML notation wraps the word in an XML tag. The sample tags would look as shown below.
+
+\begin{verbatim}
+<PERSON>Bill Gates</PERSON> founded <ORGANIZATION>Microsoft</ORGANIZATION> in <DATE>1975</DATE>.
+\end{verbatim}
+
+\subparagraph{List} The list notation is a separate file which contains references to the marked entities in the text. For each marked entity it contains its name, its start and stop index, and its tag. The sample list file for the sample text would look as shown below.
+
+\begin{verbatim}
+Bill Gates, 0-10, PERSON
+Microsoft, 19-28, ORGANIZATION
+1975, 32-36, DATE
+\end{verbatim}
+
+The FileFormatParser can transform the formats back and forth as shown in Figure \ref{fig:taggingFormats}. As you can see, we can transform every format to the XML notation which will be used to create an annotation list for the tagged text.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\columnwidth]{img/taggingFormats.pdf}
+\caption{Possible transformation of tagging formats.}
+\label{fig:taggingFormats}
+\end{figure}
+
 \subsubsection{Evaluating a Tagger}
 
 \section{Retrieval}
@@ -1067,6 +1140,8 @@ The code is in development by students of the Dresden University of Technology. 
 \item Christopher Friedrich
 \item Martin Gregor
 \item Philipp Katz
+\item Klemens Muthmann
+\item Sandro Reichert
 \item David Urbansky
 \item Robert Willner
 \item Martin Werner
