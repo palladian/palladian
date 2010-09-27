@@ -62,6 +62,7 @@ import org.xml.sax.SAXException;
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.extraction.entity.EntityExtractor;
 import tud.iir.extraction.mio.MIOExtractor;
+import tud.iir.helper.Callback;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
@@ -137,22 +138,25 @@ public class Crawler {
     /** number of active threads */
     private int threadCount = 0;
 
-    /** accumulates the download size in bytes for this crawler */
+    /** accumulates the download size in bytes for this crawler. */
     private int totalDownloadSize = 0;
 
-    /** saves the last download size in bytes for this crawler */
+    /** Saves the last download size in bytes for this crawler. */
     private int lastDownloadSize = 0;
 
-    /** keep track of the total number of bytes downloaded by all crawler instances used */
+    /** Keep track of the total number of bytes downloaded by all crawler instances used. */
     public static long sessionDownloadedBytes = 0;
 
-    /** the callback that is called after each crawled page */
+    /** The callback that is called after each crawled page. */
     private Set<CrawlerCallback> crawlerCallbacks = new HashSet<CrawlerCallback>();
 
-    /** whether to use HTTP compression or not */
+    /** The callback that is called after the crawler finished crawling. */
+    private Callback crawlerCallbackOnFinish = null;
+    
+	/** Whether to use HTTP compression or not. */
     private boolean useCompression = true;
 
-    /** do feed auto discovery for every parsed page */
+    /** Try to use feed auto discovery for every parsed page. */
     private boolean feedAutodiscovery = false;
 
     // ////////////////// crawl settings ////////////////////
@@ -283,6 +287,11 @@ public class Crawler {
              */
             // urlIterator = urlStack.iterator();
         }
+        
+        // wait for the threads to finish
+        while (getThreadCount() > 0) {
+            ThreadHelper.sleep(500);
+        }
 
         LOGGER.info("-----------------------------------------------");
         LOGGER.info("-----------------------------------------------");
@@ -291,7 +300,11 @@ public class Crawler {
         while (urlDumpIterator.hasNext()) {
             LOGGER.info(urlDumpIterator.next());
         }
-
+        
+        if (crawlerCallbackOnFinish != null) {
+        	crawlerCallbackOnFinish.callback();
+        }
+        
     }
 
     private synchronized String getURLFromStack() {
@@ -384,7 +397,7 @@ public class Crawler {
         Document document = getWebDocument(currentURL);
 
         Set<String> links = getLinks(document, inDomain, outDomain);
-        LOGGER.info("\n\nretrieved " + links.size() + " links from " + currentURL + " || " + urlStack.size()
+        LOGGER.info("\n\nretrieved " + links.size() + " links from " + currentURL + " || stack size: " + urlStack.size()
                 + " dump size: " + urlDump.size() + ", visited: " + visitedURLs.size());
 
         // moved this method call to setDocument method ... Philipp, 2010-06-13
@@ -900,6 +913,7 @@ public class Crawler {
             LOGGER.error(url + ", " + e.getMessage());
         } catch (Exception e) {
             LOGGER.error(url + ", " + e.getClass() + " " + e.getMessage());
+            e.printStackTrace();
         }
 
     }
@@ -1271,11 +1285,19 @@ public class Crawler {
     public void addCrawlerCallback(CrawlerCallback crawlerCallback) {
         crawlerCallbacks.add(crawlerCallback);
     }
-
+    
     public void removeCrawlerCallback(CrawlerCallback crawlerCallback) {
         crawlerCallbacks.remove(crawlerCallback);
     }
+    
+    public Callback getCrawlerCallbackOnFinish() {
+		return crawlerCallbackOnFinish;
+	}
 
+	public void setCrawlerCallbackOnFinish(Callback crawlerCallbackOnFinish) {
+		this.crawlerCallbackOnFinish = crawlerCallbackOnFinish;
+	}
+    
     public int getMaxThreads() {
         return maxThreads;
     }
@@ -1413,9 +1435,7 @@ public class Crawler {
      */
     public void changeProxy() {
         Proxy selectedProxy = proxyList.poll();
-        if (selectedProxy == null) {
-            LOGGER.warn("proxy could not be changed because proxy list is empty");
-        } else {
+        if (selectedProxy != null) {
             setProxy(selectedProxy);
             proxyList.add(selectedProxy);
             LOGGER.debug("changed proxy to " + selectedProxy.address());
@@ -1432,7 +1452,9 @@ public class Crawler {
         try {
             // try to download from Google, if downloading fails we get IOException
             downloadInputStream("http://www.google.com", false);
-            LOGGER.debug("proxy " + getProxy().address() + " is working.");
+            if (getProxy() != null) {
+            	LOGGER.debug("proxy " + getProxy().address() + " is working.");
+            }
             result = true;
         } catch (IOException e) {
             result = false;
