@@ -28,6 +28,9 @@ public class DictionaryClassifier extends TextClassifier {
     /** The context map: matrix of terms x categories with weights in cells. */
     protected Dictionary dictionary = null;
 
+    /** The path to the dictionary, whether where it should be or has been serialized. */
+    private String dictionaryPath = "";
+
     /** Hold all possible dictionaries in a map. */
     protected Map<Integer, Dictionary> dictionaries = new HashMap<Integer, Dictionary>();
 
@@ -37,10 +40,13 @@ public class DictionaryClassifier extends TextClassifier {
         dictionary = new Dictionary(getName(), ClassificationTypeSetting.SINGLE);
     }
 
-    public DictionaryClassifier(String name) {
+    public DictionaryClassifier(String name, String dictionaryPath) {
         ClassifierManager.log("DictionaryClassifier created");
         setName(name);
+        setDictionaryPath(dictionaryPath);
+
         dictionary = new Dictionary(getName(), ClassificationTypeSetting.SINGLE);
+        dictionary.setIndexPath(dictionaryPath);
     }
 
     public void init() {
@@ -124,23 +130,27 @@ public class DictionaryClassifier extends TextClassifier {
     }
 
     @Override
-    public void save() {
-        saveDictionary(true, true);
+    public void save(String path) {
+        saveDictionary(path, true, true);
     }
 
     /**
      * Serialize the dictionary. All category information and parameters will be saved in the .ser file. The actual
-     * dictionary will be stored in the dictionary
-     * index.
+     * dictionary will be stored in the dictionary index.
      * 
      * @param classType The class type for the dictionary to distinguish the name.
      */
-    public void saveDictionary(boolean indexFirst, boolean deleteIndexFirst) {
+    public void saveDictionary(String path, boolean indexFirst, boolean deleteIndexFirst) {
+
+        if (path.length() > 0 && !path.endsWith("/")) {
+            path += "/";
+        }
 
         LOGGER.info("saving the dictionary");
-        dictionary.serialize("data/models/" + getName() + ".ser", indexFirst, deleteIndexFirst);
+        dictionary.serialize(path + getName() + ".ser", indexFirst, deleteIndexFirst);
         // dictionary.index("data/models/dictionaryIndex_"+getName()+"_"+classType);
-        System.out.println("saved model");
+
+        LOGGER.info("saved model at " + path + getName() + ".ser");
         // dictionary.saveAsCSV();
 
         // we now have to use the index for classification because the in-memory dictionary is empty
@@ -157,7 +167,7 @@ public class DictionaryClassifier extends TextClassifier {
     public void loadDictionary(int classType) {
 
         if (dictionaries.get(classType) == null) {
-            String modelFilePath = "data/models/" + getName() + ".ser";
+            String modelFilePath = getDictionaryPath() + getName() + ".ser";
             dictionary = (Dictionary) FileHelper.deserialize(modelFilePath);
 
             // all serialized dictionaries must use the index since their dictionaries are not serialized
@@ -463,6 +473,17 @@ public class DictionaryClassifier extends TextClassifier {
 
     public void setDictionary(Dictionary dictionary) {
         this.dictionary = dictionary;
+    }
+
+    public void setDictionaryPath(String dictionaryPath) {
+        if (dictionaryPath.length() > 0 && !dictionaryPath.endsWith("/")) {
+            dictionaryPath += "/";
+        }
+        this.dictionaryPath = dictionaryPath;
+    }
+
+    public String getDictionaryPath() {
+        return dictionaryPath;
     }
 
 }

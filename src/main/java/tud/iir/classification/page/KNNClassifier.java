@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
@@ -163,8 +163,8 @@ public class KNNClassifier extends TextClassifier implements Serializable {
     }
 
     @Override
-    public void save() {
-        FileHelper.serialize(this, "data/models/" + getName() + ".ser");
+    public void save(String path) {
+        FileHelper.serialize(this, path + getName() + ".ser");
     }
     
     public int getK() {

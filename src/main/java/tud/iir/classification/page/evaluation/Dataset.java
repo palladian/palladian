@@ -14,6 +14,11 @@ public class Dataset {
     /** The character sequence that splits the training data and the class in the input file. */
     private String separationString = " ";
 
+    /**
+     * Whether the first field that is separated by the separation string links to a document or is the document itself.
+     */
+    private boolean firstFieldLink = false;
+
     public void setPath(String path) {
         this.path = path;
     }
@@ -28,6 +33,14 @@ public class Dataset {
 
     public String getSeparationString() {
         return separationString;
+    }
+
+    public void setFirstFieldLink(boolean firstFieldLink) {
+        this.firstFieldLink = firstFieldLink;
+    }
+
+    public boolean isFirstFieldLink() {
+        return firstFieldLink;
     }
 
     @Override

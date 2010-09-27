@@ -72,9 +72,8 @@ public class LingPipeNER extends NamedEntityRecognizer {
     public boolean train(String trainingFilePath, String modelFilePath) {
 
         try {
-            FileFormatParser ffp = new FileFormatParser();
             String trainingFilePath2 = trainingFilePath.replaceAll("\\.", "_tranformed.");
-            ffp.tsvToSsv(trainingFilePath, trainingFilePath2);
+            FileFormatParser.tsvToSsv(trainingFilePath, trainingFilePath2);
 
             File corpusFile = new File(trainingFilePath2);
             File modelFile = new File(modelFilePath);

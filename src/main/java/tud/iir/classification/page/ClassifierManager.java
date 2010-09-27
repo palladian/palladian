@@ -461,11 +461,12 @@ public class ClassifierManager {
             if (createDictionaryNGramSearchMode && createDictionaryIteratively) {
                 preprocessDocumentsFast(classifier.getClassificationType());
             } else {
-                preprocessDocuments(classifier.getClassificationType(), createDictionaryIteratively, true);
+                preprocessDocuments(classifier.getClassificationType(), createDictionaryIteratively, true,
+                        dataset.isFirstFieldLink());
             }
 
         } else {
-            preprocessDocuments(classifier.getClassificationType(), true, true);
+            preprocessDocuments(classifier.getClassificationType(), true, true, dataset.isFirstFieldLink());
         }
 
         LOGGER.info("loaded and preprocessed successfully");
@@ -489,7 +490,8 @@ public class ClassifierManager {
 
         // save the dictionary (serialize, in-memory dictionary will be deleted at this point)
         if (classifier instanceof DictionaryClassifier && classifier.isSerialize()) {
-            ((DictionaryClassifier) classifier).saveDictionary(!createDictionaryIteratively, true);
+            ((DictionaryClassifier) classifier).saveDictionary(((DictionaryClassifier) classifier).getDictionaryPath(),
+                    !createDictionaryIteratively, true);
         }
 
     }
@@ -503,7 +505,7 @@ public class ClassifierManager {
         // read the testing URLs from the given dataset
         readTrainingTestingData(dataset, false, classifier.getClassificationType());
 
-        preprocessDocuments(classifier.getClassificationType(), false, false);
+        preprocessDocuments(classifier.getClassificationType(), false, false, dataset.isFirstFieldLink());
 
         if (classifier instanceof DictionaryClassifier) {
             classifier.setCategories(((DictionaryClassifier) classifier).getCategories());
@@ -850,7 +852,7 @@ public class ClassifierManager {
     /**
      * Create a document representation of the data read.
      */
-    private void preprocessDocuments(int classType, boolean addToDictionary, boolean forTraining) {
+    private void preprocessDocuments(int classType, boolean addToDictionary, boolean forTraining, boolean firstFieldLink) {
 
         int size = 0;
         if (forTraining) {
@@ -875,11 +877,18 @@ public class ClassifierManager {
                 preprocessedDocument = new TestDocument();
             }
 
-            String url = tData[0];
+            String firstField = tData[0];
 
-            preprocessedDocument = classifier.preprocessDocument(url, preprocessedDocument);
+            String documentContent = firstField;
 
-            preprocessedDocument.setUrl(tData[0]);
+            // if the first field should be interpreted as a link to the actual document, get it and preprocess it
+            if (firstFieldLink) {
+                documentContent = FileHelper.readFileToString(firstField);
+            }
+
+            preprocessedDocument = classifier.preprocessDocument(documentContent, preprocessedDocument);
+
+            preprocessedDocument.setUrl(firstField);
 
             Categories categories = new Categories();
             for (int j = 1; j < tData.length; j++) {
@@ -1061,10 +1070,16 @@ public class ClassifierManager {
         this.trainingDataPercentage = trainingDataPercentage;
     }
 
-    public static TextClassifier load(String classifierName) {
+    // TODO save and load KNN too
+    public static TextClassifier load(String classifierPath) {
         TextClassifier classifier;
 
-        classifier = new DictionaryClassifier(classifierName);
+        String classifierName = FileHelper.getFileName(classifierPath);
+        String classifierFolder = FileHelper.getFilePath(classifierPath);
+
+        classifier = new DictionaryClassifier(classifierName, classifierFolder);
+
+        // classifier = (TextClassifier) FileHelper.deserialize(classifierPath);
         ((DictionaryClassifier) classifier).loadDictionary();
 
         return classifier;
@@ -1125,6 +1140,9 @@ public class ClassifierManager {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
+        trainLanguageModel();
+        System.exit(0);
+
         // args = new String[4];
         // // args[0] = "--trainingFile";
         // args[0] = "--testingFile";
@@ -1162,7 +1180,7 @@ public class ClassifierManager {
 
             if (cmd.hasOption("name")) {
                 if (cmd.hasOption("trainingFile")) {
-                    classifier = new DictionaryClassifier(cmd.getOptionValue("name"));// new KNNClassifier();
+                    classifier = new DictionaryClassifier(cmd.getOptionValue("name"), "");// new KNNClassifier();
                 } else if (cmd.hasOption("testingFile")) {
                     classifier = ClassifierManager.load(cmd.getOptionValue("name"));
                 }
@@ -1190,7 +1208,7 @@ public class ClassifierManager {
                 classifierManager.trainClassifier(dataset, classifier);
 
                 if (cmd.hasOption("name")) {
-                    classifier.save();
+                    classifier.save("");
                 }
 
             }
@@ -1325,5 +1343,42 @@ public class ClassifierManager {
         System.out.println("finished training and testing classifier in " + stopWatch.getElapsedTimeString());
         System.exit(0);
 
+    }
+
+    public static void trainLanguageModel() {
+        // ///////////////////////////// learn classifiers /////////////////////////////////
+        ClassifierManager classifierManager = new ClassifierManager();
+        Dataset dataset = new Dataset();
+        dataset.setPath("data/datasets/classification/language/languageDocumentIndex2.txt");
+        dataset.setFirstFieldLink(true);
+
+        TextClassifier classifier = new DictionaryClassifier("LanguageClassifier", "data/models/textClassifiers/");
+        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+        classificationTypeSetting.setSerializeClassifier(true);
+        FeatureSetting featureSetting = new FeatureSetting();
+        classifier.setClassificationTypeSetting(classificationTypeSetting);
+        classifier.setFeatureSetting(featureSetting);
+
+        // train and test all classifiers
+        StopWatch stopWatch = new StopWatch();
+
+        // train
+        // dataset.setPath("data/temp/opendirectory_urls_noregional_small_train.txt");
+        // classifierManager.trainClassifier(dataset, classifier);
+
+        // test
+        // dataset.setPath("data/temp/opendirectory_urls_noregional_small_test.txt");
+        // classifierManager.testClassifier(dataset, classifier);
+
+        // train + test
+        EvaluationSetting evaluationSetting = new EvaluationSetting();
+        evaluationSetting.setTrainingPercentageMin(50);
+        evaluationSetting.setTrainingPercentageMax(50);
+        evaluationSetting.setkFolds(1);
+        evaluationSetting.addDataset(dataset);
+        classifierManager.trainAndTestClassifier(classifier, evaluationSetting);
+
+        System.out.println("finished training and testing classifier in " + stopWatch.getElapsedTimeString());
+        System.exit(0);
     }
 }
