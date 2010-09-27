@@ -99,6 +99,7 @@ public class CrossValidator {
         for (Dataset dataset : getEvaluationSetting().getDatasets()) {
 
             trainingTestingDataset.setSeparationString(dataset.getSeparationString());
+            trainingTestingDataset.setFirstFieldLink(dataset.isFirstFieldLink());
 
             int trainingPercentageLoop = 0;
 

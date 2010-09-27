@@ -97,18 +97,20 @@ public class FileHelper {
 
     /**
      * Gets the file path.
-     *
-     * @param path the path
-     * @return the file path
+     * data/models/model1.ser => data/models/
+     * data/models/ => data/models/
+     * 
+     * @param path The full path.
+     * @return the The folder part of the path without the filename.
      */
     public static String getFilePath(String path) {
-        String fileName = path;
+        String filePath = path;
         int lastDot = path.lastIndexOf(".");
         int lastSeparator = path.lastIndexOf("/") + 1;
         if (lastDot > -1) {
-            fileName = path.substring(0, lastSeparator);
+            filePath = path.substring(0, lastSeparator);
         }
-        return fileName;
+        return filePath;
     }
 
     /**
@@ -566,6 +568,12 @@ public class FileHelper {
         FileOutputStream fos = null;
         ObjectOutputStream out = null;
         try {
+
+            File outputFile = new File(FileHelper.getFilePath(filePath));
+            if (!outputFile.exists()) {
+                outputFile.mkdirs();
+            }
+
             fos = new FileOutputStream(filePath);
             out = new ObjectOutputStream(fos);
             out.writeObject(obj);
