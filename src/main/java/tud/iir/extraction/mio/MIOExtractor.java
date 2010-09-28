@@ -67,13 +67,13 @@ public final class MIOExtractor extends Extractor {
      * @param continueFromLastExtraction the continue from last extraction
      */
     public void startExtraction(final boolean continueFromLastExtraction) {
-        
+
         // these lines allow to train a new MIOClassifier if it doesn't exists
-//         MIOClassifier mioClass = new MIOClassifier();
-//         if (!mioClass.doesTrainedMIOClassifierExists()){
-//         mioClass.trainClassifier("data/miofeatures_scored.txt");
-//         mioClass.saveTrainedClassifier();
-//         }
+        // MIOClassifier mioClass = new MIOClassifier();
+        // if (!mioClass.doesTrainedMIOClassifierExists()){
+        // mioClass.trainClassifier("data/miofeatures_scored.txt");
+        // mioClass.saveTrainedClassifier();
+        // }
 
         LOGGER.info("start MIO extraction");
 
@@ -98,69 +98,67 @@ public final class MIOExtractor extends Extractor {
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
 
-            if (currentConcept.getName().toLowerCase().contains("mobile")) {
-                // load Entities from DB for current concept
-                currentConcept.loadEntities(false);
+            // load Entities from DB for current concept
+            currentConcept.loadEntities(false);
+
+            if (isStopped()) {
+                LOGGER.info("mio extraction process stopped");
+                // Clean the SWF-File-DownloadDirectory
+                // FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
+                break;
+            }
+
+            // iterate through all entities of current concept
+            ArrayList<Entity> conceptEntities;
+            if (continueFromLastExtraction) {
+                conceptEntities = currentConcept.getEntitiesByDate();
+            } else {
+                conceptEntities = currentConcept.getEntities();
+            }
+
+            // wait for a certain time when no entities were found, then restart
+            if (conceptEntities.isEmpty()) {
+                LOGGER.info("no entities for mio extraction, continue with next concept");
+                continue;
+            }
+
+            final ThreadGroup extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
+
+            for (Entity currentEntity : conceptEntities) {
 
                 if (isStopped()) {
                     LOGGER.info("mio extraction process stopped");
-                    // Clean the SWF-File-DownloadDirectory
-                    // FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
                     break;
                 }
 
-                // iterate through all entities of current concept
-                ArrayList<Entity> conceptEntities;
-                if (continueFromLastExtraction) {
-                    conceptEntities = currentConcept.getEntitiesByDate();
-                } else {
-                    conceptEntities = currentConcept.getEntities();
-                }
+                currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
 
-                // wait for a certain time when no entities were found, then restart
-                if (conceptEntities.isEmpty()) {
-                    LOGGER.info("no entities for mio extraction, continue with next concept");
-                    continue;
-                }
+                LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
+                        + currentEntity.getConcept().getName() + ")");
+                final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
+                        currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, getKnowledgeManager());
+                mioThread.start();
 
-                final ThreadGroup extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
+                LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
 
-                for (Entity currentEntity : conceptEntities) {
-
-                    if (isStopped()) {
-                        LOGGER.info("mio extraction process stopped");
+                int count = 0;
+                while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
+                    LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
+                            + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
+                    if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
+                        LOGGER.warn("apparently " + getThreadCount()
+                                + " threads have not finished correctly but thread group is empty, continuing...");
+                        resetThreadCount();
                         break;
                     }
 
-                    currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
-
-                    LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
-                            + currentEntity.getConcept().getName() + ")");
-                    final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
-                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, getKnowledgeManager());
-                    mioThread.start();
-
-                    LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
-
-                    int count = 0;
-                    while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                        LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
-                                + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
-                        if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
-                            LOGGER.warn("apparently " + getThreadCount()
-                                    + " threads have not finished correctly but thread group is empty, continuing...");
-                            resetThreadCount();
-                            break;
-                        }
-
-                        ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
-                        if (isStopped()) {
-                            count++;
-                        }
-                        if (count > 1) {
-                            LOGGER.info("waited 25 iterations after stop has been called, breaking now");
-                            break;
-                        }
+                    ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+                    if (isStopped()) {
+                        count++;
+                    }
+                    if (count > 1) {
+                        LOGGER.info("waited 25 iterations after stop has been called, breaking now");
+                        break;
                     }
                 }
             }
