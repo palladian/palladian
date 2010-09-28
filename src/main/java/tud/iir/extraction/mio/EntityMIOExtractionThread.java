@@ -5,7 +5,6 @@
  */
 package tud.iir.extraction.mio;
 
-import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -15,7 +14,6 @@ import org.apache.log4j.Logger;
 
 import tud.iir.classification.mio.MIOClassifier;
 import tud.iir.helper.DateHelper;
-import tud.iir.helper.FileHelper;
 import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.Fact;
@@ -66,16 +64,16 @@ public class EntityMIOExtractionThread extends Thread {
         final long timeStamp1 = System.currentTimeMillis();
 
         // get MIO containing pages
-        List<MIO> mios = analyzeEntity(false);
+        final List<MIO> mios = analyzeEntity(false);
 
         // if no MIO was found, redo with focus on weak-interactive MIOs (it must be allowed in configFile)
-        if (mios.size() == 0 && InCoFiConfiguration.getInstance().redoWeak) {
+        if (mios.isEmpty() && InCoFiConfiguration.getInstance().redoWeak) {
             LOGGER.info("REDO with focus on weakInteraction for " + entity.getName());
             analyzeEntity(true);
         }
 
         // load the trainedClassifier
-        MIOClassifier mioClass = new MIOClassifier();
+        final MIOClassifier mioClass = new MIOClassifier();
         mioClass.loadTrainedClassifier();
 
         Set<MIO> mioSet = new HashSet<MIO>();
@@ -92,16 +90,14 @@ public class EntityMIOExtractionThread extends Thread {
         // detect and save rolePages
         detectRolePages(mioSet, entity);
 
-        printSetToHTMLFile(mioSet);
-
         // check that directURL- and findPageURL-length is not longer than 767
         for (MIO mio : mioSet) {
             if (mio.getDirectURL().length() >= 767) {
-                String directURL = mio.getDirectURL().substring(0, 766);
+                final String directURL = mio.getDirectURL().substring(0, 766);
                 mio.setDirectURL(directURL);
             }
             if (mio.getFindPageURL().length() >= 767) {
-                String findPageURL = mio.getFindPageURL().substring(0, 766);
+                final String findPageURL = mio.getFindPageURL().substring(0, 766);
                 mio.setFindPageURL(findPageURL);
             }
 
@@ -120,18 +116,18 @@ public class EntityMIOExtractionThread extends Thread {
 
     /**
      * Start analyzing an entity in detail.
-     *
+     * 
      * @param weakFlag the flag for retrieving weak-interactive MIOs (redo-function)
      * @return the list of retrieved MIOs
      */
-    private List<MIO> analyzeEntity(boolean weakFlag) {
+    private List<MIO> analyzeEntity(final boolean weakFlag) {
         final MIOPageRetriever pageRetr = new MIOPageRetriever();
         final List<MIOPage> mioPages = pageRetr.retrieveMIOPages(entity, weakFlag);
 
         // MIOAnalysis (content & context)
         final UniversalMIOExtractor mioExtr = new UniversalMIOExtractor(entity);
         final List<MIO> mios = mioExtr.analyzeMIOPages(mioPages);
-        
+
         return mios;
     }
 
@@ -166,14 +162,14 @@ public class EntityMIOExtractionThread extends Thread {
 
     /**
      * Removes the low-trusted MIOs.
-     *
+     * 
      * @param mioSet the set of MIOs
      * @return the set of MIOs which fulfill the trustLimit
      */
     private Set<MIO> removeLowTrustedMIOs(final Set<MIO> mioSet) {
-        //get the excludingTrustLimit from config
-        double trustLimit = InCoFiConfiguration.getInstance().excludingTrustLimit;
-       
+        // get the excludingTrustLimit from config
+        final double trustLimit = InCoFiConfiguration.getInstance().excludingTrustLimit;
+
         final Set<MIO> resultSet = new HashSet<MIO>();
         for (MIO mio : mioSet) {
             if (mio.getTrust() >= trustLimit) {
@@ -181,33 +177,5 @@ public class EntityMIOExtractionThread extends Thread {
             }
         }
         return resultSet;
-    }
-
-    /**
-     * Prints the set to HTML-File.
-     * 
-     * @param cleanedMIOs the cleanedMIOs
-     */
-    private void printSetToHTMLFile(final Set<MIO> cleanedMIOs) {
-
-        try {
-            FileHelper.appendFile("f:/test.html", "<html><body> <hr />");
-
-            for (MIO mio : cleanedMIOs) {
-                if (mio.getFeature("DedicatedPageTrustRelevance") > 0 && mio.getTrust() >= 30) {
-                    final String output = " TRUST: " + mio.getTrust() + "% Interactivity: "
-                            + mio.getInteractivityGrade() + " for Entity: " + mio.getEntity().getName() + " Type: "
-                            + mio.getMIOType() + " <a href=\"" + mio.getDirectURL() + "\">" + mio.getDirectURL()
-                            + "</a> founded on <a href=\"" + mio.getFindPageURL() + "\">" + mio.getFindPageURL()
-                            + "</a> <br><br>";
-                    // System.out.println(output);
-                    FileHelper.appendFile("f:/test.html", output + "\r\n");
-                }
-
-            }
-            FileHelper.appendFile("f:/test.html", "</body></html>");
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        }
     }
 }

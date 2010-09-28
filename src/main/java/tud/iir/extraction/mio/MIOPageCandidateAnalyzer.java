@@ -52,7 +52,7 @@ public class MIOPageCandidateAnalyzer {
         final IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
         final LinkAnalyzer linkAnalyzer = new LinkAnalyzer(swMatcher, entity.getConcept());
 
-        URLDownloader downloader = new URLDownloader();
+        final URLDownloader downloader = new URLDownloader();
         // set how many threads the urlDownloader can use (see configuration-file)
         downloader.setMaxThreads(InCoFiConfiguration.getInstance().urlDownloaderThreads);
         // add pages to downloader

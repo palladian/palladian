@@ -425,14 +425,13 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
         // // String urlString = "http://www.vivalagames.com/play/antbuster/game.swf";
         // String urlString = "http://media.tigerdirect.com/swf/HP EliteBook Flash Presentation.swf";
 
-        SWFContentAnalyzer mioca = new SWFContentAnalyzer();
+//        SWFContentAnalyzer mioca = new SWFContentAnalyzer();
 
-        File file = Crawler.downloadBinaryFile("http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/index.swf",
-                "F:/Temp/index.swf");
+//        File file = Crawler.downloadBinaryFile("http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/index.swf",
+//                "F:/Temp/index.swf");
 
         // File file = new File("F:/Temp/gallery.swf");
-        System.out.println(mioca.extractHeader(file).toString());
-
+      
         // String textContent = mioca.extractTextContent(file);
         // System.out.println(textContent);
         // System.out.println(textContent.length());

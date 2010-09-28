@@ -23,7 +23,7 @@ public class MIOPageRetriever {
      * @param entity the entity
      * @return the list
      */
-    public List<MIOPage> retrieveMIOPages(final Entity entity, boolean weakFlag) {
+    public List<MIOPage> retrieveMIOPages(final Entity entity, final boolean weakFlag) {
 
         List<MIOPage> mioPages;
 
@@ -55,7 +55,7 @@ public class MIOPageRetriever {
      * @param entity the entity
      * @return the list
      */
-    private List<String> generateSearchQueries(final Entity entity, boolean weakFlag) {
+    private List<String> generateSearchQueries(final Entity entity, final boolean weakFlag) {
         final MIOQueryFactory searchQueryFac = new MIOQueryFactory(entity, weakFlag);
         final List<String> searchQueries = searchQueryFac.generateSearchQueries();
 
