@@ -1,12 +1,16 @@
 package tud.iir.classification.page.evaluation;
 
+import java.io.Serializable;
+
 /**
  * More specific settings for the {@link ClassificationTypeSetting.TAG} setting.
  * 
  * @author David Urbansky
  * 
  */
-public class ClassificationTypeTagSetting {
+public class ClassificationTypeTagSetting implements Serializable {
+
+    private static final long serialVersionUID = -8283073272037116796L;
 
     /** Only tags that are classified with a confidence above the threshold are assigned. */
     private double tagConfidenceThreshold = 0.0;

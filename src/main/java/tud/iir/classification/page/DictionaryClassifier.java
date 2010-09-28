@@ -25,6 +25,8 @@ import tud.iir.helper.TreeNode;
  */
 public class DictionaryClassifier extends TextClassifier {
 
+    private static final long serialVersionUID = 5705851277677296181L;
+
     /** The context map: matrix of terms x categories with weights in cells. */
     protected Dictionary dictionary = null;
 
@@ -37,7 +39,7 @@ public class DictionaryClassifier extends TextClassifier {
     public DictionaryClassifier() {
         ClassifierManager.log("DictionaryClassifier created");
         setName("DictionaryClassifier");
-        dictionary = new Dictionary(getName(), ClassificationTypeSetting.SINGLE);
+        dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
     }
 
     public DictionaryClassifier(String name, String dictionaryPath) {
@@ -45,7 +47,7 @@ public class DictionaryClassifier extends TextClassifier {
         setName(name);
         setDictionaryPath(dictionaryPath);
 
-        dictionary = new Dictionary(getName(), ClassificationTypeSetting.SINGLE);
+        dictionary = new Dictionary(getDictionaryName(), ClassificationTypeSetting.SINGLE);
         dictionary.setIndexPath(dictionaryPath);
     }
 
@@ -132,6 +134,12 @@ public class DictionaryClassifier extends TextClassifier {
     @Override
     public void save(String path) {
         saveDictionary(path, true, true);
+        FileHelper.serialize(this, path + getName() + ".ser");
+    }
+
+    public void save(String path, boolean indexFirst, boolean deleteIndexFirst) {
+        saveDictionary(path, indexFirst, deleteIndexFirst);
+        FileHelper.serialize(this, path + getName() + ".ser");
     }
 
     /**
@@ -140,17 +148,17 @@ public class DictionaryClassifier extends TextClassifier {
      * 
      * @param classType The class type for the dictionary to distinguish the name.
      */
-    public void saveDictionary(String path, boolean indexFirst, boolean deleteIndexFirst) {
+    private void saveDictionary(String path, boolean indexFirst, boolean deleteIndexFirst) {
 
         if (path.length() > 0 && !path.endsWith("/")) {
             path += "/";
         }
 
         LOGGER.info("saving the dictionary");
-        dictionary.serialize(path + getName() + ".ser", indexFirst, deleteIndexFirst);
+        dictionary.serialize(path + getDictionaryName() + ".ser", indexFirst, deleteIndexFirst);
         // dictionary.index("data/models/dictionaryIndex_"+getName()+"_"+classType);
 
-        LOGGER.info("saved model at " + path + getName() + ".ser");
+        LOGGER.info("saved model at " + path + getDictionaryName() + ".ser");
         // dictionary.saveAsCSV();
 
         // we now have to use the index for classification because the in-memory dictionary is empty
@@ -167,7 +175,7 @@ public class DictionaryClassifier extends TextClassifier {
     public void loadDictionary(int classType) {
 
         if (dictionaries.get(classType) == null) {
-            String modelFilePath = getDictionaryPath() + getName() + ".ser";
+            String modelFilePath = getDictionaryPath() + getDictionaryName() + ".ser";
             dictionary = (Dictionary) FileHelper.deserialize(modelFilePath);
 
             // all serialized dictionaries must use the index since their dictionaries are not serialized
@@ -484,6 +492,10 @@ public class DictionaryClassifier extends TextClassifier {
 
     public String getDictionaryPath() {
         return dictionaryPath;
+    }
+
+    public String getDictionaryName() {
+        return getName() + "Dictionary";
     }
 
 }

@@ -1,5 +1,6 @@
 package tud.iir.classification.page.evaluation;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -9,7 +10,9 @@ import java.util.Set;
  * @author David Urbansky
  * 
  */
-public class FeatureSetting {
+public class FeatureSetting implements Serializable {
+
+    private static final long serialVersionUID = 8129286644101075891L;
 
     /** Use n-Grams on a character level. */
     public static final int CHAR_NGRAMS = 1;

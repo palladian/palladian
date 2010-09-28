@@ -1,5 +1,6 @@
 package tud.iir.classification.page;
 
+import java.io.Serializable;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
@@ -18,7 +19,9 @@ import tud.iir.web.Crawler;
  * 
  * @author David Urbansky
  */
-public abstract class TextClassifier {
+public abstract class TextClassifier implements Serializable {
+
+    private static final long serialVersionUID = 7180813470321257741L;
 
     /** The logger for this class. */
     protected static final Logger LOGGER = Logger.getLogger(TextClassifier.class);
@@ -33,10 +36,10 @@ public abstract class TextClassifier {
     public Categories categories = null;
 
     /** A classifier has training documents. */
-    private ClassificationDocuments trainingDocuments = null;
+    private transient ClassificationDocuments trainingDocuments = new ClassificationDocuments();
 
     /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
-    private ClassificationDocuments testDocuments = null;
+    private transient ClassificationDocuments testDocuments = new ClassificationDocuments();
 
     /**
      * configurations for the classification type ({@link ClassificationTypeSetting.SINGLE},

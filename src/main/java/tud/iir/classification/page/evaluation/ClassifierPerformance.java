@@ -1,5 +1,7 @@
 package tud.iir.classification.page.evaluation;
 
+import java.io.Serializable;
+
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.Categories;
@@ -16,7 +18,9 @@ import tud.iir.classification.page.TextClassifier;
  * @author David Urbansky
  * 
  */
-public class ClassifierPerformance {
+public class ClassifierPerformance implements Serializable {
+
+    private static final long serialVersionUID = -7375053843995436850L;
 
     /** The classifier's categories. */
     private Categories categories = null;
