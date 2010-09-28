@@ -1,12 +1,20 @@
 package tud.iir.web;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
+import org.cyberneko.html.parsers.DOMParser;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import tud.iir.helper.Counter;
 import tud.iir.helper.ThreadHelper;
@@ -35,7 +43,7 @@ public class URLDownloader {
     private HashMap<String, InputStream> downloadedUrls = new HashMap<String, InputStream>();
 
     private int maxThreads = 10;
-    
+
     private int maxFails = 10;
 
     public void start(final URLDownloaderCallback callback) {
@@ -44,7 +52,7 @@ public class URLDownloader {
 
         // to count number of running Threads
         final Counter counter = new Counter();
-        
+
         final Counter errors = new Counter();
 
         while (urlStack.size() > 0) {
@@ -55,7 +63,7 @@ public class URLDownloader {
                 logger.trace("max # of Threads running. waiting ...");
                 ThreadHelper.sleep(1000);
             }
-            
+
             if (errors.getCount() == getMaxFails()) {
                 logger.warn("max. fails of " + getMaxFails() + " reached. giving up.");
                 return;
@@ -169,11 +177,11 @@ public class URLDownloader {
     public int getMaxThreads() {
         return maxThreads;
     }
-    
+
     public void setMaxFails(int maxFails) {
         this.maxFails = maxFails;
     }
-    
+
     public int getMaxFails() {
         return maxFails;
     }
@@ -181,7 +189,7 @@ public class URLDownloader {
     public static void main(String[] args) throws MalformedURLException {
         URLDownloader downloader = new URLDownloader();
 
-        downloader.setMaxThreads(10);
+        downloader.setMaxThreads(3);
 
         downloader.add("http://www.tagesschau.de/");
         downloader.add("http://www.spiegel.de/");
@@ -199,7 +207,11 @@ public class URLDownloader {
                 System.out.println("finished " + url);
             }
         });
-
+//        List<Document> webDocuments = downloader.getAllAsWebDocuments();
+//        for (Document webDocument: webDocuments){
+//            System.out.println(webDocument.getDocumentURI());
+//        }
+ 
         System.out.println("done");
 
     }

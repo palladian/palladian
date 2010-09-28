@@ -1,4 +1,5 @@
 /**
+ * The SearchAgent uses given queries to initiate a search at a searchEngine.
  * 
  * @author Martin Werner
  */
@@ -11,11 +12,6 @@ import java.util.Set;
 
 import tud.iir.web.SourceRetriever;
 
-/**
- * The SearchAgent uses given queries to initiate a search at a searchEngine.
- * 
- * @author Martin Werner
- */
 public class SearchAgent {
 
     /** The resultCount determines how many sources (URLs) should be retrieved. */
@@ -41,16 +37,19 @@ public class SearchAgent {
     public List<String> initiateSearch(final List<String> searchQueries) {
 
         List<String> mioPageCandidateList = querySearchEngine(searchEngine, searchQueries);
-
-//        mioPageCandidateList.addAll(querySearchEngine(6, searchQueries));
-
         mioPageCandidateList = removeDuplicates(mioPageCandidateList);
         System.out.println("Anzahl der mioPageCandidates: " + mioPageCandidateList.size());
-//        System.exit(1);
 
         return mioPageCandidateList;
     }
 
+    /**
+     * Query search engine.
+     * 
+     * @param searchEngine the search engine
+     * @param searchQueries the search queries
+     * @return the list
+     */
     private List<String> querySearchEngine(int searchEngine, List<String> searchQueries) {
         final SourceRetriever sRetriever = new SourceRetriever();
         sRetriever.setResultCount(resultCount);
@@ -59,19 +58,14 @@ public class SearchAgent {
         sRetriever.setLanguage(0);
         sRetriever.setSource(searchEngine);
 
-        // List<String> MIOPageCandidateList = null;
-
         final List<String> resultList = new ArrayList<String>();
 
         for (String searchQuery : searchQueries) {
-            // System.out.println(searchQuery);
             final List<String> resultURLList = sRetriever.getURLs(searchQuery, false);
-
             resultList.addAll(resultURLList);
         }
 
         return resultList;
-
     }
 
     /**
@@ -86,7 +80,5 @@ public class SearchAgent {
         resultList.addAll(hashSet);
 
         return resultList;
-
     }
-
 }
