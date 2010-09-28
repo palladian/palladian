@@ -146,6 +146,8 @@ public class Crawler {
 
     /** Keep track of the total number of bytes downloaded by all crawler instances used. */
     public static long sessionDownloadedBytes = 0;
+    
+    public static int numberOfDownloadedPages=0;
 
     /** The callback that is called after each crawled page. */
     private Set<CrawlerCallback> crawlerCallbacks = new HashSet<CrawlerCallback>();
@@ -930,6 +932,7 @@ public class Crawler {
      */
     public Document getWebDocument(String url) {
         setDocument(url, false, true);
+        numberOfDownloadedPages++;
         return getDocument();
     }
 
@@ -1561,6 +1564,10 @@ public class Crawler {
 
                 in.close();
                 out.close();
+               
+                int size = (int)binFile.length();
+                sessionDownloadedBytes += size;
+            
 
             } catch (Exception e) {
 
@@ -1864,6 +1871,26 @@ public class Crawler {
         }
 
         return documentString;
+    }
+    
+    public static Document getWebDocumentFromInputStream(InputStream iStream, String url){
+        DOMParser parser = new DOMParser();
+        Document document = null;
+              
+            try {
+                parser.parse(new InputSource(iStream));
+            } catch (SAXException saxEx) {
+                LOGGER.error(saxEx.getMessage());
+            } catch (IOException ioEx) {
+                LOGGER.error(ioEx.getMessage());
+            }
+            document = parser.getDocument();
+            if (document != null) {
+                document.setDocumentURI(url);
+                
+            }
+        
+        return document;
     }
 
     /**
