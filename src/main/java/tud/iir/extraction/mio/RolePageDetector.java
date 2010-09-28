@@ -42,8 +42,6 @@ public class RolePageDetector {
      */
     public void detectRolePages(final Set<MIO> sortedMIOs) {
        
-        // System.out.println("number Of sortedMIOs: "+ mioAmount);
-      
         final Set<String> mioDomains = new HashSet<String>();
 
         // only get relevant domains, but normally less then 50percent of the results are relevant

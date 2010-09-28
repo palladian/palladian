@@ -1,3 +1,8 @@
+/**
+ * This is the Extractor for Quicktime (MOV) objects.
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
@@ -9,16 +14,16 @@ import tud.iir.knowledge.Entity;
 
 public class QuicktimeExtractor extends AbstractMIOTypeExtractor {
 
-    /** The mio type. */
+    /** The mioType. */
     private static transient String mioType = "quicktime";
 
-    /** The mio page. */
+    /** The mioPage. */
     private transient MIOPage mioPage = null;
 
     /** The entity. */
     private transient Entity entity = null;
 
-    /** The reg exp. */
+    /** The regular expression for URL extraction. */
     private static transient String regExp = "(\".[^\"]*\\.mov\")|(\".[^\"]*\\.mov\\?.[^\"]*\")";
 
     /*
@@ -35,7 +40,6 @@ public class QuicktimeExtractor extends AbstractMIOTypeExtractor {
         final List<String> relevantTags = extractRelevantTags(mioPage.getContentAsString());
 
         mioList.addAll(analyzeRelevantTags(relevantTags));
-
         return mioList;
     }
 
@@ -74,7 +78,6 @@ public class QuicktimeExtractor extends AbstractMIOTypeExtractor {
     final List<MIO> analyzeRelevantTags(final List<String> relevantTags) {
 
         final List<MIO> retrievedMIOs = new ArrayList<MIO>();
-//        final List<String> altText = new ArrayList<String>();
         final List<MIO> tempMIOs = new ArrayList<MIO>();
 
         for (String relevantTag : relevantTags) {
@@ -86,21 +89,16 @@ public class QuicktimeExtractor extends AbstractMIOTypeExtractor {
 
                 for (MIO mio : tempMIOs) {
                     final String tempAltText = extractALTTextFromTag(relevantTag);
-//                    altText.clear();
                     if (tempAltText.length() > 2) {
-//                        altText.add(tempAltText);
                         mio.setAltText(tempAltText);
                     }
                 }
             }
             // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
-            // final List<String> headlines = new ArrayList<String>();
             for (MIO mio : tempMIOs) {
                 extractSurroundingInfo(relevantTag, mioPage, mio);
             }
-
             retrievedMIOs.addAll(tempMIOs);
-
         }
         return retrievedMIOs;
     }

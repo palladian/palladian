@@ -9,7 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 
 import tud.iir.knowledge.Entity;
 
@@ -35,9 +34,9 @@ public class UniversalMIOExtractor {
 
         }
 
-        System.out.println("Anzahl MIOs vor DuplicateRemoval: " + mios.size());
+//        System.out.println("Anzahl MIOs vor DuplicateRemoval: " + mios.size());
         mios = removeMIODuplicates(mios);
-        System.out.println("Anzahl MIOs nach DuplicateRemoval: " + mios.size());
+//        System.out.println("Anzahl MIOs nach DuplicateRemoval: " + mios.size());
 
         return mios;
     }
@@ -212,7 +211,7 @@ public class UniversalMIOExtractor {
         }
 
         final MIOInteractivityAnalyzer interactivityAnalyzer = new MIOInteractivityAnalyzer();
-
+//        final long timeStamp4 = System.currentTimeMillis();
         for (MIO mio : retrievedMIOs) {
 
             // first initialize all features
@@ -230,7 +229,7 @@ public class UniversalMIOExtractor {
             // reset MIO-Infos for saving memory
             // mio.resetMIOInfos();
         }
-
+//        System.out.println("Downloading and Feature- and Interactivity- Calculation finished in: " +DateHelper.getRuntime(timeStamp4));
         return retrievedMIOs;
     }
 

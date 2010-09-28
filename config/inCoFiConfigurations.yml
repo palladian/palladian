@@ -5,8 +5,10 @@
              headphone:                 "view product tour, view demo, view 360, product tour, 360 view, virtual tour"
              movie:                     "game, play_, click here to play, minisite, flashgame"
              car:                       "campaign, picture viewer, silverlight, microsite, 360 view, virtual tour"
+             tecmix:                    "360 view, 3D, overview, drag to rotate, view demo, product tour, interactive tour, view 360, virtual tour"     
+             universal:                 "360 view, 3D, overview, drag to rotate, view demo, product tour, interactive tour, gallery, view 360, virtual tour, game, play_, click here, minisite, campaign, silverlight, microsite"
              
-             # set the searchVocabulary for retrieving of weakMIOs
+             # set the searchVocabulary for retrieval of weak interactive MIOs
              weakMIOs:                  "unboxing, video tour, preview, review, movie, trailer, presentation, campaign, promotion, youtube"
              
              # set if a further analyzing should be done with weakMIO-vocabulary when no MIO was found for this entity (the general focus is on strong interactive MIOs)
@@ -18,11 +20,17 @@
              # set which searchEngine should be used (1=Yahoo, 2=google, 6=bing)
              searchEngine: 2
              
-             # set the directory which is used for downloading SWF and XML-Files
+             # set how many threads the urlDownloader can use
+             urlDownloaderThreads: 10
+             
+             # set a Trust-Limit for  excluding definitive irrelevant MIOs from saving into the database(e.g. 30.2)
+             excludingTrustLimit: 30.2
+             
+             # set the directory which is used for downloading SWF-Files
              tempDirPath: "F:/Temp/"
              
              # set a minimal trust-limit which defines when a MIOPage is qualified to be a RolePage
-             rolePageTrustLimit: 0.5
+             rolePageTrustLimit: 80
              
              # set a count-value which defines a RolePage as relevant
              rolePageRelevanceValue: 500
@@ -37,7 +45,7 @@
              # set which mioTypes should be retrieved (possible are: flash, applet, silverlight, quicktime, html5canvas)
              mioTypes: "flash, applet, silverlight, quicktime, html5canvas"
              
-             # set which words indicate a low relevant MIO
+             # set which words indicate a low relevant MIO (need for feature: BadWordAbsence)
              badWords: "banner, tower, titlefont, newsletter, cloud, footer, ticker, ads, expressinstall, header, advertise, logo, macromedia, audio_player, audio-player, cashback, productinstall" 
              
              # set which words indicate a weak interactive MIO
@@ -45,4 +53,7 @@
              
              # set which words indicate a strong interactive MIO
              strongInteractionIndicators: "interactive, click, try, 360, view, index, main, spin, tour, virtual, gallery, play, drag, keys, game, showroom, microsite, minisite, xap"
+             
+             # associate MIOs that has unclear interactivity-grade with "weak", "strong" or even "unclear"
+             associateUnclearMIOsWith: "weak"
                          
