@@ -1,4 +1,5 @@
 /**
+ * Detects RolePages
  * 
  * @author Martin Werner
  */
@@ -13,16 +14,12 @@ import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
 import tud.iir.web.Crawler;
 
-/**
- * Detects RolePages
- * 
- * @author Martin Werner
- */
 public class RolePageDetector {
 
     /** The concept. */
     private final transient Concept concept;
-    
+
+    /** The role page trust limit. */
     private final transient double rolePageTrustLimit;
 
     /**
@@ -32,7 +29,7 @@ public class RolePageDetector {
      */
     RolePageDetector(final Entity entity) {
         this.concept = entity.getConcept();
-        rolePageTrustLimit= InCoFiConfiguration.getInstance().rolePageTrustLimit;
+        rolePageTrustLimit = InCoFiConfiguration.getInstance().rolePageTrustLimit;
     }
 
     /**
@@ -41,7 +38,7 @@ public class RolePageDetector {
      * @param sortedMIOs the sorted MIOs
      */
     public void detectRolePages(final Set<MIO> sortedMIOs) {
-       
+
         final Set<String> mioDomains = new HashSet<String>();
 
         // only get relevant domains, but normally less then 50percent of the results are relevant
@@ -50,14 +47,10 @@ public class RolePageDetector {
 
                 final String mioURL = mio.getDirectURL();
                 final String domain = Crawler.getDomain(mioURL);
-//                 System.out.println("RolePage Domain " + domain);
                 mioDomains.add(domain);
-               
             }
         }
-        // System.out.println("number of rolePages for Analyzing: " + mioDomains.size());
         analyzeForRolePages(mioDomains);
-
     }
 
     /**
@@ -69,8 +62,6 @@ public class RolePageDetector {
     private void analyzeForRolePages(final Set<String> mioDomains) {
 
         final List<RolePage> dbRolePages = loadRolePagesFromDB();
-        // System.out.println(dbRolePages.size() + " RolePages aus der Datenbank geladen, fuer Concept " +
-        // concept.getName());
 
         // initially set the first mioDomains as dbRolePages
         if (dbRolePages.isEmpty()) {
@@ -82,14 +73,12 @@ public class RolePageDetector {
             final List<String> removingList = new ArrayList<String>();
             for (RolePage dbRolePage : dbRolePages) {
                 final String dbRolePageHostname = dbRolePage.getHostname();
-                // System.out.println("dbRolePageHostname: " + dbRolePageHostname);
                 removingList.clear();
 
                 for (String mioDomain : mioDomains) {
                     if (mioDomain.equals(dbRolePageHostname)) {
                         dbRolePage.incrementCount();
                         removingList.add(mioDomain);
-                        // mioDomains.remove(mioDomain);
                     }
                 }
                 for (String removalDomain : removingList) {
@@ -103,14 +92,10 @@ public class RolePageDetector {
                     final RolePage rolePage = new RolePage(mioDomain, concept.getID());
                     dbRolePages.add(rolePage);
                 }
-
             }
-
         }
-
         // update Database
         saveRolePagesToDB(dbRolePages);
-
     }
 
     /**
@@ -124,7 +109,6 @@ public class RolePageDetector {
         final List<RolePage> rolePages = mioDB.loadAllRolePagesForConcept(concept);
 
         return rolePages;
-
     }
 
     /**
@@ -139,13 +123,9 @@ public class RolePageDetector {
             if (rolePage.getID() == 0) {
                 mioDB.insertRolePage(rolePage);
             } else {
-                // //avoid to update a rolePage count, when this rolePage already was used for this entity
-                // if(!rolePageIDs.contains(rolePage.getID())){
+                // avoid to update a rolePage count, when this rolePage already was used for this entity
                 mioDB.updateRolePage(rolePage);
-                // }
-
             }
         }
-
     }
 }

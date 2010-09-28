@@ -1,3 +1,8 @@
+/**
+ * This class realizes the extraction of silverlight (xap) objects.
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
@@ -9,16 +14,16 @@ import tud.iir.knowledge.Entity;
 
 public class SilverlightExtractor extends AbstractMIOTypeExtractor {
 
-    /** The mio type. */
+    /** The miType. */
     private static String mioType = "silverlight";
 
-    /** The mio page. */
+    /** The mioPage. */
     private MIOPage mioPage = null;
 
     /** The entity. */
     private Entity entity = null;
 
-    /** The reg exp. */
+    /** The regular expression for extraction the url */
     private static String regExp = "(\".[^\"]*\\.xap\")|(\".[^\"]*\\.xap\\?.[^\"]*\")";
 
     /*
@@ -35,7 +40,6 @@ public class SilverlightExtractor extends AbstractMIOTypeExtractor {
         final List<String> relevantTags = extractRelevantTags(mioPage.getContentAsString());
 
         mioList.addAll(analyzeRelevantTags(relevantTags));
-
         return mioList;
     }
 
@@ -78,7 +82,6 @@ public class SilverlightExtractor extends AbstractMIOTypeExtractor {
     List<MIO> analyzeRelevantTags(final List<String> relevantTags) {
 
         final List<MIO> retrievedMIOs = new ArrayList<MIO>();
-//        final List<String> altText = new ArrayList<String>();
         final List<MIO> tempMIOs = new ArrayList<MIO>();
         for (String relevantTag : relevantTags) {
             tempMIOs.clear();
@@ -89,24 +92,19 @@ public class SilverlightExtractor extends AbstractMIOTypeExtractor {
 
                 for (MIO mio : tempMIOs) {
                     final String tempAltText = extractALTTextFromTag(relevantTag);
-//                    altText.clear();
+
                     if (tempAltText.length() > 2) {
-//                        altText.add(tempAltText);
                         mio.setAltText(tempAltText);
                     }
                 }
             }
             // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
-            // final List<String> headlines = new ArrayList<String>();
             for (MIO mio : tempMIOs) {
                 extractSurroundingInfo(relevantTag, mioPage, mio);
-//                extractXMLInfo(relevantTag, mio);
+                // extractXMLInfo(relevantTag, mio);
             }
-
             retrievedMIOs.addAll(tempMIOs);
-
         }
         return retrievedMIOs;
     }
-
 }

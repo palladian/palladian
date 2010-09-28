@@ -1,3 +1,8 @@
+/**
+ * This class realizes the loading and saving of RolePages.
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.sql.Connection;
@@ -214,46 +219,4 @@ public class RolePageDatabase {
         }
 
     }
-
-    // /**
-    // * The main method.
-    // *
-    // * @param args the arguments
-    // */
-    // public static void main(String[] args) {
-    // RolePageDatabase rpd = new RolePageDatabase();
-    //
-    // // rpd.removeUnrelevantRolePages(2);
-    // //
-    // // System.exit(1);
-    //
-    // Concept concept = new Concept("Mobile Phone");
-    // concept.setID(85);
-    // Entity entity = new Entity("samsung s8500 wave", concept);
-    // entity.setID(99);
-    //
-    // RolePage rp2 = new RolePage("http://www.phonearena.com", 22, concept.getID());
-    // rp2.setID(80);
-    // rpd.insertRolePageUsage(rp2, entity);
-    //
-    //
-    //
-    // List<RolePage> rolepages = rpd.loadNotUsedRolePagesForEntity(entity);
-    //
-    // for (RolePage rp : rolepages) {
-    // System.out.println(rp.getHostname());
-    // // if (rp.getHostname().contains("abc")){
-    // // RolePage rp2 = new RolePage("http://www.phonearena.com",22, 0);
-    // // rp2.setId(23);
-    // // rpd.updateRolePage(rp2);
-    // // }
-    // }
-    // System.out.println(rolepages.size());
-    // // RolePage rp2 = new RolePage("www.abc.de",22, 85);
-    // // rp2.setId(2);
-    // // rpd.updateRolePage(rp2);
-    // // rpd.insertRolePage(rp2);
-    //
-    // }
-
 }

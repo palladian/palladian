@@ -1,4 +1,5 @@
 /**
+ * The Class UniversalMIOExtractor is a context-based MIO-Extractor.
  * 
  * @author Martin Werner
  */
@@ -12,18 +13,26 @@ import java.util.Map.Entry;
 
 import tud.iir.knowledge.Entity;
 
-/**
- * The Class UniversalMIOExtractor is a context-based MIO-Extractor.
- * 
- */
 public class UniversalMIOExtractor {
 
+    /** The entity. */
     final Entity entity;
 
+    /**
+     * Instantiates a new universal mio extractor.
+     * 
+     * @param entity the entity
+     */
     public UniversalMIOExtractor(final Entity entity) {
         this.entity = entity;
     }
 
+    /**
+     * Analyze mio pages.
+     * 
+     * @param mioPages the mio pages
+     * @return the list
+     */
     public List<MIO> analyzeMIOPages(final List<MIOPage> mioPages) {
         List<MIO> mios = new ArrayList<MIO>();
 
@@ -31,12 +40,8 @@ public class UniversalMIOExtractor {
 
             // extract MIOs and calculate features
             mios.addAll(extractAllMIOs(mioPage));
-
         }
-
-//        System.out.println("Anzahl MIOs vor DuplicateRemoval: " + mios.size());
         mios = removeMIODuplicates(mios);
-//        System.out.println("Anzahl MIOs nach DuplicateRemoval: " + mios.size());
 
         return mios;
     }
@@ -45,7 +50,6 @@ public class UniversalMIOExtractor {
      * Extract all MIOs.
      * 
      * @param mioPage the mioPage
-     * @param entity the entity
      * @return the list
      */
     private List<MIO> extractAllMIOs(final MIOPage mioPage) {
@@ -126,14 +130,7 @@ public class UniversalMIOExtractor {
                             isContained = true;
                             removalMIOURL = existingMIODirectURL;
                             break;
-
                         }
-                        // else {
-                        // mergedMIO = mergeMIOs(mio, existingMIO);
-                        // isContained = true;
-                        // break;
-                        // }
-
                     }
                 }
                 if (!isContained) {
@@ -145,18 +142,21 @@ public class UniversalMIOExtractor {
                         mioMap.remove(removalMIOURL);
                     }
                 }
-
             }
-
         }
-
         for (Entry<String, MIO> mio : mioMap.entrySet()) {
             resultList.add(mio.getValue());
         }
-
         return resultList;
     }
 
+    /**
+     * Merge MIOs.
+     * 
+     * @param masterMIO the master mio
+     * @param slaveMIO the slave mio
+     * @return the mIO
+     */
     private MIO mergeMIOs(MIO masterMIO, MIO slaveMIO) {
         MIO returnValue = null;
 
@@ -179,7 +179,7 @@ public class UniversalMIOExtractor {
         } else {
             mergedMIOURL = masterMIOURL;
         }
-     
+
         // prefer that MIO with the most 1-features
         if (featureCountExistingMio < featureCountNewMio) {
             slaveMIO.setDirectURL(mergedMIOURL);
@@ -193,10 +193,10 @@ public class UniversalMIOExtractor {
     }
 
     /**
-     * Calculate trust.
+     * Calculate the features needed for trsut-calculation and the interactivity-grade.
      * 
      * @param retrievedMIOs the retrieved MIOs
-     * @param mioPage the mio page
+     * @param mioPage the mioPage
      * @param entity the entity
      * @return the list
      */
@@ -211,7 +211,6 @@ public class UniversalMIOExtractor {
         }
 
         final MIOInteractivityAnalyzer interactivityAnalyzer = new MIOInteractivityAnalyzer();
-//        final long timeStamp4 = System.currentTimeMillis();
         for (MIO mio : retrievedMIOs) {
 
             // first initialize all features
@@ -226,11 +225,7 @@ public class UniversalMIOExtractor {
             }
             // calculate Interactivity
             interactivityAnalyzer.setInteractivityGrade(mio, mioPage);
-            // reset MIO-Infos for saving memory
-            // mio.resetMIOInfos();
         }
-//        System.out.println("Downloading and Feature- and Interactivity- Calculation finished in: " +DateHelper.getRuntime(timeStamp4));
         return retrievedMIOs;
     }
-
 }

@@ -1,4 +1,7 @@
 /**
+ * The MIOClassifier calculate scores for ranking of MIOs.
+ * Attention: First train the Classifier, then save it.
+ * For classifying the classifier must be loaded first.
  * 
  * @author Martin Werner
  */
@@ -11,24 +14,14 @@ import org.apache.log4j.Logger;
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
 import tud.iir.extraction.mio.MIO;
-import tud.iir.extraction.mio.MIOContextAnalyzer;
-import tud.iir.extraction.mio.MIOPage;
-import tud.iir.knowledge.Concept;
-import tud.iir.knowledge.Entity;
 
-/**
- * The MIOClassifier calculate scores for ranking of MIOs.
- * Attention: First train the Classifier, then save it.
- * For classifying the classifier must be loaded first.
- * 
- */
 public class MIOClassifier extends Classifier {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MIOClassifier.class);
 
     /**
-     * Instantiates a new mIO classifier.
+     * Instantiates a new mioClassifier.
      */
     public MIOClassifier() {
         super(Classifier.LINEAR_REGRESSION);
@@ -52,20 +45,26 @@ public class MIOClassifier extends Classifier {
         super.createWekaAttributes(featureCount, featObject.getFeatureNames());
 
         double[] probability = super.classifySoft(featObject);
-        
+
         mio.setTrust(normalizeTrust(probability[0]));
     }
-    
-    private double normalizeTrust(double trust){
-        double normalizedTrust=trust;
-        if (trust>=1){
-            normalizedTrust=1.;
-            
+
+    /**
+     * Normalize trust to %
+     * 
+     * @param trust the trust
+     * @return the double
+     */
+    private double normalizeTrust(double trust) {
+        double normalizedTrust = trust;
+        if (trust >= 1) {
+            normalizedTrust = 1.;
+
         }
-        if (trust<=0){
-            normalizedTrust=0.;
+        if (trust <= 0) {
+            normalizedTrust = 0.;
         }
-        normalizedTrust = Math.round( normalizedTrust * 1000. )/ 10.;
+        normalizedTrust = Math.round(normalizedTrust * 1000.) / 10.;
         return normalizedTrust;
     }
 
@@ -76,7 +75,7 @@ public class MIOClassifier extends Classifier {
      * @return true, if successful
      */
     public void trainClassifier(String filePath) {
-      
+
         super.trainClassifier(filePath);
     }
 
@@ -94,23 +93,25 @@ public class MIOClassifier extends Classifier {
             LOGGER.error(e.getMessage());
         }
     }
-    
+
     /**
      * Simply save the trained classifier.
      */
     public void saveTrainedClassifier() {
         weka.classifiers.Classifier trainedMIOClassifier = super.getClassifier();
         try {
-            weka.core.SerializationHelper.write(
-                    "config/" + "MIOClassifier" + getChosenClassifierName() + ".model", trainedMIOClassifier);
+            weka.core.SerializationHelper.write("config/" + "MIOClassifier" + getChosenClassifierName() + ".model",
+                    trainedMIOClassifier);
 
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
-            }
+        }
     }
 
     /**
      * Check if an already trained MIOClassifier exists.
+     * 
+     * @return true, if successful
      */
     public boolean doesTrainedMIOClassifierExists() {
         boolean returnValue = false;
@@ -128,9 +129,9 @@ public class MIOClassifier extends Classifier {
      */
     public static void main(final String[] args) {
         MIOClassifier mioClass = new MIOClassifier();
-         mioClass.trainClassifier("data/miofeatures_scored.txt");
-//         mioClass.saveTrainedClassifier();
-//        mioClass.loadTrainedClassifier();
-//         mioClass.testClassifier("f:/features_bewertet_august.txt");
+        mioClass.trainClassifier("data/miofeatures_scored.txt");
+        // mioClass.saveTrainedClassifier();
+        // mioClass.loadTrainedClassifier();
+        // mioClass.testClassifier("f:/features_bewertet_august.txt");
     }
 }

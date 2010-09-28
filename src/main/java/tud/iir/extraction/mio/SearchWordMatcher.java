@@ -1,4 +1,5 @@
 /**
+ * The SearchWordMatcher checks if and how deep a given String contains an EntityName or a morpheme of it.
  * 
  * @author Martin Werner
  */
@@ -8,11 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * The SearchWordMatcher checks if and how deep a given String contains an EntityName or a morpheme of it.
- * 
- * @author Martin Werner
- */
 public class SearchWordMatcher {
 
     /** The word list. */
@@ -30,9 +26,6 @@ public class SearchWordMatcher {
 
         initialWordList = new ArrayList<String>();
         wordList = (prepareWordList(searchWords, false));
-
-        // System.out.println("wordList ready: " + wordList.size()
-        // + wordList.toString());
     }
 
     /**
@@ -53,9 +46,7 @@ public class SearchWordMatcher {
                 }
             }
         }
-
         return counter;
-
     }
 
     /**
@@ -79,7 +70,6 @@ public class SearchWordMatcher {
                 }
             }
         }
-
         return counter;
     }
 
@@ -150,14 +140,10 @@ public class SearchWordMatcher {
                             final String morphWord = morphPart1 + separators[x] + morphPart2;
                             morphList.add(morphWord);
                         }
-
                     }
-
                 }
-
             }
         }
-
         return morphList;
     }
 
@@ -174,9 +160,7 @@ public class SearchWordMatcher {
         boolean returnValue = false;
 
         if (!("").equals(src)) {
-           final int matches = getNumberOfSearchWordMatches(src);
-            // System.out.println("searchWMatches: " + matches + "iniwordListSize: " + initialWordList.size());
-           
+           final int matches = getNumberOfSearchWordMatches(src);     
            final int numberOfEntityWords= initialWordList.size();
            
             // case "avatar"
@@ -193,7 +177,6 @@ public class SearchWordMatcher {
                     }
                 }
             }
-
         }
         return returnValue;
     }
@@ -205,15 +188,13 @@ public class SearchWordMatcher {
      */
     public static void main(String[] args) {
 
-         SearchWordMatcher matcher = new SearchWordMatcher("Audi A4 1.8T Avant");
-//         // matcher.matchSearchWords("http://pic.gsmarena.com/vv/spin/samsung-wave-s-8500-final.swf");
-////         System.out.println(matcher.getNumberOfSearchWordMatches(" http://www.jr.com/canon/pe/CAN_MP980/"));
-         System.out.println(matcher.getNumberOfSearchWordMatches("http://audi.de/a4/jo"));
-         if (matcher.containsSearchWordOrMorphs("http://audi.de/a4/jo")) {
-         System.out.println("is relevant link!");
-         } else {
-         System.out.println("is no relevant link!");
-         }
+//         SearchWordMatcher matcher = new SearchWordMatcher("Audi A4 1.8T Avant");
+//         System.out.println(matcher.getNumberOfSearchWordMatches("http://audi.de/a4/jo"));
+//         if (matcher.containsSearchWordOrMorphs("http://audi.de/a4/jo")) {
+//         System.out.println("is relevant link!");
+//         } else {
+//         System.out.println("is no relevant link!");
+//         }
 
         // System.out.println("result: "
         // + matcher.getNumberOfSearchWordMatches("http://www.gsmarena.com/SAMSUNG_s8500_Wave-3d-spin-3146.php"));
