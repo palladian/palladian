@@ -39,12 +39,12 @@ public class MIOClassifier extends Classifier {
         // use the MIOFeatures as FeatureObject
         final FeatureObject featObject = new FeatureObject(mio.getFeatures());
 
-        int featureCount = featObject.getFeatureNames().length;
+        final int featureCount = featObject.getFeatureNames().length;
 
         // creating WekaAttributes is necessary because of loading the Classifier from File
         super.createWekaAttributes(featureCount, featObject.getFeatureNames());
 
-        double[] probability = super.classifySoft(featObject);
+        final double[] probability = super.classifySoft(featObject);
 
         mio.setTrust(normalizeTrust(probability[0]));
     }
@@ -55,7 +55,7 @@ public class MIOClassifier extends Classifier {
      * @param trust the trust
      * @return the double
      */
-    private double normalizeTrust(double trust) {
+    private double normalizeTrust(final double trust) {
         double normalizedTrust = trust;
         if (trust >= 1) {
             normalizedTrust = 1.;
@@ -74,7 +74,7 @@ public class MIOClassifier extends Classifier {
      * @param filePath the file path
      * @return true, if successful
      */
-    public void trainClassifier(String filePath) {
+    public void trainClassifier(final String filePath) {
 
         super.trainClassifier(filePath);
     }
@@ -98,7 +98,7 @@ public class MIOClassifier extends Classifier {
      * Simply save the trained classifier.
      */
     public void saveTrainedClassifier() {
-        weka.classifiers.Classifier trainedMIOClassifier = super.getClassifier();
+        final weka.classifiers.Classifier trainedMIOClassifier = super.getClassifier();
         try {
             weka.core.SerializationHelper.write("config/" + "MIOClassifier" + getChosenClassifierName() + ".model",
                     trainedMIOClassifier);
@@ -115,7 +115,7 @@ public class MIOClassifier extends Classifier {
      */
     public boolean doesTrainedMIOClassifierExists() {
         boolean returnValue = false;
-        File trainedClassifierModel = new File("config/MIOClassifierLinearRegression.model");
+        final File trainedClassifierModel = new File("config/MIOClassifierLinearRegression.model");
         if (trainedClassifierModel.exists()) {
             returnValue = true;
         }
@@ -128,7 +128,7 @@ public class MIOClassifier extends Classifier {
      * @param args the arguments
      */
     public static void main(final String[] args) {
-        MIOClassifier mioClass = new MIOClassifier();
+        final MIOClassifier mioClass = new MIOClassifier();
         mioClass.trainClassifier("data/miofeatures_scored.txt");
         // mioClass.saveTrainedClassifier();
         // mioClass.loadTrainedClassifier();

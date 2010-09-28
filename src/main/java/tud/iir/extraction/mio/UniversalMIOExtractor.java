@@ -104,18 +104,18 @@ public class UniversalMIOExtractor {
 
                 final MIO existingMio = mioMap.get(mio.getDirectURL());
 
-                MIO mergedMIO = mergeMIOs(existingMio, mio);
+                final MIO mergedMIO = mergeMIOs(existingMio, mio);
                 mioMap.put(mergedMIO.getDirectURL(), mergedMIO);
 
             } else {
 
-                String testMioDirectURL = mio.getDirectURL();
+                final String testMioDirectURL = mio.getDirectURL();
                 boolean isContained = false;
                 MIO mergedMIO = null;
                 String existingMIODirectURL = "";
                 String removalMIOURL = "";
                 for (Entry<String, MIO> mioEntry : mioMap.entrySet()) {
-                    MIO existingMIO = mioEntry.getValue();
+                    final MIO existingMIO = mioEntry.getValue();
                     existingMIODirectURL = existingMIO.getDirectURL();
 
                     // check if a shorter version of the directURL is already existing
@@ -157,7 +157,7 @@ public class UniversalMIOExtractor {
      * @param slaveMIO the slave mio
      * @return the mIO
      */
-    private MIO mergeMIOs(MIO masterMIO, MIO slaveMIO) {
+    private MIO mergeMIOs(final MIO masterMIO, final MIO slaveMIO) {
         MIO returnValue = null;
 
         double featureCountExistingMio = 0;
@@ -170,8 +170,8 @@ public class UniversalMIOExtractor {
             featureCountNewMio = +feature.getValue();
         }
         // detect the longest directURL because this mostly works
-        String masterMIOURL = masterMIO.getDirectURL();
-        String slaveMIOURL = slaveMIO.getDirectURL();
+        final String masterMIOURL = masterMIO.getDirectURL();
+        final String slaveMIOURL = slaveMIO.getDirectURL();
         String mergedMIOURL = "";
         if (masterMIOURL.length() <= slaveMIOURL.length()) {
             mergedMIOURL = slaveMIOURL;

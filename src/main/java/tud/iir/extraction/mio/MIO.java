@@ -337,7 +337,7 @@ public class MIO {
      * 
      * @param altText the new alt text
      */
-    public void setAltText(String altText) {
+    public void setAltText(final String altText) {
         this.altText = altText;
     }
 
@@ -355,7 +355,7 @@ public class MIO {
      * 
      * @param previousHeadlines the new previous headlines
      */
-    public void setPreviousHeadlines(String previousHeadlines) {
+    public void setPreviousHeadlines(final String previousHeadlines) {
         this.previousHeadlines = previousHeadlines;
     }
 
@@ -373,7 +373,7 @@ public class MIO {
      * 
      * @param surroundingText the new surrounding text
      */
-    public void setSurroundingText(String surroundingText) {
+    public void setSurroundingText(final String surroundingText) {
         this.surroundingText = surroundingText;
     }
 

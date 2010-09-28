@@ -92,6 +92,7 @@ public final class MIOExtractor extends Extractor {
 
         // loadInCoFiConfiguration and prepare to use as singleton
         final InCoFiConfiguration configuration = loadConfiguration();
+        // its a trick for creating a singleton because of yml
         InCoFiConfiguration.instance = configuration;
 
         // iterate through all concepts

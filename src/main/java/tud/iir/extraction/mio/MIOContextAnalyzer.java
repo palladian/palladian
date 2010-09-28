@@ -183,7 +183,7 @@ public class MIOContextAnalyzer {
     private double calcHeadlineRelevance() {
 
         double returnValue = 0;
-        String headlines = mio.getPreviousHeadlines();
+        final String headlines = mio.getPreviousHeadlines();
         if (headlines.length() > 1) {
             returnValue = RelevanceCalculator.calcStringRelevance(headlines, entity);
         }
@@ -198,7 +198,7 @@ public class MIOContextAnalyzer {
     private double calcALTTextRelevance() {
         double returnValue = 0;
 
-        String altText = mio.getAltText();
+        final String altText = mio.getAltText();
         if (altText.length() > 1) {
             returnValue = RelevanceCalculator.calcStringRelevance(altText, entity);
         }
@@ -293,7 +293,7 @@ public class MIOContextAnalyzer {
      */
     private double calcSurroundingTextRelevance() {
         double returnValue = 0;
-        String surroundingText = mio.getSurroundingText();
+        final String surroundingText = mio.getSurroundingText();
         if (surroundingText.length() > 1) {
             returnValue = RelevanceCalculator.calcStringRelevance(surroundingText, entity);
         }

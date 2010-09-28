@@ -294,9 +294,9 @@ public abstract class AbstractMIOTypeExtractor {
      */
     protected String extractALTTextFromTag(final String relevantTag) {
         String altText = "";
-        final int beginIndex = relevantTag.indexOf(">") + 1;
+        final int beginIndex = relevantTag.indexOf('>') + 1;
 
-        final int endIndex = relevantTag.lastIndexOf("<");
+        final int endIndex = relevantTag.lastIndexOf('<');
         if (beginIndex < endIndex) {
             final String modRelevantTag = relevantTag.substring(beginIndex, endIndex);
             altText = HTMLHelper.removeHTMLTags(modRelevantTag, true, true, false, true);

@@ -1,5 +1,5 @@
              
-             # set the conceptSearchVocabulary (be carefully, every further word can arise the processing time immensely)
+             # set the conceptSearchVocabulary (be carefully, every further word will arise the processing time)
              mobilephone:               "360 view, 3D, overview, key features, drag to rotate"
              printer:                   "view product tour, view demo, product tour, interactive tour, gallery"
              headphone:                 "view product tour, view demo, view 360, product tour, 360 view, virtual tour"

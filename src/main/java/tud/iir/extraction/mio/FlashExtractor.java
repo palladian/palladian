@@ -1,5 +1,5 @@
 /**
- * The FlashExtractor extracts Flash-MIOs of the type SWF.
+ * The FlashExtractor extracts Flash-MIOs (SWF).
  * 
  * @author Martin Werner
  */
@@ -233,7 +233,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
             }
             result = HTMLHelper.extractTagElement(pattern, result, "value=");
             if (result.length() > 0) {
-                result.replaceAll(";", "");
+                result = result.replaceAll(";", "");
                 flashVars.add(result);
             }
         }

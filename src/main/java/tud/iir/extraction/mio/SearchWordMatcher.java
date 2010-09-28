@@ -186,7 +186,7 @@ public class SearchWordMatcher {
      * 
      * @param args the arguments
      */
-    public static void main(String[] args) {
+    public static void main(final String[] args) {
 
 //         SearchWordMatcher matcher = new SearchWordMatcher("Audi A4 1.8T Avant");
 //         System.out.println(matcher.getNumberOfSearchWordMatches("http://audi.de/a4/jo"));

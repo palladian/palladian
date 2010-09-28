@@ -38,8 +38,7 @@ public class SearchAgent {
 
         List<String> mioPageCandidateList = querySearchEngine(searchEngine, searchQueries);
         mioPageCandidateList = removeDuplicates(mioPageCandidateList);
-        System.out.println("Anzahl der mioPageCandidates: " + mioPageCandidateList.size());
-
+       
         return mioPageCandidateList;
     }
 
