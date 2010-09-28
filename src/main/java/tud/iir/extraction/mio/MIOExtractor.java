@@ -40,6 +40,12 @@ public final class MIOExtractor extends Extractor {
     private MIOExtractor() {
         addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
         addSuffixesToBlackList(Extractor.URL_TEXTUAL_BLACKLIST);
+        
+        // loadInCoFiConfiguration and prepare to use as singleton
+        InCoFiConfiguration configuration = loadConfiguration();
+        
+        // its a trick for creating a singleton because of yml
+        InCoFiConfiguration.instance = configuration;
     }
 
     /**
@@ -68,13 +74,6 @@ public final class MIOExtractor extends Extractor {
      */
     public void startExtraction(final boolean continueFromLastExtraction) {
 
-        // these lines allow to train a new MIOClassifier if it doesn't exists
-        // MIOClassifier mioClass = new MIOClassifier();
-        // if (!mioClass.doesTrainedMIOClassifierExists()){
-        // mioClass.trainClassifier("data/miofeatures_scored.txt");
-        // mioClass.saveTrainedClassifier();
-        // }
-
         LOGGER.info("start MIO extraction");
 
         // reset stopped command
@@ -85,15 +84,10 @@ public final class MIOExtractor extends Extractor {
         setKnowledgeManager(kManager);
 
         // loop until exit called
-        // while (!isStopped()) {
+        //while (!isStopped()) {
 
         // concepts
         final ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
-
-        // loadInCoFiConfiguration and prepare to use as singleton
-        final InCoFiConfiguration configuration = loadConfiguration();
-        // its a trick for creating a singleton because of yml
-        InCoFiConfiguration.instance = configuration;
 
         // iterate through all concepts
         for (Concept currentConcept : concepts) {
@@ -103,8 +97,8 @@ public final class MIOExtractor extends Extractor {
 
             if (isStopped()) {
                 LOGGER.info("mio extraction process stopped");
-                // Clean the SWF-File-DownloadDirectory
-                // FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
+                // clean the SWF-File-DownloadDirectory
+                //FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
                 break;
             }
 

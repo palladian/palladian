@@ -7,10 +7,13 @@ package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Map.Entry;
 
+import tud.iir.classification.mio.MIOClassifier;
 import tud.iir.knowledge.Entity;
 
 public class UniversalMIOExtractor {
@@ -45,6 +48,25 @@ public class UniversalMIOExtractor {
 
         return mios;
     }
+    
+    public List<MIO> analyzeAndClassifyMIOPages(final List<MIOPage> mioPages) {
+        List<MIO> mios = analyzeMIOPages(mioPages);
+
+        // load the trainedClassifier
+        MIOClassifier mioClass = new MIOClassifier();
+        mioClass.loadTrainedClassifier();
+
+        for (MIO mio : mios) {
+
+            // calculate trust
+            mioClass.classify(mio);
+
+        }
+        
+        return mios;
+    }
+    
+
 
     /**
      * Extract all MIOs.

@@ -20,6 +20,8 @@ public class MIOClassifier extends Classifier {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MIOClassifier.class);
 
+    private static final String MODELPATH = "data/models/";
+    
     /**
      * Instantiates a new mioClassifier.
      */
@@ -85,7 +87,7 @@ public class MIOClassifier extends Classifier {
     public void loadTrainedClassifier() {
         weka.classifiers.Classifier trainedMIOClassifier;
         try {
-            trainedMIOClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper.read("config/"
+            trainedMIOClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper.read(MODELPATH
                     + "MIOClassifier" + getChosenClassifierName() + ".model");
 
             setClassifier(trainedMIOClassifier);
@@ -100,7 +102,7 @@ public class MIOClassifier extends Classifier {
     public void saveTrainedClassifier() {
         final weka.classifiers.Classifier trainedMIOClassifier = super.getClassifier();
         try {
-            weka.core.SerializationHelper.write("config/" + "MIOClassifier" + getChosenClassifierName() + ".model",
+            weka.core.SerializationHelper.write(MODELPATH + "MIOClassifier" + getChosenClassifierName() + ".model",
                     trainedMIOClassifier);
 
         } catch (Exception e) {
@@ -115,7 +117,7 @@ public class MIOClassifier extends Classifier {
      */
     public boolean doesTrainedMIOClassifierExists() {
         boolean returnValue = false;
-        final File trainedClassifierModel = new File("config/MIOClassifierLinearRegression.model");
+        final File trainedClassifierModel = new File(MODELPATH + "MIOClassifier" + getChosenClassifierName() + ".model");
         if (trainedClassifierModel.exists()) {
             returnValue = true;
         }

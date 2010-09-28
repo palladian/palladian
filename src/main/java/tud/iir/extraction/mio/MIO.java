@@ -377,4 +377,12 @@ public class MIO {
         this.surroundingText = surroundingText;
     }
 
+	@Override
+	public String toString() {
+		return "MIO [trust=" + trust + ", mioType=" + mioType
+				+ ", findPageURL=" + findPageURL + ", directURL=" + directURL
+				+ ", interactivityGrade=" + interactivityGrade + "]";
+	}
+    
+
 }

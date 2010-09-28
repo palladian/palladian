@@ -44,11 +44,7 @@ public class MIOQueryFactory {
         } else {
             // load conceptSearchVocabulary from InCoFiConfiguration
             String conceptName = concept.getName();
-            if(conceptName.equalsIgnoreCase("computermouse")||conceptName.equalsIgnoreCase("digitalcamera")||conceptName.equalsIgnoreCase("tecmix")){
-                this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getVocByConceptName("tecmix");
-            }else{
-                this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getVocByConceptName(conceptName);
-            }
+            this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getVocByConceptName(conceptName);
         }
 
         // load rolePageRelevanceValue from InCoFiConfiguration
