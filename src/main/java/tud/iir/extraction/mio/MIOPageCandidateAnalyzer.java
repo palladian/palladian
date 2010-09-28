@@ -67,6 +67,7 @@ public class MIOPageCandidateAnalyzer {
                 final String pageContent = Crawler.documentToString(webDocument);
                 if (!("").equals(pageContent)) {
 
+                	// search current page for MIO
                     if (fMIODec.containsMIO(pageContent)) {
                         final MIOPage mioPage = new MIOPage(url, webDocument);
                         mioPages.add(mioPage);

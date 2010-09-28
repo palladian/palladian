@@ -61,7 +61,12 @@ import org.xml.sax.SAXException;
 
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.extraction.entity.EntityExtractor;
+import tud.iir.extraction.mio.EntityMIOExtractionThread;
+import tud.iir.extraction.mio.FastMIODetector;
+import tud.iir.extraction.mio.MIO;
 import tud.iir.extraction.mio.MIOExtractor;
+import tud.iir.extraction.mio.MIOPage;
+import tud.iir.extraction.mio.UniversalMIOExtractor;
 import tud.iir.helper.Callback;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
@@ -70,8 +75,13 @@ import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
+import tud.iir.knowledge.Attribute;
+import tud.iir.knowledge.Concept;
+import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.KnowledgeManager;
 import tud.iir.multimedia.ImageHandler;
 import tud.iir.news.FeedDiscoveryCallback;
+import tud.iir.persistence.DatabaseManager;
 
 /**
  * The Crawler downloads pages from the web. List of proxies can be found here: http://www.proxy-list.org/en/index.php
@@ -1897,7 +1907,36 @@ public class Crawler {
      * @param args
      */
     public static void main(String[] args) {
-        // Proxy instance, proxy ip = 123.0.0.1 with port 8080
+        
+    	MIOExtractor.getInstance();
+    	Crawler crawler2 = new Crawler();
+    	String url = "http://www.gsmarena.com/samsung_i9000_galaxy_s-3d-spin-3115.php";
+    	Document webDocument = crawler2.getWebDocument(url);
+        String pageContent = Crawler.documentToString(webDocument);
+    	List<MIOPage> mioPages = new ArrayList<MIOPage>();
+    	FastMIODetector fMIODec = new FastMIODetector();
+    	if (fMIODec.containsMIO(pageContent)) {
+            MIOPage mioPage = new MIOPage(url, webDocument);
+            mioPages.add(mioPage);
+        }    	
+    	Entity entity = new Entity("Samsung I9000 Galaxy S");
+    	entity.setConcept(new Concept("MobilePhone"));
+    	UniversalMIOExtractor mioExtr = new UniversalMIOExtractor(entity);
+    	List<MIO> mios = mioExtr.analyzeAndClassifyMIOPages(mioPages);
+    	
+    	CollectionHelper.print(mios);
+    	
+    	System.exit(0);
+    	
+    	KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
+    	Thread mioThread = new EntityMIOExtractionThread(new ThreadGroup("mioExtractionThreadGroup"),
+    			entity.getSafeName() + "MIOExtractionThread", entity, kManager);
+        mioThread.start();
+        
+        System.out.println((kManager.getConcept("MobilePhone").getEntities().get(0).getFactForAttribute(new Attribute("strong_mio",1,new Concept("MobilePhone")))));
+        System.exit(0);
+    	
+    	// Proxy instance, proxy ip = 123.0.0.1 with port 8080
         // try {
         // Proxy proxy = new Proxy(Proxy.Type.HTTP, new
         // InetSocketAddress("204.16.1.183", 3128));

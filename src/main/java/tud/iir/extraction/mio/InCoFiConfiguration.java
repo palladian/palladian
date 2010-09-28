@@ -32,9 +32,6 @@ public class InCoFiConfiguration {
     /** The car. */
     public transient String car;
 
-    /** The tecmix. */
-    public transient String tecmix;
-
     /** The universal. */
     public transient String universal;
 
@@ -150,13 +147,10 @@ public class InCoFiConfiguration {
      * @param conceptName the concept name
      * @return the searchVocabulary by concept name
      */
-    public List<String> getVocByConceptName(final String conceptName) {
+    public List<String> getVocByConceptName(String conceptName) {
 
         String cName = conceptName.toLowerCase(Locale.ENGLISH);
-        if ("mobile phone".equalsIgnoreCase(conceptName)) {
-            cName = "mobilephone";
-        }
-        final Map<String, List<String>> attributeMap = attributesToMap();
+        Map<String, List<String>> attributeMap = attributesToMap();
         if (!attributeMap.containsKey(cName)) {
             return attributeMap.get("universal");
         }
@@ -175,7 +169,6 @@ public class InCoFiConfiguration {
         attributeMap.put("headphone", parseStringToList(headphone));
         attributeMap.put("movie", parseStringToList(movie));
         attributeMap.put("car", parseStringToList(car));
-        attributeMap.put("tecmix", parseStringToList(tecmix));
         attributeMap.put("universal", parseStringToList(universal));
 
         attributeMap.put("weakmios", parseStringToList(weakMIOs));

@@ -841,6 +841,62 @@ System.out.println("Training of " + ner.getName() + " was " + successfulOutput);
 
 \subsubsection{Evaluating a Tagger}
 
+
+\subsection{FAQ Extractor}
+{\textit FAQs} are frequently asked questions that are often found on web pages in a structured form. Basically there are three types how the FAQ can be structured:
+\begin{enumerate}
+\item {\textbf Internal Link} In the beginning of the page, there is a list of questions that each link to the corresponding answer in on the same page.
+\item {\textbf External Link} In the beginning of the page, there is a list of questions that each link to the the web page that contains the answer.
+\item {\textbf No Link} Each question is immediately followed by its answer.
+\end{enumerate}
+
+TOOLKIT can handle many FAQs that follow the first or third structure. First, the algorithm detects the XPaths to the questions and then it tries to extract all content between the current and the next question as the answer for the current question.
+
+Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically.
+
+\begin{codelisting}
+\label{listing:faqExtractor}
+\begin{lstlisting}[frame=tb]
+// create a list of question answer pairs
+ArrayList<QA> qas = null;
+
+// the URL that contains the FAQ
+String url = "http://blog.pandora.com/faq/";
+
+// start extracting question and answers from the URL
+qas = QAExtractor.getInstance().extractFAQ(url);
+
+// print the extracted questions and answers
+CollectionHelper.print(qas);
+\end{lstlisting}
+\end{codelisting}
+
+\subsection{Fact Extraction}
+The Fact extractor can be used to detect facts in tables on web pages given a URL and optionally a small set of seed attribute names that help the extractor.
+\begin{codelisting}
+\begin{lstlisting}[frame=tb]
+// the URL of the facts
+String url = "http://en.wikipedia.org/wiki/Nokia_N95";
+
+// the concept of the attributes
+Concept c = new Concept("Mobile Phone");
+
+// a small list of seed attributes
+HashSet<Attribute> seedAttributes = new HashSet<Attribute>();
+int attributeType = Attribute.VALUE_STRING;
+seedAttributes.add(new Attribute("Second camera", attributeType, c));
+seedAttributes.add(new Attribute("Memory card", attributeType, c));
+seedAttributes.add(new Attribute("Form factor", attributeType, c));
+
+// detect the facts using the seeds from the URL
+ArrayList<Fact> detectedFacts = null;
+detectedFacts = FactExtractor.extractFacts(url, seedAttributes);
+		
+// print the extracted facts
+CollectionHelper.print(detectedFacts);
+\end{lstlisting}
+\end{codelisting}
+
 \section{Retrieval}
 \paragraph{Web Crawling}
 \paragraph{Web Information Retrieval}
@@ -1017,50 +1073,6 @@ c.setProxyList(proxyList);
 // true = follow links within the start domain
 // true = follow outgoing links
 c.startCrawl("http://www.dmoz.org/", true, true);
-\end{lstlisting}
-\end{codelisting}
-
-\subsection{FAQ Extractor}
-The FAQ extractor can extract question-answer pairs from several structured frequently asked questions pages on websites. The usage is quite simple as shown in the following listing.
-\begin{codelisting}
-\begin{lstlisting}[frame=tb]
-// create a list of question answer pairs
-ArrayList<QA> qas = null;
-
-// the URL that contains the FAQ
-String url = "http://blog.pandora.com/faq/";
-
-// start extracting question and answers from the URL
-qas = QAExtractor.getInstance().extractFAQ(url);
-
-// print the extracted questions and answers
-CollectionHelper.print(qas);
-\end{lstlisting}
-\end{codelisting}
-
-\subsection{Fact Extraction}
-The Fact extractor can be used to detect facts in tables on web pages given a URL and optionally a small set of seed attribute names that help the extractor.
-\begin{codelisting}
-\begin{lstlisting}[frame=tb]
-// the URL of the facts
-String url = "http://en.wikipedia.org/wiki/Nokia_N95";
-
-// the concept of the attributes
-Concept c = new Concept("Mobile Phone");
-
-// a small list of seed attributes
-HashSet<Attribute> seedAttributes = new HashSet<Attribute>();
-int attributeType = Attribute.VALUE_STRING;
-seedAttributes.add(new Attribute("Second camera", attributeType, c));
-seedAttributes.add(new Attribute("Memory card", attributeType, c));
-seedAttributes.add(new Attribute("Form factor", attributeType, c));
-
-// detect the facts using the seeds from the URL
-ArrayList<Fact> detectedFacts = null;
-detectedFacts = FactExtractor.extractFacts(url, seedAttributes);
-		
-// print the extracted facts
-CollectionHelper.print(detectedFacts);
 \end{lstlisting}
 \end{codelisting}
 
