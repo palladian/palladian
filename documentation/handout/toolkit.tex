@@ -620,6 +620,225 @@ The output of the evaluation will be three csv files that hold information about
 
 \subsubsection{Best Practices}
 \label{sec:bpTextClassification}
+This section describes how to prepare training and testing data to learn a model, evaluate, and use a text classifier.
+
+\paragraph{Preparing the Training/Testing Data}
+The data can be specified in a simple text file. There are three classification options, namely, one-category classification, hierarchical classification and multi-category classification. They all require a similar structure of the data.
+
+\subparagraph{One-Category Classification}
+We write one URL and one category separated with a single space on each line. For example:
+\begin{verbatim}
+http://www.google.com search
+http://www.fifa.com sport
+http://www.oscars.com entertainment
+\end{verbatim}
+
+\subparagraph{Hierarchical Classification}
+We write one URL and multiple categories separated with a single space on each line. The categories must be in the correct order, so the first category is the main one, all following are subcategories of each other. For example:
+\begin{verbatim}
+http://www.google.com search search_engine
+http://www.fifa.com sport team_sports soccer 
+http://www.oscars.com entertainment movies awards usa
+\end{verbatim}
+
+\subparagraph{Multi-Category Classification}
+We write one URL and multiple categories separated with a single space on each line. The order of the categories (tags) does not matter. For example:
+\begin{verbatim}
+http://www.google.com search image_search video_search
+http://www.fifa.com soccer sport free_time fun ball_game results to_read
+http://www.oscars.com entertainment movies films awards watch video stars
+\end{verbatim}
+
+\paragraph{Training a classifier}
+Before we can use a classifier, we need to learn a model. The model is an internal representation of the learned data. After learning a model, a classifier can applied to unseen data. We now have prepared the training and testing data so we can now learn the models.
+The classifier is saved as a lucene index or a database under the name of the classifier with a ``Dictionary'' suffix. The result of the learning are three files: the classifier (``CLASSIFIER.ser''), the dictionary object (``CLASSIFIERDictionary.ser''), and the actual dictionary as the index or database (e.g. ``CLASSIFIERDictionary.h2.db''). More settings can be configured in the config/classification.conf file. See \ref{sec:classification.conf} for more information.
+
+Listing \ref{listing:trainClassifier} shows an example for how to train and save a classifier. In this case we train a classifier that can classify the language of given documents. As training data we use a list of web pages of different languages from Wikipedia.
+
+\begin{codelisting}
+\label{listing:trainClassifier}
+\begin{lstlisting}[frame=tb]
+// create a classifier mananger object
+ClassifierManager classifierManager = new ClassifierManager();
+
+// specify the dataset that should be used as training data
+Dataset dataset = new Dataset();
+
+// set the path to the dataset
+dataset.setPath("data/datasets/classification/language/languageDocumentIndex.txt");
+
+// tell the preprocessor that the first field in the file is a link to the actual document
+dataset.setFirstFieldLink(true);
+
+// create a text classifier by giving a name and a path where it should be saved to
+TextClassifier classifier = new DictionaryClassifier("LanguageClassifier", "data/models/languageClassifier/");
+
+// specify the settings for the classification
+ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+
+// we use only a single category per document
+classificationTypeSetting.setClassificationType(ClassificationTypeSetting.SINGLE);
+
+// we want the classifier to be serialized in the end
+classificationTypeSetting.setSerializeClassifier(true);
+
+// specify feature settings that should be used by the classifier
+FeatureSetting featureSetting = new FeatureSetting();
+
+// we want to create character-level n-grams
+featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+
+// the minimum length of our n-grams should be 3
+featureSetting.setMinNGramLength(3);
+
+// the maximum length of our n-grams should be 5
+featureSetting.setMaxNGramLength(5);
+
+// we assign the settings to our classifier
+classifier.setClassificationTypeSetting(classificationTypeSetting);
+classifier.setFeatureSetting(featureSetting);
+
+// now we can train the classifier using the given dataset
+classifierManager.trainClassifier(dataset, classifier);
+\end{lstlisting}
+\end{codelisting}
+
+\paragraph{Using a classifier}
+After we trained a model for a classifier we can apply it to unseen data. Let's use the model we just trained to classify the language of a new document.
+
+Listing \ref{listing:useClassifier} shows how to use a trained classifier.
+
+\begin{codelisting}
+\label{listing:useClassifier}
+\begin{lstlisting}[frame=tb]
+// the path to the classifier we want to use
+String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
+
+// load the language classifier
+TextClassifier classifier = ClassifierManager.load(classifierPath);
+
+// create a classification document that holds the result
+ClassificationDocument classifiedDocument = null;
+
+// classify the little text (if classifier works it would say Spanish)
+classifiedDocument = classifier.classify("Yo solo sé que no sé nada.");
+
+// print the classified document
+System.out.println(classifiedDocument);
+\end{lstlisting}
+\end{codelisting}
+
+\paragraph{Evaluating a Classifier}
+To get an idea of how good a trained classifier works, we can evaluate it using test data which is structured the same way as the training data. Listing \ref{listing:useClassifier} shows how to evaluate a trained classifier, you will see that is very similar to training a classifier. Make sure that you evaluate the classifier using disjunct data, otherwise the evaluation results are invalid.
+
+\begin{codelisting}
+\label{listing:useClassifier}
+\begin{lstlisting}[frame=tb]
+// create a classifier mananger object
+ClassifierManager classifierManager = new ClassifierManager();
+
+// the path to the classifier we want to use
+String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
+
+// specify the dataset that should be used as testing data
+Dataset dataset = new Dataset();
+
+// set the path to the dataset (should NOT overlap with the training set)
+dataset.setPath("data/datasets/classification/language/languageDocumentIndex.txt");
+
+// tell the preprocessor that the first field in the file is a link to the actual document
+dataset.setFirstFieldLink(true);
+
+// load the language classifier
+TextClassifier classifier = ClassifierManager.load(classifierPath);
+
+// now we can test the classifier using the given dataset (output is written to the console)
+ClassifierPerformance classifierPerformance = null;
+classifierPerformance = classifierManager.testClassifier(dataset, classifier);
+\end{lstlisting}
+\end{codelisting}
+
+\paragraph{Testing parameter combinations}
+As you have seen, you can train the classifier using different parameters. So how can you be sure that you set the parameters correctly? Do they work well on different datasets? Is the chosen classifier always better than others? In order to answer these questions with hard data you can automatically run different combinations of classifiers, settings, and datasets as shown in Figure \ref{fig:bcc}. In the end you will get one evaluation csv with information about how the combination performed. You can then manually pick the best performing settings.
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=\columnwidth]{img/bcc.pdf}
+\caption{Combinations for training a solid classifier.}
+\label{fig:bcc}
+\end{figure}
+
+Listing \ref{listing:bcc} shows you how to do just that.
+
+\begin{codelisting}
+\label{listing:bcc}
+\begin{lstlisting}[frame=tb]
+ClassifierManager classifierManager = new ClassifierManager();
+
+// build a set of classification type settings to evaluate
+List<ClassificationTypeSetting> classificationTypeSettings = new ArrayList<ClassificationTypeSetting>();
+ClassificationTypeSetting cts = new ClassificationTypeSetting();
+cts.setClassificationType(ClassificationTypeSetting.SINGLE);
+cts.setSerializeClassifier(false);
+classificationTypeSettings.add(cts);
+
+// build a set of classifiers to evaluate
+List<TextClassifier> classifiers = new ArrayList<TextClassifier>();
+TextClassifier classifier = null;
+classifier = new DictionaryClassifier();
+classifiers.add(classifier);
+classifier = new KNNClassifier();
+classifiers.add(classifier);
+
+// build a set of feature settings for evaluation
+List<FeatureSetting> featureSettings = new ArrayList<FeatureSetting>();
+FeatureSetting fs = null;
+fs = new FeatureSetting();
+fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+fs.setMinNGramLength(4);
+fs.setMaxNGramLength(7);
+featureSettings.add(fs);
+
+fs = new FeatureSetting();
+fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+fs.setMinNGramLength(3);
+fs.setMaxNGramLength(8);
+featureSettings.add(fs);
+
+fs = new FeatureSetting();
+fs.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+fs.setMinNGramLength(1);
+fs.setMaxNGramLength(3);
+featureSettings.add(fs);
+
+// build a set of datasets that should be used for evaluation
+Set<Dataset> datasets = new HashSet<Dataset>();
+Dataset dataset = new Dataset();
+dataset.setPath("dataset1.txt");
+datasets.add(dataset);
+dataset = new Dataset();
+dataset.setPath("dataset2.txt");
+dataset.setSeparationString("#");
+datasets.add(dataset);
+
+// set evaluation settings
+EvaluationSetting evaluationSetting = new EvaluationSetting();
+evaluationSetting.setTrainingPercentageMin(20);
+evaluationSetting.setTrainingPercentageMax(80);
+evaluationSetting.setkFolds(5);
+evaluationSetting.addDataset(dataset);
+
+// let's take the time
+StopWatch stopWatch = new StopWatch();
+
+// train and test all classifiers in all combinations
+classifierManager.learnBestClassifier(classificationTypeSettings, classifiers, featureSettings,
+evaluationSetting);
+
+System.out.println("finished training and testing classifier combinations in " + stopWatch.getElapsedTimeString());
+\end{lstlisting}
+\end{codelisting}
+
 
 %TODO learn a classifier (and save it)
 %TODO test a classifier
@@ -1073,194 +1292,6 @@ c.setProxyList(proxyList);
 // true = follow links within the start domain
 // true = follow outgoing links
 c.startCrawl("http://www.dmoz.org/", true, true);
-\end{lstlisting}
-\end{codelisting}
-
-\subsection{Web Page Classification}
-The Web Page Classification module can be used to classify web pages by their URL or their full content.
-
-\subsubsection{Basic Features}
-The Web Page Classification module has the following basic features:
-\begin{itemize}
-\item Classify web pages by its URL only.
-\item Classify web pages by its full content.
-\item Use a combination of URL and full content for classification.
-\item Learn, test and reuse models.
-\item Simple one-category classification.
-\item Hierarchical classification.
-\item Multi-category classification (tagging).
-\item All algorithms are language independent.
-\end{itemize}
-
-\subsubsection{How To}
-This section describes how to prepare training and testing data to learn a model and test the classifier.
-
-\paragraph{Preparing the Training/Testing Data}
-The data can be specified in a simple text file. There are three classification options, namely, one-category classification, hierarchical classification and multi-category classification. They all require a similar structure of the data.
-
-\subparagraph{One-Category Classification}
-We write one URL and one category separated with a single space on each line. For example:
-\begin{verbatim}
-http://www.google.com search
-http://www.fifa.com sport
-http://www.oscars.com entertainment
-\end{verbatim}
-
-\subparagraph{Hierarchical Classification}
-We write one URL and multiple categories separated with a single space on each line. The categories must be in the correct order, so the first category is the main one, all following are subcategories of each other. For example:
-\begin{verbatim}
-http://www.google.com search search_engine
-http://www.fifa.com sport team_sports soccer 
-http://www.oscars.com entertainment movies awards usa
-\end{verbatim}
-
-\subparagraph{Multi-Category Classification}
-We write one URL and multiple categories separated with a single space on each line. The order of the categories (tags) does not matter. For example:
-\begin{verbatim}
-http://www.google.com search image_search video_search
-http://www.fifa.com soccer sport free_time fun ball_game results to_read
-http://www.oscars.com entertainment movies films awards watch video stars
-\end{verbatim}
-
-\paragraph{Building the Model}
-The model is an internal representation of the learned data. After learning a model, a classifier can applied to unseen data. We now have prepared the training and testing data so we can now learn the models. The results of the test will be printed to the console and written to a log file under data/logs. The classifier is saved as a lucene index or a database under the name ``dictionary\_Xclassifier\_Y'' where X is ``url'', ``fullpage'' or ``combined'' and Y is 1 (one-category), 2 (hierarchical) or 3 (multi-category). The model will be written to data/models. How the file is saved can be configured in the config/classification.conf file. See \ref{sec:classification.conf} for more information.
-
-\begin{codelisting}
-\begin{lstlisting}[frame=tb]
-// create a classifier mananger object
-ClassifierManager classifierManager = new ClassifierManager();
-
-// specify the dataset that should be used as training data
-Dataset dataset = new Dataset();
-
-// set the path to the dataset
-dataset.setPath("data/datasets/classification/language/languageDocumentIndex.txt");
-
-// tell the preprocessor that the first field in the file is a link to the actual document
-dataset.setFirstFieldLink(true);
-
-// create a text classifier by giving a name and a path where it should be saved to
-TextClassifier classifier = new DictionaryClassifier("LanguageClassifier", "data/models/textClassifiers/");
-
-// specify the settings for the classification
-ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
-
-// we use only a single category per document
-classificationTypeSetting.setClassificationType(ClassificationTypeSetting.SINGLE);
-
-// we want the classifier to be serialized in the end
-classificationTypeSetting.setSerializeClassifier(true);
-
-// specify feature settings that should be used by the classifier
-FeatureSetting featureSetting = new FeatureSetting();
-
-// we want to create character-level n-grams
-featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-
-// the minimum length of our n-grams should be 4
-featureSetting.setMinNGramLength(4);
-
-// the maximum length of our n-grams should be 7
-featureSetting.setMaxNGramLength(7);
-
-// we assign the settings to our classifier
-classifier.setClassificationTypeSetting(classificationTypeSetting);
-classifier.setFeatureSetting(featureSetting);
-
-// now we can train the classifier using the given dataset
-classifierManager.trainClassifier(dataset, classifier);
-\end{lstlisting}
-\end{codelisting}
-
-\paragraph{Using the Model}
-After we trained a model for a classifier we can apply it to unseen data. Let's use the model we trained for a URL classifier with tagging:
-
-\begin{codelisting}
-\begin{lstlisting}[frame=tb]
-
-\end{lstlisting}
-\end{codelisting}
-
-\paragraph{Evaluating a Classifier}
-
-\paragraph{Testing parameter combinations}
-As you have seen, you can train the classifier using different parameters. So how can you be sure that you set the parameters correctly? Do they work well on different datasets? Is the chosen classifier always better than others? In order to answer these questions with hard data you can automatically run different combinations of classifiers, settings, and datasets as shown in Figure \ref{fig:bcc}. In the end you will get one evaluation csv with information about how the combination performed. You can then manually pick the best performing settings.
-
-\begin{figure}[ht!]
-\centering
-\includegraphics[width=\columnwidth]{img/bcc.pdf}
-\caption{Combinations for training a solid classifier.}
-\label{fig:bcc}
-\end{figure}
-
-Listing \ref{listing:bcc} shows you how to do just that.
-
-\begin{codelisting}
-\label{listing:bcc}
-\begin{lstlisting}[frame=tb]
-ClassifierManager classifierManager = new ClassifierManager();
-
-// build a set of classification type settings to evaluate
-List<ClassificationTypeSetting> classificationTypeSettings = new ArrayList<ClassificationTypeSetting>();
-ClassificationTypeSetting cts = new ClassificationTypeSetting();
-cts.setClassificationType(ClassificationTypeSetting.SINGLE);
-cts.setSerializeClassifier(false);
-classificationTypeSettings.add(cts);
-
-// build a set of classifiers to evaluate
-List<TextClassifier> classifiers = new ArrayList<TextClassifier>();
-TextClassifier classifier = null;
-classifier = new DictionaryClassifier();
-classifiers.add(classifier);
-classifier = new KNNClassifier();
-classifiers.add(classifier);
-
-// build a set of feature settings for evaluation
-List<FeatureSetting> featureSettings = new ArrayList<FeatureSetting>();
-FeatureSetting fs = null;
-fs = new FeatureSetting();
-fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-fs.setMinNGramLength(4);
-fs.setMaxNGramLength(7);
-featureSettings.add(fs);
-
-fs = new FeatureSetting();
-fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-fs.setMinNGramLength(3);
-fs.setMaxNGramLength(8);
-featureSettings.add(fs);
-
-fs = new FeatureSetting();
-fs.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
-fs.setMinNGramLength(1);
-fs.setMaxNGramLength(3);
-featureSettings.add(fs);
-
-// build a set of datasets that should be used for evaluation
-Set<Dataset> datasets = new HashSet<Dataset>();
-Dataset dataset = new Dataset();
-dataset.setPath("dataset1.txt");
-datasets.add(dataset);
-dataset = new Dataset();
-dataset.setPath("dataset2.txt");
-dataset.setSeparationString("#");
-datasets.add(dataset);
-
-// set evaluation settings
-EvaluationSetting evaluationSetting = new EvaluationSetting();
-evaluationSetting.setTrainingPercentageMin(20);
-evaluationSetting.setTrainingPercentageMax(80);
-evaluationSetting.setkFolds(5);
-evaluationSetting.addDataset(dataset);
-
-// let's take the time
-StopWatch stopWatch = new StopWatch();
-
-// train and test all classifiers in all combinations
-classifierManager.learnBestClassifier(classificationTypeSettings, classifiers, featureSettings,
-evaluationSetting);
-
-System.out.println("finished training and testing classifier combinations in " + stopWatch.getElapsedTimeString());
 \end{lstlisting}
 \end{codelisting}
 

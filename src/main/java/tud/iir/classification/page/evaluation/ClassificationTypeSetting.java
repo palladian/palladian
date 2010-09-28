@@ -1,5 +1,7 @@
 package tud.iir.classification.page.evaluation;
 
+import java.io.Serializable;
+
 import tud.iir.classification.page.TextClassifier;
 
 /**
@@ -8,7 +10,9 @@ import tud.iir.classification.page.TextClassifier;
  * @author David Urbansky
  * 
  */
-public class ClassificationTypeSetting {
+public class ClassificationTypeSetting implements Serializable {
+
+    private static final long serialVersionUID = 8603357688386384581L;
 
     // // classification types
     /** Take only the first category specified in the txt file. */

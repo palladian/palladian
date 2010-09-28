@@ -1,5 +1,6 @@
 package tud.iir.classification.page.evaluation;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -11,7 +12,9 @@ import org.apache.log4j.Logger;
  * @author David Urbansky
  * 
  */
-public final class EvaluationSetting {
+public final class EvaluationSetting implements Serializable {
+
+    private static final long serialVersionUID = -537962567283786424L;
 
     // //////// presets //////////
     /** Evaluate quickly. */

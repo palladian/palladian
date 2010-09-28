@@ -1,6 +1,5 @@
 package tud.iir.classification.page;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -21,9 +20,9 @@ import tud.iir.helper.StopWatch;
  * 
  * @author David Urbansky
  */
-public class KNNClassifier extends TextClassifier implements Serializable {
+public class KNNClassifier extends TextClassifier {
 
-    private static final long serialVersionUID = 184534402554023419L;
+    private static final long serialVersionUID = 1064061946261174688L;
 
     /** Number of nearest neighbors that are allowed to vote. */
     private int k = 3;

@@ -1,5 +1,6 @@
 package tud.iir.classification.page;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,10 +25,12 @@ import tud.iir.web.Crawler;
  * @author David Urbansky
  * @author Philipp Katz
  */
-public final class Preprocessor {
+public final class Preprocessor implements Serializable {
 
     // characters that will be eliminated
     // private String[] illegalTermCharacters = { "\t", " ", ",", "\"", "'", ":", ";", "\\(", "\\)", "\\.", "\\!", "\\?", "\\{", "\\}" };
+
+    private static final long serialVersionUID = -7623884004056059738L;
 
     // the weights for the terms that appear in different areas of the resource
     public static final double WEIGHT_DOMAIN_TERM = 8.0;
@@ -36,7 +39,7 @@ public final class Preprocessor {
     public static final double WEIGHT_META_TERM = 4.0;
     public static final double WEIGHT_BODY_TERM = 1.0;
 
-    private Crawler crawler = null;
+    private transient Crawler crawler = null;
 
     /**
      * the classifier that this preprocessor belongs to, the classifier holds the feature settings which are needed here
