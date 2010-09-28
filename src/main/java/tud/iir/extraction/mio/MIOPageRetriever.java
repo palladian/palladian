@@ -1,4 +1,6 @@
 /**
+ *  The MIOPageRetriever finds pages from the web that have a relative high probability of containing relevant MIO(s) for
+ * a given entity.
  * 
  * @author Martin Werner
  */
@@ -10,15 +12,9 @@ import org.apache.log4j.Logger;
 
 import tud.iir.knowledge.Entity;
 
-/**
- * The MIOPageRetriever finds pages from the web that have a relative high probability of containing relevant MIO(s) for
- * a given entity.
- * 
- * @author Martin Werner
- */
 public class MIOPageRetriever {
 
-    /** The LOGGER. */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MIOPageRetriever.class);
 
     /**
@@ -30,8 +26,6 @@ public class MIOPageRetriever {
     public List<MIOPage> retrieveMIOPages(final Entity entity, boolean weakFlag) {
 
         List<MIOPage> mioPages;
-       
-//        final long timeStamp1 = System.currentTimeMillis();
 
         // generate searchQueries
         final List<String> searchQueries = generateSearchQueries(entity, weakFlag);
@@ -39,27 +33,19 @@ public class MIOPageRetriever {
         // initiate search with searchEngines
         final List<String> mioPageCandidates = getMIOPageCandidates(searchQueries);
         
-//        System.out.println("GENERATING SearchQueries and GETTING mioPageCandidates finished in: "+ DateHelper.getRuntime(timeStamp1));
         LOGGER.info("Analyzing MIOPageCandidates startet..for " + entity.getName() + " Count: "
                 + mioPageCandidates.size());
         
-//        final long timeStamp2 = System.currentTimeMillis();
         // analyze the MIOPageCandidates for MIO-existence
         mioPages = analyzeMIOPageCandidates(mioPageCandidates, entity);
-        
-//        System.out.println("Analyzing MIOPAGECANDIDATES finished in: "+ DateHelper.getRuntime(timeStamp2));
-        LOGGER.info("MIOPageCandidateAnalysis finished, DedicatedPage-Calculation starts..for " + entity.getName());
-      
-//        final long timeStamp3 = System.currentTimeMillis();
+
+        LOGGER.info("MIOPageCandidateAnalysis finished for " + entity.getName());
+
         // detect DedicatedPages
         final DedicatedPageDetector dpDetector = new DedicatedPageDetector();
         for (MIOPage mioPage : mioPages) {            
             dpDetector.calculateDedicatedPageTrust(mioPage);
-            // System.out.println(entity.getName() + "  " + mioPage.getUrl());
         }
-//        System.out.println("DedicatedPageDetection finished in: "+ DateHelper.getRuntime(timeStamp3));
-        LOGGER.info("DedicatedPage-Calculation finished..for " + entity.getName());
-
         return mioPages;
     }
 

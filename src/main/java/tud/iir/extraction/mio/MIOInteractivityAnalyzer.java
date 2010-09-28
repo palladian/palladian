@@ -1,3 +1,8 @@
+/**
+ * This class makes a decision for interaction-grade.
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.List;
@@ -24,21 +29,16 @@ public class MIOInteractivityAnalyzer {
      * If textual content exists, mostly the MIO is strong.
      * If the fileSize is bigger than 2097152 Byte (=2MB), mostly the MIO is a video and thats why weak.
      * 
-     * @param mio the mio
+     * @param mio the MIO
      * @param mioPage the mioPage
      */
     public void setInteractivityGrade(final MIO mio, final MIOPage mioPage) {
 
-        // if (mio.getTextContentLength() > 2) {
-        // mio.setInteractivityGrade("strong");
-        // } else {
-        if (mio.getFileSize() > 2097152||mio.getMIOType().equalsIgnoreCase("quicktime")) {
+        if (mio.getFileSize() > 2097152 || mio.getMIOType().equalsIgnoreCase("quicktime")) {
             mio.setInteractivityGrade("weak");
         } else {
             mio.setInteractivityGrade(calcInteractivityGrade(mio, mioPage));
         }
-        // }
-
     }
 
     /**
@@ -49,7 +49,9 @@ public class MIOInteractivityAnalyzer {
      * @return the string
      */
     private String calcInteractivityGrade(final MIO mio, final MIOPage mioPage) {
-        String returnValue = "unclear";
+
+        // check configuration to find out if unclear MIOs should associated with another interaction type
+        String returnValue = InCoFiConfiguration.getInstance().associateUnclearMIOsWith;
 
         final double fileNameiGrade = calcSingleValue(mio.getFileName());
         final double pageTitleiGrade = calcSingleValue(mioPage.getTitle());
@@ -67,6 +69,7 @@ public class MIOInteractivityAnalyzer {
             surroundingTextiGrade = calcSingleValue(surroundingText);
         }
 
+        // sum all calculated values
         final double result = fileNameiGrade + pageTitleiGrade + headlineiGrade + surroundingTextiGrade;
         if (result > 0) {
             returnValue = "strong";
@@ -114,13 +117,7 @@ public class MIOInteractivityAnalyzer {
     private int getNumberOfInteractivityIndicators(final String checkString, final boolean checkStrong) {
         int returnValue = 0;
         List<String> interactionIndicators = weakInteractionIndicators;
-        // String[] isWeakIndicator = { "unboxing", "video", "preview", "review", "movie", "trailer", "promotion",
-        // "youtube", "player", "logo" };
         if (checkStrong) {
-            // final String[] isStrongIndicator = { "interactive", "click", "try", "360", "view", "index", "main",
-            // "spin",
-            // "tour", "virtual", "gallery", "play", "drag", "keys", "game", "microsite" };
-            // isWeakIndicator = isStrongIndicator;
             interactionIndicators = strongInteractionIndicators;
         }
 
@@ -130,20 +127,5 @@ public class MIOInteractivityAnalyzer {
             }
         }
         return returnValue;
-
     }
-    //
-    // /**
-    // * The main method.
-    // *
-    // * @param args the arguments
-    // */
-    // public static void main(String[] args) {
-    // // MIOInteractivityAnalyzer iAn = new MIOInteractivityAnalyzer();
-    // // System.out
-    // // .println(iAn
-    // //
-    // .calcSingleValue("http://g-ecx.images-amazon.com/images/G/01/am3/20100615163706920/AMPlayer._V191513928_.swf"));
-    // }
-
 }

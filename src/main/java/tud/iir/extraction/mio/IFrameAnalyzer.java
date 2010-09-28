@@ -1,4 +1,5 @@
 /**
+ *  The IFrameAnalyzer analyzes a webPage for existing IFrames and checks if their targets contains MIOs.
  * 
  * @author Martin Werner
  */
@@ -14,18 +15,13 @@ import org.w3c.dom.Document;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.web.Crawler;
 
-/**
- * The IFrameAnalyzer analyzes a webPage for existing IFrames and checks if their targets contains MIOs.
- * 
- * @author Martin Werner
- */
 public class IFrameAnalyzer {
 
-    /** The sw matcher. */
+    /** The SearchWordMatcher. */
     private final transient SearchWordMatcher swMatcher;
 
     /**
-     * Instantiates a new i frame analyzer.
+     * Instantiates a new IFrameAnalyzer.
      * 
      * @param swMatcher the searchWordMatcher
      */
@@ -34,15 +30,15 @@ public class IFrameAnalyzer {
     }
 
     /**
-     * Gets the iframe mio pages.
+     * Check if the pages that are the target of the IFrame contain MIO-Indicators.
+     * If yes than generate a new MIOPage-Object.
      * 
      * @param parentPageContent the parent page content
      * @param parentPageURL the parent page URL
-     * @return the iframe mio pages
+     * @return the mioPages of IFrames
      */
     public List<MIOPage> getIframeMioPages(final String parentPageContent, final String parentPageURL) {
         final List<MIOPage> mioPages = new ArrayList<MIOPage>();
-//        final Crawler craw = new Crawler();
         final Crawler craw = new Crawler(5000,6000,9000);
 
         final List<String> iframeSources = analyzeForIframe(parentPageContent, parentPageURL);
@@ -71,15 +67,14 @@ public class IFrameAnalyzer {
                 }
             }
         }
-
         return mioPages;
     }
 
     /**
-     * analyze a page for existing IFrames.
+     * Analyze a page for existing IFrames.
      * 
      * @param pageContent the page content
-     * @param pageURL the page url
+     * @param pageURL the page URL
      * @return the list
      */
     private List<String> analyzeForIframe(final String pageContent, final String pageURL) {
@@ -105,11 +100,11 @@ public class IFrameAnalyzer {
     }
 
     /**
-     * extract the src-url out of an iframe-tag.
+     * extract the URL out of an IFrame-tag.
      * 
-     * @param iframeTag the iframe tag
-     * @param quotMark the quot mark
-     * @return the src from iframe
+     * @param iframeTag the IFrame tag
+     * @param quotMark the quotation mark
+     * @return a List of URLs
      */
     private List<String> getSrcFromIframe(final String iframeTag, final String quotMark) {
         final List<String> iframeURLs = new ArrayList<String>();
@@ -123,8 +118,8 @@ public class IFrameAnalyzer {
     /**
      * analyze the URLs for validness and eventually modify them e.g. relative Paths
      * 
-     * @param urlCandidates the url candidates
-     * @param parentPageURL the parent page url
+     * @param urlCandidates the urlCandidates
+     * @param parentPageURL the parent page URL
      * @return the list
      */
     private List<String> checkURLs(final List<String> urlCandidates, final String parentPageURL) {
@@ -136,18 +131,17 @@ public class IFrameAnalyzer {
                 validURLs.add(validURL);
             }
         }
-
         return validURLs;
     }
 
     /**
      * Create a new MIOPage.
      * 
-     * @param iframeSourceURL the iframe source url
-     * @param parentPageURL the parent page url
+     * @param iframeSourceURL the IFrame source URL
+     * @param parentPageURL the parent page URL
      * @param parentPageTitle the parent page title
      * @param webDocument the web document
-     * @return the mIO page
+     * @return the mioPage
      */
     private MIOPage generateMIOPage(final String iframeSourceURL, final String parentPageURL, final String parentPageTitle,
             final Document webDocument) {
@@ -177,26 +171,4 @@ public class IFrameAnalyzer {
         }
         return title.trim();
     }
-    //
-    // /**
-    // * The main method.
-    // *
-    // * @param abc the arguments
-    // */
-    // public static void main(String[] abc) {
-    //
-    // // SearchWordMatcher swMatcher = new SearchWordMatcher("Sennheiser HD800");
-    // // IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
-    // //
-    // // String pageContent = iframeAnalyzer
-    // //
-    // .getPage("http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
-    // // List<MIOPage> mioPages = iframeAnalyzer
-    // // .getIframeMioPages(pageContent,
-    // // "http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
-    // // for (MIOPage mioPage : mioPages) {
-    // // System.out.println(mioPage.getUrl() + " is IFRAMESOURCE: " + mioPage.isIFrameSource());
-    // // }
-    // }
-
 }

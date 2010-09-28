@@ -1,3 +1,8 @@
+/**
+ * This class realizes the extraction of java applets.
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
@@ -9,16 +14,16 @@ import tud.iir.knowledge.Entity;
 
 public class AppletExtractor extends AbstractMIOTypeExtractor {
 
-    /** The mio type. */
+    /** The mioType. */
     private static String mioType = "applet";
 
-    /** The mio page. */
+    /** The mioPage. */
     private transient MIOPage mioPage = null;
 
     /** The entity. */
     private transient Entity entity = null;
 
-    /** The reg exp. */
+    /** The regular expression for extracting the URL */
     private static String regExp = "(\".[^\"]*\\.class\")|(\".[^\"]*\\.class\\?.[^\"]*\")";
 
     /*
@@ -82,7 +87,7 @@ public class AppletExtractor extends AbstractMIOTypeExtractor {
     @Override
     List<MIO> analyzeRelevantTags(final List<String> relevantTags) {
         final List<MIO> retrievedMIOs = new ArrayList<MIO>();
-//        final List<String> altText = new ArrayList<String>();
+      
         final List<MIO> tempMIOs = new ArrayList<MIO>();
 
         for (String relevantTag : relevantTags) {
@@ -94,24 +99,19 @@ public class AppletExtractor extends AbstractMIOTypeExtractor {
 
                 for (MIO mio : tempMIOs) {
                     final String tempAltText = extractALTTextFromTag(relevantTag);
-//                    altText.clear();
+                   
                     if (tempAltText.length() > 2) {
-//                        altText.add(tempAltText);
-                        mio.setAltText(tempAltText);
+                       mio.setAltText(tempAltText);
                     }
                 }
             }
             // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
-            // final List<String> headlines = new ArrayList<String>();
             for (MIO mio : tempMIOs) {
                 extractSurroundingInfo(relevantTag, mioPage, mio);
-                extractXMLInfo(relevantTag, mio);
+                // extractXMLInfo(relevantTag, mio);
             }
-
             retrievedMIOs.addAll(tempMIOs);
-
         }
         return retrievedMIOs;
     }
-
 }

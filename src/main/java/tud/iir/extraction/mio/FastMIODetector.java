@@ -1,4 +1,5 @@
 /**
+ * The FastMIODetector simply analyze a MIOPageCandidate for pure MIO-Existence by some indicators.
  * 
  * @author Martin Werner
  */
@@ -8,11 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-/**
- * The FastMIODetector simply analyze a MIOPageCandidate for pure MIO-Existence by some indicators.
- * 
- * @author Martin Werner
- */
 public class FastMIODetector {
 
     /** A List of MIOIndicators. */
@@ -44,32 +40,11 @@ public class FastMIODetector {
 
         if (relevantMIOTypes.contains("quicktime")) {
             mioIndicators.add(".mov");
-
         }
         if (relevantMIOTypes.contains("html5canvas")) {
             mioIndicators.add("<canvas>");
         }
-
     }
-
-    /**
-     * Gets the MIOPage.
-     *
-     * @param mioPageContent the mio page content
-     * @return the MIOpages
-     */
-    // public MIOPage getMioPage(final String pageContent, final String pageURL) {
-    //
-    // MIOPage mioPage = null;
-    //
-    // final String lowerPageContent = pageContent.toLowerCase(Locale.ENGLISH);
-    // if (containsMIO(lowerPageContent)) {
-    //
-    // mioPage = new MIOPage(pageURL);
-    //
-    // }
-    // return mioPage;
-    // }
 
     /**
      * check if a MIO-Indicator is contained.
@@ -84,12 +59,8 @@ public class FastMIODetector {
             if (modPageContent.contains(mioInd)) {
                 // break after a first indicator was detected
                 returnValue = true;
-
             }
         }
-
         return returnValue;
-
     }
-
 }

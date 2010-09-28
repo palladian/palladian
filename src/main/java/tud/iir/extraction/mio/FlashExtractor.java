@@ -1,3 +1,8 @@
+/**
+ * The FlashExtractor extracts Flash-MIOs of the type SWF.
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.ArrayList;
@@ -7,16 +12,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import tud.iir.helper.HTMLHelper;
-import tud.iir.helper.MathHelper;
 import tud.iir.knowledge.Entity;
 import tud.iir.web.Crawler;
 
 public class FlashExtractor extends AbstractMIOTypeExtractor {
 
-    /** The mio type. */
+    /** The mioType. */
     private static String mioType = "flash";
 
-    /** The mio page. */
+    /** The mioPage. */
     private transient MIOPage mioPage = null;
 
     /** The entity. */
@@ -25,9 +29,10 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
     /** The modified mioPageContent (without relevant tags). */
     private transient String modMioPageContent;
 
-    /** The reg exp. */
+    /** The regular expression for url extraction. */
     private static String regExp = "(\".[^\",]*\\.swf\")|(\".[^\",]*\\.swf\\?.[^\"]*\")";
 
+    /** The flashVars string. */
     private static String fVString = "flashvars";
 
     /*
@@ -47,9 +52,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
         mioList.addAll(findOutOfTagMIOs(modMioPageContent));
 
         mioList.addAll(analyzeRelevantTags(relevantTags));
-
         return mioList;
-
     }
 
     /*
@@ -85,7 +88,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
     }
 
     /**
-     * Find out of tag MIOs.
+     * Find MIOs that are not inside a relevant tag (e.g. in comments).
      * 
      * @param mioPageContent the MIOPageContent
      * @return the list
@@ -94,17 +97,11 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
         final List<MIO> flashMIOs = new ArrayList<MIO>();
 
         if (mioPageContent.toLowerCase(Locale.ENGLISH).contains(".swf")) {
-
-            final List<MIO> furtherSWFs = extractMioURL(mioPageContent, mioPage, "(\".[^\",;]*\\.swf\")|(\".[^\",;]*\\.swf\\?.[^\"]*\")", entity, mioType);
-//             System.out.println("NOCH SWF ENTHALTEN! - " + mioPage.getUrl());
-//             for (MIO mio : furtherSWFs) {
-//             System.out.println(mio.getDirectURL());
-//             }
+            final List<MIO> furtherSWFs = extractMioURL(mioPageContent, mioPage,
+                    "(\".[^\",;]*\\.swf\")|(\".[^\",;]*\\.swf\\?.[^\"]*\")", entity, mioType);
             flashMIOs.addAll(furtherSWFs);
-
         }
         return flashMIOs;
-
     }
 
     /*
@@ -116,14 +113,13 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
         final List<MIO> retrievedMIOs = new ArrayList<MIO>();
         final List<MIO> tempMIOs = new ArrayList<MIO>();
 
-//        final List<String> altText = new ArrayList<String>();
-//        StringBuffer altTextBuffer;
+        // final List<String> altText = new ArrayList<String>();
+        // StringBuffer altTextBuffer;
         // try to extract swf-file-URLs
         for (String relevantTag : relevantTags) {
 
             tempMIOs.clear();
             if (relevantTag.toLowerCase(Locale.ENGLISH).contains("swfobject")) {
-//                System.out.println(relevantTag);
                 tempMIOs.addAll(checkSWFObject(relevantTag, mioPage));
 
             } else {
@@ -136,8 +132,7 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
                     final List<String> flashVars = extractFlashVars(relevantTag);
                     if (!flashVars.isEmpty()) {
                         for (MIO mio : tempMIOs) {
-                            mio = adaptFlashVarsToURL(mio, flashVars);
-//                            mio.addInfos(fVString, flashVars);
+                            adaptFlashVarsToURL(mio, flashVars);
                         }
                     }
                 }
@@ -148,40 +143,31 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
 
                 for (MIO mio : tempMIOs) {
                     final String tempAltText = extractALTTextFromTag(relevantTag);
-//                    altText.clear();
-                   
                     if (tempAltText.length() > 2) {
-//                         altTextBuffer = new StringBuffer();
-//                        altText.add(tempAltText);
                         mio.setAltText(tempAltText);
                     }
                 }
             }
             // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
-            // final List<String> headlines = new ArrayList<String>();
             for (MIO mio : tempMIOs) {
                 extractSurroundingInfo(relevantTag, mioPage, mio);
-                extractXMLInfo(relevantTag, mio);
             }
-
             retrievedMIOs.addAll(tempMIOs);
         }
-
         return retrievedMIOs;
     }
 
     /**
-     * Check swf object.
+     * SpecialCheck for swf-object-embeddings.
      * 
      * @param relevantTag the relevant tag
-     * @param mioPage the mio page
-     * @return the list
+     * @param mioPage the mioPage
+     * @return the list of MIOs
      */
     private List<MIO> checkSWFObject(final String relevantTag, final MIOPage mioPage) {
 
         List<MIO> tempList = new ArrayList<MIO>();
 
-        // String content = mioPage.getContent();
         if (relevantTag.toLowerCase(Locale.ENGLISH).contains("swfobject.embedswf")
                 || relevantTag.toLowerCase(Locale.ENGLISH).contains("new swfobject(")) {
 
@@ -190,113 +176,74 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
             // check for flashvars
             if (relevantTag.toLowerCase(Locale.ENGLISH).contains(fVString)) {
                 final List<String> flashVars = extractFlashVars(relevantTag);
-                // System.out.println(flashVars.toString());
 
                 if (!flashVars.isEmpty()) {
                     for (MIO mio : tempList) {
-                        mio = adaptFlashVarsToURL(mio, flashVars);
-//                        mio.addInfos(fVString, flashVars);
+                        adaptFlashVarsToURL(mio, flashVars);
                     }
                 }
             }
-
-            // analyze for queryParamValues
-//            if (relevantTag.contains("getQueryParamValue")) {
-//
-//                String regExp = "getQueryParamValue\\(.[^\\)]*\\)";
-//                // String queryParamValue= extractElement(regExp, relevantTag,
-//                // "getQueryParamValue(");
-//                // //remove the closing ")"
-//                // queryParamValue = queryParamValue.substring(0,
-//                // queryParamValue.length()-1);
-//
-//                final Pattern pat = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-//                final Matcher matcher = pat.matcher(relevantTag);
-//                final List<String> queryParamValues = new ArrayList<String>();
-//                while (matcher.find()) {
-//                    // result has the form: flashvars = {cool};
-//                    final String result = matcher.group(0);
-//                    queryParamValues.add(result);
-//
-//                }
-//                for (MIO mio : tempList) {
-//                    mio.addInfos("queryParamValues", queryParamValues);
-//                }
-//
-//            }
-
         }
-
         return tempList;
     }
 
     /**
-     * Extract flash vars.
+     * Extract flashVars.
      * 
      * @param tagContent the tag content
-     * @return the list
+     * @return the list of flashVars
      */
     private List<String> extractFlashVars(final String tagContent) {
-//        System.out.println(tagContent);
+        // System.out.println(tagContent);
         final List<String> flashVars = new ArrayList<String>();
 
-        // extract var flashVars = {}
+        // extract forms like: var flashVars = {}
         String regExp = "flashvars(\\s?)=(\\s?)\\{[^\\}]*\\};";
         final Pattern pat1 = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         final Matcher matcher1 = pat1.matcher(tagContent);
         while (matcher1.find()) {
             // result has the form: flashvars = {cool};
             String result = matcher1.group(0);
-//            System.out.println("#### " + result);
             result = result.replaceAll("flashvars(\\s?)=(\\s?)", "");
             result = result.trim();
             result = result.substring(0, result.length() - 1);
             result = result.replaceAll("[\\{,\\}]", "");
             result = result.trim();
-//            System.out.println(result);
+           
             // result has the form: cool
             if (result.length() > 0) {
                 flashVars.add(result);
             }
         }
 
-        // extract <param name="FlashVars"
-        // value="myURL=http://weblogs.adobe.com/">
-//        String regExp2 = "<param[^>]*flashvars[^>]*>";
+        // extract forms like: <param name="FlashVars" value="myURL=http://weblogs.adobe.com/">
         String regExp2 = "param name=\"flashvars\"[^>]*value=\".[^\"]+\"";
         Pattern pat2 = Pattern.compile(regExp2, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher2 = pat2.matcher(tagContent);
         while (matcher2.find()) {
-            // result has the form: <param name="FlashVars"
-            // value="myURL=http://weblogs.adobe.com/">
+            // result has the form: <param name="FlashVars" value="myURL=http://weblogs.adobe.com/">
             String result = matcher2.group();
-//            System.out.println(result);
-            String pattern ="";
-            if (result.contains(";")){
+            String pattern = "";
+            if (result.contains(";")) {
                 // if result has the comment or CDATA-form: flashObj = flashObj + '&lt;param name="flashVars"
                 // value="xmlUrl=/us/consumer/detail/galleryXML.do?model_cd=CLP-770ND/XAA&amp;amp;disMod=L&amp;"
                 pattern = "value=\".[^\"]*";
-            }else{
-           
-                 pattern = "value=\"[^>]*\"";
+            } else {
+                pattern = "value=\"[^>]*\"";
             }
-           
-            // System.out.println("---------" + result);
             result = HTMLHelper.extractTagElement(pattern, result, "value=");
             if (result.length() > 0) {
                 result.replaceAll(";", "");
                 flashVars.add(result);
             }
-
         }
 
-        // extract FlashVars="myURL=http://weblogs.adobe.com/"
+        // extract forms like: FlashVars="myURL=http://weblogs.adobe.com/"
         String regExp3 = "flashvars=\"[^\"]*\"";
         Pattern pat3 = Pattern.compile(regExp3, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher3 = pat3.matcher(tagContent);
         while (matcher3.find()) {
             String result = matcher3.group(0);
-//            System.out.println(result);
             String pattern = "flashvars=\"[^\"]*\"";
             result = HTMLHelper.extractTagElement(pattern, result, "flashvars=");
             if (result.length() > 0) {
@@ -304,34 +251,31 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
             }
         }
 
-        // extract flashvars.country = "us";
+        // extract forms like: flashvars.country = "us";
         String regExp4 = "flashvars\\..[^;]*;";
         final Pattern pat4 = Pattern.compile(regExp4, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         final Matcher matcher4 = pat4.matcher(tagContent);
         while (matcher4.find()) {
             String result = matcher4.group(0);
-//            System.out.println("--" + result);
             result = result.replaceFirst("flashvars.", "");
             result = result.replaceAll("\"", "");
             result = result.replaceAll(";", "");
             result = result.replaceAll("\\s", "");
             if (result.length() > 0) {
                 flashVars.add(result);
-//                System.out.println(result);
             }
         }
-
         return flashVars;
     }
 
     /**
-     * Adapt flash vars to url.
+     * Adapt flashVars to the URL.
      * 
-     * @param mio the mio
-     * @param flashVars the flash vars
-     * @return the mIO
+     * @param mio the MIO
+     * @param flashVars the List of flashVars
+     *
      */
-    private MIO adaptFlashVarsToURL(final MIO mio, final List<String> flashVars) {
+    private void adaptFlashVarsToURL(final MIO mio, final List<String> flashVars) {
 
         final String url = mio.getDirectURL();
 
@@ -340,75 +284,24 @@ public class FlashExtractor extends AbstractMIOTypeExtractor {
         modURL.append(url + "?");
         // add each flashVar
         for (String flashVar : flashVars) {
-//            System.out.println(flashVar);
-            // only concate not existing flashVars
+             // only concatenate not existing flashVars
             if (!modURL.toString().contains(flashVar)) {
                 if (!flashVar.contains("\"")) {
-                  
-                        final String tempURL = flashVar+"&";
-                        modURL.append(tempURL);
-                    
+
+                    final String tempURL = flashVar + "&";
+                    modURL.append(tempURL);
+
                 } else {
                     // adapt vars of style:
                     // videoRef:"/uk/assets/cms/6d8a4d0c-9659-4fa0-a62c-e884980879ee/Video.flv?p=081007_09:24"
                     String tempURL = flashVar.replaceAll("\"", "");
                     tempURL = tempURL.replaceFirst(":", "=");
                     modURL.append(tempURL + "&");
-
                 }
             }
-
         }
         if (Crawler.isValidURL(modURL.toString(), false)) {
             mio.setDirectURL(modURL.toString());
-//            System.out.println(modURL.toString());
-        }
-
-        return mio;
+         }
     }
-
-    // private List<MIO> extractSWFFromComments(MIOPage mioPage) {
-    // List<MIO> resultList = new ArrayList<MIO>();
-    // // StringHelper stringHelper = new StringHelper();
-    // List<String> relevantTags = StringHelper.getConcreteTags(mioPage.getContent(), "<!--", "-->");
-    // for (String relevantTag : relevantTags) {
-    //
-    // List<MIO> tempList = extractMIOWithURL(relevantTag, mioPage, "flash");
-    // if (relevantTag.contains("flashvars")) {
-    // List flashVars = extractFlashVars(relevantTag);
-    // if (!flashVars.isEmpty()) {
-    // for (MIO mio : tempList) {
-    // mio.addInfos("flashvars", flashVars);
-    // }
-    // }
-    //
-    // }
-    // resultList.addAll(tempList);
-    //
-    // }
-    // return resultList;
-    // }
-    //
-    // /**
-    // * The main method.
-    // *
-    // * @param args the arguments
-    // */
-
-    public static void main(final String[] abc) {
-        
-//        System.out.println(MathHelper.calculateRMSE("F:/rmse.csv", ","));
-//        System.exit(1);
-
-//        MIOPage mioPage = new MIOPage("http://www.samsung.com/us/consumer/office/printers-multifunction/color-laser-printers/CLP-770ND/XAA/index.idx?pagetype=prd_detail");
-//        Entity entity = new Entity("Samsung CLP-770ND");
-      MIOPage mioPage = new MIOPage("http://beepdf.com/doc/16/hp_printer_a4_mobile_officejet_h470_iy318.html");
-      Entity entity = new Entity("HP Officejet H470");
-        FlashExtractor flashEx = new FlashExtractor();
-       List<MIO> mios =  flashEx.extractMIOsByType(mioPage, entity);
-       for(MIO mio:mios){
-           System.out.println(mio.getDirectURL());
-       }
-    }
-
 }

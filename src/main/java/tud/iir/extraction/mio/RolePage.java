@@ -1,14 +1,10 @@
 /**
+ * A RolePage is a Page which has a central role within a concept, e.g. www.gsmarena.com for concept mobilePhone
  * 
  * @author Martin Werner
  */
 package tud.iir.extraction.mio;
 
-/**
- * A RolePage is a Page which has a central role within a concept, e.g. www.gsmarena.com for concept mobilePhone
- * 
- * @author Martin Werner
- */
 public class RolePage {
 
     /** The hostname of the page. */

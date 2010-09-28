@@ -1,3 +1,8 @@
+/**
+ * This class calculates a String-relevance between a given entity and a string.
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 import java.util.Locale;
@@ -5,10 +10,6 @@ import java.util.Locale;
 import tud.iir.knowledge.Entity;
 
 public final class RelevanceCalculator {
-    
-    private RelevanceCalculator(){
-        
-    }
 
     /**
      * Calculates string relevance.
@@ -35,15 +36,15 @@ public final class RelevanceCalculator {
         final SearchWordMatcher swm = new SearchWordMatcher(entityName);
 
         final String[] elements = entityName.split("\\s");
-        // String input[] = inputString.split("\\s");
+        
         // calculate the number of searchWord-Matches
         final double numOfMatches = (double) swm.getNumberOfSearchWordMatches(inputString);
-        // System.out.println("number of swm: " + NumOfMatches);
+    
         // calculate the number of searchWord-Matches with ignoring specialWords
         // like D500x
         final double numOfMatchesWithoutSW = (double) swm.getNumberOfSearchWordMatches(inputString, true,
                 entityName.toLowerCase(Locale.ENGLISH));
-        // System.out.println("number of swm without SW: " + NumOfMatchesWithoutSW);
+       
         final double diff = numOfMatches - numOfMatchesWithoutSW;
 
         double result = ((numOfMatchesWithoutSW * 2) + (diff * 3)) / (double) (elements.length * 2);
@@ -51,15 +52,11 @@ public final class RelevanceCalculator {
         if (diff > 0) {
 
             result = (numOfMatches - 1) / elements.length + (diff / elements.length) + (diff / (2 * elements.length));
-            //
             result = numOfMatches / elements.length + (diff / (2 * elements.length));
             result = ((numOfMatchesWithoutSW * 2) + (diff * 3)) / (double) (elements.length * 2);
         } else {
             result = numOfMatches / elements.length;
         }
-
-        // final JaroWinkler jaroWinkler = new JaroWinkler();
-        // double result = (double) jaroWinkler.getSimilarity(entityName, inputString);
 
         if (result > 1) {
             result = 1;

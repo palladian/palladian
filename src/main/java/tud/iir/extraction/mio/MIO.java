@@ -1,11 +1,11 @@
 /**
+ * An interactive multimedia object.
  * 
  * @author Martin Werner
  */
 package tud.iir.extraction.mio;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,14 +14,9 @@ import org.apache.log4j.Logger;
 
 import tud.iir.knowledge.Entity;
 
-/**
- * An interactive multimedia object.
- * 
- * @author Martin Werner
- */
 public class MIO {
 
-    /** The Constant LOGGER. */
+    /** The Logger of this class. */
     private static final Logger LOGGER = Logger.getLogger(MIO.class);
 
     /** The trust. */
@@ -42,22 +37,23 @@ public class MIO {
     /** The file size. */
     private double fileSize = 0;
 
+    /** The alt text. */
+    private String altText = "";
+
+    /** The previous headlines. */
+    private String previousHeadlines = "";
+
+    /** The surrounding text. */
+    private String surroundingText = "";
+
     /** The entity. */
     private Entity entity;
 
     /** The interactivity grade. */
     private String interactivityGrade = "unclear";
 
-    /** The is dedicated page. */
-    private boolean isDedicatedPage = true;
-
-    /** The infos. */
-//    private Map<String, List<String>> infos;
-
     /** The features. */
     private Map<String, Double> features;
-    
-
 
     /**
      * Instantiates a new MIO.
@@ -75,23 +71,21 @@ public class MIO {
         this.entity = entity;
         this.directURL = directURL;
         this.fileName = extractFileName(directURL, mioType);
-
-//        infos = new HashMap<String, List<String>>();
     }
-    
+
     /**
      * Initialize features.
      */
-    public void initializeFeatures(){
-        
+    public void initializeFeatures() {
+
         features.put("FileNameRelevance", 0.);
         features.put("FilePathRelevance", 0.);
         features.put("BadWordAbsence", 1.);
         features.put("ALTTextRelevance", 0.);
         features.put("HeadlineRelevance", 0.);
         features.put("SurroundingTextRelevance", 0.);
-//        features.put("XMLFileNameRelevance", 0.);
-//        features.put("XMLFileContentRelevance", 0.);
+        // features.put("XMLFileNameRelevance", 0.);
+        // features.put("XMLFileContentRelevance", 0.);
         features.put("TitleRelevance", 0.);
         features.put("LinkNameRelevance", 0.);
         features.put("LinkTitleRelevance", 0.);
@@ -100,8 +94,6 @@ public class MIO {
         features.put("DedicatedPageTrustRelevance", 0.);
         features.put("TextContentRelevance", 0.);
         features.put("ResolutionRelevance", 0.);
-        
-        
     }
 
     /**
@@ -142,13 +134,6 @@ public class MIO {
         }
         return directURL;
     }
-
-    /**
-     * Resets the MIOInfos (for saving memory).
-     */
-//    public void resetMIOInfos() {
-//        infos = new HashMap<String, List<String>>();
-//    }
 
     /**
      * Gets the trust.
@@ -241,24 +226,6 @@ public class MIO {
     }
 
     /**
-     * Checks if is dedicated page.
-     * 
-     * @return true, if is dedicated page
-     */
-    public boolean isDedicatedPage() {
-        return isDedicatedPage;
-    }
-
-    /**
-     * Sets the dedicated page.
-     * 
-     * @param isDedicatedPage the new dedicated page
-     */
-    public void setDedicatedPage(final boolean isDedicatedPage) {
-        this.isDedicatedPage = isDedicatedPage;
-    }
-
-    /**
      * Gets the type.
      * 
      * @return the type
@@ -275,34 +242,6 @@ public class MIO {
     public void setMIOType(final String type) {
         this.mioType = type;
     }
-
-    /**
-     * Gets the infos.
-     * 
-     * @return the infos
-     */
-//    public Map<String, List<String>> getInfos() {
-//        return infos;
-//    }
-
-    /**
-     * Sets specific infos like surroundingText needed for feature calculation.
-     * 
-     * @param infos the infos
-     */
-//    public void setInfos(final Map<String, List<String>> infos) {
-//        this.infos = infos;
-//    }
-
-    /**
-     * Adds the specific info like surroundingText needed for feature calculation.
-     * 
-     * @param infoName the info name
-     * @param infoList the info list
-     */
-//    public void addInfos(final String infoName, final List<String> infoList) {
-//        infos.put(infoName, infoList);
-//    }
 
     /**
      * Gets the file name.
@@ -383,35 +322,59 @@ public class MIO {
     public void setFeatures(final Map<String, Double> features) {
         this.features = features;
     }
-    
+
+    /**
+     * Gets the alt text.
+     * 
+     * @return the alt text
+     */
     public String getAltText() {
         return altText;
     }
 
+    /**
+     * Sets the alt text.
+     * 
+     * @param altText the new alt text
+     */
     public void setAltText(String altText) {
         this.altText = altText;
     }
 
+    /**
+     * Gets the previous headlines.
+     * 
+     * @return the previous headlines
+     */
     public String getPreviousHeadlines() {
         return previousHeadlines;
     }
 
+    /**
+     * Sets the previous headlines.
+     * 
+     * @param previousHeadlines the new previous headlines
+     */
     public void setPreviousHeadlines(String previousHeadlines) {
         this.previousHeadlines = previousHeadlines;
     }
 
+    /**
+     * Gets the surrounding text.
+     * 
+     * @return the surrounding text
+     */
     public String getSurroundingText() {
         return surroundingText;
     }
 
+    /**
+     * Sets the surrounding text.
+     * 
+     * @param surroundingText the new surrounding text
+     */
     public void setSurroundingText(String surroundingText) {
         this.surroundingText = surroundingText;
     }
-
-    private String altText="";
-    
-    private String previousHeadlines="";
-    
-    private String surroundingText="";
 
 }

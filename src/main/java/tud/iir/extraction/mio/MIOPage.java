@@ -1,4 +1,5 @@
 /**
+ * This class symbolizes a webpage which contains MIO(s).
  * 
  * @author Martin Werner
  */
@@ -8,11 +9,6 @@ import org.w3c.dom.Document;
 
 import tud.iir.web.Crawler;
 
-/**
- * An webpage which contains mio(s).
- * 
- * @author Martin Werner
- */
 public class MIOPage {
 
     /** The url. */
@@ -48,30 +44,15 @@ public class MIOPage {
     /** The dedicated page trust. */
     private double dedicatedPageTrust = 0;
 
-    // /** the document that is created after retrieving a web page */
-    /** The web document. */
+      /** The webDocument. */
     final transient private Document webDocument;
 
-    /**
-     * Instantiates a new mIO page.
-     * 
-     * @param url the URL
-     */
-    public MIOPage(final String url) {
-//        final Crawler crawler = new Crawler();
-        final Crawler crawler = new Crawler(5000,6000,9000);
-        
-        this.url = url;
-        this.webDocument = crawler.getWebDocument(url);
-        this.hostname = Crawler.getDomain(url, false);
-        this.title = Crawler.extractTitle(webDocument).trim();
-    }
 
     /**
-     * Instantiates a new mIO page.
+     * Instantiates a new mioPage.
      *
-     * @param url the url
-     * @param webDocument the web document
+     * @param url the URL
+     * @param webDocument the webDocument
      */
     public MIOPage(final String url, final Document webDocument) {
         this.url = url;
@@ -81,18 +62,18 @@ public class MIOPage {
     }
 
     /**
-     * Gets the url.
+     * Gets the URL.
      * 
-     * @return the url
+     * @return the URL
      */
     public String getUrl() {
         return url;
     }
 
     /**
-     * Sets the url.
+     * Sets the URL.
      * 
-     * @param url the new url
+     * @param url the new URL
      */
     public void setUrl(final String url) {
         this.url = url;
@@ -132,9 +113,7 @@ public class MIOPage {
      */
     public String getContentAsString() {
         return Crawler.documentToString(webDocument);
-
     }
-
 
     /**
      * Gets the link name.
@@ -280,10 +259,6 @@ public class MIOPage {
         this.title = title;
     }
 
-    // public void setDocument(final Document document) {
-    // this.webDocument = document;
-    // }
-    //
     /**
      * Gets the web document.
      *
@@ -293,15 +268,5 @@ public class MIOPage {
         return webDocument;
     }
 
-//    /**
-//     * The main method.
-//     *
-//     * @param abc the arguments
-//     */
-//    public static void main(final String[] abc) {
-//
-//        MIOPage mioPage = new MIOPage("http://www.jr.com/canon/pe/CAN_MP990/");
-//        // MIOPage mioPage2 = new MIOPage("http://www.gsmarena.com/samsung_s8500_wave-3d-spin-3146.php");
-//    }
 
 }

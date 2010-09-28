@@ -100,7 +100,7 @@ public class SilverlightExtractor extends AbstractMIOTypeExtractor {
             // final List<String> headlines = new ArrayList<String>();
             for (MIO mio : tempMIOs) {
                 extractSurroundingInfo(relevantTag, mioPage, mio);
-                extractXMLInfo(relevantTag, mio);
+//                extractXMLInfo(relevantTag, mio);
             }
 
             retrievedMIOs.addAll(tempMIOs);

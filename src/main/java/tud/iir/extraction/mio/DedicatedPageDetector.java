@@ -1,4 +1,5 @@
 /**
+ * This class allows to calculate a trust-Value which indicates a DedicatedPage.
  * 
  * @author Martin Werner
  */
@@ -17,7 +18,7 @@ import tud.iir.web.Crawler;
 public class DedicatedPageDetector {
 
     /**
-     * Calculate dedicated page trust.
+     * Calculate DedicatedPage-Trust.
      * 
      * @param mioPage the mioPage
      */
@@ -32,7 +33,6 @@ public class DedicatedPageDetector {
             flashInd++;
         }
 
-        // System.out.println("extract bodyContent of: " + mioPage.getUrl());
         final String bodyContent = Crawler.extractBodyContent(pageContent, false);
         if (!("error").equalsIgnoreCase(bodyContent)) {
 
@@ -79,7 +79,6 @@ public class DedicatedPageDetector {
 
         // ignore blank-pages
         if (!(flashInd == 0 && numberOfLinks == 0 && numberOfImages == 0 && contentLength == 0)) {
-
             returnValue = (linkValue + imageValue + contentValue + flashInd) / (4 + flashInd);
         }
 
@@ -88,7 +87,6 @@ public class DedicatedPageDetector {
         }
 
         return returnValue;
-
     }
 
     /**
@@ -117,49 +115,4 @@ public class DedicatedPageDetector {
         }
         return singleTrust;
     }
-
-    // method only for testing
-    // /**
-    // * Calculate bodyContent.
-    // *
-    // * @param url the URL
-    // */
-    // private void calculateBodyContent(final String url) {
-    // final MIOPage mioPage = new MIOPage(url);
-    // final Crawler crawler = new Crawler();
-    // final String content = crawler.downloadNotBlacklisted(url);
-    // if (!("").equals(content)) {
-    // // mioPage.setContent(crawler.downloadNotBlacklisted(url));
-    // calculateDedicatedPageTrust(mioPage);
-    // } else {
-    // LOGGER.error("Getting bodyContent from: " + url + " failed!");
-    //
-    // }
-    //
-    // }
-
-    /**
-     * The main method.
-     * 
-     * @param abc the arguments
-     */
-    // public static void main(String[] abc) {
-    // DedicatedPageDetector dpDet = new DedicatedPageDetector();
-    // dpDet.calculateBodyContent("http://www.canon.de/For_Home/Product_Finder/Multifunctionals/Inkjet/PIXMA_MP990/");
-    // dpDet.calculateBodyContent("http://www.canon-europe.com/z/pixma_tour/de/mp990/swf/main.html?WT.ac=CCI_PixmaTour_MP990_DE");
-    // dpDet.calculateBodyContent("http://content.bmwusa.com/microsite/x52007/indexFlash.html");
-    // dpDet.calculateBodyContent("http://www.sennheiser.com/3d-view/hd_800/index.html");
-    // dpDet.calculateBodyContent("http://www.sennheiser.com/sennheiser/home_de.nsf/root/private_headphones_audiophile-headphones_500319");
-    // dpDet.calculateBodyContent("http://pandorama.avatarmovie.com/");
-    // dpDet.calculateBodyContent("http://www.avatarmovie.com/");
-    // dpDet.calculateBodyContent("https://www.newsvine.com/_nv/accounts/login?popoff&redirect=http%3A%2F%2Fwww.newsvine.com%2F_wine%2Fsave%3Fu%3Dhttp%3A%2F%2Fwww.techradar.com%2Freviews%2Fphones%2Fmobile-phones%2Fhtc-desire-679515%2Freview");
-    // dpDet.calculateBodyContent("http://www.orangeportal.sk/dnes/news/opinion.dwp?article=1909316&filter=all&level1=&level2=&node=1909316");
-
-    // dpDet.calculateBodyContent("http://www.amazon.com/Sennheiser-HD800-Premier-Headphone/dp/B001OTZ8DA");
-    // dpDet.calculateBodyContent("http://www.asiapac.com.au/Links/Ocean.htm");
-    // dpDet.calculateBodyContent("http://www.cnet.com.au/sennheiser-hd-800-339294779.htm");
-    // dpDet.calculateBodyContent("http://www.sennheiser.com/flash/HD_800_2/DE/base.html");
-
-    // }
-
 }

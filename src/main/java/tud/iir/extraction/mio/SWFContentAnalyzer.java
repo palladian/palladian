@@ -291,8 +291,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
                 try {
                     final String textContent = extractTextContent(mioFile);
                     final SWFHeader header = extractHeader(mioFile);
-                    // setTextContentLength(mio, textContent);
-
+                  
 //                    setFileSize(mio, header);
                     setFileSize(mio, mioFile);
                     setFeatures(mio, entity, textContent, header);
@@ -307,16 +306,6 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
 
     }
 
-    /**
-     * Sets the textContentLength.
-     * 
-     * @param mio the mio
-     * @param textContent the text content
-     */
-    // private void setTextContentLength(MIO mio, String textContent) {
-    //
-    // mio.setTextContentLength(textContent.length());
-    // }
 
     /**
      * Sets the fileSize.
@@ -436,6 +425,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
             } catch (Exception e) {
                 LOGGER.error("Extracting textContent from swf-file failed! " + file.getName() + " " + e.getMessage());
                result="";
+               inStream=null;
             }
         }
 

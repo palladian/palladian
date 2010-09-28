@@ -1,3 +1,8 @@
+/**
+ * Instantiates a new MIOExtraction-process.
+ * 
+ * @author Martin Werner
+ */
 package tud.iir.extraction.mio;
 
 public class MIOExtractionProcess extends Thread {
@@ -5,11 +10,6 @@ public class MIOExtractionProcess extends Thread {
     /** The benchmark. */
     private boolean benchmark = false;
 
- 
-//    /**
-//     * Instantiates a new MIOExtraction-process.
-//     * 
-//     */
 //    public MIOExtractionProcess() {
 //        super();
 //        //this.setBenchmark(benchmark);

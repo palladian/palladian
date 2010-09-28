@@ -1,4 +1,7 @@
 /**
+ * The LinkAnalyzer checks if some of the Links of MIOPageCandidates have targets with relevant MIOs (simulates an
+ * indirect
+ * search)
  * 
  * @author Martin Werner
  */
@@ -18,12 +21,6 @@ import tud.iir.knowledge.Concept;
 import tud.iir.web.Crawler;
 import uk.ac.shef.wit.simmetrics.similaritymetrics.JaroWinkler;
 
-/**
- * The LinkAnalyzer checks if some of the Links of MIOPageCandidates have targets with MIOs (simulates an indirect
- * search)
- * 
- * @author Martin Werner
- */
 public class LinkAnalyzer {
 
     /** The SearchWordMatcher. */
@@ -47,7 +44,6 @@ public class LinkAnalyzer {
         if (limitLinkAnalyzing) {
             this.relevantVocabulary = prepareRelevantVoc(concept.getName());
         }
-
     }
 
     /**
@@ -66,8 +62,7 @@ public class LinkAnalyzer {
         Matcher matcher = pattern.matcher(parentPageContent);
         while (matcher.find()) {
             final String completeLinkTag = matcher.group(0);
-            // System.out.println(completeLinkTag);
-            // String linkURL = getLinkURL(completeLinkTag, parentPageURL);
+
             if (!("").equals(completeLinkTag) && completeLinkTag != null) {
                 linkTags.add(completeLinkTag);
             }
@@ -76,19 +71,18 @@ public class LinkAnalyzer {
     }
 
     /**
-     * Analyze link tags.
+     * Analyze link tags, extract all relevant information.
      * 
      * @param linkTags the link tags
-     * @param parentPageURL the parent page url
+     * @param parentPageURL the parent page URL
      * @return the list
      */
     private List<MIOPage> analyzeLinkTags(final List<String> linkTags, final String parentPageURL) {
-        // final long timeStamp4 = System.currentTimeMillis();
 
         final List<MIOPage> mioPages = new ArrayList<MIOPage>();
         final FastMIODetector mioDetector = new FastMIODetector();
-        // final Crawler craw = new Crawler();
         final Crawler craw = new Crawler(4000, 5000, 5000);
+
         // linkURLs save the URLs that were already found
         final List<String> linkURLs = new ArrayList<String>();
         final JaroWinkler jaroWinkler = new JaroWinkler();
@@ -107,15 +101,9 @@ public class LinkAnalyzer {
                 for (String checkURL : linkURLs) {
                     final double similarity = (double) jaroWinkler.getSimilarity(checkURL, linkURL);
                     if (similarity > 0.99) {
-                        // isSimilare = true;
                         isExisting = true;
                         break;
                     }
-                    // if (checkURL.equalsIgnoreCase(linkURL)) {
-                    // // System.out.println(linkURL + " EQUALS " + checkURL);
-                    // isExisting = true;
-                    // break;
-                    // }
                 }
             }
 
@@ -132,36 +120,6 @@ public class LinkAnalyzer {
                 if (isRelevantLinkCheck(linkURL, linkName, linkTitle)
                         && hasConceptRelevance(linkURL, linkName, linkTitle)) {
 
-                    // boolean isSimilare = false;
-                    // for (String checkURL : linkURLs) {
-                    //
-                    // final double similarity = (double) jaroWinkler.getSimilarity(checkURL, linkURL);
-                    // if (similarity > 0.99) {
-                    // isSimilare = true;
-                    // // System.out.println(linkURL + " aussortiert! da " + checkURL);
-                    // break;
-                    // // int checkStartIndex = checkURL.lastIndexOf("/");
-                    // // int checkEndIndex = checkURL.length();
-                    // // String lastCharacters = checkURL.substring(checkStartIndex, checkEndIndex);
-                    // //
-                    // // int linkStartIndex = linkURL.lastIndexOf("/");
-                    // // int linkEndIndex = linkURL.length();
-                    // // String lastCharacters2 = linkURL.substring(linkStartIndex, linkEndIndex);
-                    // // if (lastCharacters2.length() > 1 && lastCharacters.length() > 1) {
-                    // // double endingSimilarity = jaroWinkler.getSimilarity(lastCharacters, lastCharacters2);
-                    // //
-                    // // if (endingSimilarity > 0.93) {
-                    // // // linkURLs.add(linkURL);
-                    // // isExisting = true;
-                    // // System.out.println(linkURL + " aussortiert! da " + checkURL);
-                    // // break;
-                    // // }
-                    // // }
-                    //
-                    // }
-                    // }
-                    // if (!isSimilare) {
-
                     linkURLs.add(linkURL);
 
                     // System.out.println("download: " + linkURL);
@@ -176,13 +134,9 @@ public class LinkAnalyzer {
                         mioPages.add(mioPage);
 
                     }
-                    // }
-
                 }
             }
         }
-        // System.out.println("======> Analyzing LinkTags dauerte: " + DateHelper.getRuntime(timeStamp4));
-
         return mioPages;
     }
 
@@ -197,10 +151,8 @@ public class LinkAnalyzer {
         String extractedLink = HTMLHelper.extractTagElement("href=\"[^>#\"]*\"", linkTag, "href=");
         if (extractedLink.length() <= 3) {
             extractedLink = HTMLHelper.extractTagElement("=\\\"?'?http[^>#\\\"']*\\\"?'?", linkTag, "=");
-            // System.out.println(extractedLink);
         }
         return Crawler.verifyURL(extractedLink, pageURL);
-
     }
 
     /**
@@ -239,7 +191,6 @@ public class LinkAnalyzer {
                 || swMatcher.containsSearchWordOrMorphs(linkTitle)) {
             returnValue = true;
         }
-
         return returnValue;
     }
 
@@ -256,8 +207,7 @@ public class LinkAnalyzer {
         if (limitLinkAnalyzing) {
 
             for (String keyword : relevantVocabulary) {
-                // System.out.println(keyword);
-
+               
                 if (linkURL.toLowerCase(Locale.ENGLISH).contains(keyword)
                         || linkName.toLowerCase(Locale.ENGLISH).contains(keyword)
                         || linkTitle.toLowerCase(Locale.ENGLISH).contains(keyword)) {
@@ -283,16 +233,8 @@ public class LinkAnalyzer {
         conceptVoc.addAll(InCoFiConfiguration.getInstance().getVocByConceptName("weakMIOs"));
 
         for (String keyword : conceptVoc) {
-            // if (keyword.contains(" ")) {
-            // // also add 360 and view of "360 view" for example
-            // String splittedKeyword[] = keyword.split(" ");
-            // for (String sKeyWord : splittedKeyword) {
-            // relevantVoc.add(sKeyWord);
-            // }
-            // } else {
-            relevantVoc.add(keyword);
-            // }
-        }
+                   relevantVoc.add(keyword);
+              }
 
         // remove duplicates
         HashSet<String> hashSet = new HashSet<String>(relevantVoc);
@@ -323,53 +265,4 @@ public class LinkAnalyzer {
 
         return mioPage;
     }
-
-    /**
-     * The main method.
-     * 
-     * @param args the arguments
-     */
-    // public static void main(String[] args) {
-    // String url = "http://www.jr.com/canon/pe/CAN_MP990/";
-    //
-    // final long timeStamp2 = System.currentTimeMillis();
-    // MIOPage mioPage = new MIOPage(url);
-    // String content2 = mioPage.getContentAsString();
-    // System.out.println("content2 dauerte: " + DateHelper.getRuntime(timeStamp2));
-
-    // final long timeStamp1 = System.currentTimeMillis();
-    // Crawler craw = new Crawler();
-    // Document webDocument = craw.getWebDocument(url);
-    // String content1 = Crawler.documentToString(webDocument);
-    // System.out.println("content1 dauerte: "+ DateHelper.getRuntime(timeStamp1));
-
-    // System.out.println(Crawler.isValidURL(" ", false));
-    // System.exit(1);
-    //
-    // SearchWordMatcher svm = new SearchWordMatcher("canon mp990");
-    // LinkAnalyzer linkAn = new LinkAnalyzer(svm);
-    // Crawler c = new Crawler();
-    // // String parentPageURL =
-    // "http://www.canon-europe.com/For_Home/Product_Finder/Multifunctionals/Inkjet/PIXMA_MP990/";
-    // String parentPageURL =
-    // "http://www.canon.co.uk/for_home/product_finder/multifunctionals/inkjet/pixma_mp990/index.aspx?specs=1";
-    // String content = c.download(parentPageURL);
-    // if(svm.containsSearchWordOrMorphs(parentPageURL)){
-    // System.out.println("YEAHHHHHHHHHHHHHH");
-    // }else{
-    // System.out.println("MIST");
-    // }
-    // if(linkAn.isRelevantLinkCheck("http://www.canon-europe.com/z/pixma_tour/en/mp990/swf/main.html?WT.acCCI_PixmaTour_MP990_Europe",
-    // "", "")){
-    // System.out.println(true);
-    // }else{
-    // System.out.println(false);
-    // }
-    // List<MIOPage> mioPages = linkAn.getLinkedMioPages(content, parentPageURL);
-    // System.out.println(mioPages.size());
-    // for (MIOPage mioPage : mioPages){
-    // System.out.println(mioPage.getUrl());
-    // }
-    // }
-
 }

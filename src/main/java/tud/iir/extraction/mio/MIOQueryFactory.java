@@ -1,4 +1,5 @@
 /**
+ * The MIOQueryFactory creates a List of specific SearchQueries for a given entity and concept
  * 
  * @author Martin Werner
  */
@@ -10,11 +11,6 @@ import java.util.List;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
 
-/**
- * The MIOQueryFactory creates a List of specific SearchQueries for a given entity and concept
- * 
- * @author Martin Werner
- */
 public class MIOQueryFactory {
 
     /** The role pages. */
@@ -29,12 +25,14 @@ public class MIOQueryFactory {
     /** The value specifies how much a rolePage must be counted to be relevant. */
     private transient int rolePageRelevanceValue;
 
+    /** The concept search vocabulary. */
     private final List<String> conceptSearchVocabulary;
 
     /**
-     * Instantiates a new mIO query factory.
-     * 
+     * Instantiates a new MIOQueryFactory.
+     *
      * @param entity the entity
+     * @param weakFlag the weak flag
      */
     MIOQueryFactory(final Entity entity, boolean weakFlag) {
         this.entity = entity;
@@ -45,8 +43,12 @@ public class MIOQueryFactory {
             this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getWeakMIOVocabulary();
         } else {
             // load conceptSearchVocabulary from InCoFiConfiguration
-            this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getVocByConceptName(concept.getName());
-
+            String conceptName = concept.getName();
+            if(conceptName.equalsIgnoreCase("computermouse")||conceptName.equalsIgnoreCase("digitalcamera")||conceptName.equalsIgnoreCase("tecmix")){
+                this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getVocByConceptName("tecmix");
+            }else{
+                this.conceptSearchVocabulary = InCoFiConfiguration.getInstance().getVocByConceptName(conceptName);
+            }
         }
 
         // load rolePageRelevanceValue from InCoFiConfiguration
@@ -68,8 +70,7 @@ public class MIOQueryFactory {
         /** The search queries. */
         final List<String> searchQueries = new ArrayList<String>();
         final String entityName = entity.getName();
-        // List<String> conceptVocabulary = searchVoc.getVocByConceptName(concept.getName());
-
+        
         searchQueries.add(entityName);
         for (String searchWord : conceptSearchVocabulary) {
 
@@ -80,7 +81,6 @@ public class MIOQueryFactory {
                 searchQueries.add("\"" + modSearchWord + " " + entityName + "\"");
             } else {
                 searchQueries.add(entityName + " \"" + searchWord + "\"");
-                // System.out.println(entityName + " \"" + searchWord + "\"");
 
             }
         }
@@ -96,10 +96,8 @@ public class MIOQueryFactory {
                     final RolePageDatabase rpDB = new RolePageDatabase();
                     rpDB.insertRolePageUsage(rolePage, entity);
                 }
-
             }
-
-        }
+        }       
 
         return searchQueries;
     }
