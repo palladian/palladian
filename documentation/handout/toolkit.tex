@@ -728,8 +728,10 @@ System.out.println(classifiedDocument);
 \end{lstlisting}
 \end{codelisting}
 
+You can also try the language classifier online at \url{http://www.webknox.com/wi#LanguageDetection}.
+
 \paragraph{Evaluating a Classifier}
-To get an idea of how good a trained classifier works, we can evaluate it using test data which is structured the same way as the training data. Listing \ref{listing:useClassifier} shows how to evaluate a trained classifier, you will see that is very similar to training a classifier. Make sure that you evaluate the classifier using disjunct data, otherwise the evaluation results are invalid.
+To get an idea of how good a trained classifier works, we can evaluate it using test data which is structured the same way as the training data. Listing \ref{listing:useClassifier} shows how to evaluate a trained classifier, you will see that is very similar to training a classifier. Make sure that you evaluate the classifier using disjunct data, otherwise the evaluation results are invalid .
 
 \begin{codelisting}
 \label{listing:useClassifier}
@@ -759,7 +761,7 @@ classifierPerformance = classifierManager.testClassifier(dataset, classifier);
 \end{codelisting}
 
 \paragraph{Testing parameter combinations}
-As you have seen, you can train the classifier using different parameters. So how can you be sure that you set the parameters correctly? Do they work well on different datasets? Is the chosen classifier always better than others? In order to answer these questions with hard data you can automatically run different combinations of classifiers, settings, and datasets as shown in Figure \ref{fig:bcc}. In the end you will get one evaluation csv with information about how the combination performed. You can then manually pick the best performing settings.
+As you have seen, you can train the classifier using different parameters. So how can you be sure that you set the parameters correctly? Do they work well on different datasets? Is the chosen classifier always better than others? In order to answer these questions with hard data you can automatically run different combinations of classifiers, settings, and datasets as shown in Figure \ref{fig:bcc}. The green line shows the combination that was found to perform best. In the end you will get one evaluation csv with information about how the combination performed. You can then manually pick the best performing settings.
 
 \begin{figure}[ht!]
 \centering
@@ -889,8 +891,6 @@ To perform this kind of extraction we could use wrapper approaches which are exp
 Another approach would be to detect the template of the web page and get only the contents of the main block (the green box). Template detection usually works by comparing one page with several other pages of the same domain to find the fix and changeable contents. This however requires several http requests and therefore more time and bandwidth.
 In TOOLKIT we use an approach that is based on a hierarchical analyzis of the web page's DOM tree. Each DOM element is analyzed and ranked based on the length of the contained text, the link density, and the frequency of other elements in relation to the text length. Longer text fragments usually indicate a relevant part of the article, while a high link density is more likely to indicate that the analyzed element is part of the navigation for example. Also the attributes ``id'' and ``class'' are analyzed. If the attribute values contain keywords such as ``entry'', ``content'', or ``text'', the element is more likely to contain relevant content as if the attribute values contain keywords such as ``header'', ``footer'', or ``sidebar''. The implementation of the web page content extraction adopted great parts of the Firefox extension ``Readability''\footnote{\url{http://lab.arc90.com/experiments/readability/}}. The used heuristics in Readability have shown to be quite accurate for a wide range of web pages.
 
-\subsection{Fact Extraction}
-\subsection{Date Extraction}
 \subsection{Named Entity Recognition}
 
 {\it Named Entity Recognition} (NER) is the task of recognizing and disambiguating known and unknown entities in documents. In order to understand the task we need to understand what an {\it entity} is. An entity is a collection of rigidly designated chunks of text that refer to exactly one or multiple identical, real or abstract concept instances. These instances can have several aliases and one name can refer to different instance \cite{webknoxblogne}. So for example ``Iron Man 2'' and ``Iron-Man 2'' are two different chunks of text which however refer to the same movie. Common types of entities are people (e.g. ``Jim Carrey''), locations (e.g. ``Los Angeles''), and organizations (e.g. ``Google Inc.'').
@@ -912,7 +912,7 @@ The TOOLKIT wraps 7 Named Entity Recognizers using a single interface making it 
 
 \paragraph{OpenNLP} The OpenNLP toolkit \cite{opennlp} provides a maximum entropy based approach for named entity recognition. The toolkit comes with a small set of pre-trained models covering concepts such as locations, organizations, and persons. More details can be found in the JavaDoc.
 
-\paragraph{Stanford} As part of the Stanford NLP library \cite{stanfordnlp} \citet{finkel2005stanfordner} developed a named entity recognizer that is based on conditional random fields (CRF). The tagger was trained on the CoNLL 2003 data and comes with a small set of classifiers that can recognize persons, locations, and organizations. For more details see \url{http://www-nlp.stanford.edu/software/crf-faq.shtml} and the JavaDoc.
+\paragraph{Stanford} As part of the Stanford NLP library \cite{stanfordnlp} \cite{finkel2005stanfordner} developed a named entity recognizer that is based on conditional random fields (CRF). The tagger was trained on the CoNLL 2003 data and comes with a small set of classifiers that can recognize persons, locations, and organizations. For more details see \url{http://www-nlp.stanford.edu/software/crf-faq.shtml} and the JavaDoc.
 
 \paragraph{TUD} The TUD named entity recognizer was developed at the Dresden University of Technology. The recognizer is based on a list lookup and dictionary classification approach. So far no trained models exist for this tagger.
 
@@ -1037,7 +1037,7 @@ IllinoisLbjNER	& Path to a configuration file, in this file you can specify whic
 \hline
 LingPipeNER	& Output path for the trained model &	data/models/lingpipe/phoneModel.model \\
 \hline
-OpenNLPNER	& Output path for the trained model, the filename must follow the format ``openNLP_TAG.bin.gz'' since you can only train one tag per model &	data/models/opennlp/openNLP_phone.bin.gz \\
+OpenNLPNER	& Output path for the trained model, the filename must follow the format ``openNLP\_TAG.bin.gz'' since you can only train one tag per model &	data/models/opennlp/openNLP\_phone.bin.gz \\
 \hline
 StanfordNER	& Path to a configuration file, in this file you can specify which features and parameters should be used and where the trained model should be saved &	data/models/lingpipe/training/austen.prop \\
 \hline
@@ -1059,7 +1059,117 @@ System.out.println("Training of " + ner.getName() + " was " + successfulOutput);
 \end{codelisting}
 
 \subsubsection{Evaluating a Tagger}
+To see how good a trained tagger performs, we need test data which is tagged in the same manner as the training data. There are different versions of how to evaluate the performance. Let's go through them using an example. For example, let us assume that a human expert created the following markup \cite{nadeau2007yooname}:
 
+\begin{verbatim}
+Unlike <PERSON>Robert</PERSON>, <PERSON>John Briggs Jr</PERSON> contacted <ORGANIZATION>Wonderful Stockbrockers Inc</ORGANIZATION> in <LOCATION>New York</LOCATION> and instructed them to sell all his shares in <ORGANIZATION>Acme</ORGANIZATION>.
+\end{verbatim}
+
+Furthermore, let us assume that a NER system created the following markup \cite{nadeau2007yooname} for the same text:
+
+\begin{verbatim}
+<LOCATION>Unlike</LOCATION> Robert, <ORGANIZATION>John Briggs Jr</ORGANIZATION> contacted Wonderful <ORGANIZATION>Stockbrockers</ORGANIZATION> Inc <DATE>in New York</DATE> and instructed them to sell all his shares in <ORGANIZATION>Acme</ORGANIZATION>.
+\end{verbatim}
+
+The only correct match between the correct solution and the NER system output is $<ORGANIZATION>Acme</ORGANIZATION>$, all other markups are some kind of errors.
+
+\paragraph{Error Types}
+In classification tasks it is often possible to determine the true positives, false positives etc. but in NER it can sometimes help to be more precise about the classes. For example, two false positives are not necessarily equally wrong. Consider a system that had to tag person names in text, and it tagged ``A good start'' and ``Jim Carrey was'' as persons. While the first occurrence is obviously totally wrong, the second has to be considered wrong too but the system only did not find the right hand boundary correctly and tagged the word ``was'' too.
+In the previous example we can see five different errors an NER system can make \cite{manning2006nererrors}. The errors are shown and explained in the Table \ref{tab:nererrors} \cite{nadeau2007yooname}.
+
+\begin{table}[ht!]
+\centering
+\begin{tabular}{|l|l|l|}
+\hline
+Correct Solution	 		& 	System Output	& Error\\
+\hline
+Unlike						&	<LOCATION>Unlike</LOCATION>	&	The system tagged an entity where there is none.\\
+<PERSON>Robert</PERSON>	&	Robert								& 	The system missed to tag an entity.\\
+<PERSON>John Briggs Jr</PERSON>	& <ORGANIZATION>John Briggs Jr</ORGANIZATION>	&	The system tagged the entity but classified it incorrectly.\\
+<ORGANIZATION>Wonderful Stockbrockers Inc</ORGANIZATION>	&	<ORGANIZATION>Stockbrockers</ORGANIZATION>	&	The system tagged the entity but the boundaries are wrong.\\
+<LOCATION>New York</LOCATION>	&	<DATE>in New York</DATE>	&	The system found an entity but classified it incorrectly and got the boundaries wrong.\\
+\hline
+\end{tabular} 
+\caption{NER features \cite{nadeau2007yooname}.}
+\label{tab:nererrors}
+\end{table}
+
+Due to the variety of combinations to use the error types, three main evaluation methods have evolved during the years.
+
+\paragraph{Exact-Match Evaluation}
+The exact-match evaluation is the most simple one and does not take the different error types into account. A correct assignment must have the boundaries and the classification correct. The final score for the NER system is a micro-averaged f-measure (MAF). The NER system from the example would get the following scores.
+\begin{itemize}
+\item Precision = Correct / Total Assigned = 1 / 5 = 20\%
+\item Recall = Correct / Total Possible = 1 / 5 = 20\%
+\item MAF = 20\%
+\end{itemize}
+
+\paragraph{MUC Evaluation}
+The MUC evaluation method takes all five errors from Table \ref{tab:nererrors} into account and scores a system along two axis, the TYPE and the TEXT axis. If an entity was classified correctly (regardless of the boundaries) the TYPE is assigned correct. If an entity was found with the correct boundaries (regardless of its type) the TEXT is assigned correct. For both axis, three measures are kept: the number of possible entities (POS), the number of actual assigned entities by the system (ACT) and the number of correct answers by the system (COR).
+MUC als uses the MAF as the final score for the NER system. As the usual f-measure, also the micro-averaged f-measure is the harmonic mean between precision and recall.
+For the example we can calculate the MUC score for the system as follows.
+\begin{itemize}
+\item COR = 4 (2 times TYPE correct, 2 times TEXT correct)
+\item ACT = 10 (5 times TYPE assigned, 5 times TEXT assigned)
+\item POS = 10 (5 times TYPE, 5 times TEXT)
+\item Precision = COR / ACT = 4 / 10 = 40\%
+\item Recall = COR / POS = 4 / 10 = 40\%
+\item MAF = 40\%
+\end{itemize}
+
+Listing \ref{listing:evaluateNER} shows how we can programmatically evaluate a tagger. 
+
+\begin{codelisting}
+\label{listing:evaluateNER}
+\begin{lstlisting}[frame=tb]
+// initialize the tagger
+NamedEntityRecognizer ner = new TUDNER();
+
+// the path to the test data
+String testFilePath = "testData.xml";
+
+// the path to the model that we want to evaluate
+String modelPath = "data/models/tudner/phone.model";
+
+// store the evaluation results in an object
+EvaluationResult eResult = null;
+
+// evaluate the model using the test data
+eResult = ner.evaluate(testFilePath, modelPath, TaggingFormat.XML);
+
+// print out the evaluation result
+System.out.println(eResult);
+
+// get interesting values in exact match and MUC mode
+System.out.println("F1 Exact Match: " + eResult.getF1(EvaluationResult.EXACT_MATCH));
+System.out.println("F1 MUC: " + eResult.getF1(EvaluationResult.MUC));
+\end{lstlisting}
+\end{codelisting}
+
+\subsection{Web Page Age Detection}
+The age of a web page can often be a useful indicator about the freshness of the information. It might also be used in classification or ranking of web documents. TOOLKIT is able to detect the age of many web pages by using four main techniques:
+\begin{enumerate}
+\item Reading the {\textbf HTTP header} of a web page and look for the date that the page has changed. Although this information is often absent of incorrect it sometimes is the only date we get.
+\item Recognize a date in the {\textbf URL} of the web page. Especially blogs use the URL style of ``http://domain.tld/posts/YYYY/MM/PostName'' or similar. In these cases the date in the domain is a very good indicator of the web page's age.
+\item Recognizing and ranking dates in the {\textbf structure and content} of the web page. Especially news pages start or end their news posts with the location and the date that the event they are reporting about happened. Since many dates might be found in the content it is necessary to rank them among each other. This is done using indicators such as the nearness to certain keywords such as ``published'' for example.
+\item Searching for {\textbf inbound links from archives}. Some web pages can be found in archives with a date. If none of the other techniques returns valuable results it is possible to look up the URL in an archive, although the chances to find it are quite low.
+\end{enumerate}
+
+Listing \ref{listing:dateRecognizer} shows how to detect the age of a web page. For more information on the algorithms used, see \cite{gregor2010bachelor}. You can also check out the functionality of the web page age detection online at \url{http://www.webknox.com/wi#AgeDetection}.
+
+\begin{codelisting}
+\label{listing:dateRecognizer}
+\begin{lstlisting}[frame=tb]
+// the URL of the page we want to know the age from
+String url = "http://www.bbc.co.uk/news/world-europe-11432849";
+
+// get the highest ranked date for this web page
+ExtractedDate date = DateGetter.getBestDate(url);
+
+// print the extracted date (should be 29.09.2010)
+System.out.println(date);
+\end{lstlisting}
+\end{codelisting}
 
 \subsection{FAQ Extractor}
 {\textit FAQs} are frequently asked questions that are often found on web pages in a structured form. Basically there are three types how the FAQ can be structured:
@@ -1071,7 +1181,7 @@ System.out.println("Training of " + ner.getName() + " was " + successfulOutput);
 
 TOOLKIT can handle many FAQs that follow the first or third structure. First, the algorithm detects the XPaths to the questions and then it tries to extract all content between the current and the next question as the answer for the current question.
 
-Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically.
+Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically. You can also check out the functionality of the FAQ Extractor online at \url{http://www.webknox.com/wi#FAQExtraction}.
 
 \begin{codelisting}
 \label{listing:faqExtractor}
@@ -1091,21 +1201,25 @@ CollectionHelper.print(qas);
 \end{codelisting}
 
 \subsection{Fact Extraction}
-The Fact extractor can be used to detect facts in tables on web pages given a URL and optionally a small set of seed attribute names that help the extractor.
+The FactExtractor can be used to detect facts in tables on web pages given a URL and optionally a small set of seed attribute names that help the extractor. The FactExtractor constructs all XPaths to the seed attributes and compares them. If it recognizes a similarity it concludes that the XPaths that are similar for the seed attributes might also point to other attributes on the page. In case of attributes that are listed in simple tables this approach works pretty well, if the attributes are presented in a more complicated way, the fact extractor might not find anything.
+
+You can also check out the functionality of the FactExtractor online at \url{http://www.webknox.com/wi#FactExtraction}.
+
 \begin{codelisting}
+\label{listing:factExtraction}
 \begin{lstlisting}[frame=tb]
 // the URL of the facts
 String url = "http://en.wikipedia.org/wiki/Nokia_N95";
 
 // the concept of the attributes
-Concept c = new Concept("Mobile Phone");
+Concept concept = new Concept("Mobile Phone");
 
 // a small list of seed attributes
 HashSet<Attribute> seedAttributes = new HashSet<Attribute>();
 int attributeType = Attribute.VALUE_STRING;
-seedAttributes.add(new Attribute("Second camera", attributeType, c));
-seedAttributes.add(new Attribute("Memory card", attributeType, c));
-seedAttributes.add(new Attribute("Form factor", attributeType, c));
+seedAttributes.add(new Attribute("Second camera", attributeType, concept));
+seedAttributes.add(new Attribute("Memory card", attributeType, concept));
+seedAttributes.add(new Attribute("Form factor", attributeType, concept));
 
 // detect the facts using the seeds from the URL
 ArrayList<Fact> detectedFacts = null;
@@ -1117,84 +1231,6 @@ CollectionHelper.print(detectedFacts);
 \end{codelisting}
 
 \section{Retrieval}
-\paragraph{Web Crawling}
-\paragraph{Web Information Retrieval}
-\paragraph{Feed Retrieval}
-
-\section{Preprocessing}
-\subsection{Tokenization}
-A \textit{Token} is a sequence of characters that can be categorized according to the tokenization rules. \textit{Tokenization} is the process of transforming a text into a sequence of tokens. Table \ref{tab:tokenTypes} shows example token types. The text ``Today I lost \$1000 dollar playing poker.'' could consists of 8 tokens for example. What token types exist depend on the application. The dollar sign could be a single token for example. TOOLKIT uses regular expressions to perform the tokenization.
-
-\begin{table}[ht!]
-\centering
-\caption{Example types of tokens.}
-\begin{tabular}{|l|l|}
-\hline
-Character sequence		& Token type \\
-\hline
-many			& word \\
-\hline
-\$1000		& amount of money  \\
-\hline
-26.09.2010	& date \\
-\hline
-.				& punctuation \\
-\hline
-\end{tabular} 
-\label{tab:tokenTypes}
-\end{table}
-
-One can also see each sentence of a text as a token, in this case the tokenization process is called sentence splitting as explained int he next section.
-
-\subsection{Sentence Splitting}
-TOOLKIT has a rudimentary implementation for the common need for sentence splitting. TOOLKIT's implementation works with hand-crafted rules and thus does not require a model. Sentences try to be splitted on periods, question marks, and exclamation marks but there are also rules that try to prevent splitting sentences at ellipses. For example, the following is online one sentence although it contains several periods: ``Sometimes sentenes contain many periods...really!''.
-
-The following code shows how the sentence splitting can be used:
-\begin{codelisting}
-\begin{lstlisting}[frame=tb]
-String inputText = "This is a sentence. This is another one!";
-List<String> sentences = Tokenizer.getSentences(inputText);
-CollectionHelper.print(sentences);
-// prints:
-// This is a sentence
-// This is another one!
-\end{lstlisting}
-\end{codelisting}
-
-You can also get a specific sentence by providing a phrase that is part of the sentence using the getSentence method.
-
-\subsection{Creating N-Grams}
-\label{sec:ngrams}
-
-N-grams are sets of tokens of the length n. We can distinguish two main types of n-grams:
-
-\begin{enumerate}
-\item \textbf{Character level n-grams} use each character of the string as a token. For example, from the string ``It is sunny'' we can create the following set of 3-grams: ${it ,t i, is,is ,s s, su,sun,unn,nny}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $9 = 11 - 3 + 1$.
-\item \textbf{Word level n-grams} use each word (separated with white space) of the string as a token. For example, from the string ``It is so nice and sunny today'' we can create the following set of 3-grams: ${It is so,is so nice,so nice and,nice and sunny,and sunny today}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $5 = 7 - 3 + 1$. If you want to have single words as features for the text classifier you can simply use unigrams or bigrams which are n-grams with $n=1$ or $n=2$ respectively.
-\end{enumerate}
-
-The document preprocessor allows you to create a set of n-grams with different length too. For example, you can create all 2-grams, 3-grams, and 4-grams for the given input text.
-
-\subsection{Noun Pluralization and Singularization}
-TOOLKIT is able to transform most English singular nouns to their plural and back. For example, ``city'' becomes ``cities'' and ``index'' becomes ``indices''.
-
-The following code shows the simple usage of the singularization and pluralization using the WordTransformer class.
-\begin{codelisting}
-\begin{lstlisting}[frame=tb]
-String singular = "city";
-String plural = "";
-plural = WordTransformer.wordToPlural(singular);
-singular = WordTransformer.wordToSingular(plural);
-System.out.println(singular);
-System.out.println(plural);
-// prints:
-// cities
-// city
-\end{lstlisting}
-\end{codelisting}
-
-\chapter{More Example Usages}
-Learning to use a toolkit often does not work by reading the Javadoc. Therefore, we provide a simple example how to setup your first project using the toolkit, eclipse and maven. Afterwards we provide a short overview of some important modules and how you can use them. All examples are intended as entry points to facilitate the first use of the toolkit. Many components are too mighty to be explained exhaustively in small code snippets, make sure to read the Javadoc and more importantly the actual code for further information.
 
 \subsection{Source Retriever}
 The source retriever is a module that can query a number of sources such as search engines and web pages with terms and retrieve matching results.
@@ -1295,7 +1331,106 @@ c.startCrawl("http://www.dmoz.org/", true, true);
 \end{lstlisting}
 \end{codelisting}
 
-\subsection{Helpers}
+\section{Preprocessing}
+\subsection{Tokenization}
+A \textit{Token} is a sequence of characters that can be categorized according to the tokenization rules. \textit{Tokenization} is the process of transforming a text into a sequence of tokens. Table \ref{tab:tokenTypes} shows example token types. The text ``Today I lost \$1000 dollar playing poker.'' could consists of 8 tokens for example. What token types exist depend on the application. The dollar sign could be a single token for example. TOOLKIT uses regular expressions to perform the tokenization.
+
+\begin{table}[ht!]
+\centering
+\caption{Example types of tokens.}
+\begin{tabular}{|l|l|}
+\hline
+Character sequence		& Token type \\
+\hline
+many			& word \\
+\hline
+\$1000		& amount of money  \\
+\hline
+26.09.2010	& date \\
+\hline
+.				& punctuation \\
+\hline
+\end{tabular} 
+\label{tab:tokenTypes}
+\end{table}
+
+One can also see each sentence of a text as a token, in this case the tokenization process is called sentence splitting as explained int he next section.
+
+\subsection{Sentence Splitting}
+TOOLKIT has a rudimentary implementation for the common need for sentence splitting. TOOLKIT's implementation works with hand-crafted rules and thus does not require a model. Sentences try to be splitted on periods, question marks, and exclamation marks but there are also rules that try to prevent splitting sentences at ellipses. For example, the following is online one sentence although it contains several periods: ``Sometimes sentenes contain many periods...really!''.
+
+The following code shows how the sentence splitting can be used:
+\begin{codelisting}
+\begin{lstlisting}[frame=tb]
+String inputText = "This is a sentence. This is another one!";
+List<String> sentences = Tokenizer.getSentences(inputText);
+CollectionHelper.print(sentences);
+// prints:
+// This is a sentence
+// This is another one!
+\end{lstlisting}
+\end{codelisting}
+
+You can also get a specific sentence by providing a phrase that is part of the sentence using the getSentence method.
+
+\subsection{Creating N-Grams}
+\label{sec:ngrams}
+
+N-grams are sets of tokens of the length n. We can distinguish two main types of n-grams:
+
+\begin{enumerate}
+\item \textbf{Character level n-grams} use each character of the string as a token. For example, from the string ``It is sunny'' we can create the following set of 3-grams: ${it ,t i, is,is ,s s, su,sun,unn,nny}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $9 = 11 - 3 + 1$.
+\item \textbf{Word level n-grams} use each word (separated with white space) of the string as a token. For example, from the string ``It is so nice and sunny today'' we can create the following set of 3-grams: ${It is so,is so nice,so nice and,nice and sunny,and sunny today}$. The number of n-grams in a set can be calculated as $ngrams = numberOfTokens - n + 1$. In our example that means $5 = 7 - 3 + 1$. If you want to have single words as features for the text classifier you can simply use unigrams or bigrams which are n-grams with $n=1$ or $n=2$ respectively.
+\end{enumerate}
+
+The document preprocessor allows you to create a set of n-grams with different length too. For example, you can create all 2-grams, 3-grams, and 4-grams for the given input text.
+
+Listing \ref{listing:ngrams} shows how you can create n-grams from a given text.
+
+\begin{codelisting}
+\label{listing:ngrams}
+\begin{lstlisting}[frame=tb]
+// the input text that we want to separate into n-grams
+String inputText = "a cat runs funnily";
+
+// store a set of n-grams
+Set<String> ngrams = null;
+
+// calculate all character n-grams of length 3
+ngrams = Tokenizer.calculateCharNGrams(inputText,3);
+
+// calculate all word n-grams of length 3
+ngrams = Tokenizer.calculateWordNGrams(inputText,3);
+
+// calculate all character level n-grams of length 3 to 5
+ngrams = Tokenizer.calculateAllCharNGrams(inputText,3,5);
+
+// calculate all character word n-grams of length 1 to 3
+ngrams = Tokenizer.calculateAllWordNGrams(inputText,1,3);
+\end{lstlisting}
+\end{codelisting}
+
+\subsection{Noun Pluralization and Singularization}
+TOOLKIT is able to transform most English singular nouns to their plural and back. For example, ``city'' becomes ``cities'' and ``index'' becomes ``indices''.
+
+Listing \ref{listing:singularPlural} shows the simple usage of the singularization and pluralization using the WordTransformer class.
+
+\begin{codelisting}
+\label{listing:singularPlural}
+\begin{lstlisting}[frame=tb]
+String singular = "city";
+String plural = "";
+plural = WordTransformer.wordToPlural(singular);
+singular = WordTransformer.wordToSingular(plural);
+System.out.println(singular);
+System.out.println(plural);
+// prints:
+// cities
+// city
+\end{lstlisting}
+\end{codelisting}
+
+\section{Miscellaneous}
 The toolkit contains many helper functionalities for reoccurring tasks in the tud.iir.helper package.
 The following code snippet shows several sample usages of some of the functions.
 
@@ -1350,23 +1485,13 @@ FileHelper.performActionOnEveryLine(filePath, la);
 // round a number with a number of digits
 double r = MathHelper.round(2.3333, 2);
 
-// calculate n-grams of a string
-Set<String> nGrams = StringHelper.calculateNGrams("abcde", 3);
-
-// English singular word to plural
-String p = StringHelper.wordToPlural("city");
-
 // remove HTML tags
-String r = StringHelper.removeHTMLTags("<a>abc</a>",
+String r = HTMLHelper.removeHTMLTags("<a>abc</a>",
                                        true, true
                                        true, true);
 
 // trim a string
 String t = StringHelper.trim(" _to trim++++");
-
-// get singular or plural of an English word
-String plural = StringHelper.wordToPlural("city");
-String singular = StringHelper.wordToSingular("cities");
 
 // reverse a string
 String r = StringHelper.reverse("abc");
@@ -1378,8 +1503,10 @@ String d = StringHelper.decodeBase64(e);
 \end{lstlisting}
 \end{codelisting}
 
-\section{Reference Libraries}
-The TUDIIR Toolkit makes excessive use of third party libraries. We do not intend to re-implement code but rather to built on it and create something superior. Here an incomplete list of libraries the toolkit uses:
+\chapter{Where to go from here?}
+
+\section{Referenced Libraries}
+The TOOLKIT makes excessive use of third party libraries. We do not intend to re-implement code but rather to built on it and create something superior. Here an incomplete list of libraries the toolkit uses:
 \begin{itemize}
 \item Apache Commons \cite{apachecommons} for many standard tasks in string and number manipulation and more.
 \item Fathom \cite{fathom} to measure readability of English text.
