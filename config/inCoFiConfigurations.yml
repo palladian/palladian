@@ -1,12 +1,18 @@
              
              # set the conceptSearchVocabulary (be carefully, every further word will arise the processing time)
-             mobilephone:               "360 view, 3D, overview, key features, drag to rotate"
-             printer:                   "view product tour, view demo, product tour, interactive tour, gallery"
-             headphone:                 "view product tour, view demo, view 360, product tour, 360 view, virtual tour"
-             movie:                     "game, play_, click here to play, minisite, flashgame"
-             car:                       "campaign, picture viewer, silverlight, microsite, 360 view, virtual tour"
-             tecmix:                    "360 view, 3D, overview, drag to rotate, view demo, product tour, interactive tour, view 360, virtual tour"     
-             universal:                 "360 view, 3D, overview, drag to rotate, view demo, product tour, interactive tour, gallery, view 360, virtual tour, game, play_, click here, minisite, campaign, silverlight, microsite"
+             vocabulary:
+                - conceptName: "universal"
+                  wordList: "360 view, 3D, overview, drag to rotate, view demo, product tour, interactive tour, gallery, view 360, virtual tour, game, play_, click here, minisite, campaign, silverlight, microsite"
+                - conceptName: "headphone"
+                  wordList: "view product tour, view demo, view 360, product tour, 360 view, virtual tour"
+                - conceptName: "movie"
+                  wordList: "game, play_, click here to play, minisite, flashgame"
+                - conceptName: "car"
+                  wordList: "campaign, picture viewer, silverlight, microsite, 360 view, virtual tour"
+                - conceptName: "mobilephone"
+                  wordList: "game, play_, click here to play, minisite, flashgame"
+                - conceptName: "printer"
+                  wordList: "view product tour, view demo, product tour, interactive tour, gallery"
              
              # set the searchVocabulary for retrieval of weak interactive MIOs
              weakMIOs:                  "unboxing, video tour, preview, review, movie, trailer, presentation, campaign, promotion, youtube"
@@ -56,4 +62,3 @@
              
              # associate MIOs that has unclear interactivity-grade with "weak", "strong" or even "unclear"
              associateUnclearMIOsWith: "weak"
-                         

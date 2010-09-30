@@ -86,6 +86,12 @@ public class InCoFiConfiguration {
     /** The instance. */
     public static InCoFiConfiguration instance = null;
 
+    /** The Array of mapping the conceptSearchVocabulary. */
+    public YamlVocEntry vocabulary[];
+
+    
+    private Map<String, List<String>> searchVocabulary;
+
     /**
      * Gets the single instance of InCoFiConfiguration.
      * 
@@ -148,32 +154,25 @@ public class InCoFiConfiguration {
      * @return the searchVocabulary by concept name
      */
     public List<String> getVocByConceptName(String conceptName) {
-
         String cName = conceptName.toLowerCase(Locale.ENGLISH);
-        Map<String, List<String>> attributeMap = attributesToMap();
-        if (!attributeMap.containsKey(cName)) {
-            return attributeMap.get("universal");
+        List<String> vocabularyList;
+
+        // if vocabulary-map does not exist, do generate
+        if (searchVocabulary == null) {
+            searchVocabulary = new HashMap<String, List<String>>();
+            for (YamlVocEntry vocEntry : vocabulary) {
+                searchVocabulary.put(vocEntry.conceptName.toLowerCase(Locale.ENGLISH),
+                        parseStringToList(vocEntry.wordList));
+            }
         }
-        return attributeMap.get(cName);
-    }
 
-    /**
-     * This method parses a string to generate a list, finally all list are put into a map.
-     * 
-     * @return the map
-     */
-    private Map<String, List<String>> attributesToMap() {
-        final Map<String, List<String>> attributeMap = new HashMap<String, List<String>>();
-        attributeMap.put("mobilephone", parseStringToList(mobilephone));
-        attributeMap.put("printer", parseStringToList(printer));
-        attributeMap.put("headphone", parseStringToList(headphone));
-        attributeMap.put("movie", parseStringToList(movie));
-        attributeMap.put("car", parseStringToList(car));
-        attributeMap.put("universal", parseStringToList(universal));
+        // take specific vocabulary from map, if no entry for the concept exists use the universal vocabulary
+        vocabularyList = searchVocabulary.get(cName);
+        if (vocabularyList == null) {
+            vocabularyList = searchVocabulary.get("universal");
+        }
 
-        attributeMap.put("weakmios", parseStringToList(weakMIOs));
-
-        return attributeMap;
+        return vocabularyList;
     }
 
     /**
@@ -193,4 +192,14 @@ public class InCoFiConfiguration {
         return outputList;
     }
 
+    @Override
+    public String toString() {
+        return "InCoFiConfiguration [resultCount=" + resultCount + ", searchEngine=" + searchEngine
+                + ", urlDownloaderThreads=" + urlDownloaderThreads + ", excludingTrustLimit=" + excludingTrustLimit
+                + ", tempDirPath=" + tempDirPath + ", rolePageTrustLimit=" + rolePageTrustLimit
+                + ", rolePageRelevanceValue=" + rolePageRelevanceValue + ", analyzeSWFContent=" + analyzeSWFContent
+                + ", limitLinkAnalyzing=" + limitLinkAnalyzing + ", mioTypes=" + mioTypes + ", redoWeak=" + redoWeak
+                + "]";
+    }
+    
 }
