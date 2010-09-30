@@ -1,6 +1,8 @@
 package tud.iir.extraction.entity.ner;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,6 +24,29 @@ import tud.iir.knowledge.Entity;
  * 
  */
 public class FileFormatParser {
+
+	
+	public static Set<String> getTagsFromColumnFile(String trainingFilePath, String separator) {
+    	
+		Set<String> tags = new HashSet<String>(); 
+		
+		final Object[] args = new Object[2];
+		args[0] = separator;
+		args[1] = tags;
+		
+    	LineAction la = new LineAction(args) {
+			
+			@Override
+			public void performAction(String line, int lineNumber) {
+				String[] parts = line.split((String) args[0]);
+				((HashSet)args[1]).add(parts[1]);				
+			}
+		};
+		
+		FileHelper.performActionOnEveryLine(trainingFilePath, la);
+		
+		return tags;    	
+    }
 
     private static String getTextFromXML(String inputFilePath) {
 
@@ -289,7 +314,39 @@ public class FileFormatParser {
         }
 
         FileHelper.writeToFile(columnFilePath, columnString);
+    }
+    
+    public static void columnToSlash(String columnFilePath, String slashFilePath, String columnSeparator) {
+    	columnToSlash(columnFilePath,slashFilePath,columnSeparator);
+    }
+    
+    public static void columnToSlash(String columnFilePath, String slashFilePath, String columnSeparator, String slashSign) {
+    	StringBuilder slashFile = new StringBuilder();
+    	
+    	final Object[] obj = new Object[3];
+        obj[0] = slashFile;
+        obj[1] = columnSeparator;
+        obj[2] = slashSign;
 
+        LineAction la = new LineAction(obj) {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                String[] parts = line.split((String) obj[1]);
+
+                if (parts.length < 2) {
+                    return;
+                }
+
+                String tag = parts[1];
+                ((StringBuilder) obj[0]).append(parts[0]).append((String) obj[2]).append(tag).append(" ");
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(columnFilePath, la);
+    	
+    	FileHelper.writeToFile(slashFilePath, slashFile);
     }
 
     public static void bracketToXML(String inputFilePath, String outputFilePath) {
@@ -330,7 +387,20 @@ public class FileFormatParser {
         inputFile = inputFile.replaceAll("\\t", " ");
         FileHelper.writeToFile(outputFilePath, inputFile);
     }
-
+    
+    public static void textToColumn(String inputFilePath, String outputFilePath, String separator) {
+        
+    	String inputFile = FileHelper.readFileToString(inputFilePath);
+    	List<String> tokens = Tokenizer.tokenize(inputFile);
+    	
+    	StringBuilder columnFile = new StringBuilder();
+    	for (String token : tokens) {
+    		columnFile.append(token).append(separator).append("X").append("\n");
+    	}
+    	
+        FileHelper.writeToFile(outputFilePath, columnFile);
+    }
+    
     public static Annotations getAnnotations(String taggedTextFilePath, TaggingFormat format) {
 
         if (format.equals(TaggingFormat.XML)) {

@@ -404,7 +404,7 @@ public class FileHelper {
     public static void writeToFile(String filePath, String string) {
 
         File file = new File(filePath);
-        if (!file.exists()) {
+        if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
         }
 
