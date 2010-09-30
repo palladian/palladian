@@ -19,6 +19,7 @@ public class ExtractedDateHelper {
     public static String getMonthNumber(String monthString) {
         String month = monthString;
         month = month.replaceAll(",", "");
+        month = month.replaceAll("\\.", "");
         month = month.replaceAll(" ", "");
         String monthNumber = null;
         if (month.equalsIgnoreCase("january") || month.equalsIgnoreCase("januar") || month.equalsIgnoreCase("jan")) {
@@ -39,7 +40,8 @@ public class ExtractedDateHelper {
             monthNumber = "07";
         } else if (month.equalsIgnoreCase("august") || month.equalsIgnoreCase("aug")) {
             monthNumber = "08";
-        } else if (month.equalsIgnoreCase("september") || month.equalsIgnoreCase("sep")) {
+        } else if (month.equalsIgnoreCase("september") || month.equalsIgnoreCase("sep")
+                || month.equalsIgnoreCase("sept")) {
             monthNumber = "09";
         } else if (month.equalsIgnoreCase("october") || month.equalsIgnoreCase("oktober")
                 || month.equalsIgnoreCase("oct") || month.equalsIgnoreCase("okt")) {

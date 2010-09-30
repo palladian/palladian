@@ -104,7 +104,6 @@ public class ContentDate extends BodyDate {
                 break;
             default:
                 value = super.get(field);
-
         }
         return value;
 

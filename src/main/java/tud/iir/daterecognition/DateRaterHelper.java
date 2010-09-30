@@ -12,7 +12,7 @@ import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.KeyWords;
 import tud.iir.knowledge.RegExp;
 
-public class DateEvaluatorHelper {
+public class DateRaterHelper {
 
     /**
      * Checks if a date is between 13th of November 1990, time 0:00 and now.
@@ -54,6 +54,24 @@ public class DateEvaluatorHelper {
     }
 
     /**
+     * Returns the date with highest rate. <br>
+     * 
+     * @param <T>
+     * @param dates
+     * @return Hashmap with a single entry.
+     */
+    public static <T> Double getHighestRateValue(HashMap<T, Double> dates) {
+        double temp = -1;
+        for (Entry<T, Double> e : dates.entrySet()) {
+            double value = e.getValue();
+            if (value > temp) {
+                temp = value;
+            }
+        }
+        return temp;
+    }
+
+    /**
      * Increase the rate by 10 percent, if date sourrunding tag is a headline-tag.
      * 
      * @param contentDates
@@ -64,45 +82,10 @@ public class DateEvaluatorHelper {
         for (Entry<ContentDate, Double> e : contentDates.entrySet()) {
             if (HTMLHelper.isHeadlineTag(e.getKey().getTag())) {
                 double newRate = (1 - e.getValue()) * 0.1 + e.getValue();
-                result.put(e.getKey(), Math.round(newRate * 100) / 100.0);
+                result.put(e.getKey(), Math.round(newRate * 10000) / 10000.0);
             }
         }
         return result;
-    }
-
-    /**
-     * Calculates rate of dates with keyword within attribute.
-     * 
-     * @param attrDates
-     * @return
-     */
-    public static HashMap<ContentDate, Double> evaluateKeyLocAttr(ArrayList<ContentDate> attrDates) {
-        HashMap<ContentDate, Double> attrResult = new HashMap<ContentDate, Double>();
-        ContentDate date;
-        double rate;
-        for (int i = 0; i < attrDates.size(); i++) {
-            date = attrDates.get(i);
-            rate = calcContDateAttr(date);
-            attrResult.put(date, rate);
-        }
-        ArrayList<ContentDate> rate1Dates = DateArrayHelper.getRatedDates(attrResult, 1);
-        ArrayList<ContentDate> middleRatedDates = DateArrayHelper.getRatedDates(attrResult, 0.7);
-        ArrayList<ContentDate> lowRatedDates = DateArrayHelper.getRatedDates(attrResult, 0.5);
-
-        if (rate1Dates.size() > 0) {
-            setRateWhightedByGroups(rate1Dates, attrResult);
-
-            setRateToZero(middleRatedDates, attrResult);
-            setRateToZero(lowRatedDates, attrResult);
-        } else if (middleRatedDates.size() > 0) {
-            setRateWhightedByGroups(middleRatedDates, attrResult);
-
-            setRateToZero(lowRatedDates, attrResult);
-        } else {
-            setRateWhightedByGroups(lowRatedDates, attrResult);
-        }
-        return attrResult;
-
     }
 
     /**
@@ -114,8 +97,9 @@ public class DateEvaluatorHelper {
      * @param datesToSet
      * @param dates
      */
-    public static <T> void setRateWhightedByGroups(ArrayList<T> datesToSet, HashMap<T, Double> dates) {
-        setRateWhightedByGroups(datesToSet, dates, DateComparator.STOP_DAY);
+    public static <T> HashMap<T, Double> setRateWhightedByGroups(ArrayList<T> datesToSet, ArrayList<T> dates) {
+        return setRateWhightedByDates(datesToSet, dates);
+        // setRateWhightedByGroups(datesToSet, dates, DateComparator.STOP_DAY);
     }
 
     /**
@@ -132,9 +116,30 @@ public class DateEvaluatorHelper {
         for (int k = 0; k < groupedDates.size(); k++) {
             for (int i = 0; i < groupedDates.get(k).size(); i++) {
                 double newRate = (1.0 * groupedDates.get(k).size()) / datesToSet.size();
-                dates.put(groupedDates.get(k).get(i), Math.round(newRate * 100) / 100.0);
+                dates.put(groupedDates.get(k).get(i), Math.round(newRate * 10000) / 10000.0);
             }
         }
+    }
+
+    /**
+     * Calculates the rate for dates.<br>
+     * NewRate = CountOfSameDatesToSet / CountOfDatesToSet. <br>
+     * Example: datesToSet.size()=5; 3/5 and 2/5.
+     * 
+     * @param <T>
+     * @param datesToSet
+     * @param dates
+     */
+    private static <T> HashMap<T, Double> setRateWhightedByDates(ArrayList<T> datesToSet, ArrayList<T> dates) {
+        HashMap<T, Double> resultDates = new HashMap<T, Double>();
+        for (int k = 0; k < datesToSet.size(); k++) {
+            int contSame = DateArrayHelper.countDates(datesToSet.get(k), dates, -1) + 1;
+            double newRate = (1.0 * contSame / dates.size());
+
+            resultDates.put(datesToSet.get(k), Math.round(newRate * 10000) / 10000.0);
+
+        }
+        return resultDates;
     }
 
     /**
@@ -161,47 +166,6 @@ public class DateEvaluatorHelper {
             map.put(datesToBeSetZero.get(i), 0.0);
         }
 
-    }
-
-    /**
-     * Calculates the rate of dates with keywords within content.
-     * 
-     * @param contDates
-     * @return
-     */
-    public static HashMap<ContentDate, Double> evaluateKeyLocCont(ArrayList<ContentDate> contDates) {
-        HashMap<ContentDate, Double> contResult = new HashMap<ContentDate, Double>();
-        double factor_keyword;
-        double factor_content;
-        for (int i = 0; i < contDates.size(); i++) {
-            ContentDate date = contDates.get(i);
-            factor_content = calcContDateContent(date);
-            contResult.put(date, factor_content);
-        }
-        ArrayList<ContentDate> rate1dates = DateArrayHelper.getRatedDates(contResult, 1.0);
-        ArrayList<ArrayList<ContentDate>> rate1groupe = DateArrayHelper.arrangeByDate(rate1dates);
-        ContentDate key;
-
-        for (int k = 0; k < rate1groupe.size(); k++) {
-            for (int i = 0; i < rate1groupe.get(k).size(); i++) {
-                // anz der dates mit gleichen werten / anz aller dates
-                key = rate1groupe.get(k).get(i);
-                factor_keyword = calcContDateAttr(key);
-                double newRate = (1.0 * rate1groupe.get(k).size()) / rate1dates.size();
-                contResult.put(key, Math.round(newRate * factor_keyword * 100) / 100.0);
-            }
-        }
-        ArrayList<ContentDate> rateRestDates = DateArrayHelper.getRatedDates(contResult, 1.0, false);
-        ArrayList<ArrayList<ContentDate>> rateRestGroupe = DateArrayHelper.arrangeByDate(rateRestDates);
-        for (int k = 0; k < rateRestGroupe.size(); k++) {
-            for (int i = 0; i < rateRestGroupe.get(k).size(); i++) {
-                key = rateRestGroupe.get(k).get(i);
-                factor_keyword = calcContDateAttr(key);
-                double newRate = (1.0 * contResult.get(key) * rateRestGroupe.get(k).size()) / contDates.size();
-                contResult.put(key, Math.round(newRate * factor_keyword * 100) / 100.0);
-            }
-        }
-        return contResult;
     }
 
     /**
@@ -249,79 +213,16 @@ public class DateEvaluatorHelper {
     public static byte getKeywordPriority(ExtractedDate date) {
         byte keywordPriority = -1;
         String keyword = date.getKeyword();
-        if (hasKeyword(keyword, KeyWords.firstPriorityKeywords)) {
-            keywordPriority = KeyWords.FIRST_PRIORITY;
-        } else if (hasKeyword(keyword, KeyWords.secondPriorityKeywords)) {
-            keywordPriority = KeyWords.SECOND_PRIORITY;
-        } else if (hasKeyword(keyword, KeyWords.thirdPriorityKexwords)) {
-            keywordPriority = KeyWords.THIRD_PRIORITY;
+        if (keyword != null) {
+            keywordPriority = KeyWords.getKeywordPriority(keyword);
         }
+
         return keywordPriority;
     }
 
-    private static boolean hasKeyword(String keyword, String[] keywords) {
-        boolean hasKeyword = false;
-        for (int i = 0; i < keywords.length; i++) {
-            if (keyword.equalsIgnoreCase(keywords[i])) {
-                hasKeyword = true;
-                break;
-            }
+    public static <T> void writeRateInDate(HashMap<T, Double> map) {
+        for (Entry<T, Double> e : map.entrySet()) {
+            ((ExtractedDate) e.getKey()).setRate(e.getValue());
         }
-        return hasKeyword;
-    }
-
-    /**
-     * Sets the factor for rate-calculation of dates with keywords within attributes.
-     * 
-     * @param date
-     * @return
-     */
-    public static double calcContDateAttr(ContentDate date) {
-        String key = date.getKeyword();
-        double factor = 0;
-        byte keywordPriority = DateEvaluatorHelper.getKeywordPriority(date);
-        if (key != null) {
-            if (keywordPriority == KeyWords.FIRST_PRIORITY) {
-                factor = 1;
-            } else if (keywordPriority == KeyWords.SECOND_PRIORITY) {
-                factor = 0.7;
-            } else {
-                factor = 0.5;
-            }
-        }
-        return factor;
-    }
-
-    /**
-     * Sets the factor for rate-calculation of dates with keywords within content.
-     * 
-     * @param date
-     * @return
-     */
-    public static double calcContDateContent(ContentDate date) {
-        int distance = date.get(ContentDate.DISTANCE_DATE_KEYWORD);
-        // factor = factor * Math.round((Math.pow((-x + 40), (1 / 1.5)) / 11.69607) * 100) / 100;
-        // Stufen= 4 Leerzeichen ^= 3 Wörtern
-        double factor = 0;
-        if (distance < 0) {
-            factor = 0;
-        } else if (distance < 5) {
-            factor = 1;
-        } else if (distance < 8) {
-            factor = 0.82;
-        } else if (distance < 11) {
-            factor = 0.64;
-        } else if (distance < 14) {
-            factor = 0.47;
-        } else if (distance < 17) {
-            factor = 0.29;
-        } else if (distance < 19) {
-            factor = 0.12;
-        } else {
-            factor = 0.0;
-        }
-
-        return factor;
-
     }
 }

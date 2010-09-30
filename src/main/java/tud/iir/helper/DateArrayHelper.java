@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map.Entry;
 
-import tud.iir.daterecognition.DateEvaluatorHelper;
+import tud.iir.daterecognition.DateRaterHelper;
 import tud.iir.daterecognition.ExtractedDateHelper;
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
@@ -62,7 +62,7 @@ public class DateArrayHelper {
             date = iterator.next();
             switch (filter) {
                 case FILTER_IS_IN_RANGE:
-                    if (DateEvaluatorHelper.isDateInRange((ExtractedDate) date)) {
+                    if (DateRaterHelper.isDateInRange((ExtractedDate) date)) {
                         temp.add(date);
                     }
                     break;
@@ -122,7 +122,7 @@ public class DateArrayHelper {
             rate = e.getValue();
             switch (filter) {
                 case FILTER_IS_IN_RANGE:
-                    if (DateEvaluatorHelper.isDateInRange((ExtractedDate) date)) {
+                    if (DateRaterHelper.isDateInRange((ExtractedDate) date)) {
                         temp.put(date, rate);
                     }
                     break;
@@ -137,6 +137,7 @@ public class DateArrayHelper {
                         temp.put(date, rate);
                     }
                     break;
+
             }
 
         }
@@ -249,7 +250,9 @@ public class DateArrayHelper {
         DateComparator dc = new DateComparator();
         for (int i = 0; i < dates.size(); i++) {
             if (!date.equals(dates.get(i))) {
-                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i)) == 0) {
+                int stopFlag = Math.min(((ExtractedDate) date).getExactness(), ((ExtractedDate) dates.get(i))
+                        .getExactness());
+                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i), stopFlag) == 0) {
                     count++;
                 }
             }
@@ -274,7 +277,30 @@ public class DateArrayHelper {
         DateComparator dc = new DateComparator();
         for (Entry<T, Double> e : dates.entrySet()) {
             if (!date.equals(e.getKey())) {
-                if (dc.compare((ExtractedDate) date, (ExtractedDate) e.getKey(), stopFlag) == 0) {
+                int tempStopFlag = stopFlag;
+                if (tempStopFlag == -1) {
+                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness(), ((ExtractedDate) e.getKey())
+                            .getExactness());
+                }
+                if (dc.compare((ExtractedDate) date, (ExtractedDate) e.getKey(), tempStopFlag) == 0) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    public static <T> int countDates(T date, ArrayList<T> dates, int stopFlag) {
+        int count = 0;
+        DateComparator dc = new DateComparator();
+        for (int i = 0; i < dates.size(); i++) {
+            if (!date.equals(dates.get(i))) {
+                int tempStopFlag = stopFlag;
+                if (tempStopFlag == -1) {
+                    tempStopFlag = Math.min(((ExtractedDate) date).getExactness(), ((ExtractedDate) dates.get(i))
+                            .getExactness());
+                }
+                if (dc.compare((ExtractedDate) date, (ExtractedDate) dates.get(i), tempStopFlag) == 0) {
                     count++;
                 }
             }
@@ -363,9 +389,11 @@ public class DateArrayHelper {
             String normDate = ((ExtractedDate) date).getNormalizedDate();
             String type = ExtractedDateHelper.getTypString(((ExtractedDate) date).getType());
             String keyword = "";
+            int dist = -1;
             switch (((ExtractedDate) date).getType()) {
                 case ExtractedDate.TECH_HTML_CONT:
                     keyword = ((ContentDate) date).getKeyword();
+                    dist = ((ContentDate) date).get(ContentDate.DISTANCE_DATE_KEYWORD);
                     break;
                 case ExtractedDate.TECH_HTML_STRUC:
                     keyword = ((StructureDate) date).getKeyword();
@@ -378,7 +406,8 @@ public class DateArrayHelper {
                     break;
             }
             if (((ExtractedDate) date).getType() == filter || filter == 0) {
-                System.out.println("Rate: " + dateMap[i].getValue() + " Type: " + type + " Keyword: " + keyword);
+                System.out.println("Rate: " + dateMap[i].getValue() + " Type: " + type + " Keyword: " + keyword
+                        + " Distance: " + dist);
                 System.out.println(dateString + " --> " + normDate);
                 System.out
                         .println("-------------------------------------------------------------------------------------");
@@ -397,9 +426,12 @@ public class DateArrayHelper {
             String normDate = ((ExtractedDate) date).getNormalizedDate();
             String type = ExtractedDateHelper.getTypString(((ExtractedDate) date).getType());
             String keyword = "";
+            int dist = -1;
             switch (((ExtractedDate) date).getType()) {
                 case ExtractedDate.TECH_HTML_CONT:
                     keyword = ((ContentDate) date).getKeyword();
+                    dist = ((ContentDate) date).get(ContentDate.DISTANCE_DATE_KEYWORD);
+
                     break;
                 case ExtractedDate.TECH_HTML_STRUC:
                     keyword = ((StructureDate) date).getKeyword();
@@ -412,7 +444,8 @@ public class DateArrayHelper {
                     break;
             }
             if (((ExtractedDate) e.getKey()).getType() == filter || filter == 0) {
-                System.out.println("Rate: " + e.getValue() + " Type: " + type + " Keyword: " + keyword);
+                System.out.println("Rate: " + e.getValue() + " Type: " + type + " Keyword: " + keyword + " Distance: "
+                        + dist);
                 System.out.println(dateString + " --> " + normDate);
                 System.out
                         .println("-------------------------------------------------------------------------------------");
@@ -432,11 +465,55 @@ public class DateArrayHelper {
         return getRatedDates(dates, rate, true);
     }
 
+    /**
+     * Returns an array of dates, that have the given rate. (include = true) <br>
+     * Returns an array of dates, that have <b>not</b> the given rate. (include = false) <br>
+     * 
+     * @see DateArrayHelper.getRatedDates
+     * @param <T>
+     * @param dates
+     * @param rate
+     * @param include
+     * @return
+     */
     public static <T> ArrayList<T> getRatedDates(HashMap<T, Double> dates, double rate, boolean include) {
         ArrayList<T> result = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
             if ((e.getValue() == rate) == include) {
                 result.add(e.getKey());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns an array of dates, that have a given rate.
+     * 
+     * @param <T>
+     * @param dates
+     * @param rate
+     * @return
+     */
+    public static <T> HashMap<T, Double> getRatedDatesMap(HashMap<T, Double> dates, double rate) {
+        return getRatedDatesMap(dates, rate, true);
+    }
+
+    /**
+     * Returns an array of dates, that have the given rate. (include = true) <br>
+     * Returns an array of dates, that have <b>not</b> the given rate. (include = false) <br>
+     * 
+     * @see DateArrayHelper.getRatedDates
+     * @param <T>
+     * @param dates
+     * @param rate
+     * @param include
+     * @return
+     */
+    public static <T> HashMap<T, Double> getRatedDatesMap(HashMap<T, Double> dates, double rate, boolean include) {
+        HashMap<T, Double> result = new HashMap<T, Double>();
+        for (Entry<T, Double> e : dates.entrySet()) {
+            if ((e.getValue() == rate) == include) {
+                result.put(e.getKey(), e.getValue());
             }
         }
         return result;
@@ -570,7 +647,7 @@ public class DateArrayHelper {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T, V> Entry<T, V>[] hashMapToArray(HashMap<T, V> map) {
+    public static <T, V> Entry<T, V>[] hashMapToArray(HashMap<T, V> map) {
         Entry<T, V>[] array = new Entry[map.size()];
         int i = 0;
         for (Entry<T, V> e : map.entrySet()) {
@@ -590,11 +667,47 @@ public class DateArrayHelper {
         return isAllZero;
     }
 
+    /**
+     * Returns Hashmap of Dates, that are equal or greater to exactness.
+     * 
+     * @param <T>
+     * @param dates
+     * @param exactness
+     * @return
+     */
+    public static <T> HashMap<T, Double> getExacterDates(HashMap<T, Double> dates, int exactness) {
+        HashMap<T, Double> resultDates = new HashMap<T, Double>();
+        for (Entry<T, Double> e : dates.entrySet()) {
+            if (((ExtractedDate) e.getKey()).getExactness() >= exactness) {
+                resultDates.put(e.getKey(), e.getValue());
+            }
+        }
+        return resultDates;
+    }
+
     public static <T> ArrayList<T> getExactestDates(HashMap<T, Double> dates) {
         ArrayList<T> result = new ArrayList<T>();
         HashMap<T, Double> exactedDates = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
             exactedDates.put(e.getKey(), ((ExtractedDate) e.getKey()).getExactness() * 1.0);
+        }
+        Entry<T, Double>[] orderedHashMap = orderHashMap(exactedDates, true);
+        if (orderedHashMap.length > 0) {
+            double greatestExactness = orderedHashMap[0].getValue();
+            for (Entry<T, Double> e : exactedDates.entrySet()) {
+                if (e.getValue() == greatestExactness) {
+                    result.add(e.getKey());
+                }
+            }
+        }
+        return result;
+    }
+
+    public static <T> ArrayList<T> getExactestDates(ArrayList<T> dates) {
+        ArrayList<T> result = new ArrayList<T>();
+        HashMap<T, Double> exactedDates = new HashMap<T, Double>();
+        for (int i = 0; i < dates.size(); i++) {
+            exactedDates.put(dates.get(i), ((ExtractedDate) dates.get(i)).getExactness() * 1.0);
         }
         Entry<T, Double>[] orderedHashMap = orderHashMap(exactedDates, true);
         if (orderedHashMap.length > 0) {

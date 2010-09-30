@@ -5,6 +5,13 @@ import java.util.Collection;
 
 import org.w3c.dom.Document;
 
+import tud.iir.daterecognition.technique.ArchiveDateGetter;
+import tud.iir.daterecognition.technique.ContentDateGetter;
+import tud.iir.daterecognition.technique.HTTPDateGetter;
+import tud.iir.daterecognition.technique.HeadDateGetter;
+import tud.iir.daterecognition.technique.ReferenceDateGetter;
+import tud.iir.daterecognition.technique.StructureDateGetter;
+import tud.iir.daterecognition.technique.URLDateGetter;
 import tud.iir.helper.ArrayHelper;
 import tud.iir.web.Crawler;
 
@@ -26,6 +33,14 @@ public class DateGetter {
     private boolean tech_reference = true;
     private boolean tech_archive = true;
 
+    private HTTPDateGetter httpdg = new HTTPDateGetter();
+    private URLDateGetter udg = new URLDateGetter();
+    private HeadDateGetter headdg = new HeadDateGetter();
+    private ContentDateGetter cdg = new ContentDateGetter();
+    private StructureDateGetter sdg = new StructureDateGetter();
+    private ArchiveDateGetter adg = new ArchiveDateGetter();
+    private ReferenceDateGetter rdg = new ReferenceDateGetter();
+
     /** URL that will be called */
     private String url;
 
@@ -44,10 +59,20 @@ public class DateGetter {
         this.url = url;
     }
 
+    /**
+     * Constructor creates a new DateGetter with a given document.
+     * 
+     * @param url URL that will be analyzed
+     */
     public DateGetter(final Document document) {
         this.document = document;
     }
 
+    /**
+     * Constructor creates a new DateGetter with a given URL and document.
+     * 
+     * @param url URL that will be analyzed
+     */
     public DateGetter(final String url, Document document) {
         this.url = url;
         this.document = document;
@@ -67,14 +92,17 @@ public class DateGetter {
         Crawler crawler = new Crawler();
 
         if (url != null) {
-
-            // final Document document = crawler.getWebDocument(this.url, false);
-
             if (tech_HTTP) {
-                dates.addAll((Collection<? extends T>) DateGetterHelper.getHTTPHeaderDate(url));
+                httpdg.setUrl(url);
+                dates.addAll((Collection<? extends T>) httpdg.getDates());
             }
             if (tech_URL) {
-                dates.add((T) DateGetterHelper.getURLDate(url));
+                udg.setUrl(url);
+                dates.addAll((Collection<? extends T>) udg.getDates());
+            }
+            if (tech_archive) {
+                adg.setUrl(url);
+                dates.addAll((Collection<? extends T>) adg.getDates());
             }
             if (tech_HTML_head || tech_HTML_struct || tech_HTML_content || tech_reference) {
                 Document document = this.document;
@@ -83,17 +111,20 @@ public class DateGetter {
                 }
                 if (document != null) {
                     if (tech_HTML_head) {
-                        dates.addAll((Collection<? extends T>) DateGetterHelper.getHeadDates(document));
+                        headdg.setDocument(document);
+                        dates.addAll((Collection<? extends T>) headdg.getDates());
                     }
                     if (tech_HTML_struct) {
-                        dates.addAll((Collection<? extends T>) DateGetterHelper.getStructureDate(document));
+                        sdg.setDocument(document);
+                        dates.addAll((Collection<? extends T>) sdg.getDates());
                     }
                     if (tech_HTML_content) {
-                        dates.addAll((Collection<? extends T>) DateGetterHelper.getContentDates(document));
+                        cdg.setDocument(document);
+                        dates.addAll((Collection<? extends T>) cdg.getDates());
                     }
                     if (tech_reference) {
-                        dates.addAll((Collection<? extends T>) DateGetterHelper.getReferenceDates(document));
-                        // TODO: evaluate each link, so only the best date for each link is left.
+                        rdg.setDocument(document);
+                        dates.addAll((Collection<? extends T>) rdg.getDates());
                     }
                 }
             }

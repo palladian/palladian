@@ -1253,7 +1253,7 @@ public class StringHelper {
         int count = 0;
         String t = text;
         while (t.indexOf(" ") != -1) {
-            t = t.replace(" ", "");
+            t = t.replaceFirst(" ", "");
             count++;
         }
         return count;

@@ -23,6 +23,8 @@ public class DateComparator implements Comparator<ExtractedDate> {
     public static final int STOP_MINUTE = 5;
     /** Compare will not stop. (After second there are no more comparable values. Value = 6. */
     public static final int STOP_SECOND = 6;
+    /** Use for methods providing a dynamic stop, depending on exactness of each date. Value = -1. */
+    public static final int STOP_DYNAMIC = -1;
 
     /** Get date-difference in milliseconds */
     public static final int MEASURE_MILLI_SEC = 1;

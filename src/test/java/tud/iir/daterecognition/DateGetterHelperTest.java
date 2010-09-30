@@ -13,6 +13,9 @@ import tud.iir.control.AllTests;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.HTTPDate;
 import tud.iir.daterecognition.dates.HeadDate;
+import tud.iir.daterecognition.technique.HTTPDateGetter;
+import tud.iir.daterecognition.technique.HeadDateGetter;
+import tud.iir.daterecognition.technique.URLDateGetter;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.knowledge.RegExp;
 import tud.iir.web.Crawler;
@@ -39,24 +42,40 @@ public class DateGetterHelperTest {
 
         // Cases with given day
         String time = "2010-06-30";
-        assertEquals(url1, time, DateGetterHelper.getURLDate(url1).getNormalizedDate());
-        assertEquals(url3, time, DateGetterHelper.getURLDate(url3).getNormalizedDate());
-        assertEquals(url5, time, DateGetterHelper.getURLDate(url5).getNormalizedDate());
-        assertEquals(url7, time, DateGetterHelper.getURLDate(url7).getNormalizedDate());
-        assertEquals(url9, time, DateGetterHelper.getURLDate(url9).getNormalizedDate());
-        assertEquals(url10, time, DateGetterHelper.getURLDate(url10).getNormalizedDate());
-        assertEquals(url11, time, DateGetterHelper.getURLDate(url11).getNormalizedDate());
-        assertEquals(url12, time, DateGetterHelper.getURLDate(url12).getNormalizedDate());
-        assertEquals(url13, time, DateGetterHelper.getURLDate(url13).getNormalizedDate());
-        assertEquals(url14, time, DateGetterHelper.getURLDate(url14).getNormalizedDate());
-        assertEquals(url14, "2002-08-06", DateGetterHelper.getURLDate(url15).getNormalizedDate());
+        URLDateGetter udg = new URLDateGetter();
+        udg.setUrl(url1);
+        assertEquals(url1, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url3);
+        assertEquals(url3, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url5);
+        assertEquals(url5, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url7);
+        assertEquals(url7, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url9);
+        assertEquals(url9, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url10);
+        assertEquals(url10, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url11);
+        assertEquals(url11, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url12);
+        assertEquals(url12, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url13);
+        assertEquals(url13, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url14);
+        assertEquals(url14, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url15);
+        assertEquals(url15, "2002-08-06", udg.getFirstDate().getNormalizedDate());
 
         // Cases without given day, so day will be set to 1st
         time = "2010-06";
-        assertEquals(url2, time, DateGetterHelper.getURLDate(url2).getNormalizedDate());
-        assertEquals(url4, time, DateGetterHelper.getURLDate(url4).getNormalizedDate());
-        assertEquals(url6, time, DateGetterHelper.getURLDate(url6).getNormalizedDate());
-        assertEquals(url8, time, DateGetterHelper.getURLDate(url8).getNormalizedDate());
+        udg.setUrl(url2);
+        assertEquals(url2, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url4);
+        assertEquals(url4, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url6);
+        assertEquals(url6, time, udg.getFirstDate().getNormalizedDate());
+        udg.setUrl(url8);
+        assertEquals(url8, time, udg.getFirstDate().getNormalizedDate());
     }
 
     @Test
@@ -308,13 +327,46 @@ public class DateGetterHelperTest {
         assertEquals("2010-05", (DateGetterHelper.findALLDates("Mai 2010")).get(0).getNormalizedDate());
         assertEquals("2010-06", (DateGetterHelper.findALLDates("Juni 2010")).get(0).getNormalizedDate());
         assertEquals("2010-07", (DateGetterHelper.findALLDates("Juli 2010")).get(0).getNormalizedDate());
-        System.out.println("August 2010");
         assertEquals("2010-08", (DateGetterHelper.findALLDates("August 2010")).get(0).getNormalizedDate());
         assertEquals("MMMM YYYY", (DateGetterHelper.findALLDates("August 2010")).get(0).getFormat());
         assertEquals("2010-09", (DateGetterHelper.findALLDates("September 2010")).get(0).getNormalizedDate());
         assertEquals("2010-10", (DateGetterHelper.findALLDates("Oktober 2010")).get(0).getNormalizedDate());
         assertEquals("2010-11", (DateGetterHelper.findALLDates("November 2010")).get(0).getNormalizedDate());
         assertEquals("2010-12", (DateGetterHelper.findALLDates("Dezember 2010")).get(0).getNormalizedDate());
+        String date = (DateGetterHelper.findALLDates("SEPTEMBER 1, 2010")).get(0).getNormalizedDate();
+        assertEquals("2010-09-01", date);
+        date = (DateGetterHelper.findALLDates(", 17/09/06 03:51:53")).get(0).getNormalizedDate();
+        assertEquals("2006-09-17 03:51:53", date);
+        date = (DateGetterHelper.findALLDates("30.09.2010")).get(0).getNormalizedDate();
+        assertEquals("2010-09-30", date);
+        date = (DateGetterHelper.findALLDates(", 08. Februar 2010, 17:15")).get(0).getNormalizedDate();
+        assertEquals("2010-02-08", date);
+        date = (DateGetterHelper.findALLDates("Sept. 3, 2010")).get(0).getNormalizedDate();
+        assertEquals("2010-09-03", date);
+        date = (DateGetterHelper.findALLDates("Last Modified: Wednesday, 11-Aug-2010 14:41:10 EDT")).get(0)
+                .getNormalizedDate();
+        assertEquals("2010-08-11 14:41:10", date);
+        date = (DateGetterHelper.findALLDates("JUNE 1, 2010")).get(0).getNormalizedDate();
+        assertEquals("2010-06-01", date);
+
+        assertEquals("2010-01", (DateGetterHelper.findALLDates("jan. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-02", (DateGetterHelper.findALLDates("Feb. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-03", (DateGetterHelper.findALLDates("Mär. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-04", (DateGetterHelper.findALLDates("Apr. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-05", (DateGetterHelper.findALLDates("Mai. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-06", (DateGetterHelper.findALLDates("Jun. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-07", (DateGetterHelper.findALLDates("Jul. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-08", (DateGetterHelper.findALLDates("Aug. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-09", (DateGetterHelper.findALLDates("Sep. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-10", (DateGetterHelper.findALLDates("Okt. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-11", (DateGetterHelper.findALLDates("nov. 2010")).get(0).getNormalizedDate());
+        assertEquals("2010-12", (DateGetterHelper.findALLDates("Dez. 2010")).get(0).getNormalizedDate());
+
+        assertEquals("2007-12-06 17:37:45", (DateGetterHelper.findALLDates("2007-12-06T17:37:45Z")).get(0)
+                .getNormalizedDate());
+
+        assertEquals("2008-12-06 17:37:45",
+                (DateGetterHelper.findALLDates("2007-12-06T17:37:45Z 2008-12-06T17:37:45Z")).get(1).getNormalizedDate());
 
     }
 
@@ -368,7 +420,11 @@ public class DateGetterHelperTest {
          */
         // String url = "http://www.zeit.de/politik/ausland/2010-09/russland-waldbraende-siedlungen";
         String url = "http://www.spreeblick.com/2010/07/08/william-shatner-hat-leonard-nimoys-fahrrad-geklaut/";
-        ArrayList<HTTPDate> dates = DateGetterHelper.getHTTPHeaderDate(url);
+
+        HTTPDateGetter hdg = new HTTPDateGetter();
+        hdg.setUrl(url);
+
+        ArrayList<HTTPDate> dates = hdg.getDates();
         for (int i = 0; i < dates.size(); i++) {
             System.out.println(dates.get(i).getDateString());
         }
@@ -425,7 +481,11 @@ public class DateGetterHelperTest {
         // String url =
         // "http://www.gatorsports.com/article/20100823/ARTICLES/100829802/1136?Title=Meyer-has-concerns-with-season-fast-approaching";
         // String url = "http://www.truthdig.com/arts_culture/item/20071108_mark_sarvas_on_the_hot_zone/";
-        String url = "http://www.scifisquad.com/2010/05/21/fridays-sci-fi-tv-its-a-spy-game-on-stargate-universe?icid=sphere_wpcom_tagsidebar/";
+        // String url =
+        // "http://www.scifisquad.com/2010/05/21/fridays-sci-fi-tv-its-a-spy-game-on-stargate-universe?icid=sphere_wpcom_tagsidebar/";
+        String url = "http://g4tv.com/games/pc/61502/star-wars-the-old-republic/index/";
+        // String url =
+        // "http://www.politicsdaily.com/2010/06/10/harry-reid-ads-tout-jobs-creation-spokesman-calls-sharron-angl/";
         if (!AllTests.ALL_TESTS) {
 
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
@@ -522,19 +582,23 @@ public class DateGetterHelperTest {
     }
 
     @Test
-    public void TestGetHeadDates2() {
-        String url = "http://www.huffingtonpost.com/2010/09/08/mark-hurds-salary-at-orac_n_708676.html";
+    public void testGetHeadDates2() {
+        String url = "http://abclocal.go.com/wabc/story?section=news/local&id=6606410";
 
         Crawler c = new Crawler();
         c.setDocument(url);
         Document document = c.getDocument();
-        ArrayList<HeadDate> headDates = DateGetterHelper.getHeadDates(document);
+
+        HeadDateGetter hdg = new HeadDateGetter();
+        hdg.setDocument(document);
+
+        ArrayList<HeadDate> headDates = hdg.getDates();
         DateArrayHelper.printDateArray(headDates);
 
     }
 
     @Test
-    public void TestGetHeadDates() {
+    public void testGetHeadDates() {
         String url = "data/test/webPages/dateExtraction/zeit2.htm";
         ArrayList<HeadDate> compareDates = new ArrayList<HeadDate>();
         compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
@@ -547,11 +611,23 @@ public class DateGetterHelperTest {
         Crawler c = new Crawler();
         c.setDocument(url);
         Document document = c.getDocument();
-        ArrayList<HeadDate> headDates = DateGetterHelper.getHeadDates(document);
+        HeadDateGetter hdg = new HeadDateGetter();
+        hdg.setDocument(document);
+        ArrayList<HeadDate> headDates = hdg.getDates();
         assertEquals(6, headDates.size());
         for (int i = 0; i < headDates.size(); i++) {
             assertEquals(compareDates.get(i).getDateString(), headDates.get(i).getDateString());
         }
 
+    }
+
+    @Test
+    public void testArchiveDate() {
+        String url = "http://www.spiegel.de";
+        DateGetter dg = new DateGetter(url);
+        dg.setAllFalse();
+        dg.setTechArchive(true);
+        ArrayList<ExtractedDate> dates = dg.getDate();
+        DateArrayHelper.printDateArray(dates);
     }
 }

@@ -1,5 +1,7 @@
 package tud.iir.daterecognition.dates;
 
+import org.w3c.dom.Node;
+
 public abstract class BodyDate extends KeywordDate {
 
     public static final int STRUCTURE_DEPTH = 101;
@@ -13,6 +15,11 @@ public abstract class BodyDate extends KeywordDate {
      * In witch depth of html-structure the date was found. For rating of date.
      */
     private int structuralDepth = -1;
+
+    /**
+     * Tag.
+     */
+    private String tagNode = null;
 
     /**
      * 
@@ -75,5 +82,13 @@ public abstract class BodyDate extends KeywordDate {
     public String toString() {
         return super.toString() + "\n" + "Keyword: " + super.getKeyword() + " Tagname: " + tag + "\n"
                 + "Stucturedepth: " + structuralDepth;
+    }
+
+    public void setTagNode(String tagNode) {
+        this.tagNode = tagNode;
+    }
+
+    public String getTagNode() {
+        return tagNode;
     }
 }
