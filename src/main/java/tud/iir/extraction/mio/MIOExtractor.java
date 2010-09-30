@@ -40,10 +40,10 @@ public final class MIOExtractor extends Extractor {
     private MIOExtractor() {
         addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
         addSuffixesToBlackList(Extractor.URL_TEXTUAL_BLACKLIST);
-        
+
         // loadInCoFiConfiguration and prepare to use as singleton
         InCoFiConfiguration configuration = loadConfiguration();
-        
+
         // its a trick for creating a singleton because of yml
         InCoFiConfiguration.instance = configuration;
     }
@@ -84,7 +84,7 @@ public final class MIOExtractor extends Extractor {
         setKnowledgeManager(kManager);
 
         // loop until exit called
-        //while (!isStopped()) {
+        // while (!isStopped()) {
 
         // concepts
         final ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
@@ -98,7 +98,7 @@ public final class MIOExtractor extends Extractor {
             if (isStopped()) {
                 LOGGER.info("mio extraction process stopped");
                 // clean the SWF-File-DownloadDirectory
-                //FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
+                // FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
                 break;
             }
 

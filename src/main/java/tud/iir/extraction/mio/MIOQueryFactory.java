@@ -69,7 +69,7 @@ public class MIOQueryFactory {
         
         searchQueries.add(entityName);
         for (String searchWord : conceptSearchVocabulary) {
-
+           
             if (searchWord.endsWith("_")) {
                 // for the case: "play Quantum of Solice"
                 int pos = searchWord.lastIndexOf("_");
@@ -77,7 +77,6 @@ public class MIOQueryFactory {
                 searchQueries.add("\"" + modSearchWord + " " + entityName + "\"");
             } else {
                 searchQueries.add(entityName + " \"" + searchWord + "\"");
-
             }
         }
 
@@ -94,7 +93,6 @@ public class MIOQueryFactory {
                 }
             }
         }       
-
         return searchQueries;
     }
 
