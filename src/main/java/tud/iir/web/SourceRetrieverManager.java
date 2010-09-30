@@ -5,12 +5,14 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 /**
- * The SourceRetrieverManager holds information about query settings and statistics for indices of Yahoo!, Google, Microsoft, Hakia, Bing, Twitter and Google
- * Blogs. The SourceRetrieverManager is singleton.
+ * The SourceRetrieverManager holds information about query settings and
+ * statistics for indices of Yahoo!, Google, Microsoft, Hakia, Bing, Twitter and
+ * Google Blogs. The SourceRetrieverManager is singleton.
  * 
  * @author David Urbansky
  * @author Christopher Friedrich
  * @author Philipp Katz
+ * @author Martin Wunderwald
  */
 public class SourceRetrieverManager {
 
@@ -27,8 +29,10 @@ public class SourceRetrieverManager {
     public static final int GOOGLE_BLOGS = 8;
     public static final int TEXTRUNNER = 9;
     public static final int YAHOO_BOSS_NEWS = 10;
+    public static final int GOOGLE_NEWS = 11;
     // TODO add maximum number of queries per day
-    // TODO automatically shift between extraction sources once too many queries have been sent
+    // TODO automatically shift between extraction sources once too many queries
+    // have been sent
 
     protected String YAHOO_API_KEY = "";
     protected String YAHOO_BOSS_API_KEY = "";
@@ -89,29 +93,31 @@ public class SourceRetrieverManager {
     /**
      * Get total number of requests that have been made to the given source.
      * 
-     * @param source The code for the source.
-     * @return The number of requests for the given source or -1 if the source code was invalid.
+     * @param source
+     *            The code for the source.
+     * @return The number of requests for the given source or -1 if the source
+     *         code was invalid.
      */
     public int getRequestCount(int source) {
         switch (source) {
-            case YAHOO:
-                return numberOfYahooRequests;
-            case YAHOO_BOSS:
-                return numberOfYahooRequests;
-            case GOOGLE:
-                return numberOfGoogleRequests;
-            case MICROSOFT:
-                return numberOfMicrosoftRequests;
-            case HAKIA:
-                return numberOfHakiaRequests;
-            case BING:
-                return numberOfBingRequests;
-            case TWITTER:
-                return numberOfTwitterRequests;
-            case GOOGLE_BLOGS:
-                return numberOfGoogleBlogsRequests;
-            case TEXTRUNNER:
-                return numberOfTextRunnerRequests;
+        case YAHOO:
+            return numberOfYahooRequests;
+        case YAHOO_BOSS:
+            return numberOfYahooRequests;
+        case GOOGLE:
+            return numberOfGoogleRequests;
+        case MICROSOFT:
+            return numberOfMicrosoftRequests;
+        case HAKIA:
+            return numberOfHakiaRequests;
+        case BING:
+            return numberOfBingRequests;
+        case TWITTER:
+            return numberOfTwitterRequests;
+        case GOOGLE_BLOGS:
+            return numberOfGoogleBlogsRequests;
+        case TEXTRUNNER:
+            return numberOfTextRunnerRequests;
         }
         return -1;
     }
@@ -119,39 +125,40 @@ public class SourceRetrieverManager {
     /**
      * Count a request for a source.
      * 
-     * @param source The code for the source.
+     * @param source
+     *            The code for the source.
      */
     public void addRequest(int source) {
         switch (source) {
-            case YAHOO:
-                numberOfYahooRequests++;
-                break;
-            case YAHOO_BOSS:
-                numberOfYahooRequests++;
-                break;
-            case GOOGLE:
-                numberOfGoogleRequests++;
-                break;
-            case MICROSOFT:
-                numberOfMicrosoftRequests++;
-                break;
-            case HAKIA:
-                numberOfHakiaRequests++;
-                break;
-            case BING:
-                numberOfBingRequests++;
-                break;
-            case TWITTER:
-                numberOfTwitterRequests++;
-                break;
-            case GOOGLE_BLOGS:
-                numberOfGoogleBlogsRequests++;
-                break;
-            case TEXTRUNNER:
-                numberOfTextRunnerRequests++;
-                break;
-            default:
-                break;
+        case YAHOO:
+            numberOfYahooRequests++;
+            break;
+        case YAHOO_BOSS:
+            numberOfYahooRequests++;
+            break;
+        case GOOGLE:
+            numberOfGoogleRequests++;
+            break;
+        case MICROSOFT:
+            numberOfMicrosoftRequests++;
+            break;
+        case HAKIA:
+            numberOfHakiaRequests++;
+            break;
+        case BING:
+            numberOfBingRequests++;
+            break;
+        case TWITTER:
+            numberOfTwitterRequests++;
+            break;
+        case GOOGLE_BLOGS:
+            numberOfGoogleBlogsRequests++;
+            break;
+        case TEXTRUNNER:
+            numberOfTextRunnerRequests++;
+            break;
+        default:
+            break;
         }
     }
 
@@ -161,9 +168,14 @@ public class SourceRetrieverManager {
      * @return An array of indices.
      */
     public static int[] getSearchEngines() {
-        int[] indices = { SourceRetrieverManager.YAHOO, SourceRetrieverManager.GOOGLE, SourceRetrieverManager.MICROSOFT, SourceRetrieverManager.HAKIA,
-                SourceRetrieverManager.YAHOO_BOSS, SourceRetrieverManager.BING, SourceRetrieverManager.TWITTER, SourceRetrieverManager.GOOGLE_BLOGS,
-                SourceRetrieverManager.TEXTRUNNER };
+        int[] indices = { SourceRetrieverManager.YAHOO,
+                SourceRetrieverManager.GOOGLE,
+                SourceRetrieverManager.MICROSOFT, SourceRetrieverManager.HAKIA,
+                SourceRetrieverManager.YAHOO_BOSS, SourceRetrieverManager.BING,
+                SourceRetrieverManager.TWITTER,
+                SourceRetrieverManager.GOOGLE_BLOGS,
+                SourceRetrieverManager.TEXTRUNNER,
+                SourceRetrieverManager.GOOGLE_NEWS };
         return indices;
     }
 
@@ -176,18 +188,26 @@ public class SourceRetrieverManager {
         StringBuilder logs = new StringBuilder();
 
         logs.append("\n");
-        logs.append("Number of Yahoo! requests: ").append(numberOfYahooRequests).append("\n");
-        logs.append("Number of Google requests: ").append(numberOfGoogleRequests).append("\n");
-        logs.append("Number of Microsoft requests: ").append(numberOfMicrosoftRequests).append("\n");
-        logs.append("Number of Hakia requests: ").append(numberOfHakiaRequests).append("\n");
-        logs.append("Number of Bing requests: ").append(numberOfBingRequests).append("\n");
-        logs.append("Number of Twitter requests: ").append(numberOfTwitterRequests).append("\n");
-        logs.append("Number of Google Blogs requests: ").append(numberOfGoogleBlogsRequests).append("\n");
-        logs.append("Number of TextRunner requests: ").append(numberOfTextRunnerRequests).append("\n");
+        logs.append("Number of Yahoo! requests: ")
+                .append(numberOfYahooRequests).append("\n");
+        logs.append("Number of Google requests: ").append(
+                numberOfGoogleRequests).append("\n");
+        logs.append("Number of Microsoft requests: ").append(
+                numberOfMicrosoftRequests).append("\n");
+        logs.append("Number of Hakia requests: ").append(numberOfHakiaRequests)
+                .append("\n");
+        logs.append("Number of Bing requests: ").append(numberOfBingRequests)
+                .append("\n");
+        logs.append("Number of Twitter requests: ").append(
+                numberOfTwitterRequests).append("\n");
+        logs.append("Number of Google Blogs requests: ").append(
+                numberOfGoogleBlogsRequests).append("\n");
+        logs.append("Number of TextRunner requests: ").append(
+                numberOfTextRunnerRequests).append("\n");
 
         return logs.toString();
     }
-    
+
     /**
      * Get a human readable string for search engine constant.
      * 
@@ -196,28 +216,30 @@ public class SourceRetrieverManager {
      */
     public static String getName(int source) {
         switch (source) {
-            case YAHOO:
-                return "Yahoo!";
-            case GOOGLE:
-                return "Google";
-            case MICROSOFT:
-                return "Microsoft";
-            case HAKIA:
-                return "Hakia";
-            case YAHOO_BOSS:
-                return "Yahoo! Boss";
-            case BING:
-                return "Bing";
-            case TWITTER:
-                return "Twitter";
-            case GOOGLE_BLOGS:
-                return "Google Blogs";
-            case TEXTRUNNER:
-                return "TextRunner";
-            case YAHOO_BOSS_NEWS:
-                return "Yahoo! Boss News";
-            default:
-                return "<unknown>";
+        case YAHOO:
+            return "Yahoo!";
+        case GOOGLE:
+            return "Google";
+        case MICROSOFT:
+            return "Microsoft";
+        case HAKIA:
+            return "Hakia";
+        case YAHOO_BOSS:
+            return "Yahoo! Boss";
+        case BING:
+            return "Bing";
+        case TWITTER:
+            return "Twitter";
+        case GOOGLE_BLOGS:
+            return "Google Blogs";
+        case TEXTRUNNER:
+            return "TextRunner";
+        case YAHOO_BOSS_NEWS:
+            return "Yahoo! Boss News";
+        case GOOGLE_NEWS:
+            return "Google News";
+        default:
+            return "<unknown>";
         }
     }
 
@@ -226,9 +248,12 @@ public class SourceRetrieverManager {
         queryString = "%22top speed of [a%7cthe] Bugatti Veyron is%22 %7c %22top speed of  Bugatti Veyron is%22";
         queryString = "\"top speed of [a|the] Bugatti Veyron is\" | \"top speed of  Bugatti Veyron is\"";
         // queryString = "top speed of the Bugatti Veyron is";
-        new SourceRetriever().getURLs(queryString, SourceRetrieverManager.YAHOO, true);
-        // new SourceRetriever().getURLs(queryString,SourceRetriever.GOOGLE, true);
-        // new SourceRetriever().getURLs(queryString,SourceRetriever.MICROSOFT, false);
+        new SourceRetriever().getURLs(queryString,
+                SourceRetrieverManager.YAHOO, true);
+        // new SourceRetriever().getURLs(queryString,SourceRetriever.GOOGLE,
+        // true);
+        // new SourceRetriever().getURLs(queryString,SourceRetriever.MICROSOFT,
+        // false);
 
         // queryString = "population of Dresden is";
         // Logger.getInstance().setSilent(false);
