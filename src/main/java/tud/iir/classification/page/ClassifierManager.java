@@ -1080,6 +1080,7 @@ public class ClassifierManager {
         TextClassifier classifier;
 
         classifier = (TextClassifier) FileHelper.deserialize(classifierPath);
+        classifier.reset();
         ((DictionaryClassifier) classifier).loadDictionary();
 
         return classifier;
@@ -1140,7 +1141,7 @@ public class ClassifierManager {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        // trainLanguageModel();
+        trainLanguageModel();
         evaluateLanguageModel();
         // useLanguageModel();
         System.exit(0);

@@ -53,7 +53,7 @@ public abstract class TextClassifier implements Serializable {
     private ClassifierPerformance performance = null;
 
     /** The document preprocessor. */
-    protected Preprocessor preprocessor;
+    protected transient Preprocessor preprocessor;
 
     /** whether or not the program runs in benchmark mode */
     protected boolean benchmark = false;
