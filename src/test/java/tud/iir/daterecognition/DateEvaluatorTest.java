@@ -21,8 +21,8 @@ public class DateEvaluatorTest {
         // "http://www.huffingtonpost.com/2010/09/08/mark-hurds-salary-at-orac_n_708676.html");
         String url;
         // url =
+        url = "http://www.xbitlabs.com/news/mobile/display/20071129151636_Apple_to_Release_iPhone_3G_in_2008_AT_T_Executive.html";
         // "http://www.huffingtonpost.com/2010/09/07/ex-cia-electric-drill-contractor-training-operatives_n_708085.html";
-        url = "http://www.scifisquad.com/2010/05/21/fridays-sci-fi-tv-its-a-spy-game-on-stargate-universe?icid=sphere_wpcom_tagsidebar/";
         DateGetter dg = new DateGetter(url);
         dg.setTechReference(false);
         dg.setTechArchive(false);
@@ -30,10 +30,10 @@ public class DateEvaluatorTest {
         ArrayList<ExtractedDate> dates = dg.getDate();
 
         // DateEvaluator de = new DateEvaluator();
-        DateEvaluator de = new DateEvaluator(url, false);
-        HashMap<ExtractedDate, Double> dateMap = de.evaluate(dates);
+        DateRater de = new DateRater(url, false);
+        HashMap<ExtractedDate, Double> dateMap = de.rate(dates);
 
-        // DateArrayHelper.printDateArray(dates, DateArrayHelper.FILTER_TECH_HTTP_HEADER);
+        // DateArrayHelper.printDateArray(dates);
         Entry<ExtractedDate, Double>[] orderedDates = DateArrayHelper.orderHashMap(dateMap, true);
         DateArrayHelper.printDateMap(orderedDates);
 
@@ -52,6 +52,7 @@ public class DateEvaluatorTest {
         ExtractedDate date2 = new ExtractedDate("2010-07-02", RegExp.DATE_ISO8601_YMD[1]);
         ExtractedDate date3 = new ExtractedDate("2010-07-04", RegExp.DATE_ISO8601_YMD[1]);
         ExtractedDate date4 = new ExtractedDate("2010-07-02", RegExp.DATE_ISO8601_YMD[1]);
+        ExtractedDate date5 = new ExtractedDate("2010-07-02 23:15", RegExp.DATE_ISO8601_YMD_T[1]);
 
         HashMap<ExtractedDate, Double> metaDates = new HashMap<ExtractedDate, Double>();
         HashMap<ExtractedDate, Double> dates = new HashMap<ExtractedDate, Double>();
@@ -65,9 +66,10 @@ public class DateEvaluatorTest {
         dates.put(date2, 0.0);
         dates.put(date3, 0.4);
         dates.put(date4, 0.8);
+        dates.put(date5, 0.0);
 
         DateArrayHelper.printDateMap(dates);
-        dates = DateEvaluator.deployMetaDates(metaDates, dates);
+        dates = DateRater.deployMetaDates(metaDates, dates);
         System.out.println("________________________________");
         DateArrayHelper.printDateMap(dates);
 

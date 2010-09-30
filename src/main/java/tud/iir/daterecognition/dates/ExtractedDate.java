@@ -53,6 +53,8 @@ public class ExtractedDate {
 
     private String timezone = null;
 
+    private double rate = 0;
+
     /**
      * Standard constructor.
      */
@@ -164,17 +166,18 @@ public class ExtractedDate {
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D_Y[1])) {
             setDateValues(dateString.split(ExtractedDateHelper.getSeparator(dateString)), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM_Y[1])) {
-            String[] temp;
-            if (dateString.indexOf("\\.") == -1) {
-                dateParts = dateString.split(" ");
-            } else {
-                dateParts[0] = dateString.split("\\.")[0];
-                temp = dateString.split("\\.")[1].split(" ");
-                System.arraycopy(temp, 1, dateParts, 1, temp.length - 1);
+            if (dateString.indexOf("\\.") != -1) {
+                dateString = dateString.replaceAll("\\.", "");
             }
+            if (dateString.indexOf("-") != -1) {
+                dateString = dateString.replaceAll("-", " ");
+            }
+            dateParts = dateString.split(" ");
             setDateValues(dateParts, 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y[1])) {
             setDateValues(dateString.split(" "), 2, 0, 1);
+        } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y_SEP[1])) {
+            setDateValues(dateString.split("-"), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_MMMM_Y[1])) {
             setDateValues(dateString.split(" "), 1, 0, -1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_MM_Y[1])) {
@@ -184,12 +187,16 @@ public class ExtractedDate {
             String separator = ExtractedDateHelper.getSeparator(dateString);
             setDateValues(dateString.split(separator), -1, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_D_MMMM[1])) {
-            int index = dateString.indexOf(".");
-            if (index == -1) {
-                setDateValues(dateString.split(" "), -1, 1, 0);
-            } else {
-                setDateValues(dateString.split("\\."), -1, 1, 0);
-            }
+            /*
+             * int index = dateString.indexOf(".");
+             * if (index == -1) {
+             * setDateValues(dateString.split(" "), -1, 1, 0);
+             * } else {
+             * setDateValues(dateString.split("\\."), -1, 1, 0);
+             * }
+             */
+            dateString = dateString.replaceAll("\\.", "");
+            setDateValues(dateString.split(" "), -1, 1, 0);
 
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MM_D[1])) {
             setDateValues(dateString.split("/"), -1, 0, 1);
@@ -257,6 +264,9 @@ public class ExtractedDate {
             String meridiem = hasAMPM(dateString);
             if (meridiem != null) {
                 dateString = removeAMPM(dateString, meridiem);
+            }
+            if (dateString.indexOf("-") != -1) {
+                dateString = dateString.replaceAll("-", " ");
             }
             String[] parts = dateString.split(" ");
             setDateValues(parts, 2, 1, 0);
@@ -374,6 +384,16 @@ public class ExtractedDate {
      * @return
      */
     public String getNormalizedDate() {
+        return getNormalizedDate(true);
+    }
+
+    /**
+     * Constructs a normalized datestring in a format from YYYY-MM-DD HH:MM:SS to YYYY-MM depending of given values
+     * 
+     * @param dateParts
+     * @return
+     */
+    public String getNormalizedDate(boolean time) {
         String normalizedDate;
         if (year == -1) {
             normalizedDate = "0";
@@ -387,7 +407,7 @@ public class ExtractedDate {
         }
         if (day != -1) {
             normalizedDate += "-" + ExtractedDateHelper.get2Digits(day);
-            if (hour != -1) {
+            if (hour != -1 && time) {
                 normalizedDate += " " + ExtractedDateHelper.get2Digits(hour);
                 if (minute != -1) {
                     normalizedDate += ":" + ExtractedDateHelper.get2Digits(minute);
@@ -768,6 +788,7 @@ public class ExtractedDate {
             case SECOND:
                 this.second = value;
                 break;
+
         }
     }
 
@@ -813,5 +834,13 @@ public class ExtractedDate {
 
     public String getKeyword() {
         return "";
+    }
+
+    public void setRate(double rate) {
+        this.rate = rate;
+    }
+
+    public double getRate() {
+        return rate;
     }
 }

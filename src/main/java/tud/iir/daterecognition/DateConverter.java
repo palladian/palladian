@@ -1,5 +1,6 @@
 package tud.iir.daterecognition;
 
+import tud.iir.daterecognition.dates.ArchiveDate;
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.HTTPDate;
@@ -22,7 +23,7 @@ public class DateConverter {
         if (date != null) {
             switch (techniqueFlag) {
                 case TECH_ARCHIVE:
-                    newDate = (T) new ExtractedDate();
+                    newDate = (T) new ArchiveDate();
                     break;
                 case TECH_URL:
                     newDate = (T) new URLDate();

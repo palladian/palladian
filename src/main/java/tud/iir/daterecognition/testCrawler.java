@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
@@ -13,6 +14,8 @@ import org.w3c.dom.Document;
 
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.URLDate;
+import tud.iir.daterecognition.technique.URLDateGetter;
+import tud.iir.daterecognition.technique.UrlDateRater;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
 import tud.iir.knowledge.RegExp;
@@ -26,78 +29,126 @@ public class testCrawler {
      */
     public static void main(String[] args) {
         // crawlURLwithDate();
+
         // checkLinkSet();
-        // checkURLs();
-        evaluateURLwithDate();
+        // evaluateURLwithDate("url_einzeln.txt", "stats_url_output.txt");
+        // EvalURL evalURL = new EvalURL("url_einzeln.txt", "stats_url_output.txt");
+        // evalURL.start(1, 98);
+
+        // addAllURLStats(1, 98, "stats_url_output.txt");
+
+        // merge();
+        evaluation("Evaluation-LinkSet.txt", "evaluationOutput.txt");
+
+        // evaluateHTTP("linkSet.txt", "http_output.txt");
+
     }
 
-    public static void checkURLs() {
-        File file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate2.txt");
-        HashMap<String, Integer> urlMap = new HashMap<String, Integer>();
-        try {
-            FileReader fr = new FileReader(file);
-            BufferedReader br = new BufferedReader(fr);
-            String line;
+    public static void addAllURLStats(int begin, int end, String input) {
+        ArrayList<String> stats = new ArrayList<String>();
+        for (int i = begin; i <= end; i++) {
+            File file = new File(
+                    "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                            + input.replaceAll(".txt", i + ".txt"));
+            try {
+                FileReader fr = new FileReader(file);
+                BufferedReader br = new BufferedReader(fr);
+                String line = "";
+                String lastLine = "";
+                String preLastLine = "";
+                int index = 1;
+                while (line != null) {
 
-            while ((line = br.readLine()) != null) {
-                urlMap.put(line, 0);
-                if (line.equals("http://www.nytimes.com/interactive/2009/09/14/business/bailout-assessment.html")) {
-                    System.out
-                            .println("http://www.nytimes.com/interactive/2009/09/14/business/bailout-assessment.html");
+                    preLastLine = lastLine;
+                    lastLine = line;
+
+                    line = br.readLine();
+                    index++;
 
                 }
+                System.out.println(index);
+                System.out.println(preLastLine + lastLine);
+                stats.add(preLastLine + lastLine);
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
-            System.out.println(urlMap.size());
-            fr.close();
-            br.close();
-        } catch (Exception e) {
-            e.printStackTrace();// TODO: handle exception
         }
-        file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate.txt");
-        try {
-            FileReader fr = new FileReader(file);
-            BufferedReader br = new BufferedReader(fr);
-            String line;
+        // CountAll: 3 SameAll: 3
+        // URL_D: 1 sameURL_D: 1 URL: 2 sameURL: 2 URL_MMMM: 0 sameURL_MMMM: 0
+        // URL_split: 0 sameURL_split: 0 other: 0 sameOther: 0
 
-            while ((line = br.readLine()) != null) {
-                urlMap.put(line, 0);
+        int countAll = 0;
+        int sameAll = 0;
 
-            }
-            System.out.println(urlMap.size());
-            fr.close();
-            br.close();
-        } catch (Exception e) {
-            e.printStackTrace();// TODO: handle exception
+        int countURL_D = 0;
+        int sameURL_D = 0;
+        int countURL = 0;
+        int sameURL = 0;
+        int countURL_MMMM = 0;
+        int sameURL_MMMM = 0;
+        int countURL_split = 0;
+        int sameURL_split = 0;
+        int countOther = 0;
+        int sameOther = 0;
+        int temp;
+        for (int i = 0; i < stats.size(); i++) {
+            String line = stats.get(i);
+            int countAllBegin = line.indexOf("CountAll: ");
+            int sameAllBegin = line.indexOf("SameAll: ");
+            int countURL_DBegin = line.indexOf("URL_D: ");
+            int sameURL_DBegin = line.indexOf("sameURL_D: ");
+            int countURLBegin = line.indexOf("URL: ");
+            int sameURLBegin = line.indexOf("sameURL: ");
+            int countURL_MMMMBegin = line.indexOf("URL_MMMM: ");
+            int sameURL_MMMMBegin = line.indexOf("sameURL_MMMM: ");
+            int countURL_splitBegin = line.indexOf("URL_split: ");
+            int sameURL_splitBegin = line.indexOf("sameURL_split: ");
+            int countOtherBegin = line.indexOf("other: ");
+            int sameOtherBegin = line.indexOf("sameOther: ");
+
+            temp = Integer.valueOf(line.substring(countAllBegin + ("CountAll: ").length(), sameAllBegin - 1));
+            countAll += temp;
+            temp = Integer.valueOf(line.substring(sameAllBegin + ("SameAll: ").length(), countURL_DBegin - 1));
+            sameAll += temp;
+            temp = Integer.valueOf(line.substring(countURL_DBegin + ("URL_D: ").length(), sameURL_DBegin - 1));
+            countURL_D += temp;
+            temp = Integer.valueOf(line.substring(sameURL_DBegin + ("sameURL_D: ").length(), countURLBegin - 1));
+            sameURL_D += temp;
+            temp = Integer.valueOf(line.substring(countURLBegin + ("URL: ").length(), sameURLBegin - 1));
+            countURL += temp;
+            temp = Integer.valueOf(line.substring(sameURLBegin + ("sameURL: ").length(), countURL_MMMMBegin - 1));
+            sameURL += temp;
+            temp = Integer.valueOf(line.substring(countURL_MMMMBegin + ("URL_MMMM: ").length(), sameURL_MMMMBegin - 1));
+            countURL_MMMM += temp;
+            temp = Integer.valueOf(line.substring(sameURL_MMMMBegin + ("sameURL_MMMM: ").length(),
+                    countURL_splitBegin - 1));
+            sameURL_MMMM += temp;
+            temp = Integer.valueOf(line.substring(countURL_splitBegin + ("URL_split: ").length(),
+                    sameURL_splitBegin - 1));
+            countURL_split += temp;
+            temp = Integer.valueOf(line.substring(sameURL_splitBegin + ("sameURL_split: ").length(),
+                    countOtherBegin - 1));
+            sameURL_split += temp;
+            temp = Integer.valueOf(line.substring(countOtherBegin + ("other: ").length(), sameOtherBegin - 1));
+            countOther += temp;
+            temp = Integer.valueOf(line.substring(sameOtherBegin + ("sameOther: ").length()));
+            sameOther += temp;
         }
-
-        file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate3.txt");
-        try {
-            FileWriter wr = new FileWriter(file, true);
-            BufferedWriter bw = new BufferedWriter(wr);
-            int i = 0;
-            for (Entry<String, Integer> e : urlMap.entrySet()) {
-                bw.write(e.getKey() + "\n");
-                i++;
-                if (e.getKey().equals("http://www.nytimes.com/interactive/2009/09/14/business/bailout-assessment.html")) {
-                    System.out.println(e.getKey());
-                    System.out.println("i:" + i);
-                }
-            }
-            bw.close();
-            wr.close();
-
-        } catch (Exception e) {
-            e.printStackTrace();// TODO: handle exception
-        }
+        String outputString = "";
+        outputString += "CountAll: " + countAll + " SameAll: " + sameAll + "\n";
+        outputString += " URL_D: " + countURL_D + " sameURL_D: " + sameURL_D;
+        outputString += " URL: " + countURL + " sameURL: " + sameURL;
+        outputString += " URL_MMMM: " + countURL_MMMM + " sameURL_MMMM: " + sameURL_MMMM;
+        outputString += " URL_split: " + countURL_split + " sameURL_split: " + sameURL_split;
+        outputString += " other: " + countOther + " sameOther: " + sameOther;
+        outputString += "\n";
+        System.out.println(outputString);
 
     }
 
     public static void checkLinkSet() {
         File file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/linkSet.txt");
+                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/urls_doppelt.txt");
         HashMap<String, Integer> urlMap = new HashMap<String, Integer>();
         try {
             FileReader fr = new FileReader(file);
@@ -113,31 +164,37 @@ public class testCrawler {
             e.printStackTrace();// TODO: handle exception
         }
         int i = 0;
+        int count = 1;
         for (Entry<String, Integer> e : urlMap.entrySet()) {
-            System.out.println(i++);
-            DateGetter dg = new DateGetter(e.getKey());
-            dg.setAllFalse();
-            dg.setTechURL(true);
-            ArrayList<URLDate> dates = dg.getDate();
-            HashMap<URLDate, Double> dateMap = DateEvaluator.evaluateURLDate(dates);
-            file = new File(
-                    "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate2.txt");
             try {
+                file = new File(
+                        "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/url_einzeln"
+                                + count + ".txt");
+
                 FileWriter fw = new FileWriter(file, true);
                 BufferedWriter bw = new BufferedWriter(fw);
+                URLDate urlDate;
 
-                for (Entry<URLDate, Double> date : dateMap.entrySet()) {
+                URLDateGetter udg = new URLDateGetter();
+                udg.setUrl(e.getKey());
+                urlDate = udg.getFirstDate();
 
-                    if (date.getValue() == 1) {
-
+                if (urlDate != null) {
+                    if (DateRaterHelper.isDateInRange(urlDate)) {
+                        System.out.println(urlDate.getDateString());
                         bw.write(e.getKey() + "\n");
-                        bw.close();
-                        fw.close();
-
                     }
                 }
+
+                bw.close();
+                fw.close();
             } catch (Exception ex) {
                 ex.printStackTrace();
+            }
+            System.out.println(i++);
+            if (i == 100) {
+                count++;
+                i = 0;
             }
         }
     }
@@ -154,7 +211,8 @@ public class testCrawler {
 
                 ArrayList<URLDate> dates = dg.getDate();
 
-                HashMap<URLDate, Double> dateMap = DateEvaluator.evaluateURLDate(dates);
+                UrlDateRater udr = new UrlDateRater();
+                HashMap<URLDate, Double> dateMap = udr.rate(dates);
                 for (Entry<URLDate, Double> e : dateMap.entrySet()) {
                     if (e.getValue() == 1) {
 
@@ -203,243 +261,345 @@ public class testCrawler {
     static int samecountDATE_URL_MMMM_D = 0;
     static int samecountOtherFormat = 0;
 
-    public static void evaluateURLwithDate() {
+    public static void evaluateURLwithDate(String input, String output) {
+
         File file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/otherDateFound.txt");
+                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                        + input);
         ArrayList<String> urls = new ArrayList<String>();
         try {
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
 
             String line;
+
             while ((line = br.readLine()) != null) {
                 urls.add(line);
             }
-            br.close();
-            fr.close();
+            System.out.println(urls.size());
+
         } catch (Exception ex) {
-            ex.printStackTrace();// TODO: handle exception
+            ex.printStackTrace();
         }
 
         DateGetter dg = new DateGetter();
+        dg.setAllTrue();
         dg.setTechArchive(false);
         dg.setTechReference(false);
-        ArrayList<ExtractedDate> dates;
-        DateEvaluator de = new DateEvaluator();
-        HashMap<ExtractedDate, Double> evDates;
-        HashMap<ExtractedDate, Double> urldate;
-        ExtractedDate url;
-        file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/statsURLOtherDate.txt");
+
+        DateRater de = new DateRater();
+
+        ArrayList<ExtractedDate> dgDates;
+        HashMap<ExtractedDate, Double> deDates;
+        double highestRate;
+        URLDate urlDate;
+        String urlFormat;
+        int urlFormatInt;
+        String outputString;
+        File outfile = new File(
+                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                        + output);
+        try {
+            outfile.delete();
+        } catch (Exception ex) {
+        }
+
         for (int i = 0; i < urls.size(); i++) {
+            System.out.println(i);
+            URLDateGetter udg = new URLDateGetter();
+            udg.setUrl(urls.get(i));
+            urlDate = udg.getFirstDate();
+            System.out.println(urls.get(i));
+            urlFormat = urlDate.getFormat();
             dg.setURL(urls.get(i));
+            dgDates = dg.getDate();
 
-            dates = dg.getDate();
+            deDates = de.rate(dgDates);
 
-            evDates = de.evaluate(dates);
+            deDates = DateArrayHelper.getExacterDates(deDates, urlDate.getExactness());
+            highestRate = DateArrayHelper.getHighestRate(deDates);
+            dgDates = DateArrayHelper.getRatedDates(deDates, highestRate);
+            dgDates = DateArrayHelper.getSameDates(urlDate, dgDates, urlDate.getExactness());
 
-            urldate = DateArrayHelper.filter(evDates, DateArrayHelper.FILTER_TECH_URL);
-            url = DateArrayHelper.getFirstElement(urldate);
-            if (url != null) {
+            if (urlFormat.equalsIgnoreCase(RegExp.DATE_URL_D[1])) {
+                urlFormatInt = 1;
+            } else if (urlFormat.equalsIgnoreCase(RegExp.DATE_URL[1])) {
+                urlFormatInt = 2;
+            } else if (urlFormat.equalsIgnoreCase(RegExp.DATE_URL_MMMM_D[1])) {
+                urlFormatInt = 3;
+            } else if (urlFormat.equalsIgnoreCase(RegExp.DATE_URL_SPLIT[1])) {
+                urlFormatInt = 4;
+            } else {
+                urlFormatInt = 5;
+            }
 
-                double urlRate = evDates.remove(url);
-                double highestRate = 0;
-                boolean otherIsHighestDate = false;
-                Entry<ExtractedDate, Double> otherDate = null;
-                Entry<ExtractedDate, Double>[] list = DateArrayHelper.orderHashMap(evDates, true);
-                DateComparator dc = new DateComparator();
-                ExtractedDate highestDate = null;
-                for (int k = 0; k < list.length; k++) {
-                    highestDate = list[0].getKey();
-                    highestRate = list[0].getValue();
-                    if (dc.compare(url, list[k].getKey(), url.getExactness()) == 0) {
-                        if (list[k].getValue() == highestRate) {
-                            otherIsHighestDate = true;
-                        }
-                        otherDate = list[k];
+            switch (urlFormatInt) {
+                case 1:
+                    countDATE_URL_D++;
+                    break;
+                case 2:
+                    countDATE_URL++;
+                    break;
+                case 3:
+                    countDATE_URL_MMMM_D++;
+                    break;
+                case 4:
+                    countDATE_URL_SPLIT++;
+                    break;
+                case 5:
+                    countOtherFormat++;
+                    break;
+            }
+            countAll++;
+
+            if (dgDates.size() > 0) {
+                switch (urlFormatInt) {
+                    case 1:
+                        samecountDATE_URL_D++;
                         break;
-                    }
-
+                    case 2:
+                        samecountDATE_URL++;
+                        break;
+                    case 3:
+                        samecountDATE_URL_MMMM_D++;
+                        break;
+                    case 4:
+                        samecountDATE_URL_SPLIT++;
+                        break;
+                    case 5:
+                        samecountOtherFormat++;
+                        break;
                 }
-                try {
+                countSame++;
+            }
 
-                    FileWriter fw = new FileWriter(file, true);
-                    BufferedWriter bw = new BufferedWriter(fw);
-                    String format = url.getFormat();
+            outputString = urls.get(i) + "\n";
+            outputString += "CountAll: " + countAll + " SameAll: " + countSame + "\n";
+            outputString += " URL_D: " + countDATE_URL_D + " sameURL_D: " + samecountDATE_URL_D;
+            outputString += " URL: " + countDATE_URL + " sameURL: " + samecountDATE_URL;
+            outputString += " URL_MMMM: " + countDATE_URL_MMMM_D + " sameURL_MMMM: " + samecountDATE_URL_MMMM_D;
+            outputString += " URL_split: " + countDATE_URL_SPLIT + " sameURL_split: " + samecountDATE_URL_SPLIT;
+            outputString += " other: " + countOtherFormat + " sameOther: " + samecountOtherFormat;
+            outputString += "\n";
 
-                    if (format.equalsIgnoreCase(RegExp.DATE_URL_D[1])) {
-                        countDATE_URL_D++;
-                    } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT[1])) {
-                        countDATE_URL_SPLIT++;
-
-                    } else if (format.equalsIgnoreCase(RegExp.DATE_URL[1])) {
-
-                        countDATE_URL++;
-
-                    } else if (format.equalsIgnoreCase(RegExp.DATE_URL_MMMM_D[1])) {
-
-                        countDATE_URL_MMMM_D++;
-
-                    } else {
-
-                        countOtherFormat++;
-                    }
-
-                    countAll++;
-                    if (otherIsHighestDate) {
-                        countSame++;
-                        if (format.equalsIgnoreCase(RegExp.DATE_URL_D[1])) {
-
-                            samecountDATE_URL_D++;
-
-                        } else if (format.equalsIgnoreCase(RegExp.DATE_URL_SPLIT[1])) {
-                            samecountDATE_URL_SPLIT++;
-
-                        } else if (format.equalsIgnoreCase(RegExp.DATE_URL[1])) {
-
-                            samecountDATE_URL++;
-
-                        } else if (format.equalsIgnoreCase(RegExp.DATE_URL_MMMM_D[1])) {
-
-                            samecountDATE_URL_MMMM_D++;
-
-                        } else {
-                            samecountOtherFormat++;
-                        }
-                    } else {/*
-                             * File fileNodateFound = new File(
-                             * "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/otherDateFound.txt"
-                             * );
-                             * try {
-                             * FileWriter nfw = new FileWriter(fileNodateFound, true);
-                             * BufferedWriter nbw = new BufferedWriter(nfw);
-                             * nbw.write(urls.get(i) + "\n");
-                             * nbw.close();
-                             * nfw.close();
-                             * } catch (Exception e) {
-                             * e.printStackTrace(); // TODO: handle exception
-                             * }
-                             */
-
-                    }
-
-                    String formatOutput1 = RegExp.DATE_URL_D[1] + ": " + countDATE_URL_D + " same: "
-                            + samecountDATE_URL_D;
-                    String formatOutput2 = RegExp.DATE_URL_SPLIT[1] + ": " + countDATE_URL_SPLIT + " same: "
-                            + samecountDATE_URL_SPLIT;
-                    String formatOutput3 = RegExp.DATE_URL[1] + ": " + countDATE_URL + " same: " + samecountDATE_URL;
-                    String formatOutput4 = RegExp.DATE_URL_MMMM_D[1] + ": " + countDATE_URL_MMMM_D + " same: "
-                            + samecountDATE_URL_MMMM_D;
-                    String formatOutput5 = "other" + ": " + countOtherFormat + " same: " + samecountOtherFormat;
-
-                    String formatOutput = " |Formats:: " + formatOutput1 + " " + formatOutput2 + " " + formatOutput3
-                            + " " + formatOutput4 + " " + formatOutput5;
-
-                    String otherDateValue = "";
-                    String otherDateKey = "";
-                    String highestDateKey = "";
-                    String highestDateRate = "";
-                    String otherDateFormat = "";
-                    String highestDateFormat = "";
-
-                    if (otherDate == null) {
-                        /*
-                         * File fileNodateFound = new File(
-                         * "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/noOtherDateFound.txt"
-                         * );
-                         * try {
-                         * FileWriter nfw = new FileWriter(fileNodateFound, true);
-                         * BufferedWriter nbw = new BufferedWriter(nfw);
-                         * nbw.write(urls.get(i) + "\n");
-                         * nbw.close();
-                         * nfw.close();
-                         * } catch (Exception e) {
-                         * e.printStackTrace(); // TODO: handle exception
-                         * }
-                         */
-                    } else {
-                        otherDateValue = String.valueOf(otherDate.getValue());
-                        otherDateKey = otherDate.getKey().getDateString();
-                        otherDateFormat = otherDate.getKey().getFormat();
-                    }
-                    if (highestDate != null) {
-                        highestDateRate = String.valueOf(highestRate);
-                        highestDateKey = highestDate.getDateString();
-                        highestDateFormat = highestDate.getFormat();
-                    }
-
-                    System.out.println("all: " + countAll + " match: " + countSame + " " + url.getNormalizedDate()
-                            + " rate: " + urlRate + "  <--> rate:" + highestDateRate + " " + highestDateKey + " "
-                            + highestDateFormat + " sameother rate: " + otherDateValue + " " + otherDateKey + " "
-                            + otherDateFormat + "\n" + urls.get(i) + "\n");
-
-                    bw.write("all: " + countAll + " match: " + countSame + " " + url.getNormalizedDate() + " rate: "
-                            + urlRate + "  <--> rate:" + highestDateRate + " " + highestDateKey + " "
-                            + highestDateFormat + " sameother rate: " + otherDateValue + " " + otherDateKey + " "
-                            + otherDateFormat + "\n" + urls.get(i) + "\n");
-
-                    bw.close();
-                    fw.close();
-
-                } catch (Exception e) {
-                    e.printStackTrace();// TODO: handle exception
-                }
-
-                /*
-                 * System.out.println(url.getNormalizedDate() + " rate: " + urlRate + "  <--> rate:" +
-                 * otherDate.getValue()
-                 * + " " + otherDate.getKey().getNormalizedDate() + " |highestdate: " + highestRate + " isotherdate: "
-                 * + otherIsHighestDate);
-                 */
-
+            try {
+                FileWriter fw = new FileWriter(outfile, true);
+                BufferedWriter bw = new BufferedWriter(fw);
+                System.out.println(outputString);
+                bw.write(outputString);
+                bw.close();
+                fw.close();
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
 
     }
 
-    public static Integer countThreads = 0;
+    public static void evaluation(String input, String output) {
 
-    public static final File file = new File(
-            "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/statsURL.txt");
+        HashMap<String, ExtractedDate[]> inputMap = new HashMap<String, ExtractedDate[]>();
 
-    public static synchronized void addStats(ExtractedDate url, double urlRate, Entry<ExtractedDate, Double> otherDate,
-            double highestRate, boolean otherIsHighestDate) {
+        String filePath = "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/";
+        File file = new File(filePath + input);
 
         try {
-            synchronized (file) {
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line;
 
-                FileWriter fw = new FileWriter(file, true);
-                BufferedWriter bw = new BufferedWriter(fw);
-                int temp;
-                synchronized (countSame) {
-                    if (otherIsHighestDate) {
-                        countSame++;
-                    }
-                    temp = countSame;
-                }
-                int all;
-                synchronized (countAll) {
-                    countAll++;
-                    all = countAll;
-                }
-                System.out.println("match: " + temp + url.getNormalizedDate() + " rate: " + urlRate + "  <--> rate:"
-                        + otherDate.getValue() + " " + otherDate.getKey().getNormalizedDate() + " |highestdate: "
-                        + highestRate + " isotherdate: " + otherIsHighestDate + "\n");
-                bw.write("all: " + all + " match: " + temp + " " + url.getNormalizedDate() + " rate: " + urlRate
-                        + "  <--> rate:" + otherDate.getValue() + " " + otherDate.getKey().getNormalizedDate()
-                        + " |highestdate: " + highestRate + " isotherdate: " + otherIsHighestDate + "\n");
-                bw.close();
-                fw.close();
+            int i = 0;
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] parts = line.split(" ");
+                ExtractedDate[] dates = new ExtractedDate[2];
+                dates[0] = DateGetterHelper.findDate(parts[1]);
+                dates[1] = DateGetterHelper.findDate(parts[2]);
+                System.out.println(i++ + " " + dates[0]);
+                inputMap.put(parts[0], dates);
             }
 
-        } catch (Exception e) {
-            // TODO: handle exception
+            bufferedReader.close();
+            fileReader.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
-        /*
-         * System.out.println(url.getNormalizedDate() + " rate: " + urlRate + "  <--> rate:" + otherDate.getValue() +
-         * " "
-         * + otherDate.getKey().getNormalizedDate() + " |highestdate: " + highestRate + " isotherdate: "
-         * + otherIsHighestDate);
-         */
+
+        DateGetter dg = new DateGetter();
+        dg.setAllTrue();
+        dg.setTechReference(false);
+        dg.setTechArchive(false);
+
+        DateRater de = new DateRater();
+
+        DateComparator dc = new DateComparator();
+
+        ArrayList<ExtractedDate> datesList = new ArrayList<ExtractedDate>();
+        HashMap<ExtractedDate, Double> datesMap = new HashMap<ExtractedDate, Double>();
+
+        ArrayList<String> outputList = new ArrayList<String>();
+        String outputString;
+
+        for (Entry<String, ExtractedDate[]> e : inputMap.entrySet()) {
+            System.out.println("begin");
+            long begin = (new GregorianCalendar()).getTimeInMillis();
+            dg.setURL(e.getKey());
+            datesList = dg.getDate();
+            datesMap = de.rate(datesList);
+
+            datesMap = DateArrayHelper.getExacterDates(datesMap, DateComparator.STOP_DAY);
+            double highestRate = DateRaterHelper.getHighestRateValue(datesMap);
+            datesList = DateArrayHelper.getRatedDates(datesMap, highestRate);
+            datesList = dc.getEqualDate(e.getValue()[0], datesList);
+            outputString = e.getValue()[0].getNormalizedDate() + " " + e.getValue()[1].getNormalizedDate() + " ";
+            String anmerkung = null;
+            if (datesList.size() > 0) {
+                outputString += datesList.get(0).getNormalizedDate(false);
+            } else {
+                outputString += DateArrayHelper.getFirstElement(DateRaterHelper.getHighestRate(datesMap))
+                        .getNormalizedDate(false);
+                anmerkung = "-";
+            }
+
+            if (anmerkung == null) {
+                anmerkung = ".";
+                if (dc.compare(e.getValue()[0], e.getValue()[1]) != 0) {
+                    anmerkung = "+";
+                }
+            }
+            outputString += " " + anmerkung;
+            outputList.add(outputString + " " + e.getKey());
+            System.out.println(outputString);
+            long end = (new GregorianCalendar()).getTimeInMillis();
+            System.out.println("end: " + (end - begin));
+        }
+
+        file = new File(filePath + output);
+        try {
+            FileWriter writer = new FileWriter(file);
+            BufferedWriter bWriter = new BufferedWriter(writer);
+
+            for (int i = 0; i < outputList.size(); i++) {
+                bWriter.write(outputList.get(i) + "\n");
+            }
+            bWriter.close();
+            writer.close();
+        } catch (Exception ex) {
+
+        }
+
+    }
+
+    public static void merge() {
+        File file = new File(
+                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/evaluationPages.txt");
+        ArrayList<String> urls = new ArrayList<String>();
+        try {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+            while ((line = br.readLine()) != null) {
+                urls.add(line);
+            }
+        } catch (Exception ex) {
+
+        }
+
+        file = new File(
+                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/dates.txt");
+        ArrayList<String> dates = new ArrayList<String>();
+        try {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+            while ((line = br.readLine()) != null) {
+                dates.add(line);
+            }
+        } catch (Exception ex) {
+
+        }
+
+        file = new File(
+                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/Evaluation-LinkSet.txt");
+
+        try {
+            FileWriter fr = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fr);
+
+            for (int i = 0; i < urls.size(); i++) {
+                bw.write((urls.get(i) + " " + dates.get(i) + "\n").replaceAll("  ", " "));
+            }
+            bw.close();
+            fr.close();
+
+        } catch (Exception ex) {
+
+        }
+
+    }
+
+    public static void evaluateHTTP(String input, String output) {
+        File file = new File(
+                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                        + input);
+
+        HashMap<String, Integer> urls = new HashMap<String, Integer>();
+        try {
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                urls.put(line, 0);
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        System.out.println(urls.size());
+
+        DateGetter dg = new DateGetter();
+        dg.setAllFalse();
+        dg.setTechHTTP(true);
+
+        DateRater de = new DateRater();
+
+        ArrayList<ExtractedDate> dgDates = new ArrayList<ExtractedDate>();
+        HashMap<ExtractedDate, Double> deDates = new HashMap<ExtractedDate, Double>();
+
+        int countAll = 0;
+        int countHTTP = 0;
+
+        for (Entry<String, Integer> e : urls.entrySet()) {
+            dg.setURL(e.getKey());
+            dgDates = dg.getDate();
+
+            deDates = de.rate(dgDates);
+            deDates = DateArrayHelper.filter(deDates, DateArrayHelper.FILTER_TECH_HTTP_HEADER);
+            countAll++;
+
+            if (deDates.size() > 0) {
+                double rate = DateArrayHelper.getHighestRate(deDates);
+                if (rate > 0) {
+                    countHTTP++;
+                }
+            }
+            System.out.println(countAll + " - " + countHTTP);
+        }
+
+        File outputfile = new File(
+                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                        + output);
+
+        try {
+            FileWriter fw = new FileWriter(outputfile);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            bw.write("All: " + countAll + " has HTTP: " + countHTTP);
+
+            bw.close();
+            fw.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
     }
 }

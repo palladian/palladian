@@ -46,14 +46,19 @@ public class RegExp {
     private static final String MONTH_NUMBER_DOUBLE = "((0[1-9])|(1[0-2]))"; // 01-12
     private static final String MONTH_NUMBER_NORMAL = "((1[0-2])|(0?[1-9]))"; // (0)1-12
     private static final String MONTH_NAME_SHORT_DT = "((Jan)|(Feb)|(Mär)|(Apr)|(Mai)|(Jun)|(Jul)|(Aug)|(Sep)|(Okt)|(Nov)|(Dez)|(JAN)|(FEB)|(MÄR)|(APR)|(MAI)|(JUN)|(JUL)|(AUG)|(SEP)|(OKT)|(NOV)|(DEZ)|(jan)|(feb)|(mär)|(apr)|(mai)|(jun)|(jul)|(aug)|(sep)|(okt)|(nov)|(dez))";
-    private static final String MONTH_NAME_SHORT_ENG = "((Jan)|(Feb)|(Mar)|(Apr)|(May)|(Jun)|(Jul)|(Aug)|(Sep)|(Oct)|(Nov)|(Dec)|(JAN)|(FEB)|(MAR)|(APR)|(MAY)|(JUN)|(JUL)|(AUG)|(SEP)|(OCT)|(NOV)|(DEC)|(jan)|(feb)|(mar)|(apr)|(may)|(jun)|(jul)|(aug)|(sep)|(oct)|(nov)|(dec))";
-    private static final String MONTH_NAME_SHORT = "(" + MONTH_NAME_SHORT_ENG + ")|(" + MONTH_NAME_SHORT_DT + ")";
+    private static final String MONTH_NAME_SHORT_ENG = "((Jan)|(Feb)|(Mar)|(Apr)|(May)|(Jun)|(Jul)|(Aug)|(Sep)|(Sept)|(Oct)|(Nov)|(Dec)|"
+            + "(JAN)|(FEB)|(MAR)|(APR)|(MAY)|(JUN)|(JUL)|(AUG)|(SEP)|(SEPT)|(OCT)|(NOV)|(DEC)|"
+            + "(jan)|(feb)|(mar)|(apr)|(may)|(jun)|(jul)|(aug)|(sep)|(sept)|(oct)|(nov)|(dec))";
+    private static final String MONTH_NAME_SHORT = "(((" + MONTH_NAME_SHORT_ENG + ")|(" + MONTH_NAME_SHORT_DT
+            + "))(\\.)?)";
     private static final String MONTH_NAME_LONG_ENG = "((January)|(February)|(March)|(April)|(May)|(June)|(July)|(August)|(September)|"
             + "(October)|(November)|(December)|(january)|(february)|(march)|(april)|(may)|(june)|(july)|(august)|(september)|"
-            + "(october)|(november)|(december))";
+            + "(october)|(november)|(december)|(JANUARY)|(FEBRUARY)|(MARCH)|(APRIL)|(MAY)|(JUNE)|(JULY)|(AUGUST)|(SEPTEMBER)|"
+            + "(OCTOBER)|(NOVEMBER)|(DECEMBER))";
     private static final String MONTH_NAME_LONG_DT = "((Januar)|(Februar)|(März)|(April)|(Mai)|(Juni)|(Juli)|(August)|(September)|"
             + "(Oktober)|(November)|(Dezember)|(januar)|(februar)|(märz)|(april)|(mai)|(juni)|(juli)|(august)|(september)|"
-            + "(oktober)|(november)|(dezember))";
+            + "(oktober)|(november)|(dezember)|(JANUAR)|(FEBRUAR)|(MÄRZ)|(APRIL)|(MAI)|(JUNI)|(JULY)|(AUGUST)|(SEPTEMBER)|"
+            + "(OKTOBER)|(NOVEMBER)|(DEZEMBER))";
     private static final String MONTH_NAME_LONG = "((" + MONTH_NAME_LONG_ENG + ")|(" + MONTH_NAME_LONG_DT + ")|("
             + MONTH_NAME_SHORT + "))";
     private static final String DAY_01_99 = "((0[1-9])|([1-9][0-9]))";
@@ -229,13 +234,15 @@ public class RegExp {
 
     /** European date. DD. MMMM YYYY . */
     public static final String[] DATE_EU_D_MMMM_Y = {
-            DAY_OF_MONTH_1_2 + "(\\.)? " + MONTH_NAME_LONG + "(,)?" + " " + YEAR_SHORT_LONG, "DD. MMMM YYYY" };
+            DAY_OF_MONTH_1_2 + "(((\\.)?" + ST_ND_RD_TH_OPT + "\\s)|(-))" + MONTH_NAME_LONG + "(((,)?\\s)|(-))"
+                    + YEAR_SHORT_LONG, "DD. MMMM YYYY" };
+
     /** European date. DD.MMMM . */
     public static final String[] DATE_EU_D_MMMM = { DAY_OF_MONTH_1_2 + "(\\.)? " + MONTH_NAME_LONG, "DD.MMMM" };
     /** European date. DD. MMMM YYYY HH:MM:SS +UTC . */
     public static final String[] DATE_EU_D_MMMM_Y_T = {
-            DAY_OF_MONTH_1_2 + "(\\.)? " + MONTH_NAME_LONG + " " + YEAR_SHORT_LONG + TIME_SEPARATOR + TIME + "("
-                    + DIFF_UTC + "|" + TIMEZONE + ")?", "DD. MMMM YYYY HH:MM:SS +UTC" };
+            DAY_OF_MONTH_1_2 + "(((\\.)?\\s)|(-))" + MONTH_NAME_LONG + "(((,)?\\s)|(-))" + YEAR_SHORT_LONG
+                    + TIME_SEPARATOR + TIME + "(" + DIFF_UTC + "|" + TIMEZONE + ")?", "DD. MMMM YYYY HH:MM:SS +UTC" };
 
     // US dates
     /** American date. MM/DD/YYYY. */
@@ -252,6 +259,7 @@ public class RegExp {
             + YEAR_SHORT_LONG;
     public static final String DATE_USA_MM_D_Y_SEPARATOR_3 = MONTH_NUMBER_NORMAL + "_" + DAY_OF_MONTH_1_2 + "_"
             + YEAR_SHORT_LONG;
+
     /** American date. MM/DD/YYYY. */
     public static final String[] DATE_USA_MM_D_Y_SEPARATOR = {
             "((" + DATE_USA_MM_D_Y_SEPARATOR_1 + ")|(" + DATE_USA_MM_D_Y_SEPARATOR_2 + ")|("
@@ -265,6 +273,8 @@ public class RegExp {
     public static final String[] DATE_USA_MMMM_D_Y = {
             MONTH_NAME_LONG + " " + DAY_OF_MONTH_1_2 + ST_ND_RD_TH_OPT + "(,)?" + " " + YEAR_SHORT_LONG,
             "MMMM DD, YYYY" };
+    public static final String[] DATE_USA_MMMM_D_Y_SEP = {
+            MONTH_NAME_LONG + "-" + DAY_OF_MONTH_1_2 + "-" + YEAR_SHORT_LONG, "MMMM-DD-YYYY" };
     /** American date. MMMM DD(st), YYYY HH:MM:SS +UTC. */
     public static final String[] DATE_USA_MMMM_D_Y_T = {
             MONTH_NAME_LONG + " " + DAY_OF_MONTH_1_2 + ST_ND_RD_TH_OPT + ", " + YEAR_SHORT_LONG + "(,)?"
@@ -375,14 +385,14 @@ public class RegExp {
     }
 
     public static Object[] getIncTimeRegExp() {
-        Object[] regExp = { DATE_ISO8601_YD_T, DATE_ISO8601_YMD_T, DATE_ISO8601_YWD_T, DATE_EU_D_MM_Y_T,
-                DATE_USA_MM_D_Y_T, DATE_EU_D_MMMM_Y_T, DATE_USA_MMMM_D_Y_T };
+        Object[] regExp = { DATE_ISO8601_YD_T, DATE_ISO8601_YMD_T, DATE_ISO8601_YWD_T, DATE_USA_MM_D_Y_T,
+                DATE_EU_D_MM_Y_T, DATE_USA_MMMM_D_Y_T, DATE_EU_D_MMMM_Y_T };
         return regExp;
     }
 
     public static Object[] get3PartRegExp() {
-        Object[] regExp = { DATE_ISO8601_YMD, DATE_USA_MM_D_Y, DATE_EU_D_MM_Y, DATE_USA_MMMM_D_Y, DATE_EU_D_MMMM_Y,
-                DATE_ISO8601_YWD, DATE_URL_D, DATE_USA_MM_D_Y_SEPARATOR };
+        Object[] regExp = { DATE_ISO8601_YMD, DATE_USA_MM_D_Y, DATE_EU_D_MM_Y, DATE_USA_MMMM_D_Y,
+                DATE_USA_MMMM_D_Y_SEP, DATE_EU_D_MMMM_Y, DATE_ISO8601_YWD, DATE_URL_D, DATE_USA_MM_D_Y_SEPARATOR };
         return regExp;
     }
 
