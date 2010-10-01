@@ -100,7 +100,7 @@ It is licensed under GPL and supports Spanish, Catalan, Galician, Italian, Engli
 \item \textbf{GATE} \cite{cunningham2002gate} is a Java-based text mining and processing framework. The framework itself comes with few text processing features but many plugins can be used and chained into a text engineering pipeline.
 The framework is licensed under the GNU Lesser General Public License.
 \item The \textbf{Illinois Cognitive Computation Group} \cite{illinoisccg} has a list of ready to use programs for semantic role labeling, text chunking, named entity tagging, named entity discovery, PoS tagging, unsupervised rank aggregation, and named entity similarity metrics.
-\item \textbf{Julie NLP} \cite{tomanek2007uima} is a Java-based toolkit of UIMA based text processing components. The toolkit can be used for semantic search, information extraction, named entity recognition, and text mining.
+\item \textbf{Julie NLP} \cite{tomanek2007uima,hahn2008overview} is a Java-based toolkit of UIMA based text processing components. The toolkit can be used for semantic search, information extraction, named entity recognition, and text mining.
 The Toolkit is licensed under the Common Public License.
 \item \textbf{Language Computer} \cite{lanuagecomputer} provides commercial products for sentence splitting, tokenization, PoS tagging, named entity recognition, co-reference resolution, attribute extraction, relationship extraction, event extraction, question answering, and text summarization.
 \item \textbf{Lingo3G} \cite{lingo3g} is a text clustering engine that organizes text collections into hierarchical clusters.
@@ -900,11 +900,13 @@ A named entity recognizer is therefore a system or technique that tries to detec
 {\textbf Bill Gates} founded {\textbf Microsoft} with {\textbf Paul Allen} in 1975 in {\textbf Albuquerque, New Mexico}. The headquarter is located in {\textbf Redmond, Washington} and the company is led by CEO {\textbf Steve Ballmer}.
 
 \subsubsection{Taggers}
-The TOOLKIT wraps 7 Named Entity Recognizers using a single interface making it easier to test and substitute them in real world applications.
+The TOOLKIT wraps 8 Named Entity Recognizers using a single interface making it easier to test and substitute them in real world applications.
 
 \paragraph{Alchemy} The Alchemy API is a web-based service that also offers Named Entity Recognition. Using this NER requires the application to have a developer key and Internet access. Alchemy covers a wide range of concepts. For more details see \url{http://www.alchemyapi.com/api/entity/types.html} or the JavaDoc.
 
 \paragraph{Illinois Learning-based Java} Students from the University of Illinois developed this Recognizer \cite{illinoisccg}. The recognizer comes with a large set of lists that help the recognizer to tag concepts such as corporations, countries, jobs, movies, people, songs, and more. More information can also be found on \url{http://l2r.cs.uiuc.edu/~cogcomp/asoftware.php?skey=FLBJNE}.
+
+\paragraph{Julie} The Julie Lab of the University of Jena added a named entity recognizer to their NLP toolsuite \cite{hahn2008overview}. The tagger is based on conditional random fields and comes with three models from the biomedical domain. Other models can however trained using TOOLKIT. For more information see the pdf which is contained in their stand-alone download from \url{http://www.julielab.de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html}.
 
 \paragraph{LingPipe} The LingPipe library \cite{lingpipe} also offers an NER. Unfortunately the tagger comes with no models. Models for each desired concept need to be trained manually More information can be found on \url{http://alias-i.com/lingpipe/demos/tutorial/ne/read-me.html}.
 
@@ -1034,6 +1036,8 @@ Each tagger can be trained as shown in Listing \ref{listing:trainNER}. The only 
 NER		& Parameter meaning & Example \\
 \hline
 IllinoisLbjNER	& Path to a configuration file, in this file you can specify which features and parameters should be used and where the trained model should be saved &	data/models/illinoisner/training/baselineFeatures.config \\
+\hline
+JulieNER	& Output path for the trained model. You can add a further parameter with the path to a configuration file, in this file you can specify which features and parameters should be used &	data/models/juliener/phoneModel.mod and [data/models/juliener/tutorial/featconfig.conf] \\
 \hline
 LingPipeNER	& Output path for the trained model &	data/models/lingpipe/phoneModel.model \\
 \hline

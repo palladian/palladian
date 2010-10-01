@@ -1,9 +1,0 @@
-Number of tags: 5
-Confusion Matrix:
-predicted\real;LOCATION;ORGANIZATION;MOBILEPHONE;PERSON;CITY;#OTHER#;#total number;Exact Match Precision;Exact Match Recall;Exact Match F1;MUC Precision;MUC Recall;MUC F1
-LOCATION;0;0;0;0;2;0;2;0.0;-1.0;-1.0;0.0;-1.0;-1.0
-ORGANIZATION;0;0;1;0;0;0;1;0.0;-1.0;-1.0;0.0;-1.0;-1.0
-MOBILEPHONE;0;0;0;0;0;0;0;0.0;0.0;-1.0;0.5;0.16666666666666666;0.25
-PERSON;0;0;0;2;0;0;2;1.0;1.0;1.0;1.0;1.0;1.0
-CITY;0;0;0;0;0;0;0;0.0;0.0;-1.0;0.5;0.5;0.5
-ALL TAGS;0;0;1;2;2;0;5;tag averaged:0.2, overall:0.25;tag averaged:0.3333, overall:0.2857;tag averaged:0.25, overall:0.2667;tag averaged:0.4, overall:3.5;tag averaged:0.5556, overall:0.5;tag averaged:0.4651, overall:0.875
