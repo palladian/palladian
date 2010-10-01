@@ -116,6 +116,17 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
     }
 
     @Override
+    public boolean loadModel(String configModelFilePath) {
+        LOGGER.warn(getName() + " does not support loading models");
+        return false;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
+        return getAnnotations(inputText);
+    }
+
+    @Override
     public Annotations getAnnotations(String inputText, String configModelFilePath) {
 
         Annotations annotations = new Annotations();
@@ -184,6 +195,7 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
      * @param inputText The text to be tagged.
      * @return The tagged text.
      */
+    @Override
     public String tag(String inputText) {
         return tag(inputText, "");
     }

@@ -19,6 +19,7 @@ import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.StopWatch;
 import edu.stanford.nlp.ie.AbstractSequenceClassifier;
 import edu.stanford.nlp.ie.crf.CRFClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations.AnswerAnnotation;
@@ -148,12 +149,31 @@ public class StanfordNER extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+    public boolean loadModel(String configModelFilePath) {
+        StopWatch stopWatch = new StopWatch();
 
+        AbstractSequenceClassifier classifier;
+
+        try {
+            classifier = CRFClassifier.getClassifierNoExceptions(configModelFilePath);
+        } catch (Exception e) {
+            LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+            return false;
+        }
+
+        setModel(classifier);
+        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
+
+        return true;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
 
         try {
-            AbstractSequenceClassifier classifier = CRFClassifier.getClassifierNoExceptions(configModelFilePath);
+
+            AbstractSequenceClassifier classifier = (AbstractSequenceClassifier) getModel();
 
             String inputTextPath = "data/temp/inputText.txt";
             FileHelper.writeToFile(inputTextPath, inputText);
@@ -175,16 +195,14 @@ public class StanfordNER extends NamedEntityRecognizer {
                     // taggedText.append(word.word());
                     // taggedText.append("</").append(word.get(AnswerAnnotation.class)).append(">");
                     // }
-
                 }
             }
 
             String taggedTextFilePath = "data/temp/taggedText.txt";
             FileHelper.writeToFile(taggedTextFilePath, taggedText);
 
-            FileFormatParser ffp = new FileFormatParser();
-            ffp.slashToXML(taggedTextFilePath, taggedTextFilePath);
-            annotations = ffp.getAnnotationsFromXMLFile(taggedTextFilePath);
+            FileFormatParser.slashToXML(taggedTextFilePath, taggedTextFilePath);
+            annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
 
         } catch (IOException e) {
             LOGGER.error(getName() + " could not tag input, " + e.getMessage());
@@ -193,6 +211,12 @@ public class StanfordNER extends NamedEntityRecognizer {
         CollectionHelper.print(annotations);
 
         return annotations;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+        loadModel(configModelFilePath);
+        return getAnnotations(inputText);
     }
 
     @Deprecated
@@ -435,9 +459,13 @@ public class StanfordNER extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
+        // tagger.loadModel("data/models/stanfordner/data/ner-eng-ie.crf-3-all2008.ser.gz");
+        // tagger.tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.");
+
         // tagger.tag(
         // "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.",
-        // "data/temp/ner-model-mobilePhone.ser.gz");
+        // "data/models/stanfordner/data/ner-eng-ie.crf-3-all2008.ser.gz");
+
         // demo
         // st.demo("John J. Smith and the Nexus One location mention Seattle in the text.");
         // learn

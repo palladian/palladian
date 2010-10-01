@@ -399,6 +399,17 @@ public class AlchemyNER extends NamedEntityRecognizer {
     }
 
     @Override
+    public boolean loadModel(String configModelFilePath) {
+        LOGGER.warn(getName() + " does not support loading models");
+        return false;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
+        return getAnnotations(inputText);
+    }
+
+    @Override
     public Annotations getAnnotations(String inputText, String configModelFilePath) {
 
         Annotations annotations = new Annotations();

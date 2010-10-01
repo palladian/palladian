@@ -3,15 +3,6 @@ package tud.iir.extraction.entity.ner.tagger;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-import lbj.NETaggerLevel1;
-import lbj.NETaggerLevel2;
-import ner.lbj.IO.Keyboard;
-import ner.lbj.LbjTagger.BracketFileManager;
-import ner.lbj.LbjTagger.DemoEngine;
-import ner.lbj.LbjTagger.LearningCurve;
-import ner.lbj.LbjTagger.NETagPlain;
-import ner.lbj.LbjTagger.NETester;
-import ner.lbj.LbjTagger.Parameters;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -21,6 +12,16 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+
+import external.LbjTagger.BracketFileManager;
+import external.LbjTagger.DemoEngine;
+import external.LbjTagger.LearningCurve;
+import external.LbjTagger.NETagPlain;
+import external.LbjTagger.NETester;
+import external.LbjTagger.Parameters;
+import external.lbj.NETaggerLevel1;
+import external.lbj.NETaggerLevel2;
+import external.lbj.IO.Keyboard;
 
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
@@ -35,6 +36,19 @@ import LBJ2.classify.Classifier;
  * This class wraps the Learning Java Based Illinois Named Entity Tagger. The implementation is in an external library
  * and the approach is explained in the following paper by L. Ratinov and D. Roth:<br>
  * "Design Challenges and Misconceptions in Named Entity Recognition", CoNLL 2009
+ * </p>
+ * 
+ * <p>
+ * Changes to the original source (repackaged in tud.iir.external.lbjEdited-1.2):
+ * <ul>
+ * <li>changed file path in BrownClusters.java on line 29 to
+ * data/models/illinoisner/data/BrownHierarchicalWordClusters/brownBllipClusters</li>
+ * <li>changed file path in Parameters.java on line 52 to data/models/illinoisner/data/knownLists</li>
+ * <li>added SimpleColumnParser</li>
+ * <li>changed getLearningCurve() in LbjTagger.LearningCurve</li>
+ * <li>changed NETagger</li>
+ * <li>added .lc file to jar</li>
+ * </ul>
  * </p>
  * 
  * <p>
@@ -91,6 +105,9 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
+        // count the number of models
+        int l1 = FileHelper.getFiles("data/models/illinoisner/data/models").length;
+
         Parameters.readConfigAndLoadExternalData(modelFilePath);
         Parameters.forceNewSentenceOnLineBreaks = true;
 
@@ -98,25 +115,36 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         FileFormatParser.tsvToSsv(trainingFilePath, trainingFilePath2);
 
         // TODO is it a problem if training = testing? ask Lev who wrote the Lbj tagger
-        String testingFilePath = trainingFilePath;
+        String testingFilePath = trainingFilePath + "_";
 
         String testingFilePath2 = testingFilePath.replaceAll("\\.", "_tranformed.");
         FileFormatParser.tsvToSsv(testingFilePath, testingFilePath2);
 
-        // trainingFilePath2 = "data/temp/reuters2003.tsv";
-        // testingFilePath2 = "data/temp/reuters2003.tsv";
+        // a new model is only added if precision and recall are not 0 or 100
         LearningCurve.getLearningCurve(trainingFilePath2, testingFilePath2);
+
+        // check if a new model has been added, if not return false
+        if (FileHelper.getFiles("data/models/illinoisner/data/models").length == l1) {
+            return false;
+        }
 
         return true;
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
-
+    public boolean loadModel(String configModelFilePath) {
         Parameters.readConfigAndLoadExternalData(configModelFilePath);
         Parameters.forceNewSentenceOnLineBreaks = true;
 
-        String inputTextPath = "data/temp/lbj/inputText.txt";
+        setModel(new Object());
+
+        return true;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
+
+        String inputTextPath = "data/temp/illinoisInputText.txt";
         FileHelper.writeToFile(inputTextPath, inputText);
 
         String taggedFilePath = inputTextPath.replaceAll("\\.txt", "_tagged.txt");
@@ -132,18 +160,23 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         return annotations;
     }
 
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+        loadModel(configModelFilePath);
+        return getAnnotations(inputText);
+    }
+
     @Deprecated
     public void trainNER(String trainingFilePath, String testingFilePath, boolean forceSentenceSplitsOnNewLines,
             String configFilePath) {
         Parameters.readConfigAndLoadExternalData(configFilePath);
         Parameters.forceNewSentenceOnLineBreaks = forceSentenceSplitsOnNewLines;
 
-        FileFormatParser ffp = new FileFormatParser();
         String trainingFilePath2 = trainingFilePath.replaceAll("\\.", "_tranformed.");
-        ffp.tsvToSsv(trainingFilePath, trainingFilePath2);
+        FileFormatParser.tsvToSsv(trainingFilePath, trainingFilePath2);
 
         String testingFilePath2 = testingFilePath.replaceAll("\\.", "_tranformed.");
-        ffp.tsvToSsv(testingFilePath, testingFilePath2);
+        FileFormatParser.tsvToSsv(testingFilePath, testingFilePath2);
 
         // trainingFilePath2 = "data/temp/reuters2003.tsv";
         // testingFilePath2 = "data/temp/reuters2003.tsv";
@@ -166,7 +199,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         Parameters.readConfigAndLoadExternalData(configFilePath);
         Parameters.forceNewSentenceOnLineBreaks = forceSentenceSplitsOnNewLines;
 
-        String inputTextPath = "data/temp/lbj/inputText.txt";
+        String inputTextPath = "data/temp/illinoisInputText.txt";
         FileHelper.writeToFile(inputTextPath, inputText);
 
         String taggedFilePath = inputTextPath.replaceAll("\\.txt", "_tagged.txt");
@@ -282,20 +315,19 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
-        // lbt.trainNER("data/temp/allColumnBIO.tsv", "data/temp/allColumnBIO.tsv", true,
-        // "data/temp/lbj/baselineFeatures.config");
-        // TODO repack lbj sources because of absolute paths that are still set in there
+        tagger.loadModel("data/models/illinoisner/baselineFeatures.config");
+        tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
+        tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
+
         // tagger.train("data/datasets/ner/sample/trainingColumn.tsv",
-        // "data/models/illinoisner/baselineFeatures.config");
+        // "data/models/illinoisner/baselineFeatures2.config");
         //
         // // use
-        // lbt.useLearnedNER(
-        // "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.",
-        // true, "data/temp/lbj/baselineFeatures.config"); // allLayer1.config
+        // tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.","data/models/illinoisner/baselineFeatures2.config");
+        // // allLayer1.config
         //
         // // evaluate
         // //lbt.evaluateNER("data/temp/ne-esp-muc6.model", "data/temp/esp.testb");
 
     }
-
 }
