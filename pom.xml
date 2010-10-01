@@ -384,6 +384,26 @@
 			<version>2.5.2</version>
 		</dependency>
 		<dependency>
+			<groupId>edu.umass.cs</groupId>
+			<artifactId>mallet-deps</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<dependency>
+			<groupId>edu.umass.cs</groupId>
+			<artifactId>mallet-optimized</artifactId>
+			<version>1.0</version>
+		</dependency>	
+		<dependency>
+			<groupId>com.uea.stemmer</groupId>
+			<artifactId>UEALite</artifactId>
+			<version>1.0</version>
+		</dependency>		
+		<dependency>
+			<groupId>tud.iir.external</groupId>
+			<artifactId>juliener</artifactId>
+			<version>1.5</version>
+		</dependency>
+		<dependency>
 			<groupId>trove</groupId>
 			<artifactId>trove</artifactId>
 			<version>2.1.1</version>
