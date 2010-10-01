@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
-import ner.lingpipe.Conll2002ChunkTagParser;
-import ner.lingpipe.FileScorer;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -24,6 +21,7 @@ import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.StopWatch;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
 
@@ -42,14 +40,16 @@ import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.AbstractExternalizable;
 
+import external.lingpipe.Conll2002ChunkTagParser;
+import external.lingpipe.FileScorer;
+
 /**
  * <p>
  * This class wraps the LingPipe implementation of a Named Entity Recognizer.
  * </p>
  * 
  * <p>
- * See also <a
- * href="http://alias-i.com/lingpipe/demos/tutorial/ne/read-me.html">
+ * See also <a href="http://alias-i.com/lingpipe/demos/tutorial/ne/read-me.html">
  * http://alias-i.com/lingpipe/demos/tutorial /ne/read-me.html</a>
  * </p>
  * 
@@ -71,8 +71,7 @@ public class LingPipeNER extends NamedEntityRecognizer {
     public boolean train(String trainingFilePath, String modelFilePath) {
 
         try {
-            String trainingFilePath2 = trainingFilePath.replaceAll("\\.",
-                    "_tranformed.");
+            String trainingFilePath2 = trainingFilePath.replaceAll("\\.", "_tranformed.");
             FileFormatParser.tsvToSsv(trainingFilePath, trainingFilePath2);
 
             File corpusFile = new File(trainingFilePath2);
@@ -81,9 +80,8 @@ public class LingPipeNER extends NamedEntityRecognizer {
 
             LOGGER.info("setting up Chunker Estimator");
             TokenizerFactory factory = IndoEuropeanTokenizerFactory.INSTANCE;
-            CharLmRescoringChunker chunkerEstimator = new CharLmRescoringChunker(
-                    factory, NUM_CHUNKINGS_RESCORED, MAX_N_GRAM, NUM_CHARS,
-                    LM_INTERPOLATION);
+            CharLmRescoringChunker chunkerEstimator = new CharLmRescoringChunker(factory, NUM_CHUNKINGS_RESCORED,
+                    MAX_N_GRAM, NUM_CHARS, LM_INTERPOLATION);
             // HmmCharLmEstimator hmmEstimator = new
             // HmmCharLmEstimator(MAX_N_GRAM, NUM_CHARS, LM_INTERPOLATION);
             // CharLmHmmChunker chunkerEstimator = new CharLmHmmChunker(factory,
@@ -112,42 +110,54 @@ public class LingPipeNER extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText,
-            String configModelFilePath) {
+    public boolean loadModel(String configModelFilePath) {
+        StopWatch stopWatch = new StopWatch();
 
+        File modelFile = new File(configModelFilePath);
+
+        Chunker chunker;
+
+        LOGGER.info("Reading chunker from file=" + modelFile);
+        try {
+            chunker = (Chunker) AbstractExternalizable.readObject(modelFile);
+        } catch (IOException e) {
+            LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+            return false;
+        } catch (ClassNotFoundException e) {
+            LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+            return false;
+        } catch (Exception e) {
+            LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+            return false;
+        }
+
+        setModel(chunker);
+        LOGGER.info("model " + modelFile.toString() + " successfully loaded in " + stopWatch.getElapsedTimeString());
+
+        return true;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
 
-        try {
+        Chunker chunker = (Chunker) getModel();
 
-            File modelFile = new File(configModelFilePath);
+        String[] args = new String[1];
+        args[0] = inputText;
+        Set<Chunk> chunkSet = new HashSet<Chunk>();
+        for (int i = 0; i < args.length; ++i) {
+            Chunking chunking = chunker.chunk(args[i]);
+            LOGGER.debug("Chunking=" + chunking);
+            chunkSet.addAll(chunking.chunkSet());
+        }
 
-            LOGGER.info("Reading chunker from file=" + modelFile);
-            Chunker chunker = (Chunker) AbstractExternalizable
-                    .readObject(modelFile);
+        for (Chunk chunk : chunkSet) {
+            int offset = chunk.start();
+            Entity namedEntity = new Entity(inputText.substring(chunk.start(), chunk.end()), new Concept(chunk.type()));
 
-            String[] args = new String[1];
-            args[0] = inputText;
-            Set<Chunk> chunkSet = new HashSet<Chunk>();
-            for (int i = 0; i < args.length; ++i) {
-                Chunking chunking = chunker.chunk(args[i]);
-                LOGGER.debug("Chunking=" + chunking);
-                chunkSet.addAll(chunking.chunkSet());
-            }
-
-            for (Chunk chunk : chunkSet) {
-                int offset = chunk.start();
-                Entity namedEntity = new Entity(inputText.substring(chunk
-                        .start(), chunk.end()), new Concept(chunk.type()));
-
-                Annotation annotation = new Annotation(offset, namedEntity
-                        .getName(), namedEntity.getConcept().getName());
-                annotations.add(annotation);
-            }
-
-        } catch (IOException e) {
-            LOGGER.error(getName() + " could not tag input, " + e.getMessage());
-        } catch (ClassNotFoundException e) {
-            LOGGER.error(getName() + " could not tag input, " + e.getMessage());
+            Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getConcept().getName());
+            annotations.add(annotation);
         }
 
         CollectionHelper.print(annotations);
@@ -155,14 +165,20 @@ public class LingPipeNER extends NamedEntityRecognizer {
         return annotations;
     }
 
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+
+        loadModel(configModelFilePath);
+        return getAnnotations(inputText);
+    }
+
     // java TrainGeneTag <trainingInputFile> <modelOutputFile>
     @Deprecated
-    public void trainNER(String trainingFilePath, String developmentFilePath,
-            String modelOutputFilePath) throws IOException {
+    public void trainNER(String trainingFilePath, String developmentFilePath, String modelOutputFilePath)
+            throws IOException {
 
         FileFormatParser ffp = new FileFormatParser();
-        String trainingFilePath2 = trainingFilePath.replaceAll("\\.",
-                "_tranformed.");
+        String trainingFilePath2 = trainingFilePath.replaceAll("\\.", "_tranformed.");
         ffp.tsvToSsv(trainingFilePath, trainingFilePath2);
 
         File corpusFile = new File(trainingFilePath2);
@@ -171,9 +187,8 @@ public class LingPipeNER extends NamedEntityRecognizer {
 
         System.out.println("Setting up Chunker Estimator");
         TokenizerFactory factory = IndoEuropeanTokenizerFactory.INSTANCE;
-        CharLmRescoringChunker chunkerEstimator = new CharLmRescoringChunker(
-                factory, NUM_CHUNKINGS_RESCORED, MAX_N_GRAM, NUM_CHARS,
-                LM_INTERPOLATION);
+        CharLmRescoringChunker chunkerEstimator = new CharLmRescoringChunker(factory, NUM_CHUNKINGS_RESCORED,
+                MAX_N_GRAM, NUM_CHARS, LM_INTERPOLATION);
         // HmmCharLmEstimator hmmEstimator = new HmmCharLmEstimator(MAX_N_GRAM,
         // NUM_CHARS, LM_INTERPOLATION);
         // CharLmHmmChunker chunkerEstimator = new CharLmHmmChunker(factory,
@@ -194,8 +209,7 @@ public class LingPipeNER extends NamedEntityRecognizer {
         AbstractExternalizable.compileTo(chunkerEstimator, modelFile);
     }
 
-    public void evaluateNER(String modelFilePath, String testFilePath)
-            throws Exception {
+    public void evaluateNER(String modelFilePath, String testFilePath) throws Exception {
 
         File chunkerFile = new File(modelFilePath);
         File testFile = new File(testFilePath);
@@ -227,14 +241,12 @@ public class LingPipeNER extends NamedEntityRecognizer {
     }
 
     @Deprecated
-    public void useLearnedNER(String modelFilePath, String inputText)
-            throws IOException, ClassNotFoundException {
+    public void useLearnedNER(String modelFilePath, String inputText) throws IOException, ClassNotFoundException {
 
         File modelFile = new File(modelFilePath);
 
         System.out.println("Reading chunker from file=" + modelFile);
-        Chunker chunker = (Chunker) AbstractExternalizable
-                .readObject(modelFile);
+        Chunker chunker = (Chunker) AbstractExternalizable.readObject(modelFile);
 
         Annotations annotations = new Annotations();
 
@@ -251,8 +263,7 @@ public class LingPipeNER extends NamedEntityRecognizer {
             int offset = chunk.start();
             Entity namedEntity = new Entity("???", new Concept(chunk.type()));
 
-            Annotation annotation = new Annotation(offset, namedEntity
-                    .getName(), namedEntity.getConcept().getName());
+            Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getConcept().getName());
             annotations.add(annotation);
         }
 
@@ -283,61 +294,40 @@ public class LingPipeNER extends NamedEntityRecognizer {
         if (args.length > 0) {
 
             Options options = new Options();
-            options.addOption(OptionBuilder.withLongOpt("mode")
-                    .withDescription("whether to tag or train a model")
+            options.addOption(OptionBuilder.withLongOpt("mode").withDescription("whether to tag or train a model")
                     .create());
 
             OptionGroup modeOptionGroup = new OptionGroup();
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tg")
-                    .withLongOpt("tag").withDescription("tag a text").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tr")
-                    .withLongOpt("train").withDescription("train a model")
+            modeOptionGroup.addOption(OptionBuilder.withArgName("tg").withLongOpt("tag").withDescription("tag a text")
                     .create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("ev")
-                    .withLongOpt("evaluate")
+            modeOptionGroup.addOption(OptionBuilder.withArgName("tr").withLongOpt("train")
+                    .withDescription("train a model").create());
+            modeOptionGroup.addOption(OptionBuilder.withArgName("ev").withLongOpt("evaluate")
                     .withDescription("evaluate a model").create());
             modeOptionGroup.setRequired(true);
             options.addOptionGroup(modeOptionGroup);
 
-            options
-                    .addOption(OptionBuilder
-                            .withLongOpt("trainingFile")
-                            .withDescription(
-                                    "the path and name of the training file for the tagger (only if mode = train)")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            options.addOption(OptionBuilder.withLongOpt("trainingFile")
+                    .withDescription("the path and name of the training file for the tagger (only if mode = train)")
+                    .hasArg().withArgName("text").withType(String.class).create());
 
-            options
-                    .addOption(OptionBuilder
-                            .withLongOpt("testFile")
-                            .withDescription(
-                                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            options.addOption(OptionBuilder
+                    .withLongOpt("testFile")
+                    .withDescription(
+                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    .hasArg().withArgName("text").withType(String.class).create());
 
-            options
-                    .addOption(OptionBuilder
-                            .withLongOpt("configFile")
-                            .withDescription(
-                                    "the path and name of the config file for the tagger")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            options.addOption(OptionBuilder.withLongOpt("configFile")
+                    .withDescription("the path and name of the config file for the tagger").hasArg()
+                    .withArgName("text").withType(String.class).create());
 
-            options
-                    .addOption(OptionBuilder
-                            .withLongOpt("inputText")
-                            .withDescription(
-                                    "the text that should be tagged (only if mode = tag)")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            options.addOption(OptionBuilder.withLongOpt("inputText")
+                    .withDescription("the text that should be tagged (only if mode = tag)").hasArg()
+                    .withArgName("text").withType(String.class).create());
 
-            options
-                    .addOption(OptionBuilder
-                            .withLongOpt("outputFile")
-                            .withDescription(
-                                    "the path and name of the file where the tagged text should be saved to")
-                            .hasArg().withArgName("text")
-                            .withType(String.class).create());
+            options.addOption(OptionBuilder.withLongOpt("outputFile")
+                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
+                    .withArgName("text").withType(String.class).create());
 
             HelpFormatter formatter = new HelpFormatter();
 
@@ -348,28 +338,23 @@ public class LingPipeNER extends NamedEntityRecognizer {
 
                 if (cmd.hasOption("tag")) {
 
-                    String taggedText = tagger.tag(cmd
-                            .getOptionValue("inputText"), cmd
-                            .getOptionValue("configFile"));
+                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
 
                     if (cmd.hasOption("outputFile")) {
-                        FileHelper.writeToFile(
-                                cmd.getOptionValue("outputFile"), taggedText);
+                        FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
                     } else {
-                        System.out
-                                .println("No output file given so tagged text will be printed to the console:");
+                        System.out.println("No output file given so tagged text will be printed to the console:");
                         System.out.println(taggedText);
                     }
 
                 } else if (cmd.hasOption("train")) {
 
-                    tagger.train(cmd.getOptionValue("trainingFile"), cmd
-                            .getOptionValue("configFile"));
+                    tagger.train(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"));
 
                 } else if (cmd.hasOption("evaluate")) {
 
-                    tagger.evaluate(cmd.getOptionValue("trainingFile"), cmd
-                            .getOptionValue("configFile"), TaggingFormat.XML);
+                    tagger.evaluate(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"),
+                            TaggingFormat.XML);
 
                 }
 
@@ -381,8 +366,9 @@ public class LingPipeNER extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
-        // tagger.tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. The iphone 4 is a mobile phone.",
-        // "data/temp/ne-en-mobilephone-lp.model")
+        tagger.tag(
+                "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. The iphone 4 is a mobile phone.",
+                "data/models/lingpipe/data/ne-en-mobilephone-lp.model");
         //
         // tagger.useLearnedNER(
         // "data/temp/ne-en-mobilephone-lp.model",
@@ -392,5 +378,4 @@ public class LingPipeNER extends NamedEntityRecognizer {
         // "data/temp/esp.testb");
 
     }
-
 }

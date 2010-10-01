@@ -20,12 +20,31 @@ import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.StopWatch;
 import de.julielab.jnet.tagger.JNETException;
 import de.julielab.jnet.tagger.NETagger;
 import de.julielab.jnet.tagger.Sentence;
 import de.julielab.jnet.tagger.Tags;
 import de.julielab.jnet.utils.Utils;
 
+/**
+ * <p>
+ * This class wraps the Julie Named Entity Recognizer which uses conditional random fields.
+ * </p>
+ * 
+ * <p>
+ * The recognizer was trained on 3 bio-models on PennBioIE corpus (genes, malignancies, variation events), models are
+ * available online. They are not part of the models distribution of this toolkit.
+ * </p>
+ * 
+ * <p>
+ * See also <a href="http://www.julielab.de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html"
+ * >http://www.julielab.de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html</a>
+ * </p>
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class JulieNER extends NamedEntityRecognizer {
 
     public JulieNER() {
@@ -47,8 +66,28 @@ public class JulieNER extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+    public boolean loadModel(String configModelFilePath) {
+        StopWatch stopWatch = new StopWatch();
 
+        File modelFile = new File(configModelFilePath);
+
+        NETagger tagger = new NETagger();
+
+        try {
+            tagger.readModel(modelFile.toString());
+        } catch (Exception e) {
+            LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+            return false;
+        }
+
+        setModel(tagger);
+        LOGGER.info("model " + modelFile.toString() + " successfully loaded in " + stopWatch.getElapsedTimeString());
+
+        return true;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
 
         FileHelper.writeToFile("data/temp/julieInputText.txt", inputText);
@@ -57,7 +96,7 @@ public class JulieNER extends NamedEntityRecognizer {
                 "|");
 
         File testDataFile = new File("data/temp/julieTrainingSlash.txt");
-        File modelFile = new File(configModelFilePath);
+
 
         // TODO assign confidence values for predicted labels (see JNET documentation)
         boolean showSegmentConfidence = false;
@@ -65,13 +104,7 @@ public class JulieNER extends NamedEntityRecognizer {
         ArrayList<String> ppdTestData = Utils.readFile(testDataFile);
         ArrayList<Sentence> sentences = new ArrayList<Sentence>();
 
-        NETagger tagger = new NETagger();
-
-        try {
-            tagger.readModel(modelFile.toString());
-        } catch (Exception e) {
-            LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
-        }
+        NETagger tagger = (NETagger) getModel();
 
         for (String ppdSentence : ppdTestData) {
             try {
@@ -92,6 +125,12 @@ public class JulieNER extends NamedEntityRecognizer {
         CollectionHelper.print(annotations);
 
         return annotations;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+        loadModel(configModelFilePath);
+        return getAnnotations(inputText);
     }
 
     /**
@@ -255,9 +294,14 @@ public class JulieNER extends NamedEntityRecognizer {
         // tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/temp/personPhoneCity.mod");
 
         // // tag
-        // String taggedText = tagger
-        // .tag(
-        // "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. The iphone 4 is a mobile phone.",
+        // String taggedText = "";
+        //
+        // tagger.loadModel("data/temp/personPhoneCity.mod.gz");
+        // taggedText = tagger
+        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. The iphone 4 is a mobile phone.");
+        //
+        // taggedText = tagger
+        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. The iphone 4 is a mobile phone.",
         // "data/temp/personPhoneCity.mod.gz");
         // System.out.println(taggedText);
 
@@ -269,4 +313,5 @@ public class JulieNER extends NamedEntityRecognizer {
         // "data/temp/personPhoneCity.mod.gz", TaggingFormat.XML));
 
     }
+
 }

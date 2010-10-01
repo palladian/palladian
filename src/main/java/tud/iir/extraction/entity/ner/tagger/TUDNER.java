@@ -39,6 +39,7 @@ import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.tagging.EntityList;
 import tud.iir.tagging.KnowledgeBaseCommunicatorInterface;
@@ -85,10 +86,25 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String modelPath) {
+    public boolean loadModel(String configModelFilePath) {
+        StopWatch stopWatch = new StopWatch();
 
-        load(modelPath);
+        TUDNER n = (TUDNER) FileHelper.deserialize(configModelFilePath);
+        this.dictionary = n.dictionary;
+        if (this.dictionary.isUseIndex()) {
+            dictionary.useIndex();
+        }
+        this.kbCommunicator = n.kbCommunicator;
+        this.patterns = n.patterns;
 
+        setModel(n);
+        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
+
+        return true;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
 
         Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
@@ -107,6 +123,12 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         return annotations;
     }
 
+    @Override
+    public Annotations getAnnotations(String inputText, String modelPath) {
+        loadModel(modelPath);
+        return getAnnotations(inputText);
+    }
+
     public EntityList getTrainingEntities(double percentage) {
         if (kbCommunicator == null) {
             LOGGER.debug("could not get training entities because no KnowledgeBaseCommunicator has been defined");
@@ -123,16 +145,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         FileHelper.serialize(this, modelFilePath);
 
         LOGGER.info("dictionary size: " + dictionary.size());
-    }
-
-    public void load(String modelPath) {
-        TUDNER n = (TUDNER) FileHelper.deserialize(modelPath);
-        this.dictionary = n.dictionary;
-        if (this.dictionary.isUseIndex()) {
-            dictionary.useIndex();
-        }
-        this.kbCommunicator = n.kbCommunicator;
-        this.patterns = n.patterns;
     }
 
     private void createPatternCandidates(String trainingFilePath, Annotations annotations) {
@@ -563,13 +575,19 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // // set the kb communicator that knows the entities
         // nercer.setKbCommunicator(new TestKnowledgeBaseCommunicator());
 
+        // possible tags
+        CollectionHelper.print(tagger.getModelTags("data/models/tudner/tudner.model"));
+
         // train
         //tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/models/tudner.model");
        
         // tag
-        // tagger.tag(
-        // "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.",
-        // "data/models/tudner.model");
+        // tagger.loadModel("data/models/tudner/tudner.model");
+        // tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
+        
+//        tagger.tag(
+//                "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.",
+        // "data/models/tudner/tudner.model");
 
         // evaluate
         // tagger.evaluate("data/datasets/ner/sample/testingColumn.tsv", "data/models/tudner.model",

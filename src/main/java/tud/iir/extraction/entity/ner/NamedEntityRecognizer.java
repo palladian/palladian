@@ -37,7 +37,13 @@ public abstract class NamedEntityRecognizer {
     /** Name of the named entity recognizer. */
     private String name = "unknown";
 
+    /** The loaded model. */
+    private Object model;
+
+    public abstract boolean loadModel(String configModelFilePath);
     public abstract Annotations getAnnotations(String inputText, String configModelFilePath);
+
+    public abstract Annotations getAnnotations(String inputText);
 
     public Annotations getAnnotations(File inputTextFile, String configModelFilePath) {
         String inputText = FileHelper.readFileToString(inputTextFile.getPath());
@@ -64,6 +70,19 @@ public abstract class NamedEntityRecognizer {
     }
 
     /**
+     * Get the tags that were trained for this model.
+     * 
+     * @param modelPath The path to the model
+     * @return A list of tags that the model can apply to text.
+     */
+    public List<String> getModelTags(String modelPath) {
+        String filename = FileHelper.getFileName(modelPath);
+        String path = FileHelper.getFilePath(modelPath);
+        filename += "_meta.txt";
+        return FileHelper.readFileToArray(path + filename);
+    }
+
+    /**
      * Tag the input text using the given model or model configuration.
      * 
      * @param inputText The text to be tagged.
@@ -72,9 +91,14 @@ public abstract class NamedEntityRecognizer {
      * @return The tagged string in the specified {@link TaggingFormat}.
      */
     public String tag(String inputText, String configModelFilePath) {
+        loadModel(configModelFilePath);
+        return tag(inputText);
+    }
+
+    public String tag(String inputText) {
         StopWatch stopWatch = new StopWatch();
 
-        Annotations annotations = getAnnotations(inputText, configModelFilePath);
+        Annotations annotations = getAnnotations(inputText);
         String taggedText = tagText(inputText, annotations);
 
         LOGGER.debug("tagged text in " + stopWatch.getElapsedTimeString(false));
@@ -431,6 +455,14 @@ public abstract class NamedEntityRecognizer {
 
     public TaggingFormat getTaggingFormat() {
         return taggingFormat;
+    }
+
+    public void setModel(Object model) {
+        this.model = model;
+    }
+
+    public Object getModel() {
+        return model;
     }
 
 }

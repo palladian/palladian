@@ -34,6 +34,7 @@ import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.StopWatch;
 
 /**
  * <p>
@@ -166,9 +167,9 @@ public class OpenNLPNER extends NamedEntityRecognizer {
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+    public boolean loadModel(String configModelFilePath) {
 
-        Annotations annotations = new Annotations();
+        StopWatch stopWatch = new StopWatch();
 
         String[] modelFilePaths = configModelFilePath.split(",");
 
@@ -189,10 +190,29 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             try {
                 finders[finderIndex] = new NameFinder(new PooledGISModelReader(new File(modelName)).getModel());
             } catch (IOException e) {
-                LOGGER.error("could not tag text with " + getName() + ", " + e.getMessage());
+                LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+                return false;
             }
             tags[finderIndex] = tagName.toUpperCase();
         }
+
+        Object[] objs = new Object[2];
+        objs[0] = finders;
+        objs[1] = tags;
+
+        setModel(objs);
+        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
+
+        return true;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText) {
+        Annotations annotations = new Annotations();
+
+        Object[] objs = (Object[]) getModel();
+        NameFinder[] finders = (NameFinder[]) objs[0];
+        String[] tags = (String[]) objs[1];
 
         String taggedText = "";
         try {
@@ -209,6 +229,13 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         CollectionHelper.print(annotations);
 
         return annotations;
+    }
+
+    @Override
+    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+
+        loadModel(configModelFilePath);
+        return getAnnotations(inputText);
     }
 
     @Override
