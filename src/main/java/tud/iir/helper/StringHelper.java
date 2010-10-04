@@ -13,6 +13,7 @@ import java.util.regex.PatternSyntaxException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import tud.iir.knowledge.Attribute;
@@ -1035,18 +1036,27 @@ public class StringHelper {
         return camelCaseToWords(camelCasedString, " ");
     }
 
-    public static String urlDecode(String url) {
+    /**
+     * URLDecode a String.
+     * @param string
+     * @return
+     */
+    public static String urlDecode(String string) {
         try {
-            url = URLDecoder.decode(url, "UTF-8");
+            string = URLDecoder.decode(string, "UTF-8");
         } catch (UnsupportedEncodingException e) {
-            Logger.getRootLogger().error("unsupportedEncodingException for " + url + ", " + e.getMessage());
+            Logger.getRootLogger().error("unsupportedEncodingException for " + string + ", " + e.getMessage());
         } catch (Exception e) {
-            Logger.getRootLogger().error("exception at Crawler for " + url + ", " + e.getMessage());
+            Logger.getRootLogger().error("exception at Crawler for " + string + ", " + e.getMessage());
         }
-        return url;
+        return string;
     }
 
-    // TODO move this to global helper class?
+    /**
+     * URLEncode a String.
+     * @param string
+     * @return
+     */
     public static String urlEncode(String string) {
         String result;
         try {
@@ -1258,5 +1268,82 @@ public class StringHelper {
         }
         return count;
     }
+
+	/**
+	 * Shorten a String; returns the first num words.
+	 * 
+	 * TODO add test case.
+	 * 
+	 * @param string
+	 * @param num
+	 * @return
+	 */
+	public static String getFirstWords(String string, int num) {
+	    StringBuilder sb = new StringBuilder();
+	    if (string != null && num > 0) {
+	        String[] split = string.split("\\s");
+	        if (split.length == 0) { // XXX
+	            return "";
+	        }
+	        sb.append(split[0]);
+	        for (int i = 1; i < Math.min(num, split.length); i++) {
+	            sb.append(" ").append(split[i]);
+	        }
+	    }
+	    return sb.toString();
+	}
+
+	/**
+	 * Count number of occurences of pattern within text. TODO this will fail if pattern contains RegEx metacharacters.
+	 * Need to escape.
+	 * 
+	 * @param text
+	 * @param pattern
+	 * @param ignoreCase
+	 * @return
+	 */
+	public static int countOccurences(String text, String pattern, boolean ignoreCase) {
+	    if (ignoreCase) {
+	        text = text.toLowerCase();
+	        pattern = pattern.toLowerCase();
+	    }
+	    Pattern p = Pattern.compile(pattern);
+	    Matcher m = p.matcher(text);
+	    int occurs = 0;
+	    while (m.find()) {
+	        occurs++;
+	    }
+	    return occurs;
+	}
+
+	/**
+	 * Calculates Levenshtein similarity between the strings.
+	 * 
+	 * @param s1
+	 * @param s2
+	 * @return similarity between 0 and 1 (inclusive).
+	 */
+	public static float getLevenshteinSim(String s1, String s2) {
+	    int distance = StringUtils.getLevenshteinDistance(s1, s2);
+	    float similarity = 1 - (float) distance / Math.max(s1.length(), s2.length());
+	    return similarity;
+	}
+
+	/**
+	 * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
+	 * similarity which is computationally expensive.
+	 * 
+	 * @param s1
+	 * @param s2
+	 * @return similarity between 0 and 1 (inclusive).
+	 */
+	public static float getLengthSim(String s1, String s2) {
+	    int length1 = s1.length();
+	    int length2 = s2.length();
+	    if (length1 == 0 && length2 == 0) {
+	        return 1;
+	    }
+	    return (float) Math.min(length1, length2) / Math.max(length1, length2);
+	}
 
 }
