@@ -2,6 +2,9 @@ package tud.iir.helper;
 
 import java.io.File;
 
+import org.junit.Test;
+
+import junit.framework.Assert;
 import junit.framework.TestCase;
 import tud.iir.knowledge.RegExp;
 
@@ -147,5 +150,25 @@ public class StringHelperTest extends TestCase {
         assertEquals("camel.case.string", StringHelper.camelCaseToWords("camel.case.string"));
         assertEquals("camel_Case_String", StringHelper.camelCaseToWords("camelCaseString", "_"));
     }
+    
+    @Test
+    public void testCountOccurences() {
+        Assert.assertEquals(2, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", true));
+        Assert.assertEquals(1, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", false));
+        Assert.assertEquals(0, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "cat", false));
+        Assert.assertEquals(5, StringHelper.countOccurences("aaaaa", "a", false));
+        Assert.assertEquals(2, StringHelper.countOccurences("aaaaa", "aa", false));
+    }
+    
+    @Test
+    public void testGetFirstWords() {
+        Assert.assertEquals("the quick brown fox jumps", StringHelper.getFirstWords(
+                "the quick brown fox jumps over the lazy dog", 5));
+        Assert.assertEquals("the quick brown fox jumps over the lazy dog", StringHelper.getFirstWords(
+                "the quick brown fox jumps over the lazy dog", 15));
+        Assert.assertEquals("", StringHelper.getFirstWords("", 10));
+        Assert.assertEquals("", StringHelper.getFirstWords(null, 10));
+    }
+
 
 }

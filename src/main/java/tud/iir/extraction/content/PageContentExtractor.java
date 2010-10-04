@@ -28,7 +28,7 @@ import org.xml.sax.SAXNotRecognizedException;
 import org.xml.sax.SAXNotSupportedException;
 
 import tud.iir.helper.HTMLHelper;
-import tud.iir.news.Helper;
+import tud.iir.helper.StringHelper;
 import tud.iir.web.Crawler;
 
 // TODO move to preprocessing package
@@ -322,7 +322,7 @@ public class PageContentExtractor {
         // operate destructively, directly on the Document and we might need
         // multiple runs with different parameters.
         // -- Philipp.
-        Document cache = Helper.cloneDocument(document);
+        Document cache = HTMLHelper.cloneDocument(document);
         if (cache == null) {
             throw new PageContentExtractorException("caching the original document failed.");
         }
@@ -332,7 +332,7 @@ public class PageContentExtractor {
         // write Document's dump to disk, using time stamped file name
         if (isWriteDump()) {
             String filename = "dumps/pageContentExtractor" + System.currentTimeMillis() + ".xml";
-            Helper.writeXmlDump(cache, filename);
+            HTMLHelper.writeXmlDump(cache, filename);
             LOGGER.info("wrote dump to " + filename);
         }
 
@@ -439,9 +439,9 @@ public class PageContentExtractor {
         // this method is pretty simplified in comparison to the JavaScript
         // TODO handling of frames is missing -- but do we really still need this in 2010? (:
         // TODO Turn all double br's into p's
-        Helper.removeAll(document, Node.ELEMENT_NODE, "script");
-        Helper.removeAll(document, Node.ELEMENT_NODE, "style");
-        Helper.removeAll(document, Node.COMMENT_NODE);
+        HTMLHelper.removeAll(document, Node.ELEMENT_NODE, "script");
+        HTMLHelper.removeAll(document, Node.ELEMENT_NODE, "style");
+        HTMLHelper.removeAll(document, Node.COMMENT_NODE);
 
         // I did not port the addFootnotes functionality from r138 which converts
         // links to footnotes, as I don't think this makes much sense for our
@@ -584,7 +584,7 @@ public class PageContentExtractor {
 
             /* Turn all divs that don't have children block level elements into p's */
             if (node.getTagName().equalsIgnoreCase("div")) {
-                if (!DIV_TO_P_ELEMENTS_RE.matcher(Helper.getInnerXml(node)).find()) {
+                if (!DIV_TO_P_ELEMENTS_RE.matcher(HTMLHelper.getInnerXml(node)).find()) {
                     LOGGER.debug("Altering div to p");
                     document.renameNode(node, node.getNamespaceURI(), "p");
                     nodeIndex--;
@@ -702,7 +702,7 @@ public class PageContentExtractor {
          * that we removed, etc.
          **/
         // create result Document
-        Document result = Helper.createDocument();
+        Document result = HTMLHelper.createDocument();
         Element html = result.createElementNS("http://www.w3.org/1999/xhtml", "html");
         result.appendChild(html);
         Element articleContent = result.createElement("body");
@@ -822,7 +822,7 @@ public class PageContentExtractor {
     }
 
     private int getCharCount(Element e, String s) {
-        return Helper.countOccurences(e.getTextContent(), s, true);
+        return StringHelper.countOccurences(e.getTextContent(), s, true);
     }
 
     /**
@@ -1142,7 +1142,7 @@ public class PageContentExtractor {
                 System.out.println(pageContentExtractor.getResultText());
 
                 if (outputfile != null) {
-                    Helper.writeXmlDump(pageContentExtractor.getResultDocument(), outputfile);
+                    HTMLHelper.writeXmlDump(pageContentExtractor.getResultDocument(), outputfile);
                 }
 
 

@@ -13,7 +13,7 @@ import tud.iir.classification.controlledtagging.ControlledTaggerSettings.Tagging
 import tud.iir.classification.controlledtagging.ControlledTaggerSettings.TaggingType;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
-import tud.iir.news.Helper;
+import tud.iir.helper.StringHelper;
 
 /**
  * Evaluator for the {@link ControlledTagger} using the delicious data set T140.
@@ -123,7 +123,7 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
 
         evaluationResult.addTestResult(precision, recall, totalAssigned);
 
-        System.out.println("doc: " + Helper.getFirstWords(content, 10));
+        System.out.println("doc: " + StringHelper.getFirstWords(content, 10));
         System.out.println("real tags: " + realTagsNormalized);
         System.out.println("assigned tags: " + assignedTags);
         System.out.println("pr:" + format.format(precision) + " rc:" + format.format(recall));

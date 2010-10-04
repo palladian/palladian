@@ -6,6 +6,7 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.StringHelper;
 
 // TODO introduce MIXED type?
 public class FeedContentClassifier {
@@ -97,14 +98,14 @@ public class FeedContentClassifier {
             }
 
             // first, calculate a similarity based solely on text lengths
-            float lengthSim = Helper.getLengthSim(entryText, pageText);
+            float lengthSim = StringHelper.getLengthSim(entryText, pageText);
 
             // only compare text similarities, if lengths of texts do not differ too much
             if (lengthSim >= SIMILARITY_THRESHOLD) {
 
                 // if text from feed entry and from web page are very
                 // similar, we can assume that we have a full text feed
-                float textSim = Helper.getLevenshteinSim(entryText, pageText);
+                float textSim = StringHelper.getLevenshteinSim(entryText, pageText);
                 if (textSim >= 0.9) {
                     LOGGER.debug("entry " + entryLink + " seems to contain full text (textSim:" + textSim + ")");
                     full++;

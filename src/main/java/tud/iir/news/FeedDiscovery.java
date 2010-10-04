@@ -28,6 +28,7 @@ import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.Counter;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
@@ -272,7 +273,7 @@ public class FeedDiscovery {
 
         // ////// for debugging
         if (debugDump) {
-            Helper.writeXmlDump(document, "dumps/" + pageUrl.replaceAll("https?://", "") + ".xml");
+            HTMLHelper.writeXmlDump(document, "dumps/" + pageUrl.replaceAll("https?://", "") + ".xml");
         }
 
         Node baseNode = XPathHelper.getNode(document, "//HEAD/BASE/@href");

@@ -1,5 +1,8 @@
 package tud.iir.helper;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -10,19 +13,34 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.OutputKeys;
+import javax.xml.transform.Result;
+import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.TransformerFactoryConfigurationError;
+import javax.xml.transform.dom.DOMResult;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.sax.SAXResult;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
 import org.cyberneko.html.parsers.DOMFragmentParser;
+import org.w3c.dom.DOMException;
+import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.html.HTMLDocument;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
@@ -32,7 +50,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import tud.iir.knowledge.HTMLSymbols;
 
 /**
- * Some HTML specific helper methods.
+ * Some HTML and XML/DOM specific helper methods.
  * 
  * @author David Urbansky
  * @author Martin Werner
@@ -447,6 +465,8 @@ public class HTMLHelper {
         return isHeadlineTag(tag.getNodeName());
     }
 
+    // TODO rem: there is org.apache.commons.lang.StringEscapeUtils.unescapeHtml(text) which should do the same job.
+    // -- Philipp.
     public static String replaceHTMLSymbols(String text) {
         String result = text;
         if (result != null) {
@@ -459,6 +479,241 @@ public class HTMLHelper {
         return result;
     }
 
+	/**
+	 * Converts a DOM Node or Document into a String.
+	 * TODO removing whitespace does not work with documents from the Crawler/Neko?
+	 * 
+	 * @param node
+	 * @param removeWhitespace whether to remove superfluous whitespace outside of tags.
+	 * @param prettyPrint whether to nicely indent the result.
+	 * @return String representation of the supplied Node, empty String in case of errors.
+	 */
+	public static String xmlToString(Node node, boolean removeWhitespace, boolean prettyPrint) {
+	    String strResult = "";
+	    try {
+	
+	        if (removeWhitespace) {
+	            node = HTMLHelper.removeWhitespace(node);
+	        }
+	
+	        Source source = new DOMSource(node);
+	        StringWriter stringWriter = new StringWriter();
+	        Result result = new StreamResult(stringWriter);
+	        TransformerFactory factory = TransformerFactory.newInstance();
+	        Transformer transformer = factory.newTransformer();
+	
+	        if (prettyPrint) {
+	            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+	            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+	        }
+	
+	        transformer.transform(source, result);
+	        strResult = stringWriter.getBuffer().toString();
+	    } catch (TransformerConfigurationException e) {
+	        LOGGER.error(e);
+	    } catch (TransformerException e) {
+	        LOGGER.error(e);
+	    }
+	    return strResult;
+	}
+
+	public static String xmlToString(Node node) {
+	    return xmlToString(node, false, false);
+	}
+
+	/**
+	 * Remove unnecessary whitespace from DOM nodes.
+	 * http://stackoverflow.com/questions/978810/how-to-strip-whitespace-only-text-nodes-from-a-dom-before-serialization
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public static Node removeWhitespace(Node node) {
+	
+	    Node result = node.cloneNode(true);
+	
+	    try {
+	        XPathFactory xpathFactory = XPathFactory.newInstance();
+	        // XPath to find empty text nodes.
+	        XPathExpression xpathExp = xpathFactory.newXPath().compile("//text()[normalize-space(.) = '']");
+	        NodeList emptyTextNodes = (NodeList) xpathExp.evaluate(result, XPathConstants.NODESET);
+	
+	        // Remove each empty text node from document.
+	        for (int i = 0; i < emptyTextNodes.getLength(); i++) {
+	            Node emptyTextNode = emptyTextNodes.item(i);
+	            emptyTextNode.getParentNode().removeChild(emptyTextNode);
+	        }
+	    } catch (XPathExpressionException e) {
+	        LOGGER.error(e);
+	    } catch (DOMException e) {
+	        LOGGER.error(e);
+	    }
+	
+	    return result;
+	}
+	
+	
+
+
+	public static void writeXmlDump(Node node, String filename) {
+	    String string = xmlToString(node);
+	    FileHelper.writeToFile(filename, string);
+	}
+
+	/**
+	 * Converts a String representation with XML markup to DOM Document. Returns an empty Document if parsing failed.
+	 * 
+	 * @param input
+	 * @return
+	 */
+	public static Document stringToXml(String input) {
+	    DocumentBuilder builder = null;
+	    Document result = null;
+	    try {
+	        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	        factory.setNamespaceAware(true);
+	        builder = factory.newDocumentBuilder();
+	        result = builder.parse(new InputSource(new StringReader(input)));
+	    } catch (ParserConfigurationException e) {
+	        LOGGER.error("stringToXml:ParserConfigurationException " + e.getMessage());
+	    } catch (SAXException e) {
+	        LOGGER.error("stringToXml:SAXException " + e.getMessage());
+	    } catch (IOException e) {
+	        LOGGER.error("stringToXml:IOException " + e.getMessage());
+	    }
+	    if (result == null && builder != null) {
+	        // return an empty Document
+	        result = builder.newDocument();
+	    }
+	    return result;
+	}
+
+	/**
+	 * Returns a String representation of the supplied Node, including the Node itself, like outerHTML in
+	 * JavaScript/DOM.
+	 * 
+	 * http://chicknet.blogspot.com/2007/05/outerxml-for-java.html
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public static String getOuterXml(Node node) {
+	    // logger.trace(">getOuterXml");
+	    String result = "";
+	    Transformer transformer;
+	    try {
+	        transformer = TransformerFactory.newInstance().newTransformer();
+	        transformer.setOutputProperty("omit-xml-declaration", "yes");
+	
+	        StringWriter writer = new StringWriter();
+	        transformer.transform(new DOMSource(node), new StreamResult(writer));
+	        result = writer.toString();
+	
+	    } catch (TransformerConfigurationException e) {
+	        LOGGER.error("getOuterXml:TransformerConfigurationException", e);
+	    } catch (TransformerFactoryConfigurationError e) {
+	        LOGGER.error("getOuterXml:TransformerFactoryConfigurationError", e);
+	    } catch (TransformerException e) {
+	        LOGGER.error("getOuterXml:TransformerException", e);
+	    }
+	    // logger.trace("<getOuterXml " + result);
+	    return result;
+	}
+
+	/**
+	 * Returns a String representation of the supplied Node, excluding the Node itself, like innerHTML in
+	 * JavaScript/DOM.
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public static String getInnerXml(Node node) {
+	    // logger.trace(">getInnerXml");
+	    StringBuilder sb = new StringBuilder();
+	    NodeList children = node.getChildNodes();
+	    for (int i = 0; i < children.getLength(); i++) {
+	        sb.append(getOuterXml(children.item(i)));
+	    }
+	    // logger.trace("<getInnerXml");
+	    return sb.toString();
+	}
+
+	/**
+	 * Creates a new, empty DOM Document.
+	 * 
+	 * @return
+	 */
+	public static Document createDocument() {
+	    try {
+	        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	        factory.setNamespaceAware(true);
+	        DocumentBuilder builder = factory.newDocumentBuilder();
+	        return builder.newDocument();
+	    } catch (ParserConfigurationException e) {
+	        LOGGER.error("createDocument:ParserConfigurationException, throwing RuntimeException", e);
+	        throw new RuntimeException(e);
+	    }
+	}
+
+	/**
+	 * Removes all nodes with specified type from Node.
+	 * 
+	 * @param node
+	 * @param nodeType for example <code>Node.COMMENT_NODE</code>
+	 */
+	public static void removeAll(Node node, short nodeType) {
+	    HTMLHelper.removeAll(node, nodeType, null);
+	}
+
+	/**
+	 * Removes all nodes with specified type and name from Node.
+	 * 
+	 * @param node
+	 * @param nodeType for example <code>Node.COMMENT_NODE</code>
+	 * @param name
+	 */
+	public static void removeAll(Node node, short nodeType, String name) {
+	    if (node.getNodeType() == nodeType && (name == null || node.getNodeName().equals(name))) {
+	        node.getParentNode().removeChild(node);
+	    } else {
+	        NodeList list = node.getChildNodes();
+	        for (int i = list.getLength() - 1; i >= 0; i--) {
+	            removeAll(list.item(i), nodeType, name);
+	        }
+	    }
+	}
+
+	/**
+	 * Creates a copy of a DOM Document.
+	 * http://stackoverflow.com/questions/279154/how-can-i-clone-an-entire-document-using-the-java-dom
+	 * 
+	 * @param document
+	 * @return the cloned Document or <code>null</code> if cloning failed.
+	 */
+	public static Document cloneDocument(Document document) {
+	    Document result = null;
+	    try {
+	        TransformerFactory factory = TransformerFactory.newInstance();
+	        Transformer transformer = factory.newTransformer();
+	        DOMSource source = new DOMSource(document);
+	        DOMResult target = new DOMResult();
+	        transformer.transform(source, target);
+	        result = (Document) target.getNode();
+	    } catch (TransformerConfigurationException e) {
+	        LOGGER.error("cloneDocument:TransformerConfigurationException " + e.getMessage());
+	    } catch (TransformerFactoryConfigurationError e) {
+	        LOGGER.error("cloneDocument:TransformerFactoryConfigurationError " + e.getMessage());
+	    } catch (TransformerException e) {
+	        LOGGER.error("cloneDocument:TransformerException " + e.getMessage());
+	        // this happens when document is ill-formed, we could also throw
+	        // this exception. This way we have to check if this method returns
+	        // null;
+	    } catch (DOMException e) {
+	        LOGGER.error("cloneDocument:DOMException " + e.getMessage());
+	    }
+	    return result;
+	}
+	
     public static void main(String[] args) throws Exception {
 
         System.out.println(removeHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
