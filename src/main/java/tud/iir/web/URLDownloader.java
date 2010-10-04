@@ -1,27 +1,16 @@
 package tud.iir.web;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
-import org.cyberneko.html.parsers.DOMParser;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import tud.iir.helper.Counter;
 import tud.iir.helper.ThreadHelper;
 
 /**
- * Allows simultanous downloading of multiple URLs. The resulting InputStreams
- * are cached by this class and can be processed after all downloads are done.
+ * Allows simultaneous downloading of multiple URLs. The resulting InputStreams are cached by this class and can be
+ * processed after all downloads are done.
  * 
  * TODO merge this into Crawler.
  * 
@@ -30,25 +19,40 @@ import tud.iir.helper.ThreadHelper;
  */
 public class URLDownloader {
 
+    /**
+     * Callback interface to be used with the URLDownloader. For each downloaded URL, the
+     * {@link URLDownloaderCallback#finished(String, InputStream)} method is called.
+     * 
+     * @author Philipp Katz
+     * 
+     */
     public interface URLDownloaderCallback {
 
         void finished(String url, InputStream inputStream);
 
     }
 
-    private static final Logger logger = Logger.getLogger(URLDownloader.class);
+    /** The class logger. */
+    private static final Logger LOGGER = Logger.getLogger(URLDownloader.class);
 
+    /** The crawler used for downloading. */
     private Crawler crawler = new Crawler();
+
+    /** The stack to store URLs to be downloaded. */
     private Stack<String> urlStack = new Stack<String>();
-    private HashMap<String, InputStream> downloadedUrls = new HashMap<String, InputStream>();
 
     private int maxThreads = 10;
 
     private int maxFails = 10;
 
+    /**
+     * Start downloading the supplied URLs.
+     * 
+     * @param callback the callback to be called for each finished download.
+     */
     public void start(final URLDownloaderCallback callback) {
 
-        logger.trace(">start");
+        LOGGER.trace(">start");
 
         // to count number of running Threads
         final Counter counter = new Counter();
@@ -60,12 +64,12 @@ public class URLDownloader {
 
             // if maximum # of Threads are already running, wait here
             while (counter.getCount() >= getMaxThreads()) {
-                logger.trace("max # of Threads running. waiting ...");
+                LOGGER.trace("max # of Threads running. waiting ...");
                 ThreadHelper.sleep(1000);
             }
 
             if (errors.getCount() == getMaxFails()) {
-                logger.warn("max. fails of " + getMaxFails() + " reached. giving up.");
+                LOGGER.warn("max. fails of " + getMaxFails() + " reached. giving up.");
                 return;
             }
 
@@ -74,12 +78,12 @@ public class URLDownloader {
                 @Override
                 public void run() {
                     try {
-                        logger.trace("start downloading " + url);
+                        LOGGER.trace("start downloading " + url);
                         InputStream inputStream = crawler.downloadInputStream(url);
                         callback.finished(url, inputStream);
-                        logger.trace("finished downloading " + url);
+                        LOGGER.trace("finished downloading " + url);
                     } catch (Exception e) {
-                        logger.warn(e.getMessage() + " for " + url);
+                        LOGGER.warn(e.getMessage() + " for " + url);
                         errors.increment();
                     } finally {
                         counter.decrement();
@@ -93,83 +97,27 @@ public class URLDownloader {
         // the Stack is empty
         while (counter.getCount() > 0 || urlStack.size() > 0) {
             ThreadHelper.sleep(1000);
-            logger.trace("waiting ... threads:" + counter.getCount() + " stack:" + urlStack.size());
+            LOGGER.trace("waiting ... threads:" + counter.getCount() + " stack:" + urlStack.size());
         }
-        logger.trace("<start");
+        LOGGER.trace("<start");
     }
 
-    @Deprecated
-    public void start() {
-        logger.trace(">start");
-
-        // to count number of running Threads
-        final Counter counter = new Counter();
-
-        while (urlStack.size() > 0) {
-            final String url = urlStack.pop();
-
-            // if maximum # of Threads are already running, wait here
-            while (counter.getCount() >= getMaxThreads()) {
-                logger.trace("max # of Threads running. waiting ...");
-                ThreadHelper.sleep(1000);
-            }
-
-            counter.increment();
-            Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        logger.trace("start downloading " + url);
-                        InputStream inputStream = crawler.downloadInputStream(url);
-                        downloadedUrls.put(url, inputStream);
-                        /*
-                         * InputStream inputStream = urlObj.openStream();
-                         * ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                         * byte[] buffer = new byte[1024];
-                         * int length;
-                         * while ((length = inputStream.read(buffer)) >= 0) {
-                         * outputStream.write(buffer, 0, length);
-                         * }
-                         * inputStream.close();
-                         * outputStream.close();
-                         * ByteArrayInputStream result = new ByteArrayInputStream(outputStream.toByteArray());
-                         * downloadedUrls.put(url, result);
-                         */
-                        logger.trace("finished downloading " + url);
-                    } catch (Exception e) {
-                        logger.warn(e.getMessage() + " for " + url);
-                    } finally {
-                        counter.decrement();
-                    }
-                }
-            };
-            new Thread(runnable).start();
-        }
-
-        // keep on running until all Threads have finished and
-        // the Stack is empty
-        while (counter.getCount() > 0 || urlStack.size() > 0) {
-            ThreadHelper.sleep(1000);
-            logger.trace("waiting ... threads:" + counter.getCount() + " stack:" + urlStack.size());
-        }
-
-        logger.trace("<start");
-    }
-
+    /**
+     * Add a URL to be downloaded.
+     * 
+     * @param urlString
+     */
     public void add(String urlString) {
         if (!urlStack.contains(urlString)) {
             urlStack.push(urlString);
         }
     }
 
-    public InputStream get(String urlString) {
-        return downloadedUrls.get(urlString);
-    }
-
-    public Collection<InputStream> getAll() {
-        return downloadedUrls.values();
-    }
-
+    /**
+     * Set the maximum number of simultaneous threads for downloading.
+     * 
+     * @param maxThreads
+     */
     public void setMaxThreads(int maxThreads) {
         this.maxThreads = maxThreads;
     }
@@ -178,6 +126,11 @@ public class URLDownloader {
         return maxThreads;
     }
 
+    /**
+     * Set the maximum number of failures to stop the download.
+     * 
+     * @param maxFails
+     */
     public void setMaxFails(int maxFails) {
         this.maxFails = maxFails;
     }
@@ -186,9 +139,10 @@ public class URLDownloader {
         return maxFails;
     }
 
-    public static void main(String[] args) throws MalformedURLException {
-        URLDownloader downloader = new URLDownloader();
+    public static void main(String[] args) {
 
+        // usage example ...:
+        URLDownloader downloader = new URLDownloader();
         downloader.setMaxThreads(3);
 
         downloader.add("http://www.tagesschau.de/");
@@ -207,11 +161,7 @@ public class URLDownloader {
                 System.out.println("finished " + url);
             }
         });
-//        List<Document> webDocuments = downloader.getAllAsWebDocuments();
-//        for (Document webDocument: webDocuments){
-//            System.out.println(webDocument.getDocumentURI());
-//        }
- 
+
         System.out.println("done");
 
     }
