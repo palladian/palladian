@@ -1,5 +1,6 @@
 package tud.iir.news;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -12,18 +13,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.OptionBuilder;
-import org.apache.commons.cli.OptionGroup;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
@@ -39,27 +33,33 @@ public final class FeedChecker {
 
     /** The logger for this class. */
     public static final Logger LOGGER = Logger.getLogger(FeedChecker.class);
-    
+
     public static final Integer MAX_THREAD_POOL_SIZE = 200;
 
     /** Symbols to separate headlines. */
     private static final String TITLE_SEPARATION = "#-#";
 
     /** Benchmark off. */
-    private static final int BENCHMARK_OFF = 0;
+    public static final int BENCHMARK_OFF = 0;
 
     /** Benchmark algorithms towards their prediction ability for the next post. */
-    private static final int BENCHMARK_MIN_CHECK_TIME = 1;
+    public static final int BENCHMARK_MIN_CHECK_TIME = 1;
 
     /**
      * Benchmark algorithms towards their prediction ability for the next almost filled post list.
      */
-    private static final int BENCHMARK_MAX_CHECK_TIME = 2;
+    public static final int BENCHMARK_MAX_CHECK_TIME = 2;
 
     /**
      * If true, some output will be generated to evaluate the reading approaches.
      */
-    private int benchmark = BENCHMARK_MAX_CHECK_TIME;
+    private final int benchmark = BENCHMARK_MAX_CHECK_TIME;
+
+    /** The path to the folder with the feed post history files. */
+    private final String benchmarkDatasetPath = "fpSandro/feedPosts/";
+
+    /** The list of history files, will be loaded only once for the sake of performance. */
+    private File[] benchmarkDatasetFiles;
 
     /** List of feeds that are read continuous. */
     private Collection<Feed> feedCollection;
@@ -129,14 +129,14 @@ public final class FeedChecker {
      * read.
      */
     private final int wakeUpInterval = 150 * DateHelper.SECOND_MS;
-    
+
     /** The private constructor. */
     public FeedChecker(FeedStore feedStore) {
         super();
         checkScheduler = new Timer();
         feedCollection = feedStore.getFeeds();
     }
-    
+
     /**
      * Filter feeds, to read only those that have an update class as in the given set.
      * 
@@ -170,13 +170,13 @@ public final class FeedChecker {
         StopWatch stopWatch = new StopWatch();
         stopWatch.setCountDown(duration);
         stopWatch.start();
-        
+
         LOGGER.debug("loaded " + feedCollection.size() + " feeds");
 
         SchedulerTask schedulerTask = new SchedulerTask(this);
         // checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
         checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
-        
+
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
                 + " minutes to check all feeds whether they need to be read or not");
 
@@ -259,8 +259,8 @@ public final class FeedChecker {
 
         } else if (CheckApproach.CHECK_FIXED.equals(checkApproach) && checkInterval == -1
                 || (CheckApproach.CHECK_ADAPTIVE.equals(checkApproach) || CheckApproach.CHECK_PROBABILISTIC
-                .equals(checkApproach))
- && feed.getChecks() == 0) {
+                        .equals(checkApproach))
+                        && feed.getChecks() == 0) {
 
             updateIntervalFixed(feed, fps);
 
@@ -288,7 +288,7 @@ public final class FeedChecker {
         feed.setLastFeedEntry(new Date(fps.getTimeNewestPost()));
         feed.increaseChecks();
     }
-    
+
     // ======================
     // === Setter methods ===
     // ======================
@@ -315,7 +315,7 @@ public final class FeedChecker {
         }
         this.checkApproach = checkApproach;
     }
-    
+
 
     /**
      * Set a fixed check interval in minutes. This is only effective if the checkType is set to {@link CHECK_FIXED}.
@@ -325,7 +325,7 @@ public final class FeedChecker {
     public void setCheckInterval(int checkInterval) {
         this.checkInterval = checkInterval;
     }
-    
+
     // ======================
     // === Getter methods ===
     // ======================
@@ -355,20 +355,20 @@ public final class FeedChecker {
     public int getCheckInterval() {
         return checkInterval;
     }
-    
+
 
     public FeedProcessingAction getFeedProcessingAction() {
         return feedProcessingAction;
     }
-    
+
     protected Collection<Feed> getFeeds() {
         return feedCollection;
     }
-    
+
     // ======================
     // === Helper methods ===
     // ======================
-    
+
     /**
      * Calculate the target percentage of new entries as follows: Percentage of new entries = pn = newEntries /
      * totalEntries Target Percentage = pTarget =
@@ -428,7 +428,7 @@ public final class FeedChecker {
 
         return pnTarget;
     }
-    
+
 
     /**
      * Save the feed ids and the percentage new scores in a csv for evaluation.
@@ -490,7 +490,7 @@ public final class FeedChecker {
         // FileHelper.writeToFile("data/temp/feedCheckerPdMap_" + getCheckApproachName() + "_"
         // + System.currentTimeMillis() + ".csv", csv);
     }
-    
+
 
     /**
      * Update evaluation maps.
@@ -576,7 +576,7 @@ public final class FeedChecker {
             }
         }
     }
-    
+
 
     /**
      * Update the check intervals in fixed mode.
@@ -836,7 +836,7 @@ public final class FeedChecker {
         }
 
     }
-    
+
 
     /**
      * Get a separated string with the headlines of all feed entries.
@@ -854,6 +854,38 @@ public final class FeedChecker {
         return titles;
     }
 
+    public int getBenchmark() {
+        return benchmark;
+    }
+
+    public String getBenchmarkDatasetPath() {
+        return benchmarkDatasetPath;
+    }
+
+    /**
+     * Find the history file with feed posts given the feed id. The file name starts with the feed id followed by an
+     * underscore.
+     * 
+     * @param id The id of the feed.
+     * @return The path to the file with the feed post history.
+     */
+    public String findHistoryFile(int id) {
+
+        // read feed history file
+        String historyFilePath = "";
+        if (benchmarkDatasetFiles == null) {
+            benchmarkDatasetFiles = FileHelper.getFiles(benchmarkDatasetPath);
+        }
+        for (File file : benchmarkDatasetFiles) {
+            if (file.getName().startsWith(id + "_")) {
+                historyFilePath = file.getAbsolutePath();
+                break;
+            }
+        }
+
+        return historyFilePath;
+    }
+
     /**
      * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
      * checkType=1),
@@ -861,61 +893,72 @@ public final class FeedChecker {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        FeedChecker fch = new FeedChecker(new FeedStoreDummy());
-        fch.setCheckApproach(CheckApproach.CHECK_FIXED, true);
-        Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
-        feed.setUpdateClass(FeedClassifier.CLASS_SLICED);
-        feed.updateEntries(false);
-        // feed.increaseChecks();
-        fch.updateCheckIntervals(feed);
-        System.exit(0);
+        // FeedChecker fchecker = new FeedChecker(FeedDatabase.getInstance());
+        // fchecker.setCheckApproach(CheckApproach.CHECK_FIXED, true);
+        // fchecker.startContinuousReading();
+        // System.exit(0);
+        //
+        // FeedChecker fch = new FeedChecker(new FeedStoreDummy());
+        // fch.setCheckApproach(CheckApproach.CHECK_FIXED, true);
+        // Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
+        // feed.setUpdateClass(FeedClassifier.CLASS_SLICED);
+        // feed.updateEntries(false);
+        // // feed.increaseChecks();
+        // fch.updateCheckIntervals(feed);
+        // System.exit(0);
 
-        Options options = new Options();
+        // Options options = new Options();
+        //
+        // OptionGroup checkApproachOption = new OptionGroup();
+        // checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED").withDescription(
+        // "check each feed at a fixed interval").create());
+        // checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE").withDescription(
+        // "check each feed and learn its update times").create());
+        // checkApproachOption.addOption(OptionBuilder.withArgName("cp").withLongOpt("CHECK_PROPABILISTIC")
+        // .withDescription("check each feed and adapt to its update rate").create());
+        // checkApproachOption.setRequired(true);
+        // options.addOptionGroup(checkApproachOption);
+        // options.addOption("r", "runtime", true,
+        // "The runtime of the checker in minutes or -1 if it should run until aborted.");
+        // options
+        // .addOption("ci", "checkInterval", true,
+        // "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
+        // HelpFormatter formatter = new HelpFormatter();
+        //
+        // CommandLineParser parser = new PosixParser();
+        // CommandLine cmd = null;
+        // try {
+        // cmd = parser.parse(options, args);
+        // } catch (ParseException e) {
+        // LOGGER.debug("Command line arguments could not be parsed!");
+        // formatter.printHelp("FeedChecker", options);
+        // }
+        //
+        // int runtime = -1;
+        // CheckApproach checkType = CheckApproach.CHECK_FIXED;
+        // int checkInterval = -1;
+        //
+        // if (cmd.hasOption("r")) {
+        // runtime = Integer.valueOf(cmd.getOptionValue("r"));
+        // } else {
+        // formatter.printHelp("FeedChecker", options);
+        // }
+        // if (cmd.hasOption("cf")) {
+        // checkType = CheckApproach.CHECK_FIXED;
+        // } else if (cmd.hasOption("ca")) {
+        // checkType = CheckApproach.CHECK_ADAPTIVE;
+        // } else if (cmd.hasOption("cp")) {
+        // checkType = CheckApproach.CHECK_PROBABILISTIC;
+        // }
+        // if (cmd.hasOption("ci")) {
+        // checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
+        // }
 
-        OptionGroup checkApproachOption = new OptionGroup();
-        checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED").withDescription(
-                "check each feed at a fixed interval").create());
-        checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE").withDescription(
-                "check each feed and learn its update times").create());
-        checkApproachOption.addOption(OptionBuilder.withArgName("cp").withLongOpt("CHECK_PROPABILISTIC")
-                .withDescription("check each feed and adapt to its update rate").create());
-        checkApproachOption.setRequired(true);
-        options.addOptionGroup(checkApproachOption);
-        options.addOption("r", "runtime", true,
-                "The runtime of the checker in minutes or -1 if it should run until aborted.");
-        options
-                .addOption("ci", "checkInterval", true,
-                        "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
-        HelpFormatter formatter = new HelpFormatter();
-
-        CommandLineParser parser = new PosixParser();
-        CommandLine cmd = null;
-        try {
-            cmd = parser.parse(options, args);
-        } catch (ParseException e) {
-            LOGGER.debug("Command line arguments could not be parsed!");
-            formatter.printHelp("FeedChecker", options);
-        }
-
-        int runtime = -1;
+        // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
-        int checkInterval = -1;
-
-        if (cmd.hasOption("r")) {
-            runtime = Integer.valueOf(cmd.getOptionValue("r"));
-        } else {
-            formatter.printHelp("FeedChecker", options);
-        }
-        if (cmd.hasOption("cf")) {
-            checkType = CheckApproach.CHECK_FIXED;
-        } else if (cmd.hasOption("ca")) {
-            checkType = CheckApproach.CHECK_ADAPTIVE;
-        } else if (cmd.hasOption("cp")) {
-            checkType = CheckApproach.CHECK_PROBABILISTIC;
-        }
-        if (cmd.hasOption("ci")) {
-            checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
-        }
+        int checkInterval = 5;
+        int runtime = 90;
+        // //////////////////////////
 
         FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());
         FeedProcessingAction fpa = new FeedProcessingAction() {
@@ -933,4 +976,5 @@ public final class FeedChecker {
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
 
     }
+
 }

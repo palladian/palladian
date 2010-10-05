@@ -57,36 +57,43 @@ class SchedulerTask extends TimerTask {
     public void run() {
         LOGGER.info("wake up to check feeds");
         int feedCount = 0;
+        int feedHistoriesCompletelyRead = 0;
         for (Feed feed : feedChecker.getFeeds()) {
-            LOGGER.debug("Checking feed at address: " + feed.getFeedUrl());
+            LOGGER.debug("checking feed at address: " + feed.getFeedUrl());
+
+            // check whether feed is in the queue already
             if (isScheduled(feed.getId())) {
                 continue;
             }
 
             if (needsLookup(feed)) {
-//                incrementThreadPoolSize();
+                //                incrementThreadPoolSize();
                 scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedChecker)));
                 feedCount++;
+            }
+
+            if (feedChecker.getBenchmark() != FeedChecker.BENCHMARK_OFF && feed.historyFileCompletelyRead()) {
+                feedHistoriesCompletelyRead++;
             }
         }
         LOGGER.info("scheduled " + feedCount + " feeds for reading");
     }
-    
+
     public static synchronized void incrementThreadPoolSize() {
         threadPoolQueueSize++;
         LOGGER.info("inc queue size to: " + threadPoolQueueSize);
     }
-    
+
     public static synchronized void decrementThreadPoolSize() {
         threadPoolQueueSize--;
         LOGGER.info("dec queue size to: " + threadPoolQueueSize);
     }
-    
+
     public static synchronized void incrementThreadsAlive() {
         threadsAlive++;
         LOGGER.info("inc threads alive to: " + threadsAlive);
     }
-    
+
     public static synchronized void decrementThreadsAlive() {
         threadsAlive--;
         LOGGER.info("dec threads alive to: " + threadsAlive);
@@ -95,16 +102,25 @@ class SchedulerTask extends TimerTask {
     /**
      * <p>
      * Returns whether the last time the provided feed was checked for updates is further in the past than its update
-     * intervall.
+     * interval.
      * </p>
      * 
      * @param feed The feed to check.
-     * @return {@code true} if this feeds check intervall is over and {@code false} otherwise.
+     * @return {@code true} if this feeds check interval is over and {@code false} otherwise.
      */
     private Boolean needsLookup(Feed feed) {
+
+        // for benchmarking we don't wait but lookup until we have seen everything
+        if (feedChecker.getBenchmark() != FeedChecker.BENCHMARK_OFF) {
+            if (feed.historyFileCompletelyRead()) {
+                return false;
+            }
+            return true;
+        }
+
         long now = System.currentTimeMillis();
         return feed.getChecks() == 0 || feed.getLastChecked() == null
-                || now - feed.getLastChecked().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS;
+        || now - feed.getLastChecked().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS;
     }
 
     /**
