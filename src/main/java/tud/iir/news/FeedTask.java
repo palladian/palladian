@@ -4,6 +4,8 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.DateHelper;
+
 /**
  * The {@link FeedChecker} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
  * the feed is checked and also performs all
@@ -16,6 +18,7 @@ import org.apache.log4j.Logger;
  */
 class FeedTask implements Runnable {
 
+    /** The logger for this class. */
     private final static Logger LOGGER = Logger.getLogger(FeedTask.class);
 
     /**
@@ -41,15 +44,19 @@ class FeedTask implements Runnable {
 
     @Override
     public void run() {
-//        LOGGER.info("Beginning of thread.");
-//        SchedulerTask.decrementThreadPoolSize();
-//        SchedulerTask.incrementThreadsAlive();
+        //        LOGGER.info("Beginning of thread.");
+        //        SchedulerTask.decrementThreadPoolSize();
+        //        SchedulerTask.incrementThreadsAlive();
         NewsAggregator fa = new NewsAggregator();
 
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
         // it can be done in parallel
-
-        feed.updateEntries(false);
+        // if no benchmark is running, read the entries from the web otherwise from disk
+        if (feedChecker.getBenchmark() == FeedChecker.BENCHMARK_OFF) {
+            feed.updateEntries(false);
+        } else {
+            feed.updateEntriesFromDisk(feedChecker.findHistoryFile(feed.getId()));
+        }
 
         // classify feed if it has never been classified before
         if (feed.getUpdateClass() == -1) {
@@ -64,11 +71,17 @@ class FeedTask implements Runnable {
         // perform actions on this feeds entries
         feedChecker.getFeedProcessingAction().performAction(feed);
 
+        if (feedChecker.getBenchmark() == FeedChecker.BENCHMARK_MIN_CHECK_TIME) {
+            feed.addToBenchmarkLastLookupTime(feed.getMinCheckInterval() * DateHelper.MINUTE_MS);
+        } else if (feedChecker.getBenchmark() == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
+            feed.addToBenchmarkLastLookupTime(feed.getMaxCheckInterval() * DateHelper.MINUTE_MS);
+        }
+
         // save the feed back to the database
         fa.updateFeed(feed);
-        
-//        LOGGER.info("End of Thread");
-//        SchedulerTask.decrementThreadsAlive();
+
+        // LOGGER.info("End of Thread");
+        // SchedulerTask.decrementThreadsAlive();
     }
 
 }

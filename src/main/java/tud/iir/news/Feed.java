@@ -11,6 +11,8 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import tud.iir.extraction.PageAnalyzer;
+import tud.iir.helper.FileHelper;
+import tud.iir.helper.LineAction;
 
 /**
  * Represents a news feed.
@@ -50,6 +52,21 @@ public class Feed {
     private long byteSize = 0;
 
     private List<FeedEntry> entries;
+
+    /** The number of feed entries presented for each request. */
+    private int windowSize;
+
+    /**
+     * For benchmarking purposes we need to know when the history file was read completely, that is the case if the last
+     * entry has been read.
+     */
+    private boolean historyFileCompletelyRead = false;
+
+    /**
+     * Keep track of the last timestamp for the lookup in the history file. We start with the maximum value to get the
+     * first x entries where x is the window size.
+     */
+    private long benchmarkLastLookupTime = Long.MIN_VALUE;
 
     /** number of times the feed has been retrieved and read */
     private int checks = 0;
@@ -185,7 +202,7 @@ public class Feed {
         }
         return getEntries();
     }
-    
+
     public void updateEntries(Boolean usePageContentExtractor) {
         NewsAggregator aggregator = new NewsAggregator();
         aggregator.setUseScraping(usePageContentExtractor);
@@ -197,6 +214,65 @@ public class Feed {
         }
         setEntries(entries);
         setPlainXML(PageAnalyzer.getRawMarkup(aggregator.getPlainXMLFeed()));
+    }
+
+    /**
+     * For benchmarking purposes, we created a dataset of feed post histories and stored it on disk. We can now run the
+     * feed reader on this dataset and evaluate the updateInterval techniques.
+     */
+    public void updateEntriesFromDisk(String historyFilePath) {
+        List<FeedEntry> entries = new ArrayList<FeedEntry>();
+
+        int totalEntries = FileHelper.getNumberOfLines(historyFilePath);
+
+        // create feed entries with: pubdate, title, link
+        final Object[] obj = new Object[3];
+        obj[0] = entries;
+        obj[1] = totalEntries;
+        obj[2] = benchmarkLastLookupTime;
+        LineAction la = new LineAction(obj) {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                int totalEntries = ((Integer) obj[1]);
+
+                String[] parts = line.split(";");
+
+                // skip MISS lines
+                if (parts[0].equalsIgnoreCase("miss")) {
+                    return;
+                }
+
+                setWindowSize(Integer.valueOf(parts[5]));
+
+                long entryTimestamp = Long.valueOf(parts[0]);
+
+                if (entryTimestamp < ((Long) obj[2]) || (totalEntries - lineNumber < getWindowSize())) {
+
+                    // find the first lookup date if the file has not been read yet
+                    if (totalEntries - lineNumber + 1 == getWindowSize() && benchmarkLastLookupTime == Long.MIN_VALUE) {
+                        benchmarkLastLookupTime = entryTimestamp;
+                    }
+
+                    FeedEntry feedEntry = new FeedEntry();
+                    feedEntry.setPublished(new Date(entryTimestamp));
+                    feedEntry.setTitle(parts[1]);
+                    feedEntry.setLink(parts[2]);
+
+                    ((ArrayList<FeedEntry>) obj[0]).add(feedEntry);
+
+                    if (lineNumber == 1) {
+                        historyFileCompletelyRead = true;
+                    }
+                }
+
+            }
+
+        };
+
+        FileHelper.performActionOnEveryLine(historyFilePath, la);
+        setEntries(entries);
     }
 
     public void freeMemory() {
@@ -505,5 +581,28 @@ public class Feed {
      */
     public String getPlainXML() {
         return plainXML;
+    }
+
+    public void setWindowSize(int windowSize) {
+        this.windowSize = windowSize;
+    }
+
+    public int getWindowSize() {
+        return windowSize;
+    }
+
+    /**
+     * Find out whether the history file has been read completely, a file is considered to be read completely when the
+     * window reached the last feed post in the file.
+     * This function is for benchmarking purposes only.
+     * 
+     * @return True if the window has read the last post entry of the history file, false otherwise.
+     */
+    public boolean historyFileCompletelyRead() {
+        return historyFileCompletelyRead;
+    }
+
+    public void addToBenchmarkLastLookupTime(int checkInterval) {
+        benchmarkLastLookupTime += checkInterval;
     }
 }
