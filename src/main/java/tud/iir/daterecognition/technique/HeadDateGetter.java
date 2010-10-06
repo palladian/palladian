@@ -13,6 +13,13 @@ import tud.iir.daterecognition.dates.HeadDate;
 import tud.iir.knowledge.KeyWords;
 import tud.iir.knowledge.RegExp;
 
+/**
+ * This class finds all dates in a HTML-head.<br>
+ * Therefore it needs a document.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class HeadDateGetter extends TechniqueDateGetter<HeadDate> {
 
     @Override
@@ -25,7 +32,8 @@ public class HeadDateGetter extends TechniqueDateGetter<HeadDate> {
     }
 
     /**
-     * Finds dates in head-part of a webpage.
+     * Finds dates in head-part of a webpage.<br>
+     * Look up only in <i>"meta"</i> tags.
      * 
      * @param document
      * @return a array-list with dates.

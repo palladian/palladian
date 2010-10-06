@@ -30,6 +30,13 @@ public class ArrayHelper {
         return returnArray;
     }
 
+    /**
+     * Connect two string arrays.
+     * 
+     * @param array1
+     * @param array2
+     * @return
+     */
     public static String[] concat(String[] array1, String[] array2) {
         String[] helpArray = new String[array1.length + array2.length];
         System.arraycopy(array1, 0, helpArray, 0, array1.length);

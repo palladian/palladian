@@ -4,7 +4,10 @@
 package tud.iir.daterecognition.dates;
 
 /**
- * @author salco
+ * 
+ * Represents a date found in HTTP-connection.
+ * 
+ * @author Martin Gregor
  * 
  */
 public class HTTPDate extends KeywordDate {

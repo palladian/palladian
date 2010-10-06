@@ -8,6 +8,17 @@ import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.knowledge.KeyWords;
 
+/**
+ *This class evaluates content-dates. <br>
+ *Doing this by dividing dates in three parts: Keyword in attribute, in text and no keyword.<br>
+ * Each part will be rate different.<br>
+ * Part one by keyword classes, see {@link KeyWords#getKeywordPriority(String)} and age.
+ * Part two by distance of keyword an date, keyword classes and age.
+ * Part three by age.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
     @Override
@@ -16,7 +27,10 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     }
 
     /**
-     * Evaluates content.dates.
+     * Evaluates content dates.<br>
+     * Divide all dates in one of three parts: keyword in attribute, in text an no keyword.<br>
+     * Evaluate each part. <br>
+     * Put all parts together.
      * 
      * @param dates
      * @return
@@ -58,11 +72,14 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         result.putAll(contResult);
         result.putAll(nokeywordResult);
 
+        // evaluatePosInDoc(result);
+
         return result;
     }
 
     /**
-     * Calculates the rate of dates with keywords within content.
+     * Calculates the rate of dates with keywords within text (content).<br>
+     * Factors are keyword-class, distance of keyword and date as well as age.
      * 
      * @param contDates
      * @return
@@ -104,7 +121,8 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     }
 
     /**
-     * Calculates rate of dates with keyword within attribute.
+     * Calculates rate of dates with keyword within attribute.<br>
+     * Factors are keyword-class and age.
      * 
      * @param attrDates
      * @return
@@ -140,7 +158,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     }
 
     /**
-     * Sets the factor for rate-calculation of dates with keywords within attributes.
+     * Sets the factor for keyword-classes.
      * 
      * @param date
      * @return
@@ -164,7 +182,7 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
     }
 
     /**
-     * Sets the factor for rate-calculation of dates with keywords within content.
+     * Sets the factor for distance of keyword and date.
      * 
      * @param date
      * @return
@@ -175,10 +193,5 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         double factor = ((-1.0 / 17.0) * distance) + (20.0 / 17.0);
         factor = Math.max(0, Math.min(1.0, factor));
         return Math.round(factor * 10000) / 10000.0;
-    }
-
-    private void evaluatePosInDoc(HashMap<ContentDate, Double> dates) {
-        int count = dates.size();
-
     }
 }

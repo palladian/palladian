@@ -11,6 +11,12 @@ import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
 import tud.iir.web.Crawler;
 
+/**
+ * This class uses www.archive.org to get a date of a page.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
 
     @Override
@@ -25,7 +31,9 @@ public class ArchiveDateGetter extends TechniqueDateGetter<ArchiveDate> {
     /**
      * Looks up in www.archive.org for given url.<br>
      * Searches all content-dates and discards oldest date. Because this is since when archive.org is crawling.
-     * Second oldest is first found of url.
+     * Second oldest is first found of url.<br>
+     * <br>
+     * Uses http://web.archive.org/web/ * / + url;
      * 
      * @param url
      * @return

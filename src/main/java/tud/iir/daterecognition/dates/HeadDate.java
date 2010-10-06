@@ -4,7 +4,9 @@
 package tud.iir.daterecognition.dates;
 
 /**
- * @author salco
+ * Represents a date found in HTML-head.
+ * 
+ * @author Martin Gregor
  * 
  */
 public class HeadDate extends KeywordDate {
@@ -44,10 +46,19 @@ public class HeadDate extends KeywordDate {
         return TECH_HTML_HEAD;
     }
 
+    /**
+     * Should be name of tag, where this date was found.
+     * 
+     * @return
+     */
     public String getTag() {
         return this.tag;
     }
 
+    /**
+     * 
+     * @param tag
+     */
     public void setTag(String tag) {
         this.tag = tag;
     }

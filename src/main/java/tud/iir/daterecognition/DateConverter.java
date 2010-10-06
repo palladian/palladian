@@ -18,6 +18,15 @@ public class DateConverter {
     public static final int TECH_REFERENCE = ExtractedDate.TECH_REFERENCE;
     public static final int TECH_ARCHIVE = ExtractedDate.TECH_ARCHIVE;
 
+    /**
+     * Converts an extracted date into a specific one. <br>
+     * Use technique flags of this class or {@linkplain ExtractedDate}.
+     * 
+     * @param <T>
+     * @param date
+     * @param techniqueFlag
+     * @return
+     */
     public static <T> T convert(ExtractedDate date, int techniqueFlag) {
         T newDate = null;
         if (date != null) {

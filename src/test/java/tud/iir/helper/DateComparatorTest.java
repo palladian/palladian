@@ -12,36 +12,6 @@ import tud.iir.knowledge.RegExp;
 public class DateComparatorTest {
 
     @Test
-    public void testCompareExtractedDateExtractedDate() {
-
-    }
-
-    @Test
-    public void testCompareExtractedDateExtractedDateInt() {
-
-    }
-
-    @Test
-    public void testCompareExtractedDateExtractedDateBoolean() {
-
-    }
-
-    @Test
-    public void testGetCompareDepth() {
-
-    }
-
-    @Test
-    public void testGetDifference() {
-
-    }
-
-    @Test
-    public void testGetEqualDate() {
-
-    }
-
-    @Test
     public void testOrderDates() {
         ExtractedDate date1 = new ExtractedDate("2010-09-01", RegExp.DATE_ISO8601_YMD[1]);
         ExtractedDate date2 = new ExtractedDate("2005-09-01", RegExp.DATE_ISO8601_YMD[1]);

@@ -7,14 +7,21 @@ import java.util.Iterator;
 import org.w3c.dom.Document;
 
 import tud.iir.daterecognition.DateConverter;
+import tud.iir.daterecognition.DateEvaluator;
 import tud.iir.daterecognition.DateGetter;
-import tud.iir.daterecognition.DateRater;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.ReferenceDate;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
 import tud.iir.web.Crawler;
 
+/**
+ * This class tries get dates in lined pages.<br>
+ * Therefore it uses all the other techniques.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class ReferenceDateGetter extends TechniqueDateGetter {
 
     @Override
@@ -22,6 +29,13 @@ public class ReferenceDateGetter extends TechniqueDateGetter {
         return getDates(-1);
     }
 
+    /**
+     * Returns a List of found dates.<br>
+     * Look up in a max number of links.
+     * 
+     * @param maxLinks Number after look up links will stop getting dates.
+     * @return
+     */
     public ArrayList<ReferenceDate> getDates(int maxLinks) {
         ArrayList<ReferenceDate> result = new ArrayList<ReferenceDate>();
         if (document != null) {
@@ -30,6 +44,15 @@ public class ReferenceDateGetter extends TechniqueDateGetter {
         return result;
     }
 
+    /**
+     * 
+     * A crawler searches links of document.<br>
+     * Each linked page will be researched for dates, these will be rated too.
+     * 
+     * @param document Document with outgoing links.
+     * @param maxLinks Number after look up links will stop getting dates.
+     * @return
+     */
     private static ArrayList<ReferenceDate> getReferenceDates(Document document, int maxLinks) {
         ArrayList<ReferenceDate> dates = new ArrayList<ReferenceDate>();
         if (document != null) {
@@ -40,7 +63,7 @@ public class ReferenceDateGetter extends TechniqueDateGetter {
             dateGetter.setTechArchive(false);
 
             DateComparator dc = new DateComparator();
-            DateRater de = new DateRater();
+            DateEvaluator de = new DateEvaluator();
             int i = 0;
             while (linksTo.hasNext()) {
                 String link = linksTo.next();

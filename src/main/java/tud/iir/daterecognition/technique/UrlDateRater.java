@@ -7,6 +7,13 @@ import tud.iir.daterecognition.DateRaterHelper;
 import tud.iir.daterecognition.dates.URLDate;
 import tud.iir.knowledge.RegExp;
 
+/**
+ * 
+ * This class evaluates an url-date and rates it in dependency of found format.<br>
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class UrlDateRater extends TechniqueDateRater<URLDate> {
 
     @Override
@@ -15,7 +22,8 @@ public class UrlDateRater extends TechniqueDateRater<URLDate> {
     }
 
     /**
-     * Evaluates the URL dates.
+     * Evaluates the URL dates.<br>
+     * Evaluated rate depends on format of date.<br>
      * 
      * @param dates
      * @return

@@ -2,8 +2,15 @@ package tud.iir.knowledge;
 
 import java.util.ArrayList;
 
+/**
+ * 
+ * This class holds HTML-symbols and its conversion to normal text.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class HTMLSymbols {
-
+    /** Protected whitespace. */
     public static final String[] emptyWhitsp = { "&#8203;", " " };
     /** Protected whitespace. */
     public static final String[] NBSP = { "&nbsp;", " " };
@@ -31,8 +38,14 @@ public class HTMLSymbols {
     public static final String[] UUUML = { "&Uuml;", "Ü" };
     /** Letter ß. */
     public static final String[] SZLIG = { "&szlig;", "ß" };
-    /** New Line \\ */
+    /** New Line \n */
     public static final String[] NL = { "\n", " " };
+    /** Tabulator */
+    public static final String[] TABHTML = { "&#09;", " " };
+    /** Tabulator */
+    public static final String[] TAB = { "\t", " " };
+    /**  */
+    public static final String[] COM = { " ,", " " };
 
     // TODO complete HTML-symbols.
 
@@ -43,9 +56,11 @@ public class HTMLSymbols {
      */
     public static ArrayList<String[]> getHTMLSymboles() {
         ArrayList<String[]> array = new ArrayList<String[]>();
+        array.add(TABHTML);
         array.add(NL);
         array.add(NBSP);
         array.add(NBSP2);
+        array.add(TAB);
         array.add(QUOT);
         array.add(AMP);
         array.add(LT);
@@ -58,6 +73,7 @@ public class HTMLSymbols {
         array.add(UUUML);
         array.add(SZLIG);
         array.add(emptyWhitsp);
+        array.add(COM);
         // TODO enter all HTML-symboles.
         return array;
     }

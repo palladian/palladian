@@ -16,7 +16,8 @@ import tud.iir.helper.ArrayHelper;
 import tud.iir.web.Crawler;
 
 /**
- * DateGetter provides methods for getting dates from URL and rate them.
+ * This class is responsible for rating dates. <br>
+ * Therefore it coordinates each technique-rater-class. <br>
  * 
  * @author Martin Gregor (mail@m-gregor.de)
  * @param <T>
@@ -118,6 +119,7 @@ public class DateGetter {
                         sdg.setDocument(document);
                         dates.addAll((Collection<? extends T>) sdg.getDates());
                     }
+
                     if (tech_HTML_content) {
                         cdg.setDocument(document);
                         dates.addAll((Collection<? extends T>) cdg.getDates());
@@ -152,34 +154,72 @@ public class DateGetter {
         this.url = url;
     }
 
+    /**
+     * Activate or disable HTTP-Technique.
+     * 
+     * @param value
+     */
     public void setTechHTTP(boolean value) {
         tech_HTTP = value;
     }
 
+    /**
+     * Activate or disable url-technique.
+     * 
+     * @param value
+     */
     public void setTechURL(boolean value) {
         tech_URL = value;
     }
 
+    /**
+     * Activate or disable HTML-head-technique.
+     * 
+     * @param value
+     */
     public void setTechHTMLHead(boolean value) {
         tech_HTML_head = value;
     }
 
+    /**
+     * Activate or disable HTLM-structure-technique.
+     * 
+     * @param value
+     */
     public void setTechHTMLStruct(boolean value) {
         tech_HTML_struct = value;
     }
 
+    /**
+     * Activate or disable HTML-content-technique.
+     * 
+     * @param value
+     */
     public void setTechHTMLContent(boolean value) {
         tech_HTML_content = value;
     }
 
+    /**
+     * Activate or disable reference-technique.
+     * 
+     * @param value
+     */
     public void setTechReference(boolean value) {
         tech_reference = value;
     }
 
+    /**
+     * Activate or disable archive-technique.
+     * 
+     * @param value
+     */
     public void setTechArchive(boolean value) {
         tech_archive = value;
     }
 
+    /**
+     * Disable all techniques.
+     */
     public void setAllFalse() {
         tech_HTTP = false;
         tech_URL = false;
@@ -190,6 +230,9 @@ public class DateGetter {
         tech_archive = false;
     }
 
+    /**
+     * Activate all techniques.
+     */
     public void setAllTrue() {
         tech_HTTP = true;
         tech_URL = true;

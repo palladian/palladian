@@ -8,10 +8,16 @@ import java.util.TimeZone;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.knowledge.RegExp;
 
+/**
+ * This class contains methods, that help ExtractedDate to define the correct date values.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class ExtractedDateHelper {
 
     /**
-     * convert month-name in a number; January is 01..
+     * Convert month-name in a number; January is 01..
      * 
      * @param month
      * @return month-number as string
@@ -184,6 +190,12 @@ public class ExtractedDateHelper {
 
     }
 
+    /**
+     * Creates an ExtrextedDate with current timestamp as date.
+     * 
+     * @param local
+     * @return
+     */
     public static ExtractedDate createActualDate(Locale local) {
         Calendar cal;
         if (local != null) {
