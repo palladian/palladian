@@ -2,8 +2,9 @@ package tud.iir.knowledge;
 
 /**
  * This class maps the data types (xsd) to regular expressions.<br>
- * Holds possible date strings as regular expressions. If you enter new ones, make sure you add it to the correct
- * get-method in the right position.
+ * <br>
+ * Also holds possible date strings as regular expressions. If you enter new ones, make sure you add it to the correct
+ * get-method at the right position.
  * 
  * @author David Urbansky
  * @author Martin Gregor
@@ -51,6 +52,7 @@ public class RegExp {
             + "(jan)|(feb)|(mar)|(apr)|(may)|(jun)|(jul)|(aug)|(sep)|(sept)|(oct)|(nov)|(dec))";
     private static final String MONTH_NAME_SHORT = "(((" + MONTH_NAME_SHORT_ENG + ")|(" + MONTH_NAME_SHORT_DT
             + "))(\\.)?)";
+    private static final String MONTH_NAME_SHORT2 = "((" + MONTH_NAME_SHORT_ENG + ")|(" + MONTH_NAME_SHORT_DT + "))";
     private static final String MONTH_NAME_LONG_ENG = "((January)|(February)|(March)|(April)|(May)|(June)|(July)|(August)|(September)|"
             + "(October)|(November)|(December)|(january)|(february)|(march)|(april)|(may)|(june)|(july)|(august)|(september)|"
             + "(october)|(november)|(december)|(JANUARY)|(FEBRUARY)|(MARCH)|(APRIL)|(MAY)|(JUNE)|(JULY)|(AUGUST)|(SEPTEMBER)|"
@@ -61,6 +63,8 @@ public class RegExp {
             + "(OKTOBER)|(NOVEMBER)|(DEZEMBER))";
     private static final String MONTH_NAME_LONG = "((" + MONTH_NAME_LONG_ENG + ")|(" + MONTH_NAME_LONG_DT + ")|("
             + MONTH_NAME_SHORT + "))";
+    private static final String MONTH_NAME_LONG2 = "((" + MONTH_NAME_LONG_ENG + ")|(" + MONTH_NAME_LONG_DT + ")|("
+            + MONTH_NAME_SHORT2 + "))";
     private static final String DAY_01_99 = "((0[1-9])|([1-9][0-9]))";
     private static final String DAY_00_99 = "([0-9][0-9])";
     private static final String DAY_001_099 = "(0" + DAY_01_99 + ")";
@@ -84,7 +88,7 @@ public class RegExp {
     private static final String HOUR12_1 = "((1[0-2])|([0-9]))";
     private static final String MIN = "((0[0-9])|([1-5][0-9]))";
     private static final String SEC = MIN;
-    private static final String TIMEZONE = "((\\s)((\\sUTC)|(MEZ)|(GMT)|(Z)|(AEST)|(BST)|(EST)))";
+    private static final String TIMEZONE = "((\\s)((\\sUTC)|(UTC)|(MEZ)|(GMT)|(Z)|(AEST)|(BST)|(EST)))";
     private static final String TIME_SEC = HOUR + ":" + MIN + ":" + SEC;
     private static final String FLOAT_SEC_OPT = "(((\\.)(\\d)*)?)";
     private static final String AM_PM = "(" + "(\\s)" + "((AM)|(PM)))";
@@ -178,7 +182,8 @@ public class RegExp {
      * Dates in URL. YYYY_MM_DD .<br>
      * "_" can also be "." or "-"
      */
-    private static final String DATE_URL_D_1 = YEAR_SHORT_LONG + "(/)" + MONTH_NUMBER_DOUBLE + "(/)" + DAY_OF_MONTH;
+    private static final String DATE_URL_D_1 = YEAR_SHORT_LONG + "(/)" + MONTH_NUMBER_DOUBLE + "(/)" + DAY_OF_MONTH
+            + "(/)";
     private static final String DATE_URL_D_2 = YEAR_SHORT_LONG + "(_)" + MONTH_NUMBER_DOUBLE + "(_)" + DAY_OF_MONTH;
     private static final String DATE_URL_D_3 = YEAR_SHORT_LONG + "(\\.)" + MONTH_NUMBER_DOUBLE + "(\\.)" + DAY_OF_MONTH;
     private static final String DATE_URL_D_4 = YEAR_SHORT_LONG + "(-)" + MONTH_NUMBER_DOUBLE + "(-)" + DAY_OF_MONTH;
@@ -193,8 +198,8 @@ public class RegExp {
      * Dates in URL. YYYY_MM_DD .<br>
      * "_" can also be "." or "-" or "/"
      */
-    public static final String[] DATE_URL_MMMM_D = { YEAR_SHORT_LONG + "(/)" + MONTH_NAME_LONG + "(/)" + DAY_OF_MONTH,
-            "YYYY_MMMM_DD_URL" };
+    public static final String[] DATE_URL_MMMM_D = {
+            YEAR_SHORT_LONG + "(/)" + MONTH_NAME_LONG + "(/)" + DAY_OF_MONTH + "(/)", "YYYY_MMMM_DD_URL" };
 
     /**
      * Dates in URL. YYYY_MM .<br>
@@ -271,8 +276,8 @@ public class RegExp {
     public static final String[] DATE_USA_MM_D = { MONTH_NUMBER_NORMAL + "/" + DAY_OF_MONTH_1_2, "MM/DD" };
     /** American date. MMMM DD(st), YYYY . */
     public static final String[] DATE_USA_MMMM_D_Y = {
-            MONTH_NAME_LONG + " " + DAY_OF_MONTH_1_2 + ST_ND_RD_TH_OPT + "(,)?" + " " + YEAR_SHORT_LONG,
-            "MMMM DD, YYYY" };
+            MONTH_NAME_LONG2 + "((\\s)|(\\.)|((\\.)(\\s)))" + DAY_OF_MONTH_1_2 + "(((" + ST_ND_RD_TH_OPT
+                    + ")(,)?)|(\\.)?)" + " " + YEAR_SHORT_LONG, "MMMM DD, YYYY" };
     public static final String[] DATE_USA_MMMM_D_Y_SEP = {
             MONTH_NAME_LONG + "-" + DAY_OF_MONTH_1_2 + "-" + YEAR_SHORT_LONG, "MMMM-DD-YYYY" };
     /** American date. MMMM DD(st), YYYY HH:MM:SS +UTC. */
@@ -357,7 +362,7 @@ public class RegExp {
     }
 
     /**
-     * Get all regular Expressions.
+     * Get all regular Expressions in a ordered array.
      * 
      * @return
      */
@@ -378,35 +383,68 @@ public class RegExp {
         return regExp;
     }
 
+    /**
+     * All regular expressions for RFC1036, RFC 1123 and ANSI'C
+     * 
+     * @return
+     */
     public static Object[] getRFCRegExp() {
         Object[] regExp = { DATE_ANSI_C_TZ, DATE_ANSI_C, DATE_RFC_1036_UTC, DATE_RFC_1036, DATE_RFC_1123_UTC,
                 DATE_RFC_1123, };
         return regExp;
     }
 
+    /**
+     * All regular expressions with time.<br>
+     * ISO, US and EU standards. No RFCs!
+     * 
+     * @return
+     */
     public static Object[] getIncTimeRegExp() {
         Object[] regExp = { DATE_ISO8601_YD_T, DATE_ISO8601_YMD_T, DATE_ISO8601_YWD_T, DATE_USA_MM_D_Y_T,
                 DATE_EU_D_MM_Y_T, DATE_USA_MMMM_D_Y_T, DATE_EU_D_MMMM_Y_T };
         return regExp;
     }
 
+    /**
+     * All regular expressions with three parts. (year, month and day).
+     * 
+     * @return
+     */
     public static Object[] get3PartRegExp() {
         Object[] regExp = { DATE_ISO8601_YMD, DATE_USA_MM_D_Y, DATE_EU_D_MM_Y, DATE_USA_MMMM_D_Y,
                 DATE_USA_MMMM_D_Y_SEP, DATE_EU_D_MMMM_Y, DATE_ISO8601_YWD, DATE_URL_D, DATE_USA_MM_D_Y_SEPARATOR };
         return regExp;
     }
 
+    /**
+     * All regular expressions with two parts. (year and month or year and day or year and month...).
+     * 
+     * @return
+     */
     public static Object[] get2PartRegExp() {
         Object[] regExp = { DATE_ISO8601_YD, DATE_ISO8601_YM, DATE_ISO8601_YW, DATE_EUSA_MMMM_Y, DATE_USA_MM_D,
                 DATE_USA_MM_Y, DATE_USA_MMMM_D, DATE_EU_D_MM, DATE_EU_D_MMMM, DATE_EU_MM_Y, DATE_URL, };
         return regExp;
     }
 
+    /**
+     * All regular expressions with one part. <br>
+     * ISO standards like YYYYDDD and YYYYWW.
+     * 
+     * @return
+     */
     public static Object[] get1PartRegExp() {
         Object[] regExp = { DATE_ISO8601_YD_NO, DATE_ISO8601_YMD_NO, DATE_ISO8601_YW_NO, DATE_ISO8601_YWD_NO };
         return regExp;
     }
 
+    /**
+     * Rest regular expressions.<br>
+     * E.g.: URL date YYYY\..\MM\DD
+     * 
+     * @return
+     */
     public static Object[] getOthersRegExp() {
         Object[] regExp = { DATE_URL_SPLIT };
         return regExp;

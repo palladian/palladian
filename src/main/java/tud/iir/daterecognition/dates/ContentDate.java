@@ -66,6 +66,13 @@ public class ContentDate extends BodyDate {
         return TECH_HTML_CONT;
     }
 
+    /**
+     * Returns location of found keyword as readable string.<br>
+     * Field <b>keywordLocation</b> should be set.
+     * To set location or get it as int, use get() and set() methods.
+     * 
+     * @return Attribute or Content if location is set. -1 for undefined location.
+     */
     public String getKeyLocToString() {
         String keyPos = String.valueOf(keywordLocation);
         switch (keywordLocation) {

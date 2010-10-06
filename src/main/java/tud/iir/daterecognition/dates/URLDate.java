@@ -1,5 +1,11 @@
 package tud.iir.daterecognition.dates;
 
+/**
+ * Represents a date found in an url-string.
+ * 
+ * @author Martin Greogr
+ * 
+ */
 public class URLDate extends ExtractedDate {
 
     public URLDate() {

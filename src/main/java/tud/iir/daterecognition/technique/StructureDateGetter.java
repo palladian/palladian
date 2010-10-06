@@ -13,6 +13,12 @@ import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.StructureDate;
 import tud.iir.knowledge.KeyWords;
 
+/**
+ * This class extracts dates out of the structure of a HTML-document.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
 
     @Override
@@ -24,6 +30,12 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
         return result;
     }
 
+    /**
+     * Finds dates in structure of a document.
+     * 
+     * @param document Document to be searched.
+     * @return List of dates.
+     */
     private static ArrayList<StructureDate> getStructureDate(Document document) {
 
         ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
@@ -38,6 +50,12 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
 
     }
 
+    /**
+     * Finds dates in structure of a document.
+     * 
+     * @param document Document to be searched.
+     * @return List of dates.
+     */
     private static ArrayList<StructureDate> getBodyStructureDates(Document document) {
         final ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
         final NodeList bodyNodeList = document.getElementsByTagName("body");
@@ -53,6 +71,14 @@ public class StructureDateGetter extends TechniqueDateGetter<StructureDate> {
         return dates;
     }
 
+    /**
+     * Searches in a node and it's children for structure dates.<br>
+     * Used recursively.
+     * 
+     * @param node Node to be searched.
+     * @param depth Depth of hierarchy the node is in.
+     * @return
+     */
     private static ArrayList<StructureDate> getChildrenDates(final Node node, int depth) {
         ArrayList<StructureDate> dates = new ArrayList<StructureDate>();
         StructureDate date = null;

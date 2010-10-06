@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -18,6 +19,7 @@ import tud.iir.daterecognition.technique.URLDateGetter;
 import tud.iir.daterecognition.technique.UrlDateRater;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
+import tud.iir.helper.RatedDateComparator;
 import tud.iir.knowledge.RegExp;
 import tud.iir.web.Crawler;
 import tud.iir.web.CrawlerCallback;
@@ -38,9 +40,290 @@ public class testCrawler {
         // addAllURLStats(1, 98, "stats_url_output.txt");
 
         // merge();
-        evaluation("Evaluation-LinkSet.txt", "evaluationOutput.txt");
+        // evaluation("googleDate-links.txt", "evaluationOutput5.txt");
+        // evaluation2("noGoogleDate.txt", "noGoogleDateOutput2.txt");
+        // compareOutputs("evaluationOutput4.txt", "evaluationOutput5.txt", "compare.txt");
+        compareOutputs("noGoogleDateOutput.txt", "noGoogleDateOutput2.txt", "compare.txt");
 
         // evaluateHTTP("linkSet.txt", "http_output.txt");
+        // orderEvalSet("Evaluation-LinkSet.txt", "googleDate-links.txt");
+        // splittOutput("evaluationOutput5.txt", "splitt");
+        // splittOutput("noGoogleDateOutput2.txt", "splitt");
+        // countStrings("6.txt");
+    }
+
+    public static void countStrings(String input) {
+        try {
+            String pfad = "data/dateExtraction/";
+            File file = new File(pfad + input);
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+
+            HashMap<String, Integer> count = new HashMap<String, Integer>();
+
+            while ((line = br.readLine()) != null) {
+                Integer value = count.get(line);
+                if (value == null) {
+                    value = 1;
+                } else {
+                    value++;
+                }
+                count.put(line, value);
+            }
+
+            for (Entry<String, Integer> e : count.entrySet()) {
+                System.out.println(e.getKey() + " " + e.getValue());
+            }
+
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+    }
+
+    public static void compareOutputs(String input1, String input2, String output) {
+        String pfad = "data/dateExtraction/";
+        HashMap<String, String[]> map = new HashMap<String, String[]>();
+
+        try {
+            File file = new File(pfad + input1);
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+            String line;
+
+            int i = 0;
+
+            int myError = -1;
+            int url = -1;
+            while ((line = br.readLine()) != null) {
+                String[] temp = line.split(" ");
+                if (i == 0) {
+                    for (int k = 0; k < temp.length; k++) {
+                        if (temp[k].equalsIgnoreCase("myerror")) {
+                            myError = k;
+                        } else if (temp[k].equalsIgnoreCase("url")) {
+                            url = k;
+
+                        }
+                    }
+                    if (myError == -1 || url == -1) {
+                        break;
+                    }
+                } else {
+                    String[] annotation = new String[2];
+                    annotation[0] = temp[myError];
+                    // System.out.print(annotation[0]);
+                    map.put(temp[url], annotation);
+                    System.out.print(map.get(temp[url])[0]);
+                }
+                i++;
+            }
+            br.close();
+            fr.close();
+
+            file = new File(pfad + input2);
+            fr = new FileReader(file);
+            br = new BufferedReader(fr);
+
+            i = 0;
+            myError = -1;
+            url = -1;
+            System.out.println();
+            line = "";
+            while ((line = br.readLine()) != null) {
+                String[] temp = line.split(" ");
+                if (i == 0) {
+                    for (int k = 0; k < temp.length; k++) {
+                        if (temp[k].equalsIgnoreCase("myerror")) {
+                            myError = k;
+                        } else if (temp[k].equalsIgnoreCase("url")) {
+                            url = k;
+                        }
+                    }
+                    System.out.println(myError + " " + url);
+                    if (myError == -1 || url == -1) {
+                        break;
+                    }
+                } else {
+                    String[] annotation = new String[2];
+                    // System.out.println(temp[url]);
+
+                    if (map.get(temp[url]) == null) {
+                        annotation[0] = ".";
+                    } else {
+                        annotation[0] = map.get(temp[url])[0];
+                    }
+                    System.out.print(annotation[0]);
+                    annotation[1] = temp[myError];
+                    // System.out.println(annotation[0] + " " + annotation[1]);
+                    map.put(temp[url], annotation);
+                }
+                i++;
+            }
+            System.out.println();
+            br.close();
+            fr.close();
+
+            file = new File(pfad + output);
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+
+            for (Entry<String, String[]> e : map.entrySet()) {
+                String change = ".";
+                if (!e.getValue()[0].equals(e.getValue()[1])) {
+                    if (e.getValue()[0].equals("-")) {
+                        change = "+";
+                    } else if (e.getValue()[0].equals(".")) {
+                        if (e.getValue()[1].equals("-")) {
+                            change = "-";
+                        } else {
+                            change = "+";
+                        }
+                    } else {
+                        change = "-";
+                    }
+                }
+                line = e.getValue()[0] + " | " + e.getValue()[1] + " | " + change + " | " + e.getKey();
+                System.out.println(line);
+                bw.write(line + "\n");
+            }
+            bw.close();
+            fw.close();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO: handle exception
+        }
+
+    }
+
+    public static void splittOutput(String input, String output) {
+        ArrayList<String> webDate = new ArrayList<String>();
+        ArrayList<String> googleDate = new ArrayList<String>();
+        ArrayList<String> myDate = new ArrayList<String>();
+        ArrayList<String> googleAnno = new ArrayList<String>();
+        ArrayList<String> myAnno = new ArrayList<String>();
+        ArrayList<String> url = new ArrayList<String>();
+        ArrayList<String> technique = new ArrayList<String>();
+        String pfad = "data/dateExtraction/";
+        try {
+            File file = new File(pfad + input);
+            FileReader fr = new FileReader(file);
+            BufferedReader br = new BufferedReader(fr);
+
+            String line;
+            int i = 0;
+            int pageDateIndex = -1;
+            int googleDateIndex = -1;
+            int myDateIndex = -1;
+            int googleErrorIndex = -1;
+            int myErrorIndex = -1;
+            int urlIndex = -1;
+            int techIndex = -1;
+
+            while ((line = br.readLine()) != null) {
+                if (i == 0) {
+                    String[] parts = line.split(" ");
+                    for (int k = 0; k < parts.length; k++) {
+                        if (parts[k].equalsIgnoreCase("pagedate")) {
+                            pageDateIndex = k;
+                        } else if (parts[k].equalsIgnoreCase("googeldate")) {
+                            googleDateIndex = k;
+                        } else if (parts[k].equalsIgnoreCase("mydate")) {
+                            myDateIndex = k;
+                        } else if (parts[k].equalsIgnoreCase("googleerror")) {
+                            googleErrorIndex = k;
+                        } else if (parts[k].equalsIgnoreCase("myerror")) {
+                            myErrorIndex = k;
+                        } else if (parts[k].equalsIgnoreCase("url")) {
+                            urlIndex = k;
+                        } else if (parts[k].equalsIgnoreCase("technique")) {
+                            techIndex = k;
+                        }
+                    }
+                } else {
+                    String[] parts = line.split(" ");
+                    if (pageDateIndex != -1)
+                        webDate.add(parts[pageDateIndex]);
+                    if (googleDateIndex != -1)
+                        googleDate.add(parts[googleDateIndex]);
+                    if (myDateIndex != -1)
+                        myDate.add(parts[myDateIndex]);
+                    if (googleErrorIndex != -1)
+                        googleAnno.add(parts[googleErrorIndex]);
+                    if (myErrorIndex != -1)
+                        myAnno.add(parts[myErrorIndex]);
+                    if (urlIndex != -1)
+                        url.add(parts[urlIndex]);
+                    if (techIndex != -1)
+                        technique.add(parts[techIndex]);
+                    System.out.println(parts[urlIndex]);
+                }
+                i++;
+            }
+            ArrayList<ArrayList<String>> all = new ArrayList<ArrayList<String>>();
+            all.add(webDate);
+            all.add(googleDate);
+            all.add(myDate);
+            all.add(googleAnno);
+            all.add(myAnno);
+            all.add(url);
+            all.add(technique);
+
+            for (i = 0; i < all.size(); i++) {
+                file = new File(pfad + i + ".txt");
+                FileWriter fw = new FileWriter(file);
+                BufferedWriter bw = new BufferedWriter(fw);
+                for (int k = 0; k < all.get(i).size(); k++) {
+                    String t = "";
+                    if (i == 5) {
+                        t = k + 1 + " ";
+                    }
+                    bw.write(t + all.get(i).get(k) + " \n");
+                }
+                bw.close();
+                fw.close();
+
+            }
+
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+    }
+
+    public static void orderEvalSet(String input, String output) {
+        ArrayList<String[]> list = new ArrayList<String[]>();
+        String filePath = "data/dateExtraction/";
+        File file = new File(filePath + input);
+
+        try {
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line;
+
+            while ((line = bufferedReader.readLine()) != null) {
+                String[] parts = line.split(" ");
+                list.add(parts);
+            }
+
+            bufferedReader.close();
+            fileReader.close();
+
+            file = new File(filePath + output);
+            FileWriter fw = new FileWriter(file);
+            BufferedWriter bw = new BufferedWriter(fw);
+            for (int i = 0; i < list.size(); i++) {
+                String[] parts = list.get(i);
+                bw.write(parts[1] + " " + parts[2] + " " + parts[0] + "\n");
+            }
+            bw.close();
+            fw.close();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
 
     }
 
@@ -287,7 +570,7 @@ public class testCrawler {
         dg.setTechArchive(false);
         dg.setTechReference(false);
 
-        DateRater de = new DateRater();
+        DateEvaluator de = new DateEvaluator();
 
         ArrayList<ExtractedDate> dgDates;
         HashMap<ExtractedDate, Double> deDates;
@@ -400,7 +683,7 @@ public class testCrawler {
 
         HashMap<String, ExtractedDate[]> inputMap = new HashMap<String, ExtractedDate[]>();
 
-        String filePath = "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/";
+        String filePath = "data/dateExtraction/";
         File file = new File(filePath + input);
 
         try {
@@ -410,12 +693,16 @@ public class testCrawler {
 
             int i = 0;
             while ((line = bufferedReader.readLine()) != null) {
-                String[] parts = line.split(" ");
-                ExtractedDate[] dates = new ExtractedDate[2];
-                dates[0] = DateGetterHelper.findDate(parts[1]);
-                dates[1] = DateGetterHelper.findDate(parts[2]);
-                System.out.println(i++ + " " + dates[0]);
-                inputMap.put(parts[0], dates);
+                if (i > 0) {
+                    String[] parts = line.split(" ");
+                    ExtractedDate[] dates = new ExtractedDate[2];
+                    dates[0] = DateGetterHelper.findDate(parts[0]);
+                    dates[1] = DateGetterHelper.findDate(parts[1]);
+
+                    System.out.println(i + " " + dates[0]);
+                    inputMap.put(parts[2], dates);
+                }
+                i++;
             }
 
             bufferedReader.close();
@@ -424,12 +711,7 @@ public class testCrawler {
             ex.printStackTrace();
         }
 
-        DateGetter dg = new DateGetter();
-        dg.setAllTrue();
-        dg.setTechReference(false);
-        dg.setTechArchive(false);
-
-        DateRater de = new DateRater();
+        WebPageDateEvaluator ae = new WebPageDateEvaluator();
 
         DateComparator dc = new DateComparator();
 
@@ -442,32 +724,39 @@ public class testCrawler {
         for (Entry<String, ExtractedDate[]> e : inputMap.entrySet()) {
             System.out.println("begin");
             long begin = (new GregorianCalendar()).getTimeInMillis();
-            dg.setURL(e.getKey());
-            datesList = dg.getDate();
-            datesMap = de.rate(datesList);
+            ae.setUrl(e.getKey());
+            ae.evaluate();
+            ArrayList<ExtractedDate> myDates = ae.getAllBestRatedDate(true);
+            ArrayList<ExtractedDate> sameDates = DateArrayHelper.getSameDates(e.getValue()[0], myDates,
+                    DateComparator.STOP_DAY);
+            ExtractedDate sameDate;
 
-            datesMap = DateArrayHelper.getExacterDates(datesMap, DateComparator.STOP_DAY);
-            double highestRate = DateRaterHelper.getHighestRateValue(datesMap);
-            datesList = DateArrayHelper.getRatedDates(datesMap, highestRate);
-            datesList = dc.getEqualDate(e.getValue()[0], datesList);
-            outputString = e.getValue()[0].getNormalizedDate() + " " + e.getValue()[1].getNormalizedDate() + " ";
-            String anmerkung = null;
-            if (datesList.size() > 0) {
-                outputString += datesList.get(0).getNormalizedDate(false);
+            outputString = e.getValue()[0].getNormalizedDate() + " | " + e.getValue()[1].getNormalizedDate() + " | ";
+
+            if (sameDates != null && sameDates.size() > 0) {
+                sameDate = sameDates.get(0);
+                outputString += sameDate.getNormalizedDate(false);
             } else {
-                outputString += DateArrayHelper.getFirstElement(DateRaterHelper.getHighestRate(datesMap))
-                        .getNormalizedDate(false);
-                anmerkung = "-";
+                RatedDateComparator<ExtractedDate> rdc = new RatedDateComparator<ExtractedDate>();
+                Collections.sort(myDates, rdc);
+                sameDate = myDates.get(0);
+                outputString += sameDate.getNormalizedDate(false);
             }
 
-            if (anmerkung == null) {
-                anmerkung = ".";
-                if (dc.compare(e.getValue()[0], e.getValue()[1]) != 0) {
-                    anmerkung = "+";
-                }
+            String googleAnnotation = ".";
+            if (dc.compare(e.getValue()[0], e.getValue()[1], DateComparator.STOP_DAY) != 0) {
+                googleAnnotation = "-";
             }
-            outputString += " " + anmerkung;
-            outputList.add(outputString + " " + e.getKey());
+
+            String myAnnotation = ".";
+            if (dc.compare(e.getValue()[0], sameDate, DateComparator.STOP_DAY) != 0) {
+                myAnnotation = "-";
+            } else if (dc.compare(e.getValue()[1], sameDate, DateComparator.STOP_DAY) != 0) {
+                myAnnotation = "+";
+            }
+
+            outputString += " | " + googleAnnotation + " | " + myAnnotation;
+            outputList.add(outputString + " | " + sameDate.getType() + " | " + e.getKey());
             System.out.println(outputString);
             long end = (new GregorianCalendar()).getTimeInMillis();
             System.out.println("end: " + (end - begin));
@@ -477,6 +766,99 @@ public class testCrawler {
         try {
             FileWriter writer = new FileWriter(file);
             BufferedWriter bWriter = new BufferedWriter(writer);
+
+            bWriter.write("PageDate | GoogleDate | MyDate | GoogleError | MyError | Technique | URL" + "\n");
+
+            for (int i = 0; i < outputList.size(); i++) {
+                bWriter.write(outputList.get(i) + "\n");
+            }
+            bWriter.close();
+            writer.close();
+        } catch (Exception ex) {
+
+        }
+
+    }
+
+    public static void evaluation2(String input, String output) {
+
+        HashMap<String, ExtractedDate> inputMap = new HashMap<String, ExtractedDate>();
+
+        String filePath = "data/dateExtraction/";
+        File file = new File(filePath + input);
+
+        try {
+            FileReader fileReader = new FileReader(file);
+            BufferedReader bufferedReader = new BufferedReader(fileReader);
+            String line;
+
+            int i = 0;
+            while ((line = bufferedReader.readLine()) != null) {
+                if (i > 0) {
+                    String[] parts = line.split(" ");
+
+                    System.out.println(i + " " + parts[1]);
+                    inputMap.put(parts[1], DateGetterHelper.findALLDates(parts[0]).get(0));
+                }
+                i++;
+            }
+
+            bufferedReader.close();
+            fileReader.close();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+
+        WebPageDateEvaluator ae = new WebPageDateEvaluator();
+
+        DateComparator dc = new DateComparator();
+
+        ArrayList<ExtractedDate> datesList = new ArrayList<ExtractedDate>();
+        HashMap<ExtractedDate, Double> datesMap = new HashMap<ExtractedDate, Double>();
+
+        ArrayList<String> outputList = new ArrayList<String>();
+        String outputString;
+
+        for (Entry<String, ExtractedDate> e : inputMap.entrySet()) {
+            System.out.println("begin");
+            long begin = (new GregorianCalendar()).getTimeInMillis();
+            ae.setUrl(e.getKey());
+            ae.evaluate();
+            ArrayList<ExtractedDate> myDates = ae.getAllBestRatedDate(true);
+            ArrayList<ExtractedDate> sameDates = DateArrayHelper.getSameDates(e.getValue(), myDates,
+                    DateComparator.STOP_DAY);
+            ExtractedDate sameDate;
+
+            outputString = e.getValue().getNormalizedDate() + " | ";
+
+            if (sameDates != null && sameDates.size() > 0) {
+                sameDate = sameDates.get(0);
+                outputString += sameDate.getNormalizedDate(false);
+            } else {
+                RatedDateComparator<ExtractedDate> rdc = new RatedDateComparator<ExtractedDate>();
+                Collections.sort(myDates, rdc);
+                sameDate = myDates.get(0);
+                outputString += sameDate.getNormalizedDate(false);
+            }
+
+            String myAnnotation = ".";
+            if (dc.compare(e.getValue(), sameDate, DateComparator.STOP_DAY) != 0) {
+                myAnnotation = "-";
+            }
+
+            outputString += " | " + myAnnotation;
+            outputList.add(outputString + " | " + sameDate.getType() + " | " + e.getKey());
+            System.out.println(outputString);
+            long end = (new GregorianCalendar()).getTimeInMillis();
+            System.out.println("end: " + (end - begin));
+        }
+
+        file = new File(filePath + output);
+        try {
+            FileWriter writer = new FileWriter(file);
+            BufferedWriter bWriter = new BufferedWriter(writer);
+
+            bWriter.write("PageDate | MyDate | MyError | Technique | URL" + "\n");
 
             for (int i = 0; i < outputList.size(); i++) {
                 bWriter.write(outputList.get(i) + "\n");
@@ -560,7 +942,7 @@ public class testCrawler {
         dg.setAllFalse();
         dg.setTechHTTP(true);
 
-        DateRater de = new DateRater();
+        DateEvaluator de = new DateEvaluator();
 
         ArrayList<ExtractedDate> dgDates = new ArrayList<ExtractedDate>();
         HashMap<ExtractedDate, Double> deDates = new HashMap<ExtractedDate, Double>();

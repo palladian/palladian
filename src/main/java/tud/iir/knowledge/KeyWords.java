@@ -2,6 +2,14 @@ package tud.iir.knowledge;
 
 import tud.iir.helper.ArrayHelper;
 
+/**
+ * 
+ * All keywords for different techniques.
+ * TODO: refactor for not having a redundancy of keywords .
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public final class KeyWords {
 
     public static final byte FIRST_PRIORITY = 1;
@@ -11,29 +19,40 @@ public final class KeyWords {
     /** Keyowrds found in HTTP-header. */
     public static final String[] HTPP_KEYWORDS = { "date", "Date", "DATE", "last-modified", "Last-Modified",
             "Last-modified", "LAST-MODIFIED" };
+
     /** Keywords found in HTTP header of connections. */
     public static final String[] HEAD_KEYWORDS = { "published", "publish", "pubdate", "posted", "released", "release",
             "displaydate", "create", "update", "updated", "last-modified", "modified", "pdate", "date", "change" };
+
     /** Keywords found in HTML structure of documents. */
     public static final String[] DATE_BODY_STRUC = { "published", "publish", "posted", "create", "created", "released",
-            "pubdate", "pdate", "date_first_released", "date_last_published", "displaydate", "last-modified",
-            "date-last-modified", "update", "dc:date", "xsd:date", "xsd:dateTime", "date", "time", "datetime",
-            "dateStamp", "date-header", "revised", "revise" };
+            "pubdate", "pdate", "date_first_released", "date_last_published", "displaydate", "display_date",
+            "last-modified", "last modified", "date-last-modified", "update", "dc:date", "xsd:date", "xsd:dateTime",
+            "date", "time", "datetime", "datestamp", "date-header", "revised", "revise" };
+
     /** Keywords found in HTML content of documents. */
-    public static final String[] BODY_CONTENT_KEYWORDS = { "published", "pubdate", "posted", "released", "release",
-            "updated", "update", "Veröffentlicht", "create", "created", "revised", "revise", "aktualisiert", "Added",
-            "Geschrieben" };
+    public static final String[] BODY_CONTENT_KEYWORDS_FIRST = { "published", "pubdate", "posted", "released",
+            "release", "updated", "update", "veröffentlicht", "create", "created", "revised", "revise", "aktualisiert",
+            "added", "geschrieben" };
 
+    /** Kewords found in content of documents */
+    public static final String[] BODY_CONTENT_KEYWORDS_ALL = { "published", "publish", "posted", "create", "created",
+            "released", "pubdate", "pdate", "date_first_released", "date_last_published", "displaydate",
+            "display_date", "last-modified", "last modified", "date-last-modified", "update", "updated", "date",
+            "datetime", "datestamp", "date-header", "revised", "revise", "added" };
+
+    /** Keywords belonging to first priority class. */
     public static final String[] firstPriorityKeywords = { "published", "publish", "posted", "released", "release",
-            "pubdate", "pdate", "date_first_released", "date_last_published", "displaydate", "Veröffentlicht",
-            "create", "created", "added", "geschrieben" };
-
-    public static final String[] secondPriorityKeywords = { "last-modified", "date-last-modified", "updated", "update",
-            "change", "modified", "revised", "revise", "aktualisiert" };
-
-    public static final String[] thirdPriorityKexwords = { "date", "time", "datetime", "dateStamp", "dc:date",
+            "pubdate", "pdate", "date_first_released", "date_last_published", "displaydate", "display_date",
+            "Veröffentlicht", "create", "created", "added", "geschrieben" };
+    /** Keywords belonging to second priority class. */
+    public static final String[] secondPriorityKeywords = { "last-modified", "last modified", "date-last-modified",
+            "updated", "update", "change", "modified", "revised", "revise", "aktualisiert" };
+    /** Keywords belonging to second priority class. */
+    public static final String[] thirdPriorityKexwords = { "date", "time", "datetime", "datestamp", "dc:date",
             "xsd:date", "xsd:dateTime", "date-header" };
 
+    /** All keywords. */
     public static final String[] allKeywords = ArrayHelper.concat(firstPriorityKeywords, ArrayHelper.concat(
             secondPriorityKeywords, thirdPriorityKexwords));
 
@@ -58,6 +77,13 @@ public final class KeyWords {
         return keywordPriority;
     }
 
+    /**
+     * Is a specific keyword in a array of strings.
+     * 
+     * @param keyword
+     * @param keywords
+     * @return
+     */
     private static boolean hasKeyword(String keyword, String[] keywords) {
         boolean hasKeyword = false;
         for (int i = 0; i < keywords.length; i++) {

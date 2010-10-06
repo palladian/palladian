@@ -47,7 +47,8 @@ public class DateArrayHelper {
     public static final int FILTER_FULL_DATE = 204;
 
     /**
-     * Filters an array-list.
+     * Filters an array-list.<br>
+     * For filters use this static fields.
      * 
      * @param <T>
      * @param dates
@@ -113,6 +114,15 @@ public class DateArrayHelper {
 
     }
 
+    /**
+     * Filters an array-list.<br>
+     * For filters use this static fields.
+     * 
+     * @param <T>
+     * @param dates
+     * @param filter
+     * @return
+     */
     public static <T> HashMap<T, Double> filter(HashMap<T, Double> dates, int filter) {
         HashMap<T, Double> temp = new HashMap<T, Double>();
         T date;
@@ -217,6 +227,14 @@ public class DateArrayHelper {
         return arrangeMapByDate(dates, DateComparator.STOP_DAY);
     }
 
+    /**
+     * Orders a map by dates.
+     * 
+     * @param <T>
+     * @param dates
+     * @param stopFlag At what exactness a comparison should stop. Use {@link DateComparator} static fields.
+     * @return
+     */
     public static <T> ArrayList<HashMap<T, Double>> arrangeMapByDate(HashMap<T, Double> dates, int stopFlag) {
         ArrayList<HashMap<T, Double>> result = new ArrayList<HashMap<T, Double>>();
         DateComparator dc = new DateComparator();
@@ -245,6 +263,19 @@ public class DateArrayHelper {
         return result;
     }
 
+    /**
+     * Count how often a date is in a list. <br>
+     * Not the object, but the exact date.<br>
+     * If the date-object is also in the list, it will not count.<br>
+     * <br>
+     * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
+     * Look up for date1, the returning value will be 1 and not 2!
+     * 
+     * @param <T>
+     * @param date
+     * @param dates
+     * @return
+     */
     public static <T> int countDates(T date, ArrayList<T> dates) {
         int count = 0;
         DateComparator dc = new DateComparator();
@@ -261,7 +292,12 @@ public class DateArrayHelper {
     }
 
     /**
-     * Count equal dates.
+     * Count how often a date is in a list. <br>
+     * Not the object, but the exact date.<br>
+     * If the date-object is also in the list, it will not count.<br>
+     * <br>
+     * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
+     * Look up for date1, the returning value will be 1 and not 2!
      * 
      * @param <T>
      * @param date
@@ -290,6 +326,20 @@ public class DateArrayHelper {
         return count;
     }
 
+    /**
+     * Count how often a date is in a list.<br>
+     * Dates will compared up to depth of stopFlag. <br>
+     * Not the object, but the exact date.<br>
+     * If the date-object is also in the list, it will not count.<br>
+     * <br>
+     * E.g.: list={date1,date2,date3} and date1 = date2 != date3. <br>
+     * Look up for date1, the returning value will be 1 and not 2!
+     * 
+     * @param <T>
+     * @param date
+     * @param dates
+     * @return
+     */
     public static <T> int countDates(T date, ArrayList<T> dates, int stopFlag) {
         int count = 0;
         DateComparator dc = new DateComparator();
@@ -378,10 +428,24 @@ public class DateArrayHelper {
         return result;
     }
 
+    /**
+     * Prints an entry-array.
+     * 
+     * @param <T>
+     * @param dateMap
+     */
     public static <T> void printDateMap(Entry<T, Double>[] dateMap) {
         printDateMap(dateMap, 0);
     }
 
+    /**
+     * Prints an entry-array.<br>
+     * You got possibility to filter first.
+     * 
+     * @param <T>
+     * @param dateMap
+     * @param filter
+     */
     public static <T> void printDateMap(Entry<T, Double>[] dateMap, int filter) {
         for (int i = 0; i < dateMap.length; i++) {
             T date = dateMap[i].getKey();
@@ -415,10 +479,24 @@ public class DateArrayHelper {
         }
     }
 
+    /**
+     * Print hashmap of dates.
+     * 
+     * @param <T>
+     * @param dateMap
+     */
     public static <T> void printDateMap(HashMap<T, Double> dateMap) {
         printDateMap(dateMap, 0);
     }
 
+    /**
+     * Print hashmap of dates.<br>
+     * With possibility of filtering.
+     * 
+     * @param <T>
+     * @param dateMap
+     * @param filter
+     */
     public static <T> void printDateMap(HashMap<T, Double> dateMap, int filter) {
         for (Entry<T, Double> e : dateMap.entrySet()) {
             T date = e.getKey();
@@ -481,6 +559,38 @@ public class DateArrayHelper {
         for (Entry<T, Double> e : dates.entrySet()) {
             if ((e.getValue() == rate) == include) {
                 result.add(e.getKey());
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Returns all dates with given rate.
+     * 
+     * @param <T>
+     * @param dates
+     * @param rate
+     * @return
+     */
+    public static <T> ArrayList<T> getRatedDates(ArrayList<T> dates, double rate) {
+        return getRatedDates(dates, rate, true);
+    }
+
+    /**
+     * Returns all dates with or without given rate.
+     * 
+     * @param <T>
+     * @param dates
+     * @param rate
+     * @param include True for dates with rate. False for dates without rate.
+     * @return
+     */
+    public static <T> ArrayList<T> getRatedDates(ArrayList<T> dates, double rate, boolean include) {
+        ArrayList<T> result = new ArrayList<T>();
+        for (int i = 0; i < dates.size(); i++) {
+            T date = dates.get(i);
+            if ((((ExtractedDate) date).getRate() == rate) == include) {
+                result.add(date);
             }
         }
         return result;
@@ -554,26 +664,20 @@ public class DateArrayHelper {
         return getSameDatesMap(date, dates, DateComparator.STOP_DAY);
     }
 
+    /**
+     * Returns a hashmap of date are equal to given date.<br>
+     * Date comparison stops at stopFlag.
+     * 
+     * @param <T>
+     * @param date
+     * @param dates
+     * @return
+     */
     public static <T> HashMap<T, Double> getSameDatesMap(ExtractedDate date, HashMap<T, Double> dates, int stopFlag) {
         DateComparator dc = new DateComparator();
         HashMap<T, Double> result = new HashMap<T, Double>();
         for (Entry<T, Double> e : dates.entrySet()) {
             if (dc.compare(date, (ExtractedDate) e.getKey(), stopFlag) == 0) {
-                result.put(e.getKey(), e.getValue());
-            }
-        }
-        return result;
-    }
-
-    public static <T> HashMap<T, Double> getDifferentDatesMap(ExtractedDate date, HashMap<T, Double> dates) {
-        return getDifferentDatesMap(date, dates, DateComparator.STOP_DAY);
-    }
-
-    public static <T> HashMap<T, Double> getDifferentDatesMap(ExtractedDate date, HashMap<T, Double> dates, int stopFlag) {
-        DateComparator dc = new DateComparator();
-        HashMap<T, Double> result = new HashMap<T, Double>();
-        for (Entry<T, Double> e : dates.entrySet()) {
-            if (dc.compare(date, (ExtractedDate) e.getKey(), stopFlag) != 0) {
                 result.put(e.getKey(), e.getValue());
             }
         }
@@ -646,6 +750,15 @@ public class DateArrayHelper {
         return i;
     }
 
+    /**
+     * 
+     * Creates an array of entries of hashmap.
+     * 
+     * @param <T>
+     * @param <V>
+     * @param map
+     * @return
+     */
     @SuppressWarnings("unchecked")
     public static <T, V> Entry<T, V>[] hashMapToArray(HashMap<T, V> map) {
         Entry<T, V>[] array = new Entry[map.size()];
@@ -657,18 +770,44 @@ public class DateArrayHelper {
         return array;
     }
 
+    /**
+     * * Keys of a hashmap will be put in a list.<br>
+     * Ignoring value part of hashmap.
+     * 
+     * @param <T>
+     * @param <V>
+     * @param map
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public static <T, V> ArrayList<T> hashMapToArrayList(HashMap<T, V> map) {
+        ArrayList<T> array = new ArrayList<T>();
+        for (Entry<T, V> e : map.entrySet()) {
+            array.add((T) e.getKey());
+        }
+        return array;
+    }
+
+    /**
+     * Check if all values of hashmap are zero.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public static <T> boolean isAllZero(HashMap<T, Double> dates) {
         boolean isAllZero = true;
         for (Entry<T, Double> e : dates.entrySet()) {
             if (e.getValue() > 0) {
                 isAllZero = false;
+                break;
             }
         }
         return isAllZero;
     }
 
     /**
-     * Returns Hashmap of Dates, that are equal or greater to exactness.
+     * Returns Hashmap of Dates, where there exactness is equal or greater to given exactness.
      * 
      * @param <T>
      * @param dates
@@ -685,6 +824,14 @@ public class DateArrayHelper {
         return resultDates;
     }
 
+    /**
+     * Finds out the greatest exactness of the given dates. <br>
+     * Returns all dates with this greatest exactness.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public static <T> ArrayList<T> getExactestDates(HashMap<T, Double> dates) {
         ArrayList<T> result = new ArrayList<T>();
         HashMap<T, Double> exactedDates = new HashMap<T, Double>();
@@ -703,6 +850,14 @@ public class DateArrayHelper {
         return result;
     }
 
+    /**
+     * Finds out the greatest exactness of the given dates. <br>
+     * Returns all dates with this greatest exactness.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public static <T> ArrayList<T> getExactestDates(ArrayList<T> dates) {
         ArrayList<T> result = new ArrayList<T>();
         HashMap<T, Double> exactedDates = new HashMap<T, Double>();
@@ -721,6 +876,14 @@ public class DateArrayHelper {
         return result;
     }
 
+    /**
+     * Finds out the greatest exactness of the given dates. <br>
+     * Returns all dates with this greatest exactness.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public static <T> HashMap<T, Double> getExactestMap(HashMap<T, Double> dates) {
         HashMap<T, Double> result = new HashMap<T, Double>();
         HashMap<T, Double> exactedDates = new HashMap<T, Double>();
@@ -750,6 +913,21 @@ public class DateArrayHelper {
         double result = 0;
         for (Entry<T, Double> e : dates.entrySet()) {
             result = Math.max(result, e.getValue());
+        }
+        return result;
+    }
+
+    /**
+     * Returns the highest rate in a ArraylList of ExtractedDate.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
+    public static <T> double getHighestRate(ArrayList<T> dates) {
+        double result = 0;
+        for (int i = 0; i < dates.size(); i++) {
+            result = Math.max(result, ((ExtractedDate) dates.get(i)).getRate());
         }
         return result;
     }

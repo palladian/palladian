@@ -1,6 +1,7 @@
 package tud.iir.daterecognition;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,10 +21,19 @@ import tud.iir.daterecognition.technique.HttpDateRater;
 import tud.iir.daterecognition.technique.ReferenceDateRater;
 import tud.iir.daterecognition.technique.StructureDateRater;
 import tud.iir.daterecognition.technique.UrlDateRater;
+import tud.iir.helper.ContentDateComparator;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
 
-public class DateRater {
+/**
+ * This class is responsible for rating dates. <br>
+ * Therefore it uses for each technique a own rater-class. <br>
+ * In the end all techniques a compared to each other by deploying methods.
+ * 
+ * @author Martin Gregor
+ * 
+ */
+public class DateEvaluator {
 
     private String url;
     private boolean referneceLookUp = false;
@@ -36,18 +46,40 @@ public class DateRater {
     private ArchiveDateRater adr = new ArchiveDateRater();
     private ReferenceDateRater rdr = new ReferenceDateRater();
 
-    public DateRater() {
+    /**
+     * Standard constructor.
+     */
+    public DateEvaluator() {
     }
 
-    public DateRater(String url) {
+    /**
+     * Constructor setting url.
+     * 
+     * @param url
+     */
+    public DateEvaluator(String url) {
         this.url = url;
     }
 
-    public DateRater(String url, boolean referenceLookUp) {
+    /**
+     * Constructor setting url and activates getting and rating of references.
+     * 
+     * @param url
+     * @param referenceLookUp
+     */
+    public DateEvaluator(String url, boolean referenceLookUp) {
         this.url = url;
         this.referneceLookUp = referenceLookUp;
     }
 
+    /**
+     * Main method of this class.<br>
+     * Coordinates all rating techniques and deploying of rates to lower techniques.
+     * 
+     * @param <T>
+     * @param extractedDates ArrayList of ExtractedDates.
+     * @return HashMap of dates, with rate as value.
+     */
     @SuppressWarnings("unchecked")
     public <T> HashMap<T, Double> rate(ArrayList<T> extractedDates) {
         HashMap<T, Double> evaluatedDates = new HashMap<T, Double>();
@@ -103,9 +135,6 @@ public class DateRater {
         if (structDates != null && structDates.size() > 0) {
             structResult.putAll((Map<? extends T, ? extends Double>) sdr.rate(structDates));
         }
-        if (archiveDate != null && archiveDate.size() > 0) {
-            adr.rate(archiveDate);
-        }
 
         evaluatedDates.putAll(urlResult);
 
@@ -136,10 +165,17 @@ public class DateRater {
         }
 
         if (DateArrayHelper.isAllZero(evaluatedDates)) {
-            evaluatedDates.putAll(reRateIfAllZero(contResult));
+            // evaluatedDates.putAll(reRateIfAllZero(contResult));
+            evaluatedDates
+                    .putAll((Map<? extends T, ? extends Double>) guessRate((HashMap<ContentDate, Double>) contResult));
+
         }
 
         DateRaterHelper.writeRateInDate(evaluatedDates);
+
+        if (archiveDate != null && archiveDate.size() > 0) {
+            evaluatedDates.putAll((Map<? extends T, ? extends Double>) adr.rate(archiveDate, evaluatedDates));
+        }
 
         return evaluatedDates;
     }
@@ -159,6 +195,14 @@ public class DateRater {
         }
     }
 
+    /**
+     * Method with calculations for new rating of dates by consideration of meta-dates like HTTP and Head.
+     * 
+     * @param <T>
+     * @param metaDates HashMap with HTTP or head-Dates.
+     * @param dates Dates to be rated.
+     * @return
+     */
     public static <T> HashMap<T, Double> deployMetaDates(HashMap<T, Double> metaDates, HashMap<T, Double> dates) {
 
         HashMap<T, Double> result = dates;
@@ -259,11 +303,13 @@ public class DateRater {
                 double newRate = ((1 - date.getValue()) * (urlRate * urlFactor)) + date.getValue();
                 result.put(date.getKey(), Math.round(newRate * 10000) / 10000.0);
             }
-            temp = DateArrayHelper.getDifferentDatesMap(urlDate, dates, urlDate.getExactness());
-            for (Entry<T, Double> date : temp.entrySet()) {
-                double newRate = date.getValue() - (0.2 * date.getValue() * (urlRate * urlFactor));
-                result.put(date.getKey(), Math.round(newRate * 10000) / 10000.0);
-            }
+            /**
+             * temp = DateArrayHelper.getDifferentDatesMap(urlDate, dates, urlDate.getExactness());
+             * for (Entry<T, Double> date : temp.entrySet()) {
+             * double newRate = date.getValue() - (0.2 * date.getValue() * (urlRate * urlFactor));
+             * result.put(date.getKey(), Math.round(newRate * 10000) / 10000.0);
+             * }
+             */
         }
         return result;
     }
@@ -283,13 +329,12 @@ public class DateRater {
         HashMap<T, Double> result = dates;
 
         HashMap<T, Double> exactestDates = DateArrayHelper.getExactestMap(dates);
-
         DateComparator dc = new DateComparator();
         T date = dc.getOldestDate(exactestDates);
 
         HashMap<T, Double> sameDates = DateArrayHelper.getSameDatesMap((ExtractedDate) date, result);
         for (Entry<T, Double> e : sameDates.entrySet()) {
-            double newRate = (1.0 * sameDates.size()) / result.size();
+            double newRate = (0.1 * sameDates.size()) / result.size();
             result.put(e.getKey(), Math.round(newRate * 10000) / 10000.0);
         }
 
@@ -297,6 +342,78 @@ public class DateRater {
 
     }
 
+    /**
+     * This method calculates new rates for content-dates in dependency of position in document and age of date.
+     * 
+     * @param dates
+     * @return New rated dates.
+     */
+    private HashMap<ContentDate, Double> guessRate(HashMap<ContentDate, Double> dates) {
+        HashMap<ContentDate, Double> result = dates;
+        if (result.size() > 0 && result != null) {
+            ArrayList<ContentDate> orderAge = DateArrayHelper.hashMapToArrayList(dates);
+            ArrayList<ContentDate> orderPosInDoc = orderAge;
+
+            DateComparator dc = new DateComparator();
+            Collections.sort(orderAge, dc);
+            Collections.sort(orderPosInDoc, new ContentDateComparator());
+
+            double factorAge;
+            double factorPos;
+            double factorRate;
+            double newRate;
+            double oldRate;
+
+            int ageSize = orderAge.size();
+            int maxPos = orderPosInDoc.get(orderPosInDoc.size() - 1).get(ContentDate.DATEPOS_IN_DOC);
+            int counter = 0;
+
+            ContentDate temp = orderAge.get(0);
+            ContentDate actDate;
+
+            for (int i = 0; i < ageSize; i++) {
+                actDate = orderAge.get(i);
+                if (dc.compare(temp, actDate) != 0) {
+                    temp = orderAge.get(i);
+                    counter++;
+                }
+                factorAge = ((ageSize - counter) * 1.0) / (ageSize * 1.0);
+                factorPos = 1 - ((actDate.get(ContentDate.DATEPOS_IN_DOC) * 1.0) / (maxPos * 1.0));
+                factorPos += 0.01;
+                factorRate = factorAge * factorPos;
+                oldRate = dates.get(actDate);
+                newRate = oldRate + (1 - oldRate) * factorRate;
+                result.put(actDate, Math.round(newRate * 10000) / 10000.0);
+            }
+        }
+        normalizeRate(result);
+        return result;
+    }
+
+    /**
+     * If some rates are greater then one, use this method to normalize them.
+     * 
+     * @param <T>
+     * @param dates
+     */
+    private <T> void normalizeRate(HashMap<T, Double> dates) {
+        double highestRate = DateArrayHelper.getHighestRate(dates);
+        if (highestRate > 1.0) {
+            for (Entry<T, Double> e : dates.entrySet()) {
+                dates.put(e.getKey(), Math.round((e.getValue() / highestRate) * 10000) / 10000.0);
+            }
+        }
+
+    }
+
+    /**
+     * Content-dates get a new rate in dependency of structure dates.
+     * 
+     * @param <C>
+     * @param contentDates
+     * @param structDates
+     * @return
+     */
     private <C> HashMap<C, Double> deployStructureDates(HashMap<C, Double> contentDates,
             HashMap<StructureDate, Double> structDates) {
         DateComparator dc = new DateComparator();
@@ -332,14 +449,29 @@ public class DateRater {
         return result;
     }
 
+    /**
+     * Set url.
+     * 
+     * @param url
+     */
     public void setUrl(String url) {
         this.url = url;
     }
 
+    /**
+     * Getter for url.
+     * 
+     * @return Url as a String.
+     */
     public String getUrl() {
         return url;
     }
 
+    /**
+     * Activate or disable the possibility of using reference-technique.
+     * 
+     * @param referneceLookUp
+     */
     public void setReferneceLookUp(boolean referneceLookUp) {
         this.referneceLookUp = referneceLookUp;
     }

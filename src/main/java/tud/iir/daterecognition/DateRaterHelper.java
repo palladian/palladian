@@ -12,6 +12,12 @@ import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.KeyWords;
 import tud.iir.knowledge.RegExp;
 
+/**
+ * This class contains methods to help DateRate to rate dates. Like the name said.
+ * 
+ * @author Martin Greogr
+ * 
+ */
 public class DateRaterHelper {
 
     /**
@@ -220,6 +226,12 @@ public class DateRaterHelper {
         return keywordPriority;
     }
 
+    /**
+     * For each date-entry in the hashmap, the value will be set as rate-parameter of the date.
+     * 
+     * @param <T>
+     * @param map
+     */
     public static <T> void writeRateInDate(HashMap<T, Double> map) {
         for (Entry<T, Double> e : map.entrySet()) {
             ((ExtractedDate) e.getKey()).setRate(e.getValue());

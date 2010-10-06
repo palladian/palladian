@@ -1,5 +1,11 @@
 package tud.iir.daterecognition.dates;
 
+/**
+ * Template for all dates having a keyword.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public abstract class KeywordDate extends ExtractedDate {
     /**
      * Context, in witch the date was found. <br>
@@ -36,10 +42,19 @@ public abstract class KeywordDate extends ExtractedDate {
         return super.toString() + "\n" + "Keyword: " + keyword;
     }
 
+    /**
+     * 
+     * @param keyword
+     */
     public void setKeyword(String keyword) {
         this.keyword = keyword;
     }
 
+    /**
+     * All techniques except extracted-date and url-date have keywords.<br>
+     * Should be set direct after founding this date.
+     */
+    @Override
     public String getKeyword() {
         return keyword;
     }

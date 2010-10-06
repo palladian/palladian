@@ -23,8 +23,8 @@ public class ExtractedDate {
     public static final int TECH_HTML_HEAD = 3;
     public static final int TECH_HTML_STRUC = 4;
     public static final int TECH_HTML_CONT = 5;
-    public static final int TECH_REFERENCE = 6;
-    public static final int TECH_ARCHIVE = 7;
+    public static final int TECH_ARCHIVE = 6;
+    public static final int TECH_REFERENCE = 7;
 
     public static final int YEAR = 1;
     public static final int MONTH = 2;
@@ -175,7 +175,16 @@ public class ExtractedDate {
             dateParts = dateString.split(" ");
             setDateValues(dateParts, 2, 1, 0);
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y[1])) {
-            setDateValues(dateString.split(" "), 2, 0, 1);
+            String[] parts = dateString.split(" ");
+            if (parts.length == 2) {
+                String[] tempParts = new String[3];
+                tempParts[0] = parts[0].split("\\.")[0];
+                tempParts[1] = parts[0].split("\\.")[1];
+                tempParts[2] = parts[1];
+                parts = tempParts;
+            }
+            setDateValues(parts, 2, 0, 1);
+
         } else if (format.equalsIgnoreCase(RegExp.DATE_USA_MMMM_D_Y_SEP[1])) {
             setDateValues(dateString.split("-"), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_MMMM_Y[1])) {
@@ -660,6 +669,7 @@ public class ExtractedDate {
     }
 
     /**
+     * Set a string, that contains only a date-string.
      * 
      * @param dateString
      */
@@ -675,14 +685,34 @@ public class ExtractedDate {
         return dateString;
     }
 
+    /**
+     * Set the format, that belongs to the date-sting.<br>
+     * Formats are the 2nd part of regular expression array found in {@link RegExp}.
+     * 
+     * @param format
+     */
     public void setFormat(final String format) {
         this.format = format;
     }
 
+    /**
+     * 
+     * @return
+     */
     public String getFormat() {
         return format;
     }
 
+    /**
+     * Returns date values. <br>
+     * To get a value use static date fields of this class.<br>
+     * <br>
+     * Only for date properties. For date-technique use getType(). <br>
+     * Use this static fields to define a property.
+     * 
+     * @param field
+     * @return
+     */
     public int get(int field) {
         int value = -1;
         switch (field) {
@@ -708,6 +738,13 @@ public class ExtractedDate {
         return value;
     }
 
+    /**
+     * Returns all standard date-properties as an array.<br>
+     * From year down to second and timezone.<br>
+     * Also date-string and format
+     * 
+     * @return
+     */
     public ArrayList<Object> getAll() {
         ArrayList<Object> result = new ArrayList<Object>();
         result.add(this.dateString);
@@ -723,6 +760,12 @@ public class ExtractedDate {
         return result;
     }
 
+    /**
+     * Set al standard date-parts. <br>
+     * It's opposite of getAll() and only returning value of getAll should be entered here.
+     * 
+     * @param values Enter returning array of getAll().
+     */
     public void setAll(ArrayList<Object> values) {
         for (int i = 0; i < values.size(); i++) {
             switch (i) {
@@ -768,6 +811,15 @@ public class ExtractedDate {
         }
     }
 
+    /**
+     * Sets all standard date-properties as an array.<br>
+     * From year down to second and timezone.<br>
+     * Also date-string and format.<br>
+     * <br>
+     * Use this this static fields to define a property.
+     * 
+     * @return
+     */
     public void set(int field, int value) {
         switch (field) {
             case YEAR:
@@ -792,23 +844,52 @@ public class ExtractedDate {
         }
     }
 
+    /**
+     * String with date properties.<br>
+     * Rate, found date string, normalized date, format and technique as string.
+     */
     public String toString() {
-        return dateString + " -> " + this.getNormalizedDate() + " Format: " + this.format + " Technique: "
-                + ExtractedDateHelper.getTypString(getType());
+        return "rate: " + rate + " " + dateString + " -> " + this.getNormalizedDate() + " Format: " + this.format
+                + " Technique: " + ExtractedDateHelper.getTypString(getType());
     }
 
+    /**
+     * Returns int value representing this type of date.<br>
+     * Returning values are equal to this static TECH_ fields. <br>
+     * Or use getTypeToString of {@link ExtractedDateHelper} to get this type in words.
+     * 
+     * @return Integer of this type.
+     */
     public int getType() {
         return 0;
     }
 
+    /**
+     * This field gives you the possibility to store the url, the date was found at.
+     * 
+     * @param url
+     */
     public void setUrl(String url) {
         this.url = url;
     }
 
+    /**
+     * 
+     * @return
+     */
     public String getUrl() {
         return url;
     }
 
+    /**
+     * Exactness describes how many of date parts have a value. <br>
+     * Only year returning 0.<br>
+     * Year and month returning 1.<br>
+     * Year, month and day returning 2.<br>
+     * ... year, month, day, hour and second returning 6.<br>
+     * 
+     * @return Integer between 0 and 6.
+     */
     public int getExactness() {
         int exactness = 0;
         if (this.year != -1) {
@@ -832,14 +913,29 @@ public class ExtractedDate {
         return exactness;
     }
 
+    /**
+     * Extracted date has no keyword. But is needed for toString.
+     * 
+     * @return
+     */
     public String getKeyword() {
         return "";
     }
 
+    /**
+     * Set value of date evaluation.
+     * 
+     * @param rate
+     */
     public void setRate(double rate) {
         this.rate = rate;
     }
 
+    /**
+     * Standard is -1. <br>
+     * 
+     * @return
+     */
     public double getRate() {
         return rate;
     }

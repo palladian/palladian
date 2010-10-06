@@ -157,9 +157,9 @@ public class DateGetterHelperTest {
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
         date = DateGetterHelper.getDateFromString("2010_06_30", RegExp.DATE_URL_D);
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
-        date = DateGetterHelper.getDateFromString("2010/06/30", RegExp.DATE_URL_D);
+        date = DateGetterHelper.getDateFromString("2010/06/30/", RegExp.DATE_URL_D);
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
-        date = DateGetterHelper.getDateFromString("2010/June/30", RegExp.DATE_URL_MMMM_D);
+        date = DateGetterHelper.getDateFromString("2010/June/30/", RegExp.DATE_URL_MMMM_D);
         assertEquals(date.getDateString(), text, date.getNormalizedDate());
 
         // URL
@@ -289,6 +289,8 @@ public class DateGetterHelperTest {
         assertEquals("2006-08-04 14:52", date.getNormalizedDate());
         date = DateGetterHelper.getDateFromString("aug 4, 2006  14:52", RegExp.DATE_USA_MMMM_D_Y_T);
         assertEquals("2006-08-04 14:52", date.getNormalizedDate());
+        date = DateGetterHelper.getDateFromString("Saturday, September 20. 2008", RegExp.DATE_USA_MMMM_D_Y);
+        assertEquals("2008-09-20", date.getNormalizedDate());
 
         // others
         text = "2010-07-02 19:07:49";
@@ -348,7 +350,6 @@ public class DateGetterHelperTest {
         assertEquals("2010-08-11 14:41:10", date);
         date = (DateGetterHelper.findALLDates("JUNE 1, 2010")).get(0).getNormalizedDate();
         assertEquals("2010-06-01", date);
-
         assertEquals("2010-01", (DateGetterHelper.findALLDates("jan. 2010")).get(0).getNormalizedDate());
         assertEquals("2010-02", (DateGetterHelper.findALLDates("Feb. 2010")).get(0).getNormalizedDate());
         assertEquals("2010-03", (DateGetterHelper.findALLDates("Mär. 2010")).get(0).getNormalizedDate());
@@ -361,12 +362,12 @@ public class DateGetterHelperTest {
         assertEquals("2010-10", (DateGetterHelper.findALLDates("Okt. 2010")).get(0).getNormalizedDate());
         assertEquals("2010-11", (DateGetterHelper.findALLDates("nov. 2010")).get(0).getNormalizedDate());
         assertEquals("2010-12", (DateGetterHelper.findALLDates("Dez. 2010")).get(0).getNormalizedDate());
-
         assertEquals("2007-12-06 17:37:45", (DateGetterHelper.findALLDates("2007-12-06T17:37:45Z")).get(0)
                 .getNormalizedDate());
-
         assertEquals("2008-12-06 17:37:45",
                 (DateGetterHelper.findALLDates("2007-12-06T17:37:45Z 2008-12-06T17:37:45Z")).get(1).getNormalizedDate());
+        assertEquals("2008-09-20", (DateGetterHelper.findALLDates("Saturday, September 20, 2008")).get(0)
+                .getNormalizedDate());
 
     }
 

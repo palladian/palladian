@@ -1,5 +1,11 @@
 package tud.iir.daterecognition.dates;
 
+/**
+ * Represents a date, found in a reference.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class ReferenceDate extends ExtractedDate {
 
     public ReferenceDate() {

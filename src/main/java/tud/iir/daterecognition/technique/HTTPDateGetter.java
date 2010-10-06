@@ -13,6 +13,13 @@ import tud.iir.knowledge.KeyWords;
 import tud.iir.knowledge.RegExp;
 import tud.iir.web.Crawler;
 
+/**
+ * 
+ * This class finds dates in HTTP-connection.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class HTTPDateGetter extends TechniqueDateGetter<HTTPDate> {
 
     @Override
@@ -25,7 +32,8 @@ public class HTTPDateGetter extends TechniqueDateGetter<HTTPDate> {
     }
 
     /**
-     * Extracts date form HTTP-header, that is written in "Last-Modified"-tag.
+     * Extracts date form HTTP-header.<br>
+     * Look up only in tags with keywords of {@link KeyWords#HTPP_KEYWORDS}.
      * 
      * @param url
      * @return The extracted Date.
@@ -44,6 +52,13 @@ public class HTTPDateGetter extends TechniqueDateGetter<HTTPDate> {
         return result;
     }
 
+    /**
+     * Look up for date in tag that has specified keyword.<br>
+     * 
+     * @param keyword To look for
+     * @param headers Map of headers.
+     * @return HTTP-date.
+     */
     private static ArrayList<HTTPDate> checkHttpTags(String keyword, Map<String, List<String>> headers) {
         ArrayList<HTTPDate> result = new ArrayList<HTTPDate>();
         Object[] regExpArray = RegExp.getHTTPRegExp();

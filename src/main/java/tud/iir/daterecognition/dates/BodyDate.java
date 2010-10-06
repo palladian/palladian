@@ -1,7 +1,11 @@
 package tud.iir.daterecognition.dates;
 
-import org.w3c.dom.Node;
-
+/**
+ * Template for dates found in HTML-body.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public abstract class BodyDate extends KeywordDate {
 
     public static final int STRUCTURE_DEPTH = 101;
@@ -45,10 +49,19 @@ public abstract class BodyDate extends KeywordDate {
         // TODO Auto-generated constructor stub
     }
 
+    /**
+     * 
+     * @param tag
+     */
     public void setTag(String tag) {
         this.tag = tag;
     }
 
+    /**
+     * Should be name of tag, where this date was found.
+     * 
+     * @return
+     */
     public String getTag() {
         return tag;
     }
@@ -84,10 +97,20 @@ public abstract class BodyDate extends KeywordDate {
                 + "Stucturedepth: " + structuralDepth;
     }
 
+    /**
+     * Tag-node is the string representation of a HTML-node, the date is found.
+     * 
+     * @param tagNode
+     */
     public void setTagNode(String tagNode) {
         this.tagNode = tagNode;
     }
 
+    /**
+     * Tag-node is the string representation of a HTML-node, the date is found.
+     * 
+     * @return
+     */
     public String getTagNode() {
         return tagNode;
     }

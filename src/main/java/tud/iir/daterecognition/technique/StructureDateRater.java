@@ -9,6 +9,12 @@ import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
 import tud.iir.knowledge.KeyWords;
 
+/**
+ * This class rates structure dates by keywords.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class StructureDateRater extends TechniqueDateRater<StructureDate> {
 
     @Override
@@ -17,7 +23,10 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
     }
 
     /**
-     * Evaluates the structure-dates.
+     * Evaluates the structure-dates.<br>
+     * There for keywords are distinct into classes. See {@link KeyWords#getKeywordPriority(String)}.<br>
+     * Only best class will be rated, all other get value of 0. <br>
+     * Also a weight in dependency of number of dates will be set.
      * 
      * @param structDates
      * @return

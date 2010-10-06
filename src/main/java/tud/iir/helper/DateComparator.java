@@ -9,6 +9,16 @@ import java.util.Map.Entry;
 
 import tud.iir.daterecognition.dates.ExtractedDate;
 
+/**
+ * 
+ * This class gives the ability to compare dates by age.<br>
+ * Be careful by using it as a comparator in sort-functions.<br>
+ * Dates can have different exactness, means one has a time and the other no day.<br>
+ * For more information see at particular methods.
+ * 
+ * @author Martin Gregor
+ * 
+ */
 public class DateComparator implements Comparator<ExtractedDate> {
 
     /** Compare will stop after year. Value = 1. */
@@ -88,6 +98,15 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return returnValue;
     }
 
+    /**
+     * Ignores exactness of dates.<br>
+     * 2007-10-01 is before 2007-10-01 12:00
+     * 
+     * @param date1
+     * @param date2
+     * @param ignoreComparable
+     * @return
+     */
     public int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable) {
         int compare = compare(date1, date2, ignoreComparable, STOP_SECOND);
         if (compare == -2) {
@@ -98,6 +117,15 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return compare;
     }
 
+    /**
+     * Ignores exactness of dates. But you can set a maximum exactness until it will be compared.<br>
+     * 2007-10-01 is before 2007-10-01 12:00
+     * 
+     * @param date1
+     * @param date2
+     * @param ignoreComparable
+     * @return
+     */
     public int compare(ExtractedDate date1, ExtractedDate date2, boolean ignoreComparable, int compareDepth) {
         int compare;
         if (ignoreComparable) {
@@ -212,7 +240,7 @@ public class DateComparator implements Comparator<ExtractedDate> {
                     }
                 }
             }
-            diff = Math.round(Math.abs(cal1.getTimeInMillis() - cal2.getTimeInMillis()) * 100 / measure) / 100;
+            diff = Math.round(Math.abs(cal1.getTimeInMillis() - cal2.getTimeInMillis()) * 100.0 / measure) / 100.0;
         }
 
         return diff;
@@ -238,10 +266,26 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return returnDate;
     }
 
+    /**
+     * Oder dates, oldest first.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public <T> ArrayList<T> orderDates(ArrayList<T> dates) {
         return orderDates(dates, false);
     }
 
+    /**
+     * * Orders a hashmap of dates into an arraylist, beginning with oldest date.<br>
+     * Flag for reverse:
+     * 
+     * @param <T>
+     * @param dates
+     * @param reverse True is youngest first. False is oldest first.
+     * @return
+     */
     public <T> ArrayList<T> orderDates(ArrayList<T> dates, boolean reverse) {
         T[] result = orderDatesArray(dates);
         ArrayList<T> resultList = new ArrayList<T>();
@@ -258,6 +302,13 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return resultList;
     }
 
+    /**
+     * Oder dates, oldest first.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public <T> ArrayList<T> orderDates(HashMap<T, Double> dates) {
         ArrayList<T> temp = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
@@ -266,6 +317,15 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return orderDates(temp);
     }
 
+    /**
+     * Orders a hashmap of dates into an arraylist, beginning with oldest date.<br>
+     * Flag for reverse:
+     * 
+     * @param <T>
+     * @param dates
+     * @param reverse True is youngest first. False is oldest first.
+     * @return
+     */
     public <T> ArrayList<T> orderDates(HashMap<T, Double> dates, boolean reverse) {
         ArrayList<T> temp = new ArrayList<T>();
         for (Entry<T, Double> e : dates.entrySet()) {
@@ -322,6 +382,13 @@ public class DateComparator implements Comparator<ExtractedDate> {
         return i;
     }
 
+    /**
+     * Returns oldest date.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public <T> T getOldestDate(HashMap<T, Double> dates) {
         ArrayList<T> orderDates = orderDates(dates, false);
         T date = null;
@@ -332,6 +399,13 @@ public class DateComparator implements Comparator<ExtractedDate> {
 
     }
 
+    /**
+     * Returns youngest dates.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public <T> T getYoungestDate(HashMap<T, Double> dates) {
         ArrayList<T> orderDates = orderDates(dates, true);
         T date = null;
@@ -342,6 +416,13 @@ public class DateComparator implements Comparator<ExtractedDate> {
 
     }
 
+    /**
+     * Returns oldest date.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public <T> T getOldestDate(ArrayList<T> dates) {
         ArrayList<T> orderDates = orderDates(dates, false);
         T date = null;
@@ -352,6 +433,13 @@ public class DateComparator implements Comparator<ExtractedDate> {
 
     }
 
+    /**
+     * Returns youngest dates.
+     * 
+     * @param <T>
+     * @param dates
+     * @return
+     */
     public <T> T getYoungestDate(ArrayList<T> dates) {
         ArrayList<T> orderDates = orderDates(dates, true);
         T date = null;

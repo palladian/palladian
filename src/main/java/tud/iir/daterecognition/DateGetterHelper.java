@@ -12,7 +12,6 @@ import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
-import tud.iir.knowledge.KeyWords;
 import tud.iir.knowledge.RegExp;
 
 /**
@@ -71,7 +70,6 @@ public final class DateGetterHelper {
         ArrayList<ContentDate> contentDates = new ArrayList<ContentDate>();
         ExtractedDate date = null;
         Object[] regExps = RegExp.getAllRegExp();
-
         for (int i = 0; i < regExps.length; i++) {
             date = getDateFromString(dateString, (String[]) regExps[i]);
             if (date != null) {
@@ -79,7 +77,7 @@ public final class DateGetterHelper {
                 int index = dateString.indexOf(date.getDateString());
                 cDate.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
                 contentDates.add(cDate);
-                dateString = dateString.replaceFirst(date.getDateString(), getWhitespaces(date.getDateString()));
+                dateString = dateString.replaceFirst(date.getDateString(), getXs(date.getDateString()));
                 i--;
             }
         }
@@ -87,10 +85,31 @@ public final class DateGetterHelper {
         return contentDates;
     }
 
+    /**
+     * Returns a string of whitespace as long as the parameter string.
+     * 
+     * @param text
+     * @return String of whitespace.
+     */
     public static String getWhitespaces(String text) {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < text.length(); i++) {
-            sb.append(" ");
+            sb.append("x");
+            // sb.append(" ");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Returns a string of "x"s as long as the parameter string.
+     * 
+     * @param text
+     * @return String of "x"s.
+     */
+    public static String getXs(String text) {
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < text.length(); i++) {
+            sb.append("x");
         }
         return sb.toString();
     }
@@ -175,6 +194,15 @@ public final class DateGetterHelper {
         return date;
     }
 
+    /**
+     * In opposition to <b>findeNodeKeyword</b> also keywords as part of longer String will be found. <br>
+     * But with condition that keyword is no part of a word. <br>
+     * E.g.: date in timedate will not be found, but there for time-date matches.
+     * 
+     * @param node HTML-node to be searched.
+     * @param keyWords Array of keywords to look for.
+     * @return
+     */
     public static String findNodeKeywordPart(Node node, String[] keyWords) {
         String keyword = null;
         NamedNodeMap attrMap = node.getAttributes();
@@ -182,7 +210,7 @@ public final class DateGetterHelper {
         Matcher m;
         if (attrMap != null) {
             for (int j = 0; j < keyWords.length; j++) {
-                String lookUp = keyWords[j];
+                String lookUp = keyWords[j].toLowerCase();
                 for (int i = 0; i < attrMap.getLength(); i++) {
                     Node attr = attrMap.item(i);
                     String attrText = attr.getNodeValue().toLowerCase();
@@ -193,6 +221,7 @@ public final class DateGetterHelper {
                         int end = index + lookUp.length();
 
                         if (start > 0) {
+
                             String bevor = attrText.substring(start - 1, start);
                             m = p.matcher(bevor);
                             if (m.find()) {
@@ -221,6 +250,15 @@ public final class DateGetterHelper {
         return keyword;
     }
 
+    /**
+     * Looks up in a node for keywords. <br>
+     * Only find keywords if the attribute values are equals to the keyword. <br>
+     * Date in pubdate will not be found, also in time-date the keyword will not be found.
+     * 
+     * @param node HTML-node to be searched.
+     * @param keyWords Array of keywords to look for.
+     * @return
+     */
     public static String findNodeKeyword(Node node, String[] keyWords) {
         String keyword = null;
         NamedNodeMap attrMap = node.getAttributes();
@@ -242,11 +280,19 @@ public final class DateGetterHelper {
         return keyword;
     }
 
-    public static void setNearestTextkeyword(String textString, ContentDate date) {
+    /**
+     * For date in a string the nearest keyword will be found, independently from kind of keyword or position in keyword
+     * array.<br>
+     * If a keyword is found, it will be set to the date that will be returned.
+     * 
+     * @param textString String within the date.
+     * @param date Date found in the textString.
+     * @param keys
+     */
+    public static void setNearestTextkeyword(String textString, ContentDate date, String[] keys) {
         String text = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(textString));
         String keyword = null;
         String dateString = date.getDateString();
-        String[] keys = KeyWords.BODY_CONTENT_KEYWORDS;
         int dateBegin = text.indexOf(dateString);
         int dateEnd = dateBegin + dateString.length();
         int distance = 9999;
@@ -254,13 +300,32 @@ public final class DateGetterHelper {
         int keyEnd;
         int temp;
 
+        Pattern p = Pattern.compile("\\w");
+        Matcher m;
+
         for (int i = 0; i < keys.length; i++) {
             keyBegin = text.toLowerCase(Locale.ENGLISH).indexOf(keys[i].toLowerCase(Locale.ENGLISH));
             if (keyBegin != -1) {
                 keyEnd = keyBegin + keys[i].length();
+
+                if (keyBegin > 0) {
+                    m = p.matcher(text.substring(keyBegin - 1, keyBegin));
+                    if (m.find()) {
+                        continue;
+                    }
+                }
+                if (keyEnd < text.length()) {
+
+                    m = p.matcher(text.substring(keyEnd, keyEnd + 1));
+                    if (m.find()) {
+                        continue;
+                    }
+                }
+
                 int subBegin = Math.min(dateBegin, keyBegin);
                 int subende = Math.max(dateEnd, keyEnd);
                 String subText = text.substring(subBegin, subende);
+
                 temp = StringHelper.countWhitespaces(subText);
                 if (temp < distance) {
                     distance = temp;
@@ -269,11 +334,10 @@ public final class DateGetterHelper {
             }
         }
 
-        if (keyword != null) {
+        if (keyword != null && distance < 20) {
             date.setKeyword(keyword);
             date.set(ContentDate.DISTANCE_DATE_KEYWORD, distance);
             date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_CONTENT);
         }
     }
-
 }
