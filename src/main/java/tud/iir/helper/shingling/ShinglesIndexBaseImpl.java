@@ -14,7 +14,7 @@ import java.util.Set;
 public abstract class ShinglesIndexBaseImpl implements ShinglesIndex {
     
     /** default directory where to store serialized shingles. */
-    public static final String INDEX_FILE_BASE_PATH = "data/models/shingles/";
+    public static final String INDEX_FILE_BASE_PATH = "data/temp/shingles/";
     
     /** name of the index. */
     private String indexName = "shingles";

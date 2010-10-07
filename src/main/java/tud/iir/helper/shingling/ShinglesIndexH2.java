@@ -39,6 +39,8 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
     private PreparedStatement psGetHashesForDocument;
     private PreparedStatement psGetDocumentsForHashes;
     private PreparedStatement psAddDocument;
+    
+    private Connection connection;
 
     public ShinglesIndexH2() {
 
@@ -46,7 +48,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
 
             Class.forName(dbDriver);
             String url = "jdbc:" + dbType + ":" + INDEX_FILE_BASE_PATH + getIndexName() + ";DB_CLOSE_DELAY=-1";
-            Connection connection = DriverManager.getConnection(url, dbUsername, dbPassword);
+            connection = DriverManager.getConnection(url, dbUsername, dbPassword);
 
             PreparedStatement psCreateTableShingles = connection
                     .prepareStatement("CREATE TABLE IF NOT EXISTS documentsHashes (documentId INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, hash BIGINT, PRIMARY KEY(documentId, hash)); " +
@@ -291,7 +293,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
 
     @Override
     public void deleteIndex() {
-
+    	
         String file = INDEX_FILE_BASE_PATH + getIndexName() + ".h2.db";
 
         if (FileHelper.fileExists(file)) {
