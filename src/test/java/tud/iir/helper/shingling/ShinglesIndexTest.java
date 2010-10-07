@@ -9,6 +9,8 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import tud.iir.helper.FileHelper;
+
 /**
  * Test for various ShinglesIndex implementations.
  * 
@@ -76,7 +78,9 @@ public class ShinglesIndexTest {
 
         // clean up
         index.deleteIndex();
-
+        
+        // XXX why is the following line necessary on Windows?
+        FileHelper.cleanDirectory(ShinglesIndexBaseImpl.INDEX_FILE_BASE_PATH);
     }
 
 }
