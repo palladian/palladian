@@ -15,7 +15,7 @@
 
 \pagestyle{myheadings}         % Option to put page headers
                                % Needed \documentclass[a4paper,twoside]{article}
-\markboth{{\small\it TUDIIR Toolkit Overview}}
+\markboth{{\small\it Overview of TUD Palladian}}
 {{\small\it David Urbansky, Klemens Muthmann} }
 
 %A4 settings
@@ -43,7 +43,7 @@
 \date{\today}
 %\title{\fcolorbox{red}{blue}{\color{white}Including colour, pdf graphics and hyperlinks
 %\footnote{A demonstration example including colored text and graphics}}}
-\title{TUDIIR Toolkit Overview}
+\title{TUD Palladian Overview}
 \author{David Urbansky, Klemens Muthmann \\
 {\small TU Dresden, Department of Systems Engineering, Chair Computer Networks, IIR Group, Germany}
 }
@@ -64,23 +64,23 @@
 \chapter{Introduction}
 Internet Information Retrieval (IIR) is a research domain in computer science that is concerned with the retrieval, extraction, classification, and presentation of information from the Internet. This toolkit provides functionality which is often needed to perform IIR tasks such as crawling, classification, and extraction of various information types.
 
-\section{What is TOOLKIT?}
+\section{What is Palladian?}
 %TODO contributions
-TOOLKIT is a collection of algorithms for text processing with focus on {\textbf classification}, {\textbf extraction}, and {\textbf retrieval}. The idea of TOOLKIT is to reuse algorithms that are freely available and build upon them to drive research. When trying to learn and advance in a new field of research, one has to play around with a lot of code snippets from many different authors, this toolkit tries to ease this process too by making external libraries accessible through a single interface. This way new algorithms can be quickly compared to the state-of-the-art.
+Palladian is a collection of algorithms for text processing with focus on {\textbf classification}, {\textbf extraction}, and {\textbf retrieval}. The idea of Palladian is to reuse algorithms that are freely available and build upon them to drive research. When trying to learn and advance in a new field of research, one has to play around with a lot of code snippets from many different authors, this toolkit tries to ease this process too by making external libraries accessible through a single interface. This way new algorithms can be quickly compared to the state-of-the-art.
 Only the best results of students theses from the Dresden University of Technology find their way into the toolkit allowing all users to create more advanced programs in the future.
 
 Our main contributions to the research community are:
 \begin{enumerate}
-\item New algorithms in the fields of classification, extraction, and information retrieval that can easily be tested and applied to other projects.
+\item New algorithms in the fiethat can easily be tested and applied to other projects.
 \item Bundling existing, well-established algorithms for the use through a single interface.
 \item Help making research more transparent by allowing to reproduce results with the included algorithms.
 \end{enumerate}
 
-\section{What is TOOLKIT NOT?}
-TOOLKIT is not a complete natural language processing suite nor does it contain a {\textit complete} set of algorithms in any of the fields of classification, extraction, or information retrieval. TOOLKIT is not commercial either, we like to answer questions as soon and comprehensive as possible but cannot guarantee this support.
+\section{What is Palladian NOT?}
+Palladian is not a complete natural language processing suite nor does it contain a {\textit complete} set of algorithms in any of the fields of classificatilds of classification, extraction, and information retrieval on, extraction, or information retrieval. Palladian is not commercial either, we like to answer questions as soon and comprehensive as possible but cannot guarantee this support.
 
 \section{Who is the intended audience?}
-All algorithms are developed during scientific endeavors and therefore are also most likely to help other researchers who don't need perfect, bug-free software in commercial systems. In general everybody is welcome to use TOOLKIT though.
+All algorithms are developed during scientific endeavors and therefore are also most likely to help other researchers who don't need perfect, bug-free software in commercial systems. In general everybody is welcome to use Palladian though.
 
 \section{License}
 The complete source code is licensed under the Apache License 2.0. All source files should include the following license snippet at the very top.
@@ -101,7 +101,7 @@ limitations under the License.
 \end{verbatim}
 
 \section{Alternative and Complimentary Toolkits}
-Some functionalities of this toolkit are covered in other libraries. Before you start using TOOLKIT you might want to take a look at these alternatives. The objective of TOOLKIT is to create new functionalities or improve existing ones, we do not intend to reinvent the wheel. For example, TOOLKIT has no functionality for part-of-speech tagging (PoS tagging) since there are many toolkits that do this task pretty accurate already. In case you do not find the functionality you are looking for in this toolkit, you probably will in one of the following toolkits.
+Some functionalities of this toolkit are covered in other libraries. Before you start using Palladian you might want to take a look at these alternatives. The objective of Palladian is to create new functionalities or improve existing ones, we do not intend to reinvent the wheel. For example, Palladian has no functionality for part-of-speech tagging (PoS tagging) since there are many toolkits that do this task pretty accurate already. In case you do not find the functionality you are looking for in this toolkit, you probably will in one of the following toolkits.
 
 \begin{enumerate}
 \item \textbf{AlchemyAPI} \cite{alchemyapi} is a commercial web-service that can be used via several programming languages. The service offers named entity recognition, text classification, language identification, concept tagging, keyword extraction, content scraping, and web page cleaning.
@@ -153,7 +153,7 @@ The library is licensed under the GNU General Public License.
 \end{enumerate}
 
 \chapter{Installation and making it work}
-The TUDIIR toolkit is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on a weekly basis using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.mantisbt.org/}{Mantis bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
+Palladian is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on a weekly basis using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.mantisbt.org/}{Mantis bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
 
 At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
 \section{Building the toolkit using Apache Maven}
@@ -220,7 +220,7 @@ You need to set your username and your password in the server section. This can 
 \end{enumerate}
 There also is an \href{http://m2eclipse.sonatype.org/}{Eclipse plugin}, that allows you to issue maven build from within Eclipse. It is quite beta so be careful with it.
 \section{Regularly builds and tests using Hudson CI}
-Currently the toolkit is build automatically every week using Hudson CI. Be careful to check in only working code or Hudson will send you and your advisor an E-Mail about broken code. If this happens try to fix your code as fast as possible and check in again. You can get details about the problem by logging into \href{http://www.effingo.de/hudson}{Hudson}. You can get a login by sending an E-Mail stating your advisor and why you nood to work with the toolkit to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de}
+Currently Palladian is build automatically every week using Hudson CI. Be careful to check in only working code or Hudson will send you and your advisor an E-Mail about broken code. If this happens try to fix your code as fast as possible and check in again. You can get details about the problem by logging into \href{http://www.effingo.de/hudson}{Hudson}. You can get a login by sending an E-Mail stating your advisor and why you nood to work with the toolkit to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de}
 \subsection{The Continuous Integration Game}
 \label{sec:cigame}
 Hudson supports a game that rewards people committing code that improves the toolkit and punishing people breaking it. The leader (the person having the most points) is highly valued by the toolkit committers community. The rules for the game are explained in detail in the next section.
@@ -239,7 +239,7 @@ The rules of the game are:
 \item Checkstyle Plugin. Adding/removing a checkstyle warning = -1/+1.
 \end{itemize}
 
-\section{Hello Toolkit - Your first application using the TUDIIR Toolkit}
+\section{Hello Toolkit - Your first application using Palladian}
 \paragraph{Project creation:} Create a new Maven Project using the New Project wizard of Eclipse (See Fig.~\ref{fig:maven-project01},~\ref{fig:maven-project02} and \ref{fig:maven-project03}).
 \begin{figure}
 \centering
@@ -291,7 +291,7 @@ The Maven plugin adds the dependency to your pom.xml file, which should look lik
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{img/ht06.png}
-\caption{POM with added dependency on the TUD IIR Toolkit.}
+\caption{POM with added dependency on the TUD Palladian toolkit.}
 \label{fig:pom01}
 \end{figure}
 \paragraph{Configuring your project} Since Maven by default still uses Java 1.4 (very conservative), but the toolkit depends on Java 1.6 (very visionary) you need to configure the Maven Java compiler plugin to use Java 1.6. This is shown in Fig.~\ref{fig:java601}.
@@ -314,11 +314,11 @@ The same step is necessary to tell Eclipse that it should use Java 1.6 instead o
 \caption{configure Eclipse to use Java 1.6}
 \label{fig:java603}
 \end{figure}
-\paragraph{Writing your first toolkit code} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search Bing for the term "Hello Toolkit". The example is also shown in Fig.~\ref{fig:hellotoolkit}.
+\paragraph{Writing your first Palladian} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search bing for the term "Hello Palladian". The example is also shown in Fig.~\ref{fig:hellotoolkit}.
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{img/ht10.png}
-\caption{"Hello Toolkit" Code}
+\caption{"Hello Palladian" Code}
 \label{fig:hellotoolkit}
 \end{figure}
 For the code to work you need three additional files that are already in the config folder in the toolkit project. These are ``crawler.conf'', ``apikeys.conf'' and ``feeds.conf''. You need to copy them to src/main/resources/config. The folder src/main/resources usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
@@ -362,9 +362,9 @@ To report issues with the toolkit or to view issues assigned to you, you need to
 
 \chapter{Toolkit Structure}
 \label{sec:toolkitstructure}
-The TUDIIR Toolkit is managed using subversion. The top level folder structure follows the usual subversion layout using trunk for the main development, branches for parallel development and tags to mark specific versions. The trunk is located in our SVN\footnote{\url{https://141.76.40.86/svn-students/iircommon/toolkit/trunk}}. The folder structure looks as follows.
+TUD Palladian is managed using subversion. The top level folder structure follows the usual subversion layout using trunk for the main development, branches for parallel development and tags to mark specific versions. The trunk is located in our SVN\footnote{\url{https://141.76.40.86/svn-students/iircommon/toolkit/trunk}}. The folder structure looks as follows.
 \begin{verbatim}
-toolkit
+palladian
  |- config
  |- data
     |- datasets
@@ -561,7 +561,7 @@ After finishing a new component, new testing code must be written.
 \section{Classification}
 
 \subsection{Text Classification}
-Text classification is the process of assigning one or more categories to a given text document. There are several types of text classification which are shown in Figure \ref{fig:typesOfClassification}. The TOOLKIT can classify text in a single category, multiple categories, or in a hierarchical manner.
+Text classification is the process of assigning one or more categories to a given text document. There are several types of text classification which are shown in Figure \ref{fig:typesOfClassification}. Palladian can classify text in a single category, multiple categories, or in a hierarchical manner.
 
 \begin{figure}[ht!]
 \centering
@@ -573,11 +573,11 @@ Text classification is the process of assigning one or more categories to a give
 The text classification components are built from scratch and do not rely on external libraries such as Weka. In this section we will explain which features can be used for the classification, the basic theory of the classifiers, and how the performance of a classifier can be evaluated. In each section, we will describe theory and how the classification components can be used programmatically.
 
 \subsubsection{Classification Type}
-The TOOLKIT supports simple single category classification, tagging, and hierarchical classification. Each classifier needs to know in which type it has to perform classification.
+Palladian supports simple single category classification, tagging, and hierarchical classification. Each classifier needs to know in which type it has to perform classification.
 This information is stored in the ClassificationTypeSetting object which is then passed to the classifier. Please read the Javadoc of that class for more detailed information.
 
 \subsubsection{Features}
-Features are the input for a classifier. In text classification we have a long string as an input from which we can derive several features. All of the TOOLKIT classifiers work with n-grams. N-grams are sets of tokens of the length n. The TOOLKIT can preprocess text with character or word-level n-grams. See Section \ref{sec:ngrams} for more details.
+Features are the input for a classifier. In text classification we have a long string as an input from which we can derive several features. All of Palladian's classifiers work with n-grams. N-grams are sets of tokens of the length n. Palladian can preprocess text with character or word-level n-grams. See Section \ref{sec:ngrams} for more details.
 
 Sometimes you do not want to have all n-grams to be features for the classifier. You can simply disallow certain features by putting them in a stop word list. These n-grams will then be ignored for the classification.
 
@@ -898,7 +898,7 @@ System.out.println("finished training and testing classifier
 \section{Extraction}
 
 \subsection{Keyword Extraction / Controlled Tagging}
-It is often interesting which words describe a given text most. These words are often called ``keywords'' or ``tags''. TOOLKIT is able to use a weighted, controlled vocabulary and perform tagging of a text using TF-IDF and tag correlations.
+It is often interesting which words describe a given text most. These words are often called ``keywords'' or ``tags''. Palladian is able to use a weighted, controlled vocabulary and perform tagging of a text using TF-IDF and tag correlations.
 
 The ControlledTaggerIndex is the basis for the tagging. This index contains information about the controlled tag vocabulary, tag frequencies, a stem-map, and a correlation table for all tags. The tag index is built using training data of single text files that have been assigned with weighted tags. This index is serialized as a model file for later usage.
 
@@ -939,7 +939,7 @@ Content oriented web pages such as blogs or news articles contain not only the t
 
 To perform this kind of extraction we could use wrapper approaches which are explained in more detail in \cite{ckgs2006}. However, these approaches require manual wrapper construction or semi-supervised learning which is too cumbersome.
 Another approach would be to detect the template of the web page and get only the contents of the main block (the green box). Template detection usually works by comparing one page with several other pages of the same domain to find the fix and changeable contents. This however requires several http requests and therefore more time and bandwidth.
-In TOOLKIT we use an approach that is based on a hierarchical analyzis of the web page's DOM tree. Each DOM element is analyzed and ranked based on the length of the contained text, the link density, and the frequency of other elements in relation to the text length. Longer text fragments usually indicate a relevant part of the article, while a high link density is more likely to indicate that the analyzed element is part of the navigation for example. Also the attributes ``id'' and ``class'' are analyzed. If the attribute values contain keywords such as ``entry'', ``content'', or ``text'', the element is more likely to contain relevant content as if the attribute values contain keywords such as ``header'', ``footer'', or ``sidebar''. The implementation of the web page content extraction adopted great parts of the Firefox extension ``Readability''\footnote{\url{http://lab.arc90.com/experiments/readability/}}. The used heuristics in Readability have shown to be quite accurate for a wide range of web pages.
+In Palladian we use an approach that is based on a hierarchical analyzis of the web page's DOM tree. Each DOM element is analyzed and ranked based on the length of the contained text, the link density, and the frequency of other elements in relation to the text length. Longer text fragments usually indicate a relevant part of the article, while a high link density is more likely to indicate that the analyzed element is part of the navigation for example. Also the attributes ``id'' and ``class'' are analyzed. If the attribute values contain keywords such as ``entry'', ``content'', or ``text'', the element is more likely to contain relevant content as if the attribute values contain keywords such as ``header'', ``footer'', or ``sidebar''. The implementation of the web page content extraction adopted great parts of the Firefox extension ``Readability''\footnote{\url{http://lab.arc90.com/experiments/readability/}}. The used heuristics in Readability have shown to be quite accurate for a wide range of web pages.
 
 \subsection{Named Entity Recognition}
 
@@ -950,13 +950,13 @@ A named entity recognizer is therefore a system or technique that tries to detec
 {\textbf Bill Gates} founded {\textbf Microsoft} with {\textbf Paul Allen} in 1975 in {\textbf Albuquerque, New Mexico}. The headquarter is located in {\textbf Redmond, Washington} and the company is led by CEO {\textbf Steve Ballmer}.
 
 \subsubsection{Taggers}
-The TOOLKIT wraps 8 Named Entity Recognizers using a single interface making it easier to test and substitute them in real world applications.
+Palladian wraps 8 Named Entity Recognizers using a single interface making it easier to test and substitute them in real world applications.
 
 \paragraph{Alchemy} The Alchemy API is a web-based service that also offers Named Entity Recognition. Using this NER requires the application to have a developer key and Internet access. Alchemy covers a wide range of concepts. For more details see \url{http://www.alchemyapi.com/api/entity/types.html} or the JavaDoc.
 
 \paragraph{Illinois Learning-based Java} Students from the University of Illinois developed this Recognizer \cite{illinoisccg}. The recognizer comes with a large set of lists that help the recognizer to tag concepts such as corporations, countries, jobs, movies, people, songs, and more. More information can also be found on \url{http://l2r.cs.uiuc.edu/~cogcomp/asoftware.php?skey=FLBJNE}.
 
-\paragraph{Julie} The Julie Lab of the University of Jena added a named entity recognizer to their NLP toolsuite \cite{hahn2008overview}. The tagger is based on conditional random fields and comes with three models from the biomedical domain. Other models can however trained using TOOLKIT. For more information see the pdf which is contained in their stand-alone download from \url{http://www.julielab.de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html}.
+\paragraph{Julie} The Julie Lab of the University of Jena added a named entity recognizer to their NLP toolsuite \cite{hahn2008overview}. The tagger is based on conditional random fields and comes with three models from the biomedical domain. Other models can however trained using Palladian. For more information see the pdf which is contained in their stand-alone download from \url{http://www.julielab.de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html}.
 
 \paragraph{LingPipe} The LingPipe library \cite{lingpipe} also offers an NER. Unfortunately the tagger comes with no models. Models for each desired concept need to be trained manually More information can be found on \url{http://alias-i.com/lingpipe/demos/tutorial/ne/read-me.html}.
 
@@ -1022,7 +1022,7 @@ Some of the available taggers come with trained models that can be used to detec
 First we start with the tagging formats which can be used to create a training set.
 
 \paragraph{Tagging Formats}
-Many tagging types have been developed which makes interoperability between different systems harder. TOOLKIT can handle many of these formats and is able to transform a tagged text within these formats. 
+Many tagging types have been developed which makes interoperability between different systems harder. Palladian can handle many of these formats and is able to transform a tagged text within these formats. 
 
 The different tagging are explained in this section using the same example text: ``Bill Gates founded Microsoft in 1975.''.
 
@@ -1066,7 +1066,7 @@ in O
 
 If we had another person name right after the first one, our tagger might think that it was only one person if we use the column notation. In the column BIO notation, both persons could be distinguished because the second one would start with B-PERSON.
 
-\subparagraph{XML} The XML notation is very common too and is the favored one in TOOLKIT. Similarly to the brackets notation, the XML notation wraps the word in an XML tag. The sample tags would look as shown below.
+\subparagraph{XML} The XML notation is very common too and is the favored one in Palladian. Similarly to the brackets notation, the XML notation wraps the word in an XML tag. The sample tags would look as shown below.
 
 \begin{verbatim}
 <PERSON>Bill Gates</PERSON> founded <ORG>Microsoft</ORG> in <DATE>1975</DATE>.
@@ -1244,7 +1244,7 @@ System.out.println(r2);
 \end{codelisting}
 
 \subsection{Web Page Age Detection}
-The age of a web page can often be a useful indicator about the freshness of the information. It might also be used in classification or ranking of web documents. TOOLKIT is able to detect the age of many web pages by using four main techniques:
+The age of a web page can often be a useful indicator about the freshness of the information. It might also be used in classification or ranking of web documents. Palladian is able to detect the age of many web pages by using four main techniques:
 \begin{enumerate}
 \item Reading the {\textbf HTTP header} of a web page and look for the date that the page has changed. Although this information is often absent of incorrect it sometimes is the only date we get.
 \item Recognize a date in the {\textbf URL} of the web page. Especially blogs use the URL style which often reads similar to ``http://domain.tld/posts/YYYY/MM/PostName''. In these cases the date in the domain is a very good indicator of the web page's age.
@@ -1277,7 +1277,7 @@ System.out.println(date);
 \item {\textbf No Link} Each question is immediately followed by its answer.
 \end{enumerate}
 
-TOOLKIT can handle many FAQs that follow the first or third structure. First, the algorithm detects the XPaths to the questions and then it tries to extract all content between the current and the next question as the answer for the current question.
+Palladian can handle many FAQs that follow the first or third structure. First, the algorithm detects the XPaths to the questions and then it tries to extract all content between the current and the next question as the answer for the current question.
 
 Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically. You can also check out the functionality of the FAQ Extractor online at \url{http://www.webknox.com/wi#FAQExtraction}.
 
@@ -1435,7 +1435,7 @@ crawler.startCrawl("http://www.dmoz.org/", true, true);
 
 \section{Preprocessing}
 \subsection{Tokenization}
-A \textit{Token} is a sequence of characters that can be categorized according to the tokenization rules. \textit{Tokenization} is the process of transforming a text into a sequence of tokens. Table \ref{tab:tokenTypes} shows example token types. The text ``Today I lost \$1000 dollar playing poker.'' could consists of 8 tokens for example. What token types exist depend on the application. The dollar sign could be a single token for example. TOOLKIT uses regular expressions to perform the tokenization.
+A \textit{Token} is a sequence of characters that can be categorized according to the tokenization rules. \textit{Tokenization} is the process of transforming a text into a sequence of tokens. Table \ref{tab:tokenTypes} shows example token types. The text ``Today I lost \$1000 dollar playing poker.'' could consists of 8 tokens for example. What token types exist depend on the application. The dollar sign could be a single token for example. Palladian uses regular expressions to perform the tokenization.
 
 \begin{table}[ht!]
 \centering
@@ -1459,7 +1459,7 @@ many			& word \\
 One can also see each sentence of a text as a token, in this case the tokenization process is called sentence splitting as explained int he next section.
 
 \subsection{Sentence Splitting}
-TOOLKIT has a rudimentary implementation for the common need for sentence splitting. TOOLKIT's implementation works with hand-crafted rules and thus does not require a model. Sentences try to be splitted on periods, question marks, and exclamation marks but there are also rules that try to prevent splitting sentences at ellipses. For example, the following is online one sentence although it contains several periods: ``Sometimes sentenes contain many periods...really!''.
+Palladian has a rudimentary implementation for the common need for sentence splitting. Palladian implementation works with hand-crafted rules and thus does not require a model. Sentences try to be splitted on periods, question marks, and exclamation marks but there are also rules that try to prevent splitting sentences at ellipses. For example, the following is online one sentence although it contains several periods: ``Sometimes sentenes contain many periods...really!''.
 
 The following code shows how the sentence splitting can be used:
 \begin{codelisting}
@@ -1515,7 +1515,7 @@ ngrams = Tokenizer.calculateAllWordNGrams(inputText,1,3);
 \end{codelisting}
 
 \subsection{Noun Pluralization and Singularization}
-TOOLKIT is able to transform most English singular nouns to their plural and back. For example, ``city'' becomes ``cities'' and ``index'' becomes ``indices''.
+Palladian is able to transform most English singular nouns to their plural and back. For example, ``city'' becomes ``cities'' and ``index'' becomes ``indices''.
 
 Listing \ref{listing:singularPlural} shows the simple usage of the singularization and pluralization using the WordTransformer class.
 
@@ -1612,7 +1612,7 @@ String d = StringHelper.decodeBase64(e);
 \chapter{Where to go from here?}
 
 \section{Referenced Libraries}
-The TOOLKIT makes excessive use of third party libraries. We do not intend to re-implement code but rather to built on it and create something superior. Here an incomplete list of libraries the toolkit uses:
+Palladian makes excessive use of third party libraries. We do not intend to re-implement code but rather to built on it and create something superior. Here an incomplete list of libraries the toolkit uses:
 \begin{itemize}
 \item Apache Commons \cite{apachecommons} for many standard tasks in string and number manipulation and more.
 \item Fathom \cite{fathom} to measure readability of English text.
@@ -1628,7 +1628,7 @@ The TOOLKIT makes excessive use of third party libraries. We do not intend to re
 \end{itemize}
 
 \section{History}
-The foundation of the toolkit code came out of the WebKnox project\cite{webknox} that was started in 2008.% Now, components of the Aletheia project\footnote{\url{http://www.aletheia-projekt.de}} and the Effingo project\footnote{\url{http://www.effingo.de}}
+The foundation of Palladian's code came out of the WebKnox project\cite{webknox} that was started in 2008.% Now, components of the Aletheia project\footnote{\url{http://www.aletheia-projekt.de}} and the Effingo project\footnote{\url{http://www.effingo.de}}
 
 The code is in development by students of the Dresden University of Technology. Contributors are:
 \begin{itemize}
