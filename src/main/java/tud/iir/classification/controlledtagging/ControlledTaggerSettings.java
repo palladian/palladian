@@ -35,16 +35,21 @@ public class ControlledTaggerSettings {
 
     public static final int DEFAULT_TAG_COUNT = 10;
 
-    public static final float DEFAULT_CORRELATION_WEIGHT = 50.0f;
+    public static final float DEFAULT_CORRELATION_WEIGHT = 20000;
 
     public static final float DEFAULT_PRIOR_WEIGHT = 1.0f;
 
-    public static final Pattern DEFAULT_TAG_MATCH_PATTERN = Pattern.compile(".*\\w.*");
+    // public static final Pattern DEFAULT_TAG_MATCH_PATTERN = Pattern.compile(".*\\w.*");
+    /**
+     * The default pattern for tags, matching tags with at least three alphabetic characters.
+     */
+    public static final Pattern DEFAULT_TAG_MATCH_PATTERN = Pattern.compile("[a-z]{3,}");
+
 
     // //////// customizable settings ///////////
     // see their corresponding setters for documentation.
-    private TaggingType taggingType = TaggingType.THRESHOLD;
-    private TaggingCorrelationType correlationType = TaggingCorrelationType.NO_CORRELATIONS;
+    private TaggingType taggingType = TaggingType.FIXED_COUNT;
+    private TaggingCorrelationType correlationType = TaggingCorrelationType.DEEP_CORRELATIONS;
     private float tfidfThreshold = DEFAULT_TFIDF_THRESHOLD;
     private int tagCount = DEFAULT_TAG_COUNT;
     private float correlationWeight = DEFAULT_CORRELATION_WEIGHT;
@@ -143,6 +148,10 @@ public class ControlledTaggerSettings {
 
     public void setTagMatchPattern(Pattern tagMatchPattern) {
         this.tagMatchPattern = tagMatchPattern;
+    }
+    
+    public void setTagMatchPattern(String tagMatchRegex) {
+        this.tagMatchPattern = Pattern.compile(tagMatchRegex);
     }
 
     public Set<String> getStopwords() {

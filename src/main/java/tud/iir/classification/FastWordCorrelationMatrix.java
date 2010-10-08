@@ -10,7 +10,7 @@ import java.util.Set;
 
 /**
  * This implementation is about twice as fast as the {@link WordCorrelationMatrix}, by using nested HashMaps to
- * accelerate the look up of correlations, but therefor also consumes twice as much memory.
+ * accelerate the look up of correlations, but therefore also consumes twice as much memory.
  * 
  * @author Philipp Katz
  * 

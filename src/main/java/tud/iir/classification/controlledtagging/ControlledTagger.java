@@ -22,8 +22,12 @@ import org.apache.log4j.Logger;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.classification.controlledtagging.ControlledTaggerSettings.TaggingCorrelationType;
 import tud.iir.classification.controlledtagging.ControlledTaggerSettings.TaggingType;
+import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetCallback;
+import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetEntry;
+import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetFilter;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.Tokenizer;
@@ -62,6 +66,9 @@ public class ControlledTagger {
 
     public void train(String text, Bag<String> tags) {
 
+        // remove undesired tags (not matching RegEx).
+        tags = clean(tags);
+        
         Bag<String> stemmedTags = stem(tags);
 
         index.getTagVocabulary().addAll(tags); // XXX this should be the unique set?
@@ -80,6 +87,20 @@ public class ControlledTagger {
             index.setDirtyIndex(true);
         }
 
+    }
+
+    /**
+     * We only need those tags which actually match with the provided pattern. The rest can be filtered out to save
+     * memory.
+     */
+    private Bag<String> clean(Bag<String> tags) {
+        Bag<String> result = new HashBag<String>();
+        for (String string : tags.uniqueSet()) {
+            if (settings.getTagMatchPattern().matcher(string).matches()) {
+                result.add(string, tags.getCount(string));
+            }
+        }
+        return result;
     }
 
     /**
@@ -104,6 +125,8 @@ public class ControlledTagger {
     /**
      * Add a list of tags to the WordCorrelationMatrix, for a set with size n, we will add
      * <code>(n - 1) + (n - 2) + ... + 1 = (n * (n - 1)) / 2</code> correlations.
+     * 
+     * TODO move this to the CorrelationMatrix?
      * 
      * @param tags
      */
@@ -934,9 +957,37 @@ public class ControlledTagger {
 
         // ControlledTagger tagger = ControlledTagger.load("data/controlledTagger20000_David_idf.ser");
 
-        ControlledTagger tagger = new ControlledTagger();
-
-        System.out.println(tagger);
+        
+        
+        /////////////////////// usage example for documentation ///////////////////////////////
+        
+        // set up the ControlledTagger
+        final ControlledTagger tagger = new ControlledTagger();
+        
+        // all tagging parameters are encapsulated by ControlledTaggerSettings
+        ControlledTaggerSettings taggerSettings = tagger.getSettings();
+        
+        // create a DeliciousDatasetReader + Filter for training
+        DeliciousDatasetReader reader = new DeliciousDatasetReader();
+        DatasetFilter filter = new DatasetFilter();
+        filter.addAllowedFiletype("html");
+        filter.setMinUsers(50);
+        filter.setMaxFileSize(600000);
+        reader.setFilter(filter);
+        
+        // train the tagger with 20.000 train documents from the dataset
+        DatasetCallback callback = new DatasetCallback() {
+            @Override
+            public void callback(DatasetEntry entry) {
+                String content = FileHelper.readFileToString(entry.getPath());
+                content = HTMLHelper.htmlToString(content, true);
+                tagger.train(content, entry.getTags());
+            }
+        };
+        reader.read(callback, 20000);
+        
+        // save the model for later usage
+        tagger.save("data/models/controlledTaggerModel2.ser");
 
         // ControlledTagger tagger = new ControlledTagger();
         // tagger.addToVocabularyFromFile("data/delicious_tags_t140.txt");
