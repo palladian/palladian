@@ -362,7 +362,7 @@ public class NewsAggregator {
 
         try {
 
-            XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink() + "\"]");
+            node = XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink() + "\"]");
 
             if (node == null) {
                 node = XPathHelper.getNode(plainXMLFeed,
@@ -376,6 +376,10 @@ public class NewsAggregator {
 
         } catch (Exception e) {
             LOGGER.error("synd entry was not complete, " + e.getMessage());
+        }
+
+        if (node == null) {
+            System.out.println("STOP");
         }
 
         return node;

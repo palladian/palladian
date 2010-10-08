@@ -5,6 +5,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.DateHelper;
+import tud.iir.helper.StringHelper;
 
 /**
  * The {@link FeedChecker} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
@@ -55,7 +56,11 @@ class FeedTask implements Runnable {
         if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_OFF) {
             feed.updateEntries(false);
         } else {
-            feed.updateEntriesFromDisk(feedChecker.findHistoryFile(feed.getId()));
+            String safeFeedName = feed.getId()
+                    + "_"
+                    + StringHelper.makeSafeName(
+                            feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
+            feed.updateEntriesFromDisk(feedChecker.findHistoryFile(safeFeedName));
         }
 
         // classify feed if it has never been classified before

@@ -5,7 +5,8 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.ArrayList;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
@@ -39,7 +40,6 @@ public class DatasetCreator {
     /** Path to the folder where the dataset is stored. */
     protected static final String DATASET_PATH = "data/datasets/feedPosts/";
 
-
     /**
      * Start creating the dataset.
      */
@@ -48,13 +48,15 @@ public class DatasetCreator {
         FeedStore feedStore = FeedDatabase.getInstance();
 
         // all feeds need to be classified in advance to filter them accordingly
-        //FeedClassifier.classifyFeedInStore(feedStore);
+        // FeedClassifier.classifyFeedInStore(feedStore);
 
         FeedChecker feedChecker = new FeedChecker(feedStore);
 
+        FeedChecker.setBenchmark(FeedChecker.BENCHMARK_OFF);
+
         feedChecker.setCheckApproach(CheckApproach.CHECK_FIXED, true);
-        // feedChecker.setCheckInterval(2);
-        
+        feedChecker.setCheckInterval(1);
+
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive
         Collection<Integer> updateClasses = new HashSet<Integer>();
         updateClasses.add(FeedClassifier.CLASS_ZOMBIE);
@@ -64,15 +66,15 @@ public class DatasetCreator {
         updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);
         updateClasses.add(FeedClassifier.CLASS_CONSTANT);
         updateClasses.add(FeedClassifier.CLASS_CHUNKED);
-        //feedChecker.filterFeeds(updateClasses);
+        // feedChecker.filterFeeds(updateClasses);
 
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override
             public void performAction(Feed feed) {
-//                System.out.println("do stuff with " + feed.getFeedUrl());
-//                System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
-//                        + feed.getChecks());
+                // System.out.println("do stuff with " + feed.getFeedUrl());
+                // System.out.println("::: check interval: " + feed.getMaxCheckInterval() + ", checks: "
+                // + feed.getChecks());
 
                 // get the filename of the feed
                 String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
@@ -101,18 +103,18 @@ public class DatasetCreator {
 
                 // Calculating size of feed header and footer, which should always stay the same.
                 long summedFeedEntrySize = 0;
-                for(FeedEntry entry:feedEntries) {
+                for (FeedEntry entry : feedEntries) {
                     String entryPlainXML = entry.getPlainXML();
                     Integer entrySize = entryPlainXML.getBytes().length;
                     summedFeedEntrySize += entrySize;
                 }
-                
-                //LOGGER.info("feed: "+feed);
-                //LOGGER.debug("feed.getPlainXML: "+feed.getPlainXML());
+
+                // LOGGER.info("feed: "+feed);
+                // LOGGER.debug("feed.getPlainXML: "+feed.getPlainXML());
                 String feedPlainXML = feed.getPlainXML();
                 Integer feedSize = feedPlainXML.getBytes().length;
-                long feedContainerSize = feedSize-summedFeedEntrySize;
-                
+                long feedContainerSize = feedSize - summedFeedEntrySize;
+
                 StringBuilder newEntries = new StringBuilder();
                 int newPosts = 0;
 
@@ -124,28 +126,36 @@ public class DatasetCreator {
                     }
 
                     String fileEntry = "";
+                    String fileEntryID = "";
 
-                    fileEntry += entry.getPublished().getTime() + ";";
                     if (entry.getTitle() == null || entry.getTitle().length() == 0) {
-                    	fileEntry += "\"###NO_TITLE###\";";
+                        fileEntryID += "\"###NO_TITLE###\";";
                     } else {
-                    	fileEntry += "\"" + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
-                    }                    
-                    fileEntry += "\"" + entry.getLink() + "\";";
-                     fileEntry += entry.getPlainXML().getBytes().length + ";";
-                     fileEntry += feedContainerSize+";";
-                     fileEntry += feedEntries.size();
+                        fileEntryID += "\""
+                                + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
+                    }
+                    fileEntryID += "\"" + StringHelper.trim(entry.getLink()) + "\";";
+                    fileEntry = entry.getPublished().getTime() + ";" + fileEntryID;
+                    fileEntry += entry.getPlainXML().getBytes().length + ";";
+                    fileEntry += feedContainerSize + ";";
+                    fileEntry += feedEntries.size();
 
-                    // add the entry only if it doesn't exist yet in the file
-                    if (!fileEntries.contains(fileEntry)) {
+                    // add the entry only if it doesn't exist yet in the file: title and link are the comparison key
+                    boolean contains = false;
+                    for (String savedFileEntry : fileEntries) {
+                        if (savedFileEntry.substring(14).startsWith(fileEntryID)) {
+                            contains = true;
+                            break;
+                        }
+                    }
 
+                    if (!contains) {
                         newEntries.append(fileEntry).append("\n");
                         newPosts++;
-
                     }
-                    
+
                 }
-                
+
                 // if all entries are new, we might have checked to late and missed some entries, we mark that by a
                 // special line
                 if (newPosts == feedEntries.size() && feed.getChecks() > 1 && newPosts > 0) {
@@ -176,15 +186,76 @@ public class DatasetCreator {
     }
 
     /**
-     * Remove all empty files from dataset folder.
+     * Cleaning up performs the following steps:
+     * <ul>
+     * <li>Remove all empty files from dataset folder.</li>
+     * <li>Remove duplicate entries (key is title and link).</li>
+     * <li>Remove MISS lines.</li>
+     * <li>Sort entries by pubdate.</li>
+     * </ul>
      */
-    public void cleanUp() {
+    public void cleanUp(boolean removeMISS) {
+        String cleanPath = DATASET_PATH + "clean/";
         File[] files = FileHelper.getFiles(DATASET_PATH);
         for (File file : files) {
+            // remove empty files
             if (file.length() == 0) {
                 file.delete();
             }
+
+            // skip directories
+            else if (file.isDirectory()) {
+                continue;
+            }
+
+            // check file
+            else {
+                Set<String> sortedEntries = new TreeSet<String>();
+                List<String> entries = FileHelper.readFileToArray(file);
+
+                for (String entry : entries) {
+                    // remove MISS lines
+                    if (entry.startsWith("MISS")) {
+                        if (!removeMISS) {
+                            sortedEntries.add(entry);
+                        }
+                        continue;
+                    }
+
+                    String key = entry.substring(entry.indexOf(";\""), entry.lastIndexOf("\";"));
+
+                    // remove duplicates
+                    boolean contains = false;
+                    for (String addedEntry : sortedEntries) {
+
+                        String addedKey = addedEntry
+                                .substring(addedEntry.indexOf(";\""),
+                                addedEntry.lastIndexOf("\";"));
+
+                        if (key.equals(addedKey)) {
+                            contains = true;
+                            break;
+                        }
+                    }
+
+                    if (contains) {
+                        continue;
+                    }
+
+                    // sort
+                    sortedEntries.add(entry);
+                }
+
+                StringBuilder sortedData = new StringBuilder();
+
+                for (String entry : sortedEntries) {
+                    sortedData.insert(0, entry + "\n");
+                }
+                FileHelper.writeToFile(cleanPath + file.getName(), sortedData);
+
+            }
         }
+
     }
 
     /**
@@ -195,8 +266,8 @@ public class DatasetCreator {
     public static void main(String[] args) {
 
         DatasetCreator dc = new DatasetCreator();
-        dc.createDataset();
-        dc.cleanUp();
+        // dc.createDataset();
+        dc.cleanUp(false);
         dc.addFeedMetaInformation();
 
     }
@@ -205,11 +276,11 @@ public class DatasetCreator {
      * <p>
      * 
      * </p>
-     *
+     * 
      */
     private void addFeedMetaInformation() {
         // TODO Auto-generated method stub
-        
+
     }
 
 }
