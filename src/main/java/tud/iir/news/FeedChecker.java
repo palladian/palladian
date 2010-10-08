@@ -50,7 +50,7 @@ public final class FeedChecker {
     /**
      * If true, some output will be generated to evaluate the reading approaches.
      */
-    public static int benchmark = BENCHMARK_MAX_CHECK_TIME;
+    public static int benchmark = BENCHMARK_OFF;
 
     /** The path to the folder with the feed post history files. */
     private final String benchmarkDatasetPath = "fpSandro/feedPosts/";
@@ -838,6 +838,10 @@ public final class FeedChecker {
         return benchmark;
     }
 
+    public static void setBenchmark(int benchmark) {
+        FeedChecker.benchmark = benchmark;
+    }
+
     private String getBenchmarkName() {
         return benchmark == BENCHMARK_MIN_CHECK_TIME ? "min" : "max";
     }
@@ -853,7 +857,7 @@ public final class FeedChecker {
      * @param id The id of the feed.
      * @return The path to the file with the feed post history.
      */
-    public String findHistoryFile(int id) {
+    public String findHistoryFile(String safeFeedName) {
 
         // read feed history file
         String historyFilePath = "";
@@ -861,7 +865,7 @@ public final class FeedChecker {
             benchmarkDatasetFiles = FileHelper.getFiles(benchmarkDatasetPath);
         }
         for (File file : benchmarkDatasetFiles) {
-            if (file.getName().startsWith(id + "_")) {
+            if (file.getName().startsWith(safeFeedName)) {
                 historyFilePath = file.getAbsolutePath();
                 break;
             }
