@@ -70,8 +70,14 @@ public class Feed {
     private boolean historyFileCompletelyRead = false;
 
     /**
-     * Keep track of the last timestamp for the lookup in the history file. We start with the maximum value to get the
+     * Keep track of the timestamp for the lookup in the history file. We start with the minimum value to get the
      * first x entries where x is the window size.
+     */
+    private long benchmarkLookupTime = Long.MIN_VALUE;
+
+    /**
+     * Keep track of the last timestamp for the lookup in the history file. This way we can find out how many posts we
+     * have missed in between lookups.
      */
     private long benchmarkLastLookupTime = Long.MIN_VALUE;
 
@@ -239,7 +245,7 @@ public class Feed {
         int totalEntries = FileHelper.getNumberOfLines(historyFilePath);
 
         // create feed entries with: pubdate, title, link
-        final Object[] obj = new Object[5];
+        final Object[] obj = new Object[9];
 
         // the post entries
         obj[0] = entries;
@@ -247,14 +253,28 @@ public class Feed {
         // the total number of entries in the file
         obj[1] = totalEntries;
 
-        // the last lookup time (poll time)
-        obj[2] = benchmarkLastLookupTime;
+        // timestamp of the last post entry in the window
+        obj[2] = Long.MIN_VALUE;
 
         // number of misses
         obj[3] = 0;
 
         // total number of bytes of posts in the window (once head+foot and each time size of post)
         obj[4] = 0;
+
+        // whether head and foot download size has been added to current poll
+        obj[5] = false;
+        
+        // the cumulated delay of the lookup times in milliseconds (in benchmark min mode), this can happen when we read
+        // too early or too late
+        obj[6] = 0;
+        
+        // get hold of the post entry just before the window starts, this way we can determine the delay in case
+        // there are no new entries between lookup time and last lookup time
+        obj[7] = 0l;
+        
+        // count new entries, they must be between lookup time and last lookup time
+        obj[8] = 0;
 
         LineAction la = new LineAction(obj) {
 
@@ -274,13 +294,28 @@ public class Feed {
 
                 long entryTimestamp = Long.valueOf(parts[0]);
 
-                if (entryTimestamp < (Long) obj[2] || totalEntries - lineNumber < getWindowSize()) {
+                // get hold of the post entry just before the window starts
+                if (entryTimestamp > benchmarkLookupTime) {
+                    obj[7] = entryTimestamp;
+                }
+
+                // process post entries that are in the current window
+                if (entryTimestamp < benchmarkLookupTime || totalEntries - lineNumber < getWindowSize()) {
 
                     // find the first lookup date if the file has not been read yet
-                    if (totalEntries - lineNumber + 1 == getWindowSize() && benchmarkLastLookupTime == Long.MIN_VALUE) {
-                        benchmarkLastLookupTime = entryTimestamp;
+                    if (totalEntries - lineNumber + 1 == getWindowSize() && benchmarkLookupTime == Long.MIN_VALUE) {
+                        benchmarkLookupTime = entryTimestamp;
                     }
 
+                    // add up download size (head and foot if necessary and post size itself)
+                    if ((Boolean) obj[5] == false) {
+                        obj[4] = (Integer) obj[4] + Integer.valueOf(parts[4]);
+                        obj[5] = true;
+                    }
+
+                    obj[4] = (Integer) obj[4] + Integer.valueOf(parts[3]);
+
+                    // create feed entry
                     FeedEntry feedEntry = new FeedEntry();
                     feedEntry.setPublished(new Date(entryTimestamp));
                     feedEntry.setTitle(parts[1]);
@@ -288,9 +323,37 @@ public class Feed {
 
                     ((ArrayList<FeedEntry>) obj[0]).add(feedEntry);
 
+                    // check whether current post entry is the last one in the window
+                    if (((ArrayList<FeedEntry>) obj[0]).size() == getWindowSize()) {
+                        obj[2] = entryTimestamp;
+                    }
+
+                    // for all post entries in the window that are newer than the last lookup time we need to sum up the
+                    // delay to the current lookup time (and weight it)
+                    if (entryTimestamp > benchmarkLastLookupTime) {
+                        obj[6] = (Long) obj[6] + (entryTimestamp - benchmarkLastLookupTime);
+                        
+                        // count new entry
+                        obj[8] = (Integer) obj[8] + 1;
+                    }
+                    
+                    // if top of the file is reached, we read the file completely and can stop scheduling reading this
+                    // feed
                     if (lineNumber == 1) {
                         historyFileCompletelyRead = true;
                     }
+                }
+
+                // process post entries between the end of the current window and the last lookup time
+                else if (entryTimestamp < (Long) obj[2] && entryTimestamp > benchmarkLastLookupTime) {
+                    // count post entry as miss
+                    obj[3] = (Integer) obj[3] + 1;
+                }
+
+                // process post entries older than last lookup time
+                // if no new entry was found, we add the delay to the next new post entry
+                else if (entryTimestamp < benchmarkLastLookupTime && (Integer) obj[8] == 0 && (Long) obj[7] != 0l) {
+                    obj[6] = (Long) obj[6] + ((Long) obj[7] - benchmarkLookupTime);
                 }
 
             }
@@ -301,21 +364,24 @@ public class Feed {
         setEntries(entries);
 
         // now that we set the entries we can add information about the poll to the poll series
-
         PollData pollData = new PollData();
 
-        pollData.setBenchmarkType(FeedChecker.BENCHMARK);
+        pollData.setBenchmarkType(FeedChecker.benchmark);
+        pollData.setTimestamp(benchmarkLookupTime);
         pollData.setPercentNew(getTargetPercentageOfNewEntries());
-        pollData.setNewPostDelay(newPostDelay);
         pollData.setMisses((Integer) obj[3]);
 
-        if (FeedChecker.BENCHMARK == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
+        if (FeedChecker.benchmark == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
             pollData.setCheckInterval(getMaxCheckInterval());
         } else {
             pollData.setCheckInterval(getMinCheckInterval());
+            pollData.setNewPostDelay((Long) obj[6]);
         }
+
+        pollData.setWindowSize(getWindowSize());
         pollData.setDownloadSize((Integer) obj[4]);
 
+        // add poll data object to series of poll data
         getPollDataSeries().add(pollData);
     }
 
@@ -718,8 +784,9 @@ public class Feed {
         return historyFileCompletelyRead;
     }
 
-    public void addToBenchmarkLastLookupTime(int checkInterval) {
-        benchmarkLastLookupTime += checkInterval;
+    public void addToBenchmarkLookupTime(int checkInterval) {
+        benchmarkLastLookupTime = benchmarkLookupTime;
+        benchmarkLookupTime += checkInterval;
     }
 
     public void setPollDataSeries(PollDataSeries pollDataSeries) {

@@ -18,6 +18,7 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
+import tud.iir.news.statistics.PollData;
 import tud.iir.web.Crawler;
 
 /**
@@ -49,7 +50,7 @@ public final class FeedChecker {
     /**
      * If true, some output will be generated to evaluate the reading approaches.
      */
-    public final static int BENCHMARK = BENCHMARK_MAX_CHECK_TIME;
+    public static int benchmark = BENCHMARK_MAX_CHECK_TIME;
 
     /** The path to the folder with the feed post history files. */
     private final String benchmarkDatasetPath = "fpSandro/feedPosts/";
@@ -184,7 +185,7 @@ public final class FeedChecker {
 
             LOGGER.debug("current total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
 
-            if (BENCHMARK != BENCHMARK_OFF) {
+            if (benchmark != BENCHMARK_OFF) {
                 loopNumber++;
 
                 // write the record maps every 5 hours
@@ -195,11 +196,11 @@ public final class FeedChecker {
         }
         LOGGER.info("stopped reading feeds after " + stopWatch.getElapsedTimeString());
 
-        if (BENCHMARK != BENCHMARK_OFF) {
+        stopContinuousReading();
+
+        if (benchmark != BENCHMARK_OFF) {
             writeRecordedMaps();
         }
-
-        stopContinuousReading();
 
         LOGGER.info("cancelled all scheduled readings, total size downloaded ("
                 + getCheckApproach() + "): "
@@ -366,9 +367,71 @@ public final class FeedChecker {
     // ======================
 
     /**
-     * Save the feed ids and the percentage new scores in a csv for evaluation.
+     * <p>
+     * Save the feed poll information for evaluation.
+     * </p>
+     * 
+     * <p>
+     * For each update technique and evaluation mode another file must be written (8 in total = 4 techniques * 2
+     * evaluation modes). This method writes only one file for the current settings.
+     * </p>
+     * 
+     * <p>
+     * Each file contains the following fields per line, fields are separated with a semicolon:
+     * <ul>
+     * <li>feed id</li>
+     * <li>feed update class</li>
+     * <li>number of poll</li>
+     * <li>poll timestamp</li>
+     * <li>poll hour of the day</li>
+     * <li>poll minute of the day</li>
+     * <li>check interval at poll time</li>
+     * <li>window size</li>
+     * <li>size of poll in Byte</li>
+     * <li>number of missed news posts</li>
+     * <li>percentage of new entries, 1 = all new but one (only for evaluation mode MAX interesting)</li>
+     * <li>delay (only for evaluation mode MIN interesting)</li>
+     * <li>score (either score_max or score_min depending on evaluation mode)</li>
+     * </ul>
+     * </p>
+     * 
      */
     private void writeRecordedMaps() {
+
+        StringBuilder csv = new StringBuilder();
+        String separator = ";";
+
+        // loop through all feeds
+        for (Feed feed : getFeeds()) {
+
+            int numberOfPoll = 1;
+            for (PollData pollData : feed.getPollDataSeries()) {
+
+                // feed related values
+                csv.append(feed.getId()).append(separator);
+                csv.append(feed.getUpdateClass()).append(separator);
+
+                // poll related values
+                csv.append(numberOfPoll).append(separator);
+                csv.append(pollData.getTimestamp()).append(separator);
+                csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.HOUR)).append(separator);
+                csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.MINUTE)).append(separator);
+                csv.append(pollData.getCheckInterval()).append(separator);
+                csv.append(pollData.getWindowSize()).append(separator);
+                csv.append(pollData.getDownloadSize()).append(separator);
+                csv.append(pollData.getMisses()).append(separator);
+                csv.append(pollData.getPercentNew()).append(separator);
+                csv.append(pollData.getNewPostDelay()).append(separator);
+                csv.append(pollData.getScore()).append(separator);
+                csv.append("\n");
+                numberOfPoll++;
+            }
+
+        }
+
+        String filePath = "data/temp/feedReaderEvaluation_" + getCheckApproachName() + "_" + getBenchmarkName();
+        FileHelper.writeToFile(filePath, csv);
+
         // commented because of concurrent modification exception
         // StringBuilder csv = new StringBuilder();
         // int totalChecks = 0;
@@ -438,7 +501,7 @@ public final class FeedChecker {
 
         // List<FeedEntry> entries = feed.getEntries();
 
-        if (BENCHMARK == BENCHMARK_MAX_CHECK_TIME) {
+        if (benchmark == BENCHMARK_MAX_CHECK_TIME) {
 
             // update map with percentage new scores
             String pns = pnMapEvaluation.get(feed.getId());
@@ -477,7 +540,7 @@ public final class FeedChecker {
             // }
             // postDistributionMapEvaluation.put(feed.getId(), minuteMap);
 
-        } else if (BENCHMARK == BENCHMARK_MIN_CHECK_TIME) {
+        } else if (benchmark == BENCHMARK_MIN_CHECK_TIME) {
 
             // if no entry was new we add the check time to the check time map
             // in order to calculate the difference between this date and the
@@ -759,7 +822,7 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(maxCheckInterval);
 
                 // remember at which iteration the probabilistic approach took over
-                if (BENCHMARK != BENCHMARK_OFF) {
+                if (benchmark != BENCHMARK_OFF) {
                     Integer iteration = probabilisticSwitchMap.get(feed.getId());
                     if (iteration == null) {
                         probabilisticSwitchMap.put(feed.getId(), feed.getChecks());
@@ -769,6 +832,14 @@ public final class FeedChecker {
             }
         }
 
+    }
+
+    public static int getBenchmark() {
+        return benchmark;
+    }
+
+    private String getBenchmarkName() {
+        return benchmark == BENCHMARK_MIN_CHECK_TIME ? "min" : "max";
     }
 
     public String getBenchmarkDatasetPath() {
