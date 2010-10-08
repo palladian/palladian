@@ -7,12 +7,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import tud.iir.extraction.PageAnalyzer;
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
+import tud.iir.news.statistics.PollData;
+import tud.iir.news.statistics.PollDataSeries;
 
 /**
  * Represents a news feed.
@@ -25,6 +29,9 @@ import tud.iir.helper.LineAction;
 public class Feed {
 
     private static final Logger LOGGER = Logger.getLogger(Feed.class);
+
+    /** Symbols to separate headlines. */
+    public static final String TITLE_SEPARATION = "#-#";
 
     /**
      * Different formats of feeds; this has just informational character; the parser of the aggregator will determine
@@ -94,6 +101,11 @@ public class Feed {
 
     /** timestamp of the last feed entry found in this feed */
     private Date lastFeedEntry = null;
+
+    /**
+     * Record statistics about poll data for evaluation purposes.
+     */
+    private PollDataSeries pollDataSeries = new PollDataSeries();
 
     /**
      * number of news that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a
@@ -221,21 +233,35 @@ public class Feed {
      * feed reader on this dataset and evaluate the updateInterval techniques.
      */
     public void updateEntriesFromDisk(String historyFilePath) {
+
         List<FeedEntry> entries = new ArrayList<FeedEntry>();
 
         int totalEntries = FileHelper.getNumberOfLines(historyFilePath);
 
         // create feed entries with: pubdate, title, link
-        final Object[] obj = new Object[3];
+        final Object[] obj = new Object[5];
+
+        // the post entries
         obj[0] = entries;
+
+        // the total number of entries in the file
         obj[1] = totalEntries;
+
+        // the last lookup time (poll time)
         obj[2] = benchmarkLastLookupTime;
+
+        // number of misses
+        obj[3] = 0;
+
+        // total number of bytes of posts in the window (once head+foot and each time size of post)
+        obj[4] = 0;
+
         LineAction la = new LineAction(obj) {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                int totalEntries = ((Integer) obj[1]);
+                int totalEntries = (Integer) obj[1];
 
                 String[] parts = line.split(";");
 
@@ -248,7 +274,7 @@ public class Feed {
 
                 long entryTimestamp = Long.valueOf(parts[0]);
 
-                if (entryTimestamp < ((Long) obj[2]) || (totalEntries - lineNumber < getWindowSize())) {
+                if (entryTimestamp < (Long) obj[2] || totalEntries - lineNumber < getWindowSize()) {
 
                     // find the first lookup date if the file has not been read yet
                     if (totalEntries - lineNumber + 1 == getWindowSize() && benchmarkLastLookupTime == Long.MIN_VALUE) {
@@ -273,6 +299,24 @@ public class Feed {
 
         FileHelper.performActionOnEveryLine(historyFilePath, la);
         setEntries(entries);
+
+        // now that we set the entries we can add information about the poll to the poll series
+
+        PollData pollData = new PollData();
+
+        pollData.setBenchmarkType(FeedChecker.BENCHMARK);
+        pollData.setPercentNew(getTargetPercentageOfNewEntries());
+        pollData.setNewPostDelay(newPostDelay);
+        pollData.setMisses((Integer) obj[3]);
+
+        if (FeedChecker.BENCHMARK == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
+            pollData.setCheckInterval(getMaxCheckInterval());
+        } else {
+            pollData.setCheckInterval(getMinCheckInterval());
+        }
+        pollData.setDownloadSize((Integer) obj[4]);
+
+        getPollDataSeries().add(pollData);
     }
 
     public void freeMemory() {
@@ -425,6 +469,78 @@ public class Feed {
 
     public long getByteSize() {
         return byteSize;
+    }
+
+    /**
+     * Get a separated string with the headlines of all feed entries.
+     * 
+     * @param entries Feed entries.
+     * @return A separated string with the headlines of all feed entries.
+     */
+    private StringBuilder getNewEntryTitles() {
+
+        StringBuilder titles = new StringBuilder();
+        for (FeedEntry entry : getEntries()) {
+            titles.append(entry.getTitle()).append(TITLE_SEPARATION);
+        }
+
+        return titles;
+    }
+
+    /**
+     * Calculate the target percentage of new entries as follows: Percentage of new entries = pn = newEntries /
+     * totalEntries Target Percentage = pTarget =
+     * newEntries / (totalEntries - 1) A target percentage of 1 means that all entries but one are new and this is
+     * exactly what we want.
+     * 
+     * Example 1: newEntries = 3, totalEntries = 4, pn = 0.75, pTarget = 3 / (4-1) = 1
+     * 
+     * Example 2: newEntries = 7, totalEntries = 10, pn = 0.7, pTarget = 7 / (10-1) ~ 0.78
+     * 
+     * The target percentage depends on the number of total entries and is not always the same as the examples show.
+     * 
+     * @return The percentage of news calculated as explained.
+     */
+    public double getTargetPercentageOfNewEntries() {
+
+        // compare old and new entry titles to get percentage pn of new entries
+        String[] oldTitlesArray = getLastHeadlines().split(TITLE_SEPARATION);
+        Set<String> oldTitles = CollectionHelper.toHashSet(oldTitlesArray);
+
+        // get new entry titles
+        StringBuilder titles = getNewEntryTitles();
+        Set<String> currentTitles = CollectionHelper.toHashSet(titles.toString().split(TITLE_SEPARATION));
+
+        // count number of same titles
+        int overlap = 0;
+        for (String oldTitle : oldTitles) {
+            for (String newTitle : currentTitles) {
+                if (oldTitle.equalsIgnoreCase(newTitle)) {
+                    overlap++;
+                    LOGGER.trace("equal headline: " + oldTitle);
+                    LOGGER.trace("with headline:  " + newTitle);
+                }
+            }
+        }
+
+        // number of really new headlines
+        int newEntries = currentTitles.size() - overlap;
+
+        // percentage of new entries - 1 entry, this is our target, if we know
+        // at least one entry we know that we did not miss any
+        double pnTarget = 1;
+
+        if (currentTitles.size() > 1) {
+            pnTarget = newEntries / ((double) currentTitles.size() - 1);
+        } else {
+            // in this special case we just look at the feed the default check time
+            // pnTarget = -1;
+            LOGGER.warn("only one title found in " + getFeedUrl());
+        }
+
+        setLastHeadlines(titles.toString());
+
+        return pnTarget;
     }
 
     /*
@@ -604,5 +720,13 @@ public class Feed {
 
     public void addToBenchmarkLastLookupTime(int checkInterval) {
         benchmarkLastLookupTime += checkInterval;
+    }
+
+    public void setPollDataSeries(PollDataSeries pollDataSeries) {
+        this.pollDataSeries = pollDataSeries;
+    }
+
+    public PollDataSeries getPollDataSeries() {
+        return pollDataSeries;
     }
 }

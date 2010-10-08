@@ -10,12 +10,10 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Timer;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
@@ -34,10 +32,8 @@ public final class FeedChecker {
     /** The logger for this class. */
     public static final Logger LOGGER = Logger.getLogger(FeedChecker.class);
 
+    /** Maximum number of feed reading threads at the same time. */
     public static final Integer MAX_THREAD_POOL_SIZE = 200;
-
-    /** Symbols to separate headlines. */
-    private static final String TITLE_SEPARATION = "#-#";
 
     /** Benchmark off. */
     public static final int BENCHMARK_OFF = 0;
@@ -53,7 +49,7 @@ public final class FeedChecker {
     /**
      * If true, some output will be generated to evaluate the reading approaches.
      */
-    private final int benchmark = BENCHMARK_MAX_CHECK_TIME;
+    public final static int BENCHMARK = BENCHMARK_MAX_CHECK_TIME;
 
     /** The path to the folder with the feed post history files. */
     private final String benchmarkDatasetPath = "fpSandro/feedPosts/";
@@ -188,7 +184,7 @@ public final class FeedChecker {
 
             LOGGER.debug("current total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
 
-            if (benchmark != BENCHMARK_OFF) {
+            if (BENCHMARK != BENCHMARK_OFF) {
                 loopNumber++;
 
                 // write the record maps every 5 hours
@@ -199,7 +195,7 @@ public final class FeedChecker {
         }
         LOGGER.info("stopped reading feeds after " + stopWatch.getElapsedTimeString());
 
-        if (benchmark != BENCHMARK_OFF) {
+        if (BENCHMARK != BENCHMARK_OFF) {
             writeRecordedMaps();
         }
 
@@ -243,7 +239,7 @@ public final class FeedChecker {
         FeedPostStatistics fps = new FeedPostStatistics(entries);
 
         // get percentage of new feed posts
-        double pnTarget = getTargetPercentageOfNewEntries(feed);
+        double pnTarget = feed.getTargetPercentageOfNewEntries();
 
         // calculate new update times depending on approach chosen
         if (CheckApproach.CHECK_FIXED.equals(checkApproach)
@@ -370,67 +366,6 @@ public final class FeedChecker {
     // ======================
 
     /**
-     * Calculate the target percentage of new entries as follows: Percentage of new entries = pn = newEntries /
-     * totalEntries Target Percentage = pTarget =
-     * newEntries / (totalEntries - 1) A target percentage of 1 means that all entries but one are new and this is
-     * exactly what we want.
-     * 
-     * Example 1: newEntries = 3 totalEntries = 4 pn = 0.75 pTarget = 3 / (4-1) = 1
-     * 
-     * Example 2: newEntries = 7 totalEntries = 10 pn = 0.7 pTarget = 7 / (10-1) ~ 0.78
-     * 
-     * The target percentage depends on the number of total entries and is not always the same as the examples show.
-     * 
-     * @param feed The feed.
-     * @param entries The entries of the feed.
-     * @return The percentage of news calculated as explained.
-     */
-    private double getTargetPercentageOfNewEntries(Feed feed) {
-
-        List<FeedEntry> entries = feed.getEntries();
-
-        // compare old and new entry titles to get percentage pn of new entries
-        String[] oldTitlesArray = feed.getLastHeadlines().split(TITLE_SEPARATION);
-        Set<String> oldTitles = CollectionHelper.toHashSet(oldTitlesArray);
-
-        // get new entry titles
-        StringBuilder titles = getNewEntryTitles(entries);
-        Set<String> currentTitles = CollectionHelper.toHashSet(titles.toString().split(TITLE_SEPARATION));
-
-        // count number of same titles
-        int overlap = 0;
-        for (String oldTitle : oldTitles) {
-            for (String newTitle : currentTitles) {
-                if (oldTitle.equalsIgnoreCase(newTitle)) {
-                    overlap++;
-                    LOGGER.trace("equal headline: " + oldTitle);
-                    LOGGER.trace("with headline:  " + newTitle);
-                }
-            }
-        }
-
-        // number of really new headlines
-        int newEntries = currentTitles.size() - overlap;
-
-        // percentage of new entries - 1 entry, this is our target, if we know
-        // at least one entry we know that we did not miss any
-        double pnTarget = 1;
-
-        if (currentTitles.size() > 1) {
-            pnTarget = newEntries / ((double) currentTitles.size() - 1);
-        } else {
-            // in this special case we just look at the feed the default check time
-            // pnTarget = -1;
-            LOGGER.warn("only one title found in " + feed.getFeedUrl());
-        }
-
-        feed.setLastHeadlines(titles.toString());
-
-        return pnTarget;
-    }
-
-
-    /**
      * Save the feed ids and the percentage new scores in a csv for evaluation.
      */
     private void writeRecordedMaps() {
@@ -491,27 +426,26 @@ public final class FeedChecker {
         // + System.currentTimeMillis() + ".csv", csv);
     }
 
-
     /**
      * Update evaluation maps.
      * 
      * @param feed The feed.
      * @param entries The feed entries.
-     * @param pnTarget The percentage of new entries.
+     * @param percentNew The percentage of new entries.
      * @param fps The feed post statistics.
      */
-    private void updateEvaluationMaps(Feed feed, double pnTarget, FeedPostStatistics fps) {
+    private void updateEvaluationMaps(Feed feed, double percentNew, FeedPostStatistics fps) {
 
         // List<FeedEntry> entries = feed.getEntries();
 
-        if (benchmark == BENCHMARK_MAX_CHECK_TIME) {
+        if (BENCHMARK == BENCHMARK_MAX_CHECK_TIME) {
 
             // update map with percentage new scores
             String pns = pnMapEvaluation.get(feed.getId());
             if (pns == null) {
-                pns = String.valueOf(pnTarget);
+                pns = String.valueOf(percentNew);
             } else {
-                pns += ";" + pnTarget;
+                pns += ";" + percentNew;
             }
             pnMapEvaluation.put(feed.getId(), pns);
 
@@ -543,13 +477,13 @@ public final class FeedChecker {
             // }
             // postDistributionMapEvaluation.put(feed.getId(), minuteMap);
 
-        } else if (benchmark == BENCHMARK_MIN_CHECK_TIME) {
+        } else if (BENCHMARK == BENCHMARK_MIN_CHECK_TIME) {
 
             // if no entry was new we add the check time to the check time map
             // in order to calculate the difference between this date and the
             // real pub
             // date of the post
-            if (pnTarget == 0) {
+            if (percentNew == 0) {
                 HashSet<Date> dateSet = tempCheckTimeMapEvaluation.get(feed.getId());
                 if (dateSet == null) {
                     dateSet = new HashSet<Date>();
@@ -825,7 +759,7 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(maxCheckInterval);
 
                 // remember at which iteration the probabilistic approach took over
-                if (benchmark != BENCHMARK_OFF) {
+                if (BENCHMARK != BENCHMARK_OFF) {
                     Integer iteration = probabilisticSwitchMap.get(feed.getId());
                     if (iteration == null) {
                         probabilisticSwitchMap.put(feed.getId(), feed.getChecks());
@@ -835,27 +769,6 @@ public final class FeedChecker {
             }
         }
 
-    }
-
-
-    /**
-     * Get a separated string with the headlines of all feed entries.
-     * 
-     * @param entries Feed entries.
-     * @return A separated string with the headlines of all feed entries.
-     */
-    private StringBuilder getNewEntryTitles(List<FeedEntry> entries) {
-
-        StringBuilder titles = new StringBuilder();
-        for (FeedEntry entry : entries) {
-            titles.append(entry.getTitle()).append(TITLE_SEPARATION);
-        }
-
-        return titles;
-    }
-
-    public int getBenchmark() {
-        return benchmark;
     }
 
     public String getBenchmarkDatasetPath() {
