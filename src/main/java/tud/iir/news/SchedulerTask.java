@@ -10,6 +10,7 @@ import java.util.concurrent.Future;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.DateHelper;
+import tud.iir.helper.MathHelper;
 
 /**
  * A scheduler task handles the distribution of feeds to worker threads that read these feeds.
@@ -74,6 +75,14 @@ class SchedulerTask extends TimerTask {
 
             if (FeedChecker.getBenchmark() != FeedChecker.BENCHMARK_OFF && feed.historyFileCompletelyRead()) {
                 feedHistoriesCompletelyRead++;
+
+                LOGGER.debug(MathHelper.round(100 * feedHistoriesCompletelyRead / feedChecker.getFeeds().size(), 2)
+                        + "% of history files completely read");
+
+                if (feedHistoriesCompletelyRead == feedChecker.getFeeds().size()) {
+                    LOGGER.info("all feed history files read");
+                    feedChecker.stopContinuousReading();
+                }
             }
         }
         LOGGER.info("scheduled " + feedCount + " feeds for reading");

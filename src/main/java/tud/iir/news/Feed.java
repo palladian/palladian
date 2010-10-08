@@ -267,7 +267,7 @@ public class Feed {
         
         // the cumulated delay of the lookup times in milliseconds (in benchmark min mode), this can happen when we read
         // too early or too late
-        obj[6] = 0;
+        obj[6] = 0l;
         
         // get hold of the post entry just before the window starts, this way we can determine the delay in case
         // there are no new entries between lookup time and last lookup time
@@ -279,7 +279,7 @@ public class Feed {
         LineAction la = new LineAction(obj) {
 
             @Override
-            public void performAction(String line, int lineNumber) {
+            public void performAction(final String line, final int lineNumber) {
 
                 int totalEntries = (Integer) obj[1];
 
@@ -330,7 +330,7 @@ public class Feed {
 
                     // for all post entries in the window that are newer than the last lookup time we need to sum up the
                     // delay to the current lookup time (and weight it)
-                    if (entryTimestamp > benchmarkLastLookupTime) {
+                    if (entryTimestamp > benchmarkLastLookupTime && getChecks() > 0) {
                         obj[6] = (Long) obj[6] + (entryTimestamp - benchmarkLastLookupTime);
                         
                         // count new entry
@@ -340,6 +340,7 @@ public class Feed {
                     // if top of the file is reached, we read the file completely and can stop scheduling reading this
                     // feed
                     if (lineNumber == 1) {
+                        LOGGER.debug("complete history has been read for feed " + getFeedUrl());
                         historyFileCompletelyRead = true;
                     }
                 }

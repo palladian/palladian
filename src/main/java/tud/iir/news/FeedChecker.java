@@ -53,7 +53,7 @@ public final class FeedChecker {
     public static int benchmark = BENCHMARK_OFF;
 
     /** The path to the folder with the feed post history files. */
-    private final String benchmarkDatasetPath = "fpSandro/feedPosts/";
+    private final String benchmarkDatasetPath = "data/datasets/feedPosts/clean/";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private File[] benchmarkDatasetFiles;
@@ -63,6 +63,9 @@ public final class FeedChecker {
 
     /** The action that should be performed for each feed that is read. */
     private FeedProcessingAction feedProcessingAction = null;
+
+    /** Whether reading should continue or not. */
+    private boolean stopped = false;
 
     /**
      * Record a list of percentage new values for each feed: feedID;pn1;...;pnItarationN.
@@ -122,7 +125,8 @@ public final class FeedChecker {
     private Timer checkScheduler;
 
     /**
-     * Defines the time in minutes when the FeedChecker should wake up the checkScheduler to see which feeds should be
+     * Defines the time in milliseconds when the FeedChecker should wake up the checkScheduler to see which feeds should
+     * be
      * read.
      */
     private final int wakeUpInterval = 150 * DateHelper.SECOND_MS;
@@ -172,27 +176,25 @@ public final class FeedChecker {
 
         SchedulerTask schedulerTask = new SchedulerTask(this);
         // checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
-        checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
+        if (getBenchmark() == BENCHMARK_OFF) {
+            checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
+        } else {
+            checkScheduler.schedule(schedulerTask, 0, 200);
+        }
 
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
                 + " minutes to check all feeds whether they need to be read or not");
 
-        int loopNumber = 0;
-        while (!stopWatch.timeIsUp()) {
+        while (!stopWatch.timeIsUp() && !isStopped()) {
 
-            ThreadHelper.sleep(1 * DateHelper.MINUTE_MS);
-            LOGGER.trace("time is not up, keep reading feeds");
-
-            LOGGER.debug("current total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
-
-            if (benchmark != BENCHMARK_OFF) {
-                loopNumber++;
-
-                // write the record maps every 5 hours
-                if (loopNumber % 60 == 0) {
-                    writeRecordedMaps();
-                }
+            if (benchmark == BENCHMARK_OFF) {
+                LOGGER.trace("time is not up, keep reading feeds");
+                LOGGER.debug("current total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
+                ThreadHelper.sleep(1 * DateHelper.MINUTE_MS);
+            } else {
+                ThreadHelper.sleep(5 * DateHelper.SECOND_MS);
             }
+
         }
         LOGGER.info("stopped reading feeds after " + stopWatch.getElapsedTimeString());
 
@@ -217,6 +219,8 @@ public final class FeedChecker {
      * Stop all timers, no reading will be performed after stopping the reader.
      */
     public void stopContinuousReading() {
+        setStopped(true);
+        LOGGER.info("stopped continuous reading");
         checkScheduler.cancel();
     }
 
@@ -429,7 +433,8 @@ public final class FeedChecker {
 
         }
 
-        String filePath = "data/temp/feedReaderEvaluation_" + getCheckApproachName() + "_" + getBenchmarkName();
+        String filePath = "data/temp/feedReaderEvaluation_" + getCheckApproachName() + "_" + getBenchmarkName()
+                + ".csv";
         FileHelper.writeToFile(filePath, csv);
 
         // commented because of concurrent modification exception
@@ -828,10 +833,8 @@ public final class FeedChecker {
                         probabilisticSwitchMap.put(feed.getId(), feed.getChecks());
                     }
                 }
-
             }
         }
-
     }
 
     public static int getBenchmark() {
@@ -848,6 +851,14 @@ public final class FeedChecker {
 
     public String getBenchmarkDatasetPath() {
         return benchmarkDatasetPath;
+    }
+
+    public void setStopped(boolean stopped) {
+        this.stopped = stopped;
+    }
+
+    public boolean isStopped() {
+        return stopped;
     }
 
     /**
@@ -944,7 +955,7 @@ public final class FeedChecker {
 
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
-        int checkInterval = 5;
+        int checkInterval = 15;
         int runtime = 90;
         // //////////////////////////
 
@@ -961,8 +972,8 @@ public final class FeedChecker {
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
         fc.setFeedProcessingAction(fpa);
+        setBenchmark(BENCHMARK_MAX_CHECK_TIME);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
-
     }
 
 }

@@ -222,12 +222,21 @@ public class DatasetCreator {
                         continue;
                     }
 
+                    if (entry.indexOf(";\"") == -1 || entry.lastIndexOf("\";") == -1) {
+                        LOGGER.warn("bad format in file " + file.getName() + " skip cleaning this file");
+                        continue;
+                    }
+                    
                     String key = entry.substring(entry.indexOf(";\""), entry.lastIndexOf("\";"));
 
                     // remove duplicates
                     boolean contains = false;
                     for (String addedEntry : sortedEntries) {
 
+                        if (addedEntry.indexOf(";\"") == -1 || addedEntry.lastIndexOf("\";") == -1) {
+                            continue;
+                        }
+                        
                         String addedKey = addedEntry
                                 .substring(addedEntry.indexOf(";\""),
                                 addedEntry.lastIndexOf("\";"));
@@ -267,7 +276,7 @@ public class DatasetCreator {
 
         DatasetCreator dc = new DatasetCreator();
         // dc.createDataset();
-        dc.cleanUp(false);
+        dc.cleanUp(true);
         dc.addFeedMetaInformation();
 
     }
