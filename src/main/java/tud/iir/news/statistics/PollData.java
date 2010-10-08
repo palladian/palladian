@@ -15,11 +15,14 @@ public class PollData {
      */
     private int benchmarkType = FeedChecker.BENCHMARK_OFF;
 
+    /** The time of the poll. */
+    private long timestamp = -1l;
+
     /** Percentage of posts that are new at poll time. */
     private double percentNew = -1;
 
     /** The delay to the time of the next new post in milliseconds. */
-    private double newPostDelay = -1;
+    private long newPostDelay = -1;
 
     /**
      * The factor by which delays AFTER the actual new post publish date are weighted more than delays BEFORE this time.
@@ -32,7 +35,10 @@ public class PollData {
     /** The check interval when the feed was polled. */
     private double checkInterval = -1;
 
-    /** The total amount of data that was downloaded with the request. */
+    /** The window size at time of the poll. */
+    private int windowSize = -1;
+
+        /** The total amount of data that was downloaded with the request. */
     private double downloadSize = 0;
 
     public void setBenchmarkType(int benchmarkType) {
@@ -43,6 +49,14 @@ public class PollData {
         return benchmarkType;
     }
 
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
     public double getPercentNew() {
         return percentNew;
     }
@@ -51,11 +65,11 @@ public class PollData {
         this.percentNew = percentNew;
     }
 
-    public void setNewPostDelay(double newPostDelay) {
+    public void setNewPostDelay(long newPostDelay) {
         this.newPostDelay = newPostDelay;
     }
 
-    public double getNewPostDelay() {
+    public long getNewPostDelay() {
         return newPostDelay;
     }
 
@@ -83,12 +97,48 @@ public class PollData {
         this.checkInterval = checkInterval;
     }
 
+    public int getWindowSize() {
+        return windowSize;
+    }
+
+    public void setWindowSize(int windowSize) {
+        this.windowSize = windowSize;
+    }
+
     public double getDownloadSize() {
         return downloadSize;
     }
 
     public void setDownloadSize(double downloadSize) {
         this.downloadSize = downloadSize;
+    }
+
+    /**
+     * Get the score of the poll. The score is either the weighted sum of delays if benchmark is set to
+     * {@link FeedChecker.BENCHMARK_MIN_CHECK_TIME} (low is good) or a percentage if benchmark is set to
+     * {@link FeedChecker.BENCHMARK_MAX_CHECK_TIME} (high is good).
+     * 
+     * @return
+     */
+    public double getScore() {
+
+        double score = -1.0;
+
+        if (getBenchmarkType() == FeedChecker.BENCHMARK_MIN_CHECK_TIME) {
+
+            score = getNewPostDelay();
+
+        } else if (getBenchmarkType() == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
+
+            if (getPercentNew() <= 1.0) {
+                score = getPercentNew();
+            } else {
+                score = 1 - getMisses() / getWindowSize();
+            }
+
+        }
+
+        return score;
     }
 
 }

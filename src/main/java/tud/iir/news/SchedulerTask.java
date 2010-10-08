@@ -72,7 +72,7 @@ class SchedulerTask extends TimerTask {
                 feedCount++;
             }
 
-            if (feedChecker.getBenchmark() != FeedChecker.BENCHMARK_OFF && feed.historyFileCompletelyRead()) {
+            if (FeedChecker.getBenchmark() != FeedChecker.BENCHMARK_OFF && feed.historyFileCompletelyRead()) {
                 feedHistoriesCompletelyRead++;
             }
         }
@@ -111,7 +111,7 @@ class SchedulerTask extends TimerTask {
     private Boolean needsLookup(Feed feed) {
 
         // for benchmarking we don't wait but lookup until we have seen everything
-        if (feedChecker.getBenchmark() != FeedChecker.BENCHMARK_OFF) {
+        if (FeedChecker.getBenchmark() != FeedChecker.BENCHMARK_OFF) {
             if (feed.historyFileCompletelyRead()) {
                 return false;
             }

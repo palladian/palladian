@@ -52,7 +52,7 @@ class FeedTask implements Runnable {
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
         // it can be done in parallel
         // if no benchmark is running, read the entries from the web otherwise from disk
-        if (feedChecker.getBenchmark() == FeedChecker.BENCHMARK_OFF) {
+        if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_OFF) {
             feed.updateEntries(false);
         } else {
             feed.updateEntriesFromDisk(feedChecker.findHistoryFile(feed.getId()));
@@ -71,10 +71,10 @@ class FeedTask implements Runnable {
         // perform actions on this feeds entries
         feedChecker.getFeedProcessingAction().performAction(feed);
 
-        if (feedChecker.getBenchmark() == FeedChecker.BENCHMARK_MIN_CHECK_TIME) {
-            feed.addToBenchmarkLastLookupTime(feed.getMinCheckInterval() * DateHelper.MINUTE_MS);
-        } else if (feedChecker.getBenchmark() == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
-            feed.addToBenchmarkLastLookupTime(feed.getMaxCheckInterval() * DateHelper.MINUTE_MS);
+        if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MIN_CHECK_TIME) {
+            feed.addToBenchmarkLookupTime(feed.getMinCheckInterval() * DateHelper.MINUTE_MS);
+        } else if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
+            feed.addToBenchmarkLookupTime(feed.getMaxCheckInterval() * DateHelper.MINUTE_MS);
         }
 
         // save the feed back to the database
