@@ -19,19 +19,19 @@ public abstract class Extractable implements Serializable {
     private int id = -1;
     private String name;
 
-    // trust in the correctness of the entity, trust 1 means human checked / training entity
+    /** Trust in the correctness of the object, trust 1 means human checked / training entity. */
     private double trust = 0.5;
 
-    // when was the extractable last searched
+    /** The date on which the object has been last searched after. */
     private Date lastSearched = null;
 
-    // when has the extractable been extracted
+    /** The date on which the object has been extracted. */
     private Date extractedAt = null;
 
-    // sources from which the extraction was performed
+    /** Sources from which the extraction was performed. */
     protected Sources<Source> sources;
 
-    // whether the extractable is used as training, testing or unknown instance
+    /** Whether the extractable is used as training, testing or unknown instance. */
     public static int UNKNOWN = 0;
     public static int TRAINING = 1;
     public static int TESTING = 2;

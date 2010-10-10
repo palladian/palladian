@@ -40,17 +40,20 @@ class FocusedCrawlExtractor extends EntityExtractionTechnique {
     @Override
     public void extract(String url, EntityQuery eq, Concept concept) {
 
-        if (url.endsWith(".xml"))
+        if (url.endsWith(".xml")) {
             return;
+        }
 
         // do not extract from the same url twice
-        if (!urlProcessed.add(Crawler.getCleanURL(url)))
+        if (!urlProcessed.add(Crawler.getCleanURL(url))) {
             return;
+        }
 
         Crawler crawler = new Crawler();
         Document document = crawler.getWebDocument(url);
-        if (document == null)
+        if (document == null) {
             return;
+        }
 
         ListDiscoverer ld = new ListDiscoverer();
 
@@ -73,13 +76,15 @@ class FocusedCrawlExtractor extends EntityExtractionTechnique {
                 Iterator<String> listURLIterator = listURLs.iterator();
                 while (listURLIterator.hasNext()) {
                     String currentURL = listURLIterator.next();
-                    if (!urlsVisited.add(currentURL))
+                    if (!urlsVisited.add(currentURL)) {
                         continue;
+                    }
 
                     ee.getLogger().info("process url: " + currentURL);
                     document = crawler.getWebDocument(currentURL);
-                    if (document == null)
+                    if (document == null) {
                         return;
+                    }
 
                     // detect list and extract
                     if (entityXPath.length() == 0) {
@@ -116,6 +121,11 @@ class FocusedCrawlExtractor extends EntityExtractionTechnique {
                 xwi.extract(document, eq, concept);
             }
         }
+    }
+
+    @Override
+    public String getName() {
+        return "Focused Crawl Extraction";
     }
 
     /**

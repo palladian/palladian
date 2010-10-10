@@ -2,7 +2,8 @@
 SQLyog Community Edition- MySQL GUI v8.13 
 MySQL - 5.1.47-community : Database - tudiirdb
 *********************************************************************
-*/
+*/
+
 
 /*!40101 SET NAMES utf8 */;
 
@@ -15,6 +16,22 @@ MySQL - 5.1.47-community : Database - tudiirdb
 CREATE DATABASE /*!32312 IF NOT EXISTS*/`tudiirdb` /*!40100 DEFAULT CHARACTER SET latin1 */;
 
 USE `tudiirdb`;
+
+/* Table structure for table `live_status` */
+DROP TABLE IF EXISTS `live_status`;
+
+CREATE TABLE `live_status`(
+	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'the id of the status',
+  `percent` double unsigned NOT NULL DEFAULT '0' COMMENT 'the percentage that the current phase has progressed',
+	`timeLeft` VARCHAR(50) COMMENT 'the time left until the next phase starts',
+	`currentPhase` VARCHAR(50) COMMENT 'the name of the current phase',
+	`currentAction` VARCHAR(1000) COMMENT 'detailed information about the current action in the current phase',
+	`logExcerpt` TEXT(10000) COMMENT 'a log excerpt',
+	`moreText1` TEXT(10000) COMMENT 'free text',
+	`moreText2` TEXT(10000) COMMENT 'free text',
+  `downloadedBytes` bigint(20) unsigned DEFAULT '0' COMMENT 'the total number of downloaded bytes',
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'the timestamp of the entry',
+	PRIMARY KEY (`id`));
 
 /*Table structure for table `answers` */
 
@@ -202,20 +219,6 @@ CREATE TABLE `evaluations` (
   PRIMARY KEY (`id`),
   KEY `entityID` (`snippetID`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
-/*Table structure for table `extraction_status` */
-
-DROP TABLE IF EXISTS `extraction_status`;
-
-CREATE TABLE `extraction_status` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `phase` int(11) NOT NULL DEFAULT '-1',
-  `progress` smallint(5) unsigned NOT NULL DEFAULT '0',
-  `logExcerpt` text NOT NULL,
-  `downloadedBytes` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `updatedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 /*Table structure for table `facts` */
 

@@ -27,4 +27,6 @@ abstract class EntityExtractionTechnique {
     public void setExtractionTechnique(int extractionTechnique) {
         this.extractionTechnique = extractionTechnique;
     }
+
+    public abstract String getName();
 }

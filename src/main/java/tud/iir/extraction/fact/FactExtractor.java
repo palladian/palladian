@@ -10,10 +10,10 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-//import src.test.java.tud.iir.extraction.FactExtractionTest;
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.ExtractionType;
 import tud.iir.extraction.Extractor;
+import tud.iir.extraction.FactExtractionTest;
 import tud.iir.gui.GUIManager;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.ThreadHelper;
@@ -163,6 +163,10 @@ public class FactExtractor extends Extractor {
                         LOGGER.info("fact extraction process stopped");
                         break;
                     }
+
+                    // update live status action
+                    ExtractionProcessManager.liveStatus.setCurrentAction("Search for facts for "
+                            + currentEntity.getName() + " (" + currentConcept.getName() + ")");
 
                     currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
 

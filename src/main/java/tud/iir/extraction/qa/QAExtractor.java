@@ -211,8 +211,9 @@ public class QAExtractor extends Extractor {
 
     public void startExtraction(boolean continueExtraction) {
 
-        setStopped(false);
         LOGGER.info("start qa extraction");
+
+        setStopped(false);
 
         ExtractionProcessManager.setContinueQAExtraction(continueExtraction);
 
@@ -232,6 +233,10 @@ public class QAExtractor extends Extractor {
                 stopVotes++;
             }
         }
+
+        // update live status
+        ExtractionProcessManager.liveStatus.setCurrentAction("Search for QAs from " + (numberOfSites - stopVotes)
+                + " out of " + numberOfSites + " sites");
 
         int iterations = 0;
         while (stopVotes < numberOfSites /* && iterations < 10000 */&& !isStopped()) {
