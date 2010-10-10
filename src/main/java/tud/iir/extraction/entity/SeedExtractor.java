@@ -36,8 +36,9 @@ class SeedExtractor extends EntityExtractionTechnique {
     public void extract(String url, EntityQuery eq, Concept concept) {
 
         // do not extract from the same url twice
-        if (!urlProcessed.add(Crawler.getCleanURL(url)))
+        if (!urlProcessed.add(Crawler.getCleanURL(url))) {
             return;
+        }
 
         // all seeds are taken, though some might not relate to the current url (TODO?)
 
@@ -60,6 +61,11 @@ class SeedExtractor extends EntityExtractionTechnique {
             ee.getLogger().error(url, e);
         }
 
+    }
+
+    @Override
+    public String getName() {
+        return "Seed Extraction";
     }
 
     /**

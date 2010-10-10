@@ -55,7 +55,9 @@ public class EntityExtractor extends Extractor {
     private int currentNumberOfExtractions;
     // private int extractionSaveNumber = 0;
 
-    /** in order to save the extraction status we keep track of the extraction technique, the concepts and the url stack */
+    /**
+     * In order to save the extraction status we keep track of the extraction technique, the concepts and the URL stack.
+     */
     private EntityExtractionStatus currentExtractionStatus = null;
 
     /** pattern string like /html/body/div/div/div/div/ul/li/ul/li/a with array of indexes that can change like 1,4,6 (index 1,4 and 6 can change) */
@@ -119,24 +121,24 @@ public class EntityExtractor extends Extractor {
         // different entity extraction processes
         if (phrase
                 && !isStopped()
-                && ((continueFromLastExtraction && currentExtractionStatus.getExtractionType() == ExtractionType.ENTITY_PHRASE) || !continueFromLastExtraction || !currentExtractionStatus
+                && (continueFromLastExtraction && currentExtractionStatus.getExtractionType() == ExtractionType.ENTITY_PHRASE || !continueFromLastExtraction || !currentExtractionStatus
                         .isLoaded())) {
             LOGGER.info("starting/continuing extraction from phrases");
-            this.extractionFromPhrase();
+            extractionFromPhrase();
         }
         if (focusedCrawl
                 && !isStopped()
-                && ((continueFromLastExtraction && currentExtractionStatus.getExtractionType() == ExtractionType.ENTITY_FOCUSED_CRAWL)
+                && (continueFromLastExtraction && currentExtractionStatus.getExtractionType() == ExtractionType.ENTITY_FOCUSED_CRAWL
                         || !continueFromLastExtraction || !currentExtractionStatus.isLoaded())) {
             LOGGER.info("starting/continuing extraction with focused crawling");
-            this.extractionFocusedCrawl();
+            extractionFocusedCrawl();
         }
         if (seeds
                 && !isStopped()
-                && ((continueFromLastExtraction && currentExtractionStatus.getExtractionType() == ExtractionType.ENTITY_SEED) || !continueFromLastExtraction || !currentExtractionStatus
+                && (continueFromLastExtraction && currentExtractionStatus.getExtractionType() == ExtractionType.ENTITY_SEED || !continueFromLastExtraction || !currentExtractionStatus
                         .isLoaded())) {
             LOGGER.info("starting/continuing extraction with seeds");
-            this.extractionSeeds();
+            extractionSeeds();
         }
 
         if (isBenchmark()) {
@@ -266,6 +268,10 @@ public class EntityExtractor extends Extractor {
 
             LOGGER.info("setting lastSearched for concept: " + currentConcept.getName());
 
+            // update live status action
+            ExtractionProcessManager.liveStatus.setCurrentAction("Use " + entityExtractionTechnique.getName()
+                    + " to extract entities for the concept " + currentConcept.getName());
+
             // save the current concept in the extraction status
             currentExtractionStatus.setCurrentConcept(currentConcept.getName());
 
@@ -288,16 +294,18 @@ public class EntityExtractor extends Extractor {
             int synonymCount = synonyms.length;
             for (int s = 0; s < synonymCount; ++s) {
 
-                if (isStopped())
+                if (isStopped()) {
                     break;
+                }
 
                 String currentConceptSynonym = synonyms[s];
 
                 // try every pattern
                 for (int i = 0; i < patternCount; ++i) {
 
-                    if (isStopped())
+                    if (isStopped()) {
                         break;
+                    }
 
                     // if we want to continue we need to jump to the pattern we stopped at last time
                     if (currentExtractionStatus.isLoaded() && !currentExtractionStatus.isInitialized()) {
@@ -339,8 +347,9 @@ public class EntityExtractor extends Extractor {
                     HashSet<String> visitedURLs = new HashSet<String>();
                     for (String currentURL : urls) {
 
-                        if (isStopped())
+                        if (isStopped()) {
                             break;
+                        }
 
                         LOGGER.info("processing page " + currentURL + " (retrieved with query: \"" + StringHelper.getArrayAsString(eq.getQuerySet()) + "\")");
 
@@ -367,8 +376,9 @@ public class EntityExtractor extends Extractor {
                                 break;
                             }
                             ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
-                            if (isStopped())
+                            if (isStopped()) {
                                 c++;
+                            }
                             if (c > 25) {
                                 LOGGER.info("waited 25 iterations after stop has been called, breaking now");
                                 break;
@@ -495,8 +505,9 @@ public class EntityExtractor extends Extractor {
     }
 
     public ArrayList<Concept> getConcepts() {
-        if (concepts == null)
+        if (concepts == null) {
             return getKnowledgeManager().getConcepts();
+        }
         return concepts;
     }
 
@@ -519,8 +530,9 @@ public class EntityExtractor extends Extractor {
         // logger.info("enter add extraction method");
 
         // do not enter empty entities
-        if (StringHelper.trim(newEntity.getName()).length() == 0)
+        if (StringHelper.trim(newEntity.getName()).length() == 0) {
             return;
+        }
 
         ArrayList<Concept> concepts = getConcepts();
 

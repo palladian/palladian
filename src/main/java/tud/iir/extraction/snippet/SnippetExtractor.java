@@ -5,6 +5,7 @@ import java.util.Date;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.Extractor;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.ThreadHelper;
@@ -51,6 +52,8 @@ public class SnippetExtractor extends Extractor {
     }
 
     public void startExtraction(boolean continueFromLastExtraction) {
+
+        LOGGER.info("start snippet extraction");
 
         // reset stopped command
         setStopped(false);
@@ -108,6 +111,10 @@ public class SnippetExtractor extends Extractor {
                     LOGGER.info("snippet extraction process stopped");
                     break;
                 }
+
+                // update live status
+                ExtractionProcessManager.liveStatus.setCurrentAction("Search for snippets for "
+                        + currentEntity.getName() + " (" + currentConcept.getName() + ")");
 
                 currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
 

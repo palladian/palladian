@@ -33,4 +33,9 @@ public class PhraseExtractor extends EntityExtractionTechnique {
     public void extract(String url, EntityQuery eq, Concept concept) {
         pwi.extract(url, eq, concept);
     }
+
+    @Override
+    public String getName() {
+        return "Phrase Extraction";
+    }
 }

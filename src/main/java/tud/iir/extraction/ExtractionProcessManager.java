@@ -9,6 +9,7 @@ import tud.iir.extraction.mio.MIOExtractionProcess;
 import tud.iir.extraction.qa.QAExtractionProcess;
 import tud.iir.extraction.snippet.SnippetExtractionProcess;
 import tud.iir.helper.DateHelper;
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
@@ -28,9 +29,11 @@ public class ExtractionProcessManager {
     public static boolean mioExtractionIsRunning = false;
     private static EntityExtractionProcess ep;
     private static FactExtractionProcess fp;
-    private static QAExtractionProcess qp;
-    private static SnippetExtractionProcess sp;
     private static MIOExtractionProcess mp;
+    private static SnippetExtractionProcess sp;
+    private static QAExtractionProcess qp;
+
+    public static LiveStatus liveStatus = new LiveStatus();
 
     private static boolean useConceptSynonyms = false;
     private static boolean useAttributeSynonyms = false;
@@ -63,8 +66,9 @@ public class ExtractionProcessManager {
             entityExtractionIsRunning = true;
             ep = new EntityExtractionProcess();
             ep.start();
-        } else
+        } else {
             System.out.println("already running");
+        }
     }
 
     public static boolean stopEntityExtraction() {
@@ -83,8 +87,9 @@ public class ExtractionProcessManager {
             factExtractionIsRunning = true;
             fp = new FactExtractionProcess();
             fp.start();
-        } else
+        } else {
             System.out.println("already running");
+        }
     }
 
     public static boolean stopFactExtraction() {
@@ -103,8 +108,9 @@ public class ExtractionProcessManager {
             factExtractionIsRunning = true;
             fp = new FactExtractionProcess(true);
             fp.start();
-        } else
+        } else {
             System.out.println("already running");
+        }
     }
 
     public static void startQAExtraction() {
@@ -112,8 +118,9 @@ public class ExtractionProcessManager {
             qaExtractionIsRunning = true;
             qp = new QAExtractionProcess();
             qp.start();
-        } else
+        } else {
             System.out.println("already running");
+        }
     }
 
     public static boolean stopQAExtraction() {
@@ -182,6 +189,7 @@ public class ExtractionProcessManager {
         SourceRetrieverManager.getInstance().setSource(Controller.getConfig().getInt("extraction.source"));
         SourceRetrieverManager.getInstance().setResultCount(Controller.getConfig().getInt("extraction.resultCount"));
 
+        // the interval in seconds in which the live_status table should be updated
         int extractionStatusUpdateInteraval = Controller.getConfig().getInt("extraction.statusUpdate") * 1000;
 
         while (true) {
@@ -213,15 +221,6 @@ public class ExtractionProcessManager {
                 Logger.getRootLogger().info("mio extraction stopped, continue");
             }
 
-            if (Controller.getConfig().getInt("extraction.qaSlot") > 0) {
-                startQAExtraction();
-                waitingLoop(Controller.getConfig().getInt("extraction.qaSlot") * DateHelper.MINUTE_MS,
-                        extractionStatusUpdateInteraval);
-                Logger.getRootLogger().info("stop qa extraction now...");
-                stopQAExtraction();
-                Logger.getRootLogger().info("qa extraction stopped, continue");
-            }
-
             if (Controller.getConfig().getInt("extraction.snippetSlot") > 0) {
                 startSnippetExtraction();
                 waitingLoop(Controller.getConfig().getInt("extraction.snippetSlot") * DateHelper.MINUTE_MS,
@@ -231,37 +230,82 @@ public class ExtractionProcessManager {
                 Logger.getRootLogger().info("snippet extraction stopped, continue");
             }
 
+            if (Controller.getConfig().getInt("extraction.qaSlot") > 0) {
+                startQAExtraction();
+                waitingLoop(Controller.getConfig().getInt("extraction.qaSlot") * DateHelper.MINUTE_MS,
+                        extractionStatusUpdateInteraval);
+                Logger.getRootLogger().info("stop qa extraction now...");
+                stopQAExtraction();
+                Logger.getRootLogger().info("qa extraction stopped, continue");
+            }
+
         }
     }
 
+    /**
+     * Wait for a certain time. This is used to not run different extraction phases in parallel.
+     * 
+     * @param totalTimeMS The total pause time in milliseconds.
+     * @param intervalMS The interval in milliseconds when the loop should write live status updates.
+     */
     private static void waitingLoop(int totalTimeMS, int intervalMS) {
         int steps = totalTimeMS / intervalMS;
         for (int i = 0; i < steps; i++) {
             ThreadHelper.sleep(intervalMS);
             int progress = (int) Math.floor((double) 100 * i / steps);
             System.out.println("progress: " + progress + "%");
-            DatabaseManager.getInstance().updateExtractionStatus(getExtractionPhase(), progress,
-                    getCurrentPhaseLoggerExcerpt(), Crawler.sessionDownloadedBytes);
+
+            liveStatus.setPercent(progress);
+            liveStatus.setTimeLeft(DateHelper.getTimeString(totalTimeMS - i * intervalMS));
+            liveStatus.setCurrentPhase(getExtractionPhaseName());
+            liveStatus.setLogExcerpt(getCurrentPhaseLoggerExcerpt().toString());
+            liveStatus.setDownloadedBytes(Crawler.sessionDownloadedBytes);
+
+            DatabaseManager.getInstance().checkCleanExtractionStatus();
+            DatabaseManager.getInstance().updateExtractionStatus(liveStatus);
+
+            // liveStatus = new LiveStatus();
         }
     }
 
+    private static int getExtractionPhase() {
+        if (entityExtractionIsRunning) {
+            return 1;
+        }
+        if (factExtractionIsRunning) {
+            return 2;
+        }
+        if (mioExtractionIsRunning) {
+            return 3;
+        }
+        if (snippetExtractionIsRunning) {
+            return 4;
+        }
+        if (qaExtractionIsRunning) {
+            return 5;
+        }
+        return -1;
+    }
     /**
      * Find out in which extraction phase the extraction loop is at the moment.
      * 
      * @return The phase number.
      */
-    private static int getExtractionPhase() {
-        if (entityExtractionIsRunning)
-            return 1;
-        if (factExtractionIsRunning)
-            return 2;
-        if (mioExtractionIsRunning)
-            return 3;
-        if (qaExtractionIsRunning)
-            return 4;
-        if (snippetExtractionIsRunning)
-            return 5;
-        return -1;
+    private static String getExtractionPhaseName() {
+        switch (getExtractionPhase()) {
+            case 1:
+                return "Entity Extraction";
+            case 2:
+                return "Fact Extraction";
+            case 3:
+                return "MIO Extraction";
+            case 4:
+                return "Snippet Extraction";
+            case 5:
+                return "QA Extraction";
+            default:
+                return "Unknown";
+        }
     }
 
     /**
@@ -269,25 +313,8 @@ public class ExtractionProcessManager {
      * 
      * @return An excerpt of the logs.
      */
-    private static StringBuilder getCurrentPhaseLoggerExcerpt() {
-        StringBuilder logExcerpt = new StringBuilder();
-
-        switch (getExtractionPhase()) {
-            case 1:
-                // TODO logExcerpt = EntityExtractor.getInstance().getLogger().getExcerpt(10);
-                break;
-            case 2:
-                // TODO logExcerpt = FactExtractor.getInstance().getLogger().getExcerpt(10);
-                break;
-            case 3:
-                // TODO logExcerpt = QAExtractor.getInstance().getLogger().getExcerpt(10);
-                break;
-            case 4:
-                // TODO logExcerpt = SnippetExtractor.getInstance().getLogger().getExcerpt(10);
-                break;
-        }
-
-        return logExcerpt;
+    private static String getCurrentPhaseLoggerExcerpt() {
+        return FileHelper.readFileToString(Controller.getConfig().getString("extraction.liveStatusLogPath"));
     }
 
     public static int getSourceRetrievalSite() {

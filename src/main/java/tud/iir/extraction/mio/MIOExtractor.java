@@ -16,6 +16,7 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
+import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.Extractor;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
@@ -125,6 +126,10 @@ public final class MIOExtractor extends Extractor {
                     break;
                 }
 
+                // update live status
+                ExtractionProcessManager.liveStatus.setCurrentAction("Search for MIOs for " + currentEntity.getName()
+                        + " (" + currentConcept.getName() + ")");
+
                 currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
 
                 LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
@@ -197,6 +202,7 @@ public final class MIOExtractor extends Extractor {
      * @param url the URL
      * @return true, if the URL allowed
      */
+    @Override
     public boolean isURLallowed(final String url) {
         return super.isURLallowed(url);
     }

@@ -18,6 +18,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
+import tud.iir.extraction.LiveStatus;
 import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -105,6 +106,8 @@ public class DatabaseManager {
 
     // status
     private PreparedStatement psUpdateExtractionStatus;
+    private PreparedStatement psCheckCleanExtractionStatus;
+    private PreparedStatement psCleanExtractionStatus;
     private PreparedStatement psGetExtractionStatusDownloadedBytes;
 
     // // ////////////////// feed prepared statements ////////////////////
@@ -280,9 +283,11 @@ public class DatabaseManager {
 
         // status
         psUpdateExtractionStatus = connection
-                .prepareStatement("UPDATE extraction_status SET phase = ?, progress = ?, logExcerpt = ?, downloadedBytes = ?, updatedAt = NOW() WHERE id = 1");
+                .prepareStatement("INSERT INTO live_status SET percent = ?, timeLeft= ?, currentPhase = ?, currentAction = ?, logExcerpt = ?, moreText1 = ?, moreText2 = ?, downloadedBytes = ?, updatedAt = NOW()");
+        psCheckCleanExtractionStatus = connection.prepareStatement("SELECT COUNT(id) FROM live_status");
+        psCleanExtractionStatus = connection.prepareStatement("TRUNCATE live_status");
         psGetExtractionStatusDownloadedBytes = connection
-                .prepareStatement("SELECT downloadedBytes FROM extraction_status WHERE id = 1");
+                .prepareStatement("SELECT downloadedBytes FROM live_status WHERE id = IN (SELECT MAX(id) FROM live_status)");
 
     }
 
@@ -294,204 +299,6 @@ public class DatabaseManager {
     public Connection getConnection() {
         return connection;
     }
-
-    // /**
-    // * Gets the logger.
-    // * TODO needed?
-    // *
-    // * @return the logger
-    // */
-    // public Logger getLogger() {
-    // return LOGGER;
-    // }
-
-    // /**
-    // * Gets the connection.
-    // *
-    // * @return the connection
-    // */
-    // public Connection getConnection() {
-    //
-    // try {
-    // Class.forName(config.getString("db.driver"));
-    // String url = "jdbc:" + config.getString("db.type") + "://" + config.getString("db.host") + ":"
-    // + config.getString("db.port") + "/" + config.getString("db.name");
-    // url += "?useServerPrepStmts=false&cachePrepStmts=false";
-    // connection = DriverManager.getConnection(url, config.getString("db.username"), config
-    // .getString("db.password"));
-    //
-    // psLastInsertID = connection.prepareStatement("SELECT LAST_INSERT_ID()");
-    // // only get the "master" concepts, not the synonyms -- Philipp, 2010-07-02
-    // // psGetConcepts = connection.prepareStatement("SELECT * FROM `concepts`");
-    // psGetConcepts =
-    // connection.prepareStatement("SELECT * FROM `concepts` WHERE id NOT IN (SELECT conceptID2 FROM concept_synonyms)");
-    // psGetConceptSynonyms =
-    // connection.prepareStatement("SELECT * FROM `concepts`, `concept_synonyms` WHERE conceptID1 = ? AND conceptID2 = concepts.id");
-    //
-    // psConceptCheck = connection.prepareStatement("SELECT id FROM `concepts` WHERE name = ?");
-    // psConceptSynonymCheck = connection
-    // .prepareStatement("SELECT id FROM concept_synonyms WHERE (conceptID1 = ? AND conceptID2 = ?) OR (conceptID1 = ? AND conceptID2 = ?)");
-    // psAttributeSynonymCheck = connection
-    // .prepareStatement("SELECT id FROM attribute_synonyms WHERE (attributeID1 = ? AND attributeID2 = ?) OR (attributeID1 = ? AND attributeID2 = ?)");
-    //
-    // psAttributeConceptCheck = connection
-    // .prepareStatement("SELECT id FROM attributes_concepts WHERE attributeID = ? AND conceptID = ?");
-    //
-    // psGetLastSearchedConcept = connection.prepareStatement("SELECT lastSearched FROM concepts WHERE name = ?");
-    // psGetLastSearchedAttribute = connection
-    // .prepareStatement("SELECT lastSearched FROM attributes WHERE name = ?");
-    // psGetLastSearchedEntity = connection.prepareStatement("SELECT lastSearched FROM entities WHERE name = ?");
-    // psInsertConcept = connection.prepareStatement("INSERT INTO `concepts` SET name = ?, lastSearched = ?");
-    // psUpdateConcept = connection.prepareStatement("UPDATE `concepts` SET lastSearched = ? WHERE id = ?");
-    //
-    // psAttributeCheck = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
-    // psInsertAttribute = connection
-    // .prepareStatement("INSERT INTO `attributes` SET name = ?,trust = ?, lastSearched = ?");
-    // psUpdateAttribute = connection.prepareStatement("UPDATE `attributes` SET lastSearched = ? WHERE id = ?");
-    //
-    // psEntityCheck = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ? AND conceptID = ?");
-    // psGetEntityName = connection.prepareStatement("SELECT name FROM `entities` WHERE id = ?");
-    // psInsertEntity = connection
-    // .prepareStatement("INSERT INTO `entities` SET name = ?,trust = ?,conceptID = ?,lastSearched = ?");
-    // psUpdateEntity = connection.prepareStatement("UPDATE `entities` SET lastSearched = ? WHERE id = ?");
-    // psLoadEntities1 = connection
-    // .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY name ASC LIMIT ?,?");
-    // psLoadEntities2 = connection
-    // .prepareStatement("SELECT id,name,lastSearched FROM `entities` WHERE conceptID = ? ORDER BY lastSearched ASC LIMIT ?,?");
-    // psLoadEntity = connection
-    // .prepareStatement("SELECT `entities`.name AS entityName,`entities`.lastSearched,`concepts`.name AS conceptName FROM `entities`,`concepts` WHERE `entities`.conceptID = `concepts`.id AND `entities`.id = ?");
-    // psDeleteEmptyEntities = connection.prepareStatement("DELETE FROM entities WHERE LENGTH(TRIM(name)) = 0");
-    //
-    // psGetEntityIDsByName = connection.prepareStatement("SELECT id FROM `entities` WHERE name = ?");
-    // psGetAttributeID = connection.prepareStatement("SELECT id FROM `attributes` WHERE name = ?");
-    // psGetAttributeExtractedAt = connection
-    // .prepareStatement("SELECT extractedAt FROM `attributes` WHERE name = ?");
-    //
-    // psFactCheck = connection
-    // .prepareStatement("SELECT id FROM `facts` WHERE entityID = ? AND attributeID = ? AND value = ?");
-    // psInsertFact = connection
-    // .prepareStatement("INSERT INTO `facts` SET entityID = ?,attributeID = ?,value = ?,trust = ?");
-    //
-    // psSnippetCheck = connection.prepareStatement("SELECT id FROM `snippets` WHERE entityID = ? AND text = ?");
-    // // psInsertSnippet = connection
-    // //
-    // .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, f_SearchIndex = ?, f_SearchIndexRank = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_CharacterCount = ?, f_StartsWithEntity = ?, f_WordCount = ?, f_SyllableCount = ?, f_CapitalizedWordCount = ?, regressionRank = ?");
-    // psInsertSnippet = connection
-    // .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, regressionRank = ?, f_AggregatedRank = ?, f_SearchEngine1 = ?, f_SearchEngine2 = ?, f_SearchEngine3 = ?, f_SearchEngine4 = ?, f_SearchEngine5 = ?, f_SearchEngine6 = ?, f_SearchEngine7 = ?, f_SearchEngine8 = ?, f_SearchEngine9 = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_MainContentCharCount = ?, f_CharacterCount = ?, f_LetterNumberPercentage = ?, f_SyllablesPerWordCount = ?, f_WordCount = ?, f_UniqueWordCount = ?, f_ComplexWordPercentage = ?, f_SentenceCount = ?, f_WordsPerSentenceCount = ?, f_FleschKincaidReadingEase = ?, f_GunningFogScore = ?, f_FleschKincaidGradeLevel = ?, f_AutomatedReadabilityIndex = ?, f_ColemanLiauIndex = ?, f_SmogIndex = ?, f_ContainsProperNoun = ?, f_CapitalizedWordCount = ?, f_StartsWithEntity = ?, f_RelatedEntityCount = ?");
-    // // psUpdateSnippetRank =
-    // // connection.prepareStatement("UPDATE `snippets` SET regressionRank = ? WHERE id = ?");
-    //
-    // psAttributeSourceCheck = connection
-    // .prepareStatement("SELECT id FROM `attributes_sources` WHERE attributeID = ? AND sourceID = ?");
-    // psInsertAttributeSource = connection
-    // .prepareStatement("INSERT INTO `attributes_sources` SET attributeID = ?,sourceID = ?,extractionType = ?");
-    // psGetEntitySources = connection
-    // .prepareStatement("SELECT sources.id,url,extractionType FROM `entities`,`entities_sources`,`sources` WHERE `entities`.id = `entities_sources`.entityID AND `entities_sources`.sourceID = `sources`.id  AND `entities`.id = ?");
-    // psEntitySourceCheck = connection
-    // .prepareStatement("SELECT id FROM `entities_sources` WHERE entityID = ? AND sourceID = ? AND extractionType = ?");
-    // psInsertEntitySource = connection
-    // .prepareStatement("INSERT INTO `entities_sources` SET entityID = ?,sourceID = ?,extractionType = ?");
-    // psFactSourceCheck = connection
-    // .prepareStatement("SELECT id FROM `facts_sources` WHERE factID = ? AND sourceID = ?");
-    // psInsertFactSource = connection
-    // .prepareStatement("INSERT INTO `facts_sources` SET factID = ?,sourceID = ?,extractionType = ?");
-    // psSourceCheck = connection.prepareStatement("SELECT id FROM `sources` WHERE url = ?");
-    // psInsertSource = connection.prepareStatement("INSERT INTO `sources` SET url = ?");
-    // psGetSourceURL = connection.prepareStatement("SELECT url FROM `sources` WHERE id = ?");
-    //
-    // psInsertAssessmentInstance = connection
-    // .prepareStatement("INSERT INTO training_samples SET conceptID = ?, entityID = ?, class = ?");
-    //
-    // psGetSeeds = connection
-    // .prepareStatement("SELECT entities.name FROM `entities`,`entities_sources` WHERE `entities`.conceptID = ? AND `entities`.id = `entities_sources`.entityID GROUP BY entityID ORDER BY COUNT(entityID) DESC LIMIT 0,2000");
-    // psGetEntitiesForSource = connection
-    // .prepareStatement("SELECT training_samples.entityID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.sourceID = ?");
-    // psGetEntitiesForExtractionType = connection
-    // .prepareStatement("SELECT training_samples.entityID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.extractionType = ? AND training_samples.conceptID = ?");
-    // psGetExtractionTypesForSource = connection
-    // .prepareStatement("SELECT extractionType FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.sourceID = ? AND training_samples.conceptID = ?");
-    // psGetSourcesForExtractionType = connection
-    // .prepareStatement("SELECT entities_sources.sourceID FROM `training_samples`,`entities_sources` WHERE training_samples.entityID = entities_sources.entityID AND `entities_sources`.extractionType = ? AND training_samples.conceptID = ?");
-    //
-    // // psSetEntityTrust = connection.prepareStatement("UPDATE entities SET trust = ? WHERE id = ?");
-    //
-    // psGetPMI = connection.prepareStatement("SELECT value FROM facts WHERE entityID = ? AND attributeID = ?");
-    //
-    // psSetTestField = connection.prepareStatement("UPDATE training_samples SET test = ? WHERE entityID = ?");
-    //
-    // // question and answers
-    // psAddQ = connection.prepareStatement("INSERT INTO `questions` SET sourceID = ?, question = ?");
-    // psAddA = connection.prepareStatement("INSERT INTO `answers` SET answer = ?, questionID = ?");
-    //
-    // // status
-    // psUpdateExtractionStatus = connection
-    // .prepareStatement("UPDATE extraction_status SET phase = ?, progress = ?, logExcerpt = ?, downloadedBytes = ?, updatedAt = NOW() WHERE id = 1");
-    // psGetExtractionStatusDownloadedBytes = connection
-    // .prepareStatement("SELECT downloadedBytes FROM extraction_status WHERE id = 1");
-    //
-    // // // // prepared statements for feeds
-    // // psAddFeedEntry = connection
-    // //
-    // .prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?, tags = ?");
-    // // psAddFeed = connection
-    // //
-    // .prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ?");
-    // // psUpdateFeed = connection
-    // //
-    // .prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-    // // psUpdateFeed_fixed_learned = connection
-    // //
-    // .prepareStatement("UPDATE feeds_fixed_learned SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-    // // psUpdateFeed_adaptive = connection
-    // //
-    // .prepareStatement("UPDATE feeds_adaptive SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-    // // psUpdateFeed_probabilistic = connection
-    // //
-    // .prepareStatement("UPDATE feeds_probabilistic SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-    // // psUpdateFeedPostDistribution = connection
-    // //
-    // .prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
-    // // psGetFeedPostDistribution = connection
-    // // .prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
-    // // psGetFeeds = connection
-    // //
-    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds");
-    // // psGetFeeds_fixed_learned = connection
-    // //
-    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_fixed_learned");
-    // // psGetFeeds_adaptive = connection
-    // //
-    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_adaptive");
-    // // psGetFeeds_probabilistic = connection
-    // //
-    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_probabilistic");
-    // // psGetFeedByUrl = connection
-    // //
-    // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
-    // // psGetFeedByID = connection
-    // //
-    // .prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
-    // // psGetEntryByRawId = connection
-    // //
-    // .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
-    // // psChangeCheckApproach = connection
-    // //
-    // .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
-    //
-    // } catch (ClassNotFoundException e) {
-    // LOGGER.error(e.getMessage());
-    // } catch (SQLException e) {
-    // LOGGER.error(e.getMessage());
-    // }
-    //
-    // return connection;
-    // }
-
-    /*
-     * private void closeConnection() { try { connection.close(); } catch (SQLException e) {
-     * LOGGER.error(e.getMessage()); } }
-     */
-
     /**
      * Update ontology.
      */
@@ -1081,25 +888,49 @@ public class DatabaseManager {
 
     /**
      * *************************************************************************************************
-     * reading and writing from the database
+     * Reading and writing from the database.
      * *************************************************************************************************.
-     * 
-     * @param extractionPhase the extraction phase
-     * @param progress the progress
-     * @param logExcerpt the log excerpt
-     * @param downloadedBytes the downloaded bytes
+     */
+    
+    /**
+     * Check whether extraction status must be cleaned.
+     */
+    public void checkCleanExtractionStatus() {
+        ResultSet rs = runQuery(psCheckCleanExtractionStatus);
+        try {
+            if (rs.next()) {
+                int rowCount = rs.getInt(1);
+
+                // if there are more than 100 lines in the live status, delete all of them
+                if (rowCount > 100) {
+                    runUpdate(psCleanExtractionStatus);
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.error("could not get row count of live status");
+        }
+    }
+
+    /**
+     * @param extractionPhase The extraction phase.
+     * @param progress The progress.
+     * @param logExcerpt The log excerpt.
+     * @param downloadedBytes The downloaded bytes.
      */
 
-    public void updateExtractionStatus(int extractionPhase, int progress, StringBuilder logExcerpt, long downloadedBytes) {
+    public void updateExtractionStatus(LiveStatus liveStatus) {
         try {
-            psUpdateExtractionStatus.setInt(1, extractionPhase);
-            psUpdateExtractionStatus.setInt(2, progress);
-            psUpdateExtractionStatus.setString(3, logExcerpt.toString());
-            psUpdateExtractionStatus.setLong(4, downloadedBytes);
+            psUpdateExtractionStatus.setDouble(1, liveStatus.getPercent());
+            psUpdateExtractionStatus.setString(2, liveStatus.getTimeLeft());
+            psUpdateExtractionStatus.setString(3, liveStatus.getCurrentPhase());
+            psUpdateExtractionStatus.setString(4, liveStatus.getCurrentAction());
+            psUpdateExtractionStatus.setString(5, liveStatus.getLogExcerpt());
+            psUpdateExtractionStatus.setString(6, liveStatus.getMoreText1());
+            psUpdateExtractionStatus.setString(7, liveStatus.getMoreText2());
+            psUpdateExtractionStatus.setLong(8, liveStatus.getDownloadedBytes());
             runUpdate(psUpdateExtractionStatus);
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-            runUpdate("INSERT INTO extraction_status SET phase=-1");
+            LOGGER.error("could not update live status, " + e.getMessage());
         }
     }
 
@@ -1115,8 +946,7 @@ public class DatabaseManager {
                 return rs.getLong(1);
             }
         } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-            runUpdate("INSERT INTO extraction_status SET phase=-1");
+            LOGGER.error("could not get the number of downloaded bytes, " + e.getMessage());
         }
         return 0;
     }
