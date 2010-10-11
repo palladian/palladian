@@ -54,15 +54,15 @@ public class FeedDiscovery {
     private static final Logger LOGGER = Logger.getLogger(FeedDiscovery.class);
 
     private static final int MAX_NUMBER_OF_THREADS = 10;
-    
+
     /** crawler for downloading pages. */
     private Crawler crawler = new Crawler();
 
     private boolean debugDump = false;
-    
+
     /** Whether to extract all feeds on a page, or just the first, "preferred" one. */
     private boolean onlyPreferred = true;
-    
+
     /** Define which search engine to use, see {@link SourceRetrieverManager} for available constants. */
     private int searchEngine = SourceRetrieverManager.YAHOO_BOSS;
 
@@ -73,8 +73,11 @@ public class FeedDiscovery {
 
     /** The path of the file where the discovered feeds should be written to. */
     private String resultFilePath = "";
-    
-    /** If true and resultFilePath != "", the feeds will be written to the file as they are discovered. That prevents losing all data on a crash. */
+
+    /**
+     * If true and resultFilePath != "", the feeds will be written to the file as they are discovered. That prevents
+     * losing all data on a crash.
+     */
     private boolean writeResultFileContinuously = true;
 
     /** Store a collection of all queries that are used to retrieve sites from a search engine. */
@@ -92,9 +95,9 @@ public class FeedDiscovery {
     /** Ignore list, will be matched with URLs. */
     private Set<String> ignoreList = new HashSet<String>();
 
-    ////////////////////////////////
+    // //////////////////////////////
     // some statistics
-    ////////////////////////////////
+    // //////////////////////////////
 
     /** total # of sites we checked */
     private Counter totalSites = new Counter();
@@ -115,9 +118,6 @@ public class FeedDiscovery {
     private long searchTime = 0;
     /** total time spent for discovery process */
     private long discoveryTime = 0;
-
-    /** traffic counter TODO use crawler downloadSize instead? */
-    // private Counter traffic = new Counter();
 
     @SuppressWarnings("unchecked")
     public FeedDiscovery() {
@@ -203,7 +203,7 @@ public class FeedDiscovery {
 
         Set<String> sites = new HashSet<String>();
         for (String resultUrl : resultURLs) {
-            //sites.add(Helper.getRootUrl(resultUrl));
+            // sites.add(Helper.getRootUrl(resultUrl));
             sites.add(Crawler.getDomain(resultUrl));
         }
 
@@ -285,18 +285,20 @@ public class FeedDiscovery {
         // get all Nodes from the Document containing feeds
         // this XPath relatively complicated to be in conformance to the Atom autodiscovery "standard".
         // see: http://diveintomark.org/archives/2003/12/19/atom-autodiscovery
-        List<Node> feedNodes = XPathHelper.getNodes(document, 
-                "//LINK[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and " +
-                "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or " +
-                "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]");
-        
+        List<Node> feedNodes = XPathHelper
+                .getNodes(
+                        document,
+                        "//LINK[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and "
+                                + "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or "
+                                + "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]");
+
         List<Node> atomNodes = new ArrayList<Node>();
         List<Node> rssNodes = new ArrayList<Node>();
         List<Node> resultNodes = null;
-        
+
         // check for Atom/RSS
         for (Node feedNode : feedNodes) {
-            
+
             String type = feedNode.getAttributes().getNamedItem("type").getNodeValue().toLowerCase();
             if (type.contains("atom")) {
                 atomNodes.add(feedNode);
@@ -305,9 +307,9 @@ public class FeedDiscovery {
                 rssNodes.add(feedNode);
                 rssFeeds.increment();
             }
-            
+
         }
-        
+
         if (onlyPreferred && feedNodes.size() > 0) {
             // we only want to have the 1st, preferred feed
             LOGGER.trace("taking preferred feed");
@@ -323,14 +325,14 @@ public class FeedDiscovery {
         } else {
             LOGGER.trace("no feeds found");
         }
-        
+
         if (feedNodes.size() > 1) {
             multipleFeeds.increment();
-            LOGGER.trace("found multiple feeds");            
+            LOGGER.trace("found multiple feeds");
         }
 
         if (resultNodes != null) {
-            
+
             feedSites.increment();
             for (Node feedNode : resultNodes) {
 
@@ -352,7 +354,7 @@ public class FeedDiscovery {
                 String feedUrl = Crawler.makeFullURL(pageUrl, baseHref, feedHref);
 
                 // validate URL
-                UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https" , "file" });
+                UrlValidator urlValidator = new UrlValidator(new String[] { "http", "https", "file" });
                 boolean isValidUrl = urlValidator.isValid(feedUrl);
 
                 if (isValidUrl) {
@@ -368,7 +370,8 @@ public class FeedDiscovery {
                 }
             }
             // some statistical information
-            LOGGER.info(pageUrl + " has atom:" + atomNodes.size() + ", rss:" + rssNodes.size() + ", extracted:" + result.size());
+            LOGGER.info(pageUrl + " has atom:" + atomNodes.size() + ", rss:" + rssNodes.size() + ", extracted:"
+                    + result.size());
         } else {
             LOGGER.info(pageUrl + " has no feed");
         }
@@ -389,7 +392,7 @@ public class FeedDiscovery {
         LOGGER.debug("combine queries");
 
         Collection<String> combinedQueries = new HashSet<String>();
-        
+
         for (int i = 0; i < queries.size(); i++) {
             for (int j = i + 1; j < queries.size(); j++) {
                 combinedQueries.add(queries.get(i) + " " + queries.get(j));
@@ -579,16 +582,16 @@ public class FeedDiscovery {
     public void setOnlyPreferred(boolean onlyPreferred) {
         this.onlyPreferred = onlyPreferred;
     }
-    
+
     public boolean isOnlyPreferred() {
         return onlyPreferred;
     }
-    
+
     public void setSearchEngine(int searchEngine) {
         LOGGER.trace("using " + SourceRetrieverManager.getName(searchEngine));
         this.searchEngine = searchEngine;
     }
-    
+
     public int getSearchEngine() {
         return searchEngine;
     }
@@ -616,12 +619,15 @@ public class FeedDiscovery {
             sb.append("    total time for discovery: " + DateHelper.getTimeString(discoveryTime)).append(newLine)
                     .append(newLine);
         }
-        /*if (traffic.getCount() != 0) {
-            sb.append("    traffic for discovery: " + ((float) traffic.getCount() / (1024 * 1024)) + " MB").append(
-                    newLine);
-        }*/
+        /*
+         * if (traffic.getCount() != 0) {
+         * sb.append("    traffic for discovery: " + ((float) traffic.getCount() / (1024 * 1024)) + " MB").append(
+         * newLine);
+         * }
+         */
         if (crawler.getTotalDownloadSize() > 0) {
-            sb.append("    traffic for discovery: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB").append(newLine);
+            sb.append("    traffic for discovery: " + crawler.getTotalDownloadSize(Crawler.MEGA_BYTES) + " MB").append(
+                    newLine);
         }
         sb.append("----------------------------------------------");
         return sb.toString();
@@ -670,23 +676,29 @@ public class FeedDiscovery {
         CommandLineParser parser = new BasicParser();
 
         Options options = new Options();
-        options.addOption(OptionBuilder.withLongOpt("resultLimit").withDescription("maximum results per query").hasArg().withArgName("nn").withType(Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("threads").withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(Number.class).create());
-        options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write XML dumps of visited pages").create());
+        options.addOption(OptionBuilder.withLongOpt("resultLimit").withDescription("maximum results per query")
+                .hasArg().withArgName("nn").withType(Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("threads")
+                .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn")
+                .withType(Number.class).create());
+        options.addOption(OptionBuilder.withLongOpt("dump").withDescription("write XML dumps of visited pages")
+                .create());
         options.addOption(OptionBuilder.withLongOpt("outputFile").withDescription("output file for results").hasArg()
                 .withArgName("filename").create());
-        options.addOption(OptionBuilder.withLongOpt("outputCont").withDescription(
-                "write the output file continuously").create());
-        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg().withArgName("query1[,query2,...]").create());
-        options.addOption(OptionBuilder.withLongOpt("queryFile").withDescription(
-                "runs the specified queries from the file (one query per line)").hasArg().withArgName("filename")
+        options.addOption(OptionBuilder.withLongOpt("outputCont").withDescription("write the output file continuously")
                 .create());
-        options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg().withArgName("url").create());
-        options.addOption(OptionBuilder.withLongOpt("combineQueries").withDescription(
-                "combine single queries to create more mixed queries").create());
+        options.addOption(OptionBuilder.withLongOpt("query").withDescription("runs the specified queries").hasArg()
+                .withArgName("query1[,query2,...]").create());
+        options.addOption(OptionBuilder.withLongOpt("queryFile")
+                .withDescription("runs the specified queries from the file (one query per line)").hasArg()
+                .withArgName("filename").create());
+        options.addOption(OptionBuilder.withLongOpt("check").withDescription("check specified URL for feeds").hasArg()
+                .withArgName("url").create());
+        options.addOption(OptionBuilder.withLongOpt("combineQueries")
+                .withDescription("combine single queries to create more mixed queries").create());
 
         try {
-            
+
             if (args.length < 1) {
                 // no options supplied, go to catch clause, print help.
                 throw new ParseException(null);
@@ -755,7 +767,6 @@ public class FeedDiscovery {
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("FeedDiscovery [options]", options);
         }
-
 
     }
 

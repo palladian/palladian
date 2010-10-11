@@ -41,10 +41,11 @@ public class StringHelper {
      * @return The safe name.
      */
     public static String makeSafeName(String name) {
-        return name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "").replaceAll(",",
-                "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll("\\:", "_").replaceAll("\\!", "")
-                .replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll("\\Ä", "Ae").replaceAll("\\ö", "oe")
-                .replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue").replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
+        return name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
+                .replaceAll(",", "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll("\\:", "_")
+                .replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll("\\Ä", "Ae")
+                .replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue").replaceAll("\\Ü", "Ue")
+                .replaceAll("\\ß", "ss");
     }
 
     /**
@@ -398,8 +399,8 @@ public class StringHelper {
 
             if (m.find()) {
                 double number = Double.valueOf(StringNormalizer.normalizeNumber(m.group()));
-                double convertedNumber = UnitNormalizer.getNormalizedNumber(number, string.substring(m.end(), string
-                        .length()));
+                double convertedNumber = UnitNormalizer.getNormalizedNumber(number,
+                        string.substring(m.end(), string.length()));
                 if (number != convertedNumber) {
                     return true;
                 }
@@ -609,13 +610,7 @@ public class StringHelper {
         }
 
         // remove all control characters from string
-        for (int i = 0, l = string.length(); i < l; ++i) {
-            // < 33 means all control characters are not wanted as well
-            if (string.charAt(i) < 33) {
-                string = string.replace(string.charAt(i), ' ');
-            }
-
-        }
+        string = removeControlCharacters(string);
 
         // close spaces gap that might have arisen
         string = string.replaceAll("(\\s){1,}", " ");
@@ -626,15 +621,18 @@ public class StringHelper {
         return string;
     }
 
-    // TODO
-
+    /**
+     * Removes unwanted control characters from the specified string.
+     * 
+     * @param string
+     * @return
+     */
     public static String removeControlCharacters(String string) {
         for (int i = 0, l = string.length(); i < l; ++i) {
             // < 33 means all control characters are not wanted as well
             if (string.charAt(i) < 33) {
                 string = string.replace(string.charAt(i), ' ');
             }
-
         }
         return string;
     }
@@ -1038,6 +1036,7 @@ public class StringHelper {
 
     /**
      * URLDecode a String.
+     * 
      * @param string
      * @return
      */
@@ -1054,6 +1053,7 @@ public class StringHelper {
 
     /**
      * URLEncode a String.
+     * 
      * @param string
      * @return
      */
@@ -1269,81 +1269,80 @@ public class StringHelper {
         return count;
     }
 
-	/**
-	 * Shorten a String; returns the first num words.
-	 * 
-	 * TODO add test case.
-	 * 
-	 * @param string
-	 * @param num
-	 * @return
-	 */
-	public static String getFirstWords(String string, int num) {
-	    StringBuilder sb = new StringBuilder();
-	    if (string != null && num > 0) {
-	        String[] split = string.split("\\s");
-	        if (split.length == 0) { // XXX
-	            return "";
-	        }
-	        sb.append(split[0]);
-	        for (int i = 1; i < Math.min(num, split.length); i++) {
-	            sb.append(" ").append(split[i]);
-	        }
-	    }
-	    return sb.toString();
-	}
+    /**
+     * Shorten a String; returns the first num words.
+     * 
+     * @param string
+     * @param num
+     * @return
+     */
+    public static String getFirstWords(String string, int num) {
+        StringBuilder sb = new StringBuilder();
+        if (string != null && num > 0) {
+            String[] split = string.split("\\s");
+            if (split.length == 0) {
+                return "";
+            }
+            sb.append(split[0]);
+            for (int i = 1; i < Math.min(num, split.length); i++) {
+                sb.append(" ").append(split[i]);
+            }
+        }
+        return sb.toString();
+    }
 
-	/**
-	 * Count number of occurences of pattern within text. TODO this will fail if pattern contains RegEx metacharacters.
-	 * Need to escape.
-	 * 
-	 * @param text
-	 * @param pattern
-	 * @param ignoreCase
-	 * @return
-	 */
-	public static int countOccurences(String text, String pattern, boolean ignoreCase) {
-	    if (ignoreCase) {
-	        text = text.toLowerCase();
-	        pattern = pattern.toLowerCase();
-	    }
-	    Pattern p = Pattern.compile(pattern);
-	    Matcher m = p.matcher(text);
-	    int occurs = 0;
-	    while (m.find()) {
-	        occurs++;
-	    }
-	    return occurs;
-	}
+    /**
+     * Count number of occurences of pattern within text.
+     * 
+     * TODO this will fail if pattern contains RegEx metacharacters. Need to escape.
+     * 
+     * @param text
+     * @param pattern
+     * @param ignoreCase
+     * @return
+     */
+    public static int countOccurences(String text, String pattern, boolean ignoreCase) {
+        if (ignoreCase) {
+            text = text.toLowerCase();
+            pattern = pattern.toLowerCase();
+        }
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(text);
+        int occurs = 0;
+        while (m.find()) {
+            occurs++;
+        }
+        return occurs;
+    }
 
-	/**
-	 * Calculates Levenshtein similarity between the strings.
-	 * 
-	 * @param s1
-	 * @param s2
-	 * @return similarity between 0 and 1 (inclusive).
-	 */
-	public static float getLevenshteinSim(String s1, String s2) {
-	    int distance = StringUtils.getLevenshteinDistance(s1, s2);
-	    float similarity = 1 - (float) distance / Math.max(s1.length(), s2.length());
-	    return similarity;
-	}
+    /**
+     * Calculates Levenshtein similarity between the strings.
+     * 
+     * @param s1
+     * @param s2
+     * @return similarity between 0 and 1 (inclusive).
+     */
+    public static float getLevenshteinSim(String s1, String s2) {
+        int distance = StringUtils.getLevenshteinDistance(s1, s2);
+        float similarity = 1 - (float) distance / Math.max(s1.length(), s2.length());
+        return similarity;
+    }
 
-	/**
-	 * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
-	 * similarity which is computationally expensive.
-	 * 
-	 * @param s1
-	 * @param s2
-	 * @return similarity between 0 and 1 (inclusive).
-	 */
-	public static float getLengthSim(String s1, String s2) {
-	    int length1 = s1.length();
-	    int length2 = s2.length();
-	    if (length1 == 0 && length2 == 0) {
-	        return 1;
-	    }
-	    return (float) Math.min(length1, length2) / Math.max(length1, length2);
-	}
+    /**
+     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
+     * similarity which is computationally expensive.
+     * 
+     * @param s1
+     * @param s2
+     * @return similarity between 0 and 1 (inclusive).
+     */
+    public static float getLengthSim(String s1, String s2) {
+        int length1 = s1.length();
+        int length2 = s2.length();
+        if (length1 == 0 && length2 == 0) {
+            return 1;
+        }
+        return (float) Math.min(length1, length2) / Math.max(length1, length2);
+    }
 
 }
