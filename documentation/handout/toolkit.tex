@@ -762,7 +762,7 @@ TextClassifier classifier = ClassifierManager.load(path);
 ClassificationDocument classifiedDocument = null;
 
 // classify the little text (if classifier works it would say Spanish)
-classifiedDocument = classifier.classify("Yo solo sé que no sé nada.");
+classifiedDocument = classifier.classify("Yo solo sï¿½ que no sï¿½ nada.");
 
 // print the classified document
 System.out.println(classifiedDocument);
@@ -897,34 +897,100 @@ System.out.println("finished training and testing classifier
 
 \section{Extraction}
 
+%TODO refactor from "ControlledTagger" to "ControlledKeywordExtractor" or something like that..
 \subsection{Keyword Extraction / Controlled Tagging}
 It is often interesting which words describe a given text most. These words are often called ``keywords'' or ``tags''. Palladian is able to use a weighted, controlled vocabulary and perform tagging of a text using TF-IDF and tag correlations.
 
-The ControlledTaggerIndex is the basis for the tagging. This index contains information about the controlled tag vocabulary, tag frequencies, a stem-map, and a correlation table for all tags. The tag index is built using training data of single text files that have been assigned with weighted tags. This index is serialized as a model file for later usage.
+The ControlledTaggerIndex is the basis for the tagging. This index contains information about the controlled tag vocabulary, tag frequencies, a stem-map, and a correlation table for all tags. The tag index is built using training data of single text files that have been assigned with weighted tags. This index can be serialized as a model file for later usage.
 
-To tag a new text with the most relevant keywords, the ControlledTagger tokenizes the input text and stems the tokens using the SnowballStemmer. Tokens are now in their stemmed form, that is, tokens such as ``blogging'' and ``blogs'' became ``blog''.
+To tag a new text with the most relevant keywords, the ControlledTagger tokenizes the input text and stems the tokens, which means that tokens like ``blogging'' and ``blogs'' are consolidated to the common term ``blog''.
 
-All tokens that match a tag from the controlled vocabulary in the index are held in a bag-of-words which also stores the frequencies of the tokens in the input text. Using this data, we can calculate the TF-IDF values for each tag candidate. The TF-IDF scores are used to rank the tags initially. Another ranking step is performed by using the tag correlation table from the index.
+All tokens that match a tag from the controlled vocabulary in the index are held in a bag-of-words which also stores the frequencies of the tokens in the input text. Using this data, we can calculate the TF-IDF values for each tag candidate. The TF-IDF scores are used to rank the tags initially. The determined tag candidates are then processed by two re-ranking steps to improve the final results:
 
-The ControlledTagger can be configured using the ControlledTaggerSettings class. You can configure the following behaviors:
+\begin{description}
+
+	\item [Prior probabilities] considers the probability of a tag occuring in the training data. This way, more popular tags are prioretized.
+
+	\item [Correlations] considers the probability of a specific pair of tags co-occuring in the training data. For example, the trained model might suggest a strong correlation between the pair ``apple'' and ``iphone''. The strenghts of such correlations can be taken into account for the re-ranking.
+
+\end{description}
+
+% TODO insert figure from thesis about re-ranking here?
+
+ControlledTagger was designed to be trained with large amounts of manually tagged documents. For our experiments we relied on the DeliciousT140 dataset which can be obtained from \cite{deliciousT140}. The dataset was crawled from Delicious and contains over 140.000 tagged documents. For convenient access to the dataset, Palladian provides the class DeliciousDatasetReader. The DeliciousDatasetReader gives access to the XML-based dataset and supports various filter operations. For a usage example please take a look at the main method of the class.
+
+The ControlledTagger can be configured using the ControlledTaggerSettings class. You can configure the following aspects:
+
 \begin{enumerate}
-\item TF-IDF threshold under which the tags should be discarded OR alternatively, the number of fixed tags per document.
+\item TF-IDF threshold under which the tags should be discarded or alternatively, the number of fixed tags per document.
 \item The correlation re-ranking modus.
-\item The stemmer to use
-\item The stop words list
-\item A list of regular expression that the tags need to match in order to be assigned
+\item The stemmer to use. We can choose between different SnowballStemmer implementations for various natural languages. For further informations about Snowball, please consult \cite{snowball}.
+\item The stop words list.
+\item A list of regular expression that the tags need to match in order to be assigned.
 \end{enumerate}
 
+Listing~\ref{listing:trainControlledTagger} shows the training of the ControlledTagger with data from Delicious and the finally the serialization of the trained model.
+
 \begin{codelisting}
-\label{listing:useNER}
+\label{listing:trainControlledTagger}
+\begin{lstlisting}[frame=tb]
+// set up the ControlledTagger
+final ControlledTagger tagger = new ControlledTagger();
+        
+// tagging parameters are encapsulated by ControlledTaggerSettings
+ControlledTaggerSettings taggerSettings = tagger.getSettings();
+        
+// create a DeliciousDatasetReader + Filter for training
+DeliciousDatasetReader reader = new DeliciousDatasetReader();
+DatasetFilter filter = new DatasetFilter();
+filter.addAllowedFiletype("html");
+filter.setMinUsers(50);
+filter.setMaxFileSize(600000);
+reader.setFilter(filter);
+        
+// train the tagger with 20.000 train documents from the dataset
+DatasetCallback callback = new DatasetCallback() {
+    @Override
+    public void callback(DatasetEntry entry) {
+        String content = FileHelper.readFileToString(entry.getPath());
+        content = HTMLHelper.htmlToString(content, true);
+        tagger.train(content, entry.getTags());
+    }
+};
+reader.read(callback, 20000);
+        
+// save the model for later usage
+tagger.save("data/models/controlledTaggerModel.ser");
+\end{lstlisting}
+%\caption{Training the controlled tagger.}
+\end{codelisting}
+
+Listing~\ref{listing:useControlledTagger} shows how to load a trained model into the ControlledTagger and use it for tagging text contents.
+
+\begin{codelisting}
+\label{listing:useControlledTagger}
 \begin{lstlisting}[frame=tb]
 ControlledTagger tagger = new ControlledTagger();
-System.out.println(tagger);
+
+// load the trained model, this takes some time;
+// if you will tag multiple documents, 
+// make sure to move this outside the loop!
+tagger.load("data/models/controlledTaggerModel.ser");
+        
+// assign tags according to a web page's content
+PageContentExtractor extractor = new PageContentExtractor();
+String content = extractor.getResultText(
+	"http://arstechnica.com/open-source/news/2010/10/" + 
+	"mozilla-releases-firefox-4-beta-for-maemo-and-android.ars");
+List<Tag> assignedTags = tagger.tag(content);
+        
+// print the assigned tags
+CollectionHelper.print(assignedTags);
 \end{lstlisting}
 %\caption{Using the controlled tagger.}
 \end{codelisting}
 
-The keyword extraction is state-of-the art and beats the comparable system ``Maui''\cite{medelyan2009human} by 18.9\% in the F1-Score.
+The keyword extraction is state-of-the-art and beats the comparable system ``Maui''\cite{medelyan2009human} by 18.9\% in the F1-Score.
 More information about the controlled tagging can be found in \cite{katz2010diploma}.
 
 \subsection{Web Page Content Extraction}
@@ -1622,6 +1688,7 @@ Palladian makes excessive use of third party libraries. We do not intend to re-i
 \item Log4j \cite{log4j} for logging.
 \item Lucene \cite{lucene} for indexing and making learned models persistent.
 \item NekoHTML \cite{nekohtml} to clean up the HTML of web pages in order to process them correctly.
+\item ROME \cite{rome} for parsing RSS and Atom feeds.
 \item SimMetrics \cite{simmetrics} to calculate similarities of strings.
 \item Twitter4j \cite{twitter4j} to query the Twitter API.
 \item Weka \cite{hall2009weka} for machine learning.

@@ -25,12 +25,14 @@ import tud.iir.classification.controlledtagging.ControlledTaggerSettings.Tagging
 import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetCallback;
 import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetEntry;
 import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetFilter;
+import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.Tokenizer;
+import tud.iir.web.Crawler;
 
 /**
  * A TF-IDF and tag correlation based tagger using a controlled and weighted vocabulary.
@@ -966,9 +968,10 @@ public class ControlledTagger {
         
         // all tagging parameters are encapsulated by ControlledTaggerSettings
         ControlledTaggerSettings taggerSettings = tagger.getSettings();
+        //taggerSettings.setCorrelationType(TaggingCorrelationType.NO_CORRELATIONS);
         
         // create a DeliciousDatasetReader + Filter for training
-        DeliciousDatasetReader reader = new DeliciousDatasetReader();
+        /*DeliciousDatasetReader reader = new DeliciousDatasetReader();
         DatasetFilter filter = new DatasetFilter();
         filter.addAllowedFiletype("html");
         filter.setMinUsers(50);
@@ -995,7 +998,19 @@ public class ControlledTagger {
         // // tagger.stemVocabulary();
         // System.out.println(tagger.unstem("liberti"));
 
-        System.exit(0);
+        System.exit(0);*/
+        
+        // load the trained model, this takes some time.
+        // if you will tag multiple documents, be sure to move this outside the loop!
+        tagger.load("data/models/controlledTaggerModel2.ser");
+        
+        // assign tags according to a web page's content
+        PageContentExtractor extractor = new PageContentExtractor();
+        String content = extractor.getResultText("http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars");
+        List<Tag> assignedTags = tagger.tag(content);
+        
+        // print the assigned tags
+        CollectionHelper.print(assignedTags);
 
         // Bag<String> test = new HashBag<String>(Arrays.asList(new String[] { "car", "car", "car", "car",
         // "graphicdesign", "cars", "mercedes" }));
