@@ -92,8 +92,7 @@ public class ControlledTagger {
     }
 
     /**
-     * We only need those tags which actually match with the provided pattern. The rest can be filtered out to save
-     * memory.
+     * We only need those tags which actually match with the provided pattern. The rest can be filtered out in advance.
      */
     private Bag<String> clean(Bag<String> tags) {
         Bag<String> result = new HashBag<String>();

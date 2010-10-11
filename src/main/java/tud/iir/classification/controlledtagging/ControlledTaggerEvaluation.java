@@ -164,7 +164,9 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
     public ControlledTaggerEvaluationResult justTest(int testLimit) {
         
         tagger = new ControlledTagger();
-        tagger.load("/home/pk/workspace/newsseecr/data/newsTagger.ser");
+        //tagger.load("/home/pk/workspace/newsseecr/data/newsTagger.ser");
+        tagger.load("data/models/controlledTaggerModel.ser");
+
         
         ControlledTaggerSettings settings = new ControlledTaggerSettings();
         settings.setTaggingType(TaggingType.FIXED_COUNT);
@@ -200,9 +202,9 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
         filter.setMaxFileSize(600000);
         evaluation.setFilter(filter);    
         
-        /*evaluation.justTest(1000);
+        evaluation.justTest(10000);
         
-        System.exit(0);*/
+        System.exit(0);
         
         // parameters : trainSize, testSize, tagType, correlationType, tfidfThreshold, tagCount, correlationWeight, priorWeight
         

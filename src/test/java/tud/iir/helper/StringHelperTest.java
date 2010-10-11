@@ -2,8 +2,6 @@ package tud.iir.helper;
 
 import java.io.File;
 
-import org.junit.Test;
-
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import tud.iir.knowledge.RegExp;
@@ -12,6 +10,7 @@ import tud.iir.knowledge.RegExp;
  * Test cases for the StringHelper class.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public class StringHelperTest extends TestCase {
 
@@ -65,13 +64,11 @@ public class StringHelperTest extends TestCase {
     }
 
     public void testRemoveStopWords() {
-        assertEquals("...neighborhoodthe ofrocking.", StringHelper
-                .removeStopWords("...The neighborhoodthe is ofrocking of."));
-        assertEquals("neighborhood; REALLY; rocking!", StringHelper
-                .removeStopWords("The neighborhood is; IS REALLY; rocking of!"));
+        assertEquals("...neighborhoodthe ofrocking.",
+                StringHelper.removeStopWords("...The neighborhoodthe is ofrocking of."));
+        assertEquals("neighborhood; REALLY; rocking!",
+                StringHelper.removeStopWords("The neighborhood is; IS REALLY; rocking of!"));
     }
-
-
 
     public void testTrim() {
         // System.out.println(StringHelper.trim("'80GB'))"));
@@ -92,18 +89,18 @@ public class StringHelperTest extends TestCase {
 
     public void testLFEColonPattern() {
 
-        assertEquals("Volume: 96 cc", StringHelper.concatMatchedString("Volume: 96 cc", "||",
-                RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume: 96", StringHelper.concatMatchedString("Volume: 96", "||",
-                RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume: 96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume: 96 ccWeight: 128 g",
-                "||", RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume: 96 cc",
+                StringHelper.concatMatchedString("Volume: 96 cc", "||", RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume: 96",
+                StringHelper.concatMatchedString("Volume: 96", "||", RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume: 96 cc||Weight: 128 g",
+                StringHelper.concatMatchedString("Volume: 96 ccWeight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
         assertEquals("Volume : 96 cc||Weight : 128 g", StringHelper.concatMatchedString("Volume : 96 ccWeight : 128 g",
                 "||", RegExp.COLON_FACT_REPRESENTATION));
         assertEquals("Volume/V: 96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume/V: 96 ccWeight: 128 g",
                 "||", RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Volume:96 cc||Weight: 128 g", StringHelper.concatMatchedString("Volume:96 ccWeight: 128 g", "||",
-                RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Volume:96 cc||Weight: 128 g",
+                StringHelper.concatMatchedString("Volume:96 ccWeight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
         assertEquals("Volume: 96 cc||Net Weight: 128 g", StringHelper.concatMatchedString(
                 "Volume: 96 ccNet Weight: 128 g", "||", RegExp.COLON_FACT_REPRESENTATION));
         // assertEquals("Volume: 96 cc||Weight: 128 g",
@@ -112,12 +109,12 @@ public class StringHelperTest extends TestCase {
         // StringHelper.concatMatchedString("Volume: 96 cc,Net weight: 128 g","||",RegExp.COLON_FACT_REPRESENTATION));
         // assertEquals("Volume/V: 96 cc||Weight/W: 128 g",
         // StringHelper.concatMatchedString("Volume/V: 96 cc,Weight/W: 128 g","||",RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("V8: yes, 800kb", StringHelper.concatMatchedString("V8: yes, 800kb", "||",
-                RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("V8: yes, 800kb", StringHelper.concatMatchedString("V8: yes, 800kbDimensions", "||",
-                RegExp.COLON_FACT_REPRESENTATION));
-        assertEquals("Weight: 800, 600", StringHelper.concatMatchedString("Weight: 800, 600Dimensions", "||",
-                RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("V8: yes, 800kb",
+                StringHelper.concatMatchedString("V8: yes, 800kb", "||", RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("V8: yes, 800kb",
+                StringHelper.concatMatchedString("V8: yes, 800kbDimensions", "||", RegExp.COLON_FACT_REPRESENTATION));
+        assertEquals("Weight: 800, 600",
+                StringHelper.concatMatchedString("Weight: 800, 600Dimensions", "||", RegExp.COLON_FACT_REPRESENTATION));
         assertEquals("Weight: 800, 600", StringHelper.concatMatchedString("Weight: 800, 600MBDimensions", "||",
                 RegExp.COLON_FACT_REPRESENTATION));
         assertEquals("Weight: 800, 600MB", StringHelper.concatMatchedString("Weight: 800, 600MB Dimensions", "||",
@@ -143,32 +140,31 @@ public class StringHelperTest extends TestCase {
         assertEquals("the lilacs", StringHelper.getSubstringBetween("all the lilacs in ohio", "all ", " in ohio"));
         assertEquals("", StringHelper.getSubstringBetween("all the lilacs in ohio", "allt ", "in ohio"));
     }
-    
+
     public void testCamelCaseToWords() {
         assertEquals("", StringHelper.camelCaseToWords(""));
         assertEquals("camel Case String", StringHelper.camelCaseToWords("camelCaseString"));
         assertEquals("camel.case.string", StringHelper.camelCaseToWords("camel.case.string"));
         assertEquals("camel_Case_String", StringHelper.camelCaseToWords("camelCaseString", "_"));
     }
-    
-    @Test
+
     public void testCountOccurences() {
         Assert.assertEquals(2, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", true));
-        Assert.assertEquals(1, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", false));
-        Assert.assertEquals(0, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "cat", false));
+        Assert.assertEquals(1,
+                StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", false));
+        Assert.assertEquals(0,
+                StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "cat", false));
         Assert.assertEquals(5, StringHelper.countOccurences("aaaaa", "a", false));
         Assert.assertEquals(2, StringHelper.countOccurences("aaaaa", "aa", false));
     }
-    
-    @Test
+
     public void testGetFirstWords() {
-        Assert.assertEquals("the quick brown fox jumps", StringHelper.getFirstWords(
-                "the quick brown fox jumps over the lazy dog", 5));
-        Assert.assertEquals("the quick brown fox jumps over the lazy dog", StringHelper.getFirstWords(
-                "the quick brown fox jumps over the lazy dog", 15));
+        Assert.assertEquals("the quick brown fox jumps",
+                StringHelper.getFirstWords("the quick brown fox jumps over the lazy dog", 5));
+        Assert.assertEquals("the quick brown fox jumps over the lazy dog",
+                StringHelper.getFirstWords("the quick brown fox jumps over the lazy dog", 15));
         Assert.assertEquals("", StringHelper.getFirstWords("", 10));
         Assert.assertEquals("", StringHelper.getFirstWords(null, 10));
     }
-
 
 }

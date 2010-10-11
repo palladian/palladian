@@ -8,15 +8,17 @@ import java.util.TreeMap;
 /**
  * Represents a news entry within a feed ({@link Feed}).
  * 
+ * TODO rename to News or NewsEntry, should be more descriptive?
+ * 
  * @author Philipp Katz
  * @author David Urbansky
  */
 public class FeedEntry {
 
     private int id = -1;
-    
+
     private int feedId = -1;
-    
+
     private String title;
     private String link;
 
@@ -35,11 +37,7 @@ public class FeedEntry {
     /** entryText which we downloaded from the corresponding web page. */
     private String pageText;
 
-    // /** assigned tags from feed entry. */
-    // private List<String> tags = new ArrayList<String>();
-    
     /** arbitrary, numeric features, used for feature extraction and classification. */
-    // private Map<String, Float> features = new HashMap<String, Float>();
     private SortedMap<String, Double> features = new TreeMap<String, Double>();
 
     public int getId() {
@@ -49,11 +47,11 @@ public class FeedEntry {
     public void setId(int id) {
         this.id = id;
     }
-    
+
     public int getFeedId() {
         return feedId;
     }
-    
+
     public void setFeedId(int feedId) {
         this.feedId = feedId;
     }
@@ -148,22 +146,10 @@ public class FeedEntry {
         return text;
     }
 
-    // public List<String> getTags() {
-    // return tags;
-    // }
-    //
-    // public void setTags(List<String> tags) {
-    // this.tags = tags;
-    // }
-    //
-    // public void addTag(String tag) {
-    // tags.add(tag);
-    // }
-    
     public SortedMap<String, Double> getFeatures() {
         return features;
     }
-    
+
     public void setFeatures(SortedMap<String, Double> features) {
         this.features = features;
     }
