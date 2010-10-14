@@ -17,6 +17,8 @@ test014.html --> http://hardware.slashdot.org/story/10/05/28/043243/XBMC-Discont
 test015.html --> http://www.codinghorror.com/blog/2010/05/on-working-remotely.html --> OK
 test016.html --> http://www.gizmodo.de/2010/05/28/iphone-und-ipad-drahtlos-mit-itunes-synchronisieren.html --> Problem mit YouTube-Link
 test017.html --> http://egadgetbay.com/tablet-computer/apple-unveils-ipad-tablet-computer/ --> ...
+test018.html --> http://www.bbc.co.uk/news/world-europe-11539758 --> OK, removing noscript tags for now
+
 
 #### not working correctly for now
 http://www.zercustoms.com/news/Triumph-Thruxton-Special-Edition.html

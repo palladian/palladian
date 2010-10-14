@@ -37,6 +37,7 @@ public class PageContentExtractorTest {
         FileHelper.writeToFile("data/test/pageContentExtractor/result/test013.txt", e.setDocument("data/test/pageContentExtractor/test013.html").getResultText());
         FileHelper.writeToFile("data/test/pageContentExtractor/result/test014.txt", e.setDocument("data/test/pageContentExtractor/test014.html").getResultText());
         FileHelper.writeToFile("data/test/pageContentExtractor/result/test015.txt", e.setDocument("data/test/pageContentExtractor/test015.html").getResultText());
+        FileHelper.writeToFile("data/test/pageContentExtractor/result/test018.txt", e.setDocument("data/test/pageContentExtractor/test018.html").getResultText());
     }
 
     /**
@@ -63,6 +64,7 @@ public class PageContentExtractorTest {
         System.out.println(DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test013.html").getResultText()));
         System.out.println(DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test014.html").getResultText()));
         System.out.println(DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test015.html").getResultText()));
+        System.out.println(DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test018.html").getResultText()));
     }
 
     /**
@@ -90,14 +92,15 @@ public class PageContentExtractorTest {
         Assert.assertEquals("test013.html", "af25ba7317e8df1aca75fc1956372d54", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test013.html").getResultText()));
         Assert.assertEquals("test014.html", "afeabbbfb8c3f1c3943a05ba772da59f", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test014.html").getResultText()));
         Assert.assertEquals("test015.html", "1788005daaedfcb997c64802f5c42a46", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test015.html").getResultText()));
+        Assert.assertEquals("test018.html", "70bf83d80e0757a8f99fe4331a5244a6", DigestUtils.md5Hex(e.setDocument("data/test/pageContentExtractor/test018.html").getResultText()));
     }
     
-    
+    // main method to produce data for test case ...
     /*public static void main(String[] args) throws PageContentExtractorException {
         PageContentExtractor e = new PageContentExtractor();
-        String resultText = e.setDocument("data/test/pageContentExtractor/test012.html").getResultText();
+        String resultText = e.setDocument("data/test/pageContentExtractor/test018.html").getResultText();
         System.out.println(DigestUtils.md5Hex(resultText));
-        FileHelper.writeToFile("data/test/pageContentExtractor/result/test012_new.txt", resultText);
+        FileHelper.writeToFile("data/test/pageContentExtractor/result/test018.txt", resultText);
     }*/
     
 
