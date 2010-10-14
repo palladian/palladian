@@ -24,7 +24,7 @@ import tud.iir.helper.StopWatch;
  */
 public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
 
-    private static final Logger LOGGER = Logger.getLogger(ShinglesIndexH2.class);
+    // private static final Logger LOGGER = Logger.getLogger(ShinglesIndexH2.class);
 
     private String dbType = "h2";
     private String dbDriver = "org.h2.Driver";
