@@ -36,6 +36,12 @@ import tud.iir.helper.FileHelper;
 /**
  * A ShinglesIndex implementation using Lucene as persistent store.
  * 
+ * At the first glance it seems that the Lucene index has a linear runtime behavior with growing index size, in
+ * contrast to the other index implementations which develop quadratically (see diploma thesis
+ * "NewsSeecr -- Clustering und Ranking von Nachrichten zu Named Entities aus Newsfeeds", Philipp Katz, 2010) for
+ * different performance benchmarks.
+ * 
+ * 
  * @author Philipp Katz
  */
 public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
