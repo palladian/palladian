@@ -134,7 +134,7 @@ public class Shingles {
         }
         return similar;
     }
-    
+
     int count = 1;
 
     /**
@@ -179,8 +179,8 @@ public class Shingles {
      * @return <code>true</code>, if document was similar/duplicate.
      */
     protected boolean checkSimilarity(int documentId, Set<Long> sketch) {
-        
-//        System.out.println("------ " + documentId + " -----");
+
+        // System.out.println("------ " + documentId + " -----");
 
         boolean result = false;
         StringBuilder debugMessage = new StringBuilder();
@@ -189,37 +189,37 @@ public class Shingles {
         // //////////////////////// old implementation, slow ////////////////////
         // get all documents we need to check, i.e. all documents which contain one of the hashes
 
-        // Map<Integer, Set<Long>> documentsToCheck = index.getDocumentsForSketch(sketch);
-
-        // determine all similar/identical documents by calculating the Jaccard distance
-        // Set<Integer> similarDocuments = new HashSet<Integer>();
-        // Iterator<Entry<Integer, Set<Long>>> iterator = documentsToCheck.entrySet().iterator();
-        //        
-        // while (iterator.hasNext()) {
-        // Entry<Integer, Set<Long>> document = iterator.next();
-        // // don't count the current document itself
-        // if (document.getKey() == documentId) {
-        // continue;
-        // }
-        // float distance = jaccardDistance(document.getValue(), sketch);
-        // if (distance == 0) {
-        // // identical document
-        // debugMessage.append(" id:" + document.getKey());
-        // similarDocuments.add(document.getKey());
-        // } else if (distance < getSimilarityThreshold()) {
-        // // similar document
-        // debugMessage.append(" sim(" + distance + "):" + document.getKey());
-        // similarDocuments.add(document.getKey());
-        // }
-        // }
+        /*
+         * Map<Integer, Set<Long>> documentsToCheck = index.getDocumentsForSketch(sketch);
+         * // determine all similar/identical documents by calculating the Jaccard distance
+         * Set<Integer> similarDocuments = new HashSet<Integer>();
+         * Iterator<Entry<Integer, Set<Long>>> iterator = documentsToCheck.entrySet().iterator();
+         * while (iterator.hasNext()) {
+         * Entry<Integer, Set<Long>> document = iterator.next();
+         * // don't count the current document itself
+         * if (document.getKey() == documentId) {
+         * continue;
+         * }
+         * float distance = jaccardDistance(document.getValue(), sketch);
+         * if (distance == 0) {
+         * // identical document
+         * debugMessage.append(" id:" + document.getKey());
+         * similarDocuments.add(document.getKey());
+         * } else if (distance < getSimilarityThreshold()) {
+         * // similar document
+         * debugMessage.append(" sim(" + distance + "):" + document.getKey());
+         * similarDocuments.add(document.getKey());
+         * }
+         * }
+         */
 
         // //////////////////////// try to speed up /////////////////////////
+
         Bag<Integer> matchingDocs = new HashBag<Integer>();
         for (long hash : sketch) {
             Set<Integer> docsForHash = index.getDocumentsForHash(hash);
             matchingDocs.addAll(docsForHash);
         }
-
         // similarity candidates are in the Bag, which counts the number of matching hashes
         Set<Integer> similarDocs = new HashSet<Integer>();
         for (int curDocId : matchingDocs.uniqueSet()) {
@@ -228,10 +228,15 @@ public class Shingles {
             }
         }
         
-//        System.out.println("1->"+similarDocs);
+        ///////////////
+        // TODO some implementations are faster using the old implementation, some with the "speed up"
+        // move parts of this code to the appropriate index implementations
+        /////////////////
+
+        // System.out.println("1->"+similarDocs);
 
         // determine all similar/identical documents by calculating the Jaccard distance
-        Set<Integer> similarDocuments = new HashSet<Integer>();
+        Set<Integer> similarDocuments2 = new HashSet<Integer>();
 
         for (int simDocId : similarDocs) {
 
@@ -245,24 +250,24 @@ public class Shingles {
             if (distance == 0) {
                 // identical document
                 debugMessage.append(" id:" + simDocId);
-                similarDocuments.add(simDocId);
+                similarDocuments2.add(simDocId);
             } else if (distance < getSimilarityThreshold()) {
                 // similar document
                 debugMessage.append(" sim(" + distance + "):" + simDocId);
-                similarDocuments.add(simDocId);
+                similarDocuments2.add(simDocId);
             }
-            
+
             // TODO we could break the loop, when we found a similarity?
         }
-        
-//        System.out.println("2->"+similarDocuments);
+
+        // System.out.println("2->"+similarDocuments);
 
         // if we found similar documents, add the similarity relation to the index;
         // we treat the document with the lowest ID as "master" document which references
         // all similar/identical documents
-        if (similarDocuments.size() > 0) {
+        if (similarDocuments2.size() > 0) {
             LOGGER.debug(debugMessage);
-            index.addDocumentSimilarity(Collections.min(similarDocuments), documentId);
+            index.addDocumentSimilarity(Collections.min(similarDocuments2), documentId);
             result = true;
         } else {
             debugMessage.append(" looks unique.");

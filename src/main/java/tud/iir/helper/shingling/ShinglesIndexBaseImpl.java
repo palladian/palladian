@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 /**
  * Base ShinglesIndex implementation, with common functionality. {@link #openIndex()} and {@link #saveIndex()} can be
  * overridden by subclasses as necessary.
@@ -12,6 +14,9 @@ import java.util.Set;
  * 
  */
 public abstract class ShinglesIndexBaseImpl implements ShinglesIndex {
+    
+    /** class logger. */
+    protected static final Logger LOGGER = Logger.getLogger(ShinglesIndexBaseImpl.class);
     
     /** default directory where to store serialized shingles. */
     public static final String INDEX_FILE_BASE_PATH = "data/temp/shingles/";

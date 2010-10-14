@@ -8,6 +8,8 @@ import java.util.Map.Entry;
 /**
  * From http://it.toolbox.com/wiki/index.php/Perform_bitwise_permutation_using_Java
  * 
+ * ***** currently not in use ***********
+ * 
  * @author Philipp Katz
  *
  */

@@ -16,6 +16,7 @@ import java.util.Set;
  * This class adds some methods that make it easier to handle collections.
  * 
  * @author David Urbansky
+ * @author Philipp Katz
  */
 public final class CollectionHelper {
 
@@ -109,12 +110,12 @@ public final class CollectionHelper {
 
     // public static String getPrint(Set set) {
     // StringBuilder s = new StringBuilder();
-    //		
+    //
     // for (Object entry : set) {
     // s.append(entry).append("\n");
     // }
     // s.append("#Entries: ").append(set.size()).append("\n");
-    //		
+    //
     // return s.toString();
     // }
 
@@ -185,4 +186,26 @@ public final class CollectionHelper {
         }
         return set;
     }
+
+    // ///////////////////////////////////////////////////////
+    // (un)boxing for arrays from primitive to Object types
+    // TODO can we make this generic somehow?
+    // ///////////////////////////////////////////////////////
+
+    public static Integer[] toIntegerArray(int[] intArray) {
+        Integer[] integerArray = new Integer[intArray.length];
+        for (int i = 0; i < intArray.length; i++) {
+            integerArray[i] = intArray[i];
+        }
+        return integerArray;
+    }
+
+    public static int[] toIntArray(Integer[] integerArray) {
+        int[] intArray = new int[integerArray.length];
+        for (int i = 0; i < integerArray.length; i++) {
+            intArray[i] = integerArray[i];
+        }
+        return intArray;
+    }
+
 }

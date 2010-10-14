@@ -34,7 +34,7 @@ import tud.iir.helper.FileHelper;
 public class ShinglesIndexJDBM extends ShinglesIndexBaseImpl {
 
     /** class logger. */
-    private static final Logger LOGGER = Logger.getLogger(ShinglesIndexJDBM.class);
+    // private static final Logger LOGGER = Logger.getLogger(ShinglesIndexJDBM.class);
 
     /** manager for the JDBM data structures. */
     private RecordManager recordManager;
