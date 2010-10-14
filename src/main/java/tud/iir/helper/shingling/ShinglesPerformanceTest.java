@@ -8,45 +8,42 @@ import tud.iir.news.FeedEntry;
 
 public class ShinglesPerformanceTest {
 
+    private static FeedDatabase fd = FeedDatabase.getInstance();
+
     public static void main(String[] args) {
-        // ShinglesIndex index = new ShinglesIndexJava();
-        // ShinglesIndex index = new ShinglesIndexJDBM();
-        ShinglesIndex index = new ShinglesIndexLucene();
+        // runTest(new ShinglesIndexJDBM(), 1000);
+        runTest(new ShinglesIndexLucene(), 1000);
+    }
+
+    private static void runTest(ShinglesIndex index, int limit) {
 
         Shingles shingles = new Shingles(index);
 
-        FeedDatabase fd = FeedDatabase.getInstance();
-
-        final int limit = 100;
+        final int fetch = 100;
         int offset = 0;
         int foundDups = 0;
         StopWatch sw = new StopWatch();
 
         do {
-            List<FeedEntry> entries = fd.getFeedEntries(limit, offset);
+            List<FeedEntry> entries = fd.getFeedEntries(fetch, offset);
 
             for (FeedEntry feedEntry : entries) {
-
                 boolean isDup = shingles.addDocument(feedEntry.getId(), feedEntry.getText());
-                // /System.out.println(feedEntry.getId() + " is duplicate : " + isDup);
                 if (isDup) {
                     foundDups++;
                 }
-
             }
 
             System.out.println(offset + " -> " + sw.getElapsedTime());
 
-            offset += limit;
+            offset += fetch;
 
-        } while (offset < 10000);
+        } while (offset < limit);
 
         shingles.saveIndex();
+        index.deleteIndex();
 
-        System.out.println("found " + foundDups + " in " + sw.getElapsedTimeString());
-
-        // JDBM ---> found 84 in 19s:783ms
-        // Lucene ---> found 84 in 1m:51s:238ms
+        System.out.println(index.getClass().getName() + " found " + foundDups + " in " + sw.getElapsedTimeString());
 
     }
 
