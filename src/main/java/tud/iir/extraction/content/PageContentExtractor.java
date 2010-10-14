@@ -468,6 +468,10 @@ public class PageContentExtractor {
         cleanConditionally(articleContent, "form");
         clean(articleContent, "object");
         clean(articleContent, "h1");
+        
+        // TODO experimental, remove noscript tag; for test case see
+        // Mail David, 2010-10-14 & http://www.bbc.co.uk/news/world-europe-11539758
+        clean(articleContent, "noscript");
 
         /**
          * If there is only one h2, they are probably using it as a header and not a subheader, so remove it since we
