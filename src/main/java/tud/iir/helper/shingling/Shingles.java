@@ -51,10 +51,10 @@ import com.planetj.math.rabinhash.RabinHashFunction64;
 public class Shingles {
 
     /** class logger. */
-    protected static final Logger LOGGER = Logger.getLogger(Shingles.class);
+    private static final Logger LOGGER = Logger.getLogger(Shingles.class);
 
     /** the index to store all shingles and mappings between similar documents. */
-    protected ShinglesIndex index;
+    private ShinglesIndex index;
 
     public static final int DEFAULT_N_GRAM_LENGTH = 3;
 

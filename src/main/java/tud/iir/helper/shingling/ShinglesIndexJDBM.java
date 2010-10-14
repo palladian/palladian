@@ -17,9 +17,6 @@ import jdbm.helper.IntegerComparator;
 import jdbm.helper.LongComparator;
 import jdbm.helper.Tuple;
 import jdbm.helper.TupleBrowser;
-
-import org.apache.log4j.Logger;
-
 import tud.iir.helper.FileHelper;
 
 /**

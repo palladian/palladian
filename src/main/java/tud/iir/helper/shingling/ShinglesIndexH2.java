@@ -12,8 +12,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.log4j.Logger;
-
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 
@@ -39,10 +37,17 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
     private PreparedStatement psGetHashesForDocument;
     private PreparedStatement psGetDocumentsForHashes;
     private PreparedStatement psAddDocument;
-    
+
     private Connection connection;
 
-    public ShinglesIndexH2() {
+    // public ShinglesIndexH2() {
+    //
+    // moved this to openIndex()
+    //
+    // }
+
+    @Override
+    public void openIndex() {
 
         try {
 
@@ -51,13 +56,13 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
             connection = DriverManager.getConnection(url, dbUsername, dbPassword);
 
             PreparedStatement psCreateTableShingles = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentsHashes (documentId INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, hash BIGINT, PRIMARY KEY(documentId, hash)); " +
-                    		"CREATE INDEX IF NOT EXISTS hashIndex ON documentsHashes(documentId); " +
-                    		"CREATE INDEX IF NOT EXISTS documentIdIndex ON documentsHashes(hash);");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentsHashes (documentId INTEGER UNSIGNED NOT NULL AUTO_INCREMENT, hash BIGINT, PRIMARY KEY(documentId, hash)); "
+                            + "CREATE INDEX IF NOT EXISTS hashIndex ON documentsHashes(documentId); "
+                            + "CREATE INDEX IF NOT EXISTS documentIdIndex ON documentsHashes(hash);");
 
             PreparedStatement psCreateTableDocumentSimilarities = connection
-                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentSimilarities (masterId INTEGER UNSIGNED NOT NULL, simId INTEGER UNSIGNED NOT NULL, PRIMARY KEY (masterId, simId)); " +
-                    		"CREATE INDEX IF NOT EXISTS masterIdIndex ON documentSimilarities(masterId);");
+                    .prepareStatement("CREATE TABLE IF NOT EXISTS documentSimilarities (masterId INTEGER UNSIGNED NOT NULL, simId INTEGER UNSIGNED NOT NULL, PRIMARY KEY (masterId, simId)); "
+                            + "CREATE INDEX IF NOT EXISTS masterIdIndex ON documentSimilarities(masterId);");
 
             psCreateTableShingles.executeUpdate();
             psCreateTableDocumentSimilarities.executeUpdate();
@@ -293,7 +298,7 @@ public class ShinglesIndexH2 extends ShinglesIndexBaseImpl {
 
     @Override
     public void deleteIndex() {
-    	
+
         String file = INDEX_FILE_BASE_PATH + getIndexName() + ".h2.db";
 
         if (FileHelper.fileExists(file)) {

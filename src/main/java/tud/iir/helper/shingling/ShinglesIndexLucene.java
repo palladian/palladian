@@ -24,55 +24,72 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Scorer;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.LockObtainFailedException;
-import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.store.SimpleFSDirectory;
 import org.apache.lucene.util.Version;
+
+import tud.iir.helper.FileHelper;
 
 /**
  * A ShinglesIndex implementation using Lucene as persistent store.
  * 
- * TODO This is work in progress. This is dirty, messy and much copy+paste at the moment, need to clean this up.
- * 
  * @author Philipp Katz
- * 
  */
 public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
 
-    /** only for debugging purposes. */
-    // TODO remove this afterwards
-    private static final boolean PERSISTENT = false;
-
-    private IndexWriter writer;
-    private Analyzer analyzer;
+    /** The Lucene directory represents the storage on disk. */
     private Directory directory;
 
-    public ShinglesIndexLucene() {
+    /** The IndexWriter writes the data to the directory. It is kept open for the complete life time of this instance. */
+    private IndexWriter writer;
+
+    /** This analyzer just tokenizes at whitespace. */
+    private Analyzer analyzer = new WhitespaceAnalyzer();
+
+    /** This class collects search results. */
+    private class ShinglesIndexCollector extends Collector {
+
+        private int docBase;
+        private BitSet hits = new BitSet();
+
+        @Override
+        public void setScorer(Scorer scorer) throws IOException {
+            // NOP.
+        }
+
+        @Override
+        public void collect(int doc) throws IOException {
+            hits.set(docBase + doc);
+        }
+
+        @Override
+        public void setNextReader(IndexReader reader, int docBase) throws IOException {
+            this.docBase = docBase;
+        }
+
+        @Override
+        public boolean acceptsDocsOutOfOrder() {
+            // order doesn't matter, this way we can achieve a speed up.
+            return true;
+        }
+
+        public BitSet getHits() {
+            return hits;
+        }
+    }
+
+    @Override
+    public void openIndex() {
 
         try {
 
-            if (PERSISTENT) {
-                directory = new SimpleFSDirectory(new File("shinglesIndex"));
+            directory = new SimpleFSDirectory(new File(INDEX_FILE_BASE_PATH + getIndexName()));
 
-            } else {
-                directory = new RAMDirectory();
-            }
-
-            // analyzer = new StandardAnalyzer(Version.LUCENE_CURRENT);
-
-            /** this analyzer just tokenizes at whitespaces. */
-            analyzer = new WhitespaceAnalyzer();
-
+            // the writer is kept open all the time, it is closed via saveIndex()
             writer = new IndexWriter(directory, analyzer, IndexWriter.MaxFieldLength.UNLIMITED);
-            // reader = IndexReader.open(directory, true);
-            // searcher = new IndexSearcher(directory, true);
-
-            // searcher = new IndexSearcher(reader);
 
         } catch (CorruptIndexException e) {
             LOGGER.error(e);
@@ -81,16 +98,35 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
         } catch (IOException e) {
             LOGGER.error(e);
         }
+    }
 
+    @Override
+    public void saveIndex() {
+        try {
+            writer.close();
+        } catch (CorruptIndexException e) {
+            LOGGER.error(e);
+        } catch (IOException e) {
+            LOGGER.error(e);
+        }
+    }
+
+    @Override
+    public void deleteIndex() {
+
+        // make sure, the index is closed.
+        saveIndex();
+
+        boolean deleted = FileHelper.delete(INDEX_FILE_BASE_PATH + getIndexName(), true);
+        LOGGER.debug("deleted index : " + deleted);
     }
 
     @Override
     public void addDocument(int documentId, Set<Long> sketch) {
 
-        LOGGER.trace(">addDocument " + documentId + " " + sketch);
-
         try {
 
+            // save the sketch as space separated string
             String sketchString = StringUtils.join(sketch, " ");
 
             Document doc = new Document();
@@ -105,59 +141,32 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
         } catch (IOException e) {
             LOGGER.error(e);
         }
-
     }
 
     @Override
     public Set<Integer> getDocumentsForHash(long hash) {
 
-        LOGGER.trace(">getDocumentsForHash " + hash);
-
-        Set<Integer> result = new HashSet<Integer>();
+        Set<Integer> documents = new HashSet<Integer>();
 
         try {
 
+            // create the query and do the search
             Query query = new QueryParser(Version.LUCENE_CURRENT, "sketch", analyzer).parse(String.valueOf(hash));
-
-            final BitSet bitSet = new BitSet();
-
             IndexSearcher searcher = new IndexSearcher(directory, true);
-
-            searcher.search(query, new Collector() {
-                private int docBase;
-
-                @Override
-                public void setScorer(Scorer scorer) throws IOException {
-                    // NOP.
-                }
-
-                @Override
-                public void setNextReader(IndexReader reader, int docBase) throws IOException {
-                    this.docBase = docBase;
-                }
-
-                @Override
-                public void collect(int doc) throws IOException {
-                    bitSet.set(docBase + doc);
-                }
-
-                @Override
-                public boolean acceptsDocsOutOfOrder() {
-                    return true;
-                }
-            });
+            ShinglesIndexCollector collector = new ShinglesIndexCollector();
+            searcher.search(query, collector);
             searcher.close();
 
+            // retrieve the document information from the index
+            BitSet bitSet = collector.getHits();
             IndexReader reader = IndexReader.open(directory, true);
 
             for (int i = 0; i < bitSet.size(); i++) {
-
                 if (bitSet.get(i)) {
                     Document document = reader.document(i);
-                    String documentId = document.get("docId");
-                    result.add(Integer.valueOf(documentId));
+                    int documentId = Integer.valueOf(document.get("docId"));
+                    documents.add(documentId);
                 }
-
             }
             reader.close();
 
@@ -167,63 +176,33 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             LOGGER.error(e);
         }
 
-        return result;
+        return documents;
     }
 
     @Override
     public Set<Long> getSketchForDocument(int documentId) {
-
-        LOGGER.trace(">getSketchFordocument " + documentId);
 
         Set<Long> result = new HashSet<Long>();
 
         try {
 
             Query query = new QueryParser(Version.LUCENE_CURRENT, "docId", analyzer).parse(String.valueOf(documentId));
-
-            final BitSet bitSet = new BitSet();
-
             IndexSearcher searcher = new IndexSearcher(directory, true);
-
-            searcher.search(query, new Collector() {
-                private int docBase;
-
-                @Override
-                public void setScorer(Scorer scorer) throws IOException {
-                    // NOP.
-                }
-
-                @Override
-                public void setNextReader(IndexReader reader, int docBase) throws IOException {
-                    this.docBase = docBase;
-                }
-
-                @Override
-                public void collect(int doc) throws IOException {
-                    bitSet.set(docBase + doc);
-                }
-
-                @Override
-                public boolean acceptsDocsOutOfOrder() {
-                    return true;
-                }
-            });
+            ShinglesIndexCollector collector = new ShinglesIndexCollector();
+            searcher.search(query, collector);
             searcher.close();
 
+            BitSet bitSet = collector.getHits();
             IndexReader reader = IndexReader.open(directory, true);
 
             for (int i = 0; i < bitSet.size(); i++) {
-
                 if (bitSet.get(i)) {
                     Document document = reader.document(i);
-                    String sketch = document.get("sketch");
-
-                    String[] sketchSplit = sketch.split(" ");
-                    for (String split : sketchSplit) {
-                        result.add(Long.valueOf(split));
+                    String[] sketchArray = document.get("sketch").split(" ");
+                    for (String hash : sketchArray) {
+                        result.add(Long.valueOf(hash));
                     }
                 }
-
             }
             reader.close();
 
@@ -234,80 +213,50 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
         }
 
         return result;
-
     }
 
     @Override
     public int getNumberOfDocuments() {
 
+        int result = -1;
+
         try {
             IndexReader reader = IndexReader.open(directory, true);
-            int numDocs = reader.numDocs();
+            result = reader.numDocs();
             reader.close();
-            return numDocs;
         } catch (CorruptIndexException e) {
             LOGGER.error(e);
         } catch (IOException e) {
             LOGGER.error(e);
         }
 
-        return -1;
+        return result;
     }
 
     @Override
     public Set<Integer> getSimilarDocuments(int documentId) {
 
-        LOGGER.trace(">getSimilarDocuments " + documentId);
-
         Set<Integer> result = new HashSet<Integer>();
 
         try {
-            // /////BooleanQuery query = new BooleanQuery();
 
             Query query = new QueryParser(Version.LUCENE_CURRENT, "docId", analyzer).parse(String.valueOf(documentId));
-
-            final BitSet bitSet = new BitSet();
-
             IndexSearcher searcher = new IndexSearcher(directory, true);
-
-            searcher.search(query, new Collector() {
-                private int docBase;
-
-                @Override
-                public void setScorer(Scorer scorer) throws IOException {
-                    // NOP.
-                }
-
-                @Override
-                public void setNextReader(IndexReader reader, int docBase) throws IOException {
-                    this.docBase = docBase;
-                }
-
-                @Override
-                public void collect(int doc) throws IOException {
-                    bitSet.set(docBase + doc);
-                }
-
-                @Override
-                public boolean acceptsDocsOutOfOrder() {
-                    return true;
-                }
-            });
+            ShinglesIndexCollector collector = new ShinglesIndexCollector();
+            searcher.search(query, collector);
             searcher.close();
 
+            BitSet bitSet = collector.getHits();
             IndexReader reader = IndexReader.open(directory, true);
 
             for (int i = 0; i < bitSet.size(); i++) {
-
                 if (bitSet.get(i)) {
                     Document document = reader.document(i);
-                    String sims = document.get("similarities");
-                    String[] simssss = sims.split(" ");
-                    for (String s : simssss) {
-                        result.add(Integer.valueOf(s));
+                    String[] similarityArray = document.get("similarities").split(" ");
+                    for (String similarity : similarityArray) {
+                        result.add(Integer.valueOf(similarity));
                     }
                 }
-
             }
             reader.close();
 
@@ -326,29 +275,43 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
 
         try {
 
+            // first, query for the masterDocument by ID
             Query query = new QueryParser(Version.LUCENE_CURRENT, "docId", analyzer).parse(String
                     .valueOf(masterDocumentId));
-
-            int hitsPerPage = 10;
             IndexSearcher searcher = new IndexSearcher(directory, true);
-            TopScoreDocCollector collector = TopScoreDocCollector.create(hitsPerPage, true);
+            ShinglesIndexCollector collector = new ShinglesIndexCollector();
             searcher.search(query, collector);
-            ScoreDoc[] hits = collector.topDocs().scoreDocs;
+            searcher.close();
 
-            Document doc = searcher.doc(hits[0].doc);
+            BitSet hits = collector.getHits();
+            IndexReader reader = IndexReader.open(directory, true);
+            Document doc = null;
+            for (int i = 0; i < hits.size(); i++) {
+                if (hits.get(i)) {
+                    doc = reader.document(i);
+                    break;
+                }
+            }
 
+            if (doc == null) {
+                LOGGER.error("document with id " + masterDocumentId + " not found.");
+                return;
+            }
+
+            // Lucene index does not allow updating documents,
+            // so we have to delete the document from the index and re-add it
             writer.deleteDocuments(new Term("docId", String.valueOf(masterDocumentId)));
 
             String similarities = doc.get("similarities");
             if (similarities == null) {
                 similarities = String.valueOf(similarDocumentId);
             } else {
-                similarities = similarities.concat(" " + String.valueOf(similarDocumentId));
+                similarities = similarities.concat(" ").concat(String.valueOf(similarDocumentId));
             }
+            // replace the existing "similarities" field with the new content
             doc.removeField("similarities");
             doc.add(new Field("similarities", similarities, Field.Store.YES, Field.Index.ANALYZED));
 
-            searcher.close();
             writer.addDocument(doc);
             writer.commit();
 
@@ -363,11 +326,13 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
     @Override
     public Map<Integer, Set<Integer>> getSimilarDocuments() {
 
-        Map<Integer, Set<Integer>> result = new HashMap<Integer, Set<Integer>>();
+        Map<Integer, Set<Integer>> similarDocuments = new HashMap<Integer, Set<Integer>>();
 
         try {
+
             IndexReader reader = IndexReader.open(directory, true);
 
+            // we need to iterate through the whole index
             for (int i = 0; i < reader.maxDoc(); i++) {
 
                 if (reader.isDeleted(i)) {
@@ -375,20 +340,24 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                 }
 
                 Document document = reader.document(i);
-                String s = document.get("similarities");
-                if (s == null) {
+                String similarities = document.get("similarities");
+
+                if (similarities == null) {
                     continue;
                 }
-                Integer docId = Integer.valueOf(document.get("docId"));
-                ;
-                String[] s2 = s.split(" ");
-                Set<Integer> similarities = new HashSet<Integer>();
-                for (String string : s2) {
-                    similarities.add(Integer.valueOf(string));
+
+                Integer masterDocId = Integer.valueOf(document.get("docId"));
+                String[] similaritiesArray = similarities.split(" ");
+
+                if (similaritiesArray.length == 0) {
+                    continue;
                 }
-                if (!similarities.isEmpty()) {
-                    result.put(docId, similarities);
+
+                Set<Integer> similarDocs = new HashSet<Integer>();
+                for (String string : similaritiesArray) {
+                    similarDocs.add(Integer.valueOf(string));
                 }
+                similarDocuments.put(masterDocId, similarDocs);
 
             }
             reader.close();
@@ -401,96 +370,55 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
             LOGGER.error(e);
         }
 
-        return result;
-    }
-
-    @Override
-    public void saveIndex() {
-        try {
-
-            writer.close();
-
-        } catch (CorruptIndexException e) {
-            LOGGER.error(e);
-        } catch (IOException e) {
-            LOGGER.error(e);
-        }
+        return similarDocuments;
     }
 
     @Override
     public Map<Integer, Set<Long>> getDocumentsForSketch(Set<Long> sketch) {
 
-        Map<Integer, Set<Long>> result = new HashMap<Integer, Set<Long>>();
+        Map<Integer, Set<Long>> documents = new HashMap<Integer, Set<Long>>();
 
         try {
-            BooleanQuery q = new BooleanQuery();
-            for (Long long1 : sketch) {
-                q.add(new TermQuery(new Term("sketch", String.valueOf(long1))), BooleanClause.Occur.SHOULD);
+
+            // create a boolean OR query with the hashes of the sketch
+            BooleanQuery query = new BooleanQuery();
+            for (Long hash : sketch) {
+                query.add(new TermQuery(new Term("sketch", String.valueOf(hash))), BooleanClause.Occur.SHOULD);
             }
 
-            final BitSet bitSet = new BitSet();
-
             IndexSearcher searcher = new IndexSearcher(directory, true);
-
-            searcher.search(q, new Collector() {
-                private int docBase;
-
-                @Override
-                public void setScorer(Scorer scorer) throws IOException {
-                    // NOP.
-                }
-
-                @Override
-                public void setNextReader(IndexReader reader, int docBase) throws IOException {
-                    this.docBase = docBase;
-                }
-
-                @Override
-                public void collect(int doc) throws IOException {
-                    bitSet.set(docBase + doc);
-                }
-
-                @Override
-                public boolean acceptsDocsOutOfOrder() {
-                    return true;
-                }
-            });
+            ShinglesIndexCollector collector = new ShinglesIndexCollector();
+            searcher.search(query, collector);
             searcher.close();
 
+            BitSet bitSet = collector.getHits();
             IndexReader reader = IndexReader.open(directory, true);
 
             for (int i = 0; i < bitSet.size(); i++) {
-
                 if (bitSet.get(i)) {
-                    Document document = reader.document(i);
-                    String skkkktch = document.get("sketch");
-                    int docId = Integer.valueOf(document.get("docId"));
+                    Document doc = reader.document(i);
+                    int docId = Integer.valueOf(doc.get("docId"));
+                    String[] docSketchArray = doc.get("sketch").split(" ");
 
-                    Set<Long> tmp = new HashSet<Long>();
-
-                    String[] sketchSplit = skkkktch.split(" ");
-                    for (String split : sketchSplit) {
-                        tmp.add(Long.valueOf(split));
+                    Set<Long> docSketch = new HashSet<Long>();
+                    for (String hash : docSketchArray) {
+                        docSketch.add(Long.valueOf(hash));
                     }
 
-                    result.put(docId, tmp);
+                    documents.put(docId, docSketch);
                 }
-
             }
             reader.close();
+
         } catch (NumberFormatException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (CorruptIndexException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         }
 
-        return result;
-        // return super.getDocumentsForSketch(sketch);
+        return documents;
     }
 
 }
