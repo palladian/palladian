@@ -17,6 +17,14 @@ CREATE DATABASE /*!32312 IF NOT EXISTS*/`tudiirdb` /*!40100 DEFAULT CHARACTER SE
 
 USE `tudiirdb`;
 
+/* Table structure for table `api_log` */
+DROP TABLE IF EXISTS `api_log`;
+CREATE TABLE `tudiirdb`.`api_log`(     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT ,     `methodID` INT UNSIGNED ,     `appID` VARCHAR(50) ,     `appKey` VARCHAR(100) ,     `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,     PRIMARY KEY (`id`)  )  ;
+ 
+/* Table structure for table `api_methods` */
+DROP TABLE IF EXISTS `api_methods`;
+CREATE TABLE `tudiirdb`.`api_methods`(     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,     `methodCode` VARCHAR(50) ,     `methodName` VARCHAR(50) ,     PRIMARY KEY (`id`)  )  ;
+
 /* Table structure for table `live_status` */
 DROP TABLE IF EXISTS `live_status`;
 
@@ -446,16 +454,15 @@ CREATE TABLE `rolepages` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `searches` */
 
-DROP TABLE IF EXISTS `searches`;
+DROP TABLE IF EXISTS `query_log`;
 
-CREATE TABLE `searches` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `query` varchar(255) NOT NULL,
-  `time` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=60 DEFAULT CHARSET=latin1;
+CREATE TABLE `tudiirdb`.`query_log`(     
+   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT ,     
+   `input` VARCHAR(200) ,     
+   `class` ENUM('entity','question','api','other') ,     
+   `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,     
+   PRIMARY KEY (`id`)  )  ;
 
 /*Table structure for table `snippets` */
 
