@@ -298,6 +298,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                     break;
                 }
             }
+            reader.close();
 
             if (doc == null) {
                 LOGGER.error("document with id " + masterDocumentId + " not found.");
