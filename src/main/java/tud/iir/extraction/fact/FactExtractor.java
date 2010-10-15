@@ -13,7 +13,6 @@ import org.apache.log4j.Logger;
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.ExtractionType;
 import tud.iir.extraction.Extractor;
-//import tud.iir.extraction.FactExtractionTest;
 import tud.iir.gui.GUIManager;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.ThreadHelper;
@@ -619,7 +618,7 @@ public class FactExtractor extends Extractor {
     }
 
     /**
-     * Example calls of fact extraction functionality. See {@link FactExtractionTest} for more tests and usages.
+     * Example calls of fact extraction functionality. See FactExtractionTest for more tests and usages.
      * 
      * @param args
      */
