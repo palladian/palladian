@@ -414,6 +414,7 @@ CREATE TABLE `questions` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `sourceID` bigint(20) unsigned NOT NULL,
   `question` varchar(255) NOT NULL,
+  `extractedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `question_3` (`question`),
   FULLTEXT KEY `question_2` (`question`)
@@ -590,6 +591,18 @@ BEGIN
   SET avgWordLength = LENGTH(REPLACE(text1," ","")) / wordCount(text1);
   RETURN avgWordLength;
 END */$$
+DELIMITER ;
+
+DELIMITER $$
+
+USE `tudiirdb`$$
+
+DROP FUNCTION IF EXISTS `getDomain`$$
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `getDomain`(url VARCHAR(255)) RETURNS VARCHAR(255) CHARSET latin1
+    DETERMINISTIC
+RETURN SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(TRIM(LEADING "https://" FROM TRIM(LEADING "http://" FROM TRIM(url))), "/", 1), ":", 1), ".", IF(url LIKE "%.org.__%" OR url LIKE "%.net.__%" OR url LIKE "%.com.__%" OR url LIKE "%.__.us%" OR url LIKE "%.co.__%" OR url LIKE "%.__.uk%", -3, -2) )$$
+
 DELIMITER ;
 
 /* Function  structure for function  `countNumbers` */
