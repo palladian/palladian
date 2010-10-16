@@ -436,7 +436,7 @@
 		<dependency>
 			<groupId>de.tud.cs.iir</groupId>
 			<artifactId>PalladianExternalCode</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.5</version>
 		</dependency>
 	</dependencies>
 	<properties>
