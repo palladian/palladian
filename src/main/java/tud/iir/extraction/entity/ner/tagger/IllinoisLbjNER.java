@@ -3,7 +3,6 @@ package tud.iir.extraction.entity.ner.tagger;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -13,16 +12,15 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import external.LbjTagger.BracketFileManager;
-import external.LbjTagger.DemoEngine;
-import external.LbjTagger.LearningCurve;
-import external.LbjTagger.NETagPlain;
-import external.LbjTagger.NETester;
-import external.LbjTagger.Parameters;
-import external.lbj.NETaggerLevel1;
-import external.lbj.NETaggerLevel2;
-import external.lbj.IO.Keyboard;
-
+import tud.iir.external.lbj.NETaggerLevel1;
+import tud.iir.external.lbj.NETaggerLevel2;
+import tud.iir.external.lbj.IO.Keyboard;
+import tud.iir.external.lbj.Tagger.BracketFileManager;
+import tud.iir.external.lbj.Tagger.DemoEngine;
+import tud.iir.external.lbj.Tagger.LearningCurve;
+import tud.iir.external.lbj.Tagger.NETagPlain;
+import tud.iir.external.lbj.Tagger.NETester;
+import tud.iir.external.lbj.Tagger.Parameters;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
