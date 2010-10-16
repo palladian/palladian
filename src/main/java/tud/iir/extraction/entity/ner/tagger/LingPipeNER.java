@@ -14,6 +14,8 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import tud.iir.external.lingpipe.Conll2002ChunkTagParser;
+import tud.iir.external.lingpipe.FileScorer;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
@@ -39,9 +41,6 @@ import com.aliasi.lm.LanguageModel.Sequence;
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.AbstractExternalizable;
-
-import external.lingpipe.Conll2002ChunkTagParser;
-import external.lingpipe.FileScorer;
 
 /**
  * <p>
