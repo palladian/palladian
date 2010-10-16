@@ -4,6 +4,20 @@
   <artifactId>PalladianExternalCode</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <name>Palladian External Code</name>
+  <description>External modified source code that is used by Palladian.</description>
+  <build>
+  <plugins>
+   <plugin>
+    <groupId>org.apache.maven.plugins</groupId>
+    <artifactId>maven-compiler-plugin</artifactId>
+    <version>2.0.2</version>
+    <configuration>
+     <source>1.6</source>
+     <target>1.6</target>
+    </configuration>
+   </plugin>
+  </plugins>
+ </build>
   <dependencies>
 		<dependency>
 			<groupId>edu.illinois</groupId>
