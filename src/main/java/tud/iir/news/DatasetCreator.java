@@ -275,7 +275,7 @@ public class DatasetCreator {
     public static void main(String[] args) {
 
         DatasetCreator dc = new DatasetCreator();
-        // dc.createDataset();
+        dc.createDataset();
         dc.cleanUp(true);
         dc.addFeedMetaInformation();
 
