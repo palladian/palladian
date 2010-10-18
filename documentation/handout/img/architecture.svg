@@ -17,8 +17,8 @@
    sodipodi:docbase="E:\Programming\TUDIIR\documentation\handout\img"
    sodipodi:docname="architecture.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   sodipodi:modified="true"
-   version="1.0">
+   version="1.0"
+   sodipodi:modified="true">
   <defs
      id="defs4">
     <linearGradient
@@ -132,9 +132,10 @@
      inkscape:window-height="716"
      inkscape:window-x="-8"
      inkscape:window-y="-8"
-     width="300px"
-     height="120px"
-     showborder="true" />
+     width="84.666669mm"
+     height="33.866667mm"
+     showborder="true"
+     units="mm" />
   <metadata
      id="metadata7">
     <rdf:RDF>
