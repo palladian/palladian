@@ -76,6 +76,15 @@ Our main contributions to the research community are:
 \item Help making research more transparent by allowing to reproduce results with the included algorithms.
 \end{enumerate}
 
+Figure \ref{fig:architecture} shows the main packages of Palladian. You can see that the focus is on retrieval (Crawler, API access, feed reading...), preprocessing (tokenization, sentence splitting...), classification (KNN, Dictionary Classifier...), and extraction (named entities, tags...).
+
+\begin{figure}[ht!]
+\centering
+\includegraphics[width=0.6\textwidth]{img/architecture.pdf}
+\caption{A simple KNN example.}
+\label{fig:architecture}
+\end{figure}
+
 \section{What is Palladian NOT?}
 Palladian is not a complete natural language processing suite nor does it contain a {\textit complete} set of algorithms in any of the fields of classificatilds of classification, extraction, and information retrieval on, extraction, or information retrieval. Palladian is not commercial either, we like to answer questions as soon and comprehensive as possible but cannot guarantee this support.
 
@@ -1013,7 +1022,7 @@ In Palladian we use an approach that is based on a hierarchical analyzis of the 
 
 A named entity recognizer is therefore a system or technique that tries to detect entities in a given natural language text. For example, an NER system that is used to detect people, locations, and organizations should be able to find the bold entities in the following text:
 
-{\textbf Bill Gates} founded {\textbf Microsoft} with {\textbf Paul Allen} in 1975 in {\textbf Albuquerque, New Mexico}. The headquarter is located in {\textbf Redmond, Washington} and the company is led by CEO {\textbf Steve Ballmer}.
+\textbf{Bill Gates} founded {\textbf Microsoft} with {\textbf Paul Allen} in 1975 in {\textbf Albuquerque, New Mexico}. The headquarter is located in {\textbf Redmond, Washington} and the company is led by CEO {\textbf Steve Ballmer}.
 
 \subsubsection{Taggers}
 Palladian wraps 8 Named Entity Recognizers using a single interface making it easier to test and substitute them in real world applications.
