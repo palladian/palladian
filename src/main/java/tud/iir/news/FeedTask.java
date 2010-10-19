@@ -56,6 +56,11 @@ class FeedTask implements Runnable {
         if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_OFF) {
             feed.updateEntries(false);
         } else {
+            // we need to substract 97650 from the id since we crawled the data on two machines and different feeds had the same ids on those machines
+            // int identifier = feed.getId();
+            // if (identifier > 97650) {
+            // identifier -= 97650;
+            // }
             String safeFeedName = feed.getId()
                     + "_"
                     + StringHelper.makeSafeName(
