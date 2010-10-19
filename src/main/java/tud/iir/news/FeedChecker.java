@@ -414,6 +414,8 @@ public final class FeedChecker {
                 // feed related values
                 csv.append(feed.getId()).append(separator);
                 csv.append(feed.getUpdateClass()).append(separator);
+                // csv.append(feed.get304Support()).append(separator);
+                // csv.append(feed.getETagSupport()).append(separator);
 
                 // poll related values
                 csv.append(numberOfPoll).append(separator);

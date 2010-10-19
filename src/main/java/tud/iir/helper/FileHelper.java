@@ -108,11 +108,16 @@ public class FileHelper {
     }
 
     public static String readFileToString(String path) {
+        File contentFile = new File(path);
+        return readFileToString(contentFile);
+    }
+
+    public static String readFileToString(File file) {
 
         StringBuilder contents = new StringBuilder();
 
         try {
-            FileReader in = new FileReader(path);
+            FileReader in = new FileReader(file);
             BufferedReader br = new BufferedReader(in);
 
             String line = "";
@@ -128,11 +133,11 @@ public class FileHelper {
             br.close();
 
         } catch (FileNotFoundException e) {
-            LOGGER.error(path + ", " + e.getMessage());
+            LOGGER.error(file + ", " + e.getMessage());
         } catch (IOException e) {
-            LOGGER.error(path + ", " + e.getMessage());
+            LOGGER.error(file + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
-            LOGGER.error(path + ", " + e.getMessage());
+            LOGGER.error(file + ", " + e.getMessage());
         }
 
         return contents.toString();
@@ -481,7 +486,8 @@ public class FileHelper {
         String fullPath = inputFile.getAbsolutePath();
 
         String oldName = inputFile.getName().replaceAll("\\..*", "");
-        String newPath = fullPath.replaceAll(oldName + "\\.", newName + ".");
+        String newPath = fullPath.replaceAll(StringHelper.escapeForRegularExpression(oldName) + "\\.",
+                StringHelper.escapeForRegularExpression(newName) + ".");
 
         return newPath;
     }

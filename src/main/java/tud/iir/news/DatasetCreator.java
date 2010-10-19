@@ -11,6 +11,7 @@ import java.util.TreeSet;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.MathHelper;
 import tud.iir.helper.StringHelper;
 
 /**
@@ -38,7 +39,7 @@ public class DatasetCreator {
     private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
 
     /** Path to the folder where the dataset is stored. */
-    protected static final String DATASET_PATH = "data/datasets/feedPosts/";
+    protected static final String DATASET_PATH = "G:\\Projects\\Programming\\Other\\feedPosts\\";
 
     /**
      * Start creating the dataset.
@@ -194,10 +195,15 @@ public class DatasetCreator {
      * <li>Sort entries by pubdate.</li>
      * </ul>
      */
-    public void cleanUp(boolean removeMISS) {
+    public static void cleanUp(boolean removeMISS) {
         String cleanPath = DATASET_PATH + "clean/";
+
         File[] files = FileHelper.getFiles(DATASET_PATH);
+        int fileCount = files.length;
+        int c = 0;
         for (File file : files) {
+            c++;
+
             // remove empty files
             if (file.length() == 0) {
                 file.delete();
@@ -210,8 +216,28 @@ public class DatasetCreator {
 
             // check file
             else {
+
+//                if (!file.getName().startsWith("10038")) {
+//                    continue;
+//                }
+
+                String raw = FileHelper.readFileToString(file);
+                // String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
+                // .replaceAll("(\n)(?=.)", "");
+
+                String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
+                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "");
+
+                FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
+                // Pattern pat = Pattern
+                // .compile("\"\n.*?.*?\"");
+                // Matcher m = pat.matcher(FileHelper.readFileToString(file));
+                // while (m.find()) {
+                // // System.out.println(m.group());
+                // }
+
                 Set<String> sortedEntries = new TreeSet<String>();
-                List<String> entries = FileHelper.readFileToArray(file);
+                List<String> entries = FileHelper.readFileToArray(cleanPath + file.getName());
 
                 for (String entry : entries) {
                     // remove MISS lines
@@ -223,7 +249,7 @@ public class DatasetCreator {
                     }
 
                     if (entry.indexOf(";\"") == -1 || entry.lastIndexOf("\";") == -1) {
-                        LOGGER.warn("bad format in file " + file.getName() + " skip cleaning this file");
+                        LOGGER.warn("bad format in file " + file.getName() + " skip cleaning this entry");
                         continue;
                     }
                     
@@ -262,7 +288,38 @@ public class DatasetCreator {
                 }
                 FileHelper.writeToFile(cleanPath + file.getName(), sortedData);
 
+                // System.out.println("cleansed " + file.getName());
+                if (c % 500 == 0) {
+                    System.out
+.println(MathHelper.round((double) 100 * c / fileCount, 2)
+                            + "% of the files cleansed");
+                }
+
             }
+        }
+
+    }
+
+    public static void renewFileIDs() {
+
+        String cleanPath = "data/temp/feedPosts/";
+        File[] files = FileHelper.getFiles(cleanPath);
+        for (File file : files) {
+
+            // skip directories
+            if (file.isDirectory()) {
+                continue;
+            }
+
+            int feedID = Integer.valueOf(file.getName().substring(0, file.getName().indexOf("_"))) + 97650;
+
+            String fileNameRealID = feedID + file.getName().substring(file.getName().indexOf("_"));
+            System.out.println(fileNameRealID);
+            // FileHelper.rename(file, fileNameRealID);
+
+            FileHelper.copyFile(cleanPath + file.getName(), cleanPath + fileNameRealID);
+            FileHelper.delete(cleanPath + file.getName());
+
         }
 
     }
@@ -274,10 +331,11 @@ public class DatasetCreator {
      */
     public static void main(String[] args) {
 
-        DatasetCreator dc = new DatasetCreator();
-        dc.createDataset();
-        dc.cleanUp(true);
-        dc.addFeedMetaInformation();
+        // DatasetCreator dc = new DatasetCreator();
+        // dc.createDataset();
+        // DatasetCreator.renewFileIDs();
+        DatasetCreator.cleanUp(true);
+        // dc.addFeedMetaInformation();
 
     }
 
