@@ -417,7 +417,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
         Crawler c = new Crawler();
         JSONObject json = c
                 .getJSONDocument("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities?apikey=" + API_KEY
-                        + "&text=" + inputText + "&outputMode=json");
+                        + "&text=" + inputText + "&disambiguate=0&outputMode=json");
 
         try {
             JSONArray entities = json.getJSONArray("entities");
