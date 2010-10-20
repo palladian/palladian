@@ -7,7 +7,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import tud.iir.helper.FileHelper;
@@ -39,10 +38,8 @@ public class ShinglesIndexTest {
     public void testShinglesIndexWB() {
         testProcedure(new ShinglesIndexWB());
     }
-    
+
     @Test
-    @Ignore
-    // TODO remove ignore tag
     public void testShinglesIndexLucene() {
         testProcedure(new ShinglesIndexLucene());
     }
@@ -61,7 +58,7 @@ public class ShinglesIndexTest {
         index.addDocument(2, sketch2);
         index.addDocument(3, sketch);
         index.addDocument(4, sketch3);
-        
+
         assertEquals(3, index.getDocumentsForHash(28372738L).size());
         assertEquals(3, index.getDocumentsForHash(30948342L).size());
         assertEquals(2, (int) index.getDocumentsForHash(18327378L).iterator().next()); // should return doc no. 2
@@ -86,7 +83,7 @@ public class ShinglesIndexTest {
 
         // clean up
         index.deleteIndex();
-        
+
         // XXX why is the following line necessary on Windows?
         FileHelper.cleanDirectory(ShinglesIndexBaseImpl.INDEX_FILE_BASE_PATH);
     }
