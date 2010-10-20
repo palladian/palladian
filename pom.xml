@@ -269,12 +269,9 @@
 			<artifactId>stanfordner</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!-- <dependency>
-			<groupId>edu.illinois</groupId>
-			<artifactId>lbj2</artifactId>
-			<version>1.0</version>
-		</dependency>
-		--><dependency>
+		<!-- <dependency> <groupId>edu.illinois</groupId> <artifactId>lbj2</artifactId> 
+			<version>1.0</version> </dependency> -->
+		<dependency>
 			<groupId>edu.illinois</groupId>
 			<artifactId>lbj2library</artifactId>
 			<version>1.0</version>
@@ -368,11 +365,8 @@
 			<artifactId>javaswf</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!-- <dependency>
-			<groupId>tud.iir.external</groupId>
-			<artifactId>lbjEdited</artifactId>
-			<version>1.2</version>
-		</dependency>-->
+		<!-- <dependency> <groupId>tud.iir.external</groupId> <artifactId>lbjEdited</artifactId> 
+			<version>1.2</version> </dependency> -->
 		<dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>opennlp</artifactId>
@@ -392,12 +386,12 @@
 			<groupId>edu.umass.cs</groupId>
 			<artifactId>mallet-optimized</artifactId>
 			<version>1.0</version>
-		</dependency>	
+		</dependency>
 		<dependency>
 			<groupId>com.uea.stemmer</groupId>
 			<artifactId>UEALite</artifactId>
 			<version>1.0</version>
-		</dependency>		
+		</dependency>
 		<dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>juliener</artifactId>
@@ -434,9 +428,14 @@
 			<version>2.0</version>
 		</dependency>
 		<dependency>
-		  <groupId>de.tud.cs.iir</groupId>
-		  <artifactId>PalladianExternalCode</artifactId>
-		  <version>0.5</version>
+			<groupId>de.tud.cs.iir</groupId>
+			<artifactId>PalladianExternalCode</artifactId>
+			<version>0.5</version>
+		</dependency>
+		<dependency>
+			<groupId>com.lingway.ld</groupId>
+			<artifactId>JLangDetect</artifactId>
+			<version>0.1</version>
 		</dependency>
 	</dependencies>
 	<properties>
