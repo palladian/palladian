@@ -978,7 +978,7 @@ public class StringHelper {
         String substring = "";
 
         int index1 = string.indexOf(leftBorder);
-        int index2 = string.indexOf(rightBorder, index1);
+        int index2 = string.indexOf(rightBorder, index1 + leftBorder.length());
 
         if (index2 > index1 && index1 > -1) {
             substring = string.substring(index1 + leftBorder.length(), index2);
