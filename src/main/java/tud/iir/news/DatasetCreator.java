@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
+import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 
 /**
@@ -190,16 +191,21 @@ public class DatasetCreator {
      * Cleaning up performs the following steps:
      * <ul>
      * <li>Remove all empty files from dataset folder.</li>
+     * <li>Remove files which have posts with pub dates later than the current date.</li>
      * <li>Remove duplicate entries (key is title and link).</li>
      * <li>Remove MISS lines.</li>
      * <li>Sort entries by pubdate.</li>
      * </ul>
      */
     public static void cleanUp(boolean removeMISS) {
+
+        StopWatch sw = new StopWatch();
+
         String cleanPath = DATASET_PATH + "clean/";
 
         File[] files = FileHelper.getFiles(DATASET_PATH);
         int fileCount = files.length;
+        int deleteCount = 0;
         int c = 0;
         for (File file : files) {
             c++;
@@ -207,6 +213,7 @@ public class DatasetCreator {
             // remove empty files
             if (file.length() == 0) {
                 file.delete();
+                deleteCount++;
             }
 
             // skip directories
@@ -216,10 +223,6 @@ public class DatasetCreator {
 
             // check file
             else {
-
-//                if (!file.getName().startsWith("10038")) {
-//                    continue;
-//                }
 
                 String raw = FileHelper.readFileToString(file);
                 // String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
@@ -240,6 +243,7 @@ public class DatasetCreator {
                 List<String> entries = FileHelper.readFileToArray(cleanPath + file.getName());
 
                 for (String entry : entries) {
+
                     // remove MISS lines
                     if (entry.startsWith("MISS")) {
                         if (!removeMISS) {
@@ -253,6 +257,14 @@ public class DatasetCreator {
                         continue;
                     }
                     
+                    // check whether timestamp is valid, that is, not newer than current timestamp or smaller than
+                    // 946684800 (01/01/2000)
+                    long timestamp = Long.valueOf(entry.substring(0, entry.indexOf(";")));
+                    if (timestamp > System.currentTimeMillis() || timestamp < 946684800000l) {
+                        // LOGGER.warn("timestamp " + timestamp + " is invalid, skip cleaning this entry");
+                        continue;
+                    }
+
                     String key = entry.substring(entry.indexOf(";\""), entry.lastIndexOf("\";"));
 
                     // remove duplicates
@@ -290,14 +302,24 @@ public class DatasetCreator {
 
                 // System.out.println("cleansed " + file.getName());
                 if (c % 500 == 0) {
-                    System.out
-.println(MathHelper.round((double) 100 * c / fileCount, 2)
+                    System.out.println(MathHelper.round((double) 100 * c / fileCount, 2)
                             + "% of the files cleansed");
                 }
 
             }
         }
 
+        // remove empty files again because there might be empty clean files now
+        files = FileHelper.getFiles(DATASET_PATH);
+        for (File file : files) {
+
+            if (file.length() == 0) {
+                file.delete();
+                deleteCount++;
+            }
+        }
+
+        LOGGER.info("finished in " + sw.getElapsedTimeString() + ", deleted " + deleteCount + " files");
     }
 
     public static void renewFileIDs() {

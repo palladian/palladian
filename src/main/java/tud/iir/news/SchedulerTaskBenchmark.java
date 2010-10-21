@@ -9,17 +9,26 @@ import java.util.concurrent.Future;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.DateHelper;
+import tud.iir.helper.MathHelper;
 
 /**
- * A scheduler task handles the distribution of feeds to worker threads that read these feeds.
+ * <p>
+ * A scheduler task handles the distribution of feeds to worker threads that read these feeds in benchmark mode of the
+ * {@link FeedChecker}.
+ * </p>
+ * <p>
+ * The main difference to {@link SchedulerTask} is that we process feeds serially instead of parallel. The reason is
+ * that we want to step through the benchmark files very quickly and need to wake the SchedulerTaskBenchmark extremely
+ * frequently. In parallel mode there is no CPU time for the single tasks to finish.
+ * </p>
  * 
+ * @author David Urbansky
  * @author Klemens Muthmann
  * 
  */
-class SchedulerTask extends TimerTask {
+class SchedulerTaskBenchmark extends TimerTask {
 
-    private static final Logger LOGGER = Logger.getLogger(SchedulerTask.class);
+    private static final Logger LOGGER = Logger.getLogger(SchedulerTaskBenchmark.class);
 
     /**
      * The collection of all the feeds this scheduler should create update threads for.
@@ -39,76 +48,68 @@ class SchedulerTask extends TimerTask {
      * @param collectionOfFeeds The collection of all the feeds this scheduler should create update threads for.
      * @param threadPoolSize The maximum number of threads to distribute reading feeds to.
      */
-    public SchedulerTask(FeedChecker feedChecker) {
+    public SchedulerTaskBenchmark(FeedChecker feedChecker) {
         super();
         threadPool = Executors.newFixedThreadPool(FeedChecker.MAX_THREAD_POOL_SIZE);
         this.feedChecker = feedChecker;
         scheduledTasks = new HashMap<Integer, Future<?>>();
     }
 
-    private static int threadPoolQueueSize = 0;
-    private static int threadsAlive = 0;
-
-    /*
-     * (non-Javadoc)
-     * @see java.util.TimerTask#run()
-     */
+    /**
+    * 
+    */
     @Override
     public void run() {
         LOGGER.info("wake up to check feeds");
         int feedCount = 0;
+        int feedHistoriesCompletelyRead = 0;
         for (Feed feed : feedChecker.getFeeds()) {
-            LOGGER.debug("checking feed at address: " + feed.getFeedUrl());
 
-            // check whether feed is in the queue already
+            // check whether feed is in the queue already, if it is scheduled wait for it to finish
             if (isScheduled(feed.getId())) {
-                continue;
+                break;
             }
 
             if (needsLookup(feed)) {
-                //                incrementThreadPoolSize();
+                LOGGER.debug("checking feed at address: " + feed.getFeedUrl());
+
                 scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedChecker)));
                 feedCount++;
+                break;
             }
 
+            if (feed.historyFileCompletelyRead()) {
+                feedHistoriesCompletelyRead++;
+
+                if (feedHistoriesCompletelyRead == feedChecker.getFeeds().size()) {
+                    LOGGER.info("all feed history files read");
+                    feedChecker.stopContinuousReading();
+                }
+            }
         }
 
+
+        LOGGER.debug(MathHelper.round(100 * feedHistoriesCompletelyRead / feedChecker.getFeeds().size(), 2)
+                + "% of history files completely read (absolute: " + feedHistoriesCompletelyRead + ")");
+
         LOGGER.info("scheduled " + feedCount + " feeds for reading");
-    }
-
-    public static synchronized void incrementThreadPoolSize() {
-        threadPoolQueueSize++;
-        LOGGER.info("inc queue size to: " + threadPoolQueueSize);
-    }
-
-    public static synchronized void decrementThreadPoolSize() {
-        threadPoolQueueSize--;
-        LOGGER.info("dec queue size to: " + threadPoolQueueSize);
-    }
-
-    public static synchronized void incrementThreadsAlive() {
-        threadsAlive++;
-        LOGGER.info("inc threads alive to: " + threadsAlive);
-    }
-
-    public static synchronized void decrementThreadsAlive() {
-        threadsAlive--;
-        LOGGER.info("dec threads alive to: " + threadsAlive);
     }
 
     /**
      * <p>
      * Returns whether the last time the provided feed was checked for updates is further in the past than its update
-     * interval.
+     * interval. For benchmarking we don't wait but lookup until we have seen everything.
      * </p>
      * 
      * @param feed The feed to check.
      * @return {@code true} if this feeds check interval is over and {@code false} otherwise.
      */
     private Boolean needsLookup(Feed feed) {
-        long now = System.currentTimeMillis();
-        return feed.getChecks() == 0 || feed.getLastChecked() == null
-        || now - feed.getLastChecked().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS;
+        if (feed.historyFileCompletelyRead()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**

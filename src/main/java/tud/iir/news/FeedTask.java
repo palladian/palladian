@@ -48,6 +48,10 @@ class FeedTask implements Runnable {
         //        LOGGER.info("Beginning of thread.");
         //        SchedulerTask.decrementThreadPoolSize();
         //        SchedulerTask.incrementThreadsAlive();
+
+        LOGGER.debug(DateHelper.getCurrentDatetime() + ": running feed task " + feed.getId() + "(" + feed.getFeedUrl()
+                + ")");
+
         NewsAggregator fa = new NewsAggregator();
 
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
@@ -56,11 +60,7 @@ class FeedTask implements Runnable {
         if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_OFF) {
             feed.updateEntries(false);
         } else {
-            // we need to substract 97650 from the id since we crawled the data on two machines and different feeds had the same ids on those machines
-            // int identifier = feed.getId();
-            // if (identifier > 97650) {
-            // identifier -= 97650;
-            // }
+
             String safeFeedName = feed.getId()
                     + "_"
                     + StringHelper.makeSafeName(
