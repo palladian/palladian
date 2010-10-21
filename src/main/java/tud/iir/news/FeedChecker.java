@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.news.statistics.PollData;
@@ -186,8 +187,34 @@ public final class FeedChecker {
             SchedulerTask schedulerTask = new SchedulerTask(this);
             checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
         } else {
-            SchedulerTaskBenchmark schedulerTaskBenchmark = new SchedulerTaskBenchmark(this);
-            checkScheduler.schedule(schedulerTaskBenchmark, 0, 50);
+            // SchedulerTaskBenchmark schedulerTaskBenchmark = new SchedulerTaskBenchmark(this);
+            // checkScheduler.schedule(schedulerTaskBenchmark, 0, 50);
+
+            int feedHistoriesCompletelyRead = 0;
+            for (Feed feed : getFeeds()) {
+
+                FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, this);
+
+                if (fbfr.getTotalEntries() == 0) {
+                    LOGGER.info("no entries in feed (file not found?): " + feed.getFeedUrl());
+                    continue;
+                }
+
+                while (!feed.historyFileCompletelyRead()) {
+                    fbfr.updateEntriesFromDisk();
+                }
+
+                feedHistoriesCompletelyRead++;
+
+                if (feedHistoriesCompletelyRead == getFeeds().size()) {
+                    LOGGER.info("all feed history files read");
+                }
+
+                LOGGER.debug(MathHelper.round(100 * feedHistoriesCompletelyRead / getFeeds().size(), 2)
+                        + "% of history files completely read (absolute: " + feedHistoriesCompletelyRead + ")");
+
+            }
+
         }
 
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
