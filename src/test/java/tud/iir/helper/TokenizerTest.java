@@ -97,5 +97,17 @@ public class TokenizerTest extends TestCase {
         assertEquals("hm, well (!), I don't know!!!", sentences.get(1));
         assertEquals("I really don't.", sentences.get(2));
         // CollectionHelper.print(sentences);
+        
+        
+        // those patterns were causing an Exception which is fixed now : java.lang.StringIndexOutOfBoundsException
+        // at tud.iir.helper.StringHelper.getSubstringBetween(StringHelper.java:984)
+        inputText = "  Dont repeat yourself. Dont repeat yourself.";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(2, sentences.size());
+        assertEquals("Dont repeat yourself.", sentences.get(0));
+        assertEquals("Dont repeat yourself.", sentences.get(1));
+
+        
+        
     }
 }
