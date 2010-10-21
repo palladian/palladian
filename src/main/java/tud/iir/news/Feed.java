@@ -1,5 +1,6 @@
 package tud.iir.news;
 
+import java.io.File;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
@@ -241,6 +242,12 @@ public class Feed {
     public void updateEntriesFromDisk(String historyFilePath) {
 
         List<FeedEntry> entries = new ArrayList<FeedEntry>();
+
+        // if file doesn't exist skip the feed
+        if (!new File(historyFilePath).exists()) {
+            historyFileCompletelyRead = true;
+            return;
+        }
 
         int totalEntries = FileHelper.getNumberOfLines(historyFilePath);
 

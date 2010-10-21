@@ -50,10 +50,10 @@ public final class FeedChecker {
     /**
      * If true, some output will be generated to evaluate the reading approaches.
      */
-    public static int benchmark = BENCHMARK_OFF;
+    public static int benchmark = BENCHMARK_MAX_CHECK_TIME;
 
     /** The path to the folder with the feed post history files. */
-    private final String benchmarkDatasetPath = "data/datasets/feedPosts/clean/";
+    private final String benchmarkDatasetPath = "G:\\Projects\\Programming\\Other\\feedPosts\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private File[] benchmarkDatasetFiles;
@@ -136,6 +136,12 @@ public final class FeedChecker {
         super();
         checkScheduler = new Timer();
         feedCollection = feedStore.getFeeds();
+
+        if (getBenchmark() != BENCHMARK_OFF) {
+            LOGGER.info("load benchmark dataset file list");
+            benchmarkDatasetFiles = FileHelper.getFiles(benchmarkDatasetPath);
+        }
+
     }
 
     /**
@@ -174,16 +180,18 @@ public final class FeedChecker {
 
         LOGGER.debug("loaded " + feedCollection.size() + " feeds");
 
-        SchedulerTask schedulerTask = new SchedulerTask(this);
+
         // checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
         if (getBenchmark() == BENCHMARK_OFF) {
+            SchedulerTask schedulerTask = new SchedulerTask(this);
             checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
         } else {
-            checkScheduler.schedule(schedulerTask, 0, 200);
+            SchedulerTaskBenchmark schedulerTaskBenchmark = new SchedulerTaskBenchmark(this);
+            checkScheduler.schedule(schedulerTaskBenchmark, 0, 50);
         }
 
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
-                + " minutes to check all feeds whether they need to be read or not");
+                + " milliseconds to check all feeds whether they need to be read or not");
 
         while (!stopWatch.timeIsUp() && !isStopped()) {
 
@@ -193,6 +201,11 @@ public final class FeedChecker {
                 ThreadHelper.sleep(1 * DateHelper.MINUTE_MS);
             } else {
                 ThreadHelper.sleep(5 * DateHelper.SECOND_MS);
+
+                if (Math.random() < 0.05) {
+                    writeRecordedMaps();
+                }
+
             }
 
         }
@@ -875,6 +888,8 @@ public final class FeedChecker {
         // read feed history file
         String historyFilePath = "";
         if (benchmarkDatasetFiles == null) {
+            System.out
+                    .println("======================================================================================");
             benchmarkDatasetFiles = FileHelper.getFiles(benchmarkDatasetPath);
         }
         for (File file : benchmarkDatasetFiles) {
@@ -957,7 +972,7 @@ public final class FeedChecker {
 
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
-        int checkInterval = 15;
+        int checkInterval = 10;
         int runtime = 90;
         // //////////////////////////
 
