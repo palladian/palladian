@@ -65,7 +65,7 @@ class FeedTask implements Runnable {
                     + "_"
                     + StringHelper.makeSafeName(
                             feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
-            feed.updateEntriesFromDisk(feedChecker.findHistoryFile(safeFeedName));
+            // feed.updateEntriesFromDisk(feedChecker.findHistoryFile(safeFeedName));
         }
 
         // classify feed if it has never been classified before
