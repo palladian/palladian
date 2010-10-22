@@ -449,7 +449,7 @@ public class Feed {
         } else {
             // in this special case we just look at the feed the default check time
             // pnTarget = -1;
-            LOGGER.warn("only one title found in " + getFeedUrl());
+            //LOGGER.warn(currentTitles.size() + " title(s) found in " + getId() + " ("+ getFeedUrl() + ")");
         }
 
         setLastHeadlines(titles.toString());

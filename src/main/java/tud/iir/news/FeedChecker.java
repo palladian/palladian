@@ -54,7 +54,7 @@ public final class FeedChecker {
     public static int benchmark = BENCHMARK_MAX_CHECK_TIME;
 
     /** The path to the folder with the feed post history files. */
-    private final String benchmarkDatasetPath = "G:\\Projects\\Programming\\Other\\feedPosts\\clean\\";
+    private final String benchmarkDatasetPath = "D:\\Projects\\Programming\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private File[] benchmarkDatasetFiles;
@@ -190,18 +190,26 @@ public final class FeedChecker {
             // SchedulerTaskBenchmark schedulerTaskBenchmark = new SchedulerTaskBenchmark(this);
             // checkScheduler.schedule(schedulerTaskBenchmark, 0, 50);
 
+        	StopWatch sw = new StopWatch();
+        	NewsAggregator fa = new NewsAggregator();
             int feedHistoriesCompletelyRead = 0;
             for (Feed feed : getFeeds()) {
 
+            	if (feed.getId() < 500) {
+            		continue;
+            	}
+            	StopWatch swf = new StopWatch();
                 FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, this);
 
                 if (fbfr.getTotalEntries() == 0) {
-                    LOGGER.info("no entries in feed (file not found?): " + feed.getFeedUrl());
+                    LOGGER.info("no entries in feed (file not found?): " + feed.getId() + " (" + feed.getFeedUrl() + ")");
                     continue;
                 }
 
+                int loopCount = 0;
                 while (!feed.historyFileCompletelyRead()) {
                     fbfr.updateEntriesFromDisk();
+                    loopCount++;
                 }
 
                 feedHistoriesCompletelyRead++;
@@ -210,8 +218,18 @@ public final class FeedChecker {
                     LOGGER.info("all feed history files read");
                 }
 
-                LOGGER.debug(MathHelper.round(100 * feedHistoriesCompletelyRead / getFeeds().size(), 2)
+                long timePerFeed = sw.getElapsedTime() / (long)feedHistoriesCompletelyRead;
+                
+                LOGGER.info(loopCount+ " loops in "+swf.getElapsedTime()+"ms in feed " + feed.getId());
+                
+                if (feedHistoriesCompletelyRead % 100 == 0) {
+                	LOGGER.info(MathHelper.round(100 * feedHistoriesCompletelyRead / getFeeds().size(), 2)
                         + "% of history files completely read (absolute: " + feedHistoriesCompletelyRead + ")");
+                	LOGGER.info("time per feed: " + timePerFeed);
+                }
+                
+                // save the feed back to the database
+                fa.updateFeed(feed);
 
             }
 

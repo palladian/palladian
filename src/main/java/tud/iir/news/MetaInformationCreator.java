@@ -93,7 +93,7 @@ public class MetaInformationCreator {
                 Boolean supportsETag = getSupportsETag(feed);
                 Boolean supports304 = getFeedSupports304(feed);
 
-                FileHelper.prependFile(datasetFile.getAbsolutePath(), feedMetaInformation);
+                FileHelper.prependFile(datasetFile.getAbsolutePath(), "");
                 writeMetaInformationToDatabase(feed, supports304, supportsETag);
             } catch (IOException e) {
                 LOGGER.error("Could not add meta information to file: " + fileName, e);
