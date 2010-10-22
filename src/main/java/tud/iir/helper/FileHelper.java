@@ -285,6 +285,34 @@ public class FileHelper {
 
         return lineNumber - 1;
     }
+    
+    public static int performActionOnEveryLineText(String text, LineAction la) {
+
+        int lineNumber = 1;
+
+        StringReader in = new StringReader(text);
+        BufferedReader br = new BufferedReader(in);
+        try {
+            String line = "";
+            do {
+                line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+
+                la.performAction(line, lineNumber++);
+
+            } while (line != null && la.looping);
+
+            in.close();
+            br.close();
+
+        } catch(IOException e) {
+        	LOGGER.error(e.getMessage());
+        }
+
+        return lineNumber - 1;
+    }
 
     public static void writeToFile(String filePath, StringBuilder string) {
         writeToFile(filePath, string.toString());
