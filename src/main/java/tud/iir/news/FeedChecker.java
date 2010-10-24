@@ -199,9 +199,9 @@ public final class FeedChecker {
             int feedHistoriesCompletelyRead = 0;
             for (Feed feed : getFeeds()) {
 
-                if (feed.getId() > 17) {
-                    break;
-                }
+                // if (feed.getId() > 17) {
+                // break;
+                // }
                 // if (feed.getId() < 511) {
                 // continue;
                 // }
