@@ -1,6 +1,8 @@
 package tud.iir.news;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -54,7 +56,7 @@ public final class FeedChecker {
     public static int benchmark = BENCHMARK_MAX_CHECK_TIME;
 
     /** The path to the folder with the feed post history files. */
-    private final String benchmarkDatasetPath = "D:\\Projects\\Programming\\clean\\";
+    private final String benchmarkDatasetPath = "G:\\Projects\\Programming\\Other\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private File[] benchmarkDatasetFiles;
@@ -118,7 +120,8 @@ public final class FeedChecker {
     private int checkInterval = -1;
 
     /**
-     * A scheduler that checks continuously if there are feeds in the {@link #feedCollection} that need to be updated. A feed
+     * A scheduler that checks continuously if there are feeds in the {@link #feedCollection} that need to be updated. A
+     * feed
      * must be updated whenever the method {@link Feed#getLastChecked()} return value is further away in the past then
      * its {@link Feed#getMaxCheckInterval()} or {@link Feed#getMinCheckInterval()} returns. Which one to use depends on
      * the update strategy.
@@ -181,28 +184,33 @@ public final class FeedChecker {
 
         LOGGER.debug("loaded " + feedCollection.size() + " feeds");
 
-
         // checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
         if (getBenchmark() == BENCHMARK_OFF) {
+
             SchedulerTask schedulerTask = new SchedulerTask(this);
             checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
+
         } else {
             // SchedulerTaskBenchmark schedulerTaskBenchmark = new SchedulerTaskBenchmark(this);
             // checkScheduler.schedule(schedulerTaskBenchmark, 0, 50);
 
-        	StopWatch sw = new StopWatch();
-        	NewsAggregator fa = new NewsAggregator();
+            StopWatch sw = new StopWatch();
+            NewsAggregator fa = new NewsAggregator();
             int feedHistoriesCompletelyRead = 0;
             for (Feed feed : getFeeds()) {
 
-            	if (feed.getId() < 500) {
-            		continue;
-            	}
-            	StopWatch swf = new StopWatch();
+                if (feed.getId() > 17) {
+                    break;
+                }
+                // if (feed.getId() < 511) {
+                // continue;
+                // }
+                StopWatch swf = new StopWatch();
                 FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, this);
 
                 if (fbfr.getTotalEntries() == 0) {
-                    LOGGER.info("no entries in feed (file not found?): " + feed.getId() + " (" + feed.getFeedUrl() + ")");
+                    LOGGER.info("no entries in feed (file not found?): " + feed.getId() + " (" + feed.getFeedUrl()
+                            + ")");
                     continue;
                 }
 
@@ -210,6 +218,12 @@ public final class FeedChecker {
                 while (!feed.historyFileCompletelyRead()) {
                     fbfr.updateEntriesFromDisk();
                     loopCount++;
+                    // FIXME
+                    /*
+                     * if (loopCount >= 10000) {
+                     * break;
+                     * }
+                     */
                 }
 
                 feedHistoriesCompletelyRead++;
@@ -218,21 +232,30 @@ public final class FeedChecker {
                     LOGGER.info("all feed history files read");
                 }
 
-                long timePerFeed = sw.getElapsedTime() / (long)feedHistoriesCompletelyRead;
-                
-                LOGGER.info(loopCount+ " loops in "+swf.getElapsedTime()+"ms in feed " + feed.getId());
-                
+                long timePerFeed = sw.getElapsedTime() / feedHistoriesCompletelyRead;
+
+                LOGGER.info(loopCount + " loops in " + swf.getElapsedTime() + "ms in feed " + feed.getId());
+
                 if (feedHistoriesCompletelyRead % 100 == 0) {
-                	LOGGER.info(MathHelper.round(100 * feedHistoriesCompletelyRead / getFeeds().size(), 2)
-                        + "% of history files completely read (absolute: " + feedHistoriesCompletelyRead + ")");
-                	LOGGER.info("time per feed: " + timePerFeed);
+                    LOGGER.info(MathHelper.round(100 * feedHistoriesCompletelyRead / getFeeds().size(), 2)
+                            + "% of history files completely read (absolute: " + feedHistoriesCompletelyRead + ")");
+                    LOGGER.info("time per feed: " + timePerFeed);
                 }
-                
+                if (feedHistoriesCompletelyRead % 10000 == 0) {
+                    writeRecordedMaps();
+                }
+
                 // save the feed back to the database
                 fa.updateFeed(feed);
 
+                feed.freeMemory();
+                feed.setLastHeadlines("");
             }
 
+            LOGGER.info("finished reading feeds from disk in " + sw.getElapsedTimeString());
+            LOGGER.info("writing evaluation results...");
+            writeRecordedMaps();
+            LOGGER.info("...done");
         }
 
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
@@ -244,13 +267,6 @@ public final class FeedChecker {
                 LOGGER.trace("time is not up, keep reading feeds");
                 LOGGER.debug("current total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
                 ThreadHelper.sleep(1 * DateHelper.MINUTE_MS);
-            } else {
-                ThreadHelper.sleep(5 * DateHelper.SECOND_MS);
-
-                if (Math.random() < 0.05) {
-                    writeRecordedMaps();
-                }
-
             }
 
         }
@@ -258,12 +274,7 @@ public final class FeedChecker {
 
         stopContinuousReading();
 
-        if (benchmark != BENCHMARK_OFF) {
-            writeRecordedMaps();
-        }
-
-        LOGGER.info("cancelled all scheduled readings, total size downloaded ("
-                + getCheckApproach() + "): "
+        LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getCheckApproach() + "): "
                 + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
         // System.out.println("abc");
     }
@@ -316,10 +327,10 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(checkInterval);
             }
 
-        } else if (CheckApproach.CHECK_FIXED.equals(checkApproach) && checkInterval == -1
+        } else if (CheckApproach.CHECK_FIXED.equals(checkApproach)
+                && checkInterval == -1
                 || (CheckApproach.CHECK_ADAPTIVE.equals(checkApproach) || CheckApproach.CHECK_PROBABILISTIC
-                        .equals(checkApproach))
-                        && feed.getChecks() == 0) {
+                        .equals(checkApproach)) && feed.getChecks() == 0) {
 
             updateIntervalFixed(feed, fps);
 
@@ -342,7 +353,7 @@ public final class FeedChecker {
 
         }
 
-        updateEvaluationMaps(feed, pnTarget, fps);
+        // updateEvaluationMaps(feed, pnTarget, fps);
 
         feed.setLastFeedEntry(new Date(fps.getTimeNewestPost()));
         feed.increaseChecks();
@@ -374,7 +385,6 @@ public final class FeedChecker {
         }
         this.checkApproach = checkApproach;
     }
-
 
     /**
      * Set a fixed check interval in minutes. This is only effective if the checkType is set to {@link CHECK_FIXED}.
@@ -414,7 +424,6 @@ public final class FeedChecker {
     public int getCheckInterval() {
         return checkInterval;
     }
-
 
     public FeedProcessingAction getFeedProcessingAction() {
         return feedProcessingAction;
@@ -460,185 +469,62 @@ public final class FeedChecker {
      */
     private void writeRecordedMaps() {
 
-        StringBuilder csv = new StringBuilder();
+        StopWatch sw = new StopWatch();
+
         String separator = ";";
-
-        // loop through all feeds
-        for (Feed feed : getFeeds()) {
-
-            int numberOfPoll = 1;
-            for (PollData pollData : feed.getPollDataSeries()) {
-
-                // feed related values
-                csv.append(feed.getId()).append(separator);
-                csv.append(feed.getUpdateClass()).append(separator);
-                // csv.append(feed.get304Support()).append(separator);
-                // csv.append(feed.getETagSupport()).append(separator);
-
-                // poll related values
-                csv.append(numberOfPoll).append(separator);
-                csv.append(pollData.getTimestamp()).append(separator);
-                csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.HOUR)).append(separator);
-                csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.MINUTE)).append(separator);
-                csv.append(pollData.getCheckInterval()).append(separator);
-                csv.append(pollData.getWindowSize()).append(separator);
-                csv.append(pollData.getDownloadSize()).append(separator);
-                csv.append(pollData.getMisses()).append(separator);
-                csv.append(pollData.getPercentNew()).append(separator);
-                csv.append(pollData.getNewPostDelay()).append(separator);
-                csv.append(pollData.getScore()).append(separator);
-                csv.append("\n");
-                numberOfPoll++;
-            }
-
-        }
 
         String filePath = "data/temp/feedReaderEvaluation_" + getCheckApproachName() + "_" + getBenchmarkName()
                 + ".csv";
-        FileHelper.writeToFile(filePath, csv);
 
-        // commented because of concurrent modification exception
-        // StringBuilder csv = new StringBuilder();
-        // int totalChecks = 0;
-        // for (Entry<Integer, String> entry : pnMapEvaluation.entrySet()) {
-        // Feed feed = FeedDatabase.getInstance().getFeedByID(entry.getKey());
-        //
-        // // the feed id
-        // csv.append(entry.getKey()).append(";");
-        //
-        // // the feed url
-        // csv.append(feed.getFeedUrl()).append(";");
-        //
-        // // the feed class
-        // csv.append(feed.getUpdateClass()).append(";");
-        //
-        // // which iteration the probabilistic approach took over
-        // Integer iteration = probabilisticSwitchMap.get(entry.getKey());
-        // if (iteration == null) {
-        // iteration = -1;
-        // }
-        // csv.append(iteration).append(";");
-        //
-        // // the pn data
-        // csv.append(entry.getValue()).append("\n");
-        //
-        // // count how many time the feed has been checked
-        // totalChecks += entry.getValue().split(";").length;
-        // }
-        //
-        // // total number of megabytes dowloaded
-        // csv.append("total downloaded MB:;").append(Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES)).append(" MB")
-        // .append("\n");
-        //
-        // // total number of checks
-        // csv.append("total checks:;").append(totalChecks).append("\n");
-        // FileHelper.writeToFile("data/temp/feedCheckerPnMap_Evaluation_" + getCheckApproachName() + "_"
-        // + System.currentTimeMillis() + ".csv", csv);
-        //
-        // csv = new StringBuilder();
-        // for (Entry<Integer, String> entry : ciMapEvaluation.entrySet()) {
-        // csv.append(entry.getKey()).append(";").append(entry.getValue()).append("\n");
-        // }
-        // FileHelper.writeToFile("data/temp/feedCheckerCiMap_" + getCheckApproachName() + "_"
-        // + System.currentTimeMillis() + ".csv", csv);
-        //
-        // csv = new StringBuilder();
-        // for (Entry<Integer, LinkedHashMap<Integer, Integer>> entry : postDistributionMapEvaluation.entrySet()) {
-        // csv.append(entry.getKey());
-        // for (Entry<Integer, Integer> minuteEntry : entry.getValue().entrySet()) {
-        // csv.append(";").append(minuteEntry.getValue());
-        // }
-        // csv.append("\n");
-        // }
-        // FileHelper.writeToFile("data/temp/feedCheckerPdMap_" + getCheckApproachName() + "_"
-        // + System.currentTimeMillis() + ".csv", csv);
-    }
+        try {
+            FileWriter fileWriter = new FileWriter(filePath);
 
-    /**
-     * Update evaluation maps.
-     * 
-     * @param feed The feed.
-     * @param entries The feed entries.
-     * @param percentNew The percentage of new entries.
-     * @param fps The feed post statistics.
-     */
-    private void updateEvaluationMaps(Feed feed, double percentNew, FeedPostStatistics fps) {
+            // loop through all feeds
+            for (Feed feed : getFeeds()) {
 
-        // List<FeedEntry> entries = feed.getEntries();
+                int numberOfPoll = 1;
+                for (PollData pollData : feed.getPollDataSeries()) {
 
-        if (benchmark == BENCHMARK_MAX_CHECK_TIME) {
+                    StringBuilder csv = new StringBuilder();
 
-            // update map with percentage new scores
-            String pns = pnMapEvaluation.get(feed.getId());
-            if (pns == null) {
-                pns = String.valueOf(percentNew);
-            } else {
-                pns += ";" + percentNew;
-            }
-            pnMapEvaluation.put(feed.getId(), pns);
+                    // feed related values
+                    csv.append(feed.getId()).append(separator);
+                    csv.append(feed.getUpdateClass()).append(separator);
+                    // csv.append(feed.get304Support()).append(separator);
+                    // csv.append(feed.getETagSupport()).append(separator);
 
-            // update map with check intervals
-            String cis = ciMapEvaluation.get(feed.getId());
-            if (cis == null) {
-                cis = String.valueOf(feed.getMaxCheckInterval());
-            } else {
-                cis += ";" + feed.getMaxCheckInterval();
-            }
-            ciMapEvaluation.put(feed.getId(), cis);
+                    // poll related values
+                    csv.append(numberOfPoll).append(separator);
+                    csv.append(pollData.getTimestamp()).append(separator);
+                    csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.HOUR)).append(separator);
+                    csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.MINUTE)).append(separator);
+                    csv.append(MathHelper.round(pollData.getCheckInterval(), 2)).append(separator);
+                    csv.append(pollData.getWindowSize()).append(separator);
+                    csv.append(pollData.getDownloadSize()).append(separator);
+                    csv.append(pollData.getMisses()).append(separator);
+                    csv.append(MathHelper.round(pollData.getPercentNew(), 2)).append(separator);
+                    csv.append(pollData.getNewPostDelay() / 1000l).append(separator);
+                    csv.append(MathHelper.round(pollData.getScore(), 2)).append(separator);
+                    csv.append("\n");
 
-            // update the minutes where an entry was actually posted
-            // LinkedHashMap<Integer, Integer> minuteMap = postDistributionMapEvaluation.get(feed.getId());
-            // if (minuteMap == null) {
-            // minuteMap = new LinkedHashMap<Integer, Integer>();
-            // for (int i = 0; i < 1440; i++) {
-            // minuteMap.put(i, 0);
-            // }
-            // }
-            // for (FeedEntry entry : entries) {
-            // if (entry.getPublished() == null) {
-            // continue;
-            // }
-            // int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
-            // int posts = minuteMap.get(minuteOfDay);
-            // posts = posts + 1;
-            // minuteMap.put(minuteOfDay, posts);
-            // }
-            // postDistributionMapEvaluation.put(feed.getId(), minuteMap);
+                    fileWriter.write(csv.toString());
+                    fileWriter.flush();
 
-        } else if (benchmark == BENCHMARK_MIN_CHECK_TIME) {
-
-            // if no entry was new we add the check time to the check time map
-            // in order to calculate the difference between this date and the
-            // real pub
-            // date of the post
-            if (percentNew == 0) {
-                HashSet<Date> dateSet = tempCheckTimeMapEvaluation.get(feed.getId());
-                if (dateSet == null) {
-                    dateSet = new HashSet<Date>();
+                    numberOfPoll++;
                 }
-                dateSet.add(new Date());
-                tempCheckTimeMapEvaluation.put(feed.getId(), dateSet);
 
-                // if a new entry was found, add the positive time difference
-                // and all the saved attempts to retrieve a new entry
-            } else {
-                ArrayList<Integer> timeDiffList = timeDiffMapEvaluation.get(feed.getId());
-                if (timeDiffList == null) {
-                    timeDiffList = new ArrayList<Integer>();
-                }
-                int positiveTimeDifference = (int) (fps.getTimeDifferenceToNewestPost() / DateHelper.MINUTE_MS);
-                timeDiffList.add(positiveTimeDifference);
-
-                // int sumNegativeTimeDifferences = 0;
-                for (Date d : tempCheckTimeMapEvaluation.get(feed.getId())) {
-                    // sumNegativeTimeDifferences +=
-                    timeDiffList.add((int) ((fps.getTimeNewestPost() - d.getTime()) / DateHelper.MINUTE_MS));
-                }
-                timeDiffMapEvaluation.put(feed.getId(), timeDiffList);
             }
+
+            fileWriter.flush();
+            fileWriter.close();
+
+        } catch (IOException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
         }
-    }
 
+        LOGGER.info("wrote record maps in " + sw.getElapsedTimeString());
+
+    }
 
     /**
      * Update the check intervals in fixed mode.
@@ -1017,8 +903,8 @@ public final class FeedChecker {
 
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
-        int checkInterval = 10;
-        int runtime = 90;
+        int checkInterval = 60;
+        int runtime = 9000;
         // //////////////////////////
 
         FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());

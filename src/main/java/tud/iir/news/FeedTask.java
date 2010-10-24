@@ -5,7 +5,6 @@ import java.util.Date;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.DateHelper;
-import tud.iir.helper.StringHelper;
 
 /**
  * The {@link FeedChecker} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
@@ -57,16 +56,7 @@ class FeedTask implements Runnable {
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
         // it can be done in parallel
         // if no benchmark is running, read the entries from the web otherwise from disk
-        if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_OFF) {
-            feed.updateEntries(false);
-        } else {
-
-            String safeFeedName = feed.getId()
-                    + "_"
-                    + StringHelper.makeSafeName(
-                            feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
-            // feed.updateEntriesFromDisk(feedChecker.findHistoryFile(safeFeedName));
-        }
+        feed.updateEntries(false);
 
         // classify feed if it has never been classified before
         if (feed.getUpdateClass() == -1) {
@@ -80,12 +70,6 @@ class FeedTask implements Runnable {
 
         // perform actions on this feeds entries
         feedChecker.getFeedProcessingAction().performAction(feed);
-
-        if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MIN_CHECK_TIME) {
-            feed.addToBenchmarkLookupTime(feed.getMinCheckInterval() * DateHelper.MINUTE_MS);
-        } else if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
-            feed.addToBenchmarkLookupTime(feed.getMaxCheckInterval() * DateHelper.MINUTE_MS);
-        }
 
         // save the feed back to the database
         fa.updateFeed(feed);

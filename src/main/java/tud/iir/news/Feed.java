@@ -58,7 +58,7 @@ public class Feed {
     private List<FeedEntry> entries;
 
     /** The number of feed entries presented for each request. */
-    private int windowSize;
+    private int windowSize = -1;
 
     /**
      * For benchmarking purposes we need to know when the history file was read completely, that is the case if the last

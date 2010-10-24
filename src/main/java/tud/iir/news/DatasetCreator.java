@@ -201,7 +201,7 @@ public class DatasetCreator {
 
         StopWatch sw = new StopWatch();
 
-        String cleanPath = DATASET_PATH + "clean/";
+        String cleanPath = DATASET_PATH + "clean\\";
 
         File[] files = FileHelper.getFiles(DATASET_PATH);
         int fileCount = files.length;
@@ -209,6 +209,10 @@ public class DatasetCreator {
         int c = 0;
         for (File file : files) {
             c++;
+
+            // if (!file.getName().startsWith("126089_")) {
+            // continue;
+            // }
 
             // remove empty files
             if (file.length() == 0) {
@@ -229,7 +233,8 @@ public class DatasetCreator {
                 // .replaceAll("(\n)(?=.)", "");
 
                 String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
-                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "");
+                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
+                        .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
 
                 FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
                 // Pattern pat = Pattern
@@ -261,8 +266,10 @@ public class DatasetCreator {
                     // 946684800 (01/01/2000)
                     long timestamp = Long.valueOf(entry.substring(0, entry.indexOf(";")));
                     if (timestamp > System.currentTimeMillis() || timestamp < 946684800000l) {
-                        // LOGGER.warn("timestamp " + timestamp + " is invalid, skip cleaning this entry");
+                        LOGGER.info("timestamp " + timestamp + " is invalid, skip cleaning this entry");
                         continue;
+                    } else if (timestamp < 1000000000000l) {
+                        entry = entry.replaceFirst(String.valueOf(timestamp), "0" + timestamp);
                     }
 
                     String key = entry.substring(entry.indexOf(";\""), entry.lastIndexOf("\";"));
