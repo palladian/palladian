@@ -199,10 +199,10 @@ public final class FeedChecker {
             int feedHistoriesCompletelyRead = 0;
             for (Feed feed : getFeeds()) {
 
-                // if (feed.getId() > 17) {
+                // if (feed.getId() > 195276) {
                 // break;
                 // }
-                // if (feed.getId() < 511) {
+                // if (feed.getId() < 195276) {
                 // continue;
                 // }
                 StopWatch swf = new StopWatch();
@@ -460,7 +460,7 @@ public final class FeedChecker {
      * <li>window size</li>
      * <li>size of poll in Byte</li>
      * <li>number of missed news posts</li>
-     * <li>percentage of new entries, 1 = all new but one (only for evaluation mode MAX interesting)</li>
+     * <li>percentage of new entries, 1 = all new (only for evaluation mode MAX interesting)</li>
      * <li>delay (only for evaluation mode MIN interesting)</li>
      * <li>score (either score_max or score_min depending on evaluation mode)</li>
      * </ul>
@@ -477,7 +477,7 @@ public final class FeedChecker {
                 + ".csv";
 
         try {
-            FileWriter fileWriter = new FileWriter(filePath);
+            FileWriter fileWriter = new FileWriter(filePath, true);
 
             // loop through all feeds
             for (Feed feed : getFeeds()) {
@@ -513,6 +513,9 @@ public final class FeedChecker {
                     numberOfPoll++;
                 }
 
+                // data is appended to the file so we can/must clear the poll data series here, that also saves us
+                // memory
+                feed.getPollDataSeries().clear();
             }
 
             fileWriter.flush();
@@ -544,18 +547,19 @@ public final class FeedChecker {
         if (entries.size() > 1) {
             // use average distance between pub dates and total difference
             // between first and last entry
-            fixedMinCheckInterval = (int) (fps.getTimeRange() / (entries.size() - 1)) / DateHelper.MINUTE_MS;
+            fixedMinCheckInterval = (int) (fps.getTimeRange() / (entries.size() - 1l) / DateHelper.MINUTE_MS);
             fixedMaxCheckInterval = (int) (fps.getTimeRange() / DateHelper.MINUTE_MS);
 
             // use median
             if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
                 fixedMinCheckInterval = (int) (fps.getMedianPostGap() / DateHelper.MINUTE_MS);
-                fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
+                // fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
+                fixedMaxCheckInterval = fixedMinCheckInterval * entries.size();
             }
 
             if (feed.getUpdateClass() == FeedClassifier.CLASS_DEAD) {
-                fixedMinCheckInterval = 800 + (int) (Math.random() * 20);
-                fixedMaxCheckInterval = 1440;
+                fixedMinCheckInterval = 800 + (int) (Math.random() * 200);
+                fixedMaxCheckInterval = 1440 + (int) (Math.random() * 600);
             } else if (feed.getUpdateClass() == FeedClassifier.CLASS_CHUNKED) {
 
                 // for chunked entries the median post gap is likely to be zero so we set it to the time to the last
@@ -565,31 +569,11 @@ public final class FeedChecker {
 
             } else if (feed.getUpdateClass() == FeedClassifier.CLASS_ON_THE_FLY) {
 
-                fixedMinCheckInterval = 50 + (int) (Math.random() * 10);
-                fixedMaxCheckInterval = 100 + (int) (Math.random() * 20);
+                fixedMinCheckInterval = 60;
+                fixedMaxCheckInterval = 120;
 
             }
 
-            // FIXME: this is just for dataset creation, to be sure we're not missing anything! DELETE it when merging
-            // branch! check maximum every 5 minutes and minimum once a day
-
-            fixedMinCheckInterval += fps.getTimeDifferenceToNewestPost() / (10 * DateHelper.MINUTE_MS);
-            fixedMaxCheckInterval += fps.getTimeDifferenceToNewestPost() / (10 * DateHelper.MINUTE_MS);
-
-            fixedMinCheckInterval /= 2;
-            fixedMaxCheckInterval /= 2;
-            if (fixedMinCheckInterval < 5) {
-                fixedMinCheckInterval = 5;
-            } else if (fixedMinCheckInterval > 1440) {
-                fixedMinCheckInterval = 1440 + (int) (Math.random() * 400);
-            }
-            if (fixedMaxCheckInterval < 5) {
-                fixedMaxCheckInterval = 5;
-            } else if (fixedMaxCheckInterval > 1440) {
-                fixedMaxCheckInterval = 1440 + (int) (Math.random() * 400);
-            }
-
-            // //////////////////////////////
         } else {
             fixedMinCheckInterval *= 3;
             fixedMaxCheckInterval *= 3;
@@ -627,18 +611,20 @@ public final class FeedChecker {
         maxCheckInterval *= f;
 
         // for chunked or on the fly updates the min and max intervals are the same
-        if (feed.getUpdateClass() != FeedClassifier.CLASS_CHUNKED
-                && feed.getUpdateClass() != FeedClassifier.CLASS_ON_THE_FLY) {
-            minCheckInterval = maxCheckInterval / Math.max(1, entries.size() - 1);
-        } else {
-            minCheckInterval = maxCheckInterval;
-        }
+        // if (feed.getUpdateClass() != FeedClassifier.CLASS_CHUNKED
+        // && feed.getUpdateClass() != FeedClassifier.CLASS_ON_THE_FLY) {
+        // minCheckInterval = maxCheckInterval / Math.max(1, entries.size() - 1);
+        // } else {
+        // minCheckInterval = maxCheckInterval;
+        // }
+
+        minCheckInterval = maxCheckInterval / Math.max(1, entries.size() - 1);
 
         feed.setMinCheckInterval(minCheckInterval);
         feed.setMaxCheckInterval(maxCheckInterval);
 
         // in case only one entry has been found use default check time
-        if (entries.size() == 1) {
+        if (entries.size() <= 1) {
             feed.setMinCheckInterval(DEFAULT_CHECK_TIME / 2);
             feed.setMaxCheckInterval(DEFAULT_CHECK_TIME);
         }
@@ -903,7 +889,8 @@ public final class FeedChecker {
 
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
-        int checkInterval = 60;
+        checkType = CheckApproach.CHECK_ADAPTIVE;
+        int checkInterval = -1;
         int runtime = 9000;
         // //////////////////////////
 

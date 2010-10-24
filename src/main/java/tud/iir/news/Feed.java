@@ -118,10 +118,13 @@ public class Feed {
 
     /** the update class of the feed is one of {@link FeedClassifier}s classes */
     private int updateClass = -1;
+
     /**
      * The raw XML markup for this feed.
      */
     private String plainXML;
+
+    private double targetPercentageOfNewEntries = -1;
 
     public Feed() {
         super();
@@ -243,6 +246,7 @@ public class Feed {
     }
 
     public void increaseChecks() {
+        targetPercentageOfNewEntries = -1;
         this.checks++;
     }
 
@@ -250,8 +254,15 @@ public class Feed {
         return checks;
     }
 
+    /**
+     * Set the max check interval.
+     * Min = 4 minutes, max = 6 month (267840 minutes)
+     * 
+     * @param maxCheckInterval The max check interval in minutes.
+     */
     public void setMaxCheckInterval(int maxCheckInterval) {
-        maxCheckInterval = Math.max(1, maxCheckInterval);
+        maxCheckInterval = Math.max(4, maxCheckInterval);
+        maxCheckInterval = Math.min(267840, maxCheckInterval);
         this.maxCheckInterval = maxCheckInterval;
     }
 
@@ -259,8 +270,15 @@ public class Feed {
         return maxCheckInterval;
     }
 
+    /**
+     * Set the min check interval.
+     * Min = 2 minutes, max = 1 month (44640 minutes)
+     * 
+     * @param minCheckInterval The min check interval in minutes.
+     */
     public void setMinCheckInterval(int minCheckInterval) {
-        minCheckInterval = Math.max(1, minCheckInterval);
+        minCheckInterval = Math.max(2, minCheckInterval);
+        minCheckInterval = Math.min(44640, minCheckInterval);
         this.minCheckInterval = minCheckInterval;
     }
 
@@ -417,44 +435,50 @@ public class Feed {
      */
     public double getTargetPercentageOfNewEntries() {
 
-        // compare old and new entry titles to get percentage pn of new entries
-        String[] oldTitlesArray = getLastHeadlines().split(TITLE_SEPARATION);
-        Set<String> oldTitles = CollectionHelper.toHashSet(oldTitlesArray);
+        if (targetPercentageOfNewEntries == -1) {
 
-        // get new entry titles
-        StringBuilder titles = getNewEntryTitles();
-        Set<String> currentTitles = CollectionHelper.toHashSet(titles.toString().split(TITLE_SEPARATION));
+            // compare old and new entry titles to get percentage pn of new entries
+            String[] oldTitlesArray = getLastHeadlines().split(TITLE_SEPARATION);
+            Set<String> oldTitles = CollectionHelper.toHashSet(oldTitlesArray);
 
-        // count number of same titles
-        int overlap = 0;
-        for (String oldTitle : oldTitles) {
-            for (String newTitle : currentTitles) {
-                if (oldTitle.equalsIgnoreCase(newTitle)) {
-                    overlap++;
-                    LOGGER.trace("equal headline: " + oldTitle);
-                    LOGGER.trace("with headline:  " + newTitle);
+            // get new entry titles
+            StringBuilder titles = getNewEntryTitles();
+            Set<String> currentTitles = CollectionHelper.toHashSet(titles.toString().split(TITLE_SEPARATION));
+
+            // count number of same titles
+            int overlap = 0;
+            for (String oldTitle : oldTitles) {
+                for (String newTitle : currentTitles) {
+                    if (oldTitle.equalsIgnoreCase(newTitle)) {
+                        overlap++;
+                        LOGGER.trace("equal headline: " + oldTitle);
+                        LOGGER.trace("with headline:  " + newTitle);
+                        break;
+                    }
                 }
             }
+
+            // number of really new headlines
+            int newEntries = Math.max(0, currentTitles.size() - overlap);
+
+            // percentage of new entries - 1 entry, this is our target, if we know
+            // at least one entry we know that we did not miss any
+            double pnTarget = 1;
+
+            if (currentTitles.size() > 1) {
+                pnTarget = newEntries / ((double) currentTitles.size() - 1);
+            } else {
+                // in this special case we just look at the feed the default check time
+                // pnTarget = -1;
+                // LOGGER.warn(currentTitles.size() + " title(s) found in " + getId() + " ("+ getFeedUrl() + ")");
+            }
+
+            setLastHeadlines(titles.toString());
+
+            targetPercentageOfNewEntries = pnTarget;
         }
 
-        // number of really new headlines
-        int newEntries = currentTitles.size() - overlap;
-
-        // percentage of new entries - 1 entry, this is our target, if we know
-        // at least one entry we know that we did not miss any
-        double pnTarget = 1;
-
-        if (currentTitles.size() > 1) {
-            pnTarget = newEntries / ((double) currentTitles.size() - 1);
-        } else {
-            // in this special case we just look at the feed the default check time
-            // pnTarget = -1;
-            //LOGGER.warn(currentTitles.size() + " title(s) found in " + getId() + " ("+ getFeedUrl() + ")");
-        }
-
-        setLastHeadlines(titles.toString());
-
-        return pnTarget;
+        return targetPercentageOfNewEntries;
     }
 
     /*
@@ -636,7 +660,7 @@ public class Feed {
         historyFileCompletelyRead = b;
     }
 
-    public void addToBenchmarkLookupTime(int checkInterval) {
+    public void addToBenchmarkLookupTime(long checkInterval) {
         setBenchmarkLastLookupTime(benchmarkLookupTime);
         benchmarkLookupTime += checkInterval;
     }

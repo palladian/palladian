@@ -39,7 +39,7 @@ public class FeedClassifier {
     public static final int CLASS_ZOMBIE = 4;
 
     /** Feed posts appear not often and at different intervals. */
-    public static final int CLASS_SPONTANUOUS = 5;
+    public static final int CLASS_SPONTANEOUS = 5;
 
     /** Feed posts are done at daytime with a longer gap at night. */
     public static final int CLASS_SLICED = 6;
@@ -172,7 +172,7 @@ public class FeedClassifier {
                 // if post intervals have large standard deviations the post is spontaneous
                 if (fps.getPostGapStandardDeviation() >= fps.getMedianPostGap() / 10.0
                         && fps.getMedianPostGap() > DateHelper.DAY_MS) {
-                    feedClass = CLASS_SPONTANUOUS;
+                    feedClass = CLASS_SPONTANEOUS;
                 } else {
                     // long gaps between posts (at night) indicate sliced feeds
                     if (fps.getLongestPostGap() < 12 * fps.getMedianPostGap()
@@ -215,7 +215,7 @@ public class FeedClassifier {
                 return "single entry";
             case CLASS_ZOMBIE:
                 return "zombie";
-            case CLASS_SPONTANUOUS:
+            case CLASS_SPONTANEOUS:
                 return "spontanuous";
             case CLASS_SLICED:
                 return "sliced";
