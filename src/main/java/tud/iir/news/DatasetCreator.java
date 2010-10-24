@@ -62,7 +62,7 @@ public class DatasetCreator {
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive
         Collection<Integer> updateClasses = new HashSet<Integer>();
         updateClasses.add(FeedClassifier.CLASS_ZOMBIE);
-        updateClasses.add(FeedClassifier.CLASS_SPONTANUOUS);
+        updateClasses.add(FeedClassifier.CLASS_SPONTANEOUS);
         updateClasses.add(FeedClassifier.CLASS_SLICED);
         updateClasses.add(FeedClassifier.CLASS_SINGLE_ENTRY);
         updateClasses.add(FeedClassifier.CLASS_ON_THE_FLY);

@@ -216,6 +216,9 @@ public class FeedBenchmarkFileReader {
                 // process post entries between the end of the current window and the last lookup time
                 else if (entryTimestamp < lastEntryInWindowTimestamp
                         && entryTimestamp > feed.getBenchmarkLastLookupTime()) {
+
+                    cumulatedDelay += feed.getBenchmarkLookupTime() - entryTimestamp;
+
                     // count post entry as miss
                     misses = misses + 1;
                     // System.out.println("miss");
@@ -259,9 +262,9 @@ public class FeedBenchmarkFileReader {
             feedChecker.updateCheckIntervals(feed);
 
             if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MIN_CHECK_TIME) {
-                feed.addToBenchmarkLookupTime(feed.getMinCheckInterval() * DateHelper.MINUTE_MS);
+                feed.addToBenchmarkLookupTime((long) feed.getMinCheckInterval() * (long) DateHelper.MINUTE_MS);
             } else if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
-                feed.addToBenchmarkLookupTime(feed.getMaxCheckInterval() * DateHelper.MINUTE_MS);
+                feed.addToBenchmarkLookupTime((long) feed.getMinCheckInterval() * (long) DateHelper.MINUTE_MS);
             }
 
         } catch (Exception e) {
