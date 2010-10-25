@@ -298,6 +298,7 @@ CREATE TABLE `feeds` (
   `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
   `activityPattern` int(11) DEFAULT = -1 COMMENT 'the activity pattern of the feed',
   `lastFeedEntry` timestamp DEFAULT NULL COMMENT 'the timestamp of the most recent item in the feed',
+  `lastEtag` varchar(255) DEFAULT NULL 'the Etag that was retrieved at the poll in case the feed supports Etags',
   `supportsConditionalGet` BOOLEAN DEFAULT NULL COMMENT 'whether the feed answers correctly on conditional get requests',
   `supportsETag` BOOLEAN DEFAULT NULL COMMENT 'whether the feed supports ETags',
   PRIMARY KEY (`id`),
@@ -353,12 +354,12 @@ CREATE TABLE `feeds_fixed_learned` (
 DROP TABLE IF EXISTS `feeds_post_distribution`;
 
 CREATE TABLE `feeds_post_distribution` (
-  `feedID` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `minuteOfDay` int(10) unsigned DEFAULT NULL,
-  `posts` int(10) unsigned DEFAULT NULL,
-  `chances` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`feedID`)
-) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  `feedID` int(10) unsigned NOT NULL auto_increment,
+  `minuteOfDay` int(10) unsigned NOT NULL default '0',
+  `posts` int(10) unsigned default NULL,
+  `chances` int(10) unsigned default NULL,
+  PRIMARY KEY  (`feedID`,`minuteOfDay`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 /*Table structure for table `feeds_probabilistic` */
 
