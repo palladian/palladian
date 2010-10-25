@@ -296,6 +296,10 @@ CREATE TABLE `feeds` (
   `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
   `lastHeadlines` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
   `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
+  `activityPattern` int(11) DEFAULT = -1 COMMENT 'the activity pattern of the feed',
+  `lastFeedEntry` timestamp DEFAULT NULL COMMENT 'the timestamp of the most recent item in the feed',
+  `supportsConditionalGet` BOOLEAN DEFAULT NULL COMMENT 'whether the feed answers correctly on conditional get requests',
+  `supportsETag` BOOLEAN DEFAULT NULL COMMENT 'whether the feed supports ETags',
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
