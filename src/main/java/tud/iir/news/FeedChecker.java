@@ -56,7 +56,7 @@ public final class FeedChecker {
     public static int benchmark = BENCHMARK_MAX_CHECK_TIME;
 
     /** The path to the folder with the feed post history files. */
-    private final String benchmarkDatasetPath = "G:\\Projects\\Programming\\Other\\clean\\";
+    private final String benchmarkDatasetPath = "D:\\Projects\\Programming\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private File[] benchmarkDatasetFiles;
@@ -199,12 +199,12 @@ public final class FeedChecker {
             int feedHistoriesCompletelyRead = 0;
             for (Feed feed : getFeeds()) {
 
-                // if (feed.getId() > 195276) {
-                // break;
-                // }
-                // if (feed.getId() < 195276) {
-                // continue;
-                // }
+//                 if (feed.getId() > 195248) {
+//                 break;
+//                 }
+//                 if (feed.getId() < 195248) {
+//                 continue;
+//                 }
                 StopWatch swf = new StopWatch();
                 FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, this);
 
@@ -644,7 +644,7 @@ public final class FeedChecker {
         if (feed.getChecks() == 0) {
 
             // learn the post distribution from the past to get initial check intervals
-            // distribution minute of the day : frequency of news in that minute
+            // distribution minute of the day : frequency of news in that minute (items,chances)
             Map<Integer, int[]> postDistribution = new HashMap<Integer, int[]>();
 
             // since the feed has no post distribution yet, we fill all minutes with 0 posts
@@ -722,12 +722,12 @@ public final class FeedChecker {
                 // // estimate time to next entry and time until list is full with
                 // only new but one entries
 
-                // set to thirty days maximum
-                int minCheckInterval = 30 * 1440;
+                // set to one month maximum
+                int minCheckInterval = 31 * 1440;
                 boolean minCheckIntervalFound = false;
 
-                // set to one hundred days maximum
-                int maxCheckInterval = 100 * 1440;
+                // set to six month maximum
+                int maxCheckInterval = 6 * 31 * 1440;
 
                 // add up all probabilities for the coming minutes until the
                 // estimated post number is 1
@@ -747,7 +747,7 @@ public final class FeedChecker {
                         minCheckIntervalFound = true;
                     }
 
-                    if (estimatedPosts >= entries.size() - 1) {
+                    if (estimatedPosts >= entries.size()) {
                         maxCheckInterval = c;
                         break;
                     }
@@ -759,12 +759,12 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(maxCheckInterval);
 
                 // remember at which iteration the probabilistic approach took over
-                if (benchmark != BENCHMARK_OFF) {
-                    Integer iteration = probabilisticSwitchMap.get(feed.getId());
-                    if (iteration == null) {
-                        probabilisticSwitchMap.put(feed.getId(), feed.getChecks());
-                    }
-                }
+//                if (benchmark != BENCHMARK_OFF) {
+//                    Integer iteration = probabilisticSwitchMap.get(feed.getId());
+//                    if (iteration == null) {
+//                        probabilisticSwitchMap.put(feed.getId(), feed.getChecks());
+//                    }
+//                }
             }
         }
     }
@@ -890,6 +890,7 @@ public final class FeedChecker {
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
         checkType = CheckApproach.CHECK_ADAPTIVE;
+        checkType = CheckApproach.CHECK_PROBABILISTIC;
         int checkInterval = -1;
         int runtime = 9000;
         // //////////////////////////

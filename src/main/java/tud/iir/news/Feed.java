@@ -116,6 +116,11 @@ public class Feed {
      */
     private Map<Integer, int[]> meticulousPostDistribution = new HashMap<Integer, int[]>();
 
+    /**
+     * Indicator whether we have seen one full day in the feed already. This is necessary to calculate the feed post probability. Whenever we increase {@link checks} we set this value to null = unknown if it was not true yet.
+     */
+    private Boolean oneFullDayOfItemsSeen = null;
+    
     /** the update class of the feed is one of {@link FeedClassifier}s classes */
     private int updateClass = -1;
 
@@ -246,7 +251,13 @@ public class Feed {
     }
 
     public void increaseChecks() {
-        targetPercentageOfNewEntries = -1;
+        // set back the target percentage to -1, which means we need to recalculate it
+    	targetPercentageOfNewEntries = -1;
+        
+    	// if we haven't seen a full day yet, maybe in the next check
+    	if (oneFullDayOfItemsSeen != null && oneFullDayOfItemsSeen == false) {
+        	oneFullDayOfItemsSeen = null;
+        }
         this.checks++;
     }
 
@@ -332,22 +343,28 @@ public class Feed {
      * 
      * @return True, if the entries span at least one day, false otherwise.
      */
-    public boolean oneFullDayHasBeenSeen() {
-        boolean daySeen = true;
+    public Boolean oneFullDayHasBeenSeen() {
+    	
+    	// if we have calculated this value, just return it
+    	if (oneFullDayOfItemsSeen != null) {
+    		return oneFullDayOfItemsSeen;
+    	}
+    	
+    	oneFullDayOfItemsSeen = false;
 
         for (Entry<Integer, int[]> entry : meticulousPostDistribution.entrySet()) {
             // if feed had no chance of having a post entry in any minute of the day, no full day has been seen yet
             if (entry.getValue()[1] == 0) {
-                daySeen = false;
+                oneFullDayOfItemsSeen = false;
                 break;
             }
         }
 
         if (meticulousPostDistribution.isEmpty()) {
-            daySeen = false;
+            oneFullDayOfItemsSeen = false;
         }
 
-        return daySeen;
+        return oneFullDayOfItemsSeen;
     }
 
     public void setUpdateClass(int updateClass) {
@@ -404,7 +421,10 @@ public class Feed {
     }
 
     /**
-     * Get a separated string with the headlines of all feed entries.
+     * <p>
+     * Get a separated string with the headlines and links of all feed entries.
+     * The primary key is headline + link since sometimes the headlines for several entries are the same but they point to different articles.
+     * </p>
      * 
      * @param entries Feed entries.
      * @return A separated string with the headlines of all feed entries.
@@ -413,7 +433,7 @@ public class Feed {
 
         StringBuilder titles = new StringBuilder();
         for (FeedEntry entry : getEntries()) {
-            titles.append(entry.getTitle()).append(TITLE_SEPARATION);
+       		titles.append(entry.getTitle()+entry.getLink()).append(TITLE_SEPARATION);
         }
 
         return titles;
@@ -467,6 +487,7 @@ public class Feed {
 
             if (currentTitles.size() > 1) {
                 pnTarget = newEntries / ((double) currentTitles.size() - 1);
+            	//pnTarget = newEntries / ((double) currentTitles.size());
             } else {
                 // in this special case we just look at the feed the default check time
                 // pnTarget = -1;

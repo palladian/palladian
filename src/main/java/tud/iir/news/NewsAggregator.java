@@ -366,7 +366,7 @@ public class NewsAggregator {
 
             if (node == null) {
                 node = XPathHelper.getNode(plainXMLFeed,
-                        "//item[title=\"" + syndEntry.getTitle().replaceAll("\"", "\\\"") + "\"]");
+                        "//item[title=\"" + syndEntry.getTitle().replaceAll("\"", "&quot;") + "\"]");
 
                 // for atom
                 if (node == null) {

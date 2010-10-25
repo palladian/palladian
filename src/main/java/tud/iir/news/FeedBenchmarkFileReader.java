@@ -251,6 +251,7 @@ public class FeedBenchmarkFileReader {
 
             pollData.setNewPostDelay(cumulatedDelay);
             pollData.setWindowSize(feed.getWindowSize());
+            pollData.getScore();
             pollData.setDownloadSize(totalBytes);
 
             // add poll data object to series of poll data

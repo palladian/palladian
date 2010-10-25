@@ -159,7 +159,7 @@ public class XPathHelper {
      * @param xPath the x path
      * @return the node
      */
-    public static Node getNode(final Document doc, final String xPath) {
+    public static Node getNode(final Document doc, String xPath) {
         if (doc == null) {
             return null;
         }
