@@ -10,8 +10,11 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +23,7 @@ import java.util.Map.Entry;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.MathHelper;
 import tud.iir.persistence.DatabaseManager;
 
 /**
@@ -34,59 +38,54 @@ import tud.iir.persistence.DatabaseManager;
  */
 public class MetaInformationCreator {
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
     private final static Logger LOGGER = Logger.getLogger(MetaInformationCreator.class);
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
     private FeedStore feedStore;
+    
+    private DatabaseManager dbManager;
+    private Connection connection;
+    private PreparedStatement supportsCG;
+    private PreparedStatement supportsEtag;
+    private PreparedStatement responseSize;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
-    private File FILE_PATH;
-
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
     public MetaInformationCreator() {
         feedStore = FeedDatabase.getInstance();
-        URL datasetFilePath = MetaInformationCreator.class.getResource("/datasets/feedPosts/");
+        
+        dbManager = DatabaseManager.getInstance();
+        connection = dbManager.getConnection();
+        
         try {
-            FILE_PATH = new File(datasetFilePath.toURI());
-        } catch (URISyntaxException e) {
-            new RuntimeException("File at location: /" + DatasetCreator.DATASET_PATH + " not accessible.");
-        }
+			supportsCG = connection.prepareStatement("UPDATE feeds SET supportsConditionalGet=? WHERE id=?");
+			supportsEtag = connection.prepareStatement("UPDATE feeds SET supportsETag=? WHERE id=?");
+	        responseSize = connection.prepareStatement("UPDATE feeds SET conditionGetResponseSize=? WHERE id=?");
+		} catch (SQLException e) {
+			LOGGER.error(e.getMessage());
+			System.exit(1);
+		}
+        
     }
 
     /**
      * <p>
-     * 
+     * Create meta information, that is, find:
+     * <ul>
+     *   <li>Etag support</li>
+     *   <li>conditional get support</li>
+     * </ul>
      * </p>
      * 
      */
     @SuppressWarnings("unchecked")
     public void createMetaInformation() {
-        Iterator fileIterator = FileUtils.iterateFiles(FILE_PATH, new String[] { "csv" }, false);
-        while (fileIterator.hasNext()) {
-            File datasetFile = (File) fileIterator.next();
-            String fileName = datasetFile.getName();
-            String feedId = fileName.substring(0, fileName.indexOf("_"));
-
+       
+    	Collection<Feed> feedCollection = feedStore.getFeeds();
+    	
+    	LOGGER.info("start meta information gathering process");
+    	
+    	int c = 0;
+    	for (Feed feed : feedCollection) {
+            
             try {
-                Feed feed = feedStore.getFeedByID(Integer.valueOf(feedId));
                 feed.updateEntries(false);
                 URL feedURL = new URL(feed.getFeedUrl());
                 URLConnection connection = feedURL.openConnection();
@@ -101,10 +100,12 @@ public class MetaInformationCreator {
             } catch (SQLException e) {
                 throw new RuntimeException("Unable to store results to Database.", e);
             } catch (MalformedURLException e) {
-                LOGGER.error("URL of feed with id: " + feedId + " is malformed!",e);
+                LOGGER.error("URL of feed with id: " + feed.getId() + " is malformed!",e);
             } catch (IOException e) {
-                LOGGER.error("Could not get HTTP header information for feed with id: " + feedId + ".");
+                LOGGER.error("Could not get HTTP header information for feed with id: " + feed.getId() + ".");
             }
+            c++;
+            LOGGER.info("percent done: " + MathHelper.round(100*c/(double)feedCollection.size(), 2));
         }
     }
 
@@ -196,23 +197,21 @@ public class MetaInformationCreator {
      * @throws SQLException
      */
     private void writeMetaInformationToDatabase(final Feed feed, final Boolean supportsConditionalGet,
-            final Boolean supportsETag, final Integer responseSize) throws SQLException {
-        DatabaseManager dbManager = DatabaseManager.getInstance();
-        java.sql.Connection conn = dbManager.getConnection();
-        Statement supports304Stat = conn.createStatement();
-        Statement supportsETagStat = conn.createStatement();
-        Statement responseSizeStat = conn.createStatement();
-        Integer id = feed.getId();
-        String query = "UPDATE feeds SET supportsConditionalGet=" + supportsConditionalGet + " WHERE id=" + id;
-        String supportsETagQuery = "UPDATE feeds SET supportsETag=" + supportsETag + " WHERE id=" + id;
-        String responseSizeQuery = "UPDATE feeds SET conditionGetResponseSize=" + responseSize + " WHERE id=" + id;
-        supports304Stat.execute(query);
-        supports304Stat.close();
-        supportsETagStat.execute(supportsETagQuery);
-        supportsETagStat.close();
-        responseSizeStat.execute(responseSizeQuery);
-        responseSizeStat.close();
-        conn.close();
+            final Boolean supportsETag, final Integer responseSizeValue) throws SQLException {
+        
+    	Integer id = feed.getId();
+        
+        supportsCG.setBoolean(1, supportsConditionalGet);
+        supportsCG.setInt(2, id);        	
+        dbManager.runUpdate(supportsCG);
+        
+        supportsEtag.setBoolean(1, supportsETag);
+        supportsEtag.setInt(2, id);        	
+        dbManager.runUpdate(supportsEtag);
+        
+        responseSize.setInt(1, responseSizeValue);
+        responseSize.setInt(2, id);        	
+        dbManager.runUpdate(responseSize);       
     }
 
     /**
