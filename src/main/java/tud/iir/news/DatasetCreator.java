@@ -1,6 +1,7 @@
 package tud.iir.news;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -188,6 +189,55 @@ public class DatasetCreator {
     }
 
     /**
+     * <p>We combine all feed histories into one file which we can then import into a database to generate statistics.</p>
+     */
+    public static void combineFeedHistories() {
+
+        StopWatch sw = new StopWatch();
+
+        String cleanPath = DATASET_PATH + "clean\\";
+        
+        FileWriter fileWriter = null;
+		try {
+			fileWriter = new FileWriter(cleanPath+"all.csv");
+		} catch (IOException e1) {
+			LOGGER.error(e1.getMessage());
+		}
+        
+		int c = 0;
+        File[] files = FileHelper.getFiles(cleanPath);
+        for (File file : files) {
+        	
+        	String feedID = file.getName().substring(0,file.getName().indexOf("_"));
+        	
+        	List<String> contents = FileHelper.readFileToArray(file);
+        	
+        	for (String line : contents) {
+        	
+	        	try {
+	        		fileWriter.write(feedID+";");
+	                fileWriter.write(line);
+	                fileWriter.flush();	                
+	            } catch (IOException e) {
+	                LOGGER.error(file + ", " + e.getMessage());
+	            }
+            
+        	}
+        	
+        	c++;
+            LOGGER.info("percent done: " + MathHelper.round(100*c/(double)files.length, 2));            
+        }
+        
+        try {
+        	fileWriter.close();
+        } catch (Exception e) {
+        	LOGGER.error(e.getMessage());
+		}
+        
+        LOGGER.info("all files combined to all.csv in " + sw.getElapsedTimeString());
+    }
+    
+    /**
      * Cleaning up performs the following steps:
      * <ul>
      * <li>Remove all empty files from dataset folder.</li>
@@ -363,7 +413,8 @@ public class DatasetCreator {
         // DatasetCreator dc = new DatasetCreator();
         // dc.createDataset();
         // DatasetCreator.renewFileIDs();
-        DatasetCreator.cleanUp(true);
+        //DatasetCreator.cleanUp(true);
+        DatasetCreator.combineFeedHistories();
         // dc.addFeedMetaInformation();
 
     }

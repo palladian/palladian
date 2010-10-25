@@ -1,5 +1,7 @@
 package tud.iir.news.statistics;
 
+import org.apache.log4j.Logger;
+
 import tud.iir.news.FeedChecker;
 
 /**
@@ -130,12 +132,17 @@ public class PollData {
 
         } else if (getBenchmarkType() == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
 
-            if (getPercentNew() <= 1.0) {
-                score = getPercentNew();
+            if (getMisses() == 0) {
+            	// get the percentage of new entries new/total, since percentNew is the number of new/(total-1) we need to calculate back
+                score = (getPercentNew()*(getWindowSize()-1))/((double)getWindowSize());
             } else {
-                score = 1 - getMisses() / getWindowSize();
+            	if (getWindowSize() > 0) {            		
+            		score = 1.0 - (getMisses() / (double)getWindowSize());
+            	} else {
+            		Logger.getRootLogger().warn("window size = 0 for feed");
+            	}
             }
-
+            
         }
 
         return score;
