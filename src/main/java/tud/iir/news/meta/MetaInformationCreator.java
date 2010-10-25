@@ -1,7 +1,7 @@
 /**
  * Created on: 28.07.2010 17:43:02
  */
-package tud.iir.news;
+package tud.iir.news.meta;
 
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
@@ -10,7 +10,9 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.MathHelper;
-import tud.iir.news.meta.MetaInformationCreationTask;
+import tud.iir.news.Feed;
+import tud.iir.news.FeedDatabase;
+import tud.iir.news.FeedStore;
 
 /**
  * <p>
