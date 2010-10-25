@@ -1,1 +1,1 @@
-ALTER TABLE feeds ADD COLUMN (supportsConditionalGet BOOLEAN, supportsETag BOOLEAN, conditionGetResponseSize INTEGER);
+ALTER TABLE feeds ADD COLUMN (supportsConditionalGet BOOLEAN, supportsETag BOOLEAN, conditionGetResponseSize INTEGER, etagResponseSize INTEGER);
