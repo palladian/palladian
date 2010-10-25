@@ -18,7 +18,6 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import tud.iir.news.Feed;
-import tud.iir.news.MetaInformationCreator;
 import tud.iir.persistence.DatabaseManager;
 
 /**

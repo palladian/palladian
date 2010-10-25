@@ -11,6 +11,8 @@ import java.io.File;
 import org.junit.Before;
 import org.junit.Test;
 
+import tud.iir.news.meta.MetaInformationCreator;
+
 /**
  * <p>
  * 
