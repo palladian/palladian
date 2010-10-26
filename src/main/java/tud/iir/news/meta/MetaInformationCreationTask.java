@@ -17,6 +17,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.MathHelper;
 import tud.iir.news.Feed;
 import tud.iir.persistence.DatabaseManager;
 
@@ -116,28 +117,60 @@ public final class MetaInformationCreationTask implements Runnable {
      * </p>
      * 
      */
+    @Override
     public void run() {
 
+        URLConnection connection = null;
+
         try {
-            feed.updateEntries(false);
             URL feedURL = new URL(feed.getFeedUrl());
-            URLConnection connection = feedURL.openConnection();
+            connection = feedURL.openConnection();
             connection.setIfModifiedSince(System.currentTimeMillis() + 60000);
             connection.connect();
 
-            Boolean supportsETag = getSupportsETag(connection);
-            Boolean supports304 = getFeedSupports304((HttpURLConnection) connection);
-            Integer responseSize = getFeedResponseSize((HttpURLConnection) connection);
-            Integer etagResponseSize = getEtagFeedResponseSize((HttpURLConnection) connection);
-
-            writeMetaInformationToDatabase(feed, supports304, supportsETag, responseSize, etagResponseSize);
-        } catch (SQLException e) {
-            throw new RuntimeException("Unable to store results to Database.", e);
         } catch (MalformedURLException e) {
             LOGGER.error("URL of feed with id: " + feed.getId() + " is malformed!", e);
         } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        Boolean supports304 = false;
+
+        try {
+
+            supports304 = getFeedSupports304((HttpURLConnection) connection);
+
+        } catch (IOException e) {
             LOGGER.error("Could not get HTTP header information for feed with id: " + feed.getId() + ".");
         }
+
+        Boolean supportsETag = getSupportsETag(connection);
+        Integer etagResponseSize = -1;
+        if (supportsETag) {
+            etagResponseSize = getEtagFeedResponseSize((HttpURLConnection) connection);
+        }
+        Integer responseSize = -1;
+        if (supports304) {
+            responseSize = getFeedResponseSize((HttpURLConnection) connection);
+        }
+
+        try {
+            writeMetaInformationToDatabase(feed, supports304, supportsETag, responseSize, etagResponseSize);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Unable to store results to Database.", e);
+        }
+
+        feed.freeMemory();
+        feed.setLastHeadlines("");
+        feed.setEntries(null);
+
+        MetaInformationCreator.counter++;
+        LOGGER.info("percent done: "
+                + MathHelper.round(100 * MetaInformationCreator.counter
+                        / (double) MetaInformationCreator.collectionSize, 2) + "(" + MetaInformationCreator.counter
+                + ")");
     }
 
     /**
@@ -230,7 +263,7 @@ public final class MetaInformationCreationTask implements Runnable {
      */
     private void writeMetaInformationToDatabase(final Feed feed, final Boolean supportsConditionalGet,
             final Boolean supportsETag, final Integer responseSizeValue, Integer etagResponseSizeValue)
-            throws SQLException {
+    throws SQLException {
 
         Integer id = feed.getId();
 
