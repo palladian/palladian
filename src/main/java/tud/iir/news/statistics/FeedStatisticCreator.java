@@ -1,5 +1,7 @@
 package tud.iir.news.statistics;
 
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,34 +29,48 @@ import tud.iir.web.Crawler;
  */
 public class FeedStatisticCreator {
 
-    public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPathe) {
-
-        StringBuilder csv = new StringBuilder();
+    public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPathe)
+            throws IOException {
 
         FeedChecker fc = new FeedChecker(feedStore);
         FeedChecker.setBenchmark(FeedChecker.BENCHMARK_MAX_CHECK);
+
+        FileWriter csv = new FileWriter(statisticOutputPathe);
 
         int c = 0;
         int totalSize = feedStore.getFeeds().size();
         for (Feed feed : feedStore.getFeeds()) {
 
+            // if (feed.getId() != 27) {
+            // continue;
+            // }
+
             FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, fc);
             fbfr.updateEntriesFromDisk();
+            if (feed.getEntries() == null || feed.getEntries().size() < 1) {
+                continue;
+            }
             FeedPostStatistics fps = new FeedPostStatistics(feed.getEntries());
-            csv.append(feed.getId()).append(";");
-            csv.append(feed.getActivityPattern()).append(";");
-            csv.append(fps.getAvgEntriesPerDay()).append(";");
-            csv.append(fps.getMedianPostGap()).append(";");
-            csv.append(fps.getAveragePostGap()).append(";");
-            csv.append("\n");
+            csv.write(String.valueOf(feed.getId() + ";"));
+            csv.write(String.valueOf(feed.getActivityPattern()) + ";");
+            csv.write(String.valueOf(fps.getAvgEntriesPerDay()) + ";");
+            csv.write(String.valueOf(fps.getMedianPostGap()) + ";");
+            csv.write(String.valueOf((long) fps.getAveragePostGap()) + ";");
+            csv.write("\n");
+
+            csv.flush();
 
             c++;
 
-            Logger.getRootLogger().info(
-"percent done: " + MathHelper.round(100 * c / (double) totalSize, 2));
+            feed.freeMemory();
+            feed.setLastHeadlines("");
+            feed.setMeticulousPostDistribution(null);
+            feed = null;
+
+            Logger.getRootLogger().info("percent done: " + MathHelper.round(100 * c / (double) totalSize, 2));
         }
 
-        FileHelper.writeToFile(statisticOutputPathe, csv);
+        csv.close();
     }
 
     public static void createGeneralStatistics(FeedStore feedStore, String statisticOutputPath) {
@@ -121,8 +137,9 @@ public class FeedStatisticCreator {
 
     /**
      * @param args
+     * @throws IOException
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(), "data/temp/feedstats_combined.txt");
         FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),
                 "data/temp/feedUpdateIntervals.csv");

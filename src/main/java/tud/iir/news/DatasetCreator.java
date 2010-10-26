@@ -260,12 +260,12 @@ public class DatasetCreator {
         for (File file : files) {
             c++;
 
-            // if (!file.getName().startsWith("1924_")) {
+            // if (!file.getName().startsWith("105989_")) {
             // continue;
             // }
 
-            // remove empty files
-            if (file.length() == 0) {
+            // remove empty files or files bigger than 25MB
+            if (file.length() < 20 || file.length() < 26214400) {
                 file.delete();
                 deleteCount++;
             }
@@ -287,17 +287,16 @@ public class DatasetCreator {
                         .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
 
                 FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
-                // Pattern pat = Pattern
-                // .compile("\"\n.*?.*?\"");
-                // Matcher m = pat.matcher(FileHelper.readFileToString(file));
-                // while (m.find()) {
-                // // System.out.println(m.group());
-                // }
+
+                // to remove duplicates we save the hashes of the keys
+                Set<Integer> hashCodes = new HashSet<Integer>();
 
                 Set<String> sortedEntries = new TreeSet<String>();
                 List<String> entries = FileHelper.readFileToArray(cleanPath + file.getName());
 
                 for (String entry : entries) {
+
+                    StopWatch stw = new StopWatch();
 
                     // remove MISS lines
                     if (entry.startsWith("MISS")) {
@@ -327,32 +326,13 @@ public class DatasetCreator {
                         entry = entry.replaceFirst(String.valueOf(timestamp), "0" + timestamp);
                     }
 
-                    String key = entry.substring(entry.indexOf(";\""), entry.lastIndexOf("\";"));
+                    String key = entry.substring(entry.indexOf(";\"") + 2, entry.lastIndexOf("\";"));
 
-                    // remove duplicates
-                    boolean contains = false;
-                    for (String addedEntry : sortedEntries) {
-
-                        if (addedEntry.indexOf(";\"") == -1 || addedEntry.lastIndexOf("\";") == -1) {
-                            continue;
-                        }
-                        
-                        String addedKey = addedEntry
-                                .substring(addedEntry.indexOf(";\""),
-                                addedEntry.lastIndexOf("\";"));
-
-                        if (key.equals(addedKey)) {
-                            contains = true;
-                            break;
-                        }
+                    if (hashCodes.add(key.hashCode())) {
+                        // sort
+                        sortedEntries.add(entry);
                     }
 
-                    if (contains) {
-                        continue;
-                    }
-
-                    // sort
-                    sortedEntries.add(entry);
                 }
 
                 StringBuilder sortedData = new StringBuilder();
@@ -421,17 +401,6 @@ public class DatasetCreator {
         DatasetCreator.cleanUp(true);
         // DatasetCreator.combineFeedHistories();
         // dc.addFeedMetaInformation();
-
-    }
-
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
-    private void addFeedMetaInformation() {
-        // TODO Auto-generated method stub
 
     }
 
