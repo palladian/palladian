@@ -57,17 +57,6 @@ public class MetaInformationCreator {
         feedStore = FeedDatabase.getInstance();
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-        MetaInformationCreator creator = new MetaInformationCreator();
-        creator.createMetaInformation();
-    }
 
     /**
      * <p>
@@ -88,5 +77,17 @@ public class MetaInformationCreator {
             c++;
             LOGGER.info("percent done: " + MathHelper.round(100 * c / (double) feedCollection.size(), 2));
         }
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param args
+     */
+    public static void main(String[] args) {
+        MetaInformationCreator creator = new MetaInformationCreator();
+        creator.createMetaInformation();
     }
 }

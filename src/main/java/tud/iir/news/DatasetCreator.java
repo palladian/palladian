@@ -260,7 +260,7 @@ public class DatasetCreator {
         for (File file : files) {
             c++;
 
-            // if (!file.getName().startsWith("126089_")) {
+            // if (!file.getName().startsWith("1924_")) {
             // continue;
             // }
 
@@ -304,6 +304,11 @@ public class DatasetCreator {
                         if (!removeMISS) {
                             sortedEntries.add(entry);
                         }
+                        continue;
+                    }
+
+                    // remove feeds with window size of one
+                    if (entry.endsWith(";1")) {
                         continue;
                     }
 
@@ -367,7 +372,7 @@ public class DatasetCreator {
         }
 
         // remove empty files again because there might be empty clean files now
-        files = FileHelper.getFiles(DATASET_PATH);
+        files = FileHelper.getFiles(cleanPath);
         for (File file : files) {
 
             if (file.length() == 0) {
@@ -413,8 +418,8 @@ public class DatasetCreator {
         // DatasetCreator dc = new DatasetCreator();
         // dc.createDataset();
         // DatasetCreator.renewFileIDs();
-        //DatasetCreator.cleanUp(true);
-        DatasetCreator.combineFeedHistories();
+        DatasetCreator.cleanUp(true);
+        // DatasetCreator.combineFeedHistories();
         // dc.addFeedMetaInformation();
 
     }

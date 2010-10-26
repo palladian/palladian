@@ -8,8 +8,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Timer;
@@ -42,21 +40,32 @@ public final class FeedChecker {
     /** Benchmark off. */
     public static final int BENCHMARK_OFF = 0;
 
-    /** Benchmark algorithms towards their prediction ability for the next post. */
-    public static final int BENCHMARK_MIN_CHECK_TIME = 1;
+    /**
+     * Benchmark algorithms towards their prediction ability for the next post. We need all feeds to be in a certain
+     * time frame for a fair comparison.
+     */
+    public static final int BENCHMARK_MIN_CHECK = 1;
 
     /**
      * Benchmark algorithms towards their prediction ability for the next almost filled post list.
      */
-    public static final int BENCHMARK_MAX_CHECK_TIME = 2;
+    public static final int BENCHMARK_MAX_CHECK = 2;
 
     /**
      * If true, some output will be generated to evaluate the reading approaches.
      */
-    public static int benchmark = BENCHMARK_MAX_CHECK_TIME;
+    public static int benchmark = BENCHMARK_MAX_CHECK;
+
+    /** We need all feeds to be in a certain time frame for a fair comparison. */
+    public static final int BENCHMARK_TIME = 1;
+
+    /** We use the polls and the feed time don't have to be aligned. */
+    public static final int BENCHMARK_POLL = 2;
+
+    public static int benchmarkMode = BENCHMARK_POLL;
 
     /** The path to the folder with the feed post history files. */
-    private final String benchmarkDatasetPath = "D:\\Projects\\Programming\\clean\\";
+    private final String benchmarkDatasetPath = "G:\\Projects\\Programming\\Other\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private File[] benchmarkDatasetFiles;
@@ -71,43 +80,9 @@ public final class FeedChecker {
     private boolean stopped = false;
 
     /**
-     * Record a list of percentage new values for each feed: feedID;pn1;...;pnItarationN.
-     */
-    private final Map<Integer, String> pnMapEvaluation = new LinkedHashMap<Integer, String>();
-
-    /**
-     * Store for each feed after which iteration the probabilistic approach took over.
-     * In the beginning the adaptive approach is used until at least one full day has been seen.
-     */
-    private final Map<Integer, Integer> probabilisticSwitchMap = new HashMap<Integer, Integer>();
-
-    /**
-     * Record a list of checkInterval values for each feed: feedID;ci1;...;ciItarationN.
-     */
-    private final Map<Integer, String> ciMapEvaluation = new LinkedHashMap<Integer, String>();
-
-    /**
-     * Record a list of checkInterval values for each feed: feedID <minuteOfDay : number of posts in that minute>.
-     */
-    private final Map<Integer, LinkedHashMap<Integer, Integer>> postDistributionMapEvaluation = new LinkedHashMap<Integer, LinkedHashMap<Integer, Integer>>();
-
-    /**
-     * Record a list of time differences of real first news times and check times for each feed. feedID : list of time
-     * differences
-     */
-    private final Map<Integer, ArrayList<Integer>> timeDiffMapEvaluation = new LinkedHashMap<Integer, ArrayList<Integer>>();
-
-    /**
-     * Record a list of dates the feed was checked before a new entry appeared for each feed. feedID : list of dates the
-     * feed was checked before a new entry
-     * appeared
-     */
-    private final Map<Integer, HashSet<Date>> tempCheckTimeMapEvaluation = new LinkedHashMap<Integer, HashSet<Date>>();
-
-    /**
      * If a fixed checkInterval could not be learned, this one is taken (in minutes).
      */
-    private static final int DEFAULT_CHECK_TIME = 10;
+    private static final int DEFAULT_CHECK_TIME = 60;
 
     /** The chosen check Approach */
     private CheckApproach checkApproach = CheckApproach.CHECK_FIXED;
@@ -158,7 +133,7 @@ public final class FeedChecker {
         Collection<Feed> filteredFeedCollection = new ArrayList<Feed>();
 
         for (Feed feed : feedCollection) {
-            if (updateClasses.contains(feed.getUpdateClass())) {
+            if (updateClasses.contains(feed.getActivityPattern())) {
                 filteredFeedCollection.add(feed);
             }
         }
@@ -199,12 +174,12 @@ public final class FeedChecker {
             int feedHistoriesCompletelyRead = 0;
             for (Feed feed : getFeeds()) {
 
-//                 if (feed.getId() > 195248) {
-//                 break;
-//                 }
-//                 if (feed.getId() < 195248) {
-//                 continue;
-//                 }
+                if (feed.getId() > 8) {
+                    break;
+                }
+                if (feed.getId() < 8) {
+                    continue;
+                }
                 StopWatch swf = new StopWatch();
                 FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, this);
 
@@ -214,10 +189,26 @@ public final class FeedChecker {
                     continue;
                 }
 
+                // in time mode, we have a certain interval we want to observe the feeds in, otherwise we just take the
+                // first real poll that is available
+                if (benchmarkMode == BENCHMARK_TIME) {
+                    feed.setBenchmarkLookupTime(FeedBenchmarkFileReader.BENCHMARK_START_TIME);
+                }
+
                 int loopCount = 0;
-                while (!feed.historyFileCompletelyRead()) {
+                while (benchmarkMode == BENCHMARK_TIME
+                        && feed.getBenchmarkLookupTime() < FeedBenchmarkFileReader.BENCHMARK_STOP_TIME
+                        || benchmarkMode == BENCHMARK_POLL && !feed.historyFileCompletelyRead()) {
+
                     fbfr.updateEntriesFromDisk();
                     loopCount++;
+
+                    // we do not include all empty polls in fixed mode because the evaluation files would get too big,
+                    // since the interval is fixed we can simply copy the last poll until we reach the end
+                    if (feed.historyFileCompletelyRead() && getCheckApproach() == CheckApproach.CHECK_FIXED) {
+                        break;
+                    }
+
                     // FIXME
                     /*
                      * if (loopCount >= 10000) {
@@ -250,6 +241,7 @@ public final class FeedChecker {
 
                 feed.freeMemory();
                 feed.setLastHeadlines("");
+                feed.setMeticulousPostDistribution(null);
             }
 
             LOGGER.info("finished reading feeds from disk in " + sw.getElapsedTimeString());
@@ -339,7 +331,7 @@ public final class FeedChecker {
         // for on-the-fly updates switch from probabilistic to adaptive
         else if ((CheckApproach.CHECK_ADAPTIVE.equals(checkApproach) || CheckApproach.CHECK_PROBABILISTIC
                 .equals(checkApproach)
-                && (feed.getUpdateClass() == FeedClassifier.CLASS_ON_THE_FLY || !feed.oneFullDayHasBeenSeen()))
+                && (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY || !feed.oneFullDayHasBeenSeen()))
                 && feed.getChecks() > 0) {
 
             updateIntervalAdaptive(feed, pnTarget);
@@ -347,7 +339,7 @@ public final class FeedChecker {
         }
 
         if (CheckApproach.CHECK_PROBABILISTIC.equals(checkApproach)
-                && feed.getUpdateClass() != FeedClassifier.CLASS_ON_THE_FLY) {
+                && feed.getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
 
             updateIntervalProbabilistic(feed, fps);
 
@@ -451,18 +443,23 @@ public final class FeedChecker {
      * Each file contains the following fields per line, fields are separated with a semicolon:
      * <ul>
      * <li>feed id</li>
-     * <li>feed update class</li>
+     * <li>feed activity pattern</li>
+     * <li>etag support (0/1)</li>
+     * <li>conditional get support (0/1)</li>
+     * <li>eTag response size</li>
+     * <li>conditional get response size</li>
      * <li>number of poll</li>
      * <li>poll timestamp</li>
      * <li>poll hour of the day</li>
      * <li>poll minute of the day</li>
-     * <li>check interval at poll time</li>
+     * <li>check interval at poll time in minutes</li>
      * <li>window size</li>
      * <li>size of poll in Byte</li>
      * <li>number of missed news posts</li>
      * <li>percentage of new entries, 1 = all new (only for evaluation mode MAX interesting)</li>
-     * <li>delay (only for evaluation mode MIN interesting)</li>
-     * <li>score (either score_max or score_min depending on evaluation mode)</li>
+     * <li>delay in seconds (only for evaluation mode MIN interesting)</li>
+     * <li>score_max (only for evaluation mode MAX interesting)</li>
+     * <li>score_min (only for evaluation mode MIN interesting)</li>
      * </ul>
      * </p>
      * 
@@ -489,9 +486,19 @@ public final class FeedChecker {
 
                     // feed related values
                     csv.append(feed.getId()).append(separator);
-                    csv.append(feed.getUpdateClass()).append(separator);
-                    // csv.append(feed.get304Support()).append(separator);
-                    // csv.append(feed.getETagSupport()).append(separator);
+                    csv.append(feed.getActivityPattern()).append(separator);
+                    if (feed.geteTagSupport()) {
+                        csv.append("1").append(separator);
+                    } else {
+                        csv.append("0").append(separator);
+                    }
+                    if (feed.getCgSupport()) {
+                        csv.append("1").append(separator);
+                    } else {
+                        csv.append("0").append(separator);
+                    }
+                    csv.append(feed.geteTagHeaderSize()).append(separator);
+                    csv.append(feed.getCgHeaderSize()).append(separator);
 
                     // poll related values
                     csv.append(numberOfPoll).append(separator);
@@ -504,7 +511,8 @@ public final class FeedChecker {
                     csv.append(pollData.getMisses()).append(separator);
                     csv.append(MathHelper.round(pollData.getPercentNew(), 2)).append(separator);
                     csv.append(pollData.getNewPostDelay() / 1000l).append(separator);
-                    csv.append(MathHelper.round(pollData.getScore(), 2)).append(separator);
+                    csv.append(MathHelper.round(pollData.getScore(BENCHMARK_MAX_CHECK), 2)).append(separator);
+                    csv.append(MathHelper.round(pollData.getScore(BENCHMARK_MIN_CHECK), 4)).append(separator);
                     csv.append("\n");
 
                     fileWriter.write(csv.toString());
@@ -557,17 +565,17 @@ public final class FeedChecker {
                 fixedMaxCheckInterval = fixedMinCheckInterval * entries.size();
             }
 
-            if (feed.getUpdateClass() == FeedClassifier.CLASS_DEAD) {
+            if (feed.getActivityPattern() == FeedClassifier.CLASS_DEAD) {
                 fixedMinCheckInterval = 800 + (int) (Math.random() * 200);
                 fixedMaxCheckInterval = 1440 + (int) (Math.random() * 600);
-            } else if (feed.getUpdateClass() == FeedClassifier.CLASS_CHUNKED) {
+            } else if (feed.getActivityPattern() == FeedClassifier.CLASS_CHUNKED) {
 
                 // for chunked entries the median post gap is likely to be zero so we set it to the time to the last
                 // post
                 fixedMinCheckInterval = (int) (fps.getTimeNewestPost() / DateHelper.MINUTE_MS);
                 fixedMaxCheckInterval = fixedMinCheckInterval;
 
-            } else if (feed.getUpdateClass() == FeedClassifier.CLASS_ON_THE_FLY) {
+            } else if (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY) {
 
                 fixedMinCheckInterval = 60;
                 fixedMaxCheckInterval = 120;
@@ -654,8 +662,10 @@ public final class FeedChecker {
             }
 
             // update the minutes where an entry could have been posted
-            for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS) {
-                int minuteOfDay = (int) DateHelper.getTimeOfDay(t, Calendar.MINUTE);
+            int minuteCounter = 0;
+            int startMinute = (int) DateHelper.getTimeOfDay(fps.getTimeOldestPost(), Calendar.MINUTE);
+            for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS, minuteCounter++) {
+                int minuteOfDay = (startMinute + minuteCounter) % 1440;
                 int[] postsChances = postDistribution.get(minuteOfDay);
                 postsChances[1] = postsChances[1] + 1;
                 postDistribution.put(minuteOfDay, postsChances);
@@ -675,13 +685,23 @@ public final class FeedChecker {
                 postDistribution.put(minuteOfDay, postsChances);
             }
 
-            FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
+            feed.setMeticulousPostDistribution(postDistribution);
+
+            // in benchmark mode we keep it in memory
+            if (getBenchmark() == BENCHMARK_OFF) {
+                FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
+            }
 
         } else if (feed.getChecks() > 0) {
 
             // learn the post distribution from the last seen entry to the newest one
             // distribution minute of the day : frequency of news in that minute
-            Map<Integer, int[]> postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
+            Map<Integer, int[]> postDistribution = feed.getMeticulousPostDistribution();
+
+            // in benchmark mode we keep it in memory
+            if (getBenchmark() == BENCHMARK_OFF) {
+                postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
+            }
 
             // update the minutes where an entry could have been posted
             long timeLastSeenEntry = feed.getLastFeedEntry().getTime();
@@ -711,7 +731,10 @@ public final class FeedChecker {
                 postDistribution.put(minuteOfDay, postsChances);
             }
 
-            FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
+            // in benchmark mode we keep it in memory
+            if (getBenchmark() == BENCHMARK_OFF) {
+                FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
+            }
             feed.setMeticulousPostDistribution(postDistribution);
 
             // only use calculated update intervals if one full day of distribution is available already
@@ -759,12 +782,12 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(maxCheckInterval);
 
                 // remember at which iteration the probabilistic approach took over
-//                if (benchmark != BENCHMARK_OFF) {
-//                    Integer iteration = probabilisticSwitchMap.get(feed.getId());
-//                    if (iteration == null) {
-//                        probabilisticSwitchMap.put(feed.getId(), feed.getChecks());
-//                    }
-//                }
+                // if (benchmark != BENCHMARK_OFF) {
+                // Integer iteration = probabilisticSwitchMap.get(feed.getId());
+                // if (iteration == null) {
+                // probabilisticSwitchMap.put(feed.getId(), feed.getChecks());
+                // }
+                // }
             }
         }
     }
@@ -778,7 +801,7 @@ public final class FeedChecker {
     }
 
     private String getBenchmarkName() {
-        return benchmark == BENCHMARK_MIN_CHECK_TIME ? "min" : "max";
+        return benchmark == BENCHMARK_MIN_CHECK ? "min" : "max";
     }
 
     public String getBenchmarkDatasetPath() {
@@ -890,7 +913,7 @@ public final class FeedChecker {
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
         checkType = CheckApproach.CHECK_ADAPTIVE;
-        checkType = CheckApproach.CHECK_PROBABILISTIC;
+        // checkType = CheckApproach.CHECK_PROBABILISTIC;
         int checkInterval = -1;
         int runtime = 9000;
         // //////////////////////////
@@ -908,7 +931,8 @@ public final class FeedChecker {
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
         fc.setFeedProcessingAction(fpa);
-        setBenchmark(BENCHMARK_MAX_CHECK_TIME);
+        setBenchmark(BENCHMARK_MAX_CHECK);
+        // setBenchmark(BENCHMARK_MIN_CHECK_TIME);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
     }
 

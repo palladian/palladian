@@ -84,12 +84,12 @@ public class Feed {
     /**
      * time in minutes until it is expected to find at least one new entry in the feed
      */
-    private int minCheckInterval = 30;
+    private int minCheckInterval = 60;
 
     /**
      * time in minutes until it is expected to find only new but one new entries in the feed
      */
-    private int maxCheckInterval = 60;
+    private int maxCheckInterval = 120;
 
     /**
      * The date this feed was checked for updates the last time.
@@ -111,8 +111,8 @@ public class Feed {
     private PollDataSeries pollDataSeries = new PollDataSeries();
 
     /**
-     * number of news that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a
-     * post could have appeared
+     * Number of item that were posted in a certain minute of the day, minute of the day : frequency of posts; chances a
+     * post could have appeared.
      */
     private Map<Integer, int[]> meticulousPostDistribution = new HashMap<Integer, int[]>();
 
@@ -121,8 +121,20 @@ public class Feed {
      */
     private Boolean oneFullDayOfItemsSeen = null;
     
-    /** the update class of the feed is one of {@link FeedClassifier}s classes */
-    private int updateClass = -1;
+    /** The activity pattern of the feed is one of {@link FeedClassifier}s classes. */
+    private int activityPattern = -1;
+
+    /** Whether the feed supports etags. */
+    private Boolean eTagSupport;
+
+    /** Whether the feed supports conditional get requests. */
+    private Boolean cgSupport;
+
+    /** The header size of the feed when sending eTag. */
+    private Integer eTagHeaderSize;
+
+    /** The header size of the feed when sending a conditional get. */
+    private Integer cgHeaderSize;
 
     /**
      * The raw XML markup for this feed.
@@ -367,19 +379,19 @@ public class Feed {
         return oneFullDayOfItemsSeen;
     }
 
-    public void setUpdateClass(int updateClass) {
-        this.updateClass = updateClass;
+    public void setActivityPattern(int activityPattern) {
+        this.activityPattern = activityPattern;
     }
 
     /**
-     * Returns the update class of the feed which is one of the following: {@link FeedClassifier#CLASS_CONSTANT},
+     * Returns the activity pattern of the feed which is one of the following: {@link FeedClassifier#CLASS_CONSTANT},
      * {@link FeedClassifier#CLASS_CHUNKED}, {@link FeedClassifier#CLASS_SLICED} , {@link FeedClassifier#CLASS_ZOMBIE},
      * {@link FeedClassifier#CLASS_UNKNOWN} or {@link FeedClassifier#CLASS_ON_THE_FLY}
      * 
-     * @return The classID of the class. You can get the name using {@link FeedClassifier#getClassName()}
+     * @return The classID of the pattern. You can get the name using {@link FeedClassifier#getClassName()}
      */
-    public int getUpdateClass() {
-        return updateClass;
+    public int getActivityPattern() {
+        return activityPattern;
     }
 
     @Override
@@ -527,7 +539,7 @@ public class Feed {
         result = prime * result + textType;
         result = prime * result + (title == null ? 0 : title.hashCode());
         result = prime * result + unreachableCount;
-        result = prime * result + updateClass;
+        result = prime * result + activityPattern;
         return result;
     }
 
@@ -638,7 +650,7 @@ public class Feed {
         if (unreachableCount != other.unreachableCount) {
             return false;
         }
-        if (updateClass != other.updateClass) {
+        if (activityPattern != other.activityPattern) {
             return false;
         }
         return true;
@@ -710,5 +722,36 @@ public class Feed {
         return benchmarkLastLookupTime;
     }
 
+    public void seteTagSupport(Boolean eTagSupport) {
+        this.eTagSupport = eTagSupport;
+    }
+
+    public Boolean geteTagSupport() {
+        return eTagSupport;
+    }
+
+    public void setCgSupport(Boolean cgSupport) {
+        this.cgSupport = cgSupport;
+    }
+
+    public Boolean getCgSupport() {
+        return cgSupport;
+    }
+
+    public void seteTagHeaderSize(Integer eTagHeaderSize) {
+        this.eTagHeaderSize = eTagHeaderSize;
+    }
+
+    public Integer geteTagHeaderSize() {
+        return eTagHeaderSize;
+    }
+
+    public void setCgHeaderSize(Integer cgHeaderSize) {
+        this.cgHeaderSize = cgHeaderSize;
+    }
+
+    public Integer getCgHeaderSize() {
+        return cgHeaderSize;
+    }
 
 }

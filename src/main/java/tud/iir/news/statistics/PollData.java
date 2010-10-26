@@ -26,6 +26,9 @@ public class PollData {
     /** The delay to the time of the next new post in milliseconds. */
     private long newPostDelay = -1;
 
+    /** The size of the interval where this poll happened. */
+    private long currentIntervalSize = -1l;
+
     /**
      * The factor by which delays AFTER the actual new post publish date are weighted more than delays BEFORE this time.
      */
@@ -57,6 +60,14 @@ public class PollData {
 
     public long getTimestamp() {
         return timestamp;
+    }
+
+    public void setCurrentIntervalSize(long currentIntervalSize) {
+        this.currentIntervalSize = currentIntervalSize;
+    }
+
+    public long getCurrentIntervalSize() {
+        return currentIntervalSize;
     }
 
     public double getPercentNew() {
@@ -117,27 +128,31 @@ public class PollData {
 
     /**
      * Get the score of the poll. The score is either the weighted sum of delays if benchmark is set to
-     * {@link FeedChecker.BENCHMARK_MIN_CHECK_TIME} (low is good) or a percentage if benchmark is set to
-     * {@link FeedChecker.BENCHMARK_MAX_CHECK_TIME} (high is good).
+     * {@link FeedChecker.BENCHMARK_MIN_CHECK} (low is good) or a percentage if benchmark is set to
+     * {@link FeedChecker.BENCHMARK_MAX_CHECK} (high is good).
      * 
      * @return
      */
-    public double getScore() {
+    public double getScore(int benchmark) {
 
         double score = -1.0;
 
-        if (getBenchmarkType() == FeedChecker.BENCHMARK_MIN_CHECK_TIME) {
+        if (benchmark == FeedChecker.BENCHMARK_MIN_CHECK) {
 
-            score = getNewPostDelay();
+            if (getCurrentIntervalSize() > 0) {
+                score = 1.0 / (Math.abs(getNewPostDelay()) / (double) getCurrentIntervalSize() + 1.0);
+            } else {
+                score = 1.0;
+            }
 
-        } else if (getBenchmarkType() == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
+        } else if (benchmark == FeedChecker.BENCHMARK_MAX_CHECK) {
 
             if (getMisses() == 0) {
             	// get the percentage of new entries new/total, since percentNew is the number of new/(total-1) we need to calculate back
-                score = (getPercentNew()*(getWindowSize()-1))/((double)getWindowSize());
+                score = getPercentNew()*(getWindowSize()-1)/getWindowSize();
             } else {
             	if (getWindowSize() > 0) {            		
-            		score = 1.0 - (getMisses() / (double)getWindowSize());
+            		score = 1.0 - getMisses() / (double)getWindowSize();
             	} else {
             		Logger.getRootLogger().warn("window size = 0 for feed");
             	}
@@ -147,5 +162,6 @@ public class PollData {
 
         return score;
     }
+
 
 }

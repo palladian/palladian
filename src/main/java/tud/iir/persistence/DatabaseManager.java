@@ -106,25 +106,6 @@ public class DatabaseManager {
     private PreparedStatement psUpdateExtractionStatus;
     private PreparedStatement psGetExtractionStatusDownloadedBytes;
 
-    // // ////////////////// feed prepared statements ////////////////////
-    // // moved to FeedDatabase
-    // //
-    // public PreparedStatement psAddFeedEntry;
-    // public PreparedStatement psAddFeed;
-    // public PreparedStatement psUpdateFeed;
-    // public PreparedStatement psUpdateFeed_fixed_learned;
-    // public PreparedStatement psUpdateFeed_adaptive;
-    // public PreparedStatement psUpdateFeed_probabilistic;
-    // public PreparedStatement psUpdateFeedPostDistribution;
-    // public PreparedStatement psGetFeedPostDistribution;
-    // public PreparedStatement psGetFeeds;
-    // public PreparedStatement psGetFeeds_fixed_learned;
-    // public PreparedStatement psGetFeeds_adaptive;
-    // public PreparedStatement psGetFeeds_probabilistic;
-    // public PreparedStatement psGetFeedByUrl;
-    // public PreparedStatement psGetFeedByID;
-    // public PreparedStatement psGetEntryByRawId;
-    // public PreparedStatement psChangeCheckApproach;
 
     // TODO in entities domainID instead of conceptID (or no cascade or best new table that connects an entity with all
     // synonyms) because deleting a
@@ -176,6 +157,10 @@ public class DatabaseManager {
      * @return the connection
      */
     public Connection getConnection() {
+
+        if (connection != null) {
+            return connection;
+        }
 
         try {
             Class.forName(config.getString("db.driver"));
@@ -291,39 +276,6 @@ public class DatabaseManager {
             psGetExtractionStatusDownloadedBytes = connection
                     .prepareStatement("SELECT downloadedBytes FROM extraction_status WHERE id = 1");
 
-            // // // prepared statements for feeds
-            // psAddFeedEntry = connection
-            // .prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?, tags = ?");
-            // psAddFeed = connection
-            // .prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ?");
-            // psUpdateFeed = connection
-            // .prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            // psUpdateFeed_fixed_learned = connection
-            // .prepareStatement("UPDATE feeds_fixed_learned SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            // psUpdateFeed_adaptive = connection
-            // .prepareStatement("UPDATE feeds_adaptive SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            // psUpdateFeed_probabilistic = connection
-            // .prepareStatement("UPDATE feeds_probabilistic SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, updateClass = ? WHERE id = ?");
-            // psUpdateFeedPostDistribution = connection
-            // .prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
-            // psGetFeedPostDistribution = connection
-            // .prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
-            // psGetFeeds = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds");
-            // psGetFeeds_fixed_learned = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_fixed_learned");
-            // psGetFeeds_adaptive = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_adaptive");
-            // psGetFeeds_probabilistic = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_probabilistic");
-            // psGetFeedByUrl = connection
-            // .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
-            // psGetFeedByID = connection
-            // .prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
-            // psGetEntryByRawId = connection
-            // .prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
-            // psChangeCheckApproach = connection
-            // .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
 
         } catch (ClassNotFoundException e) {
             LOGGER.error(e.getMessage());
