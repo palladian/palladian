@@ -9,7 +9,6 @@ import java.util.concurrent.Executors;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.MathHelper;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedDatabase;
 import tud.iir.news.FeedStore;
@@ -47,6 +46,9 @@ public class MetaInformationCreator {
      */
     private FeedStore feedStore;
 
+    public static int counter = 0;
+    public static int collectionSize = 0;
+
     /**
      * <p>
      * 
@@ -70,12 +72,10 @@ public class MetaInformationCreator {
 
         LOGGER.info("start meta information gathering process");
 
-        int c = 0;
+        collectionSize = feedCollection.size();
         for (Feed feed : feedCollection) {
             MetaInformationCreationTask command = new MetaInformationCreationTask(feed);
             threadPool.execute(command);
-            c++;
-            LOGGER.info("percent done: " + MathHelper.round(100 * c / (double) feedCollection.size(), 2));
         }
     }
 
