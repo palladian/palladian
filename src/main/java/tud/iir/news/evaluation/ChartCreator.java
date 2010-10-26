@@ -12,14 +12,19 @@ public class ChartCreator {
 	 */
 	public static void main(String[] args) {
 		FeedDatabase fd = FeedDatabase.getInstance();
+		EvaluationDatabase ed = EvaluationDatabase.getInstance();
 		
-		List<Feed> feeds = fd.getFeeds();
-		for (Feed feed : feeds) {
-			
-			System.out.println(feed.getFeedUrl());
-			
-		}
+		
+//		List<Feed> feeds = fd.getFeeds();
+//		for (Feed feed : feeds) {			
+//			System.out.println(feed.getFeedUrl());			
+//		}
 
+		
+		List<EvaluationDataObject> polls = ed.getFeedPolls();
+		for (EvaluationDataObject poll : polls) {
+		    System.out.println(poll);
+		}
 	}
 
 }
