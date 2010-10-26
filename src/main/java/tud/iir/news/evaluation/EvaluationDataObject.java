@@ -67,7 +67,79 @@ public class EvaluationDataObject {
         super();
     }
 
-	public final int getId() {
+    public final void setId(int id) {
+        this.id = id;
+    }
+
+    public final void setActivityPattern(int activityPattern) {
+        this.activityPattern = activityPattern;
+    }
+
+    public final void setSupportsETag(Boolean supportsETag) {
+        this.supportsETag = supportsETag;
+    }
+
+    public final void setSupportsConditionalGet(Boolean supportsConditionalGet) {
+        this.supportsConditionalGet = supportsConditionalGet;
+    }
+
+    public final void seteTagResponseSize(int eTagResponseSize) {
+        this.eTagResponseSize = eTagResponseSize;
+    }
+
+    public final void setConditionalGetResponseSize(int conditionalGetResponseSize) {
+        this.conditionalGetResponseSize = conditionalGetResponseSize;
+    }
+
+    public final void setNumberOfPoll(int numberOfPoll) {
+        this.numberOfPoll = numberOfPoll;
+    }
+
+    public final void setPollTimestamp(long pollTimestamp) {
+        this.pollTimestamp = pollTimestamp;
+    }
+
+    public final void setPollHourOfDay(int pollHourOfDay) {
+        this.pollHourOfDay = pollHourOfDay;
+    }
+
+    public final void setPollMinuteOfDay(int pollMinuteOfDay) {
+        this.pollMinuteOfDay = pollMinuteOfDay;
+    }
+
+    public final void setCheckInterval(float checkInterval) {
+        this.checkInterval = checkInterval;
+    }
+
+    public final void setWindowSize(int windowSize) {
+        this.windowSize = windowSize;
+    }
+
+    public final void setSizeOfPoll(float sizeOfPoll) {
+        this.sizeOfPoll = sizeOfPoll;
+    }
+
+    public final void setNumberMissedNewEntries(int numberMissedNewEntries) {
+        this.numberMissedNewEntries = numberMissedNewEntries;
+    }
+
+    public final void setPercentageNewEntries(float percentageNewEntries) {
+        this.percentageNewEntries = percentageNewEntries;
+    }
+
+    public final void setDelay(double delay) {
+        this.delay = delay;
+    }
+
+    public final void setScoreMin(float scoreMin) {
+        this.scoreMin = scoreMin;
+    }
+
+    public final void setScoreMax(float scoreMax) {
+        this.scoreMax = scoreMax;
+    }
+
+    public final int getId() {
 		return id;
 	}
 
@@ -241,6 +313,18 @@ public class EvaluationDataObject {
 		return true;
 	}
 	
-	
+
+    @Override
+    public String toString() {
+        return "EvaluationDataObject [id=" + id + ", activityPattern=" + activityPattern + ", supportsETag="
+                + supportsETag + ", supportsConditionalGet=" + supportsConditionalGet + ", eTagResponseSize="
+                + eTagResponseSize + ", conditionalGetResponseSize=" + conditionalGetResponseSize + ", numberOfPoll="
+                + numberOfPoll + ", pollTimestamp=" + pollTimestamp + ", pollHourOfDay=" + pollHourOfDay
+                + ", pollMinuteOfDay=" + pollMinuteOfDay + ", checkInterval=" + checkInterval + ", windowSize="
+                + windowSize + ", sizeOfPoll=" + sizeOfPoll + ", numberMissedNewEntries=" + numberMissedNewEntries
+                + ", percentageNewEntries=" + percentageNewEntries + ", delay=" + delay + ", scoreMin=" + scoreMin
+                + ", scoreMax=" + scoreMax + "]";
+    }
+
 	
 }
