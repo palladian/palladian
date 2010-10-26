@@ -59,7 +59,7 @@ class FeedTask implements Runnable {
         feed.updateEntries(false);
 
         // classify feed if it has never been classified before
-        if (feed.getUpdateClass() == -1) {
+        if (feed.getActivityPattern() == -1) {
             FeedClassifier.classify(feed);
         }
 

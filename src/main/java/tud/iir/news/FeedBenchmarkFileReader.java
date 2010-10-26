@@ -14,6 +14,12 @@ import tud.iir.news.statistics.PollData;
 
 public class FeedBenchmarkFileReader {
 
+    /** The timestamp we started the dataset gathering. 28/10/2010 */
+    public static final long BENCHMARK_START_TIME = 1285689600000l;
+
+    /** The timestamp we stopped the dataset gathering. 26/10/2010 */
+    public static final long BENCHMARK_STOP_TIME = 1288108800000l;
+
     protected static final Logger LOGGER = Logger.getLogger(FeedBenchmarkFileReader.class);
 
     private Feed feed;
@@ -93,7 +99,12 @@ public class FeedBenchmarkFileReader {
         try {
             List<FeedEntry> entries = new ArrayList<FeedEntry>();
 
-            long lastEntryInWindowTimestamp = Long.MIN_VALUE;
+            // the timestamp of the first item in the window
+            long firstItemInWindowTimestamp = -1l;
+
+            // the timestamp of the last item in the window
+            long lastItemInWindowTimestamp = Long.MIN_VALUE;
+
             int misses = 0;
             long totalBytes = 0;
             boolean footHeadAdded = false;
@@ -104,7 +115,7 @@ public class FeedBenchmarkFileReader {
 
             // get hold of the post entry just before the window starts, this way we can determine the delay in case
             // there are no new entries between lookup time and last lookup time
-            long postEntryBeforeWindowTime = 0l;
+            long nextItemBeforeWindowTimestamp = 0l;
 
             // count new entries, they must be between lookup time and last lookup time
             int newEntries = 0;
@@ -130,6 +141,7 @@ public class FeedBenchmarkFileReader {
                     if (windowSize > 1000) {
                         LOGGER.info("feed has a window size of " + windowSize + " and will be discarded");
                         feed.setHistoryFileCompletelyRead(true);
+                        feed.setBenchmarkLookupTime(BENCHMARK_STOP_TIME);
                         return;
                     }
                     feed.setWindowSize(windowSize);
@@ -140,12 +152,13 @@ public class FeedBenchmarkFileReader {
                 // FIXME remove
                 if (entryTimestamp < 1000000000000l) {
                     feed.setHistoryFileCompletelyRead(true);
+                    feed.setBenchmarkLookupTime(BENCHMARK_STOP_TIME);
                     return;
                 }
 
                 // get hold of the post entry just before the window starts
                 if (entryTimestamp > feed.getBenchmarkLookupTime()) {
-                    postEntryBeforeWindowTime = entryTimestamp;
+                    nextItemBeforeWindowTimestamp = entryTimestamp;
                     lastStartIndex = i;
                     windowStartIndexFound = true;
                 } else if (!windowStartIndexFound && i >= 2) {
@@ -161,9 +174,22 @@ public class FeedBenchmarkFileReader {
 
                     windowStartIndexFound = true;
 
+                    if (firstItemInWindowTimestamp < 0) {
+                        firstItemInWindowTimestamp = entryTimestamp;
+                    }
+
                     // find the first lookup date if the file has not been read yet
                     if (feed.getBenchmarkLookupTime() == Long.MIN_VALUE && totalEntries - i + 1 == feed.getWindowSize()) {
                         feed.setBenchmarkLookupTime(entryTimestamp);
+                    }
+
+                    if (FeedChecker.benchmarkMode == FeedChecker.BENCHMARK_TIME
+                            && entryTimestamp > BENCHMARK_START_TIME && totalEntries - i + 1 == feed.getWindowSize()) {
+                        LOGGER.error("we disregard this feed since it does not comply with our start date "
+                                + entryTimestamp);
+                        feed.setHistoryFileCompletelyRead(true);
+                        feed.setBenchmarkLookupTime(BENCHMARK_STOP_TIME);
+                        return;
                     }
 
                     // add up download size (head and foot if necessary and post size itself)
@@ -193,6 +219,7 @@ public class FeedBenchmarkFileReader {
                     // for all post entries in the window that are newer than the last lookup time we need to sum up the
                     // delay to the current lookup time (and weight it)
                     if (entryTimestamp > feed.getBenchmarkLastLookupTime() && feed.getChecks() > 0) {
+
                         cumulatedDelay += feed.getBenchmarkLookupTime() - entryTimestamp;
 
                         // count new entry
@@ -209,12 +236,12 @@ public class FeedBenchmarkFileReader {
 
                     // check whether current post entry is the last one in the window
                     if (entries.size() == feed.getWindowSize()) {
-                        lastEntryInWindowTimestamp = entryTimestamp;
+                        lastItemInWindowTimestamp = entryTimestamp;
                     }
                 }
 
                 // process post entries between the end of the current window and the last lookup time
-                else if (entryTimestamp < lastEntryInWindowTimestamp
+                else if (entryTimestamp < lastItemInWindowTimestamp
                         && entryTimestamp > feed.getBenchmarkLastLookupTime()) {
 
                     cumulatedDelay += feed.getBenchmarkLookupTime() - entryTimestamp;
@@ -229,8 +256,8 @@ public class FeedBenchmarkFileReader {
             }
 
             // if no new entry was found, we add the delay to the next new post entry
-            if (newEntries == 0 && postEntryBeforeWindowTime != 0l && feed.getChecks() > 0) {
-                cumulatedDelay = feed.getBenchmarkLookupTime() - postEntryBeforeWindowTime;
+            if (newEntries == 0 && nextItemBeforeWindowTimestamp != 0l && feed.getChecks() > 0) {
+                cumulatedDelay = feed.getBenchmarkLookupTime() - nextItemBeforeWindowTimestamp;
             }
 
             feed.setEntries(entries);
@@ -239,11 +266,12 @@ public class FeedBenchmarkFileReader {
             PollData pollData = new PollData();
 
             pollData.setBenchmarkType(FeedChecker.benchmark);
+            pollData.setCurrentIntervalSize(nextItemBeforeWindowTimestamp - firstItemInWindowTimestamp);
             pollData.setTimestamp(feed.getBenchmarkLookupTime());
             pollData.setPercentNew(feed.getTargetPercentageOfNewEntries());
             pollData.setMisses(misses);
 
-            if (FeedChecker.benchmark == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
+            if (FeedChecker.benchmark == FeedChecker.BENCHMARK_MAX_CHECK) {
                 pollData.setCheckInterval(feed.getMaxCheckInterval());
             } else {
                 pollData.setCheckInterval(feed.getMinCheckInterval());
@@ -251,8 +279,9 @@ public class FeedBenchmarkFileReader {
 
             pollData.setNewPostDelay(cumulatedDelay);
             pollData.setWindowSize(feed.getWindowSize());
-            pollData.getScore();
             pollData.setDownloadSize(totalBytes);
+
+            pollData.getScore(FeedChecker.BENCHMARK_MIN_CHECK);
 
             // add poll data object to series of poll data
             feed.getPollDataSeries().add(pollData);
@@ -262,16 +291,17 @@ public class FeedBenchmarkFileReader {
 
             feedChecker.updateCheckIntervals(feed);
 
-            if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MIN_CHECK_TIME) {
+            if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MIN_CHECK) {
                 feed.addToBenchmarkLookupTime((long) feed.getMinCheckInterval() * (long) DateHelper.MINUTE_MS);
-            } else if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MAX_CHECK_TIME) {
-                feed.addToBenchmarkLookupTime((long) feed.getMinCheckInterval() * (long) DateHelper.MINUTE_MS);
+            } else if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MAX_CHECK) {
+                feed.addToBenchmarkLookupTime((long) feed.getMaxCheckInterval() * (long) DateHelper.MINUTE_MS);
             }
 
         } catch (Exception e) {
             e.printStackTrace();
             LOGGER.error(e.getMessage());
             feed.setHistoryFileCompletelyRead(true);
+            feed.setBenchmarkLookupTime(BENCHMARK_STOP_TIME);
         }
 
         // feed.increaseChecks();

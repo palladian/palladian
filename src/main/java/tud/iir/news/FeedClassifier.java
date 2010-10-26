@@ -193,8 +193,8 @@ public class FeedClassifier {
     }
 
     public static int classify(Feed feed) {
-        feed.setUpdateClass(classify(feed.getFeedUrl()));
-        return feed.getUpdateClass();
+        feed.setActivityPattern(classify(feed.getFeedUrl()));
+        return feed.getActivityPattern();
     }
 
     /**

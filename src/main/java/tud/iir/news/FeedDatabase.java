@@ -74,10 +74,7 @@ public class FeedDatabase implements FeedStore {
         psUpdateFeedPostDistribution = connection.prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
         psGetFeedPostDistribution = connection.prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
         psGetFeeds = connection
-                .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE supportsETag IS NULL");
-        psGetFeeds_fixed_learned = connection.prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_fixed_learned");
-        psGetFeeds_adaptive = connection.prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_adaptive");
-        psGetFeeds_probabilistic = connection.prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds_probabilistic");
+                .prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass, supportsETag, supportsConditionalGet,etagResponseSize,conditionGetResponseSize FROM feeds");
         psGetFeedByUrl = connection.prepareStatement("SELECT id, feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE feedUrl = ?");
         psGetFeedByID = connection.prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, updateClass FROM feeds WHERE id = ?");
         psGetEntryByRawId = connection.prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries WHERE rawID = ?");
@@ -106,7 +103,7 @@ public class FeedDatabase implements FeedStore {
             psAddFeed.setString(10, feed.getLastHeadlines());
             psAddFeed.setInt(11, feed.getUnreachableCount());
             psAddFeed.setTimestamp(12, feed.getLastFeedEntrySQLTimestamp());
-            psAddFeed.setInt(13, feed.getUpdateClass());
+            psAddFeed.setInt(13, feed.getActivityPattern());
             int update = DatabaseManager.getInstance().runUpdate(psAddFeed);
             if (update == 1) {
                 int id = DatabaseManager.getInstance().getLastInsertID();
@@ -165,7 +162,7 @@ public class FeedDatabase implements FeedStore {
             ps.setString(10, feed.getLastHeadlines());
             ps.setInt(11, feed.getUnreachableCount());
             ps.setTimestamp(12, feed.getLastFeedEntrySQLTimestamp());
-            ps.setInt(13, feed.getUpdateClass());
+            ps.setInt(13, feed.getActivityPattern());
             ps.setLong(14, feed.getId());
 
             DatabaseManager.getInstance().runUpdate(ps);
@@ -264,7 +261,11 @@ public class FeedDatabase implements FeedStore {
                 feed.setLastHeadlines(resultSet.getString(12));
                 feed.setUnreachableCount(resultSet.getInt(13));
                 feed.setLastFeedEntry(resultSet.getTimestamp(14));
-                feed.setUpdateClass(resultSet.getInt(15));
+                feed.setActivityPattern(resultSet.getInt(15));
+                feed.seteTagSupport(resultSet.getBoolean(16));
+                feed.setCgSupport(resultSet.getBoolean(17));
+                feed.seteTagHeaderSize(resultSet.getInt(18));
+                feed.setCgHeaderSize(resultSet.getInt(19));
                 result.add(feed);
             }
             resultSet.close();
@@ -298,7 +299,7 @@ public class FeedDatabase implements FeedStore {
                 feed.setLastHeadlines(resultSet.getString(12));
                 feed.setUnreachableCount(resultSet.getInt(13));
                 feed.setLastFeedEntry(resultSet.getTimestamp(14));
-                feed.setUpdateClass(resultSet.getInt(15));
+                feed.setActivityPattern(resultSet.getInt(15));
             } else {
             	LOGGER.debug("feed with " + feedUrl + " not found.");
             }
@@ -335,7 +336,7 @@ public class FeedDatabase implements FeedStore {
                 feed.setLastHeadlines(resultSet.getString(11));
                 feed.setUnreachableCount(resultSet.getInt(12));
                 feed.setLastFeedEntry(resultSet.getTimestamp(13));
-                feed.setUpdateClass(resultSet.getInt(14));
+                feed.setActivityPattern(resultSet.getInt(14));
             }
             resultSet.close();
         } catch (SQLException e) {

@@ -31,6 +31,9 @@ public class FeedPostStatistics {
     /** The median time gap between subsequent posts. */
     private long medianPostGap = -1;
 
+    /** The average time gap between subsequent posts. */
+    private double averagePostGap = -1;
+
     /** The standard deviation from the average post gap. */
     private long postGapStandardDeviation = -1;
 
@@ -54,6 +57,10 @@ public class FeedPostStatistics {
 
         // keep a list of times to find out the median of the time differences between posts, average is not good since one very old post can bias the value
         TreeSet<Long> timeList = new TreeSet<Long>();
+
+        if (feedEntries == null) {
+            return;
+        }
 
         for (FeedEntry entry : feedEntries) {
             Date pubDate = entry.getPublished();
@@ -85,6 +92,7 @@ public class FeedPostStatistics {
 
         if (!timeList.isEmpty()) {
             setMedianPostGap(MathHelper.getMedianDifference(timeList));
+            setAveragePostGap(getTimeRange() / (double) feedEntries.size());
             setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
             setLongestPostGap(MathHelper.getLongestGap(timeList));
             setValidStatistics(true);
@@ -137,6 +145,14 @@ public class FeedPostStatistics {
 
     private void setMedianPostGap(final long medianPostGap) {
         this.medianPostGap = medianPostGap;
+    }
+
+    public double getAveragePostGap() {
+        return averagePostGap;
+    }
+
+    public void setAveragePostGap(double averagePostGap) {
+        this.averagePostGap = averagePostGap;
     }
 
     private void setPostGapStandardDeviation(final long postGapStandardDeviation) {
