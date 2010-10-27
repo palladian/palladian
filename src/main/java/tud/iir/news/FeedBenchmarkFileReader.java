@@ -39,9 +39,9 @@ public class FeedBenchmarkFileReader {
         this.feedChecker = feedChecker;
 
         String safeFeedName = feed.getId()
-                + "_"
-                + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""),
-                        30);
+        + "_"
+        + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""),
+                30);
 
         this.historyFilePath = feedChecker.findHistoryFile(safeFeedName);
 
