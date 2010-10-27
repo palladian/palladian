@@ -68,7 +68,7 @@ public final class FeedChecker {
     public static int benchmarkMode = BENCHMARK_POLL;
 
     /** The path to the folder with the feed post history files. */
-    private final String benchmarkDatasetPath = "C:\\Programming\\feedposts\\clean\\";
+    private final String benchmarkDatasetPath = "G:\\Projects\\Programming\\Other\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private File[] benchmarkDatasetFiles;
@@ -532,7 +532,7 @@ public final class FeedChecker {
                         csv.append(format.format(MathHelper.round(scoreMax, 2))).append(
                                 separator);
                     } else {
-                        csv.append("NULL").append(separator);
+                        csv.append("\"N").append(separator);
                     }
 
                     Double scoreMin = pollData.getScore(BENCHMARK_MIN_CHECK);
@@ -540,7 +540,7 @@ public final class FeedChecker {
                         csv.append(format.format(MathHelper.round(scoreMin, 4))).append(
                                 separator);
                     } else {
-                        csv.append("NULL").append(separator);
+                        csv.append("\"N").append(separator);
                     }
                     csv.append("\n");
 
@@ -966,7 +966,7 @@ public final class FeedChecker {
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
         // checkType = CheckApproach.CHECK_ADAPTIVE;
-        // checkType = CheckApproach.CHECK_PROBABILISTIC;
+        checkType = CheckApproach.CHECK_PROBABILISTIC;
         int checkInterval = -1;
         int runtime = 9000;
         // //////////////////////////
@@ -984,9 +984,9 @@ public final class FeedChecker {
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
         fc.setFeedProcessingAction(fpa);
-        setBenchmark(BENCHMARK_MAX_CHECK);
-        // setBenchmark(BENCHMARK_MIN_CHECK);
-        setBenchmarkMode(BENCHMARK_TIME);
+        // setBenchmark(BENCHMARK_MAX_CHECK);
+        setBenchmark(BENCHMARK_MIN_CHECK);
+        // setBenchmarkMode(BENCHMARK_TIME);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
     }
 
