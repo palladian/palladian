@@ -30,6 +30,12 @@ public class EvaluationDatabase {
     private PreparedStatement psGetPolls;
     private PreparedStatement psGetFeedSizeDistribution;
     private PreparedStatement psGetAverageUpdateIntervals;
+    private PreparedStatement psGetAvgScoreMinByPollFromAdaptivePoll;
+    private PreparedStatement psGetAvgScoreMinByPollFromFixLearnedPoll;
+    private PreparedStatement psGetAvgScoreMinByPollFromFix1440Poll;
+    private PreparedStatement psGetAvgScoreMinByPollFromFix60Poll;
+    private PreparedStatement psGetAvgScoreMinByPollFromFix720Poll;
+    private PreparedStatement psGetAvgScoreMinByPollFromPorbabilisticPoll;
 
     private EvaluationDatabase() {
         try {
@@ -54,7 +60,21 @@ public class EvaluationDatabase {
                 .prepareStatement("SELECT id, updateClass, sizeOfPoll FROM feed_evaluation_fix1440_max_min_poll WHERE numberOfPoll = 1 AND sizeOfPoll > 0");
         psGetPolls = connection
                 .prepareStatement("SELECT id, updateClass, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize, numberOfPoll, pollTimestamp, pollHourOfDay, pollMinuteOfDay, checkInterval, windowSize, sizeOfPoll, numberMissedNewEntries, percentageNewEntries, delay, scoreMax, scoreMin FROM feed_evaluation_fix1440_max_min_poll");
-        psGetAverageUpdateIntervals = connection.prepareStatement("SELECT id, updateClass, averageUpdateInterval FROM feed_evaluation_update_intervals");
+        psGetAverageUpdateIntervals = connection
+                .prepareStatement("SELECT id, updateClass, averageUpdateInterval FROM feed_evaluation_update_intervals");
+        psGetAvgScoreMinByPollFromAdaptivePoll  = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_adaptive_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromFixLearnedPoll  = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix_learned_max_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromFix1440Poll  = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromFix60Poll  = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromFix720Poll  = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix720_max_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromPorbabilisticPoll  = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_probabilistic_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
+        
     }
 
     public List<EvaluationFeedPoll> getFeedPolls() {
@@ -97,7 +117,7 @@ public class EvaluationDatabase {
 
     
     public List<EvaluationFeedPoll> getFeedSizes() {
-        LOGGER.trace(">getFeedSizesFromfeed_evaluation_1");
+        LOGGER.trace(">getFeedSizes");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetFeedSizeDistribution);
@@ -109,15 +129,15 @@ public class EvaluationDatabase {
                 result.add(feedPoll);
             }
         } catch (SQLException e) {
-            LOGGER.error("getFeedEntries", e);
+            LOGGER.error("getFeedSizes", e);
         }
-        LOGGER.trace("<getFeedEntries");
+        LOGGER.trace("<getFeedSizes");
         return result;
     }
     
     
     public List<EvaluationItemIntervalItem> getAverageUpdateIntervals() {
-        LOGGER.trace(">getFeedUpdateIntervals");
+        LOGGER.trace(">getAverageUpdateIntervals");
         List<EvaluationItemIntervalItem> result = new LinkedList<EvaluationItemIntervalItem>();
         try {
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAverageUpdateIntervals);
@@ -129,13 +149,36 @@ public class EvaluationDatabase {
                 result.add(itemIntervalItem);
             }
         } catch (SQLException e) {
-            LOGGER.error("getFeedEntries", e);
+            LOGGER.error("getAverageUpdateIntervals", e);
         }
-        LOGGER.trace("<getFeedEntries");
+        LOGGER.trace("<getAverageUpdateIntervals");
         return result;
     }
 
 
+    
+    /**
+     * gets the Results from table feed_evaluation_fix1440_max_min_poll
+     * 
+     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     */
+    public List<EvaluationFeedPoll> getAverageScoreMinFIX1440() {
+        LOGGER.trace(">getAverageScoreMinFIX1440");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromFix1440Poll);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setNumberOfPoll(resultSet.getInt(1));
+                feedPoll.setScoreAVG(resultSet.getDouble(2));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getAverageScoreMinFIX1440", e);
+        }
+        LOGGER.trace("<getAverageScoreMinFIX1440");
+        return result;
+    }
     
     
     

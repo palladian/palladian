@@ -14,6 +14,7 @@ public class ChartCreator {
     
     private final String feedSizeHistogrammFilePath = "data/evaluation/feedSizeHistogrammData.csv";
     private final String feedAgeFilePath = "data/evaluation/feedAgeData.csv";
+    private final String timeliness2FilePath = "data/evaluation/timeliness2Data.csv";
     
     private void createFeedSizeHistogrammFile(){
         EvaluationDatabase ed = EvaluationDatabase.getInstance();
@@ -65,23 +66,33 @@ public class ChartCreator {
             feedAgeDistribution[i]++;             
         }        
 
-        StringBuilder feedSizeDistributionSB = new StringBuilder();
-        feedSizeDistributionSB.append("Feed age;all feeds;\n");
+        StringBuilder feedAgeSB = new StringBuilder();
+        feedAgeSB.append("Feed age;all feeds;\n");
         int i = 0;
         String[] caption = {"1 hour","2 hours","3 hours","4 hours","5 hours","6 hours","7 hours","8 hours","9 hours","10 hours","11 hours","12 hours","13 hours","14 hours","15 hours","16 hours","17 hours","18 hours","19 hours","20 hours","21 hours","22 hours","23 hours","24 hours","2 days","3 days","4 days","5 days","6 days","7 days","2 weeks","3 weeks","4 weeks","more"};
         
         for (int number : feedAgeDistribution) {
-            feedSizeDistributionSB.append(caption[i]).append(";").append(number).append(";\n");
+            feedAgeSB.append(caption[i]).append(";").append(number).append(";\n");
             i++;
         }
         
-        FileHelper.writeToFile(feedAgeFilePath, feedSizeDistributionSB);
+        FileHelper.writeToFile(feedAgeFilePath, feedAgeSB);
         LOGGER.info("feedAgeFile *hopefully* :) written to: " + feedAgeFilePath);       
     }
     
     
     private void createTimeliness2File(){
+        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+        List<EvaluationFeedPoll> polls = ed.getAverageScoreMinFIX1440();
+        StringBuilder timeliness2SB = new StringBuilder();
+        timeliness2SB.append("numberOfPoll; fix1440\n");
         
+        for (EvaluationFeedPoll poll : polls) {
+            timeliness2SB.append(poll.getNumberOfPoll()).append(";").append(poll.getScoreAVG()).append(";\n");
+        }
+        
+        FileHelper.writeToFile(timeliness2FilePath, timeliness2SB);
+        LOGGER.info("timeliness2File *hopefully* :) written to: " + timeliness2FilePath);
     }
     
     
@@ -107,15 +118,10 @@ public class ChartCreator {
 	    
 	    ChartCreator cc = new ChartCreator();
 
-//	    cc.createFeedSizeHistogrammFile();
-	    cc.createFeedAgeFile();
-		
-		
-//		FeedDatabase fd = FeedDatabase.getInstance();             
-//      List<Feed> feeds = fd.getFeeds();
-//      for (Feed feed : feeds) {           
-//          System.out.println(feed.getFeedUrl());          
-//      }
+	    cc.createFeedSizeHistogrammFile();
+//	    cc.createFeedAgeFile();
+//		cc.createTimeliness2File();
+	    	    
 
 	}
 
