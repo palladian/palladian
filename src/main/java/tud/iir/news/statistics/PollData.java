@@ -133,9 +133,9 @@ public class PollData {
      * 
      * @return
      */
-    public double getScore(int benchmark) {
+    public Double getScore(int benchmark) {
 
-        double score = -1.0;
+        Double score = null;
 
         if (benchmark == FeedChecker.BENCHMARK_MIN_CHECK) {
 
@@ -143,14 +143,14 @@ public class PollData {
                 // score = 1.0 / (Math.abs(getNewPostDelay()) / (double) getCurrentIntervalSize() + 1.0);
                 score = 1.0 - Math.abs(getNewPostDelay()) / (double) getCurrentIntervalSize();
             } else {
-                score = -1.0;
+                score = null;
             }
 
         } else if (benchmark == FeedChecker.BENCHMARK_MAX_CHECK) {
 
             if (getMisses() == 0) {
             	// get the percentage of new entries new/total, since percentNew is the number of new/(total-1) we need to calculate back
-                score = getPercentNew()*(getWindowSize()-1)/getWindowSize();
+                score = getPercentNew() * (getWindowSize() - 1) / getWindowSize();
             } else if (getMisses() > 0) {
             	if (getWindowSize() > 0) {            		
             		score = 1.0 - getMisses() / (double)getWindowSize();

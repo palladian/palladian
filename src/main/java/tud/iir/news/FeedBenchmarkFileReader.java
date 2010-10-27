@@ -141,7 +141,7 @@ public class FeedBenchmarkFileReader {
                     if (windowSize > 1000) {
                         LOGGER.info("feed has a window size of " + windowSize + " and will be discarded");
                         feed.setHistoryFileCompletelyRead(true);
-                        feed.setBenchmarkLookupTime(BENCHMARK_STOP_TIME);
+                        feed.setBenchmarkLastLookupTime(BENCHMARK_STOP_TIME);
                         return;
                     }
                     feed.setWindowSize(windowSize);
@@ -185,20 +185,21 @@ public class FeedBenchmarkFileReader {
 
                     if (FeedChecker.benchmarkMode == FeedChecker.BENCHMARK_TIME
                             && entryTimestamp > BENCHMARK_START_TIME && totalEntries - i + 1 == feed.getWindowSize()) {
-                        LOGGER.error("we disregard this feed since it does not comply with our start date "
+                        LOGGER.error("we disregard this feed (" + feed.getId()
+                                + ") since it does not comply with our start date "
                                 + entryTimestamp);
                         feed.setHistoryFileCompletelyRead(true);
-                        feed.setBenchmarkLookupTime(BENCHMARK_STOP_TIME);
+                        feed.setBenchmarkLastLookupTime(BENCHMARK_STOP_TIME);
                         return;
                     }
 
                     // add up download size (head and foot if necessary and post size itself)
                     if (!footHeadAdded) {
-                        totalBytes = totalBytes + Integer.valueOf(parts[4]);
+                        totalBytes = totalBytes + Math.max(100, Integer.valueOf(parts[4]));
                         footHeadAdded = true;
                     }
 
-                    totalBytes += Integer.valueOf(parts[3]);
+                    totalBytes += Math.max(0, Integer.valueOf(parts[3]));
 
                     // FeedEntry fe = feedEntryMap.get(i);
                     // if (fe == null) {
@@ -312,7 +313,7 @@ public class FeedBenchmarkFileReader {
             e.printStackTrace();
             LOGGER.error(e.getMessage());
             feed.setHistoryFileCompletelyRead(true);
-            feed.setBenchmarkLookupTime(BENCHMARK_STOP_TIME);
+            feed.setBenchmarkLastLookupTime(BENCHMARK_STOP_TIME);
         }
 
         // feed.increaseChecks();
