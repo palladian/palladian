@@ -207,10 +207,8 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 
     public List<String> longestSubstrings(String str1, String str2) {
 
-        String s1 = StringHelper.removeStopWords(str1.replaceAll("å", "")
-                .replaceAll("‰", ""));
-        String s2 = StringHelper.removeStopWords(str2.replaceAll("å", "")
-                .replaceAll("‰", ""));
+        String s1 = StringHelper.removeStopWords(str1);
+        String s2 = StringHelper.removeStopWords(str2);
 
         TokenizerFactory mTokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
         Tokenizer tokenizer1 = mTokenizerFactory.tokenizer(s1.toCharArray(), 0,
