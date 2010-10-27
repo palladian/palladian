@@ -3,12 +3,15 @@ package tud.iir.news;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 
@@ -479,11 +482,14 @@ public final class FeedChecker {
         }
 
         String filePath = "data/temp/feedReaderEvaluation_" + getCheckApproachName() + "_" + getBenchmarkName()
- + "_"
-                + benchmarkModeString + ".csv";
+        + "_"
+        + benchmarkModeString + ".csv";
 
         try {
             FileWriter fileWriter = new FileWriter(filePath, true);
+
+            DecimalFormat format = new DecimalFormat("0.#################");
+            format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
             // loop through all feeds
             for (Feed feed : getFeeds()) {
@@ -520,8 +526,10 @@ public final class FeedChecker {
                     csv.append(pollData.getMisses()).append(separator);
                     csv.append(MathHelper.round(pollData.getPercentNew(), 2)).append(separator);
                     csv.append(pollData.getNewPostDelay() / 1000l).append(separator);
-                    csv.append(MathHelper.round(pollData.getScore(BENCHMARK_MAX_CHECK), 2)).append(separator);
-                    csv.append(MathHelper.round(pollData.getScore(BENCHMARK_MIN_CHECK), 4)).append(separator);
+                    csv.append(format.format(MathHelper.round(pollData.getScore(BENCHMARK_MAX_CHECK), 2))).append(
+                            separator);
+                    csv.append(format.format(MathHelper.round(pollData.getScore(BENCHMARK_MIN_CHECK), 4))).append(
+                            separator);
                     csv.append("\n");
 
                     fileWriter.write(csv.toString());
@@ -860,7 +868,7 @@ public final class FeedChecker {
         String historyFilePath = "";
         if (benchmarkDatasetFiles == null) {
             System.out
-                    .println("======================================================================================");
+            .println("======================================================================================");
             benchmarkDatasetFiles = FileHelper.getFiles(benchmarkDatasetPath);
         }
         for (File file : benchmarkDatasetFiles) {

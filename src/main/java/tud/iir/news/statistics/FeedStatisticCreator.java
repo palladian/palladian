@@ -2,9 +2,12 @@ package tud.iir.news.statistics;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -16,7 +19,6 @@ import tud.iir.helper.MathHelper;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedBenchmarkFileReader;
 import tud.iir.news.FeedChecker;
-import tud.iir.news.FeedDatabase;
 import tud.iir.news.FeedPostStatistics;
 import tud.iir.news.FeedStore;
 import tud.iir.web.Crawler;
@@ -29,13 +31,13 @@ import tud.iir.web.Crawler;
  */
 public class FeedStatisticCreator {
 
-    public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPathe)
-            throws IOException {
+    public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPath)
+    throws IOException {
 
         FeedChecker fc = new FeedChecker(feedStore);
         FeedChecker.setBenchmark(FeedChecker.BENCHMARK_MAX_CHECK);
 
-        FileWriter csv = new FileWriter(statisticOutputPathe);
+        FileWriter csv = new FileWriter(statisticOutputPath);
 
         int c = 0;
         int totalSize = feedStore.getFeeds().size();
@@ -116,7 +118,7 @@ public class FeedStatisticCreator {
         String chartColors = "";
         for (Entry<Object, Integer> o : updateClassCounts.entrySet()) {
             stats.append("Number of feeds in update class ").append(o.getKey()).append(":").append(o.getValue())
-                    .append("\n");
+            .append("\n");
             chartData += o.getValue().intValue() + ",";
             chartDataLabels += o.getKey() + "|";
             chartColors += colors.get((Integer) o.getKey()) + "|";
@@ -127,8 +129,8 @@ public class FeedStatisticCreator {
 
         stats.append("Google pie chart:").append("http://chart.apis.google.com/chart?chs=600x425&chco=").append(
                 chartColors).append("&chdl=").append(
-                chartDataLabels).append("&chds=0,").append(feeds.size()).append("&cht=p&chd=t:").append(
-                chartData).append("\n");
+                        chartDataLabels).append("&chds=0,").append(feeds.size()).append("&cht=p&chd=t:").append(
+                                chartData).append("\n");
 
         FileHelper.writeToFile(statisticOutputPath, stats);
 
@@ -141,8 +143,13 @@ public class FeedStatisticCreator {
      */
     public static void main(String[] args) throws IOException {
         // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(), "data/temp/feedstats_combined.txt");
-        FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),
-                "data/temp/feedUpdateIntervals.csv");
+        // FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),
+        // "data/temp/feedUpdateIntervals.csv");
+        DecimalFormat format = new DecimalFormat("0.#################");
+        format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+        // f.setGroupingUsed(false);
+        double d = 0.000000004;
+        System.out.println(format.format(d));
     }
 
 }
