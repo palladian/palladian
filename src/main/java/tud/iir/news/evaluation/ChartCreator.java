@@ -2,8 +2,6 @@ package tud.iir.news.evaluation;
 
 import java.util.List;
 
-import tud.iir.helper.CollectionHelper;
-import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 
 public class ChartCreator {
@@ -17,6 +15,8 @@ public class ChartCreator {
         int[] feedSizeDistribution = new int[21];
         
         for (EvaluationFeedPoll poll : polls) {
+            int feedID = poll.getFeedID();
+            float pollSize = poll.getSizeOfPoll();
             int i =  new Double(Math.floor(poll.getSizeOfPoll()/5/1024)).intValue() ;
             i = (i > 20)? 20 : i;
             feedSizeDistribution[i]++;             
@@ -37,7 +37,8 @@ public class ChartCreator {
     
     
     private void createFeedAgeFile(){
-        
+        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+        List<EvaluationItemIntervalItem> polls = ed.getFeedUpdateIntervals();
     }
     
     

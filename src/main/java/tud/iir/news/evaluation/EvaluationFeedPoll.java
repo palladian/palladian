@@ -67,7 +67,7 @@ public class EvaluationFeedPoll {
         super();
     }
 
-    public final void feedID(int feedID) {
+    public final void setFeedID(int feedID) {
         this.feedID = feedID;
     }
 
