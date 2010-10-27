@@ -22,7 +22,7 @@ public class EvaluationItemIntervalItem {
     private long medianItemInterval = -1;
     
     /* the feed's average update interval in minutes (one update may contain several items) */
-    private String averageUpdateInterval = "-1";
+    private long averageUpdateInterval = -1;
     
     
     /**
@@ -105,7 +105,7 @@ public class EvaluationItemIntervalItem {
      * the feed's average update interval in minutes (one update may contain several items)
      * @return the feeds average update interval in minutes
      */
-    public final String getAverageUpdateInterval() {
+    public final long getAverageUpdateInterval() {
         return averageUpdateInterval;
     }
 
@@ -113,9 +113,12 @@ public class EvaluationItemIntervalItem {
     /**
      * @param averageUpdateInterval the feed's average update interval in minutes
      */
-    public final void setAverageUpdateInterval(String averageUpdateInterval) {
+    public final void setAverageUpdateInterval(long averageUpdateInterval) {
         this.averageUpdateInterval = averageUpdateInterval;
     }
+
+
+
 
 
     /* (non-Javadoc)
@@ -129,7 +132,7 @@ public class EvaluationItemIntervalItem {
         long temp;
         temp = Double.doubleToLongBits(averageEntriesPerDay);
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + ((averageUpdateInterval == null) ? 0 : averageUpdateInterval.hashCode());
+        result = prime * result + (int) (averageUpdateInterval ^ (averageUpdateInterval >>> 32));
         result = prime * result + feedID;
         result = prime * result + (int) (medianItemInterval ^ (medianItemInterval >>> 32));
         return result;
@@ -152,10 +155,7 @@ public class EvaluationItemIntervalItem {
             return false;
         if (Double.doubleToLongBits(averageEntriesPerDay) != Double.doubleToLongBits(other.averageEntriesPerDay))
             return false;
-        if (averageUpdateInterval == null) {
-            if (other.averageUpdateInterval != null)
-                return false;
-        } else if (!averageUpdateInterval.equals(other.averageUpdateInterval))
+        if (averageUpdateInterval != other.averageUpdateInterval)
             return false;
         if (feedID != other.feedID)
             return false;

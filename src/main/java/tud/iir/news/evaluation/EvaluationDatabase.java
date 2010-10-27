@@ -29,7 +29,7 @@ public class EvaluationDatabase {
 //    private PreparedStatement psGetEntries;
     private PreparedStatement psGetPolls;
     private PreparedStatement psGetFeedSizeDistribution;
-    private PreparedStatement psGetMedianItemIntervals;
+    private PreparedStatement psGetAverageUpdateIntervals;
 
     private EvaluationDatabase() {
         try {
@@ -54,7 +54,7 @@ public class EvaluationDatabase {
                 .prepareStatement("SELECT id, updateClass, sizeOfPoll FROM feed_evaluation_fix1440_max_min_poll WHERE numberOfPoll = 1 AND sizeOfPoll > 0");
         psGetPolls = connection
                 .prepareStatement("SELECT id, updateClass, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize, numberOfPoll, pollTimestamp, pollHourOfDay, pollMinuteOfDay, checkInterval, windowSize, sizeOfPoll, numberMissedNewEntries, percentageNewEntries, delay, scoreMax, scoreMin FROM feed_evaluation_fix1440_max_min_poll");
-        psGetMedianItemIntervals = connection.prepareStatement("SELECT id, updateClass, medianItemInterval FROM feed_evaluation_update_intervals WHERE medianItemInterval > 0");
+        psGetAverageUpdateIntervals = connection.prepareStatement("SELECT id, updateClass, averageUpdateInterval FROM feed_evaluation_update_intervals");
     }
 
     public List<EvaluationFeedPoll> getFeedPolls() {
@@ -116,16 +116,16 @@ public class EvaluationDatabase {
     }
     
     
-    public List<EvaluationItemIntervalItem> getFeedUpdateIntervals() {
+    public List<EvaluationItemIntervalItem> getAverageUpdateIntervals() {
         LOGGER.trace(">getFeedUpdateIntervals");
         List<EvaluationItemIntervalItem> result = new LinkedList<EvaluationItemIntervalItem>();
         try {
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetMedianItemIntervals);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAverageUpdateIntervals);
             while (resultSet.next()) {
                 EvaluationItemIntervalItem itemIntervalItem = new EvaluationItemIntervalItem();
                 itemIntervalItem.setFeedID(resultSet.getInt(1));
                 itemIntervalItem.setActivityPattern(resultSet.getInt(2));
-                itemIntervalItem.setMedianItemInterval(resultSet.getLong(3));
+                itemIntervalItem.setAverageUpdateInterval(resultSet.getLong(3));
                 result.add(itemIntervalItem);
             }
         } catch (SQLException e) {
