@@ -265,9 +265,10 @@ public class DatasetCreator {
             // }
 
             // remove empty files or files bigger than 25MB
-            if (file.length() < 20 || file.length() < 26214400) {
-                file.delete();
-                deleteCount++;
+            if (file.length() < 20 || file.length() > 26214400) {
+                // file.delete();
+                // deleteCount++;
+                continue;
             }
 
             // skip directories
@@ -295,8 +296,6 @@ public class DatasetCreator {
                 List<String> entries = FileHelper.readFileToArray(cleanPath + file.getName());
 
                 for (String entry : entries) {
-
-                    StopWatch stw = new StopWatch();
 
                     // remove MISS lines
                     if (entry.startsWith("MISS")) {
