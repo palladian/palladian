@@ -952,8 +952,8 @@ public final class FeedChecker {
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
         // checkType = CheckApproach.CHECK_ADAPTIVE;
-        // checkType = CheckApproach.CHECK_PROBABILISTIC;
-        int checkInterval = 1440;
+        checkType = CheckApproach.CHECK_PROBABILISTIC;
+        int checkInterval = 720;
         int runtime = 9000;
         // //////////////////////////
 
@@ -972,7 +972,7 @@ public final class FeedChecker {
         fc.setFeedProcessingAction(fpa);
         setBenchmark(BENCHMARK_MAX_CHECK);
         // setBenchmark(BENCHMARK_MIN_CHECK);
-        // setBenchmarkMode(BENCHMARK_TIME);
+        setBenchmarkMode(BENCHMARK_TIME);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
     }
 
