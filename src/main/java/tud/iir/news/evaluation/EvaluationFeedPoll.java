@@ -61,9 +61,11 @@ public class EvaluationFeedPoll {
 	/* the score in MIN mode = (d/int + 1)^-1 ; score is in (0,1] 1 is perfect, 0.5 means culmulated delay (d) is equalt to current interval (int) */
     private float scoreMin = -1;
     
-    
+    /* an average score, calculated for some diagrams */
+    private double scoreAVG = -1;
 	
-	public EvaluationFeedPoll() {
+
+    public EvaluationFeedPoll() {
         super();
     }
 
@@ -213,120 +215,129 @@ public class EvaluationFeedPoll {
 	public final float getScoreMax() {
 		return scoreMax;
 	}
+	
+
+    /**
+     * @return the scoreAVG
+     */
+    public final double getScoreAVG() {
+        return scoreAVG;
+    }
+
+    /**
+     * @param scoreAVG the scoreAVG to set
+     */
+    public final void setScoreAVG(double scoreAVG) {
+        this.scoreAVG = scoreAVG;
+    }
 
 	
-    /*
-     * (non-Javadoc)
+    /* (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + activityPattern;
-		result = prime * result + Float.floatToIntBits(checkInterval);
-		result = prime * result + conditionalGetResponseSize;
-		long temp;
-		temp = Double.doubleToLongBits(delay);
-		result = prime * result + (int) (temp ^ (temp >>> 32));
-		result = prime * result + eTagResponseSize;
-		result = prime * result + feedID;
-		result = prime * result + numberMissedNewEntries;
-		result = prime * result + numberOfPoll;
-		result = prime * result + Float.floatToIntBits(percentageNewEntries);
-		result = prime * result + pollHourOfDay;
-		result = prime * result + pollMinuteOfDay;
-		result = prime * result
-				+ (int) (pollTimestamp ^ (pollTimestamp >>> 32));
-		result = prime * result + Float.floatToIntBits(scoreMax);
-		result = prime * result + Float.floatToIntBits(scoreMin);
-		result = prime * result + Float.floatToIntBits(sizeOfPoll);
-		result = prime
-				* result
-				+ ((supportsConditionalGet == null) ? 0
-						: supportsConditionalGet.hashCode());
-		result = prime * result
-				+ ((supportsETag == null) ? 0 : supportsETag.hashCode());
-		result = prime * result + windowSize;
-		return result;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + activityPattern;
+        result = prime * result + Float.floatToIntBits(checkInterval);
+        result = prime * result + conditionalGetResponseSize;
+        long temp;
+        temp = Double.doubleToLongBits(delay);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + eTagResponseSize;
+        result = prime * result + feedID;
+        result = prime * result + numberMissedNewEntries;
+        result = prime * result + numberOfPoll;
+        result = prime * result + Float.floatToIntBits(percentageNewEntries);
+        result = prime * result + pollHourOfDay;
+        result = prime * result + pollMinuteOfDay;
+        result = prime * result + (int) (pollTimestamp ^ (pollTimestamp >>> 32));
+        temp = Double.doubleToLongBits(scoreAVG);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + Float.floatToIntBits(scoreMax);
+        result = prime * result + Float.floatToIntBits(scoreMin);
+        result = prime * result + Float.floatToIntBits(sizeOfPoll);
+        result = prime * result + ((supportsConditionalGet == null) ? 0 : supportsConditionalGet.hashCode());
+        result = prime * result + ((supportsETag == null) ? 0 : supportsETag.hashCode());
+        result = prime * result + windowSize;
+        return result;
+    }
 
 	
-	 /*
-     * (non-Javadoc)
+	 /* (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		EvaluationFeedPoll other = (EvaluationFeedPoll) obj;
-		if (activityPattern != other.activityPattern)
-			return false;
-		if (Float.floatToIntBits(checkInterval) != Float
-				.floatToIntBits(other.checkInterval))
-			return false;
-		if (conditionalGetResponseSize != other.conditionalGetResponseSize)
-			return false;
-		if (Double.doubleToLongBits(delay) != Double
-				.doubleToLongBits(other.delay))
-			return false;
-		if (eTagResponseSize != other.eTagResponseSize)
-			return false;
-		if (feedID != other.feedID)
-			return false;
-		if (numberMissedNewEntries != other.numberMissedNewEntries)
-			return false;
-		if (numberOfPoll != other.numberOfPoll)
-			return false;
-		if (Float.floatToIntBits(percentageNewEntries) != Float
-				.floatToIntBits(other.percentageNewEntries))
-			return false;
-		if (pollHourOfDay != other.pollHourOfDay)
-			return false;
-		if (pollMinuteOfDay != other.pollMinuteOfDay)
-			return false;
-		if (pollTimestamp != other.pollTimestamp)
-			return false;
-		if (Float.floatToIntBits(scoreMax) != Float
-				.floatToIntBits(other.scoreMax))
-			return false;
-		if (Float.floatToIntBits(scoreMin) != Float
-				.floatToIntBits(other.scoreMin))
-			return false;
-		if (Float.floatToIntBits(sizeOfPoll) != Float
-				.floatToIntBits(other.sizeOfPoll))
-			return false;
-		if (supportsConditionalGet == null) {
-			if (other.supportsConditionalGet != null)
-				return false;
-		} else if (!supportsConditionalGet.equals(other.supportsConditionalGet))
-			return false;
-		if (supportsETag == null) {
-			if (other.supportsETag != null)
-				return false;
-		} else if (!supportsETag.equals(other.supportsETag))
-			return false;
-		if (windowSize != other.windowSize)
-			return false;
-		return true;
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        EvaluationFeedPoll other = (EvaluationFeedPoll) obj;
+        if (activityPattern != other.activityPattern)
+            return false;
+        if (Float.floatToIntBits(checkInterval) != Float.floatToIntBits(other.checkInterval))
+            return false;
+        if (conditionalGetResponseSize != other.conditionalGetResponseSize)
+            return false;
+        if (Double.doubleToLongBits(delay) != Double.doubleToLongBits(other.delay))
+            return false;
+        if (eTagResponseSize != other.eTagResponseSize)
+            return false;
+        if (feedID != other.feedID)
+            return false;
+        if (numberMissedNewEntries != other.numberMissedNewEntries)
+            return false;
+        if (numberOfPoll != other.numberOfPoll)
+            return false;
+        if (Float.floatToIntBits(percentageNewEntries) != Float.floatToIntBits(other.percentageNewEntries))
+            return false;
+        if (pollHourOfDay != other.pollHourOfDay)
+            return false;
+        if (pollMinuteOfDay != other.pollMinuteOfDay)
+            return false;
+        if (pollTimestamp != other.pollTimestamp)
+            return false;
+        if (Double.doubleToLongBits(scoreAVG) != Double.doubleToLongBits(other.scoreAVG))
+            return false;
+        if (Float.floatToIntBits(scoreMax) != Float.floatToIntBits(other.scoreMax))
+            return false;
+        if (Float.floatToIntBits(scoreMin) != Float.floatToIntBits(other.scoreMin))
+            return false;
+        if (Float.floatToIntBits(sizeOfPoll) != Float.floatToIntBits(other.sizeOfPoll))
+            return false;
+        if (supportsConditionalGet == null) {
+            if (other.supportsConditionalGet != null)
+                return false;
+        } else if (!supportsConditionalGet.equals(other.supportsConditionalGet))
+            return false;
+        if (supportsETag == null) {
+            if (other.supportsETag != null)
+                return false;
+        } else if (!supportsETag.equals(other.supportsETag))
+            return false;
+        if (windowSize != other.windowSize)
+            return false;
+        return true;
+    }
 	
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
     @Override
     public String toString() {
-        return "EvaluationDataObject [feedID=" + feedID + ", activityPattern=" + activityPattern + ", supportsETag="
+        return "EvaluationFeedPoll [feedID=" + feedID + ", activityPattern=" + activityPattern + ", supportsETag="
                 + supportsETag + ", supportsConditionalGet=" + supportsConditionalGet + ", eTagResponseSize="
                 + eTagResponseSize + ", conditionalGetResponseSize=" + conditionalGetResponseSize + ", numberOfPoll="
                 + numberOfPoll + ", pollTimestamp=" + pollTimestamp + ", pollHourOfDay=" + pollHourOfDay
                 + ", pollMinuteOfDay=" + pollMinuteOfDay + ", checkInterval=" + checkInterval + ", windowSize="
                 + windowSize + ", sizeOfPoll=" + sizeOfPoll + ", numberMissedNewEntries=" + numberMissedNewEntries
-                + ", percentageNewEntries=" + percentageNewEntries + ", delay=" + delay + ", scoreMin=" + scoreMin
-                + ", scoreMax=" + scoreMax + "]";
+                + ", percentageNewEntries=" + percentageNewEntries + ", delay=" + delay + ", scoreMax=" + scoreMax
+                + ", scoreMin=" + scoreMin + ", scoreAVG=" + scoreAVG + "]";
     }
 
 	
