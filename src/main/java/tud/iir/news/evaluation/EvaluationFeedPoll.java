@@ -43,7 +43,7 @@ public class EvaluationFeedPoll {
 	/* the current size of the feed's window (number of items found) */
 	private int windowSize = -1;
 	
-	/* the amount of bytes that has been downloadad */
+	/* the amount of bytes that has been downloaded */
 	private float sizeOfPoll = -1;                 
 	
 	/* the number of new items we missed because there more new items since the last poll than fit into the window */
@@ -90,7 +90,7 @@ public class EvaluationFeedPoll {
     public final void setConditionalGetResponseSize(int conditionalGetResponseSize) {
         this.conditionalGetResponseSize = conditionalGetResponseSize;
     }
-
+    
     public final void setNumberOfPoll(int numberOfPoll) {
         this.numberOfPoll = numberOfPoll;
     }
@@ -187,6 +187,9 @@ public class EvaluationFeedPoll {
 		return windowSize;
 	}
 
+	/**
+	 *  the amount of bytes that has been downloaded 
+	 */
 	public final float getSizeOfPoll() {
 		return sizeOfPoll;
 	}
