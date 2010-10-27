@@ -58,31 +58,17 @@ public class EvaluationDatabase {
     }
     
     
-    public List<EvaluationDataObject> getFeedPolls() {
+    public List<EvaluationFeedPoll> getFeedPolls() {
         LOGGER.trace(">getFeedPolls");
-        List<EvaluationDataObject> result = new LinkedList<EvaluationDataObject>();
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
 
             PreparedStatement ps = psGetFeeds;
 
-//            switch (FeedChecker.getInstance().getCheckApproach()) {
-//                case FeedChecker.CHECK_FIXED:
-//                    if (FeedChecker.getInstance().getCheckInterval() == -1) {
-//                        ps = DatabaseManager.getInstance().psGetFeeds_fixed_learned;
-//                    }
-//                    break;
-//                case FeedChecker.CHECK_ADAPTIVE:
-//                    ps = DatabaseManager.getInstance().psGetFeeds_adaptive;
-//                    break;
-//                case FeedChecker.CHECK_PROBABILISTIC:
-//                    ps = DatabaseManager.getInstance().psGetFeeds_probabilistic;
-//                    break;
-//            }
-
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
             while (resultSet.next()) {
-                EvaluationDataObject feedPoll = new EvaluationDataObject();
-                feedPoll.setId(resultSet.getInt(1));
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.feedID(resultSet.getInt(1));
                 feedPoll.setActivityPattern(resultSet.getInt(2));
                 feedPoll.setSupportsETag(resultSet.getBoolean(3));
                 feedPoll.setSupportsConditionalGet(resultSet.getBoolean(4));
@@ -98,7 +84,7 @@ public class EvaluationDatabase {
                 feedPoll.setNumberMissedNewEntries(resultSet.getInt(14));
                 feedPoll.setPercentageNewEntries(resultSet.getFloat(15));
                 feedPoll.setDelay(resultSet.getDouble(16));
-                feedPoll.setScoreMin(resultSet.getFloat(17));
+                feedPoll.setScoreMax(resultSet.getFloat(17));
 //                feedPoll.setScoreMin(resultSet.getFloat(18));
                 result.add(feedPoll);
             }
@@ -114,36 +100,6 @@ public class EvaluationDatabase {
     
     
     
-    
-    public List<FeedEntry> getFeedPolls_TEMP(int limit, int offset) {
-        LOGGER.trace(">getFeedPolls");
-        List<FeedEntry> result = new LinkedList<FeedEntry>();
-        try {
-            psGetEntries.setInt(1, limit);
-            psGetEntries.setInt(2, offset);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetEntries);
-            while (resultSet.next()) {
-                FeedEntry entry = new FeedEntry();
-                entry.setId(resultSet.getInt(1));
-                entry.setTitle(resultSet.getString(2));
-                entry.setLink(resultSet.getString(3));
-                entry.setRawId(resultSet.getString(4));
-                entry.setPublished(resultSet.getDate(5));
-                entry.setContent(resultSet.getString(6));
-                entry.setPageContent(resultSet.getString(7));
-                entry.setAdded(resultSet.getDate(8));
-                String tags = resultSet.getString(9);
-                if (tags != null) {
-                    entry.setTags(new LinkedList<String>(Arrays.asList(tags.split(","))));
-                }
-                result.add(entry);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getFeedEntries", e);
-        }
-        LOGGER.trace("<getFeedEntries");
-        return result;
-    }
     
 
     

@@ -5,10 +5,10 @@ package tud.iir.news.evaluation;
  * 
  * @author Sandro Reichert 
  */
-public class EvaluationDataObject {	
+public class EvaluationFeedPoll {	
 	
 	/* FeedID */
-	private int id = -1; 
+	private int feedID = -1; 
 	
 	/* the feed's update class, e.g. zombie, constant */
 	private int activityPattern = -1;
@@ -55,20 +55,20 @@ public class EvaluationDataObject {
 	/* late or early (negative value) in seconds, is the time span between timestamp poll and timestamp(s) next or last new entry(ies) */
 	private double delay = -1;              
 	
-	/* the score in MIN mode = (d/int + 1)^-1 ; score is in (0,1] 1 is perfect, 0.5 means culmulated delay (d) is equalt to current interval (int) */
-	private float scoreMin = -1;      
-	
 	/* the score in MAX mode = percentageNewEntries iff percentageNewEntries <=1 OR (1 - numberMissedNewEntries/windowSize) iff percentageNewEntries > 1 */
 	private float scoreMax = -1;
 	
+	/* the score in MIN mode = (d/int + 1)^-1 ; score is in (0,1] 1 is perfect, 0.5 means culmulated delay (d) is equalt to current interval (int) */
+    private float scoreMin = -1;
+    
+    
 	
-	
-	public EvaluationDataObject() {
+	public EvaluationFeedPoll() {
         super();
     }
 
-    public final void setId(int id) {
-        this.id = id;
+    public final void feedID(int feedID) {
+        this.feedID = feedID;
     }
 
     public final void setActivityPattern(int activityPattern) {
@@ -139,8 +139,8 @@ public class EvaluationDataObject {
         this.scoreMax = scoreMax;
     }
 
-    public final int getId() {
-		return id;
+    public final int getFeedID() {
+		return feedID;
 	}
 
 	public final int getActivityPattern() {
@@ -227,7 +227,7 @@ public class EvaluationDataObject {
 		temp = Double.doubleToLongBits(delay);
 		result = prime * result + (int) (temp ^ (temp >>> 32));
 		result = prime * result + eTagResponseSize;
-		result = prime * result + id;
+		result = prime * result + feedID;
 		result = prime * result + numberMissedNewEntries;
 		result = prime * result + numberOfPoll;
 		result = prime * result + Float.floatToIntBits(percentageNewEntries);
@@ -261,7 +261,7 @@ public class EvaluationDataObject {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		EvaluationDataObject other = (EvaluationDataObject) obj;
+		EvaluationFeedPoll other = (EvaluationFeedPoll) obj;
 		if (activityPattern != other.activityPattern)
 			return false;
 		if (Float.floatToIntBits(checkInterval) != Float
@@ -274,7 +274,7 @@ public class EvaluationDataObject {
 			return false;
 		if (eTagResponseSize != other.eTagResponseSize)
 			return false;
-		if (id != other.id)
+		if (feedID != other.feedID)
 			return false;
 		if (numberMissedNewEntries != other.numberMissedNewEntries)
 			return false;
@@ -316,7 +316,7 @@ public class EvaluationDataObject {
 
     @Override
     public String toString() {
-        return "EvaluationDataObject [id=" + id + ", activityPattern=" + activityPattern + ", supportsETag="
+        return "EvaluationDataObject [feedID=" + feedID + ", activityPattern=" + activityPattern + ", supportsETag="
                 + supportsETag + ", supportsConditionalGet=" + supportsConditionalGet + ", eTagResponseSize="
                 + eTagResponseSize + ", conditionalGetResponseSize=" + conditionalGetResponseSize + ", numberOfPoll="
                 + numberOfPoll + ", pollTimestamp=" + pollTimestamp + ", pollHourOfDay=" + pollHourOfDay

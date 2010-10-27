@@ -21,8 +21,8 @@ public class ChartCreator {
 //		}
 
 		
-		List<EvaluationDataObject> polls = ed.getFeedPolls();
-		for (EvaluationDataObject poll : polls) {
+		List<EvaluationFeedPoll> polls = ed.getFeedPolls();
+		for (EvaluationFeedPoll poll : polls) {
 		    System.out.println(poll);
 		}
 	}
