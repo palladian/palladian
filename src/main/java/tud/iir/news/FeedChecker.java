@@ -68,7 +68,7 @@ public final class FeedChecker {
     public static int benchmarkMode = BENCHMARK_POLL;
 
     /** The path to the folder with the feed post history files. */
-    private final String benchmarkDatasetPath = "G:\\Projects\\Programming\\Other\\clean\\";
+    private final String benchmarkDatasetPath = "C:\\Programming\\feedposts\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private File[] benchmarkDatasetFiles;
@@ -526,10 +526,22 @@ public final class FeedChecker {
                     csv.append(pollData.getMisses()).append(separator);
                     csv.append(MathHelper.round(pollData.getPercentNew(), 2)).append(separator);
                     csv.append(pollData.getNewPostDelay() / 1000l).append(separator);
-                    csv.append(format.format(MathHelper.round(pollData.getScore(BENCHMARK_MAX_CHECK), 2))).append(
-                            separator);
-                    csv.append(format.format(MathHelper.round(pollData.getScore(BENCHMARK_MIN_CHECK), 4))).append(
-                            separator);
+
+                    Double scoreMax = pollData.getScore(BENCHMARK_MAX_CHECK);
+                    if (scoreMax != null) {
+                        csv.append(format.format(MathHelper.round(scoreMax, 2))).append(
+                                separator);
+                    } else {
+                        csv.append("NULL").append(separator);
+                    }
+
+                    Double scoreMin = pollData.getScore(BENCHMARK_MIN_CHECK);
+                    if (scoreMin != null) {
+                        csv.append(format.format(MathHelper.round(scoreMin, 4))).append(
+                                separator);
+                    } else {
+                        csv.append("NULL").append(separator);
+                    }
                     csv.append("\n");
 
                     fileWriter.write(csv.toString());
@@ -646,7 +658,9 @@ public final class FeedChecker {
         }
         // we have not found any new entry so we increase the min checkInterval
         else {
-            minCheckInterval += fps.getMedianPostGap() / (2 * DateHelper.MINUTE_MS);
+            // TODO test with median post gap
+            // minCheckInterval += fps.getMedianPostGap() / (2 * DateHelper.MINUTE_MS);
+            minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
         }
 
         // for chunked or on the fly updates the min and max intervals are the same
@@ -952,8 +966,8 @@ public final class FeedChecker {
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
         // checkType = CheckApproach.CHECK_ADAPTIVE;
-        checkType = CheckApproach.CHECK_PROBABILISTIC;
-        int checkInterval = 720;
+        // checkType = CheckApproach.CHECK_PROBABILISTIC;
+        int checkInterval = -1;
         int runtime = 9000;
         // //////////////////////////
 

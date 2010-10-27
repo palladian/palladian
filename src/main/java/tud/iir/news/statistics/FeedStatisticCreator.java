@@ -2,12 +2,9 @@ package tud.iir.news.statistics;
 
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -19,6 +16,7 @@ import tud.iir.helper.MathHelper;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedBenchmarkFileReader;
 import tud.iir.news.FeedChecker;
+import tud.iir.news.FeedDatabase;
 import tud.iir.news.FeedPostStatistics;
 import tud.iir.news.FeedStore;
 import tud.iir.web.Crawler;
@@ -143,13 +141,9 @@ public class FeedStatisticCreator {
      */
     public static void main(String[] args) throws IOException {
         // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(), "data/temp/feedstats_combined.txt");
-        // FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),
-        // "data/temp/feedUpdateIntervals.csv");
-        DecimalFormat format = new DecimalFormat("0.#################");
-        format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-        // f.setGroupingUsed(false);
-        double d = 0.000000004;
-        System.out.println(format.format(d));
+        FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),
+                "data/temp/feedUpdateIntervals.csv");
+
     }
 
 }
