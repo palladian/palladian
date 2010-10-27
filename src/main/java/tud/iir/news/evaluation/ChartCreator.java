@@ -45,47 +45,44 @@ public class ChartCreator {
     
     private void createFeedAgeFile(){
         EvaluationDatabase ed = EvaluationDatabase.getInstance();
-        List<EvaluationItemIntervalItem> polls = ed.getFeedUpdateIntervals();
-        
+        List<EvaluationItemIntervalItem> polls = ed.getAverageUpdateIntervals();
         int[] feedAgeDistribution = new int[34];
         
         for (EvaluationItemIntervalItem intervalItem : polls) {
-
-//            int i =  new Double(Math.floor(intervalItem.getSizeOfPoll()/10/1024)).intValue() ;
-            int medianItemIntervalHours = new Double(Math.floor(intervalItem.getMedianItemInterval()/3600000)).intValue();
-            
+            int averageUpdateIntervalHours = new Double(Math.floor(intervalItem.getAverageUpdateInterval()/3600000)).intValue();
             int i = -1;
-            if(medianItemIntervalHours <= 24) i = medianItemIntervalHours;
-            else if(medianItemIntervalHours <= 24*2) i = 24;  //2 days
-            else if(medianItemIntervalHours <= 24*3) i = 25;  //3 days
-            else if(medianItemIntervalHours <= 24*4) i = 26;  //4 days
-            else if(medianItemIntervalHours <= 24*5) i = 27; //5 days
-            else if(medianItemIntervalHours <= 24*6) i = 28; //6 days
-            else if(medianItemIntervalHours <= 24*7) i = 29; //7 days
-            else if(medianItemIntervalHours <= 24*7*2) i = 30; //2 weeks
-            else if(medianItemIntervalHours <= 24*7*3) i = 31; //3 weeks
-            else if(medianItemIntervalHours <= 24*7*4) i = 32; //4 weeks
+            if(averageUpdateIntervalHours <= 24) i = averageUpdateIntervalHours;
+            else if(averageUpdateIntervalHours <= 24*2) i = 24;  //2 days
+            else if(averageUpdateIntervalHours <= 24*3) i = 25;  //3 days
+            else if(averageUpdateIntervalHours <= 24*4) i = 26;  //4 days
+            else if(averageUpdateIntervalHours <= 24*5) i = 27; //5 days
+            else if(averageUpdateIntervalHours <= 24*6) i = 28; //6 days
+            else if(averageUpdateIntervalHours <= 24*7) i = 29; //7 days
+            else if(averageUpdateIntervalHours <= 24*7*2) i = 30; //2 weeks
+            else if(averageUpdateIntervalHours <= 24*7*3) i = 31; //3 weeks
+            else if(averageUpdateIntervalHours <= 24*7*4) i = 32; //4 weeks
             else i = 33; //more
             feedAgeDistribution[i]++;             
         }        
-        
+
         StringBuilder feedSizeDistributionSB = new StringBuilder();
         feedSizeDistributionSB.append("Feed age;all feeds;\n");
         int i = 0;
         String[] caption = {"1 hour","2 hours","3 hours","4 hours","5 hours","6 hours","7 hours","8 hours","9 hours","10 hours","11 hours","12 hours","13 hours","14 hours","15 hours","16 hours","17 hours","18 hours","19 hours","20 hours","21 hours","22 hours","23 hours","24 hours","2 days","3 days","4 days","5 days","6 days","7 days","2 weeks","3 weeks","4 weeks","more"};
         
         for (int number : feedAgeDistribution) {
-            
             feedSizeDistributionSB.append(caption[i]).append(";").append(number).append(";\n");
             i++;
         }
         
         FileHelper.writeToFile(feedAgeFilePath, feedSizeDistributionSB);
-        LOGGER.info("feedAgeFile *hopefully* :) written to: " + feedAgeFilePath);
-        
-        
+        LOGGER.info("feedAgeFile *hopefully* :) written to: " + feedAgeFilePath);       
     }
     
+    
+    private void createTimeliness2File(){
+        
+    }
     
     
     
