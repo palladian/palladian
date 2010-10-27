@@ -150,11 +150,11 @@ public class FeedBenchmarkFileReader {
                 long entryTimestamp = Long.valueOf(parts[0]);
 
                 // FIXME remove
-                if (entryTimestamp < 1000000000000l) {
-                    feed.setHistoryFileCompletelyRead(true);
-                    feed.setBenchmarkLookupTime(BENCHMARK_STOP_TIME);
-                    return;
-                }
+                // if (entryTimestamp < 1000000000000l) {
+                // feed.setHistoryFileCompletelyRead(true);
+                // feed.setBenchmarkLookupTime(BENCHMARK_STOP_TIME);
+                // return;
+                // }
 
                 // get hold of the post entry just before the window starts
                 if (entryTimestamp > feed.getBenchmarkLookupTime()) {
@@ -266,10 +266,21 @@ public class FeedBenchmarkFileReader {
             PollData pollData = new PollData();
 
             pollData.setBenchmarkType(FeedChecker.benchmark);
-            pollData.setCurrentIntervalSize(nextItemBeforeWindowTimestamp - firstItemInWindowTimestamp);
+
+            // only checks after the first one get a min score
+            if (feed.getChecks() > 0) {
+                pollData.setCurrentIntervalSize(nextItemBeforeWindowTimestamp - firstItemInWindowTimestamp);
+            } else {
+                pollData.setCurrentIntervalSize(-1);
+            }
+
             pollData.setTimestamp(feed.getBenchmarkLookupTime());
             pollData.setPercentNew(feed.getTargetPercentageOfNewEntries());
-            pollData.setMisses(misses);
+
+            // only checks after the first one get a max score (if misses -1 score is undefined too)
+            if (feed.getChecks() > 0) {
+                pollData.setMisses(misses);
+            }
 
             if (FeedChecker.benchmark == FeedChecker.BENCHMARK_MAX_CHECK) {
                 pollData.setCheckInterval(feed.getMaxCheckInterval());

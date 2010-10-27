@@ -174,12 +174,12 @@ public final class FeedChecker {
             int feedHistoriesCompletelyRead = 0;
             for (Feed feed : getFeeds()) {
 
-                if (feed.getId() > 8) {
-                    break;
-                }
-                if (feed.getId() < 8) {
-                    continue;
-                }
+                // if (feed.getId() > 10) {
+                // break;
+                // }
+                // if (feed.getId() < 10) {
+                // continue;
+                // }
                 StopWatch swf = new StopWatch();
                 FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, this);
 
@@ -197,7 +197,7 @@ public final class FeedChecker {
 
                 int loopCount = 0;
                 while (benchmarkMode == BENCHMARK_TIME
-                        && feed.getBenchmarkLookupTime() < FeedBenchmarkFileReader.BENCHMARK_STOP_TIME
+                        && feed.getBenchmarkLastLookupTime() < FeedBenchmarkFileReader.BENCHMARK_STOP_TIME
                         || benchmarkMode == BENCHMARK_POLL && !feed.historyFileCompletelyRead()) {
 
                     fbfr.updateEntriesFromDisk();
@@ -234,6 +234,7 @@ public final class FeedChecker {
                 }
                 if (feedHistoriesCompletelyRead % 10000 == 0) {
                     writeRecordedMaps();
+                    // break;
                 }
 
                 // save the feed back to the database
@@ -334,7 +335,7 @@ public final class FeedChecker {
                 && (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY || !feed.oneFullDayHasBeenSeen()))
                 && feed.getChecks() > 0) {
 
-            updateIntervalAdaptive(feed, pnTarget);
+            updateIntervalAdaptive(feed, pnTarget, fps);
 
         }
 
@@ -446,10 +447,10 @@ public final class FeedChecker {
      * <li>feed activity pattern</li>
      * <li>etag support (0/1)</li>
      * <li>conditional get support (0/1)</li>
-     * <li>eTag response size</li>
-     * <li>conditional get response size</li>
+     * <li>eTag response size in Byte</li>
+     * <li>conditional get response size in Byte</li>
      * <li>number of poll</li>
-     * <li>poll timestamp</li>
+     * <li>poll timestamp in seconds</li>
      * <li>poll hour of the day</li>
      * <li>poll minute of the day</li>
      * <li>check interval at poll time in minutes</li>
@@ -470,8 +471,16 @@ public final class FeedChecker {
 
         String separator = ";";
 
+        String benchmarkModeString = "0";
+        if (benchmarkMode == BENCHMARK_POLL) {
+            benchmarkModeString = "poll";
+        } else if (benchmarkMode == BENCHMARK_TIME) {
+            benchmarkModeString = "time";
+        }
+
         String filePath = "data/temp/feedReaderEvaluation_" + getCheckApproachName() + "_" + getBenchmarkName()
-                + ".csv";
+ + "_"
+                + benchmarkModeString + ".csv";
 
         try {
             FileWriter fileWriter = new FileWriter(filePath, true);
@@ -502,7 +511,7 @@ public final class FeedChecker {
 
                     // poll related values
                     csv.append(numberOfPoll).append(separator);
-                    csv.append(pollData.getTimestamp()).append(separator);
+                    csv.append(pollData.getTimestamp() / 1000l).append(separator);
                     csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.HOUR)).append(separator);
                     csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.MINUTE)).append(separator);
                     csv.append(MathHelper.round(pollData.getCheckInterval(), 2)).append(separator);
@@ -598,25 +607,39 @@ public final class FeedChecker {
      * @param entries The entries of the feed.
      * @param pnTarget The percentage of new post entries.
      */
-    private void updateIntervalAdaptive(Feed feed, double pnTarget) {
+    private void updateIntervalAdaptive(Feed feed, double pnTarget, FeedPostStatistics fps) {
 
         List<FeedEntry> entries = feed.getEntries();
 
-        // the factor by which the checkInterval is multiplied, ranges between 2 and 0.5
-        double f = 1.0;
+        int minCheckInterval = feed.getMinCheckInterval();
+        int maxCheckInterval = feed.getMaxCheckInterval();
+
+        // the factor by which the max checkInterval is multiplied, ranges between 2 and 0.5
+        double fMax = 1.0;
 
         // all news are new, we should halve the checkInterval
         if (pnTarget > 1) {
-            f = 0.5;
+            fMax = 0.5;
         }
         // some entries are not new so we increase the checkInterval
         else {
-            f = 2 - pnTarget;
+            fMax = 2 - pnTarget;
         }
+        maxCheckInterval *= fMax;
 
-        int minCheckInterval = feed.getMinCheckInterval();
-        int maxCheckInterval = feed.getMaxCheckInterval();
-        maxCheckInterval *= f;
+        // the factor by which the min checkInterval is multiplied, ranges between 2 and 0.5
+        double fMin = 1.0;
+
+        double newEntries = pnTarget * (feed.getWindowSize() - 1);
+        // all news are new, we should halve the checkInterval
+        if (newEntries >= 1) {
+            fMin = 1.0 / newEntries;
+            minCheckInterval *= fMin;
+        }
+        // we have not found any new entry so we increase the min checkInterval
+        else {
+            minCheckInterval += fps.getMedianPostGap() / (2 * DateHelper.MINUTE_MS);
+        }
 
         // for chunked or on the fly updates the min and max intervals are the same
         // if (feed.getUpdateClass() != FeedClassifier.CLASS_CHUNKED
@@ -626,7 +649,7 @@ public final class FeedChecker {
         // minCheckInterval = maxCheckInterval;
         // }
 
-        minCheckInterval = maxCheckInterval / Math.max(1, entries.size() - 1);
+        // minCheckInterval = maxCheckInterval / Math.max(1, entries.size() - 1);
 
         feed.setMinCheckInterval(minCheckInterval);
         feed.setMaxCheckInterval(maxCheckInterval);
@@ -800,6 +823,14 @@ public final class FeedChecker {
         FeedChecker.benchmark = benchmark;
     }
 
+    public static int getBenchmarkMode() {
+        return benchmarkMode;
+    }
+
+    public static void setBenchmarkMode(int benchmarkMode) {
+        FeedChecker.benchmarkMode = benchmarkMode;
+    }
+
     private String getBenchmarkName() {
         return benchmark == BENCHMARK_MIN_CHECK ? "min" : "max";
     }
@@ -912,9 +943,9 @@ public final class FeedChecker {
 
         // // benchmark settings ////
         CheckApproach checkType = CheckApproach.CHECK_FIXED;
-        checkType = CheckApproach.CHECK_ADAPTIVE;
+        // checkType = CheckApproach.CHECK_ADAPTIVE;
         // checkType = CheckApproach.CHECK_PROBABILISTIC;
-        int checkInterval = -1;
+        int checkInterval = 1440;
         int runtime = 9000;
         // //////////////////////////
 
@@ -932,7 +963,8 @@ public final class FeedChecker {
         fc.setCheckInterval(checkInterval);
         fc.setFeedProcessingAction(fpa);
         setBenchmark(BENCHMARK_MAX_CHECK);
-        // setBenchmark(BENCHMARK_MIN_CHECK_TIME);
+        // setBenchmark(BENCHMARK_MIN_CHECK);
+        // setBenchmarkMode(BENCHMARK_TIME);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
     }
 
