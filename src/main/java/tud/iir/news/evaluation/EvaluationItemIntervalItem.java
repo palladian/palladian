@@ -18,10 +18,10 @@ public class EvaluationItemIntervalItem {
     /* the average number of new entries per day */
     private double averageEntriesPerDay = -1;
     
-    /* the feed's median item interval (several items may be updated at the same time) */
+    /* the feed's median item interval in minutes (several items may be updated at the same time) */
     private long medianItemInterval = -1;
     
-    /* the feeds average update interval (one update may contain several items) */
+    /* the feed's average update interval in minutes (one update may contain several items) */
     private String averageUpdateInterval = "-1";
     
     
@@ -84,7 +84,9 @@ public class EvaluationItemIntervalItem {
 
 
     /**
-     * @return the medianItemInterval
+     * the feed's median item interval in minutes (several items may be updated at the same time) 
+     * 
+     * @return the feed's median item interval in minutes
      */
     public final long getMedianItemInterval() {
         return medianItemInterval;
@@ -92,7 +94,7 @@ public class EvaluationItemIntervalItem {
 
 
     /**
-     * @param medianItemInterval the medianItemInterval to set
+     * @param medianItemInterval the feed's median item interval in minutes
      */
     public final void setMedianItemInterval(long medianItemInterval) {
         this.medianItemInterval = medianItemInterval;
@@ -100,7 +102,8 @@ public class EvaluationItemIntervalItem {
 
 
     /**
-     * @return the averageUpdateInterval
+     * the feed's average update interval in minutes (one update may contain several items)
+     * @return the feeds average update interval in minutes
      */
     public final String getAverageUpdateInterval() {
         return averageUpdateInterval;
@@ -108,7 +111,7 @@ public class EvaluationItemIntervalItem {
 
 
     /**
-     * @param averageUpdateInterval the averageUpdateInterval to set
+     * @param averageUpdateInterval the feed's average update interval in minutes
      */
     public final void setAverageUpdateInterval(String averageUpdateInterval) {
         this.averageUpdateInterval = averageUpdateInterval;
