@@ -32,13 +32,13 @@ import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 
 /**
  * <p>
- * This class wraps the OpenNLP Named Entity Recognizer which uses a maximum entropy approach.
+ * This class wraps the OpenNLP Named Entity Recognizer which uses a maximum
+ * entropy approach.
  * </p>
  * 
  * <p>
@@ -58,16 +58,17 @@ import tud.iir.helper.StopWatch;
  * Changes to the original OpenNLP code:
  * <ul>
  * <li>made nameFinder public in NameFinder.java</li>
- * <li>NameSampleDataStream.java added lines 43 to 46 to allow non white-spaced tagging</li>
- * <li>the model names must have the following format openNLP_TAG.bin.gz where "TAG" is the name of the tag that will be
- * tagged by this model</li>
+ * <li>NameSampleDataStream.java added lines 43 to 46 to allow non white-spaced
+ * tagging</li>
+ * <li>the model names must have the following format openNLP_TAG.bin.gz where
+ * "TAG" is the name of the tag that will be tagged by this model</li>
  * </ul>
  * </p>
  * 
  * <p>
- * See also <a
- * href="http://sourceforge.net/apps/mediawiki/opennlp/index.php?title=Name_Finder#Named_Entity_Annotation_Guidelines"
- * >http://sourceforge.net/apps/mediawiki/opennlp/index.php?title=Name_Finder#Named_Entity_Annotation_Guidelines</a>
+ * See also <a href="http://sourceforge.net/apps/mediawiki/opennlp/index.php?title=Name_Finder#Named_Entity_Annotation_Guidelines"
+ * >http://sourceforge.net/apps/mediawiki/opennlp/index.php?title=Name_Finder#
+ * Named_Entity_Annotation_Guidelines</a>
  * </p>
  * 
  * @author David Urbansky
@@ -96,13 +97,17 @@ public class OpenNLPNER extends NamedEntityRecognizer {
     /**
      * Adds tags to the given text using the name entity models.
      * 
-     * @param finders The name finders to be used.
-     * @param tags The tag names for the corresponding name finder.
-     * @param input The input reader.
+     * @param finders
+     *            The name finders to be used.
+     * @param tags
+     *            The tag names for the corresponding name finder.
+     * @param input
+     *            The input reader.
      * @return A tagged string.
      * @throws IOException
      */
-    private StringBuilder processText(NameFinder[] finders, String[] tags, String text) throws IOException {
+    private StringBuilder processText(NameFinder[] finders, String[] tags,
+            String text) throws IOException {
 
         // the names of the tags
         Span[][] nameSpans = new Span[finders.length][];
@@ -122,7 +127,8 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         // let each model (one for each concept) tag the text
         for (int fi = 0, fl = finders.length; fi < fl; fi++) {
             nameSpans[fi] = finders[fi].nameFinder.find(tokens);
-            nameOutcomes[fi] = NameFinderEventStream.generateOutcomes(nameSpans[fi], null, tokens.length);
+            nameOutcomes[fi] = NameFinderEventStream.generateOutcomes(
+                    nameSpans[fi], null, tokens.length);
         }
 
         for (int ti = 0, tl = tokens.length; ti < tl; ti++) {
@@ -131,14 +137,16 @@ public class OpenNLPNER extends NamedEntityRecognizer {
                 if (ti != 0) {
                     if ((nameOutcomes[fi][ti].equals(NameFinderME.START) || nameOutcomes[fi][ti]
                             .equals(NameFinderME.OTHER))
-                            && (nameOutcomes[fi][ti - 1].equals(NameFinderME.START) || nameOutcomes[fi][ti - 1]
+                            && (nameOutcomes[fi][ti - 1]
+                                    .equals(NameFinderME.START) || nameOutcomes[fi][ti - 1]
                                     .equals(NameFinderME.CONTINUE))) {
                         output.append("</").append(tags[fi]).append(">");
                     }
                 }
             }
             if (ti > 0 && spans[ti - 1].getEnd() < spans[ti].getStart()) {
-                output.append(text.substring(spans[ti - 1].getEnd(), spans[ti].getStart()));
+                output.append(text.substring(spans[ti - 1].getEnd(), spans[ti]
+                        .getStart()));
             }
             // check for start tags
             for (int fi = 0, fl = finders.length; fi < fl; fi++) {
@@ -151,15 +159,19 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         // final end tags
         if (tokens.length != 0) {
             for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-                if (nameOutcomes[fi][tokens.length - 1].equals(NameFinderME.START)
-                        || nameOutcomes[fi][tokens.length - 1].equals(NameFinderME.CONTINUE)) {
+                if (nameOutcomes[fi][tokens.length - 1]
+                        .equals(NameFinderME.START)
+                        || nameOutcomes[fi][tokens.length - 1]
+                                .equals(NameFinderME.CONTINUE)) {
                     output.append("</").append(tags[fi]).append(">");
                 }
             }
         }
         if (tokens.length != 0) {
             if (spans[tokens.length - 1].getEnd() < text.length()) {
-                output.append(text.substring(spans[tokens.length - 1].getEnd()));
+                output
+                        .append(text.substring(spans[tokens.length - 1]
+                                .getEnd()));
             }
         }
 
@@ -182,15 +194,19 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             String tagName = modelName;
             int tagStartIndex = modelName.lastIndexOf("_");
             if (tagStartIndex > -1) {
-                tagName = modelName.substring(tagStartIndex + 1, modelName.indexOf(".", tagStartIndex));
+                tagName = modelName.substring(tagStartIndex + 1, modelName
+                        .indexOf(".", tagStartIndex));
             } else {
-                LOGGER.warn("model name does not comply \"openNLP_TAG.bin.gz\" format");
+                LOGGER
+                        .warn("model name does not comply \"openNLP_TAG.bin.gz\" format");
             }
 
             try {
-                finders[finderIndex] = new NameFinder(new PooledGISModelReader(new File(modelName)).getModel());
+                finders[finderIndex] = new NameFinder(new PooledGISModelReader(
+                        new File(modelName)).getModel());
             } catch (IOException e) {
-                LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+                LOGGER.error(getName() + " error in loading model: "
+                        + e.getMessage());
                 return false;
             }
             tags[finderIndex] = tagName.toUpperCase();
@@ -201,7 +217,8 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         objs[1] = tags;
 
         setModel(objs);
-        LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("model " + configModelFilePath + " successfully loaded in "
+                + stopWatch.getElapsedTimeString());
 
         return true;
     }
@@ -218,21 +235,24 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         try {
             taggedText = processText(finders, tags, inputText).toString();
         } catch (IOException e) {
-            LOGGER.error("could not tag text with " + getName() + ", " + e.getMessage());
+            LOGGER.error("could not tag text with " + getName() + ", "
+                    + e.getMessage());
         }
 
         String taggedTextFilePath = "data/temp/taggedText.txt";
         FileHelper.writeToFile(taggedTextFilePath, taggedText);
 
-        annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
+        annotations = FileFormatParser
+                .getAnnotationsFromXMLFile(taggedTextFilePath);
 
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
 
         return annotations;
     }
 
     @Override
-    public Annotations getAnnotations(String inputText, String configModelFilePath) {
+    public Annotations getAnnotations(String inputText,
+            String configModelFilePath) {
 
         loadModel(configModelFilePath);
         return getAnnotations(inputText);
@@ -254,8 +274,8 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         EventStream es;
 
         try {
-            es = new NameFinderEventStream(new NameSampleDataStream(new PlainTextByLineDataStream(
-                    new FileReader(inFile))));
+            es = new NameFinderEventStream(new NameSampleDataStream(
+                    new PlainTextByLineDataStream(new FileReader(inFile))));
 
             mod = NameFinderME.train(es, iterations, cutoff);
             LOGGER.info("saving the model as: " + outFile.toString());
@@ -263,12 +283,14 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             new SuffixSensitiveGISModelWriter(mod, outFile).persist();
 
         } catch (FileNotFoundException e) {
-            LOGGER.error("error during training model in " + getName() + ", with " + trainingFilePath + " and "
-                    + modelFilePath + ", " + e.getMessage());
+            LOGGER.error("error during training model in " + getName()
+                    + ", with " + trainingFilePath + " and " + modelFilePath
+                    + ", " + e.getMessage());
             return false;
         } catch (IOException e) {
-            LOGGER.error("error during training model in " + getName() + ", with " + trainingFilePath + " and "
-                    + modelFilePath + ", " + e.getMessage());
+            LOGGER.error("error during training model in " + getName()
+                    + ", with " + trainingFilePath + " and " + modelFilePath
+                    + ", " + e.getMessage());
             return false;
         }
 
@@ -287,42 +309,64 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         if (args.length > 0) {
 
             Options options = new Options();
-            options.addOption(OptionBuilder.withLongOpt("mode").withDescription("whether to tag or train a model")
+            options.addOption(OptionBuilder.withLongOpt("mode")
+                    .withDescription("whether to tag or train a model")
                     .create());
 
             OptionGroup modeOptionGroup = new OptionGroup();
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tg").withLongOpt("tag").withDescription("tag a text")
+            modeOptionGroup.addOption(OptionBuilder.withArgName("tg")
+                    .withLongOpt("tag").withDescription("tag a text").create());
+            modeOptionGroup.addOption(OptionBuilder.withArgName("tr")
+                    .withLongOpt("train").withDescription("train a model")
                     .create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("tr").withLongOpt("train")
-                    .withDescription("train a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("ev").withLongOpt("evaluate")
+            modeOptionGroup.addOption(OptionBuilder.withArgName("ev")
+                    .withLongOpt("evaluate")
                     .withDescription("evaluate a model").create());
-            modeOptionGroup.addOption(OptionBuilder.withArgName("dm").withLongOpt("demo")
-                    .withDescription("demo mode of the tagger").create());
+            modeOptionGroup.addOption(OptionBuilder.withArgName("dm")
+                    .withLongOpt("demo").withDescription(
+                            "demo mode of the tagger").create());
             modeOptionGroup.setRequired(true);
             options.addOptionGroup(modeOptionGroup);
 
-            options.addOption(OptionBuilder.withLongOpt("trainingFile")
-                    .withDescription("the path and name of the training file for the tagger (only if mode = train)")
-                    .hasArg().withArgName("text").withType(String.class).create());
+            options
+                    .addOption(OptionBuilder
+                            .withLongOpt("trainingFile")
+                            .withDescription(
+                                    "the path and name of the training file for the tagger (only if mode = train)")
+                            .hasArg().withArgName("text")
+                            .withType(String.class).create());
 
-            options.addOption(OptionBuilder
-                    .withLongOpt("testFile")
-                    .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
-                    .hasArg().withArgName("text").withType(String.class).create());
+            options
+                    .addOption(OptionBuilder
+                            .withLongOpt("testFile")
+                            .withDescription(
+                                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                            .hasArg().withArgName("text")
+                            .withType(String.class).create());
 
-            options.addOption(OptionBuilder.withLongOpt("configFile")
-                    .withDescription("the path and name of the config file for the tagger").hasArg()
-                    .withArgName("text").withType(String.class).create());
+            options
+                    .addOption(OptionBuilder
+                            .withLongOpt("configFile")
+                            .withDescription(
+                                    "the path and name of the config file for the tagger")
+                            .hasArg().withArgName("text")
+                            .withType(String.class).create());
 
-            options.addOption(OptionBuilder.withLongOpt("inputText")
-                    .withDescription("the text that should be tagged (only if mode = tag)").hasArg()
-                    .withArgName("text").withType(String.class).create());
+            options
+                    .addOption(OptionBuilder
+                            .withLongOpt("inputText")
+                            .withDescription(
+                                    "the text that should be tagged (only if mode = tag)")
+                            .hasArg().withArgName("text")
+                            .withType(String.class).create());
 
-            options.addOption(OptionBuilder.withLongOpt("outputFile")
-                    .withDescription("the path and name of the file where the tagged text should be saved to").hasArg()
-                    .withArgName("text").withType(String.class).create());
+            options
+                    .addOption(OptionBuilder
+                            .withLongOpt("outputFile")
+                            .withDescription(
+                                    "the path and name of the file where the tagged text should be saved to")
+                            .hasArg().withArgName("text")
+                            .withType(String.class).create());
 
             HelpFormatter formatter = new HelpFormatter();
 
@@ -333,23 +377,29 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
                 if (cmd.hasOption("tag")) {
 
-                    String taggedText = tagger.tag(cmd.getOptionValue("inputText"), cmd.getOptionValue("configFile"));
+                    String taggedText = tagger.tag(cmd
+                            .getOptionValue("inputText"), cmd
+                            .getOptionValue("configFile"));
 
                     if (cmd.hasOption("outputFile")) {
-                        FileHelper.writeToFile(cmd.getOptionValue("outputFile"), taggedText);
+                        FileHelper.writeToFile(
+                                cmd.getOptionValue("outputFile"), taggedText);
                     } else {
-                        System.out.println("No output file given so tagged text will be printed to the console:");
+                        System.out
+                                .println("No output file given so tagged text will be printed to the console:");
                         System.out.println(taggedText);
                     }
 
                 } else if (cmd.hasOption("train")) {
 
-                    tagger.train(cmd.getOptionValue("trainingFile"), cmd.getOptionValue("configFile"));
+                    tagger.train(cmd.getOptionValue("trainingFile"), cmd
+                            .getOptionValue("configFile"));
 
                 } else if (cmd.hasOption("evaluate")) {
 
-                    EvaluationResult evResult = tagger.evaluate(cmd.getOptionValue("trainingFile"),
-                            cmd.getOptionValue("configFile"), TaggingFormat.XML);
+                    EvaluationResult evResult = tagger.evaluate(cmd
+                            .getOptionValue("trainingFile"), cmd
+                            .getOptionValue("configFile"), TaggingFormat.XML);
                     System.out.println(evResult);
 
                 } else if (cmd.hasOption("demo")) {
@@ -365,9 +415,11 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
         }
 
-        // // HOW TO USE (some functions require the models in data/models/opennlp) ////
+        // // HOW TO USE (some functions require the models in
+        // data/models/opennlp) ////
         // // train
-        // tagger.train("data/datasets/ner/sample/trainingPhoneXML.xml", "data/models/opennlp/openNLP_phone.bin.gz");
+        // tagger.train("data/datasets/ner/sample/trainingPhoneXML.xml",
+        // "data/models/opennlp/openNLP_phone.bin.gz");
 
         // // tag
         // String taggedText = tagger

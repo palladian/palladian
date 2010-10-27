@@ -3,166 +3,162 @@ package tud.iir.extraction.event;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import tud.iir.classification.FeatureObject;
+import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.knowledge.Extractable;
 import tud.iir.web.WebResult;
 
-import com.aliasi.chunk.Chunk;
-
 /**
+ * Event Object Class
+ * 
  * @author Martin Wunderwald
- *
  */
 public class Event extends Extractable {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1023303092784471374L;
-	private FeatureObject features;
-	private Map<Integer, FeatureObject> entityFeatures;
-	private Map<Integer, Set<Chunk>> entityChunks;
-	private String text;
-	private String title;
-	private String url;
-	private List<WebResult> webresults;
+    private static final long serialVersionUID = 1023303092784471374L;
+    private FeatureObject features;
+    private Map<Integer, FeatureObject> entityFeatures;
+    private Map<Integer, Annotations> entityAnnotations;
+    private String text;
+    private String title;
+    private String url;
+    private List<WebResult> webresults;
 
-	private String who;
-	private String where;
-	private String what;
-	private String why;
-	private String when;
-	private String how;
+    private String who;
+    private String where;
+    private String what;
+    private String why;
+    private String when;
+    private String how;
 
-	public Event() {
-		super();
-		setExtractedAt(new Date(System.currentTimeMillis()));
-	}
+    public Event() {
+        super();
+        setExtractedAt(new Date(System.currentTimeMillis()));
+    }
 
-	public Event(String url) {
-		super();
-		this.url = url;
-		
-		setExtractedAt(new Date(System.currentTimeMillis()));
-	}
+    public Event(String url) {
+        super();
+        this.url = url;
 
-	public Event(String title, String text) {
-		this.text = text;
-		this.title = title;
-		setExtractedAt(new Date(System.currentTimeMillis()));
-	}
+        setExtractedAt(new Date(System.currentTimeMillis()));
+    }
 
-	public Event(String title, String text, String url) {
-		this.text = text;
-		this.title = title;
-		this.url = url;
+    public Event(String title, String text) {
+        this.text = text;
+        this.title = title;
+        setExtractedAt(new Date(System.currentTimeMillis()));
+    }
 
-		setExtractedAt(new Date(System.currentTimeMillis()));
-	}
+    public Event(String title, String text, String url) {
+        this.text = text;
+        this.title = title;
+        this.url = url;
 
-	public String getTitle() {
-		return title;
-	}
+        setExtractedAt(new Date(System.currentTimeMillis()));
+    }
 
-	public void setTitle(String title) {
-		this.title = title;
-	}
+    public String getTitle() {
+        return title;
+    }
 
-	public FeatureObject getFeatures() {
-		return features;
-	}
+    public void setTitle(String title) {
+        this.title = title;
+    }
 
-	public void setFeatures(FeatureObject features) {
-		this.features = features;
-	}
+    public FeatureObject getFeatures() {
+        return features;
+    }
 
-	public Map<Integer, FeatureObject> getEntityFeatures() {
-		return entityFeatures;
-	}
+    public void setFeatures(FeatureObject features) {
+        this.features = features;
+    }
 
-	public void setEntityFeatures(Map<Integer, FeatureObject> entityFeatures) {
-		this.entityFeatures = entityFeatures;
-	}
+    public Map<Integer, FeatureObject> getEntityFeatures() {
+        return entityFeatures;
+    }
 
-	public Map<Integer, Set<Chunk>> getEntityChunks() {
-		return entityChunks;
-	}
+    public void setEntityFeatures(Map<Integer, FeatureObject> entityFeatures) {
+        this.entityFeatures = entityFeatures;
+    }
 
-	public void setEntityChunks(Map<Integer, Set<Chunk>> entityChunks) {
-		this.entityChunks = entityChunks;
-	}
+    public Map<Integer, Annotations> getEntityAnnotations() {
+        return entityAnnotations;
+    }
 
-	public String getUrl() {
-		return url;
-	}
+    public void setEntityAnnotations(Map<Integer, Annotations> entityAnnotations) {
+        this.entityAnnotations = entityAnnotations;
+    }
 
-	public void setUrl(String url) {
-		this.url = url;
-	}
+    public String getUrl() {
+        return url;
+    }
 
-	public List<WebResult> getWebresults() {
-		return webresults;
-	}
+    public void setUrl(String url) {
+        this.url = url;
+    }
 
-	public void setWebresults(List<WebResult> webresult) {
-		this.webresults = webresult;
-	}
+    public List<WebResult> getWebresults() {
+        return webresults;
+    }
 
-	public String getText() {
-		return text;
-	}
+    public void setWebresults(List<WebResult> webresult) {
+        this.webresults = webresult;
+    }
 
-	public void setText(String text) {
-		this.text = text;
-	}
+    public String getText() {
+        return text;
+    }
 
-	public String getWho() {
-		return who;
-	}
+    public void setText(String text) {
+        this.text = text;
+    }
 
-	public void setWho(String who) {
-		this.who = who;
-	}
+    public String getWho() {
+        return who;
+    }
 
-	public String getWhere() {
-		return where;
-	}
+    public void setWho(String who) {
+        this.who = who;
+    }
 
-	public void setWhere(String where) {
-		this.where = where;
-	}
+    public String getWhere() {
+        return where;
+    }
 
-	public String getWhat() {
-		return what;
-	}
+    public void setWhere(String where) {
+        this.where = where;
+    }
 
-	public void setWhat(String what) {
-		this.what = what;
-	}
+    public String getWhat() {
+        return what;
+    }
 
-	public String getWhy() {
-		return why;
-	}
+    public void setWhat(String what) {
+        this.what = what;
+    }
 
-	public void setWhy(String why) {
-		this.why = why;
-	}
+    public String getWhy() {
+        return why;
+    }
 
-	public String getWhen() {
-		return when;
-	}
+    public void setWhy(String why) {
+        this.why = why;
+    }
 
-	public void setWhen(String when) {
-		this.when = when;
-	}
+    public String getWhen() {
+        return when;
+    }
 
-	public String getHow() {
-		return how;
-	}
+    public void setWhen(String when) {
+        this.when = when;
+    }
 
-	public void setHow(String how) {
-		this.how = how;
-	}
+    public String getHow() {
+        return how;
+    }
+
+    public void setHow(String how) {
+        this.how = how;
+    }
 }
