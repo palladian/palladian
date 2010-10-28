@@ -283,12 +283,6 @@ public class FeedBenchmarkFileReader {
                 pollData.setMisses(misses);
             }
 
-            if (FeedChecker.benchmark == FeedChecker.BENCHMARK_MAX_CHECK) {
-                pollData.setCheckInterval(feed.getMaxCheckInterval());
-            } else {
-                pollData.setCheckInterval(feed.getMinCheckInterval());
-            }
-
             pollData.setNewPostDelay(cumulatedDelay);
             pollData.setWindowSize(feed.getWindowSize());
             pollData.setDownloadSize(totalBytes);
@@ -302,6 +296,12 @@ public class FeedBenchmarkFileReader {
             feed.setLastChecked(new Date());
 
             feedChecker.updateCheckIntervals(feed);
+
+            if (FeedChecker.benchmark == FeedChecker.BENCHMARK_MAX_CHECK) {
+                pollData.setCheckInterval(feed.getMaxCheckInterval());
+            } else {
+                pollData.setCheckInterval(feed.getMinCheckInterval());
+            }
 
             if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MIN_CHECK) {
                 feed.addToBenchmarkLookupTime((long) feed.getMinCheckInterval() * (long) DateHelper.MINUTE_MS);
