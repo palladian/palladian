@@ -1,9 +1,9 @@
 package tud.iir.news.evaluation;
 
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
@@ -17,6 +17,9 @@ public class ChartCreator {
     private final String feedAgeFilePath = "data/evaluation/feedAgeData.csv";
     private final String timeliness2FilePath = "data/evaluation/timeliness2Data.csv";
     private final String percentageNewFilePath = "data/evaluation/percentNewData.csv";
+    private final String sumVolumeMaxFilePath = "data/evaluation/sumVolumeMaxData.csv";
+    
+    
     private final int MAX_NUMBER_OF_POLLS_SCORE_MIN = 1000;
     private final int MAX_NUMBER_OF_POLLS_SCORE_MAX = 1000;
     
@@ -103,7 +106,7 @@ public class ChartCreator {
     private void createTimeliness2File(){
         EvaluationDatabase ed = EvaluationDatabase.getInstance();
         StringBuilder timeliness2SB = new StringBuilder();        
-        HashMap<Integer,Double[]> testMap = new HashMap<Integer,Double[]>();
+        Map<Integer,Double[]> testMap = new TreeMap<Integer,Double[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
         timeliness2SB.append("numberOfPoll;");
         
@@ -187,19 +190,12 @@ public class ChartCreator {
     
     
     
-    
-    
-    
-    
-    
-    
-    
 
 
-    private void createPercentageNew2File(){
+    private void createPercentageNewFile(){
         EvaluationDatabase ed = EvaluationDatabase.getInstance();
         StringBuilder timeliness2SB = new StringBuilder();        
-        HashMap<Integer,Double[]> testMap = new HashMap<Integer,Double[]>();
+        Map<Integer,Double[]> testMap = new TreeMap<Integer,Double[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
         timeliness2SB.append("numberOfPoll;");
         
@@ -284,6 +280,155 @@ public class ChartCreator {
     
     
     
+    
+    private void culmulatedVolumeMaxTimeFile(){
+        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+        StringBuilder culmulatedVolumeSB = new StringBuilder();
+        /* <hourOfExperiment, culmulatedVolumePerAlgorithm in Bytes>  */
+        Map<Integer,Long[]> totalResultMap = new TreeMap<Integer,Long[]>();
+        List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
+        int totalExperimentHours = 672;
+        long culmulatedVolumePerTechnique = 0;
+        int feedIDLastStep = -1;
+        int requiredNumberOfPolls = -1; 
+        float sizeOfPollLast = -1;
+        int hourLastStep = -1;
+        int numberOfPollsToProcess = -1;
+        int pollingInterval = -1;
+        
+        culmulatedVolumeSB.append("hour of experiment;");
+    
+        
+        
+
+//        
+//        culmulatedVolumeSB.append(";volume fix720 [MB];");
+//        culmulatedVolumePerTechnique = 0;
+//        pollingInterval = 12;
+//        requiredNumberOfPolls = totalExperimentHours/pollingInterval;
+//        
+//        polls = ed.getSumTransferVolumeByHourFromFix720MaxTime();
+//       
+//        for (EvaluationFeedPoll poll : polls) {
+//            Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+//            int feedIDCurrent = poll.getFeedID();
+//            
+//            // in der DB nicht vorhandene Polls generieren 
+//            if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
+//                while (numberOfPollsToProcess > 0){
+//                    numberOfPollsToProcess--;
+//                    int hourToProcess = hourLastStep + pollingInterval;
+//                    long culmulatedVolumePerHour = 0;
+//                    transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+//                    
+//                    if( totalResultMap.containsKey(hourToProcess)){
+//                        transferredDataArray = totalResultMap.get(hourToProcess);
+//                        if (transferredDataArray[1] != null) {
+//                            culmulatedVolumePerHour = transferredDataArray[1];
+//                        }                        
+//                    }                    
+//                    culmulatedVolumePerHour += sizeOfPollLast;
+//                    transferredDataArray[1] = culmulatedVolumePerHour;                                        
+//                    totalResultMap.put(hourToProcess, transferredDataArray);
+//                    hourLastStep = hourToProcess;
+//                }                
+//                // Wert für den eigentlich zu bearbeitenden Poll zurücksetzen, da nun neue FeedID behandelt wird
+//                numberOfPollsToProcess = requiredNumberOfPolls;
+//            }
+//                   
+//            // aktuellen Poll behandeln
+//            int hourToProcess = poll.getHourOfExperiment();
+//            long culmulatedVolumePerHour = 0;
+//            transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+//            
+//            if( totalResultMap.containsKey(hourToProcess)){
+//                transferredDataArray = totalResultMap.get(hourToProcess);
+//                if (transferredDataArray[1] != null) {
+//                    culmulatedVolumePerHour = transferredDataArray[1];
+//                }                        
+//            }
+//            float sizeOfPoll = poll.getSizeOfPoll();
+//            culmulatedVolumePerHour += sizeOfPoll;
+//            transferredDataArray[1] = culmulatedVolumePerHour;                                        
+//            totalResultMap.put(hourToProcess, transferredDataArray);
+//            
+//            numberOfPollsToProcess--;
+//            hourLastStep = hourToProcess;
+//            feedIDLastStep = feedIDCurrent;
+//            sizeOfPollLast = sizeOfPoll;
+//        }
+//        
+//        
+//        
+        
+        
+        
+        
+        
+        
+        
+        
+        culmulatedVolumeSB.append(";;;;volume adaptive [MB];");
+        culmulatedVolumePerTechnique = 0;
+        polls = ed.getSumTransferVolumeByHourFromAdaptiveMaxTime();
+        for (EvaluationFeedPoll poll : polls) {
+            Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+            int hourToProcess = poll.getHourOfExperiment();            
+            if( totalResultMap.containsKey(hourToProcess)){
+                transferredDataArray = totalResultMap.get(hourToProcess);
+            }
+            
+            culmulatedVolumePerTechnique += poll.getCulmulatedSizeofPolls();
+            transferredDataArray[4] = culmulatedVolumePerTechnique;
+            totalResultMap.put(hourToProcess, transferredDataArray);
+        }
+
+        
+        culmulatedVolumeSB.append("probabilistic;\n");
+        culmulatedVolumePerTechnique = 0;
+        polls = ed.getSumTransferVolumeByHourFromProbabilisticMaxTime();
+        for (EvaluationFeedPoll poll : polls) {
+            Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+            int hourToProcess = poll.getHourOfExperiment();            
+            if( totalResultMap.containsKey(hourToProcess)){
+                transferredDataArray = totalResultMap.get(hourToProcess);
+            }
+            
+            culmulatedVolumePerTechnique += poll.getCulmulatedSizeofPolls();
+            transferredDataArray[5] = culmulatedVolumePerTechnique;
+            totalResultMap.put(hourToProcess, transferredDataArray);
+        }
+        
+        long temp = -1;
+        
+        
+        int i = 1;
+        long byteToMB = 1048576;
+        for(Long[] volumes : totalResultMap.values()){
+            culmulatedVolumeSB.append(i).append(";")
+                .append(volumes[0]/byteToMB).append(";")
+                .append(volumes[1]/byteToMB).append(";")
+                .append(volumes[2]/byteToMB).append(";")
+                .append(volumes[3]/byteToMB).append(";")
+                .append(volumes[4]/byteToMB).append(";")
+                .append(volumes[5]/byteToMB).append(";\n");
+            i++;    
+            
+            temp = volumes[5];
+            
+        }
+        
+        FileHelper.writeToFile(sumVolumeMaxFilePath, culmulatedVolumeSB);
+        LOGGER.info("sumVolumeMaxFilePath *hopefully* :) written to: " + sumVolumeMaxFilePath);
+    } 
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * simply testing the connection and EvaluationFeedPoll class.
      * */
@@ -307,7 +452,8 @@ public class ChartCreator {
 //	    cc.createFeedSizeHistogrammFile();
 //	    cc.createFeedAgeFile();
 //		cc.createTimeliness2File();
-	    cc.createPercentageNew2File();
+//	    cc.createPercentageNewFile();
+	    cc.culmulatedVolumeMaxTimeFile();
 	    	    
 
 	}

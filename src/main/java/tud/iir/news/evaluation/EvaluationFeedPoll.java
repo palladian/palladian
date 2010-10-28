@@ -63,7 +63,55 @@ public class EvaluationFeedPoll {
     
     /* an average score, calculated for some diagrams */
     private double scoreAVG = -1;
+    
+    
+    private int dayOfYear = -1;
+    
+    private long culmulatedSizeofPolls = -1;
 	
+    private int hourOfExperiment = -1;
+
+    /**
+     * @return the hourOfExperiment
+     */
+    public final int getHourOfExperiment() {
+        return hourOfExperiment;
+    }
+
+    /**
+     * @param hourOfExperiment the hourOfExperiment to set
+     */
+    public final void setHourOfExperiment(int hourOfExperiment) {
+        this.hourOfExperiment = hourOfExperiment;
+    }
+
+    /**
+     * @return the dayOfYear
+     */
+    public final int getDayOfYear() {
+        return dayOfYear;
+    }
+
+    /**
+     * @param dayOfYear the dayOfYear to set
+     */
+    public final void setDayOfYear(int dayOfYear) {
+        this.dayOfYear = dayOfYear;
+    }
+
+    /**
+     * @return the culmulatedSizeofPolls
+     */
+    public final long getCulmulatedSizeofPolls() {
+        return culmulatedSizeofPolls;
+    }
+
+    /**
+     * @param culmulatedSizeofPolls the culmulatedSizeofPolls to set
+     */
+    public final void setCulmulatedSizeofPolls(long culmulatedSizeofPolls) {
+        this.culmulatedSizeofPolls = culmulatedSizeofPolls;
+    }
 
     public EvaluationFeedPoll() {
         super();
@@ -242,11 +290,14 @@ public class EvaluationFeedPoll {
         result = prime * result + activityPattern;
         result = prime * result + Float.floatToIntBits(checkInterval);
         result = prime * result + conditionalGetResponseSize;
+        result = prime * result + (int) (culmulatedSizeofPolls ^ (culmulatedSizeofPolls >>> 32));
+        result = prime * result + dayOfYear;
         long temp;
         temp = Double.doubleToLongBits(delay);
         result = prime * result + (int) (temp ^ (temp >>> 32));
         result = prime * result + eTagResponseSize;
         result = prime * result + feedID;
+        result = prime * result + hourOfExperiment;
         result = prime * result + numberMissedNewEntries;
         result = prime * result + numberOfPoll;
         result = prime * result + Float.floatToIntBits(percentageNewEntries);
@@ -283,11 +334,17 @@ public class EvaluationFeedPoll {
             return false;
         if (conditionalGetResponseSize != other.conditionalGetResponseSize)
             return false;
+        if (culmulatedSizeofPolls != other.culmulatedSizeofPolls)
+            return false;
+        if (dayOfYear != other.dayOfYear)
+            return false;
         if (Double.doubleToLongBits(delay) != Double.doubleToLongBits(other.delay))
             return false;
         if (eTagResponseSize != other.eTagResponseSize)
             return false;
         if (feedID != other.feedID)
+            return false;
+        if (hourOfExperiment != other.hourOfExperiment)
             return false;
         if (numberMissedNewEntries != other.numberMissedNewEntries)
             return false;
@@ -337,7 +394,8 @@ public class EvaluationFeedPoll {
                 + ", pollMinuteOfDay=" + pollMinuteOfDay + ", checkInterval=" + checkInterval + ", windowSize="
                 + windowSize + ", sizeOfPoll=" + sizeOfPoll + ", numberMissedNewEntries=" + numberMissedNewEntries
                 + ", percentageNewEntries=" + percentageNewEntries + ", delay=" + delay + ", scoreMax=" + scoreMax
-                + ", scoreMin=" + scoreMin + ", scoreAVG=" + scoreAVG + "]";
+                + ", scoreMin=" + scoreMin + ", scoreAVG=" + scoreAVG + ", dayOfYear=" + dayOfYear
+                + ", culmulatedSizeofPolls=" + culmulatedSizeofPolls + ", hourOfExperiment=" + hourOfExperiment + "]";
     }
 
 	
