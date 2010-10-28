@@ -1,11 +1,12 @@
 package tud.iir.news.evaluation;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.page.ClassifierManager;
-import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 
 public class ChartCreator {
@@ -80,22 +81,111 @@ public class ChartCreator {
         LOGGER.info("feedAgeFile *hopefully* :) written to: " + feedAgeFilePath);       
     }
     
+//    
+//    private void createTimeliness2File(){
+//        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+//        List<EvaluationFeedPoll> polls = ed.getAverageScoreMinFIX1440();
+//        StringBuilder timeliness2SB = new StringBuilder();
+//        timeliness2SB.append("numberOfPoll; fix1440\n");
+//        
+//        for (EvaluationFeedPoll poll : polls) {
+//            timeliness2SB.append(poll.getNumberOfPoll()).append(";").append(poll.getScoreAVG()).append(";\n");
+//        }
+//        
+//        FileHelper.writeToFile(timeliness2FilePath, timeliness2SB);
+//        LOGGER.info("timeliness2File *hopefully* :) written to: " + timeliness2FilePath);
+//    }
     
+
     private void createTimeliness2File(){
         EvaluationDatabase ed = EvaluationDatabase.getInstance();
-        List<EvaluationFeedPoll> polls = ed.getAverageScoreMinFIX1440();
-        StringBuilder timeliness2SB = new StringBuilder();
-        timeliness2SB.append("numberOfPoll; fix1440\n");
+        StringBuilder timeliness2SB = new StringBuilder();        
+        HashMap<Integer,Double[]> testMap = new HashMap<Integer,Double[]>();
+        List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
+        timeliness2SB.append("numberOfPoll;");
         
+        timeliness2SB.append("fix1440;");
+        polls = ed.getAverageScoreMinFIX1440();
+        for (EvaluationFeedPoll poll : polls) {            
+            Double[] testDouble = new Double[6];
+            testDouble[0] = poll.getScoreAVG();
+            testMap.put(poll.getNumberOfPoll(), testDouble);
+        }
+        
+        
+        timeliness2SB.append("fix720;");
+        polls = ed.getAverageScoreMinFIX720();                
         for (EvaluationFeedPoll poll : polls) {
-            timeliness2SB.append(poll.getNumberOfPoll()).append(";").append(poll.getScoreAVG()).append(";\n");
+            int pollToProcess = poll.getNumberOfPoll();
+            Double[] testDouble = new Double[6];
+            if( testMap.containsKey(pollToProcess)){
+                testDouble = testMap.get(pollToProcess);
+            }
+            testDouble[1] = poll.getScoreAVG();
+            testMap.put(poll.getNumberOfPoll(), testDouble);
+        }
+             
+        
+        timeliness2SB.append("fix60;");
+        polls = ed.getAverageScoreMinFIX60();                
+        for (EvaluationFeedPoll poll : polls) {
+            int pollToProcess = poll.getNumberOfPoll();
+            Double[] testDouble = new Double[6];
+            if( testMap.containsKey(pollToProcess)){
+                testDouble = testMap.get(pollToProcess);
+            }
+            testDouble[2] = poll.getScoreAVG();
+            testMap.put(poll.getNumberOfPoll(), testDouble);
+        }
+        
+
+        timeliness2SB.append("fixLearned;");
+        polls = ed.getAverageScoreMinFIXlearned();                
+        for (EvaluationFeedPoll poll : polls) {
+            int pollToProcess = poll.getNumberOfPoll();
+            Double[] testDouble = new Double[6];
+            if( testMap.containsKey(pollToProcess)){
+                testDouble = testMap.get(pollToProcess);
+            }
+            testDouble[3] = poll.getScoreAVG();
+            testMap.put(poll.getNumberOfPoll(), testDouble);
+        }
+
+        timeliness2SB.append("adaptive;");
+        polls = ed.getAverageScoreMinAdaptive();                
+        for (EvaluationFeedPoll poll : polls) {
+            int pollToProcess = poll.getNumberOfPoll();
+            Double[] testDouble = new Double[6];
+            if( testMap.containsKey(pollToProcess)){
+                testDouble = testMap.get(pollToProcess);
+            }
+            testDouble[4] = poll.getScoreAVG();
+            testMap.put(poll.getNumberOfPoll(), testDouble);
+        }
+
+        timeliness2SB.append("probabilistic;\n");
+        polls = ed.getAverageScoreMinProbabilistic();                
+        for (EvaluationFeedPoll poll : polls) {
+            int pollToProcess = poll.getNumberOfPoll();
+            Double[] testDouble = new Double[6];
+            if( testMap.containsKey(pollToProcess)){
+                testDouble = testMap.get(pollToProcess);
+            }
+            testDouble[5] = poll.getScoreAVG();
+            testMap.put(poll.getNumberOfPoll(), testDouble);
+        }
+        
+        
+        int i = 1;
+        for(Double[] scores : testMap.values()){
+            timeliness2SB.append(i).append(";").append(scores[0]).append(";").append(scores[1]).append(";").append(scores[2]).append(";").append(scores[3]).append(";").append(scores[4]).append(";").append(scores[5]).append(";\n");
+            i++;
+            
         }
         
         FileHelper.writeToFile(timeliness2FilePath, timeliness2SB);
         LOGGER.info("timeliness2File *hopefully* :) written to: " + timeliness2FilePath);
-    }
-    
-    
+    } 
     
     
     
@@ -118,9 +208,9 @@ public class ChartCreator {
 	    
 	    ChartCreator cc = new ChartCreator();
 
-	    cc.createFeedSizeHistogrammFile();
+//	    cc.createFeedSizeHistogrammFile();
 //	    cc.createFeedAgeFile();
-//		cc.createTimeliness2File();
+		cc.createTimeliness2File();
 	    	    
 
 	}
