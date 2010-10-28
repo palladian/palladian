@@ -4,13 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.news.FeedEntry;
 import tud.iir.persistence.DatabaseManager;
 
 /**
@@ -46,7 +44,8 @@ public class EvaluationDatabase {
     private PreparedStatement psGetAvgScoreMaxByPollFromPorbabilisticPoll;
     
     private PreparedStatement psGetSumTransferVolumeByHourFromAdaptiveMaxTime;
-    private PreparedStatement psGetSumTransferVolumeByHourFroProbabilisticMaxTime;
+    private PreparedStatement psGetAvgScoreMaxByPollFromFix720Time;
+    private PreparedStatement psGetSumTransferVolumeByHourFromProbabilisticMaxTime;
 
     private EvaluationDatabase() {
         try {
@@ -106,7 +105,7 @@ public class EvaluationDatabase {
         
         
         psGetSumTransferVolumeByHourFromAdaptiveMaxTime  = connection
-                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
+                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
         
         
 //        TODO:
@@ -116,11 +115,11 @@ public class EvaluationDatabase {
 //                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
 //        psGetAvgScoreMaxByPollFromFix60Poll  = connection
 //                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMaxByPollFromFix720Poll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix720_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
+        psGetAvgScoreMaxByPollFromFix720Time  = connection
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix720_max_min_time ORDER BY id, pollTimestamp ASC");
         
-        psGetSumTransferVolumeByHourFroProbabilisticMaxTime = connection
-                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
+        psGetSumTransferVolumeByHourFromProbabilisticMaxTime = connection
+                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
 
         
         
@@ -521,8 +520,8 @@ public class EvaluationDatabase {
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromAdaptiveMaxTime);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
+                feedPoll.setHourOfExperiment(resultSet.getInt(1));
+                feedPoll.setCulmulatedSizeofPolls(resultSet.getLong(4));
                 result.add(feedPoll);
             }
         } catch (SQLException e) {
@@ -531,6 +530,56 @@ public class EvaluationDatabase {
         LOGGER.trace("<getSumTransferVolumeByHourFromAdaptiveMaxTime");
         return result;
     }
+    
+    
+    
+    /**
+     * @return List<EvaluationFeedPoll> 
+     */
+    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFix720MaxTime() {
+        LOGGER.trace(">getSumTransferVolumeByHourFromFix720MaxTime");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMaxByPollFromFix720Time);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setFeedID(resultSet.getInt(1));
+                feedPoll.setHourOfExperiment(resultSet.getInt(2));
+                feedPoll.setSizeOfPoll(resultSet.getLong(3));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getSumTransferVolumeByHourFromFix720MaxTime", e);
+        }
+        LOGGER.trace("<getSumTransferVolumeByHourFromFix720MaxTime");
+        return result;
+    }    
+    
+    
+    
+        
+
+    /**
+     * @return List<EvaluationFeedPoll> 
+     */
+    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromProbabilisticMaxTime() {
+        LOGGER.trace(">getSumTransferVolumeByHourFromProbabilisticMaxTime");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromProbabilisticMaxTime);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setHourOfExperiment(resultSet.getInt(1));
+                feedPoll.setCulmulatedSizeofPolls(resultSet.getLong(4));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getSumTransferVolumeByHourFromProbabilisticMaxTime", e);
+        }
+        LOGGER.trace("<getSumTransferVolumeByHourFromProbabilisticMaxTime");
+        return result;
+    }
+    
     
     
     
