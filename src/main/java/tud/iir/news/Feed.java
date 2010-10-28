@@ -362,7 +362,7 @@ public class Feed {
     		return oneFullDayOfItemsSeen;
     	}
     	
-    	oneFullDayOfItemsSeen = false;
+        oneFullDayOfItemsSeen = true;
 
         for (Entry<Integer, int[]> entry : meticulousPostDistribution.entrySet()) {
             // if feed had no chance of having a post entry in any minute of the day, no full day has been seen yet
