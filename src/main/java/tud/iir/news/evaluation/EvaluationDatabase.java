@@ -65,7 +65,7 @@ public class EvaluationDatabase {
         psGetAvgScoreMinByPollFromAdaptivePoll  = connection
                 .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_adaptive_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromFixLearnedPoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix_learned_max_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix_learned_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromFix1440Poll  = connection
                 .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMin > 0 GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromFix60Poll  = connection
@@ -180,6 +180,124 @@ public class EvaluationDatabase {
         return result;
     }
     
+
+    /**
+     * gets the Results from table feed_evaluation_fix60_max_min_poll
+     * 
+     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     */
+    public List<EvaluationFeedPoll> getAverageScoreMinFIX60() {
+        LOGGER.trace(">getAverageScoreMinFIX60");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromFix60Poll);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setNumberOfPoll(resultSet.getInt(1));
+                feedPoll.setScoreAVG(resultSet.getDouble(2));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getAverageScoreMinFIX60", e);
+        }
+        LOGGER.trace("<getAverageScoreMinFIX60");
+        return result;
+    }
     
+
+    /**
+     * gets the Results from table feed_evaluation_fix720_max_min_poll
+     * 
+     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     */
+    public List<EvaluationFeedPoll> getAverageScoreMinFIX720() {
+        LOGGER.trace(">getAverageScoreMinFIX720");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromFix720Poll);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setNumberOfPoll(resultSet.getInt(1));
+                feedPoll.setScoreAVG(resultSet.getDouble(2));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getAverageScoreMinFIX720", e);
+        }
+        LOGGER.trace("<getAverageScoreMinFIX720");
+        return result;
+    }
+    
+
+    /**
+     * gets the Results from table feed_evaluation_fix_learned_min_poll
+     * 
+     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     */
+    public List<EvaluationFeedPoll> getAverageScoreMinFIXlearned() {
+        LOGGER.trace(">getAverageScoreMinFIXlearned");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromFixLearnedPoll);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setNumberOfPoll(resultSet.getInt(1));
+                feedPoll.setScoreAVG(resultSet.getDouble(2));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getAverageScoreMinFIXlearned", e);
+        }
+        LOGGER.trace("<getAverageScoreMinFIXlearned");
+        return result;
+    }
+    
+
+    /**
+     * gets the Results from table feed_evaluation_adaptive_min_poll
+     * 
+     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     */
+    public List<EvaluationFeedPoll> getAverageScoreMinAdaptive() {
+        LOGGER.trace(">getAverageScoreMinAdaptive");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromAdaptivePoll);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setNumberOfPoll(resultSet.getInt(1));
+                feedPoll.setScoreAVG(resultSet.getDouble(2));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getAverageScoreMinAdaptive", e);
+        }
+        LOGGER.trace("<getAverageScoreMinAdaptive");
+        return result;
+    }
+    
+
+    /**
+     * gets the Results from table feed_evaluation_probabilistic_min_poll
+     * 
+     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     */
+    public List<EvaluationFeedPoll> getAverageScoreMinProbabilistic() {
+        LOGGER.trace(">getAverageScoreMinProbabilistic");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromPorbabilisticPoll);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setNumberOfPoll(resultSet.getInt(1));
+                feedPoll.setScoreAVG(resultSet.getDouble(2));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getAverageScoreMinProbabilistic", e);
+        }
+        LOGGER.trace("<getAverageScoreMinProbabilistic");
+        return result;
+    }
     
 }
