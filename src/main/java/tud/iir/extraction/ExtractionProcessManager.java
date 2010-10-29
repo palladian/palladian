@@ -248,8 +248,8 @@ public class ExtractionProcessManager {
      * @param totalTimeMS The total pause time in milliseconds.
      * @param intervalMS The interval in milliseconds when the loop should write live status updates.
      */
-    private static void waitingLoop(int totalTimeMS, int intervalMS) {
-        int steps = totalTimeMS / intervalMS;
+    private static void waitingLoop(long totalTimeMS, long intervalMS) {
+        long steps = totalTimeMS / intervalMS;
         for (int i = 0; i < steps; i++) {
             ThreadHelper.sleep(intervalMS);
             int progress = (int) Math.floor((double) 100 * i / steps);

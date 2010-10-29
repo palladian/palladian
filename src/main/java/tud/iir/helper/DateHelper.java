@@ -27,13 +27,13 @@ import tud.iir.normalization.DateNormalizer;
 public class DateHelper {
 
     // shortcuts to the number of milliseconds of certain time spans
-    public static final int SECOND_MS = 1000;
-    public static final int MINUTE_MS = 60 * SECOND_MS;
-    public static final int HOUR_MS = 60 * MINUTE_MS;
-    public static final int DAY_MS = 24 * HOUR_MS;
-    public static final int WEEK_MS = 7 * DAY_MS;
-    public static final int MONTH_MS = 30 * DAY_MS;
-    public static final int YEAR_MS = 365 * DAY_MS;
+    public static final long SECOND_MS = 1000;
+    public static final long MINUTE_MS = 60 * SECOND_MS;
+    public static final long HOUR_MS = 60 * MINUTE_MS;
+    public static final long DAY_MS = 24 * HOUR_MS;
+    public static final long WEEK_MS = 7 * DAY_MS;
+    public static final long MONTH_MS = 30 * DAY_MS;
+    public static final long YEAR_MS = 365 * DAY_MS;
 
     public static boolean containsDate(String searchString) {
         Pattern pat = null;
@@ -45,8 +45,9 @@ public class DateHelper {
             return false;
         }
         Matcher m = pat.matcher(searchString);
-        if (m.find())
+        if (m.find()) {
             return true;
+        }
         return false;
     }
 
