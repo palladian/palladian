@@ -44,11 +44,15 @@ public class EvaluationDatabase {
     private PreparedStatement psGetAvgScoreMaxByPollFromPorbabilisticPoll;
     
     private PreparedStatement psGetSumTransferVolumeByHourFromAdaptiveMaxTime;
-    private PreparedStatement psGetSumTransferVolumeByHourFromFix1440Time;
-    private PreparedStatement psGetSumTransferVolumeByHourFromFix60Time;
-    private PreparedStatement psGetSumTransferVolumeByHourFromFix720Time;
-    private PreparedStatement psGetSumTransferVolumeByHourFromFixLearnedTime;
+    private PreparedStatement psGetTransferVolumeByHourFromFix1440Time;
+    private PreparedStatement psGetTransferVolumeByHourFromFix60Time;
+    private PreparedStatement psGetTransferVolumeByHourFromFix720Time;
+    private PreparedStatement psGetTransferVolumeByHourFromFixLearnedMaxTime;
     private PreparedStatement psGetSumTransferVolumeByHourFromProbabilisticMaxTime;
+    
+    private PreparedStatement psGetSumTransferVolumeByHourFromAdaptiveMinTime;
+    private PreparedStatement psGetTransferVolumeByHourFromFixLearnedMinTime;
+    private PreparedStatement psGetSumTransferVolumeByHourFromProbabilisticMinTime;
 
     private EvaluationDatabase() {
         try {
@@ -110,24 +114,24 @@ public class EvaluationDatabase {
         // Wert wird verwendet, damit das Experiment von Stunde 0 bis 672 (4 Wochen) läuft
         psGetSumTransferVolumeByHourFromAdaptiveMaxTime  = connection
                 .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
-        
-        
-//        TODO:
-//        psGetSumTransferVolumeByHourFroFixLearnedMaxTime        
-//                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix_learned_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-        psGetSumTransferVolumeByHourFromFix1440Time  = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix1440_max_min_time ORDER BY id, pollTimestamp ASC");
-        psGetSumTransferVolumeByHourFromFix60Time  = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix60_max_min_time WHERE id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
-        psGetSumTransferVolumeByHourFromFix720Time  = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix720_max_min_time ORDER BY id, pollTimestamp ASC");
-        psGetSumTransferVolumeByHourFromFixLearnedTime = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, checkInterval FROM feed_evaluation_fix60_max_min_time WHERE id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC"); 
+        psGetTransferVolumeByHourFromFix1440Time  = connection
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix1440_max_min_time WHERE pollTimestamp <= 1288108800 ORDER BY id, pollTimestamp ASC");
+        psGetTransferVolumeByHourFromFix60Time  = connection
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix60_max_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+        psGetTransferVolumeByHourFromFix720Time  = connection
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix720_max_min_time WHERE pollTimestamp <= 1288108800 ORDER BY id, pollTimestamp ASC");
+        psGetTransferVolumeByHourFromFixLearnedMaxTime = connection
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp FROM feed_evaluation_fix_learned_max_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC"); 
         psGetSumTransferVolumeByHourFromProbabilisticMaxTime = connection
                 .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
 
         
-        
+        psGetSumTransferVolumeByHourFromAdaptiveMinTime  = connection
+                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_min_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
+        psGetTransferVolumeByHourFromFixLearnedMinTime = connection
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp FROM feed_evaluation_fix_learned_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+        psGetSumTransferVolumeByHourFromProbabilisticMinTime = connection
+                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_probabilistic_min_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
         
         
     }
@@ -545,7 +549,7 @@ public class EvaluationDatabase {
         LOGGER.trace(">getSumTransferVolumeByHourFromFix720MaxTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromFix720Time);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromFix720Time);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
                 feedPoll.setFeedID(resultSet.getInt(1));
@@ -561,7 +565,6 @@ public class EvaluationDatabase {
     }    
     
     
-
     
     /**
      * @return List<EvaluationFeedPoll> 
@@ -570,7 +573,7 @@ public class EvaluationDatabase {
         LOGGER.trace(">getSumTransferVolumeByHourFromFix1440MaxTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromFix1440Time);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromFix1440Time);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
                 feedPoll.setFeedID(resultSet.getInt(1));
@@ -594,9 +597,9 @@ public class EvaluationDatabase {
         LOGGER.trace(">getSumTransferVolumeByHourFromFix60MaxTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            psGetSumTransferVolumeByHourFromFix60Time.setInt(1, FEED_ID_START);
-            psGetSumTransferVolumeByHourFromFix60Time.setInt(2, FEED_ID_LIMIT);            
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromFix60Time);
+            psGetTransferVolumeByHourFromFix60Time.setInt(1, FEED_ID_START);
+            psGetTransferVolumeByHourFromFix60Time.setInt(2, FEED_ID_LIMIT);            
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromFix60Time);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
                 feedPoll.setFeedID(resultSet.getInt(1));
@@ -610,37 +613,36 @@ public class EvaluationDatabase {
         LOGGER.trace("<getSumTransferVolumeByHourFromFix60MaxTime");
         return result;
     }
-        
-    
+            
     
 
     /**
      * @return List<EvaluationFeedPoll> 
      */
     public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFixLearnedMaxTime(final int FEED_ID_START, final int FEED_ID_LIMIT) {
-        LOGGER.trace(">getSumTransferVolumeByHourFromFix60MaxTime");
+        LOGGER.trace(">getSumTransferVolumeByHourFromFixLearnedMaxTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            psGetSumTransferVolumeByHourFromFix60Time.setInt(1, FEED_ID_START);
-            psGetSumTransferVolumeByHourFromFix60Time.setInt(2, FEED_ID_LIMIT);            
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromFixLearnedTime);
+            psGetTransferVolumeByHourFromFixLearnedMaxTime.setInt(1, FEED_ID_START);
+            psGetTransferVolumeByHourFromFixLearnedMaxTime.setInt(2, FEED_ID_LIMIT);            
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromFixLearnedMaxTime);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
                 feedPoll.setFeedID(resultSet.getInt(1));
                 feedPoll.setHourOfExperiment(resultSet.getInt(2));
                 feedPoll.setSizeOfPoll(resultSet.getLong(3));
-                feedPoll.setCheckInterval(resultSet.getInt(4));
+                feedPoll.setNumberOfPoll(resultSet.getInt(4));
+                feedPoll.setCheckInterval(resultSet.getInt(5));
+                feedPoll.setPollTimestamp(resultSet.getLong(6));
                 result.add(feedPoll);
             }
         } catch (SQLException e) {
-            LOGGER.error("getSumTransferVolumeByHourFromFix60MaxTime", e);
+            LOGGER.error("getSumTransferVolumeByHourFromFixLearnedMaxTime", e);
         }
-        LOGGER.trace("<getSumTransferVolumeByHourFromFix60MaxTime");
+        LOGGER.trace("<getSumTransferVolumeByHourFromFixLearnedMaxTime");
         return result;
     }
-    
-
-    
+      
     
 
     /**
