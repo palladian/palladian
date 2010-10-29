@@ -1,11 +1,8 @@
 package tud.iir.extraction.event;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-import opennlp.tools.lang.english.Tokenizer;
 import opennlp.tools.lang.english.TreebankChunker;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
@@ -25,9 +22,8 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
         String tag = "";
         String token = "";
-        String tagged = "";
-        final List<String> chunks = new ArrayList<String>();
-        final List<String> ftokens = new ArrayList<String>();
+
+        final TagAnnotations tagAnnotations = new TagAnnotations();
 
         // joining Tags
         for (int i = 0; i < chunkList.size(); i++) {
@@ -45,15 +41,11 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
                     "B-"))
                     || i == chunkList.size() - 1) {
 
-                tagged += "[" + token + "]/" + tag + " ";
-
-                chunks.add(tag);
-                ftokens.add(token);
+                tagAnnotations.add(new TagAnnotation(sentence.indexOf(token),
+                        tag, token));
             }
         }
-        setTaggedString(tagged);
-        setChunks(chunks);
-        setTokens(ftokens);
+        this.setTagAnnotations(tagAnnotations);
     }
 
     @Override
@@ -65,28 +57,19 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
     @Override
     public void chunk(String sentence) {
 
-        Tokenizer tokenizer;
-        try {
-            tokenizer = new Tokenizer(MODEL_TOK_OPENNLP);
+        final OpenNLPPOSTagger tagger = new OpenNLPPOSTagger();
+        tagger.loadModel(MD_POS_ONLP);
+        tagger.tag(sentence);
 
-            final String[] tokens = tokenizer.tokenize(sentence);
-            final List<String> tokenList = Arrays.asList(tokens);
+        chunk(sentence, tagger.getTagAnnotations().getTokenList(), tagger
+                .getTagAnnotations().getTagList());
 
-            final OpenNLPPOSTagger tagger = new OpenNLPPOSTagger();
-            tagger.loadModel(MODEL_POS_OPENNLP);
-            tagger.tag(sentence);
-
-            this.chunk(sentence, tokenList, tagger.getTags());
-
-        } catch (IOException e) {
-            LOGGER.error(e);
-        }
     }
 
     @Override
     public boolean loadModel(String configModelFilePath) {
         try {
-            StopWatch sw = new StopWatch();
+            final StopWatch sw = new StopWatch();
             sw.start();
 
             TreebankChunker tbc = null;
@@ -106,7 +89,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
             LOGGER.info("loaded model in " + sw.getElapsedTimeString());
 
             return true;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.error(e);
             return false;
         }
@@ -115,7 +98,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     @Override
     public boolean loadModel() {
-        return this.loadModel(MODEL_CHUNK_OPENNLP);
+        return this.loadModel(MD_CHUNK_ONLP);
     }
 
 }

@@ -3,9 +3,9 @@ package tud.iir.extraction.event;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import tud.iir.helper.DataHolder;
 
@@ -51,17 +51,17 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
             setModel(hmm);
             return true;
 
-        } catch (IOException ie) {
+        } catch (final IOException ie) {
             LOGGER.error("IO Error: " + ie.getMessage());
             return false;
-        } catch (ClassNotFoundException ce) {
+        } catch (final ClassNotFoundException ce) {
             LOGGER.error("Class error: " + ce.getMessage());
             return false;
         } finally {
             if (oi != null) {
                 try {
                     oi.close();
-                } catch (IOException ie) {
+                } catch (final IOException ie) {
                     LOGGER.error(ie.getMessage());
                 }
             }
@@ -69,38 +69,36 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
 
     }
 
+    @Override
     public void tag(String sentence) {
 
         final int cacheSize = Integer.valueOf(100);
-        FastCache<String, double[]> cache = new FastCache<String, double[]>(
+        final FastCache<String, double[]> cache = new FastCache<String, double[]>(
                 cacheSize);
 
         // read HMM for pos tagging
 
         // construct chunker
-        HmmDecoder posTagger = new HmmDecoder((HiddenMarkovModel) getModel(),
-                null, cache);
-        TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
+        final HmmDecoder posTagger = new HmmDecoder(
+                (HiddenMarkovModel) getModel(), null, cache);
+        final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
 
         // apply pos tagger
-        String[] tokens = tokenizerFactory.tokenizer(sentence.toCharArray(), 0,
-                sentence.length()).tokenize();
-        List<String> tokenList = Arrays.asList(tokens);
-        Tagging<String> tagging = posTagger.tag(tokenList);
-        List<String> tagList = new ArrayList<String>();
-        for (String tag : tagging.tags()) {
-            tagList.add(tag.toUpperCase());
+        final String[] tokens = tokenizerFactory.tokenizer(
+                sentence.toCharArray(), 0, sentence.length()).tokenize();
+        final List<String> tokenList = Arrays.asList(tokens);
+        final Tagging<String> tagging = posTagger.tag(tokenList);
+
+        final TagAnnotations tagAnnotations = new TagAnnotations();
+        for (int i = 0; i < tagging.size(); i++) {
+
+            final TagAnnotation tagAnnotation = new TagAnnotation(sentence
+                    .indexOf(tagging.token(i)), tagging.tag(i).toUpperCase(
+                    new Locale("en")), tagging.token(i));
+            tagAnnotations.add(tagAnnotation);
+
         }
-
-        this.setTokens(tokenList);
-        this.setTags(tagList);
-
-        String out = "";
-        for (int j = 0; j < tokenList.size(); ++j) {
-            out += (tokens[j] + "/" + tagging.tag(j).toUpperCase() + " ");
-        }
-
-        this.setTaggedString(out);
+        this.setTagAnnotations(tagAnnotations);
 
     }
 

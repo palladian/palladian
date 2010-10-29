@@ -4,44 +4,50 @@ import opennlp.tools.parser.Parse;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StopWatch;
 
 /**
- * This is the AbstractParser
+ * This is the AbstractParser.
  * 
  * @author Martin Wunderwald
- * 
  */
 public abstract class AbstractParser {
 
     /**
-     * Logger for this class
+     * Logger for this class.
      */
     protected static final Logger LOGGER = Logger
             .getLogger(AbstractParser.class);
 
+    /**
+     * This is the base modelpath.
+     */
     protected final static String MODEL_PATH = "data/models/";
 
-    protected final static String MODEL_PARSE_OPENNLP = MODEL_PATH
+    /**
+     * This is the default model path for openNLP parserfolder.
+     */
+    protected final static String MODEL_PARSE_ONLP = MODEL_PATH
             + "opennlp/parser/";
 
     /**
-     * Object holding the model
+     * Object holding the model.
      */
     private Object model;
 
     /**
-     * Name of the Parser
+     * Name of the Parser.
      */
     private String name;
 
     /**
-     * the final Parse
+     * Tagged Annotaions.
      */
-    private Object parse;
+    private TagAnnotations tagAnnotations;
 
     /**
-     * loads the model into the parser
+     * loads the model into the parser.
      * 
      * @param configModelPath
      * @return
@@ -49,60 +55,115 @@ public abstract class AbstractParser {
     public abstract boolean loadModel(String configModelPath);
 
     /**
-     * loads the default model into the parser
+     * loads the default model into the parser.
      * 
-     * @return
+     * @return success
      */
     public abstract boolean loadModel();
 
     /**
-     * parses a given string and writes it into the parse object of this class
+     * Parses a given string and writes it into the parse object of this class.
      * 
-     * @param sentence
+     * @param Sentence
      */
     public abstract void parse(String sentence);
 
+    /**
+     * @return the model
+     */
     public Object getModel() {
         return model;
     }
 
+    /**
+     * @param model
+     *            the model to set
+     */
     public void setModel(Object model) {
         this.model = model;
     }
 
+    /**
+     * @return the name
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * @param name
+     *            the name to set
+     */
     public void setName(String name) {
         this.name = name;
     }
 
-    public Object getParse() {
-        return parse;
+    /**
+     * @return the tagAnnotations
+     */
+    public TagAnnotations getTagAnnotations() {
+        return tagAnnotations;
     }
 
-    public void setParse(Object parse) {
-        this.parse = parse;
+    /**
+     * @param tagAnnotations
+     *            the tagAnnotations to set
+     */
+    public void setTagAnnotations(TagAnnotations tagAnnotations) {
+        this.tagAnnotations = tagAnnotations;
     }
 
     /**
      * @param args
      */
     public static void main(String[] args) {
-        OpenNLPParser op = new OpenNLPParser();
+        final OpenNLPParser onlpp = new OpenNLPParser();
 
-        op.loadModel();
+        onlpp.loadModel();
 
-        StopWatch sw = new StopWatch();
-        sw.start();
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
 
-        op.parse("Death toll rises after Indonesia tsunami.");
-        Parse parse = (Parse) op.getParse();
-        parse.show();
+        onlpp
+                .parse("Government considers relocations after Indonesian tsunami");
 
-        sw.stop();
-        LOGGER.info("time elapsed: " + sw.getElapsedTimeString());
+        CollectionHelper.print(onlpp.getTagAnnotations());
+
+        stopWatch.stop();
+        LOGGER.info("time elapsed: " + stopWatch.getElapsedTimeString());
     }
 
+    public void parse2Annotations(Parse parse, TagAnnotations tagAnnotations) {
+        if (parse.getChildCount() > 0) {
+            for (int i = 0; i < parse.getChildCount(); i++) {
+                final Parse child = parse.getChildren()[i];
+                if (!child.getType().equals("TK")) {
+                    tagAnnotations.add(new TagAnnotation(0, child.getType(),
+                            child.getText().substring(
+                                    child.getSpan().getStart(),
+                                    child.getSpan().getEnd())));
+                    parse2Annotations(child, tagAnnotations);
+                }
+            }
+        }
+
+    }
+
+    public void printParse(Parse parse) {
+        if (parse.getChildCount() > 0) {
+            for (int i = 0; i < parse.getChildCount(); i++) {
+                final Parse child = parse.getChildren()[i];
+                if (!child.getType().equals("TK")) {
+                    LOGGER.info(child.getText().subSequence(
+                            child.getSpan().getStart(),
+                            child.getSpan().getEnd())
+                            + ","
+                            + child.getType()
+                            + "("
+                            + child.getTagSequenceProb());
+                    printParse(child);
+                }
+            }
+        }
+    }
 }

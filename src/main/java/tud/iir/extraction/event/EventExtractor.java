@@ -10,7 +10,6 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
@@ -28,7 +27,6 @@ import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import weka.core.stemmers.SnowballStemmer;
 
-import com.aliasi.chunk.Chunk;
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.Tokenizer;
 import com.aliasi.tokenizer.TokenizerFactory;
@@ -38,7 +36,7 @@ import com.aliasi.tokenizer.TokenizerFactory;
  * 
  * @author Martin Wunderwald
  */
-public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
+public class EventExtractor extends Extractor {
     // 8/6/10 4:20 PM
 
     /* the instance of this class */
@@ -100,7 +98,7 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 
             event = new Event(pce.getResultTitle(), pce.getResultText(), url);
 
-        } catch (PageContentExtractorException e) {
+        } catch (final PageContentExtractorException e) {
 
             LOGGER.error(e);
             LOGGER.error("URL not found: " + url);
@@ -126,7 +124,7 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
      */
     public void extractWhen(Event event) {
 
-        DateGetter dg = new DateGetter(event.getUrl());
+        final DateGetter dg = new DateGetter(event.getUrl());
         dg.setAllFalse();
         dg.setTechHTMLContent(true);
         dg.setTechHTMLHead(true);
@@ -143,16 +141,17 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
      */
     public void extractWhere(Event event) {
 
-        Map<Integer, FeatureObject> features = event.getEntityFeatures();
-        Map<Integer, Annotations> annotations = event.getEntityAnnotations();
+        final Map<Integer, FeatureObject> features = event.getEntityFeatures();
+        final Map<Integer, Annotations> annotations = event
+                .getEntityAnnotations();
 
         double[] result = null;
 
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
 
-        for (Entry<Integer, FeatureObject> entry : features.entrySet()) {
+        for (final Entry<Integer, FeatureObject> entry : features.entrySet()) {
 
-            FeatureObject fo = entry.getValue();
+            final FeatureObject fo = entry.getValue();
 
             result = whereClassifier.classifySoft(fo);
 
@@ -162,8 +161,8 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
         }
 
         rankedCandidates = sortByValue(rankedCandidates);
-        Object[] values = rankedCandidates.keySet().toArray();
-        Object[] keys = rankedCandidates.values().toArray();
+        final Object[] values = rankedCandidates.keySet().toArray();
+        final Object[] keys = rankedCandidates.values().toArray();
 
         LOGGER.info("highest ranked wheres:" + values[0] + "(" + keys[0] + "),"
                 + values[1] + "(" + keys[1] + ")");
@@ -174,22 +173,22 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 
     static Map<String, Double> sortByValue(Map<String, Double> map) {
 
-        List<Entry<String, Double>> list = new LinkedList<Entry<String, Double>>(
+        final List<Entry<String, Double>> list = new LinkedList<Entry<String, Double>>(
                 map.entrySet());
         Collections.sort(list, new Comparator<Entry<String, Double>>() {
-            public int compare(Entry<String, Double> o1,
-                    Entry<String, Double> o2) {
-                return ((Comparable<Double>) ((Entry<String, Double>) (o1))
-                        .getValue()).compareTo(((Entry<String, Double>) (o2))
+            public int compare(Entry<String, Double> obj1,
+                    Entry<String, Double> obj2) {
+                return ((Comparable<Double>) obj1.getValue()).compareTo(obj2
                         .getValue());
             }
         });
 
         Collections.reverse(list);
 
-        Map<String, Double> result = new LinkedHashMap<String, Double>();
-        for (Iterator<Entry<String, Double>> it = list.iterator(); it.hasNext();) {
-            Entry<String, Double> entry = (Entry<String, Double>) it.next();
+        final Map<String, Double> result = new LinkedHashMap<String, Double>();
+        for (final Iterator<Entry<String, Double>> it = list.iterator(); it
+                .hasNext();) {
+            final Entry<String, Double> entry = it.next();
             result.put(entry.getKey(), entry.getValue());
         }
 
@@ -207,14 +206,14 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 
     public List<String> longestSubstrings(String str1, String str2) {
 
-        String s1 = StringHelper.removeStopWords(str1);
-        String s2 = StringHelper.removeStopWords(str2);
+        final String s1 = StringHelper.removeStopWords(str1);
+        final String s2 = StringHelper.removeStopWords(str2);
 
-        TokenizerFactory mTokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-        Tokenizer tokenizer1 = mTokenizerFactory.tokenizer(s1.toCharArray(), 0,
-                s1.length());
-        Tokenizer tokenizer2 = mTokenizerFactory.tokenizer(s2.toCharArray(), 0,
-                s2.length());
+        final TokenizerFactory mTokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
+        final Tokenizer tokenizer1 = mTokenizerFactory.tokenizer(s1
+                .toCharArray(), 0, s1.length());
+        final Tokenizer tokenizer2 = mTokenizerFactory.tokenizer(s2
+                .toCharArray(), 0, s2.length());
 
         final List<String> a1 = new ArrayList<String>();
         final List<String> a2 = new ArrayList<String>();
@@ -225,7 +224,7 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
         tokenizer2.tokenize(a2, w2);
 
         // CollectionHelper.print(a1);
-        SnowballStemmer ss = new SnowballStemmer();
+        final SnowballStemmer ss = new SnowballStemmer();
 
         for (int i = 0; i < a1.size(); i++) {
             a1.set(i, ss.stem(a1.get(i).toLowerCase().trim()));
@@ -251,38 +250,36 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
      */
     public void extractWhat(Event event) {
 
-        String text = StringHelper.makeContinuousText(event.getText());
-        String title = StringHelper.makeContinuousText(event.getTitle());
-        // LOGGER.info("title: " + title);
+        final String text = StringHelper.makeContinuousText(event.getText());
+        final String title = StringHelper.makeContinuousText(event.getTitle());
+
+        LOGGER.info("title: " + title);
+        LOGGER.info("text: " + text);
 
         // event.setWho("police");
 
-        // EventFeatureExtractor.tagPOS(title);
+        final ArrayList<String> whoSentences = new ArrayList<String>();
 
-        Set<Chunk> sentenceChunks = EventFeatureExtractor
-                .getSentenceChunks(text);
-
-        Set<Chunk> whoSentences = new HashSet<Chunk>();
-
-        HashSet<String> longestSubstrings = new HashSet<String>();
+        final HashSet<String> longestSubstrings = new HashSet<String>();
         // ArrayList<String> longestSubstrings = new ArrayList<String>();
-        Map<String, Double> overlap = new HashMap<String, Double>();
+        final Map<String, Double> overlap = new HashMap<String, Double>();
         // finding sentences containing the who
-        for (Chunk sentence : sentenceChunks) {
-            String stc = text.substring(sentence.start(), sentence.end());
+        for (final String stc : EventFeatureExtractor.getSentences(event
+                .getText())) {
 
             // longest common substrings between title and first sentence
             overlap.put(stc, StringHelper.calculateSimilarity(stc, title));
             longestSubstrings.addAll(longestSubstrings(stc, title));
 
-            double sim = StringHelper.calculateSimilarity(event.getWho(), stc);
+            final double sim = StringHelper.calculateSimilarity(event.getWho(),
+                    stc);
             if (sim > 0.5) {
-                whoSentences.add(sentence);
+                whoSentences.add(stc);
             }
         }
 
         // count occurences of title words in text
-        for (String w : longestSubstrings) {
+        for (final String w : longestSubstrings) {
             if (w.length() > 3) {
                 // LOGGER.info(w + ":" + StringHelper.countOccurences(text, w,
                 // true));
@@ -293,7 +290,7 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
         // Object[] overlaps = sortByValue(overlap).keySet().toArray();
         // LOGGER.info(overlaps[0]);
 
-        String what = "";
+        final String what = "";
         // int pos = title.length();
         /*
          * for (Chunk titleChunk : EventFeatureExtractor.getPhraseChunks(title +
@@ -305,7 +302,7 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
          */
         EventFeatureExtractor.getPhraseChunks(title);
 
-        SnowballStemmer ss = new SnowballStemmer();
+        final SnowballStemmer ss = new SnowballStemmer();
         LOGGER.info("in title verb: " + what + "(" + ss.stem(what) + ")");
 
         // Object[] chunks = sentenceChunks.toArray();
@@ -327,15 +324,13 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 
     private String getSubsequentPhrase(String sentence, String word) {
 
-        String verb = sentence;
+        final String verb = sentence;
 
         // Iterator<Chunk> it = phraseChunks.iterator();
 
         /*
          * while (it.hasNext() && CONTINUE_TAGS.contains(((Chunk)
-         * it.next()).type())) {
-         * 
-         * }
+         * it.next()).type())) { }
          */
         return verb;
     }
@@ -344,7 +339,7 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 
         String term = "";
 
-        for (Annotation annotation : annotations) {
+        for (final Annotation annotation : annotations) {
             if (term.length() < annotation.getLength()) {
                 term = annotation.getEntity().getName();
 
@@ -362,16 +357,17 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
      */
     public void extractWho(Event event) {
 
-        Map<Integer, FeatureObject> features = event.getEntityFeatures();
-        Map<Integer, Annotations> annotations = event.getEntityAnnotations();
+        final Map<Integer, FeatureObject> features = event.getEntityFeatures();
+        final Map<Integer, Annotations> annotations = event
+                .getEntityAnnotations();
 
         double[] result = null;
 
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
 
-        for (Entry<Integer, FeatureObject> entry : features.entrySet()) {
+        for (final Entry<Integer, FeatureObject> entry : features.entrySet()) {
 
-            FeatureObject fo = entry.getValue();
+            final FeatureObject fo = entry.getValue();
 
             result = whoClassifier.classifySoft(fo);
 
@@ -381,8 +377,8 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
         }
 
         rankedCandidates = sortByValue(rankedCandidates);
-        Object[] values = rankedCandidates.keySet().toArray();
-        Object[] keys = rankedCandidates.values().toArray();
+        final Object[] values = rankedCandidates.keySet().toArray();
+        final Object[] keys = rankedCandidates.values().toArray();
 
         if (keys.length > 1) {
             LOGGER.info("highest ranked whos:" + values[0] + "(" + keys[0]
@@ -393,47 +389,13 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
 
     }
 
-    @SuppressWarnings(value = { "unused" })
-    private static void trySRL() {
-
-        /*
-         * LexicalizedParser lp = new LexicalizedParser(
-         * "data/models/englishPCFG.ser.gz", new Options());
-         * lp.setOptionFlags(new String[] { "-maxLength", "80",
-         * "-retainTmpSubcategories" });
-         * 
-         * // String[] sent = lp.{ "This", "is", "an", "easy", "sentence", "."
-         * }; Tree parse = (Tree) lp.apply("I have got to go to bed.");
-         * parse.pennPrint();
-         * 
-         * 
-         * TreebankLanguagePack tlp = new PennTreebankLanguagePack();
-         * GrammaticalStructureFactory gsf = tlp.grammaticalStructureFactory();
-         * GrammaticalStructure gs = gsf.newGrammaticalStructure(parse);
-         * Collection tdl = gs.typedDependenciesCollapsed();
-         * System.out.println(tdl); System.out.println();
-         * 
-         * 
-         * TreePrint tp = new
-         * TreePrint("wordsAndTags,penn,typedDependenciesCollapsed");
-         * tp.printTree(parse);
-         */
-
-        /*
-         * lp.parse("Hello my name ist Martin"); Tree tr =
-         * lp.getBestPCFGParse(); tr.toString();
-         */
-        // CollectionHelper.print(Tokenizer.calculateWordNGrams("Hello how are you",2));
-
-    }
-
     public WhereClassifier getWhereClassifier() {
         return whereClassifier;
     }
 
     public void setWhereClassifier(int type) {
-        this.whereClassifier = new WhereClassifier(type);
-        this.whereClassifier
+        whereClassifier = new WhereClassifier(type);
+        whereClassifier
                 .useTrainedClassifier("data/learnedClassifiers/where.model");
     }
 
@@ -442,32 +404,31 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
     }
 
     public void setWhoClassifier(int type) {
-        this.whoClassifier = new WhoClassifier(type);
-        this.whoClassifier
-                .useTrainedClassifier("data/learnedClassifiers/who.model");
+        whoClassifier = new WhoClassifier(type);
+        whoClassifier.useTrainedClassifier("data/learnedClassifiers/who.model");
     }
 
     private static void evaluateEvents() {
-        Map<Integer, String[]> events = EventFeatureExtractor
+        final Map<Integer, String[]> events = EventFeatureExtractor
                 .readCSV("data/news_articles.csv");
-        EventExtractor eventExtractor = EventExtractor.getInstance();
+        final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(Classifier.LINEAR_REGRESSION);
         // eventExtractor.setWhereClassifier(Classifier.LINEAR_REGRESSION);
 
-        for (Entry<Integer, String[]> entry : events.entrySet()) {
-            String[] fields = entry.getValue();
+        for (final Entry<Integer, String[]> entry : events.entrySet()) {
+            final String[] fields = entry.getValue();
             // int id = entry.getKey();
 
-            String url = fields[0];
+            final String url = fields[0];
 
-            String title = fields[1];
-            String who = fields[2];
-            String where = fields[3];
-            String what = fields[4];
-            String why = fields[5];
-            String how = fields[6];
+            final String title = fields[1];
+            final String who = fields[2];
+            final String where = fields[3];
+            final String what = fields[4];
+            final String why = fields[5];
+            final String how = fields[6];
 
-            Event event = EventExtractor.extractEventFromURL(url);
+            final Event event = EventExtractor.extractEventFromURL(url);
             EventFeatureExtractor.setFeatures(event);
             eventExtractor.extractWho(event);
 
@@ -484,15 +445,15 @@ public class EventExtractor extends Extractor { // NOPMD by Martin Wunderwald on
         System.setProperty("wordnet.database.dir",
                 "/usr/local/WordNet-3.0/dict");
 
-        EventExtractor eventExtractor = EventExtractor.getInstance();
+        final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(Classifier.LINEAR_REGRESSION);
         // eventExtractor.setWhereClassifier(Classifier.LINEAR_REGRESSION);
 
-        Event event = EventExtractor
+        final Event event = EventExtractor
                 .extractEventFromURL("http://www.bbc.co.uk/news/world-europe-11539758");
         EventFeatureExtractor.setFeatures(event);
 
-        StopWatch sw = new StopWatch();
+        final StopWatch sw = new StopWatch();
         sw.start();
 
         // evaluateEvents();
