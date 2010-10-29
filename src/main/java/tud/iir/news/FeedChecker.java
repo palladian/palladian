@@ -381,7 +381,7 @@ public final class FeedChecker {
         if (entries.size() > 1) {
             // use average distance between pub dates and total difference
             // between first and last entry
-            fixedMinCheckInterval = (int) (fps.getTimeRange() / (entries.size() - 1)) / DateHelper.MINUTE_MS;
+            // fixedMinCheckInterval = (int) (fps.getTimeRange() / (entries.size() - 1)) / DateHelper.MINUTE_MS;
             fixedMaxCheckInterval = (int) (fps.getTimeRange() / DateHelper.MINUTE_MS);
 
             // use median
@@ -854,7 +854,7 @@ public final class FeedChecker {
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
         fc.setFeedProcessingAction(fpa);
-        fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
+        // fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
 
     }
 }
