@@ -125,6 +125,25 @@ public class EvaluationDatabase {
         psGetSumTransferVolumeByHourFromProbabilisticMaxTime = connection
                 .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
 
+
+        
+        // uncomment to calculate Volume for class zombie!! 
+//        psGetSumTransferVolumeByHourFromAdaptiveMaxTime  = connection
+//                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= 1288108800 AND updateClass = 4 GROUP BY DAY, pollHourOfDay");
+//        psGetTransferVolumeByHourFromFix1440Time  = connection
+//                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix1440_max_min_time WHERE pollTimestamp <= 1288108800 AND updateClass = 4 ORDER BY id, pollTimestamp ASC");
+//        psGetTransferVolumeByHourFromFix60Time  = connection
+//                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix60_max_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? AND updateClass = 4 ORDER BY id, pollTimestamp ASC");
+//        psGetTransferVolumeByHourFromFix720Time  = connection
+//                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix720_max_min_time WHERE pollTimestamp <= 1288108800 AND updateClass = 4 ORDER BY id, pollTimestamp ASC");
+//        psGetTransferVolumeByHourFromFixLearnedMaxTime = connection
+//                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp FROM feed_evaluation_fix_learned_max_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? AND updateClass = 4 ORDER BY id, pollTimestamp ASC"); 
+//        psGetSumTransferVolumeByHourFromProbabilisticMaxTime = connection
+//                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= 1288108800 AND updateClass = 4 GROUP BY DAY, pollHourOfDay");
+
+        
+        
+        
         
         psGetSumTransferVolumeByHourFromAdaptiveMinTime  = connection
                 .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_min_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");

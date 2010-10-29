@@ -89,21 +89,6 @@ public class ChartCreator {
         LOGGER.info("feedAgeFile *hopefully* :) written to: " + feedAgeFilePath);       
     }
     
-//    
-//    private void createTimeliness2File(){
-//        EvaluationDatabase ed = EvaluationDatabase.getInstance();
-//        List<EvaluationFeedPoll> polls = ed.getAverageScoreMinFIX1440();
-//        StringBuilder timeliness2SB = new StringBuilder();
-//        timeliness2SB.append("numberOfPoll; fix1440\n");
-//        
-//        for (EvaluationFeedPoll poll : polls) {
-//            timeliness2SB.append(poll.getNumberOfPoll()).append(";").append(poll.getScoreAVG()).append(";\n");
-//        }
-//        
-//        FileHelper.writeToFile(timeliness2FilePath, timeliness2SB);
-//        LOGGER.info("timeliness2File *hopefully* :) written to: " + timeliness2FilePath);
-//    }
-    
 
     private void createTimeliness2File(){
         EvaluationDatabase ed = EvaluationDatabase.getInstance();
@@ -632,16 +617,6 @@ public class ChartCreator {
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     private void culmulatedVolumeMinTimeFile(){
         LOGGER.info("starting to create sumVolumeMinFile...");
         EvaluationDatabase ed = EvaluationDatabase.getInstance();
@@ -991,17 +966,6 @@ public class ChartCreator {
     
     
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     /**
      * simply testing the connection and EvaluationFeedPoll class.
      * */
@@ -1025,8 +989,8 @@ public class ChartCreator {
 //	    cc.createFeedAgeFile();
 //	    cc.createTimeliness2File();
 //	    cc.createPercentageNewFile();
-//	    cc.culmulatedVolumeMaxTimeFile();
-        cc.culmulatedVolumeMinTimeFile();
+	    cc.culmulatedVolumeMaxTimeFile();
+//      cc.culmulatedVolumeMinTimeFile();
 	    	    
 
 	}
