@@ -545,7 +545,7 @@ public class EvaluationDatabase {
     /**
      * @return List<EvaluationFeedPoll> 
      */
-    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFix720MaxTime() {
+    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFix720MaxMinTime() {
         LOGGER.trace(">getSumTransferVolumeByHourFromFix720MaxTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
@@ -569,7 +569,7 @@ public class EvaluationDatabase {
     /**
      * @return List<EvaluationFeedPoll> 
      */
-    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFix1440MaxTime() {
+    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFix1440MaxMinTime() {
         LOGGER.trace(">getSumTransferVolumeByHourFromFix1440MaxTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
@@ -593,7 +593,7 @@ public class EvaluationDatabase {
     /**
      * @return List<EvaluationFeedPoll> 
      */
-    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFix60MaxTime(final int FEED_ID_START, final int FEED_ID_LIMIT) {
+    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFix60MaxMinTime(final int FEED_ID_START, final int FEED_ID_LIMIT) {
         LOGGER.trace(">getSumTransferVolumeByHourFromFix60MaxTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
@@ -667,8 +667,77 @@ public class EvaluationDatabase {
     }
     
     
+
+    /**
+     * @return List<EvaluationFeedPoll> 
+     */
+    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromAdaptiveMinTime() {
+        LOGGER.trace(">getSumTransferVolumeByHourFromAdaptiveMinTime");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromAdaptiveMinTime);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setHourOfExperiment(resultSet.getInt(1));
+                feedPoll.setCulmulatedSizeofPolls(resultSet.getLong(4));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getSumTransferVolumeByHourFromAdaptiveMinTime", e);
+        }
+        LOGGER.trace("<getSumTransferVolumeByHourFromAdaptiveMinTime");
+        return result;
+    }
     
+
+    /**
+     * @return List<EvaluationFeedPoll> 
+     */
+    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFixLearnedMinTime(final int FEED_ID_START, final int FEED_ID_LIMIT) {
+        LOGGER.trace(">getSumTransferVolumeByHourFromFixLearnedMinTime");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            psGetTransferVolumeByHourFromFixLearnedMinTime.setInt(1, FEED_ID_START);
+            psGetTransferVolumeByHourFromFixLearnedMinTime.setInt(2, FEED_ID_LIMIT);            
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromFixLearnedMinTime);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setFeedID(resultSet.getInt(1));
+                feedPoll.setHourOfExperiment(resultSet.getInt(2));
+                feedPoll.setSizeOfPoll(resultSet.getLong(3));
+                feedPoll.setNumberOfPoll(resultSet.getInt(4));
+                feedPoll.setCheckInterval(resultSet.getInt(5));
+                feedPoll.setPollTimestamp(resultSet.getLong(6));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getSumTransferVolumeByHourFromFixLearnedMinTime", e);
+        }
+        LOGGER.trace("<getSumTransferVolumeByHourFromFixLearnedMinTime");
+        return result;
+    }
+      
     
-    
+
+    /**
+     * @return List<EvaluationFeedPoll> 
+     */
+    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromProbabilisticMinTime() {
+        LOGGER.trace(">getSumTransferVolumeByHourFromProbabilisticMinTime");
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromProbabilisticMinTime);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setHourOfExperiment(resultSet.getInt(1));
+                feedPoll.setCulmulatedSizeofPolls(resultSet.getLong(4));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error("getSumTransferVolumeByHourFromProbabilisticMinTime", e);
+        }
+        LOGGER.trace("<getSumTransferVolumeByHourFromProbabilisticMinTime");
+        return result;
+    }
     
 }
