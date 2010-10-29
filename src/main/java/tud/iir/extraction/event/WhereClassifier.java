@@ -11,11 +11,10 @@ import weka.core.Instance;
 
 /**
  * @author Martin Wunderwald
- * 
  */
 public class WhereClassifier extends Classifier {
 
-    private String[] featureNames;
+    private final String[] featureNames;
 
     public WhereClassifier(int type) {
         super(type);
@@ -36,15 +35,15 @@ public class WhereClassifier extends Classifier {
      */
     public float classify(FeatureObject fo) {
 
-        Instance iUse = createInstance(getFvWekaAttributes(), discretize(fo
-                .getFeatures()), getTrainingSet());
+        final Instance iUse = createInstance(getFvWekaAttributes(),
+                discretize(fo.getFeatures()), getTrainingSet());
 
         try {
-            double[] fDistribution = getClassifier().distributionForInstance(
-                    iUse);
+            final double[] fDistribution = getClassifier()
+                    .distributionForInstance(iUse);
 
             return (float) fDistribution[0];
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
             return 0;
         }
@@ -55,27 +54,27 @@ public class WhereClassifier extends Classifier {
      * Train and save a classifier.
      * 
      * @param path
-     * 
      */
     @Override
     public void trainClassifier(String filePath) {
-        ArrayList<FeatureObject> fo = readFeatureObjects(filePath);
+        final ArrayList<FeatureObject> fo = readFeatureObjects(filePath);
         setTrainingObjects(fo);
         super.trainClassifier(filePath);
 
         try {
             weka.core.SerializationHelper.write(
                     "data/learnedClassifiers/where.model", getClassifier());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
 
     }
 
+    @Override
     public void testClassifier(String filePath) {
-        EventExtractor eventExtractor = EventExtractor.getInstance();
+        final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhereClassifier(getChosenClassifier());
-        Event event = EventExtractor
+        final Event event = EventExtractor
                 .extractEventFromURL("http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
 
         eventExtractor.extractWhere(event);
@@ -92,14 +91,14 @@ public class WhereClassifier extends Classifier {
                     .read(filePath);
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedAnswerClassifier);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
     }
 
     public void collectTrainingData(String filePath) {
 
-        HashMap<String, String[]> data = new HashMap<String, String[]>();
+        final HashMap<String, String[]> data = new HashMap<String, String[]>();
         data.put("ghazni bomb", new String[] { "Afghanistan", "afghanistan",
                 "Ghazni" });
         data.put("venezuela", new String[] { "venezuela", "Venezuela",
@@ -118,12 +117,12 @@ public class WhereClassifier extends Classifier {
         data.put("berlin anniversary", new String[] { "berlin", "Berlin",
                 "germany" });
 
-        for (Entry<String, String[]> entry : data.entrySet()) {
-            String query = entry.getKey();
-            ArrayList<String> wheres = new ArrayList<String>();
+        for (final Entry<String, String[]> entry : data.entrySet()) {
+            final String query = entry.getKey();
+            final ArrayList<String> wheres = new ArrayList<String>();
             wheres.addAll(Arrays.asList(entry.getValue()));
 
-            HashMap<String, Event> eventMap = (HashMap<String, Event>) EventFeatureExtractor
+            final HashMap<String, Event> eventMap = (HashMap<String, Event>) EventFeatureExtractor
                     .aggregateEvents(query);
             EventFeatureExtractor.setEntityFeatures(eventMap);
             EventFeatureExtractor.writeCSV(filePath, eventMap, wheres, true);
@@ -137,7 +136,8 @@ public class WhereClassifier extends Classifier {
      */
     public static void main(String[] args) {
 
-        WhereClassifier wc = new WhereClassifier(Classifier.LINEAR_REGRESSION);
+        final WhereClassifier wc = new WhereClassifier(
+                Classifier.LINEAR_REGRESSION);
         wc.collectTrainingData("data/features/where.csv");
         wc.trainClassifier("data/features/where.csv");
         // WhereClassifier wc = new WhereClassifier(Classifier.BAYES_NET);

@@ -14,16 +14,25 @@ import tud.iir.classification.FeatureObject;
 import weka.core.Instance;
 
 /**
- * @author Martin Wunderwald
+ * The Who Classifier
  * 
+ * @author Martin Wunderwald
  */
 public class WhoClassifier extends Classifier {
 
-    private String[] featureNames;
+    /**
+     * the feature names
+     */
+    private final String[] featureNames;
 
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(WhoClassifier.class);
 
+    /**
+     * constructor.
+     * 
+     * @param type
+     */
     public WhoClassifier(int type) {
         super(type);
 
@@ -41,15 +50,15 @@ public class WhoClassifier extends Classifier {
      */
     public float classify(FeatureObject fo) {
 
-        Instance iUse = createInstance(getFvWekaAttributes(), discretize(fo
-                .getFeatures()), getTrainingSet());
+        final Instance iUse = createInstance(getFvWekaAttributes(),
+                discretize(fo.getFeatures()), getTrainingSet());
 
         try {
-            double[] fDistribution = getClassifier().distributionForInstance(
-                    iUse);
+            final double[] fDistribution = getClassifier()
+                    .distributionForInstance(iUse);
 
             return (float) fDistribution[0];
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
             return 0;
         }
@@ -60,27 +69,31 @@ public class WhoClassifier extends Classifier {
      * Train and save a classifier.
      * 
      * @param path
-     * 
      */
     @Override
     public void trainClassifier(String filePath) {
-        ArrayList<FeatureObject> fo = readFeatureObjects(filePath);
+        final ArrayList<FeatureObject> fo = readFeatureObjects(filePath);
         setTrainingObjects(fo);
         super.trainClassifier(filePath);
 
         try {
             weka.core.SerializationHelper.write(
                     "data/learnedClassifiers/who.model", getClassifier());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.classification.Classifier#testClassifier(java.lang.String)
+     */
+    @Override
     public void testClassifier(String filePath) {
-        EventExtractor eventExtractor = EventExtractor.getInstance();
+        final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(getChosenClassifier());
-        Event event = EventExtractor
+        final Event event = EventExtractor
                 .extractEventFromURL("http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
 
         EventFeatureExtractor.setFeatures(event);
@@ -98,59 +111,40 @@ public class WhoClassifier extends Classifier {
                     .read(filePath);
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedClassifier);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             e.printStackTrace();
         }
     }
 
-    public void readCorpus() {
-
-        CorpusLoaderReuters clr_test = new CorpusLoaderReuters(1);
-        clr_test.loadCorpus();
-
-        LOGGER.info("number of test events:  " + clr_test.getTestSet().size());
-
-        int max = 10;
-        EventExtractor eventExtractor = EventExtractor.getInstance();
-        useTrainedClassifier("data/learnedClassifiers/who.model");
-        eventExtractor.setWhoClassifier(getChosenClassifier());
-
-        for (int i = 0; i < max; i++) {
-            Event event = clr_test.getTestSet().get(i);
-            EventFeatureExtractor.setFeatures(event);
-            eventExtractor.extractWho(event);
-        }
-    }
-
+    /**
+     * Collect Trainingdata from different sources.
+     * 
+     * @param filePath
+     */
     public void collectTrainingData(String filePath) {
 
-        Map<Integer, String[]> events = EventFeatureExtractor
+        final Map<Integer, String[]> events = EventFeatureExtractor
                 .readCSV("data/news_articles.csv");
 
-        for (Entry<Integer, String[]> entry : events.entrySet()) {
+        for (final Entry<Integer, String[]> entry : events.entrySet()) {
 
-            HashMap<String, Event> eventMap = new HashMap<String, Event>();
+            final HashMap<String, Event> eventMap = new HashMap<String, Event>();
 
-            String[] fields = entry.getValue();
+            final String[] fields = entry.getValue();
             // int id = entry.getKey();
 
-            String url = fields[0];
+            final String url = fields[0];
             // String title = fields[1];
-            String who = fields[2];
+            final String who = fields[2];
             // String where = fields[3];
             // String what = fields[4];
             // String why = fields[5];
             // String how = fields[6];
 
             /*
-             * String query = "";
-             * 
-             * query += who.replace("|", " "); query += " " + where.replace("|",
-             * " ");
-             * 
-             * LOGGER.info("performing query: " + query);
-             * 
-             * EventAggregator ea = new EventAggregator(); //
+             * String query = ""; query += who.replace("|", " "); query += " " +
+             * where.replace("|", " "); LOGGER.info("performing query: " +
+             * query); EventAggregator ea = new EventAggregator(); //
              * ea.setSearchEngine(SourceRetrieverManager.GOOGLE_NEWS);
              * ea.setMaxThreads(5); ea.setResultCount(5); ea.setQuery(query);
              * ea.aggregate();
@@ -184,10 +178,10 @@ public class WhoClassifier extends Classifier {
      */
     public static void main(String[] args) {
 
-        WhoClassifier wc = new WhoClassifier(Classifier.LINEAR_REGRESSION);
+        // final WhoClassifier wc = new
+        // WhoClassifier(Classifier.LINEAR_REGRESSION);
         // wc.collectTrainingData("data/features/who.csv");
         // wc.trainClassifier("data/features/who.csv");
-        wc.readCorpus();
 
         // wc.useTrainedClassifier("data/learnedClassifiers/who.model");
         // wc.testClassifier("data/learnedClassifiers/who.model");

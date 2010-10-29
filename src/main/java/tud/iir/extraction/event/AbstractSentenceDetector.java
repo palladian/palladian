@@ -5,12 +5,13 @@ package tud.iir.extraction.event;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StopWatch;
 
 /**
  * @author Martin Wunderwald
  */
-public abstract class AbstractPhraseChunker {
+public abstract class AbstractSentenceDetector {
 
     /** the logger for this class */
     protected static final Logger LOGGER = Logger
@@ -19,41 +20,18 @@ public abstract class AbstractPhraseChunker {
     /** base model path */
     protected static final String MODEL_PATH = "data/models/";
 
-    /** model for open nlp pos-tagging */
-    protected static final String MD_POS_ONLP = MODEL_PATH
-            + "opennlp/postag/tag.bin.gz";
-
-    /** dict file for opennlp pos tagging */
-    protected static final String MD_POS_ONLP_DICT = MODEL_PATH
-            + "opennlp/postag/tagdict.txt";
-
     /** model for opennlp sentence detection */
     protected static final String MD_SBD_ONLP = MODEL_PATH
             + "opennlp/sentdetect/EnglishSD.bin.gz";
 
-    /** model for opennlp phrase chunking */
-    protected static final String MD_CHUNK_ONLP = MODEL_PATH
-            + "opennlp/chunker/EnglishChunk.bin.gz";
-
-    /** model for opennlp tokenization */
-    protected static final String MD_TOK_ONLP = MODEL_PATH
-            + "opennlp/tokenize/EnglishTok.bin.gz";
-
-    /** brown hidden markov model for lingpipe chunker */
-    protected static final String MD_LINGPIPE_BROWN_HMM = MODEL_PATH
-            + "pos-en-general-brown.HiddenMarkovModel";
-
-    protected static final String MD_POS_STANFORD = MODEL_PATH
-            + "stanford/postag/left3words-wsj-0-18.tagger";
-
-    /** holds the model **/
+    /** holds the model. **/
     private Object model;
 
-    /** holds the name of the chunker **/
+    /** holds the name of the chunker. **/
     private String name;
 
-    /** holds the tag Annotations. **/
-    private TagAnnotations tagAnnotations;
+    /** holds the sentences. **/
+    private String[] sentences;
 
     /**
      * loads the chunker model into the chunker
@@ -76,7 +54,7 @@ public abstract class AbstractPhraseChunker {
      * 
      * @param sentence
      */
-    public abstract void chunk(String sentence);
+    public abstract void detect(String text);
 
     /**
      * chunks a senntence with given model file path and writes it into @see
@@ -85,7 +63,7 @@ public abstract class AbstractPhraseChunker {
      * @param sentence
      * @param configModelFilePath
      */
-    public abstract void chunk(String sentence, String configModelFilePath);
+    public abstract void detect(String text, String configModelFilePath);
 
     public Object getModel() {
         return model;
@@ -104,18 +82,18 @@ public abstract class AbstractPhraseChunker {
     }
 
     /**
-     * @return the tagAnnotations
+     * @return the sentences
      */
-    public TagAnnotations getTagAnnotations() {
-        return tagAnnotations;
+    public String[] getSentences() {
+        return sentences;
     }
 
     /**
-     * @param tagAnnotations
-     *            the tagAnnotations to set
+     * @param sentences
+     *            the sentences to set
      */
-    public void setTagAnnotations(TagAnnotations tagAnnotations) {
-        this.tagAnnotations = tagAnnotations;
+    public void setSentences(String[] sentences) {
+        this.sentences = sentences;
     }
 
     /**
@@ -123,14 +101,13 @@ public abstract class AbstractPhraseChunker {
      */
     public static void main(String[] args) {
 
-        final OpenNLPPhraseChunker onlppc = new OpenNLPPhraseChunker();
-        onlppc.loadModel();
-
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        onlppc.chunk("Death toll rises after Indonesia tsunami.");
-        LOGGER.info(onlppc.getTagAnnotations().getTaggedString());
+        final LingPipeSentenceDetector lpsd = new LingPipeSentenceDetector();
+        lpsd.loadModel();
+        lpsd.detect("This is my sentence. This is another!");
+        CollectionHelper.print(lpsd.getSentences());
 
         stopWatch.stop();
         LOGGER.info("time elapsed: " + stopWatch.getElapsedTimeString());

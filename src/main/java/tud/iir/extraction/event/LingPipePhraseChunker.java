@@ -185,25 +185,42 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     }
 
+    /**
+     * constructor
+     */
     public LingPipePhraseChunker() {
         setName("LingPipe Phrase Chunker");
     }
 
+    /*
+     * (non-Javadoc)
+     * @see
+     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
+     */
+    @Override
     public void chunk(String sentence) {
         final char[] cs = Strings.toCharArray(sentence);
-        Chunking chunking = this.chunk(cs, 0, cs.length);
-        List<String> chunks = new ArrayList<String>();
-        List<String> tokens = new ArrayList<String>();
-        for (Chunk chunk : chunking.chunkSet()) {
-            chunks.add(chunk.type());
-            tokens.add(sentence.substring(chunk.start(), chunk.end()));
+        final Chunking chunking = this.chunk(cs, 0, cs.length);
+        final TagAnnotations tagAnnotations = new TagAnnotations();
+        for (final Chunk chunk : chunking.chunkSet()) {
+            final TagAnnotation tagAnnotation = new TagAnnotation(
+                    chunk.start(), chunk.type(), sentence.substring(chunk
+                            .start(), chunk.end()));
+            tagAnnotations.add(tagAnnotation);
         }
 
-        setChunks(chunks);
-        setTokens(tokens);
+        this.setTagAnnotations(tagAnnotations);
     }
 
-    public Chunking chunk(char[] cs, int start, int end) {
+    /**
+     * internal chunking method
+     * 
+     * @param cs
+     * @param start
+     * @param end
+     * @return
+     */
+    private Chunking chunk(char[] cs, int start, int end) {
 
         // tokenize
         final List<String> tokenList = new ArrayList<String>();
@@ -252,7 +269,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                     startChunk = endChunk;
                     continue;
                 }
-                Chunk chunk = ChunkFactory.createChunk(startChunk,
+                final Chunk chunk = ChunkFactory.createChunk(startChunk,
                         trimmedEndChunk, "NP");
                 chunking.add(chunk);
                 startChunk = endChunk;
@@ -274,7 +291,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                     startChunk = endChunk;
                     continue;
                 }
-                Chunk chunk = ChunkFactory.createChunk(startChunk,
+                final Chunk chunk = ChunkFactory.createChunk(startChunk,
                         trimmedEndChunk, "VP");
                 chunking.add(chunk);
                 startChunk = endChunk;
@@ -287,26 +304,34 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
         return chunking;
     }
 
-    public static void main(String[] args) {
-
-    }
-
+    /*
+     * (non-Javadoc)
+     * @see
+     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
+     * java.lang.String)
+     */
     @Override
-    public void chunk(String sentence, String configModelFilePath) {
+    public final void chunk(String sentence, String configModelFilePath) {
         this.loadModel(configModelFilePath);
         this.chunk(sentence);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see
+     * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
+     * )
+     */
     @Override
-    public boolean loadModel(String configModelFilePath) {
+    public final boolean loadModel(String configModelFilePath) {
 
         ObjectInputStream oi = null;
 
         try {
-            StopWatch sw = new StopWatch();
+            final StopWatch sw = new StopWatch();
             sw.start();
 
-            HiddenMarkovModel hmm = null;
+            HiddenMarkovModel hmm;
 
             if (DataHolder.getInstance()
                     .containsDataObject(configModelFilePath)) {
@@ -325,17 +350,17 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
             LOGGER.info("loaded model in " + sw.getElapsedTimeString());
 
             return true;
-        } catch (IOException ie) {
+        } catch (final IOException ie) {
             LOGGER.error("IO Error: " + ie.getMessage());
             return false;
-        } catch (ClassNotFoundException ce) {
+        } catch (final ClassNotFoundException ce) {
             LOGGER.error("Class error: " + ce.getMessage());
             return false;
         } finally {
             if (oi != null) {
                 try {
                     oi.close();
-                } catch (IOException ie) {
+                } catch (final IOException ie) {
                     LOGGER.error(ie.getMessage());
                 }
             }
@@ -343,9 +368,13 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
+     */
     @Override
-    public boolean loadModel() {
-        return this.loadModel(MODEL_LINGPIPE_BROWN_HMM);
+    public final boolean loadModel() {
+        return this.loadModel(MD_LINGPIPE_BROWN_HMM);
 
     }
 

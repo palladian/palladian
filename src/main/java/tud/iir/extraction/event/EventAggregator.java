@@ -35,7 +35,7 @@ public class EventAggregator {
             .getLogger(EventAggregator.class);
 
     /** Used for all downloading purposes. */
-    private Crawler crawler = new Crawler();
+    private static Crawler crawler = new Crawler();
 
     /** default maximum count of threads */
     private static final int DEFAULT_MAX_THREADS = 20;
@@ -43,6 +43,7 @@ public class EventAggregator {
     /** default searchengine for news aggregation */
     private static final int DEFAULT_SEARCH_ENGINE = SourceRetrieverManager.GOOGLE_NEWS;
 
+    /** resultCount */
     private int resultCount = 10;
 
     private List<Event> events = new ArrayList<Event>();
@@ -56,7 +57,7 @@ public class EventAggregator {
     private int searchEngine = DEFAULT_SEARCH_ENGINE;
 
     public EventAggregator() {
-        this.eventMap = new HashMap<String, Event>();
+        eventMap = new HashMap<String, Event>();
     }
 
     public void aggregate() {
@@ -64,7 +65,7 @@ public class EventAggregator {
         final SourceRetriever sourceRetriever = new SourceRetriever();
 
         // setting resultCount
-        sourceRetriever.setResultCount(this.resultCount);
+        sourceRetriever.setResultCount(resultCount);
 
         // set search result language to english
         sourceRetriever.setLanguage(SourceRetriever.LANGUAGE_ENGLISH);
@@ -108,7 +109,7 @@ public class EventAggregator {
             }
 
             threadCounter.increment();
-            Runnable runnable = new Runnable() {
+            final Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
 
@@ -119,7 +120,7 @@ public class EventAggregator {
                         downloadedPages.increment(event.getWebresults().size());
                         newEntriesTotal.increment();
 
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         errors.increment();
                         LOGGER.error(e);
                     } finally {
@@ -155,10 +156,10 @@ public class EventAggregator {
 
         LOGGER.info("downloading " + webresults.size() + " pages");
 
-        URLDownloader downloader = new URLDownloader();
+        final URLDownloader downloader = new URLDownloader();
         downloader.setMaxThreads(5);
 
-        for (WebResult wr : webresults) {
+        for (final WebResult wr : webresults) {
             downloader.add(wr.getUrl());
             eventMap.put(wr.getUrl(), new Event(wr.getUrl()));
         }
@@ -167,13 +168,13 @@ public class EventAggregator {
             @Override
             public void finished(String url, InputStream inputStream) {
                 try {
-                    PageContentExtractor extractor = new PageContentExtractor();
+                    final PageContentExtractor extractor = new PageContentExtractor();
                     extractor.setDocument(new InputSource(inputStream));
                     // Document page = extractor.getResultDocument();
                     eventMap.get(url).setText(extractor.getResultText());
                     eventMap.get(url).setTitle(extractor.getResultTitle());
 
-                } catch (PageContentExtractorException e) {
+                } catch (final PageContentExtractorException e) {
                     LOGGER.error("PageContentExtractorException " + e);
                 }
             }
@@ -185,9 +186,9 @@ public class EventAggregator {
     public ArrayList<WebResult> getNewsResultsFromGoogle(String searchQuery,
             String languageCode) {
 
-        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
+        final ArrayList<WebResult> webresults = new ArrayList<WebResult>();
 
-        Crawler c = new Crawler();
+        final Crawler c = new Crawler();
 
         // set the preferred language
         // (http://www.google.com/cse/docs/resultsxml.html#languageCollections)
@@ -212,14 +213,14 @@ public class EventAggregator {
         for (int i = 0; i < grabCount; i++) {
 
             // rsz=large will respond 8 results
-            String json = c
+            final String json = c
                     .download("http://ajax.googleapis.com/ajax/services/search/news?v=1.0&start="
                             + (i * 8)
                             + "&rsz=large&safe=off&lr="
                             + languageString + "&q=" + searchQuery);
 
             try {
-                JSONObject jsonOBJ = new JSONObject(json);
+                final JSONObject jsonOBJ = new JSONObject(json);
 
                 // System.out.println(jsonOBJ.toString(1));
                 // in the first iteration find the maximum of available pages
@@ -234,7 +235,7 @@ public class EventAggregator {
                                             "pages") != null) {
                         pages = jsonOBJ.getJSONObject("responseData")
                                 .getJSONObject("cursor").getJSONArray("pages");
-                        int lastStartPage = pages.getJSONObject(
+                        final int lastStartPage = pages.getJSONObject(
                                 pages.length() - 1).getInt("start");
                         if (lastStartPage < grabCount) {
                             grabCount = lastStartPage + 1;
@@ -242,20 +243,20 @@ public class EventAggregator {
                     }
                 }
 
-                JSONArray results = jsonOBJ.getJSONObject("responseData")
+                final JSONArray results = jsonOBJ.getJSONObject("responseData")
                         .getJSONArray("results");
-                int resultSize = results.length();
+                final int resultSize = results.length();
                 for (int j = 0; j < resultSize; ++j) {
                     if (urlsCollected < getResultCount()) {
                         // TODO: webresult.setTitle(title);
-                        String title = null;
-                        String summary = (String) results.getJSONObject(j).get(
-                                "content");
+                        final String title = null;
+                        final String summary = (String) results
+                                .getJSONObject(j).get("content");
 
-                        String currentURL = (String) results.getJSONObject(j)
-                                .get("unescapedUrl");
+                        final String currentURL = (String) results
+                                .getJSONObject(j).get("unescapedUrl");
 
-                        WebResult webresult = new WebResult(
+                        final WebResult webresult = new WebResult(
                                 SourceRetrieverManager.GOOGLE, rank,
                                 new Source(currentURL), title, summary);
                         rank++;
@@ -269,7 +270,7 @@ public class EventAggregator {
                     }
                 }
 
-            } catch (JSONException e) {
+            } catch (final JSONException e) {
                 LOGGER.error(e.getMessage());
             }
 
@@ -333,7 +334,7 @@ public class EventAggregator {
 
     public static void main(String[] args) {
 
-        EventAggregator ea = new EventAggregator();
+        final EventAggregator ea = new EventAggregator();
         ea.setMaxThreads(10);
         ea.setQuery("pakistan flood");
         ea.aggregate();

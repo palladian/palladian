@@ -17,7 +17,7 @@ import tud.iir.web.WebResult;
 public class Event extends Extractable {
 
     private static final long serialVersionUID = 1023303092784471374L;
-    private FeatureObject features;
+    // private FeatureObject features;
     private Map<Integer, FeatureObject> entityFeatures;
     private Map<Integer, Annotations> entityAnnotations;
     private String text;
@@ -66,14 +66,10 @@ public class Event extends Extractable {
         this.title = title;
     }
 
-    public FeatureObject getFeatures() {
-        return features;
-    }
-
-    public void setFeatures(FeatureObject features) {
-        this.features = features;
-    }
-
+    /*
+     * public FeatureObject getFeatures() { return features; } public void
+     * setFeatures(FeatureObject features) { this.features = features; }
+     */
     public Map<Integer, FeatureObject> getEntityFeatures() {
         return entityFeatures;
     }
@@ -103,7 +99,7 @@ public class Event extends Extractable {
     }
 
     public void setWebresults(List<WebResult> webresult) {
-        this.webresults = webresult;
+        webresults = webresult;
     }
 
     public String getText() {

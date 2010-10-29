@@ -14,7 +14,6 @@ import tud.iir.helper.DataHolder;
 
 /**
  * @author Martin Wunderwald
- * 
  */
 public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
@@ -30,7 +29,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
             dictionary = new POSDictionary(dictionaryFilePath);
             setDictionary(dictionary);
             return true;
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.error(e);
             return false;
         }
@@ -39,7 +38,6 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
     /*
      * (non-Javadoc)
-     * 
      * @see tud.iir.extraction.event.POSTagger#loadModel(java.lang.String)
      */
     @Override
@@ -63,7 +61,6 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
     /*
      * (non-Javadoc)
-     * 
      * @see tud.iir.extraction.event.POSTagger#tag(java.lang.String)
      */
     @SuppressWarnings("unchecked")
@@ -83,20 +80,20 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
                 tokenList.add(tokens[j]);
             }
 
-            final List<String> tagList = (List<String>) ((PosTagger) getModel())
+            final List<String> tagList = ((PosTagger) getModel())
                     .tag(tokenList);
 
-            this.setTokens(tokenList);
-            this.setTags(tagList);
-
-            String out = "";
-            for (int j = 0; j < tokenList.size(); ++j) {
-                out += (tokens[j] + "/" + tagList.get(j) + " ");
+            final TagAnnotations tagAnnotations = new TagAnnotations();
+            for (int i = 0; i < tagList.size(); i++) {
+                final TagAnnotation tagAnnotation = new TagAnnotation(sentence
+                        .indexOf(tokenList.get(i)), tagList.get(i), tokenList
+                        .get(i));
+                tagAnnotations.add(tagAnnotation);
             }
 
-            this.setTaggedString(out);
+            this.setTagAnnotations(tagAnnotations);
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             LOGGER.error(e);
         }
 
