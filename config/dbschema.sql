@@ -296,58 +296,45 @@ CREATE TABLE `feeds` (
   `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
   `lastHeadlines` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
   `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
-  `activityPattern` int(11) DEFAULT = -1 COMMENT 'the activity pattern of the feed',
   `lastFeedEntry` timestamp DEFAULT NULL COMMENT 'the timestamp of the most recent item in the feed',
+	`activityPattern` int(11) DEFAULT = -1 COMMENT 'the activity pattern of the feed',
   `lastEtag` varchar(255) DEFAULT NULL 'the Etag that was retrieved at the poll in case the feed supports Etags',
-  `supportsConditionalGet` BOOLEAN DEFAULT NULL COMMENT 'whether the feed answers correctly on conditional get requests',
-  `supportsETag` BOOLEAN DEFAULT NULL COMMENT 'whether the feed supports ETags',
+  `lastPollTime` timestamp DEFAULT NULL 'the timestamp of the last poll (use for conditional get with last modified since)',
+	`supportsETag` BOOLEAN DEFAULT NULL COMMENT 'whether the feed supports ETags',
+	`supportsLMS` BOOLEAN DEFAULT NULL COMMENT 'whether the feed answers correctly on conditional get requests with last modified since headers',
+  `conditionalGetResponseSize` BOOLEAN DEFAULT NULL COMMENT 'the header size if a conditional get returns 304 (not modified)',
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-/*Table structure for table `feeds_adaptive` */
+CREATE TABLE `feed_evaluation_polls` (
+  `feedID` int(10) unsigned NOT NULL,
+  `numberOfPoll` int(10) unsigned NOT NULL COMMENT 'how often has this feed been polled (retrieved and read)',
+	`activityPattern` int(11) NOT NULL COMMENT 'activity pattern of the feed',
+  `conditionalGetResponseSize` int(11) DEFAULT NULL COMMENT 'the size of the HTTP 304 response in Bytes, (if there is no new entry)',
+  `sizeOfPoll` float NOT NULL COMMENT 'the amount of bytes that have been downloadad',
+  `pollTimestamp` bigint(20) unsigned NOT NULL COMMENT 'the feed has been pooled at this timestamp',
+  `pollMinuteOfDay` int(4) unsigned NOT NULL COMMENT 'the minute of the day the feed has been polled',
+  `checkInterval` float unsigned DEFAULT NULL COMMENT 'time in minutes we waited betwen last and this check',
+  `newWindowItems` float NOT NULL COMMENT 'number of new items in the window',
+  `missedItems` int(10) NOT NULL COMMENT 'the number of new items we missed because there more new items since the last poll than fit into the window',
+  `windowSize` int(10) unsigned NOT NULL COMMENT 'the current size of the feed''s window (number of items found)',
+	`cumulatedDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too early and too late',
+	`surroundingIntervalsLength` bigint(20) DEFAULT NULL COMMENT 'length of the interval to scale the timeliness for the feed'
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-DROP TABLE IF EXISTS `feeds_adaptive`;
+/*Table structure for table `feed_evaluation_update_intervals` */
 
-CREATE TABLE `feeds_adaptive` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `feedUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `siteUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `format` tinyint(4) NOT NULL,
-  `textType` tinyint(4) NOT NULL,
-  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `language` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `checks` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed has been retrieved and read',
-  `minCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
-  `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
-  `lastHeadlines` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
-  `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `feedUrl` (`feedUrl`)
-) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+DROP TABLE IF EXISTS `feed_evaluation_update_intervals`;
 
-/*Table structure for table `feeds_fixed_learned` */
-
-DROP TABLE IF EXISTS `feeds_fixed_learned`;
-
-CREATE TABLE `feeds_fixed_learned` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `feedUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `siteUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `format` tinyint(4) NOT NULL,
-  `textType` tinyint(4) NOT NULL,
-  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `language` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `checks` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed has been retrieved and read',
-  `minCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
-  `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
-  `lastHeadlines` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
-  `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `feedUrl` (`feedUrl`)
-) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `feed_evaluation_update_intervals` (
+  `id` int(10) unsigned NOT NULL COMMENT 'feedID',
+  `updateClass` int(11) NOT NULL COMMENT 'the feeds update class (activity pattern)',
+  `averageEntriesPerDay` double NOT NULL COMMENT 'the average number of new entries per day',
+  `medianItemInterval` bigint(20) NOT NULL COMMENT 'the feed''s median item interval in milliseconds (several items may be updated at the same time)',
+  `averageUpdateInterval` varchar(25) NOT NULL COMMENT 'the feeds average update interval in milliseconds (one update may contain several items)',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `feeds_post_distribution` */
 
@@ -361,27 +348,6 @@ CREATE TABLE `feeds_post_distribution` (
   PRIMARY KEY  (`feedID`,`minuteOfDay`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-/*Table structure for table `feeds_probabilistic` */
-
-DROP TABLE IF EXISTS `feeds_probabilistic`;
-
-CREATE TABLE `feeds_probabilistic` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `feedUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `siteUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `format` tinyint(4) NOT NULL,
-  `textType` tinyint(4) NOT NULL,
-  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `language` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `checks` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed has been retrieved and read',
-  `minCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
-  `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
-  `lastHeadlines` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
-  `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `feedUrl` (`feedUrl`)
-) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `feed_entries_tags` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
