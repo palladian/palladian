@@ -53,16 +53,9 @@ public class FeedClassifier {
     /** all post entries are generated at request time */
     public static final int CLASS_ON_THE_FLY = 9;
 
-    /** FIXME delete when merging!!! */
-    public static double totalKB = 0;
-    public static long totalFeedEntries = 0;
-    public static long totalFeeds = 0;
-
-    /** FIXME delete when merging!!! */
-    public static synchronized void addMetaInformation(double kb, int feedEntries) {
-        totalKB += kb;
-        totalFeedEntries += feedEntries;
-        totalFeeds++;
+    public static Integer[] getActivityPatternIDs() {
+        return new Integer[] { CLASS_UNKNOWN, CLASS_DEAD, CLASS_EMPTY, CLASS_SINGLE_ENTRY, CLASS_ZOMBIE,
+                CLASS_SPONTANEOUS, CLASS_SLICED, CLASS_CONSTANT, CLASS_CHUNKED, CLASS_ON_THE_FLY };
     }
 
     public static void classifyFeedInStore(FeedStore feedStore) {
@@ -87,12 +80,6 @@ public class FeedClassifier {
 
         LOGGER.info("classified " + feeds.size() + " feeds in " + sw.getElapsedTimeString() + ", traffic: "
                 + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + "MB");
-
-        // FIXME delete when merging!!!
-        LOGGER.info("totalKB of feeds: " + totalKB + ", average feed size: " + totalKB / totalFeeds);
-        LOGGER.info("total feed entries: " + totalFeedEntries + ", average feed entries: " + totalFeedEntries
-                / (double) totalFeeds);
-        LOGGER.info("total feeds: " + totalFeeds);
     }
 
     public static int classify(String feedURL) {

@@ -124,16 +124,13 @@ public class Feed {
     /** The activity pattern of the feed is one of {@link FeedClassifier}s classes. */
     private int activityPattern = -1;
 
-    /** Whether the feed supports etags. */
+    /** Whether the feed supports ETags. */
     private Boolean eTagSupport;
 
-    /** Whether the feed supports conditional get requests. */
-    private Boolean cgSupport;
+    /** Whether the feed supports LastModifiedSince. */
+    private Boolean lmsSupport;
 
-    /** The header size of the feed when sending eTag. */
-    private Integer eTagHeaderSize;
-
-    /** The header size of the feed when sending a conditional get. */
+    /** The header size of the feed when it supports a conditional get (ETag or LastModifiedSince). */
     private Integer cgHeaderSize;
 
     /**
@@ -722,28 +719,20 @@ public class Feed {
         return benchmarkLastLookupTime;
     }
 
-    public void seteTagSupport(Boolean eTagSupport) {
+    public void setETagSupport(Boolean eTagSupport) {
         this.eTagSupport = eTagSupport;
     }
 
-    public Boolean geteTagSupport() {
+    public Boolean getETagSupport() {
         return eTagSupport;
     }
 
-    public void setCgSupport(Boolean cgSupport) {
-        this.cgSupport = cgSupport;
+    public void setLMSSupport(Boolean lmsSupport) {
+        this.lmsSupport = lmsSupport;
     }
 
-    public Boolean getCgSupport() {
-        return cgSupport;
-    }
-
-    public void seteTagHeaderSize(Integer eTagHeaderSize) {
-        this.eTagHeaderSize = eTagHeaderSize;
-    }
-
-    public Integer geteTagHeaderSize() {
-        return eTagHeaderSize;
+    public Boolean getLMSSupport() {
+        return lmsSupport;
     }
 
     public void setCgHeaderSize(Integer cgHeaderSize) {

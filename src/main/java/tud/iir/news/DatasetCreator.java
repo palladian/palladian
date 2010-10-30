@@ -15,6 +15,7 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
+import tud.iir.news.evaluation.FeedReaderEvaluator;
 
 /**
  * <p>
@@ -55,9 +56,9 @@ public class DatasetCreator {
 
         FeedChecker feedChecker = new FeedChecker(feedStore);
 
-        FeedChecker.setBenchmark(FeedChecker.BENCHMARK_OFF);
+        FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
-        feedChecker.setCheckApproach(CheckApproach.CHECK_FIXED, true);
+        feedChecker.setCheckApproach(UpdateStrategy.UPDATE_FIXED, true);
         feedChecker.setCheckInterval(1);
 
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive

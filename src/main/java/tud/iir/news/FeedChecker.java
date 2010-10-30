@@ -1,28 +1,29 @@
 package tud.iir.news;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Timer;
 
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.OptionGroup;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.DateHelper;
-import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
-import tud.iir.news.statistics.PollData;
+import tud.iir.news.evaluation.FeedReaderEvaluator;
 import tud.iir.web.Crawler;
 
 /**
@@ -40,39 +41,6 @@ public final class FeedChecker {
     /** Maximum number of feed reading threads at the same time. */
     public static final Integer MAX_THREAD_POOL_SIZE = 200;
 
-    /** Benchmark off. */
-    public static final int BENCHMARK_OFF = 0;
-
-    /**
-     * Benchmark algorithms towards their prediction ability for the next post. We need all feeds to be in a certain
-     * time frame for a fair comparison.
-     */
-    public static final int BENCHMARK_MIN_CHECK = 1;
-
-    /**
-     * Benchmark algorithms towards their prediction ability for the next almost filled post list.
-     */
-    public static final int BENCHMARK_MAX_CHECK = 2;
-
-    /**
-     * If true, some output will be generated to evaluate the reading approaches.
-     */
-    public static int benchmark = BENCHMARK_MAX_CHECK;
-
-    /** We need all feeds to be in a certain time frame for a fair comparison. */
-    public static final int BENCHMARK_TIME = 1;
-
-    /** We use the polls and the feed time don't have to be aligned. */
-    public static final int BENCHMARK_POLL = 2;
-
-    public static int benchmarkMode = BENCHMARK_POLL;
-
-    /** The path to the folder with the feed post history files. */
-    private final String benchmarkDatasetPath = "G:\\Projects\\Programming\\Other\\clean\\";
-
-    /** The list of history files, will be loaded only once for the sake of performance. */
-    private File[] benchmarkDatasetFiles;
-
     /** List of feeds that are read continuous. */
     private Collection<Feed> feedCollection;
 
@@ -88,10 +56,10 @@ public final class FeedChecker {
     private static final int DEFAULT_CHECK_TIME = 60;
 
     /** The chosen check Approach */
-    private CheckApproach checkApproach = CheckApproach.CHECK_FIXED;
+    private UpdateStrategy checkApproach = UpdateStrategy.UPDATE_FIXED;
 
     /**
-     * The check interval in minutes, only used if the checkApproach is {@link CheckApproach.CHECK_FIXED} if
+     * The check interval in minutes, only used if the checkApproach is {@link UpdateStrategy.CHECK_FIXED} if
      * checkInterval = -1 the
      * interval will be determined automatically at the first immediate check of the feed by looking in its past.
      */
@@ -118,12 +86,6 @@ public final class FeedChecker {
         super();
         checkScheduler = new Timer();
         feedCollection = feedStore.getFeeds();
-
-        if (getBenchmark() != BENCHMARK_OFF) {
-            LOGGER.info("load benchmark dataset file list");
-            benchmarkDatasetFiles = FileHelper.getFiles(benchmarkDatasetPath);
-        }
-
     }
 
     /**
@@ -163,7 +125,7 @@ public final class FeedChecker {
         LOGGER.debug("loaded " + feedCollection.size() + " feeds");
 
         // checkScheduler.schedule(schedulerTask, wakeUpInterval, wakeUpInterval);
-        if (getBenchmark() == BENCHMARK_OFF) {
+        if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
 
             SchedulerTask schedulerTask = new SchedulerTask(this);
             checkScheduler.schedule(schedulerTask, 0, wakeUpInterval);
@@ -173,14 +135,32 @@ public final class FeedChecker {
             // checkScheduler.schedule(schedulerTaskBenchmark, 0, 50);
 
             StopWatch sw = new StopWatch();
-            NewsAggregator fa = new NewsAggregator();
             int feedHistoriesCompletelyRead = 0;
+            int feedCounter = 0;
+            boolean modSkip = FeedReaderEvaluator.benchmarkSample > 50;
+            int mod = 100 / FeedReaderEvaluator.benchmarkSample;
+            if (modSkip) {
+                mod = 100 / (100 - FeedReaderEvaluator.benchmarkSample);
+            }
+
             for (Feed feed : getFeeds()) {
 
-                // if (feed.getId() > 83535) {
+                feedCounter++;
+
+                // skip some feeds if we want to take a sample only
+                if (!modSkip && feedCounter % mod != 0 || modSkip && feedCounter % mod == 0) {
+                    continue;
+                }
+
+                // we skip OTF feeds
+                if (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY) {
+                    continue;
+                }
+
+                // if (feed.getId() > 2) {
                 // break;
                 // }
-                // if (feed.getId() < 83531) {
+                // if (feed.getId() < 2) {
                 // continue;
                 // }
                 StopWatch swf = new StopWatch();
@@ -194,30 +174,28 @@ public final class FeedChecker {
 
                 // in time mode, we have a certain interval we want to observe the feeds in, otherwise we just take the
                 // first real poll that is available
-                if (benchmarkMode == BENCHMARK_TIME) {
+                if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME) {
                     feed.setBenchmarkLookupTime(FeedBenchmarkFileReader.BENCHMARK_START_TIME);
                 }
 
                 int loopCount = 0;
-                while (benchmarkMode == BENCHMARK_TIME
-                        && feed.getBenchmarkLastLookupTime() < FeedBenchmarkFileReader.BENCHMARK_STOP_TIME
-                        || benchmarkMode == BENCHMARK_POLL && !feed.historyFileCompletelyRead()) {
+                boolean keepLooping = true;
+                while (keepLooping) {
 
                     fbfr.updateEntriesFromDisk();
                     loopCount++;
 
                     // we do not include all empty polls in fixed mode because the evaluation files would get too big,
                     // since the interval is fixed we can simply copy the last poll until we reach the end
-                    if (feed.historyFileCompletelyRead() && getCheckApproach() == CheckApproach.CHECK_FIXED) {
+                    if (feed.historyFileCompletelyRead() && getCheckApproach() == UpdateStrategy.UPDATE_FIXED) {
                         break;
                     }
 
-                    // FIXME
-                    /*
-                     * if (loopCount >= 10000) {
-                     * break;
-                     * }
-                     */
+                    keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
+                            && feed.getBenchmarkLastLookupTime() < FeedBenchmarkFileReader.BENCHMARK_STOP_TIME;
+                    if (!keepLooping) {
+                        keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL && !feed.historyFileCompletelyRead();
+                    }
                 }
 
                 feedHistoriesCompletelyRead++;
@@ -236,12 +214,11 @@ public final class FeedChecker {
                     LOGGER.info("time per feed: " + timePerFeed);
                 }
                 if (feedHistoriesCompletelyRead % 500 == 0) {
-                    writeRecordedMaps();
-                    // break;
+                    FeedReaderEvaluator.writeRecordedMaps(this);
                 }
 
                 // save the feed back to the database
-                fa.updateFeed(feed);
+                // fa.updateFeed(feed);
 
                 feed.freeMemory();
                 feed.setLastHeadlines("");
@@ -250,8 +227,9 @@ public final class FeedChecker {
 
             LOGGER.info("finished reading feeds from disk in " + sw.getElapsedTimeString());
             LOGGER.info("writing evaluation results...");
-            writeRecordedMaps();
+            FeedReaderEvaluator.writeRecordedMaps(this);
             LOGGER.info("...done");
+            setStopped(true);
         }
 
         LOGGER.debug("scheduled task, wake up every " + wakeUpInterval
@@ -259,7 +237,7 @@ public final class FeedChecker {
 
         while (!stopWatch.timeIsUp() && !isStopped()) {
 
-            if (benchmark == BENCHMARK_OFF) {
+            if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
                 LOGGER.trace("time is not up, keep reading feeds");
                 LOGGER.debug("current total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
                 ThreadHelper.sleep(1 * DateHelper.MINUTE_MS);
@@ -312,7 +290,7 @@ public final class FeedChecker {
         double pnTarget = feed.getTargetPercentageOfNewEntries();
 
         // calculate new update times depending on approach chosen
-        if (CheckApproach.CHECK_FIXED.equals(checkApproach)
+        if (UpdateStrategy.UPDATE_FIXED.equals(checkApproach)
                 && (checkInterval == -1 && feed.getChecks() > 0 || checkInterval != -1)) {
 
             // the checkInterval for the feed must have been determined at the
@@ -323,9 +301,9 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(checkInterval);
             }
 
-        } else if (CheckApproach.CHECK_FIXED.equals(checkApproach)
+        } else if (UpdateStrategy.UPDATE_FIXED.equals(checkApproach)
                 && checkInterval == -1
-                || (CheckApproach.CHECK_ADAPTIVE.equals(checkApproach) || CheckApproach.CHECK_PROBABILISTIC
+                || (UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach) || UpdateStrategy.UPDATE_PROBABILISTIC
                         .equals(checkApproach)) && feed.getChecks() == 0) {
 
             updateIntervalFixed(feed, fps);
@@ -333,7 +311,7 @@ public final class FeedChecker {
         }
 
         // for on-the-fly updates switch from probabilistic to adaptive
-        else if ((CheckApproach.CHECK_ADAPTIVE.equals(checkApproach) || CheckApproach.CHECK_PROBABILISTIC
+        else if ((UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach) || UpdateStrategy.UPDATE_PROBABILISTIC
                 .equals(checkApproach)
                 && (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY || !feed.oneFullDayHasBeenSeen()))
                 && feed.getChecks() > 0) {
@@ -342,7 +320,7 @@ public final class FeedChecker {
 
         }
 
-        if (CheckApproach.CHECK_PROBABILISTIC.equals(checkApproach)
+        if (UpdateStrategy.UPDATE_PROBABILISTIC.equals(checkApproach)
                 && feed.getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
 
             updateIntervalProbabilistic(feed, fps);
@@ -375,7 +353,7 @@ public final class FeedChecker {
      * @param resetLearnedValues If true, learned and calculated values such as check intervals etc. are reset and are
      *            retrained using the new check approach.
      */
-    public void setCheckApproach(CheckApproach checkApproach, boolean resetLearnedValues) {
+    public void setCheckApproach(UpdateStrategy checkApproach, boolean resetLearnedValues) {
         if (!this.checkApproach.equals(checkApproach) && resetLearnedValues) {
             FeedDatabase.getInstance().changeCheckApproach();
         }
@@ -395,7 +373,7 @@ public final class FeedChecker {
     // === Getter methods ===
     // ======================
 
-    public CheckApproach getCheckApproach() {
+    public UpdateStrategy getCheckApproach() {
         return checkApproach;
     }
 
@@ -404,13 +382,13 @@ public final class FeedChecker {
 
         String className = "unknown";
 
-        if (CheckApproach.CHECK_FIXED.equals(checkApproach) && checkInterval == -1) {
+        if (UpdateStrategy.UPDATE_FIXED.equals(checkApproach) && checkInterval == -1) {
             className = "fixed_learned";
-        } else if (CheckApproach.CHECK_FIXED.equals(checkApproach) && checkInterval != -1) {
+        } else if (UpdateStrategy.UPDATE_FIXED.equals(checkApproach) && checkInterval != -1) {
             className = "fixed_" + checkInterval;
-        } else if (CheckApproach.CHECK_ADAPTIVE.equals(checkApproach)) {
+        } else if (UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach)) {
             className = "adaptive";
-        } else if (CheckApproach.CHECK_PROBABILISTIC.equals(checkApproach)) {
+        } else if (UpdateStrategy.UPDATE_PROBABILISTIC.equals(checkApproach)) {
             className = "probabilistic";
         }
 
@@ -425,7 +403,7 @@ public final class FeedChecker {
         return feedProcessingAction;
     }
 
-    protected Collection<Feed> getFeeds() {
+    public Collection<Feed> getFeeds() {
         return feedCollection;
     }
 
@@ -433,138 +411,7 @@ public final class FeedChecker {
     // === Helper methods ===
     // ======================
 
-    /**
-     * <p>
-     * Save the feed poll information for evaluation.
-     * </p>
-     * 
-     * <p>
-     * For each update technique and evaluation mode another file must be written (8 in total = 4 techniques * 2
-     * evaluation modes). This method writes only one file for the current settings.
-     * </p>
-     * 
-     * <p>
-     * Each file contains the following fields per line, fields are separated with a semicolon:
-     * <ul>
-     * <li>feed id</li>
-     * <li>feed activity pattern</li>
-     * <li>etag support (0/1)</li>
-     * <li>conditional get support (0/1)</li>
-     * <li>eTag response size in Byte</li>
-     * <li>conditional get response size in Byte</li>
-     * <li>number of poll</li>
-     * <li>poll timestamp in seconds</li>
-     * <li>poll hour of the day</li>
-     * <li>poll minute of the day</li>
-     * <li>check interval at poll time in minutes</li>
-     * <li>window size</li>
-     * <li>size of poll in Byte</li>
-     * <li>number of missed news posts</li>
-     * <li>percentage of new entries, 1 = all new (only for evaluation mode MAX interesting)</li>
-     * <li>delay in seconds (only for evaluation mode MIN interesting)</li>
-     * <li>score_max (only for evaluation mode MAX interesting)</li>
-     * <li>score_min (only for evaluation mode MIN interesting)</li>
-     * </ul>
-     * </p>
-     * 
-     */
-    private void writeRecordedMaps() {
 
-        StopWatch sw = new StopWatch();
-
-        String separator = ";";
-
-        String benchmarkModeString = "0";
-        if (benchmarkMode == BENCHMARK_POLL) {
-            benchmarkModeString = "poll";
-        } else if (benchmarkMode == BENCHMARK_TIME) {
-            benchmarkModeString = "time";
-        }
-
-        String filePath = "data/temp/feedReaderEvaluation_" + getCheckApproachName() + "_" + getBenchmarkName()
-        + "_"
-        + benchmarkModeString + ".csv";
-
-        try {
-            FileWriter fileWriter = new FileWriter(filePath, true);
-
-            DecimalFormat format = new DecimalFormat("0.#################");
-            format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
-
-            // loop through all feeds
-            for (Feed feed : getFeeds()) {
-
-                int numberOfPoll = 1;
-                for (PollData pollData : feed.getPollDataSeries()) {
-
-                    StringBuilder csv = new StringBuilder();
-
-                    // feed related values
-                    csv.append(feed.getId()).append(separator);
-                    csv.append(feed.getActivityPattern()).append(separator);
-                    if (feed.geteTagSupport()) {
-                        csv.append("1").append(separator);
-                    } else {
-                        csv.append("0").append(separator);
-                    }
-                    if (feed.getCgSupport()) {
-                        csv.append("1").append(separator);
-                    } else {
-                        csv.append("0").append(separator);
-                    }
-                    csv.append(feed.geteTagHeaderSize()).append(separator);
-                    csv.append(feed.getCgHeaderSize()).append(separator);
-
-                    // poll related values
-                    csv.append(numberOfPoll).append(separator);
-                    csv.append(pollData.getTimestamp() / 1000l).append(separator);
-                    csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.HOUR)).append(separator);
-                    csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.MINUTE)).append(separator);
-                    csv.append(MathHelper.round(pollData.getCheckInterval(), 2)).append(separator);
-                    csv.append(pollData.getWindowSize()).append(separator);
-                    csv.append(pollData.getDownloadSize()).append(separator);
-                    csv.append(pollData.getMisses()).append(separator);
-                    csv.append(MathHelper.round(pollData.getPercentNew(), 2)).append(separator);
-                    csv.append(pollData.getNewPostDelay() / 1000l).append(separator);
-
-                    Double scoreMax = pollData.getScore(BENCHMARK_MAX_CHECK);
-                    if (scoreMax != null) {
-                        csv.append(format.format(MathHelper.round(scoreMax, 2))).append(
-                                separator);
-                    } else {
-                        csv.append("\"N").append(separator);
-                    }
-
-                    Double scoreMin = pollData.getScore(BENCHMARK_MIN_CHECK);
-                    if (scoreMin != null) {
-                        csv.append(format.format(MathHelper.round(scoreMin, 4))).append(
-                                separator);
-                    } else {
-                        csv.append("\"N").append(separator);
-                    }
-                    csv.append("\n");
-
-                    fileWriter.write(csv.toString());
-                    fileWriter.flush();
-
-                    numberOfPoll++;
-                }
-
-                // data is appended to the file so we can/must clear the poll data series here, that also saves us
-                // memory
-                feed.getPollDataSeries().clear();
-            }
-
-            fileWriter.flush();
-            fileWriter.close();
-
-        } catch (IOException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
-        }
-
-        LOGGER.info("wrote record maps in " + sw.getElapsedTimeString());
-
-    }
 
     /**
      * Update the check intervals in fixed mode.
@@ -733,7 +580,7 @@ public final class FeedChecker {
             feed.setMeticulousPostDistribution(postDistribution);
 
             // in benchmark mode we keep it in memory
-            if (getBenchmark() == BENCHMARK_OFF) {
+            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
                 FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
             }
 
@@ -744,7 +591,7 @@ public final class FeedChecker {
             Map<Integer, int[]> postDistribution = feed.getMeticulousPostDistribution();
 
             // in benchmark mode we keep it in memory
-            if (getBenchmark() == BENCHMARK_OFF) {
+            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
                 postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
             }
 
@@ -777,7 +624,7 @@ public final class FeedChecker {
             }
 
             // in benchmark mode we keep it in memory
-            if (getBenchmark() == BENCHMARK_OFF) {
+            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
                 FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
             }
             feed.setMeticulousPostDistribution(postDistribution);
@@ -837,30 +684,6 @@ public final class FeedChecker {
         }
     }
 
-    public static int getBenchmark() {
-        return benchmark;
-    }
-
-    public static void setBenchmark(int benchmark) {
-        FeedChecker.benchmark = benchmark;
-    }
-
-    public static int getBenchmarkMode() {
-        return benchmarkMode;
-    }
-
-    public static void setBenchmarkMode(int benchmarkMode) {
-        FeedChecker.benchmarkMode = benchmarkMode;
-    }
-
-    private String getBenchmarkName() {
-        return benchmark == BENCHMARK_MIN_CHECK ? "min" : "max";
-    }
-
-    public String getBenchmarkDatasetPath() {
-        return benchmarkDatasetPath;
-    }
-
     public void setStopped(boolean stopped) {
         this.stopped = stopped;
     }
@@ -869,31 +692,7 @@ public final class FeedChecker {
         return stopped;
     }
 
-    /**
-     * Find the history file with feed posts given the feed id. The file name starts with the feed id followed by an
-     * underscore.
-     * 
-     * @param id The id of the feed.
-     * @return The path to the file with the feed post history.
-     */
-    public String findHistoryFile(String safeFeedName) {
 
-        // read feed history file
-        String historyFilePath = "";
-        if (benchmarkDatasetFiles == null) {
-            System.out
-            .println("======================================================================================");
-            benchmarkDatasetFiles = FileHelper.getFiles(benchmarkDatasetPath);
-        }
-        for (File file : benchmarkDatasetFiles) {
-            if (file.getName().startsWith(safeFeedName)) {
-                historyFilePath = file.getAbsolutePath();
-                break;
-            }
-        }
-
-        return historyFilePath;
-    }
 
     /**
      * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
@@ -902,74 +701,65 @@ public final class FeedChecker {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        // FeedChecker fchecker = new FeedChecker(FeedDatabase.getInstance());
-        // fchecker.setCheckApproach(CheckApproach.CHECK_FIXED, true);
-        // fchecker.startContinuousReading();
-        // System.exit(0);
-        //
-        // FeedChecker fch = new FeedChecker(new FeedStoreDummy());
-        // fch.setCheckApproach(CheckApproach.CHECK_FIXED, true);
-        // Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
-        // feed.setUpdateClass(FeedClassifier.CLASS_SLICED);
-        // feed.updateEntries(false);
-        // // feed.increaseChecks();
-        // fch.updateCheckIntervals(feed);
-        // System.exit(0);
+        FeedChecker fchecker = new FeedChecker(FeedDatabase.getInstance());
+        fchecker.setCheckApproach(UpdateStrategy.UPDATE_FIXED, true);
+        fchecker.startContinuousReading();
+        System.exit(0);
 
-        // Options options = new Options();
-        //
-        // OptionGroup checkApproachOption = new OptionGroup();
-        // checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED").withDescription(
-        // "check each feed at a fixed interval").create());
-        // checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE").withDescription(
-        // "check each feed and learn its update times").create());
-        // checkApproachOption.addOption(OptionBuilder.withArgName("cp").withLongOpt("CHECK_PROPABILISTIC")
-        // .withDescription("check each feed and adapt to its update rate").create());
-        // checkApproachOption.setRequired(true);
-        // options.addOptionGroup(checkApproachOption);
-        // options.addOption("r", "runtime", true,
-        // "The runtime of the checker in minutes or -1 if it should run until aborted.");
-        // options
-        // .addOption("ci", "checkInterval", true,
-        // "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
-        // HelpFormatter formatter = new HelpFormatter();
-        //
-        // CommandLineParser parser = new PosixParser();
-        // CommandLine cmd = null;
-        // try {
-        // cmd = parser.parse(options, args);
-        // } catch (ParseException e) {
-        // LOGGER.debug("Command line arguments could not be parsed!");
-        // formatter.printHelp("FeedChecker", options);
-        // }
-        //
-        // int runtime = -1;
-        // CheckApproach checkType = CheckApproach.CHECK_FIXED;
-        // int checkInterval = -1;
-        //
-        // if (cmd.hasOption("r")) {
-        // runtime = Integer.valueOf(cmd.getOptionValue("r"));
-        // } else {
-        // formatter.printHelp("FeedChecker", options);
-        // }
-        // if (cmd.hasOption("cf")) {
-        // checkType = CheckApproach.CHECK_FIXED;
-        // } else if (cmd.hasOption("ca")) {
-        // checkType = CheckApproach.CHECK_ADAPTIVE;
-        // } else if (cmd.hasOption("cp")) {
-        // checkType = CheckApproach.CHECK_PROBABILISTIC;
-        // }
-        // if (cmd.hasOption("ci")) {
-        // checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
-        // }
+        FeedChecker fch = new FeedChecker(new FeedStoreDummy());
+        fch.setCheckApproach(UpdateStrategy.UPDATE_FIXED, true);
+        Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
+        feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
+        feed.updateEntries(false);
+        // feed.increaseChecks();
+        fch.updateCheckIntervals(feed);
+        System.exit(0);
 
-        // // benchmark settings ////
-        CheckApproach checkType = CheckApproach.CHECK_FIXED;
-        // checkType = CheckApproach.CHECK_ADAPTIVE;
-        checkType = CheckApproach.CHECK_PROBABILISTIC;
+        Options options = new Options();
+
+        OptionGroup checkApproachOption = new OptionGroup();
+        checkApproachOption.addOption(OptionBuilder.withArgName("cf").withLongOpt("CHECK_FIXED")
+                .withDescription("check each feed at a fixed interval").create());
+        checkApproachOption.addOption(OptionBuilder.withArgName("ca").withLongOpt("CHECK_ADAPTIVE")
+                .withDescription("check each feed and learn its update times").create());
+        checkApproachOption.addOption(OptionBuilder.withArgName("cp").withLongOpt("CHECK_PROPABILISTIC")
+                .withDescription("check each feed and adapt to its update rate").create());
+        checkApproachOption.setRequired(true);
+        options.addOptionGroup(checkApproachOption);
+        options.addOption("r", "runtime", true,
+                "The runtime of the checker in minutes or -1 if it should run until aborted.");
+        options.addOption("ci", "checkInterval", true,
+                "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
+        HelpFormatter formatter = new HelpFormatter();
+
+        CommandLineParser parser = new PosixParser();
+        CommandLine cmd = null;
+        try {
+            cmd = parser.parse(options, args);
+        } catch (ParseException e) {
+            LOGGER.debug("Command line arguments could not be parsed!");
+            formatter.printHelp("FeedChecker", options);
+        }
+
+        int runtime = -1;
+        UpdateStrategy checkType = UpdateStrategy.UPDATE_FIXED;
         int checkInterval = -1;
-        int runtime = 9000;
-        // //////////////////////////
+
+        if (cmd.hasOption("r")) {
+            runtime = Integer.valueOf(cmd.getOptionValue("r"));
+        } else {
+            formatter.printHelp("FeedChecker", options);
+        }
+        if (cmd.hasOption("cf")) {
+            checkType = UpdateStrategy.UPDATE_FIXED;
+        } else if (cmd.hasOption("ca")) {
+            checkType = UpdateStrategy.UPDATE_ADAPTIVE;
+        } else if (cmd.hasOption("cp")) {
+            checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
+        }
+        if (cmd.hasOption("ci")) {
+            checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
+        }
 
         FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());
         FeedProcessingAction fpa = new FeedProcessingAction() {
@@ -984,9 +774,6 @@ public final class FeedChecker {
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
         fc.setFeedProcessingAction(fpa);
-        // setBenchmark(BENCHMARK_MAX_CHECK);
-        setBenchmark(BENCHMARK_MIN_CHECK);
-        // setBenchmarkMode(BENCHMARK_TIME);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
     }
 
