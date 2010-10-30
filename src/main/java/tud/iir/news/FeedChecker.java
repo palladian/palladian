@@ -177,10 +177,10 @@ public final class FeedChecker {
             int feedHistoriesCompletelyRead = 0;
             for (Feed feed : getFeeds()) {
 
-                // if (feed.getId() > 10) {
+                // if (feed.getId() > 83535) {
                 // break;
                 // }
-                // if (feed.getId() < 10) {
+                // if (feed.getId() < 83531) {
                 // continue;
                 // }
                 StopWatch swf = new StopWatch();
@@ -235,7 +235,7 @@ public final class FeedChecker {
                             + "% of history files completely read (absolute: " + feedHistoriesCompletelyRead + ")");
                     LOGGER.info("time per feed: " + timePerFeed);
                 }
-                if (feedHistoriesCompletelyRead % 10000 == 0) {
+                if (feedHistoriesCompletelyRead % 500 == 0) {
                     writeRecordedMaps();
                     // break;
                 }
