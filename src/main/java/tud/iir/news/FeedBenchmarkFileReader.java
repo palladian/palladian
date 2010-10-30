@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
+import tud.iir.news.evaluation.FeedReaderEvaluator;
 import tud.iir.news.statistics.PollData;
 
 public class FeedBenchmarkFileReader {
@@ -28,6 +29,9 @@ public class FeedBenchmarkFileReader {
     private String historyFilePath = "";
     private int totalEntries = 0;
 
+    /** The cumulated delay of early lookups + the last cumulatedPoll delay when at least one new item was found. */
+    private long cumulatedDelay = 0l;
+
     /**
      * We need to loop through the file many times, to expedite the process we save the last index position where the
      * window started (actually one entry before the window so we can calculate a delay to the next entry).
@@ -43,7 +47,7 @@ public class FeedBenchmarkFileReader {
         + StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""),
                 30);
 
-        this.historyFilePath = feedChecker.findHistoryFile(safeFeedName);
+        this.historyFilePath = FeedReaderEvaluator.findHistoryFile(safeFeedName);
 
         // if file doesn't exist skip the feed
         if (!new File(historyFilePath).exists()) {
@@ -91,8 +95,15 @@ public class FeedBenchmarkFileReader {
     }
 
     /**
+     * <p>
      * For benchmarking purposes, we created a dataset of feed post histories and stored it on disk. We can now run the
      * feed reader on this dataset and evaluate the updateInterval techniques.
+     * </p>
+     * 
+     * <p>
+     * We need to handle "On-The-Fly" feeds special (we disregard them here), because their timestamps should be at
+     * simulation time.
+     * </p>
      */
     public void updateEntriesFromDisk() {
 
@@ -101,6 +112,10 @@ public class FeedBenchmarkFileReader {
 
             // the timestamp of the first item in the window
             long firstItemInWindowTimestamp = -1l;
+            
+            // the timestamp of the second item in the window (which is different from the first), we need this to
+            // calculate the length of the last interval between the first and second item in the window
+            long secondItemInWindowTimestamp = -1l;
 
             // the timestamp of the last item in the window
             long lastItemInWindowTimestamp = Long.MIN_VALUE;
@@ -111,7 +126,7 @@ public class FeedBenchmarkFileReader {
 
             // the cumulated delay of the lookup times in milliseconds (in benchmark min mode), this can happen when we
             // read too early or too late
-            long cumulatedDelay = 0l;
+            long cumulatedPollDelay = 0l;
 
             // get hold of the post entry just before the window starts, this way we can determine the delay in case
             // there are no new entries between lookup time and last lookup time
@@ -176,6 +191,8 @@ public class FeedBenchmarkFileReader {
 
                     if (firstItemInWindowTimestamp < 0) {
                         firstItemInWindowTimestamp = entryTimestamp;
+                    } else if (secondItemInWindowTimestamp < 0 && entryTimestamp != firstItemInWindowTimestamp) {
+                        secondItemInWindowTimestamp = entryTimestamp;
                     }
 
                     // find the first lookup date if the file has not been read yet
@@ -183,7 +200,7 @@ public class FeedBenchmarkFileReader {
                         feed.setBenchmarkLookupTime(entryTimestamp);
                     }
 
-                    if (FeedChecker.benchmarkMode == FeedChecker.BENCHMARK_TIME
+                    if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
                             && entryTimestamp > BENCHMARK_START_TIME && totalEntries - i + 1 == feed.getWindowSize()) {
                         LOGGER.error("we disregard this feed (" + feed.getId()
                                 + ") since it does not comply with our start date "
@@ -201,19 +218,11 @@ public class FeedBenchmarkFileReader {
 
                     totalBytes += Math.max(0, Integer.valueOf(parts[3]));
 
-                    // FeedEntry fe = feedEntryMap.get(i);
-                    // if (fe == null) {
-
                     // create feed entry
                     FeedEntry feedEntry = new FeedEntry();
                     feedEntry.setPublished(new Date(entryTimestamp));
                     feedEntry.setTitle(parts[1]);
                     feedEntry.setLink(parts[2]);
-
-                    // fe = feedEntry;
-
-                    // feedEntryMap.put(i, fe);
-                    // }
 
                     entries.add(feedEntry);
 
@@ -221,7 +230,7 @@ public class FeedBenchmarkFileReader {
                     // delay to the current lookup time (and weight it)
                     if (entryTimestamp > feed.getBenchmarkLastLookupTime() && feed.getChecks() > 0) {
 
-                        cumulatedDelay += feed.getBenchmarkLookupTime() - entryTimestamp;
+                        cumulatedPollDelay += feed.getBenchmarkLookupTime() - entryTimestamp;
 
                         // count new entry
                         newEntries++;
@@ -242,10 +251,10 @@ public class FeedBenchmarkFileReader {
                 }
 
                 // process post entries between the end of the current window and the last lookup time
-                else if (entryTimestamp < lastItemInWindowTimestamp
+                else if (entryTimestamp <= lastItemInWindowTimestamp
                         && entryTimestamp > feed.getBenchmarkLastLookupTime()) {
 
-                    cumulatedDelay += feed.getBenchmarkLookupTime() - entryTimestamp;
+                    cumulatedPollDelay += feed.getBenchmarkLookupTime() - entryTimestamp;
 
                     // count post entry as miss
                     misses = misses + 1;
@@ -258,36 +267,46 @@ public class FeedBenchmarkFileReader {
 
             // if no new entry was found, we add the delay to the next new post entry
             if (newEntries == 0 && nextItemBeforeWindowTimestamp != 0l && feed.getChecks() > 0) {
-                cumulatedDelay = feed.getBenchmarkLookupTime() - nextItemBeforeWindowTimestamp;
+                cumulatedPollDelay = feed.getBenchmarkLookupTime() - nextItemBeforeWindowTimestamp;
             }
+
+            cumulatedDelay += Math.abs(cumulatedPollDelay);
 
             feed.setEntries(entries);
 
             // now that we set the entries we can add information about the poll to the poll series
             PollData pollData = new PollData();
 
-            pollData.setBenchmarkType(FeedChecker.benchmark);
+            pollData.setBenchmarkType(FeedReaderEvaluator.benchmarkPolicy);
 
             // only checks after the first one get a min score
-            if (feed.getChecks() > 0) {
-                pollData.setCurrentIntervalSize(nextItemBeforeWindowTimestamp - firstItemInWindowTimestamp);
-            } else {
-                pollData.setCurrentIntervalSize(-1);
+            if (feed.getChecks() > 0 && newEntries > 0 && nextItemBeforeWindowTimestamp != 0l) {
+
+                if (feed.getChecks() > 0 && secondItemInWindowTimestamp < 0) {
+                    secondItemInWindowTimestamp = feed.getLastFeedEntry().getTime();
+                }
+
+                long currentInterval = nextItemBeforeWindowTimestamp - firstItemInWindowTimestamp;
+                long lastInterval = firstItemInWindowTimestamp - secondItemInWindowTimestamp;
+                long surroundingIntervalsLength = currentInterval + lastInterval;
+                pollData.setSurroundingIntervalsLength(surroundingIntervalsLength);                
             }
 
             pollData.setTimestamp(feed.getBenchmarkLookupTime());
-            pollData.setPercentNew(feed.getTargetPercentageOfNewEntries());
-
-            // only checks after the first one get a max score (if misses -1 score is undefined too)
-            if (feed.getChecks() > 0) {
-                pollData.setMisses(misses);
-            }
+            pollData.setNewWindowItems(newEntries);
+            pollData.setMisses(misses);
 
             pollData.setNewPostDelay(cumulatedDelay);
+            
+            // reset cumulated delay for next new item
+            if (newEntries > 0) {
+                cumulatedDelay = 0;
+            }
+            
             pollData.setWindowSize(feed.getWindowSize());
             pollData.setDownloadSize(totalBytes);
 
-            pollData.getScore(FeedChecker.BENCHMARK_MIN_CHECK);
+            pollData.getScore(FeedReaderEvaluator.BENCHMARK_MIN_DELAY);
 
             // add poll data object to series of poll data
             feed.getPollDataSeries().add(pollData);
@@ -297,15 +316,15 @@ public class FeedBenchmarkFileReader {
 
             feedChecker.updateCheckIntervals(feed);
 
-            if (FeedChecker.benchmark == FeedChecker.BENCHMARK_MAX_CHECK) {
+            if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE) {
                 pollData.setCheckInterval(feed.getMaxCheckInterval());
             } else {
                 pollData.setCheckInterval(feed.getMinCheckInterval());
             }
 
-            if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MIN_CHECK) {
+            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_MIN_DELAY) {
                 feed.addToBenchmarkLookupTime((long) feed.getMinCheckInterval() * (long) DateHelper.MINUTE_MS);
-            } else if (FeedChecker.getBenchmark() == FeedChecker.BENCHMARK_MAX_CHECK) {
+            } else if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE) {
                 feed.addToBenchmarkLookupTime((long) feed.getMaxCheckInterval() * (long) DateHelper.MINUTE_MS);
             }
 
