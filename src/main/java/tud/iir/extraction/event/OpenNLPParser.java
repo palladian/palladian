@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import opennlp.tools.lang.english.TreebankParser;
 import opennlp.tools.parser.AbstractBottomUpParser;
+import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
 /**
@@ -13,6 +14,8 @@ import tud.iir.helper.StopWatch;
  */
 public class OpenNLPParser extends AbstractParser {
 
+    private opennlp.tools.parser.Parse parse;
+
     public OpenNLPParser() {
         this.setName("OpenNLP Parser");
     }
@@ -21,17 +24,32 @@ public class OpenNLPParser extends AbstractParser {
     public boolean loadModel(String configModelPath) {
 
         try {
-            final StopWatch sw = new StopWatch();
-            sw.start();
 
-            final int beamSize = AbstractBottomUpParser.defaultBeamSize;
-            final double advancePercentage = AbstractBottomUpParser.defaultAdvancePercentage;
+            opennlp.tools.parser.Parser parser;
 
-            setModel(TreebankParser.getParser(configModelPath, true, false,
-                    beamSize, advancePercentage));
+            if (DataHolder.getInstance().containsDataObject(configModelPath)) {
+                parser = (opennlp.tools.parser.Parser) DataHolder.getInstance()
+                        .getDataObject(configModelPath);
 
-            sw.stop();
-            LOGGER.info("loaded model in " + sw.getElapsedTimeString());
+            } else {
+
+                final StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+
+                final int beamSize = AbstractBottomUpParser.defaultBeamSize;
+                final double advancePercentage = AbstractBottomUpParser.defaultAdvancePercentage;
+
+                parser = TreebankParser.getParser(configModelPath, true, false,
+                        beamSize, advancePercentage);
+                DataHolder.getInstance().putDataObject(configModelPath, parser);
+
+                stopWatch.stop();
+                LOGGER.info("Reading " + this.getName() + " from file "
+                        + configModelPath + " in "
+                        + stopWatch.getElapsedTimeString());
+            }
+
+            setModel(parser);
 
             return true;
         } catch (final IOException e) {
@@ -56,19 +74,59 @@ public class OpenNLPParser extends AbstractParser {
     @Override
     public void parse(String sentence) {
 
-        final opennlp.tools.parser.Parse parse = ((((opennlp.tools.parser.Parser) getModel()) != null && sentence
-                .length() > 0)
-        // only get first parse (that is most likely to be correct)
-        ? TreebankParser.parseLine(sentence,
-                ((opennlp.tools.parser.Parser) getModel()), 1)[0]
-                : null);
+        parse(sentence, 0);
+
+    }
+
+    /**
+     * Persforms a full parse and selects the given index where 0 is the most
+     * likely parse
+     * 
+     * @param sentence
+     * @param index
+     */
+    public void parse(String sentence, int index) {
+
+        parse = getFullParse(sentence)[index];
 
         final TagAnnotations tagAnnotations = new TagAnnotations();
 
         parse2Annotations(parse, tagAnnotations);
 
         setTagAnnotations(tagAnnotations);
+    }
 
+    /**
+     * @return the full parse
+     */
+    public opennlp.tools.parser.Parse[] getFullParse(String sentence) {
+
+        opennlp.tools.parser.Parse[] parse;
+
+        if (((opennlp.tools.parser.Parser) getModel()) != null
+                && sentence.length() > 0) {
+            parse = TreebankParser.parseLine(sentence,
+                    ((opennlp.tools.parser.Parser) getModel()), 1);
+
+        } else {
+            parse = null;
+        }
+        return parse;
+    }
+
+    /**
+     * @return the most likely parse
+     */
+    public opennlp.tools.parser.Parse getParse() {
+        return parse;
+    }
+
+    /**
+     * @param parse
+     *            the parse to set
+     */
+    public void setParse(opennlp.tools.parser.Parse parse) {
+        this.parse = parse;
     }
 
 }

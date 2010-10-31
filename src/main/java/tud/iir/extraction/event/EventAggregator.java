@@ -8,9 +8,6 @@ import java.util.Map;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xml.sax.InputSource;
 
 import tud.iir.extraction.content.PageContentExtractor;
@@ -18,7 +15,6 @@ import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.Counter;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
-import tud.iir.knowledge.Source;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
@@ -46,20 +42,31 @@ public class EventAggregator {
     /** resultCount */
     private int resultCount = 10;
 
+    /** aaggregated events. **/
     private List<Event> events = new ArrayList<Event>();
 
+    /** the search query. **/
     private String query;
 
-    private final Map<String, Event> eventMap;
+    /** the eventMap holding aggregated events. **/
+    private Map<String, Event> eventMap;
 
+    /** max Threads. **/
     private int maxThreads = DEFAULT_MAX_THREADS;
 
+    /** search enging of your choice. **/
     private int searchEngine = DEFAULT_SEARCH_ENGINE;
 
+    /**
+     * Constructor.
+     */
     public EventAggregator() {
         eventMap = new HashMap<String, Event>();
     }
 
+    /**
+     * run the aggregation.
+     */
     public void aggregate() {
 
         final SourceRetriever sourceRetriever = new SourceRetriever();
@@ -152,6 +159,9 @@ public class EventAggregator {
 
     }
 
+    /**
+     * @param webresults
+     */
     private void fetchPageContentIntoEvents(List<WebResult> webresults) {
 
         LOGGER.info("downloading " + webresults.size() + " pages");
@@ -183,105 +193,6 @@ public class EventAggregator {
 
     }
 
-    public ArrayList<WebResult> getNewsResultsFromGoogle(String searchQuery,
-            String languageCode) {
-
-        final ArrayList<WebResult> webresults = new ArrayList<WebResult>();
-
-        final Crawler c = new Crawler();
-
-        // set the preferred language
-        // (http://www.google.com/cse/docs/resultsxml.html#languageCollections)
-        String languageString = "lang_en";
-
-        if (languageCode.length() > 0) {
-            languageString = languageCode;
-        }
-
-        int rank = 1;
-        int urlsCollected = 0;
-        int grabCount = (int) Math.ceil(getResultCount() / 8.0); // divide by 8
-        // because 8
-        // results will
-        // be responded
-        // by
-        // each query
-        // Google returns max. 8 pages/64 results --
-        // http://code.google.com/intl/de/apis/ajaxsearch/documentation/reference.html#_property_GSearch
-        grabCount = Math.min(grabCount, 8);
-        // System.out.println(grabSize);
-        for (int i = 0; i < grabCount; i++) {
-
-            // rsz=large will respond 8 results
-            final String json = c
-                    .download("http://ajax.googleapis.com/ajax/services/search/news?v=1.0&start="
-                            + (i * 8)
-                            + "&rsz=large&safe=off&lr="
-                            + languageString + "&q=" + searchQuery);
-
-            try {
-                final JSONObject jsonOBJ = new JSONObject(json);
-
-                // System.out.println(jsonOBJ.toString(1));
-                // in the first iteration find the maximum of available pages
-                // and limit the search to those
-                if (i == 0) {
-                    JSONArray pages;
-                    if (jsonOBJ.getJSONObject("responseData") != null
-                            && jsonOBJ.getJSONObject("responseData")
-                                    .getJSONObject("cursor") != null
-                            && jsonOBJ.getJSONObject("responseData")
-                                    .getJSONObject("cursor").getJSONArray(
-                                            "pages") != null) {
-                        pages = jsonOBJ.getJSONObject("responseData")
-                                .getJSONObject("cursor").getJSONArray("pages");
-                        final int lastStartPage = pages.getJSONObject(
-                                pages.length() - 1).getInt("start");
-                        if (lastStartPage < grabCount) {
-                            grabCount = lastStartPage + 1;
-                        }
-                    }
-                }
-
-                final JSONArray results = jsonOBJ.getJSONObject("responseData")
-                        .getJSONArray("results");
-                final int resultSize = results.length();
-                for (int j = 0; j < resultSize; ++j) {
-                    if (urlsCollected < getResultCount()) {
-                        // TODO: webresult.setTitle(title);
-                        final String title = null;
-                        final String summary = (String) results
-                                .getJSONObject(j).get("content");
-
-                        final String currentURL = (String) results
-                                .getJSONObject(j).get("unescapedUrl");
-
-                        final WebResult webresult = new WebResult(
-                                SourceRetrieverManager.GOOGLE, rank,
-                                new Source(currentURL), title, summary);
-                        rank++;
-
-                        LOGGER.info("google retrieved url " + currentURL);
-                        webresults.add(webresult);
-
-                        ++urlsCollected;
-                    } else {
-                        break;
-                    }
-                }
-
-            } catch (final JSONException e) {
-                LOGGER.error(e.getMessage());
-            }
-
-            // srManager.addRequest(SourceRetrieverManager.GOOGLE);
-            // LOGGER.info("google requests: " +
-            // srManager.getRequestCount(SourceRetrieverManager.GOOGLE));
-        }
-
-        return webresults;
-    }
-
     public Map<String, Event> getEventmap() {
         return eventMap;
     }
@@ -296,38 +207,77 @@ public class EventAggregator {
         this.maxThreads = maxThreads;
     }
 
-    public List<Event> getEvents() {
-        return events;
-    }
-
-    public void setEvents(List<Event> events) {
-        this.events = events;
-    }
-
-    public String getQuery() {
-        return query;
-    }
-
-    public void setQuery(String query) {
-        this.query = query;
-    }
-
+    /**
+     * @return the resultCount
+     */
     public int getResultCount() {
         return resultCount;
     }
 
+    /**
+     * @param resultCount
+     *            the resultCount to set
+     */
     public void setResultCount(int resultCount) {
         this.resultCount = resultCount;
     }
 
-    public int getMaxThreads() {
-        return maxThreads;
+    /**
+     * @return the events
+     */
+    public List<Event> getEvents() {
+        return events;
     }
 
+    /**
+     * @param events
+     *            the events to set
+     */
+    public void setEvents(List<Event> events) {
+        this.events = events;
+    }
+
+    /**
+     * @return the query
+     */
+    public String getQuery() {
+        return query;
+    }
+
+    /**
+     * @param query
+     *            the query to set
+     */
+    public void setQuery(String query) {
+        this.query = query;
+    }
+
+    /**
+     * @return the eventMap
+     */
+    public Map<String, Event> getEventMap() {
+        return eventMap;
+    }
+
+    /**
+     * @param eventMap
+     *            the eventMap to set
+     */
+    public void setEventMap(Map<String, Event> eventMap) {
+        this.eventMap = eventMap;
+    }
+
+    /**
+     * @return the searchEngine
+     */
     public int getSearchEngine() {
         return searchEngine;
     }
 
+    /**
+     * @param searchEngine
+     *            the searchEngine to set
+     */
     public void setSearchEngine(int searchEngine) {
         this.searchEngine = searchEngine;
     }

@@ -73,7 +73,10 @@ public class EventFeatureExtractor {
     private static AbstractSentenceDetector sentenceDetector = new OpenNLPSentenceDetector();
 
     protected EventFeatureExtractor() {
-
+        ner.loadModel(MODEL_NER_LINGPIPE);
+        posTagger.loadModel();
+        phraseChunker.loadModel();
+        parser.loadModel();
     }
 
     public static EventFeatureExtractor getInstance() {
@@ -88,7 +91,7 @@ public class EventFeatureExtractor {
      * 
      * @param event
      */
-    public static void setFeatures(Event event) {
+    public void setFeatures(Event event) {
         setEntityFeatures(event);
     }
 
@@ -97,7 +100,7 @@ public class EventFeatureExtractor {
      * 
      * @param eventMap
      */
-    public static void setEntityFeatures(Map<String, Event> eventMap) {
+    public void setEntityFeatures(Map<String, Event> eventMap) {
 
         for (final Entry<String, Event> entry : eventMap.entrySet()) {
             final Event event = entry.getValue();
@@ -113,22 +116,21 @@ public class EventFeatureExtractor {
      * 
      * @param event
      */
-    public static void setEntityFeatures(Event event) {
+    public void setEntityFeatures(Event event) {
 
         final HashMap<Integer, Annotations> corefAnnotations = (HashMap<Integer, Annotations>) getCoreferenceAnnotations(event);
-        final HashMap<Integer, FeatureObject> featureObjects = new HashMap<Integer, FeatureObject>();
+        final HashMap<Annotations, FeatureObject> annotationFeatures = new HashMap<Annotations, FeatureObject>();
 
         // setting coreferenceChunkSet
-        event.setEntityAnnotations(corefAnnotations);
 
         for (final Entry<Integer, Annotations> entry : corefAnnotations
                 .entrySet()) {
-            featureObjects.put(entry.getKey(),
+            annotationFeatures.put(entry.getValue(),
                     calculateEntityAnnotationFeatures(event, entry.getValue()));
         }
 
         // setting entity features for the chunks
-        event.setEntityFeatures(featureObjects);
+        event.setAnnotationFeatures(annotationFeatures);
 
     }
 
@@ -138,8 +140,7 @@ public class EventFeatureExtractor {
      * @param event
      * @return
      */
-    public static Map<Integer, Annotations> getCoreferenceAnnotations(
-            Event event) {
+    public Map<Integer, Annotations> getCoreferenceAnnotations(Event event) {
 
         LOGGER.info("performing coreference: " + event.getTitle());
 
@@ -254,7 +255,7 @@ public class EventFeatureExtractor {
      * @param event
      * @return
      */
-    public static Annotations getNounAnnotations(String text) {
+    public Annotations getNounAnnotations(String text) {
 
         phraseChunker.loadModel();
         phraseChunker.chunk(text);
@@ -281,7 +282,7 @@ public class EventFeatureExtractor {
      * @param event
      * @return
      */
-    public static Annotations getEntityAnnotations(Event event) {
+    public Annotations getEntityAnnotations(Event event) {
 
         // NamedEntityRecognizer ner = new LingPipeNER();
         // NamedEntityRecognizer ner = new IllinoisLbjNER();
@@ -326,9 +327,21 @@ public class EventFeatureExtractor {
      *            - The sentence
      * @return The part of speach tags.
      */
-    public static void getPhraseChunks(String sentence) {
+    public void getPhraseChunks(String sentence) {
         phraseChunker.chunk(sentence);
         LOGGER.info(phraseChunker.getTagAnnotations().getTaggedString());
+    }
+
+    /**
+     * returns a Parse on a sentence.
+     * 
+     * @param sentence
+     * @return the parse
+     */
+    public TagAnnotations getParse(String sentence) {
+        parser.loadModel();
+        parser.parse(sentence);
+        return parser.getTagAnnotations();
     }
 
     /**
@@ -338,7 +351,8 @@ public class EventFeatureExtractor {
      * @param sentence
      * @return
      */
-    public static String[] getSentences(String sentence) {
+    public String[] getSentences(String sentence) {
+        sentenceDetector.loadModel();
         sentenceDetector.detect(sentence);
         return sentenceDetector.getSentences();
     }
@@ -385,7 +399,7 @@ public class EventFeatureExtractor {
      * @param filePath
      * @return
      */
-    public static Map<Integer, String[]> readCSV(String filePath) {
+    public Map<Integer, String[]> readCSV(String filePath) {
 
         FileReader csvFileRead;
 
@@ -421,8 +435,8 @@ public class EventFeatureExtractor {
      * @param whats
      * @param append
      */
-    public static void writeCSV(String outFilePath,
-            Map<String, Event> eventMap, List<String> positives, boolean append) {
+    public void writeCSV(String outFilePath, Map<String, Event> eventMap,
+            List<String> positives, boolean append) {
 
         FileWriter fileWriter;
         try {
@@ -442,26 +456,21 @@ public class EventFeatureExtractor {
                 final Event event = eentry.getValue();
                 if (event != null && event.getText() != null) {
 
-                    Map<Integer, FeatureObject> featureMap = event
-                            .getEntityFeatures();
-                    Map<Integer, Annotations> annotationsMap = event
-                            .getEntityAnnotations();
+                    Map<Annotations, FeatureObject> featureMap = event
+                            .getAnnotationFeatures();
                     // hm.put(url, e);
 
-                    if (event.getEntityFeatures() == null) {
+                    if (event.getAnnotationFeatures() == null) {
                         setFeatures(event);
-                        featureMap = event.getEntityFeatures();
-                        annotationsMap = event.getEntityAnnotations();
+                        featureMap = event.getAnnotationFeatures();
                         // CollectionHelper.print(featureMap);
                     }
 
-                    for (final Entry<Integer, FeatureObject> eeentry : featureMap
+                    for (final Entry<Annotations, FeatureObject> eeentry : featureMap
                             .entrySet()) {
 
                         final FeatureObject features = eeentry.getValue();
-                        final Integer id = eeentry.getKey();
-
-                        final Annotations annotations = annotationsMap.get(id);
+                        final Annotations annotations = eeentry.getKey();
 
                         // fileWriter.write(id + separator);
                         // final StringBuffer text = new StringBuffer();

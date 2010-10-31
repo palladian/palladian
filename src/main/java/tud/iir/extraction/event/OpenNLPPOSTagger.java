@@ -11,6 +11,7 @@ import opennlp.tools.lang.english.PosTagger;
 import opennlp.tools.lang.english.Tokenizer;
 import opennlp.tools.postag.POSDictionary;
 import tud.iir.helper.DataHolder;
+import tud.iir.helper.StopWatch;
 
 /**
  * @author Martin Wunderwald
@@ -46,12 +47,21 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
         PosTagger tagger = null;
 
         if (DataHolder.getInstance().containsDataObject(configModelFilePath)) {
+
             tagger = (PosTagger) DataHolder.getInstance().getDataObject(
                     configModelFilePath);
+
         } else {
+            final StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
 
             tagger = new PosTagger(configModelFilePath, dictionary);
             DataHolder.getInstance().putDataObject(configModelFilePath, tagger);
+
+            stopWatch.stop();
+            LOGGER.info("Reading " + this.getName() + " from file "
+                    + configModelFilePath + " in "
+                    + stopWatch.getElapsedTimeString());
         }
 
         setModel(tagger);

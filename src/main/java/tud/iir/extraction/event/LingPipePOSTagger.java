@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Locale;
 
 import tud.iir.helper.DataHolder;
+import tud.iir.helper.StopWatch;
 
 import com.aliasi.hmm.HiddenMarkovModel;
 import com.aliasi.hmm.HmmDecoder;
@@ -41,11 +42,20 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
                 hmm = (HiddenMarkovModel) DataHolder.getInstance()
                         .getDataObject(configModelFilePath);
             } else {
+
+                final StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+
                 oi = new ObjectInputStream(new FileInputStream(
                         configModelFilePath));
                 hmm = (HiddenMarkovModel) oi.readObject();
                 DataHolder.getInstance()
                         .putDataObject(configModelFilePath, hmm);
+
+                stopWatch.stop();
+                LOGGER.info("Reading " + this.getName() + " from file "
+                        + configModelFilePath + " in "
+                        + stopWatch.getElapsedTimeString());
             }
 
             setModel(hmm);
