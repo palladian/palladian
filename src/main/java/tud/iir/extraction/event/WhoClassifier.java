@@ -59,7 +59,7 @@ public class WhoClassifier extends Classifier {
 
             return (float) fDistribution[0];
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
             return 0;
         }
 
@@ -80,7 +80,7 @@ public class WhoClassifier extends Classifier {
             weka.core.SerializationHelper.write(
                     "data/learnedClassifiers/who.model", getClassifier());
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
 
     }
@@ -96,7 +96,7 @@ public class WhoClassifier extends Classifier {
         final Event event = EventExtractor
                 .extractEventFromURL("http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
 
-        EventFeatureExtractor.setFeatures(event);
+        eventExtractor.getFeatureExtractor().setFeatures(event);
         eventExtractor.extractWho(event);
 
     }
@@ -112,7 +112,7 @@ public class WhoClassifier extends Classifier {
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedClassifier);
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
     }
 
@@ -123,7 +123,9 @@ public class WhoClassifier extends Classifier {
      */
     public void collectTrainingData(String filePath) {
 
-        final Map<Integer, String[]> events = EventFeatureExtractor
+        final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
+
+        final Map<Integer, String[]> events = featureExtractor
                 .readCSV("data/news_articles.csv");
 
         for (final Entry<Integer, String[]> entry : events.entrySet()) {
@@ -141,17 +143,9 @@ public class WhoClassifier extends Classifier {
             // String why = fields[5];
             // String how = fields[6];
 
-            /*
-             * String query = ""; query += who.replace("|", " "); query += " " +
-             * where.replace("|", " "); LOGGER.info("performing query: " +
-             * query); EventAggregator ea = new EventAggregator(); //
-             * ea.setSearchEngine(SourceRetrieverManager.GOOGLE_NEWS);
-             * ea.setMaxThreads(5); ea.setResultCount(5); ea.setQuery(query);
-             * ea.aggregate();
-             */
             eventMap.put(url, EventExtractor.extractEventFromURL(url));
 
-            EventFeatureExtractor.setEntityFeatures(eventMap);
+            featureExtractor.setEntityFeatures(eventMap);
 
             List<String> whos = new ArrayList<String>();
 
@@ -160,9 +154,8 @@ public class WhoClassifier extends Classifier {
             } else {
                 whos.add(who);
             }
-            // LOGGER.info(whos);
 
-            EventFeatureExtractor.writeCSV(filePath, eventMap, whos, true);
+            featureExtractor.writeCSV(filePath, eventMap, whos, true);
 
             // CollectionHelper.print(eventMap);
 
@@ -178,9 +171,8 @@ public class WhoClassifier extends Classifier {
      */
     public static void main(String[] args) {
 
-        // final WhoClassifier wc = new
-        // WhoClassifier(Classifier.LINEAR_REGRESSION);
-        // wc.collectTrainingData("data/features/who.csv");
+        final WhoClassifier wc = new WhoClassifier(Classifier.LINEAR_REGRESSION);
+        wc.collectTrainingData("data/features/who.csv");
         // wc.trainClassifier("data/features/who.csv");
 
         // wc.useTrainedClassifier("data/learnedClassifiers/who.model");

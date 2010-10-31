@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -48,6 +47,8 @@ public class EventExtractor extends Extractor {
     private WhereClassifier whereClassifier;
     private WhoClassifier whoClassifier;
 
+    private EventFeatureExtractor featureExtractor;
+
     /**
      * @return EventExtractor
      */
@@ -62,7 +63,7 @@ public class EventExtractor extends Extractor {
         super();
         // do not analyze any binary files
         addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
-
+        featureExtractor = new EventFeatureExtractor();
     }
 
     public void startExtraction() {
@@ -107,11 +108,17 @@ public class EventExtractor extends Extractor {
         return event;
     }
 
-    public void extract5W(Event event) {
+    /**
+     * extracts the 5W1H from an given event
+     * 
+     * @param event
+     */
+    public void extract5W1H(Event event) {
 
         extractWho(event);
-        extractWhere(event);
         extractWhat(event);
+        extractWhere(event);
+
         // extractWhy(event);
         // extractWhen(event);
 
@@ -141,22 +148,21 @@ public class EventExtractor extends Extractor {
      */
     public void extractWhere(Event event) {
 
-        final Map<Integer, FeatureObject> features = event.getEntityFeatures();
-        final Map<Integer, Annotations> annotations = event
-                .getEntityAnnotations();
+        final Map<Annotations, FeatureObject> features = event
+                .getAnnotationFeatures();
 
         double[] result = null;
 
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
 
-        for (final Entry<Integer, FeatureObject> entry : features.entrySet()) {
+        for (final Entry<Annotations, FeatureObject> entry : features
+                .entrySet()) {
 
             final FeatureObject fo = entry.getValue();
 
             result = whereClassifier.classifySoft(fo);
 
-            rankedCandidates.put(longestTerm(annotations.get(entry.getKey())),
-                    result[0]);
+            rankedCandidates.put(longestTerm(entry.getKey()), result[0]);
 
         }
 
@@ -167,6 +173,7 @@ public class EventExtractor extends Extractor {
         LOGGER.info("highest ranked wheres:" + values[0] + "(" + keys[0] + "),"
                 + values[1] + "(" + keys[1] + ")");
 
+        event.setWhereCandidates(rankedCandidates);
         event.setWhere(values[0].toString());
 
     }
@@ -250,6 +257,8 @@ public class EventExtractor extends Extractor {
      */
     public void extractWhat(Event event) {
 
+        String what = null;
+
         final String text = StringHelper.makeContinuousText(event.getText());
         final String title = StringHelper.makeContinuousText(event.getTitle());
 
@@ -258,81 +267,89 @@ public class EventExtractor extends Extractor {
 
         // event.setWho("police");
 
-        final ArrayList<String> whoSentences = new ArrayList<String>();
+        String titleVerbPhrase = null;
+        String who;
+        int i = 0;
 
-        final HashSet<String> longestSubstrings = new HashSet<String>();
-        // ArrayList<String> longestSubstrings = new ArrayList<String>();
-        final Map<String, Double> overlap = new HashMap<String, Double>();
-        // finding sentences containing the who
-        for (final String stc : EventFeatureExtractor.getSentences(event
-                .getText())) {
-
-            // longest common substrings between title and first sentence
-            overlap.put(stc, StringHelper.calculateSimilarity(stc, title));
-            longestSubstrings.addAll(longestSubstrings(stc, title));
-
-            final double sim = StringHelper.calculateSimilarity(event.getWho(),
-                    stc);
-            if (sim > 0.5) {
-                whoSentences.add(stc);
+        // iterating throug whoCandidates until a subsequent verbPhrase is found
+        // in title
+        while (titleVerbPhrase == null
+                && i < event.getWhoCandidates().keySet().size()) {
+            who = (String) event.getWhoCandidates().keySet().toArray()[i];
+            titleVerbPhrase = getSubsequentVerbPhrase(event.getTitle(), who);
+            if (titleVerbPhrase != null) {
+                event.setWho(who);
+                LOGGER.info("new who:" + who);
             }
+            i++;
         }
 
-        // count occurences of title words in text
-        for (final String w : longestSubstrings) {
-            if (w.length() > 3) {
-                // LOGGER.info(w + ":" + StringHelper.countOccurences(text, w,
-                // true));
+        // if no titleVerbPhrase was found explore the text
+        if (titleVerbPhrase == null) {
+
+            // final ArrayList<String> whoSentences = new ArrayList<String>();
+
+            // final HashSet<String> longestSubstrings = new HashSet<String>();
+            // ArrayList<String> longestSubstrings = new ArrayList<String>();
+            // final Map<String, Double> overlap = new HashMap<String,
+            // Double>();
+            // finding sentences containing the who
+            for (final String stc : featureExtractor.getSentences(event
+                    .getText())) {
+
+                /*
+                 * // longest common substrings between title and first sentence
+                 * overlap.put(stc, StringHelper.calculateSimilarity(stc,
+                 * title)); longestSubstrings.addAll(longestSubstrings(stc,
+                 * title)); final double sim =
+                 * StringHelper.calculateSimilarity(event .getWho(), stc); if
+                 * (sim > 0.5) { }
+                 */
+
+                if (stc.contains(event.getWho()) && what == null) {
+                    what = getSubsequentVerbPhrase(stc, event.getWho());
+                }
+
             }
+        } else {
+            what = titleVerbPhrase;
+
         }
 
-        // LOGGER.info(longestSubstrings.toString());
-        // Object[] overlaps = sortByValue(overlap).keySet().toArray();
-        // LOGGER.info(overlaps[0]);
-
-        final String what = "";
-        // int pos = title.length();
-        /*
-         * for (Chunk titleChunk : EventFeatureExtractor.getPhraseChunks(title +
-         * ".")) { String word = title.substring(titleChunk.start(),
-         * titleChunk.end()); // LOGGER.info(word + ":" + titleChunk.start() +
-         * titleChunk.type()); if (titleChunk.type().equals("verb") &&
-         * titleChunk.start() < pos) { pos = titleChunk.start(); what = word; }
-         * }
-         */
-        EventFeatureExtractor.getPhraseChunks(title);
-
-        final SnowballStemmer ss = new SnowballStemmer();
-        LOGGER.info("in title verb: " + what + "(" + ss.stem(what) + ")");
-
-        // Object[] chunks = sentenceChunks.toArray();
-        // Chunk first = (Chunk) chunks[0];
-        // Chunk second = (Chunk) chunks[1];
-        // String firstSentence = text.substring(first.start(), first.end());
-        // String secondSentence = text.substring(second.start(), second.end());
-        // LOGGER.info("first sentence: " + firstSentence);
-        // LOGGER.info("second sentence: " + secondSentence);
-
-        // LOGGER.info(getSubsequentPhrase(firstSentence, event.getWho()));
-        // LOGGER.info(getSubsequentPhrase(secondSentence, event.getWho()));
-        LOGGER.info(getSubsequentPhrase(title, event.getWho()));
-
-        // AlchemyNER an = new AlchemyNER();
-        // CollectionHelper.print(an.getAnnotations(title));
+        LOGGER.info("most likely what: " + what);
+        event.setWhat(what);
 
     }
 
-    private String getSubsequentPhrase(String sentence, String word) {
+    /**
+     * @param sentence
+     * @param word
+     * @return
+     */
+    private String getSubsequentVerbPhrase(String sentence, String word) {
 
-        final String verb = sentence;
+        final OpenNLPParser onlp = new OpenNLPParser();
+        onlp.loadModel();
+        onlp.parse(sentence, 0);
 
-        // Iterator<Chunk> it = phraseChunks.iterator();
+        final ArrayList<String> verbPhrases = new ArrayList<String>();
+        boolean foundNoun = false;
+        for (final TagAnnotation tagAnnotation : onlp.getTagAnnotations()) {
 
-        /*
-         * while (it.hasNext() && CONTINUE_TAGS.contains(((Chunk)
-         * it.next()).type())) { }
-         */
-        return verb;
+            if (foundNoun && tagAnnotation.getTag().contains("VP")
+                    && tagAnnotation.getChunk().length() < 100) {
+
+                verbPhrases.add(tagAnnotation.getChunk());
+                foundNoun = false;
+
+            }
+            if (tagAnnotation.getTag().contains("N")
+                    && tagAnnotation.getChunk().contains(word)) {
+
+                foundNoun = true;
+            }
+        }
+        return (verbPhrases.size() > 0) ? verbPhrases.get(0) : null;
     }
 
     public String longestTerm(Annotations annotations) {
@@ -357,22 +374,21 @@ public class EventExtractor extends Extractor {
      */
     public void extractWho(Event event) {
 
-        final Map<Integer, FeatureObject> features = event.getEntityFeatures();
-        final Map<Integer, Annotations> annotations = event
-                .getEntityAnnotations();
+        final Map<Annotations, FeatureObject> features = event
+                .getAnnotationFeatures();
 
         double[] result = null;
 
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
 
-        for (final Entry<Integer, FeatureObject> entry : features.entrySet()) {
+        for (final Entry<Annotations, FeatureObject> entry : features
+                .entrySet()) {
 
             final FeatureObject fo = entry.getValue();
 
             result = whoClassifier.classifySoft(fo);
 
-            rankedCandidates.put(longestTerm(annotations.get(entry.getKey())),
-                    result[0]);
+            rankedCandidates.put(longestTerm(entry.getKey()), result[0]);
 
         }
 
@@ -384,7 +400,7 @@ public class EventExtractor extends Extractor {
             LOGGER.info("highest ranked whos:" + values[0] + "(" + keys[0]
                     + ")," + values[1] + "(" + keys[1] + ")");
         }
-
+        event.setWhoCandidates(rankedCandidates);
         event.setWho(values[0].toString());
 
     }
@@ -408,8 +424,24 @@ public class EventExtractor extends Extractor {
         whoClassifier.useTrainedClassifier("data/learnedClassifiers/who.model");
     }
 
-    private static void evaluateEvents() {
-        final Map<Integer, String[]> events = EventFeatureExtractor
+    /**
+     * @return the featureExtractor
+     */
+    public EventFeatureExtractor getFeatureExtractor() {
+        return featureExtractor;
+    }
+
+    /**
+     * @param featureExtractor
+     *            the featureExtractor to set
+     */
+    public void setFeatureExtractor(EventFeatureExtractor featureExtractor) {
+        this.featureExtractor = featureExtractor;
+    }
+
+    @SuppressWarnings("unused")
+    private void evaluateEvents() {
+        final Map<Integer, String[]> events = featureExtractor
                 .readCSV("data/news_articles.csv");
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(Classifier.LINEAR_REGRESSION);
@@ -421,15 +453,15 @@ public class EventExtractor extends Extractor {
 
             final String url = fields[0];
 
-            final String title = fields[1];
+            // final String title = fields[1];
             final String who = fields[2];
-            final String where = fields[3];
-            final String what = fields[4];
-            final String why = fields[5];
-            final String how = fields[6];
+            // final String where = fields[3];
+            // final String what = fields[4];
+            // final String why = fields[5];
+            // final String how = fields[6];
 
             final Event event = EventExtractor.extractEventFromURL(url);
-            EventFeatureExtractor.setFeatures(event);
+            featureExtractor.setFeatures(event);
             eventExtractor.extractWho(event);
 
             LOGGER.info("WHO: " + event.getWho() + " / " + who);
@@ -446,26 +478,24 @@ public class EventExtractor extends Extractor {
                 "/usr/local/WordNet-3.0/dict");
 
         final EventExtractor eventExtractor = EventExtractor.getInstance();
+
         eventExtractor.setWhoClassifier(Classifier.LINEAR_REGRESSION);
-        // eventExtractor.setWhereClassifier(Classifier.LINEAR_REGRESSION);
+        eventExtractor.setWhereClassifier(Classifier.LINEAR_REGRESSION);
 
         final Event event = EventExtractor
-                .extractEventFromURL("http://www.bbc.co.uk/news/world-europe-11539758");
-        EventFeatureExtractor.setFeatures(event);
+                .extractEventFromURL("http://www.bbc.co.uk/news/world-latin-america-11657248");
+        eventExtractor.getFeatureExtractor().setFeatures(event);
 
         final StopWatch sw = new StopWatch();
         sw.start();
 
         // evaluateEvents();
         eventExtractor.extractWho(event);
+        eventExtractor.extractWhat(event);
+        eventExtractor.extractWhere(event);
 
         sw.stop();
         LOGGER.info("time elapsed: " + sw.getElapsedTimeString());
-
-        /*
-         * DatabaseReader reader = new FNDatabaseReader(new File(fnhome),
-         * false); reader.read(frameNet);
-         */
 
     }
 }

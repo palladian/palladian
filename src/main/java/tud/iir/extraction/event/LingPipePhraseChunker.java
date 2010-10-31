@@ -328,8 +328,6 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
         ObjectInputStream oi = null;
 
         try {
-            final StopWatch sw = new StopWatch();
-            sw.start();
 
             HiddenMarkovModel hmm;
 
@@ -338,17 +336,23 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 hmm = (HiddenMarkovModel) DataHolder.getInstance()
                         .getDataObject(configModelFilePath);
             } else {
+                final StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+
                 oi = new ObjectInputStream(new FileInputStream(
                         configModelFilePath));
                 hmm = (HiddenMarkovModel) oi.readObject();
                 DataHolder.getInstance()
                         .putDataObject(configModelFilePath, hmm);
+
+                stopWatch.stop();
+                LOGGER.info("Reading " + this.getName() + " from file "
+                        + configModelFilePath + " in "
+                        + stopWatch.getElapsedTimeString());
+
             }
 
             setModel(hmm);
-            sw.stop();
-            LOGGER.info("loaded model in " + sw.getElapsedTimeString());
-
             return true;
         } catch (final IOException ie) {
             LOGGER.error("IO Error: " + ie.getMessage());

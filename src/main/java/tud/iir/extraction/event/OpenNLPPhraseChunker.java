@@ -69,24 +69,29 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
     @Override
     public boolean loadModel(String configModelFilePath) {
         try {
-            final StopWatch sw = new StopWatch();
-            sw.start();
 
             TreebankChunker tbc = null;
             if (DataHolder.getInstance()
                     .containsDataObject(configModelFilePath)) {
+
                 tbc = (TreebankChunker) DataHolder.getInstance().getDataObject(
                         configModelFilePath);
+
             } else {
+                final StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
 
                 tbc = new TreebankChunker(configModelFilePath);
                 DataHolder.getInstance()
                         .putDataObject(configModelFilePath, tbc);
+
+                stopWatch.stop();
+                LOGGER.info("Reading " + this.getName() + " from file "
+                        + configModelFilePath + " in "
+                        + stopWatch.getElapsedTimeString());
             }
 
             setModel(tbc);
-            sw.stop();
-            LOGGER.info("loaded model in " + sw.getElapsedTimeString());
 
             return true;
         } catch (final IOException e) {

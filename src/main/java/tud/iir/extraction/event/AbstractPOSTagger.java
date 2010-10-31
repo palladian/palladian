@@ -12,37 +12,34 @@ import tud.iir.helper.StopWatch;
  */
 public abstract class AbstractPOSTagger {
 
-    /** the logger for this class */
+    /** the logger for this class. */
     protected static final Logger LOGGER = Logger
             .getLogger(AbstractPOSTagger.class);
 
-    /** base model path */
+    /** base model path. */
     protected static final String MODEL_PATH = "data/models/";
 
-    /** model for open nlp pos-tagging */
+    /** model for open nlp pos-tagging. */
     private Object model;
 
-    /** name for the POS Tagger */
+    /** name for the POS Tagger. */
     private String name = "unknown";
 
-    /** dict file for opennlp pos tagging */
+    /** dict file for opennlp pos tagging. */
     protected static final String MODEL_POS_OPENNLP_DICT = MODEL_PATH
             + "opennlp/postag/tagdict.txt";
 
-    /** dict file for opennlp pos tagging */
+    /** dict file for opennlp pos tagging. */
     protected static final String MODEL_POS_OPENNLP = MODEL_PATH
             + "opennlp/postag/tag.bin.gz";
 
-    /** model for opennlp tokenization */
+    /** model for opennlp tokenization. */
     protected static final String MODEL_TOK_OPENNLP = MODEL_PATH
             + "opennlp/tokenize/EnglishTok.bin.gz";
 
-    /** brown hidden markov model for lingpipe chunker */
+    /** brown hidden markov model for lingpipe chunker. */
     protected static final String MODEL_LINGPIPE_BROWN_HMM = MODEL_PATH
             + "lingpipe/pos-en-general-brown.HiddenMarkovModel";
-
-    /** holds the tagged string. */
-    private String taggedString;
 
     /** The Annotations. */
     private TagAnnotations tagAnnotations;
@@ -65,7 +62,7 @@ public abstract class AbstractPOSTagger {
     public abstract void tag(String sentence, String configModelFilePath);
 
     /**
-     * loads model into @see {@link #model}
+     * loads model into @see {@link #model}.
      * 
      * @param configModelFilePath
      * @return
@@ -73,25 +70,45 @@ public abstract class AbstractPOSTagger {
     public abstract boolean loadModel(String configModelFilePath);
 
     /**
-     * loads the default model into @see {@link #model}
+     * loads the default model into @see {@link #model}.
      * 
      * @param configModelFilePath
      * @return
      */
     public abstract boolean loadModel();
 
+    /**
+     * Getter for model.
+     * 
+     * @return
+     */
     public Object getModel() {
         return model;
     }
 
+    /**
+     * Settermethod for the model.
+     * 
+     * @param model
+     */
     public void setModel(Object model) {
         this.model = model;
     }
 
+    /**
+     * Getter for the name.
+     * 
+     * @return
+     */
     public String getName() {
         return name;
     }
 
+    /**
+     * Setter for the name.
+     * 
+     * @param name
+     */
     public void setName(String name) {
         this.name = name;
     }
@@ -100,7 +117,7 @@ public abstract class AbstractPOSTagger {
      * also tags a sentence and returns the @see {@link #tags}
      * 
      * @param sentence
-     * @return
+     * @return the tag annotations
      */
     public TagAnnotations getTags(String sentence) {
         this.tag(sentence);
@@ -108,6 +125,8 @@ public abstract class AbstractPOSTagger {
     }
 
     /**
+     * Getter for the tagAnnotations.
+     * 
      * @return the tagAnnotations
      */
     public TagAnnotations getTagAnnotations() {
@@ -115,6 +134,8 @@ public abstract class AbstractPOSTagger {
     }
 
     /**
+     * Settermethod for tagAnnotations.
+     * 
      * @param tagAnnotations
      *            the tagAnnotations to set
      */

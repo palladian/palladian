@@ -3,7 +3,11 @@ package tud.iir.extraction.event;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
+
+import org.apache.log4j.Logger;
 
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
@@ -14,18 +18,25 @@ import weka.core.Instance;
  */
 public class WhereClassifier extends Classifier {
 
+    /** the logger for this class */
+    private static final Logger LOGGER = Logger.getLogger(WhoClassifier.class);
+
+    /**
+     * the feature names
+     */
     private final String[] featureNames;
 
+    /**
+     * @param type
+     */
     public WhereClassifier(int type) {
         super(type);
 
-        featureNames = new String[6];
+        featureNames = new String[4];
         featureNames[0] = "titleEntityCount";
-        featureNames[1] = "density";
-        featureNames[2] = "textEntityCount";
-        featureNames[3] = "avgStart";
-        featureNames[4] = "type";
-        featureNames[5] = "avgEnd";
+        featureNames[1] = "textEntityCount";
+        featureNames[2] = "type";
+        featureNames[3] = "distribution";
 
     }
 
@@ -44,7 +55,7 @@ public class WhereClassifier extends Classifier {
 
             return (float) fDistribution[0];
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
             return 0;
         }
 
@@ -98,6 +109,51 @@ public class WhereClassifier extends Classifier {
 
     public void collectTrainingData(String filePath) {
 
+        final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
+
+        final Map<Integer, String[]> events = featureExtractor
+                .readCSV("data/news_articles.csv");
+
+        for (final Entry<Integer, String[]> entry : events.entrySet()) {
+
+            final HashMap<String, Event> eventMap = new HashMap<String, Event>();
+
+            final String[] fields = entry.getValue();
+            // int id = entry.getKey();
+
+            final String url = fields[0];
+            // String title = fields[1];
+            // final String who = fields[2];
+            final String where = fields[3];
+            // String what = fields[4];
+            // String why = fields[5];
+            // String how = fields[6];
+
+            eventMap.put(url, EventExtractor.extractEventFromURL(url));
+
+            featureExtractor.setEntityFeatures(eventMap);
+
+            List<String> wheres = new ArrayList<String>();
+
+            if (where.contains("|")) {
+                wheres = Arrays.asList(where.split("\\|"));
+            } else {
+                wheres.add(where);
+            }
+            // LOGGER.info(whos);
+
+            featureExtractor.writeCSV(filePath, eventMap, wheres, true);
+
+            // CollectionHelper.print(eventMap);
+
+        }
+
+    }
+
+    public void collectOnlineTrainingData(String filePath) {
+
+        final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
+
         final HashMap<String, String[]> data = new HashMap<String, String[]>();
         data.put("ghazni bomb", new String[] { "Afghanistan", "afghanistan",
                 "Ghazni" });
@@ -124,8 +180,8 @@ public class WhereClassifier extends Classifier {
 
             final HashMap<String, Event> eventMap = (HashMap<String, Event>) EventFeatureExtractor
                     .aggregateEvents(query);
-            EventFeatureExtractor.setEntityFeatures(eventMap);
-            EventFeatureExtractor.writeCSV(filePath, eventMap, wheres, true);
+            featureExtractor.setEntityFeatures(eventMap);
+            featureExtractor.writeCSV(filePath, eventMap, wheres, true);
 
         }
 
