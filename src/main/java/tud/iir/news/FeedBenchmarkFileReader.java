@@ -112,7 +112,7 @@ public class FeedBenchmarkFileReader {
 
             // the timestamp of the first item in the window
             long firstItemInWindowTimestamp = -1l;
-            
+
             // the timestamp of the second item in the window (which is different from the first), we need this to
             // calculate the length of the last interval between the first and second item in the window
             long secondItemInWindowTimestamp = -1l;
@@ -160,6 +160,8 @@ public class FeedBenchmarkFileReader {
                         return;
                     }
                     feed.setWindowSize(windowSize);
+                    // FIXME
+                    feed.setWindowSize(Math.min(windowSize, 5));
                 }
 
                 long entryTimestamp = Long.valueOf(parts[0]);
@@ -299,12 +301,12 @@ public class FeedBenchmarkFileReader {
             pollData.setMisses(misses);
 
             pollData.setCumulatedDelay(cumulatedDelay);
-            
+
             // reset cumulated delay for next new item
             if (newEntries > 0) {
                 cumulatedDelay = 0;
             }
-            
+
             pollData.setWindowSize(feed.getWindowSize());
             pollData.setDownloadSize(totalBytes);
 

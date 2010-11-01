@@ -193,10 +193,10 @@ public final class FeedChecker {
                     }
 
                     keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
-                            && feed.getBenchmarkLastLookupTime() < FeedBenchmarkFileReader.BENCHMARK_STOP_TIME;
+                    && feed.getBenchmarkLastLookupTime() < FeedBenchmarkFileReader.BENCHMARK_STOP_TIME;
                     if (!keepLooping) {
                         keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL
-                                && !feed.historyFileCompletelyRead();
+                        && !feed.historyFileCompletelyRead();
                     }
                 }
 
@@ -512,14 +512,17 @@ public final class FeedChecker {
         // }
         // // we have not found any new entry so we increase the min checkInterval
         // else {
-        // minCheckInterval += fps.getMedianPostGap() / (2 * DateHelper.MINUTE_MS);
-        // // minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
+        // // minCheckInterval += fps.getMedianPostGap() / (2 * DateHelper.MINUTE_MS);
+        // minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
         // }
 
-        if (newEntries >= 1) {
-            int predictedTimeToNextPost = (int) ((fps.getLastInterval() - fps.getDelayToNewestPost() + 30000) / DateHelper.MINUTE_MS);
-            minCheckInterval = Math.max(DEFAULT_CHECK_TIME, predictedTimeToNextPost);
+        if (newEntries == 1) {
+            // fMin = 1.0 / newEntries;
+            minCheckInterval -= (int) ((fps.getDelayToNewestPost() - 10000) / DateHelper.MINUTE_MS);
             // feed.timeWithoutItem = fps.getDelayToNewestPost();
+        } else if (newEntries > 1) {
+            fMin = 1.0 / newEntries;
+            minCheckInterval *= fMin;
         }
         // we have not found any new entry so we increase the min checkInterval
         else {
@@ -765,9 +768,9 @@ public final class FeedChecker {
         checkApproachOption.setRequired(true);
         options.addOptionGroup(checkApproachOption);
         options.addOption("r", "runtime", true,
-                "The runtime of the checker in minutes or -1 if it should run until aborted.");
+        "The runtime of the checker in minutes or -1 if it should run until aborted.");
         options.addOption("ci", "checkInterval", true,
-                "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
+        "Set a fixed check interval in minutes. This is only effective if the checkType is set to CHECK_FIXED.");
         HelpFormatter formatter = new HelpFormatter();
 
         CommandLineParser parser = new PosixParser();
