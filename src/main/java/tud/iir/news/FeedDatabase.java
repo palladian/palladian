@@ -63,7 +63,7 @@ public class FeedDatabase implements FeedStore {
         psAddFeed = connection
                 .prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?");
         psUpdateFeed = connection
-                .prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ? WHERE id = ?");
+                .prepareStatement("UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ? WHERE id = ?");
         psUpdateFeedPostDistribution = connection.prepareStatement("REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?");
         psGetFeedPostDistribution = connection.prepareStatement("SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?");
         psGetFeeds = connection
@@ -77,8 +77,6 @@ public class FeedDatabase implements FeedStore {
 
         psGetEntries = connection.prepareStatement("SELECT id, title, link, rawId, published, text, pageText, added, tags FROM feed_entries LIMIT ? OFFSET ?");
     }
-
-
 
 
     @Override
@@ -129,22 +127,6 @@ public class FeedDatabase implements FeedStore {
         try {
             PreparedStatement ps = psUpdateFeed;
 
-            // switch (feedChecker.getCheckApproach()) {
-            // case CHECK_FIXED:
-            // if (feedChecker.getCheckInterval() == -1) {
-            // ps = psUpdateFeed_fixed_learned;
-            // }
-            // break;
-            // case CHECK_ADAPTIVE:
-            // ps = psUpdateFeed_adaptive;
-            // break;
-            // case CHECK_PROBABILISTIC:
-            // ps = psUpdateFeed_probabilistic;
-            // break;
-            // default:
-            // break;
-            // }
-
             ps.setString(1, feed.getFeedUrl());
             ps.setString(2, feed.getSiteUrl());
             ps.setString(3, feed.getTitle());
@@ -157,8 +139,10 @@ public class FeedDatabase implements FeedStore {
             ps.setString(10, feed.getLastHeadlines());
             ps.setInt(11, feed.getUnreachableCount());
             ps.setTimestamp(12, feed.getLastFeedEntrySQLTimestamp());
-            ps.setInt(13, feed.getActivityPattern());
-            ps.setLong(14, feed.getId());
+            ps.setString(13, feed.getLastETag());
+            ps.setTimestamp(14, feed.getLastPollTimeSQLTimestamp());
+            ps.setInt(15, feed.getActivityPattern());
+            ps.setLong(16, feed.getId());
 
             DatabaseManager.getInstance().runUpdate(ps);
             updated = true;
@@ -243,6 +227,7 @@ public class FeedDatabase implements FeedStore {
                 feed.setUnreachableCount(resultSet.getInt("unreachableCount"));
                 feed.setLastFeedEntry(resultSet.getTimestamp("lastFeedEntry"));
                 feed.setActivityPattern(resultSet.getInt("activityPattern"));
+                feed.setLastETag(resultSet.getString("lastEtag"));
                 feed.setETagSupport(resultSet.getBoolean("supportsETag"));
                 feed.setLMSSupport(resultSet.getBoolean("supportsLMS"));
                 feed.setCgHeaderSize(resultSet.getInt("conditionalGetResponseSize"));

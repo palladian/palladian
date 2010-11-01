@@ -27,6 +27,7 @@ import tud.iir.persistence.DatabaseManager;
  * </p>
  * 
  * @author Klemens Muthmann
+ * @author David Urbansky
  * @version 1.0
  * @since 1.0
  * 

@@ -22,11 +22,17 @@ public class PollData {
     /** Number of new items in the window. */
     private int newWindowItems = -1;
 
-    /** The delay to the time of the next new post in milliseconds. */
-    private long newPostDelay = -1;
+    /** The cumulated delay from all early and late lookups. */
+    private long cumulatedDelay = -1;
+
+    /** The cumulated late delays for the current poll. */
+    private long cumulatedLateDelay = -1;
 
     /** The size of the intervals that are right before and after the new item where this poll happened. */
     private Long surroundingIntervalsLength = null;
+
+    /** The size of the interval between the most recent and the next item. */
+    private Long currentIntervalLength = null;
 
     /**
      * The factor by which delays AFTER the actual new post publish date are weighted more than delays BEFORE this time.
@@ -69,12 +75,28 @@ public class PollData {
         return surroundingIntervalsLength;
     }
 
-    public void setNewPostDelay(long newPostDelay) {
-        this.newPostDelay = newPostDelay;
+    public void setCumulatedDelay(long cumulatedDelay) {
+        this.cumulatedDelay = cumulatedDelay;
     }
 
-    public long getNewPostDelay() {
-        return newPostDelay;
+    public long getCumulatedDelay() {
+        return cumulatedDelay;
+    }
+
+    public void setCumulatedLateDelay(long cumulatedLateDelay) {
+        this.cumulatedLateDelay = cumulatedLateDelay;
+    }
+
+    public long getCumulatedLateDelay() {
+        return cumulatedLateDelay;
+    }
+
+    public void setCurrentIntervalLength(Long currentIntervalLength) {
+        this.currentIntervalLength = currentIntervalLength;
+    }
+
+    public Long getCurrentIntervalLength() {
+        return currentIntervalLength;
     }
 
     public void setAfterDelayWeight(double afterDelayWeight) {
@@ -139,7 +161,8 @@ public class PollData {
         if (benchmark == FeedReaderEvaluator.BENCHMARK_MIN_DELAY) {
 
             if (getSurroundingIntervalsLength() != null && getSurroundingIntervalsLength() > 0) {
-                score = 1.0 / Math.sqrt((Math.abs(getNewPostDelay()) / (double) getSurroundingIntervalsLength() + 1.0));
+                score = 1.0 / Math
+                        .sqrt((Math.abs(getCumulatedDelay()) / (double) getSurroundingIntervalsLength() + 1.0));
                 // score = 1.0 - Math.abs(getNewPostDelay()) / (double) getCurrentIntervalSize();
             }
 

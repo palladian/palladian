@@ -137,15 +137,17 @@ public class FeedStatisticCreator {
         DatabaseManager dbm = DatabaseManager.getInstance();
 
         Double timeliness = null;
+        Double timelinessLate = null;
         Double pollsPerNewItem = null;
         Double newItemsPerDiscovery = null;
         Double trafficPerNewItem = null;
         Double trafficPerNewItemCG = null;
 
         ResultSet rs = dbm
-                .runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness FROM feed_evaluation_polls WHERE surroundingIntervalsLength IS NOT NULL");
+                .runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0");
         if (rs.next()) {
             timeliness = rs.getDouble("timeliness");
+            timelinessLate = rs.getDouble("timelinessLate");
         }
 
         rs = dbm.runQuery("SELECT COUNT(*) AS totalPolls, SUM(sizeOfPoll) AS totalTraffic FROM feed_evaluation_polls WHERE numberOfPoll > 1");
@@ -171,6 +173,7 @@ public class FeedStatisticCreator {
 
         csv.append("\"================= Average Performance (averaged over all feeds, activity patterns, and item discoveries) =================\"\n");
         csv.append("Timeliness:;" + timeliness).append("\n");
+        csv.append("Timeliness Late:;" + timelinessLate).append("\n");
         csv.append("Polls Per New Item:;" + pollsPerNewItem).append("\n");
         csv.append("New Items Per Discovery:;" + newItemsPerDiscovery).append("\n");
         csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n");
@@ -186,6 +189,7 @@ public class FeedStatisticCreator {
             }
 
             timeliness = null;
+            timelinessLate = null;
             pollsPerNewItem = null;
             newItemsPerDiscovery = null;
             trafficPerNewItem = null;
@@ -194,10 +198,11 @@ public class FeedStatisticCreator {
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
                     .append(" (averaged over all feeds and polls) =================\"\n");
 
-            rs = dbm.runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness FROM feed_evaluation_polls WHERE surroundingIntervalsLength IS NOT NULL AND activityPattern = "
+            rs = dbm.runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 AND activityPattern = "
                     + activityPatternID);
             if (rs.next()) {
                 timeliness = rs.getDouble("timeliness");
+                timelinessLate = rs.getDouble("timelinessLate");
             }
 
             rs = dbm.runQuery("SELECT COUNT(*) AS totalPolls, SUM(sizeOfPoll) AS totalTraffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
@@ -226,6 +231,7 @@ public class FeedStatisticCreator {
             trafficPerNewItemCG = totalTrafficCG / totalNewItems;
 
             csv.append("Timeliness:;" + timeliness).append("\n");
+            csv.append("Timeliness Late:;" + timelinessLate).append("\n");
             csv.append("Polls Per New Item:;" + pollsPerNewItem).append("\n");
             csv.append("New Items Per Discovery:;" + newItemsPerDiscovery).append("\n");
             csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n");
@@ -307,7 +313,7 @@ public class FeedStatisticCreator {
             if (feed.getEntries() == null || feed.getEntries().size() < 1) {
                 continue;
             }
-            FeedPostStatistics fps = new FeedPostStatistics(feed.getEntries());
+            FeedPostStatistics fps = new FeedPostStatistics(feed);
             csv.write(String.valueOf(feed.getId() + ";"));
             csv.write(String.valueOf(feed.getActivityPattern()) + ";");
             csv.write(String.valueOf(fps.getAvgEntriesPerDay()) + ";");
@@ -399,8 +405,8 @@ public class FeedStatisticCreator {
         // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(), "data/temp/feedstats_combined.txt");
         // FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),"data/temp/feedUpdateIntervals.csv");
         // FeedStatisticCreator.maxCoveragePolicyEvaluation();
-        // FeedStatisticCreator.minDelayPolicyEvaluation();
-        FeedStatisticCreator.timelinessChart();
+        FeedStatisticCreator.minDelayPolicyEvaluation();
+        // FeedStatisticCreator.timelinessChart();
 
     }
 

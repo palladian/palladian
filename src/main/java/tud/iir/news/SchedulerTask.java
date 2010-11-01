@@ -55,7 +55,7 @@ class SchedulerTask extends TimerTask {
      */
     @Override
     public void run() {
-        LOGGER.info("wake up to check feeds");
+        LOGGER.debug("wake up to check feeds");
         int feedCount = 0;
         for (Feed feed : feedChecker.getFeeds()) {
             LOGGER.debug("checking feed at address: " + feed.getFeedUrl());
@@ -107,8 +107,8 @@ class SchedulerTask extends TimerTask {
      */
     private Boolean needsLookup(Feed feed) {
         long now = System.currentTimeMillis();
-        return feed.getChecks() == 0 || feed.getLastChecked() == null
-        || now - feed.getLastChecked().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS;
+        return feed.getChecks() == 0 || feed.getLastPollTime() == null
+                || now - feed.getLastPollTime().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS;
     }
 
     /**

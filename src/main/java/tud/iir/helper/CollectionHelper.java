@@ -8,9 +8,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * This class adds some methods that make it easier to handle collections.
@@ -51,14 +53,14 @@ public final class CollectionHelper {
             comparator = new Comparator<Map.Entry<S, T>>() {
                 @SuppressWarnings("unchecked")
                 public int compare(Map.Entry<S, T> o1, Map.Entry<S, T> o2) {
-                    return ((Comparable<T>) ((o1)).getValue()).compareTo(((o2)).getValue());
+                    return ((Comparable<T>) o1.getValue()).compareTo(o2.getValue());
                 }
             };
         } else {
             comparator = new Comparator<Map.Entry<S, T>>() {
                 @SuppressWarnings("unchecked")
                 public int compare(Map.Entry<S, T> o1, Map.Entry<S, T> o2) {
-                    return ((Comparable<T>) ((o2)).getValue()).compareTo(((o1)).getValue());
+                    return ((Comparable<T>) o2.getValue()).compareTo(o1.getValue());
                 }
             };
         }
@@ -82,8 +84,9 @@ public final class CollectionHelper {
      */
     public static <S> Object getKeyByValue(Map<S, S> map, Object value) {
         for (Entry<S, S> mapEntry : map.entrySet()) {
-            if (mapEntry.getValue().equals(value))
+            if (mapEntry.getValue().equals(value)) {
                 return mapEntry.getKey();
+            }
         }
 
         return null;
@@ -155,8 +158,9 @@ public final class CollectionHelper {
      */
     public static boolean contains(String[] array, String entry) {
         for (String s : array) {
-            if (s.equals(entry))
+            if (s.equals(entry)) {
                 return true;
+            }
         }
         return false;
     }
@@ -184,6 +188,14 @@ public final class CollectionHelper {
             if (s.length() > 0) {
                 set.add(s);
             }
+        }
+        return set;
+    }
+
+    public static TreeSet<Long> toTreeSet(List<Long> list) {
+        TreeSet<Long> set = new TreeSet<Long>();
+        for (Long item : list) {
+            set.add(item);
         }
         return set;
     }

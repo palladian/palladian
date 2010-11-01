@@ -91,10 +91,8 @@ public class Feed {
      */
     private int maxCheckInterval = 120;
 
-    /**
-     * The date this feed was checked for updates the last time.
-     */
-    private Date lastChecked;
+    // TODO change
+    public long timeWithoutItem = 0;
 
     /** a list of headlines that were found at the last check */
     private String lastHeadlines = "";
@@ -123,6 +121,14 @@ public class Feed {
     
     /** The activity pattern of the feed is one of {@link FeedClassifier}s classes. */
     private int activityPattern = -1;
+
+    /** The ETag that was send with the last request. This saves bandwidth for feeds that support ETags. */
+    private String lastETag = null;
+
+    /**
+     * The date this feed was checked for updates the last time. This can be used to send last modified since requests.
+     */
+    private Date lastPollTime;
 
     /** Whether the feed supports ETags. */
     private Boolean eTagSupport;
@@ -240,7 +246,7 @@ public class Feed {
         aggregator.setUseScraping(usePageContentExtractor);
         List<FeedEntry> entries = new ArrayList<FeedEntry>();
         try {
-            entries = aggregator.getEntries(getFeedUrl());
+            entries = aggregator.getEntries(this);
         } catch (FeedAggregatorException e) {
             LOGGER.error("Unable to load entries for feed at address: " + getFeedUrl() + ", " + e.getMessage());
         }
@@ -407,18 +413,33 @@ public class Feed {
         return sb.toString();
     }
 
+    public void setLastETag(String lastETag) {
+        this.lastETag = lastETag;
+    }
+
+    public String getLastETag() {
+        return lastETag;
+    }
+
     /**
      * @return The date this feed was checked for updates the last time.
      */
-    public final Date getLastChecked() {
-        return lastChecked;
+    public final Date getLastPollTime() {
+        return lastPollTime;
+    }
+
+    public Timestamp getLastPollTimeSQLTimestamp() {
+        if (lastPollTime != null) {
+            return new Timestamp(lastPollTime.getTime());
+        }
+        return null;
     }
 
     /**
      * @param lastChecked The date this feed was checked for updates the last time.
      */
-    public final void setLastChecked(Date lastChecked) {
-        this.lastChecked = lastChecked;
+    public final void setLastPollTime(Date lastPollTime) {
+        this.lastPollTime = lastPollTime;
     }
 
     public void setByteSize(long byteSize) {
@@ -526,7 +547,7 @@ public class Feed {
         result = prime * result + format;
         result = prime * result + id;
         result = prime * result + (language == null ? 0 : language.hashCode());
-        result = prime * result + (lastChecked == null ? 0 : lastChecked.hashCode());
+        result = prime * result + (lastPollTime == null ? 0 : lastPollTime.hashCode());
         result = prime * result + (lastFeedEntry == null ? 0 : lastFeedEntry.hashCode());
         result = prime * result + (lastHeadlines == null ? 0 : lastHeadlines.hashCode());
         result = prime * result + maxCheckInterval;
@@ -593,11 +614,11 @@ public class Feed {
         } else if (!language.equals(other.language)) {
             return false;
         }
-        if (lastChecked == null) {
-            if (other.lastChecked != null) {
+        if (lastPollTime == null) {
+            if (other.lastPollTime != null) {
                 return false;
             }
-        } else if (!lastChecked.equals(other.lastChecked)) {
+        } else if (!lastPollTime.equals(other.lastPollTime)) {
             return false;
         }
         if (lastFeedEntry == null) {

@@ -1,9 +1,5 @@
 package tud.iir.news;
 
-import java.util.List;
-
-import org.apache.log4j.Logger;
-
 public class FeedClassificationThread implements Runnable {
 
     private Feed feed;
@@ -16,7 +12,6 @@ public class FeedClassificationThread implements Runnable {
 
     @Override
     public void run() {
-    	NewsAggregator na = new NewsAggregator();
         FeedClassifier.classify(feed);
 //        List<FeedEntry> entries;
 //		try {
