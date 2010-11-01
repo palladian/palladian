@@ -15,6 +15,7 @@ import java.util.TreeMap;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.CountMap;
+import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.news.Feed;
@@ -61,14 +62,16 @@ public class FeedStatisticCreator {
         Double percentNew = null;
         Double missed = null;
         Double missedPercent = null;
+        Double traffic = null;
 
         ResultSet rs = dbm
-                .runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent FROM feed_evaluation_polls WHERE numberOfPoll > 1");
+                .runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) as traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1");
         while (rs.next()) {
             coverage = rs.getDouble("coverage");
             percentNew = rs.getDouble("percentNew");
             missed = rs.getDouble("missedItems");
             missedPercent = rs.getDouble("missedPercent");
+            traffic = rs.getDouble("traffic");
         }
 
         // build csv
@@ -76,7 +79,8 @@ public class FeedStatisticCreator {
         csv.append("Coverage:;" + coverage).append("\n");
         csv.append("Percent New:;" + 100 * percentNew).append("\n");
         csv.append("Missed:;" + missed).append("\n");
-        csv.append("Missed Items / Window Size:;" + 100 * missedPercent).append("\n\n");
+        csv.append("Missed Items / Window Size:;" + 100 * missedPercent).append("\n");
+        csv.append("Traffic Per Item:;" + traffic).append("\n\n");
 
         // create statistics by activity pattern
         Integer[] activityPatternIDs = FeedClassifier.getActivityPatternIDs();
@@ -91,24 +95,27 @@ public class FeedStatisticCreator {
             percentNew = null;
             missed = null;
             missedPercent = null;
+            traffic = null;
 
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
-                    .append(" (averaged over all feeds and polls) =================\"\n");
+            .append(" (averaged over all feeds and polls) =================\"\n");
 
             rs = dbm
-                    .runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
-                            + activityPatternID);
+.runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) as traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
+                    + activityPatternID);
 
             while (rs.next()) {
                 coverage = rs.getDouble("coverage");
                 percentNew = rs.getDouble("percentNew");
                 missed = rs.getDouble("missedItems");
                 missedPercent = rs.getDouble("missedPercent");
+                traffic = rs.getDouble("traffic");
             }
             csv.append("Coverage:;" + coverage).append("\n");
             csv.append("Percent New:;" + 100 * percentNew).append("\n");
             csv.append("Missed:;" + missed).append("\n");
-            csv.append("Missed Items / Window Size:;" + 100 * missedPercent).append("\n\n");
+            csv.append("Missed Items / Window Size:;" + 100 * missedPercent).append("\n");
+            csv.append("Traffic Per Item:;" + traffic).append("\n\n");
         }
 
         System.out.println(csv);
@@ -138,16 +145,18 @@ public class FeedStatisticCreator {
 
         Double timeliness = null;
         Double timelinessLate = null;
+        Double delay = null;
         Double pollsPerNewItem = null;
         Double newItemsPerDiscovery = null;
         Double trafficPerNewItem = null;
         Double trafficPerNewItemCG = null;
 
         ResultSet rs = dbm
-                .runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0");
+        .runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/newWindowItems) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0");
         if (rs.next()) {
             timeliness = rs.getDouble("timeliness");
             timelinessLate = rs.getDouble("timelinessLate");
+            delay = rs.getDouble("delay");
         }
 
         rs = dbm.runQuery("SELECT COUNT(*) AS totalPolls, SUM(sizeOfPoll) AS totalTraffic FROM feed_evaluation_polls WHERE numberOfPoll > 1");
@@ -174,6 +183,7 @@ public class FeedStatisticCreator {
         csv.append("\"================= Average Performance (averaged over all feeds, activity patterns, and item discoveries) =================\"\n");
         csv.append("Timeliness:;" + timeliness).append("\n");
         csv.append("Timeliness Late:;" + timelinessLate).append("\n");
+        csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * delay.longValue())).append("\n");
         csv.append("Polls Per New Item:;" + pollsPerNewItem).append("\n");
         csv.append("New Items Per Discovery:;" + newItemsPerDiscovery).append("\n");
         csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n");
@@ -190,19 +200,21 @@ public class FeedStatisticCreator {
 
             timeliness = null;
             timelinessLate = null;
+            delay = null;
             pollsPerNewItem = null;
             newItemsPerDiscovery = null;
             trafficPerNewItem = null;
             trafficPerNewItemCG = null;
 
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
-                    .append(" (averaged over all feeds and polls) =================\"\n");
+            .append(" (averaged over all feeds and polls) =================\"\n");
 
-            rs = dbm.runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 AND activityPattern = "
+            rs = dbm.runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/newWindowItems) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 AND activityPattern = "
                     + activityPatternID);
             if (rs.next()) {
                 timeliness = rs.getDouble("timeliness");
                 timelinessLate = rs.getDouble("timelinessLate");
+                delay = rs.getDouble("delay");
             }
 
             rs = dbm.runQuery("SELECT COUNT(*) AS totalPolls, SUM(sizeOfPoll) AS totalTraffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
@@ -232,6 +244,7 @@ public class FeedStatisticCreator {
 
             csv.append("Timeliness:;" + timeliness).append("\n");
             csv.append("Timeliness Late:;" + timelinessLate).append("\n");
+            csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * delay.longValue())).append("\n");
             csv.append("Polls Per New Item:;" + pollsPerNewItem).append("\n");
             csv.append("New Items Per Discovery:;" + newItemsPerDiscovery).append("\n");
             csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n");
@@ -255,7 +268,7 @@ public class FeedStatisticCreator {
         Map<Integer, Double[]> timelinessChartData = new TreeMap<Integer, Double[]>();
 
         ResultSet rs = dbm
-                .runQuery("SELECT feedID, 1/SQRT(cumulatedDelay/surroundingIntervalsLength + 1) AS timeliness FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0");
+        .runQuery("SELECT feedID, 1/SQRT(cumulatedDelay/surroundingIntervalsLength + 1) AS timeliness FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0");
         int previousFeedID = -1;
         int newItemNumber = 1;
         while (rs.next()) {
@@ -283,7 +296,7 @@ public class FeedStatisticCreator {
         for (Entry<Integer, Double[]> dataEntry : timelinessChartData.entrySet()) {
             double avgTimeliness = dataEntry.getValue()[0] / dataEntry.getValue()[1];
             csv.append(dataEntry.getKey()).append(";").append(avgTimeliness).append(";")
-                    .append(dataEntry.getValue()[1]).append("\n");
+            .append(dataEntry.getValue()[1]).append("\n");
         }
 
         FileHelper.writeToFile("data/temp/feedEvaluationTimelinessChart.csv", csv);
@@ -293,7 +306,7 @@ public class FeedStatisticCreator {
     }
 
     public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPath)
-            throws IOException {
+    throws IOException {
 
         FeedChecker fc = new FeedChecker(feedStore);
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE);
@@ -379,7 +392,7 @@ public class FeedStatisticCreator {
         String chartColors = "";
         for (Entry<Object, Integer> o : updateClassCounts.entrySet()) {
             stats.append("Number of feeds in update class ").append(o.getKey()).append(":").append(o.getValue())
-                    .append("\n");
+            .append("\n");
             chartData += o.getValue().intValue() + ",";
             chartDataLabels += o.getKey() + "|";
             chartColors += colors.get((Integer) o.getKey()) + "|";
@@ -389,8 +402,8 @@ public class FeedStatisticCreator {
         chartColors = chartColors.substring(0, chartColors.length() - 1);
 
         stats.append("Google pie chart:").append("http://chart.apis.google.com/chart?chs=600x425&chco=")
-                .append(chartColors).append("&chdl=").append(chartDataLabels).append("&chds=0,").append(feeds.size())
-                .append("&cht=p&chd=t:").append(chartData).append("\n");
+        .append(chartColors).append("&chdl=").append(chartDataLabels).append("&chds=0,").append(feeds.size())
+        .append("&cht=p&chd=t:").append(chartData).append("\n");
 
         FileHelper.writeToFile(statisticOutputPath, stats);
 

@@ -25,7 +25,7 @@ public class FeedReaderEvaluator {
 
     /** Benchmark off. */
     public static final int BENCHMARK_OFF = 0;
-    
+
     /**
      * Benchmark algorithms towards their prediction ability for the next post. We need all feeds to be in a certain
      * time frame for a fair comparison.
@@ -54,17 +54,17 @@ public class FeedReaderEvaluator {
     public static int benchmarkSample = 10;
 
     /** The path to the folder with the feed post history files. */
-    private static final String BENCHMARK_DATASET_PATH = "G:\\Projects\\Programming\\Other\\clean\\";
+    private static final String BENCHMARK_DATASET_PATH = "C:\\Programming\\feedposts\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
-    
+
 
     public FeedReaderEvaluator() {
         LOGGER.info("load benchmark dataset file list");
         benchmarkDatasetFiles = FileHelper.getFiles(BENCHMARK_DATASET_PATH);
     }
-    
+
     public static int getBenchmarkPolicy() {
         return benchmarkPolicy;
     }
@@ -80,7 +80,7 @@ public class FeedReaderEvaluator {
     public static void setBenchmarkMode(int benchmarkMode) {
         FeedReaderEvaluator.benchmarkMode = benchmarkMode;
     }
-    
+
     private static String getBenchmarkName() {
         return FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_MIN_DELAY ? "min" : "max";
     }
@@ -137,8 +137,8 @@ public class FeedReaderEvaluator {
         }
 
         String filePath = "data/temp/feedReaderEvaluation_" + feedReader.getCheckApproachName() + "_"
-                + getBenchmarkName() + "_"
- + benchmarkModeString + "_" + FeedReaderEvaluator.benchmarkSample + ".csv";
+        + getBenchmarkName() + "_"
+        + benchmarkModeString + "_" + FeedReaderEvaluator.benchmarkSample + ".csv";
 
         try {
             FileWriter fileWriter = new FileWriter(filePath, true);
@@ -238,7 +238,7 @@ public class FeedReaderEvaluator {
         String historyFilePath = "";
         if (benchmarkDatasetFiles == null) {
             System.out
-                    .println("======================================================================================");
+            .println("======================================================================================");
             benchmarkDatasetFiles = FileHelper.getFiles(BENCHMARK_DATASET_PATH);
         }
         for (File file : benchmarkDatasetFiles) {
@@ -262,18 +262,18 @@ public class FeedReaderEvaluator {
     public void createAllEvaluations(int benchmarkSample) {
 
         FeedReaderEvaluator.benchmarkSample = benchmarkSample;
-        
+
         UpdateStrategy[] strategies = { UpdateStrategy.UPDATE_FIXED, UpdateStrategy.UPDATE_FIXED,
                 UpdateStrategy.UPDATE_FIXED, UpdateStrategy.UPDATE_ADAPTIVE,
                 UpdateStrategy.UPDATE_PROBABILISTIC };
 
         Integer[] policies = {BENCHMARK_MIN_DELAY,BENCHMARK_MAX_COVERAGE};
         Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
-        
+
         int fixNumber = 0;
-        
+
         for (UpdateStrategy strategy : strategies) {
-            
+
             // set the fix interval for the FIX strategies, if -1 => fixed learned
             int checkInterval = -1;
             if (fixNumber == 0) {
@@ -286,7 +286,7 @@ public class FeedReaderEvaluator {
 
 
             for (Integer policy : policies) {
-                
+
                 // for FIX with a preset interval min_delay and max_coverage are the same and we skip one
                 if (fixNumber < 2 && strategy == UpdateStrategy.UPDATE_FIXED && policy == BENCHMARK_MIN_DELAY) {
                     continue;
@@ -308,15 +308,15 @@ public class FeedReaderEvaluator {
                     fc.startContinuousReading(-1);
 
                 }
-                
+
             }
-            
+
             fixNumber++;
 
         }
 
     }
-    
+
     /**
      * @param args
      */
