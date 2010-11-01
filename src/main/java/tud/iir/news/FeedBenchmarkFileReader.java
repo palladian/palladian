@@ -289,14 +289,16 @@ public class FeedBenchmarkFileReader {
                 long currentInterval = nextItemBeforeWindowTimestamp - firstItemInWindowTimestamp;
                 long lastInterval = firstItemInWindowTimestamp - secondItemInWindowTimestamp;
                 long surroundingIntervalsLength = currentInterval + lastInterval;
-                pollData.setSurroundingIntervalsLength(surroundingIntervalsLength);                
+                pollData.setSurroundingIntervalsLength(surroundingIntervalsLength);
+                pollData.setCurrentIntervalLength(currentInterval);
+                pollData.setCumulatedLateDelay(cumulatedPollDelay);
             }
 
             pollData.setTimestamp(feed.getBenchmarkLookupTime());
             pollData.setNewWindowItems(newEntries);
             pollData.setMisses(misses);
 
-            pollData.setNewPostDelay(cumulatedDelay);
+            pollData.setCumulatedDelay(cumulatedDelay);
             
             // reset cumulated delay for next new item
             if (newEntries > 0) {
@@ -308,11 +310,8 @@ public class FeedBenchmarkFileReader {
 
             pollData.getScore(FeedReaderEvaluator.BENCHMARK_MIN_DELAY);
 
-            // add poll data object to series of poll data
-            feed.getPollDataSeries().add(pollData);
-
             // remember the time the feed has been checked
-            feed.setLastChecked(new Date());
+            feed.setLastPollTime(new Date());
 
             feedChecker.updateCheckIntervals(feed);
 
@@ -321,6 +320,9 @@ public class FeedBenchmarkFileReader {
             } else {
                 pollData.setCheckInterval(feed.getMinCheckInterval());
             }
+
+            // add poll data object to series of poll data
+            feed.getPollDataSeries().add(pollData);
 
             if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_MIN_DELAY) {
                 feed.addToBenchmarkLookupTime((long) feed.getMinCheckInterval() * (long) DateHelper.MINUTE_MS);

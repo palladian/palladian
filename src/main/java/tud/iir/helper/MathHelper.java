@@ -1,6 +1,7 @@
 package tud.iir.helper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -61,7 +62,7 @@ public class MathHelper {
         return faculty;
     }
 
-    public static long getMedianDifference(final TreeSet<Long> valueSet) {
+    public static long getMedianDifference(TreeSet<Long> valueSet) {
         Median median = new Median();
         double[] doubles = new double[valueSet.size() - 1];
         int i = 0;
@@ -77,12 +78,41 @@ public class MathHelper {
         return (long) median.evaluate(doubles);
     }
 
-    public static long getStandardDeviation(final TreeSet<Long> valueSet) {
+    public static long getMedianDifference(List<Long> sortedList) {
+        Collections.sort(sortedList);
+        Median median = new Median();
+        double[] doubles = new double[sortedList.size() - 1];
+        int i = 0;
+        long lastValue = -1;
+        for (Long entry : sortedList) {
+            if (lastValue == -1) {
+                lastValue = entry;
+                continue;
+            }
+            doubles[i++] = entry - lastValue;
+            lastValue = entry;
+        }
+        return (long) median.evaluate(doubles);
+    }
+
+    public static long getStandardDeviation(TreeSet<Long> valueSet) {
         StandardDeviation sd = new StandardDeviation();
 
         double[] doubles = new double[valueSet.size()];
         int i = 0;
         for (Long entry : valueSet) {
+            doubles[i++] = entry;
+        }
+        return (long) sd.evaluate(doubles);
+    }
+
+    public static long getStandardDeviation(List<Long> sortedList) {
+        Collections.sort(sortedList);
+        StandardDeviation sd = new StandardDeviation();
+
+        double[] doubles = new double[sortedList.size()];
+        int i = 0;
+        for (Long entry : sortedList) {
             doubles[i++] = entry;
         }
         return (long) sd.evaluate(doubles);

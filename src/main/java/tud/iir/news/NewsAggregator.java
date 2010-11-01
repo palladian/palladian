@@ -2,6 +2,7 @@ package tud.iir.news;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
@@ -36,6 +37,7 @@ import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
+import tud.iir.web.HeaderInformation;
 
 import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.rss.Guid;
@@ -70,10 +72,19 @@ public class NewsAggregator {
     private int maxThreads = 20;
 
     /**
-     * If enabled we use PageContentExtractor to get extract text for entries directly from their corresponding web
+     * If enabled, we use PageContentExtractor to get extract text for entries directly from their corresponding web
      * pages if necessary.
      */
     private boolean useScraping = true;
+
+    /**
+     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
+     * documents.
+     * If enabled, we use the last poll time and the last ETag of the feed as HTTP headers when requesting the URL. This
+     * way we can save bandwidth for feeds that support the HTTP 304 "Not modified" status code (about 83% of all feeds
+     * do support either ETag or LastModifiedSince).
+     */
+    private boolean useBandwidthSavingHTTPHeaders = false;
 
     private final FeedStore store;
 
@@ -113,7 +124,14 @@ public class NewsAggregator {
      * @throws FeedAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be
      *             parsed.
      */
+    private SyndFeed getFeedWithRome(Feed feed) throws FeedAggregatorException {
+        return getFeedWithRome(feed.getFeedUrl(), feed);
+    }
     private SyndFeed getFeedWithRome(String feedUrl) throws FeedAggregatorException {
+        return getFeedWithRome(feedUrl, null);
+    }
+
+    private SyndFeed getFeedWithRome(String feedUrl, Feed feed) throws FeedAggregatorException {
         LOGGER.trace(">getFeedWithRome " + feedUrl);
 
         SyndFeed result;
@@ -127,11 +145,23 @@ public class NewsAggregator {
             // see http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
             feedInput.setPreserveWireFeed(true);
 
+            // create the header information to download feed only if it has changed
+            HeaderInformation headerInformation = null;
+
+            if (isUseBandwidthSavingHTTPHeaders() && feed != null) {
+                headerInformation = new HeaderInformation(feed.getLastPollTime(), feed.getLastETag());
+            }
+
             // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
-            // well, which we use inside the IIR toolkit.
-            plainXMLFeed = crawler.getXMLDocument(feedUrl, false);
+            // well, which we use inside Palladian.
+            plainXMLFeed = crawler.getXMLDocument(feedUrl, false, headerInformation);
             if (plainXMLFeed == null) {
-                throw new FeedAggregatorException("could not get document from " + feedUrl);
+                if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
+                    throw new FeedAggregatorException("could not get document from " + feedUrl);
+                } else {
+                    LOGGER.debug("the feed was not modified: " + feedUrl);
+                    return null;
+                }
             }
             result = feedInput.build(plainXMLFeed);
 
@@ -542,7 +572,7 @@ public class NewsAggregator {
             try {
                 SyndFeed syndFeed = getFeedWithRome(feedUrl);
                 // TODO check how old feeds is,
-                // dont add feeds which were updated one year ago or more ...
+                // don't add feeds which were updated one year ago or more ...
                 feed = getFeed(syndFeed, feedUrl);
                 store.addFeed(feed);
                 LOGGER.info("added feed to store " + feedUrl);
@@ -833,6 +863,26 @@ public class NewsAggregator {
     }
 
     /**
+     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
+     * documents.
+     * 
+     * @param useBandwidthSavingHTTPHeaders
+     */
+    public void setUseBandwidthSavingHTTPHeaders(boolean useBandwidthSavingHTTPHeaders) {
+        this.useBandwidthSavingHTTPHeaders = useBandwidthSavingHTTPHeaders;
+    }
+
+    /**
+     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
+     * documents.
+     * 
+     * @return
+     */
+    public boolean isUseBandwidthSavingHTTPHeaders() {
+        return useBandwidthSavingHTTPHeaders;
+    }
+
+    /**
      * Returns a feed and its entries from a specified feed URL. Use {@link Feed#getEntries()} to get feed's entries.
      * 
      * @param feedUrl
@@ -847,6 +897,16 @@ public class NewsAggregator {
         feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
         return feed;
     }
+
+    public Feed getFeed(Feed feedData) throws FeedAggregatorException {
+        SyndFeed syndFeed = getFeedWithRome(feedData);
+        Feed feed = getFeed(syndFeed, feedData.getFeedUrl());
+        List<FeedEntry> entries = getEntries(syndFeed);
+        feed.setEntries(entries);
+        feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
+        return feed;
+    }
+
 //    
 //    public Feed setEntries(Feed feed) throws FeedAggregatorException {
 //        setFeedAttributes(syndFeed, feedUrl, feed)
@@ -879,7 +939,7 @@ public class NewsAggregator {
     }
     
     public List<FeedEntry> getEntries(Feed feed) throws FeedAggregatorException {
-        return getFeed(feed.getFeedUrl()).getEntries();
+        return getFeed(feed).getEntries();
     }
 
     /**

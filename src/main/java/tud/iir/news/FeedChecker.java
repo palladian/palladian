@@ -68,7 +68,7 @@ public final class FeedChecker {
     /**
      * A scheduler that checks continuously if there are feeds in the {@link #feedCollection} that need to be updated. A
      * feed
-     * must be updated whenever the method {@link Feed#getLastChecked()} return value is further away in the past then
+     * must be updated whenever the method {@link Feed#getLastPollTime()} return value is further away in the past then
      * its {@link Feed#getMaxCheckInterval()} or {@link Feed#getMinCheckInterval()} returns. Which one to use depends on
      * the update strategy.
      */
@@ -137,7 +137,7 @@ public final class FeedChecker {
             StopWatch sw = new StopWatch();
             int feedHistoriesCompletelyRead = 0;
             int feedCounter = 0;
-            boolean modSkip = FeedReaderEvaluator.benchmarkSample > 50;
+            boolean modSkip = FeedReaderEvaluator.benchmarkSample > 50 && FeedReaderEvaluator.benchmarkSample < 100;
             int mod = 100 / FeedReaderEvaluator.benchmarkSample;
             if (modSkip) {
                 mod = 100 / (100 - FeedReaderEvaluator.benchmarkSample);
@@ -157,10 +157,11 @@ public final class FeedChecker {
                     continue;
                 }
 
-                // if (feed.getId() > 2) {
+                // int dbgid = 10;
+                // if (feed.getId() > dbgid) {
                 // break;
                 // }
-                // if (feed.getId() < 2) {
+                // if (feed.getId() < dbgid) {
                 // continue;
                 // }
                 StopWatch swf = new StopWatch();
@@ -194,7 +195,8 @@ public final class FeedChecker {
                     keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
                             && feed.getBenchmarkLastLookupTime() < FeedBenchmarkFileReader.BENCHMARK_STOP_TIME;
                     if (!keepLooping) {
-                        keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL && !feed.historyFileCompletelyRead();
+                        keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL
+                                && !feed.historyFileCompletelyRead();
                     }
                 }
 
@@ -278,13 +280,11 @@ public final class FeedChecker {
      */
     public synchronized void updateCheckIntervals(Feed feed) {
 
-        List<FeedEntry> entries = feed.getEntries();
-
         // the fixed minCheckInterval is (timeNewestEntry -
         // timeOldestEntry)/60*(feedLength-1)
         // the fixed maxCheckInterval is (timeNewestEntry - timeOldestEntry)/60
 
-        FeedPostStatistics fps = new FeedPostStatistics(entries);
+        FeedPostStatistics fps = new FeedPostStatistics(feed);
 
         // get percentage of new feed posts
         double pnTarget = feed.getTargetPercentageOfNewEntries();
@@ -411,8 +411,6 @@ public final class FeedChecker {
     // === Helper methods ===
     // ======================
 
-
-
     /**
      * Update the check intervals in fixed mode.
      * 
@@ -436,14 +434,15 @@ public final class FeedChecker {
 
             // use median
             if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
-                fixedMinCheckInterval = (int) (fps.getMedianPostGap() / DateHelper.MINUTE_MS);
+                double minInterval = fps.getMedianPostGap() / (double) DateHelper.MINUTE_MS;
+                fixedMinCheckInterval = (int) minInterval;
                 // fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
-                fixedMaxCheckInterval = fixedMinCheckInterval * entries.size();
+                fixedMaxCheckInterval = (int) (minInterval * entries.size());
             }
 
             if (feed.getActivityPattern() == FeedClassifier.CLASS_DEAD) {
-                fixedMinCheckInterval = 800 + (int) (Math.random() * 200);
-                fixedMaxCheckInterval = 1440 + (int) (Math.random() * 600);
+                fixedMinCheckInterval = 10 * 800 + (int) (Math.random() * 200);
+                fixedMaxCheckInterval = 10 * 1440 + (int) (Math.random() * 600);
             } else if (feed.getActivityPattern() == FeedClassifier.CLASS_CHUNKED) {
 
                 // for chunked entries the median post gap is likely to be zero so we set it to the time to the last
@@ -490,6 +489,13 @@ public final class FeedChecker {
         }
         // some entries are not new so we increase the checkInterval
         else {
+            // if (pnTarget == 0) {
+            // pnTarget = 1.0 / feed.getWindowSize();
+            // }
+            // if (pnTarget < 0.1) {
+            // pnTarget = 0.1;
+            // }
+            // fMax = 1 / pnTarget;
             fMax = 2 - pnTarget;
         }
         maxCheckInterval *= fMax;
@@ -498,17 +504,51 @@ public final class FeedChecker {
         double fMin = 1.0;
 
         double newEntries = pnTarget * (feed.getWindowSize() - 1);
+
         // all news are new, we should halve the checkInterval
+        // if (newEntries >= 1) {
+        // fMin = 1.0 / newEntries;
+        // minCheckInterval *= fMin;
+        // }
+        // // we have not found any new entry so we increase the min checkInterval
+        // else {
+        // minCheckInterval += fps.getMedianPostGap() / (2 * DateHelper.MINUTE_MS);
+        // // minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
+        // }
+
         if (newEntries >= 1) {
-            fMin = 1.0 / newEntries;
-            minCheckInterval *= fMin;
+            int predictedTimeToNextPost = (int) ((fps.getLastInterval() - fps.getDelayToNewestPost() + 30000) / DateHelper.MINUTE_MS);
+            minCheckInterval = Math.max(DEFAULT_CHECK_TIME, predictedTimeToNextPost);
+            // feed.timeWithoutItem = fps.getDelayToNewestPost();
         }
         // we have not found any new entry so we increase the min checkInterval
         else {
-            // TODO test with median post gap
             // minCheckInterval += fps.getMedianPostGap() / (2 * DateHelper.MINUTE_MS);
             minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
         }
+
+        // all news are new, we should halve the checkInterval
+        // if (newEntries < 0) {
+        // fMin = 1.0 / newEntries;
+        // minCheckInterval *= fMin;
+        // }
+        // // we have not found any new entry so we increase the min checkInterval
+        // else if (newEntries >= 1 && fps.getLastInterval() > 0 && fps.getDelayToNewestPost() > 0) {
+        // int predictedTimeToNextPost = (int) ((fps.getLastInterval() - fps.getDelayToNewestPost() + 30000) /
+        // DateHelper.MINUTE_MS);
+        // minCheckInterval = Math.max(DEFAULT_CHECK_TIME, predictedTimeToNextPost);
+        // feed.timeWithoutItem = fps.getDelayToNewestPost();
+        // } else {
+        // minCheckInterval *= 2;
+        // // minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
+        //
+        // feed.timeWithoutItem += feed.getBenchmarkLookupTime() - feed.getBenchmarkLastLookupTime();
+        // long predictedTimeToNextItem = fps.getLongestPostGap() - feed.timeWithoutItem + 30000;
+        // if (predictedTimeToNextItem < minCheckInterval * DateHelper.MINUTE_MS) {
+        // minCheckInterval = (int) Math.max(DEFAULT_CHECK_TIME, predictedTimeToNextItem / DateHelper.MINUTE_MS);
+        // feed.timeWithoutItem = 0;
+        // }
+        // }
 
         // for chunked or on the fly updates the min and max intervals are the same
         // if (feed.getUpdateClass() != FeedClassifier.CLASS_CHUNKED
@@ -691,8 +731,6 @@ public final class FeedChecker {
     public boolean isStopped() {
         return stopped;
     }
-
-
 
     /**
      * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if

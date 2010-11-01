@@ -52,19 +52,22 @@ class FeedTask implements Runnable {
                 + ")");
 
         NewsAggregator fa = new NewsAggregator();
+        fa.setUseScraping(true);
+        fa.setUseBandwidthSavingHTTPHeaders(true);
 
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
         // it can be done in parallel
-        // if no benchmark is running, read the entries from the web otherwise from disk
         feed.updateEntries(false);
 
-        // classify feed if it has never been classified before
-        if (feed.getActivityPattern() == -1) {
+        // classify feed if it has never been classified before, do it once a month for each feed to be informed about
+        // updates
+        if (feed.getActivityPattern() == -1
+                || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
             FeedClassifier.classify(feed);
         }
 
         // remember the time the feed has been checked
-        feed.setLastChecked(new Date());
+        feed.setLastPollTime(new Date());
 
         feedChecker.updateCheckIntervals(feed);
 

@@ -113,8 +113,9 @@ public class FeedClassifier {
             try {
 
                 newsAggregator.setUseScraping(false);
-                entries = newsAggregator.getFeed(feedURL).getEntries();
-                fps = new FeedPostStatistics(entries);
+            Feed feed = newsAggregator.getFeed(feedURL);
+            entries = feed.getEntries();
+            fps = new FeedPostStatistics(feed);
 
                 LOGGER.debug(fps);
 

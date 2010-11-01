@@ -5,12 +5,10 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
-import java.util.Calendar;
 import java.util.Locale;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
@@ -111,14 +109,16 @@ public class FeedReaderEvaluator {
      * <li>conditional get response size in Byte (NULL if it neither ETag nor LastModifiedSince is supported)</li>
      * <li>size of poll in Byte</li>
      * <li>poll timestamp in seconds</li>
-     * <li>poll minute of the day</li>
      * <li>check interval at poll time in minutes</li>
      * <li>number of new items in the window (missed are not counted)</li>
      * <li>number of missed news items</li>
      * <li>window size</li>
      * <li>cumulated delay in seconds (only for evaluation mode MIN interesting)</li>
-     * <li>surrounding_interval (the sum of the neighbor intervals before and after the latest new item; only for
+     * <li>surrounding interval (the sum of the neighbor intervals before and after the latest new item; only for
      * evaluation mode MIN interesting)</li>
+     * <li>cumulated late delay in seconds (only for evaluation mode MIN interesting)</li>
+     * <li>current interval (the interval between the most recent and the next new item; only for evaluation mode MIN
+     * interesting)</li>
      * </ul>
      * </p>
      * 
@@ -168,14 +168,20 @@ public class FeedReaderEvaluator {
                     // poll related values
                     csv.append(pollData.getDownloadSize()).append(separator);
                     csv.append(pollData.getTimestamp() / 1000l).append(separator);
-                    csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.MINUTE)).append(separator);
+                    // csv.append(DateHelper.getTimeOfDay(pollData.getTimestamp(), Calendar.MINUTE)).append(separator);
                     csv.append(MathHelper.round(pollData.getCheckInterval(), 2)).append(separator);
                     csv.append(pollData.getNewWindowItems()).append(separator);
                     csv.append(pollData.getMisses()).append(separator);
                     csv.append(pollData.getWindowSize()).append(separator);
-                    csv.append(pollData.getNewPostDelay() / 1000l).append(separator);
+                    csv.append(pollData.getCumulatedDelay() / 1000l).append(separator);
                     if (pollData.getSurroundingIntervalsLength() != null) {
                         csv.append(pollData.getSurroundingIntervalsLength() / 1000l).append(separator);
+                    } else {
+                        csv.append("\"N").append(separator);
+                    }
+                    csv.append(pollData.getCumulatedLateDelay() / 1000l).append(separator);
+                    if (pollData.getCurrentIntervalLength() != null) {
+                        csv.append(pollData.getCurrentIntervalLength() / 1000l).append(separator);
                     } else {
                         csv.append("\"N").append(separator);
                     }
@@ -316,26 +322,26 @@ public class FeedReaderEvaluator {
      */
     public static void main(String[] args) {
 
-        FeedReaderEvaluator fre = new FeedReaderEvaluator();
-        fre.createAllEvaluations(1);
-        System.exit(0);
+        // FeedReaderEvaluator fre = new FeedReaderEvaluator();
+        // fre.createAllEvaluations(1);
+        // System.exit(0);
 
         UpdateStrategy checkType = UpdateStrategy.UPDATE_FIXED;
         checkType = UpdateStrategy.UPDATE_ADAPTIVE;
-        checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
+        // checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
 
         // if -1 => fixed learned
         int checkInterval = -1;
 
-        FeedReaderEvaluator.benchmarkSample = 1;
+        FeedReaderEvaluator.benchmarkSample = 20;
 
         FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
         setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
-        // setBenchmarkMode(BENCHMARK_POLL);
-        setBenchmarkMode(BENCHMARK_TIME);
+        setBenchmarkMode(BENCHMARK_POLL);
+        // setBenchmarkMode(BENCHMARK_TIME);
         fc.startContinuousReading(-1);
     }
 
