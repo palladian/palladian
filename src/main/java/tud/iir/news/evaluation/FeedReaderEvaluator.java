@@ -338,8 +338,8 @@ public class FeedReaderEvaluator {
         FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
-        // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
-        setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
+        setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
+        // setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
         setBenchmarkMode(BENCHMARK_POLL);
         // setBenchmarkMode(BENCHMARK_TIME);
         fc.startContinuousReading(-1);

@@ -480,31 +480,41 @@ public final class FeedChecker {
         int minCheckInterval = feed.getMinCheckInterval();
         int maxCheckInterval = feed.getMaxCheckInterval();
 
-        // the factor by which the max checkInterval is multiplied, ranges between 2 and 0.5
-        double fMax = 1.0;
-
-        // all news are new, we should halve the checkInterval
-        if (pnTarget > 1) {
-            fMax = 0.5;
-        }
-        // some entries are not new so we increase the checkInterval
-        else {
-            // if (pnTarget == 0) {
-            // pnTarget = 1.0 / feed.getWindowSize();
-            // }
-            // if (pnTarget < 0.1) {
-            // pnTarget = 0.1;
-            // }
-            // fMax = 1 / pnTarget;
-            fMax = 2 - pnTarget;
-        }
-        maxCheckInterval *= fMax;
-
-        // the factor by which the min checkInterval is multiplied, ranges between 2 and 0.5
-        double fMin = 1.0;
-
         double newEntries = pnTarget * (feed.getWindowSize() - 1);
 
+        // ########################## linear wave #########################
+        // the factor by which the max checkInterval is multiplied, ranges between 2 and 0.5
+        // double fMax = 1.0;
+        // // all news are new, we should halve the checkInterval
+        // if (pnTarget > 1) {
+        // fMax = 0.5;
+        // }
+        // // some entries are not new so we increase the checkInterval
+        // else {
+        // // if (pnTarget == 0) {
+        // // pnTarget = 1.0 / feed.getWindowSize();
+        // // }
+        // // if (pnTarget < 0.1) {
+        // // pnTarget = 0.1;
+        // // }
+        // // fMax = 1 / pnTarget;
+        // fMax = 2 - pnTarget;
+        // }
+        // maxCheckInterval *= fMax;
+
+        // ######################### simple moving average for max policy ##############################
+        if (newEntries > 0) {
+            maxCheckInterval = entries.size() * (int) (fps.getAveragePostGap() / (DateHelper.MINUTE_MS));
+        } else {
+            double averagePostGap = fps.getAveragePostGap();
+            averagePostGap -= (fps.getIntervals().get(0) / feed.getWindowSize());
+            averagePostGap += (fps.getDelayToNewestPost() / feed.getWindowSize());
+            maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
+        }
+
+        // ######################### avg ##############################
+        // the factor by which the min checkInterval is multiplied, ranges between 2 and 0.5
+        // double fMin = 1.0;
         // all news are new, we should halve the checkInterval
         // if (newEntries >= 1) {
         // fMin = 1.0 / newEntries;
@@ -516,52 +526,45 @@ public final class FeedChecker {
         // minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
         // }
 
-        if (newEntries == 1) {
-            // fMin = 1.0 / newEntries;
-            minCheckInterval -= (int) ((fps.getDelayToNewestPost() - 10000) / DateHelper.MINUTE_MS);
-            // feed.timeWithoutItem = fps.getDelayToNewestPost();
-        } else if (newEntries > 1) {
-            fMin = 1.0 / newEntries;
-            minCheckInterval *= fMin;
-        }
-        // we have not found any new entry so we increase the min checkInterval
-        else {
-            // minCheckInterval += fps.getMedianPostGap() / (2 * DateHelper.MINUTE_MS);
-            minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
+        // ######################### simple moving average for min policy ##############################
+        if (newEntries > 0) {
+            minCheckInterval = (int) (fps.getAveragePostGap() / (DateHelper.MINUTE_MS));
+        } else {
+            double averagePostGap = fps.getAveragePostGap();
+            averagePostGap -= (fps.getIntervals().get(0) / feed.getWindowSize());
+            averagePostGap += (fps.getDelayToNewestPost() / feed.getWindowSize());
+            minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
         }
 
-        // all news are new, we should halve the checkInterval
-        // if (newEntries < 0) {
-        // fMin = 1.0 / newEntries;
-        // minCheckInterval *= fMin;
+        // ######################### exponential moving average ##############################
+        // Double[] weights = new Double[5];
+        // weights[0] = 0.086;
+        // weights[1] = 0.107;
+        // weights[2] = 0.143;
+        // weights[3] = 0.216;
+        // weights[4] = 0.447;
+        // long minCheckIntervalTemp = 0;
+        // if (newEntries > 0) {
+        // for (int i = 0; i < fps.getIntervals().size(); i++) {
+        // minCheckIntervalTemp += (weights[i] * fps.getIntervals().get(i));
         // }
-        // // we have not found any new entry so we increase the min checkInterval
-        // else if (newEntries >= 1 && fps.getLastInterval() > 0 && fps.getDelayToNewestPost() > 0) {
-        // int predictedTimeToNextPost = (int) ((fps.getLastInterval() - fps.getDelayToNewestPost() + 30000) /
-        // DateHelper.MINUTE_MS);
-        // minCheckInterval = Math.max(DEFAULT_CHECK_TIME, predictedTimeToNextPost);
-        // feed.timeWithoutItem = fps.getDelayToNewestPost();
         // } else {
-        // minCheckInterval *= 2;
-        // // minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
         //
-        // feed.timeWithoutItem += feed.getBenchmarkLookupTime() - feed.getBenchmarkLastLookupTime();
-        // long predictedTimeToNextItem = fps.getLongestPostGap() - feed.timeWithoutItem + 30000;
-        // if (predictedTimeToNextItem < minCheckInterval * DateHelper.MINUTE_MS) {
-        // minCheckInterval = (int) Math.max(DEFAULT_CHECK_TIME, predictedTimeToNextItem / DateHelper.MINUTE_MS);
-        // feed.timeWithoutItem = 0;
+        // List<Long> intervals = new ArrayList<Long>();
+        //
+        // // shift intervals
+        // for (int i = 1; i < fps.getIntervals().size(); i++) {
+        // intervals.add(fps.getIntervals().get(i));
         // }
+        // intervals.add(fps.getDelayToNewestPost());
+        //
+        // for (int i = 0; i < intervals.size(); i++) {
+        // minCheckIntervalTemp += (weights[i] * intervals.get(i));
         // }
-
-        // for chunked or on the fly updates the min and max intervals are the same
-        // if (feed.getUpdateClass() != FeedClassifier.CLASS_CHUNKED
-        // && feed.getUpdateClass() != FeedClassifier.CLASS_ON_THE_FLY) {
-        // minCheckInterval = maxCheckInterval / Math.max(1, entries.size() - 1);
-        // } else {
-        // minCheckInterval = maxCheckInterval;
+        //
         // }
-
-        // minCheckInterval = maxCheckInterval / Math.max(1, entries.size() - 1);
+        //
+        // minCheckInterval = (int) (minCheckIntervalTemp / DateHelper.MINUTE_MS);
 
         feed.setMinCheckInterval(minCheckInterval);
         feed.setMaxCheckInterval(maxCheckInterval);

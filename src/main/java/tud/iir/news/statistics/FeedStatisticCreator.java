@@ -65,7 +65,7 @@ public class FeedStatisticCreator {
         Double traffic = null;
 
         ResultSet rs = dbm
-                .runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) as traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1");
+        .runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) as traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1");
         while (rs.next()) {
             coverage = rs.getDouble("coverage");
             percentNew = rs.getDouble("percentNew");
@@ -101,7 +101,7 @@ public class FeedStatisticCreator {
             .append(" (averaged over all feeds and polls) =================\"\n");
 
             rs = dbm
-.runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) as traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
+            .runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) as traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
                     + activityPatternID);
 
             while (rs.next()) {
@@ -417,8 +417,8 @@ public class FeedStatisticCreator {
     public static void main(String[] args) throws IOException, SQLException {
         // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(), "data/temp/feedstats_combined.txt");
         // FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),"data/temp/feedUpdateIntervals.csv");
-        // FeedStatisticCreator.maxCoveragePolicyEvaluation();
-        FeedStatisticCreator.minDelayPolicyEvaluation();
+        FeedStatisticCreator.maxCoveragePolicyEvaluation();
+        // FeedStatisticCreator.minDelayPolicyEvaluation();
         // FeedStatisticCreator.timelinessChart();
 
     }
