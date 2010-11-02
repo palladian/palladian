@@ -1,6 +1,7 @@
 package tud.iir.news;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -42,6 +43,9 @@ public class FeedPostStatistics {
     /** The average time gap between subsequent posts. */
     private double averagePostInterval = -1;
 
+    /** Intervals. */
+    private List<Long> intervals = new ArrayList<Long>();
+
     /** The standard deviation from the average post gap. */
     private long postIntervalStandardDeviation = -1;
 
@@ -68,7 +72,6 @@ public class FeedPostStatistics {
 
         // keep a list of times to find out the median of the time differences between posts, average is not good since one very old post can bias the value
         List<Long> timeList = new ArrayList<Long>();
-        // TreeSet<Long> timeList = new TreeSet<Long>();
 
         if (feedEntries == null) {
             return;
@@ -92,6 +95,14 @@ public class FeedPostStatistics {
                 timeOldestEntry = pubTime;
             }
             timeList.add(pubTime);
+        }
+
+        // fill list with interval
+        intervals = new ArrayList<Long>();
+        Collections.sort(timeList);
+
+        for (int i = 0; i < timeList.size() - 1; i++) {
+            intervals.add(timeList.get(i + 1) - timeList.get(i));
         }
 
         // in case no pub date was found correctly, we set the newest entry time to now so we know next time which entries are newer
@@ -193,6 +204,14 @@ public class FeedPostStatistics {
 
     public void setAveragePostGap(double averagePostGap) {
         this.averagePostInterval = averagePostGap;
+    }
+
+    public List<Long> getIntervals() {
+        return intervals;
+    }
+
+    public void setIntervals(List<Long> intervals) {
+        this.intervals = intervals;
     }
 
     private void setPostGapStandardDeviation(final long postGapStandardDeviation) {

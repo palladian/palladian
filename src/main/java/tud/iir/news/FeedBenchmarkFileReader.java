@@ -161,7 +161,7 @@ public class FeedBenchmarkFileReader {
                     }
                     feed.setWindowSize(windowSize);
                     // FIXME
-                    feed.setWindowSize(Math.min(windowSize, 5));
+                    // feed.setWindowSize(Math.min(windowSize, 5));
                 }
 
                 long entryTimestamp = Long.valueOf(parts[0]);
