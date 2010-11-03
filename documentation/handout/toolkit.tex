@@ -16,7 +16,7 @@
 \pagestyle{myheadings}         % Option to put page headers
                                % Needed \documentclass[a4paper,twoside]{article}
 \markboth{{\small\it Overview of TUD Palladian}}
-{{\small\it David Urbansky, Klemens Muthmann} }
+{{\small\it David Urbansky, Klemens Muthmann, Philipp Katz} }
 
 %A4 settings
 \textwidth 15.5cm
@@ -44,7 +44,7 @@
 %\title{\fcolorbox{red}{blue}{\color{white}Including colour, pdf graphics and hyperlinks
 %\footnote{A demonstration example including colored text and graphics}}}
 \title{TUD Palladian Overview}
-\author{David Urbansky, Klemens Muthmann \\
+\author{David Urbansky, Klemens Muthmann, Philipp Katz \\
 {\small TU Dresden, Department of Systems Engineering, Chair Computer Networks, IIR Group, Germany}
 }
 %\author{David Urbansky \\
@@ -81,14 +81,14 @@ Figure \ref{fig:architecture} shows the main packages of Palladian. You can see 
 \begin{figure}[ht!]
 \centering
 \includegraphics[width=0.6\textwidth]{img/architecture.pdf}
-\caption{A simple KNN example.}
+\caption{Important Packages of Palladian.}
 \label{fig:architecture}
 \end{figure}
 
 \section{What is Palladian NOT?}
 Palladian is not a complete natural language processing suite nor does it contain a {\textit complete} set of algorithms in any of the fields of classificatilds of classification, extraction, and information retrieval on, extraction, or information retrieval. Palladian is not commercial either, we like to answer questions as soon and comprehensive as possible but cannot guarantee this support.
 
-\section{Who is the intended audience?}
+\section{Who is the Intended Audience?}
 All algorithms are developed during scientific endeavors and therefore are also most likely to help other researchers who don't need perfect, bug-free software in commercial systems. In general everybody is welcome to use Palladian though.
 
 \section{License}
@@ -110,6 +110,7 @@ limitations under the License.
 \end{verbatim}
 
 \section{Alternative and Complimentary Toolkits}
+\label{sec:alternativesToPalladian}
 Some functionalities of this toolkit are covered in other libraries. Before you start using Palladian you might want to take a look at these alternatives. The objective of Palladian is to create new functionalities or improve existing ones, we do not intend to reinvent the wheel. For example, Palladian has no functionality for part-of-speech tagging (PoS tagging) since there are many toolkits that do this task pretty accurate already. In case you do not find the functionality you are looking for in this toolkit, you probably will in one of the following toolkits.
 
 \begin{enumerate}
@@ -161,11 +162,11 @@ The toolkit is free for non-commercial use and licensed under the SRILM Research
 The library is licensed under the GNU General Public License.
 \end{enumerate}
 
-\chapter{Installation and making it work}
+\chapter{Installation and Making it Work}
 Palladian is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on a weekly basis using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.mantisbt.org/}{Mantis bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
 
 At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
-\section{Building the toolkit using Apache Maven}
+\section{Building Palladian using Apache Maven}
 \label{sec:buildingthetoolkitusingapachemaven}
 Apache \textbf{Maven needs to be installed} before building the toolkit. How to do this is explained here: \href{http://maven.apache.org/download.html#Installation}{Maven installation}. There is one necessary manual step before you can start building the toolkit. You need to add our Nexus repository to your local maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content:
 \begin{verbatim}
@@ -228,7 +229,7 @@ You need to set your username and your password in the server section. This can 
 \item Type \texttt{mvn clean install} to start the build process.
 \end{enumerate}
 There also is an \href{http://m2eclipse.sonatype.org/}{Eclipse plugin}, that allows you to issue maven build from within Eclipse. It is quite beta so be careful with it.
-\section{Regularly builds and tests using Hudson CI}
+\section{Regular Builds and Tests using Hudson CI}
 Currently Palladian is build automatically every week using Hudson CI. Be careful to check in only working code or Hudson will send you and your advisor an E-Mail about broken code. If this happens try to fix your code as fast as possible and check in again. You can get details about the problem by logging into \href{http://www.effingo.de/hudson}{Hudson}. You can get a login by sending an E-Mail stating your advisor and why you nood to work with the toolkit to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de}
 \subsection{The Continuous Integration Game}
 \label{sec:cigame}
@@ -248,7 +249,7 @@ The rules of the game are:
 \item Checkstyle Plugin. Adding/removing a checkstyle warning = -1/+1.
 \end{itemize}
 
-\section{Hello Toolkit - Your first application using Palladian}
+\section{Hello Toolkit - Your First Application using Palladian}
 \paragraph{Project creation:} Create a new Maven Project using the New Project wizard of Eclipse (See Fig.~\ref{fig:maven-project01},~\ref{fig:maven-project02} and \ref{fig:maven-project03}).
 \begin{figure}
 \centering
@@ -357,8 +358,8 @@ For the code to work you need three additional files that are already in the con
 \end{figure}
 With the structure from Fig.~\ref{fig:structure} you can run your project. Just open your projects context menu again, choose \textit{Run As $\rightarrow$ Maven Clean}, then open context menu again choose \textit{Run As $\rightarrow$ Maven Install} and finally choose \textit{Run As $\rightarrow$ Java Application}.
 
-\section{Reporting issues using Mantis}
-To report issues with the toolkit or to view issues assigned to you, you need to register with Mantis. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor and the reason why you are working on the toolkit (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link were you can set your password. If you successfully set a password for your account you can login on: \href{http://141.76.40.242/mantisbt}{Mantis}.
+\section{Reporting Issues using Redmine}
+To report issues with the toolkit or to view issues assigned to you, you need to register to Redmine. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor, and the reason why you are working on Palladian (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link were you can set your password. If you successfully set a password for your account you can login on: \href{http://redmine.effingo.de/}{Redmine}.
 %\subsection{Building the toolkit using Apache Ant}
 %You can also build the toolkit using Apache Ant\footnote{\url{http://ant.apache.org/}}. To do so, install Apache Ant, put the binary folder to your PATH and compile the project from the root folder that contains the build.xml file.
 %The following tasks can be performed by ant (type commands into your console):
@@ -1727,7 +1728,8 @@ String d = StringHelper.decodeBase64(e);
 %\caption{Miscellaneous functions.}
 \end{codelisting}
 
-\chapter{Where to go from here?}
+\chapter{Where to Go from Here?}
+Why go, just stay here :) No, seriously, if you can't find something that you need, there is a list of similar projects in Section \ref{sec:alternativesToPalladian} that you can scan through. If you still can't find it, research the topic, implement the code and commit it back to Palladian.
 
 \section{Referenced Libraries}
 Palladian makes excessive use of third party libraries. We do not intend to re-implement code but rather to built on it and create something superior. Here an incomplete list of libraries the toolkit uses:
@@ -1755,10 +1757,13 @@ The code is in development by students of the Dresden University of Technology. 
 \item Martin Gregor
 \item Philipp Katz
 \item Klemens Muthmann
+\item Silvio Rabe
 \item Sandro Reichert
 \item David Urbansky
 \item Robert Willner
 \item Martin Werner
+\item Martin Wunderwald
+\item Stephan Zepezauer
 \end{itemize}
 
 %\chapter{References}
