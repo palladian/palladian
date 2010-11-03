@@ -153,12 +153,12 @@ public class FileHelper {
         File contentFile = new File(path);
         return readFileToArray(contentFile);
     }
-    
+
     /**
      * <p>
      * 
      * </p>
-     *
+     * 
      */
     public static List<String> readFileToArray(URL fileURL) {
         File contentFile = null;
@@ -170,7 +170,7 @@ public class FileHelper {
         return readFileToArray(contentFile);
 
     }
-    
+
     /**
      * Create a list with each line of the given file as an element.
      * 
@@ -285,7 +285,7 @@ public class FileHelper {
 
         return lineNumber - 1;
     }
-    
+
     public static int performActionOnEveryLineText(String text, LineAction la) {
 
         int lineNumber = 1;
@@ -307,28 +307,42 @@ public class FileHelper {
             in.close();
             br.close();
 
-        } catch(IOException e) {
-        	LOGGER.error(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
         }
 
         return lineNumber - 1;
     }
 
-    public static void writeToFile(String filePath, StringBuilder string) {
-        writeToFile(filePath, string.toString());
+    /**
+     * Write to file.
+     * 
+     * @param filePath the file path
+     * @param string the string
+     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
+     *         {@link filePath}.
+     *         See error log for details (Exceptions)
+     */
+    public static boolean writeToFile(String filePath, StringBuilder string) {
+        return writeToFile(filePath, string.toString());
     }
 
     /**
      * Writes a Collection of Objects to a file. Each Object's {{@link #toString()} invocation represents a line.
      * 
-     * @param filePath
-     * @param lines
+     * @param filePath the file path
+     * @param lines the lines
      * @author Philipp Katz
+     * @author Sandro Reichert
+     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
+     *         {@link filePath}.
+     *         See error log for details (Exceptions)
      */
-    public static void writeToFile(String filePath, Collection<?> lines) {
+    public static boolean writeToFile(String filePath, Collection<?> lines) {
 
+        boolean noErrorOccurred = true;
         File file = new File(filePath);
-        if (!file.exists()) {
+        if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
         }
 
@@ -342,13 +356,25 @@ public class FileHelper {
             fileWriter.close();
         } catch (IOException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
+            noErrorOccurred = false;
         }
+        return noErrorOccurred;
     }
 
-    public static void writeToFile(String filePath, String string) {
+    /**
+     * Write to file.
+     * 
+     * @param filePath the file path
+     * @param string the string
+     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
+     *         {@link filePath}.
+     *         See error log for details (Exceptions)
+     */
+    public static boolean writeToFile(String filePath, String string) {
 
+        boolean noErrorOccurred = true;
         File file = new File(filePath);
-        if (!file.exists()) {
+        if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
         }
 
@@ -359,7 +385,9 @@ public class FileHelper {
             fileWriter.close();
         } catch (IOException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
+            noErrorOccurred = false;
         }
+        return noErrorOccurred;
     }
 
     /**
@@ -962,7 +990,7 @@ public class FileHelper {
      * <p>
      * 
      * </p>
-     *
+     * 
      * @param i
      */
     public static void removeLine(File file, int i) throws IOException {
