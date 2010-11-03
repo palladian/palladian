@@ -1,6 +1,5 @@
 package tud.iir.news.evaluation;
 
-import java.sql.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -20,32 +19,56 @@ public class ChartCreator {
     private final String percentageNewFilePath = "data/evaluation/percentNewData.csv";
     private final String sumVolumeMaxFilePath = "data/evaluation/sumVolumeMaxData.csv";
     private final String sumVolumeMinFilePath = "data/evaluation/sumVolumeMinData.csv";
+    private final String sumVolumeMinEtag304FilePath = "data/evaluation/sumVolumeMinEtag304Data.csv";
+    
+    private final int MAX_NUMBER_OF_POLLS_SCORE_MIN = 200;
+    private final int MAX_NUMBER_OF_POLLS_SCORE_MAX = 200;
+    
+    private final EvaluationDatabase ed ; 
     
     
-    private final int MAX_NUMBER_OF_POLLS_SCORE_MIN = 1000;
-    private final int MAX_NUMBER_OF_POLLS_SCORE_MAX = 1000;
     
-    private void createFeedSizeHistogrammFile(){
-        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+    public ChartCreator() {
+        this.ed = EvaluationDatabase.getInstance();
+    }
+
+
+    /**
+     * Generates a *.csv file containing to generate a feed size histogram and stores it at
+     * FEED_SIZE_HISTOGRAM_FILE_PATH.
+     * csv file has pattern (feed size in KB; number of feeds having this size;)
+     * 
+     * @param chartInterval The size of the interval in KB, e.g. 10: 10KB, 20KB
+     * @param chartNumberOfIntervals The number of intervals to display in detail, one additional interval 'more' is
+     *            added automatically.
+     *            e.g. 20 generates 20 intervals of size {@link #chartInterval} plus one containing all feeds that are
+     *            larger
+     */
+    private void createFeedSizeHistogrammFile(final int chartInterval, final int chartNumberOfIntervals) {
         List<EvaluationFeedPoll> polls = ed.getFeedSizes();
-        int[] feedSizeDistribution = new int[21];
+        int[] feedSizeDistribution = new int[chartNumberOfIntervals + 1];
+        int totalNumberOfFeeds = 0;
         
         for (EvaluationFeedPoll poll : polls) {
 //            int feedID = poll.getFeedID();
-//            float pollSize = poll.getSizeOfPoll();
-            int i =  new Double(Math.floor(poll.getSizeOfPoll()/10/1024)).intValue() ;
-            i = (i > 20)? 20 : i;
-            feedSizeDistribution[i]++;             
+            float pollSize = poll.getSizeOfPoll();
+            int i =  new Double(Math.floor(pollSize/1024/chartInterval)).intValue() ;
+            i = (i > chartNumberOfIntervals) ? chartNumberOfIntervals : i;
+            feedSizeDistribution[i]++;
+            totalNumberOfFeeds++;
         }        
         
         StringBuilder feedSizeDistributionSB = new StringBuilder();
-        feedSizeDistributionSB.append("Feed size in KB;all feeds;\n");
-        int size = 0;
-        String size2 = "";
+        feedSizeDistributionSB.append("Feed size in KB;number of feeds;percentage of the feeds;\n");
+        int currentIntervalSize = 0;
+        String intervalSizeToWrite = "";
+        final int chartMax = chartInterval * chartNumberOfIntervals;
+
         for (int number : feedSizeDistribution) {
-            size +=10;
-            size2 = (size > 200)? "more" : String.valueOf(size);
-            feedSizeDistributionSB.append(size2).append(";").append(number).append(";\n");                        
+            currentIntervalSize += chartInterval;
+            intervalSizeToWrite = (currentIntervalSize > chartMax) ? "more" : String.valueOf(currentIntervalSize);
+            feedSizeDistributionSB.append(intervalSizeToWrite).append(";").append(number).append(";")
+                    .append((float) number / (float) totalNumberOfFeeds * 100).append(";\n");
         }
         
         FileHelper.writeToFile(FEED_SIZE_HISTOGRAM_FILE_PATH, feedSizeDistributionSB);
@@ -53,8 +76,15 @@ public class ChartCreator {
     }
     
     
-    private void createFeedAgeFile(){
-        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+    
+    
+    
+    
+    
+    
+    
+    
+    private void createFeedAgeFile(){        
         List<EvaluationItemIntervalItem> polls = ed.getAverageUpdateIntervals();
         int[] feedAgeDistribution = new int[34];
         
@@ -90,8 +120,7 @@ public class ChartCreator {
     }
     
 
-    private void createTimeliness2File(){
-        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+    private void createTimeliness2File(){        
         StringBuilder timeliness2SB = new StringBuilder();        
         Map<Integer,Double[]> testMap = new TreeMap<Integer,Double[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
@@ -179,8 +208,7 @@ public class ChartCreator {
     
 
 
-    private void createPercentageNewFile(){
-        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+    private void createPercentageNewFile(){        
         StringBuilder timeliness2SB = new StringBuilder();        
         Map<Integer,Double[]> testMap = new TreeMap<Integer,Double[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
@@ -195,16 +223,16 @@ public class ChartCreator {
         }
         
         timeliness2SB.append("fix720;");
-        polls = ed.getAverageScoreMaxFIX720(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[1] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }
+//        polls = ed.getAverageScoreMaxFIX720(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
+//        for (EvaluationFeedPoll poll : polls) {
+//            int pollToProcess = poll.getNumberOfPoll();
+//            Double[] testDouble = new Double[6];
+//            if( testMap.containsKey(pollToProcess)){
+//                testDouble = testMap.get(pollToProcess);
+//            }
+//            testDouble[1] = poll.getScoreAVG();
+//            testMap.put(poll.getNumberOfPoll(), testDouble);
+//        }
         
         timeliness2SB.append("fix60;");
         polls = ed.getAverageScoreMaxFIX60(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
@@ -271,8 +299,7 @@ public class ChartCreator {
     
     
     private void culmulatedVolumeMaxTimeFile(){
-        LOGGER.info("starting to create sumVolumeMaxFile...");
-        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+        LOGGER.info("starting to create sumVolumeMaxFile...");        
         StringBuilder culmulatedVolumeSB = new StringBuilder();
         /* <hourOfExperiment, culmulatedVolumePerAlgorithm in Bytes>  */
         Map<Integer,Long[]> totalResultMapMax = new TreeMap<Integer,Long[]>();
@@ -618,8 +645,7 @@ public class ChartCreator {
     
     
     private void culmulatedVolumeMinTimeFile(){
-        LOGGER.info("starting to create sumVolumeMinFile...");
-        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+        LOGGER.info("starting to create sumVolumeMinFile...");        
         StringBuilder culmulatedVolumeSB = new StringBuilder();
         /* <hourOfExperiment, culmulatedVolumePerAlgorithm in Bytes>  */
         Map<Integer,Long[]> totalResultMapMin = new TreeMap<Integer,Long[]>();
@@ -963,14 +989,381 @@ public class ChartCreator {
     } 
     
     
+  
+    
+    
+    
+    
+    
+    
+
+    
+    private void culmulatedVolumeMinTimeEtag304File(){
+        LOGGER.info("starting to create sumVolumeMinFile...");        
+        StringBuilder culmulatedVolumeSB = new StringBuilder();
+        /* <hourOfExperiment, culmulatedVolumePerAlgorithm in Bytes>  */
+        Map<Integer,Long[]> totalResultMapMin = new TreeMap<Integer,Long[]>();
+        List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
+        int totalExperimentHours = 672;
+        long culmulatedVolumePerTechnique = 0;
+        int feedIDLastStep = -1;
+        int requiredNumberOfPolls = -1; 
+        float sizeOfPollLast = -1;
+        int hourLastStep = -1;
+        int numberOfPollsToProcess = -1;
+        int pollingInterval = -1;
+        
+        culmulatedVolumeSB.append("hour of experiment;");
+    
+
+        
+        ///////////// get data from fix1440Time \\\\\\\\\\\\\\\\\
+        LOGGER.info("starting to create fix1440 data...");
+        culmulatedVolumeSB.append("fix1440;");
+        culmulatedVolumePerTechnique = 0;
+        feedIDLastStep = -1;
+        pollingInterval = 24;
+        requiredNumberOfPolls = totalExperimentHours/pollingInterval;        
+        polls = ed.getSumTransferVolumeByHourFromFix1440MaxMinTime();       
+        for (EvaluationFeedPoll poll : polls) {
+            Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+            int feedIDCurrent = poll.getFeedID();
+            
+            // in der DB nicht vorhandene Polls generieren 
+            if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
+                while (numberOfPollsToProcess > 0){
+                    numberOfPollsToProcess--;
+                    int hourToProcess = hourLastStep + pollingInterval;
+                    long culmulatedVolumePerHour = 0;
+                    transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+                    
+                    if( totalResultMapMin.containsKey(hourToProcess)){
+                        transferredDataArray = totalResultMapMin.get(hourToProcess);
+                        if (transferredDataArray[0] != null) {
+                            culmulatedVolumePerHour = transferredDataArray[0];
+                        }                        
+                    }
+                    culmulatedVolumePerHour += sizeOfPollLast;
+                    transferredDataArray[0] = culmulatedVolumePerHour;                                        
+                    totalResultMapMin.put(hourToProcess, transferredDataArray);
+                    hourLastStep = hourToProcess;
+                }                
+                // Wert für den eigentlich zu bearbeitenden Poll zurücksetzen, da nun neue FeedID behandelt wird
+                numberOfPollsToProcess = requiredNumberOfPolls;
+            }
+                   
+            // aktuellen Poll behandeln
+            int hourToProcess = poll.getHourOfExperiment();
+            long culmulatedVolumePerHour = 0;
+            transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+            
+            if( totalResultMapMin.containsKey(hourToProcess)){
+                transferredDataArray = totalResultMapMin.get(hourToProcess);
+                if (transferredDataArray[0] != null) {
+                    culmulatedVolumePerHour = transferredDataArray[0];
+                }                        
+            }
+            float sizeOfPoll = 0f;
+            if(poll.getSupportsConditionalGet() == true) sizeOfPoll = poll.getConditionalGetResponseSize();
+            else if (poll.getSupportsETag() == true) sizeOfPoll = poll.geteTagResponseSize();
+            else sizeOfPoll = poll.getSizeOfPoll();
+            
+            culmulatedVolumePerHour += sizeOfPoll;
+            transferredDataArray[0] = culmulatedVolumePerHour;                                        
+            totalResultMapMin.put(hourToProcess, transferredDataArray);
+            
+            numberOfPollsToProcess--;
+            hourLastStep = hourToProcess;
+            feedIDLastStep = feedIDCurrent;
+            sizeOfPollLast = sizeOfPoll;
+        }
+        LOGGER.info("finished creating fix1440 data...");
+        
+        
+
+        ///////////// get data from fix720Time \\\\\\\\\\\\\\\\\
+        LOGGER.info("starting to create fix720 data...");
+        culmulatedVolumeSB.append("fix720;");
+        culmulatedVolumePerTechnique = 0;
+        feedIDLastStep = -1;
+        pollingInterval = 12;
+        requiredNumberOfPolls = totalExperimentHours/pollingInterval;
+        
+        polls = ed.getSumTransferVolumeByHourFromFix720MaxMinTime();
+       
+        for (EvaluationFeedPoll poll : polls) {
+            Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+            int feedIDCurrent = poll.getFeedID();
+            
+            // in der DB nicht vorhandene Polls generieren 
+            if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
+                while (numberOfPollsToProcess > 0){
+                    numberOfPollsToProcess--;
+                    int hourToProcess = hourLastStep + pollingInterval;
+                    long culmulatedVolumePerHour = 0;
+                    transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+                    
+                    if( totalResultMapMin.containsKey(hourToProcess)){
+                        transferredDataArray = totalResultMapMin.get(hourToProcess);
+                        if (transferredDataArray[1] != null) {
+                            culmulatedVolumePerHour = transferredDataArray[1];
+                        }                        
+                    }
+                    culmulatedVolumePerHour += sizeOfPollLast;
+                    transferredDataArray[1] = culmulatedVolumePerHour;                                        
+                    totalResultMapMin.put(hourToProcess, transferredDataArray);
+                    hourLastStep = hourToProcess;
+                }                
+                // Wert für den eigentlich zu bearbeitenden Poll zurücksetzen, da nun neue FeedID behandelt wird
+                numberOfPollsToProcess = requiredNumberOfPolls;
+            }
+                   
+            // aktuellen Poll behandeln
+            int hourToProcess = poll.getHourOfExperiment();
+            long culmulatedVolumePerHour = 0;
+            transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+            
+            if( totalResultMapMin.containsKey(hourToProcess)){
+                transferredDataArray = totalResultMapMin.get(hourToProcess);
+                if (transferredDataArray[1] != null) {
+                    culmulatedVolumePerHour = transferredDataArray[1];
+                }                        
+            }
+            float sizeOfPoll = poll.getSizeOfPoll();
+            culmulatedVolumePerHour += sizeOfPoll;
+            transferredDataArray[1] = culmulatedVolumePerHour;                                        
+            totalResultMapMin.put(hourToProcess, transferredDataArray);
+            
+            numberOfPollsToProcess--;
+            hourLastStep = hourToProcess;
+            feedIDLastStep = feedIDCurrent;
+            sizeOfPollLast = sizeOfPoll;
+        }
+        LOGGER.info("finished creating fix720 data...");
+        
+
+        ///////////// get data from fix60Time \\\\\\\\\\\\\\\\\
+        LOGGER.info("starting to create fix60 data...");
+        culmulatedVolumeSB.append("fix60;");
+        culmulatedVolumePerTechnique = 0;
+        feedIDLastStep = -1;
+        pollingInterval = 1;
+        requiredNumberOfPolls = totalExperimentHours/pollingInterval;
+        
+        int feedIDStart = 1;
+        int feedIDEnd = 10000;
+        final int FEED_ID_STEP = 10000;
+        final int FEED_ID_MAX = 210000;
+        
+        while(feedIDEnd < FEED_ID_MAX){
+            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
+            polls = ed.getSumTransferVolumeByHourFromFix60MaxMinTime(feedIDStart, feedIDEnd);
+            numberOfPollsToProcess = requiredNumberOfPolls;
+            
+            for (EvaluationFeedPoll poll : polls) {
+                Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+                int feedIDCurrent = poll.getFeedID();
+                
+                // in der DB nicht vorhandene Polls generieren 
+                if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
+                    while (numberOfPollsToProcess > 0){
+                        int hourToProcess = hourLastStep + pollingInterval;
+                        long culmulatedVolumePerHour = 0;
+                        transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+                        
+                        if( totalResultMapMin.containsKey(hourToProcess)){
+                            transferredDataArray = totalResultMapMin.get(hourToProcess);
+                            if (transferredDataArray[2] != null) {
+                                culmulatedVolumePerHour = transferredDataArray[2];
+                            }                        
+                        }
+                        culmulatedVolumePerHour += sizeOfPollLast;
+                        transferredDataArray[2] = culmulatedVolumePerHour;                                        
+                        totalResultMapMin.put(hourToProcess, transferredDataArray);
+                        hourLastStep = hourToProcess;
+                        numberOfPollsToProcess--;
+                    }                
+                    // Wert für den eigentlich zu bearbeitenden Poll zurücksetzen, da nun neue FeedID behandelt wird
+                    numberOfPollsToProcess = requiredNumberOfPolls;
+                }
+                       
+                // aktuellen Poll behandeln
+                int hourToProcess = poll.getHourOfExperiment();
+                long culmulatedVolumePerHour = 0;
+                transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+                
+                if( totalResultMapMin.containsKey(hourToProcess)){
+                    transferredDataArray = totalResultMapMin.get(hourToProcess);
+                    if (transferredDataArray[2] != null) {
+                        culmulatedVolumePerHour = transferredDataArray[2];
+                    }                        
+                }
+                float sizeOfPoll = 0f;
+                if(poll.getSupportsConditionalGet() == true) sizeOfPoll = poll.getConditionalGetResponseSize();
+                else if (poll.getSupportsETag() == true) sizeOfPoll = poll.geteTagResponseSize();
+                else sizeOfPoll = poll.getSizeOfPoll();
+                
+                culmulatedVolumePerHour += sizeOfPoll;
+                transferredDataArray[2] = culmulatedVolumePerHour;                                        
+                totalResultMapMin.put(hourToProcess, transferredDataArray);
+                
+                numberOfPollsToProcess--;
+                hourLastStep = hourToProcess;
+                feedIDLastStep = feedIDCurrent;
+                sizeOfPollLast = sizeOfPoll;
+            }
+            feedIDStart += FEED_ID_STEP;
+            feedIDEnd += FEED_ID_STEP;
+        }
+        LOGGER.info("finished creating fix60 data...");
+        
+        
+        
+        ///////////// get data from fixLearnedTime \\\\\\\\\\\\\\\\\
+        LOGGER.info("starting to create fixLearned data...");
+        culmulatedVolumeSB.append("fixLearned;");
+        culmulatedVolumePerTechnique = 0;
+        feedIDLastStep = -1;
+        numberOfPollsToProcess = -1;
+        feedIDStart = 1;
+        feedIDEnd = 10000;
+        
+        while(feedIDEnd < FEED_ID_MAX){
+            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);            
+            int minuteLastStep = 0;                        
+            
+            polls = ed.getSumTransferVolumeByHourFromFixLearnedMinTime(feedIDStart, feedIDEnd);
+            
+            for (EvaluationFeedPoll poll : polls) {
+                Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+                int feedIDCurrent = poll.getFeedID();
+                
+                // in der DB nicht vorhandene Polls generieren 
+                if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
+                    while (minuteLastStep < totalExperimentHours*60){
+                        
+                        int minuteToProcess = (int)(minuteLastStep + poll.getCheckInterval());
+                        int hourToProcess = minuteToProcess/60;
+                        long culmulatedVolumePerHour = 0;
+                        transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+                        
+                        if( totalResultMapMin.containsKey(hourToProcess)){
+                            transferredDataArray = totalResultMapMin.get(hourToProcess);
+                            if (transferredDataArray[3] != null) {
+                                culmulatedVolumePerHour = transferredDataArray[3];
+                            }                        
+                        }
+                        culmulatedVolumePerHour += sizeOfPollLast;
+                        transferredDataArray[3] = culmulatedVolumePerHour;                                        
+                        totalResultMapMin.put(hourToProcess, transferredDataArray);                        
+                        minuteLastStep = minuteToProcess;
+                        numberOfPollsToProcess--;
+                    }
+                }                      
+                
+                // aktuellen Poll behandeln                
+                int hourToProcess = poll.getHourOfExperiment();
+                long culmulatedVolumePerHour = 0;
+                transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+                
+                if( totalResultMapMin.containsKey(hourToProcess)){
+                    transferredDataArray = totalResultMapMin.get(hourToProcess);
+                    if (transferredDataArray[3] != null) {
+                        culmulatedVolumePerHour = transferredDataArray[3];
+                    }                        
+                }
+                float sizeOfPoll = 0f;
+                if(poll.getSupportsConditionalGet() == true) sizeOfPoll = poll.getConditionalGetResponseSize();
+                else if (poll.getSupportsETag() == true) sizeOfPoll = poll.geteTagResponseSize();
+                else sizeOfPoll = poll.getSizeOfPoll();
+                
+                culmulatedVolumePerHour += sizeOfPoll;
+                transferredDataArray[3] = culmulatedVolumePerHour;                                        
+                totalResultMapMin.put(hourToProcess, transferredDataArray);
+                
+                if(poll.getNumberOfPoll() > 2) {
+                    minuteLastStep += (int)poll.getCheckInterval();
+                }
+                feedIDLastStep = feedIDCurrent;
+                sizeOfPollLast = sizeOfPoll;
+            }
+            feedIDStart += FEED_ID_STEP;
+            feedIDEnd += FEED_ID_STEP;
+        }
+        LOGGER.info("finished creating fixLearned data...");
+        
+                
+        
+//        ///////////// get data from adaptiveMaxTime \\\\\\\\\\\\\\\\\
+//        LOGGER.info("starting to create adaptive data...");
+//        culmulatedVolumeSB.append("adaptive;");
+//        culmulatedVolumePerTechnique = 0;
+//        polls = ed.getSumTransferVolumeByHourFromAdaptiveMinTime();
+//        for (EvaluationFeedPoll poll : polls) {
+//            Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+//            int hourToProcess = poll.getHourOfExperiment();            
+//            if( totalResultMapMin.containsKey(hourToProcess)){
+//                transferredDataArray = totalResultMapMin.get(hourToProcess);
+//            }
+//            
+//            culmulatedVolumePerTechnique += poll.getCulmulatedSizeofPolls();
+//            transferredDataArray[4] = culmulatedVolumePerTechnique;
+//            totalResultMapMin.put(hourToProcess, transferredDataArray);
+//        }
+//        LOGGER.info("finished creating adaptive data...");
+//
+//        
+//        ///////////// get data from probabilisticMaxTime \\\\\\\\\\\\\\\\\
+//        LOGGER.info("starting to create probabilistic data...");
+//        culmulatedVolumeSB.append("probabilistic;\n");
+//        culmulatedVolumePerTechnique = 0;
+//        polls = ed.getSumTransferVolumeByHourFromProbabilisticMinTime();
+//        for (EvaluationFeedPoll poll : polls) {
+//            Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
+//            int hourToProcess = poll.getHourOfExperiment();            
+//            if( totalResultMapMin.containsKey(hourToProcess)){
+//                transferredDataArray = totalResultMapMin.get(hourToProcess);
+//            }
+//            
+//            culmulatedVolumePerTechnique += poll.getCulmulatedSizeofPolls();
+//            transferredDataArray[5] = culmulatedVolumePerTechnique;
+//            totalResultMapMin.put(hourToProcess, transferredDataArray);
+//        }
+//        LOGGER.info("finished creating probabilistic data...");
+
+                
+        int i = 1;
+        final long BYTE_TO_MB = 1048576;
+        Long[] volumesCumulated = new Long[]{0l,0l,0l,0l,0l,0l};
+        for(Long[] volumes : totalResultMapMin.values()){
+            volumesCumulated[0] += volumes[0];
+            volumesCumulated[1] += volumes[1];
+            volumesCumulated[2] += volumes[2];
+            volumesCumulated[3] += volumes[3];
+            culmulatedVolumeSB.append(i).append(";")
+                .append(volumesCumulated[0]/BYTE_TO_MB).append(";")
+                .append(volumesCumulated[1]/BYTE_TO_MB).append(";")
+                .append(volumesCumulated[2]/BYTE_TO_MB).append(";")
+                .append(volumesCumulated[3]/BYTE_TO_MB).append(";")
+                .append(volumes[4]/BYTE_TO_MB).append(";")
+                .append(volumes[5]/BYTE_TO_MB).append(";\n");            
+            i++;   
+        }
+        
+        FileHelper.writeToFile(sumVolumeMinEtag304FilePath, culmulatedVolumeSB);
+        LOGGER.info("sumVolumeMineTag304File *hopefully* :) written to: " + sumVolumeMinFilePath);
+    } 
+    
+    
+
+    
     
     
     
     /**
      * simply testing the connection and EvaluationFeedPoll class.
      * */
-    private void firstTest(){
-        EvaluationDatabase ed = EvaluationDatabase.getInstance();
+    private void firstTest(){        
         List<EvaluationFeedPoll> polls = ed.getFeedPolls();
         for (EvaluationFeedPoll poll : polls) {
             System.out.println(poll);
@@ -985,12 +1378,13 @@ public class ChartCreator {
 	    
 	    ChartCreator cc = new ChartCreator();
 
-//	    cc.createFeedSizeHistogrammFile();
+        cc.createFeedSizeHistogrammFile(10, 20);
 //	    cc.createFeedAgeFile();
 //	    cc.createTimeliness2File();
 //	    cc.createPercentageNewFile();
-	    cc.culmulatedVolumeMaxTimeFile();
+//	    cc.culmulatedVolumeMaxTimeFile();
 //      cc.culmulatedVolumeMinTimeFile();
+//	    cc.culmulatedVolumeMinTimeEtag304File();
 	    	    
 
 	}

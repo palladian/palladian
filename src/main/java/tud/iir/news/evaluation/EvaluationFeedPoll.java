@@ -133,7 +133,7 @@ public class EvaluationFeedPoll {
         this.supportsConditionalGet = supportsConditionalGet;
     }
 
-    public final void seteTagResponseSize(int eTagResponseSize) {
+    public final void setETagResponseSize(int eTagResponseSize) {
         this.eTagResponseSize = eTagResponseSize;
     }
 
@@ -230,7 +230,9 @@ public class EvaluationFeedPoll {
 	}
 
 	public final float getCheckInterval() {
-		return checkInterval;
+        if (checkInterval <= 0)
+            throw new IllegalStateException("");
+        return checkInterval;
 	}
 
 	public final int getWindowSize() {
