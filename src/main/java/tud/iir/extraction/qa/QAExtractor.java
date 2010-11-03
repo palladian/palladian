@@ -564,7 +564,7 @@ public class QAExtractor extends Extractor {
         // af.setSimilarity7(js.getSimilarity(question,answer));
         // af.setSimilarity8(jw.getSimilarity(question,answer));
 
-        String answerStart = StringHelper.removeSpecialChars(answer.substring(0, Math.min(100, answer.length())));
+        String answerStart = StringHelper.removeProtectedSpace(answer.substring(0, Math.min(100, answer.length())));
         af.setSimilarity1(oc.getSimilarity(question, answerStart));
         af.setSimilarity2(qg.getSimilarity(question, answerStart));
         af.setSimilarity3(cs.getSimilarity(question, answerStart));

@@ -240,20 +240,24 @@ public class StringHelper {
     }
 
     /**
-     * Removes the special chars.
-     * 
-     * TODO this does ... nothing?
-     * Marked this as deprecated -- Philipp.
+     * Replace "non-breaking" aka. protected whitespace (unicode 0x00A0) with normal whitespace.
      * 
      * @param string the string
      * @return the string
      */
-    @Deprecated
-    public static String removeSpecialChars(String string) {
-        String modString = string.replaceAll(" ", " ");
+    public static String removeProtectedSpace(String string) {
+        // String modString = string.replaceAll(" ", " ");
+        // let's use this notation, which does the same, to make clear what's going on ...:
+        String modString = string.replaceAll("\u00A0", " ");
         return modString;
     }
 
+    /**
+     * Strips all non-ASCII characters from the supplied string. Useful to remove asian characters, for example.
+     * 
+     * @param string
+     * @return
+     */
     public static String removeNonAsciiCharacters(String string) {
         // http://forums.sun.com/thread.jspa?threadID=5370865
         return string.replaceAll("[^\\p{ASCII}]", "");

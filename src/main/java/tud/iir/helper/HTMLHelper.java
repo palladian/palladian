@@ -69,7 +69,7 @@ public class HTMLHelper {
     /** "Junk" elements which do not contain relevant content. */
     private static final List<String> IGNORE_INSIDE = Arrays.asList("script", "style");
 
-    private static Pattern normalizeLines = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
+    private static final Pattern NORMALIZE_LINES = Pattern.compile("^\\s+$|^[ \t]+|[ \t]+$", Pattern.MULTILINE);
 
     /** prevent instantiation. */
     private HTMLHelper() {
@@ -343,7 +343,7 @@ public class HTMLHelper {
         }
         String result = builder.toString();
         // result = result.replaceAll("[ \t]*?\n", "\n");
-        result = normalizeLines.matcher(result).replaceAll("");
+        result = NORMALIZE_LINES.matcher(result).replaceAll("");
         result = result.replaceAll("\n{3,}", "\n\n");
         result = result.replaceAll(" {2,}", " ");
 
