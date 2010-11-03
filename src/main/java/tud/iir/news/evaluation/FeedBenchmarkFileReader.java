@@ -1,4 +1,4 @@
-package tud.iir.news;
+package tud.iir.news.evaluation;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -10,16 +10,12 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
-import tud.iir.news.evaluation.FeedReaderEvaluator;
+import tud.iir.news.Feed;
+import tud.iir.news.FeedChecker;
+import tud.iir.news.FeedEntry;
 import tud.iir.news.statistics.PollData;
 
 public class FeedBenchmarkFileReader {
-
-    /** The timestamp we started the dataset gathering. 28/10/2010 */
-    public static final long BENCHMARK_START_TIME = 1285689600000l;
-
-    /** The timestamp we stopped the dataset gathering. 26/10/2010 */
-    public static final long BENCHMARK_STOP_TIME = 1288108800000l;
 
     protected static final Logger LOGGER = Logger.getLogger(FeedBenchmarkFileReader.class);
 
@@ -156,7 +152,7 @@ public class FeedBenchmarkFileReader {
                     if (windowSize > 1000) {
                         LOGGER.info("feed has a window size of " + windowSize + " and will be discarded");
                         feed.setHistoryFileCompletelyRead(true);
-                        feed.setBenchmarkLastLookupTime(BENCHMARK_STOP_TIME);
+                        feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME);
                         return;
                     }
                     feed.setWindowSize(windowSize);
@@ -203,12 +199,12 @@ public class FeedBenchmarkFileReader {
                     }
 
                     if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
-                            && entryTimestamp > BENCHMARK_START_TIME && totalEntries - i + 1 == feed.getWindowSize()) {
+                            && entryTimestamp > FeedReaderEvaluator.BENCHMARK_START_TIME && totalEntries - i + 1 == feed.getWindowSize()) {
                         LOGGER.error("we disregard this feed (" + feed.getId()
                                 + ") since it does not comply with our start date "
                                 + entryTimestamp);
                         feed.setHistoryFileCompletelyRead(true);
-                        feed.setBenchmarkLastLookupTime(BENCHMARK_STOP_TIME);
+                        feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME);
                         return;
                     }
 
@@ -336,7 +332,7 @@ public class FeedBenchmarkFileReader {
             e.printStackTrace();
             LOGGER.error(e.getMessage());
             feed.setHistoryFileCompletelyRead(true);
-            feed.setBenchmarkLastLookupTime(BENCHMARK_STOP_TIME);
+            feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME);
         }
 
         // feed.increaseChecks();

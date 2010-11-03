@@ -23,6 +23,7 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
+import tud.iir.news.evaluation.FeedBenchmarkFileReader;
 import tud.iir.news.evaluation.FeedReaderEvaluator;
 import tud.iir.web.Crawler;
 
@@ -176,7 +177,7 @@ public final class FeedChecker {
                 // in time mode, we have a certain interval we want to observe the feeds in, otherwise we just take the
                 // first real poll that is available
                 if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME) {
-                    feed.setBenchmarkLookupTime(FeedBenchmarkFileReader.BENCHMARK_START_TIME);
+                    feed.setBenchmarkLookupTime(FeedReaderEvaluator.BENCHMARK_START_TIME);
                 }
 
                 int loopCount = 0;
@@ -193,7 +194,7 @@ public final class FeedChecker {
                     }
 
                     keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
-                    && feed.getBenchmarkLastLookupTime() < FeedBenchmarkFileReader.BENCHMARK_STOP_TIME;
+                    && feed.getBenchmarkLastLookupTime() < FeedReaderEvaluator.BENCHMARK_STOP_TIME;
                     if (!keepLooping) {
                         keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL
                         && !feed.historyFileCompletelyRead();
@@ -303,8 +304,9 @@ public final class FeedChecker {
 
         } else if (UpdateStrategy.UPDATE_FIXED.equals(checkApproach)
                 && checkInterval == -1
-                || (UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach) || UpdateStrategy.UPDATE_PROBABILISTIC
-                        .equals(checkApproach)) && feed.getChecks() == 0) {
+                // || (UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach) || UpdateStrategy.UPDATE_PROBABILISTIC
+                // .equals(checkApproach)) && feed.getChecks() == 0
+        ) {
 
             updateIntervalFixed(feed, fps);
 
@@ -313,8 +315,12 @@ public final class FeedChecker {
         // for on-the-fly updates switch from probabilistic to adaptive
         else if ((UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach) || UpdateStrategy.UPDATE_PROBABILISTIC
                 .equals(checkApproach)
-                && (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY || !feed.oneFullDayHasBeenSeen()))
-                && feed.getChecks() > 0) {
+                && (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY /*
+                 * || !feed.
+                 * oneFullDayHasBeenSeen
+                 * ()
+                 */))
+                 && feed.getChecks() > 0) {
 
             updateIntervalAdaptive(feed, pnTarget, fps);
 
@@ -326,8 +332,6 @@ public final class FeedChecker {
             updateIntervalProbabilistic(feed, fps);
 
         }
-
-        // updateEvaluationMaps(feed, pnTarget, fps);
 
         feed.setLastFeedEntry(new Date(fps.getTimeNewestPost()));
         feed.increaseChecks();
@@ -587,6 +591,132 @@ public final class FeedChecker {
 
         List<FeedEntry> entries = feed.getEntries();
 
+        // learn the post distribution from the last seen entry to the newest one
+        // distribution minute of the day : frequency of news in that minute
+        Map<Integer, int[]> postDistribution = null;
+
+        if (feed.getChecks() == 0) {
+            postDistribution = new HashMap<Integer, int[]>();
+
+            // since the feed has no post distribution yet, we fill all minutes with 0 posts
+            for (int minute = 0; minute < 1440; minute++) {
+                int[] postsChances = { 0, 0 };
+                postDistribution.put(minute, postsChances);
+            }
+
+        } else {
+            postDistribution = feed.getMeticulousPostDistribution();
+
+            // in benchmark mode we keep it in memory
+            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+                postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
+            }
+
+        }
+
+        // update the minutes where an entry could have been posted
+        int minuteCounter = 0;
+        long timeLastSeenEntry = Long.MIN_VALUE;
+        if (feed.getLastFeedEntry() != null) {
+            timeLastSeenEntry = feed.getLastFeedEntry().getTime();
+        }
+        int startMinute = (int) DateHelper.getTimeOfDay(fps.getTimeOldestPost(), Calendar.MINUTE);
+        for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS, minuteCounter++) {
+            // we have counted the chances for entries before the last seen
+            // entry already, so we skip them here
+            if (t <= timeLastSeenEntry) {
+                continue;
+            }
+            int minuteOfDay = (startMinute + minuteCounter) % 1440;
+            int[] postsChances = postDistribution.get(minuteOfDay);
+            postsChances[1] = postsChances[1] + 1;
+            postDistribution.put(minuteOfDay, postsChances);
+        }
+
+        // update the minutes where an entry was actually posted
+        for (FeedEntry entry : entries) {
+            // we have counted the posts for entries before the last seen
+            // entry already, so we skip them here
+            if (entry.getPublished() == null || entry.getPublished().getTime() <= timeLastSeenEntry) {
+                continue;
+            }
+            int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
+            int[] postsChances = postDistribution.get(minuteOfDay);
+            postsChances[0] = postsChances[0] + 1;
+            postDistribution.put(minuteOfDay, postsChances);
+        }
+
+        int t1 = 0, t2 = 0;
+        for (Map.Entry<Integer, int[]> a : postDistribution.entrySet()) {
+            // System.out.println(a.getKey()+":"+a.getValue()[0]+","+a.getValue()[1]);
+            t1 += a.getValue()[0];
+            t2 += a.getValue()[1];
+        }
+        // System.out.println(t1 + "," + t2);
+
+        feed.setMeticulousPostDistribution(postDistribution);
+
+        // in benchmark mode we keep it in memory, in real usage, we store the distribution in the database
+        if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+            FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
+        }
+
+        // only use calculated update intervals if one full day of distribution is available already
+        if (true || feed.oneFullDayHasBeenSeen()) {
+
+            startMinute = 0;
+
+            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+                startMinute = ((int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE));
+            } else {
+                startMinute = ((int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE));
+            }
+
+            // // estimate time to next entry and time until list is full with
+            // only new but one entries
+
+            // set to one month maximum
+            int minCheckInterval = 31 * 1440;
+            boolean minCheckIntervalFound = false;
+
+            // set to six month maximum
+            int maxCheckInterval = 6 * 31 * 1440;
+
+            // add up all probabilities for the coming minutes until the
+            // estimated post number is 1
+            int currentMinute = startMinute;
+            double estimatedPosts = 0;
+            for (int c = 0; c < maxCheckInterval; c++) {
+
+                int[] postsChances = postDistribution.get(currentMinute);
+                double postProbability = 0;
+                if (postsChances[1] > 0) {
+                    postProbability = (double) postsChances[0] / (double) postsChances[1];
+                }
+                estimatedPosts += postProbability;
+
+                if (estimatedPosts >= 1 && !minCheckIntervalFound) {
+                    minCheckInterval = c;
+                    minCheckIntervalFound = true;
+                }
+
+                if (estimatedPosts >= entries.size()) {
+                    maxCheckInterval = c;
+                    break;
+                }
+
+                currentMinute = (currentMinute + 1) % 1440;
+            }
+
+            feed.setMinCheckInterval(minCheckInterval);
+            feed.setMaxCheckInterval(maxCheckInterval);
+        }
+    }
+
+    private void updateIntervalProbabilistic_(Feed feed, FeedPostStatistics fps) {
+
+        List<FeedEntry> entries = feed.getEntries();
+
         if (feed.getChecks() == 0) {
 
             // learn the post distribution from the past to get initial check intervals
@@ -678,7 +808,13 @@ public final class FeedChecker {
             // only use calculated update intervals if one full day of distribution is available already
             if (feed.oneFullDayHasBeenSeen()) {
 
-                int startMinute = (int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE);
+                int startMinute = 0;
+
+                if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+                    startMinute = ((int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE));
+                } else {
+                    startMinute = ((int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE));
+                }
 
                 // // estimate time to next entry and time until list is full with
                 // only new but one entries
@@ -718,6 +854,10 @@ public final class FeedChecker {
 
                 feed.setMinCheckInterval(minCheckInterval);
                 feed.setMaxCheckInterval(maxCheckInterval);
+
+                // for (Map.Entry<Integer, int[]> a : postDistribution.entrySet()) {
+                // System.out.println(a.getKey()+":"+a.getValue()[0]+","+a.getValue()[1]);
+                // }
 
                 // remember at which iteration the probabilistic approach took over
                 // if (benchmark != BENCHMARK_OFF) {

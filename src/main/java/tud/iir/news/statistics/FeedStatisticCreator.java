@@ -19,11 +19,11 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.news.Feed;
-import tud.iir.news.FeedBenchmarkFileReader;
 import tud.iir.news.FeedChecker;
 import tud.iir.news.FeedClassifier;
 import tud.iir.news.FeedPostStatistics;
 import tud.iir.news.FeedStore;
+import tud.iir.news.evaluation.FeedBenchmarkFileReader;
 import tud.iir.news.evaluation.FeedReaderEvaluator;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
@@ -65,7 +65,8 @@ public class FeedStatisticCreator {
         Double traffic = null;
 
         ResultSet rs = dbm
-        .runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) as traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1");
+        .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(percentNew) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedPercent) AS missedPercent, AVG(traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
+                + (FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000l) + " GROUP BY feedID) AS feedGroup;");
         while (rs.next()) {
             coverage = rs.getDouble("coverage");
             percentNew = rs.getDouble("percentNew");
@@ -75,11 +76,11 @@ public class FeedStatisticCreator {
         }
 
         // build csv
-        csv.append("\"================= Average Performance (averaged over all feeds, activity patterns, and polls) =================\"\n");
+        csv.append("\"================= Average Performance (averaged over all polls per feed regardless of activity pattern and then over all feeds) =================\"\n");
         csv.append("Coverage:;" + coverage).append("\n");
         csv.append("Percent New:;" + 100 * percentNew).append("\n");
         csv.append("Missed:;" + missed).append("\n");
-        csv.append("Missed Items / Window Size:;" + 100 * missedPercent).append("\n");
+        csv.append("Percent Missed Items / Window Size:;" + 100 * missedPercent).append("\n");
         csv.append("Traffic Per Item:;" + traffic).append("\n\n");
 
         // create statistics by activity pattern
@@ -98,11 +99,13 @@ public class FeedStatisticCreator {
             traffic = null;
 
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
-            .append(" (averaged over all feeds and polls) =================\"\n");
+            .append(" (averaged over all polls per feed and then over all feeds) =================\"\n");
 
             rs = dbm
-            .runQuery("SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) as traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
-                    + activityPatternID);
+            .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(percentNew) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedPercent) AS missedPercent, AVG(traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
+                    + (FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000l)
+                    + " AND activityPattern = "
+                    + activityPatternID + " GROUP BY feedID) AS feedGroup;");
 
             while (rs.next()) {
                 coverage = rs.getDouble("coverage");
@@ -114,7 +117,7 @@ public class FeedStatisticCreator {
             csv.append("Coverage:;" + coverage).append("\n");
             csv.append("Percent New:;" + 100 * percentNew).append("\n");
             csv.append("Missed:;" + missed).append("\n");
-            csv.append("Missed Items / Window Size:;" + 100 * missedPercent).append("\n");
+            csv.append("Percent Missed Items / Window Size:;" + 100 * missedPercent).append("\n");
             csv.append("Traffic Per Item:;" + traffic).append("\n\n");
         }
 
@@ -149,45 +152,42 @@ public class FeedStatisticCreator {
         Double pollsPerNewItem = null;
         Double newItemsPerDiscovery = null;
         Double trafficPerNewItem = null;
-        Double trafficPerNewItemCG = null;
+        // Double trafficPerNewItemCG = null;
 
         ResultSet rs = dbm
-        .runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/newWindowItems) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0");
+                .runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(delay) AS delay FROM (SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/newWindowItems) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 GROUP BY feedID) AS feedGroup");
         if (rs.next()) {
             timeliness = rs.getDouble("timeliness");
             timelinessLate = rs.getDouble("timelinessLate");
             delay = rs.getDouble("delay");
         }
 
-        rs = dbm.runQuery("SELECT COUNT(*) AS totalPolls, SUM(sizeOfPoll) AS totalTraffic FROM feed_evaluation_polls WHERE numberOfPoll > 1");
+        rs = dbm.runQuery("SELECT AVG(feedGroup.pollsPerNewItem) AS pollsPerNewItem, AVG(trafficPerNewItem) AS trafficPerNewItem FROM (SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM feed_evaluation_polls WHERE numberOfPoll > 1 GROUP BY feedID) AS feedGroup;");
         rs.next();
-        Integer totalPolls = rs.getInt("totalPolls");
-        Double totalTraffic = rs.getDouble("totalTraffic");
+        pollsPerNewItem = rs.getDouble("pollsPerNewItem");
+        trafficPerNewItem = rs.getDouble("trafficPerNewItem");
 
-        rs = dbm.runQuery("SELECT SUM(conditionalGetResponseSize) AS totalTrafficCG FROM feed_evaluation_polls WHERE newWindowItems = 0 AND numberOfPoll > 1 AND conditionalGetResponseSize > -1");
-        rs.next();
-        Double totalTrafficCG = rs.getDouble("totalTrafficCG");
-        rs = dbm.runQuery("SELECT SUM(sizeOfPoll) AS sizeOfPoll FROM feed_evaluation_polls WHERE newWindowItems = 0 AND numberOfPoll > 1 AND conditionalGetResponseSize < 0");
-        rs.next();
-        totalTrafficCG += rs.getDouble("sizeOfPoll");
+        // rs =
+        // dbm.runQuery("SELECT SUM(conditionalGetResponseSize) AS totalTrafficCG FROM feed_evaluation_polls WHERE newWindowItems = 0 AND numberOfPoll > 1 AND conditionalGetResponseSize > -1");
+        // rs.next();
+        // Double totalTrafficCG = rs.getDouble("totalTrafficCG");
+        // rs =
+        // dbm.runQuery("SELECT SUM(sizeOfPoll) AS sizeOfPoll FROM feed_evaluation_polls WHERE newWindowItems = 0 AND numberOfPoll > 1 AND conditionalGetResponseSize < 0");
+        // rs.next();
+        // totalTrafficCG += rs.getDouble("sizeOfPoll");
 
-        rs = dbm.runQuery("SELECT SUM(newWindowItems) AS totalNewItems, SUM(newWindowItems)/COUNT(*) AS newItemsPerDiscovery FROM feed_evaluation_polls WHERE newWindowItems > 0");
+        rs = dbm.runQuery("SELECT AVG(feedGroup.newItemsPerDiscovery) AS newItemsPerDiscovery FROM (SELECT SUM(newWindowItems) AS totalNewItems, SUM(newWindowItems)/COUNT(*) AS newItemsPerDiscovery FROM feed_evaluation_polls WHERE newWindowItems > 0 GROUP BY feedID) AS feedGroup;");
         rs.next();
-        Double totalNewItems = rs.getDouble("totalNewItems");
         newItemsPerDiscovery = rs.getDouble("newItemsPerDiscovery");
 
-        pollsPerNewItem = totalPolls / totalNewItems;
-        trafficPerNewItem = totalTraffic / totalNewItems;
-        trafficPerNewItemCG = totalTrafficCG / totalNewItems;
-
-        csv.append("\"================= Average Performance (averaged over all feeds, activity patterns, and item discoveries) =================\"\n");
+        csv.append("\"================= Average Performance (averaged over all item discoveries per feed regardless of activity pattern and then over all feeds) =================\"\n");
         csv.append("Timeliness:;" + timeliness).append("\n");
         csv.append("Timeliness Late:;" + timelinessLate).append("\n");
         csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * delay.longValue())).append("\n");
         csv.append("Polls Per New Item:;" + pollsPerNewItem).append("\n");
         csv.append("New Items Per Discovery:;" + newItemsPerDiscovery).append("\n");
-        csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n");
-        csv.append("Traffic Per New Item (conditional get):;" + trafficPerNewItemCG).append("\n\n");
+        csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n\n");
+        // csv.append("Traffic Per New Item (conditional get):;" + trafficPerNewItemCG).append("\n\n");
 
         // create statistics by activity pattern
         Integer[] activityPatternIDs = FeedClassifier.getActivityPatternIDs();
@@ -204,51 +204,46 @@ public class FeedStatisticCreator {
             pollsPerNewItem = null;
             newItemsPerDiscovery = null;
             trafficPerNewItem = null;
-            trafficPerNewItemCG = null;
+            // trafficPerNewItemCG = null;
 
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
-            .append(" (averaged over all feeds and polls) =================\"\n");
+                    .append(" (averaged over all item discoveries per feed and then over all feeds that belong to the activity pattern) =================\"\n");
 
-            rs = dbm.runQuery("SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/newWindowItems) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 AND activityPattern = "
-                    + activityPatternID);
+            rs = dbm.runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(delay) AS delay FROM (SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/newWindowItems) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 AND activityPattern = "
+                    + activityPatternID + " GROUP BY feedID) AS feedGroup");
             if (rs.next()) {
                 timeliness = rs.getDouble("timeliness");
                 timelinessLate = rs.getDouble("timelinessLate");
                 delay = rs.getDouble("delay");
             }
 
-            rs = dbm.runQuery("SELECT COUNT(*) AS totalPolls, SUM(sizeOfPoll) AS totalTraffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
-                    + activityPatternID);
+            rs = dbm.runQuery("SELECT AVG(feedGroup.pollsPerNewItem) AS pollsPerNewItem, AVG(trafficPerNewItem) AS trafficPerNewItem FROM (SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
+                    + activityPatternID + " GROUP BY feedID) AS feedGroup;");
             rs.next();
-            totalPolls = rs.getInt("totalPolls");
-            totalTraffic = rs.getDouble("totalTraffic");
+            pollsPerNewItem = rs.getDouble("pollsPerNewItem");
+            trafficPerNewItem = rs.getDouble("trafficPerNewItem");
 
-            rs = dbm.runQuery("SELECT SUM(conditionalGetResponseSize) AS totalTrafficCG FROM feed_evaluation_polls WHERE newWindowItems = 0 AND numberOfPoll > 1 AND conditionalGetResponseSize > -1 AND activityPattern = "
-                    + activityPatternID);
-            rs.next();
-            totalTrafficCG = rs.getDouble("totalTrafficCG");
-            rs = dbm.runQuery("SELECT SUM(sizeOfPoll) AS sizeOfPoll FROM feed_evaluation_polls WHERE newWindowItems = 0 AND numberOfPoll > 1 AND conditionalGetResponseSize < 0 AND activityPattern = "
-                    + activityPatternID);
-            rs.next();
-            totalTrafficCG += rs.getDouble("sizeOfPoll");
+            // rs =
+            // dbm.runQuery("SELECT SUM(conditionalGetResponseSize) AS totalTrafficCG FROM feed_evaluation_polls WHERE newWindowItems = 0 AND numberOfPoll > 1 AND conditionalGetResponseSize > -1");
+            // rs.next();
+            // Double totalTrafficCG = rs.getDouble("totalTrafficCG");
+            // rs =
+            // dbm.runQuery("SELECT SUM(sizeOfPoll) AS sizeOfPoll FROM feed_evaluation_polls WHERE newWindowItems = 0 AND numberOfPoll > 1 AND conditionalGetResponseSize < 0");
+            // rs.next();
+            // totalTrafficCG += rs.getDouble("sizeOfPoll");
 
-            rs = dbm.runQuery("SELECT SUM(newWindowItems) AS totalNewItems, SUM(newWindowItems)/COUNT(*) AS newItemsPerDiscovery FROM feed_evaluation_polls WHERE newWindowItems > 0 AND activityPattern = "
-                    + activityPatternID);
+            rs = dbm.runQuery("SELECT AVG(feedGroup.newItemsPerDiscovery) AS newItemsPerDiscovery FROM (SELECT SUM(newWindowItems) AS totalNewItems, SUM(newWindowItems)/COUNT(*) AS newItemsPerDiscovery FROM feed_evaluation_polls WHERE newWindowItems > 0 AND activityPattern = "
+                    + activityPatternID + " GROUP BY feedID) AS feedGroup;");
             rs.next();
-            totalNewItems = rs.getDouble("totalNewItems");
             newItemsPerDiscovery = rs.getDouble("newItemsPerDiscovery");
-
-            pollsPerNewItem = totalPolls / totalNewItems;
-            trafficPerNewItem = totalTraffic / totalNewItems;
-            trafficPerNewItemCG = totalTrafficCG / totalNewItems;
 
             csv.append("Timeliness:;" + timeliness).append("\n");
             csv.append("Timeliness Late:;" + timelinessLate).append("\n");
             csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * delay.longValue())).append("\n");
             csv.append("Polls Per New Item:;" + pollsPerNewItem).append("\n");
             csv.append("New Items Per Discovery:;" + newItemsPerDiscovery).append("\n");
-            csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n");
-            csv.append("Traffic Per New Item (conditional get):;" + trafficPerNewItemCG).append("\n\n");
+            csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n\n");
+            // csv.append("Traffic Per New Item (conditional get):;" + trafficPerNewItemCG).append("\n\n");
 
         }
 
