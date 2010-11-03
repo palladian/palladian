@@ -39,6 +39,7 @@ import org.apache.log4j.Logger;
  * @author David Urbansky
  * @author Philipp Katz
  * @author Martin Werner
+ * @author Sandro Reichert
  */
 public class FileHelper {
 
@@ -360,25 +361,33 @@ public class FileHelper {
 
     /**
      * Write to file.
-     *
+     * 
      * @param filePath the file path
      * @param string the string
+     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
+     *         {@link filePath}.
+     *         See error log for details (Exceptions)
      */
-    public static void writeToFile(String filePath, StringBuilder string) {
-        writeToFile(filePath, string.toString());
+    public static boolean writeToFile(String filePath, StringBuilder string) {
+        return writeToFile(filePath, string.toString());
     }
 
     /**
      * Writes a Collection of Objects to a file. Each Object's {{@link #toString()} invocation represents a line.
-     *
+     * 
      * @param filePath the file path
      * @param lines the lines
      * @author Philipp Katz
+     * @author Sandro Reichert
+     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
+     *         {@link filePath}.
+     *         See error log for details (Exceptions)
      */
-    public static void writeToFile(String filePath, Collection<?> lines) {
+    public static boolean writeToFile(String filePath, Collection<?> lines) {
 
+        boolean noErrorOccurred = true;
         File file = new File(filePath);
-        if (!file.exists()) {
+        if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
         }
 
@@ -392,17 +401,23 @@ public class FileHelper {
             fileWriter.close();
         } catch (IOException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
+            noErrorOccurred = false;
         }
+        return noErrorOccurred;
     }
 
     /**
      * Write to file.
-     *
+     * 
      * @param filePath the file path
      * @param string the string
+     * @return false if any IOException occurred. It is likely that {@link string} has not been written to
+     *         {@link filePath}.
+     *         See error log for details (Exceptions)
      */
-    public static void writeToFile(String filePath, String string) {
+    public static boolean writeToFile(String filePath, String string) {
 
+        boolean noErrorOccurred = true;
         File file = new File(filePath);
         if (!file.exists() && file.getParent() != null) {
             new File(file.getParent()).mkdirs();
@@ -415,7 +430,9 @@ public class FileHelper {
             fileWriter.close();
         } catch (IOException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
+            noErrorOccurred = false;
         }
+        return noErrorOccurred;
     }
 
     /**
