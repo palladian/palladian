@@ -309,6 +309,7 @@
 			<groupId>net.sourceforge.nekohtml</groupId>
 			<artifactId>nekohtml</artifactId>
 			<version>1.9.11</version>
+			<!-- <version>1.9.14</version> -->
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>
@@ -436,6 +437,13 @@
 			<groupId>com.lingway.ld</groupId>
 			<artifactId>JLangDetect</artifactId>
 			<version>0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>de.l3s.boilerpipe</groupId>
+			<artifactId>boilerpipe</artifactId>
+			<version>1.0.4</version>
+			<type>jar</type>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<properties>
