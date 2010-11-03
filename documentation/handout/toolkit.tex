@@ -1014,7 +1014,50 @@ Content oriented web pages such as blogs or news articles contain not only the t
 
 To perform this kind of extraction we could use wrapper approaches which are explained in more detail in \cite{ckgs2006}. However, these approaches require manual wrapper construction or semi-supervised learning which is too cumbersome.
 Another approach would be to detect the template of the web page and get only the contents of the main block (the green box). Template detection usually works by comparing one page with several other pages of the same domain to find the fix and changeable contents. This however requires several http requests and therefore more time and bandwidth.
-In Palladian we use an approach that is based on a hierarchical analyzis of the web page's DOM tree. Each DOM element is analyzed and ranked based on the length of the contained text, the link density, and the frequency of other elements in relation to the text length. Longer text fragments usually indicate a relevant part of the article, while a high link density is more likely to indicate that the analyzed element is part of the navigation for example. Also the attributes ``id'' and ``class'' are analyzed. If the attribute values contain keywords such as ``entry'', ``content'', or ``text'', the element is more likely to contain relevant content as if the attribute values contain keywords such as ``header'', ``footer'', or ``sidebar''. The implementation of the web page content extraction adopted great parts of the Firefox extension ``Readability''\footnote{\url{http://lab.arc90.com/experiments/readability/}}. The used heuristics in Readability have shown to be quite accurate for a wide range of web pages.
+In Palladian we use an approach that is based on a hierarchical analyzis of the web page's DOM tree. Each DOM element is analyzed and ranked based on the length of the contained text, the link density, and the frequency of other elements in relation to the text length. Longer text fragments usually indicate a relevant part of the article, while a high link density is more likely to indicate that the analyzed element is part of the navigation for example. Also the attributes ``id'' and ``class'' are analyzed. If the attribute values contain keywords such as ``entry'', ``content'', or ``text'', the element is more likely to contain relevant content as if the attribute values contain keywords such as ``header'', ``footer'', or ``sidebar''. The implementation of the web page content extraction adopted great parts of the Firefox extension ``Readability''\footnote{\url{http://lab.arc90.com/experiments/readability/}}. The used heuristics in Readability have shown to be quite accurate for a wide range of web pages. Listing~\ref{listing:usePageContentExtractor} gives a short usage example.
+
+\begin{codelisting}
+\label{listing:usePageContentExtractor}
+\begin{lstlisting}[frame=tb]
+PageContentExtractor extractor = new PageContentExtractor();
+
+// this method is heavily overloaded and accepts various types of input
+String url = "http://www.wired.com/gadgetlab/2010/05/iphone-4g-ads/";
+extractor.setDocument(url);
+
+// get the main content as text representation
+String contentText = extractor.getResultText();
+
+// get the main content as DOM representation
+Document contentDocument = extractor.getResultDocument();
+
+// get the title
+String title = extractor.getResultTitle();
+\end{lstlisting}
+%\caption{Using the PageContentExtractor.}
+\end{codelisting}
+
+% TODO code snippet
+
+We evaluated our Readability-inspired approach against Boilerpipe\footnote{\url{http://code.google.com/p/boilerpipe/}}, a Java library which is based on the algorithms described in \cite{BoilerplateDetectionShallowTextFeatures}. For evaluation we used the ``L3S-GN1'' data set which is provided by the authors of Boilerpipe and consists of 621 manually annotated web pages with news articles from 408 different sites. The annotations which were assigned by humans categorize areas of web pages into different groups ``Headline'', ``Full text'',  ``Supplemental'', ``Related content'', ``Comments'' and  ``Not content'', where ``Full text'' represents the main article content of a web page (green box in figure~\ref{fig:webpagecontentextractor}).
+
+We used both content extraction approaches on the data set and scored their results by comparing their extracted text content with the human extracted content using Levenshtein\footnote{\url{http://www.merriampark.com/ld.htm}} similarity. Table~\ref{tab:pageContentExtractionResults} shows the results of our evaluation. The number of wins denotes how many times one approach achieved a better e. g. more similar result than the other.
+
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|c|c|c|}
+	\hline
+	& average similarity & \# wins & \# errors \\ 
+	\hline
+	Boilerpipe & 0,75 & 153 & 44 \\ 
+	\hline
+	Palladian & 0,84 & 450 & 14 \\ 
+	\hline
+\end{tabular}
+\caption{Evaluation results for web page content extraction approaches.}
+\label{tab:pageContentExtractionResults}
+\end{table}
 
 \subsection{Named Entity Recognition}
 
