@@ -118,7 +118,10 @@ public class WordCorrelationMatrixTest {
         Assert.assertEquals(2, wcm.getCorrelations("cablecar", -1).size());
         Assert.assertEquals(1, wcm.getCorrelations("california", -1).size());
         Assert.assertEquals(0, wcm.getCorrelations("losangeles", -1).size());
-
+        
+        // we have 4 correlations in total (term1, term2) == (term2, term1)
+        Assert.assertEquals(4, wcm.getCorrelations().size());
+        
     }
 
     @Test
