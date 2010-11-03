@@ -118,15 +118,18 @@ public class ContentExtractionEvaluation {
             
             if (result[0] == -1) {
                 errors[0]++;
+            } else {
+                score[0] += result[0];                
             }
             if (result[1] == -1) {
                 errors[1]++;
+            } else {
+                score[1] += result[1];
             }
-            
+
             count++;
             
-            score[0] += result[0];
-            score[1] += result[1];
+            
 
             System.out.println(resultStr);
             sb.append(resultStr).append("\n");
@@ -138,8 +141,8 @@ public class ContentExtractionEvaluation {
         System.out.println(" # Palladian   : " + stats[1]);
         System.out.println(" # Equality    : " + stats[2]);
         System.out.println("------------------ score ---------------------");
-        System.out.println(" Boilerpipe    : " + score[0] / count);
-        System.out.println(" Palladian     : " + score[1] / count);
+        System.out.println(" Boilerpipe    : " + score[0] / (count - errors[0]));
+        System.out.println(" Palladian     : " + score[1] / (count - errors[1]));
         System.out.println("----------------- errors ---------------------");
         System.out.println(" Boilerpipe    : " + errors[0]);
         System.out.println(" Palladian     : " + errors[1]);
