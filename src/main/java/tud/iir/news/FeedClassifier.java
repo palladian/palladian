@@ -110,24 +110,24 @@ public class FeedClassifier {
         // check if feed is not accessible, try 5 times
         Crawler crawler = new Crawler();
 
-            try {
+        try {
 
-                newsAggregator.setUseScraping(false);
+            newsAggregator.setUseScraping(false);
             Feed feed = newsAggregator.getFeed(feedURL);
             entries = feed.getEntries();
             fps = new FeedPostStatistics(feed);
 
-                LOGGER.debug(fps);
+            LOGGER.debug(fps);
 
-            } catch (FeedAggregatorException e) {
-                LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
-                
-                if (crawler.getResponseCode(feedURL) == 200) {
-                    return CLASS_UNKNOWN;
-                } else {
-                    return CLASS_DEAD;
-                }
+        } catch (FeedAggregatorException e) {
+            LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
+
+            if (crawler.getResponseCode(feedURL) == 200) {
+                return CLASS_UNKNOWN;
+            } else {
+                return CLASS_DEAD;
             }
+        }
 
 
 
@@ -141,41 +141,41 @@ public class FeedClassifier {
             feedClass = CLASS_SINGLE_ENTRY;
         } else
 
-        // if the post gap is 0 or extremely small, the feed is either updated on the fly or many entries posted at the
-        // same time
-        if (fps.getMedianPostGap() < 5 * DateHelper.SECOND_MS) {
-            if (fps.getTimeDifferenceToNewestPost() < 5 * DateHelper.SECOND_MS) {
-                feedClass = CLASS_ON_THE_FLY;
-            } else {
-                feedClass = CLASS_CHUNKED;
-            }
-        } else {
-
-            // if the last entry is a long time ago and the post gap was not that big, the feed is a zombie
-            if (fps.getTimeDifferenceToNewestPost() >= 8L * fps.getMedianPostGap()
-                    && fps.getTimeDifferenceToNewestPost() > 8L * DateHelper.WEEK_MS) {
-                feedClass = CLASS_ZOMBIE;
-            } else {
-
-                // if post intervals have large standard deviations the post is spontaneous
-                if (fps.getPostGapStandardDeviation() >= fps.getMedianPostGap() / 10.0
-                        && fps.getMedianPostGap() > DateHelper.DAY_MS) {
-                    feedClass = CLASS_SPONTANEOUS;
+            // if the post gap is 0 or extremely small, the feed is either updated on the fly or many entries posted at the
+            // same time
+            if (fps.getMedianPostGap() < 5 * DateHelper.SECOND_MS) {
+                if (fps.getTimeDifferenceToNewestPost() < 5 * DateHelper.SECOND_MS) {
+                    feedClass = CLASS_ON_THE_FLY;
                 } else {
-                    // long gaps between posts (at night) indicate sliced feeds
-                    if (fps.getLongestPostGap() < 12 * fps.getMedianPostGap()
-                            && fps.getLongestPostGap() < 2 * DateHelper.HOUR_MS && fps.getAvgEntriesPerDay() >= 4) {
-                        feedClass = CLASS_CONSTANT;
-                    } else {
+                    feedClass = CLASS_CHUNKED;
+                }
+            } else {
 
-                        feedClass = CLASS_SLICED;
+                // if the last entry is a long time ago and the post gap was not that big, the feed is a zombie
+                if (fps.getTimeDifferenceToNewestPost() >= 8L * fps.getMedianPostGap()
+                        && fps.getTimeDifferenceToNewestPost() > 8L * DateHelper.WEEK_MS) {
+                    feedClass = CLASS_ZOMBIE;
+                } else {
+
+                    // if post intervals have large standard deviations the post is spontaneous
+                    if (fps.getPostGapStandardDeviation() >= fps.getMedianPostGap() / 10.0
+                            && fps.getMedianPostGap() > DateHelper.DAY_MS) {
+                        feedClass = CLASS_SPONTANEOUS;
+                    } else {
+                        // long gaps between posts (at night) indicate sliced feeds
+                        if (fps.getLongestPostGap() < 12 * fps.getMedianPostGap()
+                                && fps.getLongestPostGap() < 2 * DateHelper.HOUR_MS && fps.getAvgEntriesPerDay() >= 4) {
+                            feedClass = CLASS_CONSTANT;
+                        } else {
+
+                            feedClass = CLASS_SLICED;
+                        }
+
                     }
 
                 }
 
             }
-
-        }
 
         return feedClass;
     }
@@ -204,7 +204,7 @@ public class FeedClassifier {
             case CLASS_ZOMBIE:
                 return "zombie";
             case CLASS_SPONTANEOUS:
-                return "spontanuous";
+                return "spontaneous";
             case CLASS_SLICED:
                 return "sliced";
             case CLASS_CONSTANT:
@@ -225,32 +225,32 @@ public class FeedClassifier {
      */
     public static void main(String[] args) {
 
-//        FeedClassifier.classifyFeedInStore(FeedDatabase.getInstance());
-//        System.exit(0);
+        //        FeedClassifier.classifyFeedInStore(FeedDatabase.getInstance());
+        //        System.exit(0);
 
-//        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.news-journalonline.com/atom.xml")));
+        //        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.news-journalonline.com/atom.xml")));
 
         // final String className = fc.getClassName(fc.classify("http://feeds.nydailynews.com/nydnrss/news"));
         // final String className = fc.getClassName(fc.classify("http://feeds.gawker.com/lifehacker/full"));
 
-         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.artnewscentral.com/rss.php"))); //
+        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.artnewscentral.com/rss.php"))); //
 
-         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.oikotimes.com/v2/rss.php"))); //s
-         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.gadgetsguru.in/rss/rss.aspx"))); //
+        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.oikotimes.com/v2/rss.php"))); //s
+        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.gadgetsguru.in/rss/rss.aspx"))); //
 
-         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://feeds.sophos.com/en/rss2_0-sophos-security-news.xml"))); //
-         // sponanuous
-         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.spacedaily.com/spacedaily.xml"))); //
-         // sponanuous
-         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.speedtv.com/rss/"))); // sponanuous
-         System.out.println(FeedClassifier.getClassName(FeedClassifier
-         .classify("http://www.charitynavigator.org/feeds/featured.xml")));
-         // // sponanuous
-         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.hindu.com/rss/01hdline.xml"))); //
+        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://feeds.sophos.com/en/rss2_0-sophos-security-news.xml"))); //
+        // sponanuous
+        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.spacedaily.com/spacedaily.xml"))); //
+        // sponanuous
+        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.speedtv.com/rss/"))); // sponanuous
+        System.out.println(FeedClassifier.getClassName(FeedClassifier
+                .classify("http://www.charitynavigator.org/feeds/featured.xml")));
+        // // sponanuous
+        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.hindu.com/rss/01hdline.xml"))); //
 
-         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.babygiftstoys.com/store/2183249/index.rss")));
-         // // sponanuous
-         System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://feeds.feedburner.com/TexasStateNews")));
+        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://www.babygiftstoys.com/store/2183249/index.rss")));
+        // // sponanuous
+        System.out.println(FeedClassifier.getClassName(FeedClassifier.classify("http://feeds.feedburner.com/TexasStateNews")));
 
 
     }

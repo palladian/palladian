@@ -59,6 +59,12 @@ public class FeedReaderEvaluator {
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
 
+    /** The timestamp we started the dataset gathering. 28/10/2010 */
+    public static final long BENCHMARK_START_TIME = 1285689600000l;
+
+    /** The timestamp we stopped the dataset gathering. 26/10/2010 */
+    public static final long BENCHMARK_STOP_TIME = 1288108800000l;
+
 
     public FeedReaderEvaluator() {
         LOGGER.info("load benchmark dataset file list");
@@ -327,8 +333,8 @@ public class FeedReaderEvaluator {
         // System.exit(0);
 
         UpdateStrategy checkType = UpdateStrategy.UPDATE_FIXED;
-        checkType = UpdateStrategy.UPDATE_ADAPTIVE;
-        // checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
+        // checkType = UpdateStrategy.UPDATE_ADAPTIVE;
+        checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
 
         // if -1 => fixed learned
         int checkInterval = -1;
