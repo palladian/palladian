@@ -9,6 +9,10 @@ import org.apache.log4j.Logger;
 
 import tud.iir.helper.FileHelper;
 
+/**
+ * @author reichert
+ * 
+ */
 public class ChartCreator {
 
     private static final Logger LOGGER = Logger.getLogger(ChartCreator.class);
@@ -21,20 +25,28 @@ public class ChartCreator {
     private final String sumVolumeMinFilePath = "data/evaluation/sumVolumeMinData.csv";
     private final String sumVolumeMinEtag304FilePath = "data/evaluation/sumVolumeMinEtag304Data.csv";
     
-    private final int MAX_NUMBER_OF_POLLS_SCORE_MIN = 200;
-    private final int MAX_NUMBER_OF_POLLS_SCORE_MAX = 200;
+    private final int MAX_NUMBER_OF_POLLS_SCORE_MIN;
+    private final int MAX_NUMBER_OF_POLLS_SCORE_MAX;
     
     private final EvaluationDatabase ed ; 
     
     
     
-    public ChartCreator() {
+    /**
+     * @param MAX_NUMBER_OF_POLLS_SCORE_MIN The maximum number of polls to be used by methods creating data for the
+     *            MIN-policy.
+     * @param MAX_NUMBER_OF_POLLS_SCORE_MAX The maximum number of polls to be used by methods creating data for the
+     *            MAX-policy.
+     */
+    public ChartCreator(final int MAX_NUMBER_OF_POLLS_SCORE_MIN, final int MAX_NUMBER_OF_POLLS_SCORE_MAX) {
         this.ed = EvaluationDatabase.getInstance();
+        this.MAX_NUMBER_OF_POLLS_SCORE_MIN = MAX_NUMBER_OF_POLLS_SCORE_MIN;
+        this.MAX_NUMBER_OF_POLLS_SCORE_MAX = MAX_NUMBER_OF_POLLS_SCORE_MAX;
     }
 
     /**
-     * Generates a *.csv file containing to generate a feed size histogram and stores it at
-     * FEED_SIZE_HISTOGRAM_FILE_PATH.
+     * Generates a *.csv file to generate a feed size histogram and stores it at
+     * {@link ChartCreator#FEED_SIZE_HISTOGRAM_FILE_PATH}.
      * csv file has pattern (feed size in KB; number of feeds having this size;percentage of all feeds;)
      * 
      * @param chartInterval The size of the interval in KB, e.g. 10: 10KB, 20KB
@@ -74,10 +86,8 @@ public class ChartCreator {
         LOGGER.info("feedSizeHistogrammFile *hopefully* :) written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
     }
 
-
     /**
-     * Generates a *.csv file containing to generate a feed age histogram and stores it at
-     * feedAgeFilePath.
+     * Generates a *.csv file to generate a feed age histogram and stores it at {@link ChartCreator#feedAgeFilePath}.
      * csv file has pattern (feed file age;number of feeds;percentage of the feeds;)
      */
     private void createFeedAgeFile(){        
@@ -117,86 +127,87 @@ public class ChartCreator {
         FileHelper.writeToFile(feedAgeFilePath, feedAgeSB);
         LOGGER.info("feedAgeFile *hopefully* :) written to: " + feedAgeFilePath);       
     }
-    
 
-    private void createTimeliness2File(){        
+
+    /**
+     * Helper function for {@link createTimeliness2File()} to process the data of each data base table
+     * 
+     * @param timeliness2Map the map to write the output to
+     * @param polls contains the preaggregated average scoreMin values from one table
+     * @param rowToWrite the position in Double[] to write the data to. This is the position in the *.csv file that is
+     *            written by {@link createTimeliness2File()}.
+     * @param numberOfRows the total number of rows that are written to the *.csv file, used to create the Double[] in
+     *            {@link timeliness2Map}
+     */
+    private int processTimelines2Data(List<EvaluationFeedPoll> polls, Map<Integer, Double[]> timeliness2Map,
+            final int rowToWrite, final int numberOfRows) {
+        int lineCount = 0;
+        for (EvaluationFeedPoll poll : polls) {
+            int pollToProcess = poll.getNumberOfPoll();
+            Double[] scoresAtCurrentPoll = new Double[numberOfRows];
+            if (timeliness2Map.containsKey(pollToProcess)) {
+                scoresAtCurrentPoll = timeliness2Map.get(pollToProcess);
+            }
+            scoresAtCurrentPoll[rowToWrite] = poll.getScoreAVG();
+            timeliness2Map.put(poll.getNumberOfPoll(), scoresAtCurrentPoll);
+            lineCount++;
+        }
+        return lineCount;
+    }
+
+    /**
+     * Generates a *.csv file to generate the timeliness2 chart and stores it at
+     * {@link ChartCreator#timeliness2FilePath}. The file contains the average scoreMin per numberOfPoll for each
+     * polling strategy separately. The csv file has the pattern (number of poll; adaptive; probabilistic; fix learned;
+     * fix1h; fix1d)
+     */
+    private void createTimeliness2File() {
+        LOGGER.info("starting to create timeliness2File...");
         StringBuilder timeliness2SB = new StringBuilder();        
-        Map<Integer,Double[]> testMap = new TreeMap<Integer,Double[]>();
+        Map<Integer, Double[]> timeliness2Map = new TreeMap<Integer, Double[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
+        final int numberOfRows = 5;
+        int linesProcessed = 0;
         timeliness2SB.append("numberOfPoll;");
         
-        timeliness2SB.append("fix1440;");
-        polls = ed.getAverageScoreMinFIX1440(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        for (EvaluationFeedPoll poll : polls) {            
-            Double[] testDouble = new Double[6];
-            testDouble[0] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }
-        
-        timeliness2SB.append("fix720;");
-        polls = ed.getAverageScoreMinFIX720(MAX_NUMBER_OF_POLLS_SCORE_MIN);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[1] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }
-        
-        timeliness2SB.append("fix60;");
-        polls = ed.getAverageScoreMinFIX60(MAX_NUMBER_OF_POLLS_SCORE_MIN);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[2] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }        
-
-        timeliness2SB.append("fixLearned;");
-        polls = ed.getAverageScoreMinFIXlearned(MAX_NUMBER_OF_POLLS_SCORE_MIN);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[3] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }
-        
+        LOGGER.info("starting to process table adaptive...");
         timeliness2SB.append("adaptive;");
-        polls = ed.getAverageScoreMinAdaptive(MAX_NUMBER_OF_POLLS_SCORE_MIN);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[4] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }
+        polls = ed.getAverageScoreMinAdaptive(MAX_NUMBER_OF_POLLS_SCORE_MIN);
+        linesProcessed = processTimelines2Data(polls, timeliness2Map, 0, numberOfRows);
+        LOGGER.info("finished processing table adaptive, processed " + linesProcessed + " lines in the result set.");
 
-        timeliness2SB.append("probabilistic;\n");
-        polls = ed.getAverageScoreMinProbabilistic(MAX_NUMBER_OF_POLLS_SCORE_MIN);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[5] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }        
-        
-        int i = 1;
-        for(Double[] scores : testMap.values()){
-            timeliness2SB.append(i).append(";").append(scores[0]).append(";").append(scores[1]).append(";").append(scores[2]).append(";").append(scores[3]).append(";").append(scores[4]).append(";").append(scores[5]).append(";\n");
-            i++;            
+        LOGGER.info("starting to process table probabilistic...");
+        timeliness2SB.append("probabilistic;");
+        polls = ed.getAverageScoreMinProbabilistic(MAX_NUMBER_OF_POLLS_SCORE_MIN);
+        linesProcessed = processTimelines2Data(polls, timeliness2Map, 1, numberOfRows);
+        LOGGER.info("finished processing table probabilistic, processed " + linesProcessed
+                + " lines in the result set.");
+
+        LOGGER.info("starting to process table fix learned...");
+        timeliness2SB.append("fix learned;");
+        polls = ed.getAverageScoreMinFIXlearned(MAX_NUMBER_OF_POLLS_SCORE_MIN);
+        linesProcessed = processTimelines2Data(polls, timeliness2Map, 2, numberOfRows);
+        LOGGER.info("finished processing table fix learned, processed " + linesProcessed + " lines in the result set.");
+
+        LOGGER.info("starting to process table fix1h...");
+        timeliness2SB.append("fix1h;");
+        polls = ed.getAverageScoreMinFIX60(MAX_NUMBER_OF_POLLS_SCORE_MIN);
+        linesProcessed = processTimelines2Data(polls, timeliness2Map, 3, numberOfRows);
+        LOGGER.info("finished processing table fix1h, processed " + linesProcessed + " lines in the result set.");
+
+        LOGGER.info("starting to process table fix1d...");
+        timeliness2SB.append("fix1d;\n");
+        polls = ed.getAverageScoreMinFIX1440(MAX_NUMBER_OF_POLLS_SCORE_MIN);
+        linesProcessed = processTimelines2Data(polls, timeliness2Map, 4, numberOfRows);
+        LOGGER.info("finished processing table fix1d, processed " + linesProcessed + " lines in the result set.");
+
+        // CAUTION! numberOfPoll hard coded to 2 since scoreMin for numberOfPoll=1 is undefined
+        int numberOfPoll = 2;
+        for (Double[] scoresAtCurrentPoll : timeliness2Map.values()) {
+            timeliness2SB.append(numberOfPoll).append(";").append(scoresAtCurrentPoll[0]).append(";")
+                    .append(scoresAtCurrentPoll[1]).append(";").append(scoresAtCurrentPoll[2]).append(";")
+                    .append(scoresAtCurrentPoll[3]).append(";").append(scoresAtCurrentPoll[4]).append(";\n");
+            numberOfPoll++;
         }
         
         FileHelper.writeToFile(timeliness2FilePath, timeliness2SB);
@@ -213,7 +224,7 @@ public class ChartCreator {
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
         timeliness2SB.append("numberOfPoll;");
         
-        timeliness2SB.append("fix1440;");
+        timeliness2SB.append("fix1d;");
         polls = ed.getAverageScoreMaxFIX1440(MAX_NUMBER_OF_POLLS_SCORE_MAX);
         for (EvaluationFeedPoll poll : polls) {            
             Double[] testDouble = new Double[6];
@@ -233,7 +244,7 @@ public class ChartCreator {
 //            testMap.put(poll.getNumberOfPoll(), testDouble);
 //        }
         
-        timeliness2SB.append("fix60;");
+        timeliness2SB.append("fix1h;");
         polls = ed.getAverageScoreMaxFIX60(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
         for (EvaluationFeedPoll poll : polls) {
             int pollToProcess = poll.getNumberOfPoll();
@@ -245,7 +256,7 @@ public class ChartCreator {
             testMap.put(poll.getNumberOfPoll(), testDouble);
         }        
 
-        timeliness2SB.append("fixLearned;");
+        timeliness2SB.append("fix learned;");
         polls = ed.getAverageScoreMaxFIXlearned(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
         for (EvaluationFeedPoll poll : polls) {
             int pollToProcess = poll.getNumberOfPoll();
@@ -1375,11 +1386,11 @@ public class ChartCreator {
 	 */
 	public static void main(String[] args) {
 	    
-	    ChartCreator cc = new ChartCreator();
+        ChartCreator cc = new ChartCreator(200, 200);
 
         // cc.createFeedSizeHistogrammFile(10, 20);
-        cc.createFeedAgeFile();
-//	    cc.createTimeliness2File();
+        // cc.createFeedAgeFile();
+        cc.createTimeliness2File();
 //	    cc.createPercentageNewFile();
 //	    cc.culmulatedVolumeMaxTimeFile();
 //      cc.culmulatedVolumeMinTimeFile();
