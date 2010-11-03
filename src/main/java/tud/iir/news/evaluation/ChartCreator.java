@@ -32,11 +32,10 @@ public class ChartCreator {
         this.ed = EvaluationDatabase.getInstance();
     }
 
-
     /**
      * Generates a *.csv file containing to generate a feed size histogram and stores it at
      * FEED_SIZE_HISTOGRAM_FILE_PATH.
-     * csv file has pattern (feed size in KB; number of feeds having this size;)
+     * csv file has pattern (feed size in KB; number of feeds having this size;percentage of all feeds;)
      * 
      * @param chartInterval The size of the interval in KB, e.g. 10: 10KB, 20KB
      * @param chartNumberOfIntervals The number of intervals to display in detail, one additional interval 'more' is
@@ -74,19 +73,17 @@ public class ChartCreator {
         FileHelper.writeToFile(FEED_SIZE_HISTOGRAM_FILE_PATH, feedSizeDistributionSB);
         LOGGER.info("feedSizeHistogrammFile *hopefully* :) written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
     }
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+
+
+    /**
+     * Generates a *.csv file containing to generate a feed age histogram and stores it at
+     * feedAgeFilePath.
+     * csv file has pattern (feed file age;number of feeds;percentage of the feeds;)
+     */
     private void createFeedAgeFile(){        
         List<EvaluationItemIntervalItem> polls = ed.getAverageUpdateIntervals();
         int[] feedAgeDistribution = new int[34];
+        int totalNumberOfFeeds = 0;
         
         for (EvaluationItemIntervalItem intervalItem : polls) {
             int averageUpdateIntervalHours = new Double(Math.floor(intervalItem.getAverageUpdateInterval()/3600000)).intValue();
@@ -102,16 +99,18 @@ public class ChartCreator {
             else if(averageUpdateIntervalHours <= 24*7*3) i = 31; //3 weeks
             else if(averageUpdateIntervalHours <= 24*7*4) i = 32; //4 weeks
             else i = 33; //more
-            feedAgeDistribution[i]++;             
+            feedAgeDistribution[i]++;
+            totalNumberOfFeeds++;
         }        
 
         StringBuilder feedAgeSB = new StringBuilder();
-        feedAgeSB.append("Feed age;all feeds;\n");
+        feedAgeSB.append("feed file age;number of feeds;percentage of the feeds;\n");
         int i = 0;
         String[] caption = {"1 hour","2 hours","3 hours","4 hours","5 hours","6 hours","7 hours","8 hours","9 hours","10 hours","11 hours","12 hours","13 hours","14 hours","15 hours","16 hours","17 hours","18 hours","19 hours","20 hours","21 hours","22 hours","23 hours","24 hours","2 days","3 days","4 days","5 days","6 days","7 days","2 weeks","3 weeks","4 weeks","more"};
         
         for (int number : feedAgeDistribution) {
-            feedAgeSB.append(caption[i]).append(";").append(number).append(";\n");
+            feedAgeSB.append(caption[i]).append(";").append(number).append(";")
+                    .append((float) number / (float) totalNumberOfFeeds * 100).append(";\n");
             i++;
         }
         
@@ -1378,8 +1377,8 @@ public class ChartCreator {
 	    
 	    ChartCreator cc = new ChartCreator();
 
-        cc.createFeedSizeHistogrammFile(10, 20);
-//	    cc.createFeedAgeFile();
+        // cc.createFeedSizeHistogrammFile(10, 20);
+        cc.createFeedAgeFile();
 //	    cc.createTimeliness2File();
 //	    cc.createPercentageNewFile();
 //	    cc.culmulatedVolumeMaxTimeFile();
