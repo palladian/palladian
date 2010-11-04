@@ -60,11 +60,32 @@ public class EvaluationFeedPoll {
 	
 	/* the score in MIN mode = (d/int + 1)^-1 ; score is in (0,1] 1 is perfect, 0.5 means culmulated delay (d) is equalt to current interval (int) */
     private float scoreMin = -1;
+
+    /* an average value like average scoreMin, scoreMax or percentageNewEntries, calculated for some diagrams */
+    private double averageValue = -1;
     
-    /* an average score, calculated for some diagrams */
-    private double scoreAVG = -1;
     
-    
+    /**
+     * @return the averageValue
+     */
+    public final double getAverageValue() {
+        return averageValue;
+    }
+
+    /**
+     * @param averageValue the averageValue to set
+     */
+    public final void setAverageValue(double averageValue) {
+        this.averageValue = averageValue;
+    }
+
+    /**
+     * @param eTagResponseSize the eTagResponseSize to set
+     */
+    public final void seteTagResponseSize(int eTagResponseSize) {
+        this.eTagResponseSize = eTagResponseSize;
+    }
+
     private int dayOfYear = -1;
     
     private long culmulatedSizeofPolls = -1;
@@ -267,19 +288,6 @@ public class EvaluationFeedPoll {
 	}
 	
 
-    /**
-     * @return the scoreAVG
-     */
-    public final double getScoreAVG() {
-        return scoreAVG;
-    }
-
-    /**
-     * @param scoreAVG the scoreAVG to set
-     */
-    public final void setScoreAVG(double scoreAVG) {
-        this.scoreAVG = scoreAVG;
-    }
 
 	
     /* (non-Javadoc)
@@ -290,11 +298,13 @@ public class EvaluationFeedPoll {
         final int prime = 31;
         int result = 1;
         result = prime * result + activityPattern;
+        long temp;
+        temp = Double.doubleToLongBits(averageValue);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
         result = prime * result + Float.floatToIntBits(checkInterval);
         result = prime * result + conditionalGetResponseSize;
         result = prime * result + (int) (culmulatedSizeofPolls ^ (culmulatedSizeofPolls >>> 32));
         result = prime * result + dayOfYear;
-        long temp;
         temp = Double.doubleToLongBits(delay);
         result = prime * result + (int) (temp ^ (temp >>> 32));
         result = prime * result + eTagResponseSize;
@@ -306,8 +316,6 @@ public class EvaluationFeedPoll {
         result = prime * result + pollHourOfDay;
         result = prime * result + pollMinuteOfDay;
         result = prime * result + (int) (pollTimestamp ^ (pollTimestamp >>> 32));
-        temp = Double.doubleToLongBits(scoreAVG);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
         result = prime * result + Float.floatToIntBits(scoreMax);
         result = prime * result + Float.floatToIntBits(scoreMin);
         result = prime * result + Float.floatToIntBits(sizeOfPoll);
@@ -331,6 +339,8 @@ public class EvaluationFeedPoll {
             return false;
         EvaluationFeedPoll other = (EvaluationFeedPoll) obj;
         if (activityPattern != other.activityPattern)
+            return false;
+        if (Double.doubleToLongBits(averageValue) != Double.doubleToLongBits(other.averageValue))
             return false;
         if (Float.floatToIntBits(checkInterval) != Float.floatToIntBits(other.checkInterval))
             return false;
@@ -359,8 +369,6 @@ public class EvaluationFeedPoll {
         if (pollMinuteOfDay != other.pollMinuteOfDay)
             return false;
         if (pollTimestamp != other.pollTimestamp)
-            return false;
-        if (Double.doubleToLongBits(scoreAVG) != Double.doubleToLongBits(other.scoreAVG))
             return false;
         if (Float.floatToIntBits(scoreMax) != Float.floatToIntBits(other.scoreMax))
             return false;
@@ -396,7 +404,7 @@ public class EvaluationFeedPoll {
                 + ", pollMinuteOfDay=" + pollMinuteOfDay + ", checkInterval=" + checkInterval + ", windowSize="
                 + windowSize + ", sizeOfPoll=" + sizeOfPoll + ", numberMissedNewEntries=" + numberMissedNewEntries
                 + ", percentageNewEntries=" + percentageNewEntries + ", delay=" + delay + ", scoreMax=" + scoreMax
-                + ", scoreMin=" + scoreMin + ", scoreAVG=" + scoreAVG + ", dayOfYear=" + dayOfYear
+                + ", scoreMin=" + scoreMin + ", averageValue=" + averageValue + ", dayOfYear=" + dayOfYear
                 + ", culmulatedSizeofPolls=" + culmulatedSizeofPolls + ", hourOfExperiment=" + hourOfExperiment + "]";
     }
 
