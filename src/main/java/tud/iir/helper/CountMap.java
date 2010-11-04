@@ -1,6 +1,7 @@
 package tud.iir.helper;
 
 import java.util.HashMap;
+import java.util.Map.Entry;
 
 public class CountMap extends HashMap<Object, Integer> {
 
@@ -25,6 +26,20 @@ public class CountMap extends HashMap<Object, Integer> {
         }
 
         return count;
+    }
+
+    /**
+     * Returns the sum of all counts in the CountMap. Where in contrast, {@link #size()} returns the number of
+     * <i>unique</i> items in the CountMap.
+     * 
+     * @return
+     */
+    public int totalSize() {
+        int totalSize = 0;
+        for (Entry<Object, Integer> entry : this.entrySet()) {
+            totalSize += entry.getValue();
+        }
+        return totalSize;
     }
 
 }
