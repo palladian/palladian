@@ -22,11 +22,13 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.SocketTimeoutException;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,6 +42,7 @@ import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
 
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
@@ -170,6 +173,9 @@ public class Crawler {
 
     /** Try to use feed auto discovery for every parsed page. */
     private boolean feedAutodiscovery = false;
+
+    /** The response code of the last HTTP request. */
+    private int lastResponseCode = -1;
 
     // ////////////////// crawl settings ////////////////////
     /** whether to crawl within a certain domain */
@@ -851,8 +857,39 @@ public class Crawler {
         setDocument(url, false, true);
     }
 
+    public void setDocument(URL url, Boolean isXML, boolean callback) {
+        document = null;
+
+        try {
+            File file = new File(url.toURI());
+            BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
+
+            parse(is, isXML, url.toExternalForm());
+
+            // only call, if we actually got a Document; so we don't need to check for null within the Callback
+            // implementation itself.
+            if (callback && document != null) {
+                callCrawlerCallback(document);
+            }
+        } catch (URISyntaxException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+
+        } catch (SAXException e) {
+
+        } catch (ParserConfigurationException e) {
+
+        }
+    }
+
     public void setDocument(String url, boolean isXML, boolean callback) {
-        DOMParser parser = new DOMParser();
+        setDocument(url, isXML, callback, null);
+    }
+
+    public void setDocument(String url, boolean isXML, boolean callback, HeaderInformation headerInformation) {
         document = null;
 
         try {
@@ -865,10 +902,8 @@ public class Crawler {
             // document = domParser.getDocument();
 
             boolean isFile = false;
-            if (url.indexOf("http://") == -1) {
+            if (url.indexOf("http://") == -1 && url.indexOf("https://") == -1) {
                 isFile = true;
-            } else {
-                isFile = false;
             }
 
             // read from file with buffered input stream
@@ -876,34 +911,16 @@ public class Crawler {
 
                 // InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(url)));
                 File file = new File(url);
-                InputSource is = new InputSource(new BufferedInputStream(new FileInputStream(file)));
+                BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
 
-                if (isXML) {
-                    document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+                parse(is, isXML, file.toURI().toString());
                 } else {
-                    parser.parse(is);
-                    document = parser.getDocument();
-                }
-
-                document.setDocumentURI(file.toURI().toString());
-
-            } else {
                 url = url.replaceAll("\\s", "+");
                 URL urlObject = new URL(url);
-                InputStream fis = getInputStream(urlObject);
+                InputStream fis = getInputStream(urlObject, headerInformation);
 
-                if (isXML) {
-                    document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(fis);
-                } else {
-                    // System.out.println("step before parse");
-                    // parser.parse(url);
-                    parser.parse(new InputSource(fis));
-                    document = parser.getDocument();
-                    // System.out.println("step after parse");
+                parse(fis, isXML, url);
                 }
-
-                document.setDocumentURI(url);
-            }
 
             // only call, if we actually got a Document; so we don't need to check for null within the Callback
             // implementation itself.
@@ -928,6 +945,34 @@ public class Crawler {
             e.printStackTrace();
         }
 
+    }
+
+    /**
+     * <p>
+     * Parses a an input stream to a document.
+     * </p>
+     * 
+     * @param dataStream The stream to parse.
+     * @param isXML {@code true} if this document is an XML document and {@code false} otherwise.
+     * @param Uri The URI the provided stream comes from.
+     * @throws SAXException
+     * @throws IOException
+     * @throws ParserConfigurationException
+     */
+    private void parse(InputStream dataStream, Boolean isXML, String Uri) throws SAXException, IOException,
+            ParserConfigurationException {
+        DOMParser parser = new DOMParser();
+
+        InputSource is = new InputSource(dataStream);
+
+        if (isXML) {
+            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+        } else {
+            parser.parse(is);
+            document = parser.getDocument();
+        }
+
+        document.setDocumentURI(Uri);
     }
 
     public Document getDocument() {
@@ -972,14 +1017,25 @@ public class Crawler {
     }
 
     /**
-     * Get XML document from a URL. Pure XML documents can created with the native DocumentBuilderFactory, which works
+     * Get XML document from a URL. Pure XML documents can be created with the native DocumentBuilderFactory, which
+     * works
      * better with the native XPath queries.
      * 
      * @param url The URL or file path pointing to the XML document.
-     * @param callback set to <code>false</code> to disable callback for this document.
+     * @param callback Set to <code>false</code> to disable callback for this document.
      * @return The XML document.
      */
     public Document getXMLDocument(String url, boolean callback) {
+        setDocument(url, true, callback);
+        return getDocument();
+    }
+
+    public Document getXMLDocument(String url, boolean callback, HeaderInformation headerInformation) {
+        setDocument(url, true, callback, headerInformation);
+        return getDocument();
+    }
+
+    public Document getXMLDocument(URL url, boolean callback) {
         setDocument(url, true, callback);
         return getDocument();
     }
@@ -1569,8 +1625,9 @@ public class Crawler {
                 final byte[] buffer = new byte[4096];
 
                 int n = 0;
-                while ((n = in.read(buffer)) != -1)
+                while ((n = in.read(buffer)) != -1) {
                     out.write(buffer, 0, n);
+                }
 
                 in.close();
                 out.close();
@@ -1599,13 +1656,13 @@ public class Crawler {
      * @throws IOException
      * @author Philipp Katz
      */
-    private InputStream getInputStream(URL url) throws IOException {
+    private InputStream getInputStream(URL url, HeaderInformation headerInformation) throws IOException {
         InputStream result = null;
         int retry = 0;
         boolean keepTrying = true;
         do {
             try {
-                result = downloadInputStream(url, true);
+                result = downloadInputStream(url, true, headerInformation);
                 keepTrying = false;
             } catch (IOException e) {
                 if (retry >= getNumRetries()) {
@@ -1618,6 +1675,10 @@ public class Crawler {
             }
         } while (keepTrying);
         return result;
+    }
+
+    private InputStream getInputStream(URL url) throws IOException {
+        return getInputStream(url, null);
     }
 
     /**
@@ -1652,6 +1713,12 @@ public class Crawler {
     }
 
     private InputStream downloadInputStream(URL url, boolean checkChangeProxy) throws IOException {
+        return downloadInputStream(url, checkChangeProxy, null);
+
+    }
+
+    private InputStream downloadInputStream(URL url, boolean checkChangeProxy, HeaderInformation headerInformation)
+            throws IOException {
         LOGGER.trace(">download " + url);
 
         ConnectionTimeout timeout = null;
@@ -1678,7 +1745,22 @@ public class Crawler {
                 urlConnection.setRequestProperty("Accept-Encoding", "gzip, deflate");
             }
 
-            // use connection timeout from IIR toolkit
+            if (headerInformation != null) {
+
+                if (headerInformation.getLastModifiedSince() != null) {
+                    urlConnection.setIfModifiedSince(headerInformation.getLastModifiedSince().getTime());
+                }
+                if (headerInformation.getETag().length() > 0) {
+                    urlConnection.setRequestProperty("Etag", headerInformation.getETag());
+                }
+
+            }
+            
+            if (urlConnection instanceof HttpURLConnection) {
+                setLastResponseCode(((HttpURLConnection)urlConnection).getResponseCode());
+            }
+
+            // use connection timeout from Palladian
             timeout = new ConnectionTimeout(urlConnection, overallTimeout);
 
             String encoding = urlConnection.getContentEncoding();
@@ -1849,6 +1931,14 @@ public class Crawler {
         }
     }
 
+    public void setLastResponseCode(int i) {
+        this.lastResponseCode = i;
+    }
+
+    public int getLastResponseCode() {
+        return lastResponseCode;
+    }
+
     public void setNumRetries(int numRetries) {
         this.numRetries = numRetries;
     }
@@ -1935,7 +2025,14 @@ public class Crawler {
         
         System.out.println((kManager.getConcept("MobilePhone").getEntities().get(0).getFactForAttribute(new Attribute("strong_mio",1,new Concept("MobilePhone")))));
         System.exit(0);
-    	
+
+        Crawler cr = new Crawler();
+        HeaderInformation headerInformation = new HeaderInformation(new Date(System.currentTimeMillis() - 5
+                * DateHelper.MONTH_MS), "");
+        cr.setDocument("", true, false, headerInformation);
+        Document document = cr.getDocument();
+        System.out.println(document);
+
     	// Proxy instance, proxy ip = 123.0.0.1 with port 8080
         // try {
         // Proxy proxy = new Proxy(Proxy.Type.HTTP, new

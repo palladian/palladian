@@ -110,25 +110,6 @@ public class DatabaseManager {
     private PreparedStatement psCleanExtractionStatus;
     private PreparedStatement psGetExtractionStatusDownloadedBytes;
 
-    // // ////////////////// feed prepared statements ////////////////////
-    // // moved to FeedDatabase
-    // //
-    // public PreparedStatement psAddFeedEntry;
-    // public PreparedStatement psAddFeed;
-    // public PreparedStatement psUpdateFeed;
-    // public PreparedStatement psUpdateFeed_fixed_learned;
-    // public PreparedStatement psUpdateFeed_adaptive;
-    // public PreparedStatement psUpdateFeed_probabilistic;
-    // public PreparedStatement psUpdateFeedPostDistribution;
-    // public PreparedStatement psGetFeedPostDistribution;
-    // public PreparedStatement psGetFeeds;
-    // public PreparedStatement psGetFeeds_fixed_learned;
-    // public PreparedStatement psGetFeeds_adaptive;
-    // public PreparedStatement psGetFeeds_probabilistic;
-    // public PreparedStatement psGetFeedByUrl;
-    // public PreparedStatement psGetFeedByID;
-    // public PreparedStatement psGetEntryByRawId;
-    // public PreparedStatement psChangeCheckApproach;
 
     // TODO in entities domainID instead of conceptID (or no cascade or best new table that connects an entity with all
     // synonyms) because deleting a
@@ -156,7 +137,6 @@ public class DatabaseManager {
     public static DatabaseManager getInstance() {
         try {
             if (INSTANCE.connection == null || INSTANCE.connection != null && INSTANCE.connection.isClosed()) {
-                // INSTANCE.connection = INSTANCE.getConnection();
                 INSTANCE.establishConnection();
             }
         } catch (SQLException e) {
@@ -1072,9 +1052,7 @@ public class DatabaseManager {
      */
     public void addQAs(List<QA> qas) {
         try {
-            for (Iterator<QA> iterator = qas.iterator(); iterator.hasNext();) {
-                QA qa = iterator.next();
-
+            for (QA qa : qas) {
                 // add source for the question
                 int sourceID = 0;
                 for (Source qaSource : qa.getSources()) {
@@ -1090,8 +1068,7 @@ public class DatabaseManager {
 
                     // add answers to answers table
                     ArrayList<String> answers = qa.getAnswers();
-                    for (Iterator<String> iterator2 = answers.iterator(); iterator2.hasNext();) {
-                        String answer = iterator2.next();
+                    for (String answer : answers) {
                         psAddA.setString(1, answer);
                         psAddA.setInt(2, questionID);
                         runUpdate(psAddA);

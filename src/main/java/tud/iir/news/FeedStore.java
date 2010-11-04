@@ -24,7 +24,7 @@ public interface FeedStore {
      * Update a feed if its feedURL already exists.
      * 
      * @param feed The feed to update.
-     * @return true if feed was updated successfully
+     * @return True if feed was updated successfully.
      */
     boolean updateFeed(Feed feed);
 

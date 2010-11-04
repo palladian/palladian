@@ -8,7 +8,7 @@ public class DateHelperTest extends TestCase {
         super(name);
     }
 
-    public void testGetTimeStamp() {
+    public void testGetTimeStamp() throws Exception {
 
         assertEquals(1273795200000l, DateHelper.getTimestamp("2010-05-14 00:00:00"));
         assertEquals(1273795200000l, DateHelper.getTimestamp("2010-05-14"));

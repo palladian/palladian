@@ -38,14 +38,25 @@ public class StringHelper {
      * In ontologies names can not have certain characters so they have to be changed.
      * 
      * @param name The name.
+     * @param maxLength The maximum length of the string. -1 means no maximum length.
      * @return The safe name.
      */
+    public static String makeSafeName(String name, int maxLength) {
+        String safeName = name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
+        .replaceAll(",", "_").replaceAll("\\*", "_").replaceAll("\\.", "_").replaceAll(";", "_")
+        .replaceAll("\\:", "_").replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae")
+        .replaceAll("\\Ä", "Ae").replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue")
+        .replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
+
+        if (maxLength > 0) {
+            safeName = safeName.substring(0, Math.min(safeName.length(), maxLength));
+        }
+
+        return safeName;
+    }
+
     public static String makeSafeName(String name) {
-        return name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
-                .replaceAll(",", "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll("\\:", "_")
-                .replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll("\\Ä", "Ae")
-                .replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue").replaceAll("\\Ü", "Ue")
-                .replaceAll("\\ß", "ss");
+        return makeSafeName(name, -1);
     }
 
     /**
@@ -182,7 +193,7 @@ public class StringHelper {
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                            + RegExp.getRegExp(Attribute.VALUE_STRING), e);
+                    + RegExp.getRegExp(Attribute.VALUE_STRING), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -206,7 +217,7 @@ public class StringHelper {
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                            + RegExp.getRegExp(Attribute.VALUE_NUMERIC), e);
+                    + RegExp.getRegExp(Attribute.VALUE_NUMERIC), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -322,8 +333,8 @@ public class StringHelper {
      * @return True if character is a bracket, else false.
      */
     public static boolean isBracket(char character) {
-        for (int i = 0; i < BRACKETS.length; i++) {
-            if (BRACKETS[i] == character) {
+        for (char element : BRACKETS) {
+            if (element == character) {
                 return true;
             }
 
@@ -390,7 +401,7 @@ public class StringHelper {
                     && Character.getType(ch) != Character.CONNECTOR_PUNCTUATION
                     && Character.getType(ch) != Character.CURRENCY_SYMBOL
                     && Character.getType(ch) != Character.DIRECTIONALITY_WHITESPACE && ch != '%' && ch != '.'
-                    && ch != ',' && ch != ':') {
+                        && ch != ',' && ch != ':') {
                 isNumericExpression = false;
                 break;
             }
@@ -866,8 +877,8 @@ public class StringHelper {
      */
     public static String getArrayAsString(String[] array) {
         StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < array.length; i++) {
-            sb.append(array[i]).append(",");
+        for (String element : array) {
+            sb.append(element).append(",");
         }
         return sb.toString().substring(0, sb.length() - 1);
     }
@@ -1363,14 +1374,16 @@ public class StringHelper {
     public static String stripNonValidXMLCharacters(String in) {
         StringBuffer out = new StringBuffer(); // Used to hold the output.
         char current; // Used to reference the current character.
-    
-        if (in == null || ("".equals(in)))
+
+        if (in == null || ("".equals(in))) {
             return ""; // vacancy test.
+        }
         for (int i = 0; i < in.length(); i++) {
             current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
             if ((current == 0x9) || (current == 0xA) || (current == 0xD) || ((current >= 0x20) && (current <= 0xD7FF))
-                    || ((current >= 0xE000) && (current <= 0xFFFD)) || ((current >= 0x10000) && (current <= 0x10FFFF)))
+                    || ((current >= 0xE000) && (current <= 0xFFFD)) || ((current >= 0x10000) && (current <= 0x10FFFF))) {
                 out.append(current);
+            }
         }
         return out.toString();
     }

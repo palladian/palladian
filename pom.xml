@@ -54,6 +54,7 @@
 					<excludes>
 						<exclude>**/DictionaryDBIndexTest.java</exclude>
 						<exclude>**/FeedDatabaseTest.java</exclude>
+						<exclude>**/FeedCheckerTest.java</exclude>
 					</excludes>
 				</configuration>
 			</plugin>
@@ -113,9 +114,15 @@
 						<configuration>
 							<!-- Optional -->
 							<onejarVersion>0.97</onejarVersion>
-							<!-- Optional, use only if you need to include native libraries (dll's) 
-								<binlibs> <fileSet> <directory>${project.build.directory}/dllextract</directory> 
-								<includes> <include>test.dll</include> </includes> </fileSet> </binlibs> -->
+
+							<!--
+								Optional, use only if you need to include native libraries
+								(dll's) <binlibs> <fileSet>
+								<directory>${project.build.directory}/dllextract</directory>
+								<includes> <include>test.dll</include> </includes> </fileSet>
+								</binlibs>
+							-->
+
 							<!-- Optional, default is false -->
 							<attachToBuild>true</attachToBuild>
 							<!-- Optional, default is "onejar" -->

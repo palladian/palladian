@@ -731,7 +731,7 @@ public class testCrawler {
                     DateComparator.STOP_DAY);
             ExtractedDate sameDate;
 
-            outputString = e.getValue()[0].getNormalizedDate() + " | " + e.getValue()[1].getNormalizedDate() + " | ";
+            outputString = e.getValue()[0].getNormalizedDateString() + " | " + e.getValue()[1].getNormalizedDateString() + " | ";
 
             if (sameDates != null && sameDates.size() > 0) {
                 sameDate = sameDates.get(0);
@@ -829,7 +829,7 @@ public class testCrawler {
                     DateComparator.STOP_DAY);
             ExtractedDate sameDate;
 
-            outputString = e.getValue().getNormalizedDate() + " | ";
+            outputString = e.getValue().getNormalizedDateString() + " | ";
 
             if (sameDates != null && sameDates.size() > 0) {
                 sameDate = sameDates.get(0);

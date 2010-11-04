@@ -25,17 +25,17 @@ public class WebPageDatEvaluatorTest {
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals("2010-09-02 06:00:00", wpde.getBestRatedDate().getNormalizedDate());
+        assertEquals("2010-09-02 06:00:00", wpde.getBestRatedDate().getNormalizedDateString());
 
         url = "data/test/webPages/dateExtraction/zeit1.htm";
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals("2010-08-22", wpde.getBestRatedDate().getNormalizedDate());
+        assertEquals("2010-08-22", wpde.getBestRatedDate().getNormalizedDateString());
 
         url = "data/test/webPages/dateExtraction/kullin.htm";
         wpde.setUrl(url);
         wpde.evaluate();
-        assertEquals("2010-05-28 22:41", wpde.getBestRatedDate().getNormalizedDate());
+        assertEquals("2010-05-28 22:41", wpde.getBestRatedDate().getNormalizedDateString());
     }
 
     /**

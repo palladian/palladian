@@ -15,7 +15,7 @@ public final class ConnectionTimeout implements Runnable {
 
     /** the connection timeout class */
     private URLConnection urlConnection = null;
-    private int timeout = 30000;
+    private int timeout = 120000;
 
     /** whether the timeout is active or not */
     private boolean active = true;

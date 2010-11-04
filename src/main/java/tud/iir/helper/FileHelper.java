@@ -163,7 +163,7 @@ public class FileHelper {
         if (stripTags) {
             contents = StringEscapeUtils.unescapeHtml(contents);
             contents = HTMLHelper.removeHTMLTags(contents, true, false, false, false); // TODO remove JS, CSS,
-                                                                                         // comments and merge?
+            // comments and merge?
             return contents;
         }
 
@@ -177,11 +177,16 @@ public class FileHelper {
      * @return the string
      */
     public static String readFileToString(String path) {
+        File contentFile = new File(path);
+        return readFileToString(contentFile);
+    }
+
+    public static String readFileToString(File file) {
 
         StringBuilder contents = new StringBuilder();
 
         try {
-            FileReader in = new FileReader(path);
+            FileReader in = new FileReader(file);
             BufferedReader br = new BufferedReader(in);
 
             String line = "";
@@ -197,11 +202,11 @@ public class FileHelper {
             br.close();
 
         } catch (FileNotFoundException e) {
-            LOGGER.error(path + ", " + e.getMessage());
+            LOGGER.error(file + ", " + e.getMessage());
         } catch (IOException e) {
-            LOGGER.error(path + ", " + e.getMessage());
+            LOGGER.error(file + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
-            LOGGER.error(path + ", " + e.getMessage());
+            LOGGER.error(file + ", " + e.getMessage());
         }
 
         return contents.toString();
@@ -217,7 +222,7 @@ public class FileHelper {
         File contentFile = new File(path);
         return readFileToArray(contentFile);
     }
-    
+
     /**
      * <p>
      * 
@@ -236,7 +241,7 @@ public class FileHelper {
         return readFileToArray(contentFile);
 
     }
-    
+
     /**
      * Create a list with each line of the given file as an element.
      *
@@ -372,6 +377,34 @@ public class FileHelper {
         return writeToFile(filePath, string.toString());
     }
 
+    public static int performActionOnEveryLineText(String text, LineAction la) {
+
+        int lineNumber = 1;
+
+        StringReader in = new StringReader(text);
+        BufferedReader br = new BufferedReader(in);
+        try {
+            String line = "";
+            do {
+                line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+
+                la.performAction(line, lineNumber++);
+
+            } while (line != null && la.looping);
+
+            in.close();
+            br.close();
+
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        return lineNumber - 1;
+    }
+
     /**
      * Writes a Collection of Objects to a file. Each Object's {{@link #toString()} invocation represents a line.
      * 
@@ -478,9 +511,9 @@ public class FileHelper {
             LOGGER.error(filePath + ", " + e.getMessage());
         }
     }
-    
+
     /**
-     * Appends (i. e. inserts a the end) a String to the specified File.
+     * Appends (i. e. inserts a the end) a string to the specified File.
      *
      * @param filePath the file path
      * @param stringToAppend the string to append
@@ -488,12 +521,12 @@ public class FileHelper {
      * @author Philipp Katz
      */
     public static void appendFile(String filePath, String stringToAppend) throws IOException {
-        
+
         FileWriter fileWriter = new FileWriter(filePath, true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         bufferedWriter.append(stringToAppend);
         bufferedWriter.close();
-        
+
     }
 
     /**
@@ -511,7 +544,7 @@ public class FileHelper {
         RandomAccessFile randomAccessFile = new RandomAccessFile(filePath, "rw");
 
         byte[] writeBuffer = stringToPrepend.getBytes();
-        
+
         // buffer size must be at least the size of String which we prepend
         int bufferSize = Math.max(4096, writeBuffer.length);
 
@@ -536,7 +569,7 @@ public class FileHelper {
 
             // set read data to the writeBuffer for next iteration
             writeBuffer = readBuffer;
-            
+
             readPosition += bufferSize;
             writePosition += writeBytes;
             writeBytes = readBytes;
@@ -619,7 +652,8 @@ public class FileHelper {
         String fullPath = inputFile.getAbsolutePath();
 
         String oldName = inputFile.getName().replaceAll("\\..*", "");
-        String newPath = fullPath.replaceAll(oldName + "\\.", newName + ".");
+        String newPath = fullPath.replaceAll(StringHelper.escapeForRegularExpression(oldName) + "\\.",
+                StringHelper.escapeForRegularExpression(newName) + ".");
 
         return newPath;
     }
@@ -679,8 +713,8 @@ public class FileHelper {
 
             String files[] = srcPath.list();
 
-            for (int i = 0; i < files.length; i++) {
-                copyDirectory(new File(srcPath, files[i]), new File(dstPath, files[i]));
+            for (String file : files) {
+                copyDirectory(new File(srcPath, file), new File(dstPath, file));
             }
         } else {
 
@@ -757,7 +791,7 @@ public class FileHelper {
     public static boolean delete(String filename) {
         return delete(filename, true);
     }
-    
+
     /**
      * Delete all files inside a directory.
      *
@@ -767,7 +801,7 @@ public class FileHelper {
     public static boolean cleanDirectory(String dirPath) {
         File file = new File(dirPath);
         boolean returnValue = false;
-      
+
         if (file.isDirectory()) {
             String[] files = file.list();
             if (files.length > 0) {
@@ -1053,7 +1087,7 @@ public class FileHelper {
         }
         return false;
     }
-    
+
     public static boolean createDirectory(String directoryPath) {
         return new File(directoryPath).mkdir();
     }
@@ -1065,10 +1099,10 @@ public class FileHelper {
      */
     public static void main(String[] a) {
 
-        // FileHelper.fileContentToLines("data/temp/queries_backup.txt", "data/temp/queries.txt", ",");
-        FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
+        FileHelper.fileContentToLines("data/a.TXT", "data/a.TXT", ",");
+        // FileHelper.removeDuplicateLines("data/temp/feeds.txt", "data/temp/feeds_d.txt");
         System.exit(0);
-        
+
         // //////////////////////// add license to every file //////////////////////////
         // FileHelper.copyDirectory("src/tud", "data/temp/src/tud");
         // StringBuilder sb = new StringBuilder();
@@ -1152,6 +1186,17 @@ public class FileHelper {
         isFileName("  abasdf.mpeg2 ");
 
         System.out.println(rename(new File("data/test/sampleTextForTagging.txt"), "sampleTextForTagging_tagged"));
+
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     * 
+     * @param i
+     */
+    public static void removeLine(File file, int i) throws IOException {
 
     }
 }

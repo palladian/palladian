@@ -39,6 +39,12 @@ public class FeedEntry {
 
     /** arbitrary, numeric features, used for feature extraction and classification. */
     private SortedMap<String, Double> features = new TreeMap<String, Double>();
+    /**
+     * <p>
+     * The raw XML markup for this feed entry.
+     * </p>
+     */
+    private String plainXML;
 
     public int getId() {
         return id;
@@ -173,6 +179,20 @@ public class FeedEntry {
         sb.append(" published:").append(published);
         // sb.append(" entryText:").append(entryText);
         return sb.toString();
+    }
+
+    /**
+     * @param plainXML The raw XML markup for this feed entry.
+     */
+    public void setPlainXML(String plainXML) {
+        this.plainXML = plainXML;
+    }
+    
+    /**
+     * @return The raw XML markup for this feed entry.
+     */
+    public String getPlainXML() {
+        return plainXML;
     }
 
 }

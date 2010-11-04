@@ -2,11 +2,13 @@ package tud.iir.daterecognition.dates;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import tud.iir.daterecognition.ExtractedDateHelper;
+import tud.iir.helper.DateHelper;
 import tud.iir.knowledge.RegExp;
 
 /**
@@ -392,8 +394,12 @@ public class ExtractedDate {
      * @param dateParts
      * @return
      */
-    public String getNormalizedDate() {
+    public String getNormalizedDateString() {
         return getNormalizedDate(true);
+    }
+
+    public Date getNormalizedDate() throws Exception {
+        return new Date(DateHelper.getTimestamp(getNormalizedDateString()));
     }
 
     /**
@@ -848,9 +854,10 @@ public class ExtractedDate {
      * String with date properties.<br>
      * Rate, found date string, normalized date, format and technique as string.
      */
+    @Override
     public String toString() {
-        return "rate: " + rate + " " + dateString + " -> " + this.getNormalizedDate() + " Format: " + this.format
-                + " Technique: " + ExtractedDateHelper.getTypString(getType());
+        return "rate: " + rate + " " + dateString + " -> " + this.getNormalizedDateString() + " Format: " + this.format
+        + " Technique: " + ExtractedDateHelper.getTypString(getType());
     }
 
     /**
