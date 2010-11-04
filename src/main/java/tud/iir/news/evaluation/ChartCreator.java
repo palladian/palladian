@@ -1,5 +1,6 @@
 package tud.iir.news.evaluation;
 
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,7 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.FileHelper;
 
 /**
- * @author reichert
+ * @author Sandro Reichert
  * 
  */
 public class ChartCreator {
@@ -43,6 +44,7 @@ public class ChartCreator {
         this.MAX_NUMBER_OF_POLLS_SCORE_MIN = MAX_NUMBER_OF_POLLS_SCORE_MIN;
         this.MAX_NUMBER_OF_POLLS_SCORE_MAX = MAX_NUMBER_OF_POLLS_SCORE_MAX;
     }
+
 
     /**
      * Generates a *.csv file to generate a feed size histogram and stores it at
@@ -82,9 +84,13 @@ public class ChartCreator {
                     .append((float) number / (float) totalNumberOfFeeds * 100).append(";\n");
         }
         
-        FileHelper.writeToFile(FEED_SIZE_HISTOGRAM_FILE_PATH, feedSizeDistributionSB);
-        LOGGER.info("feedSizeHistogrammFile *hopefully* :) written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
+        boolean outputWritten = FileHelper.writeToFile(FEED_SIZE_HISTOGRAM_FILE_PATH, feedSizeDistributionSB);
+        if (outputWritten)
+            LOGGER.info("feedSizeHistogrammFile written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
+        else
+            LOGGER.fatal("feedSizeHistogrammFile has not been written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
     }
+
 
     /**
      * Generates a *.csv file to generate a feed age histogram and stores it at {@link ChartCreator#feedAgeFilePath}.
@@ -124,36 +130,40 @@ public class ChartCreator {
             i++;
         }
         
-        FileHelper.writeToFile(feedAgeFilePath, feedAgeSB);
-        LOGGER.info("feedAgeFile *hopefully* :) written to: " + feedAgeFilePath);       
+        boolean outputWritten = FileHelper.writeToFile(feedAgeFilePath, feedAgeSB);
+        if (outputWritten)
+            LOGGER.info("feedAgeFile written to: " + feedAgeFilePath);
+        else
+            LOGGER.fatal("feedAgeFile has not been written to: " + feedAgeFilePath);
     }
 
 
     /**
-     * Helper function for {@link createTimeliness2File()} to process the data of each data base table
+     * Helper function to process data aggregated (e.g. averaged) by numberOfPolls (for each data base table)
      * 
-     * @param timeliness2Map the map to write the output to
-     * @param polls contains the preaggregated average scoreMin values from one table
+     * @param resultMap the map to write the output to
+     * @param polls contains the preaggregated average values from one table
      * @param rowToWrite the position in Double[] to write the data to. This is the position in the *.csv file that is
-     *            written by {@link createTimeliness2File()}.
+     *            written .
      * @param numberOfRows the total number of rows that are written to the *.csv file, used to create the Double[] in
-     *            {@link timeliness2Map}
+     *            {@link resultMap}
      */
-    private int processTimelines2Data(List<EvaluationFeedPoll> polls, Map<Integer, Double[]> timeliness2Map,
+    private int processDataAggregatedByPoll(List<EvaluationFeedPoll> polls, Map<Integer, Double[]> resultMap,
             final int rowToWrite, final int numberOfRows) {
         int lineCount = 0;
         for (EvaluationFeedPoll poll : polls) {
             int pollToProcess = poll.getNumberOfPoll();
-            Double[] scoresAtCurrentPoll = new Double[numberOfRows];
-            if (timeliness2Map.containsKey(pollToProcess)) {
-                scoresAtCurrentPoll = timeliness2Map.get(pollToProcess);
+            Double[] aggregatedDataAtCurrentPoll = new Double[numberOfRows];
+            if (resultMap.containsKey(pollToProcess)) {
+                aggregatedDataAtCurrentPoll = resultMap.get(pollToProcess);
             }
-            scoresAtCurrentPoll[rowToWrite] = poll.getScoreAVG();
-            timeliness2Map.put(poll.getNumberOfPoll(), scoresAtCurrentPoll);
+            aggregatedDataAtCurrentPoll[rowToWrite] = poll.getAverageValue();
+            resultMap.put(poll.getNumberOfPoll(), aggregatedDataAtCurrentPoll);
             lineCount++;
         }
         return lineCount;
     }
+
 
     /**
      * Generates a *.csv file to generate the timeliness2 chart and stores it at
@@ -161,7 +171,7 @@ public class ChartCreator {
      * polling strategy separately. The csv file has the pattern (number of poll; adaptive; probabilistic; fix learned;
      * fix1h; fix1d)
      */
-    private void createTimeliness2File() {
+    private void createAverageScoreMinByPollFile() {
         LOGGER.info("starting to create timeliness2File...");
         StringBuilder timeliness2SB = new StringBuilder();        
         Map<Integer, Double[]> timeliness2Map = new TreeMap<Integer, Double[]>();
@@ -173,136 +183,117 @@ public class ChartCreator {
         LOGGER.info("starting to process table adaptive...");
         timeliness2SB.append("adaptive;");
         polls = ed.getAverageScoreMinAdaptive(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processTimelines2Data(polls, timeliness2Map, 0, numberOfRows);
+        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 0, numberOfRows);
         LOGGER.info("finished processing table adaptive, processed " + linesProcessed + " lines in the result set.");
 
         LOGGER.info("starting to process table probabilistic...");
         timeliness2SB.append("probabilistic;");
         polls = ed.getAverageScoreMinProbabilistic(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processTimelines2Data(polls, timeliness2Map, 1, numberOfRows);
+        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 1, numberOfRows);
         LOGGER.info("finished processing table probabilistic, processed " + linesProcessed
                 + " lines in the result set.");
 
         LOGGER.info("starting to process table fix learned...");
         timeliness2SB.append("fix learned;");
         polls = ed.getAverageScoreMinFIXlearned(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processTimelines2Data(polls, timeliness2Map, 2, numberOfRows);
+        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 2, numberOfRows);
         LOGGER.info("finished processing table fix learned, processed " + linesProcessed + " lines in the result set.");
 
         LOGGER.info("starting to process table fix1h...");
         timeliness2SB.append("fix1h;");
         polls = ed.getAverageScoreMinFIX60(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processTimelines2Data(polls, timeliness2Map, 3, numberOfRows);
+        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 3, numberOfRows);
         LOGGER.info("finished processing table fix1h, processed " + linesProcessed + " lines in the result set.");
 
         LOGGER.info("starting to process table fix1d...");
         timeliness2SB.append("fix1d;\n");
         polls = ed.getAverageScoreMinFIX1440(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processTimelines2Data(polls, timeliness2Map, 4, numberOfRows);
+        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 4, numberOfRows);
         LOGGER.info("finished processing table fix1d, processed " + linesProcessed + " lines in the result set.");
 
-        // CAUTION! numberOfPoll hard coded to 2 since scoreMin for numberOfPoll=1 is undefined
-        int numberOfPoll = 2;
-        for (Double[] scoresAtCurrentPoll : timeliness2Map.values()) {
-            timeliness2SB.append(numberOfPoll).append(";").append(scoresAtCurrentPoll[0]).append(";")
+        writeOutput(timeliness2Map, timeliness2SB, timeliness2FilePath);
+        LOGGER.info("finished creating timeliness2File.");
+    } 
+    
+    
+    
+    /**
+     * Generates a *.csv file containing the average percentage of percentageNewEntries by numberOfPoll for each
+     * strategy separately. File is written to {@link ChartCreator#percentageNewFilePath}, file has structure
+     * (numberOfPoll; adaptive; probabilistic; fix learned; fix1h; fix1d)
+     */
+    private void createPercentageNewFile() {
+        LOGGER.info("starting to create timeliness2File...");
+        StringBuilder percentageNewSB = new StringBuilder();
+        Map<Integer, Double[]> percentageNewMap = new TreeMap<Integer, Double[]>();
+        List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
+        final int numberOfRows = 5;
+        int linesProcessed = 0;
+        percentageNewSB.append("numberOfPoll;");
+
+        LOGGER.info("starting to process table adaptive...");
+        percentageNewSB.append("adaptive;");
+        polls = ed.getAveragePercentageNewEntriesByPollFromAdaptiveMaxPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
+        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 0, numberOfRows);
+        LOGGER.info("finished processing table adaptive, processed " + linesProcessed + " lines in the result set.");
+
+        LOGGER.info("starting to process table probabilistic...");
+        percentageNewSB.append("probabilistic;");
+        polls = ed.getAveragePercentageNewEntriesByPollFromProbabilisticMaxPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
+        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 1, numberOfRows);
+        LOGGER.info("finished processing table probabilistic, processed " + linesProcessed
+                + " lines in the result set.");
+
+        LOGGER.info("starting to process table fix learned...");
+        percentageNewSB.append("fix learned;");
+        polls = ed.getAveragePercentageNewEntriesByPollFromFIXlearnedMaxPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
+        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 2, numberOfRows);
+        LOGGER.info("finished processing table fix learned, processed " + linesProcessed + " lines in the result set.");
+
+        LOGGER.info("starting to process table fix1h...");
+        percentageNewSB.append("fix1h;");
+        polls = ed.getAveragePercentageNewEntriesByPollFromFIX60MaxMinPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
+        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 3, numberOfRows);
+        LOGGER.info("finished processing table fix1h, processed " + linesProcessed + " lines in the result set.");
+
+        LOGGER.info("starting to process table fix1d...");
+        percentageNewSB.append("fix1d;\n");
+        polls = ed.getAveragePercentageNewEntriesByPollFromFix1440MaxMinPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
+        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 4, numberOfRows);
+        LOGGER.info("finished processing table fix1d, processed " + linesProcessed + " lines in the result set.");
+
+        writeOutput(percentageNewMap, percentageNewSB, percentageNewFilePath);
+        LOGGER.info("finished creating percentageNewFile.");
+    }
+
+
+    /**
+     * Helper to traverse a result map, append it to given StringBuilder and write SB into a *.csv file. For every pair
+     * (K,V) in the map, the Intger value is written into the first row (e.g. number of poll), followed by the values
+     * for each strategy, e.g. adaptive, probabilistic, fix learned, fix1h, fix1d
+     * 
+     * @param outputMap the map to traverse with <numberOfPoll, {adaptive, probabilistic, fix learned, fix1h, fix1d}>
+     * @param outputSB the StringBuilder that already contains the header information (column heads)
+     * @param filePath the file to write the output to
+     */
+    private void writeOutput(Map<Integer, Double[]> outputMap, StringBuilder outputSB, String filePath) {
+        Iterator<Integer> it = outputMap.keySet().iterator();
+        while (it.hasNext()) {
+            int currentPoll = (int) it.next();
+            Double[] scoresAtCurrentPoll = outputMap.get(currentPoll);
+            outputSB.append(currentPoll).append(";").append(scoresAtCurrentPoll[0]).append(";")
                     .append(scoresAtCurrentPoll[1]).append(";").append(scoresAtCurrentPoll[2]).append(";")
                     .append(scoresAtCurrentPoll[3]).append(";").append(scoresAtCurrentPoll[4]).append(";\n");
-            numberOfPoll++;
-        }
-        
-        FileHelper.writeToFile(timeliness2FilePath, timeliness2SB);
-        LOGGER.info("timeliness2File *hopefully* :) written to: " + timeliness2FilePath);
-    } 
-    
-    
-    
-
-
-    private void createPercentageNewFile(){        
-        StringBuilder timeliness2SB = new StringBuilder();        
-        Map<Integer,Double[]> testMap = new TreeMap<Integer,Double[]>();
-        List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
-        timeliness2SB.append("numberOfPoll;");
-        
-        timeliness2SB.append("fix1d;");
-        polls = ed.getAverageScoreMaxFIX1440(MAX_NUMBER_OF_POLLS_SCORE_MAX);
-        for (EvaluationFeedPoll poll : polls) {            
-            Double[] testDouble = new Double[6];
-            testDouble[0] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }
-        
-        timeliness2SB.append("fix720;");
-//        polls = ed.getAverageScoreMaxFIX720(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
-//        for (EvaluationFeedPoll poll : polls) {
-//            int pollToProcess = poll.getNumberOfPoll();
-//            Double[] testDouble = new Double[6];
-//            if( testMap.containsKey(pollToProcess)){
-//                testDouble = testMap.get(pollToProcess);
-//            }
-//            testDouble[1] = poll.getScoreAVG();
-//            testMap.put(poll.getNumberOfPoll(), testDouble);
-//        }
-        
-        timeliness2SB.append("fix1h;");
-        polls = ed.getAverageScoreMaxFIX60(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[2] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }        
-
-        timeliness2SB.append("fix learned;");
-        polls = ed.getAverageScoreMaxFIXlearned(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[3] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }
-        
-        timeliness2SB.append("adaptive;");
-        polls = ed.getAverageScoreMaxAdaptive(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[4] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
         }
 
-        timeliness2SB.append("probabilistic;\n");
-        polls = ed.getAverageScoreMaxProbabilistic(MAX_NUMBER_OF_POLLS_SCORE_MAX);                
-        for (EvaluationFeedPoll poll : polls) {
-            int pollToProcess = poll.getNumberOfPoll();
-            Double[] testDouble = new Double[6];
-            if( testMap.containsKey(pollToProcess)){
-                testDouble = testMap.get(pollToProcess);
-            }
-            testDouble[5] = poll.getScoreAVG();
-            testMap.put(poll.getNumberOfPoll(), testDouble);
-        }        
-        
-        int i = 1;
-        for(Double[] scores : testMap.values()){
-            timeliness2SB.append(i).append(";").append(scores[0]).append(";").append(scores[1]).append(";").append(scores[2]).append(";").append(scores[3]).append(";").append(scores[4]).append(";").append(scores[5]).append(";\n");
-            i++;            
-        }
-        
-        FileHelper.writeToFile(percentageNewFilePath, timeliness2SB);
-        LOGGER.info("percentageNewFile *hopefully* :) written to: " + percentageNewFilePath);
-    } 
-    
-    
+        boolean outputWritten = FileHelper.writeToFile(filePath, outputSB);
+        if (outputWritten)
+            LOGGER.info(filePath + " has been written");
+        else
+            LOGGER.fatal(filePath + "has NOT been written!");
+    }
+
+
     
     
     
@@ -647,8 +638,11 @@ public class ChartCreator {
             i++;   
         }
         
-        FileHelper.writeToFile(sumVolumeMaxFilePath, culmulatedVolumeSB);
-        LOGGER.info("sumVolumeMaxFilePath *hopefully* :) written to: " + sumVolumeMaxFilePath);
+        boolean outputWritten = FileHelper.writeToFile(sumVolumeMaxFilePath, culmulatedVolumeSB);
+        if (outputWritten)
+            LOGGER.info("sumVolumeMaxFilePath written to: " + sumVolumeMaxFilePath);
+        else
+            LOGGER.fatal("sumVolumeMaxFilePath has not been written to: " + sumVolumeMaxFilePath);
     } 
     
     
@@ -993,9 +987,12 @@ public class ChartCreator {
                 .append(volumes[5]/BYTE_TO_MB).append(";\n");            
             i++;   
         }
-        
-        FileHelper.writeToFile(sumVolumeMinFilePath, culmulatedVolumeSB);
-        LOGGER.info("sumVolumeMinFile *hopefully* :) written to: " + sumVolumeMinFilePath);
+
+        boolean outputWritten = FileHelper.writeToFile(sumVolumeMinFilePath, culmulatedVolumeSB);
+        if (outputWritten)
+            LOGGER.info("sumVolumeMinFile written to: " + sumVolumeMaxFilePath);
+        else
+            LOGGER.fatal("sumVolumeMinFile has not been written to: " + sumVolumeMinFilePath);
     } 
     
     
@@ -1360,25 +1357,17 @@ public class ChartCreator {
             i++;   
         }
         
-        FileHelper.writeToFile(sumVolumeMinEtag304FilePath, culmulatedVolumeSB);
-        LOGGER.info("sumVolumeMineTag304File *hopefully* :) written to: " + sumVolumeMinFilePath);
+
+        boolean outputWritten = FileHelper.writeToFile(sumVolumeMinEtag304FilePath, culmulatedVolumeSB);
+        if (outputWritten)
+            LOGGER.info("sumVolumeMineTag304File written to: " + sumVolumeMinFilePath);
+        else
+            LOGGER.fatal("sumVolumeMineTag304File has not been written to: " + sumVolumeMinFilePath);
     } 
     
     
 
     
-    
-    
-    
-    /**
-     * simply testing the connection and EvaluationFeedPoll class.
-     * */
-    private void firstTest(){        
-        List<EvaluationFeedPoll> polls = ed.getFeedPolls();
-        for (EvaluationFeedPoll poll : polls) {
-            System.out.println(poll);
-        }
-    }
         
     
 	/**
@@ -1390,8 +1379,8 @@ public class ChartCreator {
 
         // cc.createFeedSizeHistogrammFile(10, 20);
         // cc.createFeedAgeFile();
-        cc.createTimeliness2File();
-//	    cc.createPercentageNewFile();
+        // cc.createAverageScoreMinByPollFile();
+        cc.createPercentageNewFile();
 //	    cc.culmulatedVolumeMaxTimeFile();
 //      cc.culmulatedVolumeMinTimeFile();
 //	    cc.culmulatedVolumeMinTimeEtag304File();

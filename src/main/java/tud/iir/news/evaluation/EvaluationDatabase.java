@@ -33,15 +33,13 @@ public class EvaluationDatabase {
     private PreparedStatement psGetAvgScoreMinByPollFromFixLearnedPoll;
     private PreparedStatement psGetAvgScoreMinByPollFromFix1440Poll;
     private PreparedStatement psGetAvgScoreMinByPollFromFix60Poll;
-    private PreparedStatement psGetAvgScoreMinByPollFromFix720Poll;
     private PreparedStatement psGetAvgScoreMinByPollFromPorbabilisticPoll;
     
-    private PreparedStatement psGetAvgScoreMaxByPollFromAdaptivePoll;
-    private PreparedStatement psGetAvgScoreMaxByPollFromFixLearnedPoll;
-    private PreparedStatement psGetAvgScoreMaxByPollFromFix1440Poll;
-    private PreparedStatement psGetAvgScoreMaxByPollFromFix60Poll;
-    private PreparedStatement psGetAvgScoreMaxByPollFromFix720Poll;
-    private PreparedStatement psGetAvgScoreMaxByPollFromPorbabilisticPoll;
+    private PreparedStatement psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll;
+    private PreparedStatement psGetAvgPercentageNewEntriesByPollFromFixLearnedMaxPoll;
+    private PreparedStatement psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll;
+    private PreparedStatement psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll;
+    private PreparedStatement psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll;
     
     private PreparedStatement psGetSumTransferVolumeByHourFromAdaptiveMaxTime;
     private PreparedStatement psGetTransferVolumeByHourFromFix1440Time;
@@ -88,61 +86,44 @@ public class EvaluationDatabase {
         
         // for timeliness2 (ScoreMin vs. Polls)
         psGetAvgScoreMinByPollFromAdaptivePoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_adaptive_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_adaptive_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromFixLearnedPoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix_learned_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix_learned_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromFix1440Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromFix60Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
-        psGetAvgScoreMinByPollFromFix720Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix720_max_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromPorbabilisticPoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_probabilistic_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
-        
-        // for |delay| vs. Poll
-//        psGetAvgScoreMinByPollFromAdaptivePoll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_adaptive_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMinByPollFromFixLearnedPoll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix_learned_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMinByPollFromFix1440Poll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMinByPollFromFix60Poll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMinByPollFromFix720Poll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix720_max_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMinByPollFromPorbabilisticPoll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_probabilistic_min_poll WHERE scoreMin > 0 AND numberOfPoll < ? GROUP BY numberOfPoll");
-
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_probabilistic_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
         
 
-// original        
-        psGetAvgScoreMaxByPollFromAdaptivePoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_adaptive_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-        psGetAvgScoreMaxByPollFromFixLearnedPoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix_learned_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-        psGetAvgScoreMaxByPollFromFix1440Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-        psGetAvgScoreMaxByPollFromFix60Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-        psGetAvgScoreMaxByPollFromFix720Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix720_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-        psGetAvgScoreMaxByPollFromPorbabilisticPoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_probabilistic_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-
-        // test mit david
+        
+// // original
 //        psGetAvgScoreMaxByPollFromAdaptivePoll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_adaptive_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
+        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_adaptive_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
 //        psGetAvgScoreMaxByPollFromFixLearnedPoll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix_learned_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
+        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix_learned_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
 //        psGetAvgScoreMaxByPollFromFix1440Poll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
+        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
 //        psGetAvgScoreMaxByPollFromFix60Poll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
+        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
 //        psGetAvgScoreMaxByPollFromFix720Poll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix720_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
+        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix720_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
 //        psGetAvgScoreMaxByPollFromPorbabilisticPoll  = connection
-//                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_probabilistic_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
+        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_probabilistic_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
+
+
+        // get average percentages of new entries by poll for MAX-policy
+        psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_adaptive_max_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? GROUP BY numberOfPoll");
+        psGetAvgPercentageNewEntriesByPollFromFixLearnedMaxPoll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix_learned_max_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? GROUP BY numberOfPoll");
+        psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix1440_max_min_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? GROUP BY numberOfPoll");
+        psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix60_max_min_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? GROUP BY numberOfPoll");
+        psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_probabilistic_max_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? GROUP BY numberOfPoll");
 
     
         
@@ -277,30 +258,45 @@ public class EvaluationDatabase {
         return result;
     }
 
-
     
+    
+    /**
+     * Private helper to processes a prepared Statement to get an average value like scoreMin or percentaegNewEntries by
+     * poll and returns a result set containing the average value for each numberOfPoll.
+     * 
+     * @param MAX_NUMBER_OF_POLLS The highest numberOfPolls value to calculate the average value for.
+     * @param ps The PreparedStatement to process.
+     * @return a result set containing the average value for each numberOfPoll.
+     */
+    private List<EvaluationFeedPoll> getAverageValueByPoll(final int MAX_NUMBER_OF_POLLS, final PreparedStatement ps) {
+        LOGGER.trace(">getAverageValueByPoll processing PreparedStatement " + ps.toString());
+        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+        try {
+            ps.setInt(1, MAX_NUMBER_OF_POLLS);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
+            while (resultSet.next()) {
+                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+                feedPoll.setNumberOfPoll(resultSet.getInt(1));
+                feedPoll.setAverageValue(resultSet.getDouble(2));
+                result.add(feedPoll);
+            }
+        } catch (SQLException e) {
+            LOGGER.error(">getAverageValueByPoll processing PreparedStatement " + ps.toString(), e);
+        }
+        LOGGER.trace(">getAverageValueByPoll processing PreparedStatement " + ps.toString());
+        return result;
+    }
+    
+
     /**
      * gets the Results from table feed_evaluation_fix1440_max_min_poll
      * 
      * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
      */
-    public List<EvaluationFeedPoll> getAverageScoreMaxFIX1440(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMaxFIX1440");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMaxByPollFromFix1440Poll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMaxByPollFromFix1440Poll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMaxFIX1440", e);
-        }
-        LOGGER.trace("<getAverageScoreMaxFIX1440");
-        return result;
+    public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromFix1440MaxMinPoll(
+            final int MAX_NUMBER_OF_POLLS) {
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
+                psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll);
     }
     
 
@@ -309,73 +305,23 @@ public class EvaluationDatabase {
      * 
      * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
      */
-    public List<EvaluationFeedPoll> getAverageScoreMaxFIX60(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMaxFIX60");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMaxByPollFromFix60Poll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMaxByPollFromFix60Poll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMaxFIX60", e);
-        }
-        LOGGER.trace("<getAverageScoreMaxFIX60");
-        return result;
+    public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromFIX60MaxMinPoll(final int MAX_NUMBER_OF_POLLS) {
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
+                psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll);
     }
     
 
-    /**
-     * gets the Results from table feed_evaluation_fix720_max_min_poll
-     * 
-     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
-     */
-    public List<EvaluationFeedPoll> getAverageScoreMaxFIX720(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMaxFIX720");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMaxByPollFromFix720Poll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMaxByPollFromFix720Poll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMaxFIX720", e);
-        }
-        LOGGER.trace("<getAverageScoreMaxFIX720");
-        return result;
-    }
     
-
     /**
      * gets the Results from table feed_evaluation_fix_learned_min_poll
      * 
      * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
      */
-    public List<EvaluationFeedPoll> getAverageScoreMaxFIXlearned(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMaxFIXlearned");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMaxByPollFromFixLearnedPoll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMaxByPollFromFixLearnedPoll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMaxFIXlearned", e);
-        }
+    public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromFIXlearnedMaxPoll(
+            final int MAX_NUMBER_OF_POLLS) {
         LOGGER.trace("<getAverageScoreMaxFIXlearned");
-        return result;
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
+                psGetAvgPercentageNewEntriesByPollFromFixLearnedMaxPoll);
     }
     
 
@@ -384,23 +330,10 @@ public class EvaluationDatabase {
      * 
      * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
      */
-    public List<EvaluationFeedPoll> getAverageScoreMaxAdaptive(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMaxAdaptive");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMaxByPollFromAdaptivePoll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMaxByPollFromAdaptivePoll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMaxAdaptive", e);
-        }
-        LOGGER.trace("<getAverageScoreMaxAdaptive");
-        return result;
+    public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromAdaptiveMaxPoll(
+            final int MAX_NUMBER_OF_POLLS) {
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
+                psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll);
     }
     
 
@@ -409,174 +342,67 @@ public class EvaluationDatabase {
      * 
      * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
      */
-    public List<EvaluationFeedPoll> getAverageScoreMaxProbabilistic(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMaxProbabilistic");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMaxByPollFromPorbabilisticPoll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMaxByPollFromPorbabilisticPoll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMaxProbabilistic", e);
-        }
-        LOGGER.trace("<getAverageScoreMaxProbabilistic");
-        return result;
+    public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromProbabilisticMaxPoll(final int MAX_NUMBER_OF_POLLS) {
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
+                psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll);
     }
-    
-    
-    
+
+
+
     /**
-     * gets the Results from table feed_evaluation_fix1440_max_min_poll
+     * Queries the database to get the average scoreMin by numberOfPoll from table feed_evaluation_fix1440_max_min_poll
+     * and returns a result set containing the average scoreMin for each numberOfPoll.
      * 
-     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     * @param MAX_NUMBER_OF_POLLS The highest numberOfPolls value to calculate the average scoreMin.
+     * @return a result set containing the average scoreMin for each numberOfPoll.
      */
     public List<EvaluationFeedPoll> getAverageScoreMinFIX1440(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMinFIX1440");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMinByPollFromFix1440Poll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromFix1440Poll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMinFIX1440", e);
-        }
-        LOGGER.trace("<getAverageScoreMinFIX1440");
-        return result;
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgScoreMinByPollFromFix1440Poll);
     }
-    
 
     /**
-     * gets the Results from table feed_evaluation_fix60_max_min_poll
+     * Queries the database to get the average scoreMin by numberOfPoll from table feed_evaluation_fix60_max_min_poll
+     * and returns a result set containing the average scoreMin for each numberOfPoll.
      * 
-     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     * @param MAX_NUMBER_OF_POLLS The highest numberOfPolls value to calculate the average scoreMin.
+     * @return a result set containing the average scoreMin for each numberOfPoll.
      */
     public List<EvaluationFeedPoll> getAverageScoreMinFIX60(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMinFIX60");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMinByPollFromFix60Poll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromFix60Poll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMinFIX60", e);
-        }
-        LOGGER.trace("<getAverageScoreMinFIX60");
-        return result;
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgScoreMinByPollFromFix60Poll);
     }
-    
 
     /**
-     * gets the Results from table feed_evaluation_fix720_max_min_poll
+     * Queries the database to get the average scoreMin by numberOfPoll from table feed_evaluation_fix_learned_min_poll
+     * and returns a result set containing the average scoreMin for each numberOfPoll.
      * 
-     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
-     */
-    public List<EvaluationFeedPoll> getAverageScoreMinFIX720(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMinFIX720");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMinByPollFromFix720Poll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromFix720Poll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMinFIX720", e);
-        }
-        LOGGER.trace("<getAverageScoreMinFIX720");
-        return result;
-    }
-    
-
-    /**
-     * gets the Results from table feed_evaluation_fix_learned_min_poll
-     * 
-     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     * @param MAX_NUMBER_OF_POLLS The highest numberOfPolls value to calculate the average scoreMin.
+     * @return a result set containing the average scoreMin for each numberOfPoll.
      */
     public List<EvaluationFeedPoll> getAverageScoreMinFIXlearned(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMinFIXlearned");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMinByPollFromFixLearnedPoll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromFixLearnedPoll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMinFIXlearned", e);
-        }
-        LOGGER.trace("<getAverageScoreMinFIXlearned");
-        return result;
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgScoreMinByPollFromFixLearnedPoll);
     }
-    
 
     /**
-     * gets the Results from table feed_evaluation_adaptive_min_poll
+     * Queries the database to get the average scoreMin by numberOfPoll from table feed_evaluation_adaptive_min_poll
+     * and returns a result set containing the average scoreMin for each numberOfPoll.
      * 
-     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     * @param MAX_NUMBER_OF_POLLS The highest numberOfPolls value to calculate the average scoreMin.
+     * @return a result set containing the average scoreMin for each numberOfPoll.
      */
     public List<EvaluationFeedPoll> getAverageScoreMinAdaptive(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMinAdaptive");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMinByPollFromAdaptivePoll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromAdaptivePoll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMinAdaptive", e);
-        }
-        LOGGER.trace("<getAverageScoreMinAdaptive");
-        return result;
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgScoreMinByPollFromAdaptivePoll);
     }
-    
 
     /**
-     * gets the Results from table feed_evaluation_probabilistic_min_poll
+     * Queries the database to get the average scoreMin by numberOfPoll from table
+     * feed_evaluation_probabilistic_min_poll and returns a result set containing the average scoreMin for each
+     * numberOfPoll.
      * 
-     * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
+     * @param MAX_NUMBER_OF_POLLS The highest numberOfPolls value to calculate the average scoreMin.
+     * @return a result set containing the average scoreMin for each numberOfPoll.
      */
     public List<EvaluationFeedPoll> getAverageScoreMinProbabilistic(final int MAX_NUMBER_OF_POLLS) {
-        LOGGER.trace(">getAverageScoreMinProbabilistic");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetAvgScoreMinByPollFromPorbabilisticPoll.setInt(1, MAX_NUMBER_OF_POLLS);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetAvgScoreMinByPollFromPorbabilisticPoll);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setNumberOfPoll(resultSet.getInt(1));
-                feedPoll.setScoreAVG(resultSet.getDouble(2));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getAverageScoreMinProbabilistic", e);
-        }
-        LOGGER.trace("<getAverageScoreMinProbabilistic");
-        return result;
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgScoreMinByPollFromPorbabilisticPoll);
     }
     
     
