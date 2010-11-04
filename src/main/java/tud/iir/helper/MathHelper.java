@@ -1,6 +1,7 @@
 package tud.iir.helper;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -34,18 +35,21 @@ public class MathHelper {
         double numMin = value1 - margin * value1;
         double numMax = value1 + margin * value1;
 
-        if (value1 < numMax && value1 > numMin)
+        if (value1 < numMax && value1 > numMin) {
             return true;
+        }
 
         return false;
     }
 
-    public static boolean isWithinCorrectnessMargin(double questionedValue, double correctValue, double correctnessMargin) {
+    public static boolean isWithinCorrectnessMargin(double questionedValue, double correctValue,
+            double correctnessMargin) {
         double numMin = correctValue - correctnessMargin * correctValue;
         double numMax = correctValue + correctnessMargin * correctValue;
 
-        if (questionedValue < numMax && questionedValue > numMin)
+        if (questionedValue < numMax && questionedValue > numMin) {
             return true;
+        }
 
         return false;
     }
@@ -59,7 +63,7 @@ public class MathHelper {
         return faculty;
     }
 
-    public static long getMedianDifference(final TreeSet<Long> valueSet) {
+    public static long getMedianDifference(TreeSet<Long> valueSet) {
         Median median = new Median();
         double[] doubles = new double[valueSet.size() - 1];
         int i = 0;
@@ -75,12 +79,41 @@ public class MathHelper {
         return (long) median.evaluate(doubles);
     }
 
-    public static long getStandardDeviation(final TreeSet<Long> valueSet) {
+    public static long getMedianDifference(List<Long> sortedList) {
+        Collections.sort(sortedList);
+        Median median = new Median();
+        double[] doubles = new double[sortedList.size() - 1];
+        int i = 0;
+        long lastValue = -1;
+        for (Long entry : sortedList) {
+            if (lastValue == -1) {
+                lastValue = entry;
+                continue;
+            }
+            doubles[i++] = entry - lastValue;
+            lastValue = entry;
+        }
+        return (long) median.evaluate(doubles);
+    }
+
+    public static long getStandardDeviation(TreeSet<Long> valueSet) {
         StandardDeviation sd = new StandardDeviation();
 
         double[] doubles = new double[valueSet.size()];
         int i = 0;
         for (Long entry : valueSet) {
+            doubles[i++] = entry;
+        }
+        return (long) sd.evaluate(doubles);
+    }
+
+    public static long getStandardDeviation(List<Long> sortedList) {
+        Collections.sort(sortedList);
+        StandardDeviation sd = new StandardDeviation();
+
+        double[] doubles = new double[sortedList.size()];
+        int i = 0;
+        for (Long entry : sortedList) {
             doubles[i++] = entry;
         }
         return (long) sd.evaluate(doubles);
@@ -95,7 +128,7 @@ public class MathHelper {
                 lastValue = entry;
                 continue;
             }
-            long gap = (entry - lastValue);
+            long gap = entry - lastValue;
             if (gap > longestGap) {
                 longestGap = gap;
             }
@@ -158,68 +191,69 @@ public class MathHelper {
 
         return rmse;
     }
-    
+
     /**
-     * Calculate similarity of two lists of the same size. 
+     * Calculate similarity of two lists of the same size.
+     * 
      * @param list1 The first list.
      * @param list2 The second list.
      * @return The similarity of the two lists.
      */
     public static ListSimilarity calculateListSimilarity(List<String> list1, List<String> list2) {
-    	
-    	ListSimilarity ls = new ListSimilarity();
-    	
-    	double similarity = 0;
-    	    	
-    	// get maximum possible distance
-    	int summedMaxDistance = 0;
-    	int summedMaxSquaredDistance = 0;
-    	int distance = list1.size() - 1;
-    	for (int i = list1.size(); i > 0; i -=2) {
-    		summedMaxDistance += 2 * distance;
-    		summedMaxSquaredDistance += 2 * Math.pow(distance, 2);
-    		distance -= 2;
-    	}
-    	
-    	// get real distance between lists
-    	int summedRealDistance = 0;
-    	int summedRealSquaredDistance = 0;
-    	int position1 = 0;
-    	List<double[]> positionValues = new ArrayList<double[]>();
-    	
-    	for (String entry1 : list1) {
-    		
-    		int position2 = 0;
-    		for (String entry2 : list2) {
-    			if (entry1.equals(entry2)) {
-    				summedRealDistance += Math.abs(position1 - position2);
-    				summedRealSquaredDistance += Math.pow(position1 - position2, 2);
-    				
-    				double[] values = new double[2];
-    				values[0] = position1;
-    				values[1] = position2;
-    				positionValues.add(values);
-    				break;
-    			}
-    			position2++;
-    		}
-    		
-    		position1++;    		
-    	}
-    	
-    	similarity = 1 - ((double) summedRealDistance / (double) summedMaxDistance);
-    	double squaredShiftSimilarity = 1 - ((double) summedRealSquaredDistance / (double) summedMaxSquaredDistance);
-    	
-    	ls.setShiftSimilartiy(similarity);
-    	ls.setSquaredShiftSimilartiy(squaredShiftSimilarity);
-    	ls.setRmse(calculateRMSE(positionValues));
-    	
-    	return ls;    	
+
+        ListSimilarity ls = new ListSimilarity();
+
+        double similarity = 0;
+
+        // get maximum possible distance
+        int summedMaxDistance = 0;
+        int summedMaxSquaredDistance = 0;
+        int distance = list1.size() - 1;
+        for (int i = list1.size(); i > 0; i -= 2) {
+            summedMaxDistance += 2 * distance;
+            summedMaxSquaredDistance += 2 * Math.pow(distance, 2);
+            distance -= 2;
+        }
+
+        // get real distance between lists
+        int summedRealDistance = 0;
+        int summedRealSquaredDistance = 0;
+        int position1 = 0;
+        List<double[]> positionValues = new ArrayList<double[]>();
+
+        for (String entry1 : list1) {
+
+            int position2 = 0;
+            for (String entry2 : list2) {
+                if (entry1.equals(entry2)) {
+                    summedRealDistance += Math.abs(position1 - position2);
+                    summedRealSquaredDistance += Math.pow(position1 - position2, 2);
+
+                    double[] values = new double[2];
+                    values[0] = position1;
+                    values[1] = position2;
+                    positionValues.add(values);
+                    break;
+                }
+                position2++;
+            }
+
+            position1++;
+        }
+
+        similarity = 1 - ((double) summedRealDistance / (double) summedMaxDistance);
+        double squaredShiftSimilarity = 1 - ((double) summedRealSquaredDistance / (double) summedMaxSquaredDistance);
+
+        ls.setShiftSimilartiy(similarity);
+        ls.setSquaredShiftSimilartiy(squaredShiftSimilarity);
+        ls.setRmse(calculateRMSE(positionValues));
+
+        return ls;
     }
-    
+
     public static ListSimilarity calculateListSimilarity(String listFile, String separator) {
-    	
-    	// two list
+
+        // two list
         List<String> list1 = new ArrayList<String>();
         List<String> list2 = new ArrayList<String>();
 
@@ -230,7 +264,7 @@ public class MathHelper {
 
         LineAction la = new LineAction(obj) {
 
-            @SuppressWarnings("unchecked")
+            @SuppressWarnings({ "rawtypes", "unchecked" })
             @Override
             public void performAction(String line, int lineNumber) {
                 String[] parts = line.split((String) obj[2]);
@@ -242,7 +276,7 @@ public class MathHelper {
         };
 
         FileHelper.performActionOnEveryLine(listFile, la);
-        
+
         return calculateListSimilarity(list1, list2);
     }
 
@@ -284,7 +318,7 @@ public class MathHelper {
         }
 
         double beta = (n * sxy - sx * sy) / (n * sxx - sx * sx);
-        double alpha = (sy / n) - (beta * sx / n);
+        double alpha = sy / n - beta * sx / n;
 
         alphaBeta[0] = alpha;
         alphaBeta[1] = beta;

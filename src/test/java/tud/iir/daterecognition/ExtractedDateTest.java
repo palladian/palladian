@@ -51,25 +51,25 @@ public class ExtractedDateTest {
     }
 
     @Test
-    public void testGetNormalizedDate() {
-        assertEquals(date1.getDateString(), "2010-06-12", date1.getNormalizedDate());
-        assertEquals(date2.getDateString(), "2010-06-07", date2.getNormalizedDate());
-        assertEquals(date3.getDateString(), "2010-06-07", date3.getNormalizedDate());
-        assertEquals(date4.getDateString(), "2010-06-07", date4.getNormalizedDate());
-        assertEquals(date5.getDateString(), "2010-06-07", date5.getNormalizedDate());
-        assertEquals(date6.getDateString(), "2010-06-07", date6.getNormalizedDate());
-        assertEquals(date7.getDateString(), "2010-06-07", date7.getNormalizedDate());
-        assertEquals(date8.getDateString(), "2010-06-07", date8.getNormalizedDate());
-        assertEquals(date9.getDateString(), "2010-06-07", date9.getNormalizedDate());
-        assertEquals(date10.getDateString(), "2010-06-07", date10.getNormalizedDate());
-        assertEquals(date11.getDateString(), "2010-06-07", date11.getNormalizedDate());
-        assertEquals(date12.getDateString(), "2010-06-07", date12.getNormalizedDate());
-        assertEquals(date13.getDateString(), "2010-06", date13.getNormalizedDate());
-        assertEquals(date14.getDateString(), "2010-06", date14.getNormalizedDate());
-        assertEquals(date15.getDateString(), "2010-06", date15.getNormalizedDate());
-        assertEquals(date16.getDateString(), "2010-06-07 07:06:05", date16.getNormalizedDate());
-        assertEquals(date17.getDateString(), "2010-06-07 07:06:05", date17.getNormalizedDate());
-        assertEquals(date18.getDateString(), "2010-06-07 07:06:05", date18.getNormalizedDate());
+    public void testGetNormalizedDate() throws Exception {
+        assertEquals(date1.getDateString(), "2010-06-12", date1.getNormalizedDateString());
+        assertEquals(date2.getDateString(), "2010-06-07", date2.getNormalizedDateString());
+        assertEquals(date3.getDateString(), "2010-06-07", date3.getNormalizedDateString());
+        assertEquals(date4.getDateString(), "2010-06-07", date4.getNormalizedDateString());
+        assertEquals(date5.getDateString(), "2010-06-07", date5.getNormalizedDateString());
+        assertEquals(date6.getDateString(), "2010-06-07", date6.getNormalizedDateString());
+        assertEquals(date7.getDateString(), "2010-06-07", date7.getNormalizedDateString());
+        assertEquals(date8.getDateString(), "2010-06-07", date8.getNormalizedDateString());
+        assertEquals(date9.getDateString(), "2010-06-07", date9.getNormalizedDateString());
+        assertEquals(date10.getDateString(), "2010-06-07", date10.getNormalizedDateString());
+        assertEquals(date11.getDateString(), "2010-06-07", date11.getNormalizedDateString());
+        assertEquals(date12.getDateString(), "2010-06-07", date12.getNormalizedDateString());
+        assertEquals(date13.getDateString(), "2010-06", date13.getNormalizedDateString());
+        assertEquals(date14.getDateString(), "2010-06", date14.getNormalizedDateString());
+        assertEquals(date15.getDateString(), "2010-06", date15.getNormalizedDateString());
+        assertEquals(date16.getDateString(), "2010-06-07 07:06:05", date16.getNormalizedDateString());
+        assertEquals(date17.getDateString(), "2010-06-07 07:06:05", date17.getNormalizedDateString());
+        assertEquals(date18.getDateString(), "2010-06-07 07:06:05", date18.getNormalizedDateString());
     }
 
     @Test

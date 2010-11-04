@@ -1,6 +1,7 @@
 package tud.iir.news;
 
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -21,9 +22,13 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
+import tud.iir.daterecognition.DateGetterHelper;
+import tud.iir.extraction.PageAnalyzer;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.Counter;
@@ -32,7 +37,9 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
+import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
+import tud.iir.web.HeaderInformation;
 import tud.iir.web.URLDownloader;
 import tud.iir.web.URLDownloader.URLDownloaderCallback;
 
@@ -58,6 +65,8 @@ import com.sun.syndication.io.SyndFeedInput;
  * https://rome.dev.java.net/ *
  * 
  * @author Philipp Katz
+ * @author David Urbansky
+ * @author Klemens Muthmann
  * 
  */
 public class NewsAggregator {
@@ -70,7 +79,7 @@ public class NewsAggregator {
     /**
      * Maximum number of feed entries. Feeds with more entries will be ignored when adding. This is to speed up the
      * aggregation process, especially when downloading the linked web pages. There is no common, maximum limit for feed
-     * entries, altough there are hardly any feeds with more than 100 entries. On the other hand, as extreme example, I
+     * entries, although there are hardly any feeds with more than 100 entries. On the other hand, as extreme example, I
      * found a feed with over 20,000 entries (http://ameblo.jp/ameblo_ror.xml). Hardcoded for now, could be moved to
      * a general filter class in the future, see todo-note.
      */
@@ -82,15 +91,29 @@ public class NewsAggregator {
     private int maxThreads = DEFAULT_MAX_THREADS;
 
     /**
-     * If enabled we use PageContentExtractor to get extract text for entries directly from their corresponding web
+     * If enabled, we use PageContentExtractor to get extract text for entries directly from their corresponding web
      * pages if necessary.
      */
     private boolean downloadPages = false;
 
-    private FeedStore store;
+
+    /**
+     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
+     * documents.
+     * If enabled, we use the last poll time and the last ETag of the feed as HTTP headers when requesting the URL. This
+     * way we can save bandwidth for feeds that support the HTTP 304 "Not modified" status code (about 83% of all feeds
+     * do support either ETag or LastModifiedSince).
+     */
+    private boolean useBandwidthSavingHTTPHeaders = false;
+
+    private final FeedStore store;
+
 
     /** Used for all downloading purposes. */
     private Crawler crawler = new Crawler();
+
+    /** We keep an instance of the plain parsed XML feed to do more operations if SyndFeed fails. */
+    private Document plainXMLFeed;
 
     public NewsAggregator() {
         store = FeedDatabase.getInstance();
@@ -123,7 +146,14 @@ public class NewsAggregator {
      * @throws NewsAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be
      *             parsed.
      */
+    private SyndFeed getFeedWithRome(Feed feed) throws NewsAggregatorException {
+        return getFeedWithRome(feed.getFeedUrl(), feed);
+    }
     private SyndFeed getFeedWithRome(String feedUrl) throws NewsAggregatorException {
+        return getFeedWithRome(feedUrl, null);
+    }
+
+    private SyndFeed getFeedWithRome(String feedUrl, Feed feed) throws NewsAggregatorException {
         LOGGER.trace(">getFeedWithRome " + feedUrl);
 
         SyndFeed result;
@@ -137,13 +167,26 @@ public class NewsAggregator {
             // see http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
             feedInput.setPreserveWireFeed(true);
 
-            // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
-            // well, which we use inside the IIR toolkit.
-            Document xmlDocument = crawler.getXMLDocument(feedUrl, false);
-            if (xmlDocument == null) {
-                throw new NewsAggregatorException("could not get document from " + feedUrl);
+            // create the header information to download feed only if it has changed
+            HeaderInformation headerInformation = null;
+
+            if (isUseBandwidthSavingHTTPHeaders() && feed != null) {
+                headerInformation = new HeaderInformation(feed.getLastPollTime(), feed.getLastETag());
             }
-            result = feedInput.build(xmlDocument);
+
+            // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
+            // well, which we use inside Palladian.
+            plainXMLFeed = crawler.getXMLDocument(feedUrl, false, headerInformation);
+            if (plainXMLFeed == null) {
+                if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
+                    throw new NewsAggregatorException("could not get document from " + feedUrl);
+                } else {
+                    // TODO return cached document here (from disk or database)
+                    LOGGER.debug("the feed was not modified: " + feedUrl);
+                    return null;
+                }
+            }
+            result = feedInput.build(plainXMLFeed);
 
         } catch (IllegalArgumentException e) {
             LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
@@ -189,9 +232,74 @@ public class NewsAggregator {
             result.setFormat(Feed.FORMAT_ATOM);
         }
 
+        // get the size of the feed
+        if (plainXMLFeed != null) {
+            result.setByteSize(PageAnalyzer.getRawMarkup(plainXMLFeed).getBytes().length);
+        }
+
         LOGGER.trace("<getFeed " + result);
         return result;
 
+    }
+
+
+    private Date getPublishDate(SyndEntry syndEntry) {
+
+        Date pubDate = null;
+
+        Node node = getFeedEntryNode(syndEntry);
+
+        Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
+
+        try {
+            pubDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
+        } catch (NullPointerException e) {
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode);
+        } catch (DOMException e) {
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode);
+        } catch (Exception e) {
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode);
+        }
+
+        return pubDate;
+    }
+
+    /**
+     * <p>
+     * Extracts the DOM node of the provided feed entry from the feed currently processed by the aggregator.
+     * </p>
+     * 
+     * @param syndEntry The feed entry to extract.
+     * @return The extracted DOM node representing the provided feed entry.
+     */
+    private Node getFeedEntryNode(SyndEntry syndEntry) {
+
+        // for rss
+        Node node = null;
+
+        try {
+
+            node = XPathHelper.getNode(plainXMLFeed, "//item[link=\"" + syndEntry.getLink() + "\"]");
+
+            if (node == null) {
+                node = XPathHelper.getNode(plainXMLFeed,
+                        "//item[title=\"" + syndEntry.getTitle().replaceAll("\"", "&quot;") + "\"]");
+
+                // for atom
+                if (node == null) {
+                    node = XPathHelper.getNode(plainXMLFeed, "//entry[id=\"" + syndEntry.getUri() + "\"]");
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("synd entry was not complete, " + e.getMessage());
+        }
+
+        if (node == null) {
+            System.out.println("STOP");
+        }
+
+        return node;
     }
 
     /**
@@ -205,6 +313,9 @@ public class NewsAggregator {
         LOGGER.trace(">getEntries");
 
         List<FeedEntry> result = new LinkedList<FeedEntry>();
+
+        // only try a certain amount of times to extract a pub date, if none is found don't keep trying
+        int failedDateExtractions = 0;
 
         List<SyndEntry> syndEntries = syndFeed.getEntries();
         for (SyndEntry syndEntry : syndEntries) {
@@ -240,23 +351,25 @@ public class NewsAggregator {
 
             Date publishDate = syndEntry.getPublishedDate();
             if (publishDate == null) {
+
+                // FIXME there are still some entries without date (David: why? does rome not get some date formats?)
+
+                // try to find the date since Rome library failed
+                publishDate = getPublishDate(syndEntry);
+
                 // if no publish date is provided, we take the update instead
-                // TODO there are still some entries without date
-                publishDate = syndEntry.getUpdatedDate();
+                if (publishDate == null) {
+                    publishDate = syndEntry.getUpdatedDate();
+                    failedDateExtractions++;
+                } else {
+                    LOGGER.debug("found publish date in original feed file: " + publishDate);
+                }
+
             }
             entry.setPublished(publishDate);
 
             String entryText = getEntryText(syndEntry);
             entry.setEntryText(entryText);
-
-            // Entry's assigned Tags, if any
-            // List<SyndCategory> categories = syndEntry.getCategories();
-            // for (SyndCategory category : categories) {
-            // String catName = category.getName();
-            // if (catName != null) {
-            // entry.addTag(catName.replace(",", " ").trim());
-            // }
-            // }
 
             // get ID information from raw feed entries
             String rawId = null;
@@ -282,6 +395,10 @@ public class NewsAggregator {
             } else {
                 LOGGER.warn("could not get id for entry");
             }
+
+            // Set raw xml content to feed entry.
+            Node feedEntryNode = getFeedEntryNode(syndEntry);
+            entry.setPlainXML(PageAnalyzer.getRawMarkup(feedEntryNode));
 
             // logger.trace(entry);
             result.add(entry);
@@ -353,6 +470,7 @@ public class NewsAggregator {
                     feed.setTextType(textType);
 
                     // add feed & entries to the store
+
                     store.addFeed(feed);
 
                     for (FeedEntry feedEntry : feed.getEntries()) {
@@ -628,6 +746,26 @@ public class NewsAggregator {
     }
 
     /**
+     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
+     * documents.
+     * 
+     * @param useBandwidthSavingHTTPHeaders
+     */
+    public void setUseBandwidthSavingHTTPHeaders(boolean useBandwidthSavingHTTPHeaders) {
+        this.useBandwidthSavingHTTPHeaders = useBandwidthSavingHTTPHeaders;
+    }
+
+    /**
+     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
+     * documents.
+     * 
+     * @return
+     */
+    public boolean isUseBandwidthSavingHTTPHeaders() {
+        return useBandwidthSavingHTTPHeaders;
+    }
+
+    /**
      * Returns a feed and its entries from a specified feed URL. Use {@link Feed#getEntries()} to get feed's entries.
      * 
      * @param feedUrl
@@ -639,11 +777,11 @@ public class NewsAggregator {
         // SyndFeed syndFeed = getFeedWithRome(feedUrl);
         // Feed feed = getFeed(syndFeed, feedUrl);
         // List<FeedEntry> entries = getEntries(syndFeed);
-        //        
+        //
         // if (isDownloadPages()) {
         // for (FeedEntry feedEntry : entries) {
         // LOGGER.debug("downloading page " + feedEntry.getLink());
-        //                
+        //
         // try {
         // PageContentExtractor extractor = new PageContentExtractor();
         // extractor.setDocument(feedEntry.getLink());
@@ -654,12 +792,12 @@ public class NewsAggregator {
         // }
         // }
         // }
-        //        
+        //
         // feed.setEntries(entries);
         // return feed;
     }
 
-    Feed downloadFeed(String feedUrl, boolean fetchPages) throws NewsAggregatorException {
+    public Feed downloadFeed(String feedUrl, boolean fetchPages) throws NewsAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
         Feed feed = getFeed(syndFeed, feedUrl);
         List<FeedEntry> entries = getEntries(syndFeed);
@@ -674,45 +812,19 @@ public class NewsAggregator {
         }
 
         feed.setEntries(entries);
+        feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
         return feed;
     }
 
-    /**
-     * Fetch associated page content using {@link PageContentExtractor}. Do not download binary files, like PDFs, audio
-     * or video files.
-     * 
-     * @param feedEntry
-     */
-    // private void fetchPageContentForEntry(FeedEntry feedEntry) {
-    // LOGGER.debug("downloading page " + feedEntry.getLink());
-    //
-    // try {
-    //
-    // String entryLink = feedEntry.getLink();
-    //
-    // // check type of linked file; ignore audio, video or pdf files ...
-    // String fileType = FileHelper.getFileType(entryLink);
-    // boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
-    // || fileType.equals("pdf");
-    // if (ignore) {
-    // LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
-    // } else {
-    //
-    // PageContentExtractor extractor = new PageContentExtractor();
-    //
-    // InputStream inputStream = crawler.downloadInputStream(entryLink);
-    // extractor.setDocument(new InputSource(inputStream));
-    // // extractor.setDocument(feedEntry.getLink());
-    // Document page = extractor.getResultDocument();
-    // feedEntry.setPageContent(page);
-    //
-    // }
-    // } catch (PageContentExtractorException e) {
-    // LOGGER.error("error downloading page " + feedEntry.getLink() + " : " + e);
-    // } catch (IOException e) {
-    // LOGGER.error("error downloading page " + feedEntry.getLink() + " : " + e);
-    // }
-    // }
+    public Feed downloadFeed(Feed feedData) throws NewsAggregatorException {
+        SyndFeed syndFeed = getFeedWithRome(feedData);
+        Feed feed = getFeed(syndFeed, feedData.getFeedUrl());
+        List<FeedEntry> entries = getEntries(syndFeed);
+        feed.setEntries(entries);
+        feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
+        return feed;
+    }
+
 
     /**
      * Fetch associated page content using {@link PageContentExtractor} for specified FeedEntries. Do not download
@@ -738,7 +850,7 @@ public class NewsAggregator {
             // check type of linked file; ignore audio, video or pdf files ...
             String fileType = FileHelper.getFileType(entryLink);
             boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
-                    || fileType.equals("pdf");
+            || fileType.equals("pdf");
             if (ignore) {
                 LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
             } else {
@@ -762,59 +874,7 @@ public class NewsAggregator {
             }
         });
         LOGGER.debug("finished downloading");
-
-        // download in parallel
-        // downloader.start();
-        //
-        // // check results
-        // for (FeedEntry feedEntry : feedEntries) {
-        // InputStream inputStream = downloader.get(feedEntry.getLink());
-        // if (inputStream != null) {
-        // try {
-        // extractor.setDocument(new InputSource(inputStream));
-        // // extractor.setDocument(feedEntry.getLink());
-        // Document page = extractor.getResultDocument();
-        // feedEntry.setPageContent(page);
-        // } catch (PageContentExtractorException e) {
-        // LOGGER.error("PageContentExtractorException " + e);
-        // }
-        // }
-        // }
     }
-
-    /**
-     * Add entries to the store for a specified feed.
-     * 
-     * @param feed
-     * @param syndFeed
-     * @return number of added entries.
-     */
-    // private int addEntries(Feed feed, SyndFeed syndFeed) {
-    // int newEntries = 0;
-    // List<FeedEntry> entries = getEntries(syndFeed);
-    //
-    // for (FeedEntry entry : entries) {
-    //
-    // // if we dont have it, add it
-    // boolean add = store.getEntryByRawId(entry.getRawId()) == null;
-    // if (add) {
-    // if (isDownloadPages()) {
-    // try {
-    // PageContentExtractor extractor = new PageContentExtractor();
-    // extractor.setDocument(entry.getLink());
-    // Document pageContent = extractor.getResultDocument();
-    // // String pageContent = crawler.download(entry.getLink());
-    // entry.setPageContent(pageContent);
-    // } catch (PageContentExtractorException e) {
-    // e.printStackTrace();
-    // }
-    // }
-    // store.addEntry(feed, entry);
-    // newEntries++;
-    // }
-    // }
-    // return newEntries;
-    // }
 
     /**
      * Main method with command line interface.
@@ -833,18 +893,18 @@ public class NewsAggregator {
                 .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn").withType(
                         Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("downloadPages").withDescription(
-                "download associated web page for each feed entry").create());
+        "download associated web page for each feed entry").create());
         options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg().withArgName(
-                "feedUrl").create());
+        "feedUrl").create());
         options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
                 .hasArg().withArgName("file").create());
         options.addOption(OptionBuilder.withLongOpt("aggregate").withDescription("run aggregation process").create());
         options
-                .addOption(OptionBuilder
-                        .withLongOpt("aggregateWait")
-                        .withDescription(
-                                "run continuous aggregation process; wait for specified number of minutes between each aggregation step")
-                        .hasArg().withArgName("minutes").withType(Number.class).create());
+        .addOption(OptionBuilder
+                .withLongOpt("aggregateWait")
+                .withDescription(
+                "run continuous aggregation process; wait for specified number of minutes between each aggregation step")
+                .hasArg().withArgName("minutes").withType(Number.class).create());
 
         try {
 
@@ -885,6 +945,17 @@ public class NewsAggregator {
             formatter.printHelp("NewsAggregator [options]", options);
         }
 
+    }
+
+    /**
+     * <p>
+     * 
+     * </p>
+     *
+     * @return
+     */
+    public Document getPlainXMLFeed() {
+        return plainXMLFeed;
     }
 
 }

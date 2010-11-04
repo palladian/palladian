@@ -303,6 +303,8 @@ CREATE TABLE `feeds` (
 	`supportsETag` BOOLEAN DEFAULT NULL COMMENT 'whether the feed supports ETags',
 	`supportsLMS` BOOLEAN DEFAULT NULL COMMENT 'whether the feed answers correctly on conditional get requests with last modified since headers',
   `conditionalGetResponseSize` BOOLEAN DEFAULT NULL COMMENT 'the header size if a conditional get returns 304 (not modified)',
+  `updateClass` int(11) DEFAULT '0',
+  `lastFeedEntry` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

@@ -450,7 +450,7 @@ public class DateArrayHelper {
         for (int i = 0; i < dateMap.length; i++) {
             T date = dateMap[i].getKey();
             String dateString = ((ExtractedDate) date).getDateString();
-            String normDate = ((ExtractedDate) date).getNormalizedDate();
+            String normDate = ((ExtractedDate) date).getNormalizedDateString();
             String type = ExtractedDateHelper.getTypString(((ExtractedDate) date).getType());
             String keyword = "";
             int dist = -1;
@@ -501,7 +501,7 @@ public class DateArrayHelper {
         for (Entry<T, Double> e : dateMap.entrySet()) {
             T date = e.getKey();
             String dateString = ((ExtractedDate) date).getDateString();
-            String normDate = ((ExtractedDate) date).getNormalizedDate();
+            String normDate = ((ExtractedDate) date).getNormalizedDateString();
             String type = ExtractedDateHelper.getTypString(((ExtractedDate) date).getType());
             String keyword = "";
             int dist = -1;
