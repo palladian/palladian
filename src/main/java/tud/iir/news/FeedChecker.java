@@ -428,15 +428,15 @@ public final class FeedChecker {
             // use average distance between pub dates and total difference
             // between first and last entry
             fixedMinCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-            fixedMaxCheckInterval = (entries.size() * fixedMinCheckInterval);
+            fixedMaxCheckInterval = (int) (entries.size() * fixedMinCheckInterval);
 
             // use median
-            // if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
-            // double minInterval = fps.getMedianPostGap() / (double) DateHelper.MINUTE_MS;
-            // fixedMinCheckInterval = (int) minInterval;
-            // // fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
-            // fixedMaxCheckInterval = (int) (minInterval * entries.size());
-            // }
+//            if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
+//                double minInterval = fps.getMedianPostGap() / (double) DateHelper.MINUTE_MS;
+//                fixedMinCheckInterval = (int) minInterval;
+//                // fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
+//                fixedMaxCheckInterval = (int) (minInterval * entries.size());
+//            }
 
             if (feed.getActivityPattern() == FeedClassifier.CLASS_DEAD) {
                 fixedMinCheckInterval = 10 * 800 + (int) (Math.random() * 200);
