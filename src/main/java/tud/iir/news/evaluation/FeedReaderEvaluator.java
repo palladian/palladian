@@ -167,7 +167,7 @@ public class FeedReaderEvaluator {
                     if (feed.getCgHeaderSize() != null) {
                         csv.append(feed.getCgHeaderSize()).append(separator);
                     } else {
-                        csv.append("\"N").append(separator);
+                        csv.append("\\N").append(separator);
                     }
 
                     // poll related values
@@ -184,30 +184,15 @@ public class FeedReaderEvaluator {
                     if (pollData.getTimeliness() != null) {
                         csv.append(MathHelper.round(pollData.getTimeliness(), 4)).append(separator);
                     } else {
-                        csv.append("\"N").append(separator);
+                        csv.append("\\N").append(separator);
                     }
 
                     if (pollData.getTimelinessLate() != null) {
                         csv.append(MathHelper.round(pollData.getTimelinessLate(), 4)).append(separator);
                     } else {
-                        csv.append("\"N").append(separator);
+                        csv.append("\\N").append(separator);
                     }
 
-                    // Double scoreMax = pollData.getScore(BENCHMARK_MAX_CHECK);
-                    // if (scoreMax != null) {
-                    // csv.append(format.format(MathHelper.round(scoreMax, 2))).append(
-                    // separator);
-                    // } else {
-                    // csv.append("\"N").append(separator);
-                    // }
-                    //
-                    // Double scoreMin = pollData.getScore(BENCHMARK_MIN_CHECK);
-                    // if (scoreMin != null) {
-                    // csv.append(format.format(MathHelper.round(scoreMin, 4))).append(
-                    // separator);
-                    // } else {
-                    // csv.append("\"N").append(separator);
-                    // }
                     csv.append("\n");
 
                     fileWriter.write(csv.toString());

@@ -321,9 +321,9 @@ CREATE TABLE `feed_evaluation_polls` (
   `missedItems` int(10) NOT NULL COMMENT 'the number of new items we missed because there more new items since the last poll than fit into the window',
   `windowSize` int(10) unsigned NOT NULL COMMENT 'the current size of the feed''s window (number of items found)',
 	`cumulatedDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too early and too late',
-	`surroundingIntervalsLength` bigint(20) DEFAULT NULL COMMENT 'length of the interval to scale the timeliness for the feed',
 	`cumulatedLateDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too late',
-	`currentIntervalLength` bigint(20) DEFAULT NULL COMMENT 'length of the interval in which the poll happened; to scale the timeliness for the feed'
+	`timeliness` double DEFAULT NULL COMMENT 'averaged over all new and missed items in the poll including early polls, NULL if no new item has been discovered (only for evaluation mode MIN interesting)',
+	`timelinessLate` double DEFAULT NULL COMMENT 'averaged over all new and missed items in the poll, NULL if no new item has been discovered (only for evaluation mode MIN interesting)'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `feed_evaluation_update_intervals` */
