@@ -497,6 +497,7 @@ public class HTMLHelper {
      * will write out the full node, including tags.
      * 
      * TODO removing whitespace does not work with documents from the Crawler/Neko?
+     * TODO duplicate of {@link XPathHelper#convertNodeToString(Node)}? Merge?
      * 
      * @param node
      * @param removeWhitespace whether to remove superfluous whitespace outside of tags.
