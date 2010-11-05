@@ -47,6 +47,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
+import tud.iir.extraction.PageAnalyzer;
 import tud.iir.knowledge.HTMLSymbols;
 
 /**
@@ -492,7 +493,9 @@ public class HTMLHelper {
     }
 
     /**
-     * Converts a DOM Node or Document into a String.
+     * Converts a DOM Node or Document into a String. In contrast to {@link PageAnalyzer#getTextDump(Node)}, this method
+     * will write out the full node, including tags.
+     * 
      * TODO removing whitespace does not work with documents from the Crawler/Neko?
      * 
      * @param node
@@ -500,7 +503,7 @@ public class HTMLHelper {
      * @param prettyPrint whether to nicely indent the result.
      * @return String representation of the supplied Node, empty String in case of errors.
      */
-    public static String xmlToString(Node node, boolean removeWhitespace, boolean prettyPrint) {
+    public static String getXmlDump(Node node, boolean removeWhitespace, boolean prettyPrint) {
         String strResult = "";
         try {
 
@@ -529,8 +532,8 @@ public class HTMLHelper {
         return strResult;
     }
 
-    public static String xmlToString(Node node) {
-        return xmlToString(node, false, false);
+    public static String getXmlDump(Node node) {
+        return getXmlDump(node, false, false);
     }
 
     /**
@@ -565,7 +568,7 @@ public class HTMLHelper {
     }
 
     public static void writeXmlDump(Node node, String filename) {
-        String string = xmlToString(node);
+        String string = getXmlDump(node);
         FileHelper.writeToFile(filename, string);
     }
 
@@ -735,7 +738,7 @@ public class HTMLHelper {
         // DocumentBuilderFactory df = DocumentBuilderFactory.newInstance();
         // Document doc = df.newDocumentBuilder().parse(new File("dumps/readability1275037727850.xml"));
         // System.out.println(htmlDocToString(doc));
-        //      
+        //
 
         // System.out.println("1\n2\n3\n\n\n".trim());
         // System.out.println("-------------");
