@@ -72,6 +72,9 @@ public class XPathHelper {
     /**
      * Add the xhtml namespace to an xPath in case it does not have it yet.
      * 
+     * TODO this also adds the namespace to XPath functions. For example "//div/text()" is transformed to
+     * "//xhtml:div/xhtml:text()".
+     * 
      * @param xPath The xPath.
      * @return The xPath with included xhtml namespace.
      */
@@ -359,6 +362,13 @@ public class XPathHelper {
             }
         }
         return previousSiblings;
+    }
+    
+    public static void main(String[] args) {
+        
+        String xPath = "//div/text()";
+        System.out.println(addNameSpaceToXPath(xPath));
+        
     }
 
 }
