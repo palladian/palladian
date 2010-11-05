@@ -16,7 +16,6 @@ import tud.iir.news.Feed;
 import tud.iir.news.FeedChecker;
 import tud.iir.news.FeedDatabase;
 import tud.iir.news.UpdateStrategy;
-import tud.iir.news.statistics.PollData;
 
 public class FeedReaderEvaluator {
 
@@ -54,7 +53,7 @@ public class FeedReaderEvaluator {
     public static int benchmarkSample = 10;
 
     /** The path to the folder with the feed post history files. */
-    private static final String BENCHMARK_DATASET_PATH = "C:\\Programming\\feedposts\\clean\\";
+    private static final String BENCHMARK_DATASET_PATH = "G:\\Projects\\Programming\\Other\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
@@ -120,11 +119,11 @@ public class FeedReaderEvaluator {
      * <li>number of missed news items</li>
      * <li>window size</li>
      * <li>cumulated delay in seconds (only for evaluation mode MIN interesting)</li>
-     * <li>surrounding interval (the sum of the neighbor intervals before and after the latest new item; only for
-     * evaluation mode MIN interesting)</li>
      * <li>cumulated late delay in seconds (only for evaluation mode MIN interesting)</li>
-     * <li>current interval (the interval between the most recent and the next new item; only for evaluation mode MIN
-     * interesting)</li>
+     * <li>timeliness, averaged over all new and missed items in the poll including early polls, NULL if no new item has
+     * been discovered (only for evaluation mode MIN interesting)</li>
+     * <li>timeliness late, averaged over all new and missed items in the poll, NULL if no new item has been discovered
+     * (only for evaluation mode MIN interesting)</li>
      * </ul>
      * </p>
      * 
@@ -180,14 +179,16 @@ public class FeedReaderEvaluator {
                     csv.append(pollData.getMisses()).append(separator);
                     csv.append(pollData.getWindowSize()).append(separator);
                     csv.append(pollData.getCumulatedDelay() / 1000l).append(separator);
-                    if (pollData.getSurroundingIntervalsLength() != null) {
-                        csv.append(pollData.getSurroundingIntervalsLength() / 1000l).append(separator);
+                    csv.append(pollData.getCumulatedLateDelay() / 1000l).append(separator);
+
+                    if (pollData.getTimeliness() != null) {
+                        csv.append(MathHelper.round(pollData.getTimeliness(), 4)).append(separator);
                     } else {
                         csv.append("\"N").append(separator);
                     }
-                    csv.append(pollData.getCumulatedLateDelay() / 1000l).append(separator);
-                    if (pollData.getCurrentIntervalLength() != null) {
-                        csv.append(pollData.getCurrentIntervalLength() / 1000l).append(separator);
+
+                    if (pollData.getTimelinessLate() != null) {
+                        csv.append(MathHelper.round(pollData.getTimelinessLate(), 4)).append(separator);
                     } else {
                         csv.append("\"N").append(separator);
                     }
@@ -333,19 +334,19 @@ public class FeedReaderEvaluator {
         // System.exit(0);
 
         UpdateStrategy checkType = UpdateStrategy.UPDATE_FIXED;
-        // checkType = UpdateStrategy.UPDATE_ADAPTIVE;
-        checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
+        checkType = UpdateStrategy.UPDATE_ADAPTIVE;
+        // checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
 
         // if -1 => fixed learned
         int checkInterval = -1;
 
-        FeedReaderEvaluator.benchmarkSample = 20;
+        FeedReaderEvaluator.benchmarkSample = 100;
 
         FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
-        setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
-        // setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
+        // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
+        setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
         setBenchmarkMode(BENCHMARK_POLL);
         // setBenchmarkMode(BENCHMARK_TIME);
         fc.startContinuousReading(-1);

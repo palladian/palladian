@@ -1,7 +1,5 @@
-package tud.iir.news.statistics;
+package tud.iir.news.evaluation;
 
-import tud.iir.news.FeedChecker;
-import tud.iir.news.evaluation.FeedReaderEvaluator;
 
 /**
  * This class holds meta information about a poll of an news feed.
@@ -28,11 +26,17 @@ public class PollData {
     /** The cumulated late delays for the current poll. */
     private long cumulatedLateDelay = -1;
 
-    /** The size of the intervals that are right before and after the new item where this poll happened. */
-    private Long surroundingIntervalsLength = null;
+    /**
+     * The averaged timeliness for the poll if at least one new item has been found. This adds up all delays from early
+     * polls and late polls.
+     */
+    private Double timeliness = null;
 
-    /** The size of the interval between the most recent and the next item. */
-    private Long currentIntervalLength = null;
+    /**
+     * The averaged timeliness for the poll if at least one new item has been found. This adds up all delays from late
+     * polls.
+     */
+    private Double timelinessLate = null;
 
     /**
      * The factor by which delays AFTER the actual new post publish date are weighted more than delays BEFORE this time.
@@ -67,14 +71,6 @@ public class PollData {
         return timestamp;
     }
 
-    public void setSurroundingIntervalsLength(long surroundingIntervalsLength) {
-        this.surroundingIntervalsLength = surroundingIntervalsLength;
-    }
-
-    public Long getSurroundingIntervalsLength() {
-        return surroundingIntervalsLength;
-    }
-
     public void setCumulatedDelay(long cumulatedDelay) {
         this.cumulatedDelay = cumulatedDelay;
     }
@@ -89,14 +85,6 @@ public class PollData {
 
     public long getCumulatedLateDelay() {
         return cumulatedLateDelay;
-    }
-
-    public void setCurrentIntervalLength(Long currentIntervalLength) {
-        this.currentIntervalLength = currentIntervalLength;
-    }
-
-    public Long getCurrentIntervalLength() {
-        return currentIntervalLength;
     }
 
     public void setAfterDelayWeight(double afterDelayWeight) {
@@ -139,12 +127,28 @@ public class PollData {
         this.downloadSize = downloadSize;
     }
 
+    public int getNewWindowItems() {
+        return newWindowItems;
+    }
+
     public void setNewWindowItems(int newWindowItems) {
         this.newWindowItems = newWindowItems;
     }
 
-    public int getNewWindowItems() {
-        return newWindowItems;
+    public Double getTimeliness() {
+        return timeliness;
+    }
+
+    public void setTimeliness(Double timeliness) {
+        this.timeliness = timeliness;
+    }
+
+    public Double getTimelinessLate() {
+        return timelinessLate;
+    }
+
+    public void setTimelinessLate(Double timelinessLate) {
+        this.timelinessLate = timelinessLate;
     }
 
     /**
@@ -154,37 +158,31 @@ public class PollData {
      * 
      * @return
      */
-    public Double getScore(int benchmark) {
-
-        Double score = null;
-
-        if (benchmark == FeedReaderEvaluator.BENCHMARK_MIN_DELAY) {
-
-            if (getSurroundingIntervalsLength() != null && getSurroundingIntervalsLength() > 0) {
-                score = 1.0 / Math
-                        .sqrt((Math.abs(getCumulatedDelay()) / (double) getSurroundingIntervalsLength() + 1.0));
-                // score = 1.0 - Math.abs(getNewPostDelay()) / (double) getCurrentIntervalSize();
-            }
-
-        } else if (benchmark == FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE) {
-
-            score = 1.0 / Math.sqrt(getMisses() + 1);
-
-            // if (getMisses() == 0) {
-            // // get the percentage of new entries new/total, since percentNew is the number of new/(total-1) we need
-            // to calculate back
-            // score = getPercentNew() * (getWindowSize() - 1) / getWindowSize();
-            // } else if (getMisses() > 0) {
-            // if (getWindowSize() > 0) {
-            // score = 1.0 - getMisses() / (double)getWindowSize();
-            // } else {
-            // Logger.getRootLogger().warn("window size = 0 for feed");
-            // }
-            // }
-
-        }
-
-        return score;
-    }
+    /*
+     * public Double getScore(int benchmark) {
+     * Double score = null;
+     * if (benchmark == FeedReaderEvaluator.BENCHMARK_MIN_DELAY) {
+     * if (getSurroundingIntervalsLength() != null && getSurroundingIntervalsLength() > 0) {
+     * score = 1.0 / Math
+     * .sqrt((Math.abs(getCumulatedDelay()) / (double) getSurroundingIntervalsLength() + 1.0));
+     * // score = 1.0 - Math.abs(getNewPostDelay()) / (double) getCurrentIntervalSize();
+     * }
+     * } else if (benchmark == FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE) {
+     * score = 1.0 / Math.sqrt(getMisses() + 1);
+     * // if (getMisses() == 0) {
+     * // // get the percentage of new entries new/total, since percentNew is the number of new/(total-1) we need
+     * // to calculate back
+     * // score = getPercentNew() * (getWindowSize() - 1) / getWindowSize();
+     * // } else if (getMisses() > 0) {
+     * // if (getWindowSize() > 0) {
+     * // score = 1.0 - getMisses() / (double)getWindowSize();
+     * // } else {
+     * // Logger.getRootLogger().warn("window size = 0 for feed");
+     * // }
+     * // }
+     * }
+     * return score;
+     * }
+     */
 
 }

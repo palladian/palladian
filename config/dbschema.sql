@@ -316,13 +316,14 @@ CREATE TABLE `feed_evaluation_polls` (
   `conditionalGetResponseSize` int(11) DEFAULT NULL COMMENT 'the size of the HTTP 304 response in Bytes, (if there is no new entry)',
   `sizeOfPoll` float NOT NULL COMMENT 'the amount of bytes that have been downloadad',
   `pollTimestamp` bigint(20) unsigned NOT NULL COMMENT 'the feed has been pooled at this timestamp',
-  `pollMinuteOfDay` int(4) unsigned NOT NULL COMMENT 'the minute of the day the feed has been polled',
   `checkInterval` float unsigned DEFAULT NULL COMMENT 'time in minutes we waited betwen last and this check',
   `newWindowItems` float NOT NULL COMMENT 'number of new items in the window',
   `missedItems` int(10) NOT NULL COMMENT 'the number of new items we missed because there more new items since the last poll than fit into the window',
   `windowSize` int(10) unsigned NOT NULL COMMENT 'the current size of the feed''s window (number of items found)',
 	`cumulatedDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too early and too late',
-	`surroundingIntervalsLength` bigint(20) DEFAULT NULL COMMENT 'length of the interval to scale the timeliness for the feed'
+	`surroundingIntervalsLength` bigint(20) DEFAULT NULL COMMENT 'length of the interval to scale the timeliness for the feed',
+	`cumulatedLateDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too late',
+	`currentIntervalLength` bigint(20) DEFAULT NULL COMMENT 'length of the interval in which the poll happened; to scale the timeliness for the feed'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 /*Table structure for table `feed_evaluation_update_intervals` */

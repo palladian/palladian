@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.helper.CollectionHelper;
-import tud.iir.news.statistics.PollDataSeries;
+import tud.iir.news.evaluation.PollDataSeries;
 
 /**
  * Represents a news feed.
