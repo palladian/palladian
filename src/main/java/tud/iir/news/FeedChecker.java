@@ -158,7 +158,7 @@ public final class FeedChecker {
                     continue;
                 }
 
-                // int dbgid = 10;
+                // int dbgid = 1;
                 // if (feed.getId() > dbgid) {
                 // break;
                 // }
@@ -313,11 +313,7 @@ public final class FeedChecker {
 
         // for on-the-fly updates switch from probabilistic to adaptive
         else if ((UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach) || UpdateStrategy.UPDATE_PROBABILISTIC
-                .equals(checkApproach) && (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY /*
-                 * || !feed.
-                 * oneFullDayHasBeenSeen
-                 * ()
-                 */))
+                .equals(checkApproach) && feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY)
                  && feed.getChecks() > 0) {
 
             updateIntervalAdaptive(feed, pnTarget, fps);
@@ -431,16 +427,16 @@ public final class FeedChecker {
         if (entries.size() > 1) {
             // use average distance between pub dates and total difference
             // between first and last entry
-            fixedMinCheckInterval = (int) (fps.getTimeRange() / (entries.size() - 1l) / DateHelper.MINUTE_MS);
-            fixedMaxCheckInterval = (int) (fps.getTimeRange() / DateHelper.MINUTE_MS);
+            fixedMinCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
+            fixedMaxCheckInterval = (entries.size() * fixedMinCheckInterval);
 
             // use median
-            if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
-                double minInterval = fps.getMedianPostGap() / (double) DateHelper.MINUTE_MS;
-                fixedMinCheckInterval = (int) minInterval;
-                // fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
-                fixedMaxCheckInterval = (int) (minInterval * entries.size());
-            }
+            // if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
+            // double minInterval = fps.getMedianPostGap() / (double) DateHelper.MINUTE_MS;
+            // fixedMinCheckInterval = (int) minInterval;
+            // // fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
+            // fixedMaxCheckInterval = (int) (minInterval * entries.size());
+            // }
 
             if (feed.getActivityPattern() == FeedClassifier.CLASS_DEAD) {
                 fixedMinCheckInterval = 10 * 800 + (int) (Math.random() * 200);
@@ -460,8 +456,8 @@ public final class FeedChecker {
             }
 
         } else {
-            fixedMinCheckInterval *= 3;
-            fixedMaxCheckInterval *= 3;
+            fixedMinCheckInterval = 60;
+            fixedMaxCheckInterval = 120;
         }
 
         feed.setMinCheckInterval(fixedMinCheckInterval);
@@ -506,11 +502,11 @@ public final class FeedChecker {
 
         // ######################### simple moving average for max policy ##############################
         if (newEntries > 0) {
-            maxCheckInterval = entries.size() * (int) (fps.getAveragePostGap() / (DateHelper.MINUTE_MS));
+            maxCheckInterval = entries.size() * (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
         } else {
             double averagePostGap = fps.getAveragePostGap();
-            averagePostGap -= (fps.getIntervals().get(0) / feed.getWindowSize());
-            averagePostGap += (fps.getDelayToNewestPost() / feed.getWindowSize());
+            averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
+            averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
             maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
         }
 
@@ -530,11 +526,11 @@ public final class FeedChecker {
 
         // ######################### simple moving average for min policy ##############################
         if (newEntries > 0) {
-            minCheckInterval = (int) (fps.getAveragePostGap() / (DateHelper.MINUTE_MS));
+            minCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
         } else {
             double averagePostGap = fps.getAveragePostGap();
-            averagePostGap -= (fps.getIntervals().get(0) / feed.getWindowSize());
-            averagePostGap += (fps.getDelayToNewestPost() / feed.getWindowSize());
+            averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
+            averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
             minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
         }
 
@@ -665,9 +661,9 @@ public final class FeedChecker {
             startMinute = 0;
 
             if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                startMinute = ((int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE));
+                startMinute = (int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE);
             } else {
-                startMinute = ((int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE));
+                startMinute = (int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE);
             }
 
             // // estimate time to next entry and time until list is full with
@@ -809,9 +805,9 @@ public final class FeedChecker {
                 int startMinute = 0;
 
                 if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                    startMinute = ((int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE));
+                    startMinute = (int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE);
                 } else {
-                    startMinute = ((int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE));
+                    startMinute = (int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE);
                 }
 
                 // // estimate time to next entry and time until list is full with

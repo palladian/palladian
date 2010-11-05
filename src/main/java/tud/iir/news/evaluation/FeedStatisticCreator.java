@@ -1,4 +1,4 @@
-package tud.iir.news.statistics;
+package tud.iir.news.evaluation;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,8 +23,6 @@ import tud.iir.news.FeedChecker;
 import tud.iir.news.FeedClassifier;
 import tud.iir.news.FeedPostStatistics;
 import tud.iir.news.FeedStore;
-import tud.iir.news.evaluation.FeedBenchmarkFileReader;
-import tud.iir.news.evaluation.FeedReaderEvaluator;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
 
@@ -66,7 +64,7 @@ public class FeedStatisticCreator {
 
         ResultSet rs = dbm
         .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(percentNew) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedPercent) AS missedPercent, AVG(traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
-                + (FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000l) + " GROUP BY feedID) AS feedGroup;");
+                + FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000l + " GROUP BY feedID) AS feedGroup;");
         while (rs.next()) {
             coverage = rs.getDouble("coverage");
             percentNew = rs.getDouble("percentNew");
@@ -103,7 +101,7 @@ public class FeedStatisticCreator {
 
             rs = dbm
             .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(percentNew) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedPercent) AS missedPercent, AVG(traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
-                    + (FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000l)
+                    + FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000l
                     + " AND activityPattern = "
                     + activityPatternID + " GROUP BY feedID) AS feedGroup;");
 
@@ -155,7 +153,7 @@ public class FeedStatisticCreator {
         // Double trafficPerNewItemCG = null;
 
         ResultSet rs = dbm
-                .runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(delay) AS delay FROM (SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/newWindowItems) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 GROUP BY feedID) AS feedGroup");
+                .runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(delay) AS delay FROM (SELECT AVG(1/(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 GROUP BY feedID) AS feedGroup");
         if (rs.next()) {
             timeliness = rs.getDouble("timeliness");
             timelinessLate = rs.getDouble("timelinessLate");
@@ -209,7 +207,7 @@ public class FeedStatisticCreator {
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
                     .append(" (averaged over all item discoveries per feed and then over all feeds that belong to the activity pattern) =================\"\n");
 
-            rs = dbm.runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(delay) AS delay FROM (SELECT AVG(1/sqrt(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/sqrt(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/newWindowItems) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 AND activityPattern = "
+            rs = dbm.runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(delay) AS delay FROM (SELECT AVG(1/(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 AND activityPattern = "
                     + activityPatternID + " GROUP BY feedID) AS feedGroup");
             if (rs.next()) {
                 timeliness = rs.getDouble("timeliness");

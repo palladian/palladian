@@ -1,4 +1,4 @@
-package tud.iir.news.statistics;
+package tud.iir.news.evaluation;
 
 import java.util.ArrayList;
 
