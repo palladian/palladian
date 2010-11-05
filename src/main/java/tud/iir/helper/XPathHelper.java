@@ -2,6 +2,7 @@ package tud.iir.helper;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -21,6 +22,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import tud.iir.web.Crawler;
+
 /**
  * A helper to handle xPath.
  * 
@@ -31,10 +34,10 @@ import org.w3c.dom.NodeList;
 public class XPathHelper {
 
     /**
-     * Check whether document has a xhtml namespace declared.
+     * Check whether document has an xhtml namespace declared.
      * 
      * @param document The document.
-     * @return True if the document has a xhtml namespace declared, else false.
+     * @return True if the document has an xhtml namespace declared, else false.
      */
     public static boolean hasXMLNS(final Document document) {
 
@@ -265,6 +268,7 @@ public class XPathHelper {
         try {
             final DOMXPath xpathExpression = new DOMXPath(xPath);
             childNodes = xpathExpression.selectNodes(node);
+            System.out.println(xpathExpression + " " + childNodes.size());
 
             for (Node cn : childNodes) {
                 if (isChildOf(cn, node)) {
@@ -348,27 +352,44 @@ public class XPathHelper {
     public static List<Node> getPreviousSiblings(final Node node) {
 
         final Node parentNode = node.getParentNode();
-     
+
         final List<Node> previousSiblings = new ArrayList<Node>();
         final List<Node> childNodes = XPathHelper.getChildNodes(parentNode);
 
         for (Node childNode : childNodes) {
             if (childNode.isSameNode(node)) {
-                
+
                 break;
             } else {
                 previousSiblings.add(childNode);
-               
+
             }
         }
         return previousSiblings;
     }
-    
+
     public static void main(String[] args) {
+
+        // String xPath = "//div/text()";
+        // System.out.println(addNameSpaceToXPath(xPath));
+
+        Crawler crawler = new Crawler();
+        Document doc = crawler.getWebDocument("data/test/xPathTestcase.html");
         
-        String xPath = "//div/text()";
-        System.out.println(addNameSpaceToXPath(xPath));
-        
+        // iterate over all TRs
+        List<Node> rows = XPathHelper.getNodes(doc, "//TABLE/TR");
+        for (Node row : rows) {
+
+            // System.out.println(HTMLHelper.getXmlDump(row));
+            
+            // iterate over TDs
+            List<Node> cells = XPathHelper.getChildNodes(row, "//TD"); // does not work
+            // List<Node> cells = XPathHelper.getChildNodes(row, "*"); // infinite loop?
+            for (Node cell : cells) {
+                System.out.println(cell.getTextContent());
+            }
+        }
+
     }
 
 }
