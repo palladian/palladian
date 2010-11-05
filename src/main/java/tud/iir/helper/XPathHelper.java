@@ -2,7 +2,6 @@ package tud.iir.helper;
 
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -99,11 +98,11 @@ public class XPathHelper {
      * @param xPath the x path
      * @return the nodes
      */
-    public static List<Node> getNodes(final Document document, final String xPath) {
+    public static List<Node> getNodes(Document document, String xPath) {
         if (document == null || xPath == null || xPath.length() == 0) {
             return new ArrayList<Node>();
         }
-        final String modXPath = addNameSpaceToXPath(document, xPath);
+        String modXPath = addNameSpaceToXPath(document, xPath);
 
         return getNodes(document.getLastChild(), modXPath);
     }
@@ -242,46 +241,39 @@ public class XPathHelper {
      * @param parent The node under which the childCandidate must descend.
      * @return True, if the childCandidate really descends from the parent, false otherwise.
      */
-    private static boolean isChildOf(final Node childCandidate, final Node parent) {
+    private static boolean isChildOf(Node childCandidate, Node parent) {
 
-        while (childCandidate.getParentNode() != null) {
-            final Node modChildCandidate = childCandidate.getParentNode();
+        Node modChildCandidate = childCandidate.getParentNode();
+        while (modChildCandidate != null) {
             if (modChildCandidate.equals(parent)) {
                 return true;
             }
+            modChildCandidate = modChildCandidate.getParentNode();
         }
 
         return false;
     }
 
     /**
-     * Gets the child nodes.
+     * Gets the child nodes of a given node that are addressed by the given xPath.
      * 
-     * @param node the node
-     * @param xPath the x path
-     * @return the child nodes
+     * @param node The parent node of the children.
+     * @param xPath The xPath that addresses the children.
+     * @return The child nodes.
      */
-    @SuppressWarnings("unchecked")
-    public static List<Node> getChildNodes(final Node node, final String xPath) {
+    public static List<Node> getChildNodes(Node node, String xPath) {
         List<Node> childNodes = null;
-        final List<Node> childNodesMatch = new ArrayList<Node>();
-        try {
-            final DOMXPath xpathExpression = new DOMXPath(xPath);
-            childNodes = xpathExpression.selectNodes(node);
-            System.out.println(xpathExpression + " " + childNodes.size());
+        List<Node> childNodesMatch = new ArrayList<Node>();
 
-            for (Node cn : childNodes) {
-                if (isChildOf(cn, node)) {
-                    childNodesMatch.add(cn);
-                }
+        xPath = addNameSpaceToXPath(xPath);
+        childNodes = getNodes(node, xPath);
+
+        System.out.println(" " + childNodes.size());
+
+        for (Node cn : childNodes) {
+            if (isChildOf(cn, node)) {
+                childNodesMatch.add(cn);
             }
-
-        } catch (JaxenException e) {
-            Logger.getRootLogger().error(xPath + ", " + e.getMessage());
-        } catch (OutOfMemoryError e) {
-            Logger.getRootLogger().error(xPath + ", " + e.getMessage());
-        } catch (Exception e) {
-            Logger.getRootLogger().error(xPath + ", " + e.getMessage());
         }
 
         return childNodesMatch;
@@ -383,8 +375,8 @@ public class XPathHelper {
             // System.out.println(HTMLHelper.getXmlDump(row));
             
             // iterate over TDs
-            List<Node> cells = XPathHelper.getChildNodes(row, "//TD"); // does not work
-            // List<Node> cells = XPathHelper.getChildNodes(row, "*"); // infinite loop?
+            List<Node> cells = XPathHelper.getChildNodes(row, "//TD"); // does not work EDIT: now it does
+            // List<Node> cells = XPathHelper.getChildNodes(row, "*"); // infinite loop? EDIT: yes, stupid me :) solved.
             for (Node cell : cells) {
                 System.out.println(cell.getTextContent());
             }
