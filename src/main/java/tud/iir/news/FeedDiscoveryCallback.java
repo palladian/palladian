@@ -30,7 +30,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
     private static final Logger LOGGER = Logger.getLogger(FeedDiscoveryCallback.class);
 
     /** The default file where the discovered feeds are written to. */ 
-    private static final String DEFAULT_FILE_PATH = "data/discovered_feeds.txt";
+    public static final String DEFAULT_FILE_PATH = "data/discovered_feeds.txt";
 
     /** Instance of FeedDiscovery to which we delegate for discovery. */
     private FeedDiscovery feedDiscovery = new FeedDiscovery();
@@ -61,7 +61,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
         if (document != null) {
             List<String> feeds = feedDiscovery.discoverFeeds(document);
             for (String feed : feeds) {
-                // output to the file must be synched, or we will lose data when
+                // output to the file must be synced, or we will lose data when
                 // writing from multiple crawl threads
                 synchronized (this) {
                     appendLineIfNotPresent(filePath, feed);

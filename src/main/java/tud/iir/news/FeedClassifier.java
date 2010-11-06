@@ -87,55 +87,25 @@ public class FeedClassifier {
     }
 
     /**
-     * Classify a feed by its given URL.
+     * Classify a feed directly by its items.
      * 
-     * @param feedURL The URL of the feed.
-     * @return The class of the feed.
+     * @param item The feed's items.
+     * @return The classification as a numeric value.
      */
-    public static int classify(String feedURL, FeedStore feedStore) {
-
+    public static int classify(List<FeedItem> items) {
         int feedClass = CLASS_UNKNOWN;
 
-        NewsAggregator newsAggregator;
-
-        if (feedStore == null) {
-            newsAggregator = new NewsAggregator();
-        } else {
-            newsAggregator = new NewsAggregator(feedStore);
-        }
-
-        List<FeedItem> entries = new ArrayList<FeedItem>();
-        FeedPostStatistics fps = null;
-
-        // check if feed is not accessible, try 5 times
-        Crawler crawler = new Crawler();
-
-        try {
-
-            newsAggregator.setDownloadPages(false);
-            Feed feed = newsAggregator.downloadFeed(feedURL);
-            entries = feed.getEntries();
-            fps = new FeedPostStatistics(feed);
-
-            LOGGER.debug(fps);
-
-        } catch (NewsAggregatorException e) {
-            LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
-
-            if (crawler.getResponseCode(feedURL) == 200) {
-                return CLASS_UNKNOWN;
-            } else {
-                return CLASS_DEAD;
-            }
-        }
+        Feed feed = new Feed();
+        feed.setEntries(items);
+        FeedPostStatistics fps = new FeedPostStatistics(feed);
 
         // // use rule based classification
 
-        if (!fps.isValidStatistics() && entries.size() > 0) {
+        if (!fps.isValidStatistics() && items.size() > 0) {
             feedClass = CLASS_UNKNOWN;
-        } else if (entries.size() == 0) {
+        } else if (items.size() == 0) {
             feedClass = CLASS_EMPTY;
-        } else if (entries.size() == 1) {
+        } else if (items.size() == 1) {
             feedClass = CLASS_SINGLE_ENTRY;
         } else
 
@@ -176,6 +146,46 @@ public class FeedClassifier {
             }
 
         return feedClass;
+    }
+
+    /**
+     * Classify a feed by its given URL.
+     * 
+     * @param feedURL The URL of the feed.
+     * @return The class of the feed.
+     */
+    public static int classify(String feedURL, FeedStore feedStore) {
+
+        NewsAggregator newsAggregator;
+
+        if (feedStore == null) {
+            newsAggregator = new NewsAggregator();
+        } else {
+            newsAggregator = new NewsAggregator(feedStore);
+        }
+
+        List<FeedItem> items = new ArrayList<FeedItem>();
+
+        // check if feed is not accessible, try 5 times
+        Crawler crawler = new Crawler();
+
+        try {
+
+            newsAggregator.setDownloadPages(false);
+            Feed feed = newsAggregator.downloadFeed(feedURL);
+            items = feed.getEntries();
+
+        } catch (NewsAggregatorException e) {
+            LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
+
+            if (crawler.getResponseCode(feedURL) == 200) {
+                return CLASS_UNKNOWN;
+            } else {
+                return CLASS_DEAD;
+            }
+        }
+
+        return classify(items);
     }
 
     public static int classify(Feed feed) {

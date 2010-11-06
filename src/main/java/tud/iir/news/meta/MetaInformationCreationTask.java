@@ -23,7 +23,8 @@ import tud.iir.persistence.DatabaseManager;
 
 /**
  * <p>
- * 
+ * The MetaInformationCreator gets information about last modified since and ETag support as well as information about
+ * the header size.
  * </p>
  * 
  * @author Klemens Muthmann
@@ -34,73 +35,29 @@ import tud.iir.persistence.DatabaseManager;
  */
 public final class MetaInformationCreationTask implements Runnable {
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
     private final static Logger LOGGER = Logger.getLogger(MetaInformationCreator.class);
 
     private Feed feed;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
     private DatabaseManager dbManager;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
     private Connection connection;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
-    private PreparedStatement supportsCG;
+    private PreparedStatement psSupportsLMS;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
-    private PreparedStatement supportsEtag;
+    private PreparedStatement psSupportsEtag;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
-    private PreparedStatement responseSize;
+    private PreparedStatement psResponseSize;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
-    private PreparedStatement eTagResponseSize;
-
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
-    public MetaInformationCreationTask(final Feed feed) {
+    public MetaInformationCreationTask(Feed feed) {
         this.feed = feed;
         dbManager = DatabaseManager.getInstance();
         connection = dbManager.getConnection();
 
         try {
-            supportsCG = connection.prepareStatement("UPDATE feeds SET supportsConditionalGet=? WHERE id=?");
-            supportsEtag = connection.prepareStatement("UPDATE feeds SET supportsETag=? WHERE id=?");
-            responseSize = connection.prepareStatement("UPDATE feeds SET conditionGetResponseSize=? WHERE id=?");
-            eTagResponseSize = connection.prepareStatement("UPDATE feeds SET etagResponseSize=? WHERE id=?");
+            psSupportsLMS = connection.prepareStatement("UPDATE feeds SET supportsLMS=? WHERE id=?");
+            psSupportsEtag = connection.prepareStatement("UPDATE feeds SET supportsETag=? WHERE id=?");
+            psResponseSize = connection.prepareStatement("UPDATE feeds SET conditionGetResponseSize=? WHERE id=?");
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
             System.exit(1);
@@ -112,7 +69,7 @@ public final class MetaInformationCreationTask implements Runnable {
      * Create meta information, that is, find:
      * <ul>
      * <li>Etag support</li>
-     * <li>conditional get support</li>
+     * <li>last modified since support</li>
      * <li>If conditional get is supported also the size of the reply.</li>
      * </ul>
      * </p>
@@ -147,17 +104,13 @@ public final class MetaInformationCreationTask implements Runnable {
         }
 
         Boolean supportsETag = getSupportsETag(connection);
-        Integer etagResponseSize = -1;
-        if (supportsETag) {
-            etagResponseSize = getEtagFeedResponseSize((HttpURLConnection) connection);
-        }
         Integer responseSize = -1;
         if (supports304) {
             responseSize = getFeedResponseSize((HttpURLConnection) connection);
         }
 
         try {
-            writeMetaInformationToDatabase(feed, supports304, supportsETag, responseSize, etagResponseSize);
+            writeMetaInformationToDatabase(feed, supports304, supportsETag, responseSize);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Unable to store results to Database.", e);
@@ -172,25 +125,6 @@ public final class MetaInformationCreationTask implements Runnable {
                 + MathHelper.round(100 * MetaInformationCreator.counter
                         / (double) MetaInformationCreator.collectionSize, 2) + "(" + MetaInformationCreator.counter
                 + ")");
-    }
-
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param connection
-     * @return
-     */
-    private Integer getEtagFeedResponseSize(HttpURLConnection connection) {
-        int ret = 0;
-        if (getSupportsETag(connection)) {
-            ret = new Integer((connection.getContentLength() == -1 ? 0 : connection.getContentLength())
-                    + sumHeaderFieldSize(connection.getHeaderFields()));
-        } else {
-            ret = new Integer(-1);
-        }
-        return ret;
     }
 
     /**
@@ -256,33 +190,29 @@ public final class MetaInformationCreationTask implements Runnable {
      * </p>
      * 
      * @param feed
-     * @param supportsConditionalGet
+     * @param supportsLMS
      * @param supportsETag
      * @param etagResponseSize2
      * @param responseSize
      * @throws SQLException
      */
-    private void writeMetaInformationToDatabase(final Feed feed, final Boolean supportsConditionalGet,
-            final Boolean supportsETag, final Integer responseSizeValue, Integer etagResponseSizeValue)
+    private void writeMetaInformationToDatabase(Feed feed, Boolean supportsLMS, Boolean supportsETag,
+            Integer responseSizeValue)
     throws SQLException {
 
         Integer id = feed.getId();
 
-        supportsCG.setBoolean(1, supportsConditionalGet);
-        supportsCG.setInt(2, id);
-        dbManager.runUpdate(supportsCG);
+        psSupportsLMS.setBoolean(1, supportsLMS);
+        psSupportsLMS.setInt(2, id);
+        dbManager.runUpdate(psSupportsLMS);
 
-        supportsEtag.setBoolean(1, supportsETag);
-        supportsEtag.setInt(2, id);
-        dbManager.runUpdate(supportsEtag);
+        psSupportsEtag.setBoolean(1, supportsETag);
+        psSupportsEtag.setInt(2, id);
+        dbManager.runUpdate(psSupportsEtag);
 
-        responseSize.setInt(1, responseSizeValue);
-        responseSize.setInt(2, id);
-        dbManager.runUpdate(responseSize);
-
-        eTagResponseSize.setInt(1, etagResponseSizeValue);
-        eTagResponseSize.setInt(2, id);
-        dbManager.runUpdate(eTagResponseSize);
+        psResponseSize.setInt(1, responseSizeValue);
+        psResponseSize.setInt(2, id);
+        dbManager.runUpdate(psResponseSize);
     }
 
     /**

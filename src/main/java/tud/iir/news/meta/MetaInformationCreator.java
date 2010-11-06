@@ -14,10 +14,6 @@ import tud.iir.news.FeedDatabase;
 import tud.iir.news.FeedStore;
 
 /**
- * <p>
- * 
- * </p>
- * 
  * @author Klemens Muthmann
  * @version 1.0
  * @since 1.0
@@ -25,47 +21,21 @@ import tud.iir.news.FeedStore;
  */
 public class MetaInformationCreator {
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
     private final static Logger LOGGER = Logger.getLogger(MetaInformationCreator.class);
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
     private final static Integer THREAD_POOL_SIZE = 100;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     */
     private FeedStore feedStore;
 
     public static int counter = 0;
     public static int collectionSize = 0;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     */
+
     public MetaInformationCreator() {
         feedStore = FeedDatabase.getInstance();
     }
 
 
-    /**
-     * <p>
-     * 
-     * </p>
-     *
-     */
     public void createMetaInformation() {
         ExecutorService threadPool = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
         Collection<Feed> feedCollection = feedStore.getFeeds();
@@ -79,13 +49,7 @@ public class MetaInformationCreator {
         }
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param args
-     */
+
     public static void main(String[] args) {
         MetaInformationCreator creator = new MetaInformationCreator();
         creator.createMetaInformation();

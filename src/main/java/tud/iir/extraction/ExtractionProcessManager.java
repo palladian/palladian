@@ -11,6 +11,7 @@ import tud.iir.extraction.snippet.SnippetExtractionProcess;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.ThreadHelper;
+import tud.iir.news.FeedStoreManager;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetrieverManager;
@@ -192,6 +193,7 @@ public class ExtractionProcessManager {
         // the interval in seconds in which the live_status table should be updated
         int extractionStatusUpdateInteraval = Controller.getConfig().getInt("extraction.statusUpdate") * 1000;
 
+        int loopCount = 1;
         while (true) {
 
             if (Controller.getConfig().getInt("extraction.entitySlot") > 0) {
@@ -239,6 +241,17 @@ public class ExtractionProcessManager {
                 Logger.getRootLogger().info("qa extraction stopped, continue");
             }
 
+            // cleansing and management
+            if (loopCount % 10 == 0) {
+                FeedStoreManager fsm = new FeedStoreManager();
+                fsm.importFeeds();
+            }
+            if (loopCount % 50 == 0) {
+                FeedStoreManager fsm = new FeedStoreManager();
+                fsm.updateHeaderInformation();
+            }
+
+            loopCount++;
         }
     }
 

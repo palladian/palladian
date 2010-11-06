@@ -468,9 +468,16 @@ public class NewsAggregator {
                     FeedContentClassifier classifier = new FeedContentClassifier();
                     int textType = classifier.determineFeedTextType(feed);
                     feed.setTextType(textType);
+                    
+                    // classify the feed's activity pattern
+                    feed.setActivityPattern(FeedClassifier.classify(feed.getEntries()));
+                    
+                    feed.setWindowSize(feed.getEntries().size());
+                    
+                    // set feed and site URL
+                    feed.setFeedUrl(feedUrl,true);
 
                     // add feed & entries to the store
-
                     store.addFeed(feed);
 
                     for (FeedItem feedEntry : feed.getEntries()) {
@@ -480,7 +487,6 @@ public class NewsAggregator {
                     LOGGER.info("added feed to store " + feedUrl + " (textType:"
                             + classifier.getReadableFeedTextType(textType) + ")");
                     added = true;
-
                 }
 
             } catch (NewsAggregatorException e) {
@@ -503,7 +509,7 @@ public class NewsAggregator {
      * the maximum number of concurrently running threads.
      * 
      * @param feedUrls
-     * @return number of added feeds.
+     * @return Number of added feeds.
      */
     public int addFeeds(Collection<String> feedUrls) {
 
@@ -571,10 +577,10 @@ public class NewsAggregator {
     }
 
     /**
-     * Add feeds from a supplied file. The file must contain a newline separeted list of feed URLs.
+     * Add feeds from a supplied file. The file must contain a newline separated list of feed URLs.
      * 
-     * @param fileName
-     * @return
+     * @param fileName The name of the file where the feed URLs are stored.
+     * @return The number of feeds added.
      */
     public int addFeedsFromFile(String filePath) {
         LOGGER.trace(">addFeedsFromFile");
