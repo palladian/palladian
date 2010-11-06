@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.news.evaluation.PollDataSeries;
+import tud.iir.web.Crawler;
 
 /**
  * Represents a news feed.
@@ -170,6 +171,13 @@ public class Feed {
 
     public void setFeedUrl(String feedUrl) {
         this.feedUrl = feedUrl;
+    }
+
+    public void setFeedUrl(String feedUrl, boolean setSiteURL) {
+        this.feedUrl = feedUrl;
+        if (setSiteURL) {
+            setSiteUrl(Crawler.getDomain(feedUrl));
+        }
     }
 
     public String getSiteUrl() {
