@@ -5,7 +5,7 @@ package tud.iir.news;
  * 
  * @author Klemens Muthmann
  * @author David Urbansky
- * @see FeedChecker
+ * @see FeedReader
  * 
  */
 public enum UpdateStrategy {
@@ -14,9 +14,9 @@ public enum UpdateStrategy {
     UPDATE_FIXED,
 
     /** Check each feed and learn its update times. */
-    UPDATE_ADAPTIVE,
+    UPDATE_MOVING_AVERAGE,
 
     /** Check each feed and adapt to its update rate. */
-    UPDATE_PROBABILISTIC;
+    UPDATE_POST_RATE;
 
 }

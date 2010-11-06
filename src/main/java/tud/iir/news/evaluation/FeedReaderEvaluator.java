@@ -13,7 +13,7 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.news.Feed;
-import tud.iir.news.FeedChecker;
+import tud.iir.news.FeedReader;
 import tud.iir.news.FeedDatabase;
 import tud.iir.news.UpdateStrategy;
 
@@ -128,7 +128,7 @@ public class FeedReaderEvaluator {
      * </p>
      * 
      */
-    public static void writeRecordedMaps(FeedChecker feedReader) {
+    public static void writeRecordedMaps(FeedReader feedReader) {
 
         StopWatch sw = new StopWatch();
 
@@ -256,8 +256,8 @@ public class FeedReaderEvaluator {
         FeedReaderEvaluator.benchmarkSample = benchmarkSample;
 
         UpdateStrategy[] strategies = { UpdateStrategy.UPDATE_FIXED, UpdateStrategy.UPDATE_FIXED,
-                UpdateStrategy.UPDATE_FIXED, UpdateStrategy.UPDATE_ADAPTIVE,
-                UpdateStrategy.UPDATE_PROBABILISTIC };
+                UpdateStrategy.UPDATE_FIXED, UpdateStrategy.UPDATE_MOVING_AVERAGE,
+                UpdateStrategy.UPDATE_POST_RATE };
 
         Integer[] policies = {BENCHMARK_MIN_DELAY,BENCHMARK_MAX_COVERAGE};
         Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
@@ -290,7 +290,7 @@ public class FeedReaderEvaluator {
 
                     setBenchmarkMode(mode);
 
-                    FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());
+                    FeedReader fc = new FeedReader(FeedDatabase.getInstance());
                     fc.setCheckApproach(strategy, false);
                     fc.setCheckInterval(checkInterval);
 
@@ -319,7 +319,7 @@ public class FeedReaderEvaluator {
         // System.exit(0);
 
         UpdateStrategy checkType = UpdateStrategy.UPDATE_FIXED;
-        checkType = UpdateStrategy.UPDATE_ADAPTIVE;
+        checkType = UpdateStrategy.UPDATE_MOVING_AVERAGE;
         // checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
 
         // if -1 => fixed learned
@@ -327,7 +327,7 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSample = 100;
 
-        FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());
+        FeedReader fc = new FeedReader(FeedDatabase.getInstance());
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);

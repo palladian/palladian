@@ -11,15 +11,15 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.news.Feed;
-import tud.iir.news.FeedChecker;
-import tud.iir.news.FeedEntry;
+import tud.iir.news.FeedReader;
+import tud.iir.news.FeedItem;
 
 public class FeedBenchmarkFileReader {
 
     protected static final Logger LOGGER = Logger.getLogger(FeedBenchmarkFileReader.class);
 
     private Feed feed;
-    private FeedChecker feedChecker;
+    private FeedReader feedChecker;
     private List<String> historyFileLines;
     private String historyFilePath = "";
     private int totalEntries = 0;
@@ -36,7 +36,7 @@ public class FeedBenchmarkFileReader {
      */
     private int lastStartIndex = 1;
 
-    public FeedBenchmarkFileReader(Feed feed, FeedChecker feedChecker) {
+    public FeedBenchmarkFileReader(Feed feed, FeedReader feedChecker) {
         this.feed = feed;
         this.feedChecker = feedChecker;
 
@@ -68,11 +68,11 @@ public class FeedBenchmarkFileReader {
         this.feed = feed;
     }
 
-    public FeedChecker getFeedChecker() {
+    public FeedReader getFeedChecker() {
         return feedChecker;
     }
 
-    public void setFeedChecker(FeedChecker feedChecker) {
+    public void setFeedChecker(FeedReader feedChecker) {
         this.feedChecker = feedChecker;
     }
 
@@ -106,7 +106,7 @@ public class FeedBenchmarkFileReader {
     public void updateEntriesFromDisk() {
 
         try {
-            List<FeedEntry> entries = new ArrayList<FeedEntry>();
+            List<FeedItem> entries = new ArrayList<FeedItem>();
 
             // the timestamp of the first item in the window
             long firstItemInWindowTimestamp = -1l;
@@ -215,7 +215,7 @@ public class FeedBenchmarkFileReader {
                     totalBytes += Math.max(0, Integer.valueOf(parts[3]));
 
                     // create feed entry
-                    FeedEntry feedEntry = new FeedEntry();
+                    FeedItem feedEntry = new FeedItem();
                     feedEntry.setPublished(new Date(entryTimestamp));
                     feedEntry.setTitle(parts[1]);
                     feedEntry.setLink(parts[2]);

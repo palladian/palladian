@@ -19,7 +19,7 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.news.Feed;
-import tud.iir.news.FeedChecker;
+import tud.iir.news.FeedReader;
 import tud.iir.news.FeedClassifier;
 import tud.iir.news.FeedPostStatistics;
 import tud.iir.news.FeedStore;
@@ -36,7 +36,7 @@ public class FeedStatisticCreator {
 
     /**
      * <p>
-     * After running the FeedChecker in {@link FeedChecker.BENCHMARK_MAX} mode and importing the resulting poll data
+     * After running the FeedChecker in {@link FeedReader.BENCHMARK_MAX} mode and importing the resulting poll data
      * into the "feed_evaluation_polls" table in the database, this method calculates the coverage score and meta
      * information.
      * </p>
@@ -127,7 +127,7 @@ public class FeedStatisticCreator {
 
     /**
      * <p>
-     * After running the FeedChecker in {@link FeedChecker.BENCHMARK_MIN} mode and importing the resulting poll data
+     * After running the FeedChecker in {@link FeedReader.BENCHMARK_MIN} mode and importing the resulting poll data
      * into the "feed_evaluation_polls" table in the database, this method calculates the timeliness scores.
      * </p>
      * <ul>
@@ -301,7 +301,7 @@ public class FeedStatisticCreator {
     public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPath)
     throws IOException {
 
-        FeedChecker fc = new FeedChecker(feedStore);
+        FeedReader fc = new FeedReader(feedStore);
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE);
 
         FileWriter csv = new FileWriter(statisticOutputPath);

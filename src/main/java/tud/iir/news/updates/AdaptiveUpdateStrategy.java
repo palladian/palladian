@@ -7,7 +7,7 @@ import java.util.List;
 
 import tud.iir.news.Feed;
 import tud.iir.news.FeedClassifier;
-import tud.iir.news.FeedEntry;
+import tud.iir.news.FeedItem;
 import tud.iir.news.FeedPostStatistics;
 
 /**

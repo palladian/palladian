@@ -104,7 +104,7 @@ public class FeedClassifier {
             newsAggregator = new NewsAggregator(feedStore);
         }
 
-        List<FeedEntry> entries = new ArrayList<FeedEntry>();
+        List<FeedItem> entries = new ArrayList<FeedItem>();
         FeedPostStatistics fps = null;
 
         // check if feed is not accessible, try 5 times

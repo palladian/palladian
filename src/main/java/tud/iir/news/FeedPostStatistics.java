@@ -64,7 +64,7 @@ public class FeedPostStatistics {
 
     private final void calculateStatistics(Feed feed) {
 
-        List<FeedEntry> feedEntries = feed.getEntries();
+        List<FeedItem> feedEntries = feed.getEntries();
 
         long timeOldestEntry = Long.MAX_VALUE;
         long timeNewestEntry = 0;
@@ -77,10 +77,10 @@ public class FeedPostStatistics {
             return;
         }
 
-        for (FeedEntry entry : feedEntries) {
+        for (FeedItem entry : feedEntries) {
             Date pubDate = entry.getPublished();
             if (pubDate == null) {
-                FeedChecker.LOGGER.warn("entry does not have pub date, feed entry " + entry);
+                FeedReader.LOGGER.warn("entry does not have pub date, feed entry " + entry);
                 continue;
             }
             long pubTime = pubDate.getTime();

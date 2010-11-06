@@ -55,7 +55,7 @@ public class Feed {
     /** The size of the feed in bytes. */
     private long byteSize = 0;
 
-    private List<FeedEntry> entries;
+    private List<FeedItem> entries;
 
     /** The number of feed entries presented for each request. */
     private int windowSize = -1;
@@ -227,15 +227,15 @@ public class Feed {
         this.textType = textType;
     }
 
-    public void setEntries(List<FeedEntry> entries) {
+    public void setEntries(List<FeedItem> entries) {
         this.entries = entries;
     }
 
-    public List<FeedEntry> getEntries() {
+    public List<FeedItem> getEntries() {
         return entries;
     }
 
-    public List<FeedEntry> getEntries(Boolean update, Boolean usePageContentExtractor) {
+    public List<FeedItem> getEntries(Boolean update, Boolean usePageContentExtractor) {
         if (update) {
             updateEntries(usePageContentExtractor);
         }
@@ -246,7 +246,7 @@ public class Feed {
     public void updateEntries(Boolean usePageContentExtractor) {
         NewsAggregator aggregator = new NewsAggregator();
         aggregator.setDownloadPages(usePageContentExtractor);
-        List<FeedEntry> entries = new ArrayList<FeedEntry>();
+        List<FeedItem> entries = new ArrayList<FeedItem>();
         try {
             // FIXME
             Feed f = aggregator.downloadFeed(this);
@@ -260,7 +260,7 @@ public class Feed {
 
     public void freeMemory() {
         setPlainXML("");
-        setEntries(new ArrayList<FeedEntry>());
+        setEntries(new ArrayList<FeedItem>());
     }
 
     public void setChecks(int checks) {
@@ -464,7 +464,7 @@ public class Feed {
     private StringBuilder getNewEntryTitles() {
 
         StringBuilder titles = new StringBuilder();
-        for (FeedEntry entry : getEntries()) {
+        for (FeedItem entry : getEntries()) {
             titles.append(entry.getTitle() + entry.getLink()).append(TITLE_SEPARATION);
         }
 

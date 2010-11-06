@@ -340,7 +340,7 @@ public class FeedDatabase implements FeedStore {
     }
 
     @Override
-    public synchronized boolean addFeedEntry(Feed feed, FeedEntry entry) {
+    public synchronized boolean addFeedEntry(Feed feed, FeedItem entry) {
         LOGGER.trace(">addEntry " + entry + " to " + feed);
         boolean added = false;
         try {
@@ -349,7 +349,7 @@ public class FeedDatabase implements FeedStore {
             psAddFeedEntry.setString(3, entry.getLink());
             psAddFeedEntry.setString(4, entry.getRawId());
             psAddFeedEntry.setTimestamp(5, entry.getPublishedSQLTimestamp());
-            psAddFeedEntry.setString(6, entry.getEntryText());
+            psAddFeedEntry.setString(6, entry.getItemText());
             psAddFeedEntry.setString(7, entry.getPageText());
 
             // check affected rows
@@ -372,9 +372,9 @@ public class FeedDatabase implements FeedStore {
 
     @Override
     @Deprecated
-    public synchronized FeedEntry getFeedEntryByRawId(String rawId) {
+    public synchronized FeedItem getFeedEntryByRawId(String rawId) {
         LOGGER.trace(">getEntryByRawId");
-        FeedEntry result = null;
+        FeedItem result = null;
         try {
             psGetEntryByRawId.setString(1, rawId);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetEntryByRawId);
@@ -390,9 +390,9 @@ public class FeedDatabase implements FeedStore {
     }
 
     @Override
-    public synchronized FeedEntry getFeedEntryByRawId(int feedId, String rawId) {
+    public synchronized FeedItem getFeedEntryByRawId(int feedId, String rawId) {
         LOGGER.trace(">getEntryByRawId");
-        FeedEntry result = null;
+        FeedItem result = null;
         try {
             psGetEntryByRawId2.setInt(1, feedId);
             psGetEntryByRawId2.setString(2, rawId);
@@ -408,9 +408,9 @@ public class FeedDatabase implements FeedStore {
         return result;
     }
 
-    public FeedEntry getFeedEntryById(int id) {
+    public FeedItem getFeedEntryById(int id) {
         LOGGER.trace(">getEntryById");
-        FeedEntry result = null;
+        FeedItem result = null;
         try {
             psGetEntryById.setInt(1, id);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetEntryById);
@@ -432,9 +432,9 @@ public class FeedDatabase implements FeedStore {
      * @param offset
      * @return
      */
-    public List<FeedEntry> getFeedEntries(int limit, int offset) {
+    public List<FeedItem> getFeedEntries(int limit, int offset) {
         LOGGER.trace(">getFeedEntries");
-        List<FeedEntry> result = new LinkedList<FeedEntry>();
+        List<FeedItem> result = new LinkedList<FeedItem>();
         try {
             psGetEntries.setInt(1, limit);
             psGetEntries.setInt(2, offset);
@@ -459,8 +459,8 @@ public class FeedDatabase implements FeedStore {
      * @return
      */
     @Override
-    public List<FeedEntry> getFeedEntries(String sqlQuery) {
-        List<FeedEntry> result = new LinkedList<FeedEntry>();
+    public List<FeedItem> getFeedEntries(String sqlQuery) {
+        List<FeedItem> result = new LinkedList<FeedItem>();
         try {
             ResultSet rs = connection.createStatement().executeQuery(sqlQuery);
             while (rs.next()) {
@@ -474,12 +474,12 @@ public class FeedDatabase implements FeedStore {
         return result;
     }
 
-    public List<FeedEntry> getFeedEntriesForEvaluation(String sqlQuery) {
-        List<FeedEntry> result = new LinkedList<FeedEntry>();
+    public List<FeedItem> getFeedEntriesForEvaluation(String sqlQuery) {
+        List<FeedItem> result = new LinkedList<FeedItem>();
         try {
             ResultSet rs = connection.createStatement().executeQuery(sqlQuery);
             while (rs.next()) {
-                FeedEntry entry = getFeedEntry(rs);
+                FeedItem entry = getFeedEntry(rs);
                 result.add(entry);
                 entry.putFeature("relevant", rs.getFloat("relevant"));
             }
@@ -492,9 +492,9 @@ public class FeedDatabase implements FeedStore {
     }
 
     // create FeedEntry from ResultSet
-    private FeedEntry getFeedEntry(ResultSet resultSet) throws SQLException {
+    private FeedItem getFeedEntry(ResultSet resultSet) throws SQLException {
 
-        FeedEntry entry = new FeedEntry();
+        FeedItem entry = new FeedItem();
 
         entry.setId(resultSet.getInt("id"));
         entry.setFeedId(resultSet.getInt("feedId"));
@@ -502,7 +502,7 @@ public class FeedDatabase implements FeedStore {
         entry.setLink(resultSet.getString("link"));
         entry.setRawId(resultSet.getString("rawId"));
         entry.setPublished(resultSet.getTimestamp("published"));
-        entry.setEntryText(resultSet.getString("text"));
+        entry.setItemText(resultSet.getString("text"));
         entry.setPageText(resultSet.getString("pageText"));
         entry.setAdded(resultSet.getTimestamp("added"));
 
@@ -515,7 +515,7 @@ public class FeedDatabase implements FeedStore {
      * @param entry
      * @return
      */
-    public List<Tag> getTags(FeedEntry entry) {
+    public List<Tag> getTags(FeedItem entry) {
         List<Tag> tags = new ArrayList<Tag>();
 
         try {
@@ -536,7 +536,7 @@ public class FeedDatabase implements FeedStore {
         return tags;
     }
 
-    public void assignTags(FeedEntry entry, List<Tag> tags) {
+    public void assignTags(FeedItem entry, List<Tag> tags) {
 
         try {
 
@@ -619,13 +619,13 @@ public class FeedDatabase implements FeedStore {
      * 
      * @return
      */
-    public Iterator<FeedEntry> getFeedEntries() {
+    public Iterator<FeedItem> getFeedEntries() {
 
         final ResultSet rs = DatabaseManager.getInstance().runQuery(psGetAllEntries);
-        return new Iterator<FeedEntry>() {
+        return new Iterator<FeedItem>() {
 
             /** reference to the next FeedEntry which can be retrieved via next(). */
-            private FeedEntry next = null;
+            private FeedItem next = null;
 
             @Override
             public boolean hasNext() {
@@ -648,7 +648,7 @@ public class FeedDatabase implements FeedStore {
             }
 
             @Override
-            public FeedEntry next() {
+            public FeedItem next() {
                 if (!hasNext()) {
                     throw new NoSuchElementException();
                 }
@@ -693,7 +693,7 @@ public class FeedDatabase implements FeedStore {
         // }
         // System.out.println(result.size());
 
-        Iterator<FeedEntry> iterator = fd.getFeedEntries();
+        Iterator<FeedItem> iterator = fd.getFeedEntries();
         System.out.println(sw.getElapsedTimeString());
 
         int counter = 0;
@@ -705,7 +705,7 @@ public class FeedDatabase implements FeedStore {
         System.out.println(sw.getElapsedTimeString());
 
         System.exit(0);
-        FeedEntry dummy = new FeedEntry();
+        FeedItem dummy = new FeedItem();
         dummy.setId(123);
         List<Tag> tags = fd.getTags(dummy);
         System.out.println(tags);

@@ -1,4 +1,4 @@
-package tud.iir.web;
+package tud.iir.helper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -8,15 +8,18 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.DateHelper;
-import tud.iir.helper.FileHelper;
-import tud.iir.helper.StringHelper;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedDatabase;
 import tud.iir.news.evaluation.FeedReaderEvaluator;
 import weka.classifiers.Classifier;
 import weka.core.Instance;
 
+/**
+ * Dump class to test various algorithms.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class Temp {
 
     public static void createTrainingData() {

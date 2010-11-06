@@ -1,4 +1,4 @@
-package tud.iir.news;
+package tud.iir.news.evaluation;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -15,7 +15,14 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
-import tud.iir.news.evaluation.FeedReaderEvaluator;
+import tud.iir.news.Feed;
+import tud.iir.news.FeedClassifier;
+import tud.iir.news.FeedDatabase;
+import tud.iir.news.FeedItem;
+import tud.iir.news.FeedProcessingAction;
+import tud.iir.news.FeedReader;
+import tud.iir.news.FeedStore;
+import tud.iir.news.UpdateStrategy;
 
 /**
  * <p>
@@ -54,7 +61,7 @@ public class DatasetCreator {
         // all feeds need to be classified in advance to filter them accordingly
         // FeedClassifier.classifyFeedInStore(feedStore);
 
-        FeedChecker feedChecker = new FeedChecker(feedStore);
+        FeedReader feedChecker = new FeedReader(feedStore);
 
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
@@ -98,7 +105,7 @@ public class DatasetCreator {
                 List<String> fileEntries = FileHelper.readFileToArray(filePath);
 
                 // get all posts in the feed as timestamp;headline;link
-                List<FeedEntry> feedEntries = feed.getEntries();
+                List<FeedItem> feedEntries = feed.getEntries();
 
                 if (feedEntries == null) {
                     LOGGER.warn("no feed entries for " + feed.getFeedUrl());
@@ -107,7 +114,7 @@ public class DatasetCreator {
 
                 // Calculating size of feed header and footer, which should always stay the same.
                 long summedFeedEntrySize = 0;
-                for (FeedEntry entry : feedEntries) {
+                for (FeedItem entry : feedEntries) {
                     String entryPlainXML = entry.getPlainXML();
                     Integer entrySize = entryPlainXML.getBytes().length;
                     summedFeedEntrySize += entrySize;
@@ -122,7 +129,7 @@ public class DatasetCreator {
                 StringBuilder newEntries = new StringBuilder();
                 int newPosts = 0;
 
-                for (FeedEntry entry : feedEntries) {
+                for (FeedItem entry : feedEntries) {
 
                     if (entry == null || entry.getPublished() == null) {
                         LOGGER.warn("entry has no published date, ignore it: " + entry);

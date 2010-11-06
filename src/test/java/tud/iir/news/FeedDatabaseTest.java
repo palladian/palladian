@@ -42,8 +42,8 @@ public class FeedDatabaseTest {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
         NewsAggregator newsAggregator = new NewsAggregator();
         Feed feed = db.getFeedByUrl(feedUrl);
-        List<FeedEntry> entries = newsAggregator.downloadFeed(feedUrl).getEntries();
-        for (FeedEntry entry : entries) {
+        List<FeedItem> entries = newsAggregator.downloadFeed(feedUrl).getEntries();
+        for (FeedItem entry : entries) {
             db.addFeedEntry(feed, entry);
         }
     }
@@ -72,9 +72,9 @@ public class FeedDatabaseTest {
         db.addFeed(feed);
         System.out.println("added");
 
-        List<FeedEntry> entries = aggregator.downloadFeed(feedUrl).getEntries();
+        List<FeedItem> entries = aggregator.downloadFeed(feedUrl).getEntries();
         System.out.println(entries);
-        FeedEntry firstEntry = entries.iterator().next();
+        FeedItem firstEntry = entries.iterator().next();
         System.out.println(firstEntry);
 
         System.out.println(db.addFeedEntry(feed, firstEntry));

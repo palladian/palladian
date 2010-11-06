@@ -309,10 +309,10 @@ public class NewsAggregator {
      * @return
      */
     @SuppressWarnings("unchecked")
-    private List<FeedEntry> getEntries(SyndFeed syndFeed) {
+    private List<FeedItem> getEntries(SyndFeed syndFeed) {
         LOGGER.trace(">getEntries");
 
-        List<FeedEntry> result = new LinkedList<FeedEntry>();
+        List<FeedItem> result = new LinkedList<FeedItem>();
 
         // only try a certain amount of times to extract a pub date, if none is found don't keep trying
         int failedDateExtractions = 0;
@@ -320,7 +320,7 @@ public class NewsAggregator {
         List<SyndEntry> syndEntries = syndFeed.getEntries();
         for (SyndEntry syndEntry : syndEntries) {
 
-            FeedEntry entry = new FeedEntry();
+            FeedItem entry = new FeedItem();
             // remove HTML tags and unescape HTML entities from title
             String title = syndEntry.getTitle();
             if (title != null) {
@@ -369,7 +369,7 @@ public class NewsAggregator {
             entry.setPublished(publishDate);
 
             String entryText = getEntryText(syndEntry);
-            entry.setEntryText(entryText);
+            entry.setItemText(entryText);
 
             // get ID information from raw feed entries
             String rawId = null;
@@ -473,7 +473,7 @@ public class NewsAggregator {
 
                     store.addFeed(feed);
 
-                    for (FeedEntry feedEntry : feed.getEntries()) {
+                    for (FeedItem feedEntry : feed.getEntries()) {
                         store.addFeedEntry(feed, feedEntry);
                     }
 
@@ -641,11 +641,11 @@ public class NewsAggregator {
                     try {
 
                         // first, download feed with all entries, but without downloading link
-                        List<FeedEntry> downloadedEntries = downloadFeed(feed.getFeedUrl(), false).getEntries();
+                        List<FeedItem> downloadedEntries = downloadFeed(feed.getFeedUrl(), false).getEntries();
 
                         // check, which we already have and add the missing ones.
-                        List<FeedEntry> toAdd = new ArrayList<FeedEntry>();
-                        for (FeedEntry feedEntry : downloadedEntries) {
+                        List<FeedItem> toAdd = new ArrayList<FeedItem>();
+                        for (FeedItem feedEntry : downloadedEntries) {
                             boolean add = store.getFeedEntryByRawId(feed.getId(), feedEntry.getRawId()) == null;
                             if (add) {
                                 // boolean fetchPage = isDownloadPages() && feed.getTextType() != Feed.TEXT_TYPE_FULL;
@@ -663,7 +663,7 @@ public class NewsAggregator {
                             fetchPageContentForEntries(toAdd);
                             downloadedPages.increment(toAdd.size());
                         }
-                        for (FeedEntry feedEntry : toAdd) {
+                        for (FeedItem feedEntry : toAdd) {
                             store.addFeedEntry(feed, feedEntry);
                             newEntries++;
                         }
@@ -800,7 +800,7 @@ public class NewsAggregator {
     public Feed downloadFeed(String feedUrl, boolean fetchPages) throws NewsAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedUrl);
         Feed feed = getFeed(syndFeed, feedUrl);
-        List<FeedEntry> entries = getEntries(syndFeed);
+        List<FeedItem> entries = getEntries(syndFeed);
 
         // if (fetchPages) {
         // dont fetch pages if we have masses of entries ...
@@ -819,7 +819,7 @@ public class NewsAggregator {
     public Feed downloadFeed(Feed feedData) throws NewsAggregatorException {
         SyndFeed syndFeed = getFeedWithRome(feedData);
         Feed feed = getFeed(syndFeed, feedData.getFeedUrl());
-        List<FeedEntry> entries = getEntries(syndFeed);
+        List<FeedItem> entries = getEntries(syndFeed);
         feed.setEntries(entries);
         feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
         return feed;
@@ -832,15 +832,15 @@ public class NewsAggregator {
      * 
      * @param feedEntry
      */
-    private void fetchPageContentForEntries(List<FeedEntry> feedEntries) {
+    private void fetchPageContentForEntries(List<FeedItem> feedEntries) {
         LOGGER.debug("downloading " + feedEntries.size() + " pages");
 
         URLDownloader downloader = new URLDownloader();
         downloader.setMaxThreads(5);
         // PageContentExtractor extractor = new PageContentExtractor();
-        final Map<String, FeedEntry> entries = new HashMap<String, FeedEntry>();
+        final Map<String, FeedItem> entries = new HashMap<String, FeedItem>();
 
-        for (FeedEntry feedEntry : feedEntries) {
+        for (FeedItem feedEntry : feedEntries) {
             String entryLink = feedEntry.getLink();
 
             if (entryLink == null) {

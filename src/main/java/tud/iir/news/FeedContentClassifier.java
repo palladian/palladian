@@ -60,9 +60,9 @@ public class FeedContentClassifier {
 
         // check max. 20 feed entries.
         // stop analyzing if we have more than 5 errors
-        Iterator<FeedEntry> entryIterator = feed.getEntries().iterator();
+        Iterator<FeedItem> entryIterator = feed.getEntries().iterator();
         while (entryIterator.hasNext() && count < ENTRIES_TO_CHECK && errors < MAX_ERRORS) {
-            FeedEntry entry = entryIterator.next();
+            FeedItem entry = entryIterator.next();
 
             String entryLink = entry.getLink();
 
@@ -73,7 +73,7 @@ public class FeedContentClassifier {
 
             LOGGER.trace("checking " + entryLink);
 
-            String entryText = entry.getEntryText();
+            String entryText = entry.getItemText();
             if (entryText == null || entryText.length() == 0) {
                 LOGGER.debug("entry " + entryLink + " contains no text");
                 none++;

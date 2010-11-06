@@ -25,7 +25,7 @@ public class FeedCheckerTest {
 
     private Collection<Feed> fixture;
 
-    private FeedChecker objectOfClassUnderTest;
+    private FeedReader objectOfClassUnderTest;
 
     /**
      * <p>
@@ -38,11 +38,11 @@ public class FeedCheckerTest {
     public void setUp() throws Exception {
         fixture = new HashSet<Feed>();
         fixture.add(new Feed("http://www.tagesschau.de/xml/rss2"));
-        objectOfClassUnderTest = new FeedChecker(new CollectionFeedSource(fixture));
+        objectOfClassUnderTest = new FeedReader(new CollectionFeedSource(fixture));
     }
 
     /**
-     * Test method for {@link tud.iir.news.FeedChecker#startContinuousReading()}.
+     * Test method for {@link tud.iir.news.FeedReader#startContinuousReading()}.
      */
     @Test
     public void testContinuousReading() {
