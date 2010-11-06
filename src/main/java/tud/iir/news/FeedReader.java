@@ -28,16 +28,16 @@ import tud.iir.news.evaluation.FeedReaderEvaluator;
 import tud.iir.web.Crawler;
 
 /**
- * The FeedChecker reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
+ * The FeedReader reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
  * 
  */
-public final class FeedChecker {
+public final class FeedReader {
 
     /** The logger for this class. */
-    public static final Logger LOGGER = Logger.getLogger(FeedChecker.class);
+    public static final Logger LOGGER = Logger.getLogger(FeedReader.class);
 
     /** Maximum number of feed reading threads at the same time. */
     public static final Integer MAX_THREAD_POOL_SIZE = 200;
@@ -57,7 +57,7 @@ public final class FeedChecker {
     private static final int DEFAULT_CHECK_TIME = 60;
 
     /** The chosen check Approach */
-    private UpdateStrategy checkApproach = UpdateStrategy.UPDATE_FIXED;
+    private UpdateStrategy updateStrategy = UpdateStrategy.UPDATE_FIXED;
 
     /**
      * The check interval in minutes, only used if the checkApproach is {@link UpdateStrategy.CHECK_FIXED} if
@@ -76,14 +76,14 @@ public final class FeedChecker {
     private Timer checkScheduler;
 
     /**
-     * Defines the time in milliseconds when the FeedChecker should wake up the checkScheduler to see which feeds should
+     * Defines the time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds should
      * be
      * read.
      */
     private final long wakeUpInterval = 150 * DateHelper.SECOND_MS;
 
     /** The private constructor. */
-    public FeedChecker(FeedStore feedStore) {
+    public FeedReader(FeedStore feedStore) {
         super();
         checkScheduler = new Timer();
         feedCollection = feedStore.getFeeds();
@@ -291,7 +291,7 @@ public final class FeedChecker {
         double pnTarget = feed.getTargetPercentageOfNewEntries();
 
         // calculate new update times depending on approach chosen
-        if (UpdateStrategy.UPDATE_FIXED.equals(checkApproach)
+        if (UpdateStrategy.UPDATE_FIXED.equals(updateStrategy)
                 && (checkInterval == -1 && feed.getChecks() > 0 || checkInterval != -1)) {
 
             // the checkInterval for the feed must have been determined at the
@@ -302,7 +302,7 @@ public final class FeedChecker {
                 feed.setMaxCheckInterval(checkInterval);
             }
 
-        } else if (UpdateStrategy.UPDATE_FIXED.equals(checkApproach) && checkInterval == -1
+        } else if (UpdateStrategy.UPDATE_FIXED.equals(updateStrategy) && checkInterval == -1
                 // || (UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach) || UpdateStrategy.UPDATE_PROBABILISTIC
                 // .equals(checkApproach)) && feed.getChecks() == 0
         ) {
@@ -312,15 +312,15 @@ public final class FeedChecker {
         }
 
         // for on-the-fly updates switch from probabilistic to adaptive
-        else if ((UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach) || UpdateStrategy.UPDATE_PROBABILISTIC
-                .equals(checkApproach) && feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY)
+        else if ((UpdateStrategy.UPDATE_MOVING_AVERAGE.equals(updateStrategy) || UpdateStrategy.UPDATE_POST_RATE
+                .equals(updateStrategy) && feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY)
                  && feed.getChecks() > 0) {
 
             updateIntervalAdaptive(feed, pnTarget, fps);
 
         }
 
-        if (UpdateStrategy.UPDATE_PROBABILISTIC.equals(checkApproach)
+        if (UpdateStrategy.UPDATE_POST_RATE.equals(updateStrategy)
                 && feed.getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
 
             updateIntervalProbabilistic(feed, fps);
@@ -352,10 +352,10 @@ public final class FeedChecker {
      *            retrained using the new check approach.
      */
     public void setCheckApproach(UpdateStrategy checkApproach, boolean resetLearnedValues) {
-        if (!this.checkApproach.equals(checkApproach) && resetLearnedValues) {
+        if (!this.updateStrategy.equals(checkApproach) && resetLearnedValues) {
             FeedDatabase.getInstance().changeCheckApproach();
         }
-        this.checkApproach = checkApproach;
+        this.updateStrategy = checkApproach;
     }
 
     /**
@@ -372,7 +372,7 @@ public final class FeedChecker {
     // ======================
 
     public UpdateStrategy getCheckApproach() {
-        return checkApproach;
+        return updateStrategy;
     }
 
     /** Get the human readable name of the chosen check approach. */
@@ -380,13 +380,13 @@ public final class FeedChecker {
 
         String className = "unknown";
 
-        if (UpdateStrategy.UPDATE_FIXED.equals(checkApproach) && checkInterval == -1) {
+        if (UpdateStrategy.UPDATE_FIXED.equals(updateStrategy) && checkInterval == -1) {
             className = "fixed_learned";
-        } else if (UpdateStrategy.UPDATE_FIXED.equals(checkApproach) && checkInterval != -1) {
+        } else if (UpdateStrategy.UPDATE_FIXED.equals(updateStrategy) && checkInterval != -1) {
             className = "fixed_" + checkInterval;
-        } else if (UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach)) {
+        } else if (UpdateStrategy.UPDATE_MOVING_AVERAGE.equals(updateStrategy)) {
             className = "adaptive";
-        } else if (UpdateStrategy.UPDATE_PROBABILISTIC.equals(checkApproach)) {
+        } else if (UpdateStrategy.UPDATE_POST_RATE.equals(updateStrategy)) {
             className = "probabilistic";
         }
 
@@ -418,7 +418,7 @@ public final class FeedChecker {
      */
     private void updateIntervalFixed(Feed feed, FeedPostStatistics fps) {
 
-        List<FeedEntry> entries = feed.getEntries();
+        List<FeedItem> entries = feed.getEntries();
 
         // the checkInterval for the feed must be determined now
         int fixedMinCheckInterval = DEFAULT_CHECK_TIME / 2;
@@ -428,7 +428,7 @@ public final class FeedChecker {
             // use average distance between pub dates and total difference
             // between first and last entry
             fixedMinCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-            fixedMaxCheckInterval = (int) (entries.size() * fixedMinCheckInterval);
+            fixedMaxCheckInterval = entries.size() * fixedMinCheckInterval;
 
             // use median
 //            if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
@@ -473,7 +473,7 @@ public final class FeedChecker {
      */
     private void updateIntervalAdaptive(Feed feed, double pnTarget, FeedPostStatistics fps) {
 
-        List<FeedEntry> entries = feed.getEntries();
+        List<FeedItem> entries = feed.getEntries();
 
         int minCheckInterval = feed.getMinCheckInterval();
         int maxCheckInterval = feed.getMaxCheckInterval();
@@ -583,7 +583,7 @@ public final class FeedChecker {
      */
     private void updateIntervalProbabilistic(Feed feed, FeedPostStatistics fps) {
 
-        List<FeedEntry> entries = feed.getEntries();
+        List<FeedItem> entries = feed.getEntries();
 
         // learn the post distribution from the last seen entry to the newest one
         // distribution minute of the day : frequency of news in that minute
@@ -628,7 +628,7 @@ public final class FeedChecker {
         }
 
         // update the minutes where an entry was actually posted
-        for (FeedEntry entry : entries) {
+        for (FeedItem entry : entries) {
             // we have counted the posts for entries before the last seen
             // entry already, so we skip them here
             if (entry.getPublished() == null || entry.getPublished().getTime() <= timeLastSeenEntry) {
@@ -709,7 +709,7 @@ public final class FeedChecker {
 
     private void updateIntervalProbabilistic_(Feed feed, FeedPostStatistics fps) {
 
-        List<FeedEntry> entries = feed.getEntries();
+        List<FeedItem> entries = feed.getEntries();
 
         if (feed.getChecks() == 0) {
 
@@ -737,7 +737,7 @@ public final class FeedChecker {
             // }
 
             // update the minutes where an entry was actually posted
-            for (FeedEntry entry : entries) {
+            for (FeedItem entry : entries) {
                 if (entry.getPublished() == null) {
                     continue;
                 }
@@ -781,7 +781,7 @@ public final class FeedChecker {
             }
 
             // update the minutes where an entry was actually posted
-            for (FeedEntry entry : entries) {
+            for (FeedItem entry : entries) {
                 // we have counted the posts for entries before the last seen
                 // entry already, so we skip them here
                 if (entry.getPublished() == null || entry.getPublished().getTime() <= timeLastSeenEntry) {
@@ -879,12 +879,12 @@ public final class FeedChecker {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        FeedChecker fchecker = new FeedChecker(FeedDatabase.getInstance());
+        FeedReader fchecker = new FeedReader(FeedDatabase.getInstance());
         fchecker.setCheckApproach(UpdateStrategy.UPDATE_FIXED, true);
         fchecker.startContinuousReading();
         System.exit(0);
 
-        FeedChecker fch = new FeedChecker(new FeedStoreDummy());
+        FeedReader fch = new FeedReader(new FeedStoreDummy());
         fch.setCheckApproach(UpdateStrategy.UPDATE_FIXED, true);
         Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
         feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
@@ -916,7 +916,7 @@ public final class FeedChecker {
             cmd = parser.parse(options, args);
         } catch (ParseException e) {
             LOGGER.debug("Command line arguments could not be parsed!");
-            formatter.printHelp("FeedChecker", options);
+            formatter.printHelp("FeedReader", options);
         }
 
         int runtime = -1;
@@ -926,20 +926,20 @@ public final class FeedChecker {
         if (cmd.hasOption("r")) {
             runtime = Integer.valueOf(cmd.getOptionValue("r"));
         } else {
-            formatter.printHelp("FeedChecker", options);
+            formatter.printHelp("FeedReader", options);
         }
         if (cmd.hasOption("cf")) {
             checkType = UpdateStrategy.UPDATE_FIXED;
         } else if (cmd.hasOption("ca")) {
-            checkType = UpdateStrategy.UPDATE_ADAPTIVE;
+            checkType = UpdateStrategy.UPDATE_MOVING_AVERAGE;
         } else if (cmd.hasOption("cp")) {
-            checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
+            checkType = UpdateStrategy.UPDATE_POST_RATE;
         }
         if (cmd.hasOption("ci")) {
             checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
         }
 
-        FeedChecker fc = new FeedChecker(FeedDatabase.getInstance());
+        FeedReader fc = new FeedReader(FeedDatabase.getInstance());
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override

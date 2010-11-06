@@ -7,13 +7,13 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.DateHelper;
 
 /**
- * The {@link FeedChecker} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
+ * The {@link FeedReader} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
  * the feed is checked and also performs all
  * set {@link FeedProcessingAction}s.
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
- * @see FeedChecker
+ * @see FeedReader
  * 
  */
 class FeedTask implements Runnable {
@@ -30,14 +30,14 @@ class FeedTask implements Runnable {
      * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
      * strategies to a true strategy pattern.
      */
-    private final FeedChecker feedChecker;
+    private final FeedReader feedChecker;
 
     /**
      * Creates a new retrieval task for a provided feed.
      * 
      * @param feed The feed retrieved by this task.
      */
-    public FeedTask(Feed feed, FeedChecker feedChecker) {
+    public FeedTask(Feed feed, FeedReader feedChecker) {
         this.feed = feed;
         this.feedChecker = feedChecker;
     }

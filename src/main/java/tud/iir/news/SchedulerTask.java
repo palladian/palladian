@@ -24,7 +24,7 @@ class SchedulerTask extends TimerTask {
     /**
      * The collection of all the feeds this scheduler should create update threads for.
      */
-    private final FeedChecker feedChecker;
+    private final FeedReader feedChecker;
 
     /**
      * The thread pool managing threads that read feeds from the feed sources provided by {@link #collectionOfFeeds}.
@@ -39,9 +39,9 @@ class SchedulerTask extends TimerTask {
      * @param collectionOfFeeds The collection of all the feeds this scheduler should create update threads for.
      * @param threadPoolSize The maximum number of threads to distribute reading feeds to.
      */
-    public SchedulerTask(FeedChecker feedChecker) {
+    public SchedulerTask(FeedReader feedChecker) {
         super();
-        threadPool = Executors.newFixedThreadPool(FeedChecker.MAX_THREAD_POOL_SIZE);
+        threadPool = Executors.newFixedThreadPool(FeedReader.MAX_THREAD_POOL_SIZE);
         this.feedChecker = feedChecker;
         scheduledTasks = new HashMap<Integer, Future<?>>();
     }

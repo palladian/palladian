@@ -17,7 +17,7 @@ public class FeedStoreDummy implements FeedStore {
     private static final Logger logger = Logger.getLogger(FeedStoreDummy.class);
 
     @Override
-    public boolean addFeedEntry(Feed feed, FeedEntry entry) {
+    public boolean addFeedEntry(Feed feed, FeedItem entry) {
         logger.trace("adding " + entry);
         return true;
     }
@@ -41,7 +41,7 @@ public class FeedStoreDummy implements FeedStore {
     }
 
     @Override
-    public FeedEntry getFeedEntryByRawId(String rawId) {
+    public FeedItem getFeedEntryByRawId(String rawId) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -59,7 +59,7 @@ public class FeedStoreDummy implements FeedStore {
     }
 
     @Override
-    public FeedEntry getFeedEntryByRawId(int feedId, String rawId) {
+    public FeedItem getFeedEntryByRawId(int feedId, String rawId) {
         // TODO Auto-generated method stub
         return null;
     }
@@ -69,7 +69,7 @@ public class FeedStoreDummy implements FeedStore {
         return Collections.emptySet();
     }
 
-    public List<FeedEntry> getFeedEntries(String sqlQuery) {
+    public List<FeedItem> getFeedEntries(String sqlQuery) {
         logger.trace("getFeedEntries " + sqlQuery);
         return Collections.emptyList();
     }

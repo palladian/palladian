@@ -4,7 +4,7 @@ import java.util.List;
 
 import tud.iir.helper.StopWatch;
 import tud.iir.news.FeedDatabase;
-import tud.iir.news.FeedEntry;
+import tud.iir.news.FeedItem;
 
 public class ShinglesPerformanceTest {
 
@@ -25,9 +25,9 @@ public class ShinglesPerformanceTest {
         StopWatch sw = new StopWatch();
 
         do {
-            List<FeedEntry> entries = fd.getFeedEntries(fetch, offset);
+            List<FeedItem> entries = fd.getFeedEntries(fetch, offset);
 
-            for (FeedEntry feedEntry : entries) {
+            for (FeedItem feedEntry : entries) {
                 boolean isDup = shingles.addDocument(feedEntry.getId(), feedEntry.getText());
                 if (isDup) {
                     foundDups++;

@@ -6,14 +6,13 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
- * Represents a news entry within a feed ({@link Feed}).
+ * Represents a news item within a feed ({@link Feed}).
  * 
- * TODO rename to News or NewsEntry, should be more descriptive?
  * 
  * @author Philipp Katz
  * @author David Urbansky
  */
-public class FeedEntry {
+public class FeedItem {
 
     private int id = -1;
 
@@ -32,7 +31,7 @@ public class FeedEntry {
     private Date added;
 
     /** entryText directly from the feed entry */
-    private String entryText;
+    private String itemText;
 
     /** entryText which we downloaded from the corresponding web page. */
     private String pageText;
@@ -116,12 +115,12 @@ public class FeedEntry {
         return null;
     }
 
-    public String getEntryText() {
-        return entryText;
+    public String getItemText() {
+        return itemText;
     }
 
-    public void setEntryText(String entryText) {
-        this.entryText = entryText;
+    public void setItemText(String entryText) {
+        this.itemText = entryText;
     }
 
     public String getPageText() {
@@ -142,7 +141,7 @@ public class FeedEntry {
         String text = getPageText();
 
         if (text == null || text.isEmpty()) {
-            text = getEntryText();
+            text = getItemText();
         }
 
         if (text == null) {

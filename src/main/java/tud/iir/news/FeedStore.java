@@ -49,7 +49,7 @@ public interface FeedStore {
      * @param feed
      * @param entry
      */
-    boolean addFeedEntry(Feed feed, FeedEntry entry);
+    boolean addFeedEntry(Feed feed, FeedItem entry);
 
     /**
      * Get an entry by its rawId.
@@ -60,7 +60,7 @@ public interface FeedStore {
      * @return the FeedEntry with specified rawId, <code>null</code> if FeedEntry does not exist.
      */
     @Deprecated
-    FeedEntry getFeedEntryByRawId(String rawId);
+    FeedItem getFeedEntryByRawId(String rawId);
 
     /**
      * Get an entry for a specific feed by its rawId.
@@ -69,7 +69,7 @@ public interface FeedStore {
      * @param rawId
      * @return the FeedEntry with specified rawId, <code>null</code> if FeedEntry does not exist.
      */
-    FeedEntry getFeedEntryByRawId(int feedId, String rawId);
+    FeedItem getFeedEntryByRawId(int feedId, String rawId);
 
     Feed getFeedByID(int feedID);
 
@@ -80,7 +80,7 @@ public interface FeedStore {
      * @param sqlQuery
      * @return
      */
-    List<FeedEntry> getFeedEntries(String sqlQuery);
+    List<FeedItem> getFeedEntries(String sqlQuery);
 
     Set<Integer> getFeedEntryIdsTaggedAs(String tag);
 

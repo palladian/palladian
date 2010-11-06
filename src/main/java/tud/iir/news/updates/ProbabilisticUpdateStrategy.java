@@ -11,7 +11,7 @@ import java.util.Map;
 import tud.iir.helper.DateHelper;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedDatabase;
-import tud.iir.news.FeedEntry;
+import tud.iir.news.FeedItem;
 import tud.iir.news.FeedPostStatistics;
 
 /**
@@ -36,7 +36,7 @@ public class ProbabilisticUpdateStrategy implements UpdateStrategy {
      */
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
-        List<FeedEntry> entries = feed.getEntries();
+        List<FeedItem> entries = feed.getEntries();
 
         if (feed.getChecks() == 0) {
 
@@ -62,7 +62,7 @@ public class ProbabilisticUpdateStrategy implements UpdateStrategy {
             // }
 
             // update the minutes where an entry was actually posted
-            for (FeedEntry entry : entries) {
+            for (FeedItem entry : entries) {
                 if (entry.getPublished() == null) {
                     continue;
                 }
@@ -96,7 +96,7 @@ public class ProbabilisticUpdateStrategy implements UpdateStrategy {
             }
 
             // update the minutes where an entry was actually posted
-            for (FeedEntry entry : entries) {
+            for (FeedItem entry : entries) {
                 // we have counted the posts for entries before the last seen
                 // entry already, so we skip them here
                 if (entry.getPublished() == null || entry.getPublished().getTime() <= timeLastSeenEntry) {

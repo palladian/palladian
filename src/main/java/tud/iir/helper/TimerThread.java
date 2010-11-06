@@ -5,17 +5,17 @@ import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.news.FeedChecker;
+import tud.iir.news.FeedReader;
 import tud.iir.news.FeedProcessingAction;
 
 /**
- * The {@link FeedChecker} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
+ * The {@link FeedReader} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
  * the feed is checked and also performs all
  * set {@link FeedProcessingAction}s.
  * 
  * @author David Urbansky
  * @author Klemens Muthmann
- * @see FeedChecker
+ * @see FeedReader
  * 
  */
 public abstract class TimerThread {
