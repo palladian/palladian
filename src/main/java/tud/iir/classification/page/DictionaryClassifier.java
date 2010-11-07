@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -127,7 +128,7 @@ public class DictionaryClassifier extends TextClassifier {
         // empty the training documents term map to save memory
         trainingDocument.getWeightedTerms().clear();
 
-        System.out.println("added to dictionary in " + DateHelper.getRuntime(t1) + " ("
+        LOGGER.debug("added to dictionary in " + DateHelper.getRuntime(t1) + " ("
                 + DateHelper.getRuntime(initTime) + "), " + dictionary.getNumberOfDocuments() + " documents processed");
     }
 
@@ -209,7 +210,16 @@ public class DictionaryClassifier extends TextClassifier {
 
     // weightedTerm);
 
+    @Override
+    public ClassificationDocument classify(ClassificationDocument document, Set<String> possibleClasses) {
+        return classify(document, false, possibleClasses);
+    }
     public ClassificationDocument classify(ClassificationDocument document, boolean loadDictionary) {
+        return classify(document, loadDictionary, null);
+    }
+
+    public ClassificationDocument classify(ClassificationDocument document, boolean loadDictionary,
+            Set<String> possibleClasses) {
 
         int classType = getClassificationType();
 
@@ -239,10 +249,10 @@ public class DictionaryClassifier extends TextClassifier {
 
         // create one category entry for every category with relevance 0
         for (Category category : categories) {
+            if (possibleClasses != null && !possibleClasses.contains(category.getName())) {
+                continue;
+            }
             CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
-            // c.setClassType(classType);
-            // category.setClassType(classType);
-            // c.calculatePrior(dictionary.getNumberOfDocuments());
             bestFitList.add(c);
         }
 
@@ -448,7 +458,7 @@ public class DictionaryClassifier extends TextClassifier {
 
         document.setClassifiedAs(classType);
 
-        ClassifierManager.log("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " "
+        LOGGER.debug("classified document (classType " + classType + ") in " + DateHelper.getRuntime(t1) + " "
                 + " (" + document.getAssignedCategoryEntriesByRelevance(classType) + ")");
 
         return document;

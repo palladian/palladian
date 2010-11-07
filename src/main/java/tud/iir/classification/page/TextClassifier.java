@@ -2,6 +2,7 @@ package tud.iir.classification.page;
 
 import java.io.Serializable;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -257,6 +258,13 @@ public abstract class TextClassifier implements Serializable {
         return classify(processedDocument);
     }
 
+    public ClassificationDocument classify(String text, Set<String> possibleClasses) {
+        ClassificationDocument processedDocument;
+        processedDocument = preprocessDocument(text);
+        processedDocument.setUrl(text);
+        return classify(processedDocument, possibleClasses);
+    }
+
     /**
      * This method is implemented in concrete classifiers.
      * 
@@ -264,6 +272,8 @@ public abstract class TextClassifier implements Serializable {
      * @return A classified document.
      */
     public abstract ClassificationDocument classify(ClassificationDocument document);
+
+    public abstract ClassificationDocument classify(ClassificationDocument document, Set<String> possibleClasses);
 
     /**
      * Get the parameters used for the classifier.
