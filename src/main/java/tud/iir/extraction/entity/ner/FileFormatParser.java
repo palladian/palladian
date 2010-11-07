@@ -70,10 +70,10 @@ public class FileFormatParser {
     }
 
     /**
-     * Transform column format to XML.
-     * word [tab] type
-     * =>
-     * &lt;type&gt;word&lt;/type&gt;
+     * Transform column format to XML.<br>
+     * word [tab] type<br>
+     * =><br>
+     * &lt;type&gt;word&lt;/type&gt;<br>
      * 
      * @param inputFilePath The location of the input file.
      * @param outputFilePath The location where the transformed file should be written to.
@@ -303,7 +303,7 @@ public class FileFormatParser {
 
         String inputString = FileHelper.readFileToString(slashFilePath);
 
-        Pattern pattern = Pattern.compile("(.+?)/([A-Z0-9_]*?)\\s", Pattern.DOTALL);
+        Pattern pattern = Pattern.compile("(.+?)/([A-Z0-9_]{1,100}?)\\s", Pattern.DOTALL);
 
         Matcher matcher = pattern.matcher(inputString);
         while (matcher.find()) {
@@ -439,7 +439,7 @@ public class FileFormatParser {
         // text <PERSON><PHONE>John <PERSON>J</PERSON></PHONE>. <PHONE>Smith</PHONE></PERSON> lives
         
         // get locations of annotations
-        Pattern pattern = Pattern.compile("<(.*?)>(.*?)</\\1>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("<(.*?)>(.{1,100}?)</\\1>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = pattern.matcher(taggedText);
         while (matcher.find()) {

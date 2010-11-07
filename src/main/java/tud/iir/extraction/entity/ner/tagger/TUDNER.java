@@ -75,7 +75,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
 
         // learn patterns
-        createPatternCandidates(trainingFilePath, annotations);
+        // createPatternCandidates(trainingFilePath, annotations);
 
         // update the dictionary
         updateDictionary(annotations, modelFilePath);
@@ -576,10 +576,11 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // nercer.setKbCommunicator(new TestKnowledgeBaseCommunicator());
 
         // possible tags
-        CollectionHelper.print(tagger.getModelTags("data/models/tudner/tudner.model"));
+        // CollectionHelper.print(tagger.getModelTags("data/models/tudner/tudner.model"));
 
         // train
-        //tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/models/tudner.model");
+        // tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/models/tudner/tudner.model");
+        tagger.train("data/datasets/ner/politician/text/training.tsv", "data/models/tudner/tudner.model");
        
         // tag
         // tagger.loadModel("data/models/tudner/tudner.model");
@@ -590,8 +591,10 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // "data/models/tudner/tudner.model");
 
         // evaluate
-        // tagger.evaluate("data/datasets/ner/sample/testingColumn.tsv", "data/models/tudner.model",
+        // tagger.evaluate("data/datasets/ner/sample/testingColumn.tsv", "data/models/tudner/tudner.model",
         // TaggingFormat.COLUMN);
+        tagger.evaluate("data/datasets/ner/politician/text/testing.tsv", "data/models/tudner/tudner.model",
+                TaggingFormat.COLUMN);
 
         // FileFormatParser.xmlToColumn("data/temp/taggedText.txt", "data/temp/allColumnTaggedText.tsv", "\t");
         // nercer.train("data/temp/allColumnTaggedText.tsv", "data/temp/nercer.model");

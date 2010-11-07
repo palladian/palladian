@@ -97,9 +97,9 @@ public class FileHelper {
     }
 
     /**
-     * Gets the file path.
-     * data/models/model1.ser => data/models/
-     * data/models/ => data/models/
+     * Gets the file path.<br>
+     * data/models/model1.ser => data/models/<br>
+     * data/models/ => data/models/<br>
      * 
      * @param path The full path.
      * @return the The folder part of the path without the filename.
@@ -316,7 +316,7 @@ public class FileHelper {
 
         StringBuilder sb = new StringBuilder();
         for (String line : lines) {
-            if (lineSet.add(line)) {
+            if (lineSet.add(line) || line.length() == 0) {
                 sb.append(line).append("\n");
             }
         }
@@ -867,6 +867,9 @@ public class FileHelper {
                 ArrayList<File> matchingFiles = new ArrayList<File>();
 
                 for (File file : files) {
+                    if (file.isDirectory()) {
+                        continue;
+                    }
                     if (file.getName().indexOf(substring) > -1) {
                         matchingFiles.add(file);
                     }

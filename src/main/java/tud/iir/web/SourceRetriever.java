@@ -149,7 +149,7 @@ public class SourceRetriever {
             // rsz=large will respond 8 results
             String json = c
                     .download("http://ajax.googleapis.com/ajax/services/search/images?v=1.0&start="
-                            + (i * 8)
+                            + i * 8
                             + "&rsz=large&safe=off&lr=lang_en&q="
                             + searchQuery);
 
@@ -439,10 +439,10 @@ public class SourceRetriever {
         switch (source) {
         case SourceRetrieverManager.YAHOO:
             // if (exact) searchQuery = "\""+searchQuery+"\"";
-            return this.getWebResultsFromYahoo(searchQuery);
+            return getWebResultsFromYahoo(searchQuery);
         case SourceRetrieverManager.YAHOO_BOSS:
             // if (exact) searchQuery = "\""+searchQuery+"\"";
-            return this.getWebResultsFromYahooBoss(searchQuery);
+            return getWebResultsFromYahooBoss(searchQuery);
         case SourceRetrieverManager.GOOGLE:
             // if (exact) searchQuery = "%22"+searchQuery+"%22";
             return this.getWebResultsFromGoogle(searchQuery);
@@ -451,21 +451,21 @@ public class SourceRetriever {
             // return this.getURLsFromGooglePage(searchQuery);
         case SourceRetrieverManager.MICROSOFT:
             // if (exact) searchQuery = URLEncoder.encode(searchQuery);
-            return this.getWebResultsFromMicrosoft(searchQuery);
+            return getWebResultsFromMicrosoft(searchQuery);
         case SourceRetrieverManager.HAKIA:
-            return this.getWebResultsFromHakia(searchQuery);
+            return getWebResultsFromHakia(searchQuery);
         case SourceRetrieverManager.BING:
-            return this.getWebResultsFromBing(searchQuery);
+            return getWebResultsFromBing(searchQuery);
         case SourceRetrieverManager.TWITTER:
-            return this.getWebResultsFromTwitter(searchQuery);
+            return getWebResultsFromTwitter(searchQuery);
         case SourceRetrieverManager.GOOGLE_BLOGS:
-            return this.getWebResultsFromGoogleBlogs(searchQuery);
+            return getWebResultsFromGoogleBlogs(searchQuery);
         case SourceRetrieverManager.TEXTRUNNER:
-            return this.getWebResultsFromTextRunner(searchQuery);
+            return getWebResultsFromTextRunner(searchQuery);
         case SourceRetrieverManager.YAHOO_BOSS_NEWS:
-            return this.getWebResultsFromYahooBossNews(searchQuery);
+            return getWebResultsFromYahooBossNews(searchQuery);
         case SourceRetrieverManager.GOOGLE_NEWS:
-            return this.getWebResultsFromGoogleNews(searchQuery);
+            return getWebResultsFromGoogleNews(searchQuery);
         default:
             break;
         }
@@ -625,7 +625,7 @@ public class SourceRetriever {
             for (int it = 0; it < numIterations; it++) {
 
                 // query yahoo for search engine results
-                String iterationUrl = fixUrl + "&start=" + (50 * it);
+                String iterationUrl = fixUrl + "&start=" + 50 * it;
                 Document searchResult = DocumentBuilderFactory.newInstance()
                         .newDocumentBuilder().parse(iterationUrl);
                 LOGGER.debug("Search Results for " + iterationUrl);
@@ -727,7 +727,7 @@ public class SourceRetriever {
             // rsz=large will respond 8 results
             String json = c
                     .download("http://ajax.googleapis.com/ajax/services/search/web?v=1.0&start="
-                            + (i * 8)
+                            + i * 8
                             + "&rsz=large&safe=off&lr="
                             + languageString + "&q=" + searchQuery);
 
@@ -773,7 +773,7 @@ public class SourceRetriever {
                                 new Source(currentURL), title, summary);
                         rank++;
 
-                        LOGGER.info("google retrieved url " + currentURL);
+                        LOGGER.debug("google retrieved url " + currentURL);
                         webresults.add(webresult);
 
                         ++urlsCollected;
@@ -787,7 +787,7 @@ public class SourceRetriever {
             }
 
             srManager.addRequest(SourceRetrieverManager.GOOGLE);
-            LOGGER.info("google requests: "
+            LOGGER.debug("google requests: "
                     + srManager.getRequestCount(SourceRetrieverManager.GOOGLE));
         }
 
@@ -824,7 +824,7 @@ public class SourceRetriever {
             // rsz=large will respond 8 results
             String json = c
                     .download("http://ajax.googleapis.com/ajax/services/search/news?v=1.0&start="
-                            + (i * 8)
+                            + i * 8
                             + "&rsz=large&safe=off&lr="
                             + languageString + "&q=" + searchQuery);
 
@@ -922,7 +922,7 @@ public class SourceRetriever {
             // rsz=large will respond 8 results
             String json = c.download("http://api.bing.net/json.aspx?AppId="
                     + SourceRetrieverManager.getInstance().BING_API_KEY
-                    + "&Web.Count=25&Web.Offset=" + ((i * 25) + 1)
+                    + "&Web.Count=25&Web.Offset=" + (i * 25 + 1)
                     + "&Sources=Web&JsonType=raw&Adult=Moderate&Market="
                     + languageString + "&Query=" + searchQuery);
 
@@ -1168,7 +1168,7 @@ public class SourceRetriever {
 
         int rank = 1;
         int urlsCollected = 0;
-        int grabSize = (int) Math.ceil(this.getResultCount() / 100.0); // divide
+        int grabSize = (int) Math.ceil(getResultCount() / 100.0); // divide
         // by 8
         // because
         // 8
@@ -1256,7 +1256,7 @@ public class SourceRetriever {
             // rsz=large will respond 8 results
             String json = c
                     .download("http://ajax.googleapis.com/ajax/services/search/blogs?v=1.0&start="
-                            + (i * 8)
+                            + i * 8
                             + "&rsz=large&safe=off&lr="
                             + languageString + "&q=" + searchQuery);
 
