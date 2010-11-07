@@ -36,7 +36,7 @@ public class StringTagger {
         String entityTag = "<CANDIDATE>$0</CANDIDATE>";
 
         // tag entities in quotes
-        s = s.replaceAll("\".*?\"", entityTag);
+        s = s.replaceAll("\".{1,300}?\"", entityTag);
 
         // tag obvious entities that are noun patterns
         // s = s.replaceAll("(?<!§.{0,20})"+RegExp.ENTITY+"(?!.*?#)", entityTag);

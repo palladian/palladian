@@ -1,6 +1,7 @@
 package tud.iir.web;
 
 import java.io.InputStream;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Stack;
@@ -123,6 +124,9 @@ public class URLDownloader {
         return downloadedDocuments;
     }
 
+    public Set<Document> start() {
+        return start(null);
+    }
     /**
      * Add a URL to be downloaded.
      * 
@@ -131,6 +135,19 @@ public class URLDownloader {
     public void add(String urlString) {
         if (!urlStack.contains(urlString)) {
             urlStack.push(urlString);
+        }
+    }
+
+    /**
+     * Add a collection of URLs to be downloaded.
+     * 
+     * @param urls A collection of URLs.
+     */
+    public void add(Collection<String> urls) {
+        for (String url : urls) {
+            if (!urlStack.contains(url)) {
+                urlStack.push(url);
+            }
         }
     }
 

@@ -89,6 +89,8 @@ public class LanguageDetectionEvaluation {
 
         LOGGER.info("evaluated over " + totalDocuments + " strings in " + sw.getElapsedTimeString());
         LOGGER.info("Accuracy JLangDetect: " + MathHelper.round(100 * jLangCorrect / (double) totalDocuments, 2));
+        LOGGER.info("Accuracy Google     : " + MathHelper.round(100 * googleCorrect / (double) totalDocuments, 2));
+        LOGGER.info("Accuracy Alchemy    : " + MathHelper.round(100 * alchemyCorrect / (double) totalDocuments, 2));
         LOGGER.info("Accuracy Palladian  : " + MathHelper.round(100 * palladianCorrect / (double) totalDocuments, 2));
     }
 
