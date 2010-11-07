@@ -16,8 +16,6 @@ import tud.iir.helper.LineAction;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
-// import uk.ac.shef.wit.simmetrics.similaritymetrics.AbstractStringMetric;
-// import uk.ac.shef.wit.simmetrics.similaritymetrics.Levenshtein;
 import de.l3s.boilerpipe.extractors.ArticleExtractor;
 import de.l3s.boilerpipe.extractors.ExtractorBase;
 
@@ -106,7 +104,7 @@ public class ContentExtractionEvaluation {
             String resultStr = entry.getKey() + "\t"; // file UUID
             resultStr += entry.getValue() + "\t"; // URL
             resultStr += (result[0] != -1 ? result[0] : "fail") + "\t"; // Boilerplate result
-            resultStr += (result[1] != -1 ? result[1] : "fail"); // Palladian result
+            resultStr += result[1] != -1 ? result[1] : "fail"; // Palladian result
 
             if (result[0] > result[1]) {
                 stats[0]++;
@@ -241,7 +239,7 @@ public class ContentExtractionEvaluation {
         ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation();
         Map<String, String> dataset = evaluation.readIndexFile();
         String result = evaluation.evaluate(dataset);
-        FileHelper.writeToFile("data/ContentExtractionEvaluation.tsv", result);
+        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation.tsv", result);
 
     }
 

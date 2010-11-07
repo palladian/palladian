@@ -1132,6 +1132,121 @@ public class ClassifierManager {
     }
 
     /**
+     * This is an example of how to use a classifier.
+     */
+    public static void useLanguageModel() {
+        // the path to the classifier we want to use
+        String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
+
+        // load the language classifier
+        TextClassifier classifier = ClassifierManager.load(classifierPath);
+
+        // create a classification document that holds the result
+        ClassificationDocument classifiedDocument = null;
+
+        // classify the little text (if classifier works it would say Spanish)
+        classifiedDocument = classifier.classify("Yo solo sé que no sé nada.");
+
+        // print the classified document
+        System.out.println(classifiedDocument);
+    }
+
+    /**
+     * This is an example of how to use a classifier.
+     */
+    public static void evaluateLanguageModel() {
+        // take the time for the learning
+        StopWatch stopWatch = new StopWatch();
+
+        // create a classifier mananger object
+        ClassifierManager classifierManager = new ClassifierManager();
+
+        // the path to the classifier we want to use
+        String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
+
+        // specify the dataset that should be used as testing data
+        Dataset dataset = new Dataset();
+
+        // set the path to the dataset (should NOT overlap with the training set)
+        dataset.setPath("data/datasets/classification/language/languageDocumentIndex.txt");
+
+        // tell the preprocessor that the first field in the file is a link to the actual document
+        dataset.setFirstFieldLink(true);
+
+        // load the language classifier
+        TextClassifier classifier = ClassifierManager.load(classifierPath);
+
+        // now we can test the classifier using the given dataset (output is written to the console)
+        ClassifierPerformance classifierPerformance = null;
+        classifierPerformance = classifierManager.testClassifier(dataset, classifier);
+
+        System.out.println("finished testing classifier in " + stopWatch.getElapsedTimeString());
+    }
+
+    /**
+     * This is an example of how to train a classifier.
+     */
+    public static void trainLanguageModel() {
+
+        // take the time for the learning
+        StopWatch stopWatch = new StopWatch();
+
+        // create a classifier mananger object
+        ClassifierManager classifierManager = new ClassifierManager();
+
+        // specify the dataset that should be used as training data
+        Dataset dataset = new Dataset();
+
+        // set the path to the dataset
+        dataset.setPath("data/datasets/classification/language/languageDocumentIndex.txt");
+
+        // tell the preprocessor that the first field in the file is a link to the actual document
+        dataset.setFirstFieldLink(true);
+
+        // create a text classifier by giving a name and a path where it should be saved to
+        TextClassifier classifier = new DictionaryClassifier("LanguageClassifier",
+                "data/models/palladianLanguageClassifier/");
+
+        // specify the settings for the classification
+        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+
+        // we use only a single category per document
+        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.SINGLE);
+
+        // we want the classifier to be serialized in the end
+        classificationTypeSetting.setSerializeClassifier(true);
+
+        // specify feature settings that should be used by the classifier
+        FeatureSetting featureSetting = new FeatureSetting();
+
+        // we want to create character-level n-grams
+        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+
+        // the minimum length of our n-grams should be 4
+        featureSetting.setMinNGramLength(4);
+
+        // the maximum length of our n-grams should be 7
+        featureSetting.setMaxNGramLength(7);
+
+        // we assign the settings to our classifier
+        classifier.setClassificationTypeSetting(classificationTypeSetting);
+        classifier.setFeatureSetting(featureSetting);
+
+        // now we can train the classifier using the given dataset
+        classifierManager.trainClassifier(dataset, classifier);
+
+        // // train + test
+        // EvaluationSetting evaluationSetting = new EvaluationSetting();
+        // evaluationSetting.setTrainingPercentageMin(50);
+        // evaluationSetting.setTrainingPercentageMax(50);
+        // evaluationSetting.setkFolds(1);
+        // evaluationSetting.addDataset(dataset);
+        // classifierManager.trainAndTestClassifier(classifier, evaluationSetting);
+
+        System.out.println("finished training classifier in " + stopWatch.getElapsedTimeString());
+    }
+
+    /**
      * If arguments are given, they must be in the following order: trainingPercentage inputFilePath classifierType
      * classificationType training For example:
      * java -jar classifierManager.jar 80 data/benchmarkSelection/page/deliciouspages_cleansed_400.txt 1 3 true
@@ -1142,7 +1257,7 @@ public class ClassifierManager {
     public static void main(String[] args) {
 
         trainLanguageModel();
-        evaluateLanguageModel();
+        // evaluateLanguageModel();
         // useLanguageModel();
         System.exit(0);
 
@@ -1346,119 +1461,5 @@ public class ClassifierManager {
         System.out.println("finished training and testing classifier in " + stopWatch.getElapsedTimeString());
         System.exit(0);
 
-    }
-
-    /**
-     * This is an example of how to use a classifier.
-     */
-    public static void useLanguageModel() {
-        // the path to the classifier we want to use
-        String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
-
-        // load the language classifier
-        TextClassifier classifier = ClassifierManager.load(classifierPath);
-
-        // create a classification document that holds the result
-        ClassificationDocument classifiedDocument = null;
-
-        // classify the little text (if classifier works it would say Spanish)
-        classifiedDocument = classifier.classify("Yo solo sé que no sé nada.");
-
-        // print the classified document
-        System.out.println(classifiedDocument);
-    }
-
-    /**
-     * This is an example of how to use a classifier.
-     */
-    public static void evaluateLanguageModel() {
-        // take the time for the learning
-        StopWatch stopWatch = new StopWatch();
-
-        // create a classifier mananger object
-        ClassifierManager classifierManager = new ClassifierManager();
-
-        // the path to the classifier we want to use
-        String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
-
-        // specify the dataset that should be used as testing data
-        Dataset dataset = new Dataset();
-
-        // set the path to the dataset (should NOT overlap with the training set)
-        dataset.setPath("data/datasets/classification/language/languageDocumentIndex.txt");
-
-        // tell the preprocessor that the first field in the file is a link to the actual document
-        dataset.setFirstFieldLink(true);
-
-        // load the language classifier
-        TextClassifier classifier = ClassifierManager.load(classifierPath);
-
-        // now we can test the classifier using the given dataset (output is written to the console)
-        ClassifierPerformance classifierPerformance = null;
-        classifierPerformance = classifierManager.testClassifier(dataset, classifier);
-
-        System.out.println("finished testing classifier in " + stopWatch.getElapsedTimeString());
-    }
-
-    /**
-     * This is an example of how to train a classifier.
-     */
-    public static void trainLanguageModel() {
-
-        // take the time for the learning
-        StopWatch stopWatch = new StopWatch();
-
-        // create a classifier mananger object
-        ClassifierManager classifierManager = new ClassifierManager();
-
-        // specify the dataset that should be used as training data
-        Dataset dataset = new Dataset();
-
-        // set the path to the dataset
-        dataset.setPath("data/datasets/classification/language/languageDocumentIndex.txt");
-
-        // tell the preprocessor that the first field in the file is a link to the actual document
-        dataset.setFirstFieldLink(true);
-
-        // create a text classifier by giving a name and a path where it should be saved to
-        TextClassifier classifier = new DictionaryClassifier("LanguageClassifier", "data/models/languageClassifier/");
-
-        // specify the settings for the classification
-        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
-
-        // we use only a single category per document
-        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.SINGLE);
-
-        // we want the classifier to be serialized in the end
-        classificationTypeSetting.setSerializeClassifier(true);
-
-        // specify feature settings that should be used by the classifier
-        FeatureSetting featureSetting = new FeatureSetting();
-
-        // we want to create character-level n-grams
-        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
-
-        // the minimum length of our n-grams should be 4
-        featureSetting.setMinNGramLength(4);
-
-        // the maximum length of our n-grams should be 7
-        featureSetting.setMaxNGramLength(7);
-
-        // we assign the settings to our classifier
-        classifier.setClassificationTypeSetting(classificationTypeSetting);
-        classifier.setFeatureSetting(featureSetting);
-
-        // now we can train the classifier using the given dataset
-        classifierManager.trainClassifier(dataset, classifier);
-
-        // // train + test
-        // EvaluationSetting evaluationSetting = new EvaluationSetting();
-        // evaluationSetting.setTrainingPercentageMin(50);
-        // evaluationSetting.setTrainingPercentageMax(50);
-        // evaluationSetting.setkFolds(1);
-        // evaluationSetting.addDataset(dataset);
-        // classifierManager.trainAndTestClassifier(classifier, evaluationSetting);
-        
-        System.out.println("finished training classifier in " + stopWatch.getElapsedTimeString());
     }
 }

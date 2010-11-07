@@ -1,9 +1,12 @@
 package tud.iir.web;
 
 import java.io.InputStream;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import tud.iir.helper.Counter;
 import tud.iir.helper.ThreadHelper;
@@ -41,6 +44,8 @@ public class URLDownloader {
     /** The stack to store URLs to be downloaded. */
     private Stack<String> urlStack = new Stack<String>();
 
+    private Set<Document> downloadedDocuments = new HashSet<Document>();
+
     private int maxThreads = 10;
 
     private int maxFails = 10;
@@ -48,11 +53,14 @@ public class URLDownloader {
     /**
      * Start downloading the supplied URLs.
      * 
-     * @param callback the callback to be called for each finished download.
+     * @param callback The callback to be called for each finished download. If the callback is null, the method will
+     *            save the downloaded documents and return them when finished.
      */
-    public void start(final URLDownloaderCallback callback) {
+    public Set<Document> start(final URLDownloaderCallback callback) {
 
         LOGGER.trace(">start");
+
+        downloadedDocuments = new HashSet<Document>();
 
         // to count number of running Threads
         final Counter counter = new Counter();
@@ -62,6 +70,8 @@ public class URLDownloader {
         while (urlStack.size() > 0) {
             final String url = urlStack.pop();
 
+            LOGGER.debug("process url " + url);
+
             // if maximum # of Threads are already running, wait here
             while (counter.getCount() >= getMaxThreads()) {
                 LOGGER.trace("max # of Threads running. waiting ...");
@@ -70,7 +80,7 @@ public class URLDownloader {
 
             if (errors.getCount() == getMaxFails()) {
                 LOGGER.warn("max. fails of " + getMaxFails() + " reached. giving up.");
-                return;
+                return new HashSet<Document>();
             }
 
             counter.increment();
@@ -80,7 +90,16 @@ public class URLDownloader {
                     try {
                         LOGGER.trace("start downloading " + url);
                         InputStream inputStream = crawler.downloadInputStream(url);
-                        callback.finished(url, inputStream);
+
+                        if (callback == null) {
+                            Document document = crawler.getWebDocument(inputStream, url);
+                            synchronized (downloadedDocuments) {
+                                downloadedDocuments.add(document);
+                            }
+                        } else {
+                            callback.finished(url, inputStream);
+                        }
+
                         LOGGER.trace("finished downloading " + url);
                     } catch (Exception e) {
                         LOGGER.warn(e.getMessage() + " for " + url);
@@ -97,9 +116,11 @@ public class URLDownloader {
         // the Stack is empty
         while (counter.getCount() > 0 || urlStack.size() > 0) {
             ThreadHelper.sleep(1000);
-            LOGGER.trace("waiting ... threads:" + counter.getCount() + " stack:" + urlStack.size());
+            LOGGER.debug("waiting ... threads:" + counter.getCount() + " stack:" + urlStack.size());
         }
         LOGGER.trace("<start");
+
+        return downloadedDocuments;
     }
 
     /**

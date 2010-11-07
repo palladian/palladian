@@ -1,17 +1,31 @@
 package tud.iir.web.datasetcrawler;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
+import tud.iir.classification.language.evaluation.LanguageDetectionEvaluation;
+import tud.iir.extraction.content.PageContentExtractor;
+import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.StringHelper;
 import tud.iir.web.Crawler;
+import tud.iir.web.URLDownloader;
 
 /**
- * This class compiles a training set of web pages with certain languages. This training set can then be used to learn a language classifier.
+ * This class compiles a training set of web pages with certain languages. This training set can then be used to learn a
+ * language classifier.
  * 
  * @author David Urbansky
  * 
@@ -19,26 +33,35 @@ import tud.iir.web.Crawler;
 public class LanguageDatasetCompiler {
 
     /** the logger for this class */
-    private static final Logger logger = Logger.getLogger(LanguageDatasetCompiler.class);
+    private static final Logger LOGGER = Logger.getLogger(LanguageDatasetCompiler.class);
 
     /** list of languages and the Google code to get results in those languages */
     private HashMap<String, String> languages = new HashMap<String, String>();
 
     /** path where the files should be saved */
-    private final String DIRECTORY_PATH = "data/benchmarkSelection/language/";
+    private final String DIRECTORY_PATH = "data/datasets/classification/language/";
 
     public LanguageDatasetCompiler() {
         // all available languages from Google web search
         /*
-         * languages.put("Arabic", "lang_ar"); languages.put("Bulgarian", "lang_bg"); languages.put("Catalan", "lang_ca"); languages.put("Chinese (Simplified)",
-         * "lang_zh-CN"); languages.put("Chinese (Traditional)", "lang_zh-TW"); languages.put("Croation", "lang_hr"); languages.put("Czech", "lang_cs");
-         * languages.put("Danish", "lang_da"); languages.put("Dutch", "lang_nl"); languages.put("English", "lang_en"); languages.put("Estonian", "lang_et");
-         * languages.put("Finnish", "lang_fi"); languages.put("French", "lang_fr"); languages.put("German", "lang_de"); languages.put("Greek", "lang_el");
-         * languages.put("Hebrew", "lang_iw"); languages.put("Hungarian", "lang_hu"); languages.put("Icelandic", "lang_is"); languages.put("Indonesian",
-         * "lang_id"); languages.put("Italian", "lang_it"); languages.put("Japanese", "lang_ja"); languages.put("Korean", "lang_ko"); languages.put("Latvian",
-         * "lang_lv"); languages.put("Lithuanian", "lang_lt"); languages.put("Norwegian", "lang_no"); languages.put("Polish", "lang_pl");
-         * languages.put("Portuguese", "lang_pt"); languages.put("Romanian", "lang_ro"); languages.put("Russian", "lang_ru"); languages.put("Serbian",
-         * "lang_sr"); languages.put("Slovak", "lang_sk"); languages.put("Slovenian", "lang_sl"); languages.put("Spanish", "lang_es"); languages.put("Swedish",
+         * languages.put("Arabic", "lang_ar"); languages.put("Bulgarian", "lang_bg"); languages.put("Catalan",
+         * "lang_ca"); languages.put("Chinese (Simplified)",
+         * "lang_zh-CN"); languages.put("Chinese (Traditional)", "lang_zh-TW"); languages.put("Croation", "lang_hr");
+         * languages.put("Czech", "lang_cs");
+         * languages.put("Danish", "lang_da"); languages.put("Dutch", "lang_nl"); languages.put("English", "lang_en");
+         * languages.put("Estonian", "lang_et");
+         * languages.put("Finnish", "lang_fi"); languages.put("French", "lang_fr"); languages.put("German", "lang_de");
+         * languages.put("Greek", "lang_el");
+         * languages.put("Hebrew", "lang_iw"); languages.put("Hungarian", "lang_hu"); languages.put("Icelandic",
+         * "lang_is"); languages.put("Indonesian",
+         * "lang_id"); languages.put("Italian", "lang_it"); languages.put("Japanese", "lang_ja");
+         * languages.put("Korean", "lang_ko"); languages.put("Latvian",
+         * "lang_lv"); languages.put("Lithuanian", "lang_lt"); languages.put("Norwegian", "lang_no");
+         * languages.put("Polish", "lang_pl");
+         * languages.put("Portuguese", "lang_pt"); languages.put("Romanian", "lang_ro"); languages.put("Russian",
+         * "lang_ru"); languages.put("Serbian",
+         * "lang_sr"); languages.put("Slovak", "lang_sk"); languages.put("Slovenian", "lang_sl");
+         * languages.put("Spanish", "lang_es"); languages.put("Swedish",
          * "lang_sv"); languages.put("Turkish", "lang_tr");
          */
 
@@ -129,7 +152,8 @@ public class LanguageDatasetCompiler {
     }
 
     /**
-     * Compiles a dataset for learning a classifier. It processes the following steps: 1. Query Google for each language to obtain web pages in the given
+     * Compiles a dataset for learning a classifier. It processes the following steps: 1. Query Google for each language
+     * to obtain web pages in the given
      * language 2. Download x web pages and generate an entry in the dataset file. 3. Save the dataset file.
      * 
      * @param pagesPerLanguage Number of pages per language.
@@ -139,32 +163,120 @@ public class LanguageDatasetCompiler {
 
         StringBuilder dataSetFile = new StringBuilder();
 
-        Crawler c = new Crawler();
+        PageContentExtractor pce = new PageContentExtractor();
 
         for (Entry<String, String> entry : languages.entrySet()) {
 
-            logger.info("### get pages for the language " + entry.getKey());
+            LOGGER.info("### get pages for the language " + entry.getKey());
 
             int counter = 0;
 
-            for (int i = 0; i < pagesPerLanguage; i++) {
+            // download random wikipedia page in the given language
+            URLDownloader urlDownloader = new URLDownloader();
 
-                // download random wikipedia page in the given language
-                String filePath = DIRECTORY_PATH + entry.getValue() + "/" + counter + ".html";
-                if (c.downloadAndSave("http://" + entry.getValue() + ".wikipedia.org/wiki/Special:Random", filePath)) {
-                    // write entry to dataset
-                    dataSetFile.append(filePath).append(" ").append(entry.getKey()).append("\n");
-                    counter++;
+            for (int j = 0; j < pagesPerLanguage; j++) {
+                urlDownloader.add("http://" + entry.getValue() + ".wikipedia.org/wiki/Special:Random/"
+                        + Math.round(Math.random() * 10000000000l));
+            }
+
+            Set<Document> downloadedDocuments = urlDownloader.start(null);
+
+            LOGGER.info("downloaded " + downloadedDocuments.size()
+                    + " documents, start extracting their textual contents now");
+
+            for (Document document : downloadedDocuments) {
+
+                if (document == null) {
+                    continue;
                 }
 
+                String filePath = DIRECTORY_PATH + entry.getValue() + "/" + counter + ".txt";
+                try {
+                    pce.setDocument(document);
+                    String text = pce.getResultText();
+                    FileHelper.writeToFile(filePath, text);
+
+                    // write entry to dataset
+                    dataSetFile.append(filePath).append(" ").append(entry.getValue()).append("\n");
+                    counter++;
+                } catch (PageContentExtractorException e) {
+                    LOGGER.error("could not get content from URL " + document.getDocumentURI());
+                } catch (Exception e) {
+                    LOGGER.error("could not get content from URL " + document.getDocumentURI());
+                }
             }
 
         }
 
         FileHelper.writeToFile(DIRECTORY_PATH + "languageDocumentIndex.txt", dataSetFile);
 
-        logger.info("language dataset compiled in " + DateHelper.getRuntime(t1) + ", tried to download " + (languages.size() * pagesPerLanguage) + " files ("
-                + c.getTotalDownloadSize(Crawler.MEGA_BYTES) + "MB)");
+        LOGGER.info("language dataset compiled in " + DateHelper.getRuntime(t1) + ", tried to download "
+                + languages.size() * pagesPerLanguage + " files (" + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES)
+                + "MB)");
+    }
+
+    /**
+     * Create a file with random sentences and the language code for evaluating language detectors in
+     * {@link LanguageDetectionEvaluation}.
+     */
+    public void createRandomTestFile(double percentPerFile, Set<String> includeLanguages) {
+        Set<Integer> sentenceHashes = new HashSet<Integer>();
+
+        Pattern pattern1 = Pattern.compile("^\\p{L}.*", Pattern.MULTILINE);
+        Pattern pattern2 = Pattern.compile("^\\d.*", Pattern.MULTILINE);
+
+        FileWriter testFile;
+        try {
+            testFile = new FileWriter(DIRECTORY_PATH + "randomTestFile.txt");
+
+            for (Entry<String, String> entry : languages.entrySet()) {
+
+                if (!includeLanguages.contains(entry.getValue())) {
+                    continue;
+                }
+
+                for (int i = 0; i < 100; i++) {
+                    String filePath = DIRECTORY_PATH + entry.getValue() + "/" + i + ".txt";
+                    List<String> sentences = FileHelper.readFileToArray(filePath);
+
+                    for (String sentence : sentences) {
+
+                        sentence = StringHelper.removeBrackets(sentence);
+                        sentence = StringHelper.removeNumbering(sentence);
+                        sentence = StringHelper.trim(sentence);
+
+                        if (sentence.length() < 7 || sentence.indexOf(" ") == -1) {
+                            continue;
+                        }
+
+                        if (!sentenceHashes.add(sentence.hashCode())) {
+                            continue;
+                        }
+
+                        Matcher matcher1 = pattern1.matcher(sentence);
+                        Matcher matcher2 = pattern2.matcher(sentence);
+                        if (matcher2.matches() || !matcher1.matches()) {
+                            continue;
+                        }
+
+                        if (Math.random() < percentPerFile) {
+                            testFile.write(sentence);
+                            testFile.write("###");
+                            testFile.write(entry.getValue());
+                            testFile.write("\n");
+                        }
+                    }
+                }
+
+            }
+
+            testFile.flush();
+            testFile.close();
+
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+
     }
 
     /**
@@ -172,10 +284,21 @@ public class LanguageDatasetCompiler {
      */
     public static void main(String[] args) {
         LanguageDatasetCompiler ldc = new LanguageDatasetCompiler();
-        ldc.compileDataset(100);
+        // ldc.compileDataset(100);
 
-        // Crawler c = new Crawler();
-        // c.downloadAndSave("data/benchmarkSelection/language/da/1.html", "abc.html");
+        Set<String> includeLanguages = new HashSet<String>();
+        includeLanguages.add("da");
+        includeLanguages.add("de");
+        includeLanguages.add("el");
+        includeLanguages.add("en");
+        includeLanguages.add("es");
+        includeLanguages.add("fi");
+        includeLanguages.add("fr");
+        includeLanguages.add("it");
+        includeLanguages.add("nl");
+        includeLanguages.add("pt");
+        includeLanguages.add("sv");
+        ldc.createRandomTestFile(0.05, includeLanguages);
     }
 
 }

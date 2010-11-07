@@ -1,4 +1,4 @@
-package tud.iir.helper;
+package tud.iir.classification.language;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -7,13 +7,36 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.FileHelper;
+import tud.iir.helper.StopWatch;
+
 import com.lingway.ld.GramTree;
 
 /**
- * Wrapper for JLangDetect.
- * http://www.jroller.com/melix/entry/nlp_in_java_a_language
+ * <p>
+ * Wrapper for JLangDetect. http://www.jroller.com/melix/entry/nlp_in_java_a_language
+ * </p>
  * 
+ * <p>
  * Model files are in the model repository -> JLangLanguageDetector
+ * </p>
+ * 
+ * <p>
+ * The model is trained for 11 languages:
+ * <ol>
+ * <li>Danish (da)</li>
+ * <li>German (de)</li>
+ * <li>Greek (el)</li>
+ * <li>English (en)</li>
+ * <li>Spanish (es)</li>
+ * <li>Finnish (fi)</li>
+ * <li>French (fr)</li>
+ * <li>Italian (it)</li>
+ * <li>Dutch (nl)</li>
+ * <li>Portuguese (pt)</li>
+ * <li>Swedish (sv)</li>
+ * </ol>
+ * </p>
  * 
  * TODO I added this mainly for evaluation purposes; Palladian has its own language classifier. After we determined
  * Palladian as the winner, we can remove this again :)
@@ -21,10 +44,10 @@ import com.lingway.ld.GramTree;
  * @author Philipp Katz
  * 
  */
-public class LanguageDetector {
+public class JLangDetect extends LanguageClassifier {
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(LanguageDetector.class);
+    private static final Logger LOGGER = Logger.getLogger(JLangDetect.class);
 
     /** The confidence threshold for a language. This is the minimal percentage of n-grams which have to match. */
     private static final float THRESHOLD = 0.5f;
@@ -35,11 +58,15 @@ public class LanguageDetector {
     /**
      * Instantiate a new LanguageDetector.
      * 
-     * @param directoryPath The path to the directory with the model files. Their names need to comply with the
+     * @param modelPath The path to the directory with the model files. Their names need to comply with the
      *            following naming convention: <code>xx_tree.bin</code>, where xx denotes the language.
      */
-    public LanguageDetector(String directoryPath) {
-        loadTreeFiles(directoryPath);
+    public JLangDetect(String modelPath) {
+        loadTreeFiles(modelPath);
+    }
+
+    public JLangDetect() {
+        loadTreeFiles("data/models/JLangLanguageDetector/europarl");
     }
 
     private void loadTreeFiles(String directoryPath) {
@@ -94,7 +121,8 @@ public class LanguageDetector {
         return bestLang;
     }
 
-    public String detect(String text) {
+    @Override
+    public String classify(String text) {
         return detect(text, false);
     }
 
@@ -124,17 +152,17 @@ public class LanguageDetector {
 
     public static void main(String[] args) {
 
-        LanguageDetector ld = new LanguageDetector("/home/pk/workspace/models/JLangLanguageDetector/europarl");
+        JLangDetect ld = new JLangDetect("/home/pk/workspace/models/JLangLanguageDetector/europarl");
 
         System.out.println(ld);
 
-        System.out.println(ld.detect("hello, world!"));
-        System.out.println(ld.detect("grüß gott"));
-        System.out.println(ld.detect("servus!"));
-        System.out.println(ld.detect("bonjour"));
-        System.out.println(ld.detect("ciao bella"));
-        System.out.println(ld.detect("こんにちは")); // return null because we have no japanese gram tree.
-        System.out.println(ld.detect("cogito ergo sum"));
+        System.out.println(ld.classify("hello, world!"));
+        System.out.println(ld.classify("grüß gott"));
+        System.out.println(ld.classify("servus!"));
+        System.out.println(ld.classify("bonjour"));
+        System.out.println(ld.classify("ciao bella"));
+        System.out.println(ld.classify("こんにちは")); // return null because we have no japanese gram tree.
+        System.out.println(ld.classify("cogito ergo sum"));
 
     }
 }

@@ -41,6 +41,15 @@ public class KNNClassifier extends TextClassifier {
      * @param document the document being classified
      */
     public ClassificationDocument classify(ClassificationDocument document) {
+        return classify(document, null);
+    }
+
+    @Override
+    /**
+     * Classify a given document.
+     * @param document the document being classified
+     */
+    public ClassificationDocument classify(ClassificationDocument document, Set<String> possibleClasses) {
 
         StopWatch stopWatch = new StopWatch();
 
@@ -51,6 +60,9 @@ public class KNNClassifier extends TextClassifier {
 
         // create one category entry for every category with relevance 0
         for (Category category : categories) {
+            if (possibleClasses != null && !possibleClasses.contains(category.getName())) {
+                continue;
+            }
             CategoryEntry c = new CategoryEntry(bestFitList, category, 0);
             bestFitList.add(c);
         }

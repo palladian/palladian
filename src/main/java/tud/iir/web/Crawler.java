@@ -991,6 +991,20 @@ public class Crawler {
         return getDocument();
     }
 
+    public Document getWebDocument(InputStream is, String URI) {
+        try {
+            parse(is, false, URI);
+        } catch (SAXException e) {
+            LOGGER.error(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        } catch (ParserConfigurationException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        return getDocument();
+    }
+
     /**
      * Get a web page ((X)HTML document).
      * 
@@ -2023,7 +2037,7 @@ public class Crawler {
     			entity.getSafeName() + "MIOExtractionThread", entity, kManager);
         mioThread.start();
         
-        System.out.println((kManager.getConcept("MobilePhone").getEntities().get(0).getFactForAttribute(new Attribute("strong_mio",1,new Concept("MobilePhone")))));
+        System.out.println(kManager.getConcept("MobilePhone").getEntities().get(0).getFactForAttribute(new Attribute("strong_mio",1,new Concept("MobilePhone"))));
         System.exit(0);
 
         Crawler cr = new Crawler();
