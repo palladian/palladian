@@ -4,7 +4,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.security.MessageDigest;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.StringTokenizer;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -43,10 +45,10 @@ public class StringHelper {
      */
     public static String makeSafeName(String name, int maxLength) {
         String safeName = name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
-        .replaceAll(",", "_").replaceAll("\\*", "_").replaceAll("\\.", "_").replaceAll(";", "_")
-        .replaceAll("\\:", "_").replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae")
-        .replaceAll("\\Ä", "Ae").replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue")
-        .replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
+                .replaceAll(",", "_").replaceAll("\\*", "_").replaceAll("\\.", "_").replaceAll(";", "_")
+                .replaceAll("\\:", "_").replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae")
+                .replaceAll("\\Ä", "Ae").replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue")
+                .replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
 
         if (maxLength > 0) {
             safeName = safeName.substring(0, Math.min(safeName.length(), maxLength));
@@ -193,7 +195,7 @@ public class StringHelper {
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                    + RegExp.getRegExp(Attribute.VALUE_STRING), e);
+                            + RegExp.getRegExp(Attribute.VALUE_STRING), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -217,7 +219,7 @@ public class StringHelper {
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                    + RegExp.getRegExp(Attribute.VALUE_NUMERIC), e);
+                            + RegExp.getRegExp(Attribute.VALUE_NUMERIC), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -401,7 +403,7 @@ public class StringHelper {
                     && Character.getType(ch) != Character.CONNECTOR_PUNCTUATION
                     && Character.getType(ch) != Character.CURRENCY_SYMBOL
                     && Character.getType(ch) != Character.DIRECTIONALITY_WHITESPACE && ch != '%' && ch != '.'
-                        && ch != ',' && ch != ':') {
+                    && ch != ',' && ch != ':') {
                 isNumericExpression = false;
                 break;
             }
@@ -1112,11 +1114,182 @@ public class StringHelper {
     }
 
     /**
+     * Removes trailing whitespace at the end.
+     * 
+     * @param dateString String to be cleared.
+     * @return Cleared string.
+     */
+    public static String removeLastWhitespace(String dateString) {
+        StringBuffer temp = new StringBuffer(dateString);
+
+        while (temp.charAt(temp.length() - 1) == ' ') {
+            temp.deleteCharAt(temp.length() - 1);
+        }
+        return temp.toString();
+    }
+
+    /**
+     * Replaces two or more trailing white spaces by one.
+     * 
+     * @param text
+     * @return
+     */
+    public static String removeDoubleWhitespaces(String text) {
+        String temp = text;
+        while (temp.indexOf("  ") != -1) {
+            temp = temp.replaceAll("  ", " ");
+        }
+        return temp;
+    }
+
+    /**
+     * Counts whitespace in a text.
+     * 
+     * @param text
+     * @return
+     */
+    public static int countWhitespaces(String text) {
+        int count = 0;
+        String t = text;
+        while (t.indexOf(" ") != -1) {
+            t = t.replaceFirst(" ", "");
+            count++;
+        }
+        return count;
+    }
+
+    /**
+     * Shorten a String; returns the first num words.
+     * 
+     * @param string
+     * @param num
+     * @return
+     */
+    public static String getFirstWords(String string, int num) {
+        StringBuilder sb = new StringBuilder();
+        if (string != null && num > 0) {
+            String[] split = string.split("\\s");
+            if (split.length == 0) {
+                return "";
+            }
+            sb.append(split[0]);
+            for (int i = 1; i < Math.min(num, split.length); i++) {
+                sb.append(" ").append(split[i]);
+            }
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Count number of occurrences of pattern within text.
+     * 
+     * TODO this will fail if pattern contains RegEx meta characters. Need to escape.
+     * 
+     * @param text
+     * @param pattern
+     * @param ignoreCase
+     * @return
+     */
+    public static int countOccurences(String text, String pattern, boolean ignoreCase) {
+        if (ignoreCase) {
+            text = text.toLowerCase();
+            pattern = pattern.toLowerCase();
+        }
+        Pattern p = Pattern.compile(pattern);
+        Matcher m = p.matcher(text);
+        int occurs = 0;
+        while (m.find()) {
+            occurs++;
+        }
+        return occurs;
+    }
+
+    /**
+     * Calculates Levenshtein similarity between the strings.
+     * 
+     * @param s1
+     * @param s2
+     * @return similarity between 0 and 1 (inclusive).
+     */
+    public static float getLevenshteinSim(String s1, String s2) {
+        int distance = StringUtils.getLevenshteinDistance(s1, s2);
+        float similarity = 1 - (float) distance / Math.max(s1.length(), s2.length());
+        return similarity;
+    }
+
+    /**
+     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
+     * similarity which is computationally expensive.
+     * 
+     * @param s1
+     * @param s2
+     * @return similarity between 0 and 1 (inclusive).
+     */
+    public static float getLengthSim(String s1, String s2) {
+        int length1 = s1.length();
+        int length2 = s2.length();
+        if (length1 == 0 && length2 == 0) {
+            return 1;
+        }
+        return (float) Math.min(length1, length2) / Math.max(length1, length2);
+    }
+
+    /**
+     * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
+     * standard. For reference, please see <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
+     * standard</a>. This method will return an empty String if the input is null or empty.
+     * 
+     * @param in The String whose non-valid characters we want to remove.
+     * @return The in String, stripped of non-valid characters.
+     * @see http://cse-mjmcl.cse.bris.ac.uk/blog/2007/02/14/1171465494443.html
+     */
+    public static String stripNonValidXMLCharacters(String in) {
+        StringBuffer out = new StringBuffer(); // Used to hold the output.
+        char current; // Used to reference the current character.
+
+        if (in == null || ("".equals(in))) {
+            return ""; // vacancy test.
+        }
+        for (int i = 0; i < in.length(); i++) {
+            current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
+            if ((current == 0x9) || (current == 0xA) || (current == 0xD) || ((current >= 0x20) && (current <= 0xD7FF))
+                    || ((current >= 0xE000) && (current <= 0xFFFD)) || ((current >= 0x10000) && (current <= 0x10FFFF))) {
+                out.append(current);
+            }
+        }
+        return out.toString();
+    }
+
+    /**
+     * Extract URLs from a given text. The used RegEx is very liberal, for example it will extract URLs with/without
+     * protocol, mailto: links, etc. The result are the URLs, directly from the supplied text. There is no further post
+     * processing of the extracted URLs.
+     * 
+     * The RegEx was taken from http://daringfireball.net/2010/07/improved_regex_for_matching_urls
+     * and alternative one can be found on http://flanders.co.nz/2009/11/08/a-good-url-regular-expression-repost/
+     * 
+     * @param text
+     * @return List of extracted URLs, or empty List if no URLs were found, never <code>null</code>.
+     */
+    public static List<String> extractUrls(String text) {
+        List<String> urls = new ArrayList<String>();
+        Pattern p = Pattern
+        // .compile("\\b(?:(?:ht|f)tp(?:s?)\\:\\/\\/|~\\/|\\/)?(?:\\w+:\\w+@)?(?:(?:[-\\w]+\\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|travel|[a-z]{2}))(?::[\\d]{1,5})?(?:(?:(?:\\/(?:[-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?(?:(?:\\?(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)(?:&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*(?:#(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
+                .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
+
+        Matcher m = p.matcher(text);
+        while (m.find()) {
+            urls.add(m.group());
+        }
+        return urls;
+    }
+
+    /**
      * The main method.
      * 
      * @param args the arguments
      */
-    public static void main(String[] args) {
+    public static void main_(String[] args) {
 
         System.out.println(removeNonAsciiCharacters("öüäaslkjd¡“¶{}|"));
 
@@ -1237,155 +1410,6 @@ public class StringHelper {
             colonIndex = nextColonIndex;
         }
 
-    }
-
-    /**
-     * Removes trailing whitespace at the end.
-     * 
-     * @param dateString String to be cleared.
-     * @return Cleared string.
-     */
-    public static String removeLastWhitespace(String dateString) {
-        StringBuffer temp = new StringBuffer(dateString);
-
-        while (temp.charAt(temp.length() - 1) == ' ') {
-            temp.deleteCharAt(temp.length() - 1);
-        }
-        return temp.toString();
-    }
-
-    /**
-     * Replaces two or more trailing whitespaces by one.
-     * 
-     * @param text
-     * @return
-     */
-    public static String removeDoubleWhitespaces(String text) {
-        String temp = text;
-        while (temp.indexOf("  ") != -1) {
-            temp = temp.replaceAll("  ", " ");
-        }
-        return temp;
-    }
-
-    /**
-     * Counts whitespace in a text.
-     * 
-     * @param text
-     * @return
-     */
-    public static int countWhitespaces(String text) {
-        int count = 0;
-        String t = text;
-        while (t.indexOf(" ") != -1) {
-            t = t.replaceFirst(" ", "");
-            count++;
-        }
-        return count;
-    }
-
-    /**
-     * Shorten a String; returns the first num words.
-     * 
-     * @param string
-     * @param num
-     * @return
-     */
-    public static String getFirstWords(String string, int num) {
-        StringBuilder sb = new StringBuilder();
-        if (string != null && num > 0) {
-            String[] split = string.split("\\s");
-            if (split.length == 0) {
-                return "";
-            }
-            sb.append(split[0]);
-            for (int i = 1; i < Math.min(num, split.length); i++) {
-                sb.append(" ").append(split[i]);
-            }
-        }
-        return sb.toString();
-    }
-
-    /**
-     * Count number of occurences of pattern within text.
-     * 
-     * TODO this will fail if pattern contains RegEx metacharacters. Need to escape.
-     * 
-     * @param text
-     * @param pattern
-     * @param ignoreCase
-     * @return
-     */
-    public static int countOccurences(String text, String pattern, boolean ignoreCase) {
-        if (ignoreCase) {
-            text = text.toLowerCase();
-            pattern = pattern.toLowerCase();
-        }
-        Pattern p = Pattern.compile(pattern);
-        Matcher m = p.matcher(text);
-        int occurs = 0;
-        while (m.find()) {
-            occurs++;
-        }
-        return occurs;
-    }
-
-    /**
-     * Calculates Levenshtein similarity between the strings.
-     * 
-     * @param s1
-     * @param s2
-     * @return similarity between 0 and 1 (inclusive).
-     */
-    public static float getLevenshteinSim(String s1, String s2) {
-        int distance = StringUtils.getLevenshteinDistance(s1, s2);
-        float similarity = 1 - (float) distance / Math.max(s1.length(), s2.length());
-        return similarity;
-    }
-
-    /**
-     * Determine similarity based on String lengths. We can use this as threshold before even calculating Levenshtein
-     * similarity which is computationally expensive.
-     * 
-     * @param s1
-     * @param s2
-     * @return similarity between 0 and 1 (inclusive).
-     */
-    public static float getLengthSim(String s1, String s2) {
-        int length1 = s1.length();
-        int length2 = s2.length();
-        if (length1 == 0 && length2 == 0) {
-            return 1;
-        }
-        return (float) Math.min(length1, length2) / Math.max(length1, length2);
-    }
-
-    /**
-     * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
-     * standard. For reference, please see <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
-     * standard</a>. This method will return an empty String if the input is null or empty.
-     * 
-     * TODO move to helper class?
-     * 
-     * @param in The String whose non-valid characters we want to remove.
-     * @return The in String, stripped of non-valid characters.
-     * @see http://cse-mjmcl.cse.bris.ac.uk/blog/2007/02/14/1171465494443.html
-     */
-    public static String stripNonValidXMLCharacters(String in) {
-        StringBuffer out = new StringBuffer(); // Used to hold the output.
-        char current; // Used to reference the current character.
-
-        if (in == null || ("".equals(in))) {
-            return ""; // vacancy test.
-        }
-        for (int i = 0; i < in.length(); i++) {
-            current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
-            if ((current == 0x9) || (current == 0xA) || (current == 0xD) || ((current >= 0x20) && (current <= 0xD7FF))
-                    || ((current >= 0xE000) && (current <= 0xFFFD)) || ((current >= 0x10000) && (current <= 0x10FFFF))) {
-                out.append(current);
-            }
-        }
-        return out.toString();
     }
 
 }
