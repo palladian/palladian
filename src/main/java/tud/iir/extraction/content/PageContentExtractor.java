@@ -318,7 +318,7 @@ public class PageContentExtractor {
     private Document init(Document document) throws PageContentExtractorException {
         LOGGER.trace(">init");
 
-        // Cache original document by creating a copy. This is neccessary, as we
+        // Cache original document by creating a copy. This is necessary, as we
         // operate destructively, directly on the Document and we might need
         // multiple runs with different parameters.
         // -- Philipp.
