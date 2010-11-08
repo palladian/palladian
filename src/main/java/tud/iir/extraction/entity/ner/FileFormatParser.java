@@ -81,10 +81,15 @@ public class FileFormatParser {
      */
     public static void columnToXML(String inputFilePath, String outputFilePath, String columnSeparator) {
 
-        final Object[] obj = new Object[3];
+        final Object[] obj = new Object[4];
         obj[0] = new StringBuilder();
+
+        // the currently open tag
         obj[1] = "";
         obj[2] = columnSeparator;
+
+        // whether the last line was a break
+        obj[3] = true;
 
         LineAction la = new LineAction(obj) {
 
@@ -94,6 +99,18 @@ public class FileFormatParser {
                 String[] parts = line.split((String) obj[2]);
 
                 if (parts.length < 2) {
+
+                    // add breaks for empty lines
+                    if (line.length() == 0) {
+                        // ((StringBuilder) obj[0]).deleteCharAt(((StringBuilder) obj[0]).length() - 1);
+                        if (!((String) obj[1]).equalsIgnoreCase("o") && lineNumber > 1) {
+                            ((StringBuilder) obj[0]).append("</").append((String) obj[1]).append(">");
+                            obj[1] = "o";
+                        }
+                        ((StringBuilder) obj[0]).append("\n");
+                        obj[3] = true;
+                    }
+
                     return;
                 }
 
@@ -106,7 +123,7 @@ public class FileFormatParser {
                     }
 
                     if (!parts[1].equalsIgnoreCase("o")) {
-                        if (lineNumber > 1) {
+                        if (lineNumber > 1 && (Boolean) obj[3] == false) {
                             ((StringBuilder) obj[0]).append(" ");
                         }
                         ((StringBuilder) obj[0]).append("<").append(parts[1]).append(">");
@@ -117,10 +134,13 @@ public class FileFormatParser {
 
                 obj[1] = parts[1];
 
-                if (Character.isLetterOrDigit(parts[0].charAt(0)) && !openTag && lineNumber > 1) {
+                if ((Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
+                        && !openTag && lineNumber > 1
+                        && (Boolean) obj[3] == false) {
                     ((StringBuilder) obj[0]).append(" ");
                 }
                 ((StringBuilder) obj[0]).append(parts[0]);
+                obj[3] = false;
 
             }
         };
@@ -268,21 +288,47 @@ public class FileFormatParser {
 
     public static void xmlToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
 
-        String inputText = FileHelper.readFileToString(inputFilePath);
-
-        List<String> tokens = Tokenizer.tokenize(inputText);
+        // String inputText = FileHelper.readFileToString(inputFilePath);
+        //
+        // List<String> tokens = Tokenizer.tokenize(inputText);
+        //
+        // StringBuilder columnFile = new StringBuilder();
+        //
+        // String openTag = "O";
+        // for (String token : tokens) {
+        // if (token.startsWith("</")) {
+        // openTag = "O";
+        // } else if (token.startsWith("<")) {
+        // openTag = StringHelper.getSubstringBetween(token, "<", ">");
+        // } else {
+        // columnFile.append(token).append(columnSeparator).append(openTag).append("\n");
+        // }
+        // }
+        //
+        // // CollectionHelper.print(tokens);
+        //
+        // FileHelper.writeToFile(outputFilePath, columnFile);
 
         StringBuilder columnFile = new StringBuilder();
 
-        String openTag = "O";
-        for (String token : tokens) {
-            if (token.startsWith("</")) {
-                openTag = "O";
-            } else if (token.startsWith("<")) {
-                openTag = StringHelper.getSubstringBetween(token, "<", ">");
-            } else {
-                columnFile.append(token).append(columnSeparator).append(openTag).append("\n");
+        List<String> lines = FileHelper.readFileToArray(inputFilePath);
+
+        for (String line : lines) {
+
+            List<String> tokens = Tokenizer.tokenize(line);
+
+            String openTag = "O";
+            for (String token : tokens) {
+                if (token.startsWith("</")) {
+                    openTag = "O";
+                } else if (token.startsWith("<")) {
+                    openTag = StringHelper.getSubstringBetween(token, "<", ">");
+                } else {
+                    columnFile.append(token).append(columnSeparator).append(openTag).append("\n");
+                }
             }
+
+            columnFile.append("\n");
         }
 
         // CollectionHelper.print(tokens);
@@ -415,7 +461,7 @@ public class FileFormatParser {
     }
 
     public static Annotations getAnnotationsFromColumn(String taggedTextFilePath) {
-        columnToXML(taggedTextFilePath, taggedTextFilePath + "_t", "\t");
+        columnToXML(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
         return getAnnotationsFromXMLFile(taggedTextFilePath + "_t");
     }
 
@@ -494,10 +540,12 @@ public class FileFormatParser {
      */
     public static void main(String[] args) {
 
-        FileFormatParser.xmlToColumn("data/datasets/ner/taggedTextTraining.xml",
-                "data/datasets/ner/taggedTextTrainingColumn.tsv", "\t");
-        FileFormatParser.xmlToColumn("data/datasets/ner/taggedTextTesting.xml",
-                "data/datasets/ner/taggedTextTestingColumn.tsv", "\t");
+        // FileFormatParser.xmlToColumn("data/datasets/ner/taggedTextTraining.xml",
+        // "data/datasets/ner/taggedTextTrainingColumn.tsv", "\t");
+        // FileFormatParser.columnToXML("data/datasets/ner/taggedTextTesting.xml",
+        // "data/datasets/ner/taggedTextTestingColumn.tsv", "\t");
+        FileFormatParser.xmlToColumn("data/datasets/ner/all.xml", "data/datasets/ner/all.tsv", "\t");
+        FileFormatParser.columnToXML("data/datasets/ner/all.tsv", "data/datasets/ner/allBack.xml", "\t");
         System.exit(0);
 
         FileFormatParser ffp = new FileFormatParser();

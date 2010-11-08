@@ -241,8 +241,8 @@ public class MathHelper {
             position1++;
         }
 
-        similarity = 1 - ((double) summedRealDistance / (double) summedMaxDistance);
-        double squaredShiftSimilarity = 1 - ((double) summedRealSquaredDistance / (double) summedMaxSquaredDistance);
+        similarity = 1 - (double) summedRealDistance / (double) summedMaxDistance;
+        double squaredShiftSimilarity = 1 - (double) summedRealSquaredDistance / (double) summedMaxSquaredDistance;
 
         ls.setShiftSimilartiy(similarity);
         ls.setSquaredShiftSimilartiy(squaredShiftSimilarity);
@@ -278,6 +278,34 @@ public class MathHelper {
         FileHelper.performActionOnEveryLine(listFile, la);
 
         return calculateListSimilarity(list1, list2);
+    }
+
+    /**
+     * Transform an IP address to a number.
+     * 
+     * @param ipAddress The IP address given in w.x.y.z notation.
+     * @return The integer of the IP address.
+     */
+    public static Long ipToNumber(String ipAddress) {
+        String[] addrArray = ipAddress.split("\\.");
+
+        long num = 0;
+        for (int i = 0; i < addrArray.length; i++) {
+            int power = 3 - i;
+            num += Integer.parseInt(addrArray[i]) % 256 * Math.pow(256, power);
+        }
+        return num;
+    }
+
+    /**
+     * Transform a number into an IP address.
+     * 
+     * @param number The integer to be transformed.
+     * @return The IP address.
+     */
+    public static String numberToIp(int number) {
+        return (number >> 24 & 0xFF) + "." + (number >> 16 & 0xFF) + "." + (number >> 8 & 0xFF) + "."
+                + (number & 0xFF);
     }
 
     /**

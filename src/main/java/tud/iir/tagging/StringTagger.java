@@ -1,8 +1,6 @@
 package tud.iir.tagging;
 
 import java.io.File;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
@@ -27,21 +25,25 @@ public class StringTagger {
 
     public static String tagString(String s) {
 
-        Pattern pat = Pattern.compile(RegExp.ENTITY);
-        Matcher m = pat.matcher(s);
-        while (m.find()) {
-            // s = s.replaceAll(m.group(), "#" + m.group() + "#");
-        }
+        // Pattern pat = Pattern.compile(RegExp.ENTITY);
+        // Matcher m = pat.matcher(s);
+        // while (m.find()) {
+        // // s = s.replaceAll(m.group(), "#" + m.group() + "#");
+        // }
 
         String entityTag = "<CANDIDATE>$0</CANDIDATE>";
 
-        // tag entities in quotes
-        s = s.replaceAll("\".{1,300}?\"", entityTag);
-
         // tag obvious entities that are noun patterns
-        // s = s.replaceAll("(?<!§.{0,20})"+RegExp.ENTITY+"(?!.*?#)", entityTag);
+        // s = s.replaceAll("(?<!§.{0,20})" + RegExp.ENTITY + "(?!.*?#)", entityTag);
         // s = s.replaceAll("(?<!§\"[^#]{0,40})" + RegExp.ENTITY, entityTag);
-        s = s.replaceAll("(?<!\\<CANDIDATE\\>)" + RegExp.ENTITY, entityTag);
+        // s = s.replaceAll("(?<!\\<CANDIDATE\\>)" + RegExp.ENTITY, entityTag);
+        // s = s.replaceAll("(?<!\"[^\"]{0,200}?)" + RegExp.ENTITY, entityTag);
+
+        s = s.replaceAll("(?<!\"[^\"]{0,200})" + RegExp.ENTITY, entityTag);
+        // (?<!aaa((?!bbb)[\s\S])*)
+
+        // tag entities in quotes
+        s = s.replaceAll("(?<=\").{1,300}?(?=\")", entityTag);
 
         return s;
     }
@@ -49,6 +51,7 @@ public class StringTagger {
     public static Annotations getTaggedEntities(String text) {
         Annotations annotations = new Annotations();
         String taggedText = tagString(text);
+        FileHelper.writeToFile("t.txt", taggedText);
         System.out.println(taggedText);
         annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
         return annotations;
@@ -57,6 +60,7 @@ public class StringTagger {
     public static void main(String[] args) {
         String testText = "\"All the Lilacs in Ohio Great Song John Hiatt\" is a song from John Hiatt's album THE TIKI BAR IS OPEN.";
         System.out.println(StringTagger.tagString(testText));
+        System.exit(0);
         //
         System.out
                 .println(StringTagger.tagString("Spiderman 3 is a movie. The new Nokia N95 is another mobile phone."));
