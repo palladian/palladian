@@ -268,8 +268,6 @@ public class XPathHelper {
         xPath = addNameSpaceToXPath(xPath);
         childNodes = getNodes(node, xPath);
 
-        System.out.println(" " + childNodes.size());
-
         for (Node cn : childNodes) {
             if (isChildOf(cn, node)) {
                 childNodesMatch.add(cn);
