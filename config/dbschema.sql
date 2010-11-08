@@ -25,6 +25,9 @@ CREATE TABLE `tudiirdb`.`api_log`(     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREM
 DROP TABLE IF EXISTS `api_methods`;
 CREATE TABLE `tudiirdb`.`api_methods`(     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,     `methodCode` VARCHAR(50) ,     `methodName` VARCHAR(50) ,     PRIMARY KEY (`id`)  )  ;
 
+DROP TABLE IF EXISTS `ip2country`;
+CREATE TABLE `tudiirdb`.`ip2country`(     `ipFrom` BIGINT UNSIGNED ,     `ipTo` BIGINT UNSIGNED ,     `registry` ENUM('apnic','arin','lacnic','ripencc','afrinic','iana') ,     `assignedAt` TIMESTAMP ,     `countryCode` CHAR(2) ,     `countryName` VARCHAR(40)       )  ;
+
 /* Table structure for table `live_status` */
 DROP TABLE IF EXISTS `live_status`;
 
@@ -308,6 +311,8 @@ CREATE TABLE `feeds` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+DROP TABLE IF EXISTS `feed_evaluation_polls`;
 
 CREATE TABLE `feed_evaluation_polls` (
   `feedID` int(10) unsigned NOT NULL,

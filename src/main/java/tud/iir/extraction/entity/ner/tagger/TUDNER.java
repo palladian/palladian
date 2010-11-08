@@ -118,7 +118,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         Annotations dictionaryRecognizedAnnotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
         annotations.addAll(dictionaryRecognizedAnnotations);
 
-        System.out.println(tagText(inputText, dictionaryRecognizedAnnotations));
+        String taggedText = tagText(inputText, dictionaryRecognizedAnnotations);
+        // FileHelper.writeToFile("t.csv", taggedText);
+        System.out.println(taggedText);
 
         return annotations;
     }

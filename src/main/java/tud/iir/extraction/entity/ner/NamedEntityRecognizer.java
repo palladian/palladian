@@ -145,6 +145,13 @@ public abstract class NamedEntityRecognizer {
 
             taggedText.append(inputText.substring(lastEndIndex, annotation.getOffset()));
 
+            if (!inputText.substring(annotation.getOffset(), annotation.getEndIndex()).equalsIgnoreCase(
+                    annotation.getEntity().getName())) {
+                System.out.println(inputText.substring(annotation.getOffset(), annotation.getEndIndex()));
+                System.out.println(annotation + "," + annotation.getOffset());
+                System.exit(1);
+            }
+
             if (format == TaggingFormat.XML) {
 
                 taggedText.append("<").append(tagName).append(">");

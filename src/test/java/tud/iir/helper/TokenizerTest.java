@@ -40,6 +40,16 @@ public class TokenizerTest extends TestCase {
         List<String> tokens = Tokenizer.tokenize("That poster costs $22.40. twenty-one.");
         // CollectionHelper.print(tokens);
         assertEquals(7, tokens.size());
+
+        tokens = Tokenizer.tokenize("Mr. <MUSICIAN>John Hiatt</MUSICIAN> is awesome.");
+        assertEquals(9, tokens.size());
+
+        tokens = Tokenizer.tokenize("Mr. '<MUSICIAN>John Hiatt</MUSICIAN>' is awesome.");
+        assertEquals(11, tokens.size());
+
+        tokens = Tokenizer.tokenize("Mr. ^<MUSICIAN>John Hiatt</MUSICIAN>) is awesome!!!");
+        // CollectionHelper.print(tokens);
+        assertEquals(11, tokens.size());
     }
 
     @Test
