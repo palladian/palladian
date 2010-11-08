@@ -1,8 +1,8 @@
 package tud.iir.helper;
 
 import java.io.File;
+import java.util.List;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 import tud.iir.knowledge.RegExp;
 
@@ -149,22 +149,36 @@ public class StringHelperTest extends TestCase {
     }
 
     public void testCountOccurences() {
-        Assert.assertEquals(2, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", true));
-        Assert.assertEquals(1,
+        assertEquals(2, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", true));
+        assertEquals(1,
                 StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", false));
-        Assert.assertEquals(0,
+        assertEquals(0,
                 StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "cat", false));
-        Assert.assertEquals(5, StringHelper.countOccurences("aaaaa", "a", false));
-        Assert.assertEquals(2, StringHelper.countOccurences("aaaaa", "aa", false));
+        assertEquals(5, StringHelper.countOccurences("aaaaa", "a", false));
+        assertEquals(2, StringHelper.countOccurences("aaaaa", "aa", false));
     }
 
     public void testGetFirstWords() {
-        Assert.assertEquals("the quick brown fox jumps",
+        assertEquals("the quick brown fox jumps",
                 StringHelper.getFirstWords("the quick brown fox jumps over the lazy dog", 5));
-        Assert.assertEquals("the quick brown fox jumps over the lazy dog",
+        assertEquals("the quick brown fox jumps over the lazy dog",
                 StringHelper.getFirstWords("the quick brown fox jumps over the lazy dog", 15));
-        Assert.assertEquals("", StringHelper.getFirstWords("", 10));
-        Assert.assertEquals("", StringHelper.getFirstWords(null, 10));
+        assertEquals("", StringHelper.getFirstWords("", 10));
+        assertEquals("", StringHelper.getFirstWords(null, 10));
+    }
+    
+    public void testExtractUrls() {
+        
+        String text = "The quick brown fox jumps over the lazy dog. Check out: http://microsoft.com, www.apple.com, google.com. (www.tu-dresden.de), http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars.";
+        List<String> urls = StringHelper.extractUrls(text);
+        
+        assertEquals(4, urls.size());
+        assertEquals("http://microsoft.com", urls.get(0));
+        assertEquals("www.apple.com", urls.get(1));
+        // assertEquals("google.com", urls.get(2)); // not recognized
+        assertEquals("www.tu-dresden.de", urls.get(2));
+        assertEquals("http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars", urls.get(3));
+        
     }
 
 }

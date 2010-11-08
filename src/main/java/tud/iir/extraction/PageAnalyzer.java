@@ -1133,7 +1133,7 @@ public class PageAnalyzer {
      * Get the sub tree as text.
      * 
      * @param node The node from where to start.
-     * @return A string representation of the node and it's sub nodes.
+     * @return A string representation of the node and its sub nodes.
      */
     public static String getTextDump(Node node) {
         StringBuilder sb = new StringBuilder();
