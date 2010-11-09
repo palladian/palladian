@@ -312,9 +312,9 @@ public final class FeedReader {
         }
 
         // for on-the-fly updates switch from probabilistic to adaptive
-        else if ((UpdateStrategy.UPDATE_MOVING_AVERAGE.equals(updateStrategy) || UpdateStrategy.UPDATE_POST_RATE
-                .equals(updateStrategy) && feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY)
-                 && feed.getChecks() > 0) {
+        else if ((UpdateStrategy.UPDATE_MOVING_AVERAGE.equals(updateStrategy) || (UpdateStrategy.UPDATE_POST_RATE
+                .equals(updateStrategy) && feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY))
+        /* && feed.getChecks() > 0 */) {
 
             updateIntervalAdaptive(feed, pnTarget, fps);
 
@@ -431,12 +431,12 @@ public final class FeedReader {
             fixedMaxCheckInterval = entries.size() * fixedMinCheckInterval;
 
             // use median
-//            if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
-//                double minInterval = fps.getMedianPostGap() / (double) DateHelper.MINUTE_MS;
-//                fixedMinCheckInterval = (int) minInterval;
-//                // fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
-//                fixedMaxCheckInterval = (int) (minInterval * entries.size());
-//            }
+            //            if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
+            //                double minInterval = fps.getMedianPostGap() / (double) DateHelper.MINUTE_MS;
+            //                fixedMinCheckInterval = (int) minInterval;
+            //                // fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
+            //                fixedMaxCheckInterval = (int) (minInterval * entries.size());
+            //            }
 
             if (feed.getActivityPattern() == FeedClassifier.CLASS_DEAD) {
                 fixedMinCheckInterval = 10 * 800 + (int) (Math.random() * 200);

@@ -1,1 +1,1 @@
-See a quickstart guide in the overview document at documentation/handout/tudiir_toolkit_overview.pdf
+See a quickstart guide in the overview document at documentation/handout/toolkit.pdf

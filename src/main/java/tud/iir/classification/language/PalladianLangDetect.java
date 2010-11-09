@@ -1,6 +1,5 @@
 package tud.iir.classification.language;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import tud.iir.classification.page.ClassifierManager;
@@ -11,7 +10,7 @@ public class PalladianLangDetect extends LanguageClassifier {
     TextClassifier palladianClassifier;
 
     /** We can specify which classes are possible and discard all others for the classification task. */
-    Set<String> possibleClasses = new HashSet<String>();
+    Set<String> possibleClasses = null;
 
     public PalladianLangDetect(String modelPath) {
         palladianClassifier = ClassifierManager.load(modelPath);

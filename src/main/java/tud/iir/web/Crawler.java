@@ -159,7 +159,7 @@ public class Crawler {
 
     /** Keep track of the total number of bytes downloaded by all crawler instances used. */
     public static long sessionDownloadedBytes = 0;
-    
+
     public static int numberOfDownloadedPages=0;
 
     /** The callback that is called after each crawled page. */
@@ -167,8 +167,8 @@ public class Crawler {
 
     /** The callback that is called after the crawler finished crawling. */
     private Callback crawlerCallbackOnFinish = null;
-    
-	/** Whether to use HTTP compression or not. */
+
+    /** Whether to use HTTP compression or not. */
     private boolean useCompression = true;
 
     /** Try to use feed auto discovery for every parsed page. */
@@ -305,7 +305,7 @@ public class Crawler {
              */
             // urlIterator = urlStack.iterator();
         }
-        
+
         // wait for the threads to finish
         while (getThreadCount() > 0) {
             ThreadHelper.sleep(500);
@@ -318,11 +318,11 @@ public class Crawler {
         while (urlDumpIterator.hasNext()) {
             LOGGER.info(urlDumpIterator.next());
         }
-        
+
         if (crawlerCallbackOnFinish != null) {
-        	crawlerCallbackOnFinish.callback();
+            crawlerCallbackOnFinish.callback();
         }
-        
+
     }
 
     private synchronized String getURLFromStack() {
@@ -426,7 +426,7 @@ public class Crawler {
 
     public void saveURLDump(String filename) {
         String urlDumpString = "URL crawl from " + DateHelper.getCurrentDatetime("dd.MM.yyyy") + " at "
-                + DateHelper.getCurrentDatetime("HH:mm:ss") + "\n";
+        + DateHelper.getCurrentDatetime("HH:mm:ss") + "\n";
         urlDumpString += "Number of urls: " + urlDump.size() + "\n\n";
 
         try {
@@ -914,13 +914,13 @@ public class Crawler {
                 BufferedInputStream is = new BufferedInputStream(new FileInputStream(file));
 
                 parse(is, isXML, file.toURI().toString());
-                } else {
+            } else {
                 url = url.replaceAll("\\s", "+");
                 URL urlObject = new URL(url);
                 InputStream fis = getInputStream(urlObject, headerInformation);
 
                 parse(fis, isXML, url);
-                }
+            }
 
             // only call, if we actually got a Document; so we don't need to check for null within the Callback
             // implementation itself.
@@ -960,8 +960,9 @@ public class Crawler {
      * @throws ParserConfigurationException
      */
     private void parse(InputStream dataStream, Boolean isXML, String Uri) throws SAXException, IOException,
-            ParserConfigurationException {
+    ParserConfigurationException {
         DOMParser parser = new DOMParser();
+        // parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
 
         InputSource is = new InputSource(dataStream);
 
@@ -1104,7 +1105,7 @@ public class Crawler {
         }
 
         boolean isFile = false;
-        if (urlString.indexOf("http://") == -1) {
+        if (urlString.indexOf("http://") == -1 && urlString.indexOf("https://") == -1) {
             isFile = true;
         } else {
             isFile = false;
@@ -1368,19 +1369,19 @@ public class Crawler {
     public void addCrawlerCallback(CrawlerCallback crawlerCallback) {
         crawlerCallbacks.add(crawlerCallback);
     }
-    
+
     public void removeCrawlerCallback(CrawlerCallback crawlerCallback) {
         crawlerCallbacks.remove(crawlerCallback);
     }
-    
-    public Callback getCrawlerCallbackOnFinish() {
-		return crawlerCallbackOnFinish;
-	}
 
-	public void setCrawlerCallbackOnFinish(Callback crawlerCallbackOnFinish) {
-		this.crawlerCallbackOnFinish = crawlerCallbackOnFinish;
-	}
-    
+    public Callback getCrawlerCallbackOnFinish() {
+        return crawlerCallbackOnFinish;
+    }
+
+    public void setCrawlerCallbackOnFinish(Callback crawlerCallbackOnFinish) {
+        this.crawlerCallbackOnFinish = crawlerCallbackOnFinish;
+    }
+
     public int getMaxThreads() {
         return maxThreads;
     }
@@ -1536,7 +1537,7 @@ public class Crawler {
             // try to download from Google, if downloading fails we get IOException
             downloadInputStream("http://www.google.com", false);
             if (getProxy() != null) {
-            	LOGGER.debug("proxy " + getProxy().address() + " is working.");
+                LOGGER.debug("proxy " + getProxy().address() + " is working.");
             }
             result = true;
         } catch (IOException e) {
@@ -1645,10 +1646,10 @@ public class Crawler {
 
                 in.close();
                 out.close();
-               
+
                 int size = (int)binFile.length();
                 sessionDownloadedBytes += size;
-            
+
 
             } catch (Exception e) {
 
@@ -1732,7 +1733,7 @@ public class Crawler {
     }
 
     private InputStream downloadInputStream(URL url, boolean checkChangeProxy, HeaderInformation headerInformation)
-            throws IOException {
+    throws IOException {
         LOGGER.trace(">download " + url);
 
         ConnectionTimeout timeout = null;
@@ -1769,7 +1770,7 @@ public class Crawler {
                 }
 
             }
-            
+
             if (urlConnection instanceof HttpURLConnection) {
                 setLastResponseCode(((HttpURLConnection)urlConnection).getResponseCode());
             }
@@ -1986,24 +1987,24 @@ public class Crawler {
 
         return documentString;
     }
-    
+
     public static Document getWebDocumentFromInputStream(InputStream iStream, String url){
         DOMParser parser = new DOMParser();
         Document document = null;
-              
-            try {
-                parser.parse(new InputSource(iStream));
-            } catch (SAXException saxEx) {
-                LOGGER.error(saxEx.getMessage());
-            } catch (IOException ioEx) {
-                LOGGER.error(ioEx.getMessage());
-            }
-            document = parser.getDocument();
-            if (document != null) {
-                document.setDocumentURI(url);
-                
-            }
-        
+
+        try {
+            parser.parse(new InputSource(iStream));
+        } catch (SAXException saxEx) {
+            LOGGER.error(saxEx.getMessage());
+        } catch (IOException ioEx) {
+            LOGGER.error(ioEx.getMessage());
+        }
+        document = parser.getDocument();
+        if (document != null) {
+            document.setDocumentURI(url);
+
+        }
+
         return document;
     }
 
@@ -2011,32 +2012,32 @@ public class Crawler {
      * @param args
      */
     public static void main(String[] args) {
-        
-    	MIOExtractor.getInstance();
-    	Crawler crawler2 = new Crawler();
-    	String url = "http://www.gsmarena.com/samsung_i9000_galaxy_s-3d-spin-3115.php";
-    	Document webDocument = crawler2.getWebDocument(url);
+
+        MIOExtractor.getInstance();
+        Crawler crawler2 = new Crawler();
+        String url = "http://www.gsmarena.com/samsung_i9000_galaxy_s-3d-spin-3115.php";
+        Document webDocument = crawler2.getWebDocument(url);
         String pageContent = Crawler.documentToString(webDocument);
-    	List<MIOPage> mioPages = new ArrayList<MIOPage>();
-    	FastMIODetector fMIODec = new FastMIODetector();
-    	if (fMIODec.containsMIO(pageContent)) {
+        List<MIOPage> mioPages = new ArrayList<MIOPage>();
+        FastMIODetector fMIODec = new FastMIODetector();
+        if (fMIODec.containsMIO(pageContent)) {
             MIOPage mioPage = new MIOPage(url, webDocument);
             mioPages.add(mioPage);
-        }    	
-    	Entity entity = new Entity("Samsung I9000 Galaxy S");
-    	entity.setConcept(new Concept("MobilePhone"));
-    	UniversalMIOExtractor mioExtr = new UniversalMIOExtractor(entity);
-    	List<MIO> mios = mioExtr.analyzeAndClassifyMIOPages(mioPages);
-    	
-    	CollectionHelper.print(mios);
-    	
-    	System.exit(0);
-    	
-    	KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
-    	Thread mioThread = new EntityMIOExtractionThread(new ThreadGroup("mioExtractionThreadGroup"),
-    			entity.getSafeName() + "MIOExtractionThread", entity, kManager);
+        }
+        Entity entity = new Entity("Samsung I9000 Galaxy S");
+        entity.setConcept(new Concept("MobilePhone"));
+        UniversalMIOExtractor mioExtr = new UniversalMIOExtractor(entity);
+        List<MIO> mios = mioExtr.analyzeAndClassifyMIOPages(mioPages);
+
+        CollectionHelper.print(mios);
+
+        System.exit(0);
+
+        KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
+        Thread mioThread = new EntityMIOExtractionThread(new ThreadGroup("mioExtractionThreadGroup"),
+                entity.getSafeName() + "MIOExtractionThread", entity, kManager);
         mioThread.start();
-        
+
         System.out.println(kManager.getConcept("MobilePhone").getEntities().get(0).getFactForAttribute(new Attribute("strong_mio",1,new Concept("MobilePhone"))));
         System.exit(0);
 
@@ -2047,7 +2048,7 @@ public class Crawler {
         Document document = cr.getDocument();
         System.out.println(document);
 
-    	// Proxy instance, proxy ip = 123.0.0.1 with port 8080
+        // Proxy instance, proxy ip = 123.0.0.1 with port 8080
         // try {
         // Proxy proxy = new Proxy(Proxy.Type.HTTP, new
         // InetSocketAddress("204.16.1.183", 3128));
@@ -2161,7 +2162,7 @@ public class Crawler {
         // java.util.regex.Pattern pat =
         // java.util.regex.Pattern.compile("(?<!(\\w)-)(?<!(\\w))((\\d){1,}((,|\\.|\\s))?){1,}(?!((\\d)+-(\\d)+))(?!-(\\d)+)");
         java.util.regex.Pattern pat = java.util.regex.Pattern
-                .compile("([A-Z.]{1}([A-Za-z-0-9.]{0,}){1,}(\\s)?)+([A-Z.0-9]{1,}([A-Za-z-0-9.]{0,}){1,}(\\s)?)*");
+        .compile("([A-Z.]{1}([A-Za-z-0-9.]{0,}){1,}(\\s)?)+([A-Z.0-9]{1,}([A-Za-z-0-9.]{0,}){1,}(\\s)?)*");
 
         // (\\d){1,2}[\\.|/|-](\\d){1,2}[\\.|/|-](\\d){1,4}";
         // (\d){1,2}(th)?(\.)?(\s)?(\w){3,9}\s(['])?(\d){2,4}

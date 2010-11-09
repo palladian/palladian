@@ -67,6 +67,7 @@ public class XPathHelper {
         String returnValue = xPath;
         if (hasXMLNS(document)) {
             returnValue = addNameSpaceToXPath(xPath);
+            // returnValue = returnValue.replaceAll("xhtml:TBODY", "");
         }
         return returnValue;
     }
@@ -365,13 +366,13 @@ public class XPathHelper {
 
         Crawler crawler = new Crawler();
         Document doc = crawler.getWebDocument("data/test/xPathTestcase.html");
-        
+
         // iterate over all TRs
         List<Node> rows = XPathHelper.getNodes(doc, "//TABLE/TR");
         for (Node row : rows) {
 
             // System.out.println(HTMLHelper.getXmlDump(row));
-            
+
             // iterate over TDs
             List<Node> cells = XPathHelper.getChildNodes(row, "//TD"); // does not work EDIT: now it does
             // List<Node> cells = XPathHelper.getChildNodes(row, "*"); // infinite loop? EDIT: yes, stupid me :) solved.

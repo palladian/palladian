@@ -39,7 +39,7 @@ public class LanguageDetectionEvaluation {
 
         // we tell Palladian that only a subset of the learned languages is allowed for this evaluation, otherwise
         // jLangDetect has an advantage
-        ((PalladianLangDetect) palladianClassifier).setPossibleClasses(possibleClasses);
+        // ((PalladianLangDetect) palladianClassifier).setPossibleClasses(possibleClasses);
 
         List<String> lines = FileHelper.readFileToArray(evaluationFilePath);
 
@@ -50,6 +50,7 @@ public class LanguageDetectionEvaluation {
         int palladianCorrect = 0;
 
         int lineCount = 1;
+        int totalLines = lines.size();
         for (String line : lines) {
             String[] parts = line.split("###");
             String document = parts[0];
@@ -80,7 +81,9 @@ public class LanguageDetectionEvaluation {
                 palladian = true;
             }
 
-            LOGGER.info("line " + lineCount + " (" + jLangDetectClassifier.mapLanguageCode(correctLanguage)
+            double percent = 100.0 * MathHelper.round(lineCount / (double) totalLines, 2);
+            LOGGER.info("line " + lineCount + ", " + percent + "% ("
+                    + jLangDetectClassifier.mapLanguageCode(correctLanguage)
                     + ") -> jlang: " + jlang + " | google: " + google + " | alchemy: " + alchemy + " | palladian: "
                     + palladian);
 
@@ -99,6 +102,10 @@ public class LanguageDetectionEvaluation {
      * @param args
      */
     public static void main(String[] args) {
+
+        GoogleLangDetect glangd = new GoogleLangDetect();
+        System.out.println(glangd.classify("hello world"));
+        System.exit(1);
 
         LanguageDetectionEvaluation evaluator = new LanguageDetectionEvaluation();
         Set<String> possibleClasses = new HashSet<String>();

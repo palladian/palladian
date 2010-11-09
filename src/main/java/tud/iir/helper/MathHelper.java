@@ -303,9 +303,9 @@ public class MathHelper {
      * @param number The integer to be transformed.
      * @return The IP address.
      */
-    public static String numberToIp(int number) {
+    public static String numberToIp(long number) {
         return (number >> 24 & 0xFF) + "." + (number >> 16 & 0xFF) + "." + (number >> 8 & 0xFF) + "."
-                + (number & 0xFF);
+        + (number & 0xFF);
     }
 
     /**
@@ -353,4 +353,5 @@ public class MathHelper {
 
         return alphaBeta;
     }
+
 }
