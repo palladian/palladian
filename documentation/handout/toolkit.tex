@@ -332,6 +332,8 @@ The same step is necessary to tell Eclipse that it should use Java 1.6 instead o
 \label{fig:hellotoolkit}
 \end{figure}
 For the code to work you need three additional files that are already in the config folder in the toolkit project. These are ``crawler.conf'', ``apikeys.conf'' and ``feeds.conf''. You need to copy them to src/main/resources/config. The folder src/main/resources usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
+
+% TODO text is very small, crop those images?
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{img/ht11.png}
@@ -516,10 +518,10 @@ To keep the code readable and easy to understand for other developers, we use th
 \item Statements after conditions should always be in braces ($\{\}$)
 \end{enumerate}
 
-The following listing shows an example class with applied coding standards. Please also have a look at \cite{codingStandards} for a quick overview of best practices.
+Listing~\ref{lst:CodingStandards} shows an example class with applied coding standards. Please also have a look at \cite{codingStandards} for a quick overview of best practices.
 
 \begin{codelisting}
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[caption=Example class for coding guidelines,label=lst:CodingStandards,frame=tb]
 /**
  * This is just an example class.
  * It is here to show the coding guidelines.
@@ -701,8 +703,7 @@ The classifier is saved as a lucene index or a database under the name of the cl
 Listing \ref{listing:trainClassifier} shows an example for how to train and save a classifier. In this case we train a classifier that can classify the language of given documents. As training data we use a list of web pages of different languages from Wikipedia.
 
 \begin{codelisting}
-\label{listing:trainClassifier}
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[label=listing:trainClassifier,caption=Training a classifier.,frame=tb]
 // create a classifier mananger object
 ClassifierManager classifierManager = new ClassifierManager();
 
@@ -760,8 +761,8 @@ After we trained a model for a classifier we can apply it to unseen data. Let's 
 Listing \ref{listing:useClassifier} shows how to use a trained classifier.
 
 \begin{codelisting}
-\label{listing:useClassifier}
-\begin{lstlisting}[frame=tb]
+%\label{listing:useClassifier}
+\begin{lstlisting}[label=listing:useClassifier,caption=Use a trained text classifier.,frame=tb]
 // the path to the classifier we want to use
 String path = "data/models/languageClassifier/LanguageClassifier.ser";
 
@@ -783,11 +784,11 @@ System.out.println(classifiedDocument);
 You can also try the language classifier online at \url{http://www.webknox.com/wi#LanguageDetection}.
 
 \paragraph{Evaluating a Classifier}
-To get an idea of how good a trained classifier works, we can evaluate it using test data which is structured the same way as the training data. Listing \ref{listing:useClassifier} shows how to evaluate a trained classifier, you will see that is very similar to training a classifier. Make sure that you evaluate the classifier using disjunct data, otherwise the evaluation results are invalid .
+To get an idea of how good a trained classifier works, we can evaluate it using test data which is structured the same way as the training data. Listing~\ref{listing:evaluateClassifier} shows how to evaluate a trained classifier, you will see that is very similar to training a classifier. Make sure that you evaluate the classifier using disjunct data, otherwise the evaluation results are invalid .
 
 \begin{codelisting}
-\label{listing:useClassifier}
-\begin{lstlisting}[frame=tb]
+%\label{listing:useClassifier}
+\begin{lstlisting}[label=listing:evaluateClassifier,caption=Evaluating a trained text classifier.,frame=tb]
 // create a classifier mananger object
 ClassifierManager classifierManager = new ClassifierManager();
 
@@ -827,8 +828,8 @@ As you have seen, you can train the classifier using different parameters. So ho
 Listing \ref{listing:bcc} shows you how to do just that.
 
 \begin{codelisting}
-\label{listing:bcc}
-\begin{lstlisting}[frame=tb]
+%\label{listing:bcc}
+\begin{lstlisting}[label=listing:bcc,caption=Learning the best parameter combination for a text classifier.,frame=tb]
 ClassifierManager classifierManager = new ClassifierManager();
 
 // build a set of classification type settings to evaluate
@@ -942,8 +943,8 @@ The ControlledTagger can be configured using the ControlledTaggerSettings class.
 Listing~\ref{listing:trainControlledTagger} shows the training of the ControlledTagger with data from Delicious and the finally the serialization of the trained model.
 
 \begin{codelisting}
-\label{listing:trainControlledTagger}
-\begin{lstlisting}[frame=tb]
+%\label{listing:trainControlledTagger}
+\begin{lstlisting}[label=listing:trainControlledTagger,caption=Training the controlled tagger.,frame=tb]
 // set up the ControlledTagger
 final ControlledTagger tagger = new ControlledTagger();
         
@@ -978,8 +979,8 @@ tagger.save("data/models/controlledTaggerModel.ser");
 Listing~\ref{listing:useControlledTagger} shows how to load a trained model into the ControlledTagger and use it for tagging text contents.
 
 \begin{codelisting}
-\label{listing:useControlledTagger}
-\begin{lstlisting}[frame=tb]
+%\label{listing:useControlledTagger}
+\begin{lstlisting}[label=listing:useControlledTagger,caption=Using the controlled tagger.,frame=tb]
 ControlledTagger tagger = new ControlledTagger();
 
 // load the trained model, this takes some time;
@@ -1018,8 +1019,8 @@ Another approach would be to detect the template of the web page and get only th
 In Palladian we use an approach that is based on a hierarchical analyzis of the web page's DOM tree. Each DOM element is analyzed and ranked based on the length of the contained text, the link density, and the frequency of other elements in relation to the text length. Longer text fragments usually indicate a relevant part of the article, while a high link density is more likely to indicate that the analyzed element is part of the navigation for example. Also the attributes ``id'' and ``class'' are analyzed. If the attribute values contain keywords such as ``entry'', ``content'', or ``text'', the element is more likely to contain relevant content as if the attribute values contain keywords such as ``header'', ``footer'', or ``sidebar''. The implementation of the web page content extraction adopted great parts of the Firefox extension ``Readability''\footnote{\url{http://lab.arc90.com/experiments/readability/}}. The used heuristics in Readability have shown to be quite accurate for a wide range of web pages. Listing~\ref{listing:usePageContentExtractor} gives a short usage example.
 
 \begin{codelisting}
-\label{listing:usePageContentExtractor}
-\begin{lstlisting}[frame=tb]
+%\label{listing:usePageContentExtractor}
+\begin{lstlisting}[label=listing:usePageContentExtractor,caption=Using the PageContentExtractor.,frame=tb]
 PageContentExtractor extractor = new PageContentExtractor();
 
 // this method is heavily overloaded and accepts various types of input
@@ -1092,8 +1093,8 @@ To use an NER you need two things: A text that you want to tag and a model for t
 The tagging works the same for all NERs and is shown in Listing \ref{listing:useNER}.
 
 \begin{codelisting}
-\label{listing:useNER}
-\begin{lstlisting}[frame=tb]
+%\label{listing:useNER}
+\begin{lstlisting}[label=listing:useNER,caption=Tagging a text using a named entity recognizer.,frame=tb]
 // create the tagger
 NamedEntityRecognizer ner = new TUDNER();
 
@@ -1121,7 +1122,7 @@ In order to find out which tags were trained for the model you can create a meta
 
 \begin{codelisting}
 \label{listing:nerMeta}
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[label=listing:nerMeta,caption=Reading a model's meta data.,frame=tb]
 // create the tagger
 NamedEntityRecognizer ner = new TUDNER();
 
@@ -1251,8 +1252,8 @@ TUDNER	& Output path for the trained model &	.../tudner/phoneModel.model \\
 \end{table}
 
 \begin{codelisting}
-\label{listing:trainNER}
-\begin{lstlisting}[frame=tb]
+%\label{listing:trainNER}
+\begin{lstlisting}[label=listing:trainNER,caption=Train a named entity recognizer.,frame=tb]
 NamedEntityRecognizer ner = new StanfordNER();
 boolean successful = ner.train("phoneTraining.tsv", modelConfig);
 String output = "successful";
@@ -1333,8 +1334,8 @@ For the example we can calculate the MUC score for the system as follows.
 Listing \ref{listing:evaluateNER} shows how we can programmatically evaluate a tagger. 
 
 \begin{codelisting}
-\label{listing:evaluateNER}
-\begin{lstlisting}[frame=tb]
+%\label{listing:evaluateNER}
+\begin{lstlisting}[label=listing:evaluateNER,caption=Evaluating the performance of a named entity tagger.,frame=tb]
 // initialize the tagger
 NamedEntityRecognizer ner = new TUDNER();
 
@@ -1373,9 +1374,10 @@ The age of a web page can often be a useful indicator about the freshness of the
 
 Listing \ref{listing:dateRecognizer} shows how to detect the age of a web page. For more information on the algorithms used, see \cite{gregor2010bachelor}. You can also check out the functionality of the web page age detection online at \url{http://www.webknox.com/wi#AgeDetection}.
 
+% TODO out of sync with code!
 \begin{codelisting}
-\label{listing:dateRecognizer}
-\begin{lstlisting}[frame=tb]
+%\label{listing:dateRecognizer}
+\begin{lstlisting}[label=listing:dateRecognizer,caption=Detecting the age of a web page.,frame=tb]
 // the URL of the page we want to know the age from
 String url = "http://www.bbc.co.uk/news/world-europe-11432849";
 
@@ -1401,8 +1403,8 @@ Palladian can handle many FAQs that follow the first or third structure. First, 
 Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically. You can also check out the functionality of the FAQ Extractor online at \url{http://www.webknox.com/wi#FAQExtraction}.
 
 \begin{codelisting}
-\label{listing:faqExtractor}
-\begin{lstlisting}[frame=tb]
+%\label{listing:faqExtractor}
+\begin{lstlisting}[label=listing:faqExtractor,caption=Extract an FAQ from a web page.,frame=tb]
 // create a list of question answer pairs
 ArrayList<QA> qas = null;
 
@@ -1424,8 +1426,8 @@ The FactExtractor can be used to detect facts in tables on web pages given a URL
 You can also check out the functionality of the FactExtractor online at \url{http://www.webknox.com/wi#FactExtraction}.
 
 \begin{codelisting}
-\label{listing:factExtraction}
-\begin{lstlisting}[frame=tb]
+%\label{listing:factExtraction}
+\begin{lstlisting}[label=listing:factExtraction,caption=Extract a list of facts from a web page.,frame=tb]
 // the URL of the facts
 String url = "http://en.wikipedia.org/wiki/Nokia_N95";
 
@@ -1470,7 +1472,7 @@ Some of the search APIs require API keys which must be specified in the config/a
 \label{sec:howto}
 The following code snippet shows how to initialize the source retriever and get a list of (English) URLs from the Bing search engine for the exact search ``Jim Carrey''.
 \begin{codelisting}
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[caption=Retrieving result URLs from a search engine.,frame=tb]
 // create source retriever object
 SourceRetriever s = new SourceRetriever();
 		
@@ -1513,7 +1515,7 @@ Basic functionalities include:
 The following code shows how to instantiate a simple crawler that starts at http://www.dmoz.org and follows all in- and outbound links. The URL of each crawled page is printed to the screen. The crawler will use 10 threads, changes the proxy after every third request and stops after having crawled 1000 pages. Instead of setting the parameters using the code, we can also specify them in the config/crawler.conf file. See \ref{sec:classification.conf} for more information.
 
 \begin{codelisting}
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[caption=Using the web crawler.,frame=tb]
 // create the crawler object
 Crawler crawler = new Crawler();
 
@@ -1582,7 +1584,7 @@ Palladian has a rudimentary implementation for the common need for sentence spli
 
 The following code shows how the sentence splitting can be used:
 \begin{codelisting}
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[caption=Using the sentence splitter.,frame=tb]
 String inputText = "This is a sentence. This is another one!";
 List<String> sentences = Tokenizer.getSentences(inputText);
 CollectionHelper.print(sentences);
@@ -1611,7 +1613,7 @@ Listing \ref{listing:ngrams} shows how you can create n-grams from a given text.
 
 \begin{codelisting}
 \label{listing:ngrams}
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[label=listing:ngrams,caption=Creating n-grams.,frame=tb]
 // the input text that we want to separate into n-grams
 String inputText = "a cat runs funnily";
 
@@ -1640,7 +1642,7 @@ Listing \ref{listing:singularPlural} shows the simple usage of the singularizati
 
 \begin{codelisting}
 \label{listing:singularPlural}
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[label=listing:singularPlural,caption=Transforming words from singular to plural and vice versa.,frame=tb]
 String singular = "city";
 String plural = "";
 plural = WordTransformer.wordToPlural(singular);
@@ -1659,7 +1661,7 @@ The toolkit contains many helper functionalities for reoccurring tasks in the tu
 The following code snippet shows several sample usages of some of the functions.
 
 \begin{codelisting}
-\begin{lstlisting}[frame=tb]
+\begin{lstlisting}[caption=Miscellaneous functions.,frame=tb]
 // sort a map by its value in ascending order (2nd parameter = true)
 Map m = CollectionHelper.sortByValue(map, true);
 
