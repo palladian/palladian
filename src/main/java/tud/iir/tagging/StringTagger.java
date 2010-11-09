@@ -39,11 +39,14 @@ public class StringTagger {
         // s = s.replaceAll("(?<!\\<CANDIDATE\\>)" + RegExp.ENTITY, entityTag);
         // s = s.replaceAll("(?<!\"[^\"]{0,200}?)" + RegExp.ENTITY, entityTag);
 
-        s = s.replaceAll("(?<!\"[^\"]{0,200})" + RegExp.ENTITY, entityTag);
+        // s = s.replaceAll("(?<!\"[^\"]{0,200})" + RegExp.ENTITY, entityTag);
+        // (\w)(?=(?:[^"]|"[^"]*")*$)
+        s = s.replaceAll("(" + RegExp.ENTITY + ")(?=(?:[^\"]|\"[^\"]*\")*$)", entityTag);
         // (?<!aaa((?!bbb)[\s\S])*)
 
         // tag entities in quotes
-        s = s.replaceAll("(?<=\").{1,300}?(?=\")", entityTag);
+        // s = s.replaceAll("(?<=\").{1,300}?(?=\")", entityTag);
+        s = s.replaceAll("(?<=\")[^\"]+?(?=\")", entityTag);
 
         return s;
     }
@@ -63,7 +66,7 @@ public class StringTagger {
         System.exit(0);
         //
         System.out
-                .println(StringTagger.tagString("Spiderman 3 is a movie. The new Nokia N95 is another mobile phone."));
+        .println(StringTagger.tagString("Spiderman 3 is a movie. The new Nokia N95 is another mobile phone."));
         Crawler c = new Crawler();
         testText = c.download("http://localhost:8081/ManKB/testpageGerman.html", false, true, true, true);
         Annotations taggedEntities = StringTagger.getTaggedEntities(testText);
