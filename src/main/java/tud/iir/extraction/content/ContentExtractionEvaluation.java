@@ -40,7 +40,7 @@ import de.l3s.boilerpipe.extractors.ExtractorBase;
 public class ContentExtractionEvaluation {
 
     /** base path with the evaluation data set. */
-    private static final String BASE_PATH = "/home/pk/Desktop/L3S-GN1-20100130203947-00001/";
+    private static final String BASE_PATH = "/home/pk/DATASETS/L3S-GN1-20100130203947-00001/";
 
     private Crawler crawler = new Crawler();
 
@@ -197,7 +197,8 @@ public class ContentExtractionEvaluation {
 
         // get the real content data, which is wrapped in <SPAN> tags with class 'x-nc-sel2'
         StringBuilder sb = new StringBuilder();
-        List<Node> nodes = XPathHelper.getNodes(annotatedDocument, "//SPAN[@class='x-nc-sel2']/text()");
+        //List<Node> nodes = XPathHelper.getNodes(annotatedDocument, "//SPAN[@class='x-nc-sel2']/text()");
+        List<Node> nodes = XPathHelper.getNodes(annotatedDocument, "//SPAN[@class='x-nc-sel2']");
         for (Node node : nodes) {
             sb.append(node.getTextContent()).append(" ");
         }

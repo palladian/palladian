@@ -3,6 +3,7 @@ package tud.iir.web;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import tud.iir.control.AllTests;
+import tud.iir.helper.XPathHelper;
 
 /**
  * Test cases for the crawler.
@@ -92,6 +93,21 @@ public class CrawlerTest extends TestCase {
 
         crawler.setDocument("data/test/pageContentExtractor/test10.html");
         assertEquals("http://www.example.com/test.html", crawler.getLinks(true, true).iterator().next());
+    }
+    
+    
+    /**
+     * Test undesired behavior from NekoHTML for which we introduced workarounds/fixes.
+     * See {@link TBODYFix}.
+     */
+    public void testNekoWorkarounds() {
+        
+        Crawler crawler = new Crawler();
+        assertEquals(3, XPathHelper.getNodes(crawler.getWebDocument("data/test/webPages/NekoTableTestcase1.html"), "//TABLE/TR[1]/TD").size());
+        assertEquals(3, XPathHelper.getNodes(crawler.getWebDocument("data/test/webPages/NekoTableTestcase2.html"), "//TABLE/TBODY/TR[1]/TD").size());
+        assertEquals(3, XPathHelper.getNodes(crawler.getWebDocument("data/test/webPages/NekoTableTestcase3.html"), "//TABLE/TBODY/TR[1]/TD").size());
+        assertEquals(3, XPathHelper.getNodes(crawler.getWebDocument("data/test/webPages/NekoTableTestcase4.html"), "//TABLE/TR[1]/TD").size());
+   
     }
 
 }

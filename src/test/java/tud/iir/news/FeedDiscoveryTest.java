@@ -28,9 +28,10 @@ public class FeedDiscoveryTest {
         // Assert.assertEquals(1, feedDiscovery.discoverFeeds("data/test/pageContentExtractor/test205.html").size());
         Assert.assertEquals(1, feedDiscovery.discoverFeeds("data/test/pageContentExtractor/test207.html").size());
 
-        // TODO page with parse errors; fixed by newer NekoHTML release ...
-        // should be: Assert.assertEquals(0, feedDiscovery.discoverFeeds("data/test/pageContentExtractor/test206.html").size());
-        Assert.assertEquals(null, feedDiscovery.discoverFeeds("data/test/pageContentExtractor/test206.html"));
+        // page with parse errors; fixed by newer NekoHTML release ...
+        // Assert.assertEquals(null, feedDiscovery.discoverFeeds("data/test/pageContentExtractor/test206.html"));
+        // should be: 
+        Assert.assertEquals(0, feedDiscovery.discoverFeeds("data/test/pageContentExtractor/test206.html").size());
 
         // page with one feed
         Assert.assertEquals("http://www.tagesschau.de/xml/rss2", feedDiscovery.discoverFeeds("data/test/pageContentExtractor/test001.html").get(0));
