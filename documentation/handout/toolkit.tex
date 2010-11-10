@@ -327,7 +327,7 @@ The same step is necessary to tell Eclipse that it should use Java 1.6 instead o
 \paragraph{Writing your first Palladian} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search bing for the term "Hello Palladian". The example is also shown in Fig.~\ref{fig:hellotoolkit}.
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{img/ht10.png}
+\includegraphics[trim=0 350px 600px 0,clip=true,width=\textwidth]{img/ht10.png}
 \caption{"Hello Palladian" Code}
 \label{fig:hellotoolkit}
 \end{figure}
@@ -336,26 +336,26 @@ For the code to work you need three additional files that are already in the con
 % TODO text is very small, crop those images?
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{img/ht11.png}
-\caption{Create a new Maven project}
+\includegraphics[trim=0 250px 600px 0,clip=true,width=\textwidth]{img/ht11.png}
+\caption{\texttt{config/crawler.conf}}
 \label{fig:resource01}
 \end{figure}
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{img/ht12.png}
-\caption{Create a new Maven project}
+\includegraphics[trim=0 850px 600px 0,clip=true,width=\textwidth]{img/ht12.png}
+\caption{\texttt{config/apikeys.conf}}
 \label{fig:resource02}
 \end{figure}
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{img/ht13.png}
-\caption{Create a new Maven project}
+\includegraphics[trim=0 650px 600px 0,clip=true,width=\textwidth]{img/ht13.png}
+\caption{\texttt{config/feeds.conf}}
 \label{fig:resource03}
 \end{figure}
 \begin{figure}
 \centering
-\includegraphics[width=\textwidth]{img/ht14.png}
-\caption{Create a new Maven project}
+\includegraphics[trim=0 550px 100px 0,clip=true,width=\textwidth]{img/ht14.png}
+\caption{"Hello Palladian" Console Output}
 \label{fig:structure}
 \end{figure}
 With the structure from Fig.~\ref{fig:structure} you can run your project. Just open your projects context menu again, choose \textit{Run As $\rightarrow$ Maven Clean}, then open context menu again choose \textit{Run As $\rightarrow$ Maven Install} and finally choose \textit{Run As $\rightarrow$ Java Application}.
@@ -752,7 +752,6 @@ classifier.setFeatureSetting(featureSetting);
 // now we can train the classifier using the given dataset
 classifierManager.trainClassifier(dataset, classifier);
 \end{lstlisting}
-%\caption{Training a classifier.}
 \end{codelisting}
 
 \paragraph{Using a classifier}
@@ -761,7 +760,6 @@ After we trained a model for a classifier we can apply it to unseen data. Let's 
 Listing \ref{listing:useClassifier} shows how to use a trained classifier.
 
 \begin{codelisting}
-%\label{listing:useClassifier}
 \begin{lstlisting}[label=listing:useClassifier,caption=Use a trained text classifier.,frame=tb]
 // the path to the classifier we want to use
 String path = "data/models/languageClassifier/LanguageClassifier.ser";
@@ -778,7 +776,6 @@ classifiedDocument = classifier.classify("Yo solo s� que no s� nada.");
 // print the classified document
 System.out.println(classifiedDocument);
 \end{lstlisting}
-%\caption{Use a trained text classifier.}
 \end{codelisting}
 
 You can also try the language classifier online at \url{http://www.webknox.com/wi#LanguageDetection}.
@@ -787,7 +784,6 @@ You can also try the language classifier online at \url{http://www.webknox.com/w
 To get an idea of how good a trained classifier works, we can evaluate it using test data which is structured the same way as the training data. Listing~\ref{listing:evaluateClassifier} shows how to evaluate a trained classifier, you will see that is very similar to training a classifier. Make sure that you evaluate the classifier using disjunct data, otherwise the evaluation results are invalid .
 
 \begin{codelisting}
-%\label{listing:useClassifier}
 \begin{lstlisting}[label=listing:evaluateClassifier,caption=Evaluating a trained text classifier.,frame=tb]
 // create a classifier mananger object
 ClassifierManager classifierManager = new ClassifierManager();
@@ -812,7 +808,6 @@ TextClassifier classifier = ClassifierManager.load(path);
 ClassifierPerformance classifierPerformance = null;
 classifierManager.testClassifier(dataset, classifier);
 \end{lstlisting}
-%\caption{Evaluating a trained text classifier.}
 \end{codelisting}
 
 \paragraph{Testing parameter combinations}
@@ -828,7 +823,6 @@ As you have seen, you can train the classifier using different parameters. So ho
 Listing \ref{listing:bcc} shows you how to do just that.
 
 \begin{codelisting}
-%\label{listing:bcc}
 \begin{lstlisting}[label=listing:bcc,caption=Learning the best parameter combination for a text classifier.,frame=tb]
 ClassifierManager classifierManager = new ClassifierManager();
 
@@ -897,7 +891,6 @@ classifierManager.learnBestClassifier(ctsList, classifiers,
 System.out.println("finished training and testing classifier
           combinations in " + stopWatch.getElapsedTimeString());
 \end{lstlisting}
-%\caption{Learning the best parameter combination for a text classifier.}
 \end{codelisting}
 
 
@@ -943,7 +936,6 @@ The ControlledTagger can be configured using the ControlledTaggerSettings class.
 Listing~\ref{listing:trainControlledTagger} shows the training of the ControlledTagger with data from Delicious and the finally the serialization of the trained model.
 
 \begin{codelisting}
-%\label{listing:trainControlledTagger}
 \begin{lstlisting}[label=listing:trainControlledTagger,caption=Training the controlled tagger.,frame=tb]
 // set up the ControlledTagger
 final ControlledTagger tagger = new ControlledTagger();
@@ -973,13 +965,11 @@ reader.read(callback, 20000);
 // save the model for later usage
 tagger.save("data/models/controlledTaggerModel.ser");
 \end{lstlisting}
-%\caption{Training the controlled tagger.}
 \end{codelisting}
 
 Listing~\ref{listing:useControlledTagger} shows how to load a trained model into the ControlledTagger and use it for tagging text contents.
 
 \begin{codelisting}
-%\label{listing:useControlledTagger}
 \begin{lstlisting}[label=listing:useControlledTagger,caption=Using the controlled tagger.,frame=tb]
 ControlledTagger tagger = new ControlledTagger();
 
@@ -998,7 +988,6 @@ List<Tag> assignedTags = tagger.tag(content);
 // print the assigned tags
 CollectionHelper.print(assignedTags);
 \end{lstlisting}
-%\caption{Using the controlled tagger.}
 \end{codelisting}
 
 The keyword extraction is state-of-the-art and beats the comparable system ``Maui''\cite{medelyan2009human} by 18.9\% in the F1-Score.
@@ -1019,7 +1008,6 @@ Another approach would be to detect the template of the web page and get only th
 In Palladian we use an approach that is based on a hierarchical analyzis of the web page's DOM tree. Each DOM element is analyzed and ranked based on the length of the contained text, the link density, and the frequency of other elements in relation to the text length. Longer text fragments usually indicate a relevant part of the article, while a high link density is more likely to indicate that the analyzed element is part of the navigation for example. Also the attributes ``id'' and ``class'' are analyzed. If the attribute values contain keywords such as ``entry'', ``content'', or ``text'', the element is more likely to contain relevant content as if the attribute values contain keywords such as ``header'', ``footer'', or ``sidebar''. The implementation of the web page content extraction adopted great parts of the Firefox extension ``Readability''\footnote{\url{http://lab.arc90.com/experiments/readability/}}. The used heuristics in Readability have shown to be quite accurate for a wide range of web pages. Listing~\ref{listing:usePageContentExtractor} gives a short usage example.
 
 \begin{codelisting}
-%\label{listing:usePageContentExtractor}
 \begin{lstlisting}[label=listing:usePageContentExtractor,caption=Using the PageContentExtractor.,frame=tb]
 PageContentExtractor extractor = new PageContentExtractor();
 
@@ -1036,7 +1024,6 @@ Document contentDocument = extractor.getResultDocument();
 // get the title
 String title = extractor.getResultTitle();
 \end{lstlisting}
-%\caption{Using the PageContentExtractor.}
 \end{codelisting}
 
 % TODO code snippet
@@ -1093,7 +1080,6 @@ To use an NER you need two things: A text that you want to tag and a model for t
 The tagging works the same for all NERs and is shown in Listing \ref{listing:useNER}.
 
 \begin{codelisting}
-%\label{listing:useNER}
 \begin{lstlisting}[label=listing:useNER,caption=Tagging a text using a named entity recognizer.,frame=tb]
 // create the tagger
 NamedEntityRecognizer ner = new TUDNER();
@@ -1115,7 +1101,6 @@ System.out.println(taggedText);
 ner.loadModel("data/models/tudner/phone.model");
 ner.tag(inputText);
 \end{lstlisting}
-%\caption{Tagging a text using a named entity recognizer.}
 \end{codelisting}
 
 In order to find out which tags were trained for the model you can create a meta file with one tag name per line, give it the same name as the model adding the suffix ``\_meta'' and save it as a text file next to the model. Listing \ref{listing:nerMeta} shows how you can get a list of tags that a model can apply.
@@ -1132,7 +1117,6 @@ List<String> tags = ner.getModelTags("data/models/tudner/phone.model");
 // print the tags to the console
 CollectionHelper.print(tags);
 \end{lstlisting}
-%\caption{Reading a model's meta data.}
 \end{codelisting}
 
 \subsubsection{Training a Tagger}
@@ -1252,7 +1236,6 @@ TUDNER	& Output path for the trained model &	.../tudner/phoneModel.model \\
 \end{table}
 
 \begin{codelisting}
-%\label{listing:trainNER}
 \begin{lstlisting}[label=listing:trainNER,caption=Train a named entity recognizer.,frame=tb]
 NamedEntityRecognizer ner = new StanfordNER();
 boolean successful = ner.train("phoneTraining.tsv", modelConfig);
@@ -1260,7 +1243,6 @@ String output = "successful";
 if (!successful) {output = "not successful";}
 System.out.println("Training of "+ner.getName()+" was "+output);
 \end{lstlisting}
-%\caption{Train a named entity recognizer.}
 \end{codelisting}
 
 \subsubsection{Evaluating a Tagger}
@@ -1334,7 +1316,6 @@ For the example we can calculate the MUC score for the system as follows.
 Listing \ref{listing:evaluateNER} shows how we can programmatically evaluate a tagger. 
 
 \begin{codelisting}
-%\label{listing:evaluateNER}
 \begin{lstlisting}[label=listing:evaluateNER,caption=Evaluating the performance of a named entity tagger.,frame=tb]
 // initialize the tagger
 NamedEntityRecognizer ner = new TUDNER();
@@ -1360,7 +1341,6 @@ String r2 = "F1 MUC: " + eResult.getF1(EvaluationResult.MUC);
 System.out.println(r1);
 System.out.println(r2);
 \end{lstlisting}
-%\caption{Evaluating the performance of a named entity tagger.}
 \end{codelisting}
 
 \subsection{Web Page Age Detection}
@@ -1376,7 +1356,6 @@ Listing \ref{listing:dateRecognizer} shows how to detect the age of a web page. 
 
 % TODO out of sync with code!
 \begin{codelisting}
-%\label{listing:dateRecognizer}
 \begin{lstlisting}[label=listing:dateRecognizer,caption=Detecting the age of a web page.,frame=tb]
 // the URL of the page we want to know the age from
 String url = "http://www.bbc.co.uk/news/world-europe-11432849";
@@ -1387,7 +1366,6 @@ ExtractedDate date = DateGetter.getBestDate(url);
 // print the extracted date (should be 29.09.2010)
 System.out.println(date);
 \end{lstlisting}
-%\caption{Detecting the age of a web page.}
 \end{codelisting}
 
 \subsection{FAQ Extractor}
@@ -1403,7 +1381,6 @@ Palladian can handle many FAQs that follow the first or third structure. First, 
 Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically. You can also check out the functionality of the FAQ Extractor online at \url{http://www.webknox.com/wi#FAQExtraction}.
 
 \begin{codelisting}
-%\label{listing:faqExtractor}
 \begin{lstlisting}[label=listing:faqExtractor,caption=Extract an FAQ from a web page.,frame=tb]
 // create a list of question answer pairs
 ArrayList<QA> qas = null;
@@ -1417,7 +1394,6 @@ qas = QAExtractor.getInstance().extractFAQ(url);
 // print the extracted questions and answers
 CollectionHelper.print(qas);
 \end{lstlisting}
-%\caption{Extract an FAQ from a web page.}
 \end{codelisting}
 
 \subsection{Fact Extraction}
@@ -1426,7 +1402,6 @@ The FactExtractor can be used to detect facts in tables on web pages given a URL
 You can also check out the functionality of the FactExtractor online at \url{http://www.webknox.com/wi#FactExtraction}.
 
 \begin{codelisting}
-%\label{listing:factExtraction}
 \begin{lstlisting}[label=listing:factExtraction,caption=Extract a list of facts from a web page.,frame=tb]
 // the URL of the facts
 String url = "http://en.wikipedia.org/wiki/Nokia_N95";
@@ -1448,7 +1423,6 @@ detectedFacts = FactExtractor.extractFacts(url, seeds);
 // print the extracted facts
 CollectionHelper.print(detectedFacts);
 \end{lstlisting}
-%\caption{Extract a list of facts from a web page.}
 \end{codelisting}
 
 \section{Retrieval}
@@ -1491,7 +1465,6 @@ List<String> resultURLs = s.getURLs("Jim Carrey", true);
 // print the results
 CollectionHelper.print(resultURLs);	
 \end{lstlisting}
-%\caption{Retrieving result URLs from a search engine.}
 \end{codelisting}
 
 %\subsection{RankAggregation}
@@ -1551,7 +1524,6 @@ crawler.setProxyList(proxyList);
 // true = follow outgoing links
 crawler.startCrawl("http://www.dmoz.org/", true, true);
 \end{lstlisting}
-%\caption{Using the web crawler.}
 \end{codelisting}
 
 \section{Preprocessing}
@@ -1592,7 +1564,6 @@ CollectionHelper.print(sentences);
 // This is a sentence
 // This is another one!
 \end{lstlisting}
-%\caption{Using the sentence splitter.}
 \end{codelisting}
 
 You can also get a specific sentence by providing a phrase that is part of the sentence using the $getSentence$ method.
@@ -1632,7 +1603,6 @@ ngrams = Tokenizer.calculateAllCharNGrams(inputText,3,5);
 // calculate all character word n-grams of length 1 to 3
 ngrams = Tokenizer.calculateAllWordNGrams(inputText,1,3);
 \end{lstlisting}
-%\caption{Creating n-grams.}
 \end{codelisting}
 
 \subsection{Noun Pluralization and Singularization}
@@ -1653,7 +1623,6 @@ System.out.println(plural);
 // cities
 // city
 \end{lstlisting}
-%\caption{Transforming words from singular to plural and vice versa.}
 \end{codelisting}
 
 \section{Miscellaneous}
@@ -1727,7 +1696,6 @@ String e = StringHelper.encodeBase64("abc");
 String d = StringHelper.decodeBase64(e);
 
 \end{lstlisting}
-%\caption{Miscellaneous functions.}
 \end{codelisting}
 
 \chapter{Where to Go from Here?}
