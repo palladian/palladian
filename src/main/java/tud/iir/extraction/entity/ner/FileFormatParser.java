@@ -462,7 +462,7 @@ public class FileFormatParser {
 
     public static Annotations getAnnotationsFromColumn(String taggedTextFilePath) {
         columnToXML(taggedTextFilePath, FileHelper.appendToFileName(taggedTextFilePath, "_t"), "\t");
-        return getAnnotationsFromXMLFile(taggedTextFilePath + "_t");
+        return getAnnotationsFromXMLFile(FileHelper.appendToFileName(taggedTextFilePath, "_t"));
     }
 
     /**
@@ -485,7 +485,7 @@ public class FileFormatParser {
         // text <PERSON><PHONE>John <PERSON>J</PERSON></PHONE>. <PHONE>Smith</PHONE></PERSON> lives
         
         // get locations of annotations
-        Pattern pattern = Pattern.compile("<(.*?)>(.{1,100}?)</\\1>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile("<(.*?)>(.{1,1000}?)</\\1>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = pattern.matcher(taggedText);
         while (matcher.find()) {

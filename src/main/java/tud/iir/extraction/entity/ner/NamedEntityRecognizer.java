@@ -147,8 +147,9 @@ public abstract class NamedEntityRecognizer {
 
             if (!inputText.substring(annotation.getOffset(), annotation.getEndIndex()).equalsIgnoreCase(
                     annotation.getEntity().getName())) {
-                System.out.println(inputText.substring(annotation.getOffset(), annotation.getEndIndex()));
-                System.out.println(annotation + "," + annotation.getOffset());
+                LOGGER.fatal("alignment error, the annotation candidates don't match the text:");
+                LOGGER.fatal("found: " + inputText.substring(annotation.getOffset(), annotation.getEndIndex()));
+                LOGGER.fatal("instead of: " + annotation.getEntity().getName() + "(" + annotation + ")");
                 System.exit(1);
             }
 

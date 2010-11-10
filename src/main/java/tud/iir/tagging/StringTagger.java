@@ -39,14 +39,23 @@ public class StringTagger {
         // s = s.replaceAll("(?<!\\<CANDIDATE\\>)" + RegExp.ENTITY, entityTag);
         // s = s.replaceAll("(?<!\"[^\"]{0,200}?)" + RegExp.ENTITY, entityTag);
 
+        s = s.replaceAll(RegExp.ENTITY, entityTag);
+        // s = Pattern.compile(RegExp.ENTITY).matcher(s).replaceAll(entityTag);
+
         // s = s.replaceAll("(?<!\"[^\"]{0,200})" + RegExp.ENTITY, entityTag);
         // (\w)(?=(?:[^"]|"[^"]*")*$)
-        s = s.replaceAll("(" + RegExp.ENTITY + ")(?=(?:[^\"]|\"[^\"]*\")*$)", entityTag);
+        // s = s.replaceAll("(" + RegExp.ENTITY + ")(?=(?:[^\"]|\"[^\"]*\")*$)", entityTag);
         // (?<!aaa((?!bbb)[\s\S])*)
+
+        // Pattern pattern = Pattern.compile("(" + RegExp.ENTITY + ")(?=(?:[^\"]|\"[^\"]*\")*$)", Pattern.MULTILINE);
+        // Pattern pattern = Pattern.compile("(" + RegExp.ENTITY +
+        // ")(?=(?:[^\"]|\"[^\"]{0,300}\"){0,300}$)",Pattern.MULTILINE);
+        // Matcher matcher = pattern.matcher(s);
+        // s = matcher.replaceAll(entityTag);
 
         // tag entities in quotes
         // s = s.replaceAll("(?<=\").{1,300}?(?=\")", entityTag);
-        s = s.replaceAll("(?<=\")[^\"]+?(?=\")", entityTag);
+        // s = s.replaceAll("(?<=\")[^\"]+?(?=\")", entityTag);
 
         return s;
     }
@@ -62,7 +71,16 @@ public class StringTagger {
 
     public static void main(String[] args) {
         String testText = "\"All the Lilacs in Ohio Great Song John Hiatt\" is a song from John Hiatt's album THE TIKI BAR IS OPEN.";
+
+        testText = "Abraham Lincoln ( no middle name ) was born on February 12, 1809, the second child to Thomas Lincoln and Nancy Lincoln ( n é e Hanks ), in a one-room log cabin on the Sinking Spring Farm in southeast Hardin County, Kentucky [ 5 ] ( now LaRue County ). His older sister, Sarah ( Grigsby ), died while giving birth at a young age. He is descended from Samuel Lincoln, who arrived in Hingham, Massachusetts, from Norfolk, England, in the 17th century.[ 6 ] His grandfather and namesake Abraham Lincoln, a substantial landholder, moved from Virginia to Kentucky, where he was ambushed and killed by an Indian raid in 1786, with his children Mordecai, Josiah, and Thomas looking on.[ 7 ] Mordecai' s marksmanship with a rifle saved Thomas from the same fate. As the eldest son, by law, Mordecai inherited his father' s entire estate.[ 8 ]\n"
+                + "Further information: Mary Todd Lincoln; Sexuality of Abraham Lincoln; Medical and mental health of Abraham Lincoln\n"
+                + "Mary Todd Lincoln, wife of Abraham Lincoln, age 28\n"
+                + "Main articles: Abraham Lincoln' s early life and career and Abraham Lincoln in the Black Hawk War\n"
+                + "Sketch of a young Abraham Lincoln\n"
+                + "Main articles: Abraham Lincoln on slavery and Emancipation Proclamation\n";
+
         System.out.println(StringTagger.tagString(testText));
+
         System.exit(0);
         //
         System.out
