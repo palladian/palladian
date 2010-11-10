@@ -41,19 +41,23 @@ public class EvaluationDatabase {
     private PreparedStatement psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll;
     private PreparedStatement psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll;
     
-    private PreparedStatement psGetSumTransferVolumeByHourFromAdaptiveMaxTime;
+    private PreparedStatement psGetTransferVolumeByHourFromAdaptiveMaxTime;
     private PreparedStatement psGetTransferVolumeByHourFromFix1440Time;
     private PreparedStatement psGetTransferVolumeByHourFromFix60Time;
     private PreparedStatement psGetTransferVolumeByHourFromFixLearnedMaxTime;
-    private PreparedStatement psGetSumTransferVolumeByHourFromProbabilisticMaxTime;
+    private PreparedStatement psGetTransferVolumeByHourFromProbabilisticMaxTime;
     
     private PreparedStatement psGetSumTransferVolumeByHourFromAdaptiveMinTime;
     private PreparedStatement psGetTransferVolumeByHourFromFixLearnedMinTime;
     private PreparedStatement psGetSumTransferVolumeByHourFromProbabilisticMinTime;
 
-    private PreparedStatement psGetTransferVolumeByHourFromProbabilisticMinEtag304Time;
-    private PreparedStatement psGetTransferVolumeByHourFromAdaptiveMinEtag304Time;
+    // private PreparedStatement psGetTransferVolumeByHourFromProbabilisticMinEtag304Time;
+    // private PreparedStatement psGetTransferVolumeByHourFromAdaptiveMinEtag304Time;
     
+    /**
+     * !!! has to be set to the end of the experiment !!!
+     */
+    private final long TIMESTAMP_MAX = 1288108800;
     
 
     private EvaluationDatabase() {
@@ -65,6 +69,7 @@ public class EvaluationDatabase {
     }
 
     public static EvaluationDatabase getInstance() {
+
         return INSTANCE;
     }
 
@@ -76,104 +81,72 @@ public class EvaluationDatabase {
 //                .prepareStatement("SELECT id, updateClass, supportsETag FROM feed_evaluation_1 LIMIT ? OFFSET ?");
         
         psGetFeedSizeDistribution = connection
-                .prepareStatement("SELECT id, updateClass, sizeOfPoll FROM feed_evaluation_fix1440_max_min_poll WHERE numberOfPoll = 1 AND sizeOfPoll > 0");
+                .prepareStatement("SELECT id, updateClass, sizeOfPoll FROM feed_evaluation_fix1440_max_min_poll WHERE numberOfPoll = 1 AND sizeOfPoll > 0 AND pollTimestamp <= ? ");
         psGetPolls = connection
-                .prepareStatement("SELECT id, updateClass, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize, numberOfPoll, pollTimestamp, pollHourOfDay, pollMinuteOfDay, checkInterval, windowSize, sizeOfPoll, numberMissedNewEntries, percentageNewEntries, delay, scoreMax, scoreMin FROM feed_evaluation_adaptive_max_time");
+                .prepareStatement("SELECT id, updateClass, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize, numberOfPoll, pollTimestamp, pollHourOfDay, pollMinuteOfDay, checkInterval, windowSize, sizeOfPoll, numberMissedNewEntries, percentageNewEntries, delay, scoreMax, scoreMin FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= ? ");
         psGetAverageUpdateIntervals = connection
                 .prepareStatement("SELECT id, updateClass, averageUpdateInterval FROM feed_evaluation_update_intervals");
      
         
         // for timeliness2 (ScoreMin vs. Polls)
         psGetAvgScoreMinByPollFromAdaptivePoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_adaptive_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_adaptive_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromFixLearnedPoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix_learned_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix_learned_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromFix1440Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromFix60Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? GROUP BY numberOfPoll");
         psGetAvgScoreMinByPollFromPorbabilisticPoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_probabilistic_min_poll WHERE scoreMin > 0 AND numberOfPoll <= ? GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_probabilistic_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? GROUP BY numberOfPoll");
         
-
-        
-// // original
-//        psGetAvgScoreMaxByPollFromAdaptivePoll  = connection
-        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_adaptive_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMaxByPollFromFixLearnedPoll  = connection
-        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix_learned_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMaxByPollFromFix1440Poll  = connection
-        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMaxByPollFromFix60Poll  = connection
-        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMaxByPollFromFix720Poll  = connection
-        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_fix720_max_min_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
-//        psGetAvgScoreMaxByPollFromPorbabilisticPoll  = connection
-        // .prepareStatement("SELECT numberOfPoll, AVG(scoreMax) FROM feed_evaluation_probabilistic_max_poll WHERE scoreMax IS NOT NULL AND numberOfPoll < ? GROUP BY numberOfPoll");
 
 
         // get average percentages of new entries by poll for MAX-policy
         psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_adaptive_max_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_adaptive_max_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
         psGetAvgPercentageNewEntriesByPollFromFixLearnedMaxPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix_learned_max_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix_learned_max_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
         psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix1440_max_min_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix1440_max_min_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
         psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix60_max_min_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix60_max_min_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
         psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_probabilistic_max_poll WHERE percentageNewEntries IS NOT NULL AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_probabilistic_max_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = 1000) GROUP BY numberOfPoll");
     
         
         
         // 6521 = Anzahl Stunden seit 01.01.2010 00:00 bis zum Start des Experiments am 28.09.2010 16:00
         // Wert wird verwendet, damit das Experiment von Stunde 1 bis 672 (4 Wochen) läuft
-        psGetSumTransferVolumeByHourFromAdaptiveMaxTime  = connection
-        // BACKUP
-        // .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= ? GROUP BY DAY, pollHourOfDay");
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= ? ORDER BY id, pollTimestamp ASC");
-
+        psGetTransferVolumeByHourFromAdaptiveMaxTime  = connection
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
         psGetTransferVolumeByHourFromFix1440Time  = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix1440_max_min_time WHERE pollTimestamp <= ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix1440_max_min_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
         psGetTransferVolumeByHourFromFix60Time  = connection
                 .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix60_max_min_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
         psGetTransferVolumeByHourFromFixLearnedMaxTime = connection
                 .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix_learned_max_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
-        psGetSumTransferVolumeByHourFromProbabilisticMaxTime = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= ? ORDER BY id, pollTimestamp ASC");
-        // .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= ? AND id = 1 ORDER BY id, pollTimestamp ASC");
-        
-        // uncomment to calculate Volume for class zombie!! 
-//        psGetSumTransferVolumeByHourFromAdaptiveMaxTime  = connection
-//                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= 1288108800 AND updateClass = 4 GROUP BY DAY, pollHourOfDay");
-//        psGetTransferVolumeByHourFromFix1440Time  = connection
-//                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix1440_max_min_time WHERE pollTimestamp <= 1288108800 AND updateClass = 4 ORDER BY id, pollTimestamp ASC");
-//        psGetTransferVolumeByHourFromFix60Time  = connection
-//                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix60_max_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? AND updateClass = 4 ORDER BY id, pollTimestamp ASC");
-//        psGetTransferVolumeByHourFromFix720Time  = connection
-//                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll FROM feed_evaluation_fix720_max_min_time WHERE pollTimestamp <= 1288108800 AND updateClass = 4 ORDER BY id, pollTimestamp ASC");
-//        psGetTransferVolumeByHourFromFixLearnedMaxTime = connection
-//                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp FROM feed_evaluation_fix_learned_max_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? AND updateClass = 4 ORDER BY id, pollTimestamp ASC"); 
-//        psGetSumTransferVolumeByHourFromProbabilisticMaxTime = connection
-//                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= 1288108800 AND updateClass = 4 GROUP BY DAY, pollHourOfDay");
+        psGetTransferVolumeByHourFromProbabilisticMaxTime = connection
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
 
-        
         
         
         
         psGetSumTransferVolumeByHourFromAdaptiveMinTime  = connection
-                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_min_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
+                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_adaptive_min_time WHERE pollTimestamp <= ? GROUP BY DAY, pollHourOfDay");
         psGetTransferVolumeByHourFromFixLearnedMinTime = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix_learned_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix_learned_min_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
         psGetSumTransferVolumeByHourFromProbabilisticMinTime = connection
-                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_probabilistic_min_time WHERE pollTimestamp <= 1288108800 GROUP BY DAY, pollHourOfDay");
+                .prepareStatement("SELECT DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp)) AS DAY, pollHourOfDay, SUM(sizeOfPoll) FROM feed_evaluation_probabilistic_min_time WHERE pollTimestamp <= ? GROUP BY DAY, pollHourOfDay");
         
 
-        psGetTransferVolumeByHourFromAdaptiveMinEtag304Time = connection
-        .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_probabilistic_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
-        psGetTransferVolumeByHourFromAdaptiveMinEtag304Time = connection
-        .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_adaptive_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
-        
+
+        //
+        // psGetTransferVolumeByHourFromAdaptiveMinEtag304Time = connection
+        // .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_probabilistic_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+        // psGetTransferVolumeByHourFromAdaptiveMinEtag304Time = connection
+        // .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_adaptive_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+        //
         
     }
     
@@ -182,10 +155,8 @@ public class EvaluationDatabase {
         LOGGER.trace(">getFeedPolls");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-
-            PreparedStatement ps = psGetPolls;
-
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
+            psGetPolls.setLong(1, TIMESTAMP_MAX);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetPolls);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
                 feedPoll.setFeedID(resultSet.getInt(1));
@@ -221,6 +192,7 @@ public class EvaluationDatabase {
         LOGGER.trace(">getFeedSizes");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
+            psGetFeedSizeDistribution.setLong(1, TIMESTAMP_MAX);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetFeedSizeDistribution);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
@@ -270,7 +242,8 @@ public class EvaluationDatabase {
         LOGGER.trace(">getAverageValueByPoll processing PreparedStatement " + ps.toString());
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            ps.setInt(1, MAX_NUMBER_OF_POLLS);
+            ps.setLong(1, TIMESTAMP_MAX);
+            ps.setInt(2, MAX_NUMBER_OF_POLLS);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
@@ -293,8 +266,7 @@ public class EvaluationDatabase {
      */
     public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromFix1440MaxMinPoll(
             final int MAX_NUMBER_OF_POLLS) {
-        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
-                psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll);
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll);
     }
     
 
@@ -303,9 +275,9 @@ public class EvaluationDatabase {
      * 
      * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
      */
-    public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromFIX60MaxMinPoll(final int MAX_NUMBER_OF_POLLS) {
-        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
-                psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll);
+    public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromFIX60MaxMinPoll(
+            final int MAX_NUMBER_OF_POLLS) {
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll);
     }
     
 
@@ -318,8 +290,7 @@ public class EvaluationDatabase {
     public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromFIXlearnedMaxPoll(
             final int MAX_NUMBER_OF_POLLS) {
         LOGGER.trace("<getAverageScoreMaxFIXlearned");
-        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
-                psGetAvgPercentageNewEntriesByPollFromFixLearnedMaxPoll);
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgPercentageNewEntriesByPollFromFixLearnedMaxPoll);
     }
     
 
@@ -330,8 +301,7 @@ public class EvaluationDatabase {
      */
     public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromAdaptiveMaxPoll(
             final int MAX_NUMBER_OF_POLLS) {
-        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
-                psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll);
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll);
     }
     
 
@@ -341,8 +311,7 @@ public class EvaluationDatabase {
      * @return List<EvaluationFeedPoll> where each EvaluationFeedPoll has numberOfPoll and scoreAvg
      */
     public List<EvaluationFeedPoll> getAveragePercentageNewEntriesByPollFromProbabilisticMaxPoll(final int MAX_NUMBER_OF_POLLS) {
-        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS,
-                psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll);
+        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll);
     }
 
 
@@ -403,22 +372,31 @@ public class EvaluationDatabase {
         return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, psGetAvgScoreMinByPollFromPorbabilisticPoll);
     }
     
-    
+
 
     /**
-     * @return List<EvaluationFeedPoll> 
+     * Private helper to execute the given PreparedStatement {@link ps}.
+     * 
+     * All given parameters are set to the PreparedStatement, the PreparedStatement is executed, each row is written to
+     * an {@link EvaluationFeedPoll} and all {@link EvaluationFeedPoll}s are returned as a LinkedList.
+     * 
+     * @param ps The PreparedStatement to process.
+     * @param FEED_ID_START FeedIDs to retrieve are between these values.
+     * @param FEED_ID_LIMIT FeedIDs to retrieve are between these values.
+     * @return
      */
-    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromAdaptiveMaxTime(final long TIMESTAMP_MAX) {
-        LOGGER.trace(">getSumTransferVolumeByHourFromAdaptiveMaxTime");
+    private List<EvaluationFeedPoll> getTransferVolumeByHour(PreparedStatement ps, final int FEED_ID_START,
+            final int FEED_ID_LIMIT) {
+
+        LOGGER.trace(">getTransferVolumeByHour processing PreparedStatement " + ps.toString());
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            psGetSumTransferVolumeByHourFromAdaptiveMaxTime.setLong(1, TIMESTAMP_MAX);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromAdaptiveMaxTime);
+            ps.setLong(1, TIMESTAMP_MAX);
+            ps.setInt(2, FEED_ID_START);
+            ps.setInt(3, FEED_ID_LIMIT);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                // feedPoll.setHourOfExperiment(resultSet.getInt(1));
-                // feedPoll.setCulmulatedSizeofPolls(resultSet.getLong(4));
-
                 feedPoll.setFeedID(resultSet.getInt(1));
                 feedPoll.setHourOfExperiment(resultSet.getInt(2));
                 feedPoll.setSizeOfPoll(resultSet.getInt(3));
@@ -429,153 +407,63 @@ public class EvaluationDatabase {
                 feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
                 feedPoll.setETagResponseSize(resultSet.getInt(9));
                 feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
-
                 result.add(feedPoll);
             }
         } catch (SQLException e) {
-            LOGGER.error("getSumTransferVolumeByHourFromAdaptiveMaxTime", e);
+            LOGGER.error(">getTransferVolumeByHour processing PreparedStatement " + ps.toString(), e);
         }
-        LOGGER.trace("<getSumTransferVolumeByHourFromAdaptiveMaxTime");
+        LOGGER.trace(">getTransferVolumeByHour processing PreparedStatement " + ps.toString());
         return result;
     }
-    
 
-    
-    
+
     /**
      * @return List<EvaluationFeedPoll> 
      */
-    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFix1440MaxMinTime(final long TIMESTAMP_MAX) {
-        LOGGER.trace(">getSumTransferVolumeByHourFromFix1440MaxTime");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetTransferVolumeByHourFromFix1440Time.setLong(1, TIMESTAMP_MAX);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromFix1440Time);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setFeedID(resultSet.getInt(1));
-                feedPoll.setHourOfExperiment(resultSet.getInt(2));
-                feedPoll.setSizeOfPoll(resultSet.getInt(3));
-                feedPoll.setNumberOfPoll(resultSet.getInt(4));
-                feedPoll.setCheckInterval(resultSet.getInt(5));
-                feedPoll.setPollTimestamp(resultSet.getLong(6));
-                feedPoll.setSupportsETag(resultSet.getBoolean(7));
-                feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
-                feedPoll.setETagResponseSize(resultSet.getInt(9));
-                feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
-                
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getSumTransferVolumeByHourFromFix1440MaxTime", e);
-        }
-        LOGGER.trace("<getSumTransferVolumeByHourFromFix1440MaxTime");
-        return result;
+    public List<EvaluationFeedPoll> getTransferVolumeByHourFromAdaptiveMaxTime(final int FEED_ID_START,
+            final int FEED_ID_LIMIT) {
+        return getTransferVolumeByHour(psGetTransferVolumeByHourFromAdaptiveMaxTime, FEED_ID_START, FEED_ID_LIMIT);
     }
     
     
+    /**
+     * @return List<EvaluationFeedPoll> 
+     */
+    public List<EvaluationFeedPoll> getTransferVolumeByHourFromFix1440MaxMinTime(final int FEED_ID_START,
+            final int FEED_ID_LIMIT) {
+        return getTransferVolumeByHour(psGetTransferVolumeByHourFromFix1440Time, FEED_ID_START, FEED_ID_LIMIT);
+    }
+    
     
     /**
      * @return List<EvaluationFeedPoll> 
      */
-    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFix60MaxMinTime(final long TIMESTAMP_MAX,
-            final int FEED_ID_START, final int FEED_ID_LIMIT) {
-        LOGGER.trace(">getSumTransferVolumeByHourFromFix60MaxTime");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetTransferVolumeByHourFromFix60Time.setLong(1, TIMESTAMP_MAX);
-            psGetTransferVolumeByHourFromFix60Time.setInt(2, FEED_ID_START);
-            psGetTransferVolumeByHourFromFix60Time.setInt(3, FEED_ID_LIMIT);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromFix60Time);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setFeedID(resultSet.getInt(1));
-                feedPoll.setHourOfExperiment(resultSet.getInt(2));
-                feedPoll.setSizeOfPoll(resultSet.getInt(3));
-                feedPoll.setNumberOfPoll(resultSet.getInt(4));
-                feedPoll.setCheckInterval(resultSet.getInt(5));
-                feedPoll.setPollTimestamp(resultSet.getLong(6));
-                feedPoll.setSupportsETag(resultSet.getBoolean(7));
-                feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
-                feedPoll.setETagResponseSize(resultSet.getInt(9));
-                feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getSumTransferVolumeByHourFromFix60MaxTime", e);
-        }
-        LOGGER.trace("<getSumTransferVolumeByHourFromFix60MaxTime");
-        return result;
+    public List<EvaluationFeedPoll> getTransferVolumeByHourFromFix60MaxMinTime(final int FEED_ID_START,
+            final int FEED_ID_LIMIT) {
+        return getTransferVolumeByHour(psGetTransferVolumeByHourFromFix60Time, FEED_ID_START,
+                FEED_ID_LIMIT);
     }
             
     
+    /**
+     * @return List<EvaluationFeedPoll> 
+     */
+    public List<EvaluationFeedPoll> getTransferVolumeByHourFromFixLearnedMaxTime(final int FEED_ID_START,
+            final int FEED_ID_LIMIT) {
+        return getTransferVolumeByHour(psGetTransferVolumeByHourFromFixLearnedMaxTime, FEED_ID_START, FEED_ID_LIMIT);
+    }
+
 
     /**
      * @return List<EvaluationFeedPoll> 
      */
-    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromFixLearnedMaxTime(final long TIMESTAMP_MAX,
-            final int FEED_ID_START, final int FEED_ID_LIMIT) {
-        LOGGER.trace(">getSumTransferVolumeByHourFromFixLearnedMaxTime");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetTransferVolumeByHourFromFixLearnedMaxTime.setLong(1, TIMESTAMP_MAX);
-            psGetTransferVolumeByHourFromFixLearnedMaxTime.setInt(2, FEED_ID_START);
-            psGetTransferVolumeByHourFromFixLearnedMaxTime.setInt(3, FEED_ID_LIMIT);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromFixLearnedMaxTime);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setFeedID(resultSet.getInt(1));
-                feedPoll.setHourOfExperiment(resultSet.getInt(2));
-                feedPoll.setSizeOfPoll(resultSet.getInt(3));
-                feedPoll.setNumberOfPoll(resultSet.getInt(4));
-                feedPoll.setCheckInterval(resultSet.getInt(5));
-                feedPoll.setPollTimestamp(resultSet.getLong(6));
-                feedPoll.setSupportsETag(resultSet.getBoolean(7));
-                feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
-                feedPoll.setETagResponseSize(resultSet.getInt(9));
-                feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getSumTransferVolumeByHourFromFixLearnedMaxTime", e);
-        }
-        LOGGER.trace("<getSumTransferVolumeByHourFromFixLearnedMaxTime");
-        return result;
-    }
-      
-    
-
-    /**
-     * @return List<EvaluationFeedPoll> 
-     */
-    public List<EvaluationFeedPoll> getSumTransferVolumeByHourFromProbabilisticMaxTime(final long TIMESTAMP_MAX) {
-        LOGGER.trace(">getSumTransferVolumeByHourFromProbabilisticMaxTime");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetSumTransferVolumeByHourFromProbabilisticMaxTime.setLong(1, TIMESTAMP_MAX);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromProbabilisticMaxTime);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setFeedID(resultSet.getInt(1));
-                feedPoll.setHourOfExperiment(resultSet.getInt(2));
-                feedPoll.setSizeOfPoll(resultSet.getInt(3));
-                feedPoll.setNumberOfPoll(resultSet.getInt(4));
-                feedPoll.setCheckInterval(resultSet.getInt(5));
-                feedPoll.setPollTimestamp(resultSet.getLong(6));
-                feedPoll.setSupportsETag(resultSet.getBoolean(7));
-                feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
-                feedPoll.setETagResponseSize(resultSet.getInt(9));
-                feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getSumTransferVolumeByHourFromProbabilisticMaxTime", e);
-        }
-        LOGGER.trace("<getSumTransferVolumeByHourFromProbabilisticMaxTime");
-        return result;
+    public List<EvaluationFeedPoll> getTransferVolumeByHourFromProbabilisticMaxTime(final int FEED_ID_START,
+            final int FEED_ID_LIMIT) {
+        return getTransferVolumeByHour(psGetTransferVolumeByHourFromProbabilisticMaxTime, FEED_ID_START, FEED_ID_LIMIT);
     }
 
     
+
 
     /**
      * @return List<EvaluationFeedPoll> 
@@ -584,6 +472,7 @@ public class EvaluationDatabase {
         LOGGER.trace(">getSumTransferVolumeByHourFromAdaptiveMinTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
+            psGetSumTransferVolumeByHourFromAdaptiveMinTime.setLong(1, TIMESTAMP_MAX);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromAdaptiveMinTime);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
@@ -606,8 +495,9 @@ public class EvaluationDatabase {
         LOGGER.trace(">getSumTransferVolumeByHourFromFixLearnedMinTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            psGetTransferVolumeByHourFromFixLearnedMinTime.setInt(1, FEED_ID_START);
-            psGetTransferVolumeByHourFromFixLearnedMinTime.setInt(2, FEED_ID_LIMIT);            
+            psGetTransferVolumeByHourFromFixLearnedMinTime.setLong(1, TIMESTAMP_MAX);
+            psGetTransferVolumeByHourFromFixLearnedMinTime.setInt(2, FEED_ID_START);
+            psGetTransferVolumeByHourFromFixLearnedMinTime.setInt(3, FEED_ID_LIMIT);            
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromFixLearnedMinTime);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
@@ -639,6 +529,7 @@ public class EvaluationDatabase {
         LOGGER.trace(">getSumTransferVolumeByHourFromProbabilisticMinTime");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
+            psGetSumTransferVolumeByHourFromProbabilisticMinTime.setLong(1, TIMESTAMP_MAX);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetSumTransferVolumeByHourFromProbabilisticMinTime);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
@@ -657,70 +548,76 @@ public class EvaluationDatabase {
     
    
 
-    /**
-     * @return List<EvaluationFeedPoll> 
-     */
-    public List<EvaluationFeedPoll> getTransferVolumeByHourFromProbabilisticMinEtag304Time(final int FEED_ID_START, final int FEED_ID_LIMIT) {
-        LOGGER.trace(">getSumTransferVolumeByHourFromProbabilisticMinEtag304Time");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetTransferVolumeByHourFromProbabilisticMinEtag304Time.setInt(1, FEED_ID_START);
-            psGetTransferVolumeByHourFromProbabilisticMinEtag304Time.setInt(2, FEED_ID_LIMIT);            
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromProbabilisticMinEtag304Time);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setFeedID(resultSet.getInt(1));
-                feedPoll.setHourOfExperiment(resultSet.getInt(2));
-                feedPoll.setSizeOfPoll(resultSet.getInt(3));
-                feedPoll.setNumberOfPoll(resultSet.getInt(4));
-                feedPoll.setCheckInterval(resultSet.getInt(5));
-                feedPoll.setPollTimestamp(resultSet.getLong(6));
-                feedPoll.setSupportsETag(resultSet.getBoolean(7));
-                feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
-                feedPoll.setETagResponseSize(resultSet.getInt(9));
-                feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getSumTransferVolumeByHourFromProbabilisticMinEtag304Time", e);
-        }
-        LOGGER.trace("<getSumTransferVolumeByHourFromProbabilisticMinEtag304Time");
-        return result;
-    }
-      
 
+    //
+    // /**
+    // * @return List<EvaluationFeedPoll>
+    // */
+    // public List<EvaluationFeedPoll> getTransferVolumeByHourFromProbabilisticMinEtag304Time(final int FEED_ID_START,
+    // final int FEED_ID_LIMIT) {
+    // LOGGER.trace(">getSumTransferVolumeByHourFromProbabilisticMinEtag304Time");
+    // List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+    // try {
+    // psGetTransferVolumeByHourFromProbabilisticMinEtag304Time.setInt(1, FEED_ID_START);
+    // psGetTransferVolumeByHourFromProbabilisticMinEtag304Time.setInt(2, FEED_ID_LIMIT);
+    // ResultSet resultSet =
+    // DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromProbabilisticMinEtag304Time);
+    // while (resultSet.next()) {
+    // EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+    // feedPoll.setFeedID(resultSet.getInt(1));
+    // feedPoll.setHourOfExperiment(resultSet.getInt(2));
+    // feedPoll.setSizeOfPoll(resultSet.getInt(3));
+    // feedPoll.setNumberOfPoll(resultSet.getInt(4));
+    // feedPoll.setCheckInterval(resultSet.getInt(5));
+    // feedPoll.setPollTimestamp(resultSet.getLong(6));
+    // feedPoll.setSupportsETag(resultSet.getBoolean(7));
+    // feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
+    // feedPoll.setETagResponseSize(resultSet.getInt(9));
+    // feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
+    // result.add(feedPoll);
+    // }
+    // } catch (SQLException e) {
+    // LOGGER.error("getSumTransferVolumeByHourFromProbabilisticMinEtag304Time", e);
+    // }
+    // LOGGER.trace("<getSumTransferVolumeByHourFromProbabilisticMinEtag304Time");
+    // return result;
+    // }
+    //
 
-    /**
-     * @return List<EvaluationFeedPoll> 
-     */
-    public List<EvaluationFeedPoll> getTransferVolumeByHourFromAdaptiveMinEtag304Time(final int FEED_ID_START, final int FEED_ID_LIMIT) {
-        LOGGER.trace(">getTransferVolumeByHourFromAdaptiveMinEtag304Time");
-        List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
-        try {
-            psGetTransferVolumeByHourFromAdaptiveMinEtag304Time.setInt(1, FEED_ID_START);
-            psGetTransferVolumeByHourFromAdaptiveMinEtag304Time.setInt(2, FEED_ID_LIMIT);            
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromAdaptiveMinEtag304Time);
-            while (resultSet.next()) {
-                EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
-                feedPoll.setFeedID(resultSet.getInt(1));
-                feedPoll.setHourOfExperiment(resultSet.getInt(2));
-                feedPoll.setSizeOfPoll(resultSet.getInt(3));
-                feedPoll.setNumberOfPoll(resultSet.getInt(4));
-                feedPoll.setCheckInterval(resultSet.getInt(5));
-                feedPoll.setPollTimestamp(resultSet.getLong(6));
-                feedPoll.setSupportsETag(resultSet.getBoolean(7));
-                feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
-                feedPoll.setETagResponseSize(resultSet.getInt(9));
-                feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
-                result.add(feedPoll);
-            }
-        } catch (SQLException e) {
-            LOGGER.error("getTransferVolumeByHourFromAdaptiveMinEtag304Time", e);
-        }
-        LOGGER.trace("<getTransferVolumeByHourFromAdaptiveMinEtag304Time");
-        return result;
-    }
-      
+//
+    // /**
+    // * @return List<EvaluationFeedPoll>
+    // */
+    // public List<EvaluationFeedPoll> getTransferVolumeByHourFromAdaptiveMinEtag304Time(final int FEED_ID_START, final
+    // int FEED_ID_LIMIT) {
+    // LOGGER.trace(">getTransferVolumeByHourFromAdaptiveMinEtag304Time");
+    // List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
+    // try {
+    // psGetTransferVolumeByHourFromAdaptiveMinEtag304Time.setInt(1, FEED_ID_START);
+    // psGetTransferVolumeByHourFromAdaptiveMinEtag304Time.setInt(2, FEED_ID_LIMIT);
+    // ResultSet resultSet =
+    // DatabaseManager.getInstance().runQuery(psGetTransferVolumeByHourFromAdaptiveMinEtag304Time);
+    // while (resultSet.next()) {
+    // EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
+    // feedPoll.setFeedID(resultSet.getInt(1));
+    // feedPoll.setHourOfExperiment(resultSet.getInt(2));
+    // feedPoll.setSizeOfPoll(resultSet.getInt(3));
+    // feedPoll.setNumberOfPoll(resultSet.getInt(4));
+    // feedPoll.setCheckInterval(resultSet.getInt(5));
+    // feedPoll.setPollTimestamp(resultSet.getLong(6));
+    // feedPoll.setSupportsETag(resultSet.getBoolean(7));
+    // feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
+    // feedPoll.setETagResponseSize(resultSet.getInt(9));
+    // feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
+    // result.add(feedPoll);
+    // }
+    // } catch (SQLException e) {
+    // LOGGER.error("getTransferVolumeByHourFromAdaptiveMinEtag304Time", e);
+    // }
+    // LOGGER.trace("<getTransferVolumeByHourFromAdaptiveMinEtag304Time");
+    // return result;
+    // }
+    //
     
     
 }

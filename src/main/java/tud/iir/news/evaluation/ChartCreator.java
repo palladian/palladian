@@ -383,21 +383,20 @@ public class ChartCreator {
         transferredDataArray[ROW_TO_WRITE] += SIZE_TO_ADD;
         totalResultMapMax.put(HOUR_TO_PROCESS, transferredDataArray);
     }
-    
 
     /**
      * @param FEED_ID_MAX the highest FeedID in the dataset
-     * @param TIMESTAMP_MAX the timestamp of the last poll to select from the database which is the end of the
-     *            experiment (Date of snapshot)
      */
-    private void cumulatedVolumeMaxTimeFile(final int FEED_ID_MAX, final long TIMESTAMP_MAX,
-            final boolean SIMULATE_ETAG_USAGE) {
+    private void cumulatedVolumeMaxTimeFile(final int FEED_ID_MAX, final boolean SIMULATE_ETAG_USAGE) {
         LOGGER.info("starting to create sumVolumeMaxFile...");        
         StringBuilder culmulatedVolumeSB = new StringBuilder();
         // <hourOfExperiment, culmulatedVolumePerAlgorithm{fix1440,fix60,ficLearned,adaptive,probabilistic} in Bytes>
         Map<Integer,Long[]> totalResultMapMax = new TreeMap<Integer,Long[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
         final int NUMBER_OF_ROWS = 5;
+        int feedIDStart = 1;
+        int feedIDEnd = 10000;
+        final int FEED_ID_STEP = 10000;
         
         culmulatedVolumeSB.append("hour of experiment;");
     
@@ -405,28 +404,41 @@ public class ChartCreator {
         // /////////// get data from adaptiveMaxTime \\\\\\\\\\\\\\\\\
         LOGGER.info("starting to create adaptive data...");
         culmulatedVolumeSB.append("adaptive;");
-        polls = ed.getSumTransferVolumeByHourFromAdaptiveMaxTime(TIMESTAMP_MAX);
-        volumeHelper(polls, totalResultMapMax, 0, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
+        feedIDStart = 1;
+        feedIDEnd = 10000;
+        while (feedIDEnd < FEED_ID_MAX) {
+            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
+            polls = ed.getTransferVolumeByHourFromAdaptiveMaxTime(feedIDStart, feedIDEnd);
+            volumeHelper(polls, totalResultMapMax, 0, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
+            feedIDStart += FEED_ID_STEP;
+            feedIDEnd += FEED_ID_STEP;
+        }
         LOGGER.info("finished creating adaptive data...");
 
 
         // /////////// get data from probabilisticMaxTime \\\\\\\\\\\\\\\\\
         LOGGER.info("starting to create probabilistic data...");
         culmulatedVolumeSB.append("probabilistic;");
-        polls = ed.getSumTransferVolumeByHourFromProbabilisticMaxTime(TIMESTAMP_MAX);
-        volumeHelper(polls, totalResultMapMax, 1, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
+        feedIDStart = 1;
+        feedIDEnd = 10000;
+        while (feedIDEnd < FEED_ID_MAX) {
+            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
+            polls = ed.getTransferVolumeByHourFromProbabilisticMaxTime(feedIDStart, feedIDEnd);
+            volumeHelper(polls, totalResultMapMax, 1, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
+            feedIDStart += FEED_ID_STEP;
+            feedIDEnd += FEED_ID_STEP;
+        }
         LOGGER.info("finished creating probabilistic data...");
 
 
         // /////////// get data from fixLearnedTime \\\\\\\\\\\\\\\\\
         LOGGER.info("starting to create fixLearned data...");
         culmulatedVolumeSB.append("fixLearned;");
-        int feedIDStart = 1;
-        int feedIDEnd = 10000;
-        final int FEED_ID_STEP = 10000;
+        feedIDStart = 1;
+        feedIDEnd = 10000;
         while (feedIDEnd < FEED_ID_MAX) {
             LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-            polls = ed.getSumTransferVolumeByHourFromFixLearnedMaxTime(TIMESTAMP_MAX, feedIDStart, feedIDEnd);
+            polls = ed.getTransferVolumeByHourFromFixLearnedMaxTime(feedIDStart, feedIDEnd);
             volumeHelper(polls, totalResultMapMax, 2, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
             feedIDStart += FEED_ID_STEP;
             feedIDEnd += FEED_ID_STEP;
@@ -441,7 +453,7 @@ public class ChartCreator {
         feedIDEnd = 10000;
         while (feedIDEnd < FEED_ID_MAX) {
             LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-            polls = ed.getSumTransferVolumeByHourFromFix60MaxMinTime(TIMESTAMP_MAX, feedIDStart, feedIDEnd);
+            polls = ed.getTransferVolumeByHourFromFix60MaxMinTime(feedIDStart, feedIDEnd);
             volumeHelper(polls, totalResultMapMax, 3, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
 
             feedIDStart += FEED_ID_STEP;
@@ -453,8 +465,16 @@ public class ChartCreator {
         // /////////// get data from fix1440Time \\\\\\\\\\\\\\\\\
         LOGGER.info("starting to create fix1440 data...");
         culmulatedVolumeSB.append("fix1440;\n");
-        polls = ed.getSumTransferVolumeByHourFromFix1440MaxMinTime(TIMESTAMP_MAX);
-        volumeHelper(polls, totalResultMapMax, 4, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
+        feedIDStart = 1;
+        feedIDEnd = 10000;
+        while (feedIDEnd < FEED_ID_MAX) {
+            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
+            polls = ed.getTransferVolumeByHourFromFix1440MaxMinTime(feedIDStart, feedIDEnd);
+            volumeHelper(polls, totalResultMapMax, 4, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
+
+            feedIDStart += FEED_ID_STEP;
+            feedIDEnd += FEED_ID_STEP;
+        }
         LOGGER.info("finished creating fix1440 data...");
 
 
@@ -863,16 +883,17 @@ public class ChartCreator {
          * 200 polls for scoreMin
          * 200 polls for scoreMax
          * dataset crawled for 4 weeks = 672 hours - HAS TO BE ADJUSTED!!!!
+         * EvaluationDatabase#TIMESTAMP_MAX HAS ALSO TO BE ADJUSTED!!!!
          */
         ChartCreator cc = new ChartCreator(200, 200, 672);
 
         // cc.printFeedPolls();
-        // cc.createFeedSizeHistogrammFile(10, 20);
-        // cc.createFeedAgeFile();
-        // cc.createAverageScoreMinByPollFile();
-        // cc.createPercentageNewFile();
+        // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test 10.11.
+        // cc.createFeedAgeFile(); // letzter Test 10.11.
+        cc.createAverageScoreMinByPollFile();
+        cc.createPercentageNewFile();
 
-        cc.cumulatedVolumeMaxTimeFile(210000, 1288108800, false);
+// cc.cumulatedVolumeMaxTimeFile(210000, false);
 //      cc.culmulatedVolumeMinTimeFile();
 //	    cc.culmulatedVolumeMinTimeEtag304File();
 	    	    
