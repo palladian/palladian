@@ -38,13 +38,13 @@ public class EvaluationFeedPoll {
 	private int pollMinuteOfDay = -1;                
 	
 	/* time in minutes we waited between last and current check */
-	private float checkInterval = -1;
+    private int checkInterval = -1;
 	
 	/* the current size of the feed's window (number of items found) */
 	private int windowSize = -1;
 	
 	/* the amount of bytes that has been downloaded */
-	private float sizeOfPoll = -1;                 
+    private int sizeOfPoll = -1;
 	
 	/* the number of new items we missed because there more new items since the last poll than fit into the window */
 	private int numberMissedNewEntries = -1;
@@ -178,7 +178,7 @@ public class EvaluationFeedPoll {
         this.pollMinuteOfDay = pollMinuteOfDay;
     }
 
-    public final void setCheckInterval(float checkInterval) {
+    public final void setCheckInterval(int checkInterval) {
         this.checkInterval = checkInterval;
     }
 
@@ -186,7 +186,7 @@ public class EvaluationFeedPoll {
         this.windowSize = windowSize;
     }
 
-    public final void setSizeOfPoll(float sizeOfPoll) {
+    public final void setSizeOfPoll(int sizeOfPoll) {
         this.sizeOfPoll = sizeOfPoll;
     }
 
@@ -250,7 +250,7 @@ public class EvaluationFeedPoll {
 		return pollMinuteOfDay;
 	}
 
-	public final float getCheckInterval() {
+    public final int getCheckInterval() {
         if (checkInterval <= 0)
             throw new IllegalStateException("");
         return checkInterval;
@@ -263,7 +263,7 @@ public class EvaluationFeedPoll {
 	/**
 	 *  the amount of bytes that has been downloaded 
 	 */
-	public final float getSizeOfPoll() {
+    public final int getSizeOfPoll() {
 		return sizeOfPoll;
 	}
 
@@ -301,7 +301,7 @@ public class EvaluationFeedPoll {
         long temp;
         temp = Double.doubleToLongBits(averageValue);
         result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + Float.floatToIntBits(checkInterval);
+        result = prime * result + checkInterval;
         result = prime * result + conditionalGetResponseSize;
         result = prime * result + (int) (culmulatedSizeofPolls ^ (culmulatedSizeofPolls >>> 32));
         result = prime * result + dayOfYear;
@@ -318,7 +318,7 @@ public class EvaluationFeedPoll {
         result = prime * result + (int) (pollTimestamp ^ (pollTimestamp >>> 32));
         result = prime * result + Float.floatToIntBits(scoreMax);
         result = prime * result + Float.floatToIntBits(scoreMin);
-        result = prime * result + Float.floatToIntBits(sizeOfPoll);
+        result = prime * result + sizeOfPoll;
         result = prime * result + ((supportsConditionalGet == null) ? 0 : supportsConditionalGet.hashCode());
         result = prime * result + ((supportsETag == null) ? 0 : supportsETag.hashCode());
         result = prime * result + windowSize;
@@ -342,7 +342,7 @@ public class EvaluationFeedPoll {
             return false;
         if (Double.doubleToLongBits(averageValue) != Double.doubleToLongBits(other.averageValue))
             return false;
-        if (Float.floatToIntBits(checkInterval) != Float.floatToIntBits(other.checkInterval))
+        if (checkInterval != other.checkInterval)
             return false;
         if (conditionalGetResponseSize != other.conditionalGetResponseSize)
             return false;
@@ -374,7 +374,7 @@ public class EvaluationFeedPoll {
             return false;
         if (Float.floatToIntBits(scoreMin) != Float.floatToIntBits(other.scoreMin))
             return false;
-        if (Float.floatToIntBits(sizeOfPoll) != Float.floatToIntBits(other.sizeOfPoll))
+        if (sizeOfPoll != other.sizeOfPoll)
             return false;
         if (supportsConditionalGet == null) {
             if (other.supportsConditionalGet != null)
