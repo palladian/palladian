@@ -97,6 +97,38 @@ public class Tokenizer {
     }
 
     /**
+     * Calculate n-grams for a given string on a word level. The size of the set can be calculated as: Size =
+     * numberOfWords - n + 1.
+     * 
+     * Since the quantity of the encountered n-grams is important for some algorithms, a list is used.
+     * 
+     * @param string The string that the n-grams should be calculated for.
+     * @param n The number of words for a gram.
+     * @return A list of n-grams.
+     */
+    public static List<String> calculateWordNGramsAsList(String string, int n) {
+        List<String> nGrams = new ArrayList<String>();
+
+        String[] words = string.split("\\s");
+
+        if (words.length < n) {
+            return nGrams;
+        }
+
+        for (int i = 0; i <= words.length - n; i++) {
+
+            StringBuilder nGram = new StringBuilder();
+            for (int j = i; j < i + n; j++) {
+                nGram.append(words[j]).append(" ");
+            }
+            nGrams.add(nGram.toString().trim());
+
+        }
+
+        return nGrams;
+    }
+
+    /**
      * Calculate all n-grams for a string for different n on a character level. The size of the set can be calculated
      * as: Size = SUM_n(n1,n2)
      * (stringLength - n + 1)
