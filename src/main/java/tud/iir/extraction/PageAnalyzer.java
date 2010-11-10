@@ -1069,7 +1069,6 @@ public class PageAnalyzer {
             // TODO next line, DOMXPath instead of XPath and document.getLastChild changed (might lead to different
             // evaluation results)
             xpath = XPathHelper.addNameSpaceToXPath(document, xpath);
-            System.out.println("__" + xpath);
 
             // xpath = xpath.replaceAll("/xhtml:TBODY", "/");
 
