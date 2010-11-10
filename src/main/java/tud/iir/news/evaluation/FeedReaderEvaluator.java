@@ -13,8 +13,8 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.news.Feed;
-import tud.iir.news.FeedReader;
 import tud.iir.news.FeedDatabase;
+import tud.iir.news.FeedReader;
 import tud.iir.news.UpdateStrategy;
 
 public class FeedReaderEvaluator {
@@ -53,7 +53,7 @@ public class FeedReaderEvaluator {
     public static int benchmarkSample = 10;
 
     /** The path to the folder with the feed post history files. */
-    private static final String BENCHMARK_DATASET_PATH = "G:\\Projects\\Programming\\Other\\clean\\";
+    private static final String BENCHMARK_DATASET_PATH = "C:\\Programming\\feedposts\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
@@ -330,10 +330,10 @@ public class FeedReaderEvaluator {
         FeedReader fc = new FeedReader(FeedDatabase.getInstance());
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
-        // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
-        setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
-        setBenchmarkMode(BENCHMARK_POLL);
-        // setBenchmarkMode(BENCHMARK_TIME);
+        setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
+        // setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
+        // setBenchmarkMode(BENCHMARK_POLL);
+        setBenchmarkMode(BENCHMARK_TIME);
         fc.startContinuousReading(-1);
     }
 

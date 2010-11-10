@@ -771,6 +771,9 @@ public class Feed {
     }
 
     public Integer getCgHeaderSize() {
+        if (cgHeaderSize <= 0) {
+            cgHeaderSize = null;
+        }
         return cgHeaderSize;
     }
 
