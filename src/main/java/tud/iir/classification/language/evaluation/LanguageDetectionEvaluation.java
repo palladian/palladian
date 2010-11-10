@@ -45,9 +45,13 @@ public class LanguageDetectionEvaluation {
 
         int totalDocuments = FileHelper.getNumberOfLines(evaluationFilePath);
         int jLangCorrect = 0;
+        int jLangClassified = 0;
         int googleCorrect = 0;
+        int googleClassified = 0;
         int alchemyCorrect = 0;
+        int alchemyClassified = 0;
         int palladianCorrect = 0;
+        int palladianClassified = 0;
 
         int lineCount = 1;
         int totalLines = lines.size();
@@ -61,24 +65,44 @@ public class LanguageDetectionEvaluation {
             boolean alchemy = false;
             boolean palladian = false;
 
-            if (correctLanguage.equals(jLangDetectClassifier.classify(document))) {
+            // jlang
+            String jLangClass = jLangDetectClassifier.classify(document);
+            if (correctLanguage.equals(jLangClass)) {
                 jLangCorrect++;
                 jlang = true;
             }
+            if (jLangClass.length() > 0) {
+                jLangClassified++;
+            }
 
-            if (correctLanguage.equals(googleLanguageClassifier.classify(document))) {
+            // google
+            String googleClass = googleLanguageClassifier.classify(document);
+            if (correctLanguage.equals(googleClass)) {
                 googleCorrect++;
                 google = true;
             }
+            if (googleClass.length() > 0) {
+                googleClassified++;
+            }
 
-            if (correctLanguage.equals(alchemyLanguageClassifier.classify(document))) {
+            // alchemy
+            String alchemyClass = alchemyLanguageClassifier.classify(document);
+            if (correctLanguage.equals(alchemyClass)) {
                 alchemyCorrect++;
                 alchemy = true;
             }
+            if (alchemyClass.length() > 0) {
+                alchemyClassified++;
+            }
 
-            if (correctLanguage.equals(palladianClassifier.classify(document))) {
+            // palladian
+            String palladianClass = palladianClassifier.classify(document);
+            if (correctLanguage.equals(palladianClass)) {
                 palladianCorrect++;
                 palladian = true;
+            }
+            if (palladianClass.length() > 0) {
+                palladianClassified++;
             }
 
             double percent = 100.0 * MathHelper.round(lineCount / (double) totalLines, 2);
@@ -91,10 +115,11 @@ public class LanguageDetectionEvaluation {
         }
 
         LOGGER.info("evaluated over " + totalDocuments + " strings in " + sw.getElapsedTimeString());
-        LOGGER.info("Accuracy JLangDetect: " + MathHelper.round(100 * jLangCorrect / (double) totalDocuments, 2));
-        LOGGER.info("Accuracy Google     : " + MathHelper.round(100 * googleCorrect / (double) totalDocuments, 2));
-        LOGGER.info("Accuracy Alchemy    : " + MathHelper.round(100 * alchemyCorrect / (double) totalDocuments, 2));
-        LOGGER.info("Accuracy Palladian  : " + MathHelper.round(100 * palladianCorrect / (double) totalDocuments, 2));
+        LOGGER.info("Accuracy JLangDetect: " + MathHelper.round(100 * jLangCorrect / (double) jLangClassified, 2));
+        LOGGER.info("Accuracy Google     : " + MathHelper.round(100 * googleCorrect / (double) googleClassified, 2));
+        LOGGER.info("Accuracy Alchemy    : " + MathHelper.round(100 * alchemyCorrect / (double) alchemyClassified, 2));
+        LOGGER.info("Accuracy Palladian  : "
+                + MathHelper.round(100 * palladianCorrect / (double) palladianClassified, 2));
     }
 
 

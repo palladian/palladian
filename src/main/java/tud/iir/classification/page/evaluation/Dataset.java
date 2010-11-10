@@ -14,6 +14,9 @@ public class Dataset {
     /** The character sequence that splits the training data and the class in the input file. */
     private String separationString = " ";
 
+    /** What percentage of the dataset should be used for training (0,100]. */
+    private int usePercentTraining = 100;
+
     /**
      * Whether the first field that is separated by the separation string links to a document or is the document itself.
      */
@@ -33,6 +36,14 @@ public class Dataset {
 
     public String getSeparationString() {
         return separationString;
+    }
+
+    public void setUsePercentTraining(int usePercentTraining) {
+        this.usePercentTraining = usePercentTraining;
+    }
+
+    public int getUsePercentTraining() {
+        return usePercentTraining;
     }
 
     public void setFirstFieldLink(boolean firstFieldLink) {

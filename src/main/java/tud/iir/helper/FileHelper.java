@@ -130,6 +130,15 @@ public class FileHelper {
         return fileName;
     }
 
+    public static String getFolderName(String path) {
+        String fileName = path;
+        int lastSeparator = path.lastIndexOf(File.separator) + 1;
+        if (lastSeparator > -1) {
+            fileName = path.substring(lastSeparator);
+        }
+        return fileName;
+    }
+
     public static String appendToFileName(String filePath, String appendix) {
         return getFilePath(filePath) + getFileName(filePath) + appendix + "." + getFileType(filePath);
     }

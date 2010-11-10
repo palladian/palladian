@@ -192,7 +192,7 @@ public class ClassifierManager {
                 for (String url : urls) {
                     String shortURLName = StringHelper.makeSafeName(Crawler.getCleanURL(url));
                     String cleanURLName = "webpage" + fileCounter++ + "_"
-                            + shortURLName.substring(0, Math.min(25, shortURLName.length())) + ".html";
+                    + shortURLName.substring(0, Math.min(25, shortURLName.length())) + ".html";
 
                     // download file
                     if (crawler.downloadAndSave(url, "data/benchmarkSelection/page/automatic/" + cleanURLName)) {
@@ -546,7 +546,7 @@ public class ClassifierManager {
         if (classifier.getClassificationType() != ClassificationTypeSetting.TAG) {
 
             LOGGER
-                    .info("Category                      Training  Test  Classified  Correct  Precision        Recall           F1               Sensitivity      Specificity      Accuracy         Weight/Prior");
+            .info("Category                      Training  Test  Classified  Correct  Precision        Recall           F1               Sensitivity      Specificity      Accuracy         Weight/Prior");
 
             int totalCorrect = 0;
             for (Category category : classifier.categories) {
@@ -756,15 +756,24 @@ public class ClassifierManager {
             testUrls = new URLs();
         }
 
-        final Object[] obj = new Object[3];
+        // determine last line when we want to break in case we don't want to use all data from the dataset
+        int lastLine = (int) (FileHelper.getNumberOfLines(dataset.getPath()) * (dataset.getUsePercentTraining() / (double) 100.0));
+
+        final Object[] obj = new Object[4];
         obj[0] = forTraining;
         obj[1] = classType;
         obj[2] = dataset;
+        obj[3] = lastLine;
 
         LineAction la = new LineAction(obj) {
 
             @Override
             public void performAction(String line, int lineNumber) {
+
+                if (lineNumber > ((Integer) obj[3])) {
+                    looping = false;
+                    return;
+                }
 
                 String[] siteInformation = line.split(((Dataset) obj[2]).getSeparationString());
 
@@ -811,7 +820,7 @@ public class ClassifierManager {
                                 && ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
                                         categoryName).getParent() == ((DictionaryClassifier) classifier)
                                         .getDictionary().hierarchyRootNode
-                                || (Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
+                                        || (Integer) obj[1] == ClassificationTypeSetting.SINGLE) {
                             cat.setMainCategory(true);
                         }
                         cat.setClassType((Integer) obj[1]);
@@ -1205,7 +1214,7 @@ public class ClassifierManager {
 
         // create a text classifier by giving a name and a path where it should be saved to
         TextClassifier classifier = new DictionaryClassifier("LanguageClassifier",
-                "data/models/palladianLanguageClassifier/");
+        "data/models/palladianLanguageClassifier/");
 
         // specify the settings for the classification
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
@@ -1272,14 +1281,14 @@ public class ClassifierManager {
 
         Options options = new Options();
         options.addOption(OptionBuilder.withLongOpt("trainingFile").withDescription(
-                "train a classifier on the data in the given file").hasArg().withArgName("filename").withType(
+        "train a classifier on the data in the given file").hasArg().withArgName("filename").withType(
                 Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("testingFile").withDescription(
-                "test a classifier on the data in the given file").hasArg().withArgName("filename").withType(
+        "test a classifier on the data in the given file").hasArg().withArgName("filename").withType(
                 Number.class).create());
         options.addOption(OptionBuilder.withLongOpt("name").withDescription(
-                "the name under which the classifier is saved").hasArg().withArgName("string").withType(
-                        Number.class).create());
+        "the name under which the classifier is saved").hasArg().withArgName("string").withType(
+                Number.class).create());
         // options.addOption(OptionBuilder.withLongOpt("save").withDescription("save the trained classifier"))
 
         try {
