@@ -89,7 +89,7 @@ public class XPathWrapperInductorTest extends TestCase {
         testConcept.clearEntities();
         wi.extractWithSeeds("data/test/webPages/webPageEntityList13.html", new EntityQuery(), testConcept,
                 new String[] { "Lake Gairdner", "Lake Winnipesaukee" });
-        assertEquals(225, wi.getExtractions().size());
+        assertEquals(226, wi.getExtractions().size());
 
         // TODO 110 would be better
         testConcept.clearEntities();

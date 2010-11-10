@@ -53,6 +53,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
+import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.cyberneko.html.parsers.DOMParser;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -962,8 +963,14 @@ public class Crawler {
     private void parse(InputStream dataStream, Boolean isXML, String Uri) throws SAXException, IOException,
     ParserConfigurationException {
         DOMParser parser = new DOMParser();
-        // parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
-
+        
+        // experimental fix for http://redmine.effingo.de/issues/5
+        // also see: tud.iir.web.CrawlerTest.testNekoWorkarounds()
+        // Philipp, 2010-11-10
+        parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
+        parser.setProperty("http://cyberneko.org/html/properties/filters", new XMLDocumentFilter[] { new TBODYFix() });
+        // end fix.
+        
         InputSource is = new InputSource(dataStream);
 
         if (isXML) {
