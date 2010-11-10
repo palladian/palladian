@@ -2,6 +2,7 @@ package tud.iir.daterecognition;
 
 import java.util.HashMap;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import tud.iir.daterecognition.dates.ExtractedDate;
@@ -11,6 +12,7 @@ import tud.iir.knowledge.RegExp;
 public class DateEvaluatorTest {
 
     @Test
+    @Ignore
     public final void testEvaluate() {
 
         // DateGetter dg = new DateGetter("http://www.zeit.de/karriere/beruf/2010-08/karrierestrategien-frauen");

@@ -586,15 +586,17 @@ public class FileHelper {
      * @param filePath the file path
      * @return the object
      */
-    public static Object deserialize(String filePath) {
+    @SuppressWarnings("unchecked")
+    public static <T extends Serializable> T deserialize(String filePath) {
+        // made generic, avoids the cast
         FileInputStream fis = null;
         ObjectInputStream in = null;
-        Object obj = null;
+        T obj = null;
 
         try {
             fis = new FileInputStream(filePath);
             in = new ObjectInputStream(fis);
-            obj = in.readObject();
+            obj = (T) in.readObject();
 
         } catch (FileNotFoundException e) {
             LOGGER.error(e.getMessage());
