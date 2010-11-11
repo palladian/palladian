@@ -1,5 +1,7 @@
 package tud.iir.classification.page.evaluation;
 
+import tud.iir.helper.FileHelper;
+
 /**
  * A simple representation of a dataset.
  * 
@@ -28,6 +30,15 @@ public class Dataset {
 
     public String getPath() {
         return path;
+    }
+
+    /**
+     * Get the path to the root folder of the dataset.
+     * 
+     * @return The path to the root folder of the dataset.
+     */
+    public String getRootPath() {
+        return FileHelper.getFilePath(getPath());
     }
 
     public void setSeparationString(String separationString) {

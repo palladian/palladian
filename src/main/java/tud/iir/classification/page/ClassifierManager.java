@@ -462,11 +462,11 @@ public class ClassifierManager {
                 preprocessDocumentsFast(classifier.getClassificationType());
             } else {
                 preprocessDocuments(classifier.getClassificationType(), createDictionaryIteratively, true,
-                        dataset.isFirstFieldLink());
+                        dataset);
             }
 
         } else {
-            preprocessDocuments(classifier.getClassificationType(), true, true, dataset.isFirstFieldLink());
+            preprocessDocuments(classifier.getClassificationType(), true, true, dataset);
         }
 
         LOGGER.info("loaded and preprocessed successfully");
@@ -508,7 +508,7 @@ public class ClassifierManager {
 
         LOGGER.info("start classifying " + testUrls.size() + " documents");
 
-        preprocessDocuments(classifier.getClassificationType(), false, false, dataset.isFirstFieldLink());
+        preprocessDocuments(classifier.getClassificationType(), false, false, dataset);
 
         if (classifier instanceof DictionaryClassifier) {
             classifier.setCategories(((DictionaryClassifier) classifier).getCategories());
@@ -866,7 +866,7 @@ public class ClassifierManager {
     /**
      * Create a document representation of the data read.
      */
-    private void preprocessDocuments(int classType, boolean addToDictionary, boolean forTraining, boolean firstFieldLink) {
+    private void preprocessDocuments(int classType, boolean addToDictionary, boolean forTraining, Dataset dataset) {
 
         int size = 0;
         if (forTraining) {
@@ -896,8 +896,8 @@ public class ClassifierManager {
             String documentContent = firstField;
 
             // if the first field should be interpreted as a link to the actual document, get it and preprocess it
-            if (firstFieldLink) {
-                documentContent = FileHelper.readFileToString(firstField);
+            if (dataset.isFirstFieldLink()) {
+                documentContent = FileHelper.readFileToString(dataset.getRootPath() + firstField);
             }
 
             preprocessedDocument = classifier.preprocessDocument(documentContent, preprocessedDocument);
