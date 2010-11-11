@@ -38,6 +38,8 @@ public class ControlledTaggerSettings {
     public static final float DEFAULT_CORRELATION_WEIGHT = 20000;
 
     public static final float DEFAULT_PRIOR_WEIGHT = 1.0f;
+    
+    public static final int DEFAULT_PHRASE_LENGTH = 3;
 
     // public static final Pattern DEFAULT_TAG_MATCH_PATTERN = Pattern.compile(".*\\w.*");
     /**
@@ -54,6 +56,8 @@ public class ControlledTaggerSettings {
     private int tagCount = DEFAULT_TAG_COUNT;
     private float correlationWeight = DEFAULT_CORRELATION_WEIGHT;
     private float priorWeight = DEFAULT_PRIOR_WEIGHT;
+    private int phraseLength = DEFAULT_PHRASE_LENGTH;
+    
     /** Tags must match this pattern, to be accepted. This way we drop tags which contain no "word" character, like "," */
     private Pattern tagMatchPattern = DEFAULT_TAG_MATCH_PATTERN;
     /** The Stopwords which are ignored as tags; no stopwords by default. */
@@ -141,6 +145,14 @@ public class ControlledTaggerSettings {
     public void setPriorWeight(float priorWeight) {
         this.priorWeight = priorWeight;
     }
+    
+    public int getPhraseLength() {
+        return phraseLength;
+    }
+    
+    public void setPhraseLength(int phraseLength) {
+        this.phraseLength = phraseLength;
+    }
 
     public Pattern getTagMatchPattern() {
         return tagMatchPattern;
@@ -182,6 +194,7 @@ public class ControlledTaggerSettings {
         sb.append("ControlledTaggerSettings:");
         sb.append("taggingType=").append(this.getTaggingType());
         sb.append(",correlationType=").append(this.getCorrelationType());
+        sb.append(",phraseLength=").append(this.getPhraseLength());
         if (getTaggingType() == TaggingType.THRESHOLD) {
             sb.append(",tfidfThreshold=").append(this.getTfidfThreshold());
         }
