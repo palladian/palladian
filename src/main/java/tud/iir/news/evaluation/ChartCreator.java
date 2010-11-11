@@ -22,17 +22,25 @@ public class ChartCreator {
     private final String FEED_SIZE_HISTOGRAM_FILE_PATH = "data/evaluation/feedPaper/feedSizeHistogrammData.csv";
     private final String feedAgeFilePath = "data/evaluation/feedPaper/feedAgeData.csv";
     private final String timeliness2FilePath = "data/evaluation/feedPaper/timeliness2Data.csv";
-    private final String percentageNewFilePath = "data/evaluation/feedPaper/percentNewData.csv";
-    private final String sumVolumeMaxFilePath = "data/evaluation/feedPaper/sumVolumeMaxData.csv";
-    private final String sumVolumeMinFilePath = "data/evaluation/feedPaper/sumVolumeMinData.csv";
-    private final String sumVolumeMinEtag304FilePath = "data/evaluation/feedPaper/sumVolumeMinEtag304Data.csv";
+    private final String percentageNewMaxPollFilePath = "data/evaluation/feedPaper/percentNewMaxPollData.csv";
+    private final String sumVolumeMaxTimeFilePath = "data/evaluation/feedPaper/sumVolumeMaxTimeData.csv";
+    private final String sumVolumeMinTimeFilePath = "data/evaluation/feedPaper/sumVolumeMinData.csv";
     
+
     private final int MAX_NUMBER_OF_POLLS_SCORE_MIN;
     private final int MAX_NUMBER_OF_POLLS_SCORE_MAX;
     
     private final EvaluationDatabase ed ; 
     
     private final int TOTAL_EXPERIMENT_HOURS;
+
+    public enum PollingStrategy {
+        ADAPTIVE, PROBABILISTIC, FIX_LEARNED, FIX60, FIX1440
+    }
+
+    public enum Policy {
+        MIN, MAX
+    }
 
     /**
      * @param MAX_NUMBER_OF_POLLS_SCORE_MIN The maximum number of polls to be used by methods creating data for the
@@ -180,95 +188,52 @@ public class ChartCreator {
         StringBuilder timeliness2SB = new StringBuilder();        
         Map<Integer, Double[]> timeliness2Map = new TreeMap<Integer, Double[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
-        final int numberOfRows = 5;
-        int linesProcessed = 0;
+        final int NUMBER_OF_ROWS = 5;
+        int rowToWrite = 0;
+
         timeliness2SB.append("numberOfPoll;");
-        
-        LOGGER.info("starting to process table adaptive...");
-        timeliness2SB.append("adaptive;");
-        polls = ed.getAverageScoreMinAdaptive(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 0, numberOfRows);
-        LOGGER.info("finished processing table adaptive, processed " + linesProcessed + " lines in the result set.");
-
-        LOGGER.info("starting to process table probabilistic...");
-        timeliness2SB.append("probabilistic;");
-        polls = ed.getAverageScoreMinProbabilistic(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 1, numberOfRows);
-        LOGGER.info("finished processing table probabilistic, processed " + linesProcessed
-                + " lines in the result set.");
-
-        LOGGER.info("starting to process table fix learned...");
-        timeliness2SB.append("fix learned;");
-        polls = ed.getAverageScoreMinFIXlearned(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 2, numberOfRows);
-        LOGGER.info("finished processing table fix learned, processed " + linesProcessed + " lines in the result set.");
-
-        LOGGER.info("starting to process table fix1h...");
-        timeliness2SB.append("fix1h;");
-        polls = ed.getAverageScoreMinFIX60(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 3, numberOfRows);
-        LOGGER.info("finished processing table fix1h, processed " + linesProcessed + " lines in the result set.");
-
-        LOGGER.info("starting to process table fix1d...");
-        timeliness2SB.append("fix1d;\n");
-        polls = ed.getAverageScoreMinFIX1440(MAX_NUMBER_OF_POLLS_SCORE_MIN);
-        linesProcessed = processDataAggregatedByPoll(polls, timeliness2Map, 4, numberOfRows);
-        LOGGER.info("finished processing table fix1d, processed " + linesProcessed + " lines in the result set.");
+        for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
+            LOGGER.info("starting to create data for " + pollingStrategy.toString());
+            timeliness2SB.append(pollingStrategy.toString().toLowerCase()).append(";");
+            polls = ed.getAverageScoreMinPerPollFromMinPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MIN);
+            processDataAggregatedByPoll(polls, timeliness2Map, rowToWrite, NUMBER_OF_ROWS);
+            LOGGER.info("finished creating data for " + pollingStrategy.toString());
+            rowToWrite++;
+        }
+        timeliness2SB.append("\n");
 
         writeMapToCSV(timeliness2Map, timeliness2SB, timeliness2FilePath);
         LOGGER.info("finished creating timeliness2File.");
-    } 
-    
-    
-    
+    }
+
     /**
      * Generates a *.csv file containing the average percentage of percentageNewEntries by numberOfPoll for each
-     * strategy separately. File is written to {@link ChartCreator#percentageNewFilePath}, file has structure
+     * strategy separately. File is written to {@link ChartCreator#percentageNewMaxPollFilePath}, file has structure
      * (numberOfPoll; adaptive; probabilistic; fix learned; fix1h; fix1d)
      */
-    private void createPercentageNewFile() {
-        LOGGER.info("starting to create timeliness2File...");
+    private void createPercentageNewMaxPollFile() {
+        LOGGER.info("starting to create percentageNewMax...");
         StringBuilder percentageNewSB = new StringBuilder();
         Map<Integer, Double[]> percentageNewMap = new TreeMap<Integer, Double[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
-        final int numberOfRows = 5;
-        int linesProcessed = 0;
+        final int NUMBER_OF_ROWS = 5;
+        int rowToWrite = 0;
+
         percentageNewSB.append("numberOfPoll;");
+        for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
+            LOGGER.info("starting to create data for " + pollingStrategy.toString());
+            percentageNewSB.append(pollingStrategy.toString().toLowerCase()).append(";");
+            polls = ed.getAveragePercentageNewEntriesPerPollFromMaxPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MIN);
+            processDataAggregatedByPoll(polls, percentageNewMap, rowToWrite, NUMBER_OF_ROWS);
+            LOGGER.info("finished creating data for " + pollingStrategy.toString());
+            rowToWrite++;
+        }
+        percentageNewSB.append("\n");
 
-        LOGGER.info("starting to process table adaptive...");
-        percentageNewSB.append("adaptive;");
-        polls = ed.getAveragePercentageNewEntriesByPollFromAdaptiveMaxPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
-        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 0, numberOfRows);
-        LOGGER.info("finished processing table adaptive, processed " + linesProcessed + " lines in the result set.");
-
-        LOGGER.info("starting to process table probabilistic...");
-        percentageNewSB.append("probabilistic;");
-        polls = ed.getAveragePercentageNewEntriesByPollFromProbabilisticMaxPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
-        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 1, numberOfRows);
-        LOGGER.info("finished processing table probabilistic, processed " + linesProcessed
-                + " lines in the result set.");
-
-        LOGGER.info("starting to process table fix learned...");
-        percentageNewSB.append("fix learned;");
-        polls = ed.getAveragePercentageNewEntriesByPollFromFIXlearnedMaxPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
-        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 2, numberOfRows);
-        LOGGER.info("finished processing table fix learned, processed " + linesProcessed + " lines in the result set.");
-
-        LOGGER.info("starting to process table fix1h...");
-        percentageNewSB.append("fix1h;");
-        polls = ed.getAveragePercentageNewEntriesByPollFromFIX60MaxMinPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
-        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 3, numberOfRows);
-        LOGGER.info("finished processing table fix1h, processed " + linesProcessed + " lines in the result set.");
-
-        LOGGER.info("starting to process table fix1d...");
-        percentageNewSB.append("fix1d;\n");
-        polls = ed.getAveragePercentageNewEntriesByPollFromFix1440MaxMinPoll(MAX_NUMBER_OF_POLLS_SCORE_MAX);
-        linesProcessed = processDataAggregatedByPoll(polls, percentageNewMap, 4, numberOfRows);
-        LOGGER.info("finished processing table fix1d, processed " + linesProcessed + " lines in the result set.");
-
-        writeMapToCSV(percentageNewMap, percentageNewSB, percentageNewFilePath);
+        writeMapToCSV(percentageNewMap, percentageNewSB, percentageNewMaxPollFilePath);
         LOGGER.info("finished creating percentageNewFile.");
     }
+
 
     /**
      * Helper to traverse the result map {@link outputMap}, append its items to given StringBuilder {@link outputSB} and
@@ -294,37 +259,39 @@ public class ChartCreator {
         if (outputWritten)
             LOGGER.info(filePath + " has been written");
         else
-            LOGGER.fatal(filePath + "has NOT been written!");
+            LOGGER.fatal(filePath + " has NOT been written!");
     }
-
 
     /**
      * Helper function to cumulate the sizeOfPoll values per hour.<br />
      * 
-     * The function gets a list of {@link polls} which represents all polls one algorithm (fix, adaptive, etc.) would
-     * have done within our experiment time (specified by {@link ChartCreator#TOTAL_EXPERIMENT_HOURS}. Missing polls are
-     * simulated by adding the sizeOfPoll of the last poll that has been done by the algorithm.
+     * The function gets a list of {@link polls} which represents all polls one {@link PollingStrategy} (fix, adaptive,
+     * etc.) would have done within our experiment time (specified by {@link ChartCreator#TOTAL_EXPERIMENT_HOURS}.
+     * Missing polls are simulated by adding the sizeOfPoll of the last poll that has been done by the
+     * {@link PollingStrategy}.
      * 
-     * @param polls contains the polls done by one algorithm
-     * @param totalResultMapMax the map to write the output to. The map may contain values of other algorithms.
+     * @param polls contains the polls done by one {@link PollingStrategy}
+     * @param totalResultMapMax the map to write the output to. The map may contain values of other
+     *            {@link PollingStrategy}s.
      * @param ROW_TO_WRITE the position in Long[] to write the data to.
-     * @param NUMBER_OF_ROWS the total number of rows (algorithms)
+     * @param NUMBER_OF_ROWS the total number of rows ({@link PollingStrategy}s)
      */
     private void volumeHelper(List<EvaluationFeedPoll> polls, Map<Integer, Long[]> totalResultMapMax,
             final int ROW_TO_WRITE, final int NUMBER_OF_ROWS, final boolean SIMULATE_ETAG_USAGE) {
 
         int feedIDLastStep = -1;
         int sizeOfPollLast = -1;
-        int minuteLastStep = 1;
+        int minuteLastStep = 0;
+        int checkIntervalLast = -1;
 
         for (EvaluationFeedPoll poll : polls) {
             int feedIDCurrent = poll.getFeedID();
             
             // in Davids DB nicht vorhandene Polls simulieren
             if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
-                while ((minuteLastStep + poll.getCheckInterval()) < (TOTAL_EXPERIMENT_HOURS * 60)) {
+                while ((minuteLastStep + checkIntervalLast) < (TOTAL_EXPERIMENT_HOURS * 60)) {
 
-                    final int MINUTE_TO_PROCESS = (int) (minuteLastStep + poll.getCheckInterval());
+                    final int MINUTE_TO_PROCESS = (int) (minuteLastStep + checkIntervalLast);
                     // x/60 + 1: add 1 hour to result to start with hour 1 instead of 0 (minute 1 means hour 1)
                     final int HOUR_TO_PROCESS = MINUTE_TO_PROCESS / 60 + 1;
 
@@ -332,7 +299,7 @@ public class ChartCreator {
 
                     minuteLastStep = MINUTE_TO_PROCESS;
                 }
-                minuteLastStep = 1;
+                minuteLastStep = 0;
             }
                    
             // aktuellen Poll behandeln
@@ -353,6 +320,7 @@ public class ChartCreator {
             }
             feedIDLastStep = feedIDCurrent;
             sizeOfPollLast = sizeOfPoll;
+            checkIntervalLast = poll.getCheckInterval();
         }
     }
 
@@ -384,480 +352,84 @@ public class ChartCreator {
         totalResultMapMax.put(HOUR_TO_PROCESS, transferredDataArray);
     }
 
+
     /**
-     * @param FEED_ID_MAX the highest FeedID in the dataset
+     * Calculates the cumulated transfer volume per poll per {@link PollingStrategy} to a *.csv file.
+     * Every line represents one poll, every row is one {@link PollingStrategy}.
+     * 
+     * @param POLICY The {@link Policy} to generate the file for.
+     * @param SIMULATE_ETAG_USAGE If true, for each poll that has no new item, the size of the conditional header is
+     *            added to the transfer volume (instead of the sizeOfPoll).
+     * @param FEED_ID_MAX the highest FeedID in the data set.
      */
-    private void cumulatedVolumeMaxTimeFile(final int FEED_ID_MAX, final boolean SIMULATE_ETAG_USAGE) {
-        LOGGER.info("starting to create sumVolumeMaxFile...");        
+    private void cumulatedVolumePerTimeFile(final Policy POLICY, final boolean SIMULATE_ETAG_USAGE,
+            final int FEED_ID_MAX) {
+        LOGGER.info("starting to create sumVolumeFile for policy " + POLICY);
         StringBuilder culmulatedVolumeSB = new StringBuilder();
         // <hourOfExperiment, culmulatedVolumePerAlgorithm{fix1440,fix60,ficLearned,adaptive,probabilistic} in Bytes>
-        Map<Integer,Long[]> totalResultMapMax = new TreeMap<Integer,Long[]>();
+        Map<Integer, Long[]> totalResultMap = new TreeMap<Integer, Long[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
-        final int NUMBER_OF_ROWS = 5;
+        final int NUMBER_OF_ROWS = PollingStrategy.values().length;
         int feedIDStart = 1;
         int feedIDEnd = 10000;
         final int FEED_ID_STEP = 10000;
-        
-        culmulatedVolumeSB.append("hour of experiment;");
+        int rowToWrite = 0;
     
+        culmulatedVolumeSB.append("hour of experiment;");
+        for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
+            LOGGER.info("starting to create data for " + pollingStrategy.toString());
+            culmulatedVolumeSB.append(pollingStrategy.toString().toLowerCase()).append(";");
+            feedIDStart = 1;
+            feedIDEnd = 10000;
 
-        // /////////// get data from adaptiveMaxTime \\\\\\\\\\\\\\\\\
-        LOGGER.info("starting to create adaptive data...");
-        culmulatedVolumeSB.append("adaptive;");
-        feedIDStart = 1;
-        feedIDEnd = 10000;
-        while (feedIDEnd < FEED_ID_MAX) {
-            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-            polls = ed.getTransferVolumeByHourFromAdaptiveMaxTime(feedIDStart, feedIDEnd);
-            volumeHelper(polls, totalResultMapMax, 0, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
-            feedIDStart += FEED_ID_STEP;
-            feedIDEnd += FEED_ID_STEP;
+            while (feedIDEnd < FEED_ID_MAX) {
+                LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
+                polls = ed.getTransferVolumeByHourFromTime(POLICY, pollingStrategy, feedIDStart, feedIDEnd);
+                volumeHelper(polls, totalResultMap, rowToWrite, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
+                feedIDStart += FEED_ID_STEP;
+                feedIDEnd += FEED_ID_STEP;
+            }
+            rowToWrite++;
+            LOGGER.info("finished creating data for " + pollingStrategy.toString());
         }
-        LOGGER.info("finished creating adaptive data...");
+        culmulatedVolumeSB.append("\n");
 
-
-        // /////////// get data from probabilisticMaxTime \\\\\\\\\\\\\\\\\
-        LOGGER.info("starting to create probabilistic data...");
-        culmulatedVolumeSB.append("probabilistic;");
-        feedIDStart = 1;
-        feedIDEnd = 10000;
-        while (feedIDEnd < FEED_ID_MAX) {
-            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-            polls = ed.getTransferVolumeByHourFromProbabilisticMaxTime(feedIDStart, feedIDEnd);
-            volumeHelper(polls, totalResultMapMax, 1, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
-            feedIDStart += FEED_ID_STEP;
-            feedIDEnd += FEED_ID_STEP;
-        }
-        LOGGER.info("finished creating probabilistic data...");
-
-
-        // /////////// get data from fixLearnedTime \\\\\\\\\\\\\\\\\
-        LOGGER.info("starting to create fixLearned data...");
-        culmulatedVolumeSB.append("fixLearned;");
-        feedIDStart = 1;
-        feedIDEnd = 10000;
-        while (feedIDEnd < FEED_ID_MAX) {
-            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-            polls = ed.getTransferVolumeByHourFromFixLearnedMaxTime(feedIDStart, feedIDEnd);
-            volumeHelper(polls, totalResultMapMax, 2, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
-            feedIDStart += FEED_ID_STEP;
-            feedIDEnd += FEED_ID_STEP;
-        }
-        LOGGER.info("finished creating fixLearned data...");
-
-
-        // /////////// get data from fix60Time \\\\\\\\\\\\\\\\\
-        LOGGER.info("starting to create fix60 data...");
-        culmulatedVolumeSB.append("fix60;");
-        feedIDStart = 1;
-        feedIDEnd = 10000;
-        while (feedIDEnd < FEED_ID_MAX) {
-            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-            polls = ed.getTransferVolumeByHourFromFix60MaxMinTime(feedIDStart, feedIDEnd);
-            volumeHelper(polls, totalResultMapMax, 3, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
-
-            feedIDStart += FEED_ID_STEP;
-            feedIDEnd += FEED_ID_STEP;
-        }
-        LOGGER.info("finished creating fix60 data...");
-
-
-        // /////////// get data from fix1440Time \\\\\\\\\\\\\\\\\
-        LOGGER.info("starting to create fix1440 data...");
-        culmulatedVolumeSB.append("fix1440;\n");
-        feedIDStart = 1;
-        feedIDEnd = 10000;
-        while (feedIDEnd < FEED_ID_MAX) {
-            LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-            polls = ed.getTransferVolumeByHourFromFix1440MaxMinTime(feedIDStart, feedIDEnd);
-            volumeHelper(polls, totalResultMapMax, 4, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
-
-            feedIDStart += FEED_ID_STEP;
-            feedIDEnd += FEED_ID_STEP;
-        }
-        LOGGER.info("finished creating fix1440 data...");
-
-
-        // //////////// write final output to file \\\\\\\\\\\\\\\\\
+        // //////////// write totalResultMapMax to StringBuilder, cumulating the values row-wise \\\\\\\\\\\\\\\\\
         final long BYTE_TO_MB = 1048576;
         Long[] volumesCumulated = new Long[NUMBER_OF_ROWS];
         Arrays.fill(volumesCumulated, 0l);
-        Iterator<Integer> it = totalResultMapMax.keySet().iterator();
+        Iterator<Integer> it = totalResultMap.keySet().iterator();
         while (it.hasNext()) {
             int currentHour = (int) it.next();
-            Long[] volumes = totalResultMapMax.get(currentHour);
+            Long[] volumes = totalResultMap.get(currentHour);
 
-            volumesCumulated[0] += volumes[0];
-            volumesCumulated[1] += volumes[1];
-            volumesCumulated[2] += volumes[2];
-            volumesCumulated[3] += volumes[3];
-            volumesCumulated[4] += volumes[4];
-
+            for (int i = 0; i < NUMBER_OF_ROWS; i++) {
+                volumesCumulated[i] += volumes[i];
+            }
             culmulatedVolumeSB.append(currentHour).append(";").append(volumesCumulated[0] / BYTE_TO_MB).append(";")
                     .append(volumesCumulated[1] / BYTE_TO_MB).append(";").append(volumesCumulated[2] / BYTE_TO_MB)
                     .append(";").append(volumesCumulated[3] / BYTE_TO_MB).append(";")
                     .append(volumesCumulated[4] / BYTE_TO_MB).append(";\n");
         }
 
-        boolean outputWritten = FileHelper.writeToFile(sumVolumeMaxFilePath, culmulatedVolumeSB);
+        // //////////// write final output to file \\\\\\\\\\\\\\\\\
+        String filePathToWrite = "";
+        switch (POLICY) {
+            case MAX:
+                filePathToWrite = sumVolumeMaxTimeFilePath;
+                break;
+            case MIN:
+                filePathToWrite = sumVolumeMinTimeFilePath;
+                break;
+            default:
+                throw new IllegalStateException("unknown Policy: " + POLICY.toString());
+        }
+        boolean outputWritten = FileHelper.writeToFile(filePathToWrite, culmulatedVolumeSB);
         if (outputWritten)
-            LOGGER.info("sumVolumeMaxFilePath written to: " + sumVolumeMaxFilePath);
+            LOGGER.info("sumVolumeFile for policy " + POLICY + " written to: " + filePathToWrite);
         else
-            LOGGER.fatal("sumVolumeMaxFilePath has not been written to: " + sumVolumeMaxFilePath);
+            LOGGER.fatal("sumVolumeFile for policy " + POLICY + " has not been written to: " + filePathToWrite);
     } 
-    
-
-
-
-    //
-    // private void culmulatedVolumeMinTimeFile(final long TIMESTAMP_MAX) {
-    // LOGGER.info("starting to create sumVolumeMinFile...");
-    // StringBuilder culmulatedVolumeSB = new StringBuilder();
-    // /* <hourOfExperiment, culmulatedVolumePerAlgorithm in Bytes> */
-    // Map<Integer,Long[]> totalResultMapMin = new TreeMap<Integer,Long[]>();
-    // List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
-    // int totalExperimentHours = 672;
-    // long culmulatedVolumePerTechnique = 0;
-    // int feedIDLastStep = -1;
-    // int requiredNumberOfPolls = -1;
-    // float sizeOfPollLast = -1;
-    // int hourLastStep = -1;
-    // int numberOfPollsToProcess = -1;
-    // int pollingInterval = -1;
-    //
-    // culmulatedVolumeSB.append("hour of experiment;");
-    //
-    //
-    //
-    // ///////////// get data from fix1440Time \\\\\\\\\\\\\\\\\
-    // LOGGER.info("starting to create fix1440 data...");
-    // culmulatedVolumeSB.append("fix1440;");
-    // culmulatedVolumePerTechnique = 0;
-    // feedIDLastStep = -1;
-    // pollingInterval = 24;
-    // requiredNumberOfPolls = totalExperimentHours/pollingInterval;
-    // polls = ed.getSumTransferVolumeByHourFromFix1440MaxMinTime(TIMESTAMP_MAX);
-    // for (EvaluationFeedPoll poll : polls) {
-    // Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    // int feedIDCurrent = poll.getFeedID();
-    //
-    // // in der DB nicht vorhandene Polls generieren
-    // if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
-    // while (numberOfPollsToProcess > 0){
-    // numberOfPollsToProcess--;
-    // int hourToProcess = hourLastStep + pollingInterval;
-    // long culmulatedVolumePerHour = 0;
-    // transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    //
-    // if( totalResultMapMin.containsKey(hourToProcess)){
-    // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // if (transferredDataArray[0] != null) {
-    // culmulatedVolumePerHour = transferredDataArray[0];
-    // }
-    // }
-    // culmulatedVolumePerHour += sizeOfPollLast;
-    // transferredDataArray[0] = culmulatedVolumePerHour;
-    // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    // hourLastStep = hourToProcess;
-    // }
-    // // Wert für den eigentlich zu bearbeitenden Poll zurücksetzen, da nun neue FeedID behandelt wird
-    // numberOfPollsToProcess = requiredNumberOfPolls;
-    // }
-    //
-    // // aktuellen Poll behandeln
-    // int hourToProcess = poll.getHourOfExperiment();
-    // long culmulatedVolumePerHour = 0;
-    // transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    //
-    // if( totalResultMapMin.containsKey(hourToProcess)){
-    // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // if (transferredDataArray[0] != null) {
-    // culmulatedVolumePerHour = transferredDataArray[0];
-    // }
-    // }
-    // float sizeOfPoll = poll.getSizeOfPoll();
-    // culmulatedVolumePerHour += sizeOfPoll;
-    // transferredDataArray[0] = culmulatedVolumePerHour;
-    // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    //
-    // numberOfPollsToProcess--;
-    // hourLastStep = hourToProcess;
-    // feedIDLastStep = feedIDCurrent;
-    // sizeOfPollLast = sizeOfPoll;
-    // }
-    // LOGGER.info("finished creating fix1440 data...");
-    //
-    //
-    //
-    //
-    // // ///////////// get data from fix720Time \\\\\\\\\\\\\\\\\
-    // // LOGGER.info("starting to create fix720 data...");
-    // // culmulatedVolumeSB.append("fix720;");
-    // // culmulatedVolumePerTechnique = 0;
-    // // feedIDLastStep = -1;
-    // // pollingInterval = 12;
-    // // requiredNumberOfPolls = totalExperimentHours/pollingInterval;
-    // //
-    // // polls = ed.getSumTransferVolumeByHourFromFix720MaxMinTime();
-    // //
-    // // for (EvaluationFeedPoll poll : polls) {
-    // // Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    // // int feedIDCurrent = poll.getFeedID();
-    // //
-    // // // in der DB nicht vorhandene Polls generieren
-    // // if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
-    // // while (numberOfPollsToProcess > 0){
-    // // numberOfPollsToProcess--;
-    // // int hourToProcess = hourLastStep + pollingInterval;
-    // // long culmulatedVolumePerHour = 0;
-    // // transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    // //
-    // // if( totalResultMapMin.containsKey(hourToProcess)){
-    // // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // // if (transferredDataArray[1] != null) {
-    // // culmulatedVolumePerHour = transferredDataArray[1];
-    // // }
-    // // }
-    // // culmulatedVolumePerHour += sizeOfPollLast;
-    // // transferredDataArray[1] = culmulatedVolumePerHour;
-    // // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    // // hourLastStep = hourToProcess;
-    // // }
-    // // // Wert für den eigentlich zu bearbeitenden Poll zurücksetzen, da nun neue FeedID behandelt wird
-    // // numberOfPollsToProcess = requiredNumberOfPolls;
-    // // }
-    // //
-    // // // aktuellen Poll behandeln
-    // // int hourToProcess = poll.getHourOfExperiment();
-    // // long culmulatedVolumePerHour = 0;
-    // // transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    // //
-    // // if( totalResultMapMin.containsKey(hourToProcess)){
-    // // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // // if (transferredDataArray[1] != null) {
-    // // culmulatedVolumePerHour = transferredDataArray[1];
-    // // }
-    // // }
-    // // float sizeOfPoll = poll.getSizeOfPoll();
-    // // culmulatedVolumePerHour += sizeOfPoll;
-    // // transferredDataArray[1] = culmulatedVolumePerHour;
-    // // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    // //
-    // // numberOfPollsToProcess--;
-    // // hourLastStep = hourToProcess;
-    // // feedIDLastStep = feedIDCurrent;
-    // // sizeOfPollLast = sizeOfPoll;
-    // // }
-    // // LOGGER.info("finished creating fix720 data...");
-    //
-    //
-    // ///////////// get data from fix60Time \\\\\\\\\\\\\\\\\
-    // LOGGER.info("starting to create fix60 data...");
-    // culmulatedVolumeSB.append("fix60;");
-    // culmulatedVolumePerTechnique = 0;
-    // feedIDLastStep = -1;
-    // pollingInterval = 1;
-    // requiredNumberOfPolls = totalExperimentHours/pollingInterval;
-    //
-    // int feedIDStart = 1;
-    // int feedIDEnd = 10000;
-    // final int FEED_ID_STEP = 10000;
-    // final int FEED_ID_MAX = 210000;
-    //
-    // while(feedIDEnd < FEED_ID_MAX){
-    // LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-    // polls = ed.getSumTransferVolumeByHourFromFix60MaxMinTime(TIMESTAMP_MAX, feedIDStart, feedIDEnd);
-    // numberOfPollsToProcess = requiredNumberOfPolls;
-    //
-    // for (EvaluationFeedPoll poll : polls) {
-    // Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    // int feedIDCurrent = poll.getFeedID();
-    //
-    // // in der DB nicht vorhandene Polls generieren
-    // if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
-    // while (numberOfPollsToProcess > 0){
-    // int hourToProcess = hourLastStep + pollingInterval;
-    // long culmulatedVolumePerHour = 0;
-    // transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    //
-    // if( totalResultMapMin.containsKey(hourToProcess)){
-    // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // if (transferredDataArray[2] != null) {
-    // culmulatedVolumePerHour = transferredDataArray[2];
-    // }
-    // }
-    // culmulatedVolumePerHour += sizeOfPollLast;
-    // transferredDataArray[2] = culmulatedVolumePerHour;
-    // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    // hourLastStep = hourToProcess;
-    // numberOfPollsToProcess--;
-    // }
-    // // Wert für den eigentlich zu bearbeitenden Poll zurücksetzen, da nun neue FeedID behandelt wird
-    // numberOfPollsToProcess = requiredNumberOfPolls;
-    // }
-    //
-    // // aktuellen Poll behandeln
-    // int hourToProcess = poll.getHourOfExperiment();
-    // long culmulatedVolumePerHour = 0;
-    // transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    //
-    // if( totalResultMapMin.containsKey(hourToProcess)){
-    // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // if (transferredDataArray[2] != null) {
-    // culmulatedVolumePerHour = transferredDataArray[2];
-    // }
-    // }
-    // float sizeOfPoll = poll.getSizeOfPoll();
-    // culmulatedVolumePerHour += sizeOfPoll;
-    // transferredDataArray[2] = culmulatedVolumePerHour;
-    // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    //
-    // numberOfPollsToProcess--;
-    // hourLastStep = hourToProcess;
-    // feedIDLastStep = feedIDCurrent;
-    // sizeOfPollLast = sizeOfPoll;
-    // }
-    // feedIDStart += FEED_ID_STEP;
-    // feedIDEnd += FEED_ID_STEP;
-    // }
-    // LOGGER.info("finished creating fix60 data...");
-    //
-    //
-    //
-    // ///////////// get data from fixLearnedTime \\\\\\\\\\\\\\\\\
-    // LOGGER.info("starting to create fixLearned data...");
-    // culmulatedVolumeSB.append("fixLearned;");
-    // culmulatedVolumePerTechnique = 0;
-    // feedIDLastStep = -1;
-    // numberOfPollsToProcess = -1;
-    // feedIDStart = 1;
-    // feedIDEnd = 10000;
-    //
-    // while(feedIDEnd < FEED_ID_MAX){
-    // LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-    // int minuteLastStep = 0;
-    //
-    // polls = ed.getSumTransferVolumeByHourFromFixLearnedMinTime(feedIDStart, feedIDEnd);
-    //
-    // for (EvaluationFeedPoll poll : polls) {
-    // Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    // int feedIDCurrent = poll.getFeedID();
-    //
-    // // in der DB nicht vorhandene Polls generieren
-    // if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
-    // while (minuteLastStep < totalExperimentHours*60){
-    //
-    // int minuteToProcess = (int)(minuteLastStep + poll.getCheckInterval());
-    // int hourToProcess = minuteToProcess/60;
-    // long culmulatedVolumePerHour = 0;
-    // transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    //
-    // if( totalResultMapMin.containsKey(hourToProcess)){
-    // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // if (transferredDataArray[3] != null) {
-    // culmulatedVolumePerHour = transferredDataArray[3];
-    // }
-    // }
-    // culmulatedVolumePerHour += sizeOfPollLast;
-    // transferredDataArray[3] = culmulatedVolumePerHour;
-    // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    // minuteLastStep = minuteToProcess;
-    // numberOfPollsToProcess--;
-    // }
-    // }
-    //
-    // // aktuellen Poll behandeln
-    // int hourToProcess = poll.getHourOfExperiment();
-    // long culmulatedVolumePerHour = 0;
-    // transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    //
-    // if( totalResultMapMin.containsKey(hourToProcess)){
-    // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // if (transferredDataArray[3] != null) {
-    // culmulatedVolumePerHour = transferredDataArray[3];
-    // }
-    // }
-    // float sizeOfPoll = poll.getSizeOfPoll();
-    // culmulatedVolumePerHour += sizeOfPoll;
-    // transferredDataArray[3] = culmulatedVolumePerHour;
-    // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    //
-    // if(poll.getNumberOfPoll() > 2) {
-    // minuteLastStep += (int)poll.getCheckInterval();
-    // }
-    // feedIDLastStep = feedIDCurrent;
-    // sizeOfPollLast = sizeOfPoll;
-    // }
-    // feedIDStart += FEED_ID_STEP;
-    // feedIDEnd += FEED_ID_STEP;
-    // }
-    // LOGGER.info("finished creating fixLearned data...");
-    //
-    //
-    //
-    // ///////////// get data from adaptiveMaxTime \\\\\\\\\\\\\\\\\
-    // LOGGER.info("starting to create adaptive data...");
-    // culmulatedVolumeSB.append("adaptive;");
-    // culmulatedVolumePerTechnique = 0;
-    // polls = ed.getSumTransferVolumeByHourFromAdaptiveMinTime();
-    // for (EvaluationFeedPoll poll : polls) {
-    // Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    // int hourToProcess = poll.getHourOfExperiment();
-    // if( totalResultMapMin.containsKey(hourToProcess)){
-    // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // }
-    //
-    // culmulatedVolumePerTechnique += poll.getCulmulatedSizeofPolls();
-    // transferredDataArray[4] = culmulatedVolumePerTechnique;
-    // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    // }
-    // LOGGER.info("finished creating adaptive data...");
-    //
-    //
-    // ///////////// get data from probabilisticMaxTime \\\\\\\\\\\\\\\\\
-    // LOGGER.info("starting to create probabilistic data...");
-    // culmulatedVolumeSB.append("probabilistic;\n");
-    // culmulatedVolumePerTechnique = 0;
-    // polls = ed.getSumTransferVolumeByHourFromProbabilisticMinTime();
-    // for (EvaluationFeedPoll poll : polls) {
-    // Long[] transferredDataArray = new Long[]{0l,0l,0l,0l,0l,0l};
-    // int hourToProcess = poll.getHourOfExperiment();
-    // if( totalResultMapMin.containsKey(hourToProcess)){
-    // transferredDataArray = totalResultMapMin.get(hourToProcess);
-    // }
-    //
-    // culmulatedVolumePerTechnique += poll.getCulmulatedSizeofPolls();
-    // transferredDataArray[5] = culmulatedVolumePerTechnique;
-    // totalResultMapMin.put(hourToProcess, transferredDataArray);
-    // }
-    // LOGGER.info("finished creating probabilistic data...");
-    //
-    //
-    // int i = 1;
-    // final long BYTE_TO_MB = 1048576;
-    // Long[] volumesCumulated = new Long[]{0l,0l,0l,0l,0l,0l};
-    // for(Long[] volumes : totalResultMapMin.values()){
-    // volumesCumulated[0] += volumes[0];
-    // volumesCumulated[1] += volumes[1];
-    // volumesCumulated[2] += volumes[2];
-    // volumesCumulated[3] += volumes[3];
-    // culmulatedVolumeSB.append(i).append(";")
-    // .append(volumesCumulated[0]/BYTE_TO_MB).append(";")
-    // .append(volumesCumulated[1]/BYTE_TO_MB).append(";")
-    // .append(volumesCumulated[2]/BYTE_TO_MB).append(";")
-    // .append(volumesCumulated[3]/BYTE_TO_MB).append(";")
-    // .append(volumes[4]/BYTE_TO_MB).append(";")
-    // .append(volumes[5]/BYTE_TO_MB).append(";\n");
-    // i++;
-    // }
-    //
-    // boolean outputWritten = FileHelper.writeToFile(sumVolumeMinFilePath, culmulatedVolumeSB);
-    // if (outputWritten)
-    // LOGGER.info("sumVolumeMinFile written to: " + sumVolumeMaxFilePath);
-    // else
-    // LOGGER.fatal("sumVolumeMinFile has not been written to: " + sumVolumeMinFilePath);
-    // }
-    //
     
 
 
@@ -888,12 +460,12 @@ public class ChartCreator {
         ChartCreator cc = new ChartCreator(200, 200, 672);
 
         // cc.printFeedPolls();
-        // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test 10.11.
-        // cc.createFeedAgeFile(); // letzter Test 10.11.
-        cc.createAverageScoreMinByPollFile();
-        cc.createPercentageNewFile();
+        // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test 11.11.
+        // cc.createFeedAgeFile(); // letzter Test 11.11.
+        // cc.createAverageScoreMinByPollFile(); // letzter Test 11.11.
+        // cc.createPercentageNewMaxPollFile(); // letzter Test 11.11.
 
-// cc.cumulatedVolumeMaxTimeFile(210000, false);
+        cc.cumulatedVolumePerTimeFile(Policy.MAX, false, 210000);
 //      cc.culmulatedVolumeMinTimeFile();
 //	    cc.culmulatedVolumeMinTimeEtag304File();
 	    	    
