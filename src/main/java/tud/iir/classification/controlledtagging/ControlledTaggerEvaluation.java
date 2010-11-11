@@ -202,9 +202,9 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
         filter.setMaxFileSize(600000);
         evaluation.setFilter(filter);    
         
-        evaluation.justTest(10000);
+        /*evaluation.justTest(10000);
         
-        System.exit(0);
+        System.exit(0);*/
         
         // parameters : trainSize, testSize, tagType, correlationType, tfidfThreshold, tagCount, correlationWeight, priorWeight
         
@@ -221,7 +221,10 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
         
         // ControlledTaggerEvaluationSettings:trainLimit:30000,testLimit:1000,ControlledTaggerSettings:taggingType=FIXED_COUNT,correlationType=DEEP_CORRELATIONS,tagCount=10,correlationWeight=20000.0,priorWeight=1.0,ControlledTaggerEvaluationResult:taggedEntries:1000,timeForTraining:40m:20s:180ms,timeForTesting:2m:13s:988ms,averageTagCount:9.811,averagePr:0.4935059523809526,averageRc:0.248121375737789,averageF1:0.33021807907257816
 
-        ControlledTaggerEvaluationSettings s1 = new ControlledTaggerEvaluationSettings(20000, 5000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 20000, 1.0f);
+        //ControlledTaggerEvaluationSettings s1 = new ControlledTaggerEvaluationSettings(20000, 5000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 20000, 1.0f, 1);
+        //ControlledTaggerEvaluationSettings s2 = new ControlledTaggerEvaluationSettings(20000, 5000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 20000, 1.0f, 2);
+        //ControlledTaggerEvaluationSettings s3 = new ControlledTaggerEvaluationSettings(20000, 5000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 20000, 1.0f, 3);
+        ControlledTaggerEvaluationSettings s4 = new ControlledTaggerEvaluationSettings(20000, 5000, TaggingType.FIXED_COUNT, TaggingCorrelationType.DEEP_CORRELATIONS, 0, 10, 20000, 1.0f, 4);
 
         // with memorysavingfix ------> 20.000 -> average pr: 0,49 rc: 0,24 f1: 0,33
         // without -------------------> average pr: 0,50 rc: 0,25 f1: 0,33
@@ -241,7 +244,7 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
         // s1.setStopwords(new Stopwords(Stopwords.STOP_WORDS_EN));
 
         
-        List<ControlledTaggerEvaluationSettings> settings = Arrays.asList(s1);//,s2,s3,s4,s5,s6);
+        List<ControlledTaggerEvaluationSettings> settings = Arrays.asList(s4); //,s2,s3);//,s2,s3,s4,s5,s6);
 
         evaluation.evaluate(settings, "data/ControlledTaggerEvaluationResult.txt");
 

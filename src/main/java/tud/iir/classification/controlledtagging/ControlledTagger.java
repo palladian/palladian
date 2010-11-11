@@ -310,9 +310,13 @@ public class ControlledTagger {
 
         Bag<String> tokens = new HashBag<String>();
 
-        tokens.addAll(Tokenizer.tokenize(toTokenize));
-        tokens.addAll(tokenizeGrams(toTokenize, 2));
-        tokens.addAll(tokenizeGrams(toTokenize, 3));
+        tokens.addAll(Tokenizer.tokenize(toTokenize)); // unigrams
+        for (int i = 2; i <= settings.getPhraseLength(); i++) { // bi-/tri-/...-grams
+            tokens.addAll(tokenizeGrams(toTokenize, i));            
+        }
+        
+        //tokens.addAll(tokenizeGrams(toTokenize, 2));
+        //tokens.addAll(tokenizeGrams(toTokenize, 3));
 
         return tokens;
     }
@@ -844,13 +848,17 @@ public class ControlledTagger {
     public void load(String filePath) {
         StopWatch sw = new StopWatch();
         LOGGER.info("loading index from " + filePath);
-        ControlledTaggerIndex index = (ControlledTaggerIndex) FileHelper.deserialize(filePath);
+        ControlledTaggerIndex index = FileHelper.deserialize(filePath);
         if (index == null) {
             LOGGER.error("could not read from " + filePath + ", starting with new instance.");
         } else {
             LOGGER.info("loaded index from " + filePath + " in " + sw.getElapsedTimeString());
             this.index = index;
         }
+    }
+    
+    public void setIndex(ControlledTaggerIndex index) {
+        this.index = index;
     }
 
     /**

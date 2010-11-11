@@ -38,7 +38,8 @@ public class ControlledTaggerEvaluationSettings extends ControlledTaggerSettings
             float tfidfThreshold, 
             int tagCount, 
             float correlationWeight, 
-            float priorWeight) {
+            float priorWeight,
+            int phraseLength) {
         super();
         
         setTaggingType(taggingType);
@@ -47,6 +48,7 @@ public class ControlledTaggerEvaluationSettings extends ControlledTaggerSettings
         setTagCount(tagCount);
         setCorrelationWeight(correlationWeight);
         setPriorWeight(priorWeight);
+        setPhraseLength(phraseLength);
         
         this.trainLimit = trainLimit;
         this.testLimit = testLimit;
