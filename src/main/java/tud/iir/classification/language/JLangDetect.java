@@ -3,10 +3,15 @@ package tud.iir.classification.language;
 import java.io.File;
 import java.lang.reflect.Field;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 
@@ -50,7 +55,7 @@ public class JLangDetect extends LanguageClassifier {
     private static final Logger LOGGER = Logger.getLogger(JLangDetect.class);
 
     /** The confidence threshold for a language. This is the minimal percentage of n-grams which have to match. */
-    private static final float THRESHOLD = 0.5f;
+    private static final float THRESHOLD = 0.0f;
 
     /** In-memory cache for the n-grams. */
     private Map<String, GramTree> statsMap = new HashMap<String, GramTree>();
@@ -121,6 +126,58 @@ public class JLangDetect extends LanguageClassifier {
         return bestLang;
     }
 
+    /**
+     * Train the language detector on a dataset.
+     * 
+     * @param dataset The dataset to train on.
+     * @param modelPath The name for the path where the trained models are stored.
+     */
+    public void train(Dataset dataset, String modelPath) {
+
+        StopWatch sw = new StopWatch();
+
+        LOGGER.info("start training jLangDetect");
+
+        new File(modelPath).mkdirs();
+
+        List<String> documentIndexEntries = FileHelper.readFileToArray(dataset.getPath());
+
+        // a map holding all file links for each class
+        Map<String, Set<String>> classMap = new HashMap<String, Set<String>>();
+
+        // group entries by language
+        for (String line : documentIndexEntries) {
+
+            String[] parts = line.split(" ");
+            Set<String> links = classMap.get(parts[1]);
+            if (links == null) {
+                links = new HashSet<String>();
+                links.add(parts[0]);
+                classMap.put(parts[1], links);
+            } else {
+                links.add(parts[0]);
+            }
+        }
+
+        // learn texts for each language
+        for (Entry<String, Set<String>> entry : classMap.entrySet()) {
+
+            GramTree tree = new GramTree(1, 3);
+
+            Set<String> documentLinks = entry.getValue();
+
+            for (String link : documentLinks) {
+                String text = FileHelper.readFileToString(dataset.getRootPath() + link);
+                tree.learn(text);
+            }
+
+            tree.compress();
+            FileHelper.serialize(tree, modelPath + entry.getKey() + "_tree.bin");
+        }
+
+        LOGGER.info("trained jLangDetect in " + sw.getElapsedTimeString());
+    }
+
     @Override
     public String classify(String text) {
         return detect(text, false);
@@ -151,6 +208,30 @@ public class JLangDetect extends LanguageClassifier {
     }
 
     public static void main(String[] args) {
+
+        // ///////////////// learn from a given dataset ///////////////////
+        // specify the dataset that should be used as training data
+        Dataset dataset = new Dataset();
+
+        // set the path to the dataset, the first field is a link, and columns are separated with a space
+        dataset.setPath("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc100_split1.txt");
+        dataset.setFirstFieldLink(true);
+        dataset.setSeparationString(" ");
+
+        JLangDetect jld = new JLangDetect();
+        jld.train(dataset, "data/models/JLangLanguageDetector/jrc/");
+        System.exit(1);
+
+        JLangDetect jld2 = new JLangDetect("data/models/JLangLanguageDetector/jrc/");
+
+        System.out.println(jld2);
+
+        System.out.println(jld2.classify("hello, world!"));
+        System.out.println(jld2.classify("grüß gott"));
+        System.out.println(jld2.classify("servus!"));
+
+        System.exit(1);
+        // ////////////////////////////////////////////////////////////////
 
         JLangDetect ld = new JLangDetect("/home/pk/workspace/models/JLangLanguageDetector/europarl");
 
