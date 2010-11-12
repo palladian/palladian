@@ -425,7 +425,7 @@ public class ChartCreator {
         String eTag = (SIMULATE_ETAG_USAGE) ? "ETag" : "NoETag";
         switch (POLICY) {
             case MAX:
-                filePathToWrite = sumVolumeMaxMinTimeFilePath + "_Min" + eTag + ".csv";
+                filePathToWrite = sumVolumeMaxMinTimeFilePath + "_Max" + eTag + ".csv";
                 break;
             case MIN:
                 filePathToWrite = sumVolumeMaxMinTimeFilePath + "_Min" + eTag + ".csv";
@@ -463,7 +463,6 @@ public class ChartCreator {
         /**
          * 200 polls for scoreMin
          * 200 polls for scoreMax
-         * dataset crawled for 4 weeks = 672 hours
          */
         ChartCreator cc = new ChartCreator(200, 200);
 
@@ -473,9 +472,8 @@ public class ChartCreator {
         // cc.createAverageScoreMinByPollFile(); // letzter Test 12.11. DB Schema v2
         // cc.createPercentageNewMaxPollFile(); // letzter Test 12.11. DB Schema v2
 
-        cc.cumulatedVolumePerTimeFile(Policy.MIN, false, 210000); // letzter Test 12.11. DB Schema v2 mit Policy.MAX,
-                                                                  // false, 210000; ERGEBNISSE PRÜFEN: Adaptive, Fix
-                                                                  // Learned
+        cc.cumulatedVolumePerTimeFile(Policy.MIN, true, 210000); // letzter Test 12.11. DB Schema v2 (alle 4
+                                                                 // Kombinationen)
 	}
 
 }
