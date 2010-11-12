@@ -7,91 +7,140 @@ package tud.iir.news.evaluation;
  */
 public class EvaluationFeedPoll {	
 	
-	/* FeedID */
+    /** FeedID */
 	private int feedID = -1; 
+
+    /** Specifies whether {@link EvaluationFeedPoll#feedID} is already set (read from data base) or not */
     private boolean feedIDValid = false;
-	
-	/* the feed's update class, e.g. zombie, constant */
-	private int activityPattern = -1;
+
+    /** the feed's update class, e.g. zombie, constant */
+    private int activityPattern = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#activityPattern} is already set (read from data base) or not */
     private boolean activityPatternValid = false;
     
-	/* true if the feed supports the eTag functionality */
-	private Boolean supportsETag = false;
-    private boolean supportsETagValid = false;
-    
-	/* true if the feed supports the conditional get functionality (HTTP 304)*/
-	private Boolean supportsConditionalGet = false;
-    private boolean supportsConditionalGetValid = false;
-    
-	/* size of the returned header in Bytes if supportsETag = true and no new entries found */
-	private int eTagResponseSize = -1;
-    private boolean eTagResponseSizeValid = false;
-    
-	/* size of the returned header in Bytes if supportsConditionalGet = true and feed has not changed */
-	private int conditionalGetResponseSize = -1;
+    /** size of the returned header in Bytes if supportsConditionalGet = true and feed has not changed */
+    private Integer conditionalGetResponseSize = null;
+
+    /**
+     * Specifies whether {@link EvaluationFeedPoll#conditionalGetResponseSize} is already set (read from data base) or
+     * not
+     */
     private boolean conditionalGetResponseSizeValid = false;
     
-	/* the number of the current poll */ 
+    /** true if the feed supports conditional GET or eTag */
+    private boolean supportsConditionalGet = false;
+
+    /*
+     * Specifies whether {@link EvaluationFeedPoll#supportsConditionalGetSize} is already set (read from data base) and
+     * not NULL
+     */
+    private boolean supportsConditionalGetValid = false;
+    
+    /** the number of the current poll */
     private int numberOfPoll = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#numberOfPoll} is already set (read from data base) or not */
     private boolean numberOfPollValid = false;
 	
-	/* the feed has been pooled at this TIMESTAMP, format milliseconds since 01.01.1970 00:00 */
+    /** the feed has been pooled at this TIMESTAMP, format milliseconds since 01.01.1970 00:00 */
     private long pollTimestamp = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#pollTimestamp} is already set (read from data base) or not */
     private boolean pollTimestampValid = false;
 	
-	/* the hour of the day the feed has been polled */
-	private int pollHourOfDay = -1;
-    private boolean pollHourOfDayValid = false;
-	
-	/* the minute of the day the feed has been polled */
-    private int pollMinuteOfDay = -1;
-    private boolean pollMinuteOfDayValid = false;
-	
-	/* time in minutes we waited between last and current check */
+    /** time in minutes we waited between last and current check */
     private int checkInterval = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#checkInterval} is already set (read from data base) or not */
     private boolean checkIntervalValid = false;
 	
-	/* the current size of the feed's window (number of items found) */
-	private int windowSize = -1;
+    /** the current size of the feed's window (number of items found) */
+    private int windowSize = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#windowSize} is already set (read from data base) or not */
     private boolean windowSizeValid = false;
 	
-	/* the amount of bytes that has been downloaded */
+    /** the amount of bytes that has been downloaded */
     private int sizeOfPoll = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#sizeOfPoll} is already set (read from data base) or not */
     private boolean sizeOfPollValid = false;
 	
-	/* the number of new items we missed because there more new items since the last poll than fit into the window */
-	private int numberMissedNewEntries = -1;
-    private boolean numberMissedNewEntriesValid = false;
-	
-	/* the percentage of new entries within this poll. 1 means all but one entry is new, >1 means that all entries are new and we probably missed new entries */
-    private float percentageNewEntries = -1;
-    private boolean percentageNewEntriesValid = false;
-	
-	/* late or early (negative value) in seconds, is the time span between timestamp poll and timestamp(s) next or last new entry(ies) */
-    private double delay = -1;
-    private boolean delayValid = false;
-	
-	/* the score in MAX mode = percentageNewEntries iff percentageNewEntries <=1 OR (1 - numberMissedNewEntries/windowSize) iff percentageNewEntries > 1 */
-	private float scoreMax = -1;
-    private boolean scoreMaxValid = false;
-	
-	/* the score in MIN mode = (d/int + 1)^-1 ; score is in (0,1] 1 is perfect, 0.5 means culmulated delay (d) is equalt to current interval (int) */
-    private float scoreMin = -1;
-    private boolean scoreMinValid = false;
+    /** the number of new items we missed because there more new items since the last poll than fit into the window */
+    private int missedItems = -1;
 
-    /* an average value like average scoreMin, scoreMax or percentageNewEntries, calculated for some diagrams */
+    /** Specifies whether {@link EvaluationFeedPoll#missedItems} is already set (read from data base) or not */
+    private boolean missedItemsValid = false;
+	
+    /** the number of new entries within this poll. */
+    private int newWindowItems = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#newWindowItems} is already set (read from data base) or not */
+    private boolean newWindowItemsValid = false;
+
+    /**
+     * late or early (negative value) in seconds, is the time span between timestamp poll and timestamp(s) next or last
+     * new entry(ies)
+     */
+    private double cumulatedDelay = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#cumulatedDelay} is already set (read from data base) or not */
+    private boolean cumulatedDelayValid = false;
+
+    /** late in seconds, is the time span between timestamp poll and timestamp(s) next or last new entry(ies) */
+    private double cumulatedLateDelay = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#cumulatedLateDelay} is already set (read from data base) or not */
+    private boolean cumulatedLateDelayValid = false;
+	
+    /**
+     * the score in MAX mode = percentageNewEntries iff percentageNewEntries <=1 OR (1 -
+     * numberMissedNewEntries/windowSize) iff percentageNewEntries > 1
+     */
+    // TODO: David: ist das noch korrekt??
+    private double timeliness = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#timeliness} is already set (read from data base) or not */
+    private boolean timelinessValid = false;
+	
+    /**
+     * the score in MIN mode = (d/int + 1)^-1 ; score is in (0,1] 1 is perfect, 0.5 means culmulated delay (d) is equalt
+     * to current interval (int)
+     */
+    // TODO: David: ist das noch korrekt??
+    private double timelinessLate = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#timelinessLate} is already set (read from data base) or not */
+    private boolean timelinessLateValid = false;
+
+    /** an average value like average scoreMin, scoreMax or percentageNewEntries, calculated for some diagrams */
     private double averageValue = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#averageValue} is already set (read from data base) or not */
     private boolean averageValueValid = false;
     
-    private int dayOfYear = -1;
-    private boolean dayOfYearValid = false;
-
+    /** size of polls preaggregated by data base */
     private long cumulatedSizeofPolls = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#cumulatedSizeofPolls} is already set (read from data base) or not */
     private boolean cumulatedSizeofPollsValid = false;
+
+    /** The day of the year this poll has been made */
+    private int dayOfYear = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#dayOfYear} is already set (read from data base) or not */
+    private boolean dayOfYearValid = false;
     
+    /** The hour within the experiment this poll has been made */
     private int hourOfExperiment = -1;
+
+    /** Specifies whether {@link EvaluationFeedPoll#hourOfExperiment} is already set (read from data base) or not */
     private boolean hourOfExperimentValid = false;
 
+    /**
+     * guess :)
+     */
     public EvaluationFeedPoll() {
         super();
     }
@@ -111,14 +160,6 @@ public class EvaluationFeedPoll {
     public final void setAverageValue(double averageValue) {
         this.averageValue = averageValue;
         this.averageValueValid = true;
-    }
-
-    /**
-     * @param eTagResponseSize the eTagResponseSize to set
-     */
-    public final void seteTagResponseSize(int eTagResponseSize) {
-        this.eTagResponseSize = eTagResponseSize;
-        this.eTagResponseSizeValid = true;
     }
 
     
@@ -184,24 +225,12 @@ public class EvaluationFeedPoll {
         this.activityPatternValid = true;
     }
 
-    public final void setSupportsETag(Boolean supportsETag) {
-        this.supportsETag = supportsETag;
-        this.supportsETagValid = true;
-    }
 
-    public final void setSupportsConditionalGet(Boolean supportsConditionalGet) {
-        this.supportsConditionalGet = supportsConditionalGet;
-        this.supportsConditionalGetValid = true;
-    }
-
-    public final void setETagResponseSize(int eTagResponseSize) {
-        this.eTagResponseSize = eTagResponseSize;
-        this.eTagResponseSizeValid = true;
-    }
-
-    public final void setConditionalGetResponseSize(int conditionalGetResponseSize) {
+    public final void setConditionalGetResponseSize(Integer conditionalGetResponseSize) {
         this.conditionalGetResponseSize = conditionalGetResponseSize;
         this.conditionalGetResponseSizeValid = true;
+        if (conditionalGetResponseSize != null)
+            setSupportsConditionalGet(true);
     }
     
     public final void setNumberOfPoll(int numberOfPoll) {
@@ -212,16 +241,6 @@ public class EvaluationFeedPoll {
     public final void setPollTimestamp(long pollTimestamp) {
         this.pollTimestamp = pollTimestamp;
         this.pollTimestampValid = true;
-    }
-
-    public final void setPollHourOfDay(int pollHourOfDay) {
-        this.pollHourOfDay = pollHourOfDay;
-        this.pollHourOfDayValid = true;
-    }
-
-    public final void setPollMinuteOfDay(int pollMinuteOfDay) {
-        this.pollMinuteOfDay = pollMinuteOfDay;
-        this.pollMinuteOfDayValid = true;
     }
 
     public final void setCheckInterval(int checkInterval) {
@@ -239,30 +258,26 @@ public class EvaluationFeedPoll {
         this.sizeOfPollValid = true;
     }
 
-    public final void setNumberMissedNewEntries(int numberMissedNewEntries) {
-        this.numberMissedNewEntries = numberMissedNewEntries;
-        this.numberMissedNewEntriesValid = true;
+    public final void setMissedItems(int missedItems) {
+        this.missedItems = missedItems;
+        this.missedItemsValid = true;
     }
 
-    public final void setPercentageNewEntries(float percentageNewEntries) {
-        this.percentageNewEntries = percentageNewEntries;
-        this.percentageNewEntriesValid = true;
+    public final void setPercentageNewEntries(int numberNewEntries) {
+        this.newWindowItems = numberNewEntries;
+        this.newWindowItemsValid = true;
     }
 
     public final void setDelay(double delay) {
-        this.delay = delay;
-        this.delayValid = true;
+        this.cumulatedDelay = delay;
+        this.cumulatedDelayValid = true;
     }
 
     public final void setScoreMin(float scoreMin) {
-        this.scoreMin = scoreMin;
-        this.scoreMinValid = true;
+        this.timelinessLate = scoreMin;
+        this.timelinessLateValid = true;
     }
 
-    public final void setScoreMax(float scoreMax) {
-        this.scoreMax = scoreMax;
-        this.scoreMaxValid = true;
-    }
 
     public final int getFeedID() {
         if (!feedIDValid)
@@ -276,22 +291,10 @@ public class EvaluationFeedPoll {
 		return activityPattern;
 	}
 
-	public final Boolean getSupportsETag() {
-        if (!supportsETagValid)
-            throw new IllegalStateException("feeID " + feedID + ": supportsETag not initialized!");
-		return supportsETag;
-	}
-
 	public final Boolean getSupportsConditionalGet() {
         if (!supportsConditionalGetValid)
             throw new IllegalStateException("feeID " + feedID + ": supportsConditionalGet not initialized!");
 		return supportsConditionalGet;
-	}
-
-	public final int geteTagResponseSize() {
-        if (!eTagResponseSizeValid)
-            throw new IllegalStateException("feeID " + feedID + ": eTagResponseSize not initialized!");
-		return eTagResponseSize;
 	}
 
 	public final int getConditionalGetResponseSize() {
@@ -312,17 +315,6 @@ public class EvaluationFeedPoll {
 		return pollTimestamp;
 	}
 
-	public final int getPollHourOfDay() {
-        if (!pollHourOfDayValid)
-            throw new IllegalStateException("feeID " + feedID + ": pollHourOfDay not initialized!");
-		return pollHourOfDay;
-	}
-
-	public final int getPollMinuteOfDay() {
-        if (!pollMinuteOfDayValid)
-            throw new IllegalStateException("feeID " + feedID + ": pollMinuteOfDay not initialized!");
-		return pollMinuteOfDay;
-	}
 
     public final int getCheckInterval() {
         if (!checkIntervalValid)
@@ -347,40 +339,129 @@ public class EvaluationFeedPoll {
 		return sizeOfPoll;
 	}
 
-	public final int getNumberMissedNewEntries() {
-        if (!numberMissedNewEntriesValid)
-            throw new IllegalStateException("feeID " + feedID + ": numberMissedNewEntries not initialized!");
-		return numberMissedNewEntries;
+	public final int getMissedItems() {
+        if (!missedItemsValid)
+            throw new IllegalStateException("feeID " + feedID + ": missedItems not initialized!");
+		return missedItems;
 	}
 
-	public final float getPercentageNewEntries() {
-        if (!percentageNewEntriesValid)
-            throw new IllegalStateException("feeID " + feedID + ": percentageNewEntries not initialized!");
-		return percentageNewEntries;
+    public final int getNewWindowItems() {
+        if (!newWindowItemsValid)
+            throw new IllegalStateException("feeID " + feedID + ": newWindowItems not initialized!");
+        return newWindowItems;
 	}
 
 	public final double getDelay() {
-        if (!delayValid)
+        if (!cumulatedDelayValid)
             throw new IllegalStateException("feeID " + feedID + ": delay not initialized!");
-		return delay;
+		return cumulatedDelay;
 	}
 
-	public final float getScoreMin() {
-        if (!scoreMinValid)
-            throw new IllegalStateException("feeID " + feedID + ": scoreMin not initialized!");
-		return scoreMin;
-	}
-
-	public final float getScoreMax() {
-        if (!scoreMaxValid)
-            throw new IllegalStateException("feeID " + feedID + ": scoreMax not initialized!");
-		return scoreMax;
+    public final double getTimelinessLate() {
+        if (!timelinessLateValid)
+            throw new IllegalStateException("feeID " + feedID + ": timelinessLate not initialized!");
+        return timelinessLate;
 	}
 	
 
 
+
 	
-    /* (non-Javadoc)
+    /**
+     * @return the numberNewEntries
+     */
+    public final int getNumberNewEntries() {
+        if (!newWindowItemsValid)
+            throw new IllegalStateException("feeID " + feedID + ": numberNewEntries not initialized!");
+        return newWindowItems;
+    }
+
+    /**
+     * @param newWindowItems the number of new Items in this poll
+     */
+    public final void setNewWindowItems(int newWindowItems) {
+        this.newWindowItems = newWindowItems;
+        this.newWindowItemsValid = true;
+    }
+
+    /**
+     * @return the cumulatedDelay
+     */
+    public final double getCumulatedDelay() {
+        if (!cumulatedDelayValid)
+            throw new IllegalStateException("feeID " + feedID + ": cumulatedDelay not initialized!");
+        return cumulatedDelay;
+    }
+
+    /**
+     * @param cumulatedDelay the cumulatedDelay to set
+     */
+    public final void setCumulatedDelay(double cumulatedDelay) {
+        this.cumulatedDelay = cumulatedDelay;
+        this.cumulatedDelayValid = true;
+    }
+
+    /**
+     * @return the cumulatedLateDelay
+     */
+    public final double getCumulatedLateDelay() {
+        if (!cumulatedLateDelayValid)
+            throw new IllegalStateException("feeID " + feedID + ": cumulatedLateDelay not initialized!");
+        return cumulatedLateDelay;
+    }
+
+    /**
+     * @param cumulatedLateDelay the cumulatedLateDelay to set
+     */
+    public final void setCumulatedLateDelay(double cumulatedLateDelay) {
+        this.cumulatedLateDelay = cumulatedLateDelay;
+        this.cumulatedLateDelayValid = true;
+    }
+
+    /**
+     * @return the timeliness
+     */
+    public final double getTimeliness() {
+        if (!timelinessValid)
+            throw new IllegalStateException("feeID " + feedID + ": timeliness not initialized!");
+        return timeliness;
+    }
+
+    /**
+     * @param timeliness the timeliness to set
+     */
+    public final void setTimeliness(double timeliness) {
+        this.timeliness = timeliness;
+        this.timelinessValid = true;
+    }
+
+    /**
+     * @param timelinessLate the timelinessLate to set
+     */
+    public final void setTimelinessLate(double timelinessLate) {
+        this.timelinessLate = timelinessLate;
+        this.timelinessLateValid = true;
+    }
+
+    /**
+     * @return the cumulatedSizeofPolls
+     */
+    public final long getCumulatedSizeofPolls() {
+        if (!cumulatedSizeofPollsValid)
+            throw new IllegalStateException("feeID " + feedID + ": cumulatedSizeofPolls not initialized!");
+        return cumulatedSizeofPolls;
+    }
+
+    /**
+     * @param supportsConditionalGet the supportsConditionalGet to set
+     */
+    private final void setSupportsConditionalGet(boolean supportsConditionalGet) {
+        this.supportsConditionalGet = supportsConditionalGet;
+        this.supportsConditionalGetValid = true;
+    }
+
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -395,50 +476,47 @@ public class EvaluationFeedPoll {
         result = prime * result + (averageValueValid ? 1231 : 1237);
         result = prime * result + checkInterval;
         result = prime * result + (checkIntervalValid ? 1231 : 1237);
-        result = prime * result + conditionalGetResponseSize;
+        result = prime * result + ((conditionalGetResponseSize == null) ? 0 : conditionalGetResponseSize.hashCode());
         result = prime * result + (conditionalGetResponseSizeValid ? 1231 : 1237);
+        temp = Double.doubleToLongBits(cumulatedDelay);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + (cumulatedDelayValid ? 1231 : 1237);
+        temp = Double.doubleToLongBits(cumulatedLateDelay);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + (cumulatedLateDelayValid ? 1231 : 1237);
         result = prime * result + (int) (cumulatedSizeofPolls ^ (cumulatedSizeofPolls >>> 32));
         result = prime * result + (cumulatedSizeofPollsValid ? 1231 : 1237);
         result = prime * result + dayOfYear;
         result = prime * result + (dayOfYearValid ? 1231 : 1237);
-        temp = Double.doubleToLongBits(delay);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + (delayValid ? 1231 : 1237);
-        result = prime * result + eTagResponseSize;
-        result = prime * result + (eTagResponseSizeValid ? 1231 : 1237);
         result = prime * result + feedID;
         result = prime * result + (feedIDValid ? 1231 : 1237);
         result = prime * result + hourOfExperiment;
         result = prime * result + (hourOfExperimentValid ? 1231 : 1237);
-        result = prime * result + numberMissedNewEntries;
-        result = prime * result + (numberMissedNewEntriesValid ? 1231 : 1237);
+        result = prime * result + missedItems;
+        result = prime * result + (missedItemsValid ? 1231 : 1237);
+        result = prime * result + newWindowItems;
+        result = prime * result + (newWindowItemsValid ? 1231 : 1237);
         result = prime * result + numberOfPoll;
         result = prime * result + (numberOfPollValid ? 1231 : 1237);
-        result = prime * result + Float.floatToIntBits(percentageNewEntries);
-        result = prime * result + (percentageNewEntriesValid ? 1231 : 1237);
-        result = prime * result + pollHourOfDay;
-        result = prime * result + (pollHourOfDayValid ? 1231 : 1237);
-        result = prime * result + pollMinuteOfDay;
-        result = prime * result + (pollMinuteOfDayValid ? 1231 : 1237);
         result = prime * result + (int) (pollTimestamp ^ (pollTimestamp >>> 32));
         result = prime * result + (pollTimestampValid ? 1231 : 1237);
-        result = prime * result + Float.floatToIntBits(scoreMax);
-        result = prime * result + (scoreMaxValid ? 1231 : 1237);
-        result = prime * result + Float.floatToIntBits(scoreMin);
-        result = prime * result + (scoreMinValid ? 1231 : 1237);
         result = prime * result + sizeOfPoll;
         result = prime * result + (sizeOfPollValid ? 1231 : 1237);
-        result = prime * result + ((supportsConditionalGet == null) ? 0 : supportsConditionalGet.hashCode());
+        result = prime * result + (supportsConditionalGet ? 1231 : 1237);
         result = prime * result + (supportsConditionalGetValid ? 1231 : 1237);
-        result = prime * result + ((supportsETag == null) ? 0 : supportsETag.hashCode());
-        result = prime * result + (supportsETagValid ? 1231 : 1237);
+        temp = Double.doubleToLongBits(timeliness);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        temp = Double.doubleToLongBits(timelinessLate);
+        result = prime * result + (int) (temp ^ (temp >>> 32));
+        result = prime * result + (timelinessLateValid ? 1231 : 1237);
+        result = prime * result + (timelinessValid ? 1231 : 1237);
         result = prime * result + windowSize;
         result = prime * result + (windowSizeValid ? 1231 : 1237);
         return result;
     }
 
-	
-	 /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -462,9 +540,20 @@ public class EvaluationFeedPoll {
             return false;
         if (checkIntervalValid != other.checkIntervalValid)
             return false;
-        if (conditionalGetResponseSize != other.conditionalGetResponseSize)
+        if (conditionalGetResponseSize == null) {
+            if (other.conditionalGetResponseSize != null)
+                return false;
+        } else if (!conditionalGetResponseSize.equals(other.conditionalGetResponseSize))
             return false;
         if (conditionalGetResponseSizeValid != other.conditionalGetResponseSizeValid)
+            return false;
+        if (Double.doubleToLongBits(cumulatedDelay) != Double.doubleToLongBits(other.cumulatedDelay))
+            return false;
+        if (cumulatedDelayValid != other.cumulatedDelayValid)
+            return false;
+        if (Double.doubleToLongBits(cumulatedLateDelay) != Double.doubleToLongBits(other.cumulatedLateDelay))
+            return false;
+        if (cumulatedLateDelayValid != other.cumulatedLateDelayValid)
             return false;
         if (cumulatedSizeofPolls != other.cumulatedSizeofPolls)
             return false;
@@ -474,14 +563,6 @@ public class EvaluationFeedPoll {
             return false;
         if (dayOfYearValid != other.dayOfYearValid)
             return false;
-        if (Double.doubleToLongBits(delay) != Double.doubleToLongBits(other.delay))
-            return false;
-        if (delayValid != other.delayValid)
-            return false;
-        if (eTagResponseSize != other.eTagResponseSize)
-            return false;
-        if (eTagResponseSizeValid != other.eTagResponseSizeValid)
-            return false;
         if (feedID != other.feedID)
             return false;
         if (feedIDValid != other.feedIDValid)
@@ -490,55 +571,37 @@ public class EvaluationFeedPoll {
             return false;
         if (hourOfExperimentValid != other.hourOfExperimentValid)
             return false;
-        if (numberMissedNewEntries != other.numberMissedNewEntries)
+        if (missedItems != other.missedItems)
             return false;
-        if (numberMissedNewEntriesValid != other.numberMissedNewEntriesValid)
+        if (missedItemsValid != other.missedItemsValid)
+            return false;
+        if (newWindowItems != other.newWindowItems)
+            return false;
+        if (newWindowItemsValid != other.newWindowItemsValid)
             return false;
         if (numberOfPoll != other.numberOfPoll)
             return false;
         if (numberOfPollValid != other.numberOfPollValid)
             return false;
-        if (Float.floatToIntBits(percentageNewEntries) != Float.floatToIntBits(other.percentageNewEntries))
-            return false;
-        if (percentageNewEntriesValid != other.percentageNewEntriesValid)
-            return false;
-        if (pollHourOfDay != other.pollHourOfDay)
-            return false;
-        if (pollHourOfDayValid != other.pollHourOfDayValid)
-            return false;
-        if (pollMinuteOfDay != other.pollMinuteOfDay)
-            return false;
-        if (pollMinuteOfDayValid != other.pollMinuteOfDayValid)
-            return false;
         if (pollTimestamp != other.pollTimestamp)
             return false;
         if (pollTimestampValid != other.pollTimestampValid)
-            return false;
-        if (Float.floatToIntBits(scoreMax) != Float.floatToIntBits(other.scoreMax))
-            return false;
-        if (scoreMaxValid != other.scoreMaxValid)
-            return false;
-        if (Float.floatToIntBits(scoreMin) != Float.floatToIntBits(other.scoreMin))
-            return false;
-        if (scoreMinValid != other.scoreMinValid)
             return false;
         if (sizeOfPoll != other.sizeOfPoll)
             return false;
         if (sizeOfPollValid != other.sizeOfPollValid)
             return false;
-        if (supportsConditionalGet == null) {
-            if (other.supportsConditionalGet != null)
-                return false;
-        } else if (!supportsConditionalGet.equals(other.supportsConditionalGet))
+        if (supportsConditionalGet != other.supportsConditionalGet)
             return false;
         if (supportsConditionalGetValid != other.supportsConditionalGetValid)
             return false;
-        if (supportsETag == null) {
-            if (other.supportsETag != null)
-                return false;
-        } else if (!supportsETag.equals(other.supportsETag))
+        if (Double.doubleToLongBits(timeliness) != Double.doubleToLongBits(other.timeliness))
             return false;
-        if (supportsETagValid != other.supportsETagValid)
+        if (Double.doubleToLongBits(timelinessLate) != Double.doubleToLongBits(other.timelinessLate))
+            return false;
+        if (timelinessLateValid != other.timelinessLateValid)
+            return false;
+        if (timelinessValid != other.timelinessValid)
             return false;
         if (windowSize != other.windowSize)
             return false;
@@ -546,34 +609,31 @@ public class EvaluationFeedPoll {
             return false;
         return true;
     }
-	
 
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
      * @see java.lang.Object#toString()
      */
     @Override
     public String toString() {
         return "EvaluationFeedPoll [feedID=" + feedID + ", feedIDValid=" + feedIDValid + ", activityPattern="
-                + activityPattern + ", activityPatternValid=" + activityPatternValid + ", supportsETag=" + supportsETag
-                + ", supportsETagValid=" + supportsETagValid + ", supportsConditionalGet=" + supportsConditionalGet
-                + ", supportsConditionalGetValid=" + supportsConditionalGetValid + ", eTagResponseSize="
-                + eTagResponseSize + ", eTagResponseSizeValid=" + eTagResponseSizeValid
-                + ", conditionalGetResponseSize=" + conditionalGetResponseSize + ", conditionalGetResponseSizeValid="
-                + conditionalGetResponseSizeValid + ", numberOfPoll=" + numberOfPoll + ", numberOfPollValid="
+                + activityPattern + ", activityPatternValid=" + activityPatternValid + ", conditionalGetResponseSize="
+                + conditionalGetResponseSize + ", conditionalGetResponseSizeValid=" + conditionalGetResponseSizeValid
+                + ", supportsConditionalGet=" + supportsConditionalGet + ", supportsConditionalGetValid="
+                + supportsConditionalGetValid + ", numberOfPoll=" + numberOfPoll + ", numberOfPollValid="
                 + numberOfPollValid + ", pollTimestamp=" + pollTimestamp + ", pollTimestampValid=" + pollTimestampValid
-                + ", pollHourOfDay=" + pollHourOfDay + ", pollHourOfDayValid=" + pollHourOfDayValid
-                + ", pollMinuteOfDay=" + pollMinuteOfDay + ", pollMinuteOfDayValid=" + pollMinuteOfDayValid
                 + ", checkInterval=" + checkInterval + ", checkIntervalValid=" + checkIntervalValid + ", windowSize="
                 + windowSize + ", windowSizeValid=" + windowSizeValid + ", sizeOfPoll=" + sizeOfPoll
-                + ", sizeOfPollValid=" + sizeOfPollValid + ", numberMissedNewEntries=" + numberMissedNewEntries
-                + ", numberMissedNewEntriesValid=" + numberMissedNewEntriesValid + ", percentageNewEntries="
-                + percentageNewEntries + ", percentageNewEntriesValid=" + percentageNewEntriesValid + ", delay="
-                + delay + ", delayValid=" + delayValid + ", scoreMax=" + scoreMax + ", scoreMaxValid=" + scoreMaxValid
-                + ", scoreMin=" + scoreMin + ", scoreMinValid=" + scoreMinValid + ", averageValue=" + averageValue
-                + ", averageValueValid=" + averageValueValid + ", dayOfYear=" + dayOfYear + ", dayOfYearValid="
-                + dayOfYearValid + ", cumulatedSizeofPolls=" + cumulatedSizeofPolls + ", cumulatedSizeofPollsValid="
-                + cumulatedSizeofPollsValid + ", hourOfExperiment=" + hourOfExperiment + ", hourOfExperimentValid="
-                + hourOfExperimentValid + "]";
+                + ", sizeOfPollValid=" + sizeOfPollValid + ", missedItems=" + missedItems + ", missedItemsValid="
+                + missedItemsValid + ", newWindowItems=" + newWindowItems + ", newWindowItemsValid="
+                + newWindowItemsValid + ", cumulatedDelay=" + cumulatedDelay + ", cumulatedDelayValid="
+                + cumulatedDelayValid + ", cumulatedLateDelay=" + cumulatedLateDelay + ", cumulatedLateDelayValid="
+                + cumulatedLateDelayValid + ", timeliness=" + timeliness + ", timelinessValid=" + timelinessValid
+                + ", timelinessLate=" + timelinessLate + ", timelinessLateValid=" + timelinessLateValid
+                + ", averageValue=" + averageValue + ", averageValueValid=" + averageValueValid
+                + ", cumulatedSizeofPolls=" + cumulatedSizeofPolls + ", cumulatedSizeofPollsValid="
+                + cumulatedSizeofPollsValid + ", dayOfYear=" + dayOfYear + ", dayOfYearValid=" + dayOfYearValid
+                + ", hourOfExperiment=" + hourOfExperiment + ", hourOfExperimentValid=" + hourOfExperimentValid + "]";
     }
 
 	
