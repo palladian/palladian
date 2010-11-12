@@ -71,7 +71,7 @@ Only the best results of students theses from the Dresden University of Technolo
 
 Our main contributions to the research community are:
 \begin{enumerate}
-\item New algorithms in the fiethat can easily be tested and applied to other projects.
+\item New algorithms in the fields of classification and extraction that can easily be tested and applied to other projects.
 \item Bundling existing, well-established algorithms for the use through a single interface.
 \item Help making research more transparent by allowing to reproduce results with the included algorithms.
 \end{enumerate}
@@ -560,6 +560,8 @@ After finishing a new component, new testing code must be written.
 
 %\section{Project Management}
 \chapter{Toolkit Functionality}
+In this chapter we discuss the functionalities of Palladian in detail. The purpose of each section is to give a general understanding of how the algorithms work and how to use them practically.
+
 \section{Classification}
 
 \subsection{Text Classification}
@@ -883,11 +885,32 @@ System.out.println("finished training and testing classifier
 \end{lstlisting}
 \end{codelisting}
 
+\subsection{Language Detection}
+Language detection is the task of determining the language of a given text. In the last section we explained how a text classifier can be trained. We used this training method to learn a dictionary based classifier for language detection and evaluated it against other state-of-the-art algorithms.
+We compared our algorithm to JLangDetect \cite{jlangdetect}, Google Translation API \cite{googleTranslationAPI}, and the Alchemy API \cite{alchemyLanguageAPI}. We used the Multilingual Parallel Corpus of the Joint Research Centre of the European Commission in version 3.0 \cite{jrcCorpus}. This corpus contains about half a million documents in 22 languages about politics. Since we could not train the language detectors from Google and Alchemy, the comparison is not fair to both of them but we put the results here to see how they are performing with their classifiers. Due to API restrictions we had to crop the length of the text to maximum of 100 characters.
+We trained both, JLangDetect and Palladian on a sample of 100 documents per language. JLangDetect was trained with character level n-grams between one and three\footnote{This setting has been said to be work well by the author of the JLangDetect, see \url{http://www.jroller.com/melix/entry/nlp_in_java_a_language}} while Palladian was trained with word level n-grams between one and three. We then tested all algorithms an a test set containing again 100 documents per language. Since the classifier performance is very sensitive to the length of the given text, we evaluated all algorithms with short texts (<= 10 characters), medium texts (<=30 characters), and long texts (no length limitation, but usually about 20 to 200 sentences).
+Table \ref{tab:languageDetectionEvaluation} shows the evaluation results. All results in brackets are not representative since many documents were not classified by the API.
 
-%TODO learn a classifier (and save it)
-%TODO test a classifier
-%TODO use a saved classifier
-%TODO learn bestclassifier
+\begin{table}[ht]
+\centering
+\begin{tabular}{|l|c|c|c|}
+	\hline
+	System & Short Texts & Medium Texts & Long Texts \\ 
+	\hline
+	JLangDetect & \textbf{74.64\%} & 87.91\% & 99.64\% \\ 
+	\hline
+	Alchemy API & (97.78\%) & 69.35\% & (88.27\%) \\ 
+	\hline
+	Google API & 57.32\% & 80.44\% & (99.21\%) \\ 
+	\hline
+	Palladian & 62.36\% & \textbf{88.18\%} & \textbf{99.91\%}  \\ 
+	\hline
+\end{tabular}
+\caption{Evaluation results for language detection systems.}
+\label{tab:languageDetectionEvaluation}
+\end{table}
+
+As we can see, JLangDetect performs very well across all text lengths. Palladian is, however, slightly superior as soon as the text length is longer than about 10 to 20 characters.
 
 \section{Extraction}
 
@@ -1027,11 +1050,11 @@ We used both content extraction approaches on the data set and scored their resu
 \centering
 \begin{tabular}{|l|c|c|c|}
 	\hline
-	& average similarity & \# wins & \# errors \\ 
+	System & Average Similarity & \# Wins & \# Errors \\ 
 	\hline
-	Boilerpipe (\texttt{ArticleExtractor}, version 1.1) & 87,84 \% & 138 & 44 \\ 
+	Boilerpipe (\texttt{ArticleExtractor}, version 1.1) & 87.84\% & 138 & 44 \\ 
 	\hline
-	Palladian (SVN revision 1187) & 89,06 \% & 465 & 14 \\ 
+	Palladian (SVN revision 1187) & 89.06\% & 465 & 14 \\ 
 	\hline
 \end{tabular}
 \caption{Evaluation results for web page content extraction approaches.}
