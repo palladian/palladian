@@ -111,7 +111,7 @@ public class CrossValidator {
 
                 LOGGER.info("\n start trainingPercentage classification loop on " + dataset.getPath()
                         + " with trainingPercentage "
-                                + trainingPercentage + "%, random = " + getEvaluationSetting().isRandom() + "\n");
+                        + trainingPercentage + "%, random = " + getEvaluationSetting().isRandom() + "\n");
 
                 // keep a set of performances for all folds of the given training percentage and dataset
                 Set<ClassifierPerformance> performancesDatasetTrainingFoldsTemp1 = new HashSet<ClassifierPerformance>();
@@ -121,23 +121,24 @@ public class CrossValidator {
 
                     LOGGER.info("\n start inner (cross-validation) classification loop on " + dataset.getPath()
                             + " with trainingPercentage "
-                                    + trainingPercentage
-                                    + "%, random = "
-                                    + getEvaluationSetting().isRandom()
-                                    + ", iteration = " + (k + 1) + "\n");
+                            + trainingPercentage
+                            + "%, random = "
+                            + getEvaluationSetting().isRandom()
+                            + ", iteration = " + (k + 1) + "\n");
 
                     try {
-						new TrainingDataSeparation().separateFile(dataset.getPath(), "data/temp/cvDataTraining.csv",
-						        "data/temp/cvDataTesting.csv", trainingPercentage, getEvaluationSetting().isRandom());
-					} catch (FileNotFoundException e) {
-						LOGGER.error(dataset.getPath() + e.getMessage());						
-					} catch (IOException e) {
-						LOGGER.error(dataset.getPath() + e.getMessage());						
-					}
+                        new TrainingDataSeparation().separateFile(dataset.getPath(), "data/temp/cvDataTraining.csv",
+                                "data/temp/cvDataTesting.csv", trainingPercentage, getEvaluationSetting().isRandom());
+                    } catch (FileNotFoundException e) {
+                        LOGGER.error(dataset.getPath() + e.getMessage());
+                    } catch (IOException e) {
+                        LOGGER.error(dataset.getPath() + e.getMessage());
+                    }
 
 
                     // classifierManager.setTrainingDataPercentage(100);
                     trainingTestingDataset.setPath("data/temp/cvDataTraining.csv");
+                    trainingTestingDataset.setRootPath(FileHelper.getFilePath(dataset.getPath()));
                     classifierManager.trainClassifier(trainingTestingDataset, classifier);
 
                     // classifierManager.trainAndTestClassifier("data/temp/cvDataTraining.csv",
@@ -146,6 +147,7 @@ public class CrossValidator {
                     // classify
                     // classifierManager.setTrainingDataPercentage(0);
                     trainingTestingDataset.setPath("data/temp/cvDataTesting.csv");
+                    trainingTestingDataset.setRootPath(FileHelper.getFilePath(dataset.getPath()));
                     classifierManager.testClassifier(trainingTestingDataset, classifier);
 
                     // classifierManager.trainAndTestClassifier("data/temp/cvDataTesting.csv", WebPageClassifier.URL,
@@ -154,14 +156,14 @@ public class CrossValidator {
 
                     // add the performance to the evaluation maps
                     ClassifierPerformance cfpc = classifier.getPerformanceCopy();
-                    
+
                     performancesDatasetTrainingFolds.add(cfpc);
                     performancesDatasetTrainingFoldsTemp1.add(cfpc);
                 }
 
                 // add the performances to the evaluation maps
                 HashSet<ClassifierPerformance> cfp = performancesFolds
-                        .get(dataset.getPath() + "_"
+                .get(dataset.getPath() + "_"
                         + trainingPercentage);
                 if (cfp == null) {
                     cfp = new HashSet<ClassifierPerformance>();
@@ -201,7 +203,7 @@ public class CrossValidator {
      * @param outputFolder The path to the folder where the evaluation files should be written to.
      */
     public void printEvaluationFiles(Set<CrossValidationResult> cvResults, String outputFolder) {
-        
+
         StringBuilder csv = new StringBuilder();
         csv.append(evaluationSetting).append("\n");
 
@@ -238,12 +240,12 @@ public class CrossValidator {
             }
 
         }
-        
+
         FileHelper.writeToFile(outputFolder + File.separator + "averagePerformancesTrainingFolds.csv", csv);
 
         csv = new StringBuilder();
         csv.append(evaluationSetting).append("\n");
-        
+
         // write file3: classifier performances averaged over all folds
         for (CrossValidationResult cvResult : cvResults) {
 
@@ -259,7 +261,7 @@ public class CrossValidator {
             }
 
         }
-        
+
         FileHelper.writeToFile(outputFolder + File.separator + "averagePerformancesFolds.csv", csv);
 
     }

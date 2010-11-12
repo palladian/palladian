@@ -1,5 +1,8 @@
 package tud.iir.classification.language;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -10,9 +13,17 @@ import tud.iir.classification.page.TextClassifier;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.classification.page.evaluation.ClassifierPerformance;
 import tud.iir.classification.page.evaluation.Dataset;
+import tud.iir.classification.page.evaluation.EvaluationSetting;
 import tud.iir.classification.page.evaluation.FeatureSetting;
 import tud.iir.helper.StopWatch;
 
+/**
+ * The best setting for medium to long texts is to use word n-grams with 1<=n<=3.
+ * Evaluation results can be found in the Palladian book.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class PalladianLangDetect extends LanguageClassifier {
 
     /** The logger for this class. */
@@ -28,7 +39,7 @@ public class PalladianLangDetect extends LanguageClassifier {
     }
 
     public PalladianLangDetect() {
-        palladianClassifier = ClassifierManager.load("data/models/palladianLanguageClassifier/LanguageClassifier.ser");
+        palladianClassifier = ClassifierManager.load("data/models/palladianLanguageJRC/palladianLanguageJRC.ser");
     }
 
     public Set<String> getPossibleClasses() {
@@ -46,13 +57,88 @@ public class PalladianLangDetect extends LanguageClassifier {
         return cp;
     }
 
+    public void evaluateBestSetting() {
+        ClassifierManager classifierManager = new ClassifierManager();
+
+        // build a set of classification type settings to evaluate
+        List<ClassificationTypeSetting> classificationTypeSettings = new ArrayList<ClassificationTypeSetting>();
+        ClassificationTypeSetting cts = new ClassificationTypeSetting();
+        cts.setClassificationType(ClassificationTypeSetting.SINGLE);
+        cts.setSerializeClassifier(false);
+        classificationTypeSettings.add(cts);
+
+        // build a set of classifiers to evaluate
+        List<TextClassifier> classifiers = new ArrayList<TextClassifier>();
+        TextClassifier classifier = null;
+        classifier = new DictionaryClassifier();
+        classifiers.add(classifier);
+
+        // build a set of feature settings for evaluation
+        List<FeatureSetting> featureSettings = new ArrayList<FeatureSetting>();
+        FeatureSetting fs = null;
+        fs = new FeatureSetting();
+        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        fs.setMinNGramLength(1);
+        fs.setMaxNGramLength(3);
+        featureSettings.add(fs);
+
+        fs = new FeatureSetting();
+        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        fs.setMinNGramLength(1);
+        fs.setMaxNGramLength(7);
+        featureSettings.add(fs);
+
+        fs = new FeatureSetting();
+        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        fs.setMinNGramLength(4);
+        fs.setMaxNGramLength(7);
+        featureSettings.add(fs);
+
+        fs = new FeatureSetting();
+        fs.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        fs.setMinNGramLength(3);
+        fs.setMaxNGramLength(8);
+        featureSettings.add(fs);
+
+        fs = new FeatureSetting();
+        fs.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+        fs.setMinNGramLength(1);
+        fs.setMaxNGramLength(3);
+        featureSettings.add(fs);
+
+        // build a set of datasets that should be used for evaluation
+        Set<Dataset> datasets = new HashSet<Dataset>();
+        Dataset dataset = new Dataset();
+        dataset.setPath("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc1000.txt");
+        dataset.setFirstFieldLink(true);
+        dataset.setSeparationString(" ");
+        datasets.add(dataset);
+
+        // set evaluation settings
+        EvaluationSetting evaluationSetting = new EvaluationSetting();
+        evaluationSetting.setTrainingPercentageMin(20);
+        evaluationSetting.setTrainingPercentageMax(50);
+        evaluationSetting.setTrainingPercentageStep(10);
+        evaluationSetting.setkFolds(3);
+        evaluationSetting.addDataset(dataset);
+
+        // train and test all classifiers in all combinations
+        StopWatch stopWatch = new StopWatch();
+
+        // train + test
+        classifierManager.learnBestClassifier(classificationTypeSettings, classifiers, featureSettings,
+                evaluationSetting);
+
+        LOGGER.info("finished training and testing classifier in " + stopWatch.getElapsedTimeString());
+    }
+
     /**
      * Train the language detector on a dataset.
      * 
      * @param dataset The dataset to train on.
      * @param classifierName The name for the learned classifier.
      */
-    public void train(Dataset dataset, String classifierName) {
+    public static void train(Dataset dataset, String classifierName) {
 
         // take the time for the learning
         StopWatch stopWatch = new StopWatch();
@@ -81,13 +167,13 @@ public class PalladianLangDetect extends LanguageClassifier {
         FeatureSetting featureSetting = new FeatureSetting();
 
         // we want to create character-level n-grams
-        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+        featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
 
-        // the minimum length of our n-grams should be 4
-        featureSetting.setMinNGramLength(4);
+        // the minimum length of our n-grams should be 2
+        featureSetting.setMinNGramLength(1);
 
         // the maximum length of our n-grams should be 7
-        featureSetting.setMaxNGramLength(7);
+        featureSetting.setMaxNGramLength(3);
 
         // we assign the settings to our classifier
         classifier.setClassificationTypeSetting(classificationTypeSetting);
@@ -106,6 +192,13 @@ public class PalladianLangDetect extends LanguageClassifier {
 
     public static void main(String[] args) {
 
+        // ///////////////// find the best performing settings ///////////////////
+        // specify the dataset that should be used as training data
+        // PalladianLangDetect pld0 = new PalladianLangDetect();
+        // pld0.evaluateBestSetting();
+        // System.exit(0);
+        // ////////////////////////////////////////////////////////////////
+
         // ///////////////// learn from a given dataset ///////////////////
         // specify the dataset that should be used as training data
         Dataset dataset = new Dataset();
@@ -115,8 +208,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
 
-        PalladianLangDetect pld = new PalladianLangDetect();
-        pld.train(dataset, "palladianLanguageJRC");
+        PalladianLangDetect.train(dataset, "palladianLanguageJRC");
         // ////////////////////////////////////////////////////////////////
 
     }

@@ -107,7 +107,10 @@ public class FileHelper {
     public static String getFilePath(String path) {
         String filePath = path;
         int lastDot = path.lastIndexOf(".");
-        int lastSeparator = path.lastIndexOf(File.separator) + 1;
+        int lastSeparator = path.lastIndexOf("/") + 1;
+        if (lastSeparator == 0) {
+            lastSeparator = path.lastIndexOf("\\") + 1;
+        }
         if (lastDot > -1) {
             filePath = path.substring(0, lastSeparator);
         }
@@ -123,7 +126,10 @@ public class FileHelper {
     public static String getFileName(String path) {
         String fileName = path;
         int lastDot = path.lastIndexOf(".");
-        int lastSeparator = path.lastIndexOf(File.separator) + 1;
+        int lastSeparator = path.lastIndexOf("/") + 1;
+        if (lastSeparator == 0) {
+            lastSeparator = path.lastIndexOf("\\") + 1;
+        }
         if (lastDot > -1) {
             fileName = path.substring(lastSeparator, lastDot);
         }
@@ -132,7 +138,10 @@ public class FileHelper {
 
     public static String getFolderName(String path) {
         String fileName = path;
-        int lastSeparator = path.lastIndexOf(File.separator) + 1;
+        int lastSeparator = path.lastIndexOf("/") + 1;
+        if (lastSeparator == 0) {
+            lastSeparator = path.lastIndexOf("\\") + 1;
+        }
         if (lastSeparator > -1) {
             fileName = path.substring(lastSeparator);
         }

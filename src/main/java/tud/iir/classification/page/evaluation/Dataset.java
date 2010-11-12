@@ -13,6 +13,9 @@ public class Dataset {
     /** The path pointing to the dataset file. */
     private String path = "";
 
+    /** The path to the root folder of the dataset. */
+    private String rootPath = "";
+
     /** The character sequence that splits the training data and the class in the input file. */
     private String separationString = " ";
 
@@ -26,6 +29,7 @@ public class Dataset {
 
     public void setPath(String path) {
         this.path = path;
+        setRootPath(FileHelper.getFilePath(getPath()));
     }
 
     public String getPath() {
@@ -38,7 +42,11 @@ public class Dataset {
      * @return The path to the root folder of the dataset.
      */
     public String getRootPath() {
-        return FileHelper.getFilePath(getPath());
+        return rootPath;
+    }
+
+    public void setRootPath(String rootPath) {
+        this.rootPath = rootPath;
     }
 
     public void setSeparationString(String separationString) {

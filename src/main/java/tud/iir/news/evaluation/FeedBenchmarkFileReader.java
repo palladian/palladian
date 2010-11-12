@@ -11,8 +11,8 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.news.Feed;
-import tud.iir.news.FeedReader;
 import tud.iir.news.FeedItem;
+import tud.iir.news.FeedReader;
 
 public class FeedBenchmarkFileReader {
 
@@ -161,7 +161,6 @@ public class FeedBenchmarkFileReader {
                         return;
                     }
                     feed.setWindowSize(windowSize);
-                    // FIXME
                     // feed.setWindowSize(Math.min(windowSize, 5));
                 }
 
