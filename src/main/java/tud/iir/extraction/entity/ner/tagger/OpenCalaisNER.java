@@ -123,7 +123,7 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
 
     @Override
     public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText);
+        return getAnnotations(inputText,"");
     }
 
     @Override
@@ -197,7 +197,7 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
      */
     @Override
     public String tag(String inputText) {
-        return tag(inputText, "");
+        return super.tag(inputText);
     }
 
     @SuppressWarnings("static-access")
