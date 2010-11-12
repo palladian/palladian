@@ -318,8 +318,8 @@ public class JRCCorpusConverter {
         // cc.convertAllFiles("C:\\Safe\\Datasets\\jrc language data\\","C:\\Safe\\Datasets\\jrc language data converted\\");
         // cc.cleanDataset("C:\\Safe\\Datasets\\jrc language data converted\\");
         // cc.createIndex("C:\\Safe\\Datasets\\jrc language data converted\\");
-        cc.createIndexExcerpt("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages.txt", 100);
-        cc.splitIndex("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc100.txt", 50);
+        cc.createIndexExcerpt("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages.txt", 1000);
+        // cc.splitIndex("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc100.txt", 50);
 
     }
 

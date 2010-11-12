@@ -9,6 +9,73 @@ import org.json.JSONObject;
 
 import tud.iir.web.Crawler;
 
+/**
+ * <p>
+ * The Google Language Detection using the tranlation API.
+ * </p>
+ * <p>
+ * The language detector can not be trained, it supports a wide variety of 53 languages:
+ * <ol>
+ * <li>Afrikaans (af)</li>
+ * <li>Albanian (sq)</li>
+ * <li>Arabic (ar)</li>
+ * <li>Basque (eu)</li>
+ * <li>Belarusian (be)</li>
+ * <li>Bulgarian (bg)</li>
+ * <li>Catalan (ca)</li>
+ * <li>Chinese Simplified (zh-CN)</li>
+ * <li>Chinese Traditional (zh-TW)</li>
+ * <li>Croatian (hr)</li>
+ * <li>Czech (cs)</li>
+ * <li>Danish (da)</li>
+ * <li>Dutch (nl)</li>
+ * <li>English ( n)</li>
+ * <li>Estonian (et)</li>
+ * <li>Filipino (tl)</li>
+ * <li>Finnish (fi)</li>
+ * <li>French (fr)</li>
+ * <li>Galician (gl)</li>
+ * <li>German (de)</li>
+ * <li>Greek (el)</li>
+ * <li>Haitian Creole (ht)</li>
+ * <li>Hebrew (iw)</li>
+ * <li>Hindi (hi)</li>
+ * <li>Hungarian (hu)</li>
+ * <li>Icelandic (is)</li>
+ * <li>Indonesian (id)</li>
+ * <li>Irish (ga)</li>
+ * <li>Italian (it)</li>
+ * <li>Japanese (ja)</li>
+ * <li>Latvian (lv)</li>
+ * <li>Lithuanian (lt)</li>
+ * <li>Macedonian (mk)</li>
+ * <li>Malay (ms)</li>
+ * <li>Maltese (mt)</li>
+ * <li>Norwegian (no)</li>
+ * <li>Persian (fa)</li>
+ * <li>Polish (pl)</li>
+ * <li>Portuguese (pt)</li>
+ * <li>Romanian (ro)</li>
+ * <li>Russian (ru)</li>
+ * <li>Serbian (sr)</li>
+ * <li>Slovak (sk)</li>
+ * <li>Slovenian (sl)</li>
+ * <li>Spanish (es)</li>
+ * <li>Swahili (sw)</li>
+ * <li>Swedish (sv)</li>
+ * <li>Thai (th)</li>
+ * <li>Turkish (tr)</li>
+ * <li>Ukrainian (uk)</li>
+ * <li>Vietnamese(vi)</li>
+ * <li>Welsh (cy)</li>
+ * <li>Yiddish (yi)</li>
+ * </ol>
+ * 
+ * </p>
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class GoogleLangDetect extends LanguageClassifier {
 
     /** The logger for this class. */
@@ -31,7 +98,7 @@ public class GoogleLangDetect extends LanguageClassifier {
         }
 
         if (config != null) {
-            API_KEY = config.getString("google.api.key");
+            API_KEY = config.getString("google.tranlsate.api.key");
         } else {
             API_KEY = "";
         }
@@ -39,19 +106,13 @@ public class GoogleLangDetect extends LanguageClassifier {
 
     @Override
     public String classify(String text) {
-        // String ipMin = "90.255.255.255";
-        // System.out.println(MathHelper.ipToNumber(ipMin));
-        // long ipLong = (long) (Math.random() * 4294967295l) + 1526726655l;
-        // System.out.println("use ip " + MathHelper.numberToIp(ipLong));
-        // JSONObject json =
-        // crawler.getJSONDocument("http://ajax.googleapis.com/ajax/services/language/detect?v=1.0&q="+ text);
+
         JSONObject json = crawler.getJSONDocument("https://www.googleapis.com/language/translate/v2?key=" + API_KEY
                 + "&target=de&q=" + text);
 
         try {
             JSONArray translations = json.getJSONObject("data").getJSONArray("translations");
             return ((JSONObject) translations.get(0)).getString("detectedSourceLanguage");
-            // return json.getJSONObject("data").getJSONArray("translations")[0].getString("detectedSourceLanguage");
         } catch (JSONException e) {
             LOGGER.error(e.getMessage());
         } catch (Exception e) {

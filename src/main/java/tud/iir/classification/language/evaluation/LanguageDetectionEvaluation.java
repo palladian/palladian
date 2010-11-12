@@ -11,6 +11,7 @@ import tud.iir.classification.language.GoogleLangDetect;
 import tud.iir.classification.language.JLangDetect;
 import tud.iir.classification.language.LanguageClassifier;
 import tud.iir.classification.language.PalladianLangDetect;
+import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
@@ -27,7 +28,7 @@ public class LanguageDetectionEvaluation {
      * 
      * @param evaluationFilePath The file with the evaluation data.
      */
-    public void evaluate(String evaluationFilePath, Set<String> possibleClasses) {
+    public void evaluate(Dataset dataset, Set<String> possibleClasses, Integer documentLength) {
 
         LOGGER.info("evaluate JLangDetect vs. Google vs. Alchemy vs. Palladian");
         StopWatch sw = new StopWatch();
@@ -41,9 +42,9 @@ public class LanguageDetectionEvaluation {
         // jLangDetect has an advantage
         // ((PalladianLangDetect) palladianClassifier).setPossibleClasses(possibleClasses);
 
-        List<String> lines = FileHelper.readFileToArray(evaluationFilePath);
+        List<String> lines = FileHelper.readFileToArray(dataset.getPath());
 
-        int totalDocuments = FileHelper.getNumberOfLines(evaluationFilePath);
+        int totalDocuments = lines.size();
         int jLangCorrect = 0;
         int jLangClassified = 0;
         int googleCorrect = 0;
@@ -56,9 +57,17 @@ public class LanguageDetectionEvaluation {
         int lineCount = 1;
         int totalLines = lines.size();
         for (String line : lines) {
-            String[] parts = line.split("###");
+            String[] parts = line.split(dataset.getSeparationString());
             String document = parts[0];
             String correctLanguage = parts[1];
+
+            if (dataset.isFirstFieldLink()) {
+                document = FileHelper.readFileToString(dataset.getRootPath() + document);
+            }
+
+            if (documentLength != null) {
+                document = document.substring(0, Math.min(documentLength, document.length()));
+            }
 
             boolean jlang = false;
             boolean google = false;
@@ -76,7 +85,8 @@ public class LanguageDetectionEvaluation {
             }
 
             // google
-            String googleClass = googleLanguageClassifier.classify(document);
+            String googleClass = googleLanguageClassifier.classify(document.substring(0,
+                    Math.min(100, document.length())));
             if (correctLanguage.equals(googleClass)) {
                 googleCorrect++;
                 google = true;
@@ -86,7 +96,8 @@ public class LanguageDetectionEvaluation {
             }
 
             // alchemy
-            String alchemyClass = alchemyLanguageClassifier.classify(document);
+            String alchemyClass = alchemyLanguageClassifier.classify(document.substring(0,
+                    Math.min(100, document.length())));
             if (correctLanguage.equals(alchemyClass)) {
                 alchemyCorrect++;
                 alchemy = true;
@@ -115,11 +126,15 @@ public class LanguageDetectionEvaluation {
         }
 
         LOGGER.info("evaluated over " + totalDocuments + " strings in " + sw.getElapsedTimeString());
-        LOGGER.info("Accuracy JLangDetect: " + MathHelper.round(100 * jLangCorrect / (double) jLangClassified, 2));
-        LOGGER.info("Accuracy Google     : " + MathHelper.round(100 * googleCorrect / (double) googleClassified, 2));
-        LOGGER.info("Accuracy Alchemy    : " + MathHelper.round(100 * alchemyCorrect / (double) alchemyClassified, 2));
+        LOGGER.info("Accuracy JLangDetect: " + MathHelper.round(100 * jLangCorrect / (double) jLangClassified, 2)
+                + "% (" + jLangClassified + " classified)");
+        LOGGER.info("Accuracy Google     : " + MathHelper.round(100 * googleCorrect / (double) googleClassified, 2)
+                + "% (" + googleClassified + " classified)");
+        LOGGER.info("Accuracy Alchemy    : " + MathHelper.round(100 * alchemyCorrect / (double) alchemyClassified, 2)
+                + "% (" + alchemyClassified + " classified)");
         LOGGER.info("Accuracy Palladian  : "
-                + MathHelper.round(100 * palladianCorrect / (double) palladianClassified, 2));
+                + MathHelper.round(100 * palladianCorrect / (double) palladianClassified, 2) + "% ("
+                + palladianClassified + " classified)");
     }
 
 
@@ -128,9 +143,9 @@ public class LanguageDetectionEvaluation {
      */
     public static void main(String[] args) {
 
-        GoogleLangDetect glangd = new GoogleLangDetect();
-        System.out.println(glangd.classify("hello world"));
-        System.exit(1);
+        // LanguageClassifier glangd = new AlchemyLangDetect();
+        // System.out.println(glangd.classify("hello world, how are you today?"));
+        // System.exit(1);
 
         LanguageDetectionEvaluation evaluator = new LanguageDetectionEvaluation();
         Set<String> possibleClasses = new HashSet<String>();
@@ -145,8 +160,17 @@ public class LanguageDetectionEvaluation {
         possibleClasses.add("nl");
         possibleClasses.add("pt");
         possibleClasses.add("sv");
-        evaluator.evaluate("data/evaluation/LanguageDetection11Languages_small.txt", possibleClasses);
+        // evaluator.evaluate("data/evaluation/LanguageDetection11Languages_small.txt", possibleClasses);
 
+        // specify the dataset that should be used as training data
+        Dataset dataset = new Dataset();
+
+        // set the path to the dataset, the first field is a link, and columns are separated with a space
+        dataset.setPath("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc100_split2.txt");
+        dataset.setFirstFieldLink(true);
+        dataset.setSeparationString(" ");
+
+        evaluator.evaluate(dataset, possibleClasses, null);
     }
 
 }

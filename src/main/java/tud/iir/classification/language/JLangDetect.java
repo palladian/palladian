@@ -71,7 +71,7 @@ public class JLangDetect extends LanguageClassifier {
     }
 
     public JLangDetect() {
-        loadTreeFiles("data/models/JLangLanguageDetector/europarl");
+        loadTreeFiles("data/models/JLangLanguageDetector/jrc");
     }
 
     private void loadTreeFiles(String directoryPath) {
