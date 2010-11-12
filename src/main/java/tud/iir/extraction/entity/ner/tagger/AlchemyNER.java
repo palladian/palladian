@@ -406,7 +406,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
 
     @Override
     public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText);
+        return getAnnotations(inputText,"");
     }
 
     @Override
