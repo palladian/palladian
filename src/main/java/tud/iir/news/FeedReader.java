@@ -177,7 +177,7 @@ public final class FeedReader {
                 // in time mode, we have a certain interval we want to observe the feeds in, otherwise we just take the
                 // first real poll that is available
                 if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME) {
-                    feed.setBenchmarkLookupTime(FeedReaderEvaluator.BENCHMARK_START_TIME);
+                    feed.setBenchmarkLookupTime(FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND);
                 }
 
                 int loopCount = 0;
@@ -194,7 +194,7 @@ public final class FeedReader {
                     }
 
                     keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
-                    && feed.getBenchmarkLastLookupTime() < FeedReaderEvaluator.BENCHMARK_STOP_TIME;
+                    && feed.getBenchmarkLastLookupTime() < FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
                     if (!keepLooping) {
                         keepLooping = FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_POLL
                         && !feed.historyFileCompletelyRead();

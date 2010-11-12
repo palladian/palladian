@@ -157,7 +157,7 @@ public class FeedBenchmarkFileReader {
                     if (windowSize > 1000) {
                         LOGGER.info("feed has a window size of " + windowSize + " and will be discarded");
                         feed.setHistoryFileCompletelyRead(true);
-                        feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME);
+                        feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND);
                         return;
                     }
                     feed.setWindowSize(windowSize);
@@ -197,12 +197,12 @@ public class FeedBenchmarkFileReader {
                     }
 
                     if (FeedReaderEvaluator.benchmarkMode == FeedReaderEvaluator.BENCHMARK_TIME
-                            && entryTimestamp > FeedReaderEvaluator.BENCHMARK_START_TIME && totalEntries - i + 1 == feed.getWindowSize()) {
+                            && entryTimestamp > FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND && totalEntries - i + 1 == feed.getWindowSize()) {
                         LOGGER.error("we disregard this feed (" + feed.getId()
                                 + ") since it does not comply with our start date "
                                 + entryTimestamp);
                         feed.setHistoryFileCompletelyRead(true);
-                        feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME);
+                        feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND);
                         return;
                     }
 
@@ -405,7 +405,7 @@ public class FeedBenchmarkFileReader {
             e.printStackTrace();
             LOGGER.error(e.getMessage());
             feed.setHistoryFileCompletelyRead(true);
-            feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME);
+            feed.setBenchmarkLastLookupTime(FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND);
         }
 
         // feed.increaseChecks();

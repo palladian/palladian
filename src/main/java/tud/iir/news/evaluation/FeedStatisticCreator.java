@@ -64,7 +64,7 @@ public class FeedStatisticCreator {
 
         ResultSet rs = dbm
         .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(percentNew) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedPercent) AS missedPercent, AVG(traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
-                + FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000l + " GROUP BY feedID) AS feedGroup;");
+                + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000l + " GROUP BY feedID) AS feedGroup;");
         while (rs.next()) {
             coverage = rs.getDouble("coverage");
             percentNew = rs.getDouble("percentNew");
@@ -101,7 +101,7 @@ public class FeedStatisticCreator {
 
             rs = dbm
             .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(percentNew) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedPercent) AS missedPercent, AVG(traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
-                    + FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000l
+                    + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000l
                     + " AND activityPattern = "
                     + activityPatternID + " GROUP BY feedID) AS feedGroup;");
 
