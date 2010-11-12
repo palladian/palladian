@@ -9,6 +9,7 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 
 /**
@@ -58,14 +59,12 @@ public class ChartCreator {
      *            MIN-policy.
      * @param MAX_NUMBER_OF_POLLS_SCORE_MAX The maximum number of polls to be used by methods creating data for the
      *            MAX-policy.
-     * @param TOTAL_EXPERIMENT_HOURS The number of hours the experiment took place
      */
-    public ChartCreator(final int MAX_NUMBER_OF_POLLS_SCORE_MIN, final int MAX_NUMBER_OF_POLLS_SCORE_MAX,
-            final int TOTAL_EXPERIMENT_HOURS) {
+    public ChartCreator(final int MAX_NUMBER_OF_POLLS_SCORE_MIN, final int MAX_NUMBER_OF_POLLS_SCORE_MAX) {
         this.ed = EvaluationDatabase.getInstance();
         this.MAX_NUMBER_OF_POLLS_SCORE_MIN = MAX_NUMBER_OF_POLLS_SCORE_MIN;
         this.MAX_NUMBER_OF_POLLS_SCORE_MAX = MAX_NUMBER_OF_POLLS_SCORE_MAX;
-        this.TOTAL_EXPERIMENT_HOURS = TOTAL_EXPERIMENT_HOURS;
+        this.TOTAL_EXPERIMENT_HOURS = (int) ((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / DateHelper.HOUR_MS);
     }
 
 
@@ -464,10 +463,9 @@ public class ChartCreator {
         /**
          * 200 polls for scoreMin
          * 200 polls for scoreMax
-         * dataset crawled for 4 weeks = 672 hours - HAS TO BE ADJUSTED!!!!
-         * EvaluationDatabase#TIMESTAMP_MAX HAS ALSO TO BE ADJUSTED!!!!
+         * dataset crawled for 4 weeks = 672 hours
          */
-        ChartCreator cc = new ChartCreator(200, 200, 672);
+        ChartCreator cc = new ChartCreator(200, 200);
 
         // cc.printFeedPolls();
         // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test 12.11. DB Schema v2
