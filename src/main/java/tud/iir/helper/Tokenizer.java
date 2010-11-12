@@ -361,5 +361,38 @@ public class Tokenizer {
 
         return string.substring(0, endIndex);
     }
+    
+    public static void main(String[] args) {
+        
+        
+        // demo for the tokenizer problem
+        String text = FileHelper.readFileToString("data/test/tokenizerProblem.txt");
+        
+        // tokenize the whole text
+        int count = 0;
+        List<String> tokens = Tokenizer.tokenize(text);
+        for (String token : tokens) {
+            if (token.equals("Number")) {
+                count++;
+            }
+        }
+        System.out.println("# occurences 1 : " + count);
+        
+        // split text into sentences, 
+        // then tokenize each sentence
+        count = 0;
+        List<String> sentences = Tokenizer.getSentences(text);
+        for (String sentence : sentences) {
+            List<String> tokensInSentence = Tokenizer.tokenize(sentence);
+            for (String token : tokensInSentence) {
+                if (token.equals("Number")) {
+                    count++;
+                }
+            }
+        }
+        System.out.println("# occurences 2 : " + count);
+        
+        
+    }
 
 }
