@@ -23,8 +23,7 @@ public class ChartCreator {
     private final String feedAgeFilePath = "data/evaluation/feedPaper/feedAgeData.csv";
     private final String timeliness2FilePath = "data/evaluation/feedPaper/timeliness2Data.csv";
     private final String percentageNewMaxPollFilePath = "data/evaluation/feedPaper/percentNewMaxPollData.csv";
-    private final String sumVolumeMaxTimeFilePath = "data/evaluation/feedPaper/sumVolumeMaxTimeData.csv";
-    private final String sumVolumeMinTimeFilePath = "data/evaluation/feedPaper/sumVolumeMinData.csv";
+    private final String sumVolumeMaxMinTimeFilePath = "data/evaluation/feedPaper/sumVolumeTimeData";
     
 
     private final int MAX_NUMBER_OF_POLLS_SCORE_MIN;
@@ -34,10 +33,22 @@ public class ChartCreator {
     
     private final int TOTAL_EXPERIMENT_HOURS;
 
+    /**
+     * all available polling strategies
+     * 
+     * @author Sandro Reichert
+     */
     public enum PollingStrategy {
         ADAPTIVE, PROBABILISTIC, FIX_LEARNED, FIX60, FIX1440
     }
 
+    /**
+     * Our policies:<br />
+     * MIN: get every item as early as possible but not before it is available and <br />
+     * MAX: only poll feed if all items in the window are new, but do not miss any item inbetween
+     * 
+     * @author Sandro Reichert
+     */
     public enum Policy {
         MIN, MAX
     }
@@ -223,7 +234,7 @@ public class ChartCreator {
         for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
             LOGGER.info("starting to create data for " + pollingStrategy.toString());
             percentageNewSB.append(pollingStrategy.toString().toLowerCase()).append(";");
-            polls = ed.getAveragePercentageNewEntriesPerPollFromMaxPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MIN);
+            polls = ed.getAveragePercentageNewEntriesPerPollFromMaxPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MAX);
             processDataAggregatedByPoll(polls, percentageNewMap, rowToWrite, NUMBER_OF_ROWS);
             LOGGER.info("finished creating data for " + pollingStrategy.toString());
             rowToWrite++;
@@ -306,11 +317,9 @@ public class ChartCreator {
             final int HOUR_TO_PROCESS = poll.getHourOfExperiment();
 
             int sizeOfPoll = poll.getSizeOfPoll();
-            if (SIMULATE_ETAG_USAGE && poll.getPercentageNewEntries() == 0f) {
+            if (SIMULATE_ETAG_USAGE && poll.getNewWindowItems() == 0f) {
                 if (poll.getSupportsConditionalGet() == true)
                     sizeOfPoll = poll.getConditionalGetResponseSize();
-                else if (poll.getSupportsETag() == true)
-                    sizeOfPoll = poll.geteTagResponseSize();
             }
 
             addSizeOfPollToMap(totalResultMapMax, NUMBER_OF_ROWS, ROW_TO_WRITE, HOUR_TO_PROCESS, sizeOfPoll);
@@ -414,12 +423,13 @@ public class ChartCreator {
 
         // //////////// write final output to file \\\\\\\\\\\\\\\\\
         String filePathToWrite = "";
+        String eTag = (SIMULATE_ETAG_USAGE) ? "ETag" : "NoETag";
         switch (POLICY) {
             case MAX:
-                filePathToWrite = sumVolumeMaxTimeFilePath;
+                filePathToWrite = sumVolumeMaxMinTimeFilePath + "_Min" + eTag + ".csv";
                 break;
             case MIN:
-                filePathToWrite = sumVolumeMinTimeFilePath;
+                filePathToWrite = sumVolumeMaxMinTimeFilePath + "_Min" + eTag + ".csv";
                 break;
             default:
                 throw new IllegalStateException("unknown Policy: " + POLICY.toString());
@@ -437,7 +447,7 @@ public class ChartCreator {
      * Only a test
      */
     private void printFeedPolls() {
-        List<EvaluationFeedPoll> polls = ed.getFeedPolls();
+        List<EvaluationFeedPoll> polls = ed.getAllFeedPollsFromAdaptiveMaxTime();
 
         for (EvaluationFeedPoll poll : polls) {
             // int feedID = poll.getFeedID();
@@ -460,16 +470,14 @@ public class ChartCreator {
         ChartCreator cc = new ChartCreator(200, 200, 672);
 
         // cc.printFeedPolls();
-        // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test 11.11.
-        // cc.createFeedAgeFile(); // letzter Test 11.11.
-        // cc.createAverageScoreMinByPollFile(); // letzter Test 11.11.
-        // cc.createPercentageNewMaxPollFile(); // letzter Test 11.11.
+        // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test 12.11. DB Schema v2
+        // cc.createFeedAgeFile(); // letzter Test 12.11. DB Schema v2
+        // cc.createAverageScoreMinByPollFile(); // letzter Test 12.11. DB Schema v2
+        // cc.createPercentageNewMaxPollFile(); // letzter Test 12.11. DB Schema v2
 
-        cc.cumulatedVolumePerTimeFile(Policy.MAX, false, 210000);
-//      cc.culmulatedVolumeMinTimeFile();
-//	    cc.culmulatedVolumeMinTimeEtag304File();
-	    	    
-
+        cc.cumulatedVolumePerTimeFile(Policy.MIN, false, 210000); // letzter Test 12.11. DB Schema v2 mit Policy.MAX,
+                                                                  // false, 210000; ERGEBNISSE PRÜFEN: Adaptive, Fix
+                                                                  // Learned
 	}
 
 }

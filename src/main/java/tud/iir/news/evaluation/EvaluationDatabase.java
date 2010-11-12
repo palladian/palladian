@@ -17,6 +17,10 @@ import tud.iir.persistence.DatabaseManager;
  * 
  * @author Sandro Reichert
  */
+/**
+ * @author Sandro Reichert
+ * 
+ */
 public class EvaluationDatabase {
 
     /** the instance of this class */
@@ -27,7 +31,7 @@ public class EvaluationDatabase {
 
     // ////////////////// feed prepared statements ////////////////////
 //    private PreparedStatement psGetEntries;
-    private PreparedStatement psGetPolls;
+    private PreparedStatement psGetPollsFromAdaptiveMaxTime;
     private PreparedStatement psGetFeedSizeDistribution;
     private PreparedStatement psGetAverageUpdateIntervals;
     
@@ -80,102 +84,103 @@ public class EvaluationDatabase {
 //                .prepareStatement("SELECT id, updateClass, supportsETag FROM feed_evaluation_1 LIMIT ? OFFSET ?");
         
         psGetFeedSizeDistribution = connection
-                .prepareStatement("SELECT id, updateClass, sizeOfPoll FROM feed_evaluation_fix1440_max_min_poll WHERE numberOfPoll = 1 AND sizeOfPoll > 0 AND pollTimestamp <= ? ");
-        psGetPolls = connection
-                .prepareStatement("SELECT id, updateClass, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize, numberOfPoll, pollTimestamp, pollHourOfDay, pollMinuteOfDay, checkInterval, windowSize, sizeOfPoll, numberMissedNewEntries, percentageNewEntries, delay, scoreMax, scoreMin FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= ? ");
+                .prepareStatement("SELECT feedID, activityPattern, sizeOfPoll FROM feed_evaluation2_fix1440_max_min_poll WHERE numberOfPoll = 1 AND pollTimestamp <= ? ");
+        // only for testing purpose
+        psGetPollsFromAdaptiveMaxTime = connection
+                .prepareStatement("SELECT feedID, numberOfPoll, activityPattern, conditionalGetResponseSize, sizeOfPoll, pollTimestamp, checkInterval, newWindowItems, missedItems, windowSize, culmulatedDelay, culmulatedLateDelay, timeliness, timelinessLate FROM feed_evaluation2_adaptive_max_time");
         psGetAverageUpdateIntervals = connection
-                .prepareStatement("SELECT id, updateClass, averageUpdateInterval FROM feed_evaluation_update_intervals");
+                .prepareStatement("SELECT feedID, activityPattern, averageUpdateInterval FROM feed_evaluation2_update_intervals");
      
         
         // for timeliness2 (ScoreMin vs. Polls)
-        psGetAvgScoreMinByPollFromAdaptivePoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_adaptive_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ?  AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
-        psGetAvgScoreMinByPollFromFixLearnedPoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix_learned_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
-        psGetAvgScoreMinByPollFromFix1440Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix1440_max_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
-        psGetAvgScoreMinByPollFromFix60Poll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_fix60_max_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
-        psGetAvgScoreMinByPollFromPorbabilisticPoll  = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(scoreMin) FROM feed_evaluation_probabilistic_min_poll WHERE scoreMin > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromAdaptivePoll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_adaptive_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ?  AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromFixLearnedPoll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_fix_learned_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromFix1440Poll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_fix1440_max_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromFix60Poll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_fix60_max_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+        psGetAvgScoreMinByPollFromPorbabilisticPoll = connection
+                .prepareStatement("SELECT numberOfPoll, AVG(timeliness) FROM feed_evaluation2_probabilistic_min_poll WHERE timeliness > 0 AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_min_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
         
 
 
         // get average percentages of new entries by poll for MAX-policy
         psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_adaptive_max_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_adaptive_max_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
         psGetAvgPercentageNewEntriesByPollFromFixLearnedMaxPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix_learned_max_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_fix_learned_max_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
         psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix1440_max_min_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_fix1440_max_min_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
         psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_fix60_max_min_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_fix60_max_min_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
         psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll = connection
-                .prepareStatement("SELECT numberOfPoll, AVG(percentageNewEntries*(windowSize-1)/windowSize) FROM feed_evaluation_probabilistic_max_poll WHERE percentageNewEntries IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND id IN (SELECT DISTINCT id FROM feed_evaluation_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
+                .prepareStatement("SELECT numberOfPoll, AVG(newWindowItems/windowSize) FROM feed_evaluation2_probabilistic_max_poll WHERE newWindowItems IS NOT NULL AND pollTimestamp <= ? AND numberOfPoll <= ? AND feedID IN (SELECT DISTINCT feedID FROM feed_evaluation2_adaptive_max_poll WHERE numberOfPoll = ?) GROUP BY numberOfPoll");
 
         
         
         // 6521 = Anzahl Stunden seit 01.01.2010 00:00 bis zum Start des Experiments am 28.09.2010 16:00
         // Wert wird verwendet, damit das Experiment von Stunde 1 bis 672 (4 Wochen) läuft
         psGetTransferVolumeByHourFromAdaptiveMaxTime  = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_adaptive_max_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_adaptive_max_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC");
         psGetTransferVolumeByHourFromFix1440Time  = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix1440_max_min_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_fix1440_max_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC");
         psGetTransferVolumeByHourFromFix60Time  = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix60_max_min_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_fix60_max_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC");
         psGetTransferVolumeByHourFromFixLearnedMaxTime = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix_learned_max_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_fix_learned_max_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC");
         psGetTransferVolumeByHourFromProbabilisticMaxTime = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_probabilistic_max_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_probabilistic_max_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC");
 
         
         
         
         psGetTransferVolumeByHourFromAdaptiveMinTime  = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_adaptive_min_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation2_adaptive_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC");
         psGetTransferVolumeByHourFromFixLearnedMinTime = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_fix_learned_min_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation2_fix_learned_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC");
         psGetTransferVolumeByHourFromProbabilisticMinTime = connection
-                .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_probabilistic_min_time WHERE pollTimestamp <= ? AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+                .prepareStatement("SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation2_probabilistic_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC");
         
 
 
         //
         // psGetTransferVolumeByHourFromAdaptiveMinEtag304Time = connection
-        // .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_probabilistic_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+        // .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation2_probabilistic_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
         // psGetTransferVolumeByHourFromAdaptiveMinEtag304Time = connection
-        // .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation_adaptive_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
+        // .prepareStatement("SELECT id, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+pollHourOfDay-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, supportsETag, supportsConditionalGet, eTagResponseSize, conditionalGetResponseSize FROM feed_evaluation2_adaptive_min_time WHERE pollTimestamp <= 1288108800 AND id BETWEEN ? AND ? ORDER BY id, pollTimestamp ASC");
         //
         
     }
     
 
-    public List<EvaluationFeedPoll> getFeedPolls() {
+    /**
+     * Was just a simple test whether DB Connection works properly
+     * 
+     * @return all poll from table adaptiveMaxTime
+     */
+    public List<EvaluationFeedPoll> getAllFeedPollsFromAdaptiveMaxTime() {
         LOGGER.trace(">getFeedPolls");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            psGetPolls.setLong(1, FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000L);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetPolls);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetPollsFromAdaptiveMaxTime);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
                 feedPoll.setFeedID(resultSet.getInt(1));
-                feedPoll.setActivityPattern(resultSet.getInt(2));
-                feedPoll.setSupportsETag(resultSet.getBoolean(3));
-                feedPoll.setSupportsConditionalGet(resultSet.getBoolean(4));
-                feedPoll.setETagResponseSize(resultSet.getInt(5));
-                feedPoll.setConditionalGetResponseSize(resultSet.getInt(6));
-                feedPoll.setNumberOfPoll(resultSet.getInt(7));
-                feedPoll.setPollTimestamp(resultSet.getLong(8));
-                feedPoll.setPollHourOfDay(resultSet.getInt(9));
-                feedPoll.setPollMinuteOfDay(resultSet.getInt(10));
-                feedPoll.setCheckInterval(resultSet.getInt(11));
-                feedPoll.setWindowSize(resultSet.getInt(12));
-                feedPoll.setSizeOfPoll(resultSet.getInt(13));
-                feedPoll.setNumberMissedNewEntries(resultSet.getInt(14));
-                feedPoll.setPercentageNewEntries(resultSet.getFloat(15));
-                feedPoll.setDelay(resultSet.getDouble(16));
-                feedPoll.setScoreMax(resultSet.getFloat(17));
-                feedPoll.setScoreMin(resultSet.getFloat(18));
+                feedPoll.setNumberOfPoll(resultSet.getInt(2));
+                feedPoll.setActivityPattern(resultSet.getInt(3));
+                feedPoll.setConditionalGetResponseSize(resultSet.getInt(4));
+                feedPoll.setSizeOfPoll(resultSet.getInt(5));
+                feedPoll.setPollTimestamp(resultSet.getLong(6));
+                feedPoll.setCheckInterval(resultSet.getInt(7));
+                feedPoll.setNewWindowItems(resultSet.getInt(8));
+                feedPoll.setMissedItems(resultSet.getInt(9));
+                feedPoll.setWindowSize(resultSet.getInt(10));
+                feedPoll.setCumulatedDelay(resultSet.getDouble(11));
+                feedPoll.setCumulatedLateDelay(resultSet.getDouble(12));
+                feedPoll.setTimeliness(resultSet.getDouble(13));
+                feedPoll.setTimelinessLate(resultSet.getDouble(14));
                 result.add(feedPoll);
             }
             resultSet.close();
@@ -187,7 +192,7 @@ public class EvaluationDatabase {
     }
 
     /**
-     * returns the result of "SELECT id, updateClass, sizeOfPoll FROM feed_evaluation_fix1440_max_min_poll WHERE
+     * returns the result of "SELECT id, updateClass, sizeOfPoll FROM feed_evaluation2_fix1440_max_min_poll WHERE
      * numberOfPoll = 1 AND sizeOfPoll > 0 AND pollTimestamp <= {@link EvaluationDatabase#FeedReaderEvaluator /1000L}"
      * 
      * @return List contains for every FeedID one {@link EvaluationFeedPoll} object with the size of the first poll and
@@ -197,7 +202,7 @@ public class EvaluationDatabase {
         LOGGER.trace(">getFeedSizes");
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            psGetFeedSizeDistribution.setLong(1, FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000L);
+            psGetFeedSizeDistribution.setLong(1, FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000L);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetFeedSizeDistribution);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
@@ -213,9 +218,8 @@ public class EvaluationDatabase {
         return result;
     }
 
-
     /**
-     * returns the result of "SELECT id, updateClass, averageUpdateInterval FROM feed_evaluation_update_intervals"
+     * returns the result of "SELECT id, updateClass, averageUpdateInterval FROM feed_evaluation2_update_intervals"
      * 
      * @return List contains for every FeedID one {@link EvaluationItemIntervalItem} object with the activity pattern
      *         and the feed's average update interval.
@@ -253,7 +257,7 @@ public class EvaluationDatabase {
         LOGGER.trace(">getAverageValueByPoll processing PreparedStatement " + ps.toString());
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            ps.setLong(1, FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000L);
+            ps.setLong(1, FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000L);
             ps.setInt(2, MAX_NUMBER_OF_POLLS);
             ps.setInt(3, MAX_NUMBER_OF_POLLS);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
@@ -411,7 +415,7 @@ public class EvaluationDatabase {
 
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
-            ps.setLong(1, FeedReaderEvaluator.BENCHMARK_STOP_TIME / 1000L);
+            ps.setLong(1, FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000L);
             ps.setInt(2, FEED_ID_START);
             ps.setInt(3, FEED_ID_LIMIT);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
@@ -423,10 +427,8 @@ public class EvaluationDatabase {
                 feedPoll.setNumberOfPoll(resultSet.getInt(4));
                 feedPoll.setCheckInterval(resultSet.getInt(5));
                 feedPoll.setPollTimestamp(resultSet.getLong(6));
-                feedPoll.setSupportsETag(resultSet.getBoolean(7));
-                feedPoll.setSupportsConditionalGet(resultSet.getBoolean(8));
-                feedPoll.setETagResponseSize(resultSet.getInt(9));
-                feedPoll.setConditionalGetResponseSize(resultSet.getInt(10));
+                feedPoll.setConditionalGetResponseSize(resultSet.getInt(7));
+                feedPoll.setNewWindowItems(resultSet.getInt(8));
                 result.add(feedPoll);
             }
         } catch (SQLException e) {
