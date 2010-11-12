@@ -59,10 +59,10 @@ public class FeedReaderEvaluator {
     private static File[] benchmarkDatasetFiles;
 
     /** The timestamp we started the dataset gathering. 28/10/2010 */
-    public static final long BENCHMARK_START_TIME = 1285689600000l;
+    public static final long BENCHMARK_START_TIME_MILLISECOND = 1285689600000L;
 
     /** The timestamp we stopped the dataset gathering. 26/10/2010 */
-    public static final long BENCHMARK_STOP_TIME = 1288108800000l;
+    public static final long BENCHMARK_STOP_TIME_MILLISECOND = 1288108800000L;
 
 
     public FeedReaderEvaluator() {
