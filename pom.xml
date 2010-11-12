@@ -124,7 +124,7 @@
 							-->
 
 							<!-- Optional, default is false -->
-							<attachToBuild>true</attachToBuild>
+							<attachToBuild>false</attachToBuild>
 							<!-- Optional, default is "onejar" -->
 							<classifier>onejar</classifier>
 						</configuration>
@@ -276,8 +276,10 @@
 			<artifactId>stanfordner</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!-- <dependency> <groupId>edu.illinois</groupId> <artifactId>lbj2</artifactId> 
-			<version>1.0</version> </dependency> -->
+		<!--
+			<dependency> <groupId>edu.illinois</groupId>
+			<artifactId>lbj2</artifactId> <version>1.0</version> </dependency>
+		-->
 		<dependency>
 			<groupId>edu.illinois</groupId>
 			<artifactId>lbj2library</artifactId>
@@ -373,8 +375,11 @@
 			<artifactId>javaswf</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!-- <dependency> <groupId>tud.iir.external</groupId> <artifactId>lbjEdited</artifactId> 
-			<version>1.2</version> </dependency> -->
+		<!--
+			<dependency> <groupId>tud.iir.external</groupId>
+			<artifactId>lbjEdited</artifactId> <version>1.2</version>
+			</dependency>
+		-->
 		<dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>opennlp</artifactId>
@@ -458,8 +463,12 @@
 	</properties>
 	<repositories>
 		<repository>
-			<id>nexus</id>
-			<url>http://www.effingo.de/nexus/content/groups/public</url>
+			<id>releases</id>
+			<url>http://effingo.de/nexus/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>snapshots</id>
+			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
 		</repository>
 	</repositories>
 	<pluginRepositories>
@@ -468,4 +477,16 @@
 			<url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
 		</pluginRepository>
 	</pluginRepositories>
+	<distributionManagement>
+		<repository>
+			<id>releases</id>
+			<url>http://www.effingo.de/nexus/content/repositories/releases/</url>
+		</repository>
+
+		<snapshotRepository>
+			<id>snapshots</id>
+			<name>Effingo Internal Snapshots</name>
+			<url>http://www.effingo.de/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>

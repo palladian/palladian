@@ -163,7 +163,7 @@ The library is licensed under the GNU General Public License.
 \end{enumerate}
 
 \chapter{Installation and Making it Work}
-Palladian is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on a weekly basis using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.mantisbt.org/}{Mantis bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
+Palladian is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on every commit using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.redmine.org/}{Redmine bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
 
 At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
 \section{Building Palladian using Apache Maven}
@@ -174,44 +174,17 @@ Apache \textbf{Maven needs to be installed} before building the toolkit. How to 
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0
                       http://maven.apache.org/xsd/settings-1.0.0.xsd">
-<mirrors>
-    <mirror>
-      <!--This sends everything else to /public -->
-      <id>nexus</id>
-      <mirrorOf>*</mirrorOf>
-      <url>http://www.effingo.de/nexus/content/groups/public</url>
-    </mirror>
-  </mirrors>
-  <profiles>
-    <profile>
-      <id>nexus</id>
-      <!--Enable snapshots for the built in central repo to direct -->
-      <!--all requests to nexus via the mirror -->
-      <repositories>
-        <repository>
-          <id>central</id>
-          <url>http://central</url>
-          <releases><enabled>true</enabled></releases>
-          <snapshots><enabled>true</enabled></snapshots>
-        </repository>
-      </repositories>
-     <pluginRepositories>
-        <pluginRepository>
-          <id>central</id>
-          <url>http://central</url>
-          <releases><enabled>true</enabled></releases>
-          <snapshots><enabled>true</enabled></snapshots>
-        </pluginRepository>
-      </pluginRepositories>
-    </profile>
-  </profiles>
-  <activeProfiles>
-    <!--make the profile active all the time -->
-    <activeProfile>nexus</activeProfile>
-  </activeProfiles>
   <servers>
     <server>
-      <id>nexus</id>
+      <id>snapshots</id>
+      <username>your-username</username>
+      <password>your-password</password>
+      <filePermissions>664</filePermissions>
+      <directoryPermissions>775</directoryPermissions>
+      <configuration></configuration>
+    </server>
+    <server>
+      <id>releases</id>
       <username>your-username</username>
       <password>your-password</password>
       <filePermissions>664</filePermissions>
@@ -304,13 +277,30 @@ The Maven plugin adds the dependency to your pom.xml file, which should look lik
 \caption{POM with added dependency on the TUD Palladian toolkit.}
 \label{fig:pom01}
 \end{figure}
-\paragraph{Configuring your project} Since Maven by default still uses Java 1.4 (very conservative), but the toolkit depends on Java 1.6 (very visionary) you need to configure the Maven Java compiler plugin to use Java 1.6. This is shown in Fig.~\ref{fig:java601}.
-\begin{figure}
-\centering
-\includegraphics[width=\textwidth]{img/ht07.png}
-\caption{Configure the Maven Java compiler to use Java 1.6 instead of 1.4}
-\label{fig:java601}
-\end{figure}
+\paragraph{Configuring your project} Since Maven by default still uses Java 1.4 (very conservative), but the toolkit depends on Java 1.6 (very visionary) you need to configure the Maven Java compiler plugin to use Java 1.6 by adding the following markup to your pom.xml (add it after the description element):
+\begin{verbatim}
+<build>
+ <plugins>
+  <plugin>
+   <groupId>org.apache.maven.plugins</groupId>
+   <artifactId>maven-compiler-plugin</artifactId>
+   <version>2.3.1</version>
+   <configuration>
+    <compilerArgument>-Xlint:all</compilerArgument>
+    <showWarnings>true</showWarnings>
+    <source>1.6</source>
+    <target>1.6</target>
+    <compilerArguments>
+     <encoding>UTF-8</encoding>
+    </compilerArguments>
+    <showDeprecation>true</showDeprecation>
+    <verbose>true</verbose>
+    <encoding>UTF-8</encoding>
+   </configuration>
+  </plugin>
+ </plugins>
+</build>
+\end{verbatim}
 The same step is necessary to tell Eclipse that it should use Java 1.6 instead of 1.4. For this purpose open the project properties via the context menu for example. In the tree to the left choose \textit{Java Compiler} and change all three entries to 1.6. This is shown in Fig.~\ref{fig:java602} and Fig.~\ref{fig:java603}.
 \begin{figure}
 \centering
