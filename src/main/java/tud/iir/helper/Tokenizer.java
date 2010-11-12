@@ -1,5 +1,6 @@
 package tud.iir.helper;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -199,26 +200,16 @@ public class Tokenizer {
     public static List<String> getSentences(String inputText) {
 
         List<String> sentences = new ArrayList<String>();
-        String[] sentenceArray = inputText.split("(?<!(\\.|\\())(\\.|\\?+|\\!+)(?!(\\.|\\())");
 
-        // for (String sentence : sentenceArray) {
-        for (int i = 0; i < sentenceArray.length; i++) {
-            String sentence = sentenceArray[i];
-            if (sentence.length() == 0) {
-                continue;
-            }
+        Pattern pattern = Pattern
+                .compile("(?<!(\\.|\\())(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
 
-            // get end of sentence
-            String sentenceTermination = ".";
+        Matcher matcher = pattern.matcher(inputText);
+        int lastIndex = 0;
 
-            if (i < sentenceArray.length - 1) {
-                sentenceTermination = StringHelper.getSubstringBetween(inputText, sentence, sentenceArray[i + 1]);
-            } else {
-                int pos = inputText.lastIndexOf(sentence);
-                sentenceTermination = inputText.substring(pos + sentence.length());
-            }
-
-            sentences.add(sentence.trim() + sentenceTermination);
+        while (matcher.find()) {
+            sentences.add(inputText.substring(lastIndex, matcher.end()).trim());
+            lastIndex = matcher.end();
         }
 
         return sentences;
@@ -362,8 +353,7 @@ public class Tokenizer {
         return string.substring(0, endIndex);
     }
     
-    public static void main(String[] args) {
-        
+    public static void main(String[] args) throws IOException {
         
         // demo for the tokenizer problem
         String text = FileHelper.readFileToString("data/test/tokenizerProblem.txt");
@@ -382,7 +372,9 @@ public class Tokenizer {
         // then tokenize each sentence
         count = 0;
         List<String> sentences = Tokenizer.getSentences(text);
+
         for (String sentence : sentences) {
+            FileHelper.appendFile("sentences.txt", sentence + "\n");
             List<String> tokensInSentence = Tokenizer.tokenize(sentence);
             for (String token : tokensInSentence) {
                 if (token.equals("Number")) {

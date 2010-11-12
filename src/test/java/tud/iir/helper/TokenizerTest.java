@@ -108,6 +108,11 @@ public class TokenizerTest extends TestCase {
         assertEquals("I really don't.", sentences.get(2));
         // CollectionHelper.print(sentences);
         
+        inputText = "ActionScript 3.0 (or Flex 3.0.1) supports flash.stage.MovieClip(), cool he?";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals("ActionScript 3.0 (or Flex 3.0.1) supports flash.stage.MovieClip(), cool he?",
+                sentences.get(0));
         
         // those patterns were causing an Exception which is fixed now : java.lang.StringIndexOutOfBoundsException
         // at tud.iir.helper.StringHelper.getSubstringBetween(StringHelper.java:984)
