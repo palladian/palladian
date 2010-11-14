@@ -1116,6 +1116,39 @@ public class FileHelper {
     }
 
     /**
+     * Concatenates file2 to the end of file1.
+     * 
+     * @param file1 The first file.
+     * @param file2 The file that is appended to the end of file1.
+     * @return True, if concatenation worked, false otherwise.
+     */
+    public static boolean concatenateFiles(File file1, File file2) {
+        boolean concatenated = false;
+
+        try {
+
+            FileInputStream fis = new FileInputStream(file2);
+
+            FileOutputStream fos = new FileOutputStream(file1, true);
+
+            int c;
+
+            while ((c = fis.read()) != -1) {
+                fos.write(c);
+            }
+
+            fos.close();
+
+            concatenated = true;
+
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        return concatenated;
+    }
+
+    /**
      * The main method.
      *
      * @param a the arguments

@@ -137,7 +137,9 @@ public class FileFormatParser {
 
                 obj[1] = parts[1];
 
-                if ((Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
+                if (parts.length > 0
+                        && parts[0].length() > 0
+                        && (Character.isLetterOrDigit(parts[0].charAt(0)) || StringHelper.isBracket(parts[0].charAt(0)))
                         && !openTag && lineNumber > 1
                         && (Boolean) obj[3] == false) {
                     ((StringBuilder) obj[0]).append(" ");

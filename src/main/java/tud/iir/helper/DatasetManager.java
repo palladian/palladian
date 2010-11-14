@@ -199,6 +199,69 @@ public class DatasetManager {
     }
 
     /**
+     * <p>
+     * Split the index file into x parts where x is the highest number after CONCEPT_X.
+     * </p>
+     * <p>
+     * For example:<br>
+     * filePath politician_part1<br>
+     * filePath politician_part2<br>
+     * => should be split in two files, one containing only part1 and the other only part2.
+     * </p>
+     * 
+     * @param indexFilePath The path to the file which should be split.
+     * @throws IOException
+     */
+    public void splitIndexParts(String indexFilePath) throws IOException {
+
+        StopWatch sw = new StopWatch();
+
+        // map containing the parts with the file links
+        Map<String, Set<String>> partsMap = new HashMap<String, Set<String>>();
+
+        List<String> lines = FileHelper.readFileToArray(indexFilePath);
+        for (String line : lines) {
+
+            if (line.length() == 0) {
+                continue;
+            }
+
+            String[] lineParts = line.split(" ");
+            String part = lineParts[1].substring(lineParts[1].lastIndexOf("_") + 1);
+
+            Set<String> links = partsMap.get(part);
+            if (links == null) {
+                links = new HashSet<String>();
+                links.add(lineParts[0]);
+                partsMap.put(part, links);
+            } else {
+                links.add(lineParts[0]);
+            }
+        }
+
+        // write x file where x is the number of parts per concept
+        for (Entry<String, Set<String>> partEntry : partsMap.entrySet()) {
+
+            String partNumber = partEntry.getKey().substring(partEntry.getKey().lastIndexOf("part") + 4);
+
+            FileWriter splitFile = new FileWriter(FileHelper.appendToFileName(indexFilePath, "_part" + partNumber));
+
+            for (String link : partEntry.getValue()) {
+                String conceptName = link.substring(0, link.indexOf("/"));
+                splitFile.write(link);
+                splitFile.write(" ");
+                splitFile.write(conceptName);
+                splitFile.write("\n");
+                splitFile.flush();
+            }
+
+            splitFile.close();
+        }
+
+        LOGGER.info("file " + indexFilePath + " splitted in " + sw.getElapsedTimeString());
+    }
+
+    /**
      * Delete all files that are empty.
      * 
      * @param corpusRootFolderPath The path to the root of the corpus.
@@ -234,9 +297,17 @@ public class DatasetManager {
 
     /**
      * @param args
+     * @throws IOException
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
+
         DatasetManager dsm = new DatasetManager();
+
+        String corpusRootFolderPath = "data/datasets/ner/www_test/";
+        dsm.cleanDataset(corpusRootFolderPath);
+        dsm.createIndex(corpusRootFolderPath);
+        dsm.splitIndex(corpusRootFolderPath + "index.txt", 50);
+        dsm.splitIndexParts(corpusRootFolderPath + "index_split1.txt");
 
     }
 
