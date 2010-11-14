@@ -6,6 +6,7 @@ import java.util.Map.Entry;
 
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.helper.CountMap;
+import tud.iir.helper.MathHelper;
 
 /**
  * <p>
@@ -251,7 +252,7 @@ public class EvaluationResult {
             } else if (type == MUC) {
 
                 correctAssignments += cm.get(ERROR3) + cm.get(ERROR4) + 2 * cm.get(CORRECT);
-                totalAssignments = cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5) + 2
+                totalAssignments += cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5) + 2
                         * cm.get(CORRECT);
 
             }
@@ -280,8 +281,8 @@ public class EvaluationResult {
 
             } else if (type == MUC) {
 
-                correctAssignments = cm.get(ERROR3) + cm.get(ERROR4) + 2 * cm.get(CORRECT);
-                possibleAssignments = 2 * cm.get(POSSIBLE);
+                correctAssignments += cm.get(ERROR3) + cm.get(ERROR4) + 2 * cm.get(CORRECT);
+                possibleAssignments += 2 * cm.get(POSSIBLE);
 
             }
 
@@ -336,6 +337,28 @@ public class EvaluationResult {
         // builder.append("]");
         // return builder.toString();
         return NamedEntityRecognizer.printEvaluationDetails(this).toString();
+    }
+
+    public String getExactMatchResultsReadable() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("precision exact: ");
+        builder.append(MathHelper.round(100 * getPrecision(EXACT_MATCH), 2)).append("%");
+        builder.append(", recall exact: ");
+        builder.append(MathHelper.round(100 * getRecall(EXACT_MATCH), 2)).append("%");
+        builder.append(", F1 exact: ");
+        builder.append(MathHelper.round(100 * getF1(EXACT_MATCH), 2)).append("%");
+        return builder.toString();
+    }
+
+    public String getMUCResultsReadable() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("precision MUC: ");
+        builder.append(MathHelper.round(100 * getPrecision(MUC), 2)).append("%");
+        builder.append(", recall MUC: ");
+        builder.append(MathHelper.round(100 * getRecall(MUC), 2)).append("%");
+        builder.append(", F1 MUC: ");
+        builder.append(MathHelper.round(100 * getF1(MUC), 2)).append("%");
+        return builder.toString();
     }
 
 }

@@ -1,4 +1,4 @@
-package tud.iir.classification.language.evaluation;
+package tud.iir.helper;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -12,105 +12,14 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
 
-import tud.iir.helper.CollectionHelper;
-import tud.iir.helper.CountMap;
-import tud.iir.helper.FileHelper;
-import tud.iir.helper.LineAction;
-import tud.iir.helper.StopWatch;
-import tud.iir.helper.XPathHelper;
-import tud.iir.web.Crawler;
-
-/**
- * <p>
- * Parse the xml files from the <a href="http://wt.jrc.it/lt/Acquis/">JRC corpus</a> and save the body text in single
- * files. We can then further create training and testing sets with this class.
- * </p>
- * 
- * @author David Urbansky
- * 
- */
-public class JRCCorpusConverter {
+public class DatasetManager {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(JRCCorpusConverter.class);
+    private static final Logger LOGGER = Logger.getLogger(DatasetManager.class);
 
     /**
-     * <p>
-     * Convert all xml files to text files containing only the body text.
-     * </p>
-     * <p>
-     * The corpusRootFolderPath must point to a folder where each subfolder is named by the two digit language code and
-     * has again subfolders which then contain the xml files.
-     * </p>
-     * 
-     * @param corpusRootFolderPath The path to the root folder of the corpus files.
-     * @param targetPath The path to the folder where the processed files should be saved to.
-     */
-    public void convertAllFiles(String corpusRootFolderPath, String targetPath) {
-
-        StopWatch sw = new StopWatch();
-
-        // create the path to the target folder
-        if (!targetPath.endsWith("/")) {
-            targetPath += "/";
-        }
-        new File(targetPath).mkdirs();
-
-        // iterate over all languages
-        File[] languageFolders = FileHelper.getFiles(corpusRootFolderPath);
-        for (File languageFolder : languageFolders) {
-
-            String currentLanguageCode = FileHelper.getFolderName(languageFolder.getPath());
-            LOGGER.info("converting xml files from language: " + currentLanguageCode);
-
-            int fileNumber = 1;
-
-            // get all subfolders (ordered by year)
-            File[] yearFolders = FileHelper.getFiles(languageFolder.getPath());
-            for (File yearFolder : yearFolders) {
-
-                LOGGER.info("converting xml files from language: " + currentLanguageCode + " and year "
-                        + FileHelper.getFolderName(yearFolder.getPath()));
-
-                // process each xml document in the folder
-                File[] xmlFiles = FileHelper.getFiles(yearFolder.getPath());
-                for (File xmlFile : xmlFiles) {
-
-                    convertAndSave(xmlFile, targetPath + currentLanguageCode + "/", fileNumber + ".txt");
-                    fileNumber++;
-
-                }
-
-            }
-
-        }
-
-        LOGGER.info("converted all files in " + sw.getElapsedTimeString());
-    }
-
-    private void convertAndSave(File xmlFile, String targetPath, String fileName) {
-
-        new File(targetPath).mkdirs();
-
-        Crawler crawler = new Crawler();
-        Document document = crawler.getXMLDocument(xmlFile.getPath());
-
-        List<Node> textNodes = XPathHelper.getNodes(document, "//text/body//div[@type='body']/p");
-
-        StringBuilder textContent = new StringBuilder();
-        for (Node node : textNodes) {
-            textContent.append(node.getTextContent()).append("\n");
-        }
-
-        FileHelper.writeToFile(targetPath + "/" + fileName, textContent);
-
-    }
-
-    /**
-     * Create an index of file location [space] language code for all languages.
+     * Create an index of file location [space] class name.
      * 
      * @param corpusRootFolder The path to the root folder of the dataset.
      * @throws IOException
@@ -120,13 +29,13 @@ public class JRCCorpusConverter {
     }
 
     /**
-     * Create an index of file location [space] language code for all languages specified in the array.
+     * Create an index of file location [space] class name for all classes specified in the array.
      * 
      * @param corpusRootFolderPath The path to the root folder of the dataset.
-     * @param includeLanguages The language codes for languages that should be included in the index.
+     * @param includeClasses The class names that should be included in the index.
      * @throws IOException
      */
-    public void createIndex(String corpusRootFolderPath, String[] includeLanguages) throws IOException {
+    public void createIndex(String corpusRootFolderPath, String[] includeClasses) throws IOException {
 
         StopWatch sw = new StopWatch();
 
@@ -134,28 +43,35 @@ public class JRCCorpusConverter {
             corpusRootFolderPath += "/";
         }
         String indexName = "index";
-        if (includeLanguages == null) {
-            indexName += "All22Languages";
-        } else {
-            indexName += "_" + Arrays.toString(includeLanguages);
+        if (includeClasses != null) {
+            indexName += "_" + Arrays.toString(includeClasses);
         }
         FileWriter indexFile = new FileWriter(corpusRootFolderPath + indexName + ".txt");
 
-        // iterate over all languages
-        File[] languageFolders = FileHelper.getFiles(corpusRootFolderPath);
-        for (File languageFolder : languageFolders) {
+        // iterate over all classes
+        File[] classFolders = FileHelper.getFiles(corpusRootFolderPath);
+        for (File classFolder : classFolders) {
 
-            String currentLanguageCode = FileHelper.getFolderName(languageFolder.getPath());
+            if (classFolder.isFile()) {
+                continue;
+            }
 
-            if (includeLanguages != null && !CollectionHelper.contains(includeLanguages, currentLanguageCode)) {
-                LOGGER.info("skip language " + currentLanguageCode);
+            String className = FileHelper.getFolderName(classFolder.getPath());
+
+            if (includeClasses != null && !CollectionHelper.contains(includeClasses, className)) {
+                LOGGER.info("skip class " + className);
                 continue;
             }
 
             // process each text document in the folder
-            File[] textFiles = FileHelper.getFiles(languageFolder.getPath());
+            File[] textFiles = FileHelper.getFiles(classFolder.getPath());
             for (File textFile : textFiles) {
-                indexFile.write(currentLanguageCode + "/" + textFile.getName() + " " + currentLanguageCode);
+
+                if (textFile.isDirectory()) {
+                    continue;
+                }
+
+                indexFile.write(className + "/" + textFile.getName() + " " + className);
                 indexFile.write("\n");
                 indexFile.flush();
             }
@@ -216,7 +132,6 @@ public class JRCCorpusConverter {
         indexFile.close();
 
         LOGGER.info("index excerpt file created in " + sw.getElapsedTimeString());
-
     }
 
     /**
@@ -297,11 +212,16 @@ public class JRCCorpusConverter {
         int deletedFiles = 0;
 
         // iterate over all languages
-        File[] languageFolders = FileHelper.getFiles(corpusRootFolderPath);
-        for (File languageFolder : languageFolders) {
+        File[] classFolders = FileHelper.getFiles(corpusRootFolderPath);
+        for (File classFolder : classFolders) {
 
-            File[] textFiles = FileHelper.getFiles(languageFolder.getPath());
+            File[] textFiles = FileHelper.getFiles(classFolder.getPath());
             for (File file : textFiles) {
+
+                if (file.isDirectory()) {
+                    continue;
+                }
+
                 if (file.length() == 0) {
                     file.delete();
                     deletedFiles++;
@@ -314,15 +234,9 @@ public class JRCCorpusConverter {
 
     /**
      * @param args
-     * @throws IOException
      */
-    public static void main(String[] args) throws IOException {
-        JRCCorpusConverter cc = new JRCCorpusConverter();
-        // cc.convertAllFiles("C:\\Safe\\Datasets\\jrc language data\\","C:\\Safe\\Datasets\\jrc language data converted\\");
-        // cc.cleanDataset("C:\\Safe\\Datasets\\jrc language data converted\\");
-        // cc.createIndex("C:\\Safe\\Datasets\\jrc language data converted\\");
-        cc.createIndexExcerpt("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages.txt", 1000);
-        // cc.splitIndex("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc100.txt", 50);
+    public static void main(String[] args) {
+        DatasetManager dsm = new DatasetManager();
 
     }
 

@@ -483,6 +483,13 @@ public class StanfordNER extends NamedEntityRecognizer {
         // st.evaluateNER("data/temp/stanfordner/example/ner-model.ser.gz","data/temp/stanfordner/example/jane-austen-emma-ch2.tsv");
         // st.evaluateNER("data/temp/ner-model-mobilePhone.ser.gz", "data/temp/allUntagged.xml");
 
+        // /////////////////////////// train and test /////////////////////////////
+        // tagger.train("data/datasets/ner/politician/text/training.tsv","data/models/stanfordner/training/sample.prop");
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
+        // "data/models/stanfordner/data/new-example-model.ser.gz", TaggingFormat.COLUMN);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
+
     }
 
 }

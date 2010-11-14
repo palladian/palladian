@@ -62,7 +62,8 @@ public class Annotation {
     }
 
     public boolean sameTag(Annotation annotation) {
-        if (getMostLikelyTag().getCategory().getName().equals(annotation.getMostLikelyTag().getCategory().getName())) {
+        if (getMostLikelyTag().getCategory().getName()
+                .equalsIgnoreCase(annotation.getMostLikelyTag().getCategory().getName())) {
             return true;
         }
         return false;

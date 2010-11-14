@@ -563,7 +563,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         }
 
-        // // HOW TO USE ////
+        // ################################# HOW TO USE #################################
         // HashSet<String> trainingTexts = new HashSet<String>();
         // trainingTexts.add("Australia is a country and a continent at the same time. New Zealand is also a country but not a continent");
         // trainingTexts
@@ -582,7 +582,6 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         // train
         // tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/models/tudner/tudner.model");
-        tagger.train("data/datasets/ner/politician/text/training.tsv", "data/models/tudner/tudner.model");
        
         // tag
         // tagger.loadModel("data/models/tudner/tudner.model");
@@ -595,8 +594,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // evaluate
         // tagger.evaluate("data/datasets/ner/sample/testingColumn.tsv", "data/models/tudner/tudner.model",
         // TaggingFormat.COLUMN);
-        tagger.evaluate("data/datasets/ner/politician/text/testing.tsv", "data/models/tudner/tudner.model",
-                TaggingFormat.COLUMN);
+
 
         // FileFormatParser.xmlToColumn("data/temp/taggedText.txt", "data/temp/allColumnTaggedText.tsv", "\t");
         // nercer.train("data/temp/allColumnTaggedText.tsv", "data/temp/nercer.model");
@@ -620,6 +618,13 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // .recognizeEntities("In the north of Europe, there is a country called Sweden which is not far from Norway, there is also a country named Scotland in the north of Europe. But also Denzel Washington is an actor.");
         //
         // CollectionHelper.print(recognizedEntities);
+
+        // /////////////////////////// train and test /////////////////////////////
+        // tagger.train("data/datasets/ner/politician/text/training.tsv", "data/models/tudner/tudner.model");
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
+        // "data/models/tudner/tudner.model", TaggingFormat.COLUMN);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
     }
 
 

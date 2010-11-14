@@ -97,7 +97,6 @@ public class JulieNER extends NamedEntityRecognizer {
 
         File testDataFile = new File("data/temp/julieTrainingSlash.txt");
 
-
         // TODO assign confidence values for predicted labels (see JNET documentation)
         boolean showSegmentConfidence = false;
 
@@ -311,6 +310,13 @@ public class JulieNER extends NamedEntityRecognizer {
         // // evaluate
         // System.out.println(tagger.evaluate("data/datasets/ner/sample/testingXML.xml",
         // "data/temp/personPhoneCity.mod.gz", TaggingFormat.XML));
+
+        // /////////////////////////// train and test /////////////////////////////
+        tagger.train("data/datasets/ner/politician/text/training.tsv", "data/temp/juliener.mod");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
+                "data/temp/juliener.mod", TaggingFormat.COLUMN);
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
 
     }
 

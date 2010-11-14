@@ -2,7 +2,9 @@ package tud.iir.extraction.entity.ner.tagger;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -13,6 +15,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,11 +24,14 @@ import org.json.JSONObject;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
+import tud.iir.extraction.entity.ner.TaggingFormat;
+import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.Tokenizer;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
-import tud.iir.web.Crawler;
+import tud.iir.web.HTTPPoster;
 
 /**
  * <p>
@@ -91,6 +98,9 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
     /** The API key for the Open Calais service. */
     private final String API_KEY;
 
+    /** The maximum number of characters allowed to send per request (actually 100,000). */
+    private final int MAXIMUM_TEXT_LENGTH = 90000;
+
     public OpenCalaisNER() {
         setName("OpenCalais NER");
 
@@ -131,62 +141,123 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
 
         Annotations annotations = new Annotations();
 
-        Crawler c = new Crawler();
+     // we need to build chunks of texts because we can not send very long texts at once to open calais
+        List<String> sentences = Tokenizer.getSentences(inputText);
+        List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
+        StringBuilder currentTextChunk = new StringBuilder();
+        for (String sentence : sentences) {
 
-        try {
-            String parameters = "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"Application/JSON\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>";
-            String restCall = "http://api.opencalais.com/enlighten/rest/?licenseID=" + API_KEY + "&content="
-                    + inputText + "&paramsXML=" + URLEncoder.encode(parameters, "UTF-8");
-            // System.out.println(restCall);
-            JSONObject json = c.getJSONDocument(restCall);
+            if (currentTextChunk.length() + sentence.length() > MAXIMUM_TEXT_LENGTH) {
+                textChunks.add(currentTextChunk);
+                currentTextChunk = new StringBuilder();
+            }
 
-            @SuppressWarnings("unchecked")
-            Iterator<String> it = json.keys();
+            currentTextChunk.append(sentence);
+        }
+        textChunks.add(currentTextChunk);
 
-            while (it.hasNext()) {
-                String key = it.next();
+        LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
 
-                JSONObject obj = json.getJSONObject(key);
-                if (obj.has("_typeGroup") && obj.getString("_typeGroup").equalsIgnoreCase("entities")) {
+        // since the offset is per chunk we need to add the offset for each new chunk to get the real position of the
+        // entity in the original text
+        int cumulatedOffset = 0;
+        for (StringBuilder textChunk : textChunks) {
 
-                    String entityName = obj.getString("name");
-                    Entity namedEntity = new Entity(entityName, new Concept(obj.getString("_type")));
+            try {
+                // use get
+                // Crawler c = new Crawler();
+                // String parameters =
+                // "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"Application/JSON\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>";
+                // String restCall = "http://api.opencalais.com/enlighten/rest/?licenseID=" + API_KEY + "&content="
+                // + inputText + "&paramsXML=" + URLEncoder.encode(parameters, "UTF-8");
+                // // System.out.println(restCall);
+                // JSONObject json = c.getJSONDocument(restCall);
 
-                    // recognizedEntities.add(namedEntity);
+                PostMethod pm = createPostMethod(textChunk.toString());
 
-                    if (obj.has("instances")) {
-                        JSONArray instances = obj.getJSONArray("instances");
+                HTTPPoster poster = new HTTPPoster();
+                String response = poster.handleRequest(pm);
 
-                        for (int i = 0; i < instances.length(); i++) {
-                            JSONObject instance = instances.getJSONObject(i);
+                JSONObject json = new JSONObject(response);
 
-                            // take only instances that are as long as the entity name, this way we discard co-reference
-                            // resolution instances
-                            if (instance.getInt("length") == entityName.length()) {
-                                int offset = instance.getInt("offset");
+                @SuppressWarnings("unchecked")
+                Iterator<String> it = json.keys();
 
-                                Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity
-                                        .getConcept().getName());
-                                annotations.add(annotation);
+                while (it.hasNext()) {
+                    String key = it.next();
+
+                    JSONObject obj = json.getJSONObject(key);
+                    if (obj.has("_typeGroup") && obj.getString("_typeGroup").equalsIgnoreCase("entities")) {
+
+                        String entityName = obj.getString("name");
+                        Entity namedEntity = new Entity(entityName, new Concept(obj.getString("_type")));
+
+                        // recognizedEntities.add(namedEntity);
+
+                        if (obj.has("instances")) {
+                            JSONArray instances = obj.getJSONArray("instances");
+
+                            for (int i = 0; i < instances.length(); i++) {
+                                JSONObject instance = instances.getJSONObject(i);
+
+                                // take only instances that are as long as the entity name, this way we discard
+                                // co-reference
+                                // resolution instances
+                                if (instance.getInt("length") == entityName.length()) {
+                                    int offset = instance.getInt("offset");
+
+                                    Annotation annotation = new Annotation(cumulatedOffset + offset,
+                                            namedEntity.getName(), namedEntity
+                                            .getConcept().getName());
+                                    annotations.add(annotation);
+                                }
                             }
+
                         }
 
                     }
 
                 }
 
+            } catch (JSONException e) {
+                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
             }
+            // catch (UnsupportedEncodingException e) {
+            // LOGGER.error(getName() + " could not encode url, " + e.getMessage());
+            // }
 
-        } catch (JSONException e) {
-            LOGGER.error(getName() + " could not parse json, " + e.getMessage());
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error(getName() + " could not encode url, " + e.getMessage());
+            cumulatedOffset += textChunk.length();
         }
 
-        // CollectionHelper.print(recognizedEntities);
+        annotations.sort();
         CollectionHelper.print(annotations);
 
         return annotations;
+    }
+
+    private PostMethod createPostMethod(String inputText) {
+
+        PostMethod method = new PostMethod("http://api.opencalais.com/tag/rs/enrich");
+
+        // set mandatory parameters
+        method.setRequestHeader("x-calais-licenseID", API_KEY);
+
+        // set input content type
+        method.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+        // set response/output format
+        method.setRequestHeader("Accept", "application/json");
+
+        try {
+            String paramsXML = "<c:params xmlns:c=\"http://s.opencalais.com/1/pred/\" xmlns:rdf=\"http://www.w3.org/1999/02/22-rdf-syntax-ns#\"><c:processingDirectives c:contentType=\"text/raw\" c:outputFormat=\"application/json\" c:discardMetadata=\";\"></c:processingDirectives><c:userDirectives c:allowDistribution=\"true\" c:allowSearch=\"true\" c:externalID=\"calaisbridge\" c:submitter=\"calaisbridge\"></c:userDirectives><c:externalMetadata c:caller=\"GnosisFirefox\"/></c:params>";
+            method.setRequestEntity(new StringRequestEntity("content=" + URLEncoder.encode(inputText, "UTF-8")
+                    + "&paramsXML=" + URLEncoder.encode(paramsXML, "UTF-8"),
+                    "text/raw", "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("encoding is not supported, " + e.getMessage());
+        }
+
+        return method;
     }
 
     /**
@@ -242,5 +313,11 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
         // System.out
         // .println(ot
         // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone."));
+
+        // /////////////////////////// test /////////////////////////////
+        EvaluationResult er = tagger
+                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
     }
 }

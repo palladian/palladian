@@ -41,6 +41,27 @@ public class Annotations extends ArrayList<Annotation> {
 
     }
 
+    public void removeNestedAnnotations() {
+        Annotations removedNested = new Annotations();
+
+        sort();
+
+        int lastEndIndex = 0;
+        for (Annotation annotation : this) {
+
+            // ignore nested annotations
+            if (annotation.getOffset() < lastEndIndex) {
+                continue;
+            }
+
+            removedNested.add(annotation);
+            lastEndIndex = annotation.getEndIndex();
+        }
+
+        clear();
+        this.addAll(removedNested);
+    }
+
     /**
      * The order of annotations is important. Annotations are sorted by their offsets in ascending order.
      */

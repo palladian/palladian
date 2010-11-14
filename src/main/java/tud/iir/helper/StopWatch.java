@@ -60,6 +60,15 @@ public class StopWatch {
     }
 
     /**
+     * Get the time when the stop watch was started.
+     * 
+     * @return The timestamp of the start time.
+     */
+    public long getStartTime() {
+        return startTime;
+    }
+
+    /**
      * Get the elapsed time.
      * 
      * @param inSeconds If true, the elapsed time will be returned in seconds, otherwise in milliseconds.
@@ -68,9 +77,9 @@ public class StopWatch {
     public long getElapsedTime(boolean inSeconds) {
         long elapsed;
         if (running) {
-            elapsed = (System.currentTimeMillis() - startTime);
+            elapsed = System.currentTimeMillis() - startTime;
         } else {
-            elapsed = (stopTime - startTime);
+            elapsed = stopTime - startTime;
         }
         if (inSeconds) {
             elapsed = elapsed / 1000;
