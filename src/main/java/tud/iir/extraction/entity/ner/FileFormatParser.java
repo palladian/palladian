@@ -38,7 +38,10 @@ public class FileFormatParser {
 			
 			@Override
 			public void performAction(String line, int lineNumber) {
-				String[] parts = line.split((String) args[0]);
+                if (line.length() == 0) {
+                    return;
+                }
+                String[] parts = line.split((String) args[0]);
 				((HashSet)args[1]).add(parts[1]);				
 			}
 		};

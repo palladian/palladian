@@ -91,7 +91,9 @@ public abstract class NamedEntityRecognizer {
      * @return The tagged string in the specified {@link TaggingFormat}.
      */
     public String tag(String inputText, String configModelFilePath) {
-        loadModel(configModelFilePath);
+        if (configModelFilePath.length() > 0) {
+            loadModel(configModelFilePath);
+        }
         return tag(inputText);
     }
 
@@ -194,6 +196,8 @@ public abstract class NamedEntityRecognizer {
         // get the annotations of the NER
         Annotations nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format),
                 configModelFilePath);
+
+        nerAnnotations.removeNestedAnnotations();
         nerAnnotations.sort();
         nerAnnotations.save(FileHelper.getFilePath(testingFilePath) + "nerResult.txt");
 

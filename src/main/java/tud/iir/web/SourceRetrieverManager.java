@@ -34,11 +34,11 @@ public class SourceRetrieverManager {
     // TODO automatically shift between extraction sources once too many queries
     // have been sent
 
-    protected String YAHOO_API_KEY = "";
-    protected String YAHOO_BOSS_API_KEY = "";
-    protected String HAKIA_API_KEY = "";
-    protected String GOOGLE_API_KEY = "";
-    protected String BING_API_KEY = "";
+    protected final String YAHOO_API_KEY;
+    protected final String YAHOO_BOSS_API_KEY;
+    protected final String HAKIA_API_KEY;
+    protected final String GOOGLE_API_KEY;
+    protected final String BING_API_KEY;
 
     // determines how many sources (urls) should be retrieved
     private int resultCount = 8;
@@ -58,15 +58,23 @@ public class SourceRetrieverManager {
 
         try {
             config = new PropertiesConfiguration("config/apikeys.conf");
+        } catch (ConfigurationException e) {
+            Logger.getRootLogger().error(e.getMessage());
 
+        }
+
+        if (config != null) {
             YAHOO_API_KEY = config.getString("yahoo.api.key");
             YAHOO_BOSS_API_KEY = config.getString("yahoo_boss.api.key");
             HAKIA_API_KEY = config.getString("hakia.api.key");
             GOOGLE_API_KEY = config.getString("google.api.key");
             BING_API_KEY = config.getString("bing.api.key");
-
-        } catch (ConfigurationException e) {
-            Logger.getRootLogger().error(e.getMessage());
+        } else {
+            YAHOO_API_KEY = "";
+            YAHOO_BOSS_API_KEY = "";
+            HAKIA_API_KEY = "";
+            GOOGLE_API_KEY = "";
+            BING_API_KEY = "";
         }
     }
 

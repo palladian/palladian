@@ -1,5 +1,11 @@
 package tud.iir.extraction.entity.ner.tagger;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -12,6 +18,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,18 +27,21 @@ import org.json.JSONObject;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
+import tud.iir.extraction.entity.ner.TaggingFormat;
+import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.Tokenizer;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
-import tud.iir.web.Crawler;
+import tud.iir.web.HTTPPoster;
 
 /**
  * 
  * <p>
  * The Alchemy service for Named Entity Recognition. This class uses the Alchemy API and therefore requires the
- * application to have access to the Internet.<br />
+ * application to have access to the Internet.<br>
  * <a href="http://www.alchemyapi.com/api/entity/textc.html">http://www.alchemyapi.com/api/entity/textc.html</a>
  * </p>
  * 
@@ -374,6 +385,9 @@ public class AlchemyNER extends NamedEntityRecognizer {
     /** The API key for the Alchemy API service. */
     private final String API_KEY;
 
+    /** The maximum number of characters allowed to send per request (actually 150,000). */
+    private final int MAXIMUM_TEXT_LENGTH = 140000;
+
     public AlchemyNER() {
         setName("Alchemy API NER");
 
@@ -406,7 +420,7 @@ public class AlchemyNER extends NamedEntityRecognizer {
 
     @Override
     public Annotations getAnnotations(String inputText) {
-        return getAnnotations(inputText,"");
+        return getAnnotations(inputText, "");
     }
 
     @Override
@@ -414,45 +428,102 @@ public class AlchemyNER extends NamedEntityRecognizer {
 
         Annotations annotations = new Annotations();
 
-        Crawler c = new Crawler();
-        JSONObject json = c
-                .getJSONDocument("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities?apikey=" + API_KEY
-                        + "&text=" + inputText + "&disambiguate=0&outputMode=json");
+        // we need to build chunks of texts because we can not send very long texts at once to open calais
+        List<String> sentences = Tokenizer.getSentences(inputText);
+        List<StringBuilder> textChunks = new ArrayList<StringBuilder>();
+        StringBuilder currentTextChunk = new StringBuilder();
+        for (String sentence : sentences) {
 
-        try {
-            JSONArray entities = json.getJSONArray("entities");
-            for (int i = 0; i < entities.length(); i++) {
-
-                JSONObject entity = (JSONObject) entities.get(i);
-
-                Entity namedEntity = new Entity(entity.getString("text"), new Concept(entity.getString("type")));
-
-                // recognizedEntities.add(namedEntity);
-
-                // get locations of named entity
-                Pattern pattern = Pattern.compile(StringHelper.escapeForRegularExpression(namedEntity.getName()),
-                        Pattern.DOTALL);
-
-                Matcher matcher = pattern.matcher(inputText);
-                while (matcher.find()) {
-
-                    int offset = matcher.start();
-
-                    Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getConcept()
-                            .getName());
-                    annotations.add(annotation);
-                }
-
+            if (currentTextChunk.length() + sentence.length() > MAXIMUM_TEXT_LENGTH) {
+                textChunks.add(currentTextChunk);
+                currentTextChunk = new StringBuilder();
             }
-        } catch (JSONException e) {
-            LOGGER.error(getName() + " could not parse json, " + e.getMessage());
+
+            currentTextChunk.append(sentence);
+        }
+        textChunks.add(currentTextChunk);
+
+        LOGGER.debug("sending " + textChunks.size() + " text chunks, total text length " + inputText.length());
+
+        Set<String> checkedEntities = new HashSet<String>();
+        for (StringBuilder textChunk : textChunks) {
+
+            // use get
+            // Crawler c = new Crawler();
+            // JSONObject json = c
+            // .getJSONDocument("http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities?apikey=" + API_KEY
+            // + "&text=" + inputText + "&disambiguate=0&outputMode=json");
+
+            try {
+
+                PostMethod pm = createPostMethod(textChunk.toString());
+
+                HTTPPoster poster = new HTTPPoster();
+                String response = poster.handleRequest(pm);
+
+                JSONObject json = new JSONObject(response);
+
+                JSONArray entities = json.getJSONArray("entities");
+                for (int i = 0; i < entities.length(); i++) {
+
+                    JSONObject entity = (JSONObject) entities.get(i);
+
+                    String entityName = entity.getString("text");
+                    Entity namedEntity = new Entity(entityName, new Concept(entity.getString("type")));
+
+                    // skip entities that have been processed already
+                    if (!checkedEntities.add(entityName)) {
+                        continue;
+                    }
+
+                    // recognizedEntities.add(namedEntity);
+
+                    // get locations of named entity
+                    String escapedEntity = StringHelper.escapeForRegularExpression(entityName);
+                    Pattern pattern = Pattern.compile("(?<=\\s)" + escapedEntity + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])"
+                            + escapedEntity + "(?=\\s)", Pattern.DOTALL);
+
+                    Matcher matcher = pattern.matcher(inputText);
+                    while (matcher.find()) {
+
+                        int offset = matcher.start();
+
+                        Annotation annotation = new Annotation(offset, namedEntity.getName(),
+                                namedEntity.getConcept().getName());
+                        annotations.add(annotation);
+                    }
+
+                }
+            } catch (JSONException e) {
+                LOGGER.error(getName() + " could not parse json, " + e.getMessage());
+            }
         }
 
-        // CollectionHelper.print(recognizedEntities);
-
+        annotations.sort();
         CollectionHelper.print(annotations);
 
         return annotations;
+    }
+
+    private PostMethod createPostMethod(String inputText) {
+
+        PostMethod method = new PostMethod(" http://access.alchemyapi.com/calls/text/TextGetRankedNamedEntities");
+
+        // set input content type
+        method.setRequestHeader("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+
+        // set response/output format
+        method.setRequestHeader("Accept", "application/json");
+
+        try {
+            method.setRequestEntity(new StringRequestEntity("text=" + URLEncoder.encode(inputText, "UTF-8")
+                    + "&apikey=" + URLEncoder.encode(API_KEY, "UTF-8") + "&outputMode=json&disambiguate=0", "text/raw",
+                    "UTF-8"));
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("encoding is not supported, " + e.getMessage());
+        }
+
+        return method;
     }
 
     /**
@@ -461,8 +532,9 @@ public class AlchemyNER extends NamedEntityRecognizer {
      * @param inputText The text to be tagged.
      * @return The tagged text.
      */
+    @Override
     public String tag(String inputText) {
-        return tag(inputText, "");
+        return super.tag(inputText);
     }
 
     @SuppressWarnings("static-access")
@@ -503,10 +575,14 @@ public class AlchemyNER extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
-        // System.out
-        // .println(at
-        // .tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. Some of them are also made in Salt Lake City or Cameron."));
-        // at.tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.");
+        // System.out.println(tagger.tag("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. Some of them are also made in Salt Lake City or Cameron."));
+        // tagger.tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.");
+
+        // /////////////////////////// test /////////////////////////////
+        EvaluationResult er = tagger
+                .evaluate("data/datasets/ner/politician/text/testing.tsv", "", TaggingFormat.COLUMN);
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
 
     }
 
