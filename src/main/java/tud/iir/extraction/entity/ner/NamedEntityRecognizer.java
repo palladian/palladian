@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationAnnotation;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CountMap;
@@ -40,6 +41,20 @@ public abstract class NamedEntityRecognizer {
     /** The loaded model. */
     private Object model;
 
+    /**
+     * The file ending of the model file.
+     * 
+     * @return The file ending of the model/config file.
+     */
+    public abstract String getModelFileEnding();
+
+    /**
+     * Whether or not the NER sets the model file ending itself after specifying the model name.
+     * 
+     * @return True, if it does, false otherwise.
+     */
+    public abstract boolean setsModelFileEndingAutomatically();
+
     public abstract boolean loadModel(String configModelFilePath);
     public abstract Annotations getAnnotations(String inputText, String configModelFilePath);
 
@@ -55,8 +70,8 @@ public abstract class NamedEntityRecognizer {
      * Train the named entity recognizer using the data from the training file and save it to the model file path.
      * </p>
      * <p>
-     * The training file must be given in tab separated column format where the first column is the term and the second
-     * column is the concept.
+     * The training file must be given in tab (\t) separated column format where the first column is the term and the
+     * second column is the concept.
      * </p>
      * 
      * @param trainingFilePath The path where the training data can be found.
@@ -67,6 +82,31 @@ public abstract class NamedEntityRecognizer {
 
     public boolean train(File trainingFile, File modelFile) {
         return train(trainingFile.getPath(), modelFile.getPath());
+    }
+
+    public boolean train(Dataset dataset, String modelFilePath) {
+
+        String tempFilePath = "data/temp/nerConcatenated.xml";
+        String tempColumnFilePath = FileHelper.appendToFileName(tempFilePath, "_tsv");
+
+        // delete temp file that might have been created
+        FileHelper.delete(tempFilePath);
+        FileHelper.delete(tempColumnFilePath);
+
+        // concatenate all xml files from the training index to one large file
+        List<String> lines = FileHelper.readFileToArray(dataset.getPath());
+        for (String line : lines) {
+
+            String[] parts = line.split(" ");
+
+            FileHelper.concatenateFiles(new File(tempFilePath), new File(dataset.getRootPath()
+                    + parts[0]));
+        }
+
+        // transform file to tsv format
+        FileFormatParser.xmlToColumn(tempFilePath, tempColumnFilePath, "\t");
+
+        return train(tempColumnFilePath, modelFilePath);
     }
 
     /**
@@ -185,6 +225,34 @@ public abstract class NamedEntityRecognizer {
 
     }
 
+    /**
+     * Evaluate the NER, the model must have been loaded before.
+     * 
+     * @param dataset The dataset to use for evaluation.
+     * @return The evaluation results.
+     */
+    public EvaluationResult evaluate(Dataset dataset) {
+        return evaluate(dataset, "");
+    }
+    public EvaluationResult evaluate(Dataset dataset, String configModelFilePath) {
+
+        String tempFilePath = "data/temp/nerConcatenatedEvaluation.xml";
+
+        // delete temp file that might have been created
+        FileHelper.delete(tempFilePath);
+
+        // concatenate all xml files from the training index to one large file
+        List<String> lines = FileHelper.readFileToArray(dataset.getPath());
+        for (String line : lines) {
+
+            String[] parts = line.split(" ");
+
+            FileHelper.concatenateFiles(new File(tempFilePath), new File(dataset.getRootPath() + parts[0]));
+        }
+
+        return evaluate(tempFilePath, configModelFilePath, TaggingFormat.XML);
+    }
+
     public EvaluationResult evaluate(String testingFilePath, String configModelFilePath, TaggingFormat format) {
 
         // get the correct annotations from the testing file
@@ -194,8 +262,12 @@ public abstract class NamedEntityRecognizer {
         goldStandard.save(FileHelper.getFilePath(testingFilePath) + "goldStandard.txt");
 
         // get the annotations of the NER
-        Annotations nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format),
-                configModelFilePath);
+        Annotations nerAnnotations = null;
+        if (configModelFilePath.length() > 0) {
+            nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format), configModelFilePath);
+        } else {
+            nerAnnotations = getAnnotations(FileFormatParser.getText(testingFilePath, format));
+        }
 
         nerAnnotations.removeNestedAnnotations();
         nerAnnotations.sort();

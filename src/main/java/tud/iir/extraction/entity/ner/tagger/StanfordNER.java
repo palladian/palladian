@@ -13,10 +13,12 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
+import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
+import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
@@ -58,8 +60,45 @@ import edu.stanford.nlp.util.StringUtils;
  */
 public class StanfordNER extends NamedEntityRecognizer {
 
+    /** Hold the configuration settings here instead of a file. */
+    private String configFileContent = "";
+
     public StanfordNER() {
         setName("Stanford NER");
+        
+        configFileContent += "#location of the training file" + "\n";
+        configFileContent += "trainFile = ###TRAINING_FILE###" + "\n";
+        configFileContent += "#location where you would like to save (serialize to) your" + "\n";
+        configFileContent += "#classifier; adding .gz at the end automatically gzips the file," + "\n";
+        configFileContent += "#making it faster and smaller" + "\n";
+        configFileContent += "serializeTo = ###MODEL_FILE###" + "\n";
+        configFileContent += "#structure of your training file; this tells the classifier" + "\n";
+        configFileContent += "#that the word is in column 0 and the correct answer is in" + "\n";
+        configFileContent += "#column 1" + "\n";
+        configFileContent += "map = word=0,answer=1" + "\n";
+        configFileContent += "#these are the features we'd like to train with" + "\n";
+        configFileContent += "#some are discussed below, the rest can be" + "\n";
+        configFileContent += "#understood by looking at NERFeatureFactory" + "\n";
+        configFileContent += "useClassFeature=true" + "\n";
+        configFileContent += "useWord=true" + "\n";
+        configFileContent += "useNGrams=true" + "\n";
+        configFileContent += "#no ngrams will be included that do not contain either the" + "\n";
+        configFileContent += "#beginning or end of the word" + "\n";
+        configFileContent += "noMidNGrams=true" + "\n";
+        configFileContent += "useDisjunctive=true" + "\n";
+        configFileContent += "maxNGramLeng=6" + "\n";
+        configFileContent += "usePrev=true" + "\n";
+        configFileContent += "useNext=true" + "\n";
+        configFileContent += "useSequences=true" + "\n";
+        configFileContent += "usePrevSequences=true" + "\n";
+        configFileContent += "maxLeft=1" + "\n";
+        configFileContent += "#the next 4 deal with word shape features" + "\n";
+        configFileContent += "useTypeSeqs=true" + "\n";
+        configFileContent += "useTypeSeqs2=true" + "\n";
+        configFileContent += "useTypeySequences=true" + "\n";
+        configFileContent += "wordShape=chris2useLC";
+        
+        
     }
 
     public void demo(String inputText) throws IOException {
@@ -104,11 +143,26 @@ public class StanfordNER extends NamedEntityRecognizer {
     }
 
     @Override
+    public String getModelFileEnding() {
+        return "ser.gz";
+    }
+
+    @Override
+    public boolean setsModelFileEndingAutomatically() {
+        return true;
+    }
+
+    @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
+
+        // set the location to the training and the model file in the configs and save the file
+        configFileContent = configFileContent.replaceAll("###TRAINING_FILE###", trainingFilePath);
+        configFileContent = configFileContent.replaceAll("###MODEL_FILE###", modelFilePath);
+        FileHelper.writeToFile("data/temp/stanfordNerConfig.props", configFileContent);
 
         String[] args = new String[2];
         args[0] = "-props";
-        args[1] = modelFilePath;
+        args[1] = "data/temp/stanfordNerConfig.props";
 
         Properties props = StringUtils.argsToProperties(args);
         CRFClassifier crf = new CRFClassifier(props);
@@ -489,6 +543,16 @@ public class StanfordNER extends NamedEntityRecognizer {
         // "data/models/stanfordner/data/new-example-model.ser.gz", TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
+
+        Dataset trainingDataset = new Dataset();
+        trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
+        tagger.train(trainingDataset, "data/temp/stanfordner." + tagger.getModelFileEnding());
+
+        Dataset testingDataset = new Dataset();
+        testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
+        EvaluationResult er = tagger.evaluate(testingDataset, "data/temp/stanfordner." + tagger.getModelFileEnding());
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
 
     }
 

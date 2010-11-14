@@ -38,8 +38,9 @@ import de.julielab.jnet.utils.Utils;
  * </p>
  * 
  * <p>
- * See also <a href="http://www.julielab.de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html"
- * >http://www.julielab.de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html</a>
+ * See also <a
+ * href="http://www.julielab.de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html">http://www.julielab
+ * .de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html</a>
  * </p>
  * 
  * @author David Urbansky
@@ -63,6 +64,16 @@ public class JulieNER extends NamedEntityRecognizer {
         // tag
         String taggedText = tag(inputText, "data/temp/personPhoneCity.mod.gz");
         System.out.println(taggedText);
+    }
+
+    @Override
+    public String getModelFileEnding() {
+        return "gz";
+    }
+
+    @Override
+    public boolean setsModelFileEndingAutomatically() {
+        return true;
     }
 
     @Override
@@ -111,16 +122,16 @@ public class JulieNER extends NamedEntityRecognizer {
             } catch (JNETException e) {
                 LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
             }
-        }
+        } // tagger.readModel(modelFile.toString());
+        File outFile = new File("data/temp/juliePredictionOutput.txt");
         try {
-            // tagger.readModel(modelFile.toString());
-            File outFile = new File("data/temp/juliePredictionOutput.txt");
+
             Utils.writeFile(outFile, tagger.predictIOB(sentences, showSegmentConfidence));
-            annotations = FileFormatParser.getAnnotationsFromColumn(outFile.getPath());
+
         } catch (Exception e) {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
         }
-
+        annotations = FileFormatParser.getAnnotationsFromColumn(outFile.getPath());
         CollectionHelper.print(annotations);
 
         return annotations;

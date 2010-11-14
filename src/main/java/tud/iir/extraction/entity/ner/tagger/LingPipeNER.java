@@ -49,8 +49,8 @@ import com.aliasi.util.AbstractExternalizable;
  * 
  * <p>
  * See also <a
- * href="http://alias-i.com/lingpipe/demos/tutorial/ne/read-me.html">
- * http://alias-i.com/lingpipe/demos/tutorial /ne/read-me.html</a>
+ * href="http://alias-i.com/lingpipe/demos/tutorial/ne/read-me.html">http://alias-i.com/lingpipe/demos/tutorial
+ * /ne/read-me.html</a>
  * </p>
  * 
  * @author David Urbansky
@@ -68,12 +68,24 @@ public class LingPipeNER extends NamedEntityRecognizer {
     }
 
     @Override
+    public String getModelFileEnding() {
+        return "model";
+    }
+
+    @Override
+    public boolean setsModelFileEndingAutomatically() {
+        return false;
+    }
+
+    @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
         try {
             String trainingFilePath2 = trainingFilePath.replaceAll("\\.",
                     "_tranformed.");
             FileFormatParser.tsvToSsv(trainingFilePath, trainingFilePath2);
+
+            FileFormatParser.columnToColumnBIO(trainingFilePath2, trainingFilePath2, " ");
 
             File corpusFile = new File(trainingFilePath2);
             File modelFile = new File(modelFilePath);
@@ -409,10 +421,10 @@ public class LingPipeNER extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
-        tagger
-                .tag(
-                        "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. The iphone 4 is a mobile phone.",
-                        "data/models/lingpipe/data/ne-en-mobilephone-lp.model");
+        // tagger
+        // .tag(
+        // "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. The iphone 4 is a mobile phone.",
+        // "data/models/lingpipe/data/ne-en-mobilephone-lp.model");
         //
         // tagger.useLearnedNER(
         // "data/temp/ne-en-mobilephone-lp.model",
@@ -420,6 +432,16 @@ public class LingPipeNER extends NamedEntityRecognizer {
         // evaluate
         // lpt.evaluateNER("data/temp/ne-esp-muc6.model",
         // "data/temp/esp.testb");
+
+        // Dataset trainingDataset = new Dataset();
+        // trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
+        // tagger.train(trainingDataset, "data/temp/lingpipe.model");
+        //
+        // Dataset testingDataset = new Dataset();
+        // testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
+        // EvaluationResult er = tagger.evaluate(testingDataset, "data/temp/lingpipe.model");
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
 
     }
 }

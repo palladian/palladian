@@ -101,6 +101,16 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
     }
 
     @Override
+    public String getModelFileEnding() {
+        return "config";
+    }
+
+    @Override
+    public boolean setsModelFileEndingAutomatically() {
+        return false;
+    }
+
+    @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
         // count the number of models

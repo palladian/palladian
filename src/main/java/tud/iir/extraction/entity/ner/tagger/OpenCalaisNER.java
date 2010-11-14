@@ -120,6 +120,18 @@ public class OpenCalaisNER extends NamedEntityRecognizer {
     }
 
     @Override
+    public String getModelFileEnding() {
+        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
+        return "";
+    }
+
+    @Override
+    public boolean setsModelFileEndingAutomatically() {
+        LOGGER.warn(getName() + " does not support loading models, therefore we don't know the file ending");
+        return false;
+    }
+
+    @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
         LOGGER.warn(getName() + " does not support training");
         return false;

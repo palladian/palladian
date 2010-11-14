@@ -32,11 +32,13 @@ import tud.iir.classification.page.ClassificationDocument;
 import tud.iir.classification.page.DictionaryClassifier;
 import tud.iir.classification.page.Preprocessor;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
+import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
+import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
@@ -64,8 +66,19 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private transient KnowledgeBaseCommunicatorInterface kbCommunicator = null;
 
     public TUDNER() {
+        setName("TUD NER");
         patternCandidates = new TreeMap<String, CategoryEntries>();
         patterns = new HashMap<String, CategoryEntries>();
+    }
+
+    @Override
+    public String getModelFileEnding() {
+        return "model";
+    }
+
+    @Override
+    public boolean setsModelFileEndingAutomatically() {
+        return false;
     }
 
     @Override
@@ -147,6 +160,15 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         FileHelper.serialize(this, modelFilePath);
 
         LOGGER.info("dictionary size: " + dictionary.size());
+
+        // write model meta information
+        StringBuilder supportedConcepts = new StringBuilder();
+        for (Category c : dictionary.getCategories()) {
+            supportedConcepts.append(c.getName()).append("\n");
+        }
+        FileHelper.writeToFile(FileHelper.getFilePath(modelFilePath) + FileHelper.getFileName(modelFilePath)
+                + "_meta.txt", supportedConcepts);
+        LOGGER.info("model meta information written");
     }
 
     private void createPatternCandidates(String trainingFilePath, Annotations annotations) {
@@ -625,7 +647,17 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // "data/models/tudner/tudner.model", TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
-    }
 
+        Dataset trainingDataset = new Dataset();
+        trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
+        tagger.train(trainingDataset, "data/models/tudner/tudner.model");
+
+        Dataset testingDataset = new Dataset();
+        testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
+        EvaluationResult er = tagger.evaluate(testingDataset, "data/models/tudner/tudner.model");
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
+
+    }
 
 }
