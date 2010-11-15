@@ -8,8 +8,10 @@ import org.apache.log4j.Logger;
 
 import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
+import tud.iir.extraction.entity.ner.tagger.IllinoisLbjNER;
 import tud.iir.extraction.entity.ner.tagger.JulieNER;
 import tud.iir.extraction.entity.ner.tagger.LingPipeNER;
+import tud.iir.extraction.entity.ner.tagger.OpenNLPNER;
 import tud.iir.extraction.entity.ner.tagger.StanfordNER;
 import tud.iir.extraction.entity.ner.tagger.TUDNER;
 import tud.iir.helper.FileHelper;
@@ -99,7 +101,13 @@ public class NEREvaluator {
         // nerList.add(ln);
 
         StanfordNER sn = new StanfordNER();
-        nerList.add(sn);
+        // nerList.add(sn);
+
+        IllinoisLbjNER in = new IllinoisLbjNER();
+        // nerList.add(in);
+
+        OpenNLPNER on = new OpenNLPNER();
+        nerList.add(on);
 
         TUDNER tn = new TUDNER();
         // nerList.add(tn);

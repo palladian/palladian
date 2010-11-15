@@ -3,6 +3,9 @@ package tud.iir.extraction.entity.ner.tagger;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
+import lbj.NETaggerLevel1;
+import lbj.NETaggerLevel2;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -12,8 +15,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import tud.iir.external.lbj.NETaggerLevel1;
-import tud.iir.external.lbj.NETaggerLevel2;
+import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.external.lbj.IO.Keyboard;
 import tud.iir.external.lbj.Tagger.BracketFileManager;
 import tud.iir.external.lbj.Tagger.DemoEngine;
@@ -25,6 +27,7 @@ import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
+import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import LBJ2.classify.Classifier;
@@ -60,8 +63,30 @@ import LBJ2.classify.Classifier;
  */
 public class IllinoisLbjNER extends NamedEntityRecognizer {
 
+    /** Hold the configuration settings here instead of a file. */
+    private String configFileContent = "";
+
     public IllinoisLbjNER() {
         setName("Lbj NER");
+
+        configFileContent += "BIO" + "\n";
+        configFileContent += "###MODEL_FILE###" + "\n";
+        configFileContent += "DualTokenizationScheme" + "\n";
+        configFileContent += "rounds\t20" + "\n";
+        configFileContent += "GazetteersFeatures\t0" + "\n";
+        configFileContent += "Forms\t1" + "\n";
+        configFileContent += "Capitalization\t1" + "\n";
+        configFileContent += "WordTypeInformation\t1" + "\n";
+        configFileContent += "Affixes\t1" + "\n";
+        configFileContent += "PreviousTag1\t1" + "\n";
+        configFileContent += "PreviousTag2\t1" + "\n";
+        configFileContent += "BrownClusterPaths\t0" + "\n";
+        configFileContent += "NEShapeTaggerFeatures\t0" + "\n";
+        configFileContent += "aggregateContext\t0" + "\n";
+        configFileContent += "aggregateGazetteerMatches\t0" + "\n";
+        configFileContent += "prevTagsForContext\t0" + "\n";
+        configFileContent += "PatternFeatures\t0" + "\n";
+        configFileContent += "PredictionsLevel1\t0" + "\n";
     }
 
     public void demo(boolean forceSentenceSplitsOnNewLines, String configFilePath) throws IOException {
@@ -102,7 +127,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
 
     @Override
     public String getModelFileEnding() {
-        return "config";
+        return "model";
     }
 
     @Override
@@ -113,20 +138,27 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
+        // set the location to the training and the model file in the configs and save the file
+        configFileContent = configFileContent.replaceAll("###MODEL_FILE###", modelFilePath);
+        FileHelper.writeToFile("data/temp/illinoislbjNerConfig.config", configFileContent);
+
         // count the number of models
         int l1 = FileHelper.getFiles("data/models/illinoisner/data/models").length;
 
-        Parameters.readConfigAndLoadExternalData(modelFilePath);
+        Parameters.readConfigAndLoadExternalData("data/temp/illinoislbjNerConfig.config");
         Parameters.forceNewSentenceOnLineBreaks = true;
 
         String trainingFilePath2 = trainingFilePath.replaceAll("\\.", "_tranformed.");
         FileFormatParser.tsvToSsv(trainingFilePath, trainingFilePath2);
 
-        // TODO is it a problem if training = testing? ask Lev who wrote the Lbj tagger
-        String testingFilePath = trainingFilePath + "_";
+        FileFormatParser.columnToColumnBIO(trainingFilePath2, trainingFilePath2, " ");
 
-        String testingFilePath2 = testingFilePath.replaceAll("\\.", "_tranformed.");
-        FileFormatParser.tsvToSsv(testingFilePath, testingFilePath2);
+        // TODO is it a problem if training = testing? ask Lev who wrote the Lbj tagger
+        // String testingFilePath = FileHelper.appendToFileName(trainingFilePath, "_");
+        //
+        // String testingFilePath2 = testingFilePath.replaceAll("\\.", "_tranformed.");
+        // FileFormatParser.tsvToSsv(testingFilePath, testingFilePath2);
+        String testingFilePath2 = trainingFilePath2;
 
         // a new model is only added if precision and recall are not 0 or 100
         LearningCurve.getLearningCurve(trainingFilePath2, testingFilePath2);
@@ -141,7 +173,11 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
 
     @Override
     public boolean loadModel(String configModelFilePath) {
-        Parameters.readConfigAndLoadExternalData(configModelFilePath);
+        // set the location to the training and the model file in the configs and save the file
+        configFileContent = configFileContent.replaceAll("###MODEL_FILE###", configModelFilePath);
+        FileHelper.writeToFile("data/temp/illinoislbjNerConfig.config", configFileContent);
+
+        Parameters.readConfigAndLoadExternalData("data/temp/illinoislbjNerConfig.config");
         Parameters.forceNewSentenceOnLineBreaks = true;
 
         setModel(new Object());
@@ -323,9 +359,9 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         }
 
         // // HOW TO USE ////
-        tagger.loadModel("data/models/illinoisner/baselineFeatures.config");
-        tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
-        tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
+        // tagger.loadModel("data/models/illinoisner/baselineFeatures.config");
+        // tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
+        // tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
 
         // tagger.train("data/datasets/ner/sample/trainingColumn.tsv",
         // "data/models/illinoisner/baselineFeatures2.config");
@@ -336,6 +372,17 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         //
         // // evaluate
         // //lbt.evaluateNER("data/temp/ne-esp-muc6.model", "data/temp/esp.testb");
+
+        Dataset trainingDataset = new Dataset();
+        trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
+        tagger.train(trainingDataset, "data/temp/illinoislbjner." + tagger.getModelFileEnding());
+
+        Dataset testingDataset = new Dataset();
+        testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
+        EvaluationResult er = tagger.evaluate(testingDataset,
+ "data/temp/illinoislbjner." + tagger.getModelFileEnding());
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
 
     }
 }

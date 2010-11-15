@@ -1,24 +1,18 @@
 package tud.iir.extraction.event;
 
-import java.io.IOException;
 import java.util.List;
-
-import opennlp.tools.lang.english.TreebankChunker;
-import tud.iir.helper.DataHolder;
-import tud.iir.helper.StopWatch;
 
 public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     public OpenNLPPhraseChunker() {
-        this.setName("OpenNLP Phrase Chunker");
+        setName("OpenNLP Phrase Chunker");
     }
 
     @SuppressWarnings("unchecked")
     public void chunk(String sentence, List<String> tokenList,
             List<String> posList) {
 
-        final List<String> chunkList = ((TreebankChunker) getModel()).chunk(
-                tokenList, posList);
+        final List<String> chunkList = null; // FIXME:((TreebankChunker) getModel()).chunk(tokenList, posList);
 
         String tag = "";
         String token = "";
@@ -37,15 +31,15 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
                 tag = chunkList.get(i).substring(2);
 
             }
-            if (((i + 1) < chunkList.size() && chunkList.get(i + 1).contains(
-                    "B-"))
+            if (i + 1 < chunkList.size() && chunkList.get(i + 1).contains(
+                    "B-")
                     || i == chunkList.size() - 1) {
 
                 tagAnnotations.add(new TagAnnotation(sentence.indexOf(token),
                         tag, token));
             }
         }
-        this.setTagAnnotations(tagAnnotations);
+        setTagAnnotations(tagAnnotations);
     }
 
     @Override
@@ -70,31 +64,29 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
     public boolean loadModel(String configModelFilePath) {
         try {
 
-            TreebankChunker tbc = null;
-            if (DataHolder.getInstance()
-                    .containsDataObject(configModelFilePath)) {
-
-                tbc = (TreebankChunker) DataHolder.getInstance().getDataObject(
-                        configModelFilePath);
-
-            } else {
-                final StopWatch stopWatch = new StopWatch();
-                stopWatch.start();
-
-                tbc = new TreebankChunker(configModelFilePath);
-                DataHolder.getInstance()
-                        .putDataObject(configModelFilePath, tbc);
-
-                stopWatch.stop();
-                LOGGER.info("Reading " + this.getName() + " from file "
-                        + configModelFilePath + " in "
-                        + stopWatch.getElapsedTimeString());
-            }
-
-            setModel(tbc);
+            /*
+             * FIXME:
+             * TreebankChunker tbc = null;
+             * if (DataHolder.getInstance()
+             * .containsDataObject(configModelFilePath)) {
+             * tbc = (TreebankChunker) DataHolder.getInstance().getDataObject(
+             * configModelFilePath);
+             * } else {
+             * final StopWatch stopWatch = new StopWatch();
+             * stopWatch.start();
+             * tbc = new TreebankChunker(configModelFilePath);
+             * DataHolder.getInstance()
+             * .putDataObject(configModelFilePath, tbc);
+             * stopWatch.stop();
+             * LOGGER.info("Reading " + getName() + " from file "
+             * + configModelFilePath + " in "
+             * + stopWatch.getElapsedTimeString());
+             * }
+             * setModel(tbc);
+             */
 
             return true;
-        } catch (final IOException e) {
+        } catch (Exception e) {
             LOGGER.error(e);
             return false;
         }
