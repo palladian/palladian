@@ -1,8 +1,5 @@
 package tud.iir.extraction.event;
 
-import java.io.IOException;
-
-import opennlp.tools.lang.english.TreebankParser;
 import opennlp.tools.parser.AbstractBottomUpParser;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
@@ -17,7 +14,7 @@ public class OpenNLPParser extends AbstractParser {
     private opennlp.tools.parser.Parse parse;
 
     public OpenNLPParser() {
-        this.setName("OpenNLP Parser");
+        setName("OpenNLP Parser");
     }
 
     @Override
@@ -39,12 +36,12 @@ public class OpenNLPParser extends AbstractParser {
                 final int beamSize = AbstractBottomUpParser.defaultBeamSize;
                 final double advancePercentage = AbstractBottomUpParser.defaultAdvancePercentage;
 
-                parser = TreebankParser.getParser(configModelPath, true, false,
-                        beamSize, advancePercentage);
+                parser = null;// FIXME: TreebankParser.getParser(configModelPath, true, false,beamSize,
+                              // advancePercentage);
                 DataHolder.getInstance().putDataObject(configModelPath, parser);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + this.getName() + " from file "
+                LOGGER.info("Reading " + getName() + " from file "
                         + configModelPath + " in "
                         + stopWatch.getElapsedTimeString());
             }
@@ -52,7 +49,7 @@ public class OpenNLPParser extends AbstractParser {
             setModel(parser);
 
             return true;
-        } catch (final IOException e) {
+        } catch (Exception e) {
             LOGGER.error(e);
             return false;
         }
@@ -101,12 +98,11 @@ public class OpenNLPParser extends AbstractParser {
      */
     public opennlp.tools.parser.Parse[] getFullParse(String sentence) {
 
-        opennlp.tools.parser.Parse[] parse;
+        opennlp.tools.parser.Parse[] parse = null;
 
-        if (((opennlp.tools.parser.Parser) getModel()) != null
+        if ((opennlp.tools.parser.Parser) getModel() != null
                 && sentence.length() > 0) {
-            parse = TreebankParser.parseLine(sentence,
-                    ((opennlp.tools.parser.Parser) getModel()), 1);
+            // FIXME:parse = TreebankParser.parseLine(sentence,((opennlp.tools.parser.Parser) getModel()), 1);
 
         } else {
             parse = null;

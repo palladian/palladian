@@ -1,21 +1,23 @@
 package tud.iir.extraction.entity.ner.tagger;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.util.Collections;
 
-import opennlp.maxent.EventStream;
-import opennlp.maxent.GISModel;
-import opennlp.maxent.PlainTextByLineDataStream;
-import opennlp.maxent.io.PooledGISModelReader;
-import opennlp.maxent.io.SuffixSensitiveGISModelWriter;
-import opennlp.tools.lang.english.NameFinder;
 import opennlp.tools.namefind.NameFinderEventStream;
 import opennlp.tools.namefind.NameFinderME;
+import opennlp.tools.namefind.NameSample;
 import opennlp.tools.namefind.NameSampleDataStream;
+import opennlp.tools.namefind.TokenNameFinderModel;
 import opennlp.tools.tokenize.SimpleTokenizer;
 import opennlp.tools.tokenize.Tokenizer;
+import opennlp.tools.util.ObjectStream;
+import opennlp.tools.util.PlainTextByLineStream;
 import opennlp.tools.util.Span;
 
 import org.apache.commons.cli.CommandLine;
@@ -33,6 +35,7 @@ import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 
@@ -75,7 +78,7 @@ import tud.iir.helper.StopWatch;
  */
 public class OpenNLPNER extends NamedEntityRecognizer {
 
-    private NameFinder[] nameFinders;
+    private NameFinderME[] nameFinders;
 
     public OpenNLPNER() {
         setName("OpenNLP NER");
@@ -102,7 +105,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
      * @return A tagged string.
      * @throws IOException
      */
-    private StringBuilder processText(NameFinder[] finders, String[] tags, String text) throws IOException {
+    private StringBuilder processText(NameFinderME[] finders, String[] tags, String text) throws IOException {
 
         // the names of the tags
         Span[][] nameSpans = new Span[finders.length][];
@@ -119,20 +122,26 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         Span[] spans = tokenizer.tokenizePos(text);
         String[] tokens = Span.spansToStrings(spans, text);
 
+        // tokens = (String[]) tud.iir.helper.Tokenizer.tokenize(text).toArray();
+
         // let each model (one for each concept) tag the text
         for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-            nameSpans[fi] = finders[fi].nameFinder.find(tokens);
+            nameSpans[fi] = finders[fi].find(tokens);
             nameOutcomes[fi] = NameFinderEventStream.generateOutcomes(nameSpans[fi], null, tokens.length);
         }
+        // finders[fi].clearAdaptiveData();
+
+        // CollectionHelper.print(nameSpans);
+        // CollectionHelper.print(nameOutcomes);
 
         for (int ti = 0, tl = tokens.length; ti < tl; ti++) {
             for (int fi = 0, fl = finders.length; fi < fl; fi++) {
                 // check for end tags
                 if (ti != 0) {
-                    if ((nameOutcomes[fi][ti].equals(NameFinderME.START) || nameOutcomes[fi][ti]
-                            .equals(NameFinderME.OTHER))
-                            && (nameOutcomes[fi][ti - 1].equals(NameFinderME.START) || nameOutcomes[fi][ti - 1]
-                                    .equals(NameFinderME.CONTINUE))) {
+                    if ((nameOutcomes[fi][ti].endsWith(NameFinderME.START) || nameOutcomes[fi][ti]
+                            .endsWith(NameFinderME.OTHER))
+                            && (nameOutcomes[fi][ti - 1].endsWith(NameFinderME.START) || nameOutcomes[fi][ti - 1]
+                                    .endsWith(NameFinderME.CONTINUE))) {
                         output.append("</").append(tags[fi]).append(">");
                     }
                 }
@@ -142,7 +151,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             }
             // check for start tags
             for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-                if (nameOutcomes[fi][ti].equals(NameFinderME.START)) {
+                if (nameOutcomes[fi][ti].endsWith(NameFinderME.START)) {
                     output.append("<").append(tags[fi]).append(">");
                 }
             }
@@ -151,8 +160,8 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         // final end tags
         if (tokens.length != 0) {
             for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-                if (nameOutcomes[fi][tokens.length - 1].equals(NameFinderME.START)
-                        || nameOutcomes[fi][tokens.length - 1].equals(NameFinderME.CONTINUE)) {
+                if (nameOutcomes[fi][tokens.length - 1].endsWith(NameFinderME.START)
+                        || nameOutcomes[fi][tokens.length - 1].endsWith(NameFinderME.CONTINUE)) {
                     output.append("</").append(tags[fi]).append(">");
                 }
             }
@@ -173,7 +182,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
         String[] modelFilePaths = configModelFilePath.split(",");
 
-        NameFinder[] finders = new NameFinder[modelFilePaths.length];
+        NameFinderME[] finders = new NameFinderME[modelFilePaths.length];
         String[] tags = new String[finders.length];
 
         for (int finderIndex = 0; finderIndex < modelFilePaths.length; finderIndex++) {
@@ -184,11 +193,12 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             if (tagStartIndex > -1) {
                 tagName = modelName.substring(tagStartIndex + 1, modelName.indexOf(".", tagStartIndex));
             } else {
-                LOGGER.warn("model name does not comply \"openNLP_TAG.bin.gz\" format");
+                LOGGER.warn("model name does not comply \"openNLP_TAG.bin\" format");
             }
 
             try {
-                finders[finderIndex] = new NameFinder(new PooledGISModelReader(new File(modelName)).getModel());
+                finders[finderIndex] = new NameFinderME(new TokenNameFinderModel(new FileInputStream(
+                        new File(modelName))));
             } catch (IOException e) {
                 LOGGER.error(getName() + " error in loading model: " + e.getMessage());
                 return false;
@@ -211,7 +221,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         Annotations annotations = new Annotations();
 
         Object[] objs = (Object[]) getModel();
-        NameFinder[] finders = (NameFinder[]) objs[0];
+        NameFinderME[] finders = (NameFinderME[]) objs[0];
         String[] tags = (String[]) objs[1];
 
         String taggedText = "";
@@ -226,7 +236,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
         annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
 
-        // CollectionHelper.print(annotations);
+        CollectionHelper.print(annotations);
 
         return annotations;
     }
@@ -240,7 +250,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
     @Override
     public String getModelFileEnding() {
-        return "bin.gz";
+        return "bin";
     }
 
     @Override
@@ -249,38 +259,66 @@ public class OpenNLPNER extends NamedEntityRecognizer {
     }
 
     @Override
+    public boolean oneModelPerConcept() {
+        return true;
+    }
+
+    @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
-        File inFile = null;
-        File outFile = null;
+        if (modelFilePath.lastIndexOf("_") == -1) {
+            LOGGER.fatal("model name does not comply \"openNLP_TAG.bin\" format: " + modelFilePath);
+            System.exit(1);
+        }
 
-        inFile = new File(trainingFilePath);
-        outFile = new File(modelFilePath);
+        String conceptName = FileHelper.getFileName(modelFilePath).replaceAll("openNLP_", "");
 
-        int iterations = 100;
-        int cutoff = 5;
+        // open nlp needs xml format
+        FileFormatParser.columnToXML(trainingFilePath, "data/temp/openNLPNERTraining.xml", "\t");
 
-        GISModel mod;
-        EventStream es;
+        String content = FileHelper.readFileToString("data/temp/openNLPNERTraining.xml");
+
+        // we need to use the tag style <START:tagname> blabla <END>
+        content = content.replaceAll("<" + conceptName.toUpperCase() + ">", "<START:" + conceptName.toLowerCase()
+                + "> ");
+        content = content.replaceAll("</" + conceptName.toUpperCase() + "> ", " <END> ");
+        FileHelper.writeToFile("data/temp/openNLPNERTraining.xml", content);
+
+        ObjectStream<String> lineStream;
+        TokenNameFinderModel model = null;
+        try {
+            lineStream = new PlainTextByLineStream(new FileInputStream("data/temp/openNLPNERTraining.xml"), "UTF-8");
+
+            ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
+
+            model = NameFinderME.train("en", conceptName.toUpperCase(), sampleStream,
+                    Collections.<String, Object> emptyMap(), 100, 5);
+
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error(e.getMessage());
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        BufferedOutputStream modelOut = null;
 
         try {
-            es = new NameFinderEventStream(new NameSampleDataStream(new PlainTextByLineDataStream(
-                    new FileReader(inFile))));
-
-            mod = NameFinderME.train(es, iterations, cutoff);
-            LOGGER.info("saving the model as: " + outFile.toString());
-
-            new SuffixSensitiveGISModelWriter(mod, outFile).persist();
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error("error during training model in " + getName() + ", with " + trainingFilePath + " and "
-                    + modelFilePath + ", " + e.getMessage());
-            return false;
+            modelOut = new BufferedOutputStream(new FileOutputStream(modelFilePath));
+            model.serialize(modelOut);
         } catch (IOException e) {
-            LOGGER.error("error during training model in " + getName() + ", with " + trainingFilePath + " and "
-                    + modelFilePath + ", " + e.getMessage());
-            return false;
+            LOGGER.error(e.getMessage());
+        } finally {
+            if (modelOut != null) {
+                try {
+                    modelOut.close();
+                } catch (IOException e) {
+                    LOGGER.error("could not close model file, " + e.getMessage());
+                }
+            }
         }
+
 
         return true;
     }
@@ -383,9 +421,10 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
         // // tag
         // String taggedText = tagger
-        // .tag(
-        // "John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone. The iphone 4 is modern. Seattle is a rainy city.",
-        // "data/models/opennlp/openNLP_person.bin.gz,data/models/opennlp/openNLP_location.bin.gz,data/models/opennlp/openNLP_phone.bin.gz");
+        // .tag("John J. Smith and the Nexus One location mention Seattle in the text John J. Smith lives in Seattle. New York City is where he wants to buy an iPhone 4 or a Samsung i7110 phone. The iphone 4 is modern. Seattle is a rainy city.",
+        // "data/models/opennlp/openNLP_location.bin,data/models/opennlp/openNLP_person.bin");
+        // System.out.println(taggedText);
+        // System.exit(1);
         // System.out.println(taggedText);
 
         // // demo
@@ -403,11 +442,13 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         // TODO one model per concept
         Dataset trainingDataset = new Dataset();
         trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
-        tagger.train(trainingDataset, "data/temp/opennlp.bin.gz");
+        tagger.train(trainingDataset, "data/temp/openNLP.bin");
 
         Dataset testingDataset = new Dataset();
         testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
-        EvaluationResult er = tagger.evaluate(testingDataset, "data/temp/opennlp.bin.gz");
+        EvaluationResult er = tagger.evaluate(testingDataset,
+                "data/temp/openNLP_MOVIE.bin,data/temp/openNLP_POLITICIAN.bin");
+        // EvaluationResult er = tagger.evaluate(testingDataset, "data/models/opennlp/openNLP_person.bin");
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 

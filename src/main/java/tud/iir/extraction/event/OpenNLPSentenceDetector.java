@@ -3,10 +3,12 @@
  */
 package tud.iir.extraction.event;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 
-import opennlp.tools.lang.english.SentenceDetector;
 import opennlp.tools.sentdetect.SentenceDetectorME;
+import opennlp.tools.sentdetect.SentenceModel;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StopWatch;
 
@@ -57,8 +59,8 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
     public boolean loadModel(String configModelFilePath) {
         try {
 
-            final SentenceDetectorME sdetector = new SentenceDetector(
-                    configModelFilePath);
+            final SentenceDetectorME sdetector = new SentenceDetectorME(new SentenceModel(new FileInputStream(new File(
+                    configModelFilePath))));
 
             setModel(sdetector);
 

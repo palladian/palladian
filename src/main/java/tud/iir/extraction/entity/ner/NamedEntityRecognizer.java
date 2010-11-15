@@ -3,9 +3,11 @@ package tud.iir.extraction.entity.ner;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -55,6 +57,16 @@ public abstract class NamedEntityRecognizer {
      */
     public abstract boolean setsModelFileEndingAutomatically();
 
+    /**
+     * Whether the NER needs one model file per concept. Usually you can train and recognize several entities using only
+     * one model.
+     * 
+     * @return True, if you need to train each concept separately, false otherwise.
+     */
+    public boolean oneModelPerConcept() {
+        return false;
+    }
+
     public abstract boolean loadModel(String configModelFilePath);
     public abstract Annotations getAnnotations(String inputText, String configModelFilePath);
 
@@ -93,20 +105,73 @@ public abstract class NamedEntityRecognizer {
         FileHelper.delete(tempFilePath);
         FileHelper.delete(tempColumnFilePath);
 
-        // concatenate all xml files from the training index to one large file
-        List<String> lines = FileHelper.readFileToArray(dataset.getPath());
-        for (String line : lines) {
+        if (!oneModelPerConcept()) {
 
-            String[] parts = line.split(" ");
+            // concatenate all xml files from the training index to one large file
+            List<String> lines = FileHelper.readFileToArray(dataset.getPath());
+            for (String line : lines) {
 
-            FileHelper.concatenateFiles(new File(tempFilePath), new File(dataset.getRootPath()
-                    + parts[0]));
+                String[] parts = line.split(" ");
+
+                FileHelper.concatenateFiles(new File(tempFilePath), new File(dataset.getRootPath() + parts[0]));
+            }
+
+            // transform file to tsv format
+            FileFormatParser.xmlToColumn(tempFilePath, tempColumnFilePath, "\t");
+
+            return train(tempColumnFilePath, modelFilePath);
+
+        } else {
+
+            boolean trainingComplete = false;
+
+            // map containing the parts with the file links
+            Map<String, Set<String>> conceptMap = new HashMap<String, Set<String>>();
+
+            List<String> lines = FileHelper.readFileToArray(dataset.getPath());
+            for (String line : lines) {
+
+                if (line.length() == 0) {
+                    continue;
+                }
+
+                String[] lineParts = line.split(" ");
+                String part = lineParts[1].replaceAll("_part(\\d+)", "");
+
+                Set<String> links = conceptMap.get(part);
+                if (links == null) {
+                    links = new HashSet<String>();
+                    links.add(lineParts[0]);
+                    conceptMap.put(part, links);
+                } else {
+                    links.add(lineParts[0]);
+                }
+            }
+
+            // train x files where x is the number of concepts
+            for (Entry<String, Set<String>> partEntry : conceptMap.entrySet()) {
+
+                // concatenate all files for this current concept
+                for (String link : partEntry.getValue()) {
+                    String[] parts = link.split(" ");
+
+                    FileHelper.concatenateFiles(new File(tempFilePath), new File(dataset.getRootPath() + parts[0]));
+                }
+
+                // transform file to tsv format
+                FileFormatParser.xmlToColumn(tempFilePath, tempColumnFilePath, "\t");
+
+                trainingComplete = train(tempColumnFilePath,
+                        FileHelper.appendToFileName(modelFilePath, "_" + partEntry.getKey().toUpperCase()));
+
+                if (!trainingComplete) {
+                    return false;
+                }
+
+            }
+
+            return trainingComplete;
         }
-
-        // transform file to tsv format
-        FileFormatParser.xmlToColumn(tempFilePath, tempColumnFilePath, "\t");
-
-        return train(tempColumnFilePath, modelFilePath);
     }
 
     /**
