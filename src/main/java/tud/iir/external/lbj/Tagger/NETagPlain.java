@@ -3,10 +3,11 @@ package tud.iir.external.lbj.Tagger;
 import java.util.Iterator;
 import java.util.Vector;
 
-import tud.iir.external.lbj.FeaturesLevel1;
-import tud.iir.external.lbj.FeaturesLevel2;
-import tud.iir.external.lbj.NETaggerLevel1;
-import tud.iir.external.lbj.NETaggerLevel2;
+import lbj.FeaturesLevel1;
+import lbj.FeaturesLevel2;
+import lbj.NETaggerLevel1;
+import lbj.NETaggerLevel2;
+
 import tud.iir.external.lbj.IO.OutFile;
 import LBJ2.classify.Classifier;
 import LBJ2.parse.LinkedVector;

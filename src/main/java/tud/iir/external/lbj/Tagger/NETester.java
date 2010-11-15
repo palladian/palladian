@@ -3,9 +3,10 @@ package tud.iir.external.lbj.Tagger;
 
 import java.util.Vector;
 
-import tud.iir.external.lbj.NELabel;
-import tud.iir.external.lbj.NETaggerLevel1;
-import tud.iir.external.lbj.NETaggerLevel2;
+import lbj.NELabel;
+import lbj.NETaggerLevel1;
+import lbj.NETaggerLevel2;
+
 import LBJ2.classify.Classifier;
 import LBJ2.classify.TestDiscrete;
 import LBJ2.learn.SparseNetworkLearner;

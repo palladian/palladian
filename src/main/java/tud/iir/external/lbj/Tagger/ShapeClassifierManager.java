@@ -4,7 +4,8 @@ import java.io.IOException;
 import java.util.StringTokenizer;
 import java.util.Vector;
 
-import tud.iir.external.lbj.NETypeTagger;
+import lbj.NETypeTagger;
+
 import tud.iir.external.lbj.IO.InFile;
 import tud.iir.external.lbj.IO.Keyboard;
 import LBJ2.classify.Classifier;

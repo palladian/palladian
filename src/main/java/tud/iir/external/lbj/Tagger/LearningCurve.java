@@ -2,8 +2,9 @@ package tud.iir.external.lbj.Tagger;
 
 import java.util.Vector;
 
-import tud.iir.external.lbj.NETaggerLevel1;
-import tud.iir.external.lbj.NETaggerLevel2;
+import lbj.NETaggerLevel1;
+import lbj.NETaggerLevel2;
+
 import LBJ2.classify.TestDiscrete;
 import LBJ2.parse.LinkedVector;
 
@@ -34,7 +35,6 @@ public class LearningCurve
 		int bestRoundLevel1 = 0;
 		double bestF1Level2 = -1;
 		int bestRoundLevel2 = 0;
-
 
 		Vector<LinkedVector> trainData=null;
 		Vector<LinkedVector> testData=null;
@@ -108,4 +108,3 @@ public class LearningCurve
 		}
 	}
 }
-

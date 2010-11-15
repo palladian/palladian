@@ -3,8 +3,9 @@ package tud.iir.external.lbj.Tagger;
 import java.util.Hashtable;
 import java.util.Vector;
 
-import tud.iir.external.lbj.NETaggerLevel1;
-import tud.iir.external.lbj.NETaggerLevel2;
+import lbj.NETaggerLevel1;
+import lbj.NETaggerLevel2;
+
 import tud.iir.external.lbj.StringStatisticsUtils.OccurrenceCounter;
 import LBJ2.parse.LinkedVector;
 
