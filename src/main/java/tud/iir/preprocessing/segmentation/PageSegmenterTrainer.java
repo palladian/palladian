@@ -1,4 +1,4 @@
-package tud.iir.extraction.content;
+package tud.iir.preprocessing.segmentation;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

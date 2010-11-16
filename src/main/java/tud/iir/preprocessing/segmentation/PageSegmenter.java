@@ -1,4 +1,4 @@
-package tud.iir.extraction.content;
+package tud.iir.preprocessing.segmentation;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -32,6 +32,7 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import tud.iir.extraction.PageAnalyzer;
+import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.Tokenizer;
 import tud.iir.helper.XPathHelper;
@@ -52,7 +53,7 @@ public class PageSegmenter {
     private PropertiesConfiguration config = null;
 
     /** the document to use */
-    private Document document = null;
+    private static Document document = null;
 
     /** the location to store the colored result */
     private String storeLocation = "";
@@ -154,9 +155,9 @@ public class PageSegmenter {
 		
 		for (int i=0; i<segments.size(); i++) {
 			Segment seg = segments.get(i);
-			System.out.println(seg.getColor());
+			//System.out.println(seg.getColor());
 			if (seg.getColor()==color) {
-				System.out.println("TREFFER! DAS IST "+color);
+				//System.out.println("TREFFER! DAS IST "+color);
 				allSegs.add(seg);
 			}
 		}
@@ -169,9 +170,9 @@ public class PageSegmenter {
 		
 		for (int i=0; i<segments.size(); i++) {
 			Segment seg = segments.get(i);
-			System.out.println(seg.getSignificance());
+			//System.out.println(seg.getSignificance());
 			if (seg.getSignificance()>=beginValue && seg.getSignificance()<=endValue) {
-				System.out.println("TREFFER! "+seg.getSignificance()+" IST ZWISCHEN "+beginValue+" UND "+endValue);
+				//System.out.println("TREFFER! "+seg.getSignificance()+" IST ZWISCHEN "+beginValue+" UND "+endValue);
 				allSegs.add(seg);
 			}
 		}
@@ -295,8 +296,9 @@ public class PageSegmenter {
         for (int i=0; i<size; i++) {
         	String currentURL=(String)te2.get(i);
             String currentLabel=PageSegmenterHelper.getLabelOfURL(currentURL);
-            //System.out.println("currentLabel: "+currentLabel);
-            if (!label.equals(currentLabel)) {
+            //System.out.println("currentLabel: "+currentLabel+" matches??: "+(currentLabel.matches("^[0-9]+$")));
+            if (!label.equals(currentLabel) && (label.matches("^[0-9]+$") && !currentLabel.matches("^[0-9]+$"))
+            		|| (!label.equals(currentLabel) && (!label.matches("^[0-9]+$"))) ) {
             	te2.remove(i); i--;
             	te2.add(size-1, currentURL);
             	//System.out.println("Nicht gleich, wird entfernt. Größe: "+te2.size());
@@ -305,7 +307,7 @@ public class PageSegmenter {
             counter++;
             if (counter==size) break;
         }
-        //System.out.println(te2);
+        System.out.println(te2);
 
         
     	Map<String, Integer> page1 = createFingerprintForURL(URL, qgramNumber, qgramLength);
@@ -486,7 +488,9 @@ public class PageSegmenter {
      * 
      * @param chosenSegments a list of segments to color.
      */
-    public void colorSegments(ArrayList<Segment> chosenSegments) {
+    public void colorSegments(ArrayList<?> chosenSegmentsInput) {
+    	
+    	ArrayList<Segment> chosenSegments = new ArrayList<Segment>();
     	
         //set colorscale
         String[] colorScale={
@@ -505,7 +509,7 @@ public class PageSegmenter {
      	
      	String colorString="\n.myPageSegmenterBorder_dummy_NOTINUSE { border: 2px solid blue; }\n";
      	for (int i=0; i<colorScale.length; i++) {
-     		colorString=colorString+".myPageSegmenterBorder"+i+" { border: 2px solid "+colorScale[i]+"; }\n";
+     		colorString=colorString+".myPageSegmenterBorder"+i+" { background-color: "+colorScale[i]+"; }\n";
      	}
      	
       	Text text = document.createTextNode(colorString);
@@ -571,10 +575,33 @@ public class PageSegmenter {
 //        	//}
 //        }
      	
+     	// if input is a list of xPaths, turn it into a list of Segments
+ 		System.out.println(chosenSegmentsInput.get(0).getClass().getSimpleName());
+ 		System.out.println(chosenSegmentsInput.get(0));
+ 		if (chosenSegmentsInput.get(0).getClass().getSimpleName().equals("String")) {
+ 	 		System.out.println("... War ein String");
+
+     		ArrayList<Segment> chosenSegments2 = new ArrayList<Segment>();
+         	for (int i=0; i<segments.size(); i++) {
+         		if(chosenSegmentsInput.contains(segments.get(i).getXPath())) {
+         			chosenSegments2.add(segments.get(i));
+         		}
+           	}
+         	chosenSegments=chosenSegments2;
+     	}
+ 		
+ 		if (chosenSegmentsInput.get(0).getClass().getSimpleName().equals("Segment")) {
+ 			chosenSegments=(ArrayList<Segment>) chosenSegmentsInput;
+ 		}
+
+
+     	
      	
      	//checks the similarity of ALL nodes
      	for (int i=0; i<chosenSegments.size(); i++) {
-    		Segment testSeg = chosenSegments.get(i);
+    		Segment testSeg = (Segment) chosenSegments.get(i);
+    		//System.out.println("-------------classname: "+testSeg.getClass().getSimpleName());
+    		//System.out.println(testSeg.getClass()+" "+testSeg.getClass().getCanonicalName());
 	
 	    	
 	      	Element e2 = (Element)  XPathHelper.getNode(document, testSeg.getXPath());
@@ -660,8 +687,8 @@ public class PageSegmenter {
 	        //returns a list of xpaths of all conflict and a second of all non-conflict nodes of the actual compare
 	        ArrayList[] allNodes=compareDocuments(doc1, doc2, new ArrayList<String>(), new ArrayList<String>(), maxDepth, "/HTML/BODY");
 	        
-	        System.out.println(allNodes[0].size()+"-"+conflictNodes.size()+"="+(allNodes[0].size()-conflictNodes.size())+" zu "+(conflictNodes.size()/100)*35);
-	        if ((allNodes[0].size()-conflictNodes.size())<conflictNodes.size()/100*35 || conflictNodes.size()==0) {
+	        System.out.println(allNodes[0].size()+"-"+conflictNodes.size()+"="+(allNodes[0].size()-conflictNodes.size())+" zu "+(conflictNodes.size()*35/100));
+	        if ((allNodes[0].size()-conflictNodes.size())<conflictNodes.size()*35/100 || conflictNodes.size()==0) {
 		        //adds the new conflict nodes to the list of all conflict nodes
 		        for (int j=0; j<allNodes[0].size(); j++){
 		        	if (!conflictNodes.contains(allNodes[0].get(j))) conflictNodes.add((String)allNodes[0].get(j));
@@ -745,6 +772,55 @@ public class PageSegmenter {
     	return allSegments;
     }
     
+    private ArrayList<String> makeMutual (ArrayList<Segment> allSegments, int level) {
+
+     	ArrayList xPathList = new ArrayList();
+    	
+    	
+    	PageAnalyzer pa2 = new PageAnalyzer();
+
+
+     	
+	    HashSet s = new HashSet();
+	    for (int i=0; i<allSegments.size(); i++) {
+	    	Segment actualSeg = allSegments.get(i);
+	    	//System.out.println(actualSeg.getXPath());
+	    	//System.out.println(actualSeg.getSignificance());
+	    	/*if (actualSeg.getColor()==Segment.Color.RED)*/ s.add(actualSeg.getXPath());
+	    }
+		    
+	    for (int l=0; l<level; l++) {
+
+		    
+	        String mutual = pa2.makeMutualXPath(s);
+	        System.out.println("mutual: "+mutual);
+	        
+	        
+	        String xp = mutual;
+	     	System.out.println(xp.substring(xp.lastIndexOf("/")+1, xp.length()));
+	     	if (xp.substring(xp.lastIndexOf("/")+1, xp.length()).equals("TR")) {
+	     		System.out.println("WAR EIN TR");
+	     		xp=xp+"/TD";
+	     	}
+	        ArrayList list = (ArrayList) XPathHelper.getNodes(document, xp);
+	     	System.out.println("--------------\n"+xp+"\nS.size: "+s.size()+"\n---------------");
+		    for (int i=0; i<list.size(); i++) {
+		    	Node n = (Node) list.get(i);
+		        String constructXPath = pa2.constructXPath(n);
+		    	System.out.println(constructXPath);
+		    	//System.out.println(actualSeg.getSignificance());
+		    	xPathList.add(constructXPath);
+		    	s.remove(constructXPath);
+		    }
+	    System.out.println("S.size neu: "+s.size());
+	    System.out.println(s);
+	    }
+	    
+	    return xPathList;
+    }
+    
+    
+    
 	public static void main(String[] args) throws SAXException, IOException, ParserConfigurationException, TransformerFactoryConfigurationError, TransformerException, PageContentExtractorException {
 		Crawler c = new Crawler();
 		String URL="http://www.kalender-365.de";
@@ -773,33 +849,31 @@ public class PageSegmenter {
         PageSegmenter seg = new PageSegmenter();
         System.out.println("test: "+lengthOfQGrams+" "+amountOfQGrams+" "+similarityNeed+" "+maxDepth+" "+numberOfSimilarDocuments);
 
-        seg.setDocument(d);
+        seg.setDocument("http://www.informatikforum.de/forumdisplay.php?f=98");
+        //seg.setDocument("http://www.informatikforum.de/showthread.php?t=1381");
+        //seg.setDocument("http://www.dirks-computerseite.de/category/internet/");
+        //seg.setDocument("http://gizmodo.com/5592956/is-3d-already-dying");
+        //seg.setDocument("http://www.stern.de/digital/computer/sozialer-browser-rockmelt-wo-facebook-immer-mitsurft-1621849.html");
         seg.setStoreLocation("C:\\Users\\Silvio\\Documents\\doc2.html");
         seg.startPageSegmentation();
         
         ArrayList<Segment> allSegments = seg.getAllSegments();
-//        for (int i=0; i<10; i++) {
-//        	Segment actualSeg = chosenSegments.get(i);
-//        	System.out.println(actualSeg.getXPath());
-//        	System.out.println(actualSeg.getSignificance());
-//        }
         
-        ArrayList<Segment> chosenSegments = seg.getSpecificSegments(Segment.Color.LIGHTGREEN);
-//        for (int i=0; i<10; i++) {
-//        	Segment actualSeg = chosenSegments.get(i);
-//        	System.out.println(actualSeg.getXPath());
-//        	System.out.println(actualSeg.getSignificance());
-//        }
+        //ArrayList<Segment> chosenSegments = seg.getSpecificSegments(Segment.Color.RED);
         
         //chosenSegments = seg.getSpecificSegments(0.00, 0.50);
         //seg.colorSegments(chosenSegments);
 
         //seg.colorSegments(Segment.Color.RED);
         
-        seg.colorSegments();
+        seg.colorSegments(allSegments);
         
+       
+        //-->in funktion makeMutual
+        //ArrayList<String> mutualXPaths= seg.makeMutual(chosenSegments, 3);
+	    //seg.colorSegments(mutualXPaths);
         
-        
+	    
         
         //Gets a node-tree and tries to find the leafs
         //markLeafs(URL, "doc2");

@@ -1,4 +1,4 @@
-package tud.iir.extraction.content;
+package tud.iir.preprocessing.segmentation;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
