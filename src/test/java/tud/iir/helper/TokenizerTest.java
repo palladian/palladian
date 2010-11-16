@@ -56,28 +56,28 @@ public class TokenizerTest extends TestCase {
     public void testGetSentence() {
 
         assertEquals(Tokenizer.getPhraseToEndOfSentence("Although, many of them (30.2%) are good. As long as"),
-                "Although, many of them (30.2%) are good.");
+        "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getPhraseFromBeginningOfSentence("...now. Although, many of them (30.2%) are good"),
-                "Although, many of them (30.2%) are good");
+        "Although, many of them (30.2%) are good");
         assertEquals(Tokenizer.getSentence(
                 "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 10),
-                "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
+        "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence(
                 "...now. Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good. As long as", 40),
-                "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
+        "Although, have 234 ft.lbs. of torque ... many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 10),
-                "Although, many of them (30.2%) are good.");
+        "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good. As long as", 40),
-                "Although, many of them (30.2%) are good.");
+        "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence("...now. Although, many of them (30.2%) are good.As long as", 40),
-                "Although, many of them (30.2%) are good.");
+        "Although, many of them (30.2%) are good.");
         assertEquals(Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population. - Yahoo! Answers,",
                 12), "What is the largest city in usa, (30.2%) in population. - Yahoo!");
         assertEquals(Tokenizer.getSentence("What is the largest city in usa, (30.2%) in population? - Yahoo! Answers,",
                 12), "What is the largest city in usa, (30.2%) in population?");
         assertEquals(Tokenizer.getSentence(
                 "...now. Although, has 234,423,234 sq.miles area many of them (30.2%) are good. As long as", 10),
-                "Although, has 234,423,234 sq.miles area many of them (30.2%) are good.");
+        "Although, has 234,423,234 sq.miles area many of them (30.2%) are good.");
     }
 
     @Test
@@ -107,13 +107,18 @@ public class TokenizerTest extends TestCase {
         assertEquals("hm, well (!), I don't know!!!", sentences.get(1));
         assertEquals("I really don't.", sentences.get(2));
         // CollectionHelper.print(sentences);
-        
+
         inputText = "ActionScript 3.0 (or Flex 3.0.1) supports flash.stage.MovieClip(), cool he?";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());
         assertEquals("ActionScript 3.0 (or Flex 3.0.1) supports flash.stage.MovieClip(), cool he?",
                 sentences.get(0));
-        
+
+        inputText = "Mr. X is sometimes called Mr. X Jr., too!";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(1, sentences.size());
+        assertEquals("Mr. X is sometimes called Mr. X Jr., too!", sentences.get(0));
+
         // those patterns were causing an Exception which is fixed now : java.lang.StringIndexOutOfBoundsException
         // at tud.iir.helper.StringHelper.getSubstringBetween(StringHelper.java:984)
         inputText = "  Dont repeat yourself. Dont repeat yourself.";
@@ -122,7 +127,7 @@ public class TokenizerTest extends TestCase {
         assertEquals("Dont repeat yourself.", sentences.get(0));
         assertEquals("Dont repeat yourself.", sentences.get(1));
 
-        
-        
+
+
     }
 }

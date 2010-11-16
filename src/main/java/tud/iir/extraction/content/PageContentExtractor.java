@@ -104,7 +104,7 @@ public class PageContentExtractor {
     private boolean weightClasses;
 
     private boolean stripUnlikelyCandidates;
-    
+
     private boolean cleanConditionally;
 
     private boolean writeDump = false;
@@ -371,7 +371,7 @@ public class PageContentExtractor {
                 element.getParentNode().replaceChild(textNode, element);
             }
         }
-        
+
         // strip out class+readability attributes, as we dont need them
         NodeList elements = result.getElementsByTagName("*");
         for (int i = 0; i < elements.getLength(); i++) {
@@ -468,7 +468,7 @@ public class PageContentExtractor {
         cleanConditionally(articleContent, "form");
         clean(articleContent, "object");
         clean(articleContent, "h1");
-        
+
         // TODO experimental, remove noscript tag; for test case see
         // Mail David, 2010-10-14 & http://www.bbc.co.uk/news/world-europe-11539758
         clean(articleContent, "noscript");
@@ -598,7 +598,7 @@ public class PageContentExtractor {
                     for (int i = 0; i < node.getChildNodes().getLength(); i++) {
                         Node childNode = node.getChildNodes().item(i);
                         if (childNode.getNodeType() == Node.TEXT_NODE &&
-                        // added by Philipp to prevent creation of empty p nodes
+                                // added by Philipp to prevent creation of empty p nodes
                                 childNode.getTextContent().trim().length() > 0) {
                             LOGGER.debug("replacing text node with a p tag with the same content.");
                             Element p = document.createElement("p");
@@ -620,11 +620,11 @@ public class PageContentExtractor {
         List<Element> candidates = new LinkedList<Element>();
         for (Element nodeToScore : nodesToScore) {
             Node parentNode = nodeToScore.getParentNode();
-            
+
             if (parentNode == null) {
                 continue;
             }
-            
+
             Node grandParentNode = parentNode.getParentNode();
 
             String innerText = getInnerText(nodeToScore);
@@ -902,7 +902,7 @@ public class PageContentExtractor {
         if (e.hasAttribute("class")) {
             if (NEGATIVE_RE.matcher(e.getAttribute("class")).find()) {
                 weight -= 25;
-                // weight -= 50; // TODO could improve accuracy, see TODOnote above. 
+                // weight -= 50; // TODO could improve accuracy, see TODOnote above.
             }
 
             if (POSITIVE_RE.matcher(e.getAttribute("class")).find()) {
@@ -974,7 +974,7 @@ public class PageContentExtractor {
      **/
     private void cleanConditionally(Element e, String tag) {
         LOGGER.trace(">cleanConditionally");
-        
+
         if (!cleanConditionally) {
             return;
         }
@@ -1091,18 +1091,18 @@ public class PageContentExtractor {
 
     // private Document createResultDocument() {
     // Document result = Helper.createDocument();
-    //    	
+    //
     // Element html = result.createElementNS("http://www.w3.org/1999/xhtml", "html");
     // result.appendChild(html);
-    //    	
+    //
     // Element body = result.createElement("body");
     // html.appendChild(body);
-    //    	
+    //
     // // Element content = result.createElement("div");
     // // content.setAttribute("id", "readability-content");
     // // content.setIdAttribute("id", true);
     // // body.appendChild(content);
-    //    	
+    //
     // return result;
     // }
 
@@ -1122,7 +1122,7 @@ public class PageContentExtractor {
         options.addOption(OptionBuilder.withLongOpt("output").withDescription("save result to xml file").hasArg().withArgName("fileName").create());
 
         try {
-            
+
             if (args.length < 1) {
                 // no arguments given, print usage help in catch clause.
                 throw new ParseException(null);
@@ -1161,29 +1161,29 @@ public class PageContentExtractor {
         }
 
     }
-    
+
     /**
      * Usage example for the book.
      * @throws Exception
      */
     @SuppressWarnings("unused")
     public static void usageExample() throws Exception {
-        
+
         PageContentExtractor extractor = new PageContentExtractor();
-        
+
         // this method is heavily overloaded and accepts various types of input
         String url = "http://www.wired.com/gadgetlab/2010/05/iphone-4g-ads/";
         extractor.setDocument(url);
-        
+
         // get the main content as text representation
         String contentText = extractor.getResultText();
-        
+
         // get the main content as DOM representation
         Document contentDocument = extractor.getResultDocument();
-        
+
         // get the title
         String title = extractor.getResultTitle();
-        
+
     }
 
 }

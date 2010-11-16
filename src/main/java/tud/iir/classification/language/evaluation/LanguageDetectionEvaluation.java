@@ -85,26 +85,26 @@ public class LanguageDetectionEvaluation {
             }
 
             // google
-            String googleClass = googleLanguageClassifier.classify(document.substring(0,
-                    Math.min(100, document.length())));
-            if (correctLanguage.equals(googleClass)) {
-                googleCorrect++;
-                google = true;
-            }
-            if (googleClass.length() > 0) {
-                googleClassified++;
-            }
-
-            // alchemy
-            String alchemyClass = alchemyLanguageClassifier.classify(document.substring(0,
-                    Math.min(100, document.length())));
-            if (correctLanguage.equals(alchemyClass)) {
-                alchemyCorrect++;
-                alchemy = true;
-            }
-            if (alchemyClass.length() > 0) {
-                alchemyClassified++;
-            }
+            // String googleClass = googleLanguageClassifier.classify(document.substring(0,
+            // Math.min(100, document.length())));
+            // if (correctLanguage.equals(googleClass)) {
+            // googleCorrect++;
+            // google = true;
+            // }
+            // if (googleClass.length() > 0) {
+            // googleClassified++;
+            // }
+            //
+            // // alchemy
+            // String alchemyClass = alchemyLanguageClassifier.classify(document.substring(0,
+            // Math.min(100, document.length())));
+            // if (correctLanguage.equals(alchemyClass)) {
+            // alchemyCorrect++;
+            // alchemy = true;
+            // }
+            // if (alchemyClass.length() > 0) {
+            // alchemyClassified++;
+            // }
 
             // palladian
             String palladianClass = palladianClassifier.classify(document);
@@ -170,7 +170,7 @@ public class LanguageDetectionEvaluation {
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
 
-        evaluator.evaluate(dataset, possibleClasses, null);
+        evaluator.evaluate(dataset, possibleClasses, 30);
     }
 
 }

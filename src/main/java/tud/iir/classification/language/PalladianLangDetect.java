@@ -173,7 +173,7 @@ public class PalladianLangDetect extends LanguageClassifier {
         featureSetting.setMinNGramLength(1);
 
         // the maximum length of our n-grams should be 7
-        featureSetting.setMaxNGramLength(3);
+        featureSetting.setMaxNGramLength(5);
 
         // we assign the settings to our classifier
         classifier.setClassificationTypeSetting(classificationTypeSetting);
