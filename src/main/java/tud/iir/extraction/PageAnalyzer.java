@@ -1138,17 +1138,59 @@ public class PageAnalyzer {
      * @param node The node from where to start.
      * @return A string representation of the node and its sub nodes.
      */
-    public static String getTextDump(Node node) {
+    public static String getReadableTextDump(Node node) {
         StringBuilder sb = new StringBuilder();
+
+        // ignore css and script nodes
+        if (node.getNodeName().equalsIgnoreCase("script") || node.getNodeName().equalsIgnoreCase("style")
+                || node.getNodeName().equalsIgnoreCase("#comment") || node.getNodeName().equalsIgnoreCase("option")
+                || node.getNodeName().equalsIgnoreCase("meta") || node.getNodeName().equalsIgnoreCase("head")) {
+            return "";
+        }
+
         // System.out.println(node.getNodeName()+node.getTextContent());
-        sb.append(node.getTextContent());
+        if (node.getTextContent() != null) {
+
+            if (node.getNodeName().equalsIgnoreCase("#text")) {
+                sb.append(node.getTextContent().trim());
+            }
+
+        }
+        if (isWrappingNode(node)) {
+            sb.append("\n");
+        } else {
+            // sb.append(" ");
+        }
         Node child = node.getFirstChild();
         while (child != null) {
-            sb.append(getTextDump(child));
+            sb.append(getReadableTextDump(child));
             child = child.getNextSibling();
         }
 
         return sb.toString();
+    }
+
+    public static boolean isWrappingNode(Node node) {
+
+        String nodeName = node.getNodeName().toLowerCase();
+
+        Set<String> wrappingNodes = new HashSet<String>();
+        wrappingNodes.add("p");
+        wrappingNodes.add("div");
+        wrappingNodes.add("td");
+        wrappingNodes.add("h1");
+        wrappingNodes.add("h2");
+        wrappingNodes.add("h3");
+        wrappingNodes.add("h4");
+        wrappingNodes.add("h5");
+        wrappingNodes.add("h6");
+        wrappingNodes.add("li");
+
+        if (wrappingNodes.contains(nodeName)) {
+            return true;
+        }
+
+        return false;
     }
 
     public static String getRawMarkup(Document document) {

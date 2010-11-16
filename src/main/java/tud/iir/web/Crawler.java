@@ -616,12 +616,12 @@ public class Crawler {
             // Remove all tags, comments, JS and CSS from body
             bodyContent = HTMLHelper.removeHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
                     joinTagsAndRemoveNewlines);
-            bodyContent = bodyContent.replaceAll("&nbsp;", "");
-            bodyContent = bodyContent.replaceAll("&amp", "");
+            bodyContent = bodyContent.replaceAll("&nbsp;", " ");
+            bodyContent = bodyContent.replaceAll("&amp;", "&");
             return bodyContent;
         }
-        return bodyContent;
 
+        return bodyContent;
     }
 
     public static ArrayList<String> extractKeywords(Document webPage) {
@@ -963,14 +963,14 @@ public class Crawler {
     private void parse(InputStream dataStream, Boolean isXML, String Uri) throws SAXException, IOException,
     ParserConfigurationException {
         DOMParser parser = new DOMParser();
-        
+
         // experimental fix for http://redmine.effingo.de/issues/5
         // also see: tud.iir.web.CrawlerTest.testNekoWorkarounds()
         // Philipp, 2010-11-10
         parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
         parser.setProperty("http://cyberneko.org/html/properties/filters", new XMLDocumentFilter[] { new TBODYFix() });
         // end fix.
-        
+
         InputSource is = new InputSource(dataStream);
 
         if (isXML) {

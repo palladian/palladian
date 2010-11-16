@@ -4,9 +4,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -19,9 +22,9 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.news.Feed;
-import tud.iir.news.FeedReader;
 import tud.iir.news.FeedClassifier;
 import tud.iir.news.FeedPostStatistics;
+import tud.iir.news.FeedReader;
 import tud.iir.news.FeedStore;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
@@ -54,6 +57,9 @@ public class FeedStatisticCreator {
 
         StringBuilder csv = new StringBuilder();
 
+        DecimalFormat format = new DecimalFormat("#.###################");
+        format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+
         DatabaseManager dbm = DatabaseManager.getInstance();
 
         Double coverage = null;
@@ -63,7 +69,7 @@ public class FeedStatisticCreator {
         Double traffic = null;
 
         ResultSet rs = dbm
-        .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(percentNew) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedPercent) AS missedPercent, AVG(traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
+        .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(feedGroup.percentNew) AS percentNew, AVG(feedGroup.missedItems) AS missedItems, AVG(feedGroup.missedPercent) AS missedPercent, AVG(feedGroup.traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
                 + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000l + " GROUP BY feedID) AS feedGroup;");
         while (rs.next()) {
             coverage = rs.getDouble("coverage");
@@ -75,10 +81,10 @@ public class FeedStatisticCreator {
 
         // build csv
         csv.append("\"================= Average Performance (averaged over all polls per feed regardless of activity pattern and then over all feeds) =================\"\n");
-        csv.append("Coverage:;" + coverage).append("\n");
-        csv.append("Percent New:;" + 100 * percentNew).append("\n");
-        csv.append("Missed:;" + missed).append("\n");
-        csv.append("Percent Missed Items / Window Size:;" + 100 * missedPercent).append("\n");
+        csv.append("Coverage:;" + format.format(coverage)).append("\n");
+        csv.append("Percent New:;" + format.format(100 * percentNew)).append("\n");
+        csv.append("Missed:;" + format.format(missed)).append("\n");
+        csv.append("Percent Missed Items / Window Size:;" + format.format(100 * missedPercent)).append("\n");
         csv.append("Traffic Per Item:;" + traffic).append("\n\n");
 
         // create statistics by activity pattern
@@ -112,10 +118,10 @@ public class FeedStatisticCreator {
                 missedPercent = rs.getDouble("missedPercent");
                 traffic = rs.getDouble("traffic");
             }
-            csv.append("Coverage:;" + coverage).append("\n");
-            csv.append("Percent New:;" + 100 * percentNew).append("\n");
-            csv.append("Missed:;" + missed).append("\n");
-            csv.append("Percent Missed Items / Window Size:;" + 100 * missedPercent).append("\n");
+            csv.append("Coverage:;" + format.format(coverage)).append("\n");
+            csv.append("Percent New:;" + format.format(100 * percentNew)).append("\n");
+            csv.append("Missed:;" + format.format(missed)).append("\n");
+            csv.append("Percent Missed Items / Window Size:;" + format.format(100 * missedPercent)).append("\n");
             csv.append("Traffic Per Item:;" + traffic).append("\n\n");
         }
 
@@ -142,6 +148,9 @@ public class FeedStatisticCreator {
 
         StringBuilder csv = new StringBuilder();
 
+        DecimalFormat format = new DecimalFormat("#.###################");
+        format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
+
         DatabaseManager dbm = DatabaseManager.getInstance();
 
         Double timeliness = null;
@@ -153,14 +162,14 @@ public class FeedStatisticCreator {
         // Double trafficPerNewItemCG = null;
 
         ResultSet rs = dbm
-                .runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(delay) AS delay FROM (SELECT AVG(1/(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 GROUP BY feedID) AS feedGroup");
+        .runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(feedGroup.timelinessLate) AS timelinessLate, AVG(feedGroup.delay) AS delay FROM (SELECT AVG(timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM feed_evaluation_polls WHERE timeliness IS NOT NULL GROUP BY feedID) AS feedGroup");
         if (rs.next()) {
             timeliness = rs.getDouble("timeliness");
             timelinessLate = rs.getDouble("timelinessLate");
             delay = rs.getDouble("delay");
         }
 
-        rs = dbm.runQuery("SELECT AVG(feedGroup.pollsPerNewItem) AS pollsPerNewItem, AVG(trafficPerNewItem) AS trafficPerNewItem FROM (SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM feed_evaluation_polls WHERE numberOfPoll > 1 GROUP BY feedID) AS feedGroup;");
+        rs = dbm.runQuery("SELECT AVG(feedGroup.pollsPerNewItem) AS pollsPerNewItem, AVG(feedGroup.trafficPerNewItem) AS trafficPerNewItem FROM (SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM feed_evaluation_polls WHERE numberOfPoll > 1 GROUP BY feedID) AS feedGroup");
         rs.next();
         pollsPerNewItem = rs.getDouble("pollsPerNewItem");
         trafficPerNewItem = rs.getDouble("trafficPerNewItem");
@@ -179,11 +188,11 @@ public class FeedStatisticCreator {
         newItemsPerDiscovery = rs.getDouble("newItemsPerDiscovery");
 
         csv.append("\"================= Average Performance (averaged over all item discoveries per feed regardless of activity pattern and then over all feeds) =================\"\n");
-        csv.append("Timeliness:;" + timeliness).append("\n");
-        csv.append("Timeliness Late:;" + timelinessLate).append("\n");
+        csv.append("Timeliness:;" + format.format(timeliness)).append("\n");
+        csv.append("Timeliness Late:;" + format.format(timelinessLate)).append("\n");
         csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * delay.longValue())).append("\n");
-        csv.append("Polls Per New Item:;" + pollsPerNewItem).append("\n");
-        csv.append("New Items Per Discovery:;" + newItemsPerDiscovery).append("\n");
+        csv.append("Polls Per New Item:;" + format.format(pollsPerNewItem)).append("\n");
+        csv.append("New Items Per Discovery:;" + format.format(newItemsPerDiscovery)).append("\n");
         csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n\n");
         // csv.append("Traffic Per New Item (conditional get):;" + trafficPerNewItemCG).append("\n\n");
 
@@ -205,9 +214,9 @@ public class FeedStatisticCreator {
             // trafficPerNewItemCG = null;
 
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
-                    .append(" (averaged over all item discoveries per feed and then over all feeds that belong to the activity pattern) =================\"\n");
+            .append(" (averaged over all item discoveries per feed and then over all feeds that belong to the activity pattern) =================\"\n");
 
-            rs = dbm.runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(delay) AS delay FROM (SELECT AVG(1/(cumulatedDelay/surroundingIntervalsLength + 1)) AS timeliness, AVG(1/(cumulatedLateDelay/currentIntervalLength + 1)) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0 AND activityPattern = "
+            rs = dbm.runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(feedGroup.timelinessLate) AS timelinessLate, AVG(feedGroup.delay) AS delay FROM (SELECT AVG(timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM feed_evaluation_polls WHERE timeliness IS NOT NULL AND activityPattern = "
                     + activityPatternID + " GROUP BY feedID) AS feedGroup");
             if (rs.next()) {
                 timeliness = rs.getDouble("timeliness");
@@ -215,7 +224,7 @@ public class FeedStatisticCreator {
                 delay = rs.getDouble("delay");
             }
 
-            rs = dbm.runQuery("SELECT AVG(feedGroup.pollsPerNewItem) AS pollsPerNewItem, AVG(trafficPerNewItem) AS trafficPerNewItem FROM (SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
+            rs = dbm.runQuery("SELECT AVG(feedGroup.pollsPerNewItem) AS pollsPerNewItem, AVG(feedGroup.trafficPerNewItem) AS trafficPerNewItem FROM (SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
                     + activityPatternID + " GROUP BY feedID) AS feedGroup;");
             rs.next();
             pollsPerNewItem = rs.getDouble("pollsPerNewItem");
@@ -235,11 +244,11 @@ public class FeedStatisticCreator {
             rs.next();
             newItemsPerDiscovery = rs.getDouble("newItemsPerDiscovery");
 
-            csv.append("Timeliness:;" + timeliness).append("\n");
-            csv.append("Timeliness Late:;" + timelinessLate).append("\n");
+            csv.append("Timeliness:;" + format.format(timeliness)).append("\n");
+            csv.append("Timeliness Late:;" + format.format(timelinessLate)).append("\n");
             csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * delay.longValue())).append("\n");
-            csv.append("Polls Per New Item:;" + pollsPerNewItem).append("\n");
-            csv.append("New Items Per Discovery:;" + newItemsPerDiscovery).append("\n");
+            csv.append("Polls Per New Item:;" + format.format(pollsPerNewItem)).append("\n");
+            csv.append("New Items Per Discovery:;" + format.format(newItemsPerDiscovery)).append("\n");
             csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n\n");
             // csv.append("Traffic Per New Item (conditional get):;" + trafficPerNewItemCG).append("\n\n");
 
@@ -261,7 +270,7 @@ public class FeedStatisticCreator {
         Map<Integer, Double[]> timelinessChartData = new TreeMap<Integer, Double[]>();
 
         ResultSet rs = dbm
-        .runQuery("SELECT feedID, 1/SQRT(cumulatedDelay/surroundingIntervalsLength + 1) AS timeliness FROM feed_evaluation_polls WHERE surroundingIntervalsLength > 0");
+        .runQuery("SELECT feedID, timeliness FROM feed_evaluation_polls WHERE timeliness IS NOT NULL");
         int previousFeedID = -1;
         int newItemNumber = 1;
         while (rs.next()) {

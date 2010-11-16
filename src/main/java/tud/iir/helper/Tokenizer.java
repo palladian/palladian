@@ -197,12 +197,12 @@ public class Tokenizer {
      * @param inputText An input text.
      * @return A list with sentences.
      */
-    public static List<String> getSentences(String inputText) {
+    public static List<String> getSentences(String inputText, boolean onlyRealSentences) {
 
         List<String> sentences = new ArrayList<String>();
 
         Pattern pattern = Pattern
-                .compile("(?<!(\\.|\\())(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
+                .compile("(?<!(\\.|\\()|Mr|mr|Mrs|mrs|Jr|jr|vs)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
 
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
@@ -212,7 +212,33 @@ public class Tokenizer {
             lastIndex = matcher.end();
         }
 
+        if (onlyRealSentences) {
+
+            List<String> realSentences = new ArrayList<String>();
+            for (String sentence : sentences) {
+                String[] parts = sentence.split("\n");
+                sentence = parts[parts.length - 1];
+                if (sentence.endsWith(".") || sentence.endsWith("?") || sentence.endsWith("!")) {
+
+                    String cleanSentence = StringHelper.trim(sentence);
+                    int wordCount = StringHelper.countWhitespaces(cleanSentence) + 1;
+
+                    if (cleanSentence.length() > 8 && wordCount > 2) {
+                        realSentences.add(sentence.trim());
+                    }
+                }
+            }
+
+            sentences = realSentences;
+        }
+
         return sentences;
+    }
+
+    public static List<String> getSentences(String inputText) {
+
+        return getSentences(inputText, false);
+
     }
 
     /**
@@ -239,11 +265,11 @@ public class Tokenizer {
 
             if (startIndex > 0) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(startIndex - 1))
-                        && Character.isUpperCase(string.charAt(startIndex + 1));
+                && Character.isUpperCase(string.charAt(startIndex + 1));
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = Character.isUpperCase(string.charAt(startIndex + 2))
-                        && string.charAt(startIndex + 1) == ' ';
+                && string.charAt(startIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -306,14 +332,14 @@ public class Tokenizer {
             // one digit after point
             if (endIndex < string.length() - 1) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1))
-                        && Character.isUpperCase(string.charAt(endIndex + 1))
-                        || StringHelper.isBracket(string.charAt(endIndex + 1));
+                && Character.isUpperCase(string.charAt(endIndex + 1))
+                || StringHelper.isBracket(string.charAt(endIndex + 1));
             }
             // two digits after point
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 2))
-                        && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string
-                                .charAt(endIndex + 2)))
+                && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string
+                        .charAt(endIndex + 2)))
                         && string.charAt(endIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
@@ -352,12 +378,12 @@ public class Tokenizer {
 
         return string.substring(0, endIndex);
     }
-    
+
     public static void main(String[] args) throws IOException {
-        
+
         // demo for the tokenizer problem
         String text = FileHelper.readFileToString("data/test/tokenizerProblem.txt");
-        
+
         // tokenize the whole text
         int count = 0;
         List<String> tokens = Tokenizer.tokenize(text);
@@ -367,8 +393,8 @@ public class Tokenizer {
             }
         }
         System.out.println("# occurences 1 : " + count);
-        
-        // split text into sentences, 
+
+        // split text into sentences,
         // then tokenize each sentence
         count = 0;
         List<String> sentences = Tokenizer.getSentences(text);
@@ -383,8 +409,8 @@ public class Tokenizer {
             }
         }
         System.out.println("# occurences 2 : " + count);
-        
-        
+
+
     }
 
 }

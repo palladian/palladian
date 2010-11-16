@@ -11,8 +11,6 @@ import org.apache.log4j.Logger;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedDatabase;
 import tud.iir.news.evaluation.FeedReaderEvaluator;
-import weka.classifiers.Classifier;
-import weka.core.Instance;
 
 /**
  * Dump class to test various algorithms.
@@ -21,6 +19,7 @@ import weka.core.Instance;
  * 
  */
 public class Temp {
+
 
     public static void createTrainingData() {
 
@@ -43,9 +42,9 @@ public class Temp {
                 }
 
                 String safeFeedName = feed.getId()
-                        + "_"
-                        + StringHelper.makeSafeName(
-                                feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
+                + "_"
+                + StringHelper.makeSafeName(
+                        feed.getFeedUrl().replaceFirst("http://www.", "").replaceFirst("www.", ""), 30);
 
                 String fileName = FeedReaderEvaluator.findHistoryFile(safeFeedName);
 
@@ -106,16 +105,16 @@ public class Temp {
         // Temp.createTrainingData();
 
         // deserialize model
-        Classifier cls = (Classifier) weka.core.SerializationHelper.read("data/temp/weka.model");
-
-        Instance i = new Instance(5);
-        i.setValue(0, 2712);
-        i.setValue(1, 1757);
-        i.setValue(2, 4099);
-        i.setValue(3, 2913);
-        i.setValue(4, 19941);
-        double d = cls.classifyInstance(i);
-        System.out.println(d);
+        // Classifier cls = (Classifier) weka.core.SerializationHelper.read("data/temp/weka.model");
+        //
+        // Instance i = new Instance(5);
+        // i.setValue(0, 2712);
+        // i.setValue(1, 1757);
+        // i.setValue(2, 4099);
+        // i.setValue(3, 2913);
+        // i.setValue(4, 19941);
+        // double d = cls.classifyInstance(i);
+        // System.out.println(d);
     }
 
 }
