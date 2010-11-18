@@ -5,6 +5,10 @@ package tud.iir.news.evaluation;
  * 
  * @author Sandro Reichert 
  */
+/**
+ * @author Sandro Reichert
+ * 
+ */
 public class EvaluationFeedPoll {	
 	
     /** FeedID */
@@ -31,7 +35,7 @@ public class EvaluationFeedPoll {
     /** true if the feed supports conditional GET or eTag */
     private boolean supportsConditionalGet = false;
 
-    /*
+    /**
      * Specifies whether {@link EvaluationFeedPoll#supportsConditionalGetSize} is already set (read from data base) and
      * not NULL
      */
@@ -215,17 +219,32 @@ public class EvaluationFeedPoll {
     }
 
 
+    /**
+     * Sets the feedID and marks it as valid.
+     * 
+     * @param feedID the feedID to set.
+     */
     public final void setFeedID(int feedID) {
         this.feedID = feedID;
         this.feedIDValid = true;
     }
 
+    /**
+     * Sets the activityPattern and marks it as valid.
+     * 
+     * @param activityPattern the activityPattern to set.
+     */
     public final void setActivityPattern(int activityPattern) {
         this.activityPattern = activityPattern;
         this.activityPatternValid = true;
     }
 
 
+    /**
+     * Sets the conditionalGetResponseSize and marks it as valid.
+     * 
+     * @param conditionalGetResponseSize the conditionalGetResponseSize to set.
+     */
     public final void setConditionalGetResponseSize(Integer conditionalGetResponseSize) {
         this.conditionalGetResponseSize = conditionalGetResponseSize;
         this.conditionalGetResponseSizeValid = true;
@@ -233,89 +252,169 @@ public class EvaluationFeedPoll {
             setSupportsConditionalGet(true);
     }
     
+    /**
+     * Sets the numberOfPoll and marks it as valid.
+     * 
+     * @param numberOfPoll the numberOfPoll to set.
+     */
     public final void setNumberOfPoll(int numberOfPoll) {
         this.numberOfPoll = numberOfPoll;
         this.numberOfPollValid = true;
     }
 
+    /**
+     * Sets the pollTimestamp and marks it as valid.
+     * 
+     * @param pollTimestamp the pollTimestamp to set.
+     */
     public final void setPollTimestamp(long pollTimestamp) {
         this.pollTimestamp = pollTimestamp;
         this.pollTimestampValid = true;
     }
 
+    /**
+     * Sets the checkInterval and marks it as valid.
+     * 
+     * @param checkInterval the checkInterval to set.
+     */
     public final void setCheckInterval(int checkInterval) {
         this.checkInterval = checkInterval;
         this.checkIntervalValid = true;
     }
 
+    /**
+     * Sets the windowSize and marks it as valid.
+     * 
+     * @param windowSize the windowSize to set.
+     */
     public final void setWindowSize(int windowSize) {
         this.windowSize = windowSize;
         this.windowSizeValid = true;
     }
 
+    /**
+     * Sets the sizeOfPoll and marks it as valid.
+     * 
+     * @param sizeOfPoll the sizeOfPoll to set.
+     */
     public final void setSizeOfPoll(int sizeOfPoll) {
         this.sizeOfPoll = sizeOfPoll;
         this.sizeOfPollValid = true;
     }
 
+    /**
+     * Sets the missedItems and marks it as valid.
+     * 
+     * @param missedItems the missedItems to set.
+     */
     public final void setMissedItems(int missedItems) {
         this.missedItems = missedItems;
         this.missedItemsValid = true;
     }
 
+    /**
+     * Sets the newWindowItems and marks it as valid.
+     * 
+     * @param newWindowItems the newWindowItems to set.
+     */
     public final void setPercentageNewEntries(int numberNewEntries) {
         this.newWindowItems = numberNewEntries;
         this.newWindowItemsValid = true;
     }
 
+    /**
+     * Sets the cumulatedDelay and marks it as valid.
+     * 
+     * @param cumulatedDelay the cumulatedDelay to set.
+     */
     public final void setDelay(double delay) {
         this.cumulatedDelay = delay;
         this.cumulatedDelayValid = true;
     }
 
+    /**
+     * Sets the timelinessLate and marks it as valid.
+     * 
+     * @param timelinessLate the timelinessLate to set.
+     */
     public final void setScoreMin(float scoreMin) {
         this.timelinessLate = scoreMin;
         this.timelinessLateValid = true;
     }
 
-
+    /**
+     * returns the feedID if it has been set, otherwise it throws a {@link IllegalStateException}
+     * 
+     * @return the poll's feedID if it has been set.
+     */
     public final int getFeedID() {
         if (!feedIDValid)
             throw new IllegalStateException("feeID has not been initialized!");
         return feedID;
 	}
 
-	public final int getActivityPattern() {
+    /**
+     * returns the activityPattern if it has been set, otherwise it throws a {@link IllegalStateException}
+     * 
+     * @return the poll's activityPattern if it has been set.
+     */
+    public final int getActivityPattern() {
         if (!activityPatternValid)
             throw new IllegalStateException("feeID " + feedID + ": activityPattern not initialized!");
 		return activityPattern;
 	}
 
-	public final Boolean getSupportsConditionalGet() {
+    /**
+     * Returns true supportsConditionalGet if the feed supports conditional get requests or eTag, or false, if the feed
+     * doesn't support one of both.
+     * A {@link IllegalStateException} is thrown if it is unknown.
+     * 
+     * @return the poll's activityPattern if it has been set.
+     */
+    public final Boolean getSupportsConditionalGet() {
         if (!supportsConditionalGetValid)
             throw new IllegalStateException("feeID " + feedID + ": supportsConditionalGet not initialized!");
 		return supportsConditionalGet;
 	}
 
-	public final int getConditionalGetResponseSize() {
+    /**
+     * Returns the conditionalGetResponseSize if it has been set, otherwise it throws a {@link IllegalStateException}.
+     * 
+     * @return the poll's conditionalGetResponseSize if it has been set.
+     */
+    public final int getConditionalGetResponseSize() {
         if (!conditionalGetResponseSizeValid)
             throw new IllegalStateException("feeID " + feedID + ": conditionalGetResponseSize not initialized!");
 		return conditionalGetResponseSize;
 	}
 
+    /**
+     * Returns the numberOfPoll if it has been set, otherwise it throws a {@link IllegalStateException}.
+     * 
+     * @return the poll's numberOfPoll if it has been set.
+     */
 	public final int getNumberOfPoll() {
         if (!numberOfPollValid)
             throw new IllegalStateException("feeID " + feedID + ": numberOfPoll not initialized!");
 		return numberOfPoll;
 	}
 
+    /**
+     * Returns the pollTimestamp if it has been set, otherwise it throws a {@link IllegalStateException}.
+     * 
+     * @return the poll's pollTimestamp if it has been set.
+     */
 	public final long getPollTimestamp() {
         if (!pollTimestampValid)
             throw new IllegalStateException("feeID " + feedID + ": pollTimestamp not initialized!");
 		return pollTimestamp;
 	}
 
-
+    /**
+     * Returns the checkInterval if it has been set, otherwise it throws a {@link IllegalStateException}.
+     * 
+     * @return the poll's checkInterval if it has been set.
+     */
     public final int getCheckInterval() {
         if (!checkIntervalValid)
             throw new IllegalStateException("feeID " + feedID + ": checkInterval not initialized!");
@@ -324,51 +423,80 @@ public class EvaluationFeedPoll {
         return checkInterval;
 	}
 
-	public final int getWindowSize() {
+    /**
+     * Returns the windowSize if it has been set, otherwise it throws a {@link IllegalStateException}.
+     * 
+     * @return the poll's windowSize if it has been set.
+     */
+    public final int getWindowSize() {
         if (!windowSizeValid)
             throw new IllegalStateException("feeID " + feedID + ": windowSize not initialized!");
 		return windowSize;
 	}
 
-	/**
-	 *  the amount of bytes that has been downloaded 
-	 */
+    /**
+     * If it has been set, it returns the amount of bytes that has been downloaded in this poll, otherwise it throws a
+     * {@link IllegalStateException}.
+     * 
+     * @return the amount of bytes that has been downloaded in this poll.
+     */
     public final int getSizeOfPoll() {
         if (!sizeOfPollValid)
             throw new IllegalStateException("feeID " + feedID + ": sizeOfPoll not initialized!");
 		return sizeOfPoll;
 	}
 
-	public final int getMissedItems() {
+    /**
+     * Returns the number of missedItems if it has been set, otherwise it throws a {@link IllegalStateException}.
+     * 
+     * @return the number of missedItems if it has been set.
+     */
+    public final int getMissedItems() {
         if (!missedItemsValid)
             throw new IllegalStateException("feeID " + feedID + ": missedItems not initialized!");
 		return missedItems;
 	}
 
+    /**
+     * Returns the number of newWindowItems if it has been set, otherwise it throws a {@link IllegalStateException}.
+     * 
+     * @return the number of newWindowItems if it has been set.
+     */
     public final int getNewWindowItems() {
         if (!newWindowItemsValid)
             throw new IllegalStateException("feeID " + feedID + ": newWindowItems not initialized!");
         return newWindowItems;
 	}
 
-	public final double getDelay() {
+    /**
+     * Returns the cumulatedDelay in if it has been set, otherwise it throws a {@link IllegalStateException}.
+     * The cumulatedDelay is late or early (negative value) in seconds, it is the time span between timestamp poll and
+     * timestamp(s) next or last new entry(ies)
+     * 
+     * @return the cumulatedDelay if it has been set.
+     */
+    public final double getDelay() {
         if (!cumulatedDelayValid)
             throw new IllegalStateException("feeID " + feedID + ": delay not initialized!");
 		return cumulatedDelay;
 	}
 
+    /**
+     * Returns the timelinessLate if it has been set, otherwise it throws a {@link IllegalStateException}.
+     * 
+     * @return the timelinessLate if it has been set.
+     */
     public final double getTimelinessLate() {
         if (!timelinessLateValid)
             throw new IllegalStateException("feeID " + feedID + ": timelinessLate not initialized!");
         return timelinessLate;
 	}
-	
 
-
-
-	
     /**
-     * @return the numberNewEntries
+     * Returns the number of new items within the window if the value has been set, otherwise it throws a
+     * {@link IllegalStateException}.
+     * 
+     * @return the newWindowItems if it has been set.
      */
     public final int getNumberNewEntries() {
         if (!newWindowItemsValid)
@@ -377,7 +505,9 @@ public class EvaluationFeedPoll {
     }
 
     /**
-     * @param newWindowItems the number of new Items in this poll
+     * Sets the number of new items in the current poll and {@link newWindowItems} as valid.
+     * 
+     * @param newWindowItems the newWindowItems to set.
      */
     public final void setNewWindowItems(int newWindowItems) {
         this.newWindowItems = newWindowItems;
@@ -460,8 +590,9 @@ public class EvaluationFeedPoll {
         this.supportsConditionalGetValid = true;
     }
 
-    /*
+    /**
      * (non-Javadoc)
+     * 
      * @see java.lang.Object#hashCode()
      */
     @Override
@@ -515,8 +646,9 @@ public class EvaluationFeedPoll {
         return result;
     }
 
-    /*
+    /**
      * (non-Javadoc)
+     * 
      * @see java.lang.Object#equals(java.lang.Object)
      */
     @Override
@@ -610,8 +742,9 @@ public class EvaluationFeedPoll {
         return true;
     }
 
-    /*
+    /**
      * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
