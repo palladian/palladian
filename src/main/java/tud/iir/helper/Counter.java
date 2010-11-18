@@ -25,9 +25,13 @@ public class Counter {
         return count;
     }
 
+    public synchronized void reset() {
+        count = 0;
+    }
+    
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
         return String.valueOf(getCount());
     }
+
 }
