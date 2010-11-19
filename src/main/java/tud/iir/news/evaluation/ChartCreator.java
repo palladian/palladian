@@ -21,16 +21,15 @@ public class ChartCreator {
     private static final Logger LOGGER = Logger.getLogger(ChartCreator.class);
     
     private final String FEED_SIZE_HISTOGRAM_FILE_PATH = "data/evaluation/feedPaper/feedSizeHistogrammData.csv";
-    private final String feedAgeFilePath = "data/evaluation/feedPaper/feedAgeData.csv";
-    private final String timeliness2FilePath = "data/evaluation/feedPaper/timeliness2Data.csv";
-    private final String percentageNewMaxPollFilePath = "data/evaluation/feedPaper/percentNewMaxPollData.csv";
-    private final String sumVolumeMaxMinTimeFilePath = "data/evaluation/feedPaper/sumVolumeTimeData";
-    
+    private final String FEED_AGE_FILE_PATH = "data/evaluation/feedPaper/feedAgeData.csv";
+    private final String TIMELINESS2_FILE_PATH = "data/evaluation/feedPaper/timeliness2Data.csv";
+    private final String PERCENTAGE_NEW_MAX_POLL_FILE_PATH = "data/evaluation/feedPaper/percentNewMaxPollData.csv";
+    private final String SUM_VOLUME_MAX_MIN_TIME_FILE_PATH = "data/evaluation/feedPaper/sumVolumeTimeData";
 
     private final int MAX_NUMBER_OF_POLLS_SCORE_MIN;
     private final int MAX_NUMBER_OF_POLLS_SCORE_MAX;
     
-    private final EvaluationDatabase ed ; 
+    private final EvaluationDatabase ED;
     
     private final int TOTAL_EXPERIMENT_HOURS;
 
@@ -61,7 +60,7 @@ public class ChartCreator {
      *            MAX-policy.
      */
     public ChartCreator(final int MAX_NUMBER_OF_POLLS_SCORE_MIN, final int MAX_NUMBER_OF_POLLS_SCORE_MAX) {
-        this.ed = EvaluationDatabase.getInstance();
+        this.ED = EvaluationDatabase.getInstance();
         this.MAX_NUMBER_OF_POLLS_SCORE_MIN = MAX_NUMBER_OF_POLLS_SCORE_MIN;
         this.MAX_NUMBER_OF_POLLS_SCORE_MAX = MAX_NUMBER_OF_POLLS_SCORE_MAX;
         this.TOTAL_EXPERIMENT_HOURS = (int) ((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / DateHelper.HOUR_MS);
@@ -80,7 +79,7 @@ public class ChartCreator {
      *            larger
      */
     private void createFeedSizeHistogrammFile(final int chartInterval, final int chartNumberOfIntervals) {
-        List<EvaluationFeedPoll> polls = ed.getFeedSizes();
+        List<EvaluationFeedPoll> polls = ED.getFeedSizes();
         int[] feedSizeDistribution = new int[chartNumberOfIntervals + 1];
         int totalNumberOfFeeds = 0;
         
@@ -107,36 +106,50 @@ public class ChartCreator {
         }
         
         boolean outputWritten = FileHelper.writeToFile(FEED_SIZE_HISTOGRAM_FILE_PATH, feedSizeDistributionSB);
-        if (outputWritten)
+        if (outputWritten) {
             LOGGER.info("feedSizeHistogrammFile written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
-        else
+        } else {
             LOGGER.fatal("feedSizeHistogrammFile has not been written to: " + FEED_SIZE_HISTOGRAM_FILE_PATH);
+        }
     }
 
 
     /**
-     * Generates a *.csv file to generate a feed age histogram and stores it at {@link ChartCreator#feedAgeFilePath}.
+     * Generates a *.csv file to generate a feed age histogram and stores it at {@link ChartCreator#FEED_AGE_FILE_PATH}.
      * csv file has pattern (feed file age;number of feeds;percentage of the feeds;)
      */
     private void createFeedAgeFile(){        
-        List<EvaluationItemIntervalItem> polls = ed.getAverageUpdateIntervals();
+        List<EvaluationItemIntervalItem> polls = ED.getAverageUpdateIntervals();
         int[] feedAgeDistribution = new int[34];
         int totalNumberOfFeeds = 0;
         
         for (EvaluationItemIntervalItem intervalItem : polls) {
             int averageUpdateIntervalHours = new Double(Math.floor(intervalItem.getAverageUpdateInterval()/3600000)).intValue();
             int i = -1;
-            if(averageUpdateIntervalHours <= 24) i = averageUpdateIntervalHours;
-            else if(averageUpdateIntervalHours <= 24*2) i = 24;  //2 days
-            else if(averageUpdateIntervalHours <= 24*3) i = 25;  //3 days
-            else if(averageUpdateIntervalHours <= 24*4) i = 26;  //4 days
-            else if(averageUpdateIntervalHours <= 24*5) i = 27; //5 days
-            else if(averageUpdateIntervalHours <= 24*6) i = 28; //6 days
-            else if(averageUpdateIntervalHours <= 24*7) i = 29; //7 days
-            else if(averageUpdateIntervalHours <= 24*7*2) i = 30; //2 weeks
-            else if(averageUpdateIntervalHours <= 24*7*3) i = 31; //3 weeks
-            else if(averageUpdateIntervalHours <= 24*7*4) i = 32; //4 weeks
-            else i = 33; //more
+            if (averageUpdateIntervalHours <= 24) {
+                i = averageUpdateIntervalHours;
+            } else if (averageUpdateIntervalHours <= 24 * 2) {
+                i = 24; // 2 days
+            }
+ else if (averageUpdateIntervalHours <= 24 * 3) {
+                i = 25; // 3 days
+            } else if (averageUpdateIntervalHours <= 24 * 4) {
+                i = 26; // 4 days
+            } else if (averageUpdateIntervalHours <= 24 * 5) {
+                i = 27; // 5 days
+            } else if (averageUpdateIntervalHours <= 24 * 6) {
+                i = 28; // 6 days
+            } else if (averageUpdateIntervalHours <= 24 * 7) {
+                i = 29; // 7 days
+            } else if (averageUpdateIntervalHours <= 24 * 7 * 2) {
+                i = 30; // 2 week
+            } else if (averageUpdateIntervalHours <= 24 * 7 * 3) {
+                i = 31; // 3 weeks
+            } else if (averageUpdateIntervalHours <= 24 * 7 * 4) {
+                i = 32; // 4 weeks
+            } else {
+                i = 33; // more
+            }
             feedAgeDistribution[i]++;
             totalNumberOfFeeds++;
         }        
@@ -152,11 +165,12 @@ public class ChartCreator {
             i++;
         }
         
-        boolean outputWritten = FileHelper.writeToFile(feedAgeFilePath, feedAgeSB);
-        if (outputWritten)
-            LOGGER.info("feedAgeFile written to: " + feedAgeFilePath);
-        else
-            LOGGER.fatal("feedAgeFile has not been written to: " + feedAgeFilePath);
+        boolean outputWritten = FileHelper.writeToFile(FEED_AGE_FILE_PATH, feedAgeSB);
+        if (outputWritten) {
+            LOGGER.info("feedAgeFile written to: " + FEED_AGE_FILE_PATH);
+        } else {
+            LOGGER.fatal("feedAgeFile has not been written to: " + FEED_AGE_FILE_PATH);
+        }
     }
 
     /**
@@ -189,7 +203,7 @@ public class ChartCreator {
 
     /**
      * Generates a *.csv file to generate the timeliness2 chart and stores it at
-     * {@link ChartCreator#timeliness2FilePath}. The file contains the average scoreMin per numberOfPoll for each
+     * {@link ChartCreator#TIMELINESS2_FILE_PATH}. The file contains the average scoreMin per numberOfPoll for each
      * polling strategy separately. The csv file has the pattern (number of poll; adaptive; probabilistic; fix learned;
      * fix1h; fix1d)
      */
@@ -205,20 +219,20 @@ public class ChartCreator {
         for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
             LOGGER.info("starting to create data for " + pollingStrategy.toString());
             timeliness2SB.append(pollingStrategy.toString().toLowerCase()).append(";");
-            polls = ed.getAverageScoreMinPerPollFromMinPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MIN);
+            polls = ED.getAverageScoreMinPerPollFromMinPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MIN);
             processDataAggregatedByPoll(polls, timeliness2Map, rowToWrite, NUMBER_OF_ROWS);
             LOGGER.info("finished creating data for " + pollingStrategy.toString());
             rowToWrite++;
         }
         timeliness2SB.append("\n");
 
-        writeMapToCSV(timeliness2Map, timeliness2SB, timeliness2FilePath);
+        writeMapToCSV(timeliness2Map, timeliness2SB, TIMELINESS2_FILE_PATH);
         LOGGER.info("finished creating timeliness2File.");
     }
 
     /**
      * Generates a *.csv file containing the average percentage of percentageNewEntries by numberOfPoll for each
-     * strategy separately. File is written to {@link ChartCreator#percentageNewMaxPollFilePath}, file has structure
+     * strategy separately. File is written to {@link ChartCreator#PERCENTAGE_NEW_MAX_POLL_FILE_PATH}, file has structure
      * (numberOfPoll; adaptive; probabilistic; fix learned; fix1h; fix1d)
      */
     private void createPercentageNewMaxPollFile() {
@@ -233,14 +247,14 @@ public class ChartCreator {
         for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
             LOGGER.info("starting to create data for " + pollingStrategy.toString());
             percentageNewSB.append(pollingStrategy.toString().toLowerCase()).append(";");
-            polls = ed.getAveragePercentageNewEntriesPerPollFromMaxPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MAX);
+            polls = ED.getAveragePercentageNewEntriesPerPollFromMaxPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MAX);
             processDataAggregatedByPoll(polls, percentageNewMap, rowToWrite, NUMBER_OF_ROWS);
             LOGGER.info("finished creating data for " + pollingStrategy.toString());
             rowToWrite++;
         }
         percentageNewSB.append("\n");
 
-        writeMapToCSV(percentageNewMap, percentageNewSB, percentageNewMaxPollFilePath);
+        writeMapToCSV(percentageNewMap, percentageNewSB, PERCENTAGE_NEW_MAX_POLL_FILE_PATH);
         LOGGER.info("finished creating percentageNewFile.");
     }
 
@@ -266,10 +280,11 @@ public class ChartCreator {
         }
 
         boolean outputWritten = FileHelper.writeToFile(filePath, outputSB);
-        if (outputWritten)
+        if (outputWritten) {
             LOGGER.info(filePath + " has been written");
-        else
+        } else {
             LOGGER.fatal(filePath + " has NOT been written!");
+        }
     }
 
     /**
@@ -316,8 +331,7 @@ public class ChartCreator {
             final int HOUR_TO_PROCESS = poll.getHourOfExperiment();
 
             int sizeOfPoll = poll.getSizeOfPoll();
-            if (SIMULATE_ETAG_USAGE && poll.getNewWindowItems() == 0f) {
-                if (poll.getSupportsConditionalGet() == true)
+            if (SIMULATE_ETAG_USAGE && (poll.getNewWindowItems() == 0f) && (poll.getSupportsConditionalGet() == true)) {
                     sizeOfPoll = poll.getConditionalGetResponseSize();
             }
 
@@ -392,7 +406,7 @@ public class ChartCreator {
 
             while (feedIDEnd < FEED_ID_MAX) {
                 LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-                polls = ed.getTransferVolumeByHourFromTime(POLICY, pollingStrategy, feedIDStart, feedIDEnd);
+                polls = ED.getTransferVolumeByHourFromTime(POLICY, pollingStrategy, feedIDStart, feedIDEnd);
                 volumeHelper(polls, totalResultMap, rowToWrite, NUMBER_OF_ROWS, SIMULATE_ETAG_USAGE);
                 feedIDStart += FEED_ID_STEP;
                 feedIDEnd += FEED_ID_STEP;
@@ -425,35 +439,38 @@ public class ChartCreator {
         String eTag = (SIMULATE_ETAG_USAGE) ? "ETag" : "NoETag";
         switch (POLICY) {
             case MAX:
-                filePathToWrite = sumVolumeMaxMinTimeFilePath + "_Max" + eTag + ".csv";
+                filePathToWrite = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + "_Max" + eTag + ".csv";
                 break;
             case MIN:
-                filePathToWrite = sumVolumeMaxMinTimeFilePath + "_Min" + eTag + ".csv";
+                filePathToWrite = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + "_Min" + eTag + ".csv";
                 break;
             default:
                 throw new IllegalStateException("unknown Policy: " + POLICY.toString());
         }
         boolean outputWritten = FileHelper.writeToFile(filePathToWrite, culmulatedVolumeSB);
-        if (outputWritten)
+        if (outputWritten) {
             LOGGER.info("sumVolumeFile for policy " + POLICY + " written to: " + filePathToWrite);
-        else
+        } else {
             LOGGER.fatal("sumVolumeFile for policy " + POLICY + " has not been written to: " + filePathToWrite);
+        }
     } 
     
 
 
-    /**
-     * Only a test
-     */
-    private void printFeedPolls() {
-        List<EvaluationFeedPoll> polls = ed.getAllFeedPollsFromAdaptiveMaxTime();
 
-        for (EvaluationFeedPoll poll : polls) {
-            // int feedID = poll.getFeedID();
-            System.out.println(poll.getFeedID() + " " + poll.getSizeOfPoll());
-        }
 
-    }
+    // /**
+    // * Only a test
+    // */
+    // private void printFeedPolls() {
+    // List<EvaluationFeedPoll> polls = ed.getAllFeedPollsFromAdaptiveMaxTime();
+    //
+    // for (EvaluationFeedPoll poll : polls) {
+    // // int feedID = poll.getFeedID();
+    // LOGGER.info(poll.getFeedID() + " " + poll.getSizeOfPoll());
+    // }
+    //
+    // }
 
     /**
      * @param args ...
