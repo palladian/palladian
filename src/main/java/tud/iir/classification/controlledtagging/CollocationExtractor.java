@@ -17,7 +17,9 @@ import tud.iir.web.Crawler;
 
 public class CollocationExtractor {
 
-    private Stopwords stopwords = new Stopwords(Stopwords.STOP_WORDS_EN);
+    // private Stopwords stopwords = new Stopwords(Stopwords.STOP_WORDS_EN);
+    private Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
+
 
     public void extractCollocations(String text) {
         extractCollocations(text, 5);
@@ -111,7 +113,9 @@ public class CollocationExtractor {
         Crawler crawler = new Crawler();
         CollocationExtractor ce = new CollocationExtractor();
         // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Apple_iPhone");
-        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/San_Francisco");
+        // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/San_Francisco");
+        // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/%22Manos%22_The_Hands_of_Fate");
+        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Cat");
         String content = HTMLHelper.htmlToString(doc);
 
         ce.extractCollocations(content, 10);

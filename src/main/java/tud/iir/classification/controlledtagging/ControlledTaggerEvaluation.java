@@ -174,7 +174,7 @@ public class ControlledTaggerEvaluation extends DeliciousDatasetSplitter {
         settings.setPriorWeight(1.0f);
         settings.setCorrelationType(TaggingCorrelationType.DEEP_CORRELATIONS);
         settings.setCorrelationWeight(20000);
-        settings.setStopwords(new Stopwords(Stopwords.STOP_WORDS_EN));
+        settings.setStopwords(new Stopwords(Stopwords.Predefined.EN));
         
         tagger.setSettings(settings);
         
