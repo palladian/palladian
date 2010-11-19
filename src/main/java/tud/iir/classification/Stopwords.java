@@ -1,33 +1,66 @@
 package tud.iir.classification;
 
+import java.io.BufferedReader;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashSet;
 
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 
 /**
- * List of stopwords. Use the constants {@link Stopwords#STOP_WORDS_EN} or {@link Stopwords#STOP_WORDS_DE} for
- * initialization with pre-defined stopword list.
- * 
- * TODO when using Toolkit JAR in another project, the stopwords have to be copied to this project now. Use
- * class.getResouce() to avoid this?
- * 
- * http://www.devx.com/tips/Tip/5697
+ * List of stopwords. Use the enumeration {@link Predefined} for initialization with predefined stopword lists. You can
+ * also use your own stopword list via constructor {@link #Stopwords(String)} or {@link #addFromFile(String)}. The file
+ * must be newline separated, each line containing one stopword. Lines prefixed with # are treated as comments and are
+ * therefore ignored. The list is case insensitive.
  * 
  * @author Philipp Katz
  * 
  */
 public class Stopwords extends HashSet<String> {
-	
+
     private static final long serialVersionUID = 8764752921113362657L;
-    
-    public static final String STOP_WORDS_EN = "config/stopwords_en.txt";
-    public static final String STOP_WORDS_DE = "config/stopwords_de.txt";
-	
-	public Stopwords() {
-	    this(STOP_WORDS_EN);
-	}
-	
+
+    /** available predefined stopword lists. Those are included with the toolkit as resource files. */
+    public static enum Predefined {
+
+        // you can add your own stopword lists here ...
+        EN("/stopwords_en.txt"), DE("/stopwords_de.txt");
+
+        private String file;
+
+        private Predefined(String file) {
+            this.file = file;
+        }
+
+        private String getFile() {
+            return file;
+        }
+    }
+
+    /** line action for reading the stopword lists. */
+    private LineAction readLineAction = new LineAction() {
+
+        @Override
+        public void performAction(String line, int lineNumber) {
+            String lineString = line.trim();
+
+            // ignore comments and empty lines ...
+            if (!lineString.startsWith("#") && !lineString.isEmpty()) {
+                add(line);
+            }
+        }
+    };
+
+    public Stopwords() {
+        this(Predefined.EN);
+    }
+
+    public Stopwords(Predefined stopwordList) {
+        addFromResourceFile(stopwordList.getFile());
+    }
+
     public Stopwords(String filePath) {
         addFromFile(filePath);
     }
@@ -37,29 +70,21 @@ public class Stopwords extends HashSet<String> {
      * 
      * @param filePath
      */
-    public void addFromFile(String filePath) {
-        FileHelper.performActionOnEveryLine(filePath, new LineAction(new Object[] { this }) {
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-
-                String lineString = line.trim();
-
-                // ingore comments and empty lines ...
-                if (!lineString.startsWith("#") && !lineString.isEmpty()) {
-                    Stopwords stopwords = (Stopwords) arguments[0];
-                    stopwords.add(line);
-                }
-
-            }
-        });
+    public final void addFromFile(String filePath) {
+        FileHelper.performActionOnEveryLine(filePath, readLineAction);
     }
-    
+
+    private void addFromResourceFile(String filePath) {
+        InputStream stream = this.getClass().getResourceAsStream(filePath);
+        BufferedReader br = new BufferedReader(new InputStreamReader(stream));
+        FileHelper.performActionOnEveryLine(br, readLineAction);
+    }
+
     @Override
     public boolean add(String e) {
         return super.add(e.toLowerCase());
     }
-    
+
     @Override
     public boolean contains(Object o) {
         boolean result = false;
@@ -69,16 +94,16 @@ public class Stopwords extends HashSet<String> {
         }
         return result;
     }
-	
-	@Override
-	public String toString() {
-		return "#stopwords:" + this.size();
-	}
-	
-	public static void main(String[] args) {
-	    Stopwords stopwords = new Stopwords();
-        System.out.println(stopwords.contains("The"));
-        System.out.println(stopwords);
+
+    @Override
+    public String toString() {
+        return CollectionHelper.getPrint(this);
+    }
+
+    public static void main(String[] args) {
+        // Stopwords stopwords = new Stopwords();
+        // System.out.println(stopwords.contains("The"));
+        // System.out.println(stopwords);
     }
 
 }
