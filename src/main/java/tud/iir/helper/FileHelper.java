@@ -14,6 +14,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
+import java.io.Reader;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.net.URISyntaxException;
@@ -350,12 +351,24 @@ public class FileHelper {
      * @return the int
      */
     public static int performActionOnEveryLine(String filePath, LineAction la) {
+        int lineNumber = 1;
+        
+        try {
+            FileReader in = new FileReader(filePath);
+            lineNumber = performActionOnEveryLine(in, la);
+        } catch (FileNotFoundException e) {
+            LOGGER.error(filePath + ", " + e.getMessage());
+        }
+        
+        return lineNumber - 1;
+    }
+    
+    public static int performActionOnEveryLine(Reader reader, LineAction la) {
 
         int lineNumber = 1;
 
         try {
-            FileReader in = new FileReader(filePath);
-            BufferedReader br = new BufferedReader(in);
+            BufferedReader br = new BufferedReader(reader);
 
             String line = "";
             do {
@@ -368,15 +381,14 @@ public class FileHelper {
 
             } while (line != null && la.looping);
 
-            in.close();
             br.close();
 
         } catch (FileNotFoundException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
+            LOGGER.error(reader + ", " + e.getMessage());
         } catch (IOException e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
+            LOGGER.error(reader + ", " + e.getMessage());
         } catch (OutOfMemoryError e) {
-            LOGGER.error(filePath + ", " + e.getMessage());
+            LOGGER.error(reader + ", " + e.getMessage());
         }
 
         return lineNumber - 1;
