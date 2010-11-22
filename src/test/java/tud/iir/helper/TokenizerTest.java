@@ -54,6 +54,9 @@ public class TokenizerTest extends TestCase {
         tokens = Tokenizer.tokenize("asp.net is very web 2.0. isn't it? web2.0, .net");
         // CollectionHelper.print(tokens);
         assertEquals(14, tokens.size());
+        
+        tokens = Tokenizer.tokenize("40,000 residents");
+        assertEquals(2, tokens.size());
     }
 
     @Test
