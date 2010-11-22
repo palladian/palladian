@@ -1,0 +1,174 @@
+package tud.iir.classification.controlledtagging;
+
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
+import org.apache.commons.collections15.Bag;
+import org.apache.commons.collections15.bag.HashBag;
+import org.apache.commons.lang.StringUtils;
+
+import tud.iir.classification.WordCorrelation;
+import tud.iir.helper.StringHelper;
+
+public class DocumentModel {
+    
+    private Corpus corpus;
+
+//    private Map<String, Candidate> candidates = new LinkedHashMap<String, Candidate>();
+    
+    
+    private Map<String, List<Token>> tokens = new LinkedHashMap<String, List<Token>>();
+    private List<Candidate> candidates;
+    private int wordCount;
+    
+    
+    public DocumentModel(Corpus corpus) {
+        this.corpus = corpus;
+    }
+
+    public void addToken(Token token) {
+
+
+        List<Token> tokenList;
+        if (tokens.containsKey(token.getStemmedValue())) {
+            tokenList = tokens.get(token.getStemmedValue());
+        } else {
+            tokenList = new ArrayList<Token>();
+            tokens.put(token.getStemmedValue(), tokenList);
+        }
+        tokenList.add(token);
+//        if (token.getWordCount() == 1) {
+            wordCount++;
+//        }
+
+    }
+
+    public void createCandidates() {
+
+        List<Candidate> candidates = new ArrayList<Candidate>();
+        Iterator<Entry<String, List<Token>>> iterator = tokens.entrySet().iterator();
+
+        while (iterator.hasNext()) {
+
+            Entry<String, List<Token>> current = iterator.next();
+            List<Token> tokens = current.getValue();
+            Bag<String> unStemBag = new HashBag<String>();
+
+            Candidate candidate = new Candidate(this);
+            candidates.add(candidate);
+            for (Token token : tokens) {
+
+                unStemBag.add(token.getUnstemmedValue());
+                candidate.setStemmedValue(token.getStemmedValue());
+                candidate.addPosition(token.getTextPosition());
+                candidate.incrementCount();
+//                candidate.setWordCount(token.getWordCount());
+
+                if (token.getSentencePosition() > 0 && StringHelper.startsUppercase(token.getUnstemmedValue())) {
+                    candidate.incrementCapitalCount();
+                }
+
+            }
+
+            // determine the unstemmed representations
+            String bestUnStemCand = null;
+            int bestCount = 0;
+
+            for (String unstemmed : unStemBag.uniqueSet()) {
+                int currentCount = unStemBag.getCount(unstemmed);
+                if (currentCount > bestCount) {
+                    bestCount = currentCount;
+                    bestUnStemCand = unstemmed;
+                }
+            }
+
+            candidate.setValue(bestUnStemCand);
+        }
+
+//        ListIterator<Candidate> listIterator = candidates.listIterator();
+//        while (listIterator.hasNext()) {
+//            Candidate candidate = listIterator.next();
+//            if (candidate.getCount() < MIN_GRAM_OCCURENCE) {
+//                listIterator.remove();
+//            }
+//            
+//        }
+
+        this.candidates = candidates;
+
+    }
+
+    public int getCandidateCount() {
+        int count = 0;
+        for (Candidate candidate : candidates) {
+            count += candidate.getCount();
+        }
+        return count;
+    }
+
+    public int getWordCount() {
+        return wordCount;
+    }
+
+    public Collection<Candidate> getCandidates() {
+        return candidates;
+    }
+
+    public Collection<Candidate> getCandidates(int minCount) {
+        List<Candidate> result = new ArrayList<Candidate>();
+        for (Candidate candidate : candidates) {
+            if (candidate.getCount() >= minCount) {
+                result.add(candidate);
+            }
+        }
+        return result;
+    }
+    
+    public float getInverseDocumentFrequency(Candidate candidate) {
+        return corpus.getInverseDocumentFrequency(candidate.getStemmedValue());
+    }
+    
+    public float getPrior(String tag) {
+        return corpus.getPrior(tag);
+    }
+    
+    public WordCorrelation getCorrelation(String term1, String term2) {
+        return corpus.getCorrelation(term1, term2);
+    }
+    
+    public String toCSV() {
+        StringBuilder sb = new StringBuilder();
+        
+        // write CSV header with features names
+        //Candidate first = candidates.iterator().next();
+        //Set<String> featureNames = first.getFeatures().keySet();
+        //sb.append("#").append(StringUtils.join(featureNames, ";")).append("\n");
+        
+        // write all values
+        for (Candidate candidate : candidates) {
+            Collection<Double> feautureValues = candidate.getFeatures().values();
+            sb.append(StringUtils.join(feautureValues, ";")).append("\n");
+        }
+        
+        return sb.toString();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        for (Candidate candidate : candidates) {
+            builder.append(candidate).append("\n");
+        }
+        builder.append("# of non-unique candidates : " + getCandidateCount()).append("\n");
+        builder.append("# of unique candidates : " + candidates.size()).append("\n");
+        builder.append("# words : " + wordCount);
+        return builder.toString();
+    }
+
+}
