@@ -12,6 +12,10 @@ mixx.api.key = uoRkXpXlVZBNgQZfn7VR0w
 reddit.api.username = qqilihq
 reddit.api.password = amcocuymzu
 
+# access to Collecta XMPP and REST API
+# see: http://developer.collecta.com/APIindex/
+collecta.api.key = aef13a5bc659dc610cf6ad300da7994e
+
 # TODO I extracted API keys for majestic+compete from "Seo for Firefox" extension
 # http://tools.seobook.com/firefox/seo-for-firefox.html
 # we should get our own ones sooner or later
