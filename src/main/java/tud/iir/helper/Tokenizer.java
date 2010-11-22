@@ -26,7 +26,7 @@ public class Tokenizer {
 
         List<String> tokens = new ArrayList<String>();
 
-        Pattern pattern = Pattern.compile("(\\w+)([-\\.](\\w+))*|\\.(\\w+)|</?(\\w+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
+        Pattern pattern = Pattern.compile("(\\w+)([-\\.,](\\w+))*|\\.(\\w+)|</?(\\w+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
                 Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         // Pattern pattern = Pattern.compile("(\\w+)(-(\\w+))*|</?(\\w+)>|([^\\w\\s<]+)", Pattern.DOTALL
         // | Pattern.CASE_INSENSITIVE);
@@ -380,7 +380,7 @@ public class Tokenizer {
 
     public static void main(String[] args) throws IOException {
 
-        System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test"));
+        System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
         System.exit(0);
 
         System.out.println(getSentences("the quick brown fox"));
