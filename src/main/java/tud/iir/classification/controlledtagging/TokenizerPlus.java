@@ -269,6 +269,14 @@ public class TokenizerPlus {
         return result;
 
     }
+    
+    public boolean isUsePosTagging() {
+        return usePosTagging;
+    }
+    
+    public void setUsePosTagging(boolean usePosTagging) {
+        this.usePosTagging = usePosTagging;
+    }
 
     public static void main(String[] args) {
 
