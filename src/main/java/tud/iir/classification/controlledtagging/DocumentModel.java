@@ -64,7 +64,6 @@ public class DocumentModel {
                 candidate.setStemmedValue(token.getStemmedValue());
                 candidate.addPosition(token.getTextPosition());
                 candidate.incrementCount();
-                // candidate.setWordCount(token.getWordCount());
 
                 if (token.getSentencePosition() > 0 && StringHelper.startsUppercase(token.getUnstemmedValue())) {
                     candidate.incrementCapitalCount();
@@ -86,15 +85,6 @@ public class DocumentModel {
 
             candidate.setValue(bestUnStemCand);
         }
-
-        // ListIterator<Candidate> listIterator = candidates.listIterator();
-        // while (listIterator.hasNext()) {
-        // Candidate candidate = listIterator.next();
-        // if (candidate.getCount() < MIN_GRAM_OCCURENCE) {
-        // listIterator.remove();
-        // }
-        //
-        // }
 
         this.candidates = candidates;
 

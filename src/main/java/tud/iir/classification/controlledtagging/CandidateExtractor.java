@@ -22,13 +22,11 @@ import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
-import tud.iir.helper.StopWatch;
-import tud.iir.helper.Tokenizer;
 import tud.iir.web.Crawler;
 
 public class CandidateExtractor {
 
-    private static final int RAM_SIZE = 1;
+    // private static final int RAM_SIZE = 1;
 
     private SnowballStemmer stemmer = new englishStemmer();
     private Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
@@ -36,6 +34,8 @@ public class CandidateExtractor {
 
     private Corpus corpus = new Corpus();
     private CandidateClassifier classifier = new CandidateClassifier();
+    
+    private boolean controlledMode = false; // XXX testing
 
     // private final static int MIN_GRAM_OCCURENCE = 2;
 
@@ -96,7 +96,7 @@ public class CandidateExtractor {
     // }
 
     public float[] evaluate(String text, Set<String> tags) {
-
+        
         Set<String> stemmedTags = stem(tags);
 
         DocumentModel candidates = makeCandidates(text);
@@ -108,7 +108,9 @@ public class CandidateExtractor {
             Candidate current = li.next();
             if (stopwords.contains(current.getValue())) {
                 li.remove();
-            } else if (!current.getValue().matches("[a-zA-Z]{3,}")) {
+            } else if (!current.getValue().matches("[a-zA-Z\\s]{3,}")) {
+                li.remove();
+            } else if (controlledMode && current.getPrior() == 0) {
                 li.remove();
             }
         }
@@ -119,7 +121,7 @@ public class CandidateExtractor {
         }
 
         Collections.sort(candidatesList, new CandidateComparator());
-        System.out.println("beforeReRanking: " + candidatesList);
+//        System.out.println("beforeReRanking: " + candidatesList);
 
         /*
          * for (Candidate c : candidatesList) {
@@ -129,6 +131,7 @@ public class CandidateExtractor {
 
         // / XXX experimental --- do re-raking
 
+        
         Candidate[] candidateArray = candidatesList.toArray(new Candidate[0]);
         int numReRanking = candidateArray.length * (candidateArray.length - 1) / 2;
 
@@ -138,8 +141,8 @@ public class CandidateExtractor {
             Candidate outerCand = candidateArray[i];
             for (int j = i; j < candidateArray.length; j++) {
                 Candidate innerCand = candidateArray[j];
-                WordCorrelation correlation = corpus.getCorrelation(outerCand.getStemmedValue(),
-                        innerCand.getStemmedValue());
+                WordCorrelation correlation = corpus.getCorrelation(outerCand.getStemmedValue().replace(" ",""),
+                        innerCand.getStemmedValue().replace(" ",""));
                 if (correlation != null) {
                     float reRanking = (float) ((correlationWeight / numReRanking) * correlation
                             .getRelativeCorrelation());
@@ -152,7 +155,10 @@ public class CandidateExtractor {
         }
 
         Collections.sort(candidatesList, new CandidateComparator());
-        System.out.println("afterReRanking: " + candidatesList);
+        
+        
+        
+//        System.out.println("afterReRanking: " + candidatesList);
 
         // / end experimental
 
@@ -160,15 +166,28 @@ public class CandidateExtractor {
             candidatesList.subList(10, candidatesList.size()).clear();
         }
 
-        for (Candidate c : candidatesList) {
-            System.out.println(c.getValue() + " " + c.getRegressionValue());
-        }
+//        for (Candidate c : candidatesList) {
+//            System.out.println(c.getValue() + " " + c.getRegressionValue());
+//        }
+        
 
         int correctlyAssigned = 0;
         for (Candidate candidate : candidatesList) {
             for (String realTag : stemmedTags) {
+                
+                // for debugging
+                /*if (candidate.getValue().contains(" ")) {
+                    System.out.println(" ----> " + candidate);
+                    System.exit(0);
+                }*/
+                
+                boolean isCorrectlyAssigned = false;
+                isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getStemmedValue());
+                isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getValue());
+                isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getValue().replace(" ", ""));
 
-                if (realTag.equalsIgnoreCase(candidate.getStemmedValue())) {
+                // if (realTag.equalsIgnoreCase(candidate.getStemmedValue())) {
+                if (isCorrectlyAssigned) {
                     correctlyAssigned++;
                 }
 
@@ -184,8 +203,8 @@ public class CandidateExtractor {
         }
         float recall = (float) correctlyAssigned / realCount;
 
-        System.out.println("real: " + stemmedTags);
-        System.out.println("assigned: " + candidatesList);
+//        System.out.println("real: " + stemmedTags);
+//        System.out.println("assigned: " + candidatesList);
         System.out.println("correctlyAssigned:" + correctlyAssigned);
         System.out.println("totalAssigned:" + totalAssigned);
         System.out.println("realCount: " + realCount);
@@ -222,6 +241,7 @@ public class CandidateExtractor {
 
         List<Token> uniGrams = tokenizer.tokenize(text);
         List<Token> collocations = tokenizer.makeCollocations(uniGrams, 5);
+
 
         tokens.addAll(uniGrams);
         tokens.addAll(collocations);
@@ -354,16 +374,24 @@ public class CandidateExtractor {
         
         final CandidateExtractor extractor = new CandidateExtractor();
         
-        Crawler crawler = new Crawler();
-        
-        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
-        String text = HTMLHelper.htmlToString(doc);
-        
-        DocumentModel cnd = extractor.makeCandidates(text);
-        cnd.cleanCandidates(5); // remove candidates which occur less than 5
-        System.out.println(cnd);
+//        String text3 = "Beijing Duck is mostly prized for the thin, crispy duck skin with authentic versions of the dish serving mostly the skin. Beijing Duck is delicious. Beijing Duck is expensive.";
+//        
+//        DocumentModel cnd2 = extractor.makeCandidates(text3);
+//        System.out.println(cnd2);
+//        
+//        System.exit(0);
 
-        System.exit(0);
+        
+//        Crawler crawler = new Crawler();
+//        
+//        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
+//        String text = HTMLHelper.htmlToString(doc);
+//        
+//        DocumentModel cnd = extractor.makeCandidates(text);
+//        cnd.cleanCandidates(5); // remove candidates which occur less than 5
+//        System.out.println(cnd);
+//
+//        System.exit(0);
         
         
 
@@ -376,12 +404,12 @@ public class CandidateExtractor {
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-        createTrainData(extractor);
+        // createTrainData(extractor);
 
         // //////////////////////////////////////////////
         // EVALUATION
         // //////////////////////////////////////////////
-        // evaluate(extractor);
+        evaluate(extractor);
 
         System.exit(0);
 
@@ -548,16 +576,28 @@ public class CandidateExtractor {
                     }
 
                     // XXX
-                    tags = extractor.stem(tags);
+                    // tags = extractor.stem(tags);
+                    
+                    // XXX 2
+                    Set<String> stemmedTags = extractor.stem(tags);
+                    tags.addAll(stemmedTags);
 
-                    System.out.println(tags);
+//                    System.out.println(tags);
 
                     for (Candidate candidate : candidates.getCandidates()) {
-                        if (tags.contains(candidate.getStemmedValue())) {
-                            candidate.setPositive(true);
-                        } else {
-                            candidate.setPositive(false);
-                        }
+                        
+                        boolean isCandidate = false;
+                        isCandidate = isCandidate || tags.contains(candidate.getStemmedValue());
+                        isCandidate = isCandidate || tags.contains(candidate.getValue());
+                        isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
+                        
+                        candidate.setPositive(isCandidate);
+                        
+//                        if (tags.contains(candidate.getStemmedValue())) {
+//                            candidate.setPositive(true);
+//                        } else {
+//                            candidate.setPositive(false);
+//                        }
                     }
 
                     if (counter.getCount() == 0) {
@@ -571,9 +611,9 @@ public class CandidateExtractor {
                 }
 
                 counter.increment();
-                // if (counter.getCount() % 10 == 0) {
-                System.out.println(counter);
-                // }
+                if (counter.getCount() % 10 == 0) {
+                    System.out.println(counter);
+                }
                 if (counter.getCount() == 1000) {
                     breakLineLoop();
                 }
