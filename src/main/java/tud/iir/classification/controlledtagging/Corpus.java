@@ -51,10 +51,10 @@ public class Corpus implements Serializable {
     public float getPrior(String term) {
         float avgOccurence = (float) controlledIndex.size() / controlledIndex.uniqueSet().size();
         float prior = (float) controlledIndex.getCount(term) / avgOccurence;
-        if (Float.isNaN(prior)) {
-            System.out.println(avgOccurence);
-        }
-        // assert !Float.isNaN(prior);
+//        if (Float.isNaN(prior)) {
+//            System.out.println(avgOccurence);
+//        }
+         assert !Float.isNaN(prior);
         return prior;
     }
     
