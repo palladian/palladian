@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
@@ -17,23 +18,18 @@ import tud.iir.classification.WordCorrelation;
 import tud.iir.helper.StringHelper;
 
 public class DocumentModel {
-    
+
     private Corpus corpus;
 
-//    private Map<String, Candidate> candidates = new LinkedHashMap<String, Candidate>();
-    
-    
     private Map<String, List<Token>> tokens = new LinkedHashMap<String, List<Token>>();
     private List<Candidate> candidates;
     private int wordCount;
-    
-    
+
     public DocumentModel(Corpus corpus) {
         this.corpus = corpus;
     }
 
     public void addToken(Token token) {
-
 
         List<Token> tokenList;
         if (tokens.containsKey(token.getStemmedValue())) {
@@ -43,9 +39,9 @@ public class DocumentModel {
             tokens.put(token.getStemmedValue(), tokenList);
         }
         tokenList.add(token);
-//        if (token.getWordCount() == 1) {
-            wordCount++;
-//        }
+        // if (token.getWordCount() == 1) {
+        wordCount++;
+        // }
 
     }
 
@@ -68,7 +64,7 @@ public class DocumentModel {
                 candidate.setStemmedValue(token.getStemmedValue());
                 candidate.addPosition(token.getTextPosition());
                 candidate.incrementCount();
-//                candidate.setWordCount(token.getWordCount());
+                // candidate.setWordCount(token.getWordCount());
 
                 if (token.getSentencePosition() > 0 && StringHelper.startsUppercase(token.getUnstemmedValue())) {
                     candidate.incrementCapitalCount();
@@ -91,14 +87,14 @@ public class DocumentModel {
             candidate.setValue(bestUnStemCand);
         }
 
-//        ListIterator<Candidate> listIterator = candidates.listIterator();
-//        while (listIterator.hasNext()) {
-//            Candidate candidate = listIterator.next();
-//            if (candidate.getCount() < MIN_GRAM_OCCURENCE) {
-//                listIterator.remove();
-//            }
-//            
-//        }
+        // ListIterator<Candidate> listIterator = candidates.listIterator();
+        // while (listIterator.hasNext()) {
+        // Candidate candidate = listIterator.next();
+        // if (candidate.getCount() < MIN_GRAM_OCCURENCE) {
+        // listIterator.remove();
+        // }
+        //
+        // }
 
         this.candidates = candidates;
 
@@ -130,32 +126,48 @@ public class DocumentModel {
         return result;
     }
     
+    public void cleanCandidates(int minOccurrenceCount) {
+        ListIterator<Candidate> listIterator = candidates.listIterator();
+        while (listIterator.hasNext()) {
+            Candidate candidate = listIterator.next();
+            if (candidate.getCount() < minOccurrenceCount) {
+                listIterator.remove();
+            }
+        }
+    }
+
     public float getInverseDocumentFrequency(Candidate candidate) {
         return corpus.getInverseDocumentFrequency(candidate.getStemmedValue());
     }
-    
+
     public float getPrior(String tag) {
         return corpus.getPrior(tag);
     }
-    
+
     public WordCorrelation getCorrelation(String term1, String term2) {
         return corpus.getCorrelation(term1, term2);
     }
-    
+
     public String toCSV() {
+        return toCVS(false);
+    }
+
+    public String toCVS(boolean writeHeader) {
         StringBuilder sb = new StringBuilder();
-        
+
         // write CSV header with features names
-        //Candidate first = candidates.iterator().next();
-        //Set<String> featureNames = first.getFeatures().keySet();
-        //sb.append("#").append(StringUtils.join(featureNames, ";")).append("\n");
-        
+        if (writeHeader) {
+            Candidate first = candidates.iterator().next();
+            Set<String> featureNames = first.getFeatures().keySet();
+            sb.append("#").append(StringUtils.join(featureNames, ";")).append("\n");
+        }
+
         // write all values
         for (Candidate candidate : candidates) {
             Collection<Double> feautureValues = candidate.getFeatures().values();
             sb.append(StringUtils.join(feautureValues, ";")).append("\n");
         }
-        
+
         return sb.toString();
     }
 

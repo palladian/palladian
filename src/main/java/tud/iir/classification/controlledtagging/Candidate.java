@@ -4,7 +4,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import tud.iir.helper.Tokenizer;
 
+/**
+ * Represents a Candidate, used for keyphrase extraction.
+ * 
+ * @author Philipp Katz
+ *
+ */
 public class Candidate {
     
     private DocumentModel document;
@@ -13,7 +20,7 @@ public class Candidate {
     private String stemmedValue;
     private int count;
     private int capitalCount;
-    private int wordCount = Integer.MAX_VALUE;
+//    private int wordCount = Integer.MAX_VALUE;
     private int firstPos = Integer.MAX_VALUE;
     private int lastPos = Integer.MIN_VALUE;
     private Boolean positive;
@@ -76,12 +83,12 @@ public class Candidate {
         return capitalCount;
     }
     
-    public void setWordCount(int numWords) {
-        this.wordCount = Math.min(this.wordCount, numWords);
+    public float getCapitalPercentage() {
+        return (float) capitalCount / count;
     }
     
     public int getWordCount() {
-        return wordCount;
+        return Tokenizer.tokenize(value).size();
     }
     
     public float getFrequency() {
@@ -116,7 +123,7 @@ public class Candidate {
         return value.length();
     }
     
-    // TODO
+    // TODO this should be the stemmed value!
     public float getPrior() {
         return document.getPrior(this.getValue().toLowerCase());
     }
@@ -139,6 +146,7 @@ public class Candidate {
         
         features.put("count", (double) getCount());
         features.put("capitalCount", (double) getCapitalCount());
+        features.put("capitalPercentage", (double) getCapitalPercentage());
         features.put("wordCount", (double) getWordCount());
         features.put("firstPosition", (double) getFirstPos());
         features.put("lastPosition", (double) getLastPos());
@@ -175,37 +183,39 @@ public class Candidate {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-//        builder.append("Candidate [capitalCount=");
-//        builder.append(capitalCount);
-//        builder.append(", count=");
-//        builder.append(count);
+        builder.append("Candidate [capitalCount=");
+        builder.append(capitalCount);
+        builder.append(", count=");
+        builder.append(count);
+        builder.append(", getCapitalPercentage()=");
+        builder.append(getCapitalPercentage());
 //        builder.append(", firstPos=");
 //        builder.append(firstPos);
 //        builder.append(", lastPos=");
 //        builder.append(lastPos);
-//        builder.append(", stemmedValue=");
+        builder.append(", stemmedValue=");
         builder.append(stemmedValue);
-//        builder.append(", value=");
-//        builder.append(value);
+        builder.append(", value=");
+        builder.append(value);
 //        builder.append(", wordCount=");
 //        builder.append(wordCount);
-//        builder.append(", getFirstPosRel()=");
-//        builder.append(getFirstPosRel());
-//        builder.append(", getInverseDocumentFrequency()=");
-//        builder.append(getInverseDocumentFrequency());
-//        builder.append(", getTermFrequencyInverseDocumentFrequency()=");
-//        builder.append(getTermFrequencyInverseDocumentFrequency());
-//        builder.append(", getLastPosRel()=");
-//        builder.append(getLastPosRel());
-//        builder.append(", getLength()=");
-//        builder.append(getLength());
+        builder.append(", getFirstPosRel()=");
+        builder.append(getFirstPosRel());
+        builder.append(", getInverseDocumentFrequency()=");
+        builder.append(getInverseDocumentFrequency());
+        builder.append(", getTermFrequencyInverseDocumentFrequency()=");
+        builder.append(getTermFrequencyInverseDocumentFrequency());
+        builder.append(", getLastPosRel()=");
+        builder.append(getLastPosRel());
+        builder.append(", getLength()=");
+        builder.append(getLength());
 //        builder.append(", getSpread()=");
 //        builder.append(getSpread());
-//        builder.append(", getSpreadRel()=");
-//        builder.append(getSpreadRel());
-//        builder.append(", getWordCount()=");
-//        builder.append(getWordCount());
-//        builder.append("]");
+        builder.append(", getSpreadRel()=");
+        builder.append(getSpreadRel());
+        builder.append(", getWordCount()=");
+        builder.append(getWordCount());
+        builder.append("]");
         return builder.toString();
     }
     
