@@ -11,7 +11,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
-import org.w3c.dom.Document;
 
 import tud.iir.classification.Stopwords;
 import tud.iir.classification.WordCorrelation;
@@ -22,11 +21,8 @@ import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
-import tud.iir.web.Crawler;
 
 public class CandidateExtractor {
-
-    // private static final int RAM_SIZE = 1;
 
     private SnowballStemmer stemmer = new englishStemmer();
     private Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
@@ -34,31 +30,28 @@ public class CandidateExtractor {
 
     private Corpus corpus = new Corpus();
     private CandidateClassifier classifier = new CandidateClassifier();
-    
+
     private boolean controlledMode = false; // XXX testing
 
-    // private final static int MIN_GRAM_OCCURENCE = 2;
-
     public CandidateExtractor() {
-        // classifier.useTrainedClassifier();
         tokenizer.setUsePosTagging(false);
     }
 
     public void addToCorpus(String text) {
 
-        List<Token> tokens = tokenize2(text); // , GRAM_SIZE);
+        List<Token> tokens = tokenize2(text);
         corpus.addTokens(tokens);
 
     }
 
     public void addToCorpus(String text, Set<String> tags) {
 
-        List<Token> tokens = tokenize2(text); // , GRAM_SIZE);
+        List<Token> tokens = tokenize2(text);
         corpus.addTokens(tokens);
 
-        // XXX
-        tags = stem(tags);
 
+        // corpus contains the stemmed representations!
+        tags = stem(tags);
         corpus.addTags(tags);
 
     }
@@ -73,36 +66,14 @@ public class CandidateExtractor {
         classifier.useTrainedClassifier();
     }
 
-    //
-    // public void extractFromFile(String filePath) {
-    //
-    // final Counter c = new Counter();
-    // FileHelper.performActionOnEveryLine(filePath, new LineAction() {
-    //
-    // @Override
-    // public void performAction(String line, int lineNumber) {
-    //
-    // String[] split = line.split("#");
-    // c.increment();
-    //
-    // if (split.length > 2) {
-    // DocumentModel documentModel = makeCandidates(split[0]); //, 3);
-    // System.out.println(c + " " + documentModel.getCandidates().size());
-    // }
-    //
-    // }
-    // });
-    //
-    // }
-
     public float[] evaluate(String text, Set<String> tags) {
-        
+
         Set<String> stemmedTags = stem(tags);
 
         DocumentModel candidates = makeCandidates(text);
         List<Candidate> candidatesList = new ArrayList<Candidate>(candidates.getCandidates());
 
-        // experimental ::: filter out stopwords
+        // experimental ----- eliminate stopwords
         ListIterator<Candidate> li = candidatesList.listIterator();
         while (li.hasNext()) {
             Candidate current = li.next();
@@ -121,7 +92,7 @@ public class CandidateExtractor {
         }
 
         Collections.sort(candidatesList, new CandidateComparator());
-//        System.out.println("beforeReRanking: " + candidatesList);
+        // System.out.println("beforeReRanking: " + candidatesList);
 
         /*
          * for (Candidate c : candidatesList) {
@@ -131,18 +102,28 @@ public class CandidateExtractor {
 
         // / XXX experimental --- do re-raking
 
-        
         Candidate[] candidateArray = candidatesList.toArray(new Candidate[0]);
         int numReRanking = candidateArray.length * (candidateArray.length - 1) / 2;
 
-        final float correlationWeight = 30000;
+        final float correlationWeight = 90000;
 
         for (int i = 0; i < candidateArray.length; i++) {
             Candidate outerCand = candidateArray[i];
             for (int j = i; j < candidateArray.length; j++) {
                 Candidate innerCand = candidateArray[j];
-                WordCorrelation correlation = corpus.getCorrelation(outerCand.getStemmedValue().replace(" ",""),
-                        innerCand.getStemmedValue().replace(" ",""));
+
+                // 2010-11-24
+                String innerValue = innerCand.getStemmedValue();
+                if (innerValue.contains(" ")) {
+                    innerValue = innerCand.getValue().replaceAll(" ", "").toLowerCase();
+                }
+                String outerValue = outerCand.getStemmedValue();
+                if (outerValue.contains(" ")) {
+                    outerValue = outerCand.getValue().replaceAll(" ", "").toLowerCase();
+                }
+                // //
+
+                WordCorrelation correlation = corpus.getCorrelation(outerValue, innerValue);
                 if (correlation != null) {
                     float reRanking = (float) ((correlationWeight / numReRanking) * correlation
                             .getRelativeCorrelation());
@@ -155,10 +136,8 @@ public class CandidateExtractor {
         }
 
         Collections.sort(candidatesList, new CandidateComparator());
-        
-        
-        
-//        System.out.println("afterReRanking: " + candidatesList);
+
+        // System.out.println("afterReRanking: " + candidatesList);
 
         // / end experimental
 
@@ -166,36 +145,33 @@ public class CandidateExtractor {
             candidatesList.subList(10, candidatesList.size()).clear();
         }
 
-//        for (Candidate c : candidatesList) {
-//            System.out.println(c.getValue() + " " + c.getRegressionValue());
-//        }
+        // for (Candidate c : candidatesList) {
+        // System.out.println(c.getValue() + " " + c.getRegressionValue());
+        // }
+        int realCount = stemmedTags.size();
         
+        stemmedTags.addAll(tags); // XXX
 
         int correctlyAssigned = 0;
         for (Candidate candidate : candidatesList) {
             for (String realTag : stemmedTags) {
-                
-                // for debugging
-                /*if (candidate.getValue().contains(" ")) {
-                    System.out.println(" ----> " + candidate);
-                    System.exit(0);
-                }*/
-                
+
                 boolean isCorrectlyAssigned = false;
                 isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getStemmedValue());
                 isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getValue());
                 isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getValue().replace(" ", ""));
 
-                // if (realTag.equalsIgnoreCase(candidate.getStemmedValue())) {
                 if (isCorrectlyAssigned) {
                     correctlyAssigned++;
+                    break; // XXX
                 }
+                
 
             }
+            System.out.println(" " + candidate.getValue());
         }
 
         int totalAssigned = candidatesList.size();
-        int realCount = stemmedTags.size();
 
         float precision = (float) correctlyAssigned / totalAssigned;
         if (Float.isNaN(precision)) {
@@ -203,8 +179,8 @@ public class CandidateExtractor {
         }
         float recall = (float) correctlyAssigned / realCount;
 
-//        System.out.println("real: " + stemmedTags);
-//        System.out.println("assigned: " + candidatesList);
+        // System.out.println("real: " + stemmedTags);
+        // System.out.println("assigned: " + candidatesList);
         System.out.println("correctlyAssigned:" + correctlyAssigned);
         System.out.println("totalAssigned:" + totalAssigned);
         System.out.println("realCount: " + realCount);
@@ -222,7 +198,7 @@ public class CandidateExtractor {
     public DocumentModel makeCandidates(String text) {
 
         DocumentModel model = new DocumentModel(corpus);
-        List<Token> tokens = tokenize2(text); // , GRAM_SIZE);
+        List<Token> tokens = tokenize2(text);
 
         for (Token token : tokens) {
             model.addToken(token);
@@ -234,7 +210,6 @@ public class CandidateExtractor {
 
     }
 
-    // public List<Token> tokenize2(String text, int maxNGramSize) {
     public List<Token> tokenize2(String text) {
 
         List<Token> tokens = new ArrayList<Token>();
@@ -242,118 +217,12 @@ public class CandidateExtractor {
         List<Token> uniGrams = tokenizer.tokenize(text);
         List<Token> collocations = tokenizer.makeCollocations(uniGrams, 5);
 
-
         tokens.addAll(uniGrams);
         tokens.addAll(collocations);
-
-        // List<Token> gramTokens = new ArrayList<Token>();
-        //
-        // int textPosition = 0;
-        // int sentencePosition = 0;
-        // int sentenceNumber = 0;
-        //
-        // List<String> sentences = Tokenizer.getSentences(text);
-        //
-        // // if we have not sentence, just take the whole text.
-        // if (sentences.size() == 0) {
-        // sentences.add(text);
-        // }
-        //
-        // for (String sentence : sentences) {
-        //
-        // List<String> sentenceTokens = Tokenizer.tokenize(sentence);
-        // List<Token> thisSentenceTokens = new ArrayList<Token>();
-        //
-        // for (String string : sentenceTokens) {
-        //
-        // Token token = new Token();
-        // token.setUnstemmedValue(string);
-        // token.setStemmedValue(stem(string));
-        // token.setTextPosition(textPosition);
-        // token.setSentencePosition(sentencePosition);
-        // token.setSentenceNumber(sentenceNumber);
-        // // token.setWordCount(1);
-        // tokens.add(token);
-        // thisSentenceTokens.add(token);
-        //
-        // sentencePosition++;
-        // textPosition++;
-        // }
-        //
-        // // for (int i = 2; i <= maxNGramSize; i++) {
-        // // // tokens.addAll(nGrams);
-        // //
-        // // // XXX List<Token> nGrams = makeNGrams(thisSentenceTokens, i);
-        // // // XXX gramTokens.addAll(nGrams);
-        // //
-        // // List<TokenGroup> nGrams = makeNGrams2(thisSentenceTokens, i);
-        // // gramTokens.addAll(nGrams);
-        // //
-        // //
-        // // }
-        //
-        // sentencePosition = 0;
-        // sentenceNumber++;
-        //
-        // }
 
         return tokens;
 
     }
-
-    // private List<Token> makeNGrams(List<Token> tokens, int size) {
-    //
-    // List<Token> nGrams = new ArrayList<Token>();
-    // Token[] tokenArray = tokens.toArray(new Token[0]);
-    //
-    // for (int i = 0; i < tokenArray.length - size + 1; i++) {
-    //
-    // StringBuilder nGram = new StringBuilder();
-    // StringBuilder stemmedNGram = new StringBuilder();
-    // Token firstToken = tokenArray[i];
-    //
-    // for (int j = i; j < i + size; j++) {
-    // String tokenValue = tokenArray[j].getValue();
-    // nGram.append(tokenValue);
-    // stemmedNGram.append(stem(tokenValue));
-    // }
-    //
-    // if (nGram.length() > 0) {
-    // Token nGramToken = new Token();
-    // nGramToken.setValue(nGram.toString());
-    // nGramToken.setStemmedValue(stemmedNGram.toString());
-    // nGramToken.setTextPosition(firstToken.getTextPosition());
-    // nGramToken.setSentencePosition(firstToken.getSentencePosition());
-    // nGramToken.setWordCount(size);
-    // nGrams.add(nGramToken);
-    // }
-    // }
-    //
-    // return nGrams;
-    // }
-
-    // private List<TokenGroup> makeNGrams2(List<Token> tokens, int size) {
-    //
-    // // List<Token> nGrams = new ArrayList<Token>();
-    // List<TokenGroup> nGrams = new ArrayList<TokenGroup>();
-    //
-    // Token[] tokenArray = tokens.toArray(new Token[0]);
-    //
-    // for (int i = 0; i < tokenArray.length - size + 1; i++) {
-    //
-    // TokenGroup group = new TokenGroup();
-    //
-    // for (int j = i; j < i + size; j++) {
-    // Token t = tokenArray[j];
-    // group.addToken(t);
-    // }
-    //
-    // nGrams.add(group);
-    //
-    // }
-    //
-    // return nGrams;
-    // }
 
     public String stem(String unstemmed) {
         stemmer.setCurrent(unstemmed.toLowerCase());
@@ -371,35 +240,32 @@ public class CandidateExtractor {
     }
 
     public static void main(String[] args) {
-        
+
         final CandidateExtractor extractor = new CandidateExtractor();
-        
-//        String text3 = "Beijing Duck is mostly prized for the thin, crispy duck skin with authentic versions of the dish serving mostly the skin. Beijing Duck is delicious. Beijing Duck is expensive.";
-//        
-//        DocumentModel cnd2 = extractor.makeCandidates(text3);
-//        System.out.println(cnd2);
-//        
-//        System.exit(0);
 
-        
-//        Crawler crawler = new Crawler();
-//        
-//        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
-//        String text = HTMLHelper.htmlToString(doc);
-//        
-//        DocumentModel cnd = extractor.makeCandidates(text);
-//        cnd.cleanCandidates(5); // remove candidates which occur less than 5
-//        System.out.println(cnd);
-//
-//        System.exit(0);
-        
-        
+        // String text3 =
+        // "Beijing Duck is mostly prized for the thin, crispy duck skin with authentic versions of the dish serving mostly the skin. Beijing Duck is delicious. Beijing Duck is expensive.";
+        //
+        // DocumentModel cnd2 = extractor.makeCandidates(text3);
+        // System.out.println(cnd2);
+        //
+        // System.exit(0);
 
+        // Crawler crawler = new Crawler();
+        //
+        // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
+        // String text = HTMLHelper.htmlToString(doc);
+        //
+        // DocumentModel cnd = extractor.makeCandidates(text);
+        // cnd.cleanCandidates(5); // remove candidates which occur less than 5
+        // System.out.println(cnd);
+        //
+        // System.exit(0);
 
         // //////////////////////////////////////////////
         // CORPUS CREATION
         // //////////////////////////////////////////////
-        // createCorpus(extractor);
+        //createCorpus(extractor);
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
@@ -409,7 +275,7 @@ public class CandidateExtractor {
         // //////////////////////////////////////////////
         // EVALUATION
         // //////////////////////////////////////////////
-        evaluate(extractor);
+         evaluate(extractor);
 
         System.exit(0);
 
@@ -481,6 +347,7 @@ public class CandidateExtractor {
 
     }
 
+    @SuppressWarnings("unused")
     private static void evaluate(final CandidateExtractor extractor) {
         extractor.loadCorpus();
         final DescriptiveStatistics prStats = new DescriptiveStatistics();
@@ -524,6 +391,7 @@ public class CandidateExtractor {
 
     }
 
+    @SuppressWarnings("unused")
     private static void createCorpus(final CandidateExtractor extractor) {
         final Counter counter = new Counter();
 
@@ -554,6 +422,7 @@ public class CandidateExtractor {
         extractor.saveCorpus();
     }
 
+    @SuppressWarnings("unused")
     private static void createTrainData(final CandidateExtractor extractor) {
         extractor.loadCorpus();
 
@@ -568,36 +437,26 @@ public class CandidateExtractor {
                 String[] split = line.split("#");
 
                 if (split.length > 2) {
-                    DocumentModel candidates = extractor.makeCandidates(split[0]); // , 2);
+                    DocumentModel candidates = extractor.makeCandidates(split[0]);
 
                     Set<String> tags = new HashSet<String>();
                     for (int i = 1; i < split.length; i++) {
                         tags.add(split[i].toLowerCase());
                     }
 
-                    // XXX
-                    // tags = extractor.stem(tags);
-                    
-                    // XXX 2
+                    // ?
                     Set<String> stemmedTags = extractor.stem(tags);
                     tags.addAll(stemmedTags);
 
-//                    System.out.println(tags);
-
                     for (Candidate candidate : candidates.getCandidates()) {
-                        
+
                         boolean isCandidate = false;
                         isCandidate = isCandidate || tags.contains(candidate.getStemmedValue());
                         isCandidate = isCandidate || tags.contains(candidate.getValue());
                         isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
-                        
+
                         candidate.setPositive(isCandidate);
-                        
-//                        if (tags.contains(candidate.getStemmedValue())) {
-//                            candidate.setPositive(true);
-//                        } else {
-//                            candidate.setPositive(false);
-//                        }
+
                     }
 
                     if (counter.getCount() == 0) {

@@ -21,7 +21,9 @@ public class DocumentModel {
 
     private Corpus corpus;
 
+    // TODO make LazyMap.
     private Map<String, List<Token>> tokens = new LinkedHashMap<String, List<Token>>();
+    
     private List<Candidate> candidates;
     private int wordCount;
 
@@ -65,7 +67,11 @@ public class DocumentModel {
                 candidate.addPosition(token.getTextPosition());
                 candidate.incrementCount();
 
-                if (token.getSentencePosition() > 0 && StringHelper.startsUppercase(token.getUnstemmedValue())) {
+                boolean notAtSentenceStart = token.getSentencePosition() > 0;
+                boolean startsUppercase = StringHelper.startsUppercase(token.getUnstemmedValue());
+                boolean notCompletelyUppercase = !StringHelper.isCompletelyUppercase(token.getUnstemmedValue());
+                
+                if (notAtSentenceStart && startsUppercase && notCompletelyUppercase) {
                     candidate.incrementCapitalCount();
                 }
 
@@ -87,6 +93,9 @@ public class DocumentModel {
         }
 
         this.candidates = candidates;
+        
+        // save memory
+        tokens.clear();
 
     }
 

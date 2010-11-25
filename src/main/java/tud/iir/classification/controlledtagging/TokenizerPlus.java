@@ -184,6 +184,7 @@ public class TokenizerPlus {
                     continue;
                 }
 
+                // iterate over collocations parts (e.g. new--york--times)
                 for (int j = i; j < i + n; j++) {
 
                     Token currentToken = tokenArray[j];
@@ -240,7 +241,7 @@ public class TokenizerPlus {
                 // for example "New York Times" is more complete than "York Times".
                 boolean accept = true;
                 for (String existingStem : resultStems.uniqueSet()) {
-                    if (existingStem.contains(stemmedValue) && resultStems.getCount(existingStem) >= occurences * 0.55) { // TODO evaluate
+                    if (existingStem.contains(stemmedValue) && resultStems.getCount(existingStem) >= occurences * 0.95) { // TODO evaluate
                         accept = false;
                         break;
                     }
@@ -248,10 +249,14 @@ public class TokenizerPlus {
 
                 // the score determines, how many times a term appears with the specific collocation
                 float score = (float) occurences / minCount;
-                if (accept && occurences > 2 && score > 0.5) { // TODO evaluate
+                if (accept && occurences >= 2 && score > 0.25) { // TODO evaluate
                     result.addAll(entryTokens);
                     resultStems.add(stemmedValue, occurences);
                 }
+                
+                // settings 0.95 // 0.25 --> 0.3027 F1
+                // settings 0.95 // 0.15 --> 0,3019 F1
+                // settings 1 // 0 --> 0,3019 F1
 
             }
 
@@ -287,10 +292,10 @@ public class TokenizerPlus {
         // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Apple_iPhone");
         // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/San_Francisco");
         // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/%22Manos%22_The_Hands_of_Fate");
-        // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Cat");
+        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Cat");
         // Document doc = crawler.getWebDocument("http://edition.cnn.com/2010/TECH/social.media/11/19/social.media.isolation.project/index.html?hpt=C1");
         // Document doc = crawler.getWebDocument("http://blogs.reuters.com/mediafile/2010/11/18/ft-hearts-tablets-so-much-its-spreading-the-joy-among-staff/");
-        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
+        // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
         String text = HTMLHelper.htmlToString(doc);
 
         // String text = "the quick brown fox jumps over the lazy dog. brown foxes. brown fox. brown fox. fox";
@@ -315,6 +320,7 @@ public class TokenizerPlus {
             System.out.println(entry.getValue() + " " + entry.getKey());
         }
         System.out.println(sw.getElapsedTimeString());
+        System.out.println(sort.size());
 
         // CollectionHelper.print(tokens);
 
