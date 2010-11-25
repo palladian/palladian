@@ -96,7 +96,43 @@ public class DocumentModel {
         
         // save memory
         tokens.clear();
+        
+        
+        calculateCorrelations();
 
+    }
+    
+    private void calculateCorrelations() {
+        
+        Candidate[] candidateArray = candidates.toArray(new Candidate[0]);
+        
+        for (int i = 0; i < candidateArray.length; i++) {
+            Candidate outerCand = candidateArray[i];
+            for (int j = i; j < candidateArray.length; j++) {
+                Candidate innerCand = candidateArray[j];
+
+                // 2010-11-24
+                String innerValue = innerCand.getStemmedValue();
+                if (innerValue.contains(" ")) {
+                    innerValue = innerCand.getValue().replaceAll(" ", "").toLowerCase();
+                }
+                String outerValue = outerCand.getStemmedValue();
+                if (outerValue.contains(" ")) {
+                    outerValue = outerCand.getValue().replaceAll(" ", "").toLowerCase();
+                }
+                // //
+
+                WordCorrelation correlation = corpus.getCorrelation(outerValue, innerValue);
+                if (correlation != null) {
+                    double correlationValue = correlation.getRelativeCorrelation(); 
+                    innerCand.addCorrelation(correlationValue);
+                    outerCand.addCorrelation(correlationValue);
+
+                }
+
+            }
+        }
+        
     }
 
     public int getCandidateCount() {

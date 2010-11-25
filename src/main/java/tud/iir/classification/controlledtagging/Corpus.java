@@ -68,25 +68,5 @@ public class Corpus implements Serializable {
     public WordCorrelation getCorrelation(String term1, String term2) {
         return wcm.getCorrelation(term1, term2);
     }
-    
-    // I moved this to WCM.
-    
-//    /**
-//     * Add a list of tags to the WordCorrelationMatrix, for a set with size n, we will add
-//     * <code>(n - 1) + (n - 2) + ... + 1 = (n * (n - 1)) / 2</code> correlations.
-//     * 
-//     * TODO move this to the CorrelationMatrix?
-//     * 
-//     * @param tags
-//     */
-//    private void addToWcm(Set<String> tags) {
-//        String[] tagArray = tags.toArray(new String[tags.size()]);
-//
-//        for (int i = 0; i < tagArray.length; i++) {
-//            for (int j = i + 1; j < tagArray.length; j++) {
-//                wcm.updatePair(tagArray[i], tagArray[j]);
-//            }
-//        }
-//    }
 
 }
