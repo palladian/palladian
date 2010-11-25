@@ -7,25 +7,21 @@ import tud.iir.classification.FeatureObject;
 import weka.core.SerializationHelper;
 
 public class CandidateClassifier extends Classifier {
-    
+
     /** The class logger. */
     private static final Logger LOGGER = Logger.getLogger(CandidateClassifier.class);
 
     public CandidateClassifier() {
         super(Classifier.NEURAL_NETWORK);
-        //super(Classifier.LINEAR_REGRESSION);
+        // super(Classifier.LINEAR_REGRESSION);
     }
-    
-    public /*double*/ void classify(Candidate candidate) {
-        //System.out.println("classify " + candidate);
+
+    public void classify(Candidate candidate) {
         FeatureObject featureObject = new FeatureObject(candidate.getFeatures());
         double result = classifySoft(featureObject)[0];
-//        assert !Double.isNaN(result);
-        //System.out.println(result.length + " " + result[0]);
-        //return result[0];
         candidate.setRegressionValue((float) result);
     }
-    
+
     // overridden in order to create the necessary weka attributes before classifying.
     // this is necessary, when the classifier is deserialized, as we dont have the feature names
     // in the serialized model.
@@ -42,7 +38,7 @@ public class CandidateClassifier extends Classifier {
         return super.classifySoft(fo);
 
     }
-    
+
     /**
      * Use an already trained classifier.
      * 
@@ -58,7 +54,7 @@ public class CandidateClassifier extends Classifier {
             LOGGER.error(e);
         }
     }
-    
+
     public void loadTrainedClassifier(String filePath) {
         try {
             weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
@@ -81,7 +77,7 @@ public class CandidateClassifier extends Classifier {
             LOGGER.error(e);
         }
     }
-    
+
     /**
      * Get the file name for serializing/deserializing the trained classifier.
      * 
@@ -92,11 +88,10 @@ public class CandidateClassifier extends Classifier {
     public String getFileName() {
         return "data/models/CandidateClassifier_" + getChosenClassifierName() + ".model";
     }
-    
-    
+
     public static void main(String[] args) {
         CandidateClassifier c = new CandidateClassifier();
-        //c.trainClassifier("train_1000.csv");
+        // c.trainClassifier("train_1000.csv");
         c.trainClassifier("train_1000_new.csv");
         // 100 -> 7 MB
         // 250 -> 20 MB

@@ -4,6 +4,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.math.stat.descriptive.SummaryStatistics;
+
 import tud.iir.helper.Tokenizer;
 
 /**
@@ -24,9 +26,12 @@ public class Candidate {
     private int lastPos = Integer.MIN_VALUE;
     private Boolean positive;
     private float regressionValue;
+    
+    private SummaryStatistics correlationStats = new SummaryStatistics(); // TODO
 
     public Candidate(DocumentModel document) {
         this.document = document;
+        correlationStats.addValue(0);
     }
 
     public void setValue(String value) {
@@ -139,6 +144,26 @@ public class Candidate {
         // return document.getPrior(this.getValue().toLowerCase());
         return document.getPrior(this.getStemmedValue().toLowerCase());
     }
+    
+    public void addCorrelation(double correlation) {
+        correlationStats.addValue(correlation);
+    }
+    
+    public double getCorrelationSum() {
+        return correlationStats.getSum();
+    }
+    public double getCorrelationMax() {
+        return correlationStats.getMax();
+    }
+    public double getCorrelationMin() {
+        return correlationStats.getMin();
+    }
+    public double getCorrelationMean() {
+        return correlationStats.getMean();
+    }
+    public int getCorrelationCount() {
+        return (int) correlationStats.getN() - 1;
+    }
 
     public void setPositive(Boolean positive) {
         this.positive = positive;
@@ -171,6 +196,15 @@ public class Candidate {
         features.put("spreadRelative", (double) getSpreadRel());
         features.put("length", (double) getLength());
         features.put("prior", (double) getPrior());
+        
+        features.put("correlationSum", getCorrelationSum());
+        features.put("correlationMax", getCorrelationMax());
+        features.put("correlationMin", getCorrelationMin());
+        features.put("correlationMean", getCorrelationMean());
+        features.put("correlationCount", (double) getCorrelationCount());
+        
+        // TODO
+        // posFeatures
 
         // value for the Classifier, if we are in training mode.
         if (positive != null) {
@@ -182,6 +216,7 @@ public class Candidate {
             double value = entry.getValue();
             if (Double.isNaN(value) || Double.isInfinite(value)) {
                 System.out.println(entry.getKey());
+                throw new RuntimeException();
             }
         }
 
