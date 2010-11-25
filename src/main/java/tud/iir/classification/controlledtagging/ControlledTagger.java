@@ -81,7 +81,8 @@ public class ControlledTagger {
         }
 
         if (settings.getCorrelationType() != TaggingCorrelationType.NO_CORRELATIONS) {
-            addToWcm(stemmedTags.uniqueSet());
+            // addToWcm(stemmedTags.uniqueSet());
+            index.getWcm().updateGroup(stemmedTags.uniqueSet());
         }
 
         if (tags.size() > 0) {
@@ -123,23 +124,23 @@ public class ControlledTagger {
         train("", tags);
     }
 
-    /**
-     * Add a list of tags to the WordCorrelationMatrix, for a set with size n, we will add
-     * <code>(n - 1) + (n - 2) + ... + 1 = (n * (n - 1)) / 2</code> correlations.
-     * 
-     * TODO move this to the CorrelationMatrix?
-     * 
-     * @param tags
-     */
-    private void addToWcm(Set<String> tags) {
-        String[] tagArray = tags.toArray(new String[tags.size()]);
-
-        for (int i = 0; i < tagArray.length; i++) {
-            for (int j = i + 1; j < tagArray.length; j++) {
-                index.getWcm().updatePair(tagArray[i], tagArray[j]);
-            }
-        }
-    }
+//    /**
+//     * Add a list of tags to the WordCorrelationMatrix, for a set with size n, we will add
+//     * <code>(n - 1) + (n - 2) + ... + 1 = (n * (n - 1)) / 2</code> correlations.
+//     * 
+//     * TODO move this to the CorrelationMatrix?
+//     * 
+//     * @param tags
+//     */
+//    private void addToWcm(Set<String> tags) {
+//        String[] tagArray = tags.toArray(new String[tags.size()]);
+//
+//        for (int i = 0; i < tagArray.length; i++) {
+//            for (int j = i + 1; j < tagArray.length; j++) {
+//                index.getWcm().updatePair(tagArray[i], tagArray[j]);
+//            }
+//        }
+//    }
 
     /**
      * Updates the index conditionally, if needed. This allows incremental training.

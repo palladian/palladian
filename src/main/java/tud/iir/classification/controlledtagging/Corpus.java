@@ -8,6 +8,7 @@ import java.util.Set;
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.bag.HashBag;
 
+import tud.iir.classification.FastWordCorrelationMatrix;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.classification.WordCorrelationMatrix;
 
@@ -20,7 +21,8 @@ public class Corpus implements Serializable {
 
     private int idfCount;
     
-    private WordCorrelationMatrix wcm = new WordCorrelationMatrix();
+    // private WordCorrelationMatrix wcm = new WordCorrelationMatrix();
+    private WordCorrelationMatrix wcm = new FastWordCorrelationMatrix();
 
     public void addTokens(List<Token> tokens) {
         Set<String> temp = new HashSet<String>();
@@ -35,7 +37,8 @@ public class Corpus implements Serializable {
     public void addTags(Set<String> tags) {
         controlledIndex.addAll(tags);
         // TODO no wcm for now.
-        addToWcm(tags);
+        //addToWcm(tags);
+        wcm.updateGroup(tags);
     }
     
     public float getInverseDocumentFrequency(String term) {
@@ -66,22 +69,24 @@ public class Corpus implements Serializable {
         return wcm.getCorrelation(term1, term2);
     }
     
-    /**
-     * Add a list of tags to the WordCorrelationMatrix, for a set with size n, we will add
-     * <code>(n - 1) + (n - 2) + ... + 1 = (n * (n - 1)) / 2</code> correlations.
-     * 
-     * TODO move this to the CorrelationMatrix?
-     * 
-     * @param tags
-     */
-    private void addToWcm(Set<String> tags) {
-        String[] tagArray = tags.toArray(new String[tags.size()]);
-
-        for (int i = 0; i < tagArray.length; i++) {
-            for (int j = i + 1; j < tagArray.length; j++) {
-                wcm.updatePair(tagArray[i], tagArray[j]);
-            }
-        }
-    }
+    // I moved this to WCM.
+    
+//    /**
+//     * Add a list of tags to the WordCorrelationMatrix, for a set with size n, we will add
+//     * <code>(n - 1) + (n - 2) + ... + 1 = (n * (n - 1)) / 2</code> correlations.
+//     * 
+//     * TODO move this to the CorrelationMatrix?
+//     * 
+//     * @param tags
+//     */
+//    private void addToWcm(Set<String> tags) {
+//        String[] tagArray = tags.toArray(new String[tags.size()]);
+//
+//        for (int i = 0; i < tagArray.length; i++) {
+//            for (int j = i + 1; j < tagArray.length; j++) {
+//                wcm.updatePair(tagArray[i], tagArray[j]);
+//            }
+//        }
+//    }
 
 }
