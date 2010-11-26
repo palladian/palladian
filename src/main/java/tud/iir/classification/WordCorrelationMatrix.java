@@ -74,6 +74,22 @@ public class WordCorrelationMatrix implements Serializable {
             wc.increaseAbsoluteCorrelation(1.0);
         }
     }
+    
+    /**
+     * Add a list of tags to the WordCorrelationMatrix, for a set with size n, we will add
+     * <code>(n - 1) + (n - 2) + ... + 1 = (n * (n - 1)) / 2</code> correlations.
+     * 
+     * @param tags
+     */
+    public void updateGroup(Set<String> words) {
+        String[] tagArray = words.toArray(new String[words.size()]);
+
+        for (int i = 0; i < tagArray.length; i++) {
+            for (int j = i + 1; j < tagArray.length; j++) {
+                updatePair(tagArray[i], tagArray[j]);
+            }
+        }
+    }
 
     /**
      * Get Term from termMap if present, elsewise create new Term instance and put it in the Map for caching.
