@@ -263,7 +263,7 @@ public class PageAnalyzer {
      * @param xPathSet A set of xPaths.
      * @return A string representing the mutual xPath.
      */
-    public String makeMutualXPath(HashSet<String> xPathSet) {
+    public String makeMutualXPath(Set<String> xPathSet) {
 
         if (xPathSet.isEmpty()) {
             return "";
