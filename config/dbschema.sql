@@ -13,6 +13,9 @@ MySQL - 5.1.47-community : Database - tudiirdb
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+SET GLOBAL log_bin_trust_function_creators = FALSE;
+
 CREATE DATABASE /*!32312 IF NOT EXISTS*/`tudiirdb` /*!40100 DEFAULT CHARACTER SET latin1 */;
 
 USE `tudiirdb`;
@@ -285,7 +288,7 @@ CREATE TABLE `feed_entries` (
 
 DROP TABLE IF EXISTS `feeds`;
 
-CREATE TABLE `feeds` (
+/*CREATE TABLE `feeds` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `feedUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `siteUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -299,18 +302,43 @@ CREATE TABLE `feeds` (
   `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
   `lastHeadlines` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
   `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
-  `lastFeedEntry` timestamp DEFAULT NULL COMMENT 'the timestamp of the most recent item in the feed',
-	`activityPattern` int(11) DEFAULT = -1 COMMENT 'the activity pattern of the feed',
-  `lastEtag` varchar(255) DEFAULT NULL 'the Etag that was retrieved at the poll in case the feed supports Etags',
-  `lastPollTime` timestamp DEFAULT NULL 'the timestamp of the last poll (use for conditional get with last modified since)',
+  `lastFeedEntry` datetime DEFAULT NULL COMMENT 'the timestamp of the most recent item in the feed',
+	`activityPattern` int(11) DEFAULT 0 COMMENT 'the activity pattern of the feed',
+/*`lastEtag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL 'the Etag that was retrieved at the poll in case the feed supports Etags',
+  `lastPollTime` datetime DEFAULT NULL 'the timestamp of the last poll (use for conditional get with last modified since)',
 	`supportsETag` BOOLEAN DEFAULT NULL COMMENT 'whether the feed supports ETags',
 	`supportsLMS` BOOLEAN DEFAULT NULL COMMENT 'whether the feed answers correctly on conditional get requests with last modified since headers',
   `conditionalGetResponseSize` BOOLEAN DEFAULT NULL COMMENT 'the header size if a conditional get returns 304 (not modified)',
   `updateClass` int(11) DEFAULT '0',
-  `lastFeedEntry` text COLLATE utf8_unicode_ci,
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+		 */
+		 
+CREATE TABLE `feeds` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feedUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `siteUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `format` tinyint(4) NOT NULL,
+  `textType` tinyint(4) NOT NULL,
+  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `language` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `checks` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed has been retrieved and read',
+  `minCheckInterval` int(11) unsigned NOT NULL DEFAULT '30' COMMENT 'time in minutes until it is expected to find at least one new entry in the feed',
+  `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes until it is expected to find only new but one new entries in the feed',
+  `lastHeadlines` longtext COLLATE utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
+  `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
+  `lastFeedEntry` timestamp NULL DEFAULT NULL COMMENT 'timestamp of the last feed entry found in this feed',
+  `activityPattern` int(11) NOT NULL DEFAULT '-1' COMMENT 'update class of the feed',
+  `supportsLMS` tinyint(1) DEFAULT NULL,
+  `supportsETag` tinyint(1) DEFAULT NULL,
+  `conditionalGetResponseSize` int(11) DEFAULT NULL,
+  `lastPollTime` timestamp NULL DEFAULT NULL,
+  `lastETag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `feedUrl` (`feedUrl`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 DROP TABLE IF EXISTS `feed_evaluation_polls`;
 
@@ -357,12 +385,16 @@ CREATE TABLE `feeds_post_distribution` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 
+DROP TABLE IF EXISTS `feed_entries_tags`;
+
 CREATE TABLE `feed_entries_tags` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_unique` (`name`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+DROP TABLE IF EXISTS `feed_entry_tag`;
 
 CREATE TABLE `feed_entry_tag` (
   `entryId` int(10) unsigned NOT NULL,
@@ -556,6 +588,9 @@ CREATE TABLE `wishes` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
+
+SET GLOBAL log_bin_trust_function_creators = FALSE;
+
 /* Function  structure for function  `avgWordLength` */
 
 /*!50003 DROP FUNCTION IF EXISTS `avgWordLength` */;
@@ -633,7 +668,7 @@ DELIMITER ;
 /*!50003 DROP FUNCTION IF EXISTS `source_voting_function` */;
 DELIMITER $$
 
-/*!50003 CREATE DEFINER=`root`@`localhost` FUNCTION `source_voting_function`() RETURNS bigint(20)
+/*!50003 CREATE DEFINER=`root`@`localhost` FUNCTION `source_voting_function`() RETURNS bigint(20) DETERMINISTIC
 BEGIN
   DECLARE done INT DEFAULT 0;
   DECLARE counter INT DEFAULT 0;
