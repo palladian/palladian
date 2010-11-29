@@ -59,7 +59,7 @@ public class WhoClassifier extends Classifier {
 
             return (float) fDistribution[0];
         } catch (final Exception e) {
-            LOGGER.error(e);
+            e.printStackTrace();
             return 0;
         }
 
@@ -80,7 +80,7 @@ public class WhoClassifier extends Classifier {
             weka.core.SerializationHelper.write(
                     "data/learnedClassifiers/who.model", getClassifier());
         } catch (final Exception e) {
-            LOGGER.error(e);
+            e.printStackTrace();
         }
 
     }
@@ -112,7 +112,7 @@ public class WhoClassifier extends Classifier {
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedClassifier);
         } catch (final Exception e) {
-            LOGGER.error(e);
+            e.printStackTrace();
         }
     }
 
@@ -145,7 +145,7 @@ public class WhoClassifier extends Classifier {
 
             eventMap.put(url, EventExtractor.extractEventFromURL(url));
 
-            featureExtractor.setEntityFeatures(eventMap);
+            featureExtractor.setAnnotationFeatures(eventMap);
 
             List<String> whos = new ArrayList<String>();
 
@@ -171,8 +171,10 @@ public class WhoClassifier extends Classifier {
      */
     public static void main(String[] args) {
 
+        LOGGER.info("classifier runs");
         final WhoClassifier wc = new WhoClassifier(Classifier.LINEAR_REGRESSION);
         wc.collectTrainingData("data/features/who.csv");
+
         // wc.trainClassifier("data/features/who.csv");
 
         // wc.useTrainedClassifier("data/learnedClassifiers/who.model");

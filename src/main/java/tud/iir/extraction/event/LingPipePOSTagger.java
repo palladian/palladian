@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
@@ -19,13 +22,29 @@ import com.aliasi.util.FastCache;
 
 public class LingPipePOSTagger extends AbstractPOSTagger {
 
+    private final String MODEL;
+
     public LingPipePOSTagger() {
         setName("LingPipe POS-Tagger");
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (ConfigurationException e) {
+            LOGGER.error("could not get modepath from config/models.conf, "
+                    + e.getMessage());
+        }
+
+        if (config != null) {
+            MODEL = config.getString("models.lingpipe.en.postag");
+        } else {
+            MODEL = "";
+        }
     }
 
     @Override
     public boolean loadModel() {
-        this.loadModel(MODEL_LINGPIPE_BROWN_HMM);
+        this.loadModel(MODEL);
         return false;
     }
 

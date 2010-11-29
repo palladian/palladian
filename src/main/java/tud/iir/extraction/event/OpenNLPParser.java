@@ -1,6 +1,26 @@
 package tud.iir.extraction.event;
 
-import opennlp.tools.parser.AbstractBottomUpParser;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import opennlp.tools.cmdline.parser.ParserTool;
+import opennlp.tools.coref.DiscourseEntity;
+import opennlp.tools.coref.LinkerMode;
+import opennlp.tools.coref.mention.DefaultParse;
+import opennlp.tools.coref.mention.Mention;
+import opennlp.tools.lang.english.TreebankLinker;
+import opennlp.tools.parser.Parse;
+import opennlp.tools.parser.ParserFactory;
+import opennlp.tools.parser.ParserModel;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
@@ -13,8 +33,24 @@ public class OpenNLPParser extends AbstractParser {
 
     private opennlp.tools.parser.Parse parse;
 
+    private final String MODEL;
+
     public OpenNLPParser() {
-        setName("OpenNLP Parser");
+        this.setName("OpenNLP Parser");
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (ConfigurationException e) {
+            LOGGER.error("could not get model path from config/models.conf, "
+                    + e.getMessage());
+        }
+
+        if (config != null) {
+            MODEL = config.getString("models.opennlp.en.parser");
+        } else {
+            MODEL = "";
+        }
     }
 
     @Override
@@ -33,15 +69,13 @@ public class OpenNLPParser extends AbstractParser {
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
 
-                final int beamSize = AbstractBottomUpParser.defaultBeamSize;
-                final double advancePercentage = AbstractBottomUpParser.defaultAdvancePercentage;
-
-                parser = null;// FIXME: TreebankParser.getParser(configModelPath, true, false,beamSize,
-                              // advancePercentage);
+                InputStream modelIn = new FileInputStream(configModelPath);
+                ParserModel model = new ParserModel(modelIn);
+                parser = ParserFactory.create(model);
                 DataHolder.getInstance().putDataObject(configModelPath, parser);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + getName() + " from file "
+                LOGGER.info("Reading " + this.getName() + " from file "
                         + configModelPath + " in "
                         + stopWatch.getElapsedTimeString());
             }
@@ -49,7 +83,7 @@ public class OpenNLPParser extends AbstractParser {
             setModel(parser);
 
             return true;
-        } catch (Exception e) {
+        } catch (final IOException e) {
             LOGGER.error(e);
             return false;
         }
@@ -57,7 +91,7 @@ public class OpenNLPParser extends AbstractParser {
 
     @Override
     public boolean loadModel() {
-        return this.loadModel(MODEL_PARSE_ONLP);
+        return this.loadModel(MODEL);
     }
 
     /**
@@ -98,11 +132,12 @@ public class OpenNLPParser extends AbstractParser {
      */
     public opennlp.tools.parser.Parse[] getFullParse(String sentence) {
 
-        opennlp.tools.parser.Parse[] parse = null;
+        opennlp.tools.parser.Parse[] parse;
 
-        if ((opennlp.tools.parser.Parser) getModel() != null
+        if (((opennlp.tools.parser.Parser) getModel()) != null
                 && sentence.length() > 0) {
-            // FIXME:parse = TreebankParser.parseLine(sentence,((opennlp.tools.parser.Parser) getModel()), 1);
+            parse = ParserTool.parseLine(sentence,
+                    ((opennlp.tools.parser.Parser) getModel()), 1);
 
         } else {
             parse = null;
@@ -125,4 +160,66 @@ public class OpenNLPParser extends AbstractParser {
         this.parse = parse;
     }
 
+    /**
+     * Identifies coreferences in an array of full parses of sentences.
+     * 
+     * @param parses
+     *            array of full parses of sentences
+     */
+    public static void link(Parse[] parses) {
+        int sentenceNumber = 0;
+        List<Mention> document = new ArrayList<Mention>();
+
+        TreebankLinker linker;
+        try {
+            if (DataHolder.getInstance().containsDataObject(
+                    "data/models/opennlp/coref/")) {
+                linker = (TreebankLinker) DataHolder.getInstance()
+                        .getDataObject("data/models/opennlp/coref/");
+
+            } else {
+
+                linker = new TreebankLinker("data/models/opennlp/coref/",
+                        LinkerMode.TEST);
+                DataHolder.getInstance().putDataObject(
+                        "data/models/opennlp/coref/", linker);
+            }
+            DiscourseEntity[] entities = linker
+                    .getEntities((Mention[]) document
+                            .toArray(new Mention[document.size()]));
+
+            CollectionHelper.print(entities);
+
+            for (Parse parse : parses) {
+                DefaultParse dp = new DefaultParse(parse, sentenceNumber);
+                Mention[] extents = linker.getMentionFinder().getMentions(dp);
+
+                // construct new parses for mentions which do not have
+                // constituents
+                for (int i = 0; i < extents.length; i++)
+                    if (extents[i].getParse() == null) {
+                        opennlp.tools.parser.Parse snp = new Parse(parse
+                                .getText(), extents[i].getSpan(), "NML", 1.0, i);
+                        parse.insert(snp);
+                        extents[i].setParse(new DefaultParse(snp,
+                                sentenceNumber));
+                    }
+
+                document.addAll(Arrays.asList(extents));
+                sentenceNumber++;
+            }
+
+            if (document.size() > 0) {
+                // Mention[] ms = document.toArray(new
+                // Mention[document.size()]);
+                // DiscourseEntity[] entities = linker.getEntities(ms);
+                // TODO return results in an appropriate data structure
+                CollectionHelper.print(document);
+            }
+
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+    }
 }

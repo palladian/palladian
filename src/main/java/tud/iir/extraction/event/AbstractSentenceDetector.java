@@ -15,14 +15,10 @@ public abstract class AbstractSentenceDetector {
 
     /** the logger for this class */
     protected static final Logger LOGGER = Logger
-            .getLogger(PhraseChunker.class);
+            .getLogger(AbstractSentenceDetector.class);
 
     /** base model path */
     protected static final String MODEL_PATH = "data/models/";
-
-    /** model for opennlp sentence detection */
-    protected static final String MD_SBD_ONLP = MODEL_PATH
-            + "opennlp/sentdetect/EnglishSD.bin.gz";
 
     /** holds the model. **/
     private Object model;

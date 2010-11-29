@@ -11,10 +11,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.FeatureObject;
@@ -22,7 +20,6 @@ import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.tagger.LingPipeNER;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.knowledge.Entity;
@@ -40,7 +37,8 @@ import com.aliasi.coref.WithinDocCoref;
 public class EventFeatureExtractor {
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(EventExtractor.class);
+    private static final Logger LOGGER = Logger
+            .getLogger(EventFeatureExtractor.class);
 
     /** Instance of this EventFeatureExtractor. **/
     private static EventFeatureExtractor instance = null;
@@ -52,10 +50,10 @@ public class EventFeatureExtractor {
     private static final String MODEL_NER_LINGPIPE = MODEL_PATH
             + "lingpipe/ne-en-news-muc6.AbstractCharLmRescoringChunker";
 
-    private static final double CATEGORY_PERSON = 1.0;
-    private static final double CATEGORY_LOCATION = 2.0;
-    private static final double CATEGORY_ORG = 3.0;
-    private static final double CATEGORY_NOUN = 4.0;
+    public static final double CATEGORY_PERSON = 1.0;
+    public static final double CATEGORY_LOCATION = 2.0;
+    public static final double CATEGORY_ORG = 3.0;
+    public static final double CATEGORY_NOUN = 4.0;
 
     /** The NamedEntityRecognizer. **/
     private static NamedEntityRecognizer ner = new LingPipeNER();
@@ -92,7 +90,8 @@ public class EventFeatureExtractor {
      * @param event
      */
     public void setFeatures(Event event) {
-        setEntityFeatures(event);
+        setAnnotations(event);
+        setAnnotationFeatures(event);
     }
 
     /**
@@ -100,12 +99,12 @@ public class EventFeatureExtractor {
      * 
      * @param eventMap
      */
-    public void setEntityFeatures(Map<String, Event> eventMap) {
+    public void setAnnotationFeatures(Map<String, Event> eventMap) {
 
         for (final Entry<String, Event> entry : eventMap.entrySet()) {
             final Event event = entry.getValue();
             if (event != null && event.getText() != null) {
-                setEntityFeatures(event);
+                setAnnotationFeatures(event);
             }
         }
 
@@ -116,7 +115,7 @@ public class EventFeatureExtractor {
      * 
      * @param event
      */
-    public void setEntityFeatures(Event event) {
+    public void setAnnotationFeatures(Event event) {
 
         final HashMap<Integer, Annotations> corefAnnotations = (HashMap<Integer, Annotations>) getCoreferenceAnnotations(event);
         final HashMap<Annotations, FeatureObject> annotationFeatures = new HashMap<Annotations, FeatureObject>();
@@ -126,7 +125,7 @@ public class EventFeatureExtractor {
         for (final Entry<Integer, Annotations> entry : corefAnnotations
                 .entrySet()) {
             annotationFeatures.put(entry.getValue(),
-                    calculateEntityAnnotationFeatures(event, entry.getValue()));
+                    calculateAnnotationFeatures(event, entry.getValue()));
         }
 
         // setting entity features for the chunks
@@ -140,14 +139,16 @@ public class EventFeatureExtractor {
      * @param event
      * @return
      */
-    public Map<Integer, Annotations> getCoreferenceAnnotations(Event event) {
+    private Map<Integer, Annotations> getCoreferenceAnnotations(Event event) {
 
         LOGGER.info("performing coreference: " + event.getTitle());
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
 
         final MentionFactory mfactory = new EnglishMentionFactory();
         final WithinDocCoref coref = new WithinDocCoref(mfactory);
 
-        final Annotations annotations = getEntityAnnotations(event);
+        final Annotations annotations = event.getAnnotations();
         final HashMap<Integer, Annotations> corefAnnotationMap = new HashMap<Integer, Annotations>();
 
         int mentionId;
@@ -180,6 +181,10 @@ public class EventFeatureExtractor {
             }
         }
 
+        stopWatch.stop();
+        LOGGER.info("NER + coreference Resolution took: "
+                + stopWatch.getElapsedTime());
+
         return corefAnnotationMap;
 
     }
@@ -191,7 +196,7 @@ public class EventFeatureExtractor {
      * @param chunkSet
      * @return
      */
-    private static FeatureObject calculateEntityAnnotationFeatures(Event event,
+    private static FeatureObject calculateAnnotationFeatures(Event event,
             Annotations annotations) {
 
         final HashMap<String, Double> featureMap = new HashMap<String, Double>();
@@ -255,7 +260,7 @@ public class EventFeatureExtractor {
      * @param event
      * @return
      */
-    public Annotations getNounAnnotations(String text) {
+    private Annotations getNounAnnotations(String text) {
 
         phraseChunker.loadModel();
         phraseChunker.chunk(text);
@@ -277,25 +282,18 @@ public class EventFeatureExtractor {
     }
 
     /**
-     * performs Namend Entity Recognition on the given event
+     * performs Namend Entity Recognition on the given event and annotates nouns
+     * in headline
      * 
      * @param event
      * @return
      */
-    public Annotations getEntityAnnotations(Event event) {
+    private void setAnnotations(Event event) {
 
         // NamedEntityRecognizer ner = new LingPipeNER();
         // NamedEntityRecognizer ner = new IllinoisLbjNER();
         // NamedEntityRecognizer ner = new AlchemyNER();
         // NamedEntityRecognizer ner = new OpenCalaisNER();
-        if (ner == null) {
-            ner = new LingPipeNER();
-        }
-
-        if (ner.getModel() == null) {
-            // ner.loadModel("data/models/ner-eng-ie.crf-3-all2008.ser.gz");
-            ner.loadModel(MODEL_NER_LINGPIPE);
-        }
 
         // NamedEntityRecognizer ner = new TUDNER();
         final Annotations annotations = new Annotations();
@@ -312,12 +310,17 @@ public class EventFeatureExtractor {
                     annotations.add(annotation);
                 }
             }
-
         }
 
         annotations.addAll(textAnnotations);
 
-        return annotations;
+        event.setAnnotations(annotations);
+
+    }
+
+    public TagAnnotations getPOSTags(String sentence) {
+        posTagger.tag(sentence);
+        return posTagger.getTagAnnotations();
     }
 
     /**
@@ -327,9 +330,9 @@ public class EventFeatureExtractor {
      *            - The sentence
      * @return The part of speach tags.
      */
-    public void getPhraseChunks(String sentence) {
+    public TagAnnotations getPhraseChunks(String sentence) {
         phraseChunker.chunk(sentence);
-        LOGGER.info(phraseChunker.getTagAnnotations().getTaggedString());
+        return phraseChunker.getTagAnnotations();
     }
 
     /**
@@ -351,9 +354,9 @@ public class EventFeatureExtractor {
      * @param sentence
      * @return
      */
-    public String[] getSentences(String sentence) {
+    public String[] getSentences(String text) {
         sentenceDetector.loadModel();
-        sentenceDetector.detect(sentence);
+        sentenceDetector.detect(text);
         return sentenceDetector.getSentences();
     }
 
@@ -545,38 +548,27 @@ public class EventFeatureExtractor {
         sw.start();
 
         // CollectionHelper.print(getNounAnnotations("this is my sentence"));
+        /*
+         * posTagger.loadModel(); posTagger.tag(event1.getTitle());
+         * CollectionHelper.print(posTagger.getTagAnnotations());
+         * phraseChunker.loadModel(); phraseChunker.chunk(event1.getTitle());
+         * CollectionHelper.print(phraseChunker.getTagAnnotations());
+         * parser.loadModel(); parser.parse(event1.getTitle());
+         * CollectionHelper.print(parser.getTagAnnotations());
+         */
 
-        posTagger.loadModel();
+        // EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
+        LOGGER.setLevel(Level.ALL);
         posTagger.tag(event1.getTitle());
-        CollectionHelper.print(posTagger.getTagAnnotations());
+        LOGGER.info(posTagger.getTagAnnotations().getTaggedString());
 
-        phraseChunker.loadModel();
         phraseChunker.chunk(event1.getTitle());
-        CollectionHelper.print(phraseChunker.getTagAnnotations());
-
-        parser.loadModel();
-        parser.parse(event1.getTitle());
-        CollectionHelper.print(parser.getTagAnnotations());
-
-        try {
-            final Pattern p = Pattern.compile("(.*)/N(.*)/V(.*?)/N(.*)");
-
-            final Matcher m = p.matcher(event1.getTitle());
-
-            while (m.find()) {
-                for (int i = 1; i <= m.groupCount(); i++) {
-                    LOGGER.info(m.group(i) + " (" + m.start(i) + "," + m.end(i)
-                            + ")");
-
-                }
-            }
-        } catch (final PatternSyntaxException e) {
-            LOGGER.error("Regex syntax error: " + e.getMessage());
-            LOGGER.error("Error description: " + e.getDescription());
-            LOGGER.error("Error index: " + e.getIndex());
-            LOGGER.error("Erroneous pattern: " + e.getPattern());
-            return;
-        }
+        LOGGER.info(phraseChunker.getTagAnnotations().getTaggedString());
+        /*
+         * parser.loadModel(); for (String str :
+         * featureExtractor.getSentences(event1.getText())) { ((OpenNLPParser)
+         * parser).link(((OpenNLPParser) parser) .getFullParse(str)); }
+         */
 
         // PhraseChunker pc = new PhraseChunker(PhraseChunker.CHUNKER_OPENNLP);
         // pc.chunk(event.getTitle());
