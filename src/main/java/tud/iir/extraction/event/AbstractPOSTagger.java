@@ -16,30 +16,11 @@ public abstract class AbstractPOSTagger {
     protected static final Logger LOGGER = Logger
             .getLogger(AbstractPOSTagger.class);
 
-    /** base model path. */
-    protected static final String MODEL_PATH = "data/models/";
-
     /** model for open nlp pos-tagging. */
     private Object model;
 
     /** name for the POS Tagger. */
     private String name = "unknown";
-
-    /** dict file for opennlp pos tagging. */
-    protected static final String MODEL_POS_OPENNLP_DICT = MODEL_PATH
-            + "opennlp/postag/tagdict.txt";
-
-    /** dict file for opennlp pos tagging. */
-    protected static final String MODEL_POS_OPENNLP = MODEL_PATH
-            + "opennlp/postag/tag.bin.gz";
-
-    /** model for opennlp tokenization. */
-    protected static final String MODEL_TOK_OPENNLP = MODEL_PATH
-            + "opennlp/tokenize/EnglishTok.bin.gz";
-
-    /** brown hidden markov model for lingpipe chunker. */
-    protected static final String MODEL_LINGPIPE_BROWN_HMM = MODEL_PATH
-            + "lingpipe/pos-en-general-brown.HiddenMarkovModel";
 
     /** The Annotations. */
     private TagAnnotations tagAnnotations;

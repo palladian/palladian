@@ -21,17 +21,6 @@ public abstract class AbstractParser {
             .getLogger(AbstractParser.class);
 
     /**
-     * This is the base modelpath.
-     */
-    protected final static String MODEL_PATH = "data/models/";
-
-    /**
-     * This is the default model path for openNLP parserfolder.
-     */
-    protected final static String MODEL_PARSE_ONLP = MODEL_PATH
-            + "opennlp/parser/";
-
-    /**
      * Object holding the model.
      */
     private Object model;
@@ -166,4 +155,5 @@ public abstract class AbstractParser {
             }
         }
     }
+
 }

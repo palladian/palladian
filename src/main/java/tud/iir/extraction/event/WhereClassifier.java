@@ -131,7 +131,7 @@ public class WhereClassifier extends Classifier {
 
             eventMap.put(url, EventExtractor.extractEventFromURL(url));
 
-            featureExtractor.setEntityFeatures(eventMap);
+            featureExtractor.setAnnotationFeatures(eventMap);
 
             List<String> wheres = new ArrayList<String>();
 
@@ -180,7 +180,7 @@ public class WhereClassifier extends Classifier {
 
             final HashMap<String, Event> eventMap = (HashMap<String, Event>) EventFeatureExtractor
                     .aggregateEvents(query);
-            featureExtractor.setEntityFeatures(eventMap);
+            featureExtractor.setAnnotationFeatures(eventMap);
             featureExtractor.writeCSV(filePath, eventMap, wheres, true);
 
         }

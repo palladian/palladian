@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.DataHolder;
@@ -185,11 +187,27 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     }
 
+    private final String MODEL;
+
     /**
      * constructor
      */
     public LingPipePhraseChunker() {
         setName("LingPipe Phrase Chunker");
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (ConfigurationException e) {
+            LOGGER.error("could not get modepath from config/models.conf, "
+                    + e.getMessage());
+        }
+
+        if (config != null) {
+            MODEL = config.getString("models.lingpipe.en.postag");
+        } else {
+            MODEL = "";
+        }
     }
 
     /*
@@ -378,7 +396,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
      */
     @Override
     public final boolean loadModel() {
-        return this.loadModel(MD_LINGPIPE_BROWN_HMM);
+        return this.loadModel(MODEL);
 
     }
 

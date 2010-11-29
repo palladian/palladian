@@ -3,12 +3,18 @@
  */
 package tud.iir.extraction.event;
 
-import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
+import opennlp.tools.util.InvalidFormatException;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StopWatch;
 
@@ -17,11 +23,29 @@ import tud.iir.helper.StopWatch;
  */
 public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
+    /** model for opennlp sentence detection */
+    private final String MODEL;
+
     /**
      * 
      */
     public OpenNLPSentenceDetector() {
         setName("OpenNLP Sentence Detector");
+
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (ConfigurationException e) {
+            LOGGER.error("could not get modepath from config/models.conf, "
+                    + e.getMessage());
+        }
+
+        if (config != null) {
+            MODEL = config.getString("models.opennlp.en.sentdetect");
+        } else {
+            MODEL = "";
+        }
     }
 
     /*
@@ -57,16 +81,38 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      */
     @Override
     public boolean loadModel(String configModelFilePath) {
+
+        SentenceModel sentenceModel = null;
+        InputStream modelIn = null;
+
         try {
 
-            final SentenceDetectorME sdetector = new SentenceDetectorME(new SentenceModel(new FileInputStream(new File(
-                    configModelFilePath))));
+            modelIn = new FileInputStream(configModelFilePath);
 
-            setModel(sdetector);
+            sentenceModel = new SentenceModel(modelIn);
 
-        } catch (final IOException e) {
-            LOGGER.error(e);
+        } catch (InvalidFormatException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (FileNotFoundException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } finally {
+            if (modelIn != null) {
+                try {
+                    modelIn.close();
+                } catch (IOException e) {
+                }
+            }
         }
+
+        final SentenceDetectorME sdetector = new SentenceDetectorME(
+                sentenceModel);
+
+        setModel(sdetector);
 
         return false;
     }
@@ -77,7 +123,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      */
     @Override
     public boolean loadModel() {
-        return this.loadModel(MD_SBD_ONLP);
+        return this.loadModel(MODEL);
     }
 
     /**

@@ -1,18 +1,45 @@
 package tud.iir.extraction.event;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.List;
+
+import opennlp.tools.chunker.ChunkerME;
+import opennlp.tools.chunker.ChunkerModel;
+
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
+
+import tud.iir.helper.DataHolder;
+import tud.iir.helper.StopWatch;
 
 public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
+    private final String MODEL;
+
     public OpenNLPPhraseChunker() {
-        setName("OpenNLP Phrase Chunker");
+        this.setName("OpenNLP Phrase Chunker");
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (ConfigurationException e) {
+            LOGGER.error("could not get model path from config/models.conf, "
+                    + e.getMessage());
+        }
+
+        if (config != null) {
+            MODEL = config.getString("models.opennlp.en.chunker");
+        } else {
+            MODEL = "";
+        }
     }
 
-    @SuppressWarnings("unchecked")
     public void chunk(String sentence, List<String> tokenList,
             List<String> posList) {
 
-        final List<String> chunkList = null; // FIXME:((TreebankChunker) getModel()).chunk(tokenList, posList);
+        final List<String> chunkList = ((ChunkerME) getModel()).chunk(
+                tokenList, posList);
 
         String tag = "";
         String token = "";
@@ -31,15 +58,15 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
                 tag = chunkList.get(i).substring(2);
 
             }
-            if (i + 1 < chunkList.size() && chunkList.get(i + 1).contains(
-                    "B-")
+            if (((i + 1) < chunkList.size() && chunkList.get(i + 1).contains(
+                    "B-"))
                     || i == chunkList.size() - 1) {
 
                 tagAnnotations.add(new TagAnnotation(sentence.indexOf(token),
                         tag, token));
             }
         }
-        setTagAnnotations(tagAnnotations);
+        this.setTagAnnotations(tagAnnotations);
     }
 
     @Override
@@ -52,7 +79,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
     public void chunk(String sentence) {
 
         final OpenNLPPOSTagger tagger = new OpenNLPPOSTagger();
-        tagger.loadModel(MD_POS_ONLP);
+        tagger.loadModel();
         tagger.tag(sentence);
 
         chunk(sentence, tagger.getTagAnnotations().getTokenList(), tagger
@@ -64,29 +91,32 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
     public boolean loadModel(String configModelFilePath) {
         try {
 
-            /*
-             * FIXME:
-             * TreebankChunker tbc = null;
-             * if (DataHolder.getInstance()
-             * .containsDataObject(configModelFilePath)) {
-             * tbc = (TreebankChunker) DataHolder.getInstance().getDataObject(
-             * configModelFilePath);
-             * } else {
-             * final StopWatch stopWatch = new StopWatch();
-             * stopWatch.start();
-             * tbc = new TreebankChunker(configModelFilePath);
-             * DataHolder.getInstance()
-             * .putDataObject(configModelFilePath, tbc);
-             * stopWatch.stop();
-             * LOGGER.info("Reading " + getName() + " from file "
-             * + configModelFilePath + " in "
-             * + stopWatch.getElapsedTimeString());
-             * }
-             * setModel(tbc);
-             */
+            ChunkerME tbc = null;
+            if (DataHolder.getInstance()
+                    .containsDataObject(configModelFilePath)) {
+
+                tbc = (ChunkerME) DataHolder.getInstance().getDataObject(
+                        configModelFilePath);
+
+            } else {
+                final StopWatch stopWatch = new StopWatch();
+                stopWatch.start();
+
+                tbc = new ChunkerME(new ChunkerModel(new FileInputStream(
+                        configModelFilePath)));
+                DataHolder.getInstance()
+                        .putDataObject(configModelFilePath, tbc);
+
+                stopWatch.stop();
+                LOGGER.info("Reading " + this.getName() + " from file "
+                        + configModelFilePath + " in "
+                        + stopWatch.getElapsedTimeString());
+            }
+
+            setModel(tbc);
 
             return true;
-        } catch (Exception e) {
+        } catch (final IOException e) {
             LOGGER.error(e);
             return false;
         }
@@ -95,7 +125,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     @Override
     public boolean loadModel() {
-        return this.loadModel(MD_CHUNK_ONLP);
+        return this.loadModel(MODEL);
     }
 
 }

@@ -64,8 +64,7 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
         final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
 
         final SentenceChunker sentenceChunker = new SentenceChunker(
-
-        tokenizerFactory, sentenceModel);
+                tokenizerFactory, sentenceModel);
         setModel(sentenceChunker);
         return false;
     }

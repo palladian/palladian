@@ -18,7 +18,12 @@ import tud.iir.web.WebResult;
 public class Event extends Extractable {
 
     private static final long serialVersionUID = 1023303092784471374L;
+
+    /* holds the co-referenced Annotations and one featureObject each. */
     private Map<Annotations, FeatureObject> annotationFeatures;
+
+    /* holds the simple annotations in text and headline. */
+    private Annotations annotations;
 
     private String text;
     private String title;
@@ -32,9 +37,23 @@ public class Event extends Extractable {
     private String when;
     private String how;
 
+    /** The who candidates. **/
     Map<String, Double> whoCandidates = new HashMap<String, Double>();
+
+    /** The where Candidates. **/
     Map<String, Double> whereCandidates = new HashMap<String, Double>();
+
+    /** The what Candidates. **/
     Map<String, Double> whatCandidates = new HashMap<String, Double>();
+
+    /** The why Candidates. **/
+    Map<String, Double> whyCandidates = new HashMap<String, Double>();
+
+    /** The when Candidates. **/
+    Map<String, Double> whenCandidates = new HashMap<String, Double>();
+
+    /** The how Candidates. **/
+    Map<String, Double> howCandidates = new HashMap<String, Double>();
 
     /**
      * Constructor.
@@ -81,6 +100,21 @@ public class Event extends Extractable {
         this.url = url;
 
         setExtractedAt(new Date(System.currentTimeMillis()));
+    }
+
+    /**
+     * @return the annotations
+     */
+    public Annotations getAnnotations() {
+        return annotations;
+    }
+
+    /**
+     * @param annotations
+     *            the annotations to set
+     */
+    public void setAnnotations(Annotations annotations) {
+        this.annotations = annotations;
     }
 
     /**
@@ -276,6 +310,36 @@ public class Event extends Extractable {
     }
 
     /**
+     * @return the whenCandidates
+     */
+    public Map<String, Double> getWhenCandidates() {
+        return whenCandidates;
+    }
+
+    /**
+     * @param whenCandidates
+     *            the whenCandidates to set
+     */
+    public void setWhenCandidates(Map<String, Double> whenCandidates) {
+        this.whenCandidates = whenCandidates;
+    }
+
+    /**
+     * @return the howCandidates
+     */
+    public Map<String, Double> getHowCandidates() {
+        return howCandidates;
+    }
+
+    /**
+     * @param howCandidates
+     *            the howCandidates to set
+     */
+    public void setHowCandidates(Map<String, Double> howCandidates) {
+        this.howCandidates = howCandidates;
+    }
+
+    /**
      * @param whereCandidates
      *            the whereCandidates to set
      */
@@ -296,6 +360,21 @@ public class Event extends Extractable {
      */
     public void setWhatCandidates(Map<String, Double> whatCandidates) {
         this.whatCandidates = whatCandidates;
+    }
+
+    /**
+     * @return the whyCandidates
+     */
+    public Map<String, Double> getWhyCandidates() {
+        return whyCandidates;
+    }
+
+    /**
+     * @param whyCandidates
+     *            the whyCandidates to set
+     */
+    public void setWhyCandidates(Map<String, Double> whyCandidates) {
+        this.whyCandidates = whyCandidates;
     }
 
 }

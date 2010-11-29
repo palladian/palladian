@@ -14,37 +14,9 @@ public abstract class AbstractPhraseChunker {
 
     /** the logger for this class */
     protected static final Logger LOGGER = Logger
-            .getLogger(PhraseChunker.class);
+            .getLogger(AbstractPhraseChunker.class);
 
-    /** base model path */
-    protected static final String MODEL_PATH = "data/models/";
-
-    /** model for open nlp pos-tagging */
-    protected static final String MD_POS_ONLP = MODEL_PATH
-            + "opennlp/postag/tag.bin.gz";
-
-    /** dict file for opennlp pos tagging */
-    protected static final String MD_POS_ONLP_DICT = MODEL_PATH
-            + "opennlp/postag/tagdict.txt";
-
-    /** model for opennlp sentence detection */
-    protected static final String MD_SBD_ONLP = MODEL_PATH
-            + "opennlp/sentdetect/EnglishSD.bin.gz";
-
-    /** model for opennlp phrase chunking */
-    protected static final String MD_CHUNK_ONLP = MODEL_PATH
-            + "opennlp/chunker/EnglishChunk.bin.gz";
-
-    /** model for opennlp tokenization */
-    protected static final String MD_TOK_ONLP = MODEL_PATH
-            + "opennlp/tokenize/EnglishTok.bin.gz";
-
-    /** brown hidden markov model for lingpipe chunker */
-    protected static final String MD_LINGPIPE_BROWN_HMM = MODEL_PATH
-            + "pos-en-general-brown.HiddenMarkovModel";
-
-    protected static final String MD_POS_STANFORD = MODEL_PATH
-            + "stanford/postag/left3words-wsj-0-18.tagger";
+    protected static final String MD_POS_STANFORD = "data/models/stanford/postag/left3words-wsj-0-18.tagger";
 
     /** holds the model **/
     private Object model;
