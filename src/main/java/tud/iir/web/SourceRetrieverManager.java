@@ -58,6 +58,7 @@ public class SourceRetrieverManager {
 
         try {
             config = new PropertiesConfiguration("config/apikeys.conf");
+            //config = new PropertiesConfiguration(SourceRetrieverManager.class.getResourceAsStream("/config/apikeys.conf").getFile());
         } catch (ConfigurationException e) {
             Logger.getRootLogger().error(e.getMessage());
 

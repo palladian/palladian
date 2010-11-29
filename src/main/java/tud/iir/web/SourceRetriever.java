@@ -375,6 +375,24 @@ public class SourceRetriever {
             } catch (JSONException e) {
                 LOGGER.error(searchQuery, e);
             }
+            
+        } else if (getSource() == SourceRetrieverManager.BING) {
+
+        	String query = "http://api.bing.net/json.aspx?AppId="
+                + SourceRetrieverManager.getInstance().BING_API_KEY
+                + "&Web.Count=1&Sources=Web&JsonType=raw&Query=" + searchQuery;
+        	String json = crawler.download(query);
+
+            try {
+                JSONObject jsonOBJ = new JSONObject(json);
+
+                hitCount = jsonOBJ.getJSONObject("SearchResponse").getJSONObject("Web").getInt("Total");
+               
+            } catch (JSONException e) {
+                LOGGER.error(e.getMessage());
+            }
+        	
+        	
         }
 
         return hitCount;
