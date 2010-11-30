@@ -1,121 +1,147 @@
-/*
-SQLyog Community Edition- MySQL GUI v8.13 
-MySQL - 5.1.47-community : Database - tudiirdb
-*********************************************************************
-*/
+-- phpMyAdmin SQL Dump
+-- version 3.2.4
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Erstellungszeit: 30. November 2010 um 13:18
+-- Server Version: 5.1.41
+-- PHP-Version: 5.3.1
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
 
 
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
-/*!40101 SET SQL_MODE=''*/;
+--
+-- Datenbank: `tudiirdb`
+--
 
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+-- --------------------------------------------------------
 
-SET GLOBAL log_bin_trust_function_creators = FALSE;
+--
+-- Tabellenstruktur für Tabelle `answers`
+--
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`tudiirdb` /*!40100 DEFAULT CHARACTER SET latin1 */;
-
-USE `tudiirdb`;
-
-/* Table structure for table `api_log` */
-DROP TABLE IF EXISTS `api_log`;
-CREATE TABLE `tudiirdb`.`api_log`(     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT ,     `methodID` INT UNSIGNED ,     `appID` VARCHAR(50) ,     `appKey` VARCHAR(100) ,     `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,     PRIMARY KEY (`id`)  )  ;
- 
-/* Table structure for table `api_methods` */
-DROP TABLE IF EXISTS `api_methods`;
-CREATE TABLE `tudiirdb`.`api_methods`(     `id` INT UNSIGNED NOT NULL AUTO_INCREMENT ,     `methodCode` VARCHAR(50) ,     `methodName` VARCHAR(50) ,     PRIMARY KEY (`id`)  )  ;
-
-DROP TABLE IF EXISTS `ip2country`;
-CREATE TABLE `tudiirdb`.`ip2country`(     `ipFrom` BIGINT UNSIGNED ,     `ipTo` BIGINT UNSIGNED ,     `registry` ENUM('apnic','arin','lacnic','ripencc','afrinic','iana') ,     `assignedAt` TIMESTAMP ,     `countryCode` CHAR(2) ,     `countryName` VARCHAR(40)       )  ;
-
-/* Table structure for table `live_status` */
-DROP TABLE IF EXISTS `live_status`;
-
-CREATE TABLE `live_status`(
-	`id` INT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'the id of the status',
-  `percent` double unsigned NOT NULL DEFAULT '0' COMMENT 'the percentage that the current phase has progressed',
-	`timeLeft` VARCHAR(50) COMMENT 'the time left until the next phase starts',
-	`currentPhase` VARCHAR(50) COMMENT 'the name of the current phase',
-	`currentAction` VARCHAR(1000) COMMENT 'detailed information about the current action in the current phase',
-	`logExcerpt` TEXT(10000) COMMENT 'a log excerpt',
-	`moreText1` TEXT(10000) COMMENT 'free text',
-	`moreText2` TEXT(10000) COMMENT 'free text',
-  `downloadedBytes` bigint(20) unsigned DEFAULT '0' COMMENT 'the total number of downloaded bytes',
-  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'the timestamp of the entry',
-	PRIMARY KEY (`id`));
-
-/*Table structure for table `answers` */
-
-DROP TABLE IF EXISTS `answers`;
-
-CREATE TABLE `answers` (
+CREATE TABLE IF NOT EXISTS `answers` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `answer` text NOT NULL,
   `questionID` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `questionID` (`questionID`),
   FULLTEXT KEY `answer` (`answer`)
-) ENGINE=MyISAM AUTO_INCREMENT=24232 DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT AUTO_INCREMENT=24232 ;
 
-/*Table structure for table `attribute_synonyms` */
+--
+-- Daten für Tabelle `answers`
+--
 
-DROP TABLE IF EXISTS `attribute_synonyms`;
 
-CREATE TABLE `attribute_synonyms` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `attributeID1` bigint(20) unsigned DEFAULT NULL,
-  `attributeID2` bigint(20) unsigned DEFAULT NULL,
-  `trust` double unsigned NOT NULL DEFAULT '1',
-  PRIMARY KEY (`id`),
-  KEY `attributeID1` (`attributeID1`),
-  KEY `attributeID2` (`attributeID2`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- --------------------------------------------------------
 
-/*Table structure for table `attributes` */
+--
+-- Tabellenstruktur für Tabelle `api_log`
+--
 
-DROP TABLE IF EXISTS `attributes`;
+CREATE TABLE IF NOT EXISTS `api_log` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `methodID` int(10) unsigned DEFAULT NULL,
+  `appID` varchar(50) DEFAULT NULL,
+  `appKey` varchar(100) DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-CREATE TABLE `attributes` (
+--
+-- Daten für Tabelle `api_log`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `api_methods`
+--
+
+CREATE TABLE IF NOT EXISTS `api_methods` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `methodCode` varchar(50) DEFAULT NULL,
+  `methodName` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `api_methods`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `attributes`
+--
+
+CREATE TABLE IF NOT EXISTS `attributes` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `trust` double(15,3) unsigned NOT NULL,
   `lastSearched` datetime DEFAULT NULL,
   `extractedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `attributes_concepts` */
+--
+-- Daten für Tabelle `attributes`
+--
 
-DROP TABLE IF EXISTS `attributes_concepts`;
 
-CREATE TABLE `attributes_concepts` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `attributes_concepts`
+--
+
+CREATE TABLE IF NOT EXISTS `attributes_concepts` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `attributeID` bigint(20) unsigned NOT NULL,
   `conceptID` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `attributeID` (`attributeID`,`conceptID`),
   KEY `conceptID` (`conceptID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `attributes_range` */
+--
+-- Daten für Tabelle `attributes_concepts`
+--
 
-DROP TABLE IF EXISTS `attributes_range`;
 
-CREATE TABLE `attributes_range` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `attributes_range`
+--
+
+CREATE TABLE IF NOT EXISTS `attributes_range` (
   `attributeID` int(11) NOT NULL,
   `type` enum('min','max','possible') NOT NULL,
   `conceptID` int(11) NOT NULL,
   `value` varchar(100) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-/*Table structure for table `attributes_sources` */
+--
+-- Daten für Tabelle `attributes_range`
+--
 
-DROP TABLE IF EXISTS `attributes_sources`;
 
-CREATE TABLE `attributes_sources` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `attributes_sources`
+--
+
+CREATE TABLE IF NOT EXISTS `attributes_sources` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `attributeID` bigint(20) unsigned NOT NULL,
   `sourceID` bigint(20) unsigned NOT NULL,
@@ -123,74 +149,138 @@ CREATE TABLE `attributes_sources` (
   PRIMARY KEY (`id`),
   KEY `attributeID` (`attributeID`),
   KEY `sourceID` (`sourceID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `bugs` */
+--
+-- Daten für Tabelle `attributes_sources`
+--
 
-DROP TABLE IF EXISTS `bugs`;
 
-CREATE TABLE `bugs` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `attribute_synonyms`
+--
+
+CREATE TABLE IF NOT EXISTS `attribute_synonyms` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `attributeID1` bigint(20) unsigned DEFAULT NULL,
+  `attributeID2` bigint(20) unsigned DEFAULT NULL,
+  `trust` double unsigned NOT NULL DEFAULT '1',
+  PRIMARY KEY (`id`),
+  KEY `attributeID1` (`attributeID1`),
+  KEY `attributeID2` (`attributeID2`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `attribute_synonyms`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `bugs`
+--
+
+CREATE TABLE IF NOT EXISTS `bugs` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `description` text NOT NULL,
   `userID` bigint(12) NOT NULL,
   `reportedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `concept_synonyms` */
+--
+-- Daten für Tabelle `bugs`
+--
 
-DROP TABLE IF EXISTS `concept_synonyms`;
 
-CREATE TABLE `concept_synonyms` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `concepts`
+--
+
+CREATE TABLE IF NOT EXISTS `concepts` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `domainID` int(11) unsigned DEFAULT NULL,
+  `ontologyID` int(11) unsigned DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  `lastSearched` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `domainID` (`domainID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `concepts`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `concept_synonyms`
+--
+
+CREATE TABLE IF NOT EXISTS `concept_synonyms` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `conceptID1` int(11) unsigned DEFAULT NULL,
   `conceptID2` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `conceptID1` (`conceptID1`),
   KEY `conceptID2` (`conceptID2`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `concepts` */
+--
+-- Daten für Tabelle `concept_synonyms`
+--
 
-DROP TABLE IF EXISTS `concepts`;
 
-CREATE TABLE `concepts` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `domains`
+--
+
+CREATE TABLE IF NOT EXISTS `domains` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `domainID` int(11) unsigned DEFAULT NULL,
   `name` varchar(255) DEFAULT NULL,
-  `lastSearched` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `domainID` (`domainID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `domain_synonyms` */
+--
+-- Daten für Tabelle `domains`
+--
 
-DROP TABLE IF EXISTS `domain_synonyms`;
 
-CREATE TABLE `domain_synonyms` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `domain_synonyms`
+--
+
+CREATE TABLE IF NOT EXISTS `domain_synonyms` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `domainID1` int(11) unsigned DEFAULT NULL,
   `domainID2` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `domainID1` (`domainID1`),
   KEY `domainID2` (`domainID2`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `domains` */
+--
+-- Daten für Tabelle `domain_synonyms`
+--
 
-DROP TABLE IF EXISTS `domains`;
 
-CREATE TABLE `domains` (
-  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- --------------------------------------------------------
 
-/*Table structure for table `entities` */
+--
+-- Tabellenstruktur für Tabelle `entities`
+--
 
-DROP TABLE IF EXISTS `entities`;
-
-CREATE TABLE `entities` (
+CREATE TABLE IF NOT EXISTS `entities` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `conceptID` int(11) unsigned NOT NULL,
   `name` varchar(255) DEFAULT NULL,
@@ -202,13 +292,20 @@ CREATE TABLE `entities` (
   PRIMARY KEY (`id`),
   KEY `conceptID` (`conceptID`),
   KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `entities_sources` */
+--
+-- Daten für Tabelle `entities`
+--
 
-DROP TABLE IF EXISTS `entities_sources`;
 
-CREATE TABLE `entities_sources` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `entities_sources`
+--
+
+CREATE TABLE IF NOT EXISTS `entities_sources` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `entityID` bigint(20) unsigned DEFAULT NULL,
   `sourceID` bigint(20) unsigned DEFAULT NULL,
@@ -217,13 +314,46 @@ CREATE TABLE `entities_sources` (
   KEY `entityID` (`entityID`),
   KEY `sourceID` (`sourceID`),
   KEY `extractionType` (`extractionType`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `evaluations` */
+--
+-- Daten für Tabelle `entities_sources`
+--
 
-DROP TABLE IF EXISTS `evaluations`;
 
-CREATE TABLE `evaluations` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `entity_trust_view`
+--
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `tudiirdb`.`entity_trust_view` AS select `tudiirdb`.`entities`.`conceptID` AS `conceptID`,`tudiirdb`.`entities`.`name` AS `name`,floor(`tudiirdb`.`entities`.`trust`) AS `trust`,count(`tudiirdb`.`entities`.`trust`) AS `numberOfEntities` from `tudiirdb`.`entities` group by `tudiirdb`.`entities`.`conceptID`,floor(`tudiirdb`.`entities`.`trust`) having (`trust` > 0) order by floor(`tudiirdb`.`entities`.`trust`) desc;
+
+--
+-- Daten für Tabelle `entity_trust_view`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `entity_voting_view`
+--
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `tudiirdb`.`entity_voting_view` AS select `tudiirdb`.`sources`.`id` AS `id`,`tudiirdb`.`entities_sources`.`entityID` AS `entityID`,`tudiirdb`.`sources`.`entityTrust` AS `entityTrust` from (`tudiirdb`.`sources` join `tudiirdb`.`entities_sources`) where (`tudiirdb`.`sources`.`id` = `tudiirdb`.`entities_sources`.`sourceID`);
+
+--
+-- Daten für Tabelle `entity_voting_view`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `evaluations`
+--
+
+CREATE TABLE IF NOT EXISTS `evaluations` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `snippetID` bigint(20) NOT NULL DEFAULT '0',
   `evaluator` varchar(255) NOT NULL DEFAULT '',
@@ -232,13 +362,20 @@ CREATE TABLE `evaluations` (
   `teaser` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `entityID` (`snippetID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `facts` */
+--
+-- Daten für Tabelle `evaluations`
+--
 
-DROP TABLE IF EXISTS `facts`;
 
-CREATE TABLE `facts` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `facts`
+--
+
+CREATE TABLE IF NOT EXISTS `facts` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `entityID` bigint(20) unsigned DEFAULT NULL,
   `attributeID` bigint(20) unsigned DEFAULT NULL,
@@ -249,13 +386,20 @@ CREATE TABLE `facts` (
   KEY `entityID` (`entityID`),
   KEY `attributeID` (`attributeID`),
   KEY `value` (`value`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `facts_sources` */
+--
+-- Daten für Tabelle `facts`
+--
 
-DROP TABLE IF EXISTS `facts_sources`;
 
-CREATE TABLE `facts_sources` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `facts_sources`
+--
+
+CREATE TABLE IF NOT EXISTS `facts_sources` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `factID` bigint(20) unsigned DEFAULT NULL,
   `sourceID` bigint(20) unsigned DEFAULT NULL,
@@ -264,58 +408,20 @@ CREATE TABLE `facts_sources` (
   KEY `factID` (`factID`),
   KEY `sourceID` (`sourceID`),
   KEY `extractionType` (`extractionType`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `feed_entries` */
+--
+-- Daten für Tabelle `facts_sources`
+--
 
-DROP TABLE IF EXISTS `feed_entries`;
 
-CREATE TABLE `feed_entries` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `feedId` int(10) unsigned NOT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `link` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `rawId` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `published` datetime DEFAULT NULL,
-  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `text` text COLLATE utf8_unicode_ci,
-  `pageText` text COLLATE utf8_unicode_ci COMMENT 'text which we scraped from the corresponding page',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `feedId_rawId_unique` (`feedId`,`rawId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+-- --------------------------------------------------------
 
-/*Table structure for table `feeds` */
+--
+-- Tabellenstruktur für Tabelle `feeds`
+--
 
-DROP TABLE IF EXISTS `feeds`;
-
-/*CREATE TABLE `feeds` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `feedUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `siteUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `format` tinyint(4) NOT NULL,
-  `textType` tinyint(4) NOT NULL,
-  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `language` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `checks` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed has been retrieved and read',
-  `minCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
-  `maxCheckInterval` int(11) unsigned NOT NULL DEFAULT '60' COMMENT 'time in minutes between two consecutive checks',
-  `lastHeadlines` text COLLATE utf8_unicode_ci NOT NULL COMMENT 'a list of headlines that were found at the last check',
-  `unreachableCount` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'number of times the feed was checked but could not be found or parsed',
-  `lastFeedEntry` datetime DEFAULT NULL COMMENT 'the timestamp of the most recent item in the feed',
-	`activityPattern` int(11) DEFAULT 0 COMMENT 'the activity pattern of the feed',
-/*`lastEtag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL 'the Etag that was retrieved at the poll in case the feed supports Etags',
-  `lastPollTime` datetime DEFAULT NULL 'the timestamp of the last poll (use for conditional get with last modified since)',
-	`supportsETag` BOOLEAN DEFAULT NULL COMMENT 'whether the feed supports ETags',
-	`supportsLMS` BOOLEAN DEFAULT NULL COMMENT 'whether the feed answers correctly on conditional get requests with last modified since headers',
-  `conditionalGetResponseSize` BOOLEAN DEFAULT NULL COMMENT 'the header size if a conditional get returns 304 (not modified)',
-  `updateClass` int(11) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `feedUrl` (`feedUrl`)
-) ENGINE=MyISAM AUTO_INCREMENT=1763 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-		 */
-		 
-CREATE TABLE `feeds` (
+CREATE TABLE IF NOT EXISTS `feeds` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `feedUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `siteUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
@@ -338,14 +444,104 @@ CREATE TABLE `feeds` (
   `lastETag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `feeds`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feeds_post_distribution`
+--
+
+CREATE TABLE IF NOT EXISTS `feeds_post_distribution` (
+  `feedID` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `minuteOfDay` int(10) unsigned NOT NULL DEFAULT '0',
+  `posts` int(10) unsigned DEFAULT NULL,
+  `chances` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`feedID`,`minuteOfDay`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `feeds_post_distribution`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feed_entries`
+--
+
+CREATE TABLE IF NOT EXISTS `feed_entries` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feedId` int(10) unsigned NOT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `link` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `rawId` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `published` datetime DEFAULT NULL,
+  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `text` text COLLATE utf8_unicode_ci,
+  `pageText` text COLLATE utf8_unicode_ci COMMENT 'text which we scraped from the corresponding page',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `feedId_rawId_unique` (`feedId`,`rawId`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `feed_entries`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feed_entries_tags`
+--
+
+CREATE TABLE IF NOT EXISTS `feed_entries_tags` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `feed_entries_tags`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feed_entry_tag`
+--
+
+CREATE TABLE IF NOT EXISTS `feed_entry_tag` (
+  `entryId` int(10) unsigned NOT NULL,
+  `tagId` int(10) NOT NULL,
+  `weight` float unsigned NOT NULL,
+  PRIMARY KEY (`entryId`,`tagId`),
+  KEY `tagId_index` (`tagId`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-DROP TABLE IF EXISTS `feed_evaluation_polls`;
+--
+-- Daten für Tabelle `feed_entry_tag`
+--
 
-CREATE TABLE `feed_evaluation_polls` (
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feed_evaluation_polls`
+--
+
+CREATE TABLE IF NOT EXISTS `feed_evaluation_polls` (
   `feedID` int(10) unsigned NOT NULL,
   `numberOfPoll` int(10) unsigned NOT NULL COMMENT 'how often has this feed been polled (retrieved and read)',
-	`activityPattern` int(11) NOT NULL COMMENT 'activity pattern of the feed',
+  `activityPattern` int(11) NOT NULL COMMENT 'activity pattern of the feed',
   `conditionalGetResponseSize` int(11) DEFAULT NULL COMMENT 'the size of the HTTP 304 response in Bytes, (if there is no new entry)',
   `sizeOfPoll` float NOT NULL COMMENT 'the amount of bytes that have been downloadad',
   `pollTimestamp` bigint(20) unsigned NOT NULL COMMENT 'the feed has been pooled at this timestamp',
@@ -353,17 +549,24 @@ CREATE TABLE `feed_evaluation_polls` (
   `newWindowItems` float NOT NULL COMMENT 'number of new items in the window',
   `missedItems` int(10) NOT NULL COMMENT 'the number of new items we missed because there more new items since the last poll than fit into the window',
   `windowSize` int(10) unsigned NOT NULL COMMENT 'the current size of the feed''s window (number of items found)',
-	`cumulatedDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too early and too late',
-	`cumulatedLateDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too late',
-	`timeliness` double DEFAULT NULL COMMENT 'averaged over all new and missed items in the poll including early polls, NULL if no new item has been discovered (only for evaluation mode MIN interesting)',
-	`timelinessLate` double DEFAULT NULL COMMENT 'averaged over all new and missed items in the poll, NULL if no new item has been discovered (only for evaluation mode MIN interesting)'
+  `cumulatedDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too early and too late',
+  `cumulatedLateDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too late',
+  `timeliness` double DEFAULT NULL COMMENT 'averaged over all new and missed items in the poll including early polls, NULL if no new item has been discovered (only for evaluation mode MIN interesting)',
+  `timelinessLate` double DEFAULT NULL COMMENT 'averaged over all new and missed items in the poll, NULL if no new item has been discovered (only for evaluation mode MIN interesting)'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-/*Table structure for table `feed_evaluation_update_intervals` */
+--
+-- Daten für Tabelle `feed_evaluation_polls`
+--
 
-DROP TABLE IF EXISTS `feed_evaluation_update_intervals`;
 
-CREATE TABLE `feed_evaluation_update_intervals` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feed_evaluation_update_intervals`
+--
+
+CREATE TABLE IF NOT EXISTS `feed_evaluation_update_intervals` (
   `id` int(10) unsigned NOT NULL COMMENT 'feedID',
   `updateClass` int(11) NOT NULL COMMENT 'the feeds update class (activity pattern)',
   `averageEntriesPerDay` double NOT NULL COMMENT 'the average number of new entries per day',
@@ -372,56 +575,101 @@ CREATE TABLE `feed_evaluation_update_intervals` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-/*Table structure for table `feeds_post_distribution` */
-
-DROP TABLE IF EXISTS `feeds_post_distribution`;
-
-CREATE TABLE `feeds_post_distribution` (
-  `feedID` int(10) unsigned NOT NULL auto_increment,
-  `minuteOfDay` int(10) unsigned NOT NULL default '0',
-  `posts` int(10) unsigned default NULL,
-  `chances` int(10) unsigned default NULL,
-  PRIMARY KEY  (`feedID`,`minuteOfDay`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+--
+-- Daten für Tabelle `feed_evaluation_update_intervals`
+--
 
 
-DROP TABLE IF EXISTS `feed_entries_tags`;
+-- --------------------------------------------------------
 
-CREATE TABLE `feed_entries_tags` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name_unique` (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+--
+-- Tabellenstruktur für Tabelle `ip2country`
+--
 
-DROP TABLE IF EXISTS `feed_entry_tag`;
+CREATE TABLE IF NOT EXISTS `ip2country` (
+  `ipFrom` bigint(20) unsigned DEFAULT NULL,
+  `ipTo` bigint(20) unsigned DEFAULT NULL,
+  `registry` enum('apnic','arin','lacnic','ripencc','afrinic','iana') DEFAULT NULL,
+  `assignedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `countryCode` char(2) DEFAULT NULL,
+  `countryName` varchar(40) DEFAULT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
-CREATE TABLE `feed_entry_tag` (
-  `entryId` int(10) unsigned NOT NULL,
-  `tagId` int(10) NOT NULL,
-  `weight` float unsigned NOT NULL,
-  PRIMARY KEY (`entryId`,`tagId`),
-  KEY `tagId_index` (`tagId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+--
+-- Daten für Tabelle `ip2country`
+--
 
 
-/*Table structure for table `ontology_listeners` */
+-- --------------------------------------------------------
 
-DROP TABLE IF EXISTS `ontology_listeners`;
+--
+-- Tabellenstruktur für Tabelle `live_status`
+--
 
-CREATE TABLE `ontology_listeners` (
+CREATE TABLE IF NOT EXISTS `live_status` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'the id of the status',
+  `percent` double unsigned NOT NULL DEFAULT '0' COMMENT 'the percentage that the current phase has progressed',
+  `timeLeft` varchar(50) DEFAULT NULL COMMENT 'the time left until the next phase starts',
+  `currentPhase` varchar(50) DEFAULT NULL COMMENT 'the name of the current phase',
+  `currentAction` varchar(1000) DEFAULT NULL COMMENT 'detailed information about the current action in the current phase',
+  `logExcerpt` text COMMENT 'a log excerpt',
+  `moreText1` text COMMENT 'free text',
+  `moreText2` text COMMENT 'free text',
+  `downloadedBytes` bigint(20) unsigned DEFAULT '0' COMMENT 'the total number of downloaded bytes',
+  `updatedAt` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT 'the timestamp of the entry',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `live_status`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `ontology_listeners`
+--
+
+CREATE TABLE IF NOT EXISTS `ontology_listeners` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `url` varchar(100) NOT NULL,
   `concept` varchar(30) NOT NULL,
   `attribute` varchar(30) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `questions` */
+--
+-- Daten für Tabelle `ontology_listeners`
+--
 
-DROP TABLE IF EXISTS `questions`;
 
-CREATE TABLE `questions` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `query_log`
+--
+
+CREATE TABLE IF NOT EXISTS `query_log` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `input` varchar(200) DEFAULT NULL,
+  `class` enum('entity','question','api','other') DEFAULT NULL,
+  `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `query_log`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `questions`
+--
+
+CREATE TABLE IF NOT EXISTS `questions` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `sourceID` bigint(20) unsigned NOT NULL,
   `question` varchar(255) NOT NULL,
@@ -429,58 +677,76 @@ CREATE TABLE `questions` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `question_3` (`question`),
   FULLTEXT KEY `question_2` (`question`)
-) ENGINE=MyISAM AUTO_INCREMENT=4022 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4022 ;
 
-/*Table structure for table `quotes` */
+--
+-- Daten für Tabelle `questions`
+--
 
-DROP TABLE IF EXISTS `quotes`;
 
-CREATE TABLE `quotes` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `quotes`
+--
+
+CREATE TABLE IF NOT EXISTS `quotes` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `quote` varchar(400) NOT NULL,
   `author` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `quote` (`quote`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `rolepage_usages` */
+--
+-- Daten für Tabelle `quotes`
+--
 
-DROP TABLE IF EXISTS `rolepage_usages`;
 
-CREATE TABLE `rolepage_usages` (
-  `id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `rolepageID` bigint(20) NOT NULL,
-  `entityID` bigint(20) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- --------------------------------------------------------
 
-/*Table structure for table `rolepages` */
+--
+-- Tabellenstruktur für Tabelle `rolepages`
+--
 
-DROP TABLE IF EXISTS `rolepages`;
-
-CREATE TABLE `rolepages` (
+CREATE TABLE IF NOT EXISTS `rolepages` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `url` varchar(500) DEFAULT NULL,
   `count` bigint(20) DEFAULT NULL,
   `conceptID` bigint(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `rolepages`
+--
 
 
-DROP TABLE IF EXISTS `query_log`;
+-- --------------------------------------------------------
 
-CREATE TABLE `tudiirdb`.`query_log`(     
-   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT ,     
-   `input` VARCHAR(200) ,     
-   `class` ENUM('entity','question','api','other') ,     
-   `timestamp` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ,     
-   PRIMARY KEY (`id`)  )  ;
+--
+-- Tabellenstruktur für Tabelle `rolepage_usages`
+--
 
-/*Table structure for table `snippets` */
+CREATE TABLE IF NOT EXISTS `rolepage_usages` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `rolepageID` bigint(20) NOT NULL,
+  `entityID` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-DROP TABLE IF EXISTS `snippets`;
+--
+-- Daten für Tabelle `rolepage_usages`
+--
 
-CREATE TABLE `snippets` (
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `snippets`
+--
+
+CREATE TABLE IF NOT EXISTS `snippets` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `entityID` bigint(20) unsigned NOT NULL,
   `sourceID` bigint(20) unsigned NOT NULL,
@@ -522,13 +788,53 @@ CREATE TABLE `snippets` (
   PRIMARY KEY (`id`),
   KEY `entityID` (`entityID`),
   KEY `sourceID` (`sourceID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `source_ranking_features` */
+--
+-- Daten für Tabelle `snippets`
+--
 
-DROP TABLE IF EXISTS `source_ranking_features`;
 
-CREATE TABLE `source_ranking_features` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `sources`
+--
+
+CREATE TABLE IF NOT EXISTS `sources` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `url` varchar(500) DEFAULT NULL,
+  `entityTrust` double unsigned NOT NULL DEFAULT '0.5',
+  `voting` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `url` (`url`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `sources`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `sources_entities_view`
+--
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `tudiirdb`.`sources_entities_view` AS select `tudiirdb`.`entities_sources`.`entityID` AS `entityID`,`tudiirdb`.`entities`.`voting` AS `entityVoting`,`tudiirdb`.`entities`.`trust` AS `entityTrust`,`tudiirdb`.`entities_sources`.`sourceID` AS `sourceID`,`tudiirdb`.`sources`.`voting` AS `sourceVoting`,`tudiirdb`.`sources`.`entityTrust` AS `sourceEntityTrust` from ((`tudiirdb`.`entities` join `tudiirdb`.`entities_sources`) join `tudiirdb`.`sources`) where ((`tudiirdb`.`entities`.`id` = `tudiirdb`.`entities_sources`.`entityID`) and (`tudiirdb`.`entities_sources`.`sourceID` = `tudiirdb`.`sources`.`id`));
+
+--
+-- Daten für Tabelle `sources_entities_view`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `source_ranking_features`
+--
+
+CREATE TABLE IF NOT EXISTS `source_ranking_features` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `sourceId` bigint(20) unsigned NOT NULL,
   `service` tinyint(4) NOT NULL,
@@ -536,26 +842,33 @@ CREATE TABLE `source_ranking_features` (
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `sourceId_service_unique` (`sourceId`,`service`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
-/*Table structure for table `sources` */
+--
+-- Daten für Tabelle `source_ranking_features`
+--
 
-DROP TABLE IF EXISTS `sources`;
 
-CREATE TABLE `sources` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `url` varchar(500) DEFAULT NULL,
-  `entityTrust` double unsigned NOT NULL DEFAULT '0.5',
-  `voting` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `url` (`url`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+-- --------------------------------------------------------
 
-/*Table structure for table `training_samples` */
+--
+-- Tabellenstruktur für Tabelle `source_voting_view`
+--
 
-DROP TABLE IF EXISTS `training_samples`;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `tudiirdb`.`source_voting_view` AS select `tudiirdb`.`entities`.`id` AS `id`,`tudiirdb`.`entities_sources`.`sourceID` AS `sourceID`,`tudiirdb`.`entities`.`trust` AS `trust`,`tudiirdb`.`entities`.`voting` AS `voting` from (`tudiirdb`.`entities` join `tudiirdb`.`entities_sources`) where (`tudiirdb`.`entities`.`id` = `tudiirdb`.`entities_sources`.`entityID`);
 
-CREATE TABLE `training_samples` (
+--
+-- Daten für Tabelle `source_voting_view`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `training_samples`
+--
+
+CREATE TABLE IF NOT EXISTS `training_samples` (
   `conceptID` int(11) unsigned NOT NULL,
   `entityID` bigint(20) unsigned NOT NULL,
   `class` tinyint(1) DEFAULT NULL,
@@ -564,508 +877,88 @@ CREATE TABLE `training_samples` (
   KEY `conceptID` (`conceptID`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
-/*Table structure for table `users_in` */
+--
+-- Daten für Tabelle `training_samples`
+--
 
-DROP TABLE IF EXISTS `users_in`;
 
-CREATE TABLE `users_in` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `users_in`
+--
+
+CREATE TABLE IF NOT EXISTS `users_in` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `userID` bigint(12) unsigned NOT NULL,
   `inID` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`),
   KEY `inID` (`inID`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
-/*Table structure for table `wishes` */
+--
+-- Daten für Tabelle `users_in`
+--
 
-DROP TABLE IF EXISTS `wishes`;
 
-CREATE TABLE `wishes` (
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `webknox_development`
+--
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `tudiirdb`.`webknox_development` AS select `tudiirdb`.`entities`.`conceptID` AS `conceptID`,`tudiirdb`.`entities`.`name` AS `name`,floor(`tudiirdb`.`entities`.`trust`) AS `trust`,count(`tudiirdb`.`entities`.`trust`) AS `numberOfEntities` from `tudiirdb`.`entities` group by `tudiirdb`.`entities`.`conceptID`,floor(`tudiirdb`.`entities`.`trust`) having (`trust` > 0) order by floor(`tudiirdb`.`entities`.`trust`) desc;
+
+--
+-- Daten für Tabelle `webknox_development`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `webknox_entity_assessment`
+--
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `tudiirdb`.`webknox_entity_assessment` AS select `tudiirdb`.`entities`.`conceptID` AS `conceptID`,`tudiirdb`.`entities`.`name` AS `name`,floor(`tudiirdb`.`entities`.`trust`) AS `trust`,count(`tudiirdb`.`entities`.`trust`) AS `numberOfEntities` from `tudiirdb`.`entities` group by `tudiirdb`.`entities`.`conceptID`,floor(`tudiirdb`.`entities`.`trust`) having (`trust` > 0) order by floor(`tudiirdb`.`entities`.`trust`) desc;
+
+--
+-- Daten für Tabelle `webknox_entity_assessment`
+--
+
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `wishes`
+--
+
+CREATE TABLE IF NOT EXISTS `wishes` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `description` text NOT NULL,
   `userID` bigint(12) NOT NULL,
   `reportedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
+--
+-- Daten für Tabelle `wishes`
+--
 
-SET GLOBAL log_bin_trust_function_creators = FALSE;
 
-/* Function  structure for function  `avgWordLength` */
+-- --------------------------------------------------------
 
-/*!50003 DROP FUNCTION IF EXISTS `avgWordLength` */;
-DELIMITER $$
+--
+-- Tabellenstruktur für Tabelle `wx_entity_assessment`
+--
 
-/*!50003 CREATE DEFINER=`root`@`localhost` FUNCTION `avgWordLength`(
-        text1 TEXT
-    ) RETURNS double
-    DETERMINISTIC
-BEGIN
-  DECLARE avgWordLength DOUBLE;
-  SET avgWordLength = LENGTH(REPLACE(text1," ","")) / wordCount(text1);
-  RETURN avgWordLength;
-END */$$
-DELIMITER ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `tudiirdb`.`wx_entity_assessment` AS select `tudiirdb`.`entities`.`conceptID` AS `conceptID`,`tudiirdb`.`entities`.`name` AS `name`,floor(`tudiirdb`.`entities`.`trust`) AS `trust`,count(`tudiirdb`.`entities`.`trust`) AS `numberOfEntities` from `tudiirdb`.`entities` group by `tudiirdb`.`entities`.`conceptID`,floor(`tudiirdb`.`entities`.`trust`) having (`trust` > 0) order by floor(`tudiirdb`.`entities`.`trust`) desc;
 
-DELIMITER $$
+--
+-- Daten für Tabelle `wx_entity_assessment`
+--
 
-USE `tudiirdb`$$
 
-DROP FUNCTION IF EXISTS `getDomain`$$
-
-CREATE DEFINER=`root`@`localhost` FUNCTION `getDomain`(url VARCHAR(255)) RETURNS VARCHAR(255) CHARSET latin1
-    DETERMINISTIC
-RETURN SUBSTRING_INDEX(SUBSTRING_INDEX(SUBSTRING_INDEX(TRIM(LEADING "https://" FROM TRIM(LEADING "http://" FROM TRIM(url))), "/", 1), ":", 1), ".", IF(url LIKE "%.org.__%" OR url LIKE "%.net.__%" OR url LIKE "%.com.__%" OR url LIKE "%.__.us%" OR url LIKE "%.co.__%" OR url LIKE "%.__.uk%", -3, -2) )$$
-
-DELIMITER ;
-
-/* Function  structure for function  `countNumbers` */
-
-/*!50003 DROP FUNCTION IF EXISTS `countNumbers` */;
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` FUNCTION `countNumbers`(
-        text1 TEXT
-    ) RETURNS smallint(6)
-    DETERMINISTIC
-BEGIN
-  DECLARE numericChars INT;
-  DECLARE text2 TEXT;
-  SET text2 = text1;
-  SET text2 = REPLACE(text2,"0","");
-  SET text2 = REPLACE(text2,"1","");
-  SET text2 = REPLACE(text2,"2","");
-  SET text2 = REPLACE(text2,"3","");
-  SET text2 = REPLACE(text2,"4","");
-  SET text2 = REPLACE(text2,"5","");
-  SET text2 = REPLACE(text2,"6","");
-  SET text2 = REPLACE(text2,"7","");
-  SET text2 = REPLACE(text2,"8","");
-  SET text2 = REPLACE(text2,"9","");
-  
-  RETURN LENGTH(text1) - LENGTH(text2);
-END */$$
-DELIMITER ;
-
-/* Function  structure for function  `endsWithNumber` */
-
-/*!50003 DROP FUNCTION IF EXISTS `endsWithNumber` */;
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` FUNCTION `endsWithNumber`(
-        text1 TEXT
-    ) RETURNS tinyint(4)
-    DETERMINISTIC
-BEGIN
-    DECLARE numericChar INT;
-    SET numericChar = ASCII(REVERSE(text1)) BETWEEN 48 AND 57;
-  RETURN numericChar;
-END */$$
-DELIMITER ;
-
-/* Function  structure for function  `source_voting_function` */
-
-/*!50003 DROP FUNCTION IF EXISTS `source_voting_function` */;
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` FUNCTION `source_voting_function`() RETURNS bigint(20) DETERMINISTIC
-BEGIN
-  DECLARE done INT DEFAULT 0;
-  DECLARE counter INT DEFAULT 0;
-  DECLARE a INT;
-  DECLARE b DOUBLE;
-  DECLARE cur1 CURSOR FOR SELECT id,entityTrust FROM sources WHERE voting = 0 AND entityTrust > 0;
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-  OPEN cur1;
-  REPEAT
-    FETCH cur1 INTO a,b;
-    IF NOT done THEN
-       UPDATE `source_voting_view` SET trust = trust + (0.8 * b) WHERE sourceID = a AND voting = 0;
-       UPDATE `sources` SET `sources`.voting = 1 WHERE `sources`.id = a;
-       SET counter = counter + 1;
-    END IF;
-  UNTIL done END REPEAT;
-  CLOSE cur1;
-  
-  RETURN counter;
-END */$$
-DELIMITER ;
-
-/* Function  structure for function  `startsWithNumber` */
-
-/*!50003 DROP FUNCTION IF EXISTS `startsWithNumber` */;
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` FUNCTION `startsWithNumber`(
-        text1 TEXT
-    ) RETURNS tinyint(4)
-    DETERMINISTIC
-BEGIN
-    DECLARE numericChar INT;
-    SET numericChar = ASCII(text1) BETWEEN 48 AND 57;
-  RETURN numericChar;
-END */$$
-DELIMITER ;
-
-/* Function  structure for function  `wordCount` */
-
-/*!50003 DROP FUNCTION IF EXISTS `wordCount` */;
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` FUNCTION `wordCount`(
-        text1 TEXT
-    ) RETURNS int(11)
-    DETERMINISTIC
-BEGIN
-  DECLARE words INT;
-  SET words = LENGTH(text1) - LENGTH(REPLACE(text1,' ','')) + 1;
-  RETURN words;
-END */$$
-DELIMITER ;
-
-/* Procedure structure for procedure `entity_trust_assignment_procedure` */
-
-/*!50003 DROP PROCEDURE IF EXISTS  `entity_trust_assignment_procedure` */;
-
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `entity_trust_assignment_procedure`()
-    DETERMINISTIC
-BEGIN
-UPDATE `entities` es0 SET trust = (SELECT (SUM(entityTrust) * POW(2,(SELECT COUNT(DISTINCT extractionType) 
-    FROM `entities_sources` es1
-    WHERE es1.entityID = es0.`id`))) as trust 
-  FROM `entity_voting_view` evv
-  WHERE entityID = es0.`id`
-  GROUP BY entityID);
-  
-END */$$
-DELIMITER ;
-
-/* Procedure structure for procedure `entity_voting_procedure` */
-
-/*!50003 DROP PROCEDURE IF EXISTS  `entity_voting_procedure` */;
-
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `entity_voting_procedure`()
-BEGIN
-  DECLARE done INT DEFAULT 0;
-  DECLARE a INT;
-  DECLARE b DOUBLE;
-  DECLARE cur1 CURSOR FOR SELECT id,trust FROM `entities` WHERE voting = 0 AND trust > 0;
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-  
-  OPEN cur1;
-  START TRANSACTION;	
-  REPEAT
-    FETCH cur1 INTO a,b;
-    IF NOT done THEN
-       UPDATE `entity_voting_view` SET entityTrust = entityTrust + b WHERE entityID = a;
-       UPDATE `entities` SET `entities`.voting = 1 WHERE `entities`.id = a;
-    END IF;
-  UNTIL done END REPEAT;
-  COMMIT;
-  CLOSE cur1;
-END */$$
-DELIMITER ;
-
-/* Procedure structure for procedure `final_source_voting_procedure` */
-
-/*!50003 DROP PROCEDURE IF EXISTS  `final_source_voting_procedure` */;
-
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `final_source_voting_procedure`()
-BEGIN
-DECLARE done INT DEFAULT 0;
-DECLARE a INT;
-DECLARE b DOUBLE;
-DECLARE cur1 CURSOR FOR SELECT entities.id,SUM(entityTrust) FROM entities,entities_sources,sources WHERE entities.id = entities_sources.entityID AND entities_sources.sourceID = sources.id GROUP BY entities.id;
-DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-  OPEN cur1;
-  START TRANSACTION;
-  
-  REPEAT
-    FETCH cur1 INTO a,b;
-    IF NOT done THEN
-       UPDATE entities SET trust = b WHERE id = a;
-    END IF;
-  UNTIL done END REPEAT;
-  
-  COMMIT;
-  CLOSE cur1;
-END */$$
-DELIMITER ;
-
-/* Procedure structure for procedure `source_trust_assignment_procedure` */
-
-/*!50003 DROP PROCEDURE IF EXISTS  `source_trust_assignment_procedure` */;
-
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `source_trust_assignment_procedure`()
-BEGIN
-DECLARE done INT DEFAULT 0;
-DECLARE a INT;
-DECLARE cur1 CURSOR FOR SELECT sources.id FROM sources WHERE 1;
-DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-  OPEN cur1;
-  REPEAT
-    FETCH cur1 INTO a;
-    IF NOT done THEN
-     UPDATE `sources` SET `sources`.`entityTrust` = 
-     (SELECT COALESCE((totalSources/total),0.00) AS trust
-      FROM (
-        SELECT COUNT(id) as total FROM `entities_sources` es1 WHERE es1.sourceID = a	
-      ) as totalTable,
-      (
-        SELECT COALESCE(SUM(sourceCounts.sourceCount),0.00) AS totalSources FROM 
-        (SELECT COUNT(id) AS sourceCount FROM `entities_sources` es1, (SELECT es2.entityID FROM entities_sources es2 WHERE es2.sourceID = a) AS tab2
-        WHERE es1.`entityID` = tab2.entityID
-        GROUP BY es1.`entityID` HAVING COUNT(id) > 1) AS sourceCounts
-      ) as totalSharedSourcesTable
-      WHERE 1) WHERE id = a;
-    END IF;
-  UNTIL done END REPEAT;
-  CLOSE cur1;
-  
-END */$$
-DELIMITER ;
-
-/* Procedure structure for procedure `source_trust_assignment_procedure2` */
-
-/*!50003 DROP PROCEDURE IF EXISTS  `source_trust_assignment_procedure2` */;
-
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `source_trust_assignment_procedure2`()
-    DETERMINISTIC
-BEGIN
-DECLARE done INT DEFAULT 0;
-DECLARE a INT;
-DECLARE cur1 CURSOR FOR SELECT sources.id FROM sources WHERE 1;
-DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-  OPEN cur1;
-  REPEAT
-    FETCH cur1 INTO a;
-    IF NOT done THEN
-     UPDATE `sources` SET `sources`.`entityTrust` = 
-     (SELECT COALESCE(SUM(sourceCounts.sourceCount),0.00) AS totalSources FROM 
-        (SELECT COUNT(id) AS sourceCount FROM `entities_sources` es1, (SELECT es2.entityID FROM entities_sources es2 WHERE es2.sourceID = a) AS tab2
-        WHERE es1.`entityID` = tab2.entityID
-        GROUP BY es1.`entityID` HAVING COUNT(id) > 1) AS sourceCounts
-      ) WHERE id = a;
-    END IF;
-  UNTIL done END REPEAT;
-  CLOSE cur1;
-  
-END */$$
-DELIMITER ;
-
-/* Procedure structure for procedure `source_voting_procedure` */
-
-/*!50003 DROP PROCEDURE IF EXISTS  `source_voting_procedure` */;
-
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `source_voting_procedure`()
-BEGIN
-  DECLARE done INT DEFAULT 0;
-  DECLARE a INT;
-  DECLARE b DOUBLE;
-  DECLARE cur1 CURSOR FOR SELECT id,entityTrust FROM sources WHERE voting = 0 AND entityTrust > 0;
-  DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-  OPEN cur1;
-  START TRANSACTION; 
-  REPEAT
-    FETCH cur1 INTO a,b;
-    IF NOT done THEN
-       UPDATE `source_voting_view` SET trust = trust + b WHERE sourceID = a;
-       UPDATE `sources` SET `sources`.voting = 1 WHERE `sources`.id = a;
-    END IF;
-  UNTIL done END REPEAT;
-  COMMIT;
-  
-  CLOSE cur1;  
-END */$$
-DELIMITER ;
-
-/* Procedure structure for procedure `temp_procedure` */
-
-/*!50003 DROP PROCEDURE IF EXISTS  `temp_procedure` */;
-
-DELIMITER $$
-
-/*!50003 CREATE DEFINER=`root`@`localhost` PROCEDURE `temp_procedure`()
-BEGIN
-DECLARE done INT DEFAULT 0;
-DECLARE a INT;
-DECLARE cur1 CURSOR FOR SELECT sources.id FROM sources WHERE 1;
-DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = 1;
-  OPEN cur1;
-  REPEAT
-    FETCH cur1 INTO a;
-    IF NOT done THEN
-        SELECT COALESCE(SUM(sourceCounts.sourceCount),0.00) AS totalSources FROM 
-        (SELECT COUNT(id) AS sourceCount FROM `entities_sources` es1, (SELECT es2.entityID FROM entities_sources es2 WHERE es2.sourceID = a) AS tab2
-        WHERE es1.`entityID` = tab2.entityID
-        GROUP BY es1.`entityID` HAVING COUNT(id) > 1) AS sourceCounts;
-    END IF;
-  UNTIL done END REPEAT;
-  CLOSE cur1;
-END */$$
-DELIMITER ;
-
-/*Table structure for table `entity_trust_view` */
-
-DROP TABLE IF EXISTS `entity_trust_view`;
-
-/*!50001 DROP VIEW IF EXISTS `entity_trust_view` */;
-/*!50001 DROP TABLE IF EXISTS `entity_trust_view` */;
-
-/*!50001 CREATE TABLE `entity_trust_view` (
-  `conceptID` int(11) unsigned NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `trust` double(17,0) NOT NULL DEFAULT '0',
-  `numberOfEntities` bigint(21) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 */;
-
-/*Table structure for table `entity_voting_view` */
-
-DROP TABLE IF EXISTS `entity_voting_view`;
-
-/*!50001 DROP VIEW IF EXISTS `entity_voting_view` */;
-/*!50001 DROP TABLE IF EXISTS `entity_voting_view` */;
-
-/*!50001 CREATE TABLE `entity_voting_view` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `entityID` bigint(20) unsigned DEFAULT NULL,
-  `entityTrust` double unsigned NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 */;
-
-/*Table structure for table `source_voting_view` */
-
-DROP TABLE IF EXISTS `source_voting_view`;
-
-/*!50001 DROP VIEW IF EXISTS `source_voting_view` */;
-/*!50001 DROP TABLE IF EXISTS `source_voting_view` */;
-
-/*!50001 CREATE TABLE `source_voting_view` (
-  `id` bigint(20) unsigned NOT NULL DEFAULT '0',
-  `sourceID` bigint(20) unsigned DEFAULT NULL,
-  `trust` double(15,3) unsigned NOT NULL,
-  `voting` tinyint(1) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 */;
-
-/*Table structure for table `sources_entities_view` */
-
-DROP TABLE IF EXISTS `sources_entities_view`;
-
-/*!50001 DROP VIEW IF EXISTS `sources_entities_view` */;
-/*!50001 DROP TABLE IF EXISTS `sources_entities_view` */;
-
-/*!50001 CREATE TABLE `sources_entities_view` (
-  `entityID` bigint(20) unsigned DEFAULT NULL,
-  `entityVoting` tinyint(1) NOT NULL DEFAULT '0',
-  `entityTrust` double(15,3) unsigned NOT NULL,
-  `sourceID` bigint(20) unsigned DEFAULT NULL,
-  `sourceVoting` tinyint(1) NOT NULL DEFAULT '0',
-  `sourceEntityTrust` double unsigned NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 */;
-
-/*Table structure for table `webknox_development` */
-
-DROP TABLE IF EXISTS `webknox_development`;
-
-/*!50001 DROP VIEW IF EXISTS `webknox_development` */;
-/*!50001 DROP TABLE IF EXISTS `webknox_development` */;
-
-/*!50001 CREATE TABLE `webknox_development` (
-  `conceptID` int(11) unsigned NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `trust` double(17,0) NOT NULL DEFAULT '0',
-  `numberOfEntities` bigint(21) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 */;
-
-/*Table structure for table `webknox_entity_assessment` */
-
-DROP TABLE IF EXISTS `webknox_entity_assessment`;
-
-/*!50001 DROP VIEW IF EXISTS `webknox_entity_assessment` */;
-/*!50001 DROP TABLE IF EXISTS `webknox_entity_assessment` */;
-
-/*!50001 CREATE TABLE `webknox_entity_assessment` (
-  `conceptID` int(11) unsigned NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `trust` double(17,0) NOT NULL DEFAULT '0',
-  `numberOfEntities` bigint(21) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 */;
-
-/*Table structure for table `wx_entity_assessment` */
-
-DROP TABLE IF EXISTS `wx_entity_assessment`;
-
-/*!50001 DROP VIEW IF EXISTS `wx_entity_assessment` */;
-/*!50001 DROP TABLE IF EXISTS `wx_entity_assessment` */;
-
-/*!50001 CREATE TABLE `wx_entity_assessment` (
-  `conceptID` int(11) unsigned NOT NULL,
-  `name` varchar(255) DEFAULT NULL,
-  `trust` double(17,0) NOT NULL DEFAULT '0',
-  `numberOfEntities` bigint(21) NOT NULL DEFAULT '0'
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 */;
-
-/*View structure for view entity_trust_view */
-
-/*!50001 DROP TABLE IF EXISTS `entity_trust_view` */;
-/*!50001 DROP VIEW IF EXISTS `entity_trust_view` */;
-
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `entity_trust_view` AS select `entities`.`conceptID` AS `conceptID`,`entities`.`name` AS `name`,floor(`entities`.`trust`) AS `trust`,count(`entities`.`trust`) AS `numberOfEntities` from `entities` group by `entities`.`conceptID`,floor(`entities`.`trust`) having (`trust` > 0) order by floor(`entities`.`trust`) desc */;
-
-/*View structure for view entity_voting_view */
-
-/*!50001 DROP TABLE IF EXISTS `entity_voting_view` */;
-/*!50001 DROP VIEW IF EXISTS `entity_voting_view` */;
-
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `entity_voting_view` AS select `sources`.`id` AS `id`,`entities_sources`.`entityID` AS `entityID`,`sources`.`entityTrust` AS `entityTrust` from (`sources` join `entities_sources`) where (`sources`.`id` = `entities_sources`.`sourceID`) */;
-
-/*View structure for view source_voting_view */
-
-/*!50001 DROP TABLE IF EXISTS `source_voting_view` */;
-/*!50001 DROP VIEW IF EXISTS `source_voting_view` */;
-
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `source_voting_view` AS select `entities`.`id` AS `id`,`entities_sources`.`sourceID` AS `sourceID`,`entities`.`trust` AS `trust`,`entities`.`voting` AS `voting` from (`entities` join `entities_sources`) where (`entities`.`id` = `entities_sources`.`entityID`) */;
-
-/*View structure for view sources_entities_view */
-
-/*!50001 DROP TABLE IF EXISTS `sources_entities_view` */;
-/*!50001 DROP VIEW IF EXISTS `sources_entities_view` */;
-
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `sources_entities_view` AS select `entities_sources`.`entityID` AS `entityID`,`entities`.`voting` AS `entityVoting`,`entities`.`trust` AS `entityTrust`,`entities_sources`.`sourceID` AS `sourceID`,`sources`.`voting` AS `sourceVoting`,`sources`.`entityTrust` AS `sourceEntityTrust` from ((`entities` join `entities_sources`) join `sources`) where ((`entities`.`id` = `entities_sources`.`entityID`) and (`entities_sources`.`sourceID` = `sources`.`id`)) */;
-
-/*View structure for view webknox_development */
-
-/*!50001 DROP TABLE IF EXISTS `webknox_development` */;
-/*!50001 DROP VIEW IF EXISTS `webknox_development` */;
-
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `webknox_development` AS select `entities`.`conceptID` AS `conceptID`,`entities`.`name` AS `name`,floor(`entities`.`trust`) AS `trust`,count(`entities`.`trust`) AS `numberOfEntities` from `entities` group by `entities`.`conceptID`,floor(`entities`.`trust`) having (`trust` > 0) order by floor(`entities`.`trust`) desc */;
-
-/*View structure for view webknox_entity_assessment */
-
-/*!50001 DROP TABLE IF EXISTS `webknox_entity_assessment` */;
-/*!50001 DROP VIEW IF EXISTS `webknox_entity_assessment` */;
-
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `webknox_entity_assessment` AS select `entities`.`conceptID` AS `conceptID`,`entities`.`name` AS `name`,floor(`entities`.`trust`) AS `trust`,count(`entities`.`trust`) AS `numberOfEntities` from `entities` group by `entities`.`conceptID`,floor(`entities`.`trust`) having (`trust` > 0) order by floor(`entities`.`trust`) desc */;
-
-/*View structure for view wx_entity_assessment */
-
-/*!50001 DROP TABLE IF EXISTS `wx_entity_assessment` */;
-/*!50001 DROP VIEW IF EXISTS `wx_entity_assessment` */;
-
-/*!50001 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `wx_entity_assessment` AS select `entities`.`conceptID` AS `conceptID`,`entities`.`name` AS `name`,floor(`entities`.`trust`) AS `trust`,count(`entities`.`trust`) AS `numberOfEntities` from `entities` group by `entities`.`conceptID`,floor(`entities`.`trust`) having (`trust` > 0) order by floor(`entities`.`trust`) desc */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
