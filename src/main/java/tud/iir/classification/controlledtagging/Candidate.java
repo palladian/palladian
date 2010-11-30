@@ -24,13 +24,15 @@ public class Candidate {
     private int capitalCount;
     private int firstPos = Integer.MAX_VALUE;
     private int lastPos = Integer.MIN_VALUE;
+    private SummaryStatistics correlationStats = new SummaryStatistics();
+
     private Boolean positive;
     private float regressionValue;
-    
-    private SummaryStatistics correlationStats = new SummaryStatistics(); // TODO
 
     public Candidate(DocumentModel document) {
         this.document = document;
+        
+        // prevent NaN/Infinity
         correlationStats.addValue(0);
     }
 
@@ -96,7 +98,9 @@ public class Candidate {
     }
 
     public float getFrequency() {
-        return (float) count / document.getCandidateCount();
+        // return (float) count / document.getCandidateCount();
+        return (float) count / document.getTokenCount(); // XXX
+
     }
 
     public float getInverseDocumentFrequency() {
@@ -111,27 +115,18 @@ public class Candidate {
         return lastPos - firstPos;
     }
 
-    // FIXME dirty
     public float getFirstPosRel() {
-        // return (float) firstPos / (document.getWordCount() - 1);
-        int wordCount = document.getWordCount();
-        wordCount = wordCount > 1 ? wordCount - 1 : 1;
+        int wordCount = Math.max(1, document.getTokenCount());
         return (float) firstPos / wordCount;
     }
 
-    // FIXME dirty
     public float getLastPosRel() {
-        // return (float) lastPos / (document.getWordCount() - 1);
-        int wordCount = document.getWordCount();
-        wordCount = wordCount > 1 ? wordCount - 1 : 1;
+        int wordCount = Math.max(1, document.getTokenCount());
         return (float) lastPos / wordCount;
     }
 
-    // FIXME dirty
     public float getSpreadRel() {
-        // return (float) getSpread() / (document.getWordCount() - 1);
-        int wordCount = document.getWordCount();
-        wordCount = wordCount > 1 ? wordCount - 1 : 1;
+        int wordCount = Math.max(1, document.getTokenCount());
         return (float) getSpread() / wordCount;
     }
 
@@ -139,28 +134,30 @@ public class Candidate {
         return value.length();
     }
 
-    // TODO this should be the stemmed value!
     public float getPrior() {
-        // return document.getPrior(this.getValue().toLowerCase());
-        return document.getPrior(this.getStemmedValue().toLowerCase());
+        return document.getPrior(this);
     }
-    
+
     public void addCorrelation(double correlation) {
         correlationStats.addValue(correlation);
     }
-    
+
     public double getCorrelationSum() {
         return correlationStats.getSum();
     }
+
     public double getCorrelationMax() {
         return correlationStats.getMax();
     }
+
     public double getCorrelationMin() {
         return correlationStats.getMin();
     }
+
     public double getCorrelationMean() {
         return correlationStats.getMean();
     }
+
     public int getCorrelationCount() {
         return (int) correlationStats.getN() - 1;
     }
@@ -196,28 +193,22 @@ public class Candidate {
         features.put("spreadRelative", (double) getSpreadRel());
         features.put("length", (double) getLength());
         features.put("prior", (double) getPrior());
-        
         features.put("correlationSum", getCorrelationSum());
         features.put("correlationMax", getCorrelationMax());
         features.put("correlationMin", getCorrelationMin());
         features.put("correlationMean", getCorrelationMean());
         features.put("correlationCount", (double) getCorrelationCount());
-        
-        // TODO
-        // posFeatures
+
+        // debugging
+        for (Entry<String, Double> entry : features.entrySet()) {
+            Double value = entry.getValue();
+            assert !Double.isInfinite(value);
+            assert !Double.isNaN(value);
+        }
 
         // value for the Classifier, if we are in training mode.
         if (positive != null) {
             features.put("positive", positive ? 1.0 : 0.0);
-        }
-
-        // XXX debugging
-        for (Entry<String, Double> entry : features.entrySet()) {
-            double value = entry.getValue();
-            if (Double.isNaN(value) || Double.isInfinite(value)) {
-                System.out.println(entry.getKey());
-                throw new RuntimeException();
-            }
         }
 
         return features;
