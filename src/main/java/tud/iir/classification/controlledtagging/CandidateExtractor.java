@@ -22,6 +22,17 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
 
+/**
+ * 
+ * optimum vlaues:
+ * 
+ * avgPr: 0.4863928631767631
+ * avgRc: 0.23635926371440288
+ * avgF1: 0.3181269338103561
+ * 
+ * @author Philipp Katz
+ * 
+ */
 public class CandidateExtractor {
 
     private SnowballStemmer stemmer = new englishStemmer();
@@ -35,20 +46,20 @@ public class CandidateExtractor {
 
     public CandidateExtractor() {
         tokenizer.setUsePosTagging(false);
+        //tokenizer.setUsePosTagging(true);
     }
 
     public void addToCorpus(String text) {
 
-        List<Token> tokens = tokenize2(text);
+        List<Token> tokens = tokenize(text);
         corpus.addTokens(tokens);
 
     }
 
     public void addToCorpus(String text, Set<String> tags) {
 
-        List<Token> tokens = tokenize2(text);
+        List<Token> tokens = tokenize(text);
         corpus.addTokens(tokens);
-
 
         // corpus contains the stemmed representations!
         tags = stem(tags);
@@ -149,7 +160,7 @@ public class CandidateExtractor {
         // System.out.println(c.getValue() + " " + c.getRegressionValue());
         // }
         int realCount = stemmedTags.size();
-        
+
         stemmedTags.addAll(tags); // XXX
 
         int correctlyAssigned = 0;
@@ -159,13 +170,13 @@ public class CandidateExtractor {
                 boolean isCorrectlyAssigned = false;
                 isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getStemmedValue());
                 isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getValue());
-                isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getValue().replace(" ", ""));
+                isCorrectlyAssigned = isCorrectlyAssigned
+                        || realTag.equalsIgnoreCase(candidate.getValue().replace(" ", ""));
 
                 if (isCorrectlyAssigned) {
                     correctlyAssigned++;
                     break; // XXX
                 }
-                
 
             }
             System.out.println(" " + candidate.getValue());
@@ -198,7 +209,7 @@ public class CandidateExtractor {
     public DocumentModel makeCandidates(String text) {
 
         DocumentModel model = new DocumentModel(corpus);
-        List<Token> tokens = tokenize2(text);
+        List<Token> tokens = tokenize(text);
 
         for (Token token : tokens) {
             model.addToken(token);
@@ -210,10 +221,9 @@ public class CandidateExtractor {
 
     }
 
-    public List<Token> tokenize2(String text) {
+    public List<Token> tokenize(String text) {
 
         List<Token> tokens = new ArrayList<Token>();
-
         List<Token> uniGrams = tokenizer.tokenize(text);
         List<Token> collocations = tokenizer.makeCollocations(uniGrams, 5);
 
@@ -270,7 +280,7 @@ public class CandidateExtractor {
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-        //createTrainData(extractor);
+        // createTrainData(extractor);
 
         // //////////////////////////////////////////////
         // EVALUATION
