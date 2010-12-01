@@ -65,7 +65,7 @@ public class DocumentModel extends ArrayList<Candidate> {
         List<Token> tokenList = tokens.get(token.getStemmedValue());
         tokenList.add(token);
     }
-    
+
     /**
      * Add a List of {@link Token}s to the document model.
      * 
@@ -214,7 +214,7 @@ public class DocumentModel extends ArrayList<Candidate> {
 
         return sb.toString();
     }
-    
+
     /**
      * Returns a more detailed toString representation.
      * 
@@ -227,7 +227,7 @@ public class DocumentModel extends ArrayList<Candidate> {
         }
         builder.append("# of unique candidates : " + size()).append("\n");
         builder.append("# tokens : " + tokenCount);
-        return builder.toString();        
+        return builder.toString();
     }
 
     @Override
@@ -237,7 +237,9 @@ public class DocumentModel extends ArrayList<Candidate> {
         for (Candidate candidate : this) {
             builder.append(candidate.getStemmedValue()).append(", ");
         }
-        builder.delete(builder.length() - 2, builder.length());
+        if (builder.length() > 1) {
+            builder.delete(builder.length() - 2, builder.length());
+        }
         builder.append("]");
         return builder.toString();
     }
