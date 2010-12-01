@@ -59,7 +59,7 @@ public class WhoClassifier extends Classifier {
 
             return (float) fDistribution[0];
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
             return 0;
         }
 
@@ -80,7 +80,7 @@ public class WhoClassifier extends Classifier {
             weka.core.SerializationHelper.write(
                     "data/learnedClassifiers/who.model", getClassifier());
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
 
     }
@@ -112,7 +112,7 @@ public class WhoClassifier extends Classifier {
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedClassifier);
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
     }
 

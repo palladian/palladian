@@ -36,7 +36,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
         try {
             config = new PropertiesConfiguration("config/models.conf");
-        } catch (ConfigurationException e) {
+        } catch (final ConfigurationException e) {
             LOGGER.error("could not get modepath from config/models.conf, "
                     + e.getMessage());
         }
@@ -91,20 +91,20 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
             sentenceModel = new SentenceModel(modelIn);
 
-        } catch (InvalidFormatException e) {
+        } catch (final InvalidFormatException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (FileNotFoundException e) {
+        } catch (final FileNotFoundException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } finally {
             if (modelIn != null) {
                 try {
                     modelIn.close();
-                } catch (IOException e) {
+                } catch (final IOException e) {
                 }
             }
         }

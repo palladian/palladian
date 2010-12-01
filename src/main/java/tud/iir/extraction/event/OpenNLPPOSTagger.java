@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-import opennlp.tools.postag.POSDictionary;
 import opennlp.tools.postag.POSModel;
 import opennlp.tools.postag.POSTagger;
 import opennlp.tools.postag.POSTaggerME;
@@ -30,11 +29,10 @@ import tud.iir.helper.StopWatch;
  */
 public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
-    private POSDictionary dictionary;
+    private Tokenizer tokenizer;
 
     private final String MODEL;
     private final String MODEL_TOK;
-    private final String MODEL_DICT;
 
     public OpenNLPPOSTagger() {
         setName("OpenNLP POS-Tagger");
@@ -42,7 +40,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
         try {
             config = new PropertiesConfiguration("config/models.conf");
-        } catch (ConfigurationException e) {
+        } catch (final ConfigurationException e) {
             LOGGER.error("could not get model path from config/models.conf, "
                     + e.getMessage());
         }
@@ -50,26 +48,57 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
         if (config != null) {
             MODEL = config.getString("models.opennlp.en.postag");
             MODEL_TOK = config.getString("models.opennlp.en.tokenize");
-            MODEL_DICT = config.getString("models.opennlp.en.postag.dict");
         } else {
             MODEL = "";
             MODEL_TOK = "";
-            MODEL_DICT = "";
         }
     }
 
-    public boolean loadTagDictionary(String dictionaryFilePath) {
+    /**
+     * Loads the Tokenizer.
+     * 
+     * @param configModelFilePath
+     * @return
+     */
+    public boolean loadTokenizer(String configModelFilePath) {
 
-        try {
-            dictionary = POSDictionary.create(new FileInputStream(
-                    dictionaryFilePath));
-            setDictionary(dictionary);
+        InputStream modelIn;
+
+        if (DataHolder.getInstance().containsDataObject(configModelFilePath)) {
+
+            setTokenizer((Tokenizer) DataHolder.getInstance().getDataObject(
+                    configModelFilePath));
             return true;
-        } catch (final IOException e) {
-            LOGGER.error(e);
-            return false;
-        }
+        } else {
 
+            try {
+                modelIn = new FileInputStream(configModelFilePath);
+
+                try {
+                    final TokenizerModel model = new TokenizerModel(modelIn);
+                    final Tokenizer tokenizer = new TokenizerME(model);
+
+                    DataHolder.getInstance().putDataObject(configModelFilePath,
+                            tokenizer);
+                    setTokenizer(tokenizer);
+
+                    return true;
+                } catch (final IOException e) {
+                    LOGGER.error(e);
+                } finally {
+                    if (modelIn != null) {
+                        try {
+                            modelIn.close();
+                        } catch (final IOException e) {
+                            LOGGER.error(e);
+                        }
+                    }
+                }
+            } catch (final IOException e) {
+                LOGGER.error(e);
+            }
+        }
+        return false;
     }
 
     /*
@@ -91,7 +120,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
             stopWatch.start();
 
             try {
-                POSModel model = new POSModel(new FileInputStream(
+                final POSModel model = new POSModel(new FileInputStream(
                         configModelFilePath));
 
                 tagger = new POSTaggerME(model);
@@ -103,15 +132,12 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
                         + configModelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
 
-            } catch (InvalidFormatException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (FileNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+            } catch (final InvalidFormatException e) {
+                LOGGER.error(e);
+            } catch (final FileNotFoundException e) {
+                LOGGER.error(e);
+            } catch (final IOException e) {
+                LOGGER.error(e);
             }
 
         }
@@ -127,48 +153,25 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
      */
     @Override
     public void tag(String sentence) {
-        try {
-            // SentenceDetectorME sdetector = new
-            // SentenceDetector(POSTagger.MODEL_SBD_OPENNLP);
 
-            InputStream modelIn = new FileInputStream(MODEL_TOK);
-            try {
-                TokenizerModel model = new TokenizerModel(modelIn);
-                Tokenizer tokenizer = new TokenizerME(model);
-                final String[] tokens = tokenizer.tokenize(sentence);
+        final String[] tokens = getTokenizer().tokenize(sentence);
 
-                final List<String> tokenList = new ArrayList<String>();
-                for (int j = 0; j < tokens.length; j++) {
-                    tokenList.add(tokens[j]);
-                }
-
-                final List<String> tagList = ((POSTagger) getModel())
-                        .tag(tokenList);
-
-                final TagAnnotations tagAnnotations = new TagAnnotations();
-                for (int i = 0; i < tagList.size(); i++) {
-                    final TagAnnotation tagAnnotation = new TagAnnotation(
-                            sentence.indexOf(tokenList.get(i)), tagList.get(i),
-                            tokenList.get(i));
-                    tagAnnotations.add(tagAnnotation);
-                }
-
-                this.setTagAnnotations(tagAnnotations);
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            } finally {
-                if (modelIn != null) {
-                    try {
-                        modelIn.close();
-                    } catch (IOException e) {
-                    }
-                }
-            }
-
-        } catch (final IOException e) {
-            LOGGER.error(e);
+        final List<String> tokenList = new ArrayList<String>();
+        for (int j = 0; j < tokens.length; j++) {
+            tokenList.add(tokens[j]);
         }
+
+        final List<String> tagList = ((POSTagger) getModel()).tag(tokenList);
+
+        final TagAnnotations tagAnnotations = new TagAnnotations();
+        for (int i = 0; i < tagList.size(); i++) {
+            final TagAnnotation tagAnnotation = new TagAnnotation(sentence
+                    .indexOf(tokenList.get(i)), tagList.get(i), tokenList
+                    .get(i));
+            tagAnnotations.add(tagAnnotation);
+        }
+
+        this.setTagAnnotations(tagAnnotations);
 
     }
 
@@ -181,16 +184,23 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
     @Override
     public boolean loadModel() {
         this.loadModel(MODEL);
-        this.loadTagDictionary(MODEL_DICT);
+        this.loadTokenizer(MODEL_TOK);
         return false;
     }
 
-    public POSDictionary getDictionary() {
-        return dictionary;
+    /**
+     * @return the tokenizer
+     */
+    public Tokenizer getTokenizer() {
+        return tokenizer;
     }
 
-    public void setDictionary(POSDictionary dictionary) {
-        this.dictionary = dictionary;
+    /**
+     * @param tokenizer
+     *            the tokenizer to set
+     */
+    public void setTokenizer(Tokenizer tokenizer) {
+        this.tokenizer = tokenizer;
     }
 
 }

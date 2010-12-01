@@ -23,7 +23,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
         try {
             config = new PropertiesConfiguration("config/models.conf");
-        } catch (ConfigurationException e) {
+        } catch (final ConfigurationException e) {
             LOGGER.error("could not get model path from config/models.conf, "
                     + e.getMessage());
         }
