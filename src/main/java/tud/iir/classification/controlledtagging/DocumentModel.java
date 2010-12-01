@@ -214,15 +214,31 @@ public class DocumentModel extends ArrayList<Candidate> {
 
         return sb.toString();
     }
-
-    @Override
-    public String toString() {
+    
+    /**
+     * Returns a more detailed toString representation.
+     * 
+     * @return
+     */
+    public String toLongString() {
         StringBuilder builder = new StringBuilder();
         for (Candidate candidate : this) {
             builder.append(candidate).append("\n");
         }
         builder.append("# of unique candidates : " + size()).append("\n");
         builder.append("# tokens : " + tokenCount);
+        return builder.toString();        
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("[");
+        for (Candidate candidate : this) {
+            builder.append(candidate.getStemmedValue()).append(", ");
+        }
+        builder.delete(builder.length() - 2, builder.length());
+        builder.append("]");
         return builder.toString();
     }
 

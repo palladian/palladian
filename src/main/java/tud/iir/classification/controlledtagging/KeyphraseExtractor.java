@@ -23,6 +23,7 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StopWatch;
+import tud.iir.helper.StringHelper;
 
 /**
  * 
@@ -56,12 +57,12 @@ public class KeyphraseExtractor {
     }
 
     public void buildCorpus(String filePath) {
-        
+
         LOGGER.info("building corpus ...");
 
         StopWatch sw = new StopWatch();
         final Counter counter = new Counter();
-        
+
         FileHelper.performActionOnEveryLine(filePath, new LineAction() {
 
             @Override
@@ -85,7 +86,7 @@ public class KeyphraseExtractor {
                 }
             }
         });
-        
+
         saveCorpus();
         LOGGER.info("built and saved corpus in " + sw.getElapsedTimeString());
 
@@ -163,15 +164,15 @@ public class KeyphraseExtractor {
         // write the train data for the classifier to CSV file
         FileHelper.writeToFile("data/temp/KeyphraseExtractorTraining.csv", trainData);
         LOGGER.info("created training data in " + sw.getElapsedTimeString());
-        
+
         // train and save the classifier
         LOGGER.info("training classifier ...");
         sw.start();
-        
+
         // save memory; this is necessary, as the corpus consumes great amounts of memory, but
         // fortunately we don't need the corpus for the training process
         corpus = null;
-        
+
         classifier = new CandidateClassifier();
         classifier.trainClassifier("data/temp/KeyphraseExtractorTraining.csv");
         classifier.saveTrainedClassifier();
@@ -217,28 +218,28 @@ public class KeyphraseExtractor {
         classifier.useTrainedClassifier();
         LOGGER.info("loaded classifier in " + sw.getElapsedTimeString());
     }
-    
+
     public List<Candidate> extract(String text) {
-        
+
         DocumentModel candidates = createDocumentModel(text);
-        
+
         // eliminate undesired candidates in advance
         ListIterator<Candidate> listIterator = candidates.listIterator();
         while (listIterator.hasNext()) {
             Candidate candidate = listIterator.next();
-            
+
             boolean ignore = stopwords.contains(candidate.getValue());
             ignore = ignore || !candidate.getValue().matches("[a-zA-Z\\s]{3,}");
             ignore = ignore || (controlledMode && candidate.getPrior() == 0);
-            
+
             if (ignore) {
                 listIterator.remove();
             }
         }
-        
+
         // perform the regression for ranking the candidates
         classifier.classify(candidates);
-        
+
         // do the correlation based re-ranking
         // TODO refactor this to its own method ////////////////////////////////////
         Candidate[] candidateArray = candidates.toArray(new Candidate[0]);
@@ -251,7 +252,7 @@ public class KeyphraseExtractor {
             Candidate cand1 = candidateArray[i];
             for (int j = i; j < candidateArray.length; j++) {
                 Candidate cand2 = candidateArray[j];
-                
+
                 WordCorrelation correlation = corpus.getCorrelation(cand1, cand2);
                 if (correlation != null) {
                     float reRanking = (float) ((correlationWeight / numReRanking) * correlation
@@ -261,74 +262,102 @@ public class KeyphraseExtractor {
                 }
             }
         }
-        /////////////////////////////////////////////////////////////////////////////
-        
+        // ///////////////////////////////////////////////////////////////////////////
+
         // sort the candidates by regression value
         Collections.sort(candidates, new CandidateComparator());
-        
+
         // create the final result, take the top n candidates
         if (candidates.size() > 10) {
             candidates.subList(10, candidates.size()).clear();
         }
-        
+
         return candidates;
-        
+
     }
-
-    public float[] evaluate(String text, Set<String> tags) {
-
-        Set<String> stemmedTags = stem(tags);
-
+    
+    public void evaluate(String filePath) {
         
-        List<Candidate> candidatesList = extract(text);
+        LOGGER.info("starting evaluation ...");
+        StopWatch sw = new StopWatch();
+        final Counter counter = new Counter();
+        final float[] prRcValues = new float[2];
         
-        
-        int realCount = stemmedTags.size();
+        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+            
+            @Override
+            public void performAction(String line, int lineNumber) {
+                
+                String[] split = line.split("#");
 
-        stemmedTags.addAll(tags); // XXX
-
-        int correctlyAssigned = 0;
-        for (Candidate candidate : candidatesList) {
-            for (String realTag : stemmedTags) {
-
-                boolean isCorrectlyAssigned = false;
-                isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getStemmedValue());
-                isCorrectlyAssigned = isCorrectlyAssigned || realTag.equalsIgnoreCase(candidate.getValue());
-                isCorrectlyAssigned = isCorrectlyAssigned
-                        || realTag.equalsIgnoreCase(candidate.getValue().replace(" ", ""));
-
-                if (isCorrectlyAssigned) {
-                    correctlyAssigned++;
-                    break; // XXX
+                if (split.length < 2) {
+                    return;
                 }
-
+                
+                // the manually assigned keyphrases
+                Set<String> realKeyphrases = new HashSet<String>();
+                for (int i = 1; i < split.length; i++) {
+                    realKeyphrases.add(split[i].toLowerCase());
+                }
+                Set<String> stemmedRealKeyphrases = stem(realKeyphrases);
+                // int realKeyphrasesCount = realKeyphrases.size();
+                int realKeyphrasesCount = stemmedRealKeyphrases.size();
+                realKeyphrases.addAll(stemmedRealKeyphrases);
+                
+                // automatically extract keyphrases
+                List<Candidate> assignedKeyphrases = extract(split[0]);
+                int correctlyAssignedCount = 0;
+                int totallyAssignedCount = assignedKeyphrases.size();
+                
+                // determine Pr/Rc values by considering assigned and real keyphrases
+                for (Candidate assignedKeyphrase : assignedKeyphrases) {
+                    for (String realKeyphrase : realKeyphrases) {
+                        
+                        boolean correct = realKeyphrase.equalsIgnoreCase(assignedKeyphrase.getValue());
+                        correct = correct || realKeyphrase.equalsIgnoreCase(assignedKeyphrase.getValue().replace(" ", ""));
+                        correct = correct || realKeyphrase.equalsIgnoreCase(assignedKeyphrase.getStemmedValue());
+                        
+                        if (correct) {
+                            correctlyAssignedCount++;
+                            break; // inner loop
+                        }
+                        
+                    }
+                }
+                
+                float precision = (float) correctlyAssignedCount / totallyAssignedCount;
+                if (Float.isNaN(precision)) {
+                    precision = 0;
+                }
+                float recall = (float) correctlyAssignedCount / realKeyphrasesCount;
+                
+                LOGGER.info("real keyphrases: " + realKeyphrases);
+                LOGGER.info("assigned keyphrases: " + assignedKeyphrases);
+                LOGGER.info("real: " + realKeyphrasesCount + " assigned: " + totallyAssignedCount + " correct: " + correctlyAssignedCount);
+                LOGGER.info("pr: " + precision + " rc: " + recall);
+                
+                prRcValues[0] += precision;
+                prRcValues[1] += recall;
+                counter.increment();
+                
             }
-            System.out.println(" " + candidate.getValue());
-        }
-
-        int totalAssigned = candidatesList.size();
-
-        float precision = (float) correctlyAssigned / totalAssigned;
-        if (Float.isNaN(precision)) {
-            precision = 0;
-        }
-        float recall = (float) correctlyAssigned / realCount;
-
-        // System.out.println("real: " + stemmedTags);
-        // System.out.println("assigned: " + candidatesList);
-        System.out.println("correctlyAssigned:" + correctlyAssigned);
-        System.out.println("totalAssigned:" + totalAssigned);
-        System.out.println("realCount: " + realCount);
-        System.out.println("pr: " + precision);
-        System.out.println("rc: " + recall);
-        System.out.println("------------------");
-
-        float[] result = new float[2];
-        result[0] = precision;
-        result[1] = recall;
-        return result;
-
+        });
+        
+        
+        // calculate average Pr/Rc/F1 values
+        float averagePrecision = (float) prRcValues[0] / counter.getCount();
+        float averageRecall = (float) prRcValues[1] / counter.getCount();
+        float averageF1 = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
+        
+        LOGGER.info("-----------------------------------------------");
+        LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
+        LOGGER.info("average precision: " + averagePrecision);
+        LOGGER.info("average recall: " + averageRecall);
+        LOGGER.info("average f1: " + averageF1);
+        
     }
+
+
 
     private DocumentModel createDocumentModel(String text) {
 
@@ -341,7 +370,7 @@ public class KeyphraseExtractor {
 
     }
 
-    public List<Token> tokenize(String text) {
+    private List<Token> tokenize(String text) {
 
         List<Token> tokens = new ArrayList<Token>();
         List<Token> uniGrams = tokenizer.tokenize(text);
@@ -395,20 +424,20 @@ public class KeyphraseExtractor {
         // //////////////////////////////////////////////
         // CORPUS CREATION
         // //////////////////////////////////////////////
-        // createCorpus(extractor);
-////        String filePath = "data/tag_dataset_10000.txt";
-////        extractor.buildCorpus(filePath);
+        String filePath = "data/tag_dataset_10000.txt";
+        // // extractor.buildCorpus(filePath);
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-        // createTrainData(extractor);
-////        extractor.buildClassifier(filePath, 1000);
+        // // extractor.buildClassifier(filePath, 1000);
 
         // //////////////////////////////////////////////
         // EVALUATION
         // //////////////////////////////////////////////
-        evaluate(extractor);
+        extractor.loadCorpus();
+        extractor.loadClassifier();
+        extractor.evaluate("evaluation.txt");
 
         System.exit(0);
 
@@ -482,13 +511,15 @@ public class KeyphraseExtractor {
 
     @SuppressWarnings("unused")
     private static void evaluate(final KeyphraseExtractor extractor) {
-        
-        extractor.loadCorpus();
-        extractor.loadClassifier();
-        
+
+//        extractor.loadCorpus();
+//        extractor.loadClassifier();
+
         final DescriptiveStatistics prStats = new DescriptiveStatistics();
         final DescriptiveStatistics rcStats = new DescriptiveStatistics();
         final Counter counter = new Counter();
+        
+        final StringBuilder sb = new StringBuilder();
 
         DeliciousDatasetReader reader = new DeliciousDatasetReader();
 
@@ -505,27 +536,34 @@ public class KeyphraseExtractor {
 
                 String content = FileHelper.readFileToString(entry.getPath());
                 content = HTMLHelper.htmlToString(content, true);
+                content = StringHelper.removeControlCharacters(content);
+                content = content.replace("#", " ");
+                
+                sb.append(content).append("#").append(StringUtils.join(entry.getTags().uniqueSet(), "#")).append("\n");
 
-                float[] prRc = extractor.evaluate(content, entry.getTags().uniqueSet());
-                System.out.println("pr:" + prRc[0] + " rc:" + prRc[1]);
-                counter.increment();
-
-                prStats.addValue(prRc[0]);
-                rcStats.addValue(prRc[1]);
+//                float[] prRc = extractor.evaluate(content, entry.getTags().uniqueSet());
+//                System.out.println("pr:" + prRc[0] + " rc:" + prRc[1]);
+//                counter.increment();
+//
+//                prStats.addValue(prRc[0]);
+//                rcStats.addValue(prRc[1]);
 
             }
         };
         reader.read(callback, 1000);
+        
+        
+        FileHelper.writeToFile("evaluation.txt", sb);
+        
 
-        double meanPr = prStats.getMean();
-        double meanRc = rcStats.getMean();
-        double meanF1 = 2 * meanPr * meanRc / (meanPr + meanRc);
-
-        System.out.println("avgPr: " + meanPr);
-        System.out.println("avgRc: " + meanRc);
-        System.out.println("avgF1: " + meanF1);
+//        double meanPr = prStats.getMean();
+//        double meanRc = rcStats.getMean();
+//        double meanF1 = 2 * meanPr * meanRc / (meanPr + meanRc);
+//
+//        System.out.println("avgPr: " + meanPr);
+//        System.out.println("avgRc: " + meanRc);
+//        System.out.println("avgF1: " + meanF1);
 
     }
-
 
 }
