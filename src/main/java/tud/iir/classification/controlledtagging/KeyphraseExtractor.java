@@ -8,7 +8,6 @@ import java.util.ListIterator;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
 import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
@@ -41,14 +40,44 @@ public class KeyphraseExtractor {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractor.class);
 
+    /** The stemmer to use. Snowball offers stemmer implementations for various languages. */
     private SnowballStemmer stemmer = new englishStemmer();
+
+    /** List of stopwords to use. */
     private Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
+
+    /** The TokenizerPlus is responsible for all tokenization steps. */
     private TokenizerPlus tokenizer = new TokenizerPlus();
 
+    /** The corpus is a model for the whole document collection. */
     private Corpus corpus = new Corpus();
+
+    /** The classifier is used for predicting relevance values for keyphrase candidates. */
     private CandidateClassifier classifier = new CandidateClassifier();
 
     private boolean controlledMode = false; // XXX testing
+
+    /** Different assignment strategies. */
+    public enum AssignmentMode {
+
+        /** Assign maximum count of keyphrases (e.g. 10 keyphrases or less). */
+        FIXED_COUNT,
+
+        /** Assign keyphrases which exceed a specified threshold (e.g. all keyphrases with weights > 0.75). */
+        THRESHOLD,
+
+        /**
+         * Assign maximum count of keyphrases or more if they exceed the specified threshold (e.g. all keyphrases with
+         * weights > 0.75 or 10 or less).
+         */
+        COMBINED
+
+    }
+
+    private AssignmentMode assignmentMode = AssignmentMode.COMBINED;
+
+    private int keyphraseCount = 10;
+    private float keyphraseThreshold = 0.75f;
 
     private String modelName = "controlledTagger";
 
@@ -201,8 +230,11 @@ public class KeyphraseExtractor {
     }
 
     public void saveCorpus() {
+        LOGGER.info("saving corpus ...");
+        StopWatch sw = new StopWatch();
         corpus.makeRelativeScores();
         FileHelper.serialize(corpus, modelName + ".ser");
+        LOGGER.info("saved corpus in " + sw.getElapsedTimeString());
     }
 
     public void loadCorpus() {
@@ -242,7 +274,7 @@ public class KeyphraseExtractor {
 
         // do the correlation based re-ranking
         // TODO refactor this to its own method ////////////////////////////////////
-        Candidate[] candidateArray = candidates.toArray(new Candidate[0]);
+        Candidate[] candidateArray = candidates.toArray(new Candidate[candidates.size()]);
         int numReRanking = candidateArray.length * (candidateArray.length - 1) / 2;
 
         // TODO parameter
@@ -264,100 +296,131 @@ public class KeyphraseExtractor {
         }
         // ///////////////////////////////////////////////////////////////////////////
 
-        // sort the candidates by regression value
-        Collections.sort(candidates, new CandidateComparator());
-
         // create the final result, take the top n candidates
-        if (candidates.size() > 10) {
-            candidates.subList(10, candidates.size()).clear();
-        }
+        limitResult(candidates);
 
         return candidates;
 
     }
-    
+
+    private void limitResult(DocumentModel candidates) {
+
+        // sort the candidates by regression value
+        Collections.sort(candidates, new CandidateComparator());
+
+        // ListIterator for manipulating the list
+        ListIterator<Candidate> listIterator = candidates.listIterator();
+
+        switch (assignmentMode) {
+
+            // in this mode, we assign a maximum number of keyphrases as result
+            case FIXED_COUNT:
+                if (candidates.size() > 0) {
+                    candidates.subList(keyphraseCount, candidates.size()).clear();
+                }
+                break;
+
+            // in this mode, we assign all keyphrases which have a weight about the specified threshold
+            case THRESHOLD:
+                while (listIterator.hasNext()) {
+                    if (listIterator.next().getRegressionValue() < keyphraseThreshold) {
+                        listIterator.remove();
+                    }
+                }
+                break;
+
+            // in the mode, we first assign a maximum number of keyphrases (FIXED_COUNT), but if there are
+            // more keyphrases with weights above the specified threshold, we assign more than the specified count
+            case COMBINED:
+                while (listIterator.hasNext()) {
+                    Candidate next = listIterator.next();
+                    if (listIterator.nextIndex() > 10 && next.getRegressionValue() < keyphraseThreshold) {
+                        listIterator.remove();
+                    }
+                }
+                break;
+        }
+
+    }
+
     public void evaluate(String filePath) {
-        
+
         LOGGER.info("starting evaluation ...");
         StopWatch sw = new StopWatch();
         final Counter counter = new Counter();
         final float[] prRcValues = new float[2];
-        
+
         FileHelper.performActionOnEveryLine(filePath, new LineAction() {
-            
+
             @Override
             public void performAction(String line, int lineNumber) {
-                
+
                 String[] split = line.split("#");
 
                 if (split.length < 2) {
                     return;
                 }
-                
+
                 // the manually assigned keyphrases
                 Set<String> realKeyphrases = new HashSet<String>();
                 for (int i = 1; i < split.length; i++) {
                     realKeyphrases.add(split[i].toLowerCase());
                 }
                 Set<String> stemmedRealKeyphrases = stem(realKeyphrases);
-                // int realKeyphrasesCount = realKeyphrases.size();
-                int realKeyphrasesCount = stemmedRealKeyphrases.size();
+                int realCount = stemmedRealKeyphrases.size();
                 realKeyphrases.addAll(stemmedRealKeyphrases);
-                
+
                 // automatically extract keyphrases
                 List<Candidate> assignedKeyphrases = extract(split[0]);
-                int correctlyAssignedCount = 0;
-                int totallyAssignedCount = assignedKeyphrases.size();
-                
+                int correctCount = 0;
+                int assignedCount = assignedKeyphrases.size();
+
                 // determine Pr/Rc values by considering assigned and real keyphrases
-                for (Candidate assignedKeyphrase : assignedKeyphrases) {
-                    for (String realKeyphrase : realKeyphrases) {
-                        
-                        boolean correct = realKeyphrase.equalsIgnoreCase(assignedKeyphrase.getValue());
-                        correct = correct || realKeyphrase.equalsIgnoreCase(assignedKeyphrase.getValue().replace(" ", ""));
-                        correct = correct || realKeyphrase.equalsIgnoreCase(assignedKeyphrase.getStemmedValue());
-                        
+                for (Candidate assigned : assignedKeyphrases) {
+                    for (String real : realKeyphrases) {
+
+                        boolean correct = real.equalsIgnoreCase(assigned.getValue());
+                        correct = correct || real.equalsIgnoreCase(assigned.getValue().replace(" ", ""));
+                        correct = correct || real.equalsIgnoreCase(assigned.getStemmedValue());
+
                         if (correct) {
-                            correctlyAssignedCount++;
+                            correctCount++;
                             break; // inner loop
                         }
-                        
+
                     }
                 }
-                
-                float precision = (float) correctlyAssignedCount / totallyAssignedCount;
+
+                float precision = (float) correctCount / assignedCount;
                 if (Float.isNaN(precision)) {
                     precision = 0;
                 }
-                float recall = (float) correctlyAssignedCount / realKeyphrasesCount;
-                
+                float recall = (float) correctCount / realCount;
+
                 LOGGER.info("real keyphrases: " + realKeyphrases);
                 LOGGER.info("assigned keyphrases: " + assignedKeyphrases);
-                LOGGER.info("real: " + realKeyphrasesCount + " assigned: " + totallyAssignedCount + " correct: " + correctlyAssignedCount);
+                LOGGER.info("real: " + realCount + " assigned: " + assignedCount + " correct: " + correctCount);
                 LOGGER.info("pr: " + precision + " rc: " + recall);
-                
+
                 prRcValues[0] += precision;
                 prRcValues[1] += recall;
                 counter.increment();
-                
+
             }
         });
-        
-        
+
         // calculate average Pr/Rc/F1 values
         float averagePrecision = (float) prRcValues[0] / counter.getCount();
         float averageRecall = (float) prRcValues[1] / counter.getCount();
         float averageF1 = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
-        
+
         LOGGER.info("-----------------------------------------------");
         LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
         LOGGER.info("average precision: " + averagePrecision);
         LOGGER.info("average recall: " + averageRecall);
         LOGGER.info("average f1: " + averageF1);
-        
+
     }
-
-
 
     private DocumentModel createDocumentModel(String text) {
 
@@ -383,13 +446,13 @@ public class KeyphraseExtractor {
 
     }
 
-    public String stem(String unstemmed) {
+    private String stem(String unstemmed) {
         stemmer.setCurrent(unstemmed.toLowerCase());
         stemmer.stem();
         return stemmer.getCurrent();
     }
 
-    public Set<String> stem(Set<String> unstemmed) {
+    private Set<String> stem(Set<String> unstemmed) {
         Set<String> result = new HashSet<String>();
         for (String unstemmedTag : unstemmed) {
             String stem = stem(unstemmedTag);
@@ -400,37 +463,25 @@ public class KeyphraseExtractor {
 
     public static void main(String[] args) {
 
+        /*
+         * float x = (float) 0 / 12983;
+         * System.out.println(x);
+         * System.out.println(x == 0);
+         * System.exit(0);
+         */
+
         final KeyphraseExtractor extractor = new KeyphraseExtractor();
-
-        // String text3 =
-        // "Beijing Duck is mostly prized for the thin, crispy duck skin with authentic versions of the dish serving mostly the skin. Beijing Duck is delicious. Beijing Duck is expensive.";
-        //
-        // DocumentModel cnd2 = extractor.makeCandidates(text3);
-        // System.out.println(cnd2);
-        //
-        // System.exit(0);
-
-        // Crawler crawler = new Crawler();
-        //
-        // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
-        // String text = HTMLHelper.htmlToString(doc);
-        //
-        // DocumentModel cnd = extractor.makeCandidates(text);
-        // cnd.cleanCandidates(5); // remove candidates which occur less than 5
-        // System.out.println(cnd);
-        //
-        // System.exit(0);
+        String filePath = "data/tag_dataset_10000.txt";
 
         // //////////////////////////////////////////////
         // CORPUS CREATION
         // //////////////////////////////////////////////
-        String filePath = "data/tag_dataset_10000.txt";
-        // // extractor.buildCorpus(filePath);
+        // extractor.buildCorpus(filePath);
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-        // // extractor.buildClassifier(filePath, 1000);
+        // extractor.buildClassifier(filePath, 1000);
 
         // //////////////////////////////////////////////
         // EVALUATION
@@ -512,15 +563,7 @@ public class KeyphraseExtractor {
     @SuppressWarnings("unused")
     private static void evaluate(final KeyphraseExtractor extractor) {
 
-//        extractor.loadCorpus();
-//        extractor.loadClassifier();
-
-        final DescriptiveStatistics prStats = new DescriptiveStatistics();
-        final DescriptiveStatistics rcStats = new DescriptiveStatistics();
-        final Counter counter = new Counter();
-        
         final StringBuilder sb = new StringBuilder();
-
         DeliciousDatasetReader reader = new DeliciousDatasetReader();
 
         DatasetFilter filter = new DatasetFilter();
@@ -538,31 +581,12 @@ public class KeyphraseExtractor {
                 content = HTMLHelper.htmlToString(content, true);
                 content = StringHelper.removeControlCharacters(content);
                 content = content.replace("#", " ");
-                
                 sb.append(content).append("#").append(StringUtils.join(entry.getTags().uniqueSet(), "#")).append("\n");
-
-//                float[] prRc = extractor.evaluate(content, entry.getTags().uniqueSet());
-//                System.out.println("pr:" + prRc[0] + " rc:" + prRc[1]);
-//                counter.increment();
-//
-//                prStats.addValue(prRc[0]);
-//                rcStats.addValue(prRc[1]);
 
             }
         };
         reader.read(callback, 1000);
-        
-        
         FileHelper.writeToFile("evaluation.txt", sb);
-        
-
-//        double meanPr = prStats.getMean();
-//        double meanRc = rcStats.getMean();
-//        double meanF1 = 2 * meanPr * meanRc / (meanPr + meanRc);
-//
-//        System.out.println("avgPr: " + meanPr);
-//        System.out.println("avgRc: " + meanRc);
-//        System.out.println("avgF1: " + meanF1);
 
     }
 
