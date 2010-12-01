@@ -7,9 +7,7 @@ public class CandidateComparator implements Comparator<Candidate> {
 
     @Override
     public int compare(Candidate cand0, Candidate cand1) {
-        return new Float(cand1.getRegressionValue()).compareTo(cand0.getRegressionValue());
-        //return new Float(cand1.getTermFrequencyInverseDocumentFrequency()).compareTo(cand0.getTermFrequencyInverseDocumentFrequency());
-
+        return new Double(cand1.getRegressionValue()).compareTo(cand0.getRegressionValue());
     }
 
 }

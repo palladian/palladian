@@ -13,13 +13,18 @@ public class CandidateClassifier extends Classifier {
 
     public CandidateClassifier() {
         super(Classifier.NEURAL_NETWORK);
-        // super(Classifier.LINEAR_REGRESSION);
     }
 
     public void classify(Candidate candidate) {
         FeatureObject featureObject = new FeatureObject(candidate.getFeatures());
         double result = classifySoft(featureObject)[0];
-        candidate.setRegressionValue((float) result);
+        candidate.setRegressionValue(result);
+    }
+    
+    public void classify(DocumentModel candidates) {
+        for (Candidate candidate : candidates) {
+            classify(candidate);
+        }
     }
 
     // overridden in order to create the necessary weka attributes before classifying.
@@ -91,11 +96,7 @@ public class CandidateClassifier extends Classifier {
 
     public static void main(String[] args) {
         CandidateClassifier c = new CandidateClassifier();
-        // c.trainClassifier("train_1000.csv");
         c.trainClassifier("train_1000_new.csv");
-        // 100 -> 7 MB
-        // 250 -> 20 MB
-        // 1000 -> 77 MB
         c.saveTrainedClassifier();
     }
 

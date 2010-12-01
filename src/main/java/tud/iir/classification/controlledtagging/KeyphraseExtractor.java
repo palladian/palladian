@@ -9,6 +9,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.math.stat.descriptive.DescriptiveStatistics;
+import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
@@ -21,6 +22,7 @@ import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
+import tud.iir.helper.StopWatch;
 
 /**
  * 
@@ -33,7 +35,10 @@ import tud.iir.helper.LineAction;
  * @author Philipp Katz
  * 
  */
-public class CandidateExtractor {
+public class KeyphraseExtractor {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractor.class);
 
     private SnowballStemmer stemmer = new englishStemmer();
     private Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
@@ -44,121 +49,240 @@ public class CandidateExtractor {
 
     private boolean controlledMode = false; // XXX testing
 
-    public CandidateExtractor() {
+    private String modelName = "controlledTagger";
+
+    public KeyphraseExtractor() {
         tokenizer.setUsePosTagging(false);
-        //tokenizer.setUsePosTagging(true);
+    }
+
+    public void buildCorpus(String filePath) {
+        
+        LOGGER.info("building corpus ...");
+
+        StopWatch sw = new StopWatch();
+        final Counter counter = new Counter();
+        
+        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                String[] split = line.split("#");
+                if (split.length < 2) {
+                    return;
+                }
+
+                String text = split[0];
+                Set<String> tags = new HashSet<String>();
+                for (int i = 1; i < split.length; i++) {
+                    tags.add(split[i]);
+                }
+                addToCorpus(text, tags);
+
+                counter.increment();
+                if (counter.getCount() % 10 == 0) {
+                    LOGGER.info("added " + counter + " lines");
+                }
+            }
+        });
+        
+        saveCorpus();
+        LOGGER.info("built and saved corpus in " + sw.getElapsedTimeString());
+
+    }
+
+    /**
+     * TODO We can keep the training data in memory. And add an option for exporting CSV for KNIME.
+     * 
+     * @param filePath
+     * @param limit
+     */
+    public void buildClassifier(String filePath, final int limit) {
+
+        LOGGER.info("creating training data for classifier ...");
+
+        StopWatch sw = new StopWatch();
+        final Counter counter = new Counter();
+
+        // keep the CSV training data in memory for now
+        final StringBuilder trainData = new StringBuilder();
+
+        // create the training data for the classifier
+        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] split = line.split("#");
+
+                if (split.length < 2) {
+                    return;
+                }
+
+                // create the document model
+                DocumentModel candidates = createDocumentModel(split[0]);
+
+                // the manually assigned keyphrases
+                Set<String> tags = new HashSet<String>();
+                for (int i = 1; i < split.length; i++) {
+                    tags.add(split[i].toLowerCase());
+                }
+
+                // keep stemmed and unstemmed representation
+                Set<String> stemmedTags = stem(tags);
+                tags.addAll(stemmedTags);
+
+                // mark positive candidates, i.e. those which were manually assigned
+                // in the training data
+                for (Candidate candidate : candidates) {
+                    boolean isCandidate = tags.contains(candidate.getStemmedValue());
+                    isCandidate = isCandidate || tags.contains(candidate.getValue());
+                    isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
+                    candidate.setPositive(isCandidate);
+                }
+
+                // if this is the first iteration, write header with feature names;
+                // this is only for convenience reasons, for example if we want to
+                // experiment with the classification with KNIME
+                if (counter.getCount() == 0) {
+                    Set<String> featureNames = candidates.iterator().next().getFeatures().keySet();
+                    trainData.append("#").append(StringUtils.join(featureNames, ";")).append("\n");
+                }
+
+                trainData.append(candidates.toCSV());
+
+                counter.increment();
+                if (counter.getCount() % 10 == 0) {
+                    LOGGER.info("added " + counter + " lines");
+                }
+                if (counter.getCount() == limit) {
+                    breakLineLoop();
+                }
+            }
+        });
+
+        // write the train data for the classifier to CSV file
+        FileHelper.writeToFile("data/temp/KeyphraseExtractorTraining.csv", trainData);
+        LOGGER.info("created training data in " + sw.getElapsedTimeString());
+        
+        // train and save the classifier
+        LOGGER.info("training classifier ...");
+        sw.start();
+        
+        // save memory; this is necessary, as the corpus consumes great amounts of memory, but
+        // fortunately we don't need the corpus for the training process
+        corpus = null;
+        
+        classifier = new CandidateClassifier();
+        classifier.trainClassifier("data/temp/KeyphraseExtractorTraining.csv");
+        classifier.saveTrainedClassifier();
+
+        LOGGER.info("finished training in " + sw.getElapsedTimeString());
+
     }
 
     public void addToCorpus(String text) {
 
         List<Token> tokens = tokenize(text);
-        corpus.addTokens(tokens);
+        corpus.addPhrases(tokens);
 
     }
 
-    public void addToCorpus(String text, Set<String> tags) {
+    public void addToCorpus(String text, Set<String> keyphrases) {
 
+        // tokenize the text and add the tokens/phrases to the corpus
         List<Token> tokens = tokenize(text);
-        corpus.addTokens(tokens);
+        corpus.addPhrases(tokens);
 
-        // corpus contains the stemmed representations!
-        tags = stem(tags);
-        corpus.addTags(tags);
+        // the corpus stores the stemmed keyphrases!
+        keyphrases = stem(keyphrases);
+        corpus.addKeyphrases(keyphrases);
 
     }
 
     public void saveCorpus() {
-        corpus.calcRelCorrelations();
-        FileHelper.serialize(corpus, "corpus.ser");
+        corpus.makeRelativeScores();
+        FileHelper.serialize(corpus, modelName + ".ser");
     }
 
     public void loadCorpus() {
-        corpus = FileHelper.deserialize("corpus.ser");
+        LOGGER.info("loading corpus ...");
+        StopWatch sw = new StopWatch();
+        corpus = FileHelper.deserialize(modelName + ".ser");
+        LOGGER.info("loaded corpus in " + sw.getElapsedTimeString());
+    }
+
+    public void loadClassifier() {
+        LOGGER.info("loading classifier ...");
+        StopWatch sw = new StopWatch();
         classifier.useTrainedClassifier();
+        LOGGER.info("loaded classifier in " + sw.getElapsedTimeString());
+    }
+    
+    public List<Candidate> extract(String text) {
+        
+        DocumentModel candidates = createDocumentModel(text);
+        
+        // eliminate undesired candidates in advance
+        ListIterator<Candidate> listIterator = candidates.listIterator();
+        while (listIterator.hasNext()) {
+            Candidate candidate = listIterator.next();
+            
+            boolean ignore = stopwords.contains(candidate.getValue());
+            ignore = ignore || !candidate.getValue().matches("[a-zA-Z\\s]{3,}");
+            ignore = ignore || (controlledMode && candidate.getPrior() == 0);
+            
+            if (ignore) {
+                listIterator.remove();
+            }
+        }
+        
+        // perform the regression for ranking the candidates
+        classifier.classify(candidates);
+        
+        // do the correlation based re-ranking
+        // TODO refactor this to its own method ////////////////////////////////////
+        Candidate[] candidateArray = candidates.toArray(new Candidate[0]);
+        int numReRanking = candidateArray.length * (candidateArray.length - 1) / 2;
+
+        // TODO parameter
+        float correlationWeight = 90000;
+
+        for (int i = 0; i < candidateArray.length; i++) {
+            Candidate cand1 = candidateArray[i];
+            for (int j = i; j < candidateArray.length; j++) {
+                Candidate cand2 = candidateArray[j];
+                
+                WordCorrelation correlation = corpus.getCorrelation(cand1, cand2);
+                if (correlation != null) {
+                    float reRanking = (float) ((correlationWeight / numReRanking) * correlation
+                            .getRelativeCorrelation());
+                    cand1.setRegressionValue(cand1.getRegressionValue() + reRanking);
+                    cand2.setRegressionValue(cand2.getRegressionValue() + reRanking);
+                }
+            }
+        }
+        /////////////////////////////////////////////////////////////////////////////
+        
+        // sort the candidates by regression value
+        Collections.sort(candidates, new CandidateComparator());
+        
+        // create the final result, take the top n candidates
+        if (candidates.size() > 10) {
+            candidates.subList(10, candidates.size()).clear();
+        }
+        
+        return candidates;
+        
     }
 
     public float[] evaluate(String text, Set<String> tags) {
 
         Set<String> stemmedTags = stem(tags);
 
-        DocumentModel candidates = makeCandidates(text);
-        List<Candidate> candidatesList = new ArrayList<Candidate>(candidates.getCandidates());
-
-        // experimental ----- eliminate stopwords
-        ListIterator<Candidate> li = candidatesList.listIterator();
-        while (li.hasNext()) {
-            Candidate current = li.next();
-            if (stopwords.contains(current.getValue())) {
-                li.remove();
-            } else if (!current.getValue().matches("[a-zA-Z\\s]{3,}")) {
-                li.remove();
-            } else if (controlledMode && current.getPrior() == 0) {
-                li.remove();
-            }
-        }
-
-        for (Candidate candidate : candidatesList) {
-            classifier.classify(candidate);
-            // System.out.println(candidate.getValue() + " " + candidate.getRegressionValue());
-        }
-
-        Collections.sort(candidatesList, new CandidateComparator());
-        // System.out.println("beforeReRanking: " + candidatesList);
-
-        /*
-         * for (Candidate c : candidatesList) {
-         * System.out.println(c.getValue() + " " + c.getRegressionValue());
-         * }
-         */
-
-        // / XXX experimental --- do re-raking
-
-        Candidate[] candidateArray = candidatesList.toArray(new Candidate[0]);
-        int numReRanking = candidateArray.length * (candidateArray.length - 1) / 2;
-
-        final float correlationWeight = 90000;
-
-        for (int i = 0; i < candidateArray.length; i++) {
-            Candidate outerCand = candidateArray[i];
-            for (int j = i; j < candidateArray.length; j++) {
-                Candidate innerCand = candidateArray[j];
-
-                // 2010-11-24
-                String innerValue = innerCand.getStemmedValue();
-                if (innerValue.contains(" ")) {
-                    innerValue = innerCand.getValue().replaceAll(" ", "").toLowerCase();
-                }
-                String outerValue = outerCand.getStemmedValue();
-                if (outerValue.contains(" ")) {
-                    outerValue = outerCand.getValue().replaceAll(" ", "").toLowerCase();
-                }
-                // //
-
-                WordCorrelation correlation = corpus.getCorrelation(outerValue, innerValue);
-                if (correlation != null) {
-                    float reRanking = (float) ((correlationWeight / numReRanking) * correlation
-                            .getRelativeCorrelation());
-                    innerCand.setRegressionValue(innerCand.getRegressionValue() + reRanking);
-                    outerCand.setRegressionValue(outerCand.getRegressionValue() + reRanking);
-
-                }
-
-            }
-        }
-
-        Collections.sort(candidatesList, new CandidateComparator());
-
-        // System.out.println("afterReRanking: " + candidatesList);
-
-        // / end experimental
-
-        if (candidatesList.size() > 10) {
-            candidatesList.subList(10, candidatesList.size()).clear();
-        }
-
-        // for (Candidate c : candidatesList) {
-        // System.out.println(c.getValue() + " " + c.getRegressionValue());
-        // }
+        
+        List<Candidate> candidatesList = extract(text);
+        
+        
         int realCount = stemmedTags.size();
 
         stemmedTags.addAll(tags); // XXX
@@ -206,15 +330,11 @@ public class CandidateExtractor {
 
     }
 
-    public DocumentModel makeCandidates(String text) {
+    private DocumentModel createDocumentModel(String text) {
 
         DocumentModel model = new DocumentModel(corpus);
         List<Token> tokens = tokenize(text);
-
-        for (Token token : tokens) {
-            model.addToken(token);
-        }
-
+        model.addTokens(tokens);
         model.createCandidates();
 
         return model;
@@ -251,7 +371,7 @@ public class CandidateExtractor {
 
     public static void main(String[] args) {
 
-        final CandidateExtractor extractor = new CandidateExtractor();
+        final KeyphraseExtractor extractor = new KeyphraseExtractor();
 
         // String text3 =
         // "Beijing Duck is mostly prized for the thin, crispy duck skin with authentic versions of the dish serving mostly the skin. Beijing Duck is delicious. Beijing Duck is expensive.";
@@ -276,11 +396,14 @@ public class CandidateExtractor {
         // CORPUS CREATION
         // //////////////////////////////////////////////
         // createCorpus(extractor);
+////        String filePath = "data/tag_dataset_10000.txt";
+////        extractor.buildCorpus(filePath);
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
         // createTrainData(extractor);
+////        extractor.buildClassifier(filePath, 1000);
 
         // //////////////////////////////////////////////
         // EVALUATION
@@ -305,7 +428,7 @@ public class CandidateExtractor {
 
         // System.out.println(". -> " + extractor.corpus.getInverseDocumentFrequency("."));
 
-        DocumentModel candidates = extractor.makeCandidates(d2); // (, 1);
+        DocumentModel candidates = extractor.createDocumentModel(d2); // (, 1);
         System.out.println(candidates);
         System.exit(0);
 
@@ -314,7 +437,7 @@ public class CandidateExtractor {
         // String text = "Apple sells phones called iPhones. The iPhone is a smart phone. Smart phones are great!";
         // String text = "iPhones iPhone iPhones";
 
-        DocumentModel makeCandidates = extractor.makeCandidates(text2); // , 1);
+        DocumentModel makeCandidates = extractor.createDocumentModel(text2); // , 1);
         // System.out.println(makeCandidates);
         System.out.println(makeCandidates.toCSV());
         System.exit(0);
@@ -358,8 +481,11 @@ public class CandidateExtractor {
     }
 
     @SuppressWarnings("unused")
-    private static void evaluate(final CandidateExtractor extractor) {
+    private static void evaluate(final KeyphraseExtractor extractor) {
+        
         extractor.loadCorpus();
+        extractor.loadClassifier();
+        
         final DescriptiveStatistics prStats = new DescriptiveStatistics();
         final DescriptiveStatistics rcStats = new DescriptiveStatistics();
         final Counter counter = new Counter();
@@ -401,97 +527,5 @@ public class CandidateExtractor {
 
     }
 
-    @SuppressWarnings("unused")
-    private static void createCorpus(final CandidateExtractor extractor) {
-        final Counter counter = new Counter();
-
-        FileHelper.performActionOnEveryLine("data/tag_dataset_10000.txt", new LineAction() {
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-                String[] split = line.split("#");
-
-                Set<String> tags = new HashSet<String>();
-                for (int i = 1; i < split.length; i++) {
-                    tags.add(split[i]);
-                }
-
-                counter.increment();
-
-                if (split.length > 2) {
-                    extractor.addToCorpus(split[0], tags);
-                }
-
-                if (counter.getCount() % 10 == 0) {
-                    System.out.println(counter);
-                }
-
-            }
-        });
-
-        extractor.saveCorpus();
-    }
-
-    @SuppressWarnings("unused")
-    private static void createTrainData(final CandidateExtractor extractor) {
-        extractor.loadCorpus();
-
-        final Counter counter = new Counter();
-        final StringBuilder data = new StringBuilder();
-        counter.reset();
-
-        FileHelper.performActionOnEveryLine("data/tag_dataset_10000.txt", new LineAction() {
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-                String[] split = line.split("#");
-
-                if (split.length > 2) {
-                    DocumentModel candidates = extractor.makeCandidates(split[0]);
-
-                    Set<String> tags = new HashSet<String>();
-                    for (int i = 1; i < split.length; i++) {
-                        tags.add(split[i].toLowerCase());
-                    }
-
-                    // ?
-                    Set<String> stemmedTags = extractor.stem(tags);
-                    tags.addAll(stemmedTags);
-
-                    for (Candidate candidate : candidates.getCandidates()) {
-
-                        boolean isCandidate = false;
-                        isCandidate = isCandidate || tags.contains(candidate.getStemmedValue());
-                        isCandidate = isCandidate || tags.contains(candidate.getValue());
-                        isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
-
-                        candidate.setPositive(isCandidate);
-
-                    }
-
-                    if (counter.getCount() == 0) {
-                        data.append("#")
-                                .append(StringUtils.join(candidates.getCandidates().iterator().next().getFeatures()
-                                        .keySet(), ";")).append("\n");
-                    }
-
-                    data.append(candidates.toCSV());
-
-                }
-
-                counter.increment();
-                if (counter.getCount() % 10 == 0) {
-                    System.out.println(counter);
-                }
-                if (counter.getCount() == 1000) {
-                    breakLineLoop();
-                }
-
-            }
-        });
-
-        FileHelper.writeToFile("train_1000_new.csv", data);
-
-    }
 
 }
