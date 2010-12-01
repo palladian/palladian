@@ -333,7 +333,7 @@ public class KeyphraseExtractor {
             // assign all keyphrases which have a weight about the specified threshold
             case THRESHOLD:
                 while (listIterator.hasNext()) {
-                    if (listIterator.next().getRegressionValue() < keyphraseThreshold) {
+                    if (listIterator.next().getRegressionValue() <= keyphraseThreshold) {
                         listIterator.remove();
                     }
                 }
@@ -344,7 +344,7 @@ public class KeyphraseExtractor {
             case COMBINED:
                 while (listIterator.hasNext()) {
                     Candidate next = listIterator.next();
-                    if (listIterator.nextIndex() > 10 && next.getRegressionValue() < keyphraseThreshold) {
+                    if (listIterator.nextIndex() > 10 && next.getRegressionValue() <= keyphraseThreshold) {
                         listIterator.remove();
                     }
                 }
