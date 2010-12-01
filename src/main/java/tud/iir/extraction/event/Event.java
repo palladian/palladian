@@ -38,22 +38,22 @@ public class Event extends Extractable {
     private String how;
 
     /** The who candidates. **/
-    Map<String, Double> whoCandidates = new HashMap<String, Double>();
+    private Map<String, Double> whoCandidates = new HashMap<String, Double>();
 
     /** The where Candidates. **/
-    Map<String, Double> whereCandidates = new HashMap<String, Double>();
+    private Map<String, Double> whereCandidates = new HashMap<String, Double>();
 
     /** The what Candidates. **/
-    Map<String, Double> whatCandidates = new HashMap<String, Double>();
+    private Map<String, Double> whatCandidates = new HashMap<String, Double>();
 
     /** The why Candidates. **/
-    Map<String, Double> whyCandidates = new HashMap<String, Double>();
+    private Map<String, Double> whyCandidates = new HashMap<String, Double>();
 
     /** The when Candidates. **/
-    Map<String, Double> whenCandidates = new HashMap<String, Double>();
+    private Map<String, Double> whenCandidates = new HashMap<String, Double>();
 
     /** The how Candidates. **/
-    Map<String, Double> howCandidates = new HashMap<String, Double>();
+    private Map<String, Double> howCandidates = new HashMap<String, Double>();
 
     /**
      * Constructor.

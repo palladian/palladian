@@ -466,7 +466,6 @@ public class EventFeatureExtractor {
                     if (event.getAnnotationFeatures() == null) {
                         setFeatures(event);
                         featureMap = event.getAnnotationFeatures();
-                        // CollectionHelper.print(featureMap);
                     }
 
                     for (final Entry<Annotations, FeatureObject> eeentry : featureMap

@@ -25,7 +25,6 @@ import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StringHelper;
 import weka.core.stemmers.SnowballStemmer;
 
@@ -85,7 +84,8 @@ public class EventExtractor {
             final PageContentExtractor pce = new PageContentExtractor();
             pce.setDocument(url);
 
-            event = new Event(pce.getResultTitle(), pce.getResultText(), url);
+            event = new Event(pce.getResultTitle(), StringHelper
+                    .makeContinuousText(pce.getResultText()), url);
 
         } catch (final PageContentExtractorException e) {
 
@@ -133,13 +133,13 @@ public class EventExtractor {
          * CollectionHelper.print(dg.getDate());
          */
 
-        ArrayList<ContentDate> dates = DateGetterHelper.findALLDates(event
-                .getText());
+        final ArrayList<ContentDate> dates = DateGetterHelper
+                .findALLDates(event.getText());
 
         try {
             LOGGER.info("when:" + dates.get(0).getNormalizedDate());
             event.setWhen(dates.get(0).getNormalizedDate().toString());
-        } catch (Exception e) {
+        } catch (final Exception e) {
             LOGGER.error(e);
         }
 
@@ -218,13 +218,13 @@ public class EventExtractor {
      */
     public void extractWhy(Event event) {
 
-        Map<String, Double> whyCandidates = new HashMap<String, Double>();
+        final Map<String, Double> whyCandidates = new HashMap<String, Double>();
 
-        String text = StringHelper.makeContinuousText(event.getText());
+        final String text = StringHelper.makeContinuousText(event.getText());
         String whatVerb = null;
 
         if (event.getWhat() != null) {
-            String tagged = featureExtractor.getPOSTags(event.getWhat())
+            final String tagged = featureExtractor.getPOSTags(event.getWhat())
                     .getTaggedString();
 
             // extracting the verb from whatPhrase
@@ -252,21 +252,21 @@ public class EventExtractor {
         }
         // @TODO: better weighting on the result .. because should rate higher
         // than whatVerb+
-        String who = event.getWho();
+        final String who = event.getWho();
         // System.out.println("who:" + who + ",what:" + event.getWhat() + "("
         // + whatVerb + ")");
 
-        Map<String, Double> regExpMap = getWhyRegExp(who, whatVerb);
+        final Map<String, Double> regExpMap = getWhyRegExp(who, whatVerb);
         String taggedStc = null;
-        for (String stc : featureExtractor.getSentences(text)) {
+        for (final String stc : featureExtractor.getSentences(text)) {
             taggedStc = featureExtractor.getPOSTags(stc).getTaggedString();
-            for (Entry<String, Double> entry : regExpMap.entrySet()) {
+            for (final Entry<String, Double> entry : regExpMap.entrySet()) {
 
-                Pattern pattern = Pattern.compile(entry.getKey());
+                final Pattern pattern = Pattern.compile(entry.getKey());
                 Double confidence = entry.getValue();
                 confidence += StringHelper.calculateSimilarity(stc, who + " "
                         + whatVerb);
-                Matcher mToMatcher = pattern.matcher(taggedStc);
+                final Matcher mToMatcher = pattern.matcher(taggedStc);
                 while (mToMatcher.find()) {
                     whyCandidates.put(stc, confidence);
                 }
@@ -285,7 +285,7 @@ public class EventExtractor {
 
     private Map<String, Double> getWhyRegExp(String who, String what) {
 
-        Map<String, Double> regExpMap = new HashMap<String, Double>();
+        final Map<String, Double> regExpMap = new HashMap<String, Double>();
 
         regExpMap.put("(" + what + "(.*)to/TO [^ \t](.*)/VB)", 0.5);
         // regExpMap.put("(" + who + "(.*)to/TO [^ \t](.*)/VB)", 0.5);
@@ -476,13 +476,18 @@ public class EventExtractor {
 
     }
 
+    /**
+     * Extracts the How from a given event.
+     * 
+     * @param event
+     */
     public void extractHow(Event event) {
         // pattern matching "like..."
 
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
 
-        String text = StringHelper.makeContinuousText(event.getText());
-        for (String stc : featureExtractor.getSentences(text)) {
+        final String text = StringHelper.makeContinuousText(event.getText());
+        for (final String stc : featureExtractor.getSentences(text)) {
 
             double confidence = StringHelper.calculateSimilarity(stc, event
                     .getTitle());
@@ -496,7 +501,6 @@ public class EventExtractor {
         }
 
         rankedCandidates = sortByValue(rankedCandidates);
-        CollectionHelper.print(rankedCandidates);
         if (rankedCandidates.size() > 0) {
             event.setHowCandidates(rankedCandidates);
             event.setHow(rankedCandidates.keySet().toArray()[0].toString());
@@ -534,30 +538,51 @@ public class EventExtractor {
         final Object[] values = rankedCandidates.keySet().toArray();
         final Object[] keys = rankedCandidates.values().toArray();
 
-        if (keys.length > 1) {
-            LOGGER.info("highest ranked whos:" + values[0] + "(" + keys[0]
-                    + ")," + values[1] + "(" + keys[1] + ")");
+        if (rankedCandidates.size() > 0) {
+            LOGGER
+                    .info("highest ranked who:" + values[0] + "(" + keys[0]
+                            + ")");
+
+            event.setWhoCandidates(rankedCandidates);
+            event.setWho(values[0].toString());
         }
-        // CollectionHelper.print(rankedCandidates);
-        event.setWhoCandidates(rankedCandidates);
-        event.setWho(values[0].toString());
 
     }
 
+    /**
+     * Returns the Where Classifier
+     * 
+     * @return
+     */
     public WhereClassifier getWhereClassifier() {
         return whereClassifier;
     }
 
+    /**
+     * Setter of WhereClassifier.
+     * 
+     * @param type
+     */
     public void setWhereClassifier(int type) {
         whereClassifier = new WhereClassifier(type);
         whereClassifier
                 .useTrainedClassifier("data/learnedClassifiers/where.model");
     }
 
+    /**
+     * Getter of WhoClassifier
+     * 
+     * @return
+     */
     public WhoClassifier getWhoClassifier() {
         return whoClassifier;
     }
 
+    /**
+     * Setter of WhoClassifier
+     * 
+     * @param type
+     */
     public void setWhoClassifier(int type) {
         whoClassifier = new WhoClassifier(type);
         whoClassifier.useTrainedClassifier("data/learnedClassifiers/who.model");

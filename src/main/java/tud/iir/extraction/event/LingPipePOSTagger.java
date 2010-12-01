@@ -30,7 +30,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
 
         try {
             config = new PropertiesConfiguration("config/models.conf");
-        } catch (ConfigurationException e) {
+        } catch (final ConfigurationException e) {
             LOGGER.error("could not get modepath from config/models.conf, "
                     + e.getMessage());
         }

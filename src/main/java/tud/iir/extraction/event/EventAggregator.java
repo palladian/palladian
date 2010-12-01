@@ -284,10 +284,10 @@ public class EventAggregator {
 
     public static void main(String[] args) {
 
-        final EventAggregator ea = new EventAggregator();
-        ea.setMaxThreads(10);
-        ea.setQuery("pakistan flood");
-        ea.aggregate();
+        final EventAggregator eag = new EventAggregator();
+        eag.setMaxThreads(10);
+        eag.setQuery("pakistan flood");
+        eag.aggregate();
 
     }
 

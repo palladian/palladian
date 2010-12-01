@@ -41,7 +41,7 @@ public class OpenNLPParser extends AbstractParser {
 
         try {
             config = new PropertiesConfiguration("config/models.conf");
-        } catch (ConfigurationException e) {
+        } catch (final ConfigurationException e) {
             LOGGER.error("could not get model path from config/models.conf, "
                     + e.getMessage());
         }
@@ -69,8 +69,8 @@ public class OpenNLPParser extends AbstractParser {
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
 
-                InputStream modelIn = new FileInputStream(configModelPath);
-                ParserModel model = new ParserModel(modelIn);
+                final InputStream modelIn = new FileInputStream(configModelPath);
+                final ParserModel model = new ParserModel(modelIn);
                 parser = ParserFactory.create(model);
                 DataHolder.getInstance().putDataObject(configModelPath, parser);
 
@@ -168,7 +168,7 @@ public class OpenNLPParser extends AbstractParser {
      */
     public static void link(Parse[] parses) {
         int sentenceNumber = 0;
-        List<Mention> document = new ArrayList<Mention>();
+        final List<Mention> document = new ArrayList<Mention>();
 
         TreebankLinker linker;
         try {
@@ -184,26 +184,27 @@ public class OpenNLPParser extends AbstractParser {
                 DataHolder.getInstance().putDataObject(
                         "data/models/opennlp/coref/", linker);
             }
-            DiscourseEntity[] entities = linker
-                    .getEntities((Mention[]) document
-                            .toArray(new Mention[document.size()]));
+            final DiscourseEntity[] entities = linker.getEntities(document
+                    .toArray(new Mention[document.size()]));
 
             CollectionHelper.print(entities);
 
-            for (Parse parse : parses) {
-                DefaultParse dp = new DefaultParse(parse, sentenceNumber);
-                Mention[] extents = linker.getMentionFinder().getMentions(dp);
+            for (final Parse parse : parses) {
+                final DefaultParse dp = new DefaultParse(parse, sentenceNumber);
+                final Mention[] extents = linker.getMentionFinder()
+                        .getMentions(dp);
 
                 // construct new parses for mentions which do not have
                 // constituents
-                for (int i = 0; i < extents.length; i++)
+                for (int i = 0; i < extents.length; i++) {
                     if (extents[i].getParse() == null) {
-                        opennlp.tools.parser.Parse snp = new Parse(parse
+                        final opennlp.tools.parser.Parse snp = new Parse(parse
                                 .getText(), extents[i].getSpan(), "NML", 1.0, i);
                         parse.insert(snp);
                         extents[i].setParse(new DefaultParse(snp,
                                 sentenceNumber));
                     }
+                }
 
                 document.addAll(Arrays.asList(extents));
                 sentenceNumber++;
@@ -217,7 +218,7 @@ public class OpenNLPParser extends AbstractParser {
                 CollectionHelper.print(document);
             }
 
-        } catch (IOException e) {
+        } catch (final IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
