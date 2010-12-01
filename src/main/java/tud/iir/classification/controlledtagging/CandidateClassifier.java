@@ -15,12 +15,20 @@ public class CandidateClassifier extends Classifier {
         super(Classifier.NEURAL_NETWORK);
     }
 
+    /**
+     * Classify a candidate object.
+     * @param candidate
+     */
     public void classify(Candidate candidate) {
         FeatureObject featureObject = new FeatureObject(candidate.getFeatures());
         double result = classifySoft(featureObject)[0];
         candidate.setRegressionValue(result);
     }
     
+    /**
+     * Classify a list of candidate objects.
+     * @param candidates
+     */
     public void classify(DocumentModel candidates) {
         for (Candidate candidate : candidates) {
             classify(candidate);
