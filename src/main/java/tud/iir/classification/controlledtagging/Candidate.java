@@ -27,7 +27,7 @@ public class Candidate {
     private SummaryStatistics correlationStats = new SummaryStatistics();
 
     private Boolean positive;
-    private float regressionValue;
+    private double regressionValue;
 
     public Candidate(DocumentModel document) {
         this.document = document;
@@ -98,13 +98,11 @@ public class Candidate {
     }
 
     public float getFrequency() {
-        // return (float) count / document.getCandidateCount();
-        return (float) count / document.getTokenCount(); // XXX
-
+        return (float) count / document.getTokenCount();
     }
 
     public float getInverseDocumentFrequency() {
-        return document.getInverseDocumentFrequency(this);
+        return document.getCorpus().getInverseDocumentFrequency(this);
     }
 
     public float getTermFrequencyInverseDocumentFrequency() {
@@ -135,7 +133,7 @@ public class Candidate {
     }
 
     public float getPrior() {
-        return document.getPrior(this);
+        return document.getCorpus().getPrior(this);
     }
 
     public void addCorrelation(double correlation) {
@@ -166,11 +164,11 @@ public class Candidate {
         this.positive = positive;
     }
 
-    public float getRegressionValue() {
+    public double getRegressionValue() {
         return regressionValue;
     }
 
-    public void setRegressionValue(float regressionValue) {
+    public void setRegressionValue(double regressionValue) {
         this.regressionValue = regressionValue;
     }
 

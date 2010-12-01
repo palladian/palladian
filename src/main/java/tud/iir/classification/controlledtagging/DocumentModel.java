@@ -18,13 +18,31 @@ import org.apache.commons.lang.StringUtils;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.helper.StringHelper;
 
-public class DocumentModel /*extends ArrayList<Candidate>*/ {
+/**
+ * The DocumentModel represents a document with its tokens/phrases. From all tokens we determine a list of Candidates
+ * and their features which can then be ranked.
+ * 
+ * @author Philipp Katz
+ * 
+ */
+public class DocumentModel extends ArrayList<Candidate> {
 
+    private static final long serialVersionUID = 1L;
+
+    /** Reference to the document corpus. */
     private Corpus corpus;
+
+    /** Map containing stem as key, all belonging tokens as values. */
     private Map<String, List<Token>> tokens;
-    private List<Candidate> candidates;
+
+    /** Number of tokens in the document. */
     private int tokenCount;
 
+    /**
+     * Create a new DocumentModel.
+     * 
+     * @param corpus
+     */
     public DocumentModel(Corpus corpus) {
         this.corpus = corpus;
 
@@ -35,29 +53,52 @@ public class DocumentModel /*extends ArrayList<Candidate>*/ {
                 return new ArrayList<Token>();
             }
         });
-        
+
     }
 
+    /**
+     * Add a {@link Token} to the document model.
+     * 
+     * @param token
+     */
     public void addToken(Token token) {
         List<Token> tokenList = tokens.get(token.getStemmedValue());
         tokenList.add(token);
     }
+    
+    /**
+     * Add a List of {@link Token}s to the document model.
+     * 
+     * @param tokens
+     */
+    public void addTokens(List<Token> tokens) {
+        for (Token token : tokens) {
+            addToken(token);
+        }
+    }
 
+    /**
+     * Determine the candidates from all stored Tokens.
+     */
     public void createCandidates() {
 
-        List<Candidate> candidates = new ArrayList<Candidate>();
-//        clear();
+        // first clear the list, if we should already have candidates.
+        clear();
+
         Iterator<Entry<String, List<Token>>> iterator = tokens.entrySet().iterator();
 
         while (iterator.hasNext()) {
 
             Entry<String, List<Token>> current = iterator.next();
             List<Token> tokens = current.getValue();
+
+            // store all unstemmed representations
             Bag<String> unStemBag = new HashBag<String>();
 
             Candidate candidate = new Candidate(this);
-             candidates.add(candidate);
-//            add(candidate);
+            add(candidate);
+
+            // from the list of tokens extract the candidate features
             for (Token token : tokens) {
 
                 unStemBag.add(token.getUnstemmedValue());
@@ -68,11 +109,11 @@ public class DocumentModel /*extends ArrayList<Candidate>*/ {
                 boolean notAtSentenceStart = token.getSentencePosition() > 0;
                 boolean startsUppercase = StringHelper.startsUppercase(token.getUnstemmedValue());
                 boolean notCompletelyUppercase = !StringHelper.isCompletelyUppercase(token.getUnstemmedValue());
-                
+
                 if (notAtSentenceStart && startsUppercase && notCompletelyUppercase) {
                     candidate.incrementCapitalCount();
                 }
-                
+
                 tokenCount++;
 
             }
@@ -92,121 +133,81 @@ public class DocumentModel /*extends ArrayList<Candidate>*/ {
             candidate.setValue(bestUnStemCand);
         }
 
-        this.candidates = candidates;
-        
-        // save memory
+        // save memory; we don't need the Tokens any longer.
         tokens.clear();
-        
+
         calculateCorrelations();
 
     }
-    
+
+    /**
+     * Determine the correlation feature for the candidates.
+     */
     private void calculateCorrelations() {
-        
-        Candidate[] candidateArray = candidates.toArray(new Candidate[0]);
-//        Candidate[] candidateArray = toArray(new Candidate[0]);
-        
+
+        Candidate[] candidateArray = toArray(new Candidate[0]);
+
         for (int i = 0; i < candidateArray.length; i++) {
-            Candidate outerCand = candidateArray[i];
+            Candidate cand1 = candidateArray[i];
             for (int j = i; j < candidateArray.length; j++) {
-                Candidate innerCand = candidateArray[j];
+                Candidate cand2 = candidateArray[j];
 
-                // 2010-11-24
-                String innerValue = innerCand.getStemmedValue();
-                if (innerValue.contains(" ")) {
-                    innerValue = innerCand.getValue().replaceAll(" ", "").toLowerCase();
-                }
-                String outerValue = outerCand.getStemmedValue();
-                if (outerValue.contains(" ")) {
-                    outerValue = outerCand.getValue().replaceAll(" ", "").toLowerCase();
-                }
-                // //
-
-                WordCorrelation correlation = corpus.getCorrelation(outerValue, innerValue);
+                WordCorrelation correlation = corpus.getCorrelation(cand1, cand2);
                 if (correlation != null) {
-                    double correlationValue = correlation.getRelativeCorrelation(); 
-                    innerCand.addCorrelation(correlationValue);
-                    outerCand.addCorrelation(correlationValue);
-
+                    double correlationValue = correlation.getRelativeCorrelation();
+                    cand2.addCorrelation(correlationValue);
+                    cand1.addCorrelation(correlationValue);
                 }
 
             }
         }
-        
     }
 
-    /*public int getCandidateCount() {
-        int count = 0;
-        // for (Candidate candidate : candidates) {
-        for (Candidate candidate : this) {
-            count += candidate.getCount();
-        }
-        return count;
-    }*/
-
+    /**
+     * Get the number of tokens in the document. Non-unique tokens are counted multiple times.
+     * 
+     * @return
+     */
     public int getTokenCount() {
         return tokenCount;
     }
 
-    public Collection<Candidate> getCandidates() {
-        return candidates;
+    /**
+     * Get the {@link Corpus}.
+     * 
+     * @return
+     */
+    public Corpus getCorpus() {
+        return corpus;
     }
 
-    /*public Collection<Candidate> getCandidates(int minCount) {
-        List<Candidate> result = new ArrayList<Candidate>();
-        for (Candidate candidate : candidates) {
-            if (candidate.getCount() >= minCount) {
-                result.add(candidate);
-            }
-        }
-        return result;
-    }*/
-    
-    /*public void cleanCandidates(int minOccurrenceCount) {
-        ListIterator<Candidate> listIterator = candidates.listIterator();
-        while (listIterator.hasNext()) {
-            Candidate candidate = listIterator.next();
-            if (candidate.getCount() < minOccurrenceCount) {
-                listIterator.remove();
-            }
-        }
-    }*/
-
-    public float getInverseDocumentFrequency(Candidate candidate) {
-        return corpus.getInverseDocumentFrequency(candidate.getStemmedValue());
-    }
-
-    /*@Deprecated
-    public float getPrior(String tag) {
-        return corpus.getPrior(tag);
-    }*/
-    
-    public float getPrior(Candidate candidate) {
-        return corpus.getPrior(candidate.getStemmedValue().toLowerCase());
-    }
-
-    public WordCorrelation getCorrelation(String term1, String term2) {
-        return corpus.getCorrelation(term1, term2);
-    }
-
+    /**
+     * Get a CSV representation of the DocumentModel with all Candidates and their features.
+     * 
+     * @return
+     */
     public String toCSV() {
         return toCSV(false);
     }
 
+    /**
+     * Get a CSV representation of the DocumentModel with all {@link Candidate}s and their features.
+     * 
+     * @param writeHeader <code>true</code> to add header with column labels.
+     * @return
+     */
     public String toCSV(boolean writeHeader) {
         StringBuilder sb = new StringBuilder();
 
         // write CSV header with features names
         if (writeHeader) {
-            Candidate first = candidates.iterator().next();
-//            Candidate first = iterator().next();
+            Candidate first = iterator().next();
             Set<String> featureNames = first.getFeatures().keySet();
             sb.append("#").append(StringUtils.join(featureNames, ";")).append("\n");
         }
 
         // write all values
-         for (Candidate candidate : candidates) {
-//        for (Candidate candidate : this) {
+        for (Candidate candidate : this) {
             Collection<Double> feautureValues = candidate.getFeatures().values();
             sb.append(StringUtils.join(feautureValues, ";")).append("\n");
         }
@@ -217,13 +218,10 @@ public class DocumentModel /*extends ArrayList<Candidate>*/ {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for (Candidate candidate : candidates) {
-//        for (Candidate candidate : this) {
+        for (Candidate candidate : this) {
             builder.append(candidate).append("\n");
         }
-//        builder.append("# of non-unique candidates : " + getCandidateCount()).append("\n");
-         builder.append("# of unique candidates : " + candidates.size()).append("\n");
-//        builder.append("# of unique candidates : " + size()).append("\n");
+        builder.append("# of unique candidates : " + size()).append("\n");
         builder.append("# tokens : " + tokenCount);
         return builder.toString();
     }
