@@ -3,6 +3,7 @@ package tud.iir.classification.controlledtagging;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Set;
@@ -74,10 +75,17 @@ public class KeyphraseExtractor {
 
     }
 
-    private AssignmentMode assignmentMode = AssignmentMode.COMBINED;
+    public enum CorrelationReRankingMode {
+        NO_CORRELATIONS, SHALLOW_CORRELATIONS, DEEP_CORRELATIONS
+    }
+
+    private AssignmentMode assignmentMode = AssignmentMode.FIXED_COUNT;
+    private CorrelationReRankingMode correlationReRankingMode = CorrelationReRankingMode.DEEP_CORRELATIONS;
 
     private int keyphraseCount = 10;
     private float keyphraseThreshold = 0.75f;
+
+    private float correlationWeight = 90000;
 
     private String modelName = "controlledTagger";
 
@@ -273,27 +281,29 @@ public class KeyphraseExtractor {
         classifier.classify(candidates);
 
         // do the correlation based re-ranking
+        reRankCandidates(candidates);
+
         // TODO refactor this to its own method ////////////////////////////////////
-        Candidate[] candidateArray = candidates.toArray(new Candidate[candidates.size()]);
-        int numReRanking = candidateArray.length * (candidateArray.length - 1) / 2;
-
-        // TODO parameter
-        float correlationWeight = 90000;
-
-        for (int i = 0; i < candidateArray.length; i++) {
-            Candidate cand1 = candidateArray[i];
-            for (int j = i; j < candidateArray.length; j++) {
-                Candidate cand2 = candidateArray[j];
-
-                WordCorrelation correlation = corpus.getCorrelation(cand1, cand2);
-                if (correlation != null) {
-                    float reRanking = (float) ((correlationWeight / numReRanking) * correlation
-                            .getRelativeCorrelation());
-                    cand1.setRegressionValue(cand1.getRegressionValue() + reRanking);
-                    cand2.setRegressionValue(cand2.getRegressionValue() + reRanking);
-                }
-            }
-        }
+        // Candidate[] candidateArray = candidates.toArray(new Candidate[candidates.size()]);
+        // int numReRanking = candidateArray.length * (candidateArray.length - 1) / 2;
+        //
+        // // TODO parameter
+        // float correlationWeight = 90000;
+        //
+        // for (int i = 0; i < candidateArray.length; i++) {
+        // Candidate cand1 = candidateArray[i];
+        // for (int j = i; j < candidateArray.length; j++) {
+        // Candidate cand2 = candidateArray[j];
+        //
+        // WordCorrelation correlation = corpus.getCorrelation(cand1, cand2);
+        // if (correlation != null) {
+        // float reRanking = (float) ((correlationWeight / numReRanking) * correlation
+        // .getRelativeCorrelation());
+        // cand1.setRegressionValue(cand1.getRegressionValue() + reRanking);
+        // cand2.setRegressionValue(cand2.getRegressionValue() + reRanking);
+        // }
+        // }
+        // }
         // ///////////////////////////////////////////////////////////////////////////
 
         // create the final result, take the top n candidates
@@ -313,14 +323,14 @@ public class KeyphraseExtractor {
 
         switch (assignmentMode) {
 
-            // in this mode, we assign a maximum number of keyphrases as result
+            // assign a maximum number of keyphrases as result
             case FIXED_COUNT:
-                if (candidates.size() > 0) {
+                if (candidates.size() > keyphraseCount) {
                     candidates.subList(keyphraseCount, candidates.size()).clear();
                 }
                 break;
 
-            // in this mode, we assign all keyphrases which have a weight about the specified threshold
+            // assign all keyphrases which have a weight about the specified threshold
             case THRESHOLD:
                 while (listIterator.hasNext()) {
                     if (listIterator.next().getRegressionValue() < keyphraseThreshold) {
@@ -329,8 +339,8 @@ public class KeyphraseExtractor {
                 }
                 break;
 
-            // in the mode, we first assign a maximum number of keyphrases (FIXED_COUNT), but if there are
-            // more keyphrases with weights above the specified threshold, we assign more than the specified count
+            // first assign a maximum number of keyphrases (FIXED_COUNT), but if there are more keyphrases
+            // with weights above the specified threshold, we assign more than the specified count
             case COMBINED:
                 while (listIterator.hasNext()) {
                     Candidate next = listIterator.next();
@@ -340,6 +350,93 @@ public class KeyphraseExtractor {
                 }
                 break;
         }
+
+    }
+
+    //
+    // this code is copy+paste from ControlledTagger
+    //
+    private void reRankCandidates(DocumentModel candidates) {
+
+        StopWatch sw = new StopWatch();
+        
+        if (candidates.isEmpty()) {
+            return;
+        }
+        
+        Collections.sort(candidates, new CandidateComparator());
+
+        // experimental: to normalize the range of the re-ranked tags back to their original range,
+        // by keeping the lower/upper bounds, so we keep the general properties of the TF/IDF -- elsewise
+        // we will get outliers which are considerably bigger than most of the other tag weights.
+        double oldMin = candidates.get(0).getRegressionValue();
+        double oldMax = candidates.get(candidates.size() - 1).getRegressionValue();
+
+        // Option 1: do a "shallow" re-ranking, only considering top-tag (n)
+        if (correlationReRankingMode == CorrelationReRankingMode.SHALLOW_CORRELATIONS) {
+            Iterator<Candidate> candidateIterator = candidates.iterator();
+            Candidate topCandidate = candidateIterator.next();
+
+            while (candidateIterator.hasNext()) {
+                Candidate currentCandidate = candidateIterator.next();
+
+                WordCorrelation correlation = corpus.getCorrelation(topCandidate, currentCandidate);
+                if (correlation != null) {
+                    currentCandidate.increaseRegressionValue(correlationWeight * correlation.getRelativeCorrelation());
+                }
+            }
+        }
+
+        // Option 2: do a "deep" re-ranking, considering correlations between each possible combination
+        else if (correlationReRankingMode == CorrelationReRankingMode.DEEP_CORRELATIONS) {
+            Candidate[] candidatesArray = candidates.toArray(new Candidate[candidates.size()]);
+
+            // experimental:
+            // normalization factor; we have (n - 1) + (n - 2) + ... + 1 = n * (n - 1) / 2 re-rankings.
+            int numReRanking = candidatesArray.length * (candidatesArray.length - 1) / 2;
+
+            for (int i = 0; i < candidatesArray.length; i++) {
+                Candidate candidate1 = candidatesArray[i];
+                for (int j = i; j < candidatesArray.length; j++) {
+                    Candidate candidate2 = candidatesArray[j];
+                    
+                    WordCorrelation correlation = corpus.getCorrelation(candidate1, candidate2);
+                    if (correlation != null) {
+                        float reRanking = (float) ((correlationWeight / numReRanking) * correlation
+                                .getRelativeCorrelation());
+                        // FIXME why dont we put the numReRanking division outside the loop?
+
+                        assert !Double.isInfinite(reRanking);
+                        assert !Double.isNaN(reRanking);
+
+                        candidate1.increaseRegressionValue(reRanking);
+                        candidate2.increaseRegressionValue(reRanking);
+                    }
+                    
+                }
+            }
+
+        }
+
+        // re-sort the list, as ranking weights have changed
+        Collections.sort(candidates, new CandidateComparator());
+
+        // do the scaling back to the original range (see comment above)
+        double newMin = candidates.get(0).getRegressionValue();
+        double newMax = candidates.get(candidates.size() - 1).getRegressionValue();
+
+        if (newMin != newMax) { // avoid division by zero
+            for (Candidate candidate : candidates) {
+
+                // http://de.wikipedia.org/wiki/Normalisierung_(Mathematik)
+                double normalized = (candidate.getRegressionValue() - newMin) * ((oldMax - oldMin) / (newMax - newMin))
+                        + oldMin;
+                candidate.setRegressionValue(normalized);
+
+            }
+        }
+
+        LOGGER.trace("correlation reranking for " + candidates.size() + " in " + sw.getElapsedTimeString());
 
     }
 
@@ -476,16 +573,17 @@ public class KeyphraseExtractor {
         // //////////////////////////////////////////////
         // CORPUS CREATION
         // //////////////////////////////////////////////
-        // extractor.buildCorpus(filePath);
+//        extractor.buildCorpus(filePath);
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-        // extractor.buildClassifier(filePath, 1000);
+//        extractor.buildClassifier(filePath, 1000);
 
         // //////////////////////////////////////////////
         // EVALUATION
         // //////////////////////////////////////////////
+
         extractor.loadCorpus();
         extractor.loadClassifier();
         extractor.evaluate("evaluation.txt");

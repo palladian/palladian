@@ -31,7 +31,7 @@ public class Candidate {
 
     public Candidate(DocumentModel document) {
         this.document = document;
-        
+
         // prevent NaN/Infinity
         correlationStats.addValue(0);
     }
@@ -170,6 +170,11 @@ public class Candidate {
 
     public void setRegressionValue(double regressionValue) {
         this.regressionValue = regressionValue;
+    }
+
+    // TODO necessary?
+    public void increaseRegressionValue(double by) {
+        regressionValue += by;
     }
 
     public Map<String, Double> getFeatures() {
