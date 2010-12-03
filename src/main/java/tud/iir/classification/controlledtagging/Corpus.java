@@ -88,12 +88,17 @@ public class Corpus implements Serializable {
 
         // probability of occurrence of specified phrase
         // TODO toLowerCase necessary?
-        float prior = (float) keyphrases.getCount(candidate.getStemmedValue().toLowerCase()) / avgOccurence;
+        float prior = (float) keyphrases.getCount(candidate.getStemmedValue()/*.toLowerCase()*/) / avgOccurence;
 
         // for debugging
         assert !Float.isNaN(prior);
 
         return prior;
+    }
+    
+    // TODO experimental
+    public boolean isKeyphrase(Candidate candidate) {
+        return keyphrases.contains(candidate.getStemmedValue());
     }
 
     /**

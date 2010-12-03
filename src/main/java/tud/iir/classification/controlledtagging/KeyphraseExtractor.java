@@ -10,10 +10,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.tartarus.snowball.SnowballStemmer;
-import org.tartarus.snowball.ext.englishStemmer;
 
-import tud.iir.classification.Stopwords;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
@@ -36,12 +33,6 @@ public class KeyphraseExtractor {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractor.class);
 
-    /** The stemmer to use. Snowball offers stemmer implementations for various languages. */
-    private SnowballStemmer stemmer = new englishStemmer();
-
-    /** List of stopwords to use. */
-    private Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
-
     /** The TokenizerPlus is responsible for all tokenization steps. */
     private TokenizerPlus tokenizer = new TokenizerPlus();
 
@@ -51,38 +42,7 @@ public class KeyphraseExtractor {
     /** The classifier is used for predicting relevance values for keyphrase candidates. */
     private CandidateClassifier classifier = new CandidateClassifier();
 
-    private boolean controlledMode = false; // XXX testing
-
-    /** Different assignment strategies. */
-    public enum AssignmentMode {
-
-        /** Assign maximum count of keyphrases (e.g. 10 keyphrases or less). */
-        FIXED_COUNT,
-
-        /** Assign keyphrases which exceed a specified threshold (e.g. all keyphrases with weights > 0.75). */
-        THRESHOLD,
-
-        /**
-         * Assign maximum count of keyphrases or more if they exceed the specified threshold (e.g. all keyphrases with
-         * weights > 0.75 or 10 or less).
-         */
-        COMBINED
-
-    }
-
-    public enum ReRankingMode {
-        NO_RERANKING, SHALLOW_CORRELATION_RERANKING, DEEP_CORRELATION_RERANKING
-    }
-
-    private AssignmentMode assignmentMode = AssignmentMode.FIXED_COUNT;
-    private ReRankingMode reRankingMode = ReRankingMode.DEEP_CORRELATION_RERANKING;
-
-    private int keyphraseCount = 10;
-    private float keyphraseThreshold = 0.75f;
-
-    private float correlationWeight = 90000;
-
-    private String modelPath = "data/models/keyphraseExtractorCorpus.ser";
+    private KeyphraseExtractorSettings settings = new KeyphraseExtractorSettings();
 
     public KeyphraseExtractor() {
         tokenizer.setUsePosTagging(false);
@@ -233,10 +193,10 @@ public class KeyphraseExtractor {
     }
 
     public void saveCorpus() {
-        LOGGER.info("saving corpus ...");
+        LOGGER.info("saving corpus to " + settings.getModelPath() + " ...");
         StopWatch sw = new StopWatch();
         corpus.makeRelativeScores();
-        FileHelper.serialize(corpus, modelPath);
+        FileHelper.serialize(corpus, settings.getModelPath());
         LOGGER.info("saved corpus in " + sw.getElapsedTimeString());
     }
     
@@ -250,7 +210,7 @@ public class KeyphraseExtractor {
     public void loadCorpus() {
         LOGGER.info("loading corpus ...");
         StopWatch sw = new StopWatch();
-        corpus = FileHelper.deserialize(modelPath);
+        corpus = FileHelper.deserialize(settings.getModelPath());
         LOGGER.info("loaded corpus in " + sw.getElapsedTimeString());
     }
 
@@ -270,9 +230,10 @@ public class KeyphraseExtractor {
         while (listIterator.hasNext()) {
             Candidate candidate = listIterator.next();
 
-            boolean ignore = stopwords.contains(candidate.getValue());
-            ignore = ignore || !candidate.getValue().matches("[a-zA-Z\\s]{3,}");
-            ignore = ignore || (controlledMode && candidate.getPrior() == 0);
+            boolean ignore = settings.getStopwords().contains(candidate.getValue());
+            // ignore = ignore || !candidate.getValue().matches("[a-zA-Z\\s]{3,}");
+            ignore = ignore || !settings.getPattern().matcher(candidate.getValue()).matches();
+            ignore = ignore || (settings.isControlledMode() && candidate.getPrior() == 0);
 
             if (ignore) {
                 listIterator.remove();
@@ -300,19 +261,19 @@ public class KeyphraseExtractor {
         // ListIterator for manipulating the list
         ListIterator<Candidate> listIterator = candidates.listIterator();
 
-        switch (assignmentMode) {
+        switch (settings.getAssignmentMode()) {
 
             // assign a maximum number of keyphrases as result
             case FIXED_COUNT:
-                if (candidates.size() > keyphraseCount) {
-                    candidates.subList(keyphraseCount, candidates.size()).clear();
+                if (candidates.size() > settings.getKeyphraseCount()) {
+                    candidates.subList(settings.getKeyphraseCount(), candidates.size()).clear();
                 }
                 break;
 
             // assign all keyphrases which have a weight about the specified threshold
             case THRESHOLD:
                 while (listIterator.hasNext()) {
-                    if (listIterator.next().getRegressionValue() <= keyphraseThreshold) {
+                    if (listIterator.next().getRegressionValue() <= settings.getKeyphraseThreshold()) {
                         listIterator.remove();
                     }
                 }
@@ -323,7 +284,7 @@ public class KeyphraseExtractor {
             case COMBINED:
                 while (listIterator.hasNext()) {
                     Candidate next = listIterator.next();
-                    if (listIterator.nextIndex() > 10 && next.getRegressionValue() <= keyphraseThreshold) {
+                    if (listIterator.nextIndex() > 10 && next.getRegressionValue() <= settings.getKeyphraseThreshold()) {
                         listIterator.remove();
                     }
                 }
@@ -352,7 +313,7 @@ public class KeyphraseExtractor {
         double oldMax = candidates.get(candidates.size() - 1).getRegressionValue();
 
         // Option 1: do a "shallow" re-ranking, only considering top-tag (n)
-        if (reRankingMode == ReRankingMode.SHALLOW_CORRELATION_RERANKING) {
+        if (settings.getReRankingMode() == ReRankingMode.SHALLOW_CORRELATION_RERANKING) {
             Iterator<Candidate> candidateIterator = candidates.iterator();
             Candidate topCandidate = candidateIterator.next();
 
@@ -361,20 +322,20 @@ public class KeyphraseExtractor {
 
                 WordCorrelation correlation = corpus.getCorrelation(topCandidate, currentCandidate);
                 if (correlation != null) {
-                    currentCandidate.increaseRegressionValue(correlationWeight * correlation.getRelativeCorrelation());
+                    currentCandidate.increaseRegressionValue(settings.getCorrelationWeight() * correlation.getRelativeCorrelation());
                 }
             }
         }
 
         // Option 2: do a "deep" re-ranking, considering correlations between each possible combination
-        else if (reRankingMode == ReRankingMode.DEEP_CORRELATION_RERANKING) {
+        else if (settings.getReRankingMode() == ReRankingMode.DEEP_CORRELATION_RERANKING) {
             Candidate[] candidatesArray = candidates.toArray(new Candidate[candidates.size()]);
 
             // experimental:
             // normalization factor; we have (n - 1) + (n - 2) + ... + 1 = n * (n - 1) / 2 re-rankings.
             int numReRanking = candidatesArray.length * (candidatesArray.length - 1) / 2;
             // FIX-ME why dont we put the numReRanking division outside the loop?
-            float factor = (float) correlationWeight / numReRanking;
+            float factor = (float) settings.getCorrelationWeight() / numReRanking;
 
             for (int i = 0; i < candidatesArray.length; i++) {
                 Candidate candidate1 = candidatesArray[i];
@@ -521,6 +482,12 @@ public class KeyphraseExtractor {
         List<Token> tokens = tokenize(text);
         model.addTokens(tokens);
         model.createCandidates();
+        
+        
+        // TODO experimental
+        if (settings.isControlledMode()) {
+            model.removeNonKeyphrases();
+        }
 
         return model;
 
@@ -540,9 +507,9 @@ public class KeyphraseExtractor {
     }
 
     private String stem(String unstemmed) {
-        stemmer.setCurrent(unstemmed.toLowerCase());
-        stemmer.stem();
-        return stemmer.getCurrent();
+        settings.getStemmer().setCurrent(unstemmed.toLowerCase());
+        settings.getStemmer().stem();
+        return settings.getStemmer().getCurrent();
     }
 
     private Set<String> stem(Set<String> unstemmed) {
@@ -554,33 +521,48 @@ public class KeyphraseExtractor {
         return result;
     }
     
-    public void setKeyphraseThreshold(float keyphraseThreshold) {
-        this.keyphraseThreshold = keyphraseThreshold;
+    /*public void setKeyphraseThreshold(float keyphraseThreshold) {
+        this.settings.setKeyphraseThreshold(keyphraseThreshold);
     }
     
     public void setAssignmentMode(AssignmentMode assignmentMode) {
-        this.assignmentMode = assignmentMode;
+        this.settings.setAssignmentMode(assignmentMode);
     }
     
     public void setCorrelationReRankingMode(ReRankingMode reRankingMode) {
-        this.reRankingMode = reRankingMode;
+        this.settings.setReRankingMode(reRankingMode);
+    }*/
+    
+    public KeyphraseExtractorSettings getSettings() {
+        return settings;
+    }
+    
+    public void setSettings(KeyphraseExtractorSettings settings) {
+        this.settings = settings;
     }
 
     public static void main(String[] args) {
 
         final KeyphraseExtractor extractor = new KeyphraseExtractor();
         String filePath = "data/tagData_shuf_10000aa";
-
+        KeyphraseExtractorSettings extractorSettings = extractor.getSettings();
+        extractorSettings.setModelPath("data/xyz.ser");
+        extractorSettings.setAssignmentMode(AssignmentMode.FIXED_COUNT);
+        extractorSettings.setKeyphraseThreshold(0.5f);
+        extractorSettings.setControlledMode(true);
+        
         // //////////////////////////////////////////////
         // CORPUS CREATION
         // //////////////////////////////////////////////
-        //extractor.buildCorpus(filePath);
+        // extractor.buildCorpus(filePath);
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-        //extractor.buildClassifier(filePath, 1000);
-        //extractor.saveClassifier("classifier.ser");
+        // extractor.buildClassifier(filePath, 1000);
+        // extractor.saveClassifier("classifier.ser");
+        
+        // System.exit(0);
 
         // //////////////////////////////////////////////
         // EVALUATION
@@ -588,8 +570,6 @@ public class KeyphraseExtractor {
 
         extractor.loadCorpus();
         extractor.loadClassifier("classifier.ser");
-        extractor.setAssignmentMode(AssignmentMode.THRESHOLD);
-        extractor.setKeyphraseThreshold(0.1f);
         extractor.evaluate("data/tagData_shuf_10000ab", 1000);
 
         System.exit(0);

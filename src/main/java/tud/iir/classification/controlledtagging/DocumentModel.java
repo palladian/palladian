@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -161,6 +162,19 @@ public class DocumentModel extends ArrayList<Candidate> {
 
             }
         }
+    }
+    
+    // TODO experimental
+    public void removeNonKeyphrases() {
+        
+        ListIterator<Candidate> iterator = this.listIterator();
+        while (iterator.hasNext()) {
+            Candidate current = iterator.next();
+            if (!corpus.isKeyphrase(current)) {
+                iterator.remove();
+            }
+        }
+        
     }
 
     /**
