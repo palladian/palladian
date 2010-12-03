@@ -2,6 +2,7 @@ package tud.iir.classification.language;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import tud.iir.helper.CollectionHelper;
 
@@ -26,7 +27,7 @@ public abstract class LanguageClassifier {
         languageCodes.put("Catalan", "ca");
         languageCodes.put("Chinese", "zh");
         languageCodes.put("Chuvash", "cv");
-        languageCodes.put("Croation", "hr");
+        languageCodes.put("Croatian", "hr");
         languageCodes.put("Czech", "cs");
         languageCodes.put("Danish", "da");
         languageCodes.put("Dutch", "nl");
@@ -92,7 +93,15 @@ public abstract class LanguageClassifier {
     }
 
     public String mapLanguage(String language) {
-        return languageCodes.get(language);
+        // return languageCodes.get(language);
+        String result = "";
+        for (Entry<String, String> entry : languageCodes.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(language)) { // make mapping case insensitive.
+                result = entry.getValue();
+                break;
+            }
+        }
+        return result;
     }
 
     public String mapLanguageCode(String languageCode) {
