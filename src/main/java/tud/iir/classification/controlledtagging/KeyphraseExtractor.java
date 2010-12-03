@@ -15,15 +15,10 @@ import org.tartarus.snowball.ext.englishStemmer;
 
 import tud.iir.classification.Stopwords;
 import tud.iir.classification.WordCorrelation;
-import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetCallback;
-import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetEntry;
-import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetFilter;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
-import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.StringHelper;
 
 /**
  * 
@@ -75,19 +70,19 @@ public class KeyphraseExtractor {
 
     }
 
-    public enum CorrelationReRankingMode {
-        NO_CORRELATIONS, SHALLOW_CORRELATIONS, DEEP_CORRELATIONS
+    public enum ReRankingMode {
+        NO_RERANKING, SHALLOW_CORRELATION_RERANKING, DEEP_CORRELATION_RERANKING
     }
 
     private AssignmentMode assignmentMode = AssignmentMode.FIXED_COUNT;
-    private CorrelationReRankingMode correlationReRankingMode = CorrelationReRankingMode.DEEP_CORRELATIONS;
+    private ReRankingMode reRankingMode = ReRankingMode.DEEP_CORRELATION_RERANKING;
 
     private int keyphraseCount = 10;
     private float keyphraseThreshold = 0.75f;
 
     private float correlationWeight = 90000;
 
-    private String modelName = "controlledTagger";
+    private String modelPath = "data/models/keyphraseExtractorCorpus.ser";
 
     public KeyphraseExtractor() {
         tokenizer.setUsePosTagging(false);
@@ -212,7 +207,7 @@ public class KeyphraseExtractor {
 
         classifier = new CandidateClassifier();
         classifier.trainClassifier("data/temp/KeyphraseExtractorTraining.csv");
-        classifier.saveTrainedClassifier();
+        // classifier.saveTrainedClassifier();
 
         LOGGER.info("finished training in " + sw.getElapsedTimeString());
 
@@ -241,21 +236,28 @@ public class KeyphraseExtractor {
         LOGGER.info("saving corpus ...");
         StopWatch sw = new StopWatch();
         corpus.makeRelativeScores();
-        FileHelper.serialize(corpus, modelName + ".ser");
+        FileHelper.serialize(corpus, modelPath);
         LOGGER.info("saved corpus in " + sw.getElapsedTimeString());
+    }
+    
+    public void saveClassifier(String filePath) {
+        LOGGER.info("saving classifier ...");
+        StopWatch sw = new StopWatch();
+        classifier.save(filePath);
+        LOGGER.info("saved classifier in " + sw.getElapsedTimeString());
     }
 
     public void loadCorpus() {
         LOGGER.info("loading corpus ...");
         StopWatch sw = new StopWatch();
-        corpus = FileHelper.deserialize(modelName + ".ser");
+        corpus = FileHelper.deserialize(modelPath);
         LOGGER.info("loaded corpus in " + sw.getElapsedTimeString());
     }
 
-    public void loadClassifier() {
+    public void loadClassifier(String filePath) {
         LOGGER.info("loading classifier ...");
         StopWatch sw = new StopWatch();
-        classifier.useTrainedClassifier();
+        classifier.load(filePath);
         LOGGER.info("loaded classifier in " + sw.getElapsedTimeString());
     }
 
@@ -282,29 +284,6 @@ public class KeyphraseExtractor {
 
         // do the correlation based re-ranking
         reRankCandidates(candidates);
-
-        // TODO refactor this to its own method ////////////////////////////////////
-        // Candidate[] candidateArray = candidates.toArray(new Candidate[candidates.size()]);
-        // int numReRanking = candidateArray.length * (candidateArray.length - 1) / 2;
-        //
-        // // TODO parameter
-        // float correlationWeight = 90000;
-        //
-        // for (int i = 0; i < candidateArray.length; i++) {
-        // Candidate cand1 = candidateArray[i];
-        // for (int j = i; j < candidateArray.length; j++) {
-        // Candidate cand2 = candidateArray[j];
-        //
-        // WordCorrelation correlation = corpus.getCorrelation(cand1, cand2);
-        // if (correlation != null) {
-        // float reRanking = (float) ((correlationWeight / numReRanking) * correlation
-        // .getRelativeCorrelation());
-        // cand1.setRegressionValue(cand1.getRegressionValue() + reRanking);
-        // cand2.setRegressionValue(cand2.getRegressionValue() + reRanking);
-        // }
-        // }
-        // }
-        // ///////////////////////////////////////////////////////////////////////////
 
         // create the final result, take the top n candidates
         limitResult(candidates);
@@ -373,7 +352,7 @@ public class KeyphraseExtractor {
         double oldMax = candidates.get(candidates.size() - 1).getRegressionValue();
 
         // Option 1: do a "shallow" re-ranking, only considering top-tag (n)
-        if (correlationReRankingMode == CorrelationReRankingMode.SHALLOW_CORRELATIONS) {
+        if (reRankingMode == ReRankingMode.SHALLOW_CORRELATION_RERANKING) {
             Iterator<Candidate> candidateIterator = candidates.iterator();
             Candidate topCandidate = candidateIterator.next();
 
@@ -388,23 +367,24 @@ public class KeyphraseExtractor {
         }
 
         // Option 2: do a "deep" re-ranking, considering correlations between each possible combination
-        else if (correlationReRankingMode == CorrelationReRankingMode.DEEP_CORRELATIONS) {
+        else if (reRankingMode == ReRankingMode.DEEP_CORRELATION_RERANKING) {
             Candidate[] candidatesArray = candidates.toArray(new Candidate[candidates.size()]);
 
             // experimental:
             // normalization factor; we have (n - 1) + (n - 2) + ... + 1 = n * (n - 1) / 2 re-rankings.
             int numReRanking = candidatesArray.length * (candidatesArray.length - 1) / 2;
+            // FIX-ME why dont we put the numReRanking division outside the loop?
+            float factor = (float) correlationWeight / numReRanking;
 
             for (int i = 0; i < candidatesArray.length; i++) {
                 Candidate candidate1 = candidatesArray[i];
+                
                 for (int j = i; j < candidatesArray.length; j++) {
                     Candidate candidate2 = candidatesArray[j];
                     
                     WordCorrelation correlation = corpus.getCorrelation(candidate1, candidate2);
                     if (correlation != null) {
-                        float reRanking = (float) ((correlationWeight / numReRanking) * correlation
-                                .getRelativeCorrelation());
-                        // FIXME why dont we put the numReRanking division outside the loop?
+                        float reRanking = (float) (factor * correlation.getRelativeCorrelation());
 
                         assert !Double.isInfinite(reRanking);
                         assert !Double.isNaN(reRanking);
@@ -440,12 +420,15 @@ public class KeyphraseExtractor {
 
     }
 
-    public void evaluate(String filePath) {
+    public ControlledTaggerEvaluationResult evaluate(String filePath, final int limit) {
 
         LOGGER.info("starting evaluation ...");
+        
+        final ControlledTaggerEvaluationResult evaluationResult = new ControlledTaggerEvaluationResult();
+        
         StopWatch sw = new StopWatch();
-        final Counter counter = new Counter();
-        final float[] prRcValues = new float[2];
+        // final Counter counter = new Counter();
+        // final float[] prRcValues = new float[2];
 
         FileHelper.performActionOnEveryLine(filePath, new LineAction() {
 
@@ -498,24 +481,37 @@ public class KeyphraseExtractor {
                 LOGGER.info("assigned keyphrases: " + assignedKeyphrases);
                 LOGGER.info("real: " + realCount + " assigned: " + assignedCount + " correct: " + correctCount);
                 LOGGER.info("pr: " + precision + " rc: " + recall);
+                LOGGER.info("----------------------------------------------------------");
 
-                prRcValues[0] += precision;
-                prRcValues[1] += recall;
-                counter.increment();
+                // prRcValues[0] += precision;
+                // prRcValues[1] += recall;
+                // counter.increment();
+                
+                evaluationResult.addTestResult(precision, recall, assignedCount);
+
+                if (evaluationResult.getTaggedEntryCount() == limit) {
+                // if (counter.getCount() == limit) {
+                    breakLineLoop();
+                }
 
             }
         });
 
         // calculate average Pr/Rc/F1 values
-        float averagePrecision = (float) prRcValues[0] / counter.getCount();
-        float averageRecall = (float) prRcValues[1] / counter.getCount();
-        float averageF1 = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
+        // float averagePrecision = (float) prRcValues[0] / counter.getCount();
+        // float averageRecall = (float) prRcValues[1] / counter.getCount();
+        // float averageF1 = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
 
-        LOGGER.info("-----------------------------------------------");
+        // LOGGER.info("-----------------------------------------------");
+        // LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
+        // LOGGER.info("average precision: " + averagePrecision);
+        // LOGGER.info("average recall: " + averageRecall);
+        // LOGGER.info("average f1: " + averageF1);
+        
+        evaluationResult.printStatistics();
         LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
-        LOGGER.info("average precision: " + averagePrecision);
-        LOGGER.info("average recall: " + averageRecall);
-        LOGGER.info("average f1: " + averageF1);
+        
+        return evaluationResult;
 
     }
 
@@ -557,36 +553,44 @@ public class KeyphraseExtractor {
         }
         return result;
     }
+    
+    public void setKeyphraseThreshold(float keyphraseThreshold) {
+        this.keyphraseThreshold = keyphraseThreshold;
+    }
+    
+    public void setAssignmentMode(AssignmentMode assignmentMode) {
+        this.assignmentMode = assignmentMode;
+    }
+    
+    public void setCorrelationReRankingMode(ReRankingMode reRankingMode) {
+        this.reRankingMode = reRankingMode;
+    }
 
     public static void main(String[] args) {
 
-        /*
-         * float x = (float) 0 / 12983;
-         * System.out.println(x);
-         * System.out.println(x == 0);
-         * System.exit(0);
-         */
-
         final KeyphraseExtractor extractor = new KeyphraseExtractor();
-        String filePath = "data/tag_dataset_10000.txt";
+        String filePath = "data/tagData_shuf_10000aa";
 
         // //////////////////////////////////////////////
         // CORPUS CREATION
         // //////////////////////////////////////////////
-//        extractor.buildCorpus(filePath);
+        //extractor.buildCorpus(filePath);
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-//        extractor.buildClassifier(filePath, 1000);
+        //extractor.buildClassifier(filePath, 1000);
+        //extractor.saveClassifier("classifier.ser");
 
         // //////////////////////////////////////////////
         // EVALUATION
         // //////////////////////////////////////////////
 
         extractor.loadCorpus();
-        extractor.loadClassifier();
-        extractor.evaluate("evaluation.txt");
+        extractor.loadClassifier("classifier.ser");
+        extractor.setAssignmentMode(AssignmentMode.THRESHOLD);
+        extractor.setKeyphraseThreshold(0.1f);
+        extractor.evaluate("data/tagData_shuf_10000ab", 1000);
 
         System.exit(0);
 
@@ -658,34 +662,5 @@ public class KeyphraseExtractor {
 
     }
 
-    @SuppressWarnings("unused")
-    private static void evaluate(final KeyphraseExtractor extractor) {
-
-        final StringBuilder sb = new StringBuilder();
-        DeliciousDatasetReader reader = new DeliciousDatasetReader();
-
-        DatasetFilter filter = new DatasetFilter();
-        filter.addAllowedFiletype("html");
-        filter.setMinUsers(50);
-        filter.setMaxFileSize(600000);
-        reader.setFilter(filter);
-
-        DatasetCallback callback = new DatasetCallback() {
-
-            @Override
-            public void callback(DatasetEntry entry) {
-
-                String content = FileHelper.readFileToString(entry.getPath());
-                content = HTMLHelper.htmlToString(content, true);
-                content = StringHelper.removeControlCharacters(content);
-                content = content.replace("#", " ");
-                sb.append(content).append("#").append(StringUtils.join(entry.getTags().uniqueSet(), "#")).append("\n");
-
-            }
-        };
-        reader.read(callback, 1000);
-        FileHelper.writeToFile("evaluation.txt", sb);
-
-    }
 
 }
