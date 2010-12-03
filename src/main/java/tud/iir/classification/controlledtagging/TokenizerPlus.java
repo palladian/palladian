@@ -44,7 +44,7 @@ public class TokenizerPlus {
     private Set<String> stopwords = new Stopwords(Stopwords.Predefined.EN);
 
     public TokenizerPlus() {
-        posTagger.loadModel();
+        // posTagger.loadModel();
     }
 
     public List<Token> tokenize(String text) {
@@ -128,6 +128,8 @@ public class TokenizerPlus {
      * sequence of terms, appearing frequently throughout the text, like "San Francisco", not beginning or ending with a
      * stopword. This method is somewhat sophisticated, but I have no idea how to simplify it. It contains some magic
      * numbers which proved to work well for longer texts, but which still need further evaluation.
+     * 
+     * TODO take a look at http://personalpages.manchester.ac.uk/staff/sophia.ananiadou/IJODL2000.pdf
      * 
      * @param tokens
      * @return
@@ -281,6 +283,9 @@ public class TokenizerPlus {
     
     public void setUsePosTagging(boolean usePosTagging) {
         this.usePosTagging = usePosTagging;
+        if (usePosTagging) {
+            posTagger.loadModel();
+        }
     }
 
     public static void main(String[] args) {

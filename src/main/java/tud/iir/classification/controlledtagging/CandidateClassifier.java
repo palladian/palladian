@@ -58,17 +58,41 @@ public class CandidateClassifier extends Classifier {
      * TODO pull this method up? I have copied this to NewsRankingClassifier for now. We should have the possibility to
      * set file names for the serialized model to avoid conflicts between different Classifier subclasses -- Philipp.
      */
-    public void useTrainedClassifier() {
-        try {
-            weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
-                    .read(getFileName());
-            setClassifier(trainedClassifier);
-        } catch (Exception e) {
-            LOGGER.error(e);
-        }
-    }
+//    public void useTrainedClassifier() {
+//        try {
+//            weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
+//                    .read(getFileName());
+//            setClassifier(trainedClassifier);
+//        } catch (Exception e) {
+//            LOGGER.error(e);
+//        }
+//    }
 
-    public void loadTrainedClassifier(String filePath) {
+//    public void loadTrainedClassifier(String filePath) {
+//        try {
+//            weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
+//                    .read(filePath);
+//            setClassifier(trainedClassifier);
+//        } catch (Exception e) {
+//            LOGGER.error(e);
+//        }
+//    }
+
+    /**
+     * Simply save the trained classifier.
+     * 
+     * TODO pull up?
+     */
+//    public void saveTrainedClassifier() {
+//        try {
+//            SerializationHelper.write(getFileName(), getClassifier());
+//        } catch (Exception e) {
+//            LOGGER.error(e);
+//        }
+//    }
+    
+    
+    public void load(String filePath) {
         try {
             weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
                     .read(filePath);
@@ -78,14 +102,9 @@ public class CandidateClassifier extends Classifier {
         }
     }
 
-    /**
-     * Simply save the trained classifier.
-     * 
-     * TODO pull up?
-     */
-    public void saveTrainedClassifier() {
+    public void save(String filePath) {
         try {
-            SerializationHelper.write(getFileName(), getClassifier());
+            SerializationHelper.write(filePath, getClassifier());
         } catch (Exception e) {
             LOGGER.error(e);
         }
@@ -100,12 +119,6 @@ public class CandidateClassifier extends Classifier {
      */
     public String getFileName() {
         return "data/models/CandidateClassifier_" + getChosenClassifierName() + ".model";
-    }
-
-    public static void main(String[] args) {
-        CandidateClassifier c = new CandidateClassifier();
-        c.trainClassifier("train_1000_new.csv");
-        c.saveTrainedClassifier();
     }
 
 }
