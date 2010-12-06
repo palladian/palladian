@@ -1373,8 +1373,13 @@ Listing \ref{listing:dateRecognizer} shows how to detect the age of a web page. 
 // the URL of the page we want to know the age from
 String url = "http://www.bbc.co.uk/news/world-europe-11432849";
 
+// ExternalSearch is a boolean to switch on and off reference and
+// archive techniques. Standard should be false (off).
+boolean externalSearch = false;
+
 // get the highest ranked date for this web page
-ExtractedDate date = DateGetter.getBestDate(url);
+ExtractedDate date = WebPageDateEvaluator
+				.getBestRatedDate(url, externalSearch);
 
 // print the extracted date (should be 29.09.2010)
 System.out.println(date);
