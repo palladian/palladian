@@ -146,7 +146,7 @@ public class DocumentModel extends ArrayList<Candidate> {
      */
     private void calculateCorrelations() {
 
-        Candidate[] candidateArray = toArray(new Candidate[0]);
+        Candidate[] candidateArray = toArray(new Candidate[size()]);
 
         for (int i = 0; i < candidateArray.length; i++) {
             Candidate cand1 = candidateArray[i];

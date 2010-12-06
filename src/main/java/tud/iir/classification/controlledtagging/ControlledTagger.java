@@ -27,10 +27,12 @@ import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetEn
 import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetFilter;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StopWatch;
+import tud.iir.helper.StringHelper;
 import tud.iir.helper.Tokenizer;
 import tud.iir.web.Crawler;
 
@@ -122,6 +124,92 @@ public class ControlledTagger {
      */
     public void train(Bag<String> tags) {
         train("", tags);
+    }
+    
+    
+    public void trainFromFile(String filePath) {
+        
+        LOGGER.debug("training from file " + filePath);
+        
+        final Counter counter = new Counter();
+        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] split = line.split("#");
+                String text = split[0];
+                Bag<String> tags = new HashBag<String>();
+                for (int i = 1; i < split.length; i++) {
+                    tags.add(split[i]);
+                }
+                
+                train(text, tags);
+                counter.increment();
+                if (counter.getCount() % 10 == 0) {
+                    LOGGER.info("added " + counter);
+                }
+            }
+        });
+        index.setDirtyIndex(true);
+        LOGGER.debug("added " + counter + " documents to vocabulary. avg. tag occurence: " + index.getAverageTagOccurence());
+        
+    }
+    
+    public void evaluateFromFile(String filePath, final int limit) {
+        
+        LOGGER.debug("evaluation with file " + filePath);
+        
+        final ControlledTaggerEvaluationResult evaluationResult = new ControlledTaggerEvaluationResult();
+        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] split = line.split("#");
+                String text = split[0];
+                Bag<String> tags = new HashBag<String>();
+                for (int i = 1; i < split.length; i++) {
+                    tags.add(split[i]);
+                }
+                Bag<String> tagsNormalized = normalize(tags);
+                
+                List<Tag> assignedTags = tag(text);
+                
+                int correctlyAssigned = 0;
+                for (Tag assignedTag : assignedTags) {
+                    for (String realTag : tagsNormalized.uniqueSet()) {
+                        if (assignedTag.getName().equals(realTag)) {
+                            correctlyAssigned++;
+                        }
+                    }
+                }
+
+                int totalAssigned = assignedTags.size();
+                int realCount = tagsNormalized.uniqueSet().size();
+
+                double precision = (double) correctlyAssigned / totalAssigned;
+                if (Double.isNaN(precision)) {
+                    precision = 0;
+                }
+                double recall = (double) correctlyAssigned / realCount;
+
+                evaluationResult.addTestResult(precision, recall, totalAssigned);
+
+                System.out.println("doc: " + StringHelper.getFirstWords(text, 10));
+                System.out.println("real tags: " + tagsNormalized);
+                System.out.println("assigned tags: " + assignedTags);
+                System.out.println("pr:" + precision + " rc:" + recall);
+                
+                if (evaluationResult.getTaggedEntryCount() == limit) {
+                    breakLineLoop();
+                }
+
+            }
+        });
+        
+        LOGGER.info("--------------------------");
+        evaluationResult.printStatistics();
+        
+        
     }
 
 //    /**
@@ -969,10 +1057,29 @@ public class ControlledTagger {
 
         
         
+        
         /////////////////////// usage example for documentation ///////////////////////////////
         
         // set up the ControlledTagger
         final ControlledTagger tagger = new ControlledTagger();
+        
+        /*tagger.trainFromFile("/Users/pk/Dropbox/tmp/tagData_shuf_10000aa");
+        tagger.save("data/controlledTagger.ser");
+        System.exit(0);*/
+        
+        tagger.load("data/controlledTagger.ser");
+        // tagger.evaluateFromFile("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 1000);
+        
+        
+        Crawler c = new Crawler();
+        String result = c.download("http://www.i-funbox.com/");
+        result = HTMLHelper.htmlToString(result, true);
+        tagger.getSettings().setTagCount(20);
+        List<Tag> extract = tagger.tag(result);
+        System.out.println(extract);
+        
+        
+        System.exit(0);
         
         // all tagging parameters are encapsulated by ControlledTaggerSettings
         ControlledTaggerSettings taggerSettings = tagger.getSettings();

@@ -11,6 +11,7 @@ import org.apache.commons.collections15.bag.HashBag;
 import tud.iir.classification.FastWordCorrelationMatrix;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.classification.WordCorrelationMatrix;
+import tud.iir.helper.FileHelper;
 
 /**
  * The corpus which can be serialized. It contains: all known phrases in the document collection, list of human assigned
@@ -132,6 +133,41 @@ public class Corpus implements Serializable {
         WordCorrelation correlation = correlations.getCorrelation(value1, value2);
         return correlation;
 
+    }
+    
+    // TODO
+    public List<WordCorrelation> getCorrelations(Candidate candidate) {
+        String value1 = candidate.getStemmedValue();
+        if (value1.contains(" ")) {
+            value1 = candidate.getValue().replaceAll(" ", "").toLowerCase();
+        }
+        return correlations.getCorrelations(value1, -1);
+    }
+    
+    @Override
+    public String toString() {
+        
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append("Corpus\n");
+        sb.append("# phrases: ").append(phrases.uniqueSet().size()).append("\n");
+        sb.append("# keyphrases: ").append(keyphrases.uniqueSet().size()).append("\n");
+        sb.append("# correlations: ").append(correlations.getCorrelations().size()).append("\n");
+        
+        return sb.toString();
+        
+        
+    }
+    
+    public static void main(String[] args) {
+        
+        Corpus corpus = FileHelper.deserialize("data/xyz.ser");
+        System.out.println(corpus.toString());
+        
+        // System.out.println(corpus.phrases.getCount("ipad"));
+        // System.out.println(corpus.keyphrases.getCount("ipad"));
+        
+        
     }
 
 }

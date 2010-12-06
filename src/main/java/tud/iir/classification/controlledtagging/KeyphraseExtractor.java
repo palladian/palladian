@@ -10,14 +10,20 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.tartarus.snowball.SnowballStemmer;
 
 import tud.iir.classification.WordCorrelation;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StopWatch;
+import tud.iir.web.Crawler;
 
 /**
+ * 
+ * TODO introduce settings class (like with ControlledTagger)
+ * 
  * 
  * optimum vlaues:
  * 
@@ -43,6 +49,7 @@ public class KeyphraseExtractor {
     private CandidateClassifier classifier = new CandidateClassifier();
 
     private KeyphraseExtractorSettings settings = new KeyphraseExtractorSettings();
+
 
     public KeyphraseExtractor() {
         tokenizer.setUsePosTagging(false);
@@ -128,6 +135,7 @@ public class KeyphraseExtractor {
                 // in the training data
                 for (Candidate candidate : candidates) {
                     boolean isCandidate = tags.contains(candidate.getStemmedValue());
+                    isCandidate = isCandidate || tags.contains(candidate.getStemmedValue().replace(" ", "")); // XXX
                     isCandidate = isCandidate || tags.contains(candidate.getValue());
                     isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
                     candidate.setPositive(isCandidate);
@@ -152,13 +160,12 @@ public class KeyphraseExtractor {
                 }
             }
         });
-
         // write the train data for the classifier to CSV file
         FileHelper.writeToFile("data/temp/KeyphraseExtractorTraining.csv", trainData);
         LOGGER.info("created training data in " + sw.getElapsedTimeString());
 
         // train and save the classifier
-        LOGGER.info("training classifier ...");
+        LOGGER.info("training classifier ...");        
         sw.start();
 
         // save memory; this is necessary, as the corpus consumes great amounts of memory, but
@@ -242,7 +249,15 @@ public class KeyphraseExtractor {
 
         // perform the regression for ranking the candidates
         classifier.classify(candidates);
-
+        
+        
+        
+        //// System.out.println(candidates.toLongString());
+        //// System.exit(0);
+        
+        
+        
+        
         // do the correlation based re-ranking
         reRankCandidates(candidates);
 
@@ -270,7 +285,7 @@ public class KeyphraseExtractor {
                 }
                 break;
 
-            // assign all keyphrases which have a weight about the specified threshold
+            // assign all keyphrases which have a weight above the specified threshold
             case THRESHOLD:
                 while (listIterator.hasNext()) {
                     if (listIterator.next().getRegressionValue() <= settings.getKeyphraseThreshold()) {
@@ -339,6 +354,8 @@ public class KeyphraseExtractor {
 
             for (int i = 0; i < candidatesArray.length; i++) {
                 Candidate candidate1 = candidatesArray[i];
+                
+                int numCorrelations = corpus.getCorrelations(candidate1).size();
                 
                 for (int j = i; j < candidatesArray.length; j++) {
                     Candidate candidate2 = candidatesArray[j];
@@ -423,6 +440,7 @@ public class KeyphraseExtractor {
                         boolean correct = real.equalsIgnoreCase(assigned.getValue());
                         correct = correct || real.equalsIgnoreCase(assigned.getValue().replace(" ", ""));
                         correct = correct || real.equalsIgnoreCase(assigned.getStemmedValue());
+                        correct = correct || real.equalsIgnoreCase(assigned.getStemmedValue().replace(" ", ""));
 
                         if (correct) {
                             correctCount++;
@@ -497,7 +515,7 @@ public class KeyphraseExtractor {
 
         List<Token> tokens = new ArrayList<Token>();
         List<Token> uniGrams = tokenizer.tokenize(text);
-        List<Token> collocations = tokenizer.makeCollocations(uniGrams, 5);
+        List<Token> collocations = tokenizer.makeCollocations(uniGrams, settings.getPhraseLength());
 
         tokens.addAll(uniGrams);
         tokens.addAll(collocations);
@@ -507,9 +525,23 @@ public class KeyphraseExtractor {
     }
 
     private String stem(String unstemmed) {
-        settings.getStemmer().setCurrent(unstemmed.toLowerCase());
-        settings.getStemmer().stem();
-        return settings.getStemmer().getCurrent();
+//        settings.getStemmer().setCurrent(unstemmed.toLowerCase());
+//        settings.getStemmer().stem();
+//        return settings.getStemmer().getCurrent();
+        
+        StringBuilder sb = new StringBuilder();        
+        SnowballStemmer stemmer = settings.getStemmer();
+        
+        // stem each part of the phrase
+        String[] parts = unstemmed.toLowerCase().split(" ");
+        for (String part : parts) {
+            stemmer.setCurrent(part);
+            stemmer.stem();
+            sb.append(stemmer.getCurrent());            
+        }
+        
+        return sb.toString();
+        
     }
 
     private Set<String> stem(Set<String> unstemmed) {
@@ -544,33 +576,53 @@ public class KeyphraseExtractor {
     public static void main(String[] args) {
 
         final KeyphraseExtractor extractor = new KeyphraseExtractor();
-        String filePath = "data/tagData_shuf_10000aa";
+        // String filePath = "data/tagData_shuf_10000aa";
+        // String filePath = "/Users/pk/Dropbox/tmp/tagData_shuf_10000aa";
+        String filePath = "fao_splitaa";
+        String classPath = "classifier_fao.ser";
         KeyphraseExtractorSettings extractorSettings = extractor.getSettings();
-        extractorSettings.setModelPath("data/xyz.ser");
+        extractorSettings.setModelPath("data/fao.ser");
         extractorSettings.setAssignmentMode(AssignmentMode.FIXED_COUNT);
+        extractorSettings.setKeyphraseCount(10);
         extractorSettings.setKeyphraseThreshold(0.5f);
-        extractorSettings.setControlledMode(true);
+        extractorSettings.setControlledMode(false);
         
         // //////////////////////////////////////////////
         // CORPUS CREATION
         // //////////////////////////////////////////////
-        // extractor.buildCorpus(filePath);
+//        extractor.buildCorpus(filePath);
+//        extractor.loadCorpus();
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-        // extractor.buildClassifier(filePath, 1000);
-        // extractor.saveClassifier("classifier.ser");
-        
-        // System.exit(0);
+//        extractor.buildClassifier(filePath, 100);
+//        extractor.saveClassifier(classPath);
+//        
+//        System.exit(0);
 
         // //////////////////////////////////////////////
         // EVALUATION
         // //////////////////////////////////////////////
 
         extractor.loadCorpus();
-        extractor.loadClassifier("classifier.ser");
-        extractor.evaluate("data/tagData_shuf_10000ab", 1000);
+        extractor.loadClassifier(classPath);
+//        extractor.evaluate("data/tagData_shuf_10000ab", 1000);
+ //       extractor.evaluate("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 10000);
+        
+        
+        extractor.getSettings().setReRankingMode(ReRankingMode.NO_RERANKING);
+       extractor.evaluate("fao_splitab", 100);
+        
+               // String stem = extractor.stem("the quick brown foxes jumps over the lazy dogs.");
+               // System.out.println(stem);
+               // System.exit(0);
+//        Crawler c = new Crawler();
+//        String result = c.download("http://www.i-funbox.com/");
+//        result = HTMLHelper.htmlToString(result, true);
+//        extractor.getSettings().setKeyphraseCount(20);
+//        List<Candidate> extract = extractor.extract(result);
+//        System.out.println(extract);
 
         System.exit(0);
 
