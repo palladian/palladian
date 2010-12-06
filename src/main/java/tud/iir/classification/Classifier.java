@@ -22,6 +22,7 @@ import weka.classifiers.functions.LibSVM;
 import weka.classifiers.functions.LinearRegression;
 import weka.classifiers.functions.MultilayerPerceptron;
 import weka.classifiers.functions.SMO;
+import weka.classifiers.meta.Bagging;
 import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
@@ -55,6 +56,8 @@ public class Classifier {
     public final static int SVM = 3;
     public final static int NEURAL_NETWORK = 4;
     public final static int SVM2 = 5;
+    public final static int BAGGING = 6;
+    
     private int chosenClassifier = BAYES_NET;
     private weka.classifiers.Classifier classifier = null;
 
@@ -80,6 +83,10 @@ public class Classifier {
                 break;
             case NEURAL_NETWORK:
                 classifier = new MultilayerPerceptron();
+                setDiscrete(false);
+                break;
+            case BAGGING:
+                classifier = new Bagging();
                 setDiscrete(false);
                 break;
         }
@@ -170,7 +177,7 @@ public class Classifier {
         testingObjects = readFeatureObjects(conceptID, getPsFeatureStatement());
         testClassifier();
     }
-    
+
     public void testClassifier(String filePath) {
         // load testing data
         testingObjects = readFeatureObjects(filePath);
@@ -311,8 +318,8 @@ public class Classifier {
                     break;
                 }
 
-                // skip comment lines
-                if (line.startsWith("#")) {
+                // skip empty/comment lines
+                if (line.isEmpty() || line.startsWith("#")) {
                     continue;
                 }
 
@@ -337,8 +344,8 @@ public class Classifier {
         } catch (OutOfMemoryError e) {
             LOGGER.error(filePath, e);
         }
-        
-//        System.out.println(featureObjects.size());
+
+        // System.out.println(featureObjects.size());
         return featureObjects;
     }
 
@@ -433,6 +440,8 @@ public class Classifier {
             case SVM2:
                 return true;
             case NEURAL_NETWORK:
+                return false;
+            case BAGGING:
                 return false;
         }
 
