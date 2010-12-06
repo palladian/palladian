@@ -1,5 +1,11 @@
 package tud.iir.classification.controlledtagging;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.Classifier;
@@ -12,11 +18,13 @@ public class CandidateClassifier extends Classifier {
     private static final Logger LOGGER = Logger.getLogger(CandidateClassifier.class);
 
     public CandidateClassifier() {
-        super(Classifier.NEURAL_NETWORK);
+        // super(Classifier.NEURAL_NETWORK);
+        super(Classifier.BAGGING);
     }
 
     /**
      * Classify a candidate object.
+     * 
      * @param candidate
      */
     public void classify(Candidate candidate) {
@@ -24,9 +32,10 @@ public class CandidateClassifier extends Classifier {
         double result = classifySoft(featureObject)[0];
         candidate.setRegressionValue(result);
     }
-    
+
     /**
      * Classify a list of candidate objects.
+     * 
      * @param candidates
      */
     public void classify(DocumentModel candidates) {
@@ -58,40 +67,39 @@ public class CandidateClassifier extends Classifier {
      * TODO pull this method up? I have copied this to NewsRankingClassifier for now. We should have the possibility to
      * set file names for the serialized model to avoid conflicts between different Classifier subclasses -- Philipp.
      */
-//    public void useTrainedClassifier() {
-//        try {
-//            weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
-//                    .read(getFileName());
-//            setClassifier(trainedClassifier);
-//        } catch (Exception e) {
-//            LOGGER.error(e);
-//        }
-//    }
+    // public void useTrainedClassifier() {
+    // try {
+    // weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
+    // .read(getFileName());
+    // setClassifier(trainedClassifier);
+    // } catch (Exception e) {
+    // LOGGER.error(e);
+    // }
+    // }
 
-//    public void loadTrainedClassifier(String filePath) {
-//        try {
-//            weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
-//                    .read(filePath);
-//            setClassifier(trainedClassifier);
-//        } catch (Exception e) {
-//            LOGGER.error(e);
-//        }
-//    }
+    // public void loadTrainedClassifier(String filePath) {
+    // try {
+    // weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
+    // .read(filePath);
+    // setClassifier(trainedClassifier);
+    // } catch (Exception e) {
+    // LOGGER.error(e);
+    // }
+    // }
 
     /**
      * Simply save the trained classifier.
      * 
      * TODO pull up?
      */
-//    public void saveTrainedClassifier() {
-//        try {
-//            SerializationHelper.write(getFileName(), getClassifier());
-//        } catch (Exception e) {
-//            LOGGER.error(e);
-//        }
-//    }
-    
-    
+    // public void saveTrainedClassifier() {
+    // try {
+    // SerializationHelper.write(getFileName(), getClassifier());
+    // } catch (Exception e) {
+    // LOGGER.error(e);
+    // }
+    // }
+
     public void load(String filePath) {
         try {
             weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) SerializationHelper
@@ -119,6 +127,90 @@ public class CandidateClassifier extends Classifier {
      */
     public String getFileName() {
         return "data/models/CandidateClassifier_" + getChosenClassifierName() + ".model";
+    }
+
+    @Override
+    public void trainClassifier(String filePath) {
+        trainingObjects = readFeatureObjects(filePath, true);
+        trainClassifier();
+    }
+
+    /**
+     * Load feature objects from a file. The first column is ingored, as it contains IDs.
+     * TODO pull this up to Classifier?
+     * 
+     * @param filePath The file with the training data.
+     * @param readFeatureNames Read the names of the features from the first line in the file.
+     * @return A list with the feature objects.
+     */
+    public ArrayList<FeatureObject> readFeatureObjects(String filePath, boolean readFeatureNames) {
+        ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
+
+        try {
+            FileReader in = new FileReader(filePath);
+            BufferedReader br = new BufferedReader(in);
+
+            String line = "";
+            String[] featureNames = null;
+            do {
+                line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+
+                // skip comment lines
+                if (line.isEmpty() || line.startsWith("#")) {
+                    continue;
+                }
+
+                String[] featureStrings = line.split(";");
+                Double[] features = new Double[featureStrings.length];
+
+                if (featureNames == null) {
+                    // assume, that first line contains feature names
+                    if (readFeatureNames) {
+                        featureNames = new String[featureStrings.length];
+                        for (int i = 0; i < featureStrings.length; i++) {
+                            featureNames[i] = featureStrings[i];
+                        }
+                        continue;
+                    } else {
+                        featureNames = new String[featureStrings.length];
+                    }
+                }
+
+                for (int i = 0; i < featureStrings.length; i++) {
+                    features[i] = Double.valueOf(featureStrings[i]);
+                }
+                FeatureObject fo = new FeatureObject(features, featureNames);
+                featureObjects.add(fo);
+
+            } while (line != null);
+
+            in.close();
+            br.close();
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(filePath, e);
+        } catch (IOException e) {
+            LOGGER.error(filePath, e);
+        } catch (OutOfMemoryError e) {
+            LOGGER.error(filePath, e);
+        }
+
+        return featureObjects;
+    }
+
+    public static void main(String[] args) {
+
+        String filePath = "data/temp/KeyphraseExtractorTraining.csv";
+
+        CandidateClassifier c = new CandidateClassifier();
+        c.trainClassifier(filePath);
+        c.save("neuralnet_classifier.ser");
+
+        System.out.println(c.getClassifier());
+
     }
 
 }

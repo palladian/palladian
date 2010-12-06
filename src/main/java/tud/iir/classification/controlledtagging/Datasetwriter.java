@@ -18,7 +18,9 @@ public class Datasetwriter {
     
     public static void writeFromFAO() {
         
-        final String PATH = "/Users/pk/Desktop/fao780";
+        // final String PATH = "/Users/pk/Desktop/fao780";
+        final String PATH = "/home/pk/Desktop/fao780";
+
         
         File[] files = FileHelper.getFiles(PATH, ".txt");
         for (File file : files) {

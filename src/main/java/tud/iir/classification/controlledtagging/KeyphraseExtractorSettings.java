@@ -21,6 +21,7 @@ public class KeyphraseExtractorSettings {
     private String modelPath;
     private Pattern pattern;
     private int phraseLength = 5;
+    private int minOccurenceCount = 1;
     
     public KeyphraseExtractorSettings() {
         this(
@@ -142,6 +143,14 @@ public class KeyphraseExtractorSettings {
     
     public void setPhraseLength(int phraseLength) {
         this.phraseLength = phraseLength;
+    }
+    
+    public int getMinOccurenceCount() {
+        return minOccurenceCount;
+    }
+    
+    public void setMinOccurenceCount(int minOccurenceCount) {
+        this.minOccurenceCount = minOccurenceCount;
     }
 }
 

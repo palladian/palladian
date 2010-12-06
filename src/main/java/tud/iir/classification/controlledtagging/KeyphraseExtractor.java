@@ -241,6 +241,10 @@ public class KeyphraseExtractor {
             // ignore = ignore || !candidate.getValue().matches("[a-zA-Z\\s]{3,}");
             ignore = ignore || !settings.getPattern().matcher(candidate.getValue()).matches();
             ignore = ignore || (settings.isControlledMode() && candidate.getPrior() == 0);
+            
+            // TODO possibility to filter candidates by minOccurenceCount 
+            // (we can set this to values > 1 for longer documents)
+            ignore = ignore || candidate.getCount() < settings.getMinOccurenceCount();
 
             if (ignore) {
                 listIterator.remove();
@@ -249,14 +253,6 @@ public class KeyphraseExtractor {
 
         // perform the regression for ranking the candidates
         classifier.classify(candidates);
-        
-        
-        
-        //// System.out.println(candidates.toLongString());
-        //// System.exit(0);
-        
-        
-        
         
         // do the correlation based re-ranking
         reRankCandidates(candidates);
@@ -355,7 +351,7 @@ public class KeyphraseExtractor {
             for (int i = 0; i < candidatesArray.length; i++) {
                 Candidate candidate1 = candidatesArray[i];
                 
-                int numCorrelations = corpus.getCorrelations(candidate1).size();
+                //////// XXX int numCorrelations = corpus.getCorrelations(candidate1).size();
                 
                 for (int j = i; j < candidatesArray.length; j++) {
                     Candidate candidate2 = candidatesArray[j];
@@ -576,13 +572,22 @@ public class KeyphraseExtractor {
     public static void main(String[] args) {
 
         final KeyphraseExtractor extractor = new KeyphraseExtractor();
-        // String filePath = "data/tagData_shuf_10000aa";
-        // String filePath = "/Users/pk/Dropbox/tmp/tagData_shuf_10000aa";
+//         String filePath = "data/tagData_shuf_10000aa";
+//        // String filePath = "/Users/pk/Dropbox/tmp/tagData_shuf_10000aa";
         String filePath = "fao_splitaa";
-        String classPath = "classifier_fao.ser";
+////        String classPath = "classifier_fao.ser";
+         String classPath = "bagging_classifier.ser";
+         
+         // String classPath = "neuralnet_classifier.ser";
+
         KeyphraseExtractorSettings extractorSettings = extractor.getSettings();
-        extractorSettings.setModelPath("data/fao.ser");
+        extractorSettings.setModelPath("data/xyz.ser");
         extractorSettings.setAssignmentMode(AssignmentMode.FIXED_COUNT);
+        extractorSettings.setReRankingMode(ReRankingMode.NO_RERANKING);
+//        extractorSettings.setReRankingMode(ReRankingMode.DEEP_CORRELATION_RERANKING);
+//        extractorSettings.setCorrelationWeight(10000);
+        extractorSettings.setMinOccurenceCount(1);
+
         extractorSettings.setKeyphraseCount(10);
         extractorSettings.setKeyphraseThreshold(0.5f);
         extractorSettings.setControlledMode(false);
@@ -591,28 +596,26 @@ public class KeyphraseExtractor {
         // CORPUS CREATION
         // //////////////////////////////////////////////
 //        extractor.buildCorpus(filePath);
-//        extractor.loadCorpus();
+        extractor.loadCorpus();
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
 //        extractor.buildClassifier(filePath, 100);
 //        extractor.saveClassifier(classPath);
-//        
 //        System.exit(0);
 
         // //////////////////////////////////////////////
         // EVALUATION
         // //////////////////////////////////////////////
 
-        extractor.loadCorpus();
         extractor.loadClassifier(classPath);
-//        extractor.evaluate("data/tagData_shuf_10000ab", 1000);
+        extractor.evaluate("fao_splitab", 500);
  //       extractor.evaluate("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 10000);
         
         
-        extractor.getSettings().setReRankingMode(ReRankingMode.NO_RERANKING);
-       extractor.evaluate("fao_splitab", 100);
+//        extractor.getSettings().setReRankingMode(ReRankingMode.NO_RERANKING);
+//       extractor.evaluate("fao_splitab", 100);
         
                // String stem = extractor.stem("the quick brown foxes jumps over the lazy dogs.");
                // System.out.println(stem);
