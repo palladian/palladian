@@ -421,6 +421,8 @@ public class Classifier {
                 return "SVM2";
             case NEURAL_NETWORK:
                 return "NeuralNetwork";
+            case BAGGING:
+                return "Bagging";
         }
         return "unknown";
     }
