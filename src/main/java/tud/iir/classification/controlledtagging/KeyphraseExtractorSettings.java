@@ -20,6 +20,7 @@ public class KeyphraseExtractorSettings {
     private float correlationWeight;
     private String modelPath;
     private Pattern pattern;
+    private int phraseLength = 5;
     
     public KeyphraseExtractorSettings() {
         this(
@@ -133,6 +134,14 @@ public class KeyphraseExtractorSettings {
     
     public void setPattern(String patternRegEx) {
         this.pattern = Pattern.compile(patternRegEx);
+    }
+    
+    public int getPhraseLength() {
+        return phraseLength;
+    }
+    
+    public void setPhraseLength(int phraseLength) {
+        this.phraseLength = phraseLength;
     }
 }
 
