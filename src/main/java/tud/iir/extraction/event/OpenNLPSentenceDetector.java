@@ -14,6 +14,7 @@ import opennlp.tools.util.InvalidFormatException;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.log4j.Logger;
 
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StopWatch;
@@ -23,11 +24,17 @@ import tud.iir.helper.StopWatch;
  */
 public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
+    /**
+     * Logger for this class.
+     */
+    protected static final Logger LOGGER = Logger
+            .getLogger(OpenNLPSentenceDetector.class);
+
     /** model for opennlp sentence detection */
     private final String MODEL;
 
     /**
-     * 
+     * constructor for this class.
      */
     public OpenNLPSentenceDetector() {
         setName("OpenNLP Sentence Detector");
@@ -92,14 +99,11 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
             sentenceModel = new SentenceModel(modelIn);
 
         } catch (final InvalidFormatException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (final FileNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         } finally {
             if (modelIn != null) {
                 try {

@@ -19,6 +19,7 @@ import opennlp.tools.parser.ParserModel;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.log4j.Logger;
 
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DataHolder;
@@ -30,6 +31,12 @@ import tud.iir.helper.StopWatch;
  * @author Martin Wunderwald
  */
 public class OpenNLPParser extends AbstractParser {
+
+    /**
+     * Logger for this class.
+     */
+    protected static final Logger LOGGER = Logger
+            .getLogger(OpenNLPParser.class);
 
     private opennlp.tools.parser.Parse parse;
 

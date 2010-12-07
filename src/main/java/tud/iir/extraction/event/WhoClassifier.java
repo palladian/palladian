@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.Classifier;
@@ -28,6 +30,8 @@ public class WhoClassifier extends Classifier {
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(WhoClassifier.class);
 
+    private final String MODEL;
+
     /**
      * constructor.
      * 
@@ -42,6 +46,21 @@ public class WhoClassifier extends Classifier {
         featureNames[2] = "type";
         featureNames[3] = "distribution";
 
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (final ConfigurationException e) {
+            LOGGER.error("could not get model path from config/models.conf, "
+                    + e.getMessage());
+        }
+
+        if (config != null) {
+            MODEL = config.getString("models.palladian.en.event.who");
+
+        } else {
+            MODEL = "";
+        }
     }
 
     /**
@@ -59,7 +78,7 @@ public class WhoClassifier extends Classifier {
 
             return (float) fDistribution[0];
         } catch (final Exception e) {
-            LOGGER.error(e);
+            e.printStackTrace();
             return 0;
         }
 
@@ -77,10 +96,9 @@ public class WhoClassifier extends Classifier {
         super.trainClassifier(filePath);
 
         try {
-            weka.core.SerializationHelper.write(
-                    "data/learnedClassifiers/who.model", getClassifier());
+            weka.core.SerializationHelper.write(MODEL, getClassifier());
         } catch (final Exception e) {
-            LOGGER.error(e);
+            e.printStackTrace();
         }
 
     }
@@ -112,7 +130,7 @@ public class WhoClassifier extends Classifier {
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedClassifier);
         } catch (final Exception e) {
-            LOGGER.error(e);
+            e.printStackTrace();
         }
     }
 
@@ -173,12 +191,12 @@ public class WhoClassifier extends Classifier {
 
         LOGGER.info("classifier runs");
         final WhoClassifier wc = new WhoClassifier(Classifier.LINEAR_REGRESSION);
-        wc.collectTrainingData("data/features/who.csv");
+        // wc.collectTrainingData("data/features/who.csv");
 
-        // wc.trainClassifier("data/features/who.csv");
+        wc.trainClassifier("data/features/who.csv");
 
-        // wc.useTrainedClassifier("data/learnedClassifiers/who.model");
-        // wc.testClassifier("data/learnedClassifiers/who.model");
+        wc.useTrainedClassifier(wc.MODEL);
+        wc.testClassifier(wc.MODEL);
     }
 
 }

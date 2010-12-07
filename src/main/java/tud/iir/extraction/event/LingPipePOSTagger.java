@@ -9,6 +9,7 @@ import java.util.Locale;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.log4j.Logger;
 
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
@@ -21,6 +22,10 @@ import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.FastCache;
 
 public class LingPipePOSTagger extends AbstractPOSTagger {
+
+    /** the logger for this class */
+    private static final Logger LOGGER = Logger
+            .getLogger(LingPipePOSTagger.class);
 
     private final String MODEL;
 

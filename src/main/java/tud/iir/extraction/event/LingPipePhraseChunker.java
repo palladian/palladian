@@ -63,7 +63,8 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
     // ', ``, '', ., (, ), *, --, :, ,
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger.getLogger(EventExtractor.class);
+    private static final Logger LOGGER = Logger
+            .getLogger(LingPipePhraseChunker.class);
 
     private static final Set<String> DETERMINER_TAGS = new HashSet<String>();
     private static final Set<String> ADJECTIVE_TAGS = new HashSet<String>();
