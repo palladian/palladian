@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.Classifier;
@@ -21,6 +23,7 @@ public class WhereClassifier extends Classifier {
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(WhoClassifier.class);
 
+    private final String MODEL;
     /**
      * the feature names
      */
@@ -37,6 +40,22 @@ public class WhereClassifier extends Classifier {
         featureNames[1] = "textEntityCount";
         featureNames[2] = "type";
         featureNames[3] = "distribution";
+
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (final ConfigurationException e) {
+            LOGGER.error("could not get model path from config/models.conf, "
+                    + e.getMessage());
+        }
+
+        if (config != null) {
+            MODEL = config.getString("models.palladian.en.event.where");
+
+        } else {
+            MODEL = "";
+        }
 
     }
 
@@ -73,10 +92,9 @@ public class WhereClassifier extends Classifier {
         super.trainClassifier(filePath);
 
         try {
-            weka.core.SerializationHelper.write(
-                    "data/learnedClassifiers/where.model", getClassifier());
+            weka.core.SerializationHelper.write(MODEL, getClassifier());
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
 
     }
@@ -84,10 +102,10 @@ public class WhereClassifier extends Classifier {
     @Override
     public void testClassifier(String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
-        eventExtractor.setWhereClassifier(getChosenClassifier());
+        // eventExtractor.setWhereClassifier(getChosenClassifier());
         final Event event = EventExtractor
                 .extractEventFromURL("http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
-
+        eventExtractor.getFeatureExtractor().setFeatures(event);
         eventExtractor.extractWhere(event);
 
     }
@@ -194,12 +212,12 @@ public class WhereClassifier extends Classifier {
 
         final WhereClassifier wc = new WhereClassifier(
                 Classifier.LINEAR_REGRESSION);
-        wc.collectTrainingData("data/features/where.csv");
-        wc.trainClassifier("data/features/where.csv");
+        // wc.collectTrainingData("data/features/where.csv");
+        // wc.collectOnlineTrainingData("data/features/where_online.csv");
         // WhereClassifier wc = new WhereClassifier(Classifier.BAYES_NET);
         // wc.trainClassifier("data/features/where.csv");
         // ac.trainClassifier("data/benchmarkSelection/qa/training");
-        // wc.testClassifier("data/benchmarkSelection/qa/testing");
+        wc.useTrainedClassifier(wc.MODEL);
+        wc.testClassifier("");
     }
-
 }

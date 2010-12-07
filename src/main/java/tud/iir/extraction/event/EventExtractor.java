@@ -14,6 +14,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -51,6 +53,9 @@ public class EventExtractor {
 
     private EventFeatureExtractor featureExtractor;
 
+    private final String MODEL_WHERE;
+    private final String MODEL_WHO;
+
     // private boolean deepMode = true;
 
     /**
@@ -67,6 +72,27 @@ public class EventExtractor {
         super();
         // do not analyze any binary files
         featureExtractor = new EventFeatureExtractor();
+
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (final ConfigurationException e) {
+            LOGGER.error("could not get model path from config/models.conf, "
+                    + e.getMessage());
+        }
+
+        if (config != null) {
+            MODEL_WHO = config.getString("models.palladian.en.event.who");
+            MODEL_WHERE = config.getString("models.palladian.en.event.where");
+
+            setWhoClassifier(Classifier.LINEAR_REGRESSION);
+            setWhereClassifier(Classifier.LINEAR_REGRESSION);
+        } else {
+            MODEL_WHO = "";
+            MODEL_WHERE = "";
+        }
+
     }
 
     /**
@@ -167,7 +193,6 @@ public class EventExtractor {
             // only accept location entities for where slot
             if (fo.getFeature("type").equals(
                     EventFeatureExtractor.CATEGORY_LOCATION)) {
-
                 result = whereClassifier.classifySoft(fo);
 
                 rankedCandidates.put(longestTerm(entry.getKey()), result[0]);
@@ -184,6 +209,8 @@ public class EventExtractor {
                     + ")");
             event.setWhereCandidates(rankedCandidates);
             event.setWhere(rankedCandidates.keySet().toArray()[0].toString());
+        } else {
+            LOGGER.info("no WHERE was found.");
         }
     }
 
@@ -565,8 +592,7 @@ public class EventExtractor {
      */
     public void setWhereClassifier(int type) {
         whereClassifier = new WhereClassifier(type);
-        whereClassifier
-                .useTrainedClassifier("data/learnedClassifiers/where.model");
+        whereClassifier.useTrainedClassifier(MODEL_WHERE);
     }
 
     /**
@@ -585,7 +611,7 @@ public class EventExtractor {
      */
     public void setWhoClassifier(int type) {
         whoClassifier = new WhoClassifier(type);
-        whoClassifier.useTrainedClassifier("data/learnedClassifiers/who.model");
+        whoClassifier.useTrainedClassifier(MODEL_WHO);
     }
 
     /**

@@ -104,6 +104,7 @@ public class EventFeatureExtractor {
         for (final Entry<String, Event> entry : eventMap.entrySet()) {
             final Event event = entry.getValue();
             if (event != null && event.getText() != null) {
+                setAnnotations(event);
                 setAnnotationFeatures(event);
             }
         }
@@ -142,9 +143,9 @@ public class EventFeatureExtractor {
     private Map<Integer, Annotations> getCoreferenceAnnotations(Event event) {
 
         LOGGER.info("performing coreference: " + event.getTitle());
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
+        /*
+         * final StopWatch stopWatch = new StopWatch(); stopWatch.start();
+         */
         final MentionFactory mfactory = new EnglishMentionFactory();
         final WithinDocCoref coref = new WithinDocCoref(mfactory);
 
@@ -180,11 +181,10 @@ public class EventFeatureExtractor {
 
             }
         }
-
-        stopWatch.stop();
-        LOGGER.info("NER + coreference Resolution took: "
-                + stopWatch.getElapsedTime());
-
+        /*
+         * stopWatch.stop(); LOGGER.info("NER + coreference Resolution took: " +
+         * stopWatch.getElapsedTime());
+         */
         return corefAnnotationMap;
 
     }
@@ -474,49 +474,56 @@ public class EventFeatureExtractor {
                         final FeatureObject features = eeentry.getValue();
                         final Annotations annotations = eeentry.getKey();
 
-                        // fileWriter.write(id + separator);
-                        // final StringBuffer text = new StringBuffer();
-                        boolean contains = false;
+                        // only for where classifier
+                        if (features.getFeature("type").equals(
+                                EventFeatureExtractor.CATEGORY_LOCATION)) {
 
-                        for (final Annotation annotation : annotations) {
+                            // fileWriter.write(id + separator);
+                            // final StringBuffer text = new StringBuffer();
+                            boolean contains = false;
 
-                            contains = false;
-                            for (final String positive : positives) {
+                            for (final Annotation annotation : annotations) {
 
-                                if (annotation.getEntity().getName().contains(
-                                        positive)
-                                        || positive.contains(annotation
-                                                .getEntity().getName())) {
-                                    contains = true;
+                                contains = false;
+                                for (final String positive : positives) {
+
+                                    if (annotation.getEntity().getName()
+                                            .toLowerCase().contains(
+                                                    positive.toLowerCase())
+                                            || positive.contains(annotation
+                                                    .getEntity().getName()
+                                                    .toLowerCase())) {
+                                        contains = true;
+                                    }
+
+                                }
+                                if (contains) {
+                                    features.setClassAssociation(2);
                                 }
 
+                                /*
+                                 * if (whos.contains(annotation.getEntity()
+                                 * .getName())) { fo.setClassAssociation(1); }
+                                 * if (whats.contains(annotation.getEntity()
+                                 * .getName())) { fo.setClassAssociation(3); }
+                                 */
+                                // text.append(annotation.getEntity().getName());
                             }
-                            if (contains) {
-                                features.setClassAssociation(2);
+
+                            for (final Double d : features.getFeatures()) {
+                                fileWriter.write(d.toString() + separator);
+                            }
+                            if (features.getClassAssociation() == 2) {
+                                fileWriter.write("1.0");
                             }
 
-                            /*
-                             * if (whos.contains(annotation.getEntity()
-                             * .getName())) { fo.setClassAssociation(1); } if
-                             * (whats.contains(annotation.getEntity()
-                             * .getName())) { fo.setClassAssociation(3); }
-                             */
-                            // text.append(annotation.getEntity().getName());
-                        }
-                        for (final Double d : features.getFeatures()) {
-                            fileWriter.write(d.toString() + separator);
-                        }
-                        if (features.getClassAssociation() == 2) {
-                            fileWriter.write("1.0");
-                        }
+                            else {
+                                fileWriter.write("0.0");
+                            }
+                            fileWriter.write("\n");
 
-                        else {
-                            fileWriter.write("0.0");
+                            fileWriter.flush();
                         }
-                        fileWriter.write("\n");
-
-                        fileWriter.flush();
-
                     }
 
                 }
