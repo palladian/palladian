@@ -8,6 +8,29 @@ import org.tartarus.snowball.ext.englishStemmer;
 import tud.iir.classification.Stopwords;
 
 public class KeyphraseExtractorSettings {
+    
+    public enum ReRankingMode {
+        NO_RERANKING, SHALLOW_CORRELATION_RERANKING, DEEP_CORRELATION_RERANKING
+    }
+
+    /** Different assignment strategies. */
+    public enum AssignmentMode {
+
+        /** Assign maximum count of keyphrases (e.g. 10 keyphrases or less). */
+        FIXED_COUNT,
+
+        /** Assign keyphrases which exceed a specified threshold (e.g. all keyphrases with weights > 0.75). */
+        THRESHOLD,
+
+        /**
+         * Assign maximum count of keyphrases or more if they exceed the specified threshold (e.g. all keyphrases with
+         * weights > 0.75 or 10 or less).
+         */
+        COMBINED
+
+    }
+    
+    
     /** The stemmer to use. Snowball offers stemmer implementations for various languages. */
     private SnowballStemmer stemmer;
     /** List of stopwords to use. */
@@ -154,23 +177,3 @@ public class KeyphraseExtractorSettings {
     }
 }
 
-enum ReRankingMode {
-    NO_RERANKING, SHALLOW_CORRELATION_RERANKING, DEEP_CORRELATION_RERANKING
-}
-
-/** Different assignment strategies. */
-enum AssignmentMode {
-
-    /** Assign maximum count of keyphrases (e.g. 10 keyphrases or less). */
-    FIXED_COUNT,
-
-    /** Assign keyphrases which exceed a specified threshold (e.g. all keyphrases with weights > 0.75). */
-    THRESHOLD,
-
-    /**
-     * Assign maximum count of keyphrases or more if they exceed the specified threshold (e.g. all keyphrases with
-     * weights > 0.75 or 10 or less).
-     */
-    COMBINED
-
-}
