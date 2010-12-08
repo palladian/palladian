@@ -17,6 +17,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
 /**
@@ -91,30 +92,46 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
         SentenceModel sentenceModel = null;
         InputStream modelIn = null;
+        SentenceDetectorME sdetector = null;
 
-        try {
+        if (DataHolder.getInstance().containsDataObject(configModelFilePath)) {
 
-            modelIn = new FileInputStream(configModelFilePath);
+            sdetector = (SentenceDetectorME) DataHolder.getInstance()
+                    .getDataObject(configModelFilePath);
 
-            sentenceModel = new SentenceModel(modelIn);
+        } else {
 
-        } catch (final InvalidFormatException e) {
-            LOGGER.error(e);
-        } catch (final FileNotFoundException e) {
-            LOGGER.error(e);
-        } catch (final IOException e) {
-            LOGGER.error(e);
-        } finally {
-            if (modelIn != null) {
-                try {
-                    modelIn.close();
-                } catch (final IOException e) {
+            final StopWatch stopWatch = new StopWatch();
+            stopWatch.start();
+
+            try {
+
+                modelIn = new FileInputStream(configModelFilePath);
+
+                sentenceModel = new SentenceModel(modelIn);
+
+                sdetector = new SentenceDetectorME(sentenceModel);
+                DataHolder.getInstance().putDataObject(configModelFilePath,
+                        sdetector);
+                LOGGER.info("Reading " + this.getName() + " from file "
+                        + configModelFilePath + " in "
+                        + stopWatch.getElapsedTimeString());
+
+            } catch (final InvalidFormatException e) {
+                LOGGER.error(e);
+            } catch (final FileNotFoundException e) {
+                LOGGER.error(e);
+            } catch (final IOException e) {
+                LOGGER.error(e);
+            } finally {
+                if (modelIn != null) {
+                    try {
+                        modelIn.close();
+                    } catch (final IOException e) {
+                    }
                 }
             }
         }
-
-        final SentenceDetectorME sdetector = new SentenceDetectorME(
-                sentenceModel);
 
         setModel(sdetector);
 

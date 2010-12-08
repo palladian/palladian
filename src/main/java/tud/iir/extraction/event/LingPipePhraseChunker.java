@@ -194,6 +194,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
      * constructor
      */
     public LingPipePhraseChunker() {
+        super();
         setName("LingPipe Phrase Chunker");
         PropertiesConfiguration config = null;
 

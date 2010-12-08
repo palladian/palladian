@@ -121,7 +121,7 @@ public class WhereClassifier extends Classifier {
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedAnswerClassifier);
         } catch (final Exception e) {
-            e.printStackTrace();
+            LOGGER.error(e);
         }
     }
 
