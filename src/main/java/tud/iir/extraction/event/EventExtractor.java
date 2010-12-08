@@ -86,8 +86,6 @@ public class EventExtractor {
             MODEL_WHO = config.getString("models.palladian.en.event.who");
             MODEL_WHERE = config.getString("models.palladian.en.event.where");
 
-            setWhoClassifier(Classifier.LINEAR_REGRESSION);
-            setWhereClassifier(Classifier.LINEAR_REGRESSION);
         } else {
             MODEL_WHO = "";
             MODEL_WHERE = "";
@@ -109,9 +107,10 @@ public class EventExtractor {
 
             final PageContentExtractor pce = new PageContentExtractor();
             pce.setDocument(url);
-
+            final String rawText = pce.getResultText();
             event = new Event(pce.getResultTitle(), StringHelper
-                    .makeContinuousText(pce.getResultText()), url);
+                    .makeContinuousText(rawText), url);
+            event.setRawText(rawText);
 
         } catch (final PageContentExtractorException e) {
 
@@ -204,7 +203,7 @@ public class EventExtractor {
         final Object[] keys = rankedCandidates.keySet().toArray();
         final Object[] values = rankedCandidates.values().toArray();
 
-        if (rankedCandidates.size() > 0) {
+        if (!rankedCandidates.isEmpty()) {
             LOGGER.info("highest ranked where:" + keys[0] + "(" + values[0]
                     + ")");
             event.setWhereCandidates(rankedCandidates);
@@ -247,7 +246,6 @@ public class EventExtractor {
 
         final Map<String, Double> whyCandidates = new HashMap<String, Double>();
 
-        final String text = StringHelper.makeContinuousText(event.getText());
         String whatVerb = null;
 
         if (event.getWhat() != null) {
@@ -285,7 +283,7 @@ public class EventExtractor {
 
         final Map<String, Double> regExpMap = getWhyRegExp(who, whatVerb);
         String taggedStc = null;
-        for (final String stc : featureExtractor.getSentences(text)) {
+        for (final String stc : event.getSentences()) {
             taggedStc = featureExtractor.getPOSTags(stc).getTaggedString();
             for (final Entry<String, Double> entry : regExpMap.entrySet()) {
 
@@ -301,7 +299,7 @@ public class EventExtractor {
         }
 
         // CollectionHelper.print(whyCandidates);
-        if (whyCandidates.size() > 0) {
+        if (!whyCandidates.isEmpty()) {
             event.setWhyCandidates(whyCandidates);
             event.setWhy(whyCandidates.keySet().toArray()[0].toString());
 
@@ -422,8 +420,7 @@ public class EventExtractor {
         if (titleVerbPhrase == null) {
 
             // finding sentences containing the who
-            for (final String stc : featureExtractor.getSentences(event
-                    .getText())) {
+            for (final String stc : event.getSentences()) {
 
                 if (stc.contains(event.getWho()) && what == null) {
                     what = getSubsequentVerbPhrase(stc, event.getWho());
@@ -471,7 +468,7 @@ public class EventExtractor {
              * tagAnnotation.getChunk()); }
              */
         }
-        return (verbPhrases.size() > 0) ? verbPhrases.get(0) : null;
+        return (!verbPhrases.isEmpty()) ? verbPhrases.get(0) : null;
     }
 
     public String longestTerm(Annotations annotations) {
@@ -513,8 +510,7 @@ public class EventExtractor {
 
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
 
-        final String text = StringHelper.makeContinuousText(event.getText());
-        for (final String stc : featureExtractor.getSentences(text)) {
+        for (final String stc : event.getSentences()) {
 
             double confidence = StringHelper.calculateSimilarity(stc, event
                     .getTitle());
@@ -522,13 +518,13 @@ public class EventExtractor {
             if (stc.contains("like")) {
                 confidence = confidence + 1.0;
             }
-            if (confidence > 2.0) {
+            if (confidence > 1.5) {
                 rankedCandidates.put(stc, confidence);
             }
         }
 
         rankedCandidates = sortByValue(rankedCandidates);
-        if (rankedCandidates.size() > 0) {
+        if (!rankedCandidates.isEmpty()) {
             event.setHowCandidates(rankedCandidates);
             event.setHow(rankedCandidates.keySet().toArray()[0].toString());
         }
@@ -565,7 +561,7 @@ public class EventExtractor {
         final Object[] values = rankedCandidates.keySet().toArray();
         final Object[] keys = rankedCandidates.values().toArray();
 
-        if (rankedCandidates.size() > 0) {
+        if (!rankedCandidates.isEmpty()) {
             LOGGER
                     .info("highest ranked who:" + values[0] + "(" + keys[0]
                             + ")");

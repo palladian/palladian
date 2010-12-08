@@ -75,6 +75,7 @@ public class EventFeatureExtractor {
         posTagger.loadModel();
         phraseChunker.loadModel();
         parser.loadModel();
+        sentenceDetector.loadModel();
     }
 
     public static EventFeatureExtractor getInstance() {
@@ -90,6 +91,7 @@ public class EventFeatureExtractor {
      * @param event
      */
     public void setFeatures(Event event) {
+        event.setSentences(getSentences(event.getText()));
         setAnnotations(event);
         setAnnotationFeatures(event);
     }

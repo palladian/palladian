@@ -25,10 +25,19 @@ public class Event extends Extractable {
     /* holds the simple annotations in text and headline. */
     private Annotations annotations;
 
+    /** clean event text. **/
     private String text;
+    /** raw text extracted from webpage. **/
+    private String rawText;
+    /** title of the event. **/
     private String title;
+    /** the initial url of the article. **/
     private String url;
+    /** a list of webresults refering to the article. **/
     private List<WebResult> webresults;
+
+    /** the sentences. **/
+    private String[] sentences;
 
     private String who;
     private String where;
@@ -134,6 +143,36 @@ public class Event extends Extractable {
      */
     public void setText(String text) {
         this.text = text;
+    }
+
+    /**
+     * @return the rawText
+     */
+    public String getRawText() {
+        return rawText;
+    }
+
+    /**
+     * @param rawText
+     *            the rawText to set
+     */
+    public void setRawText(String rawText) {
+        this.rawText = rawText;
+    }
+
+    /**
+     * @return the sentences
+     */
+    public String[] getSentences() {
+        return sentences;
+    }
+
+    /**
+     * @param sentences
+     *            the sentences to set
+     */
+    public void setSentences(String[] sentences) {
+        this.sentences = sentences;
     }
 
     /**
