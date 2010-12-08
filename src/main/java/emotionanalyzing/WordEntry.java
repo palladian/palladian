@@ -1,6 +1,5 @@
 package emotionanalyzing;
 
-
 import java.util.HashMap;
 
 public class WordEntry {
