@@ -13,12 +13,12 @@ import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 
 import tud.iir.classification.WordCorrelation;
+import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.AssignmentMode;
+import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.ReRankingMode;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
-import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StopWatch;
-import tud.iir.web.Crawler;
 
 /**
  * 
