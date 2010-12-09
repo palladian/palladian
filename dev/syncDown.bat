@@ -1,0 +1,2 @@
+rsync -rtvz rsync://syncadmin@141.76.40.242/all_data_admin/datasets /cygdrive/c/Programming/Palladian/data/datasets/*
+rsync -rtvz rsync://syncadmin@141.76.40.242/all_data_admin/models /cygdrive/c/Programming/Palladian/data/models/*
