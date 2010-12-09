@@ -86,6 +86,8 @@ public class EventExtractor {
             MODEL_WHO = config.getString("models.palladian.en.event.who");
             MODEL_WHERE = config.getString("models.palladian.en.event.where");
 
+            setWhoClassifier(Classifier.LINEAR_REGRESSION);
+            setWhereClassifier(Classifier.LINEAR_REGRESSION);
         } else {
             MODEL_WHO = "";
             MODEL_WHERE = "";
@@ -203,7 +205,7 @@ public class EventExtractor {
         final Object[] keys = rankedCandidates.keySet().toArray();
         final Object[] values = rankedCandidates.values().toArray();
 
-        if (!rankedCandidates.isEmpty()) {
+        if (rankedCandidates.size() > 0) {
             LOGGER.info("highest ranked where:" + keys[0] + "(" + values[0]
                     + ")");
             event.setWhereCandidates(rankedCandidates);
@@ -246,6 +248,7 @@ public class EventExtractor {
 
         final Map<String, Double> whyCandidates = new HashMap<String, Double>();
 
+        final String text = StringHelper.makeContinuousText(event.getText());
         String whatVerb = null;
 
         if (event.getWhat() != null) {
@@ -299,7 +302,7 @@ public class EventExtractor {
         }
 
         // CollectionHelper.print(whyCandidates);
-        if (!whyCandidates.isEmpty()) {
+        if (whyCandidates.size() > 0) {
             event.setWhyCandidates(whyCandidates);
             event.setWhy(whyCandidates.keySet().toArray()[0].toString());
 
@@ -468,7 +471,7 @@ public class EventExtractor {
              * tagAnnotation.getChunk()); }
              */
         }
-        return (!verbPhrases.isEmpty()) ? verbPhrases.get(0) : null;
+        return (verbPhrases.size() > 0) ? verbPhrases.get(0) : null;
     }
 
     public String longestTerm(Annotations annotations) {
@@ -516,19 +519,19 @@ public class EventExtractor {
                     .getTitle());
 
             if (stc.contains("like")) {
-                confidence = confidence + 1.0;
+                confidence = confidence + 0.1;
             }
-            if (confidence > 1.5) {
+            if (confidence > 0.2) {
                 rankedCandidates.put(stc, confidence);
             }
         }
 
         rankedCandidates = sortByValue(rankedCandidates);
-        if (!rankedCandidates.isEmpty()) {
+        if (rankedCandidates.size() > 0) {
             event.setHowCandidates(rankedCandidates);
             event.setHow(rankedCandidates.keySet().toArray()[0].toString());
         }
-
+        LOGGER.info("highest ranked HOW: " + event.getHow());
     }
 
     /**
@@ -561,7 +564,7 @@ public class EventExtractor {
         final Object[] values = rankedCandidates.keySet().toArray();
         final Object[] keys = rankedCandidates.values().toArray();
 
-        if (!rankedCandidates.isEmpty()) {
+        if (rankedCandidates.size() > 0) {
             LOGGER
                     .info("highest ranked who:" + values[0] + "(" + keys[0]
                             + ")");
@@ -670,14 +673,11 @@ public class EventExtractor {
         eventExtractor.setWhereClassifier(Classifier.LINEAR_REGRESSION);
 
         final Event event = EventExtractor
-                .extractEventFromURL("http://www.bbc.co.uk/news/world-asia-pacific-11817826");
+                .extractEventFromURL("http://www.bbc.co.uk/news/world-middle-east-11524774");
 
         eventExtractor.getFeatureExtractor().setFeatures(event);
 
         // evaluateEvents();
-
-        LOGGER.info(eventExtractor.getFeatureExtractor().getPOSTags(
-                event.getTitle()).getTaggedString());
 
         // eventExtractor.extractWho(event);
         // eventExtractor.extractWhat(event);
