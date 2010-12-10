@@ -41,7 +41,7 @@ public class Analyze {
 	         String [] values;
 	         
 	        try {
-	                myFile =new FileReader("src/main/java/emotion/wort2.csv");
+	                myFile =new FileReader("src/main/java/emotionanalyzing/wort2.csv");
 	                buff =new BufferedReader(myFile);
 	                while (true) {              
 	                    String line = buff.readLine();
