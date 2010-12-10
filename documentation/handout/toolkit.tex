@@ -210,19 +210,19 @@ Hudson supports a game that rewards people committing code that improves the too
 \paragraph{Rules}
 The rules of the game are:
 \begin{itemize}
-\item -10 points for breaking a build
+\item --10 points for breaking a build
 \item 0 points for breaking a build that already was broken
 \item +1 points for doing a build with no failures (unstable builds gives no points)
-\item -1 points for each new test failures
+\item --1 points for each new test failures
 \item +1 points for each new test that passes
-\item Adding/removing a HIGH priority PMD warning = -5/+5. Adding/removing a MEDIUM priority PMD warning = -3/+3. Adding/removing a LOW priority PMD warning = -1/+1.
-\item Adding/removing a violation = -1/+1. Adding/removing a duplication violation = +5/-5.
-\item Adding/removing a HIGH priority findbugs warning = -5/+5. Adding/removing a MEDIUM priority findbugs warning = -3/+3. Adding/removing a LOW priority findbugs warning = -1/+1
-\item Adding/removing a compiler warning = -1/+1.
-\item Checkstyle Plugin. Adding/removing a checkstyle warning = -1/+1.
+\item Adding/removing a HIGH priority PMD warning = --5/+5. Adding/removing a MEDIUM priority PMD warning = --3/+3. Adding/removing a LOW priority PMD warning = --1/+1.
+\item Adding/removing a violation = --1/+1. Adding/removing a duplication violation = +5/--5.
+\item Adding/removing a HIGH priority findbugs warning = -5/+5. Adding/removing a MEDIUM priority findbugs warning = --3/+3. Adding/removing a LOW priority findbugs warning = -1/+1
+\item Adding/removing a compiler warning = --1/+1.
+\item Checkstyle Plugin. Adding/removing a checkstyle warning = --1/+1.
 \end{itemize}
 
-\section{Hello Toolkit - Your First Application using Palladian}
+\section{Hello Toolkit -- Your First Application using Palladian}
 \paragraph{Project creation:} Create a new Maven Project using the New Project wizard of Eclipse (See Fig.~\ref{fig:maven-project01},~\ref{fig:maven-project02} and \ref{fig:maven-project03}).
 \begin{figure}
 \centering
@@ -321,9 +321,8 @@ The same step is necessary to tell Eclipse that it should use Java 1.6 instead o
 \caption{"Hello Palladian" Code}
 \label{fig:hellotoolkit}
 \end{figure}
-For the code to work you need three additional files that are already in the config folder in the toolkit project. These are ``crawler.conf'', ``apikeys.conf'' and ``feeds.conf''. You need to copy them to src/main/resources/config. The folder src/main/resources usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
+For the code to work you need three additional files that are already in the config folder in the toolkit project. These are \texttt{crawler.conf}, \texttt{apikeys.conf} and \texttt{feeds.conf}. You need to copy them to \texttt{src/main/resources/config}. The folder \texttt{src/main/resources} usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
 
-% TODO text is very small, crop those images?
 \begin{figure}
 \centering
 \includegraphics[trim=0 250px 600px 0,clip=true,width=\textwidth]{img/ht11.png}
@@ -350,8 +349,18 @@ For the code to work you need three additional files that are already in the con
 \end{figure}
 With the structure from Fig.~\ref{fig:structure} you can run your project. Just open your projects context menu again, choose \textit{Run As $\rightarrow$ Maven Clean}, then open context menu again choose \textit{Run As $\rightarrow$ Maven Install} and finally choose \textit{Run As $\rightarrow$ Java Application}.
 
+\section{Access to Models and Data Sets} \label{sec:AccessModelsDataSets}
+
+Since models and data sets might be very large in file size, they are not included in the SVN repository. As generally no version control is neccessary for this data, we maintain our repository with rsync\footnote{\url{http://rsync.samba.org/}}. rsync is a utility which allows efficient file and directory synchronization between two, local or remote, locations. It was originally developed for Unix systems and should be included with all current Linux distributions and Mac OS X. Altough there are several ports for Windows systems, we recommend using the cwrsync\footnote{\url{http://www.itefix.no/i2/node/10650}} package.
+
+% TODO path to local directory
+% explain usage of sync scripts
+% create sync script for Linux
+
+Please contact the toolkit managers if you need write access to the rsync repository.
+
 \section{Reporting Issues using Redmine}
-To report issues with the toolkit or to view issues assigned to you, you need to register to Redmine. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor, and the reason why you are working on Palladian (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link were you can set your password. If you successfully set a password for your account you can login on: \href{http://redmine.effingo.de/}{Redmine}.
+To report issues with the toolkit or to view issues assigned to you, you need to register to Redmine. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor, and the reason why you are working on Palladian (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link where you can set your password. If you successfully set a password for your account you can login on: \href{http://redmine.effingo.de/}{Redmine}.
 %\subsection{Building the toolkit using Apache Ant}
 %You can also build the toolkit using Apache Ant\footnote{\url{http://ant.apache.org/}}. To do so, install Apache Ant, put the binary folder to your PATH and compile the project from the root folder that contains the build.xml file.
 %The following tasks can be performed by ant (type commands into your console):
@@ -471,7 +480,7 @@ The data folder contains files that are used during runtime of several component
 The knowledge base folder contains the OWL ontology files used for the extraction tasks in the tud.iir.extraction package.
 
 \subsection{models}
-The models folder contains learned models that can be reused. Since models might be very large in file size, they are not included in the same SVN as the source code. Please contact the toolkit managers to get the repository location and access it.
+The models folder contains learned models that can be reused. See section \ref{sec:AccessModelsDataSets} for an explanation on how to access our extensive collection of data sets and models.
 
 \subsection{Temp Folder}
 The temp folder is not part of the repository. Some functions may however create this folder and write temporary data.
