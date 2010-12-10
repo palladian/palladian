@@ -15,44 +15,70 @@ import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 
 public class Datasetwriter {
-    
+
     public static void writeFromFAO() {
-        
+
         // final String PATH = "/Users/pk/Desktop/fao780";
         final String PATH = "/home/pk/Desktop/fao780";
 
-        
         File[] files = FileHelper.getFiles(PATH, ".txt");
         for (File file : files) {
             String textFile = file.getName();
             String keyFile = textFile.replace(".txt", ".key");
             // System.out.println(keyFile);
-            
+
             String text = FileHelper.readFileToString(PATH + "/" + textFile);
             text = StringHelper.removeNonAsciiCharacters(text);
             text = text.replace("#", " ");
             text = text.replace("\n", " ");
-            
+
             List<String> keywords = FileHelper.readFileToArray(PATH + "/" + keyFile);
-            
+
             String line = text + "#" + StringUtils.join(keywords, "#") + "\n";
             System.out.println(textFile);
-            
-            
+
             try {
                 FileHelper.appendFile("fao.txt", line);
             } catch (IOException e) {
                 e.printStackTrace();
                 break;
             }
-            
+
         }
-        
+
+    }
+
+    public static void writeFromFAONew() {
+
+        // final String PATH = "/Users/pk/Desktop/fao780";
+        final String PATH = "/home/pk/Desktop/fao780";
+
+        File[] files = FileHelper.getFiles(PATH, ".key");
+
+        for (File file : files) {
+
+            String keyFile = file.getName();
+            List<String> keywords = FileHelper.readFileToArray(PATH + "/" + keyFile);
+
+            String line = keyFile.replace(".key", ".txt") + "#" + StringUtils.join(keywords, "#") + "\n";
+            System.out.println(line);
+
+            try {
+                FileHelper.appendFile("fao_index.txt", line);
+            } catch (IOException e) {
+                e.printStackTrace();
+                break;
+            }
+
+        }
+
     }
 
     public static void main(String[] args) {
 
-        writeFromFAO();
+        writeFromFAONew();
+
+        // writeFromFAO();
         // writeFromT140();
 
     }
