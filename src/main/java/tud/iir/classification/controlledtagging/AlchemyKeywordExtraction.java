@@ -26,7 +26,7 @@ public class AlchemyKeywordExtraction {
     /** Alchemy API key. */
     private String apiKey = "";
 
-    /** Number of kewords to retrieve. */
+    /** Number of keywords to retrieve. */
     private int maxRetrieve = 10;
 
     /** See {@link #setStrictExtractMode(boolean)}. */
