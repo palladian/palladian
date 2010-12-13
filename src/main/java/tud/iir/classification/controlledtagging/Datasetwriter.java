@@ -29,7 +29,7 @@ public class Datasetwriter {
     public static void writeCiteULike() {
 
         /** base path. */
-        String path = "/Users/pk/Desktop/citeulike180/taggers";
+        String path = "/home/pk/DATASETS/citeulike180/taggers";
         
         /** file to write. */
         String indexFile = "citeulike180index.txt";
