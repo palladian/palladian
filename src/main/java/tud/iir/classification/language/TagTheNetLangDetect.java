@@ -1,6 +1,8 @@
 package tud.iir.classification.language;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.methods.StringRequestEntity;
@@ -25,6 +27,9 @@ public class TagTheNetLangDetect extends LanguageClassifier {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(TagTheNetLangDetect.class);
 
+    /** tagthe.net provides no information, which languages it supports, so we record all detected ones here in the set. */
+    private Set<String> detectedLanguages = new HashSet<String>();
+
     @Override
     public String classify(String text) {
 
@@ -46,6 +51,8 @@ public class TagTheNetLangDetect extends LanguageClassifier {
                     .getJSONArray("language").getString(0);
 
             result = mapLanguage(language);
+            
+            detectedLanguages.add(result);
 
         } catch (UnsupportedEncodingException e) {
             LOGGER.error(e);
@@ -56,11 +63,17 @@ public class TagTheNetLangDetect extends LanguageClassifier {
         return result;
 
     }
+    
+    public Set<String> getDetectedLanguages() {
+        return detectedLanguages;
+    }
 
     public static void main(String[] args) {
 
         LanguageClassifier lc = new TagTheNetLangDetect();
-        System.out.println(lc.classify("olala, mademoiselle. c'est la vie."));
+        for (int i = 0; i < 1000; i++) {
+            System.out.println(lc.classify("olala, mademoiselle. c'est la vie."));
+        }
 
     }
 
