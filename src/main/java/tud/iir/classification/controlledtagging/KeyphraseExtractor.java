@@ -16,6 +16,8 @@ import tud.iir.classification.WordCorrelation;
 import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.AssignmentMode;
 import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.ReRankingMode;
 import tud.iir.classification.page.evaluation.Dataset;
+import tud.iir.extraction.keyphrase.AbstractKeyphraseExtractor;
+import tud.iir.extraction.keyphrase.Keyphrase;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
@@ -35,7 +37,7 @@ import tud.iir.helper.StopWatch;
  * @author Philipp Katz
  * 
  */
-public class KeyphraseExtractor {
+public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractor.class);
@@ -341,7 +343,8 @@ public class KeyphraseExtractor {
         LOGGER.info("loaded classifier in " + sw.getElapsedTimeString());
     }
 
-    public List<Candidate> extract(String text) {
+    @Override
+    public Set<Keyphrase> extract(String text) {
 
         DocumentModel candidates = createDocumentModel(text);
 
@@ -380,7 +383,13 @@ public class KeyphraseExtractor {
         // create the final result, take the top n candidates
         limitResult(candidates);
 
-        return candidates;
+        // return candidates;
+        Set<Keyphrase> keyphrases = new HashSet<Keyphrase>();
+        for (Candidate candidate : candidates) {
+            keyphrases.add(new Keyphrase(candidate.getValue(), candidate.getRegressionValue()));
+        }
+        
+        return keyphrases;
 
     }
 
@@ -513,208 +522,6 @@ public class KeyphraseExtractor {
         LOGGER.trace("correlation reranking for " + candidates.size() + " in " + sw.getElapsedTimeString());
 
     }
-    
-    // TODO copy+paste
-    public ControlledTaggerEvaluationResult evaluate(final Dataset dataset) {
-        
-        LOGGER.info("starting evaluation ...");
-        
-        final ControlledTaggerEvaluationResult evaluationResult = new ControlledTaggerEvaluationResult();
-        
-        StopWatch sw = new StopWatch();
-        // final Counter counter = new Counter();
-        // final float[] prRcValues = new float[2];
-
-        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-
-                String[] split = line.split(dataset.getSeparationString());
-
-                if (split.length < 2) {
-                    return;
-                }
-
-                // the manually assigned keyphrases
-                Set<String> realKeyphrases = new HashSet<String>();
-                for (int i = 1; i < split.length; i++) {
-                    realKeyphrases.add(split[i].toLowerCase());
-                }
-                Set<String> stemmedRealKeyphrases = stem(realKeyphrases);
-                int realCount = stemmedRealKeyphrases.size();
-                realKeyphrases.addAll(stemmedRealKeyphrases);
-
-                // get the text; either directly from the dataset file or from the provided link,
-                // depending of the Dataset settings
-                String text;
-                if (dataset.isFirstFieldLink()) {
-                    text = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
-                } else {
-                    text = split[0];
-                }
-                
-                // automatically extract keyphrases
-                List<Candidate> assignedKeyphrases = extract(text);
-                int correctCount = 0;
-                int assignedCount = assignedKeyphrases.size();
-
-                // determine Pr/Rc values by considering assigned and real keyphrases
-                for (Candidate assigned : assignedKeyphrases) {
-                    for (String real : realKeyphrases) {
-
-                        boolean correct = real.equalsIgnoreCase(assigned.getValue());
-                        correct = correct || real.equalsIgnoreCase(assigned.getValue().replace(" ", ""));
-                        correct = correct || real.equalsIgnoreCase(assigned.getStemmedValue());
-                        correct = correct || real.equalsIgnoreCase(assigned.getStemmedValue().replace(" ", ""));
-
-                        if (correct) {
-                            correctCount++;
-                            break; // inner loop
-                        }
-
-                    }
-                }
-
-                float precision = (float) correctCount / assignedCount;
-                if (Float.isNaN(precision)) {
-                    precision = 0;
-                }
-                float recall = (float) correctCount / realCount;
-
-                LOGGER.info("real keyphrases: " + realKeyphrases);
-                LOGGER.info("assigned keyphrases: " + assignedKeyphrases);
-                LOGGER.info("real: " + realCount + " assigned: " + assignedCount + " correct: " + correctCount);
-                LOGGER.info("pr: " + precision + " rc: " + recall);
-                LOGGER.info("----------------------------------------------------------");
-
-                // prRcValues[0] += precision;
-                // prRcValues[1] += recall;
-                // counter.increment();
-                
-                evaluationResult.addTestResult(precision, recall, assignedCount);
-
-//                if (evaluationResult.getTaggedEntryCount() == limit) {
-//                // if (counter.getCount() == limit) {
-//                    breakLineLoop();
-//                }
-
-            }
-        });
-
-        // calculate average Pr/Rc/F1 values
-        // float averagePrecision = (float) prRcValues[0] / counter.getCount();
-        // float averageRecall = (float) prRcValues[1] / counter.getCount();
-        // float averageF1 = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
-
-        // LOGGER.info("-----------------------------------------------");
-        // LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
-        // LOGGER.info("average precision: " + averagePrecision);
-        // LOGGER.info("average recall: " + averageRecall);
-        // LOGGER.info("average f1: " + averageF1);
-        
-        evaluationResult.printStatistics();
-        LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
-        
-        return evaluationResult;
-        
-    }
-
-    public ControlledTaggerEvaluationResult evaluate(String filePath, final int limit) {
-
-        LOGGER.info("starting evaluation ...");
-        
-        final ControlledTaggerEvaluationResult evaluationResult = new ControlledTaggerEvaluationResult();
-        
-        StopWatch sw = new StopWatch();
-        // final Counter counter = new Counter();
-        // final float[] prRcValues = new float[2];
-
-        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-
-                String[] split = line.split("#");
-
-                if (split.length < 2) {
-                    return;
-                }
-
-                // the manually assigned keyphrases
-                Set<String> realKeyphrases = new HashSet<String>();
-                for (int i = 1; i < split.length; i++) {
-                    realKeyphrases.add(split[i].toLowerCase());
-                }
-                Set<String> stemmedRealKeyphrases = stem(realKeyphrases);
-                int realCount = stemmedRealKeyphrases.size();
-                realKeyphrases.addAll(stemmedRealKeyphrases);
-
-                // automatically extract keyphrases
-                List<Candidate> assignedKeyphrases = extract(split[0]);
-                int correctCount = 0;
-                int assignedCount = assignedKeyphrases.size();
-
-                // determine Pr/Rc values by considering assigned and real keyphrases
-                for (Candidate assigned : assignedKeyphrases) {
-                    for (String real : realKeyphrases) {
-
-                        boolean correct = real.equalsIgnoreCase(assigned.getValue());
-                        correct = correct || real.equalsIgnoreCase(assigned.getValue().replace(" ", ""));
-                        correct = correct || real.equalsIgnoreCase(assigned.getStemmedValue());
-                        correct = correct || real.equalsIgnoreCase(assigned.getStemmedValue().replace(" ", ""));
-
-                        if (correct) {
-                            correctCount++;
-                            break; // inner loop
-                        }
-
-                    }
-                }
-
-                float precision = (float) correctCount / assignedCount;
-                if (Float.isNaN(precision)) {
-                    precision = 0;
-                }
-                float recall = (float) correctCount / realCount;
-
-                LOGGER.info("real keyphrases: " + realKeyphrases);
-                LOGGER.info("assigned keyphrases: " + assignedKeyphrases);
-                LOGGER.info("real: " + realCount + " assigned: " + assignedCount + " correct: " + correctCount);
-                LOGGER.info("pr: " + precision + " rc: " + recall);
-                LOGGER.info("----------------------------------------------------------");
-
-                // prRcValues[0] += precision;
-                // prRcValues[1] += recall;
-                // counter.increment();
-                
-                evaluationResult.addTestResult(precision, recall, assignedCount);
-
-                if (evaluationResult.getTaggedEntryCount() == limit) {
-                // if (counter.getCount() == limit) {
-                    breakLineLoop();
-                }
-
-            }
-        });
-
-        // calculate average Pr/Rc/F1 values
-        // float averagePrecision = (float) prRcValues[0] / counter.getCount();
-        // float averageRecall = (float) prRcValues[1] / counter.getCount();
-        // float averageF1 = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
-
-        // LOGGER.info("-----------------------------------------------");
-        // LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
-        // LOGGER.info("average precision: " + averagePrecision);
-        // LOGGER.info("average recall: " + averageRecall);
-        // LOGGER.info("average f1: " + averageF1);
-        
-        evaluationResult.printStatistics();
-        LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
-        
-        return evaluationResult;
-
-    }
 
     private DocumentModel createDocumentModel(String text) {
 
@@ -746,7 +553,7 @@ public class KeyphraseExtractor {
 
     }
 
-    private String stem(String unstemmed) {
+    /* package */ String stem(String unstemmed) {
 //        settings.getStemmer().setCurrent(unstemmed.toLowerCase());
 //        settings.getStemmer().stem();
 //        return settings.getStemmer().getCurrent();
@@ -766,7 +573,7 @@ public class KeyphraseExtractor {
         
     }
 
-    private Set<String> stem(Set<String> unstemmed) {
+    /* package */ Set<String> stem(Set<String> unstemmed) {
         Set<String> result = new HashSet<String>();
         for (String unstemmedTag : unstemmed) {
             String stem = stem(unstemmedTag);
@@ -798,6 +605,8 @@ public class KeyphraseExtractor {
     public static void main(String[] args) {
 
         final KeyphraseExtractor extractor = new KeyphraseExtractor();
+        final KeyphraseExtractorEvaluator evaluation = new KeyphraseExtractorEvaluator(extractor);
+        
         KeyphraseExtractorSettings extractorSettings = extractor.getSettings();
         extractorSettings.setAssignmentMode(AssignmentMode.COMBINED);
         extractorSettings.setReRankingMode(ReRankingMode.NO_RERANKING);
@@ -805,17 +614,16 @@ public class KeyphraseExtractor {
         extractorSettings.setKeyphraseCount(10);
         extractorSettings.setKeyphraseThreshold(0.3f);
         
-//        Dataset trainingDataset = new Dataset();
-//        trainingDataset.setPath("/Users/pk/Desktop/citeulike180/documents/citeulike180index_1.txt");
-//        // trainingDataset.setRootPath(rootPath);
-//        trainingDataset.setSeparationString("#");
-//        trainingDataset.setFirstFieldLink(true);
-//        
-//        extractor.buildCorpus(trainingDataset);
-//        extractor.buildClassifier(trainingDataset);
-//        extractor.saveClassifier("cite.ser");
-//        
-//        
+        Dataset trainingDataset = new Dataset();
+        trainingDataset.setPath("/home/pk/Desktop/documents/citeulike180splitaa.txt");
+        // trainingDataset.setRootPath(rootPath);
+        trainingDataset.setSeparationString("#");
+        trainingDataset.setFirstFieldLink(true);
+        
+        extractor.buildCorpus(trainingDataset);
+        extractor.buildClassifier(trainingDataset);
+        extractor.saveClassifier("cite.ser");
+
 //        System.exit(0);
         
         
@@ -823,11 +631,11 @@ public class KeyphraseExtractor {
         extractor.loadClassifier("cite.ser");
         
         Dataset testingDataset = new Dataset();
-        testingDataset.setPath("/Users/pk/Desktop/citeulike180/documents/citeulike180index_2.txt");
+        testingDataset.setPath("/home/pk/Desktop/documents/citeulike180splitab.txt");
         testingDataset.setSeparationString("#");
         testingDataset.setFirstFieldLink(true);
         
-        extractor.evaluate(testingDataset);
+        evaluation.evaluate(testingDataset);
         
         
         System.exit(0);
@@ -870,7 +678,7 @@ public class KeyphraseExtractor {
         extractor.loadClassifier(classPath);
         extractor.loadCorpus();
 //        extractor.evaluate("fao_splitab", 500);
-        extractor.evaluate("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 1000);
+//        extractor.evaluate("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 1000);
         
         
 //        extractor.getSettings().setReRankingMode(ReRankingMode.NO_RERANKING);
