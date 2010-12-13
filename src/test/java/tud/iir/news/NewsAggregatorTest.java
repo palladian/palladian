@@ -1,7 +1,6 @@
 package tud.iir.news;
 
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import tud.iir.control.AllTests;

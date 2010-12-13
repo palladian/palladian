@@ -30,23 +30,34 @@ import tud.iir.web.Crawler;
 
 /**
  * Special tokenizer implementation which keeps positional and POS features of extracted Tokens. Also supports
- * extraction of collocated terms, like "San Francisco" or "domestic cat". Experimental.
+ * extraction of collocated terms, like "San Francisco" or "domestic cat", e.g. words consisting of more than one single
+ * token. Experimental.
+ * 
+ * TODO provide setter for Stemmer and Stopwords.
  * 
  * @author Philipp Katz
  * 
  */
 public class TokenizerPlus {
 
-    // TODO only load on demand.
-    private AbstractPOSTagger posTagger = new LingPipePOSTagger();
+    /** Snowball, used for stemming. */
     private SnowballStemmer stemmer = new englishStemmer();
-    private boolean usePosTagging = true;
+
+    /** Set of stopwords. */
     private Set<String> stopwords = new Stopwords(Stopwords.Predefined.EN);
 
-    public TokenizerPlus() {
-        // posTagger.loadModel();
-    }
+    /** POS tagger, only necessary if POS tagging is enabled. */
+    private AbstractPOSTagger posTagger = new LingPipePOSTagger();
 
+    /** Whether to use POS tagging. */
+    private boolean usePosTagging = true;
+
+    /**
+     * Tokenizes the supplied text.
+     * 
+     * @param text
+     * @return set of tokens.
+     */
     public List<Token> tokenize(String text) {
         List<Token> tokens;
         // first, tokenize into sentences.
@@ -243,7 +254,8 @@ public class TokenizerPlus {
                 // for example "New York Times" is more complete than "York Times".
                 boolean accept = true;
                 for (String existingStem : resultStems.uniqueSet()) {
-                    if (existingStem.contains(stemmedValue) && resultStems.getCount(existingStem) >= occurences * 0.95) { // TODO evaluate
+                    if (existingStem.contains(stemmedValue) && resultStems.getCount(existingStem) >= occurences * 0.95) { // TODO
+                                                                                                                          // evaluate
                         accept = false;
                         break;
                     }
@@ -255,7 +267,7 @@ public class TokenizerPlus {
                     result.addAll(entryTokens);
                     resultStems.add(stemmedValue, occurences);
                 }
-                
+
                 // settings 0.95 // 0.25 --> 0.3027 F1
                 // settings 0.95 // 0.15 --> 0,3019 F1
                 // settings 1 // 0 --> 0,3019 F1
@@ -276,11 +288,16 @@ public class TokenizerPlus {
         return result;
 
     }
-    
+
     public boolean isUsePosTagging() {
         return usePosTagging;
     }
-    
+
+    /**
+     * Allows to enable or disable POS tagging. When enabled, the tokenization process takes considerably more time.
+     * 
+     * @param usePosTagging
+     */
     public void setUsePosTagging(boolean usePosTagging) {
         this.usePosTagging = usePosTagging;
         if (usePosTagging) {
@@ -298,8 +315,10 @@ public class TokenizerPlus {
         // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/San_Francisco");
         // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/%22Manos%22_The_Hands_of_Fate");
         Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Cat");
-        // Document doc = crawler.getWebDocument("http://edition.cnn.com/2010/TECH/social.media/11/19/social.media.isolation.project/index.html?hpt=C1");
-        // Document doc = crawler.getWebDocument("http://blogs.reuters.com/mediafile/2010/11/18/ft-hearts-tablets-so-much-its-spreading-the-joy-among-staff/");
+        // Document doc =
+        // crawler.getWebDocument("http://edition.cnn.com/2010/TECH/social.media/11/19/social.media.isolation.project/index.html?hpt=C1");
+        // Document doc =
+        // crawler.getWebDocument("http://blogs.reuters.com/mediafile/2010/11/18/ft-hearts-tablets-so-much-its-spreading-the-joy-among-staff/");
         // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
         String text = HTMLHelper.htmlToString(doc);
 
@@ -312,14 +331,12 @@ public class TokenizerPlus {
         List<Token> allTokens = new ArrayList<Token>();
         // allTokens.addAll(tokens);
         allTokens.addAll(collocations);
-        
+
         CountMap cm = new CountMap();
         for (Token token : allTokens) {
             cm.increment(token.getStemmedValue());
         }
-        
-        
-        
+
         LinkedHashMap<Object, Integer> sort = CollectionHelper.sortByValue(cm.entrySet(), false);
         for (Entry<Object, Integer> entry : sort.entrySet()) {
             System.out.println(entry.getValue() + " " + entry.getKey());

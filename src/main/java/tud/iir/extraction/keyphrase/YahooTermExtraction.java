@@ -1,4 +1,7 @@
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -16,12 +19,15 @@ import tud.iir.web.HTTPPoster;
  * @author Philipp Katz
  *
  */
-public class YahooTermExtraction {
+public class YahooTermExtraction extends AbstractKeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(YahooTermExtraction.class);
 
-    public void extract(String inputText) {
+    @Override
+    public Set<Keyphrase> extract(String inputText) {
+        
+        Set<Keyphrase> keyphrases = new HashSet<Keyphrase>();
 
         PostMethod postMethod = new PostMethod("http://query.yahooapis.com/v1/public/yql");
 
@@ -56,12 +62,15 @@ public class YahooTermExtraction {
 
                 String term = resultArray.getString(i);
                 LOGGER.info(term);
+                keyphrases.add(new Keyphrase(term));
 
             }
 
         } catch (JSONException e) {
             LOGGER.error(e);
         }
+        
+        return keyphrases;
 
     }
 

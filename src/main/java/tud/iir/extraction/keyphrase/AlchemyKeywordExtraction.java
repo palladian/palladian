@@ -1,4 +1,7 @@
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -18,7 +21,7 @@ import tud.iir.web.HTTPPoster;
  * @author Philipp Katz
  * 
  */
-public class AlchemyKeywordExtraction {
+public class AlchemyKeywordExtraction extends AbstractKeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(AlchemyKeywordExtraction.class);
@@ -44,12 +47,14 @@ public class AlchemyKeywordExtraction {
     }
 
     /**
-     * TODO add return type.
-     * TODO extract interface.
      * 
      * @param inputText
+     * @return 
      */
-    public void extract(String inputText) {
+    @Override
+    public Set<Keyphrase> extract(String inputText) {
+        
+        Set<Keyphrase> keyphrases = new HashSet<Keyphrase>();
 
         PostMethod postMethod = new PostMethod("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords");
 
@@ -83,13 +88,16 @@ public class AlchemyKeywordExtraction {
                 String text = jsonObject.getString("text");
                 double relevance = jsonObject.getDouble("relevance");
 
-                LOGGER.info("text:" + text + " relevance:" + relevance);
+                LOGGER.trace("text:" + text + " relevance:" + relevance);
+                keyphrases.add(new Keyphrase(text, relevance));
 
             }
 
         } catch (JSONException e) {
             LOGGER.error(e);
         }
+        
+        return keyphrases;
 
     }
     

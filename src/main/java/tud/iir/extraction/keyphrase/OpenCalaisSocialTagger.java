@@ -1,6 +1,8 @@
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase;
 
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -25,7 +27,7 @@ import tud.iir.web.HTTPPoster;
  * @author Philipp Katz
  * 
  */
-public class OpenCalaisSocialTagger {
+public class OpenCalaisSocialTagger extends AbstractKeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(OpenCalaisSocialTagger.class);
@@ -44,7 +46,10 @@ public class OpenCalaisSocialTagger {
 
     }
 
-    public void extract(String inputText) {
+    @Override
+    public Set<Keyphrase> extract(String inputText) {
+        
+        Set<Keyphrase> keyphrases = new HashSet<Keyphrase>();
 
         PostMethod postMethod = new PostMethod("http://api.opencalais.com/tag/rs/enrich");
 
@@ -85,6 +90,8 @@ public class OpenCalaisSocialTagger {
                     String name = jsonObj.getString("name");
                     int importance = jsonObj.getInt("importance");
                     LOGGER.info(name + " " + importance);
+                    
+                    keyphrases.add(new Keyphrase(name, importance));
 
                 }
 
@@ -93,6 +100,8 @@ public class OpenCalaisSocialTagger {
         } catch (JSONException e) {
             LOGGER.error(e);
         }
+        
+        return keyphrases;
 
     }
 

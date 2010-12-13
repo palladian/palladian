@@ -2,16 +2,24 @@ package tud.iir.web;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InterruptedIOException;
+import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.log4j.Logger;
+
+import tud.iir.helper.ThreadHelper;
 
 public class HTTPPoster {
 
@@ -23,6 +31,27 @@ public class HTTPPoster {
 
     public HTTPPoster() {
         client = new HttpClient();
+        
+        // quickfixx by Philipp
+        // we set the retry behavior very aggressively (small timeouts, many retries)
+        // was necessary for TagThe.net
+//        HttpClientParams params = client.getParams();
+//        DefaultHttpMethodRetryHandler retryhandler = new DefaultHttpMethodRetryHandler(10, false) {
+//            @Override
+//            public boolean retryMethod(HttpMethod method, IOException exception, int executionCount) {
+//                if (exception instanceof InterruptedIOException || exception instanceof ConnectException) {
+//                    // timeout reached, retry
+//                    LOGGER.warn(exception.getMessage() + ", sleep for " + executionCount + " seconds");
+//                    ThreadHelper.sleep(executionCount * 500);
+//                    return true;
+//                }
+//                return super.retryMethod(method, exception, executionCount);
+//            }
+//        };
+//        params.setParameter(HttpMethodParams.RETRY_HANDLER, retryhandler);
+//        params.setParameter(HttpMethodParams.SO_TIMEOUT, 500);
+//        params.setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, 500);
+
     }
 
     public PostMethod createPostMethod(String url) {
@@ -59,7 +88,7 @@ public class HTTPPoster {
                 LOGGER.error("response: " + method.getResponseBodyAsString());
             }
         } catch (Exception e) {
-            LOGGER.error(e.getMessage());
+            LOGGER.error(e);
         } finally {
             method.releaseConnection();
         }

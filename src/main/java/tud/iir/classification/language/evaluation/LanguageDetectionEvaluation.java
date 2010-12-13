@@ -11,6 +11,7 @@ import tud.iir.classification.language.GoogleLangDetect;
 import tud.iir.classification.language.JLangDetect;
 import tud.iir.classification.language.LanguageClassifier;
 import tud.iir.classification.language.PalladianLangDetect;
+import tud.iir.classification.language.TagTheNetLangDetect;
 import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
@@ -37,6 +38,7 @@ public class LanguageDetectionEvaluation {
         LanguageClassifier googleLanguageClassifier = new GoogleLangDetect();
         LanguageClassifier alchemyLanguageClassifier = new AlchemyLangDetect();
         LanguageClassifier palladianClassifier = new PalladianLangDetect();
+        LanguageClassifier tagTheNetClassifier = new TagTheNetLangDetect();
 
         // we tell Palladian that only a subset of the learned languages is allowed for this evaluation, otherwise
         // jLangDetect has an advantage
@@ -53,6 +55,8 @@ public class LanguageDetectionEvaluation {
         int alchemyClassified = 0;
         int palladianCorrect = 0;
         int palladianClassified = 0;
+        int ttnCorrect = 0;
+        int ttnClassified = 0;
 
         int lineCount = 1;
         int totalLines = lines.size();
@@ -73,6 +77,7 @@ public class LanguageDetectionEvaluation {
             boolean google = false;
             boolean alchemy = false;
             boolean palladian = false;
+            boolean ttn = false;
 
             // jlang
             String jLangClass = jLangDetectClassifier.classify(document);
@@ -116,11 +121,20 @@ public class LanguageDetectionEvaluation {
                 palladianClassified++;
             }
 
+            // tagthe.net
+            String ttnClass = tagTheNetClassifier.classify(document);
+            if (correctLanguage.equals(ttnClass)) {
+                ttnCorrect++;
+                ttn = true;
+            }
+            if (ttnClass.length() > 0) {
+                ttnClassified++;
+            }
+
             double percent = 100.0 * MathHelper.round(lineCount / (double) totalLines, 2);
             LOGGER.info("line " + lineCount + ", " + percent + "% ("
-                    + jLangDetectClassifier.mapLanguageCode(correctLanguage)
-                    + ") -> jlang: " + jlang + " | google: " + google + " | alchemy: " + alchemy + " | palladian: "
-                    + palladian);
+                    + jLangDetectClassifier.mapLanguageCode(correctLanguage) + ") -> jlang: " + jlang + " | google: "
+                    + google + " | alchemy: " + alchemy + " | palladian: " + palladian + " | tagthenet: " + ttn);
 
             lineCount++;
         }
@@ -135,13 +149,28 @@ public class LanguageDetectionEvaluation {
         LOGGER.info("Accuracy Palladian  : "
                 + MathHelper.round(100 * palladianCorrect / (double) palladianClassified, 2) + "% ("
                 + palladianClassified + " classified)");
+        LOGGER.info("Accuracy tagthe.net : " + MathHelper.round(100 * ttnCorrect / (double) ttnClassified, 2) + "% ("
+                + ttnClassified + " classified)");
+        
+        LOGGER.info("tagthe.net detected: " + ((TagTheNetLangDetect) tagTheNetClassifier).getDetectedLanguages());
     }
-
 
     /**
      * @param args
      */
     public static void main(String[] args) {
+        
+        
+        /**
+         * 
+         * 2010-12-13 12:35:14,027 INFO [    main] tud.iir.classification.language.evaluation.LanguageDetectionEvaluation.evaluate(LanguageDetectionEvaluation.java:143) : Accuracy JLangDetect: 87.91% (1100 classified)
+         * 2010-12-13 12:35:14,027 INFO [    main] tud.iir.classification.language.evaluation.LanguageDetectionEvaluation.evaluate(LanguageDetectionEvaluation.java:145) : Accuracy Google     : 0.0% (0 classified)
+         * 2010-12-13 12:35:14,027 INFO [    main] tud.iir.classification.language.evaluation.LanguageDetectionEvaluation.evaluate(LanguageDetectionEvaluation.java:147) : Accuracy Alchemy    : 0.0% (0 classified)
+         * 2010-12-13 12:35:14,027 INFO [    main] tud.iir.classification.language.evaluation.LanguageDetectionEvaluation.evaluate(LanguageDetectionEvaluation.java:149) : Accuracy Palladian  : 83.45% (1100 classified)
+         * 2010-12-13 12:35:14,027 INFO [    main] tud.iir.classification.language.evaluation.LanguageDetectionEvaluation.evaluate(LanguageDetectionEvaluation.java:152) : Accuracy tagthe.net : 54.01% (748 classified)
+         * 2010-12-13 12:35:14,028 INFO [    main] tud.iir.classification.language.evaluation.LanguageDetectionEvaluation.evaluate(LanguageDetectionEvaluation.java:155) : tagthe.net detected: [sl, , da, it, no, sq, hu, de, fi, pl, fr, sv, en, es, nl]
+         * 
+         */
 
         // LanguageClassifier glangd = new AlchemyLangDetect();
         // System.out.println(glangd.classify("hello world, how are you today?"));
@@ -166,7 +195,8 @@ public class LanguageDetectionEvaluation {
         Dataset dataset = new Dataset();
 
         // set the path to the dataset, the first field is a link, and columns are separated with a space
-        dataset.setPath("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc100_split2.txt");
+        // dataset.setPath("C:\\Safe\\Datasets\\jrc language data converted\\indexAll22Languages_ipc100_split2.txt");
+        dataset.setPath("/home/pk/datasets/JRCLanguageCorpus/indexAll22Languages_ipc100_split2.txt");
         dataset.setFirstFieldLink(true);
         dataset.setSeparationString(" ");
 
