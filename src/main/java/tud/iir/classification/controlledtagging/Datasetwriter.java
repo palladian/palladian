@@ -2,8 +2,18 @@ package tud.iir.classification.controlledtagging;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.Map.Entry;
 
+import org.apache.commons.collections15.Bag;
+import org.apache.commons.collections15.Factory;
+import org.apache.commons.collections15.bag.HashBag;
+import org.apache.commons.collections15.map.LazyMap;
 import org.apache.commons.lang.StringUtils;
 
 import tud.iir.classification.controlledtagging.DeliciousDatasetReader.DatasetCallback;
@@ -15,6 +25,71 @@ import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 
 public class Datasetwriter {
+
+    public static void writeCiteULike() {
+
+        /** base path. */
+        String path = "/Users/pk/Desktop/citeulike180/taggers";
+        
+        /** file to write. */
+        String indexFile = "citeulike180index.txt";
+
+        Factory<Bag<String>> factory = new Factory<Bag<String>>() {
+            @Override
+            public Bag<String> create() {
+                return new HashBag<String>();
+            }
+        };
+        Map<Integer, Bag<String>> documentsTags = LazyMap.decorate(new TreeMap<Integer, Bag<String>>(), factory);
+
+        // go through all .tags files and get the tags
+
+        File[] taggerDirectories = FileHelper.getFiles(path);
+        for (File file : taggerDirectories) {
+
+            if (!file.isDirectory()) {
+                continue;
+            }
+
+            File[] tagFiles = FileHelper.getFiles(file.getPath());
+            for (File tagFile : tagFiles) {
+
+                List<String> tags = FileHelper.readFileToArray(tagFile);
+                Bag<String> documentTags = documentsTags.get(Integer.valueOf(tagFile.getName().replace(".tags", "")));
+
+                for (String tag : tags) {
+                    if (tag.length() > 0) {
+
+                        if (tag.contains("  ")) {
+                            tag = tag.substring(tag.indexOf("  ") + 2, tag.length());
+                        }
+
+                        documentTags.add(tag.trim());
+                    }
+
+                }
+
+            }
+
+        }
+
+        // write index file
+        StringBuilder sb = new StringBuilder();
+
+        Set<Entry<Integer, Bag<String>>> entrySet = documentsTags.entrySet();
+        for (Entry<Integer, Bag<String>> entry : entrySet) {
+            // System.out.println(entry.getKey() + " " + entry.getValue());
+            sb.append(entry.getKey()).append(".txt").append("#");
+            sb.append(StringUtils.join(entry.getValue().uniqueSet(), "#"));
+            sb.append("\n");
+        }
+
+        // System.out.println(sb.toString());
+        // System.out.println(documentsTags.size());
+        
+        FileHelper.writeToFile(indexFile, sb);
+
+    }
 
     public static void writeFromFAO() {
 
@@ -76,7 +151,13 @@ public class Datasetwriter {
 
     public static void main(String[] args) {
 
-        writeFromFAONew();
+        // String test = "system  mouse";
+        //        
+        // System.out.println(test.substring(test.indexOf("  ") + 2, test.length()));
+        // System.exit(0);
+
+        writeCiteULike();
+        // writeFromFAONew();
 
         // writeFromFAO();
         // writeFromT140();

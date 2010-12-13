@@ -15,6 +15,7 @@ import org.tartarus.snowball.SnowballStemmer;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.AssignmentMode;
 import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.ReRankingMode;
+import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
@@ -54,25 +55,31 @@ public class KeyphraseExtractor {
     public KeyphraseExtractor() {
         tokenizer.setUsePosTagging(false);
     }
-
-    public void buildCorpus(String filePath) {
+    
+    public void buildCorpus(final Dataset dataset) {
 
         LOGGER.info("building corpus ...");
 
         StopWatch sw = new StopWatch();
         final Counter counter = new Counter();
 
-        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
+        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] split = line.split("#");
+                String[] split = line.split(dataset.getSeparationString());
                 if (split.length < 2) {
                     return;
                 }
 
-                String text = split[0];
+                String text;
+                if (dataset.isFirstFieldLink()) {
+                    text = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
+                } else {
+                    text = split[0];
+                }
+                
                 Set<String> tags = new HashSet<String>();
                 for (int i = 1; i < split.length; i++) {
                     tags.add(split[i]);
@@ -88,6 +95,112 @@ public class KeyphraseExtractor {
 
         saveCorpus();
         LOGGER.info("built and saved corpus in " + sw.getElapsedTimeString());
+
+    }
+
+    public void buildCorpus(String filePath) {
+        
+        Dataset dataset = new Dataset();
+        dataset.setFirstFieldLink(false);
+        dataset.setSeparationString("#");
+        this.buildCorpus(dataset);
+
+    }
+    
+    /**
+     * TODO We can keep the training data in memory. And add an option for exporting CSV for KNIME.
+     * 
+     * @param filePath
+     * @param limit
+     */
+    public void buildClassifier(final Dataset dataset){
+
+        LOGGER.info("creating training data for classifier ...");
+
+        StopWatch sw = new StopWatch();
+        final Counter counter = new Counter();
+
+        // keep the CSV training data in memory for now
+        final StringBuilder trainData = new StringBuilder();
+
+        // create the training data for the classifier
+        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+                String[] split = line.split(dataset.getSeparationString());
+
+                if (split.length < 2) {
+                    return;
+                }
+
+                String text;
+                if (dataset.isFirstFieldLink()) {
+                    text = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
+                } else {
+                    text = split[0];
+                }
+                // create the document model
+                DocumentModel candidates = createDocumentModel(text);
+
+                // the manually assigned keyphrases
+                Set<String> tags = new HashSet<String>();
+                for (int i = 1; i < split.length; i++) {
+                    tags.add(split[i].toLowerCase());
+                }
+
+                // keep stemmed and unstemmed representation
+                Set<String> stemmedTags = stem(tags);
+                tags.addAll(stemmedTags);
+
+                // mark positive candidates, i.e. those which were manually assigned
+                // in the training data
+                for (Candidate candidate : candidates) {
+                    boolean isCandidate = tags.contains(candidate.getStemmedValue());
+                    isCandidate = isCandidate || tags.contains(candidate.getStemmedValue().replace(" ", "")); // XXX
+                    isCandidate = isCandidate || tags.contains(candidate.getValue());
+                    isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
+                    candidate.setPositive(isCandidate);
+                }
+
+                // if this is the first iteration, write header with feature names;
+                // this is only for convenience reasons, for example if we want to
+                // experiment with the classification with KNIME
+                if (counter.getCount() == 0) {
+                    Set<String> featureNames = candidates.iterator().next().getFeatures().keySet();
+                    trainData.append("#").append(StringUtils.join(featureNames, ";")).append("\n");
+                }
+
+                trainData.append(candidates.toCSV());
+
+                counter.increment();
+                if (counter.getCount() % 10 == 0) {
+                    LOGGER.info("added " + counter + " lines");
+                }
+//                if (counter.getCount() == limit) {
+//                    breakLineLoop();
+//                }
+            }
+        });
+        // write the train data for the classifier to CSV file
+        FileHelper.writeToFile("data/temp/KeyphraseExtractorTraining.csv", trainData);
+        LOGGER.info("created training data in " + sw.getElapsedTimeString());
+
+        // train and save the classifier
+        LOGGER.info("training classifier ...");        
+        sw.start();
+
+        // save memory; this is necessary, as the corpus consumes great amounts of memory, but
+        // fortunately we don't need the corpus for the training process
+        corpus = null;
+
+        classifier = new CandidateClassifier();
+        classifier.trainClassifier("data/temp/KeyphraseExtractorTraining.csv");
+        // classifier.saveTrainedClassifier();
+
+        LOGGER.info("finished training in " + sw.getElapsedTimeString());
+        
+        LOGGER.debug(classifier.getClassifier());
 
     }
 
@@ -254,6 +367,13 @@ public class KeyphraseExtractor {
         // perform the regression for ranking the candidates
         classifier.classify(candidates);
         
+        /*Collections.sort(candidates, new CandidateComparator());
+        for (Candidate candidate : candidates) {
+            System.out.println(candidate.getRegressionValue() + "\t" + candidate);
+        }
+        //System.out.println(candidates.toLongString());
+        System.exit(0);*/
+        
         // do the correlation based re-ranking
         reRankCandidates(candidates);
 
@@ -392,6 +512,112 @@ public class KeyphraseExtractor {
 
         LOGGER.trace("correlation reranking for " + candidates.size() + " in " + sw.getElapsedTimeString());
 
+    }
+    
+    // TODO copy+paste
+    public ControlledTaggerEvaluationResult evaluate(final Dataset dataset) {
+        
+        LOGGER.info("starting evaluation ...");
+        
+        final ControlledTaggerEvaluationResult evaluationResult = new ControlledTaggerEvaluationResult();
+        
+        StopWatch sw = new StopWatch();
+        // final Counter counter = new Counter();
+        // final float[] prRcValues = new float[2];
+
+        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                String[] split = line.split(dataset.getSeparationString());
+
+                if (split.length < 2) {
+                    return;
+                }
+
+                // the manually assigned keyphrases
+                Set<String> realKeyphrases = new HashSet<String>();
+                for (int i = 1; i < split.length; i++) {
+                    realKeyphrases.add(split[i].toLowerCase());
+                }
+                Set<String> stemmedRealKeyphrases = stem(realKeyphrases);
+                int realCount = stemmedRealKeyphrases.size();
+                realKeyphrases.addAll(stemmedRealKeyphrases);
+
+                // get the text; either directly from the dataset file or from the provided link,
+                // depending of the Dataset settings
+                String text;
+                if (dataset.isFirstFieldLink()) {
+                    text = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
+                } else {
+                    text = split[0];
+                }
+                
+                // automatically extract keyphrases
+                List<Candidate> assignedKeyphrases = extract(text);
+                int correctCount = 0;
+                int assignedCount = assignedKeyphrases.size();
+
+                // determine Pr/Rc values by considering assigned and real keyphrases
+                for (Candidate assigned : assignedKeyphrases) {
+                    for (String real : realKeyphrases) {
+
+                        boolean correct = real.equalsIgnoreCase(assigned.getValue());
+                        correct = correct || real.equalsIgnoreCase(assigned.getValue().replace(" ", ""));
+                        correct = correct || real.equalsIgnoreCase(assigned.getStemmedValue());
+                        correct = correct || real.equalsIgnoreCase(assigned.getStemmedValue().replace(" ", ""));
+
+                        if (correct) {
+                            correctCount++;
+                            break; // inner loop
+                        }
+
+                    }
+                }
+
+                float precision = (float) correctCount / assignedCount;
+                if (Float.isNaN(precision)) {
+                    precision = 0;
+                }
+                float recall = (float) correctCount / realCount;
+
+                LOGGER.info("real keyphrases: " + realKeyphrases);
+                LOGGER.info("assigned keyphrases: " + assignedKeyphrases);
+                LOGGER.info("real: " + realCount + " assigned: " + assignedCount + " correct: " + correctCount);
+                LOGGER.info("pr: " + precision + " rc: " + recall);
+                LOGGER.info("----------------------------------------------------------");
+
+                // prRcValues[0] += precision;
+                // prRcValues[1] += recall;
+                // counter.increment();
+                
+                evaluationResult.addTestResult(precision, recall, assignedCount);
+
+//                if (evaluationResult.getTaggedEntryCount() == limit) {
+//                // if (counter.getCount() == limit) {
+//                    breakLineLoop();
+//                }
+
+            }
+        });
+
+        // calculate average Pr/Rc/F1 values
+        // float averagePrecision = (float) prRcValues[0] / counter.getCount();
+        // float averageRecall = (float) prRcValues[1] / counter.getCount();
+        // float averageF1 = 2 * averagePrecision * averageRecall / (averagePrecision + averageRecall);
+
+        // LOGGER.info("-----------------------------------------------");
+        // LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
+        // LOGGER.info("average precision: " + averagePrecision);
+        // LOGGER.info("average recall: " + averageRecall);
+        // LOGGER.info("average f1: " + averageF1);
+        
+        evaluationResult.printStatistics();
+        LOGGER.info("finished evaluation in " + sw.getElapsedTimeString());
+        
+        return evaluationResult;
+        
     }
 
     public ControlledTaggerEvaluationResult evaluate(String filePath, final int limit) {
@@ -572,37 +798,69 @@ public class KeyphraseExtractor {
     public static void main(String[] args) {
 
         final KeyphraseExtractor extractor = new KeyphraseExtractor();
+        KeyphraseExtractorSettings extractorSettings = extractor.getSettings();
+        extractorSettings.setAssignmentMode(AssignmentMode.COMBINED);
+        extractorSettings.setReRankingMode(ReRankingMode.NO_RERANKING);
+        extractorSettings.setMinOccurenceCount(1);        
+        extractorSettings.setKeyphraseCount(10);
+        extractorSettings.setKeyphraseThreshold(0.3f);
+        
+//        Dataset trainingDataset = new Dataset();
+//        trainingDataset.setPath("/Users/pk/Desktop/citeulike180/documents/citeulike180index_1.txt");
+//        // trainingDataset.setRootPath(rootPath);
+//        trainingDataset.setSeparationString("#");
+//        trainingDataset.setFirstFieldLink(true);
+//        
+//        extractor.buildCorpus(trainingDataset);
+//        extractor.buildClassifier(trainingDataset);
+//        extractor.saveClassifier("cite.ser");
+//        
+//        
+//        System.exit(0);
+        
+        
+        extractor.loadCorpus();
+        extractor.loadClassifier("cite.ser");
+        
+        Dataset testingDataset = new Dataset();
+        testingDataset.setPath("/Users/pk/Desktop/citeulike180/documents/citeulike180index_2.txt");
+        testingDataset.setSeparationString("#");
+        testingDataset.setFirstFieldLink(true);
+        
+        extractor.evaluate(testingDataset);
+        
+        
+        System.exit(0);
+        
+        
+        
+        
 //         String filePath = "data/tagData_shuf_10000aa";
-//        // String filePath = "/Users/pk/Dropbox/tmp/tagData_shuf_10000aa";
-        String filePath = "fao_splitaa";
+         String filePath = "/Users/pk/Dropbox/tmp/tagData_shuf_10000aa";
+//        String filePath = "fao_splitaa";
 ////        String classPath = "classifier_fao.ser";
          String classPath = "bagging_classifier.ser";
          
          // String classPath = "neuralnet_classifier.ser";
 
-        KeyphraseExtractorSettings extractorSettings = extractor.getSettings();
-        extractorSettings.setModelPath("data/xyz.ser");
-        extractorSettings.setAssignmentMode(AssignmentMode.FIXED_COUNT);
-        extractorSettings.setReRankingMode(ReRankingMode.NO_RERANKING);
+        extractorSettings.setModelPath("data/corpus_model.ser");
+//        extractorSettings.setAssignmentMode(AssignmentMode.COMBINED);
 //        extractorSettings.setReRankingMode(ReRankingMode.DEEP_CORRELATION_RERANKING);
-//        extractorSettings.setCorrelationWeight(10000);
-        extractorSettings.setMinOccurenceCount(1);
-
-        extractorSettings.setKeyphraseCount(10);
-        extractorSettings.setKeyphraseThreshold(0.5f);
-        extractorSettings.setControlledMode(false);
+//        extractorSettings.setCorrelationWeight(50000);
+// XXX        extractorSettings.setControlledMode(false);
+        extractorSettings.setControlledMode(true);
         
         // //////////////////////////////////////////////
         // CORPUS CREATION
         // //////////////////////////////////////////////
-//        extractor.buildCorpus(filePath);
-        extractor.loadCorpus();
+        extractor.buildCorpus(filePath);
+//        extractor.loadCorpus();
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-//        extractor.buildClassifier(filePath, 100);
-//        extractor.saveClassifier(classPath);
+        extractor.buildClassifier(filePath, 750);
+        extractor.saveClassifier(classPath);
 //        System.exit(0);
 
         // //////////////////////////////////////////////
@@ -610,8 +868,9 @@ public class KeyphraseExtractor {
         // //////////////////////////////////////////////
 
         extractor.loadClassifier(classPath);
-        extractor.evaluate("fao_splitab", 500);
- //       extractor.evaluate("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 10000);
+        extractor.loadCorpus();
+//        extractor.evaluate("fao_splitab", 500);
+        extractor.evaluate("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 1000);
         
         
 //        extractor.getSettings().setReRankingMode(ReRankingMode.NO_RERANKING);
