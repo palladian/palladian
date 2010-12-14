@@ -185,11 +185,18 @@ public class Temp {
 
     }
 
+
     /**
      * @param args
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+
+        FileHelper
+        .removeDuplicateLines(
+                "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix.txt",
+        "C:\\My Dropbox\\semanticads\\Advertiser und Agenturen\\Spacedealer\\BCM\\keywordliste_mix_deduplicated.txt");
+        System.exit(0);
 
         Temp.imprintExtractor("http://www.autozubehoer.de/Impressum:_:4.html?XTCsid=6i9fm908jrt6j62pefmqi4p200");
         Temp.imprintExtractor("http://www.granzow.de/web/index.php/impressum.html");

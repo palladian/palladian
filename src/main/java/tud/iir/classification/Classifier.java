@@ -42,6 +42,8 @@ public class Classifier {
     /** query to classify a certain entity from a concept */
     private PreparedStatement psClassificationStatementEntity = null;
 
+    public static final String MODELPATH = "data/models/";
+
     private Instances trainingSet = null;
     private Instances testingSet = null;
     private Evaluation evaluation = null;
@@ -57,7 +59,7 @@ public class Classifier {
     public final static int NEURAL_NETWORK = 4;
     public final static int SVM2 = 5;
     public final static int BAGGING = 6;
-    
+
     private int chosenClassifier = BAYES_NET;
     private weka.classifiers.Classifier classifier = null;
 
@@ -488,12 +490,41 @@ public class Classifier {
     }
 
     /**
+     * Load an already trained classifier.
+     */
+    public void loadTrainedClassifier(String modelNamePath) {
+        weka.classifiers.Classifier trainedMIOClassifier;
+        try {
+            trainedMIOClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper.read(modelNamePath);
+
+            setClassifier(trainedMIOClassifier);
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    /**
+     * Simply save the trained classifier.
+     */
+    public void saveTrainedClassifier(String modelNamePath) {
+        try {
+            weka.core.SerializationHelper.write(modelNamePath, getClassifier());
+
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+        }
+    }
+
+    /**
      * Classify a feature object binary.
      * 
      * @param fo The feature object.
      * @return true if positive, false otherwise
      */
     public boolean classifyBinary(FeatureObject fo, boolean output) {
+
+        createWekaAttributes(fo.getFeatures().length, fo.getFeatureNames());
+
         Instance iUse = createInstance(getFvWekaAttributes(), discretize(fo.getFeatures()), getTrainingSet());
 
         // get the likelihood of each class
@@ -536,6 +567,8 @@ public class Classifier {
     public double[] classifySoft(FeatureObject fo) {
         double[] fDistribution = {};
 
+        createWekaAttributes(fo.getFeatures().length, fo.getFeatureNames());
+
         try {
             Instance instance = createInstance(fo.getFeatures(), trainingSet);
             fDistribution = classifier.distributionForInstance(instance);
@@ -553,7 +586,7 @@ public class Classifier {
 
         // classify an object
         Double[] features = { 14.0, 2.0, 0.0, 0.0, 1.0, 1.0, 4645.0, 1.0 }; // movie (1) "newspaper wars" should be
-                                                                            // correct
+        // correct
         // Double[] features = {29.0,2.0,0.0,0.0,1.0,1.0,0.0,0.0}; // movie (1) "Singles/d/desperate hours.htm" should
         // be incorrect
         // Double[] features = {16.0,2.0,0.0,0.0,1.0,1.0,30.0,0.0};
