@@ -55,19 +55,19 @@ public class PageSegmenterHelper {
     /**
      * Sorts a map by its double values.
      * 
-     * @param map A map of keys combined with their respective quantities as values. 
+     * @param map A map of documents combined with their respective quantities as values. 
      * @return A map sorted by its values.
      */
-    public static Map<String, Double> sortMapByDoubleValues(final Map<String, Double> map) {
-    	Comparator<String> valueComparator =  new Comparator<String>() {
-    	    public int compare(String k1, String k2) {
+    public static Map<Document, Double> sortMapByDoubleValues(final Map<Document, Double> map) {
+    	Comparator<Document> valueComparator =  new Comparator<Document>() {
+    	    public int compare(Document k1, Document k2) {
     	        int compare = map.get(k2).compareTo(map.get(k1));
     	        if (compare == 0) return 1;
     	        else return compare;
     	    }
     	};
 
-    	Map<String, Double> sortedByValues = new TreeMap<String, Double>(valueComparator);
+    	Map<Document, Double> sortedByValues = new TreeMap<Document, Double>(valueComparator);
     	sortedByValues.putAll(map);
     	return sortedByValues;
     }
@@ -122,6 +122,7 @@ public class PageSegmenterHelper {
      */
     public static int getNodeLevel(Node node) {
     	int level=0;
+    	if (node==null) return 0;
     	while (node.getParentNode() != null) {
             node = node.getParentNode();
             level++;
@@ -146,25 +147,6 @@ public class PageSegmenterHelper {
         doc.appendChild(dup);
         
         return doc;
-    }
-
-    /**
-     * Reads the files of a specific folder and returns it as a list of files.
-     * 
-     * @param place The folder of the files to read.
-     * @return A list of files.
-     */
-    public static File[] readURLsFromDisc(String place) {
-    	
-    	File maindir = new File(place);
-        File files[] = maindir.listFiles(new FilenameFilter(){
-            public boolean accept(File dir, String name){
-                return name.endsWith(".html");}
-            });
-        
-        System.out.println("files("+files.length+"):----------\n"+files[0]);
-    	
-        return files;
     }
     
     /**

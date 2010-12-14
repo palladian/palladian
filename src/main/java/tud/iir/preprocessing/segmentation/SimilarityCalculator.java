@@ -36,15 +36,6 @@ public class SimilarityCalculator {
      */
     public static double calculateSimilarity(Map<String, Integer> page1, Map<String, Integer> page2) {
     
-    /*
-     * schauen ob key vorhanden
-     * value vergleichen, nur abweichung speichern
-     * 		wenn gleich = Abweichung ist 0
-     * 		ansonsten prozentual: 10 zu 9 abweichung 10%; 600 zu 300 abweichung 50%
-     * 		durchschnitt aller abweichungen?
-     * grenzen für die abweichung festlegen (bis 20% noch gleich?)
-     * 
-     */
     	double result=0;
     	List<Double> variance=new ArrayList<Double>();
     	String key="";
@@ -206,36 +197,18 @@ public class SimilarityCalculator {
 	 * @param similarFiles A list of similar documents.
 	 * @return A map of all conflict nodes combined with its similarity values.
 	 */
-	public static Map<String, Double> calculateSimilarityForAllNodes(Document docu, ArrayList<String> conflictNodes, Map<String, Double> similarFiles) throws MalformedURLException, IOException {
+	public static Map<String, Double> calculateSimilarityForAllNodes(Document docu, ArrayList<String> conflictNodes, ArrayList<Document> similarFiles) throws MalformedURLException, IOException {
 		
 		Crawler c = new Crawler();
 
         Map<String, Double> similarityOfNodes = new LinkedHashMap<String, Double>();
-        Map<String, Double> testMap = new LinkedHashMap<String, Double>(); 
-        
-        /*testMap.put("http://www.informatikforum.de/forumdisplay.php?f=39", "0.9485261961871161");
-        testMap.put("http://www.informatikforum.de/forumdisplay.php?f=31", "0.9698535597228519");
-        testMap.put("http://www.informatikforum.de/forumdisplay.php?f=27", "0.9693909965972903");
-        testMap.put("http://www.informatikforum.de/forumdisplay.php?f=98&daysprune=-1&order=desc&sort=replycount", "0.9629184384605889");
-        testMap.put("http://www.informatikforum.de/forumdisplay.php?f=98&daysprune=-1&order=desc&sort=voteavg", "0.9573928892042225");
-        */
-        
-        //testMap = findSimilarFiles(docu.getDocumentURI(), 5000, 9, 0.689, 5);
-        testMap = similarFiles;
-        System.out.println("--------------------URI:"+docu.getDocumentURI());
-        
-        
-        //ArrayList conflictNodes = markLeafs3("http://www.informatikforum.de/forumdisplay.php?f=98", "http://www.informatikforum.de/forumdisplay.php?f=31", "C:\\Users\\Silvio\\Documents\\doc2.html", 30);
-        //System.out.println(conflictNodes.size());
-        
+        ArrayList<Document> testMap = new ArrayList<Document>(); 
 
+        //System.out.println("--------------------URI:"+docu.getDocumentURI());
+        
         ArrayList<Document> listOfSimilarDocuments = new ArrayList<Document>();
-        Iterator it = testMap.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            Document doc = c.getWebDocument((String) pairs.getKey());
-            listOfSimilarDocuments.add(doc);
-        }
+        listOfSimilarDocuments = similarFiles;
+
         
         ArrayList<Document> listOfSimilarDocumentsIncOrg = new ArrayList<Document>(listOfSimilarDocuments);
         listOfSimilarDocumentsIncOrg.add(docu);
@@ -245,24 +218,9 @@ public class SimilarityCalculator {
 	        String path = (String) conflictNodes.get(i);
       	        
             similarityOfNodes.put(path, calculateSimilarityForNode(listOfSimilarDocumentsIncOrg, path));
-            //System.out.println("Durchschnittswert multi="+similarityOfNodes);
-	        
-	        //System.out.println("--------------");
-
         }
         
-        System.out.println("FERTIG");
-        
-        it = similarityOfNodes.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry)it.next();
-            System.out.println(pairs.getKey()+" = "+pairs.getValue());
-        }
-
 		return similarityOfNodes;
 	}
 
-	
-	
-	
 }
