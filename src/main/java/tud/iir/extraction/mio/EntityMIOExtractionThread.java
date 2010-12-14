@@ -12,6 +12,7 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.classification.Classifier;
 import tud.iir.classification.mio.MIOClassifier;
 import tud.iir.helper.DateHelper;
 import tud.iir.knowledge.Attribute;
@@ -74,7 +75,8 @@ public class EntityMIOExtractionThread extends Thread {
 
         // load the trainedClassifier
         final MIOClassifier mioClass = new MIOClassifier();
-        mioClass.loadTrainedClassifier();
+        mioClass.loadTrainedClassifier(Classifier.MODELPATH + "MIOClassifier" + mioClass.getChosenClassifierName()
+                + ".model");
 
         Set<MIO> mioSet = new HashSet<MIO>();
         for (MIO mio : mios) {

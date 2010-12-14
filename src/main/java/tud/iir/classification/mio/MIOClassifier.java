@@ -20,8 +20,7 @@ public class MIOClassifier extends Classifier {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MIOClassifier.class);
 
-    private static final String MODELPATH = "data/models/";
-    
+
     /**
      * Instantiates a new mioClassifier.
      */
@@ -68,46 +67,6 @@ public class MIOClassifier extends Classifier {
         }
         normalizedTrust = Math.round(normalizedTrust * 1000.) / 10.;
         return normalizedTrust;
-    }
-
-    /**
-     * Train classifier.
-     * 
-     * @param filePath the file path
-     * @return true, if successful
-     */
-    public void trainClassifier(final String filePath) {
-
-        super.trainClassifier(filePath);
-    }
-
-    /**
-     * Load an already trained classifier.
-     */
-    public void loadTrainedClassifier() {
-        weka.classifiers.Classifier trainedMIOClassifier;
-        try {
-            trainedMIOClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper.read(MODELPATH
-                    + "MIOClassifier" + getChosenClassifierName() + ".model");
-
-            setClassifier(trainedMIOClassifier);
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
-    }
-
-    /**
-     * Simply save the trained classifier.
-     */
-    public void saveTrainedClassifier() {
-        final weka.classifiers.Classifier trainedMIOClassifier = super.getClassifier();
-        try {
-            weka.core.SerializationHelper.write(MODELPATH + "MIOClassifier" + getChosenClassifierName() + ".model",
-                    trainedMIOClassifier);
-
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-        }
     }
 
     /**
