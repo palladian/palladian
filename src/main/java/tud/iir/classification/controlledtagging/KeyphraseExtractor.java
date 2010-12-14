@@ -25,15 +25,6 @@ import tud.iir.helper.StopWatch;
 
 /**
  * 
- * TODO introduce settings class (like with ControlledTagger)
- * 
- * 
- * optimum vlaues:
- * 
- * avgPr: 0.4863928631767631
- * avgRc: 0.23635926371440288
- * avgF1: 0.3181269338103561
- * 
  * @author Philipp Katz
  * 
  */
@@ -51,13 +42,18 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
     /** The classifier is used for predicting relevance values for keyphrase candidates. */
     private CandidateClassifier classifier = new CandidateClassifier();
 
+    /** This class encapsulates all the customizable settings. */
     private KeyphraseExtractorSettings settings = new KeyphraseExtractorSettings();
-
 
     public KeyphraseExtractor() {
         tokenizer.setUsePosTagging(false);
     }
     
+    /**
+     * Builds and saves the corpus.
+     * 
+     * @param dataset
+     */
     public void buildCorpus(final Dataset dataset) {
 
         LOGGER.info("building corpus ...");
@@ -97,26 +93,81 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
 
         saveCorpus();
         LOGGER.info("built and saved corpus in " + sw.getElapsedTimeString());
-
     }
 
+    /**
+     * Builds and saves the corpus.
+     * 
+     * @param dataset
+     */
     public void buildCorpus(String filePath) {
-        
         Dataset dataset = new Dataset();
         dataset.setFirstFieldLink(false);
         dataset.setSeparationString("#");
-        this.buildCorpus(dataset);
-
+        buildCorpus(dataset);
     }
     
     /**
-     * TODO We can keep the training data in memory. And add an option for exporting CSV for KNIME.
+     * Builds the classifier.
      * 
      * @param filePath
      * @param limit
      */
-    public void buildClassifier(final Dataset dataset){
+    public void buildClassifier(final Dataset dataset, final int limit){
 
+        // write the training data to CSV file
+        final String trainDataPath = "data/temp/KeyphraseExtractorTraining.csv";
+        createTrainData(dataset, limit, trainDataPath);
+
+        // train and save the classifier
+        StopWatch sw = new StopWatch();
+        LOGGER.info("training classifier ...");        
+
+        // TODO save memory; this is necessary, as the corpus consumes great amounts of memory, but
+        // fortunately we don't need the corpus for the training process
+        corpus = null;
+
+        // train a new Classifier using the CSV data from above
+        classifier = new CandidateClassifier();
+        classifier.trainClassifier(trainDataPath);
+
+        // save the trained classifier
+        saveClassifier();
+
+        LOGGER.info("finished training in " + sw.getElapsedTimeString());
+    }
+    
+    /**
+     * Builds the classifier.
+     * 
+     * @param dataset
+     */
+    public void buildClassifier(Dataset dataset) {
+        buildClassifier(dataset, -1);
+    }
+
+    /**
+     * Builds the classifier.
+     * 
+     * @param filePath
+     * @param limit
+     */
+    public void buildClassifier(String filePath, final int limit) {
+        Dataset dataset = new Dataset();
+        dataset.setFirstFieldLink(false);
+        dataset.setSeparationString("#");
+        buildClassifier(dataset, limit);
+    }
+    
+    /**
+     * Create CSV data for training the classifier. This data can either be used directly for Weka or as imported to
+     * KNIME.
+     * 
+     * @param dataset
+     * @param limit
+     * @param trainDataPath
+     */
+    public void createTrainData(final Dataset dataset, final int limit, String trainDataPath) {
         LOGGER.info("creating training data for classifier ...");
 
         StopWatch sw = new StopWatch();
@@ -159,98 +210,7 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
                 // in the training data
                 for (Candidate candidate : candidates) {
                     boolean isCandidate = tags.contains(candidate.getStemmedValue());
-                    isCandidate = isCandidate || tags.contains(candidate.getStemmedValue().replace(" ", "")); // XXX
-                    isCandidate = isCandidate || tags.contains(candidate.getValue());
-                    isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
-                    candidate.setPositive(isCandidate);
-                }
-
-                // if this is the first iteration, write header with feature names;
-                // this is only for convenience reasons, for example if we want to
-                // experiment with the classification with KNIME
-                if (counter.getCount() == 0) {
-                    Set<String> featureNames = candidates.iterator().next().getFeatures().keySet();
-                    trainData.append("#").append(StringUtils.join(featureNames, ";")).append("\n");
-                }
-
-                trainData.append(candidates.toCSV());
-
-                counter.increment();
-                if (counter.getCount() % 10 == 0) {
-                    LOGGER.info("added " + counter + " lines");
-                }
-//                if (counter.getCount() == limit) {
-//                    breakLineLoop();
-//                }
-            }
-        });
-        // write the train data for the classifier to CSV file
-        FileHelper.writeToFile("data/temp/KeyphraseExtractorTraining.csv", trainData);
-        LOGGER.info("created training data in " + sw.getElapsedTimeString());
-
-        // train and save the classifier
-        LOGGER.info("training classifier ...");        
-        sw.start();
-
-        // save memory; this is necessary, as the corpus consumes great amounts of memory, but
-        // fortunately we don't need the corpus for the training process
-        corpus = null;
-
-        classifier = new CandidateClassifier();
-        classifier.trainClassifier("data/temp/KeyphraseExtractorTraining.csv");
-        // classifier.saveTrainedClassifier();
-
-        LOGGER.info("finished training in " + sw.getElapsedTimeString());
-        
-        LOGGER.debug(classifier.getClassifier());
-
-    }
-
-    /**
-     * TODO We can keep the training data in memory. And add an option for exporting CSV for KNIME.
-     * 
-     * @param filePath
-     * @param limit
-     */
-    public void buildClassifier(String filePath, final int limit) {
-
-        LOGGER.info("creating training data for classifier ...");
-
-        StopWatch sw = new StopWatch();
-        final Counter counter = new Counter();
-
-        // keep the CSV training data in memory for now
-        final StringBuilder trainData = new StringBuilder();
-
-        // create the training data for the classifier
-        FileHelper.performActionOnEveryLine(filePath, new LineAction() {
-
-            @Override
-            public void performAction(String line, int lineNumber) {
-                String[] split = line.split("#");
-
-                if (split.length < 2) {
-                    return;
-                }
-
-                // create the document model
-                DocumentModel candidates = createDocumentModel(split[0]);
-
-                // the manually assigned keyphrases
-                Set<String> tags = new HashSet<String>();
-                for (int i = 1; i < split.length; i++) {
-                    tags.add(split[i].toLowerCase());
-                }
-
-                // keep stemmed and unstemmed representation
-                Set<String> stemmedTags = stem(tags);
-                tags.addAll(stemmedTags);
-
-                // mark positive candidates, i.e. those which were manually assigned
-                // in the training data
-                for (Candidate candidate : candidates) {
-                    boolean isCandidate = tags.contains(candidate.getStemmedValue());
-                    isCandidate = isCandidate || tags.contains(candidate.getStemmedValue().replace(" ", "")); // XXX
+                    isCandidate = isCandidate || tags.contains(candidate.getStemmedValue().replace(" ", ""));
                     isCandidate = isCandidate || tags.contains(candidate.getValue());
                     isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
                     candidate.setPositive(isCandidate);
@@ -275,71 +235,69 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
                 }
             }
         });
+        
         // write the train data for the classifier to CSV file
-        FileHelper.writeToFile("data/temp/KeyphraseExtractorTraining.csv", trainData);
+        FileHelper.writeToFile(trainDataPath, trainData);
         LOGGER.info("created training data in " + sw.getElapsedTimeString());
-
-        // train and save the classifier
-        LOGGER.info("training classifier ...");        
-        sw.start();
-
-        // save memory; this is necessary, as the corpus consumes great amounts of memory, but
-        // fortunately we don't need the corpus for the training process
-        corpus = null;
-
-        classifier = new CandidateClassifier();
-        classifier.trainClassifier("data/temp/KeyphraseExtractorTraining.csv");
-        // classifier.saveTrainedClassifier();
-
-        LOGGER.info("finished training in " + sw.getElapsedTimeString());
-
     }
 
+    /**
+     * Add the supplied text to the corpus. This is used for the TF-IDF calculation.
+     * 
+     * @param text
+     */
     public void addToCorpus(String text) {
-
         List<Token> tokens = tokenize(text);
         corpus.addPhrases(tokens);
-
     }
 
+    /**
+     * Add the supplied text and the keyphrases to the corpus. The text is used for the TF-IDF calculation, the supplied
+     * keyphrases for building the dictionary with the prior probabilities and the WordCorrelationMatrix.
+     * 
+     * @param text
+     * @param keyphrases
+     */
     public void addToCorpus(String text, Set<String> keyphrases) {
 
         // tokenize the text and add the tokens/phrases to the corpus
         List<Token> tokens = tokenize(text);
         corpus.addPhrases(tokens);
 
-        // the corpus stores the stemmed keyphrases!
+        // the corpus stores the *stemmed* keyphrases
         keyphrases = stem(keyphrases);
         corpus.addKeyphrases(keyphrases);
 
     }
 
     public void saveCorpus() {
-        LOGGER.info("saving corpus to " + settings.getModelPath() + " ...");
+        String filePath = settings.getModelPath() + "/corpus.ser";
+        LOGGER.info("saving corpus to " + filePath + " ...");
         StopWatch sw = new StopWatch();
         corpus.makeRelativeScores();
-        FileHelper.serialize(corpus, settings.getModelPath());
+        FileHelper.serialize(corpus, filePath);
         LOGGER.info("saved corpus in " + sw.getElapsedTimeString());
     }
     
-    public void saveClassifier(String filePath) {
-        LOGGER.info("saving classifier ...");
+    public void loadCorpus() {
+        LOGGER.info("loading corpus ...");
+        StopWatch sw = new StopWatch();
+        corpus = FileHelper.deserialize(settings.getModelPath() + "/corpus.ser");
+        LOGGER.info("loaded corpus in " + sw.getElapsedTimeString());
+    }
+    
+    public void saveClassifier() {
+        String filePath = settings.getModelPath() + "/classifier.ser";
+        LOGGER.info("saving classifier " + filePath + " ...");
         StopWatch sw = new StopWatch();
         classifier.save(filePath);
         LOGGER.info("saved classifier in " + sw.getElapsedTimeString());
     }
 
-    public void loadCorpus() {
-        LOGGER.info("loading corpus ...");
-        StopWatch sw = new StopWatch();
-        corpus = FileHelper.deserialize(settings.getModelPath());
-        LOGGER.info("loaded corpus in " + sw.getElapsedTimeString());
-    }
-
-    public void loadClassifier(String filePath) {
+    public void loadClassifier() {
         LOGGER.info("loading classifier ...");
         StopWatch sw = new StopWatch();
-        classifier.load(filePath);
+        classifier.load(settings.getModelPath() + "/classifier.ser");
         LOGGER.info("loaded classifier in " + sw.getElapsedTimeString());
     }
 
@@ -354,12 +312,8 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
             Candidate candidate = listIterator.next();
 
             boolean ignore = settings.getStopwords().contains(candidate.getValue());
-            // ignore = ignore || !candidate.getValue().matches("[a-zA-Z\\s]{3,}");
             ignore = ignore || !settings.getPattern().matcher(candidate.getValue()).matches();
             ignore = ignore || (settings.isControlledMode() && candidate.getPrior() == 0);
-            
-            // TODO possibility to filter candidates by minOccurenceCount 
-            // (we can set this to values > 1 for longer documents)
             ignore = ignore || candidate.getCount() < settings.getMinOccurenceCount();
 
             if (ignore) {
@@ -369,14 +323,12 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
 
         // perform the regression for ranking the candidates
         classifier.classify(candidates);
-        
-        /*Collections.sort(candidates, new CandidateComparator());
-        for (Candidate candidate : candidates) {
-            System.out.println(candidate.getRegressionValue() + "\t" + candidate);
-        }
-        //System.out.println(candidates.toLongString());
-        System.exit(0);*/
-        
+
+        // Collections.sort(candidates, new CandidateComparator());
+        // for (Candidate candidate : candidates) {
+        // LOGGER.debug(candidate.getRegressionValue() + "\t" + candidate);
+        // }
+
         // do the correlation based re-ranking
         reRankCandidates(candidates);
 
@@ -393,6 +345,11 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
 
     }
 
+    /**
+     * Reduces the DocumentModel (e. g. the list of {@link Candidate}s) using the specified {@link AssignmentMode}.
+     * 
+     * @param candidates
+     */
     private void limitResult(DocumentModel candidates) {
 
         // sort the candidates by regression value
@@ -424,7 +381,9 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
             case COMBINED:
                 while (listIterator.hasNext()) {
                     Candidate next = listIterator.next();
-                    if (listIterator.nextIndex() > 10 && next.getRegressionValue() <= settings.getKeyphraseThreshold()) {
+                    boolean moreThanLimit = listIterator.nextIndex() > settings.getKeyphraseCount();
+                    boolean lessThanThreshold = next.getRegressionValue() <= settings.getKeyphraseThreshold();
+                    if (moreThanLimit && lessThanThreshold) {
                         listIterator.remove();
                     }
                 }
@@ -433,9 +392,17 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
 
     }
 
-    //
-    // this code is copy+paste from ControlledTagger
-    //
+    /**
+     * Performs a correlation based re-ranking of the supplied {@link Candidate}s. The re-ranking strategies are
+     * explained in Diploma thesis <i>NewsSeecr -- Clustering und Ranking von Nachrichten zu Named Entities aus
+     * Newsfeeds</i>, Philipp Katz, 2010. The re-ranking should basically be obsolete now by using the classification
+     * based approach.
+     * 
+     * The re-ranking factor can be adjusted using {@link KeyphraseExtractorSettings#setCorrelationWeight(float)}. This
+     * number is quite ad-hoc and has to be determined experimentally.
+     * 
+     * @param candidates
+     */
     private void reRankCandidates(DocumentModel candidates) {
 
         StopWatch sw = new StopWatch();
@@ -480,8 +447,6 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
             for (int i = 0; i < candidatesArray.length; i++) {
                 Candidate candidate1 = candidatesArray[i];
                 
-                //////// XXX int numCorrelations = corpus.getCorrelations(candidate1).size();
-                
                 for (int j = i; j < candidatesArray.length; j++) {
                     Candidate candidate2 = candidatesArray[j];
                     
@@ -495,10 +460,8 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
                         candidate1.increaseRegressionValue(reRanking);
                         candidate2.increaseRegressionValue(reRanking);
                     }
-                    
                 }
             }
-
         }
 
         // re-sort the list, as ranking weights have changed
@@ -512,8 +475,8 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
             for (Candidate candidate : candidates) {
 
                 // http://de.wikipedia.org/wiki/Normalisierung_(Mathematik)
-                double normalized = (candidate.getRegressionValue() - newMin) * ((oldMax - oldMin) / (newMax - newMin))
-                        + oldMin;
+                double current = candidate.getRegressionValue();
+                double normalized = (current - newMin) * ((oldMax - oldMin) / (newMax - newMin)) + oldMin;
                 candidate.setRegressionValue(normalized);
 
             }
@@ -523,15 +486,28 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
 
     }
 
+    /**
+     * Creates a {@link DocumentModel} from the specified text. The DocumentModel contains all potential keyphrase
+     * {@link Candidate}s. The creation of the DocumentModel consists of the following steps:
+     * 
+     * <ol>
+     * <li>Tokenization of the supplied text to create {@link Token}s,</li>
+     * <li>Creation of a new DocumentModel which represents the text and consists of the Tokens,</li>
+     * <li>Consolidation of the single Tokens to Candidates; this means all Candidates which have identical stemmed
+     * values are merged together.</li>
+     * </ol>
+     * 
+     * @param text
+     * @return
+     */
     private DocumentModel createDocumentModel(String text) {
 
         DocumentModel model = new DocumentModel(corpus);
         List<Token> tokens = tokenize(text);
         model.addTokens(tokens);
         model.createCandidates();
-        
-        
-        // TODO experimental
+
+        // when we are in controlled mode, we remove all non-keyphrases from the list of candidates.
         if (settings.isControlledMode()) {
             model.removeNonKeyphrases();
         }
@@ -553,10 +529,14 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
 
     }
 
+    /**
+     * Stem a term or a phrase using the specified stemmer. For phrases (e. g. multiple terms separated by space
+     * characters) each single term is stemmed, and each stem is concatenated together.
+     * 
+     * @param unstemmed
+     * @return
+     */
     /* package */ String stem(String unstemmed) {
-//        settings.getStemmer().setCurrent(unstemmed.toLowerCase());
-//        settings.getStemmer().stem();
-//        return settings.getStemmer().getCurrent();
         
         StringBuilder sb = new StringBuilder();        
         SnowballStemmer stemmer = settings.getStemmer();
@@ -573,6 +553,12 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
         
     }
 
+    /**
+     * Stem a set of terms/phrases (see {@link #stem(String)}.
+     * 
+     * @param unstemmed
+     * @return
+     */
     /* package */ Set<String> stem(Set<String> unstemmed) {
         Set<String> result = new HashSet<String>();
         for (String unstemmedTag : unstemmed) {
@@ -582,22 +568,20 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
         return result;
     }
     
-    /*public void setKeyphraseThreshold(float keyphraseThreshold) {
-        this.settings.setKeyphraseThreshold(keyphraseThreshold);
-    }
-    
-    public void setAssignmentMode(AssignmentMode assignmentMode) {
-        this.settings.setAssignmentMode(assignmentMode);
-    }
-    
-    public void setCorrelationReRankingMode(ReRankingMode reRankingMode) {
-        this.settings.setReRankingMode(reRankingMode);
-    }*/
-    
+    /**
+     * Get access to the settings.
+     * 
+     * @return
+     */
     public KeyphraseExtractorSettings getSettings() {
         return settings;
     }
     
+    /**
+     * Set a specific {@link KeyphraseExtractorSettings} instance as settings.
+     * 
+     * @param settings
+     */
     public void setSettings(KeyphraseExtractorSettings settings) {
         this.settings = settings;
     }
@@ -605,7 +589,6 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
     public static void main(String[] args) {
 
         final KeyphraseExtractor extractor = new KeyphraseExtractor();
-        final KeyphraseExtractorEvaluator evaluation = new KeyphraseExtractorEvaluator(extractor);
         
         KeyphraseExtractorSettings extractorSettings = extractor.getSettings();
         extractorSettings.setAssignmentMode(AssignmentMode.COMBINED);
@@ -614,31 +597,7 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
         extractorSettings.setKeyphraseCount(10);
         extractorSettings.setKeyphraseThreshold(0.3f);
         
-        Dataset trainingDataset = new Dataset();
-        trainingDataset.setPath("/home/pk/Desktop/documents/citeulike180splitaa.txt");
-        // trainingDataset.setRootPath(rootPath);
-        trainingDataset.setSeparationString("#");
-        trainingDataset.setFirstFieldLink(true);
-        
-        extractor.buildCorpus(trainingDataset);
-        extractor.buildClassifier(trainingDataset);
-        extractor.saveClassifier("cite.ser");
 
-//        System.exit(0);
-        
-        
-        extractor.loadCorpus();
-        extractor.loadClassifier("cite.ser");
-        
-        Dataset testingDataset = new Dataset();
-        testingDataset.setPath("/home/pk/Desktop/documents/citeulike180splitab.txt");
-        testingDataset.setSeparationString("#");
-        testingDataset.setFirstFieldLink(true);
-        
-        evaluation.evaluate(testingDataset);
-        
-        
-        System.exit(0);
         
         
         
@@ -668,14 +627,14 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
         extractor.buildClassifier(filePath, 750);
-        extractor.saveClassifier(classPath);
+//        extractor.saveClassifier(classPath);
 //        System.exit(0);
 
         // //////////////////////////////////////////////
         // EVALUATION
         // //////////////////////////////////////////////
 
-        extractor.loadClassifier(classPath);
+//        extractor.loadClassifier(classPath);
         extractor.loadCorpus();
 //        extractor.evaluate("fao_splitab", 500);
 //        extractor.evaluate("/Users/pk/Dropbox/tmp/tagData_shuf_10000ab", 1000);

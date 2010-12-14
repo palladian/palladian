@@ -234,6 +234,7 @@ public class Candidate {
         builder.append(" value=").append(value);
         // builder.append(" wordCount=").append(wordCount);
         builder.append(" firstPosRel=").append(getFirstPosRel());
+        builder.append(" freq=").append(getFrequency());
         builder.append(" invDocFreq=").append(getInverseDocumentFrequency());
         builder.append(" termFreqInvDocFreq=").append(getTermFrequencyInverseDocumentFrequency());
         builder.append(" lastPosRel=").append(getLastPosRel());

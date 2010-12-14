@@ -5,6 +5,8 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.AssignmentMode;
+import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.ReRankingMode;
 import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.extraction.keyphrase.Keyphrase;
 import tud.iir.helper.FileHelper;
@@ -16,14 +18,13 @@ public class KeyphraseExtractorEvaluator {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractorEvaluator.class);
     
-    private KeyphraseExtractor extractor; //  = new KeyphraseExtractor();
+    private KeyphraseExtractor extractor;
     
     public KeyphraseExtractorEvaluator(KeyphraseExtractor extractor) {
         this.extractor = extractor;
     }
     
-    // TODO copy+paste
-    public ControlledTaggerEvaluationResult evaluate(final Dataset dataset, final int limit) {
+    public ControlledTaggerEvaluationResult test(final Dataset dataset, final int limit) {
         
         LOGGER.info("starting evaluation ...");
         
@@ -129,20 +130,56 @@ public class KeyphraseExtractorEvaluator {
         
     }
     
-    public ControlledTaggerEvaluationResult evaluate(Dataset dataset) {
-        return evaluate(dataset, -1);
+    public ControlledTaggerEvaluationResult test(Dataset dataset) {
+        return test(dataset, -1);
     }
 
-    public ControlledTaggerEvaluationResult evaluate(String filePath, final int limit) {
+    public ControlledTaggerEvaluationResult test(String filePath, final int limit) {
         
         Dataset dataset = new Dataset();
         dataset.setFirstFieldLink(false);
         dataset.setSeparationString("#");
 
-        ControlledTaggerEvaluationResult evaluationResult = evaluate(dataset, limit);
+        ControlledTaggerEvaluationResult evaluationResult = test(dataset, limit);
 
         return evaluationResult;
 
+    }
+    
+    public static void main(String[] args) {
+        
+        // Extractor + Evaluator
+        KeyphraseExtractor extractor = new KeyphraseExtractor();
+        KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator(extractor);
+        
+        // Settings
+        KeyphraseExtractorSettings extractorSettings = extractor.getSettings();
+        extractorSettings.setAssignmentMode(AssignmentMode.COMBINED);
+        extractorSettings.setReRankingMode(ReRankingMode.NO_RERANKING);
+        extractorSettings.setMinOccurenceCount(1);        
+        extractorSettings.setKeyphraseCount(10);
+        extractorSettings.setKeyphraseThreshold(0.3f);
+        
+        // training set
+        Dataset trainingDataset = new Dataset();
+        trainingDataset.setPath("/home/pk/Desktop/documents/citeulike180splitaa.txt");
+        trainingDataset.setSeparationString("#");
+        trainingDataset.setFirstFieldLink(true);
+        // testing set
+        Dataset testingDataset = new Dataset();
+        testingDataset.setPath("/home/pk/Desktop/documents/citeulike180splitab.txt");
+        testingDataset.setSeparationString("#");
+        testingDataset.setFirstFieldLink(true);
+        
+        // training
+        extractor.buildCorpus(trainingDataset);
+        extractor.buildClassifier(trainingDataset);
+        
+        // evaluation
+        extractor.loadCorpus();
+        extractor.loadClassifier();
+        evaluator.test(testingDataset);        
+        
     }
 
 
