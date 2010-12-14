@@ -33,17 +33,26 @@ public class KeyphraseExtractorSettings {
     
     /** The stemmer to use. Snowball offers stemmer implementations for various languages. */
     private SnowballStemmer stemmer;
+    
     /** List of stopwords to use. */
     private Stopwords stopwords;
+    
+    /** If enabled, only those keyphrases are assigned, which have been trained before. */
     private boolean controlledMode;
+    
     private AssignmentMode assignmentMode;
     private ReRankingMode reRankingMode;
     private int keyphraseCount;
     private float keyphraseThreshold;
     private float correlationWeight;
-    private String modelPath;
+    
+    /** Path in the file system where to put the models. This will be created as directory, containing all files. */
+    private String modelPath = "data/models/KeyphraseExtractor";
+    
     private Pattern pattern;
     private int phraseLength = 5;
+    
+    /** Minimum occurrence of a candidate to be considered. Can be set to values greater 1 for long documents. */ 
     private int minOccurenceCount = 1;
     
     public KeyphraseExtractorSettings() {
@@ -56,14 +65,13 @@ public class KeyphraseExtractorSettings {
                 10, 
                 0.75f, 
                 90000, 
-                "data/models/keyphraseExtractorCorpus.ser", 
                 Pattern.compile("[a-zA-Z\\s]{3,}")
                 );
     }
 
     public KeyphraseExtractorSettings(SnowballStemmer stemmer, Stopwords stopwords, boolean controlledMode,
             AssignmentMode assignmentMode, ReRankingMode reRankingMode, int keyphraseCount, float keyphraseThreshold,
-            float correlationWeight, String modelPath, Pattern pattern) {
+            float correlationWeight, Pattern pattern) {
         this.stemmer = stemmer;
         this.stopwords = stopwords;
         this.controlledMode = controlledMode;
@@ -72,7 +80,6 @@ public class KeyphraseExtractorSettings {
         this.keyphraseCount = keyphraseCount;
         this.keyphraseThreshold = keyphraseThreshold;
         this.correlationWeight = correlationWeight;
-        this.modelPath = modelPath;
         this.pattern = pattern;
     }
 
@@ -139,12 +146,18 @@ public class KeyphraseExtractorSettings {
     public void setCorrelationWeight(float correlationWeight) {
         this.correlationWeight = correlationWeight;
     }
-
+    
     public String getModelPath() {
         return modelPath;
     }
 
     public void setModelPath(String modelPath) {
+        
+        // remove trailing slash
+        if (modelPath.endsWith("/")) {
+            modelPath = modelPath.substring(0, modelPath.length() - 1);
+        }
+        
         this.modelPath = modelPath;
     }
     
@@ -175,5 +188,6 @@ public class KeyphraseExtractorSettings {
     public void setMinOccurenceCount(int minOccurenceCount) {
         this.minOccurenceCount = minOccurenceCount;
     }
+    
 }
 
