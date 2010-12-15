@@ -75,7 +75,7 @@ public class EntityMIOExtractionThread extends Thread {
 
         // load the trainedClassifier
         final MIOClassifier mioClass = new MIOClassifier();
-        mioClass.loadTrainedClassifier(Classifier.MODELPATH + "MIOClassifier" + mioClass.getChosenClassifierName()
+        mioClass.loadTrainedClassifier("data/models/" + "MIOClassifier" + mioClass.getChosenClassifierName()
                 + ".model");
 
         Set<MIO> mioSet = new HashSet<MIO>();

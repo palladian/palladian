@@ -1,9 +1,5 @@
 package tud.iir.classification;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,10 +7,13 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.entity.EntityClassifier;
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.FileHelper;
+import tud.iir.helper.LineAction;
 import tud.iir.persistence.DatabaseManager;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.BayesNet;
@@ -41,8 +40,6 @@ public class Classifier {
 
     /** query to classify a certain entity from a concept */
     private PreparedStatement psClassificationStatementEntity = null;
-
-    public static final String MODELPATH = "data/models/";
 
     private Instances trainingSet = null;
     private Instances testingSet = null;
@@ -118,14 +115,18 @@ public class Classifier {
 
     /**
      * Train a classifier with data from a file. The file must be structured as follows: Each line is one object in an
-     * n-dimensional vector space. All features
-     * and the class must be numeric. f1;f2;...;fn;class
+     * n-dimensional vector space. All features and the class must be numeric. f1;f2;...;fn;class
      * 
      * @param filePath The path that points to the training file.
      */
     public void trainClassifier(String filePath) {
         // load training data
         trainingObjects = readFeatureObjects(filePath);
+        trainClassifier();
+    }
+    
+    public void trainClassifier(String filePath, boolean hasHeaderRow) {
+        trainingObjects = readFeatureObjects(filePath, hasHeaderRow);
         trainClassifier();
     }
 
@@ -301,54 +302,139 @@ public class Classifier {
     }
 
     /**
+     * Load {@link FeatureObject}s from a CSV file. The file must contain the newline separated feature objects, for
+     * example <code>1.0;2.4;5.2;1.0</code>. The file <i>can</i> can contain a header with textual descriptions for the
+     * features like <code>feature1;feature2;feature3;class</code>.
+     * 
+     * @param filePath The path to the CSV file.
+     * @param hasHeaderRow <code>true</code> if the file has a textual description header, <code>false</code> otherwise.
+     * @param hasIdColumn <code>true</code> if the first column contains an ID which should be ignored. This is useful
+     *            when processing files from data bases.
+     * @return a list of FeatureObjects.
+     */
+    public ArrayList<FeatureObject> readFeatureObjects(String filePath, final boolean hasHeaderRow,
+            final boolean hasIdColumn) {
+
+        final ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
+        final ArrayList<String> featureNames = new ArrayList<String>();
+
+        LineAction lineAction = new LineAction() {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
+
+                // skip empty lines
+                if (line.isEmpty()) {
+                    return;
+                }
+
+                String[] split = line.split(";");
+
+                // read the header with the feature names if requested
+                if (lineNumber == 1) {
+
+                    // assume, that first line contains feature names
+                    for (int i = 0; i < split.length; i++) {
+                        if (hasHeaderRow) {
+                            featureNames.add(split[i]);
+                        } else {
+                            featureNames.add("feature" + i);
+                        }
+                    }
+
+                    // remove first column with ID, if applicable
+                    if (hasIdColumn) {
+                        featureNames.remove(0);
+                    }
+
+                    // if the first column contained the names, continue to next line
+                    if (hasHeaderRow) {
+                        return;
+                    }
+                }
+
+                // read the features themselves
+                ArrayList<Double> features = new ArrayList<Double>(split.length);
+                for (int i = 0; i < split.length; i++) {
+                    features.add(Double.valueOf(split[i]));
+                }
+
+                // remove first column, which contains the ID, if applicable
+                if (hasIdColumn) {
+                    features.remove(0);
+                }
+
+                Double[] featuresArray = features.toArray(new Double[features.size()]);
+                String[] namesArray = featureNames.toArray(new String[featureNames.size()]);
+                FeatureObject fo = new FeatureObject(featuresArray, namesArray);
+                featureObjects.add(fo);
+
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(filePath, lineAction);
+
+        LOGGER.info("feature names: " + StringUtils.join(featureNames, ","));
+        LOGGER.info("# features: " + featureNames.size());
+        LOGGER.info("# feature objects: " + featureObjects.size());
+
+        return featureObjects;
+    }
+    
+    public ArrayList<FeatureObject> readFeatureObjects(String filePath, boolean hasHeaderRow) {
+        return readFeatureObjects(filePath, hasHeaderRow, false);
+    }
+
+    /**
      * Load feature objects from a file.
      * 
      * @param filePath The file with the training data.
      * @return A list with the feature objects.
      */
     public ArrayList<FeatureObject> readFeatureObjects(String filePath) {
-        ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
-
-        try {
-            FileReader in = new FileReader(filePath);
-            BufferedReader br = new BufferedReader(in);
-
-            String line = "";
-            do {
-                line = br.readLine();
-                if (line == null) {
-                    break;
-                }
-
-                // skip empty/comment lines
-                if (line.isEmpty() || line.startsWith("#")) {
-                    continue;
-                }
-
-                String[] featureStrings = line.split(";");
-                Double[] features = new Double[featureStrings.length];
-                String[] featureNames = new String[featureStrings.length];
-                for (int i = 0; i < featureStrings.length; i++) {
-                    features[i] = Double.valueOf(featureStrings[i]);
-                }
-                FeatureObject fo = new FeatureObject(features, featureNames);
-                featureObjects.add(fo);
-
-            } while (line != null);
-
-            in.close();
-            br.close();
-
-        } catch (FileNotFoundException e) {
-            LOGGER.error(filePath, e);
-        } catch (IOException e) {
-            LOGGER.error(filePath, e);
-        } catch (OutOfMemoryError e) {
-            LOGGER.error(filePath, e);
-        }
-
-        // System.out.println(featureObjects.size());
-        return featureObjects;
+        return readFeatureObjects(filePath, false);
+        // ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
+        //
+        // try {
+        // FileReader in = new FileReader(filePath);
+        // BufferedReader br = new BufferedReader(in);
+        //
+        // String line = "";
+        // do {
+        // line = br.readLine();
+        // if (line == null) {
+        // break;
+        // }
+        //
+        // // skip empty/comment lines
+        // if (line.isEmpty() || line.startsWith("#")) {
+        // continue;
+        // }
+        //
+        // String[] featureStrings = line.split(";");
+        // Double[] features = new Double[featureStrings.length];
+        // String[] featureNames = new String[featureStrings.length];
+        // for (int i = 0; i < featureStrings.length; i++) {
+        // features[i] = Double.valueOf(featureStrings[i]);
+        // }
+        // FeatureObject fo = new FeatureObject(features, featureNames);
+        // featureObjects.add(fo);
+        //
+        // } while (line != null);
+        //
+        // in.close();
+        // br.close();
+        //
+        // } catch (FileNotFoundException e) {
+        // LOGGER.error(filePath, e);
+        // } catch (IOException e) {
+        // LOGGER.error(filePath, e);
+        // } catch (OutOfMemoryError e) {
+        // LOGGER.error(filePath, e);
+        // }
+        //
+        // // System.out.println(featureObjects.size());
+        // return featureObjects;
     }
 
     public FastVector getFvWekaAttributes() {
@@ -493,11 +579,10 @@ public class Classifier {
      * Load an already trained classifier.
      */
     public void loadTrainedClassifier(String modelNamePath) {
-        weka.classifiers.Classifier trainedMIOClassifier;
         try {
-            trainedMIOClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper.read(modelNamePath);
-
-            setClassifier(trainedMIOClassifier);
+            weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper
+                    .read(modelNamePath);
+            setClassifier(trainedClassifier);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -509,7 +594,6 @@ public class Classifier {
     public void saveTrainedClassifier(String modelNamePath) {
         try {
             weka.core.SerializationHelper.write(modelNamePath, getClassifier());
-
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
         }
@@ -523,16 +607,15 @@ public class Classifier {
      */
     public boolean classifyBinary(FeatureObject fo, boolean output) {
 
-        createWekaAttributes(fo.getFeatures().length, fo.getFeatureNames());
-
-        Instance iUse = createInstance(getFvWekaAttributes(), discretize(fo.getFeatures()), getTrainingSet());
+        // Instance iUse = createInstance(getFvWekaAttributes(), discretize(fo.getFeatures()), getTrainingSet());
 
         // get the likelihood of each class
         // fDistribution[0] is the probability of being "positive"
         // fDistribution[1] is the probability of being "negative"
-        double[] fDistribution;
+        // double[] fDistribution;
         try {
-            fDistribution = classifier.distributionForInstance(iUse);
+            // fDistribution = classifier.distributionForInstance(iUse);
+            double[] fDistribution = classifySoft(fo);
 
             if (fDistribution.length > 1) {
                 if (output) {
@@ -567,7 +650,12 @@ public class Classifier {
     public double[] classifySoft(FeatureObject fo) {
         double[] fDistribution = {};
 
-        createWekaAttributes(fo.getFeatures().length, fo.getFeatureNames());
+        // Create the necessary Weka attributes before classifying.
+        // This is necessary, when the Classifier is loaded from file,
+        // as the feature names are not saved to file.
+        if (fvWekaAttributes == null) {
+            createWekaAttributes(fo.getFeatureNames().length, fo.getFeatureNames());
+        }
 
         try {
             Instance instance = createInstance(fo.getFeatures(), trainingSet);
@@ -580,6 +668,13 @@ public class Classifier {
     }
 
     public static void main(String[] args) {
+
+        // Classifier classifier = new Classifier(Classifier.BAGGING);
+        // ArrayList<FeatureObject> fos = classifier.readFeatureObjects("data/temp/KeyphraseExtractorTraining.csv",
+        // true, false);
+        // System.out.println(fos.iterator().next());
+        // System.exit(0);
+
         EntityClassifier bc = new EntityClassifier(Classifier.NEURAL_NETWORK);
         // bc.trainClassifier("data/trainingSets/trainingConcept1.txt");
         // bc.trainClassifier(1);

@@ -53,7 +53,7 @@ public class UniversalMIOExtractor {
 
         // load the trainedClassifier
         MIOClassifier mioClass = new MIOClassifier();
-        mioClass.loadTrainedClassifier(Classifier.MODELPATH + "MIOClassifier" + mioClass.getChosenClassifierName()
+        mioClass.loadTrainedClassifier("data/models/" + "MIOClassifier" + mioClass.getChosenClassifierName()
                 + ".model");
 
         for (MIO mio : mios) {

@@ -129,7 +129,7 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
 
         // train a new Classifier using the CSV data from above
         classifier = new CandidateClassifier();
-        classifier.trainClassifier(trainDataPath);
+        classifier.trainClassifier(trainDataPath, true);
 
         // save the trained classifier
         saveClassifier();
@@ -221,7 +221,8 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
                 // experiment with the classification with KNIME
                 if (counter.getCount() == 0) {
                     Set<String> featureNames = candidates.iterator().next().getFeatures().keySet();
-                    trainData.append("#").append(StringUtils.join(featureNames, ";")).append("\n");
+                    // trainData.append("#");
+                    trainData.append(StringUtils.join(featureNames, ";")).append("\n");
                 }
 
                 trainData.append(candidates.toCSV());
@@ -290,14 +291,14 @@ public class KeyphraseExtractor extends AbstractKeyphraseExtractor {
         String filePath = settings.getModelPath() + "/classifier.ser";
         LOGGER.info("saving classifier " + filePath + " ...");
         StopWatch sw = new StopWatch();
-        classifier.save(filePath);
+        classifier.saveTrainedClassifier(filePath);
         LOGGER.info("saved classifier in " + sw.getElapsedTimeString());
     }
 
     public void loadClassifier() {
         LOGGER.info("loading classifier ...");
         StopWatch sw = new StopWatch();
-        classifier.load(settings.getModelPath() + "/classifier.ser");
+        classifier.loadTrainedClassifier(settings.getModelPath() + "/classifier.ser");
         LOGGER.info("loaded classifier in " + sw.getElapsedTimeString());
     }
 
