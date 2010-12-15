@@ -76,7 +76,7 @@ public class MIOClassifier extends Classifier {
      */
     public boolean doesTrainedMIOClassifierExists() {
         boolean returnValue = false;
-        final File trainedClassifierModel = new File(MODELPATH + "MIOClassifier" + getChosenClassifierName() + ".model");
+        final File trainedClassifierModel = new File("data/models/" + "MIOClassifier" + getChosenClassifierName() + ".model");
         if (trainedClassifierModel.exists()) {
             returnValue = true;
         }

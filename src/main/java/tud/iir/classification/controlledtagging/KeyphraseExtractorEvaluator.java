@@ -178,7 +178,7 @@ public class KeyphraseExtractorEvaluator {
         // evaluation
         extractor.loadCorpus();
         extractor.loadClassifier();
-        evaluator.test(testingDataset);        
+        evaluator.test(testingDataset);
         
     }
 
