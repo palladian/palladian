@@ -128,4 +128,14 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
+	<repositories>
+		<repository>
+			<id>releases</id>
+			<url>http://effingo.de/nexus/content/groups/public</url>
+		</repository>
+		<repository>
+			<id>snapshots</id>
+			<url>http://effingo.de/nexus/content/groups/public-snapshots</url>
+		</repository>
+	</repositories>
 </project>
