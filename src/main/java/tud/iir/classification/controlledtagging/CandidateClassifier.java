@@ -18,6 +18,7 @@ import weka.core.SerializationHelper;
  * 
  * @author Philipp Katz
  */
+@Deprecated
 public class CandidateClassifier extends Classifier {
 
     /** The class logger. */

@@ -104,6 +104,11 @@ public class OpenCalaisSocialTagger extends AbstractKeyphraseExtractor {
         return keyphrases;
 
     }
+    
+    @Override
+    public boolean needsTraining() {
+        return false;
+    }
 
     public static void main(String[] args) {
 

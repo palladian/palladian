@@ -181,12 +181,12 @@ public class Candidate {
 
         Map<String, Double> features = new LinkedHashMap<String, Double>();
 
-        features.put("count", (double) getCount());
-        features.put("capitalCount", (double) getCapitalCount());
-        features.put("capitalPercentage", (double) getCapitalPercentage());
+//        features.put("count", (double) getCount());
+//        features.put("capitalCount", (double) getCapitalCount());
+//        features.put("capitalPercentage", (double) getCapitalPercentage());
         features.put("wordCount", (double) getWordCount());
-        features.put("firstPosition", (double) getFirstPos());
-        features.put("lastPosition", (double) getLastPos());
+//        features.put("firstPosition", (double) getFirstPos());
+//        features.put("lastPosition", (double) getLastPos());
         features.put("frequency", (double) getFrequency());
         features.put("inverseDocumentFrequency", (double) getInverseDocumentFrequency());
         features.put("termFrequencyInverseDocumentFrequency", (double) getTermFrequencyInverseDocumentFrequency());
@@ -196,11 +196,11 @@ public class Candidate {
         features.put("spreadRelative", (double) getSpreadRel());
         features.put("length", (double) getLength());
         features.put("prior", (double) getPrior());
-        features.put("correlationSum", getCorrelationSum());
-        features.put("correlationMax", getCorrelationMax());
-        features.put("correlationMin", getCorrelationMin());
+//        features.put("correlationSum", getCorrelationSum());
+//        features.put("correlationMax", getCorrelationMax());
+//        features.put("correlationMin", getCorrelationMin());
         features.put("correlationMean", getCorrelationMean());
-        features.put("correlationCount", (double) getCorrelationCount());
+//        features.put("correlationCount", (double) getCorrelationCount());
 
         // debugging
         for (Entry<String, Double> entry : features.entrySet()) {

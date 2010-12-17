@@ -1,6 +1,7 @@
 package tud.iir.classification.controlledtagging;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -12,9 +13,11 @@ import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.Factory;
 import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.collections15.map.LazyMap;
+import org.apache.commons.lang.StringUtils;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 import org.w3c.dom.Document;
+
 
 import tud.iir.classification.Stopwords;
 import tud.iir.extraction.event.AbstractPOSTagger;
@@ -39,18 +42,42 @@ import tud.iir.web.Crawler;
  * 
  */
 public class TokenizerPlus {
+    
+    private TokenizerSettings settings;
 
     /** Snowball, used for stemming. */
-    private SnowballStemmer stemmer = new englishStemmer();
+    // private SnowballStemmer stemmer = new englishStemmer();
 
     /** Set of stopwords. */
-    private Set<String> stopwords = new Stopwords(Stopwords.Predefined.EN);
+    // private Set<String> stopwords = new Stopwords(Stopwords.Predefined.EN);
 
     /** POS tagger, only necessary if POS tagging is enabled. */
     private AbstractPOSTagger posTagger = new LingPipePOSTagger();
 
     /** Whether to use POS tagging. */
     private boolean usePosTagging = true;
+    
+    public interface TokenizerSettings {
+        SnowballStemmer getStemmer();
+        Set<String> getStopwords();
+    }
+    
+    public TokenizerPlus() {
+        this(new TokenizerSettings() {
+            @Override
+            public Set<String> getStopwords() {
+                return new Stopwords(Stopwords.Predefined.EN);
+            }
+            @Override
+            public SnowballStemmer getStemmer() {
+                return new englishStemmer();
+            }
+        });
+    }
+    
+    public TokenizerPlus(TokenizerSettings settings) {
+        this.settings = settings;
+    }
 
     /**
      * Tokenizes the supplied text.
@@ -129,6 +156,8 @@ public class TokenizerPlus {
     }
 
     private String stem(String unstemmed) {
+        SnowballStemmer stemmer = settings.getStemmer();
+        
         stemmer.setCurrent(unstemmed.toLowerCase());
         stemmer.stem();
         return stemmer.getCurrent();
@@ -190,8 +219,8 @@ public class TokenizerPlus {
                 boolean accept = true;
 
                 // don't accept collocations which start or end with a stopword
-                accept = accept && !stopwords.contains(tokenArray[i].getUnstemmedValue());
-                accept = accept && !stopwords.contains(tokenArray[i + n - 1].getUnstemmedValue());
+                accept = accept && !settings.getStopwords().contains(tokenArray[i].getUnstemmedValue());
+                accept = accept && !settings.getStopwords().contains(tokenArray[i + n - 1].getUnstemmedValue());
 
                 if (!accept) {
                     continue;
@@ -212,7 +241,12 @@ public class TokenizerPlus {
 
                     lastSentencePosition = currentToken.getSentencePosition();
                     unstemmedBuilder.append(currentToken.getUnstemmedValue()).append(" ");
+                    
+                    // XXX experimental
+                    if (!settings.getStopwords().contains(currentToken.getUnstemmedValue())) {
                     stemmedBuilder.append(currentToken.getStemmedValue()).append(" ");
+                    }
+                    // XXX
 
                 }
 
@@ -220,6 +254,10 @@ public class TokenizerPlus {
 
                     Token collocation = new Token();
                     String stemmedValue = stemmedBuilder.toString().trim();
+                    
+                    // XXX experimental
+                    stemmedValue = makeCanonicalForm(stemmedValue);
+                    // XXX
 
                     // set values from first token in this collocation
                     collocation.setTextPosition(tokenArray[i].getTextPosition());
@@ -304,8 +342,21 @@ public class TokenizerPlus {
             posTagger.loadModel();
         }
     }
+    
+    private static String makeCanonicalForm(String text) {
+        String[] split = text.split(" ");
+        List<String> parts = new ArrayList<String>();
+        for (String s : split) {
+            parts.add(s);
+        }
+        Collections.sort(parts);
+        return StringUtils.join(parts, " ");
+    }
 
     public static void main(String[] args) {
+        
+        System.out.println(makeCanonicalForm("beta gamma alpha zeta"));
+        System.exit(0);
 
         TokenizerPlus tokenizer = new TokenizerPlus();
         tokenizer.usePosTagging = false;

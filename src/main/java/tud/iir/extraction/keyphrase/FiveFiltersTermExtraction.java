@@ -17,7 +17,6 @@ public class FiveFiltersTermExtraction extends AbstractKeyphraseExtractor {
     private static final Logger LOGGER = Logger.getLogger(FiveFiltersTermExtraction.class);
 
     /**
-     * TODO extract interface.
      * 
      * @param inputText
      * @return 
@@ -58,6 +57,11 @@ public class FiveFiltersTermExtraction extends AbstractKeyphraseExtractor {
         
         return keyphrases;
 
+    }
+    
+    @Override
+    public boolean needsTraining() {
+        return false;
     }
 
     public static void main(String[] args) {

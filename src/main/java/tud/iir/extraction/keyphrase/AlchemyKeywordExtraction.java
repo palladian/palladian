@@ -30,7 +30,7 @@ public class AlchemyKeywordExtraction extends AbstractKeyphraseExtractor {
     private String apiKey = "";
 
     /** Number of keywords to retrieve. */
-    private int maxRetrieve = 10;
+//    private int maxRetrieve = 10;
 
     /** See {@link #setStrictExtractMode(boolean)}. */
     private boolean strictExtractMode = false;
@@ -69,7 +69,7 @@ public class AlchemyKeywordExtraction extends AbstractKeyphraseExtractor {
                 new NameValuePair("text", inputText), 
                 new NameValuePair("apikey", apiKey),
                 new NameValuePair("outputMode", "json"), 
-                new NameValuePair("maxRetrieve", String.valueOf(maxRetrieve)),
+                new NameValuePair("maxRetrieve", String.valueOf(getKeyphraseCount())),
                 new NameValuePair("keywordExtractMode", strictExtractMode ? "strict" : "normal") };
         postMethod.setRequestBody(data);
 
@@ -101,14 +101,14 @@ public class AlchemyKeywordExtraction extends AbstractKeyphraseExtractor {
 
     }
     
-    /**
-     * TODO extract interface.
-     * 
-     * @param maxRetrieve
-     */
-    public void setMaxRetrieve(int maxRetrieve) {
-        this.maxRetrieve = maxRetrieve;
-    }
+//    /**
+//     * TODO extract interface.
+//     * 
+//     * @param maxRetrieve
+//     */
+//    public void setMaxRetrieve(int maxRetrieve) {
+//        this.maxRetrieve = maxRetrieve;
+//    }
 
     /**
      * keyword extraction mode (normal or strict)
@@ -122,6 +122,11 @@ public class AlchemyKeywordExtraction extends AbstractKeyphraseExtractor {
         this.strictExtractMode = strictExtractMode;
     }
 
+    @Override
+    public boolean needsTraining() {
+        return false;
+    }
+    
     public static void main(String[] args) {
 
         AlchemyKeywordExtraction extractor = new AlchemyKeywordExtraction();
@@ -129,5 +134,6 @@ public class AlchemyKeywordExtraction extends AbstractKeyphraseExtractor {
                 .extract("The world's largest maker of solar inverters announced Monday that it will locate its first North American manufacturing plant in Denver. \"We see a huge market coming in the U.S.,\" said Pierre-Pascal Urbon, the company's chief financial officer. Solar inverters convert the direct current created by solar panels into an alternating current accessible to the larger electrical grid. The company, based in Kassel, north of Frankfurt, Germany, boasts growing sales of about $1.2 billion a year. \"We are creating economic opportunity,\" said Gov. Bill Ritter at a press conference. He added that creating core manufacturing jobs will help Colorado escape the recession sooner.");
 
     }
+
 
 }
