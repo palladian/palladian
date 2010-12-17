@@ -1,14 +1,16 @@
 package tud.iir.classification.controlledtagging;
 
+import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
 import tud.iir.classification.Stopwords;
+import tud.iir.classification.controlledtagging.TokenizerPlus.TokenizerSettings;
 
-public class KeyphraseExtractorSettings {
-    
+public class KeyphraseExtractorSettings implements TokenizerSettings {
+
     public enum ReRankingMode {
         NO_RERANKING, SHALLOW_CORRELATION_RERANKING, DEEP_CORRELATION_RERANKING
     }
@@ -29,44 +31,37 @@ public class KeyphraseExtractorSettings {
         COMBINED
 
     }
-    
-    
+
     /** The stemmer to use. Snowball offers stemmer implementations for various languages. */
-    private SnowballStemmer stemmer;
-    
+    private SnowballStemmer stemmer = new englishStemmer();
+
     /** List of stopwords to use. */
-    private Stopwords stopwords;
-    
+    private Set<String> stopwords = new Stopwords(Stopwords.Predefined.EN);
+
     /** If enabled, only those keyphrases are assigned, which have been trained before. */
-    private boolean controlledMode;
-    
-    private AssignmentMode assignmentMode;
-    private ReRankingMode reRankingMode;
-    private int keyphraseCount;
-    private float keyphraseThreshold;
-    private float correlationWeight;
-    
+    private boolean controlledMode = false;
+
+    private AssignmentMode assignmentMode = AssignmentMode.FIXED_COUNT;
+
+    private ReRankingMode reRankingMode = ReRankingMode.NO_RERANKING;
+
+    private int keyphraseCount = 10;
+
+    private float keyphraseThreshold = 0.75f;
+
+    private float correlationWeight = 90000;
+
     /** Path in the file system where to put the models. This will be created as directory, containing all files. */
-    private String modelPath = "data/models/KeyphraseExtractor";
-    
-    private Pattern pattern;
+    private String modelPath = "data/models/PalladianKeyphraseExtractor";
+
+    private Pattern pattern = Pattern.compile("[a-zA-Z\\s]{3,}");
+
     private int phraseLength = 5;
-    
-    /** Minimum occurrence of a candidate to be considered. Can be set to values greater 1 for long documents. */ 
+
+    /** Minimum occurrence of a candidate to be considered. Can be set to values greater 1 for long documents. */
     private int minOccurenceCount = 1;
-    
+
     public KeyphraseExtractorSettings() {
-        this(
-                new englishStemmer(), 
-                new Stopwords(Stopwords.Predefined.EN), 
-                false,
-                AssignmentMode.FIXED_COUNT, 
-                ReRankingMode.DEEP_CORRELATION_RERANKING, 
-                10, 
-                0.75f, 
-                90000, 
-                Pattern.compile("[a-zA-Z\\s]{3,}")
-                );
     }
 
     public KeyphraseExtractorSettings(SnowballStemmer stemmer, Stopwords stopwords, boolean controlledMode,
@@ -83,6 +78,7 @@ public class KeyphraseExtractorSettings {
         this.pattern = pattern;
     }
 
+    @Override
     public SnowballStemmer getStemmer() {
         return stemmer;
     }
@@ -91,11 +87,12 @@ public class KeyphraseExtractorSettings {
         this.stemmer = stemmer;
     }
 
-    public Stopwords getStopwords() {
+    @Override
+    public Set<String> getStopwords() {
         return stopwords;
     }
 
-    public void setStopwords(Stopwords stopwords) {
+    public void setStopwords(Set<String> stopwords) {
         this.stopwords = stopwords;
     }
 
@@ -146,48 +143,47 @@ public class KeyphraseExtractorSettings {
     public void setCorrelationWeight(float correlationWeight) {
         this.correlationWeight = correlationWeight;
     }
-    
+
     public String getModelPath() {
         return modelPath;
     }
 
     public void setModelPath(String modelPath) {
-        
+
         // remove trailing slash
         if (modelPath.endsWith("/")) {
             modelPath = modelPath.substring(0, modelPath.length() - 1);
         }
-        
+
         this.modelPath = modelPath;
     }
-    
+
     public Pattern getPattern() {
         return pattern;
     }
-    
+
     public void setPattern(Pattern pattern) {
         this.pattern = pattern;
     }
-    
+
     public void setPattern(String patternRegEx) {
         this.pattern = Pattern.compile(patternRegEx);
     }
-    
+
     public int getPhraseLength() {
         return phraseLength;
     }
-    
+
     public void setPhraseLength(int phraseLength) {
         this.phraseLength = phraseLength;
     }
-    
+
     public int getMinOccurenceCount() {
         return minOccurenceCount;
     }
-    
+
     public void setMinOccurenceCount(int minOccurenceCount) {
         this.minOccurenceCount = minOccurenceCount;
     }
-    
-}
 
+}

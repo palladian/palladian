@@ -43,7 +43,7 @@ public class YahooTermExtraction extends AbstractKeyphraseExtractor {
         queryBuilder.append("where context=\"");
         queryBuilder.append(inputText.replace("\"", "\\\""));
         queryBuilder.append("\"");
-        LOGGER.debug(queryBuilder);
+        // LOGGER.debug(queryBuilder);
 
         // create the content of the request
         NameValuePair[] data = { new NameValuePair("q", queryBuilder.toString()), new NameValuePair("format", "json") };
@@ -51,7 +51,7 @@ public class YahooTermExtraction extends AbstractKeyphraseExtractor {
 
         HTTPPoster poster = new HTTPPoster();
         String response = poster.handleRequest(postMethod);
-        LOGGER.debug(response);
+        // LOGGER.debug(response);
 
         // parse the JSON response
         try {
@@ -72,6 +72,11 @@ public class YahooTermExtraction extends AbstractKeyphraseExtractor {
         
         return keyphrases;
 
+    }
+    
+    @Override
+    public boolean needsTraining() {
+        return false;
     }
 
     public static void main(String[] args) {

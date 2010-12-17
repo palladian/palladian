@@ -25,7 +25,7 @@ public class ControlledTaggerEvaluationResult {
     private StopWatch trainStop;
     private StopWatch testStop;
 
-    private NumberFormat format = new DecimalFormat("0.00");
+    private NumberFormat format = new DecimalFormat("0.0000");
 
     public void addTestResult(double precision, double recall, int assignedTags) {
         precisionSum += precision;

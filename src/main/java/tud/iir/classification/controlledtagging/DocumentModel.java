@@ -210,6 +210,7 @@ public class DocumentModel extends ArrayList<Candidate> {
      * @param writeHeader <code>true</code> to add header with column labels.
      * @return
      */
+    @Deprecated
     public String toCSV(boolean writeHeader) {
         StringBuilder sb = new StringBuilder();
 

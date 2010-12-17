@@ -33,6 +33,7 @@ import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
 import org.cyberneko.html.parsers.DOMFragmentParser;
@@ -809,6 +810,18 @@ public class HTMLHelper {
     }
 
     public static void main(String[] args) throws Exception {
+        
+        String input = FileHelper.readFileToString("NewFile2.xml");
+        // input = StringEscapeUtils.unescapeXml(input);
+//        System.out.println(input.hashCode());
+
+        input = StringEscapeUtils.unescapeHtml(input);
+
+        System.out.println(input);
+        
+        HTMLHelper.stringToXml(input);
+        
+        System.exit(0);
 
         System.out.println(removeHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
         System.out.println(htmlToString("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
