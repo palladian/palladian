@@ -1,8 +1,11 @@
 package tud.iir.extraction.entity.ner.dataset;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,9 +15,11 @@ import org.w3c.dom.Document;
 
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
+import tud.iir.helper.CountMap;
 import tud.iir.helper.DatasetCreatorInterface;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.web.Crawler;
@@ -42,14 +47,20 @@ public class DatasetCreator implements DatasetCreatorInterface {
     /** The name of the dataset. */
     private String datasetName = "untitled";
 
-    /** Number of web pages that should be retrieved from the search engine per entity. */
-    private int resultsPerEntity = 10;
+    /** Number of mentions each seed entity should have at least. */
+    private int mentionsPerEntity = 10;
+
+    /** Number of seeds per concept. */
+    private int seedsPerConcept = 30;
 
     /** The location where the dataset is stored. */
     private String dataSetLocation = "data/datasets/ner/";
 
     /** The search API to use. */
     private int sourceAPI = SourceRetrieverManager.GOOGLE;
+
+    /** Save a map with concept name and the seeds searched for every concept. */
+    private Map<String, List<String>> conceptSeeds;
 
     public DatasetCreator(String datasetName) {
         this.datasetName = datasetName;
@@ -64,9 +75,13 @@ public class DatasetCreator implements DatasetCreatorInterface {
     public void createDataset(String seedFolderPath) {
         StopWatch stopWatch = new StopWatch();
 
+        conceptSeeds = new HashMap<String, List<String>>();
+
         File[] seedFiles = FileHelper.getFiles(seedFolderPath);
 
         Set<String> conceptsSearched = new HashSet<String>();
+
+        // iterate over all concepts (seed files)
         for (File file : seedFiles) {
             String seedFileName = FileHelper.getFileName(file.getName());
             createDatasetForConcept(seedFileName, file);
@@ -96,13 +111,80 @@ public class DatasetCreator implements DatasetCreatorInterface {
         meta.append("Total Generated Traffic: ").append(Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES))
                 .append("MB\n");
         meta.append("Search Engine used: ").append(SourceRetrieverManager.getName(getSourceAPI())).append("\n");
-        meta.append("Results per Entity: ").append(getResultsPerEntity()).append("\n");
+        meta.append("Minimum Mentions per Entity Targeted: ").append(getMentionsPerEntity()).append("\n");
+
+        // check which concepts have entities with less than the minimum mentions
+        for (Object[] object : getConceptsWithFewMentions()) {
+            String conceptName = (String) object[0];
+            String entitiesWithFewMentions = (String) object[1];
+            Double averageMentionsPerEntity = (Double) object[2];
+            meta.append("  Too Few Mentions: ").append(conceptName).append("\n  Entities with few mentions: ")
+                    .append(entitiesWithFewMentions).append("\n  Average Mentions per Entity: ")
+                    .append(averageMentionsPerEntity);
+        }
+
         meta.append("Concepts Searched (").append(conceptsSearched.size()).append("):\n");
         for (String conceptName : conceptsSearched) {
             meta.append("    ").append(conceptName).append("\n");
         }
 
+
         FileHelper.writeToFile(getDataSetLocation() + "metaInformation.txt", meta);
+    }
+
+    /**
+     * Get information about concepts and entities that have too few mentions.
+     * 
+     * @return A set with information about 0: the concept name, 1: the list of entities with few mentions, 2: the
+     *         average mentions per entity.
+     */
+    private Set<Object[]> getConceptsWithFewMentions() {
+
+        Set<Object[]> objectSet = new HashSet<Object[]>();
+
+        // File[] seedFiles = FileHelper.getFiles(seedFolderPath);
+
+        // iterate over all concepts (seed files)
+        for (Entry<String, List<String>> conceptSeedEntry : conceptSeeds.entrySet()) {
+            // String seedFileName = FileHelper.getFileName(file.getName());
+
+            String seedFileName = conceptSeedEntry.getKey();
+
+            Object[] o = new Object[3];
+            o[0] = seedFileName;
+
+            File[] markedUpFiles = FileHelper.getFiles(getDataSetLocation() + seedFileName);
+            CountMap countMap = new CountMap();
+            for (File markedUpFile : markedUpFiles) {
+                for (String seedEntity : conceptSeedEntry.getValue()) {
+
+                    String fileContent = FileHelper.readFileToString(markedUpFile);
+
+                    // count occurrences of the seed entity
+                    Pattern pattern = Pattern.compile("<.*?>\\s?" + seedEntity + "\\s?</.*?>", Pattern.MULTILINE);
+                    Matcher matcher = pattern.matcher(fileContent);
+
+                    while (matcher.find()) {
+                        countMap.increment(seedEntity);
+                    }
+                }
+            }
+
+            String entitiesWithFewMentions = "";
+            int totalMentions = 0;
+            for (Entry<Object, Integer> entry : countMap.entrySet()) {
+                if (entry.getValue() < getMentionsPerEntity()) {
+                    entitiesWithFewMentions += entry.getKey() + "(" + entry.getValue() + "), ";
+                }
+                totalMentions += entry.getValue();
+            }
+            o[1] = entitiesWithFewMentions;
+            o[2] = totalMentions / (double) countMap.size();
+
+            objectSet.add(o);
+        }
+
+        return objectSet;
     }
 
     /**
@@ -129,6 +211,14 @@ public class DatasetCreator implements DatasetCreatorInterface {
         URLDownloader urlDownloader = new URLDownloader();
         List<String> seedEntities = FileHelper.readFileToArray(seedFile);
 
+        // get a random sample of seeds from the list
+        seedEntities = (List<String>) MathHelper.randomSample(seedEntities, getSeedsPerConcept());
+
+        // mix the entities
+        // Set<String> mixedSeedEntities = new HashSet<String>();
+        // mixedSeedEntities.addAll(seedEntities);
+
+        // write a seed file in classification format with all the seeds used for the current concept
         StringBuilder seedFileCopy = new StringBuilder();
 
         int ec = 0;
@@ -159,6 +249,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         }
 
+        conceptSeeds.put(seedFileName, seedEntities);
+
         // write the seed file into a special folder
         FileHelper.writeToFile(getDataSetLocation() + seedFileName + "/seeds/seeds.txt", seedFileCopy);
 
@@ -171,7 +263,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
     }
 
     /**
-     * Get a list URLs to web pages that contain the seed entity.
+     * Get a list of URLs to web pages that contain the seed entity.
      * 
      * @param seedEntity The name of the seed entity.
      * @return A list of URLs containing the seed entity.
@@ -180,7 +272,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         LOGGER.info("get web pages for seed: " + seedEntity);
 
         SourceRetriever sourceRetriever = new SourceRetriever();
-        sourceRetriever.setResultCount(getResultsPerEntity());
+        sourceRetriever.setResultCount(10 * getMentionsPerEntity());
         sourceRetriever.setSource(getSourceAPI());
 
         return sourceRetriever.getURLs(seedEntity, true);
@@ -301,6 +393,21 @@ public class DatasetCreator implements DatasetCreatorInterface {
         return text;
     }
 
+    /**
+     * Remove possibly duplicate entries from seed files.
+     * 
+     * @param seedFolderPath The path to the folder that holds the seed files.
+     */
+    public static void deduplicateSeedLists(String seedFolderPath) {
+
+        File[] seedFiles = FileHelper.getFiles(seedFolderPath);
+
+        for (File file : seedFiles) {
+            FileHelper.removeDuplicateLines(file.getAbsolutePath(), file.getAbsolutePath());
+        }
+
+    }
+
     public void setDatasetName(String datasetName) {
         this.datasetName = datasetName;
     }
@@ -309,12 +416,20 @@ public class DatasetCreator implements DatasetCreatorInterface {
         return datasetName;
     }
 
-    public void setResultsPerEntity(int resultsPerEntity) {
-        this.resultsPerEntity = resultsPerEntity;
+    public void setMentionsPerEntity(int mentionsPerEntity) {
+        this.mentionsPerEntity = mentionsPerEntity;
     }
 
-    public int getResultsPerEntity() {
-        return resultsPerEntity;
+    public int getMentionsPerEntity() {
+        return mentionsPerEntity;
+    }
+
+    public void setSeedsPerConcept(int seedsPerConcept) {
+        this.seedsPerConcept = seedsPerConcept;
+    }
+
+    public int getSeedsPerConcept() {
+        return seedsPerConcept;
     }
 
     public String getDataSetLocation() {
@@ -405,14 +520,17 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // + "(?=\\s)", "ooo" + seed + "ppp"));
         // System.exit(0);
 
+        // DatasetCreator.deduplicateSeedLists("data/knowledgeBase/seedEntities/");
+        // System.exit(0);
         DatasetCreator datasetCreator = new DatasetCreator("www_test");
         datasetCreator.setDataSetLocation("data/datasets/ner/");
 
         // datasetCreator.splitAndTransformDatasets();
         // System.exit(0);
 
-        
-        datasetCreator.setResultsPerEntity(5);
+        datasetCreator.setSourceAPI(SourceRetrieverManager.BING);
+        datasetCreator.setMentionsPerEntity(5);
+        datasetCreator.setSeedsPerConcept(5);
         datasetCreator.createDataset("data/knowledgeBase/seedEntities2/");
         System.exit(1);
 
@@ -429,4 +547,5 @@ public class DatasetCreator implements DatasetCreatorInterface {
         FileHelper.writeToFile("data/temp/allCleansed.xml", text);
 
     }
+
 }

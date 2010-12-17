@@ -26,6 +26,8 @@ public class WordTransformer {
         IRREGULAR_NOUNS.put("antennas", "antenna");
         IRREGULAR_NOUNS.put("apparatus", "apparatuses");
         IRREGULAR_NOUNS.put("appendix", "appendices");
+        IRREGULAR_NOUNS.put("archive", "archives"); // would be converted to singular "archife"
+        IRREGULAR_NOUNS.put("automaton", "automata");
         IRREGULAR_NOUNS.put("axis", "axes");
         IRREGULAR_NOUNS.put("bacillus", "bacilli");
         IRREGULAR_NOUNS.put("bacterium", "bacteria");
@@ -91,8 +93,10 @@ public class WordTransformer {
         IRREGULAR_NOUNS.put("salmon", "salmon");
         IRREGULAR_NOUNS.put("scissors", "scissors");
         IRREGULAR_NOUNS.put("series", "series");
+        IRREGULAR_NOUNS.put("service", "services"); // would be converted to singular "servix"
         IRREGULAR_NOUNS.put("sheep", "sheep");
         IRREGULAR_NOUNS.put("shelf", "shelves");
+        IRREGULAR_NOUNS.put("shrimp", "shrimp");
         IRREGULAR_NOUNS.put("species", "species");
         IRREGULAR_NOUNS.put("status", "status");
         IRREGULAR_NOUNS.put("stimulus", "stimuli");
@@ -116,12 +120,6 @@ public class WordTransformer {
         IRREGULAR_NOUNS.put("wife", "wives");
         IRREGULAR_NOUNS.put("wolf", "wolves");
         IRREGULAR_NOUNS.put("woman", "women");
-        
-        // added by Philipp
-        IRREGULAR_NOUNS.put("automaton", "automata");
-        IRREGULAR_NOUNS.put("service", "services"); // would be converted to singular "servix"
-        IRREGULAR_NOUNS.put("archive", "archives"); // would be converted to singular "archife"
-
     }
 
     /**

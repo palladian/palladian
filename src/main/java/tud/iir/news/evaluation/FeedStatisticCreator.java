@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -38,9 +39,30 @@ import tud.iir.web.Crawler;
 public class FeedStatisticCreator {
 
     /**
+     * Perform maxCoveragePolicyEvaluation on all evaluation tables.
+     * 
+     * @throws SQLException
+     */
+    public static void maxCoveragePolicyEvaluationAll() throws SQLException {
+
+        Set<String> tables = new HashSet<String>();
+        tables.add("feed_evaluation_polls_fixedLearned");
+
+        for (String table : tables) {
+            minDelayPolicyEvaluation(table);
+        }
+
+    }
+
+    public static void maxCoveragePolicyEvaluation(String tableName) throws SQLException {
+        maxCoveragePolicyEvaluation(1, tableName);
+        maxCoveragePolicyEvaluation(2, tableName);
+    }
+
+    /**
      * <p>
-     * After running the FeedChecker in {@link FeedReader.BENCHMARK_MAX} mode and importing the resulting poll data
-     * into the "feed_evaluation_polls" table in the database, this method calculates the coverage score and meta
+     * After running the FeedChecker in {@link FeedReader.BENCHMARK_MAX} mode and importing the resulting poll data into
+     * the "feed_evaluation_polls" table in the database, this method calculates the coverage score and meta
      * information.
      * </p>
      * <ul>
@@ -53,9 +75,24 @@ public class FeedStatisticCreator {
      * 
      * @throws SQLException
      */
-    public static void maxCoveragePolicyEvaluation() throws SQLException {
+    public static void maxCoveragePolicyEvaluation(int avgStyle, String tableName) throws SQLException {
 
         StringBuilder csv = new StringBuilder();
+
+        String avgStyleExplanation = "";
+        String query = "";
+        String query1 = "SELECT AVG(feedGroup.coverage) AS coverage, AVG(feedGroup.percentNew) AS percentNew, AVG(feedGroup.missedItems) AS missedItems, AVG(feedGroup.missedPercent) AS missedPercent, AVG(feedGroup.traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
+                + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000l + " GROUP BY feedID) AS feedGroup";
+        String query2 = "SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
+                + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000l;
+
+        if (avgStyle == 1) {
+            avgStyleExplanation = "average over all polls per feed and then all feeds";
+            query = query1;
+        } else if (avgStyle == 2) {
+            avgStyleExplanation = "average over all polls of all feeds";
+            query = query2;
+        }
 
         DecimalFormat format = new DecimalFormat("#.###################");
         format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
@@ -68,9 +105,7 @@ public class FeedStatisticCreator {
         Double missedPercent = null;
         Double traffic = null;
 
-        ResultSet rs = dbm
-        .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(feedGroup.percentNew) AS percentNew, AVG(feedGroup.missedItems) AS missedItems, AVG(feedGroup.missedPercent) AS missedPercent, AVG(feedGroup.traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
-                + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000l + " GROUP BY feedID) AS feedGroup;");
+        ResultSet rs = dbm.runQuery(query);
         while (rs.next()) {
             coverage = rs.getDouble("coverage");
             percentNew = rs.getDouble("percentNew");
@@ -80,7 +115,8 @@ public class FeedStatisticCreator {
         }
 
         // build csv
-        csv.append("\"================= Average Performance (averaged over all polls per feed regardless of activity pattern and then over all feeds) =================\"\n");
+        csv.append("\"================= Average Performance (").append(avgStyleExplanation)
+                .append(", regardless of feed activity pattern) =================\"\n");
         csv.append("Coverage:;" + format.format(coverage)).append("\n");
         csv.append("Percent New:;" + format.format(100 * percentNew)).append("\n");
         csv.append("Missed:;" + format.format(missed)).append("\n");
@@ -103,13 +139,12 @@ public class FeedStatisticCreator {
             traffic = null;
 
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
-            .append(" (averaged over all polls per feed and then over all feeds) =================\"\n");
+                    .append(" (").append(avgStyleExplanation)
+                    .append(", only feeds matching the feed activity pattern) =================\"\n");
 
-            rs = dbm
-            .runQuery("SELECT AVG(feedGroup.coverage) AS coverage, AVG(percentNew) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedPercent) AS missedPercent, AVG(traffic) AS traffic FROM (SELECT AVG(newWindowItems/(windowSize * SQRT(missedItems+1))) AS coverage, AVG(newWindowItems/windowSize) AS percentNew, AVG(missedItems) AS missedItems, AVG(missedItems/windowSize) AS missedPercent, AVG(sizeOfPoll/newWindowItems) AS traffic FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND pollTimestamp <= "
-                    + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000l
-                    + " AND activityPattern = "
-                    + activityPatternID + " GROUP BY feedID) AS feedGroup;");
+            String queryAP = query.replaceAll("numberOfPoll > 1", "numberOfPoll > 1 AND activityPattern = "
+                    + activityPatternID);
+            rs = dbm.runQuery(queryAP);
 
             while (rs.next()) {
                 coverage = rs.getDouble("coverage");
@@ -126,15 +161,86 @@ public class FeedStatisticCreator {
         }
 
         System.out.println(csv);
-        FileHelper.writeToFile("data/temp/feedEvaluationMaxCoverage.csv", csv);
+        FileHelper.writeToFile("data/temp/feedEvaluationMaxCoverage_" + avgStyle + "_" + tableName + ".csv", csv);
 
         Logger.getRootLogger().info("logs written to data/temp/feedEvaluationMaxCoverage.csv");
     }
 
+    private static double calculateMedianDelay(int avgStyle, int activityPattern, String tableName) throws SQLException {
+
+        List<Double> valueList = new ArrayList<Double>();
+        DatabaseManager dbm = DatabaseManager.getInstance();
+
+        String query = "";
+        String countQuery = "SELECT COUNT(*) AS c FROM " + tableName;
+
+        if (avgStyle == 1) {
+            query = "SELECT AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM " + tableName
+                    + " WHERE timeliness IS NOT NULL GROUP BY feedID LIMIT OFFSET,100000";
+        } else if (avgStyle == 2) {
+            query = "SELECT cumulatedLateDelay/(newWindowItems+missedItems) AS delay FROM " + tableName
+                    + " WHERE timeliness IS NOT NULL LIMIT OFFSET,100000";
+        }
+
+        if (activityPattern > -1) {
+            query = query.replaceAll("timeliness IS NOT NULL", "timeliness IS NOT NULL AND activityPattern = "
+                    + activityPattern);
+            countQuery += " WHERE activityPattern = " + activityPattern;
+        }
+
+        ResultSet rs = dbm.runQuery(countQuery);
+        rs.next();
+        long maxOffset = rs.getLong("c");
+
+        for (long currentOffset = 0; currentOffset < maxOffset; currentOffset += 500000) {
+
+            String currentQuery = query.replaceAll("OFFSET", String.valueOf(currentOffset));
+
+            Logger.getRootLogger().info(
+                    "query for delay to calculate median, offset/maxOffset:" + currentOffset + "/" + maxOffset);
+
+            rs = dbm.runQuery(currentQuery);
+
+            while (rs.next()) {
+                valueList.add(rs.getDouble("delay"));
+            }
+
+        }
+
+        Collections.sort(valueList);
+
+        return MathHelper.getMedian(valueList);
+    }
+
+    /**
+     * Perform minDelayPolicyEvaluation on all evaluation tables.
+     * 
+     * @throws SQLException
+     */
+    public static void minDelayPolicyEvaluationAll() throws SQLException {
+
+        Set<String> tables = new HashSet<String>();
+        tables.add("feed_evaluation2_adaptive_min_poll");
+        tables.add("feed_evaluation2_probabilistic_min_poll");
+        // tables.add("feed_evaluation2_fix60_max_min_poll");
+        // tables.add("feed_evaluation2_fix1440_max_min_poll");
+        // tables.add("feed_evaluation2_fix_learned_min_poll");
+
+        for (String table : tables) {
+            minDelayPolicyEvaluation(table);
+        }
+
+    }
+
+    public static void minDelayPolicyEvaluation(String tableName) throws SQLException {
+        minDelayPolicyEvaluation(1, tableName);
+        minDelayPolicyEvaluation(2, tableName);
+    }
+
     /**
      * <p>
-     * After running the FeedChecker in {@link FeedReader.BENCHMARK_MIN} mode and importing the resulting poll data
-     * into the "feed_evaluation_polls" table in the database, this method calculates the timeliness scores.
+     * After running the FeedChecker in {@link FeedReader.BENCHMARK_MIN} mode and importing the resulting poll data into
+     * the "feed_evaluation_polls" table in the database, this method calculates the timeliness scores.
      * </p>
      * <ul>
      * <li>Timeliness = 1 / sqrt((cumulatedDelay/surroundingInterval + 1)), averaged over all feeds and item
@@ -144,9 +250,43 @@ public class FeedStatisticCreator {
      * 
      * @throws SQLException
      */
-    public static void minDelayPolicyEvaluation() throws SQLException {
+    public static void minDelayPolicyEvaluation(int avgStyle, String tableName) throws SQLException {
 
         StringBuilder csv = new StringBuilder();
+
+        // average over all polls per feed and then all feeds
+        String avgStyleExplanation = "";
+        String query1 = "SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(feedGroup.timelinessLate) AS timelinessLate, AVG(feedGroup.delay) AS delay, AVG(feedGroup.missedItems) AS missedItems FROM (SELECT AVG(timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay, AVG(missedItems) AS missedItems FROM "
+                + tableName + " WHERE timeliness IS NOT NULL AND timelinessLate > 0 GROUP BY feedID) AS feedGroup";
+        String query1A = "SELECT AVG(feedGroup.pollsPerNewItem) AS pollsPerNewItem, AVG(feedGroup.trafficPerNewItem) AS trafficPerNewItem FROM (SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM "
+                + tableName + " WHERE numberOfPoll > 1 GROUP BY feedID) AS feedGroup";
+        String query1B = "SELECT AVG(feedGroup.newItemsPerDiscovery) AS newItemsPerDiscovery FROM (SELECT SUM(newWindowItems) AS totalNewItems, SUM(newWindowItems)/COUNT(*) AS newItemsPerDiscovery FROM "
+                + tableName + " WHERE newWindowItems > 0 GROUP BY feedID) AS feedGroup;";
+
+        // average over all polls of all feeds
+        String query2 = "SELECT AVG(timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay, AVG(missedItems) AS missedItems FROM "
+                + tableName + " WHERE timeliness IS NOT NULL AND timelinessLate > 0";
+        String query2A = "SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM "
+                + tableName + " WHERE numberOfPoll > 1";
+        String query2B = "SELECT SUM(newWindowItems) AS totalNewItems, SUM(newWindowItems)/COUNT(*) AS newItemsPerDiscovery FROM "
+                + tableName + " WHERE newWindowItems > 0";
+
+        // TODO where newWindowItems > 0 instead of where timeliness IS NOT NULL
+
+        String query = "";
+        String queryA = "";
+        String queryB = "";
+        if (avgStyle == 1) {
+            avgStyleExplanation = "average over all polls per feed and then all feeds";
+            query = query1;
+            queryA = query1A;
+            queryB = query1B;
+        } else if (avgStyle == 2) {
+            avgStyleExplanation = "average over all polls of all feeds";
+            query = query2;
+            queryA = query2A;
+            queryB = query2B;
+        }
 
         DecimalFormat format = new DecimalFormat("#.###################");
         format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
@@ -155,21 +295,25 @@ public class FeedStatisticCreator {
 
         Double timeliness = null;
         Double timelinessLate = null;
-        Double delay = null;
+        Double avgDelay = null;
+        Double medianDelay = null;
+        Double missedItems = null;
         Double pollsPerNewItem = null;
         Double newItemsPerDiscovery = null;
         Double trafficPerNewItem = null;
+        Double score = null;
         // Double trafficPerNewItemCG = null;
 
-        ResultSet rs = dbm
-        .runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(feedGroup.timelinessLate) AS timelinessLate, AVG(feedGroup.delay) AS delay FROM (SELECT AVG(timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM feed_evaluation_polls WHERE timeliness IS NOT NULL GROUP BY feedID) AS feedGroup");
+        ResultSet rs = dbm.runQuery(query);
         if (rs.next()) {
             timeliness = rs.getDouble("timeliness");
             timelinessLate = rs.getDouble("timelinessLate");
-            delay = rs.getDouble("delay");
+            avgDelay = rs.getDouble("delay");
+            missedItems = rs.getDouble("missedItems");
+            medianDelay = calculateMedianDelay(avgStyle, -1, tableName);
         }
 
-        rs = dbm.runQuery("SELECT AVG(feedGroup.pollsPerNewItem) AS pollsPerNewItem, AVG(feedGroup.trafficPerNewItem) AS trafficPerNewItem FROM (SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM feed_evaluation_polls WHERE numberOfPoll > 1 GROUP BY feedID) AS feedGroup");
+        rs = dbm.runQuery(queryA);
         rs.next();
         pollsPerNewItem = rs.getDouble("pollsPerNewItem");
         trafficPerNewItem = rs.getDouble("trafficPerNewItem");
@@ -183,17 +327,26 @@ public class FeedStatisticCreator {
         // rs.next();
         // totalTrafficCG += rs.getDouble("sizeOfPoll");
 
-        rs = dbm.runQuery("SELECT AVG(feedGroup.newItemsPerDiscovery) AS newItemsPerDiscovery FROM (SELECT SUM(newWindowItems) AS totalNewItems, SUM(newWindowItems)/COUNT(*) AS newItemsPerDiscovery FROM feed_evaluation_polls WHERE newWindowItems > 0 GROUP BY feedID) AS feedGroup;");
+        rs = dbm.runQuery(queryB);
         rs.next();
         newItemsPerDiscovery = rs.getDouble("newItemsPerDiscovery");
 
-        csv.append("\"================= Average Performance (averaged over all item discoveries per feed regardless of activity pattern and then over all feeds) =================\"\n");
+        csv.append("\"================= Average Performance (").append(avgStyleExplanation)
+                .append(", regardless of feed activity pattern) =================\"\n");
         csv.append("Timeliness:;" + format.format(timeliness)).append("\n");
         csv.append("Timeliness Late:;" + format.format(timelinessLate)).append("\n");
-        csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * delay.longValue())).append("\n");
+        csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * avgDelay.longValue())).append("\n");
+        csv.append("Median Delay:;" + DateHelper.getTimeString(1000L * medianDelay.longValue())).append("\n");
+        csv.append("Avg. Missed Items:;" + format.format(missedItems)).append("\n");
         csv.append("Polls Per New Item:;" + format.format(pollsPerNewItem)).append("\n");
         csv.append("New Items Per Discovery:;" + format.format(newItemsPerDiscovery)).append("\n");
-        csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n\n");
+        csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n");
+
+        score = avgDelay / 1000 * pollsPerNewItem;
+        csv.append("Score:;" + format.format(score)).append("\n");
+        score *= 1 + missedItems;
+        csv.append("Score (with misses):;" + format.format(score)).append("\n\n");
+
         // csv.append("Traffic Per New Item (conditional get):;" + trafficPerNewItemCG).append("\n\n");
 
         // create statistics by activity pattern
@@ -207,25 +360,39 @@ public class FeedStatisticCreator {
 
             timeliness = null;
             timelinessLate = null;
-            delay = null;
+            avgDelay = null;
+            medianDelay = null;
+            missedItems = null;
             pollsPerNewItem = null;
             newItemsPerDiscovery = null;
             trafficPerNewItem = null;
+            score = null;
             // trafficPerNewItemCG = null;
 
             csv.append("\"================= Performance for ").append(FeedClassifier.getClassName(activityPatternID))
-            .append(" (averaged over all item discoveries per feed and then over all feeds that belong to the activity pattern) =================\"\n");
+                    .append(" (").append(avgStyleExplanation)
+                    .append(", only feeds matching the activity pattern) =================\"\n");
 
-            rs = dbm.runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(feedGroup.timelinessLate) AS timelinessLate, AVG(feedGroup.delay) AS delay FROM (SELECT AVG(timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM feed_evaluation_polls WHERE timeliness IS NOT NULL AND activityPattern = "
-                    + activityPatternID + " GROUP BY feedID) AS feedGroup");
+            String queryAP = query.replaceAll("timeliness IS NOT NULL", "timeliness IS NOT NULL AND activityPattern = "
+                    + activityPatternID);
+
+            // rs =
+            // dbm.runQuery("SELECT AVG(feedGroup.timeliness) AS timeliness, AVG(feedGroup.timelinessLate) AS timelinessLate, AVG(feedGroup.delay) AS delay FROM (SELECT AVG(timeliness) AS timeliness, AVG(timelinessLate) AS timelinessLate, AVG(cumulatedLateDelay/(newWindowItems+missedItems)) AS delay FROM feed_evaluation_polls WHERE timeliness IS NOT NULL AND activityPattern = "+
+            // activityPatternID + " GROUP BY feedID) AS feedGroup");
+            rs = dbm.runQuery(queryAP);
+
             if (rs.next()) {
                 timeliness = rs.getDouble("timeliness");
                 timelinessLate = rs.getDouble("timelinessLate");
-                delay = rs.getDouble("delay");
+                avgDelay = rs.getDouble("delay");
+                missedItems = rs.getDouble("missedItems");
+                medianDelay = calculateMedianDelay(avgStyle, activityPatternID, tableName);
             }
 
-            rs = dbm.runQuery("SELECT AVG(feedGroup.pollsPerNewItem) AS pollsPerNewItem, AVG(feedGroup.trafficPerNewItem) AS trafficPerNewItem FROM (SELECT COUNT(*)/SUM(newWindowItems) AS pollsPerNewItem, SUM(sizeOfPoll)/SUM(newWindowItems) AS trafficPerNewItem FROM feed_evaluation_polls WHERE numberOfPoll > 1 AND activityPattern = "
-                    + activityPatternID + " GROUP BY feedID) AS feedGroup;");
+            String queryAAP = queryA.replaceAll("numberOfPoll > 1", "numberOfPoll > 1 AND activityPattern = "
+                    + activityPatternID);
+
+            rs = dbm.runQuery(queryAAP);
             rs.next();
             pollsPerNewItem = rs.getDouble("pollsPerNewItem");
             trafficPerNewItem = rs.getDouble("trafficPerNewItem");
@@ -239,25 +406,86 @@ public class FeedStatisticCreator {
             // rs.next();
             // totalTrafficCG += rs.getDouble("sizeOfPoll");
 
-            rs = dbm.runQuery("SELECT AVG(feedGroup.newItemsPerDiscovery) AS newItemsPerDiscovery FROM (SELECT SUM(newWindowItems) AS totalNewItems, SUM(newWindowItems)/COUNT(*) AS newItemsPerDiscovery FROM feed_evaluation_polls WHERE newWindowItems > 0 AND activityPattern = "
-                    + activityPatternID + " GROUP BY feedID) AS feedGroup;");
+            String queryBAP = queryB.replaceAll("newWindowItems > 0", "newWindowItems > 0 AND activityPattern = "
+                    + activityPatternID);
+
+            rs = dbm.runQuery(queryBAP);
             rs.next();
             newItemsPerDiscovery = rs.getDouble("newItemsPerDiscovery");
 
             csv.append("Timeliness:;" + format.format(timeliness)).append("\n");
             csv.append("Timeliness Late:;" + format.format(timelinessLate)).append("\n");
-            csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * delay.longValue())).append("\n");
+            csv.append("Average Delay:;" + DateHelper.getTimeString(1000L * avgDelay.longValue())).append("\n");
+            csv.append("Median Delay:;" + DateHelper.getTimeString(1000L * medianDelay.longValue())).append("\n");
+            csv.append("Avg. Missed Items:;" + format.format(missedItems)).append("\n");
             csv.append("Polls Per New Item:;" + format.format(pollsPerNewItem)).append("\n");
             csv.append("New Items Per Discovery:;" + format.format(newItemsPerDiscovery)).append("\n");
-            csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n\n");
+            csv.append("Traffic Per New Item:;" + trafficPerNewItem).append("\n");
             // csv.append("Traffic Per New Item (conditional get):;" + trafficPerNewItemCG).append("\n\n");
+
+            score = avgDelay / 1000 * pollsPerNewItem;
+            csv.append("Score:;" + format.format(score)).append("\n");
+            score *= 1 + missedItems;
+            csv.append("Score (with misses):;" + format.format(score)).append("\n\n");
 
         }
 
         System.out.println(csv);
-        FileHelper.writeToFile("data/temp/feedEvaluationMinDelay.csv", csv);
+        FileHelper.writeToFile("data/temp/feedEvaluationMinDelay_" + avgStyle + "_" + tableName + ".csv", csv);
 
         Logger.getRootLogger().info("logs written to data/temp/feedEvaluationMinDelay.csv");
+    }
+
+    public static void delayChart() throws SQLException {
+
+        StringBuilder csv = new StringBuilder();
+
+        DatabaseManager dbm = DatabaseManager.getInstance();
+
+        dbm.runUpdate("CREATE TABLE tempTableA AS SELECT feedID FROM feed_evaluation_polls GROUP BY feedID HAVING COUNT(*) >= 10");
+        dbm.runUpdate("ALTER TABLE tempTableA ADD PRIMARY KEY (`feedID`)");
+
+        // new item number, [total delay, number of feeds]
+        Map<Integer, Double[]> delayChartData = new TreeMap<Integer, Double[]>();
+
+        ResultSet rs = dbm
+                .runQuery("SELECT fep.feedID, numberOfPoll, cumulatedLateDelay/(newWindowItems+missedItems) AS delay FROM feed_evaluation_polls fep,tempTableA WHERE fep.feedID = tempTableA.feedID AND newWindowItems > 0 ORDER BY fep.feedID ASC, numberOfPoll ASC");
+        int previousFeedID = -1;
+        int newItemNumberDiscovery = 1;
+        while (rs.next()) {
+
+            Integer feedID = rs.getInt("feedID");
+
+            if (feedID != previousFeedID) {
+                newItemNumberDiscovery = 1;
+            }
+
+            Double[] data = delayChartData.get(newItemNumberDiscovery);
+            if (data == null) {
+                data = new Double[2];
+                data[0] = 0.0;
+                data[1] = 0.0;
+            }
+            data[0] += rs.getDouble("delay");
+            data[1]++;
+            delayChartData.put(newItemNumberDiscovery, data);
+            previousFeedID = feedID;
+            newItemNumberDiscovery++;
+        }
+
+        dbm.runUpdate("DROP TABLE tempTableA");
+
+        csv.append("new item number discovery;average delday;number of feeds\n");
+        for (Entry<Integer, Double[]> dataEntry : delayChartData.entrySet()) {
+            double avgTimeliness = dataEntry.getValue()[0] / dataEntry.getValue()[1];
+            csv.append(dataEntry.getKey()).append(";").append(avgTimeliness).append(";")
+                    .append(dataEntry.getValue()[1]).append("\n");
+        }
+
+        FileHelper.writeToFile("data/temp/feedEvaluationDelayChart.csv", csv);
+
+        Logger.getRootLogger().info("logs written to data/temp/feedEvaluationDelayChart.csv");
+
     }
 
     public static void timelinessChart() throws SQLException {
@@ -270,7 +498,7 @@ public class FeedStatisticCreator {
         Map<Integer, Double[]> timelinessChartData = new TreeMap<Integer, Double[]>();
 
         ResultSet rs = dbm
-        .runQuery("SELECT feedID, timeliness FROM feed_evaluation_polls WHERE timeliness IS NOT NULL");
+                .runQuery("SELECT feedID, timeliness FROM feed_evaluation_polls WHERE timeliness IS NOT NULL");
         int previousFeedID = -1;
         int newItemNumber = 1;
         while (rs.next()) {
@@ -298,7 +526,7 @@ public class FeedStatisticCreator {
         for (Entry<Integer, Double[]> dataEntry : timelinessChartData.entrySet()) {
             double avgTimeliness = dataEntry.getValue()[0] / dataEntry.getValue()[1];
             csv.append(dataEntry.getKey()).append(";").append(avgTimeliness).append(";")
-            .append(dataEntry.getValue()[1]).append("\n");
+                    .append(dataEntry.getValue()[1]).append("\n");
         }
 
         FileHelper.writeToFile("data/temp/feedEvaluationTimelinessChart.csv", csv);
@@ -308,7 +536,7 @@ public class FeedStatisticCreator {
     }
 
     public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPath)
-    throws IOException {
+            throws IOException {
 
         FeedReader fc = new FeedReader(feedStore);
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE);
@@ -394,7 +622,7 @@ public class FeedStatisticCreator {
         String chartColors = "";
         for (Entry<Object, Integer> o : updateClassCounts.entrySet()) {
             stats.append("Number of feeds in update class ").append(o.getKey()).append(":").append(o.getValue())
-            .append("\n");
+                    .append("\n");
             chartData += o.getValue().intValue() + ",";
             chartDataLabels += o.getKey() + "|";
             chartColors += colors.get((Integer) o.getKey()) + "|";
@@ -404,8 +632,8 @@ public class FeedStatisticCreator {
         chartColors = chartColors.substring(0, chartColors.length() - 1);
 
         stats.append("Google pie chart:").append("http://chart.apis.google.com/chart?chs=600x425&chco=")
-        .append(chartColors).append("&chdl=").append(chartDataLabels).append("&chds=0,").append(feeds.size())
-        .append("&cht=p&chd=t:").append(chartData).append("\n");
+                .append(chartColors).append("&chdl=").append(chartDataLabels).append("&chds=0,").append(feeds.size())
+                .append("&cht=p&chd=t:").append(chartData).append("\n");
 
         FileHelper.writeToFile(statisticOutputPath, stats);
 
@@ -419,8 +647,9 @@ public class FeedStatisticCreator {
     public static void main(String[] args) throws IOException, SQLException {
         // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(), "data/temp/feedstats_combined.txt");
         // FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),"data/temp/feedUpdateIntervals.csv");
-        FeedStatisticCreator.maxCoveragePolicyEvaluation();
-        // FeedStatisticCreator.minDelayPolicyEvaluation();
+        // FeedStatisticCreator.maxCoveragePolicyEvaluation("feed_evaluation_polls");
+        FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation_polls");
+        // FeedStatisticCreator.minDelayPolicyEvaluationAll();
         // FeedStatisticCreator.timelinessChart();
 
     }

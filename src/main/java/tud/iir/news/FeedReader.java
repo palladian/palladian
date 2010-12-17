@@ -1,5 +1,8 @@
 package tud.iir.news;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -25,7 +28,11 @@ import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.news.evaluation.FeedBenchmarkFileReader;
 import tud.iir.news.evaluation.FeedReaderEvaluator;
+import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
+import weka.core.Attribute;
+import weka.core.FastVector;
+import weka.core.Instances;
 
 /**
  * The FeedReader reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
@@ -82,11 +89,50 @@ public final class FeedReader {
      */
     private final long wakeUpInterval = 150 * DateHelper.SECOND_MS;
 
+    private Instances instances;
+
+    public int prMinCheckIntervalPrediction = 0;
+
+    public int mavMinCheckIntervalPrediction = 0;
+
+    public int mavMedianMinCheckIntervalPrediction = 0;
+
+    public int nothingFoundCount = 0;
+
+    private PreparedStatement psGetPostRate;
+
     /** The private constructor. */
     public FeedReader(FeedStore feedStore) {
         super();
         checkScheduler = new Timer();
         feedCollection = feedStore.getFeeds();
+
+        FastVector attributes = new FastVector();
+        Attribute a1 = new Attribute("weight1");
+        Attribute a2 = new Attribute("weight2");
+        Attribute a3 = new Attribute("weight3");
+        // Attribute a4 = new Attribute("weight4");
+        // /Attribute a5 = new Attribute("weight5");
+        attributes.addElement(a1);
+        attributes.addElement(a2);
+        attributes.addElement(a3);
+        // attributes.addElement(a4);
+        // attributes.addElement(a5);
+        attributes.addElement(new Attribute("class"));
+
+        instances = new Instances("Rel", attributes, 0);
+        instances.setClassIndex(attributes.size() - 1);
+
+        try {
+            psGetPostRate = DatabaseManager
+                    .getInstance()
+                    .getConnection()
+                    .prepareStatement(
+                            "SELECT averageEntriesPerDay FROM feed_evaluation2_update_intervals WHERE feedID = ?");
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -312,8 +358,8 @@ public final class FeedReader {
         }
 
         // for on-the-fly updates switch from probabilistic to adaptive
-        else if ((UpdateStrategy.UPDATE_MOVING_AVERAGE.equals(updateStrategy) || (UpdateStrategy.UPDATE_POST_RATE
-                .equals(updateStrategy) && feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY))
+        else if (UpdateStrategy.UPDATE_MOVING_AVERAGE.equals(updateStrategy) || UpdateStrategy.UPDATE_POST_RATE
+                .equals(updateStrategy) && feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY
         /* && feed.getChecks() > 0 */) {
 
             updateIntervalAdaptive(feed, pnTarget, fps);
@@ -327,6 +373,12 @@ public final class FeedReader {
 
         }
 
+        if (UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE.equals(updateStrategy)) {
+
+            updateIntervalPRMAV(feed, pnTarget, fps);
+
+        }
+
         feed.setLastFeedEntry(new Date(fps.getTimeNewestPost()));
         feed.increaseChecks();
     }
@@ -334,6 +386,7 @@ public final class FeedReader {
     // ======================
     // === Setter methods ===
     // ======================
+
 
     public void setFeedProcessingAction(FeedProcessingAction feedProcessingAction) {
         this.feedProcessingAction = feedProcessingAction;
@@ -501,14 +554,16 @@ public final class FeedReader {
         // maxCheckInterval *= fMax;
 
         // ######################### simple moving average for max policy ##############################
-        if (newEntries > 0) {
-            maxCheckInterval = entries.size() * (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-        } else {
-            double averagePostGap = fps.getAveragePostGap();
-            averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
-            averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
-            maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
-        }
+        // if (newEntries > 0) {
+        // maxCheckInterval = entries.size() * (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
+        // } else {
+        // double averagePostGap = fps.getAveragePostGap();
+        // if (fps.getIntervals().size() > 0) {
+        // averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
+        // averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
+        // maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
+        // }
+        // }
 
         // ######################### avg ##############################
         // the factor by which the min checkInterval is multiplied, ranges between 2 and 0.5
@@ -524,15 +579,33 @@ public final class FeedReader {
         // minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
         // }
 
+        // ######################### last interval for min policy ##############################
+        // if (newEntries > 0) {
+        // minCheckInterval = (int) (fps.getLastInterval() / DateHelper.MINUTE_MS);
+        // } else {
+        // minCheckInterval = (int) (fps.getDelayToNewestPost() / DateHelper.MINUTE_MS);
+        // }
+
         // ######################### simple moving average for min policy ##############################
         if (newEntries > 0) {
             minCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
         } else {
-            double averagePostGap = fps.getAveragePostGap();
-            averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
-            averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
-            minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
+            if (fps.getIntervals().size() > 0) {
+                double averagePostGap = fps.getAveragePostGap();
+                // averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
+                // averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
+                averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
+                averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
+                minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
+            }
         }
+
+        // ######################### simple moving median for min policy ##############################
+        // if (newEntries > 0) {
+        // minCheckInterval = (int) (fps.getMedianPostGap() / DateHelper.MINUTE_MS);
+        // } else {
+        // minCheckInterval = (int) (fps.getMedianPostGap2() / DateHelper.MINUTE_MS);
+        // }
 
         // ######################### exponential moving average ##############################
         // Double[] weights = new Double[5];
@@ -544,7 +617,7 @@ public final class FeedReader {
         // long minCheckIntervalTemp = 0;
         // if (newEntries > 0) {
         // for (int i = 0; i < fps.getIntervals().size(); i++) {
-        // minCheckIntervalTemp += (weights[i] * fps.getIntervals().get(i));
+        // minCheckIntervalTemp += weights[i + 1] * fps.getIntervals().get(i);
         // }
         // } else {
         //
@@ -557,12 +630,87 @@ public final class FeedReader {
         // intervals.add(fps.getDelayToNewestPost());
         //
         // for (int i = 0; i < intervals.size(); i++) {
-        // minCheckIntervalTemp += (weights[i] * intervals.get(i));
+        // minCheckIntervalTemp += weights[i + 1] * intervals.get(i);
         // }
         //
         // }
         //
         // minCheckInterval = (int) (minCheckIntervalTemp / DateHelper.MINUTE_MS);
+
+        // ######################### linear moving average ##############################
+        // double m = feed.getWindowSize() * feed.getWindowSize() / 2 - 0.5 * feed.getWindowSize();
+        // long minCheckIntervalTemp = 0;
+        // if (newEntries > 0) {
+        // for (int i = 0; i < fps.getIntervals().size(); i++) {
+        // minCheckIntervalTemp += i / m * fps.getIntervals().get(i);
+        // }
+        // } else {
+        //
+        // List<Long> intervals = new ArrayList<Long>();
+        //
+        // // shift intervals
+        // for (int i = 1; i < fps.getIntervals().size(); i++) {
+        // intervals.add(fps.getIntervals().get(i));
+        // }
+        // intervals.add(fps.getDelayToNewestPost());
+        //
+        // for (int i = 0; i < intervals.size(); i++) {
+        // minCheckIntervalTemp += i / m * intervals.get(i);
+        // }
+        //
+        // }
+        //
+        // minCheckInterval = (int) (minCheckIntervalTemp / DateHelper.MINUTE_MS);
+
+        // ########################### linear regression global weights ####################################
+        // LinearRegression lo = new LinearRegression();
+        //
+        // Instance instance;
+        // if (newEntries > 0) {
+        // instance = new Instance(4);
+        // instance.setDataset(instances);
+        // for (int i = 0; i < fps.getIntervals().size() - 1; i++) {
+        // instance.setValue(i, fps.getIntervals().get(i));
+        // }
+        // instance.setClassValue(fps.getLastInterval());
+        // instances.add(instance);
+        // nothingFoundCount = 0;
+        // } else {
+        // nothingFoundCount++;
+        // }
+        //
+        // try {
+        // lo.buildClassifier(instances);
+        // } catch (Exception e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        //
+        // if (instances.numInstances() > 4) {
+        // /*
+        // * for (int i = 0; i < lo.coefficients().length; i++) {
+        // * System.out.println(lo.coefficients()[i]);
+        // * }
+        // */
+        //
+        // instance = new Instance(4);
+        // for (int i = 0; i < fps.getIntervals().size() - 1; i++) {
+        // instance.setValue(i, fps.getIntervals().get(i));
+        // }
+        // // instance.setClassMissing();
+        //
+        // try {
+        // // System.out.println(lo.classifyInstance(instance) + "_" + feed.getId());
+        // minCheckInterval = (int) (lo.classifyInstance(instance) / DateHelper.MINUTE_MS);
+        // if (minCheckInterval < 0) {
+        // minCheckInterval = nothingFoundCount * (DEFAULT_CHECK_TIME / 2);
+        // }
+        // } catch (Exception e) {
+        // // TODO Auto-generated catch block
+        // e.printStackTrace();
+        // }
+        // }
+        // /////////////////////
 
         feed.setMinCheckInterval(minCheckInterval);
         feed.setMaxCheckInterval(maxCheckInterval);
@@ -572,6 +720,233 @@ public final class FeedReader {
             feed.setMinCheckInterval(DEFAULT_CHECK_TIME / 2);
             feed.setMaxCheckInterval(DEFAULT_CHECK_TIME);
         }
+    }
+
+    // mimic the min delay policy update interval proposed by "A New Aggregation Policy for RSS Services", 2008
+    private void updateIntervalPRMAV_(Feed feed, double pnTarget, FeedPostStatistics fps) {
+
+        int mTotal = 1168731;// 100884;
+        int mprSum = 188813;// 37605;
+
+        int experimentDays = (int) ((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / DateHelper.DAY_MS);
+        double mDaily = mTotal / (double) experimentDays;
+        double k = 2.7 * mDaily / mprSum; // was 1.8 => 79k
+
+        int minCheckInterval = (int) (1440 / (k * Math.sqrt(2.87)));
+
+        try {
+            psGetPostRate.setInt(1, feed.getId());
+
+            ResultSet rs = DatabaseManager.getInstance().runQuery(psGetPostRate);
+            rs.next();
+            double dailyPostRate = rs.getDouble(1);
+
+            double lookUpsPerDay = k * Math.sqrt(dailyPostRate);
+
+            minCheckInterval = (int) (1440 / lookUpsPerDay);
+
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+            System.out.println("feed id: " + feed.getId());
+        }
+
+        feed.setMinCheckInterval(minCheckInterval);
+    }
+
+    private void updateIntervalPRMAV(Feed feed, double pnTarget, FeedPostStatistics fps) {
+
+        double newEntries = pnTarget * (feed.getWindowSize() - 1);
+
+        // determine winner of last prediction
+        double diffPR = feed.getBenchmarkLastLookupTime() + prMinCheckIntervalPrediction * DateHelper.MINUTE_MS
+                - fps.getTimeNewestPost();
+        double diffMAV = feed.getBenchmarkLastLookupTime() + mavMinCheckIntervalPrediction * DateHelper.MINUTE_MS
+                - fps.getTimeNewestPost();
+        double diffMAVMedian = feed.getBenchmarkLastLookupTime() + mavMedianMinCheckIntervalPrediction
+                * DateHelper.MINUTE_MS - fps.getTimeNewestPost();
+
+        boolean usePR = false;
+        boolean useMedian = false;
+        // if (newEntries > 0) {
+        // if (diffPR < diffMAV && diffPR > 0 || diffMAV < 0) {
+        // usePR = true;
+        // }
+        // } else {
+        // if (prMinCheckIntervalPrediction > mavMinCheckIntervalPrediction) {
+        // usePR = true;
+        // }
+        // }
+        if (newEntries > 0) {
+            if (Math.abs(diffPR) < Math.abs(diffMAV) && Math.abs(diffPR) < Math.abs(diffMAVMedian)) {
+                usePR = true;
+            } else if (Math.abs(diffMAVMedian) < Math.abs(diffPR) && Math.abs(diffMAVMedian) < Math.abs(diffMAV)) {
+                useMedian = true;
+            }
+        } else {
+            if (prMinCheckIntervalPrediction > mavMinCheckIntervalPrediction
+                    && prMinCheckIntervalPrediction > mavMedianMinCheckIntervalPrediction) {
+                usePR = true;
+            } else if (mavMedianMinCheckIntervalPrediction > prMinCheckIntervalPrediction
+                    && mavMedianMinCheckIntervalPrediction > mavMinCheckIntervalPrediction) {
+                useMedian = true;
+            }
+        }
+
+        // ////////////////////////////////////////////// post rate //////////////////////////////////////////
+        List<FeedItem> entries = feed.getEntries();
+
+        // learn the post distribution from the last seen entry to the newest one
+        // distribution minute of the day : frequency of news in that minute
+        Map<Integer, int[]> postDistribution = null;
+
+        if (feed.getChecks() == 0) {
+            postDistribution = new HashMap<Integer, int[]>();
+
+            // since the feed has no post distribution yet, we fill all minutes with 0 posts
+            for (int minute = 0; minute < 1440; minute++) {
+                int[] postsChances = { 0, 0 };
+                postDistribution.put(minute, postsChances);
+            }
+
+        } else {
+            postDistribution = feed.getMeticulousPostDistribution();
+
+            // in benchmark mode we keep it in memory
+            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+                postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
+            }
+
+        }
+
+        // update the minutes where an entry could have been posted
+        int minuteCounter = 0;
+        long timeLastSeenEntry = Long.MIN_VALUE;
+        if (feed.getLastFeedEntry() != null) {
+            timeLastSeenEntry = feed.getLastFeedEntry().getTime();
+        }
+        int startMinute = (int) DateHelper.getTimeOfDay(fps.getTimeOldestPost(), Calendar.MINUTE);
+        for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS, minuteCounter++) {
+            // we have counted the chances for entries before the last seen
+            // entry already, so we skip them here
+            if (t <= timeLastSeenEntry) {
+                continue;
+            }
+            int minuteOfDay = (startMinute + minuteCounter) % 1440;
+            int[] postsChances = postDistribution.get(minuteOfDay);
+            postsChances[1] = postsChances[1] + 1;
+            postDistribution.put(minuteOfDay, postsChances);
+        }
+
+        // update the minutes where an entry was actually posted
+        for (FeedItem entry : entries) {
+            // we have counted the posts for entries before the last seen
+            // entry already, so we skip them here
+            if (entry.getPublished() == null || entry.getPublished().getTime() <= timeLastSeenEntry) {
+                continue;
+            }
+            int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
+            int[] postsChances = postDistribution.get(minuteOfDay);
+            postsChances[0] = postsChances[0] + 1;
+            postDistribution.put(minuteOfDay, postsChances);
+        }
+
+        int t1 = 0, t2 = 0;
+        for (Map.Entry<Integer, int[]> a : postDistribution.entrySet()) {
+            // System.out.println(a.getKey()+":"+a.getValue()[0]+","+a.getValue()[1]);
+            t1 += a.getValue()[0];
+            t2 += a.getValue()[1];
+        }
+        // System.out.println(t1 + "," + t2);
+
+        feed.setMeticulousPostDistribution(postDistribution);
+
+        // in benchmark mode we keep it in memory, in real usage, we store the distribution in the database
+        if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+            FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
+        }
+
+        // only use calculated update intervals if one full day of distribution is available already
+        if (true || feed.oneFullDayHasBeenSeen()) {
+
+            startMinute = 0;
+
+            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+                startMinute = (int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE);
+            } else {
+                startMinute = (int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE);
+            }
+
+            // // estimate time to next entry and time until list is full with
+            // only new but one entries
+
+            // set to one month maximum
+            int minCheckInterval = 31 * 1440;
+            boolean minCheckIntervalFound = false;
+
+            // set to six month maximum
+            int maxCheckInterval = 6 * 31 * 1440;
+
+            // add up all probabilities for the coming minutes until the
+            // estimated post number is 1
+            int currentMinute = startMinute;
+            double estimatedPosts = 0;
+            for (int c = 0; c < maxCheckInterval; c++) {
+
+                int[] postsChances = postDistribution.get(currentMinute);
+                double postProbability = 0;
+                if (postsChances[1] > 0) {
+                    postProbability = (double) postsChances[0] / (double) postsChances[1];
+                }
+                estimatedPosts += postProbability;
+
+                if (estimatedPosts >= 1 && !minCheckIntervalFound) {
+                    minCheckInterval = c;
+                    minCheckIntervalFound = true;
+                }
+
+                if (estimatedPosts >= entries.size()) {
+                    maxCheckInterval = c;
+                    break;
+                }
+
+                currentMinute = (currentMinute + 1) % 1440;
+            }
+
+            prMinCheckIntervalPrediction = minCheckInterval;
+
+        }
+
+        // ////////////////////////////////////////// MAV ///////////////////////////////////////////
+        if (newEntries > 0) {
+            mavMinCheckIntervalPrediction = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
+        } else {
+            if (fps.getIntervals().size() > 0) {
+                double averagePostGap = fps.getAveragePostGap();
+                averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
+                averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
+                mavMinCheckIntervalPrediction = (int) (averagePostGap / DateHelper.MINUTE_MS);
+            }
+        }
+
+        // ////////////////////////////////////////// MAV median ///////////////////////////////////////////
+        if (newEntries > 0) {
+            mavMedianMinCheckIntervalPrediction = (int) (fps.getMedianPostGap() / DateHelper.MINUTE_MS);
+        } else {
+            mavMedianMinCheckIntervalPrediction = (int) (fps.getMedianPostGap2() / DateHelper.MINUTE_MS);
+        }
+
+        if (usePR) {
+            feed.setMinCheckInterval(prMinCheckIntervalPrediction);
+            feed.setMaxCheckInterval(1000);
+        } else if (useMedian) {
+            feed.setMinCheckInterval(mavMedianMinCheckIntervalPrediction);
+            feed.setMaxCheckInterval(1000);
+        } else {
+            feed.setMinCheckInterval(mavMinCheckIntervalPrediction);
+            feed.setMaxCheckInterval(1000);
+        }
+
     }
 
     /**
