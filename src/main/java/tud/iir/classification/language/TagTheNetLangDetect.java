@@ -14,10 +14,12 @@ import tud.iir.helper.StringHelper;
 import tud.iir.web.HTTPPoster;
 
 /**
+ * <p>
  * Language detection via tagthe.net
+ * </p>
  * 
- * http://www.tagthe.net/
- * http://www.tagthe.net/fordevelopers
+ * <a href="http://www.tagthe.net/">http://www.tagthe.net/</a>
+ * <a href="http://www.tagthe.net/fordevelopers">http://www.tagthe.net/fordevelopers</a>
  * 
  * @author Philipp Katz
  * 

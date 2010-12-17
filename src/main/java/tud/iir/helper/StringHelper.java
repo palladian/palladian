@@ -1247,13 +1247,13 @@ public class StringHelper {
         StringBuffer out = new StringBuffer(); // Used to hold the output.
         char current; // Used to reference the current character.
 
-        if (in == null || ("".equals(in))) {
+        if (in == null || "".equals(in)) {
             return ""; // vacancy test.
         }
         for (int i = 0; i < in.length(); i++) {
             current = in.charAt(i); // NOTE: No IndexOutOfBoundsException caught here; it should not happen.
-            if ((current == 0x9) || (current == 0xA) || (current == 0xD) || ((current >= 0x20) && (current <= 0xD7FF))
-                    || ((current >= 0xE000) && (current <= 0xFFFD)) || ((current >= 0x10000) && (current <= 0x10FFFF))) {
+            if (current == 0x9 || current == 0xA || current == 0xD || current >= 0x20 && current <= 0xD7FF
+                    || current >= 0xE000 && current <= 0xFFFD || current >= 0x10000 && current <= 0x10FFFF) {
                 out.append(current);
             }
         }
@@ -1282,6 +1282,17 @@ public class StringHelper {
             urls.add(m.group());
         }
         return urls;
+    }
+
+    public static String getRegexpMatch(String regexp, String text) {
+        Pattern p = Pattern.compile(regexp);
+
+        Matcher m = p.matcher(text);
+        if (m.find()) {
+            return m.group();
+        }
+
+        return "";
     }
 
     /**

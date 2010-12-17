@@ -53,12 +53,12 @@ public class FeedReaderEvaluator {
     public static int benchmarkSample = 10;
 
     /** The path to the folder with the feed post history files. */
-    private static final String BENCHMARK_DATASET_PATH = "C:\\Programming\\feedposts\\clean\\";
+    private static final String BENCHMARK_DATASET_PATH = "G:\\Projects\\Programming\\Other\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;
 
-    /** The timestamp we started the dataset gathering. 28/10/2010 */
+    /** The timestamp we started the dataset gathering. 28/09/2010 */
     public static final long BENCHMARK_START_TIME_MILLISECOND = 1285689600000L;
 
     /** The timestamp we stopped the dataset gathering. 26/10/2010 */
@@ -320,20 +320,21 @@ public class FeedReaderEvaluator {
 
         UpdateStrategy checkType = UpdateStrategy.UPDATE_FIXED;
         checkType = UpdateStrategy.UPDATE_MOVING_AVERAGE;
-        // checkType = UpdateStrategy.UPDATE_PROBABILISTIC;
+        // checkType = UpdateStrategy.UPDATE_POST_RATE;
+        checkType = UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE;
 
         // if -1 => fixed learned
         int checkInterval = -1;
 
-        FeedReaderEvaluator.benchmarkSample = 100;
+        FeedReaderEvaluator.benchmarkSample = 20;
 
         FeedReader fc = new FeedReader(FeedDatabase.getInstance());
         fc.setCheckApproach(checkType, true);
         fc.setCheckInterval(checkInterval);
-        setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
-        // setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
-        // setBenchmarkMode(BENCHMARK_POLL);
-        setBenchmarkMode(BENCHMARK_TIME);
+        // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
+        setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
+        setBenchmarkMode(BENCHMARK_POLL);
+        // setBenchmarkMode(BENCHMARK_TIME);
         fc.startContinuousReading(-1);
     }
 

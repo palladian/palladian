@@ -1,7 +1,9 @@
 package tud.iir.helper;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import junit.framework.Assert;
@@ -9,6 +11,29 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 public class MathHelperTest {
+
+    @Test
+    public void testRandomSample() {
+
+        Set<Integer> collection = new HashSet<Integer>();
+        collection.add(321);
+        collection.add(98);
+        collection.add(123);
+        collection.add(965);
+        collection.add(143);
+        collection.add(328);
+        collection.add(497);
+        collection.add(73);
+        collection.add(65);
+
+        collection = (Set<Integer>) MathHelper.randomSample(collection, 5);
+        // CollectionHelper.print(collection);
+        Assert.assertEquals(5, collection.size());
+
+        collection = (Set<Integer>) MathHelper.randomSample(collection, 1);
+        Assert.assertEquals(1, collection.size());
+
+    }
 
     @Test
     public void testStandardDeviation() {

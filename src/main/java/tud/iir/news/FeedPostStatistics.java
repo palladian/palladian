@@ -40,6 +40,9 @@ public class FeedPostStatistics {
     /** The median time gap between subsequent posts. */
     private long medianPostInterval = -1;
 
+    /** The median time gap between subsequent posts. */
+    private long medianPostInterval2 = -1;
+
     /** The average time gap between subsequent posts. */
     private double averagePostInterval = -1;
 
@@ -72,12 +75,20 @@ public class FeedPostStatistics {
 
         // keep a list of times to find out the median of the time differences between posts, average is not good since one very old post can bias the value
         List<Long> timeList = new ArrayList<Long>();
+        List<Long> timeList2 = new ArrayList<Long>();
 
         if (feedEntries == null) {
             return;
         }
 
+        int c = 0;
         for (FeedItem entry : feedEntries) {
+            c++;
+
+            if (c <= feedEntries.size() - 5) {
+                // continue;
+            }
+
             Date pubDate = entry.getPublished();
             if (pubDate == null) {
                 FeedReader.LOGGER.warn("entry does not have pub date, feed entry " + entry);
@@ -95,11 +106,23 @@ public class FeedPostStatistics {
                 timeOldestEntry = pubTime;
             }
             timeList.add(pubTime);
+
+            if (timeList.size() > 1) {
+                timeList2.add(pubTime);
+            }
+
+        }
+
+        if (FeedReaderEvaluator.getBenchmarkPolicy() != FeedReaderEvaluator.BENCHMARK_OFF) {
+            timeList2.add(feed.getBenchmarkLookupTime());
+        } else {
+            timeList2.add(System.currentTimeMillis());
         }
 
         // fill list with interval
         intervals = new ArrayList<Long>();
         Collections.sort(timeList);
+        Collections.sort(timeList2);
 
         for (int i = 0; i < timeList.size() - 1; i++) {
             intervals.add(timeList.get(i + 1) - timeList.get(i));
@@ -125,9 +148,10 @@ public class FeedPostStatistics {
         setTimeNewestPost(timeNewestEntry);
         setTimeOldestPost(timeOldestEntry);
 
-        if (!timeList.isEmpty()) {
+        if (timeList.size() > 1) {
             setMedianPostGap(MathHelper.getMedianDifference(timeList));
-            setAveragePostGap(getTimeRange() / (double) feedEntries.size());
+            setMedianPostGap2(MathHelper.getMedianDifference(timeList2));
+            setAveragePostGap(getTimeRange() / ((double) feedEntries.size() - 1));
             setPostGapStandardDeviation(MathHelper.getStandardDeviation(timeList));
             setLongestPostGap(MathHelper.getLongestGap(CollectionHelper.toTreeSet(timeList)));
             setValidStatistics(true);
@@ -196,6 +220,14 @@ public class FeedPostStatistics {
 
     private void setMedianPostGap(final long medianPostGap) {
         this.medianPostInterval = medianPostGap;
+    }
+
+    public long getMedianPostGap2() {
+        return medianPostInterval2;
+    }
+
+    private void setMedianPostGap2(final long medianPostGap2) {
+        this.medianPostInterval2 = medianPostGap2;
     }
 
     public double getAveragePostGap() {

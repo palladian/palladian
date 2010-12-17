@@ -1,7 +1,10 @@
 package tud.iir.helper;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
 
@@ -13,6 +16,14 @@ import org.apache.log4j.Logger;
  * The MathHelper adds mathematical functionality.
  * 
  * @author David Urbansky
+ */
+/**
+ * @author David
+ * 
+ */
+/**
+ * @author David
+ * 
  */
 public class MathHelper {
 
@@ -61,6 +72,17 @@ public class MathHelper {
             faculty *= number;
         }
         return faculty;
+    }
+
+    public static double getMedian(List<Double> valueList) {
+        Median median = new Median();
+        double[] doubles = new double[valueList.size()];
+        int i = 0;
+        for (Double entry : valueList) {
+            doubles[i++] = entry;
+
+        }
+        return median.evaluate(doubles);
     }
 
     public static long getMedianDifference(TreeSet<Long> valueSet) {
@@ -308,6 +330,51 @@ public class MathHelper {
         + (number & 0xFF);
     }
 
+
+    
+    /**
+     * Create a random sample from a given collection.
+     * 
+     * @param collection The collection from we want to sample from.
+     * @param sampleSize The size of the sample.
+     * @return A collection with samples from the collection.
+     */
+    public static <T> Collection<T> randomSample(Collection<T> collection, int sampleSize) {
+
+        if (collection.size() < sampleSize) {
+            Logger.getRootLogger().warn("tried to sample from a collection that was smaller than the sample size");
+            return collection;
+        } else if (collection.size() == sampleSize) {
+            return collection;
+        }
+
+        Collection<T> sampledCollection = new HashSet<T>();
+
+        while (sampledCollection.size() < sampleSize) {
+            int collectionSize = collection.size();
+
+            // pick a random entry from the collection
+            int randomIndex = (int) (Math.random() * collectionSize + 1);
+            int currentIndex = 0;
+            Iterator<T> cIterator = collection.iterator();
+            while (cIterator.hasNext()) {
+                T o = cIterator.next();
+
+                if (currentIndex < randomIndex) {
+                    currentIndex++;
+                    continue;
+                }
+
+                sampledCollection.add(o);
+                collection.remove(o);
+                break;
+            }
+
+        }
+
+        return sampledCollection;
+    }
+
     /**
      * Calculate the parameters for a regression line. A series of x and y must be given. y = beta * x + alpha
      * TODO multiple regression model:
@@ -353,5 +420,4 @@ public class MathHelper {
 
         return alphaBeta;
     }
-
 }

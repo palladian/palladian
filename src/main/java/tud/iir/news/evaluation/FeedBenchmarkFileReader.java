@@ -39,6 +39,9 @@ public class FeedBenchmarkFileReader {
     public FeedBenchmarkFileReader(Feed feed, FeedReader feedChecker) {
         this.feed = feed;
         this.feedChecker = feedChecker;
+        this.feedChecker.nothingFoundCount = 0;
+        this.feedChecker.mavMinCheckIntervalPrediction = 0;
+        this.feedChecker.prMinCheckIntervalPrediction = 0;
 
         String safeFeedName = feed.getId()
         + "_"
@@ -211,7 +214,12 @@ public class FeedBenchmarkFileReader {
                         footHeadAdded = true;
                     }
 
-                    totalBytes += Math.max(0, Integer.valueOf(parts[3]));
+                    try {
+                        totalBytes += Math.max(0, Integer.valueOf(parts[3]));
+                    } catch (NumberFormatException e) {
+                        // e.printStackTrace();
+                        LOGGER.error(e.getMessage());
+                    }
 
                     // create feed entry
                     FeedItem feedEntry = new FeedItem();
@@ -262,7 +270,7 @@ public class FeedBenchmarkFileReader {
                     }
                 }
 
-                // process post entries between the end of the current window and the last lookup time
+                // process post entries between the end of the current window and the last lookup time (misses)
                 else if (entryTimestamp <= lastItemInWindowTimestamp
                         && entryTimestamp > feed.getBenchmarkLastLookupTime()) {
 
