@@ -37,7 +37,7 @@ import maui.vocab.Vocabulary;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.wikipedia.miner.model.Wikipedia;
+//import org.wikipedia.miner.model.Wikipedia;
 
 import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.helper.StopWatch;
@@ -50,6 +50,8 @@ import weka.core.Instances;
 /**
  * Maui based keyphrase extractor. This class merges code from {@link MauiModelBuilder} and {@link MauiTopicExtractor}
  * and mapping it to our common interface.
+ * 
+ * TODO removed Wikipedia stuff for now, to fix build problems on Hudson.
  * 
  * http://code.google.com/p/maui-indexer/
  * 
@@ -499,13 +501,13 @@ public class MauiKeyphraseExtractor extends AbstractKeyphraseExtractor {
         mauiFilter.setVocabularyFormat(vocabularyFormat);
     }
 
-    /**
-     * @param wikipedia
-     * @see maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
-     */
-    public void setWikipedia(Wikipedia wikipedia) {
-        mauiFilter.setWikipedia(wikipedia);
-    }
+//    /**
+//     * @param wikipedia
+//     * @see maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
+//     */
+//    public void setWikipedia(Wikipedia wikipedia) {
+//        mauiFilter.setWikipedia(wikipedia);
+//    }
 
     /**
      * @param wikipediaServer
