@@ -779,7 +779,7 @@ System.out.println(classifiedDocument);
 \end{lstlisting}
 \end{codelisting}
 
-You can also try the language classifier online at \url{http://www.webknox.com/wi#LanguageDetection}.
+You can also try the language classifier online at \url{http://www.webknox.com/wi#detectLanguage}.
 
 \paragraph{Evaluating a Classifier}
 To get an idea of how good a trained classifier works, we can evaluate it using test data which is structured the same way as the training data. Listing~\ref{listing:evaluateClassifier} shows how to evaluate a trained classifier, you will see that is very similar to training a classifier. Make sure that you evaluate the classifier using disjunct data, otherwise the evaluation results are invalid .
@@ -897,7 +897,7 @@ System.out.println("finished training and testing classifier
 \subsection{Language Detection}
 Language detection is the task of determining the language of a given text. In the last section we explained how a text classifier can be trained. We used this training method to learn a dictionary based classifier for language detection and evaluated it against other state-of-the-art algorithms.
 We compared our algorithm to JLangDetect \cite{jlangdetect}, Google Translation API \cite{googleTranslationAPI}, and the Alchemy API \cite{alchemyLanguageAPI}. We used the Multilingual Parallel Corpus of the Joint Research Centre of the European Commission in version 3.0 \cite{jrcCorpus}. This corpus contains about half a million documents in 22 languages about politics. Since we could not train the language detectors from Google and Alchemy, the comparison is not fair to both of them but we put the results here to see how they are performing with their classifiers. Due to API restrictions we had to crop the length of the text to maximum of 100 characters.
-We trained both, JLangDetect and Palladian on a sample of 100 documents per language. JLangDetect was trained with character level n-grams between one and three\footnote{This setting has been said to be work well by the author of the JLangDetect, see \url{http://www.jroller.com/melix/entry/nlp_in_java_a_language}} while Palladian was trained with word level n-grams between one and three. We then tested all algorithms an a test set containing again 100 documents per language. Since the classifier performance is very sensitive to the length of the given text, we evaluated all algorithms with short texts (<= 10 characters), medium texts (<=30 characters), and long texts (no length limitation, but usually about 20 to 200 sentences).
+We trained both, JLangDetect and Palladian on a sample of 100 documents per language. JLangDetect was trained with character level n-grams between one and three\footnote{This setting has been said to be work well by the author of the JLangDetect, see \url{http://www.jroller.com/melix/entry/nlp_in_java_a_language}} while Palladian was trained with word level n-grams between one and three. We then tested all algorithms an a test set containing again 100 documents per language. Since the classifier performance is very sensitive to the length of the given text, we evaluated all algorithms with short texts ($\leq$ 10 characters), medium texts ($\leq$ 30 characters), and long texts (no length limitation, but usually about 20 to 200 sentences).
 Table \ref{tab:languageDetectionEvaluation} shows the evaluation results. All results in brackets are not representative since many documents were not classified by the API.
 
 \begin{table}[ht]
@@ -1374,7 +1374,7 @@ The age of a web page can often be a useful indicator about the freshness of the
 \item Searching for {\textbf inbound links from archives}. Some web pages can be found in archives with a date. If none of the other techniques returns valuable results it is possible to look up the URL in an archive, although the chances to find it are quite low.
 \end{enumerate}
 
-Listing \ref{listing:dateRecognizer} shows how to detect the age of a web page. For more information on the algorithms used, see \cite{gregor2010bachelor}. You can also check out the functionality of the web page age detection online at \url{http://www.webknox.com/wi#AgeDetection}.
+Listing \ref{listing:dateRecognizer} shows how to detect the age of a web page. For more information on the algorithms used, see \cite{gregor2010bachelor}. You can also check out the functionality of the web page age detection online at \url{http://www.webknox.com/wi#detectAge}.
 
 % TODO out of sync with code!
 \begin{codelisting}
@@ -1405,7 +1405,7 @@ System.out.println(date);
 
 Palladian can handle many FAQs that follow the first or third structure. First, the algorithm detects the XPaths to the questions and then it tries to extract all content between the current and the next question as the answer for the current question.
 
-Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically. You can also check out the functionality of the FAQ Extractor online at \url{http://www.webknox.com/wi#FAQExtraction}.
+Listing \ref{listing:faqExtractor} shows how the FAQExtractor can be used programatically. You can also check out the functionality of the FAQ Extractor online at \url{http://www.webknox.com/wi#extractFAQ}.
 
 \begin{codelisting}
 \begin{lstlisting}[label=listing:faqExtractor,caption=Extract an FAQ from a web page.,frame=tb]
@@ -1426,7 +1426,7 @@ CollectionHelper.print(qas);
 \subsection{Fact Extraction}
 The FactExtractor can be used to detect facts in tables on web pages given a URL and optionally a small set of seed attribute names that help the extractor. The FactExtractor constructs all XPaths to the seed attributes and compares them. If it recognizes a similarity it concludes that the XPaths that are similar for the seed attributes might also point to other attributes on the page. In case of attributes that are listed in simple tables this approach works pretty well, if the attributes are presented in a more complicated way, the fact extractor might not find anything.
 
-You can also check out the functionality of the FactExtractor online at \url{http://www.webknox.com/wi#FactExtraction}.
+You can also check out the functionality of the FactExtractor online at \url{http://www.webknox.com/wi#extractFacts}.
 
 \begin{codelisting}
 \begin{lstlisting}[label=listing:factExtraction,caption=Extract a list of facts from a web page.,frame=tb]
