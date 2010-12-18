@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>de.tud.cs.iir</groupId>
 	<artifactId>PalladianExternalCode</artifactId>
-	<version>0.6</version>
+	<version>0.7</version>
 	<name>Palladian External Code</name>
 	<description>External modified source code that is used by Palladian.</description>
 	<build>
