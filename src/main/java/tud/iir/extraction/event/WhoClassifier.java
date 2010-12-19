@@ -111,8 +111,8 @@ public class WhoClassifier extends Classifier {
     public void testClassifier(String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(getChosenClassifier());
-        final Event event = EventExtractor
-                .extractEventFromURL("http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
+        Event event = EventExtractor
+                .createEventFromURL("http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
 
         eventExtractor.getFeatureExtractor().setFeatures(event);
         eventExtractor.extractWho(event);
@@ -130,7 +130,7 @@ public class WhoClassifier extends Classifier {
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedClassifier);
         } catch (final Exception e) {
-            LOGGER.error(e);
+            e.printStackTrace();
         }
     }
 
@@ -190,13 +190,13 @@ public class WhoClassifier extends Classifier {
     public static void main(String[] args) {
 
         LOGGER.info("classifier runs");
-        final WhoClassifier wc = new WhoClassifier(Classifier.LINEAR_REGRESSION);
-        // wc.collectTrainingData("data/features/who.csv");
+        final WhoClassifier wc = new WhoClassifier(Classifier.NEURAL_NETWORK);
+        wc.collectTrainingData("data/features/who.csv");
 
-        wc.trainClassifier("data/features/who.csv");
+        // wc.trainClassifier("data/features/who.csv");
 
-        wc.useTrainedClassifier(wc.MODEL);
-        wc.testClassifier(wc.MODEL);
+        // wc.useTrainedClassifier(wc.MODEL);
+        // wc.testClassifier(wc.MODEL);
     }
 
 }

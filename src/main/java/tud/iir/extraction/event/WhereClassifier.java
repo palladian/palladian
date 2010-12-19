@@ -35,11 +35,11 @@ public class WhereClassifier extends Classifier {
     public WhereClassifier(int type) {
         super(type);
 
-        featureNames = new String[4];
+        featureNames = new String[3];
         featureNames[0] = "titleEntityCount";
         featureNames[1] = "textEntityCount";
-        featureNames[2] = "type";
-        featureNames[3] = "distribution";
+        // featureNames[2] = "type";
+        featureNames[2] = "distribution";
 
         PropertiesConfiguration config = null;
 
@@ -104,7 +104,7 @@ public class WhereClassifier extends Classifier {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         // eventExtractor.setWhereClassifier(getChosenClassifier());
         final Event event = EventExtractor
-                .extractEventFromURL("http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
+                .createEventFromURL("http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
         eventExtractor.getFeatureExtractor().setFeatures(event);
         eventExtractor.extractWhere(event);
 
@@ -121,7 +121,7 @@ public class WhereClassifier extends Classifier {
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedAnswerClassifier);
         } catch (final Exception e) {
-            LOGGER.error(e);
+            e.printStackTrace();
         }
     }
 
@@ -211,13 +211,13 @@ public class WhereClassifier extends Classifier {
     public static void main(String[] args) {
 
         final WhereClassifier wc = new WhereClassifier(
-                Classifier.LINEAR_REGRESSION);
+                Classifier.NEURAL_NETWORK);
         // wc.collectTrainingData("data/features/where.csv");
         // wc.collectOnlineTrainingData("data/features/where_online.csv");
         // WhereClassifier wc = new WhereClassifier(Classifier.BAYES_NET);
-        // wc.trainClassifier("data/features/where.csv");
-        // ac.trainClassifier("data/benchmarkSelection/qa/training");
-        wc.useTrainedClassifier(wc.MODEL);
         wc.testClassifier("");
+        // ac.trainClassifier("data/benchmarkSelection/qa/training");
+        // wc.useTrainedClassifier(wc.MODEL);
+        // wc.testClassifier("");
     }
 }
