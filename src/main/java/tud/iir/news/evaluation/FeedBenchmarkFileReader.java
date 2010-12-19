@@ -39,9 +39,6 @@ public class FeedBenchmarkFileReader {
     public FeedBenchmarkFileReader(Feed feed, FeedReader feedChecker) {
         this.feed = feed;
         this.feedChecker = feedChecker;
-        this.feedChecker.nothingFoundCount = 0;
-        this.feedChecker.mavMinCheckIntervalPrediction = 0;
-        this.feedChecker.prMinCheckIntervalPrediction = 0;
 
         String safeFeedName = feed.getId()
         + "_"

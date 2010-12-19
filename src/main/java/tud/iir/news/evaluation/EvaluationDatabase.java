@@ -14,14 +14,11 @@ import tud.iir.news.evaluation.ChartCreator.PollingStrategy;
 import tud.iir.persistence.DatabaseManager;
 
 /**
+ * A database for feed reading evaluation.
  * 
  * @author Sandro Reichert
  */
-/**
- * @author Sandro Reichert
- * 
- */
-public class EvaluationDatabase {
+public final class EvaluationDatabase {
 
     /** the instance of this class */
     private final static EvaluationDatabase INSTANCE = new EvaluationDatabase();
@@ -69,14 +66,14 @@ public class EvaluationDatabase {
     }
 
     /**
-     * @return the single instance of the EvaluationDatabase
+     * @return The single instance of the EvaluationDatabase.
      */
     public static EvaluationDatabase getInstance() {
         return INSTANCE;
     }
 
     /**
-     * prepare all statements which are hard coded within this method.
+     * Prepare all statements which are hard coded within this method.
      * 
      * @throws SQLException forwarded from {@link java.sql.Connection.prepareStatement(String arg0)}
      */
@@ -135,10 +132,9 @@ public class EvaluationDatabase {
         psGetTransferVolumeByHourFromProbabilisticMinTime = connection
                 .prepareStatement("SELECT feedID, DAYOFYEAR(FROM_UNIXTIME(pollTimestamp))*24+HOUR(FROM_UNIXTIME(pollTimestamp))-6521 AS hourOfExperiment, sizeOfPoll, numberOfPoll, checkInterval, pollTimestamp, conditionalGetResponseSize, newWindowItems FROM feed_evaluation2_probabilistic_min_time WHERE pollTimestamp <= ? AND feedID BETWEEN ? AND ? ORDER BY feedID, pollTimestamp ASC");
     }
-    
 
     /**
-     * Was just a simple test whether DB Connection works properly
+     * Was just a simple test whether DB Connection works properly.
      * 
      * @return all poll from table adaptiveMaxTime
      */

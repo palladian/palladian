@@ -1,2 +1,0 @@
-rsync -rtvz --chmod=ugo=rwX /cygdrive/c/Programming/Palladian/data/datasets/* rsync://syncadmin@141.76.40.242/all_data_admin/datasets
-rsync -rtvz --chmod=ugo=rwX /cygdrive/c/Programming/Palladian/data/models/* rsync://syncadmin@141.76.40.242/all_data_admin/models

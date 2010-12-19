@@ -22,7 +22,7 @@ import tud.iir.news.FeedItem;
 import tud.iir.news.FeedProcessingAction;
 import tud.iir.news.FeedReader;
 import tud.iir.news.FeedStore;
-import tud.iir.news.UpdateStrategy;
+import tud.iir.news.updates.FixUpdateStrategy;
 
 /**
  * <p>
@@ -33,10 +33,6 @@ import tud.iir.news.UpdateStrategy;
  * collected over a period of time. Each file follows the follwowing layout:<br>
  * 
  * TIMESTAMP;"TITLE";LINK
- * </p>
- * <p>
- * TODO The first line of the file contains meta information:<br>
- * FEED_ID;FEED_URL;NUMBER_OF_ENTRIES(Window Size);AVERAGE_SIZE;FEED_UPDATE_CLASS
  * </p>
  * 
  * @author David Urbansky
@@ -65,8 +61,9 @@ public class DatasetCreator {
 
         FeedReaderEvaluator.setBenchmarkPolicy(FeedReaderEvaluator.BENCHMARK_OFF);
 
-        feedChecker.setCheckApproach(UpdateStrategy.UPDATE_FIXED, true);
-        feedChecker.setCheckInterval(1);
+        FixUpdateStrategy updateStrategy = new FixUpdateStrategy();
+        updateStrategy.setCheckInterval(1);
+        feedChecker.setUpdateStrategy(updateStrategy, true);
 
         // create the dataset only with feeds that are parsable, have at least one entry, and are alive
         Collection<Integer> updateClasses = new HashSet<Integer>();
@@ -351,7 +348,7 @@ public class DatasetCreator {
 
                 // System.out.println("cleansed " + file.getName());
                 if (c % 500 == 0) {
-                    System.out.println(MathHelper.round((double) 100 * c / fileCount, 2)
+                    LOGGER.info(MathHelper.round((double) 100 * c / fileCount, 2)
                             + "% of the files cleansed");
                 }
 
@@ -385,7 +382,7 @@ public class DatasetCreator {
             int feedID = Integer.valueOf(file.getName().substring(0, file.getName().indexOf("_"))) + 97650;
 
             String fileNameRealID = feedID + file.getName().substring(file.getName().indexOf("_"));
-            System.out.println(fileNameRealID);
+            LOGGER.info(fileNameRealID);
             // FileHelper.rename(file, fileNameRealID);
 
             FileHelper.copyFile(cleanPath + file.getName(), cleanPath + fileNameRealID);

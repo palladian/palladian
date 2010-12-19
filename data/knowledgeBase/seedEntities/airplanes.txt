@@ -1,0 +1,124 @@
+C##1
+1903 Wright Flyer
+Aerostar Super 700
+Douglas A4F Skyhawk
+Northrop Grumman A-6E Intruder
+Fairchild A-10 Thunderbolt II
+Antonov An-2
+Antonov An-225
+Arsenal VG-33
+Beechcraft 99
+Beechcraft B1900D
+Beechcraft Starship I
+Rockwell B-1B Lancer
+Northrop B-2 Spirit
+B-29 Superfortress
+B-52F Stratofortress
+BAC TSR2
+Bailey Dragonfly
+Blackburn Buccaneer
+Bleriot XI
+Blohm & Voss BV 141
+Bristol Beaufighter
+Bugatti 100P
+Cessna 150L
+Cessna 172P Skyhawk
+Cessna 172LE Skyhawk
+Cessna 172R Skyhawk
+Cessna 182
+Cessna 182RG
+Cessna 310R
+Cessna U-3A
+Cessna 550 Citation II
+Cessna Citation Bravo
+Cessna Citation X
+Comper Swift
+Concorde
+Cri-Cri
+Douglas DC-3
+Douglas X-3 Stiletto
+Dornier Do-335
+Dornier Do X
+Dorner-Dassault Alpha Jet
+de Havilland Canada DHC-2 Beaver
+de Havilland Canada DHC-6 Twin Otter
+de Havilland Mosquito
+de Havilland DH.89 Dragon Rapide
+de Havilland D.H.110 Sea Vixen FAW 2
+English Electric Canberra B(I)8
+English Electric Lightning F.1A
+McDonnell Douglas F-15 Eagle
+McDonnell Douglas F-15C Eagle
+General Dynamics F-16
+Northrop YF-23
+Lockheed F-80C Shooting Star
+North American F-86F Sabre
+Lockheed F-104 Starfighter
+Chance Vought F4U Corsair
+Farman IV
+Fieseler Fi-156 Storch
+Focke-Wulf Fw-190 A8
+FK 9 Mark 2
+Fokker 50
+Fokker 70
+Fokker 100
+Fokker Dr.1
+Grob G 115
+Grumman Albatross
+Harrier
+Hawker Hurricane IIb
+Hawker Hunter GA11
+Hawker Sea HawkHug
+hes H4 Hercules
+Issoire APM 20 Lionceau
+Soko J-22 Orao / IAR-93
+Junkers Ju 52
+Kawasaki T-4
+Kyushu J7W
+Let L410
+Lockheed C-130 Hercules
+Lockheed 1049
+Lockheed P-38 Lightning & F-5B
+Lockheed SR-71 Blackbird
+McDonnell Douglas MD11
+Macchi Castoldi M.C. 72
+Martin-Marietta X-24B
+Mainair Flash 2 Alpha
+Messerschmitt BF-109 G14
+Messerschmitt Me 262
+Dassault Mirage 2000
+MiG-15bis
+Nakajima Ki-84 Hayate
+Nakajima A6M2
+Nord Noratlas
+North American OV-10A Bronco
+North American P-51D Mustang
+North American X-15
+Payen Pa 100
+Consolidated Aircraft PBY-6 Catalina
+Piaggio P180 Avanti II
+Pilatus PC-7
+Piper J3 Cub
+Piper Comanche 250
+Piper Cherokee Warrior II
+Piper PA34-200T Seneca II
+Pitts S1C
+Saab J35Ö Draken
+Siai Marchetti S.211
+Space Shuttle
+Sopwith Camel 1F.1
+Supermarine Seafire MkIIIc
+Supermarine Spitfire IIa
+Supermarine Spitfire Mk IX
+Sukhoi Su-26M
+Sukhoi Flanker-F
+Cirrus SR-20
+Cessna T-37
+Northrop T-38
+Tupolev Tu-114
+Tupolev Tu-154
+A24 Viking
+Bell/Boeing V-22 Osprey
+Vickers Vimy
+Avro Vulcan B.2
+Zlin Z-50LX

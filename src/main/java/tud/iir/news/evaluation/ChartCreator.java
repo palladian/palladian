@@ -20,11 +20,11 @@ public class ChartCreator {
 
     private static final Logger LOGGER = Logger.getLogger(ChartCreator.class);
     
-    private final String FEED_SIZE_HISTOGRAM_FILE_PATH = "data/evaluation/feedPaper/feedSizeHistogrammData.csv";
-    private final String FEED_AGE_FILE_PATH = "data/evaluation/feedPaper/feedAgeData.csv";
-    private final String TIMELINESS2_FILE_PATH = "data/evaluation/feedPaper/timeliness2Data.csv";
-    private final String PERCENTAGE_NEW_MAX_POLL_FILE_PATH = "data/evaluation/feedPaper/percentNewMaxPollData.csv";
-    private final String SUM_VOLUME_MAX_MIN_TIME_FILE_PATH = "data/evaluation/feedPaper/sumVolumeTimeData";
+    private final String FEED_SIZE_HISTOGRAM_FILE_PATH = "data/temp/feedSizeHistogrammData.csv";
+    private final String FEED_AGE_FILE_PATH = "data/temp/feedAgeData.csv";
+    private final String TIMELINESS2_FILE_PATH = "data/temp/timeliness2Data.csv";
+    private final String PERCENTAGE_NEW_MAX_POLL_FILE_PATH = "data/temp/percentNewMaxPollData.csv";
+    private final String SUM_VOLUME_MAX_MIN_TIME_FILE_PATH = "data/temp/sumVolumeTimeData";
 
     private final int MAX_NUMBER_OF_POLLS_SCORE_MIN;
     private final int MAX_NUMBER_OF_POLLS_SCORE_MAX;
@@ -87,7 +87,7 @@ public class ChartCreator {
 //            int feedID = poll.getFeedID();
             float pollSize = poll.getSizeOfPoll();
             int i =  new Double(Math.floor(pollSize/1024/chartInterval)).intValue() ;
-            i = (i > chartNumberOfIntervals) ? chartNumberOfIntervals : i;
+            i = i > chartNumberOfIntervals ? chartNumberOfIntervals : i;
             feedSizeDistribution[i]++;
             totalNumberOfFeeds++;
         }        
@@ -100,7 +100,7 @@ public class ChartCreator {
 
         for (int number : feedSizeDistribution) {
             currentIntervalSize += chartInterval;
-            intervalSizeToWrite = (currentIntervalSize > chartMax) ? "more" : String.valueOf(currentIntervalSize);
+            intervalSizeToWrite = currentIntervalSize > chartMax ? "more" : String.valueOf(currentIntervalSize);
             feedSizeDistributionSB.append(intervalSizeToWrite).append(";").append(number).append(";")
                     .append((float) number / (float) totalNumberOfFeeds * 100).append(";\n");
         }
@@ -272,7 +272,7 @@ public class ChartCreator {
     private void writeMapToCSV(Map<Integer, Double[]> outputMap, StringBuilder outputSB, String filePath) {
         Iterator<Integer> it = outputMap.keySet().iterator();
         while (it.hasNext()) {
-            int currentPoll = (int) it.next();
+            int currentPoll = it.next();
             Double[] scoresAtCurrentPoll = outputMap.get(currentPoll);
             outputSB.append(currentPoll).append(";").append(scoresAtCurrentPoll[0]).append(";")
                     .append(scoresAtCurrentPoll[1]).append(";").append(scoresAtCurrentPoll[2]).append(";")
@@ -314,9 +314,9 @@ public class ChartCreator {
             
             // in Davids DB nicht vorhandene Polls simulieren
             if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
-                while ((minuteLastStep + checkIntervalLast) < (TOTAL_EXPERIMENT_HOURS * 60)) {
+                while (minuteLastStep + checkIntervalLast < TOTAL_EXPERIMENT_HOURS * 60) {
 
-                    final int MINUTE_TO_PROCESS = (int) (minuteLastStep + checkIntervalLast);
+                    final int MINUTE_TO_PROCESS = (minuteLastStep + checkIntervalLast);
                     // x/60 + 1: add 1 hour to result to start with hour 1 instead of 0 (minute 1 means hour 1)
                     final int HOUR_TO_PROCESS = MINUTE_TO_PROCESS / 60 + 1;
 
@@ -331,14 +331,14 @@ public class ChartCreator {
             final int HOUR_TO_PROCESS = poll.getHourOfExperiment();
 
             int sizeOfPoll = poll.getSizeOfPoll();
-            if (SIMULATE_ETAG_USAGE && (poll.getNewWindowItems() == 0f) && (poll.getSupportsConditionalGet() == true)) {
+            if (SIMULATE_ETAG_USAGE && poll.getNewWindowItems() == 0f && poll.getSupportsConditionalGet() == true) {
                     sizeOfPoll = poll.getConditionalGetResponseSize();
             }
 
             addSizeOfPollToMap(totalResultMapMax, NUMBER_OF_ROWS, ROW_TO_WRITE, HOUR_TO_PROCESS, sizeOfPoll);
 
             if (poll.getNumberOfPoll() >= 2) {
-                minuteLastStep += (int) poll.getCheckInterval();
+                minuteLastStep += poll.getCheckInterval();
             }
             feedIDLastStep = feedIDCurrent;
             sizeOfPollLast = sizeOfPoll;
@@ -422,7 +422,7 @@ public class ChartCreator {
         Arrays.fill(volumesCumulated, 0l);
         Iterator<Integer> it = totalResultMap.keySet().iterator();
         while (it.hasNext()) {
-            int currentHour = (int) it.next();
+            int currentHour = it.next();
             Long[] volumes = totalResultMap.get(currentHour);
 
             for (int i = 0; i < NUMBER_OF_ROWS; i++) {
@@ -436,7 +436,7 @@ public class ChartCreator {
 
         // //////////// write final output to file \\\\\\\\\\\\\\\\\
         String filePathToWrite = "";
-        String eTag = (SIMULATE_ETAG_USAGE) ? "ETag" : "NoETag";
+        String eTag = SIMULATE_ETAG_USAGE ? "ETag" : "NoETag";
         switch (POLICY) {
             case MAX:
                 filePathToWrite = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + "_Max" + eTag + ".csv";
@@ -484,12 +484,12 @@ public class ChartCreator {
         ChartCreator cc = new ChartCreator(200, 200);
 
         // cc.printFeedPolls();
-        cc.createFeedSizeHistogrammFile(10, 20); // letzter Test 12.11. DB Schema v2
-        cc.createFeedAgeFile(); // letzter Test 12.11. DB Schema v2
-        cc.createAverageScoreMinByPollFile(); // letzter Test 12.11. DB Schema v2
-        cc.createPercentageNewMaxPollFile(); // letzter Test 12.11. DB Schema v2
-        cc.cumulatedVolumePerTimeFile(Policy.MAX, false, 210000); // letzter Test 12.11. DB Schema v2
-        cc.cumulatedVolumePerTimeFile(Policy.MAX, true, 210000); // letzter Test 12.11. DB Schema v2
+        // cc.createFeedSizeHistogrammFile(10, 20); // letzter Test 12.11. DB Schema v2
+        // cc.createFeedAgeFile(); // letzter Test 12.11. DB Schema v2
+        // cc.createAverageScoreMinByPollFile(); // letzter Test 12.11. DB Schema v2
+        // cc.createPercentageNewMaxPollFile(); // letzter Test 12.11. DB Schema v2
+        // cc.cumulatedVolumePerTimeFile(Policy.MAX, false, 210000); // letzter Test 12.11. DB Schema v2
+        // cc.cumulatedVolumePerTimeFile(Policy.MAX, true, 210000); // letzter Test 12.11. DB Schema v2
         cc.cumulatedVolumePerTimeFile(Policy.MIN, false, 210000); // letzter Test 12.11. DB Schema v2
         cc.cumulatedVolumePerTimeFile(Policy.MIN, true, 210000); // letzter Test 12.11. DB Schema v2
 	}

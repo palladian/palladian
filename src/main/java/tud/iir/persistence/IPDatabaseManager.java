@@ -1,14 +1,15 @@
 package tud.iir.persistence;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.List;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
@@ -16,9 +17,7 @@ import tud.iir.web.Crawler;
 
 /**
  * <p>
- * Manage the IP database. The data comes from ip2country and is structured in the following format:<br>
- * # IP FROM IP TO REGISTRY ASSIGNED CTRY CNTRY COUNTRY<br>
- * # "1346797568","1346801663","ripencc","20010601","il","isr","Israel"<br>
+ * Manage the IP database. The data comes from Maxmind.<br>
  * </p>
  * 
  * @author David Urbansky
@@ -36,13 +35,16 @@ public class IPDatabaseManager {
 	private PreparedStatement psAddEntry;
 	private PreparedStatement psTruncate;
     private PreparedStatement psGetInformationByIP;
-	
+
     private IPDatabaseManager() {
 		try {
-			psAddEntry = dbm.getConnection().prepareStatement("INSERT INTO ip2country SET ipFrom=?,ipTo=?,registry=?,assignedAt=?,countryCode=?,countryName=?");
-            psTruncate = dbm.getConnection().prepareStatement("TRUNCATE ip2country");
+            psAddEntry = dbm
+                    .getConnection()
+                    .prepareStatement(
+                            "INSERT INTO ip2location SET ipStart=?,countryCode=?,countryName=?,regionCode=?,regionName=?,city=?,zipCode=?,latitude=?,longitude=?,metrocode=?");
+            psTruncate = dbm.getConnection().prepareStatement("TRUNCATE ip2location");
             psGetInformationByIP = dbm.getConnection().prepareStatement(
-                    "SELECT countryCode, countryName FROM ip2country WHERE ? <= ipTo AND ? >= ipFrom");
+                    "SELECT * FROM `ip2location` WHERE `ipStart` <= INET_ATON(?) ORDER BY ipStart DESC LIMIT 1");
 		} catch (SQLException e) {
 			LOGGER.error(e.getMessage());
 		}		
@@ -58,24 +60,30 @@ public class IPDatabaseManager {
      * @param ipAddress The IP address.
      * @return An array with two entries, the two-letter country code and the country name.
      */
-    public String[] getInformationByIP(String ipAddress) {
-        String[] information = new String[2];
+    public Location getLocationByIP(String ipAddress) {
 
-        Long ipLong = MathHelper.ipToNumber(ipAddress);
+        Location location = new Location();
 
         try {
-            psGetInformationByIP.setLong(1, ipLong);
-            psGetInformationByIP.setLong(2, ipLong);
+            psGetInformationByIP.setString(1, ipAddress);
+
             ResultSet rs = dbm.runQuery(psGetInformationByIP);
             if (rs.next()) {
-                information[0] = rs.getString("countryCode");
-                information[1] = rs.getString("countryName");
+                location.setCountryCode(rs.getString("countryCode"));
+                location.setCountryName(rs.getString("countryName"));
+                location.setRegionCode(rs.getInt("regionCode"));
+                location.setRegionName(rs.getString("regionName"));
+                location.setCity(rs.getString("city"));
+                location.setZipCode(rs.getInt("zipCode"));
+                location.setLatitude(rs.getDouble("latitude"));
+                location.setLongitude(rs.getDouble("longitude"));
+                location.setMetrocode(rs.getInt("metrocode"));
             }
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
         }
 
-        return information;
+        return location;
     }
 
     /**
@@ -87,48 +95,138 @@ public class IPDatabaseManager {
 
         LOGGER.info("start refreshing IP database");
 
+        String targetFilename = "data/temp/iptolocation.zip";
+        String targetFileUnzip = "data/temp/ip_group_city.csv";
+
 		// download db
-        Crawler.downloadBinaryFile("http://software77.net/geo-ip/?DL=1", "data/temp/iptocountry.gz");
+        LOGGER.info("downloading ip2location database...");
+        Crawler.downloadBinaryFile(
+                "http://mirrors.ipinfodb.com/ipinfodb/ip_database/current/ipinfodb_one_table_full.csv.zip",
+                targetFilename);
+        LOGGER.info("...download completed");
 				
 		// unzip file
-        FileHelper.unzipFile("data/temp/iptocountry.gz");
-		
-		// import
-        List<String> lines = FileHelper.readFileToArray("data/temp/iptocountry");
-		
-		dbm.runUpdate(psTruncate);
-		for (String line : lines) {
-			
-			if (line.startsWith("#")) {
-				continue;
-			}
-			
-			String[] parts = line.split(",");
-			for (int i = 0; i < parts.length; i++) {
-				String part = parts[i].replaceAll("\"","");
-				parts[i] = part;
-			}
-			
-			try {
-                psAddEntry.setLong(1, Long.valueOf(parts[0]));
-                psAddEntry.setLong(2, Long.valueOf(parts[1]));
-				psAddEntry.setString(3, parts[2]);
-                psAddEntry.setTimestamp(4, new Timestamp(1000l * Long.valueOf(parts[3])));
-				psAddEntry.setString(5, parts[4]);
-                psAddEntry.setString(6, parts[6]);
+        LOGGER.info("unzipping file...");
+        boolean unzipSuccess = FileHelper.unzipFile(targetFilename);
 
-				dbm.runUpdate(psAddEntry);
-			} catch (NumberFormatException e) {
-				LOGGER.error(e.getMessage());
-			} catch (SQLException e) {
-				LOGGER.error(e.getMessage());
-			}
-			
-		}
+        if (!unzipSuccess) {
+            LOGGER.error("...could not unzip file");
+            return;
+        }
+        LOGGER.info("...file unzipped successfully");
+		
+        int numberOfLines = FileHelper.getNumberOfLines(targetFileUnzip);
+
+        LOGGER.info("start importing data in IP database");
+        dbm.runUpdate(psTruncate);
+        try {
+            FileReader in = new FileReader(targetFileUnzip);
+            BufferedReader br = new BufferedReader(in);
+
+            String line = "";
+            int c = 0;
+            do {
+                line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+
+                if (line.startsWith("#") || line.startsWith("\"ip_start")) {
+                    continue;
+                }
+
+                String[] parts = line.split(";");
+                for (int i = 0; i < parts.length; i++) {
+                    String part = parts[i].replaceAll("\"", "");
+                    parts[i] = part;
+                }
+
+                try {
+                    psAddEntry.setLong(1, Long.valueOf(parts[0]));
+
+                    if (parts[1].length() == 0) {
+                        psAddEntry.setNull(2, java.sql.Types.NULL);
+                    } else {
+                        psAddEntry.setString(2, parts[1]);
+                    }
+
+                    if (parts[2].length() == 0) {
+                        psAddEntry.setNull(3, java.sql.Types.NULL);
+                    } else {
+                        psAddEntry.setString(3, parts[2]);
+                    }
+
+                    if (parts[3].length() == 0) {
+                        psAddEntry.setNull(4, java.sql.Types.NULL);
+                    } else {
+                        psAddEntry.setString(4, parts[3]);
+                    }
+
+                    if (parts[4].length() == 0) {
+                        psAddEntry.setNull(5, java.sql.Types.NULL);
+                    } else {
+                        psAddEntry.setString(5, parts[4]);
+                    }
+
+                    if (parts[5].length() == 0) {
+                        psAddEntry.setNull(6, java.sql.Types.NULL);
+                    } else {
+                        psAddEntry.setString(6, parts[5]);
+                    }
+
+                    if (parts[6].length() == 0) {
+                        psAddEntry.setNull(7, java.sql.Types.NULL);
+                    } else {
+                        psAddEntry.setString(7, parts[6]);
+                    }
+
+                    if (parts[7].length() == 0) {
+                        psAddEntry.setNull(8, java.sql.Types.NULL);
+                    } else {
+                        psAddEntry.setDouble(8, Double.valueOf(parts[7]));
+                    }
+
+                    if (parts[8].length() == 0) {
+                        psAddEntry.setNull(9, java.sql.Types.NULL);
+                    } else {
+                        psAddEntry.setDouble(9, Double.valueOf(parts[8]));
+                    }
+
+                    if (parts.length == 9 || parts[9].length() == 0) {
+                        psAddEntry.setNull(10, java.sql.Types.NULL);
+                    } else {
+                        psAddEntry.setInt(10, Integer.valueOf(parts[9]));
+                    }
+
+                    dbm.runUpdate(psAddEntry);
+                } catch (NumberFormatException e) {
+                    LOGGER.error(e.getMessage());
+                } catch (SQLException e) {
+                    LOGGER.error(e.getMessage());
+                }
+
+                if (++c % 200000 == 0) {
+                    LOGGER.info("still importing, " + MathHelper.round(100 * c / numberOfLines, 2) + "% done");
+                }
+
+            } while (line != null);
+
+            in.close();
+            br.close();
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(targetFileUnzip + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(targetFileUnzip + ", " + e.getMessage());
+        } catch (OutOfMemoryError e) {
+            LOGGER.error(targetFileUnzip + ", " + e.getMessage());
+        }
 
         // clean up
-        FileHelper.delete("data/temp/iptocountry.gz");
-        FileHelper.delete("data/temp/iptocountry");
+        LOGGER.info("import complete, cleaning up now");
+        FileHelper.delete(targetFilename);
+        FileHelper.delete(targetFileUnzip);
+        FileHelper.delete(FileHelper.getFilePath(targetFileUnzip) + "ip_group_country.csv");
 
         LOGGER.info("refreshed IP database in " + sw.getElapsedTimeString());
 	}
@@ -139,8 +237,8 @@ public class IPDatabaseManager {
 	 */
 	public static void main(String[] args) {
 		IPDatabaseManager ipdb = new IPDatabaseManager();
-        // ipdb.refreshDB();
-        CollectionHelper.print(ipdb.getInformationByIP("92.206.9.232"));
+        ipdb.refreshDB();
+        System.out.println(ipdb.getLocationByIP("92.206.9.232"));
 	}
 
 }

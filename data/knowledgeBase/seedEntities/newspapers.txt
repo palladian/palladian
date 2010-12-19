@@ -1,0 +1,211 @@
+C##1
+The Wall Street Journal
+USA Today
+The New York Times
+Los Angeles Times
+The Washington Post
+Daily News
+New York Post
+San Jose Mercury News
+Contra Costa Times
+Oakland Tribune
+Chicago Tribune
+Houston Chronicle
+The Philadelphia Inquirer
+Philadelphia Daily News
+Newsday
+The Denver Post
+The Arizona Republic
+Star Tribune
+The Dallas Morning News
+The Plain Dealer
+The Seattle Times
+Chicago Sun-Times
+Detroit Free Press
+St. Petersburg Times
+The Oregonian
+The San Diego Union-Tribune
+San Francisco Chronicle
+The Star-Ledger
+The New Hampshire Gazette
+The Hartford Courant
+The Augusta Chronicle 
+Daily Hampshire Gazette
+Pittsburgh Post-Gazette
+The Berkshire Eagle
+The Recorder 
+Rutland Herald
+Norwich Bulletin 
+The Keene Sentinel 
+The Post and Courier
+The Post-Standard
+The Acorn
+Alameda Sun
+Alameda Times-Star
+Modoc County Record
+Atascadero News
+Auburn Journal
+Bakersfield Californian
+The Desert Dispatch
+Berkeley Daily Planet
+The Daily Californian
+East Bay Daily News
+Big Bear Grizzly
+Hellenic Journal
+Burlingame Daily News
+Camarillo Acorn
+Carson Community News
+Chico Enterprise-Record
+Chino Champion
+Colusa Sun Herald
+Corning Observer
+Corona Community News
+The Daily Triplicate
+Crestline Courier-News
+The Davis Enterprise
+San Diego Jewish Times
+Imperial Valley Press
+East Bay Express
+North County Times
+The Eureka Reporter
+Times-Standard
+The Daily Republic
+Fort Bragg Advocate News
+The Humboldt Beacon
+Mountain Enterprise
+The Argus
+The Fresno Bee
+Gilroy Dispatch
+Gonzales Tribune
+The Union
+Greenfield News
+Half Moon Bay Review
+The Sentinel
+The Daily Review (Hayward)
+Hesperia Star
+Hollister Free Lance
+Huntington Beach Independent
+King City Rustler
+Lake Arrowhead Mountain-News
+Lake County Record-Bee
+Lodi News-Sentinel
+Grunion Gazette
+Long Beach Press-Telegram
+Los Altos Town Crier
+Almanac Panorama
+Armenian Observer
+Asbarez
+California Staats-Zeitung
+City News Los Angeles
+The Daily Bruin
+Ha-meuaker
+Investor's Business Daily
+Kach Nazar
+La Opinión
+Los Angeles Daily Journal
+Los Angeles Herald-Tribune
+Los Angeles Sentinel
+Lraper
+Nor Serund
+Pacific Citizen
+Serichon Prachamiti
+Sinhan Minbo
+Watts Star-Review
+Los Gatos Daily News
+Los Gatos Observer
+Los Gatos Weekly Times
+Malibu Times
+Malibu Surfside News
+Manteca Bulletin
+Sun Post
+Appeal-Democrat
+Mendocino Beacon
+Merced Sun-Star
+Milpitas Post
+The Modesto Bee
+Monterey County Weekly
+The Monterey County Herald
+Moorpark Acorn
+Mountain View Voice
+Napa Valley Register
+Marin Independent Journal
+Inland Valley Daily Bulletin
+Orland Press Register
+Oroville Mercury-Register
+The Desert Sun
+Palm Springs Community News
+The Antelope Valley Political Observer
+Antelope Valley Press
+Palo Alto Daily News
+Palo Alto Daily Post
+Palos Verdes Peninsula News
+Pasadena Community News
+Pasadena Star-News
+Paso Pobles Press
+Petaluma Argus-Courier
+The Mountain Democrat
+Tri-Valley Herald
+The Porterville Recorder
+Red Bluff Daily News
+Record Searchlight
+Redlands Daily Facts
+Redwood City Daily News
+The Daily Independent
+The Press-Enterprise
+Humor Times
+The Sacramento Bee
+Sacramento Observer
+The Salinas Californian
+K'orio Chyonal
+Nichi Bei Times
+Philippine News
+Russkaia Zhizn
+San Francisco Daily
+San Francisco Examiner
+The Wall Street Journal (Western Edition)
+The Spartan Daily
+India West
+San Leandro
+The Tribune
+Today's Local News
+San Mateo County Times
+San Mateo Daily Journal
+The Orange County Register
+Excélsior
+Santa Barbara Daily Sound
+Santa Barbara News-Press
+The Signal
+Santa Cruz Sentinel
+Santa Maria Sun
+Santa Maria Times
+Santa Monica Daily Press
+The Press Democrat
+North Bay Business Journal
+Simi Valley Acorn
+Soledad Bee
+Sonoma Valley Sun
+The Union-Democrat
+Tahoe Daily Tribune
+The Stanford Daily
+The Record
+World Sikh News
+Taft Independent
+Thousand Oaks Acorn
+The Daily Breeze
+Tracy Press
+Tulare Advance-Register
+Turlock Journal
+Upland Community News
+The Reporter
+Times-Herald
+Ventura County Star
+Daily Press
+El Mojave
+Visalia Times-Delta
+Walnut Community News
+Watsonville Register-Pajaronian
+San Gabriel Valley Tribune
+Willows Journal
+Winters Express
+The Daily Democrat
+Yorba Linda Star

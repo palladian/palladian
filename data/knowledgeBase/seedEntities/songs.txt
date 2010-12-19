@@ -1,0 +1,90 @@
+C#song,musician,band,singer#1
+Stairway to Heaven
+Hey Jude
+Bohemian Rhapsody
+Hotel California
+Let It Be
+Smells Like Teen Spirit
+Like a Rolling Stone
+Billie Jean
+A Day in the Life
+Satisfaction
+Beat It
+Freebird
+All Along the Watchtower
+American Pie
+Comfortably Numb
+Gimme Shelter
+Kashmir
+Wish You Were Here
+Strawberry Fields Forever
+Wonderwall
+Sympathy for the Devil
+What a Wonderful World
+God Only Knows
+Back in Black
+Losing My Religion
+Born to Run
+Sweet Child O' Mine
+Tears in Heaven
+Tiny Dancer
+Piano Man
+Light My Fire
+Good Vibrations
+Layla
+Clair De Lune
+Black or White
+Sweet Home Alabama
+Everlong
+November Rain
+Bridge Over Troubled Waters
+Hallelujah
+Man in the Mirror
+Purple Haze
+Blowin' in the Wind
+Johnny B. Goode
+With or Without You
+Paint it Black
+Over the Rainbow
+Moonlight Sonata
+London Calling
+Knockin' On Heaven's Door
+Dream On
+Smooth Criminal
+Voodoo Child
+Fur Elise
+Don't Look Back In Anger
+House of the Rising Son
+Behind Blue Eyes
+I Want to Hold Your Hand
+The End
+Fire and Rain
+Shine on You Crazy Diamond
+Baba O'Riley
+Another Brick in the Wall
+Purple Rain
+Hang On
+Nothing Else Matters
+Let's Get it On
+Mr. Tambourine Man
+Redemption Song
+Dust in the Wind
+We Will Rock You/We Are the Champions
+The Dance
+No Woman, No Cry
+Amazing Grace
+Won't Get Fooled Again
+Come Together
+Brown Eyed Girl
+Lose Yourself
+Me and Bobby McGee
+Come As You Are
+Thunder Road
+Whole Lotta Rosie
+Paradise City
+Desperado
+Carry On My Wayward Son
+Born to be Wild
+Every Breath You Take
+Paper Planes
+Don't Fear the Reaper

@@ -222,9 +222,9 @@ public class FeedStatisticCreator {
         Set<String> tables = new HashSet<String>();
         tables.add("feed_evaluation2_adaptive_min_poll");
         tables.add("feed_evaluation2_probabilistic_min_poll");
-        // tables.add("feed_evaluation2_fix60_max_min_poll");
-        // tables.add("feed_evaluation2_fix1440_max_min_poll");
-        // tables.add("feed_evaluation2_fix_learned_min_poll");
+        tables.add("feed_evaluation2_fix60_max_min_poll");
+        tables.add("feed_evaluation2_fix1440_max_min_poll");
+        tables.add("feed_evaluation2_fix_learned_min_poll");
 
         for (String table : tables) {
             minDelayPolicyEvaluation(table);
@@ -251,6 +251,8 @@ public class FeedStatisticCreator {
      * @throws SQLException
      */
     public static void minDelayPolicyEvaluation(int avgStyle, String tableName) throws SQLException {
+
+        Logger.getRootLogger().info("min evaluation for " + avgStyle + " and table " + tableName);
 
         StringBuilder csv = new StringBuilder();
 
@@ -438,18 +440,35 @@ public class FeedStatisticCreator {
 
     public static void delayChart() throws SQLException {
 
+        Set<String> tables = new HashSet<String>();
+        tables.add("feed_evaluation2_adaptive_min_poll");
+        tables.add("feed_evaluation2_probabilistic_min_poll");
+        tables.add("feed_evaluation2_fix60_max_min_poll");
+        tables.add("feed_evaluation2_fix1440_max_min_poll");
+        tables.add("feed_evaluation2_fix_learned_min_poll");
+
+        for (String table : tables) {
+            delayChart(table);
+        }
+
+    }
+
+    public static void delayChart(String tableName) throws SQLException {
+
         StringBuilder csv = new StringBuilder();
 
         DatabaseManager dbm = DatabaseManager.getInstance();
 
-        dbm.runUpdate("CREATE TABLE tempTableA AS SELECT feedID FROM feed_evaluation_polls GROUP BY feedID HAVING COUNT(*) >= 10");
+        dbm.runUpdate("CREATE TABLE tempTableA AS SELECT a.feedID FROM (SELECT feedID FROM feed_evaluation2_adaptive_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 40) a, (SELECT feedID FROM feed_evaluation2_probabilistic_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 40) b, (SELECT feedID FROM feed_evaluation2_fix60_max_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 40) c, (SELECT feedID FROM feed_evaluation2_fix1440_max_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 20) d, (SELECT feedID FROM feed_evaluation2_fix_learned_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 40) e WHERE a.feedID = b.feedID AND b.feedID = c.feedID AND c.feedID = d.feedID AND d.feedID = e.feedID");
         dbm.runUpdate("ALTER TABLE tempTableA ADD PRIMARY KEY (`feedID`)");
 
         // new item number, [total delay, number of feeds]
         Map<Integer, Double[]> delayChartData = new TreeMap<Integer, Double[]>();
 
         ResultSet rs = dbm
-                .runQuery("SELECT fep.feedID, numberOfPoll, cumulatedLateDelay/(newWindowItems+missedItems) AS delay FROM feed_evaluation_polls fep,tempTableA WHERE fep.feedID = tempTableA.feedID AND newWindowItems > 0 ORDER BY fep.feedID ASC, numberOfPoll ASC");
+                .runQuery("SELECT fep.feedID, numberOfPoll, cumulatedLateDelay/(newWindowItems+missedItems) AS delay FROM "
+                        + tableName
+                        + " fep,tempTableA WHERE fep.feedID = tempTableA.feedID AND newWindowItems > 0 ORDER BY fep.feedID ASC, numberOfPoll ASC");
         int previousFeedID = -1;
         int newItemNumberDiscovery = 1;
         while (rs.next()) {
@@ -482,9 +501,10 @@ public class FeedStatisticCreator {
                     .append(dataEntry.getValue()[1]).append("\n");
         }
 
-        FileHelper.writeToFile("data/temp/feedEvaluationDelayChart.csv", csv);
+        String path = "data/temp/feedEvaluationDelayChart_" + tableName + ".csv";
+        FileHelper.writeToFile(path, csv);
 
-        Logger.getRootLogger().info("logs written to data/temp/feedEvaluationDelayChart.csv");
+        Logger.getRootLogger().info(path);
 
     }
 
@@ -648,9 +668,11 @@ public class FeedStatisticCreator {
         // FeedStatisticCreator.createGeneralStatistics(FeedDatabase.getInstance(), "data/temp/feedstats_combined.txt");
         // FeedStatisticCreator.createFeedUpdateIntervalDistribution(FeedDatabase.getInstance(),"data/temp/feedUpdateIntervals.csv");
         // FeedStatisticCreator.maxCoveragePolicyEvaluation("feed_evaluation_polls");
-        FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation_polls");
+        // FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation_polls");
+        // FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation2_fix60_max_min_poll");
         // FeedStatisticCreator.minDelayPolicyEvaluationAll();
         // FeedStatisticCreator.timelinessChart();
+        FeedStatisticCreator.delayChart();
 
     }
 

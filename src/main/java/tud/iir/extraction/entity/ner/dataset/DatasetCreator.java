@@ -1,6 +1,7 @@
 package tud.iir.extraction.entity.ner.dataset;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -72,7 +73,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @param seedFolderPath The path to the folder with the seed entities. Each file must be named with the concept
      *            name (_partX is ignored for markup) and there must be one seed entity per line.
      */
-    public void createDataset(String seedFolderPath) {
+    public final void createDataset(String seedFolderPath) {
         StopWatch stopWatch = new StopWatch();
 
         conceptSeeds = new HashMap<String, List<String>>();
@@ -212,7 +213,11 @@ public class DatasetCreator implements DatasetCreatorInterface {
         List<String> seedEntities = FileHelper.readFileToArray(seedFile);
 
         // get a random sample of seeds from the list
-        seedEntities = (List<String>) MathHelper.randomSample(seedEntities, getSeedsPerConcept());
+        Collection<String> randomSet = MathHelper.randomSample(seedEntities, getSeedsPerConcept());
+
+        for (String randomSeed : randomSet) {
+            seedEntities.add(randomSeed);
+        }
 
         // mix the entities
         // Set<String> mixedSeedEntities = new HashSet<String>();
@@ -357,10 +362,14 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * Remove sets of short lines which are usually tables or other irrelevant content that was incorrectly added as
      * page content.
      * 
-     * @param text The text that should be cleansed.
+     * @param inputText The text that should be cleansed.
+     * @param tagName The name of the tag.
      * @return The cleansed text.
      */
-    private String cleanText(String text, String tagName) {
+    private String cleanText(String inputText, String tagName) {
+
+        String text = inputText;
+
         try {
             // remove sets of lines that are too short
             text = text.replaceAll("(\n)+(.{0,80}(\n)){4,}", "\n");
@@ -531,7 +540,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         datasetCreator.setSourceAPI(SourceRetrieverManager.BING);
         datasetCreator.setMentionsPerEntity(5);
         datasetCreator.setSeedsPerConcept(5);
-        datasetCreator.createDataset("data/knowledgeBase/seedEntities2/");
+        datasetCreator.createDataset("data/knowledgeBase/seedEntities/");
         System.exit(1);
 
         String text = FileHelper.readFileToString("data/temp/all.xml");

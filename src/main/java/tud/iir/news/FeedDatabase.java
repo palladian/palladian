@@ -36,7 +36,7 @@ import tud.iir.persistence.DatabaseManager;
  */
 public class FeedDatabase implements FeedStore {
 
-    /** the instance of this class */
+    /** The instance of this class. */
     private final static FeedDatabase INSTANCE = new FeedDatabase();
 
     /** the logger for this class */

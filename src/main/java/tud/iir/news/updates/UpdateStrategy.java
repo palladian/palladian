@@ -1,6 +1,3 @@
-/**
- * Created on: 23.07.2010 09:07:24
- */
 package tud.iir.news.updates;
 
 import tud.iir.news.Feed;
@@ -10,11 +7,10 @@ import tud.iir.news.FeedPostStatistics;
  * <p>
  * 
  * </p>
- *
- * @author klemens.muthmann@googlemail.com
- * @version 1.0
- * @since 1.0
- *
+ * 
+ * @author David Urbansky
+ * @author Klemens Muthmann
+ * 
  */
 public interface UpdateStrategy {
 
@@ -27,14 +23,17 @@ public interface UpdateStrategy {
     /**
      * Benchmark algorithms towards their prediction ability for the next almost filled post list.
      */
-    public static final int BENCHMARK_MAX_CHECK_TIME = 2;    
+    public static final int BENCHMARK_MAX_CHECK_TIME = 2;
+
     /**
      * <p>
-     * 
+     * Update the minimal and maximal update interval for the feed given the post statistics.
      * </p>
-     *
+     * 
      * @param feed
      * @param fps
      */
     void update(Feed feed, FeedPostStatistics fps);
+
+    public String getName();
 }

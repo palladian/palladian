@@ -1,5 +1,7 @@
 package tud.iir.helper;
 
+import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -29,6 +31,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -198,6 +202,53 @@ public class FileHelper {
     public static String readFileToString(String path) {
         File contentFile = new File(path);
         return readFileToString(contentFile);
+    }
+
+    /**
+     * Mimic the "tail" command.
+     * 
+     * @param path The path of the file.
+     * @param numberOfLines The number of lines from the end of the file that should be returned
+     * @return A string with text lines from the specified file.
+     */
+    public static String tail(String path, int numberOfLines) {
+
+        StringBuilder contents = new StringBuilder();
+
+        int totalNumberOfLines = getNumberOfLines(path);
+
+        try {
+            FileReader in = new FileReader(path);
+            BufferedReader br = new BufferedReader(in);
+
+            String line = "";
+            int lineCount = 0;
+            do {
+                lineCount++;
+                line = br.readLine();
+                if (line == null) {
+                    break;
+                }
+
+                if (totalNumberOfLines - numberOfLines < lineCount) {
+                    contents.append(line).append("\n");
+                }
+
+            } while (line != null);
+
+            in.close();
+            br.close();
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(path + ", " + e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(path + ", " + e.getMessage());
+        } catch (OutOfMemoryError e) {
+            LOGGER.error(path + ", " + e.getMessage());
+        }
+
+        return contents.toString();
+
     }
 
     public static String readFileToString(File file) {
@@ -939,7 +990,7 @@ public class FileHelper {
      * @param filenameOutput The name of the zipped file.
      * @return True if zipping and saving was successfully, false otherwise.
      */
-    public static boolean zip(String text, String filenameOutput) {
+    public static boolean gzip(String text, String filenameOutput) {
 
         try {
             FileOutputStream out = new FileOutputStream(filenameOutput);
@@ -966,7 +1017,7 @@ public class FileHelper {
      * @param text the text
      * @return the string
      */
-    public static String zipString(String text) {
+    public static String gzipString(String text) {
         StringOutputStream out = null;
         try {
             StringInputStream in = new StringInputStream(text);
@@ -993,8 +1044,8 @@ public class FileHelper {
      * @param filenameInput The name of the zipped file.
      * @param filenameOutput The target name of the unzipped file.
      */
-    public static void unzipFile(String filenameInput, String filenameOutput) {
-        String unzippedContent = unzipFileToString(filenameInput);
+    public static void ungzipFile(String filenameInput, String filenameOutput) {
+        String unzippedContent = ungzipFileToString(filenameInput);
         writeToFile(filenameOutput, unzippedContent);
     }
 
@@ -1003,8 +1054,8 @@ public class FileHelper {
      *
      * @param filenameInput the filename input
      */
-    public static void unzipFile(String filenameInput) {
-        String unzippedContent = unzipFileToString(filenameInput);
+    public static void ungzipFile(String filenameInput) {
+        String unzippedContent = ungzipFileToString(filenameInput);
         String filenameOutput = getFilePath(filenameInput) + getFileName(filenameInput);
         writeToFile(filenameOutput, unzippedContent);
     }
@@ -1053,7 +1104,7 @@ public class FileHelper {
      * @param filename The name of the zipped file.
      * @return The unzipped content of the file.
      */
-    public static String unzipFileToString(String filename) {
+    public static String ungzipFileToString(String filename) {
         InputStream in = null;
         try {
             in = new FileInputStream(filename);
@@ -1062,7 +1113,7 @@ public class FileHelper {
             return "";
         }
 
-        return unzipInputStreamToString(in);
+        return ungzipInputStreamToString(in);
     }
 
     /**
@@ -1088,7 +1139,7 @@ public class FileHelper {
      * @param in The input stream with the zipped content.
      * @return The unzipped string.
      */
-    public static String unzipInputStreamToString(InputStream in) {
+    public static String ungzipInputStreamToString(InputStream in) {
         StringOutputStream out = new StringOutputStream();
         try {
             GZIPInputStream zipin = new GZIPInputStream(in);
@@ -1108,6 +1159,42 @@ public class FileHelper {
             LOGGER.error(e.getMessage());
         }
         return out.toString();
+    }
+
+    public static boolean unzipFile(String filename) {
+
+        int bufferSize = 1024;
+
+        try {
+
+            BufferedOutputStream dest = null;
+            FileInputStream fis = new FileInputStream(filename);
+            ZipInputStream zis = new ZipInputStream(new BufferedInputStream(fis));
+            ZipEntry entry;
+
+            while ((entry = zis.getNextEntry()) != null) {
+
+                LOGGER.debug("extracting: " + entry);
+                int count;
+                byte data[] = new byte[bufferSize];
+
+                // write the files to the disk
+                FileOutputStream fos = new FileOutputStream(getFilePath(filename) + entry.getName());
+                dest = new BufferedOutputStream(fos, bufferSize);
+                while ((count = zis.read(data, 0, bufferSize)) != -1) {
+                    dest.write(data, 0, count);
+                }
+                dest.flush();
+                dest.close();
+            }
+            zis.close();
+
+        } catch (Exception e) {
+            LOGGER.error(e.getMessage());
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -1234,15 +1321,15 @@ public class FileHelper {
         // FileHelper.unzipFile("abc.log.gz", "abc_unzipped.log");
         System.exit(0);
 
-        FileHelper.zip("abc -1 sdf sdjfosd fs- 12\\n-1\\abc", "test.txt.gz");
+        FileHelper.gzip("abc -1 sdf sdjfosd fs- 12\\n-1\\abc", "test.txt.gz");
 
-        String unzippedText = FileHelper.unzipFileToString("test.txt.gz");
+        String unzippedText = FileHelper.ungzipFileToString("test.txt.gz");
         System.out.println(unzippedText);
 
-        String zippedString = FileHelper.zipString("abc -1 def");
+        String zippedString = FileHelper.gzipString("abc -1 def");
         System.out.println(zippedString);
 
-        FileHelper.unzipFile("test.txt.gz", "unzipped.txt");
+        FileHelper.ungzipFile("test.txt.gz", "unzipped.txt");
 
         // System.out.println(FileHelper.unzipString(zippedString));
 

@@ -1,0 +1,88 @@
+C#book,author#1
+To Kill a Mockingbird
+The Lord of the Rings
+Pride and Prejudice
+The Catcher in the Rye
+Crime and Punishment
+The Great Gatsby
+Catch-22
+Animal Farm
+The Brothers Karamazov
+Jane Eyre
+Anna Karenina
+Brave New World
+The Count of Monte Cristo
+Wuthering Heights
+War and Peace
+The Grapes of Wrath
+Lord of the Flies
+Ulysses
+East of Eden
+Harry Potter Series
+A Tale of Two Cities
+Gone with the Wind
+Great Expectations
+Les Miserables
+One Hundred Years of Solitude
+Slaughterhouse-Five
+The Adventures of Huckleberry Finn
+The Hobbit
+Atlas Shrugged
+Don Quixote
+The Fountainhead
+The Chronicles of Narnia
+A Clockwork Orange
+Of Mice and Men
+The Kite Runner
+The Picture of Dorian Gray
+The Hitchhiker's Guide to the Galaxy
+Fahrenheit 451
+One Flew Over the Cuckoo's Nest
+The Sound and the Fury
+The Stranger
+The Sun Also Rises
+Moby Dick
+Ender's Game
+Heart of Darkness
+A Portrait of the Artist as a Young Man
+On the Road
+Watership Down
+His Dark Materials
+The Da Vinci Code
+Invisible Man
+The Time Traveler's Wife
+A Farewell to Arms
+Little Women
+Madame Bovary
+Remembrance of Things Past
+Life of Pi
+Love in the Time of Cholera
+The Old Man and the Sea
+The Stand
+Absalom, Absalom!
+A Confederacy of Dunces
+Middlemarch
+Tess of the D'Urbervilles
+For Whom the Bell Tolls
+The Unbearable Lightness of Being
+Memoirs of a Geisha
+Fight Club
+The Master and Margarita
+The Trial
+The Three Musketeers
+The Bell Jar
+Anne of Green Gables
+A Prayer for Owen Meany
+Of Human Bondage
+The Road
+To the Lighthouse
+The Handmaid's Tale
+The Twilight Saga
+The Name of the Rose
+Blood Meridian
+Gravity's Rainbow
+The Poisonwood Bible
+The Curious Incident of the Dog in the Night-time
+As I Lay Dying
+Siddharta
+All Quiet on the Western Front

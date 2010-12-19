@@ -2,6 +2,12 @@ package tud.iir.extraction.entity.ner.evaluation;
 
 import tud.iir.extraction.entity.ner.Annotation;
 
+/**
+ * This Annotation is one that is used for evaluation and can be checked whether it was tagged.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class EvaluationAnnotation extends Annotation {
 
     /** If true, the NER has found the annotation. */

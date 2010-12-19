@@ -1,0 +1,57 @@
+C#train#1
+0 Series Shinkansen
+100 Series Shinkansen
+200 Series Shinkansen
+300 Series Shinkansen
+400 Series Shinkansen
+500 Series Shinkansen
+700 Series Shinkansen
+N700 Series Shinkansen
+800 Series Shinkansen
+Acela Express
+AGV
+Alfa Pendular
+AVE Class 100
+AVE Class 102
+AVE Class 103
+BR Class 370
+BR Class 373
+BR Class 390
+ČD Class 680
+CRH1
+CRH2
+CRH3
+CRH5
+CRH380A
+E1 Series Shinkansen
+E2 Series Shinkansen
+E3 Series Shinkansen
+E4 Series Shinkansen
+E5 Series Shinkansen
+E6 Series Shinkansen
+ETR 450
+ETR 460
+ETR 480
+ETR 470
+ETR 500
+ICE 1
+ICE 2
+ICE 3
+ICE T
+ICE TD
+InterCity 125
+InterCity 225
+KTX-I
+KTX-II
+KTX-III
+railjet
+TGV Sud-Est
+TGV Atlantique
+TGV Réseau
+TGV Duplex
+TGV POS
+TGV Thalys PBKA
+V250
+Velaro
+VR Class Sm3
+VR Class Sm6

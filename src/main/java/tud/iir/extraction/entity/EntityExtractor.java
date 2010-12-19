@@ -48,7 +48,7 @@ public class EntityExtractor extends Extractor {
     /** limit the number of entity extractions, stop if limit has been reached, -1 means no limit */
     private int extractionLimit = -1;
 
-    /** if true, bulks of extractions are saved automatically to knowledge base */
+    /** If true, bulks of extractions are saved automatically to knowledge base. */
     boolean autoSave = true;
 
     // private HashSet<Pattern> patternCandidates;

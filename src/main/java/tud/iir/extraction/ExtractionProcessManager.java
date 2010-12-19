@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 
 import tud.iir.control.Controller;
 import tud.iir.extraction.entity.EntityExtractionProcess;
+import tud.iir.extraction.event.EventExtractionProcess;
 import tud.iir.extraction.fact.FactExtractionProcess;
 import tud.iir.extraction.mio.MIOExtractionProcess;
 import tud.iir.extraction.qa.QAExtractionProcess;
@@ -11,7 +12,6 @@ import tud.iir.extraction.snippet.SnippetExtractionProcess;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.ThreadHelper;
-import tud.iir.news.FeedStoreManager;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetrieverManager;
@@ -23,16 +23,21 @@ import tud.iir.web.SourceRetrieverManager;
  */
 public class ExtractionProcessManager {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ExtractionProcessManager.class);
+
     public static boolean entityExtractionIsRunning = false;
     public static boolean factExtractionIsRunning = false;
     public static boolean qaExtractionIsRunning = false;
     public static boolean snippetExtractionIsRunning = false;
     public static boolean mioExtractionIsRunning = false;
+    public static boolean eventExtractionIsRunning = false;
     private static EntityExtractionProcess ep;
     private static FactExtractionProcess fp;
     private static MIOExtractionProcess mp;
     private static SnippetExtractionProcess sp;
     private static QAExtractionProcess qp;
+    private static EventExtractionProcess evp;
 
     public static LiveStatus liveStatus = new LiveStatus();
 
@@ -68,7 +73,7 @@ public class ExtractionProcessManager {
             ep = new EntityExtractionProcess();
             ep.start();
         } else {
-            System.out.println("already running");
+            LOGGER.info("already running");
         }
     }
 
@@ -78,7 +83,7 @@ public class ExtractionProcessManager {
             entityExtractionIsRunning = false;
             return stopped;
         } else {
-            System.out.println("not running");
+            LOGGER.info("not running");
         }
         return false;
     }
@@ -89,7 +94,7 @@ public class ExtractionProcessManager {
             fp = new FactExtractionProcess();
             fp.start();
         } else {
-            System.out.println("already running");
+            LOGGER.info("already running");
         }
     }
 
@@ -99,7 +104,7 @@ public class ExtractionProcessManager {
             factExtractionIsRunning = false;
             return stopped;
         } else {
-            System.out.println("not running");
+            LOGGER.info("not running");
         }
         return false;
     }
@@ -110,7 +115,7 @@ public class ExtractionProcessManager {
             fp = new FactExtractionProcess(true);
             fp.start();
         } else {
-            System.out.println("already running");
+            LOGGER.info("already running");
         }
     }
 
@@ -120,7 +125,7 @@ public class ExtractionProcessManager {
             qp = new QAExtractionProcess();
             qp.start();
         } else {
-            System.out.println("already running");
+            LOGGER.info("already running");
         }
     }
 
@@ -130,7 +135,28 @@ public class ExtractionProcessManager {
             qaExtractionIsRunning = false;
             return stopped;
         } else {
-            System.out.println("not running");
+            LOGGER.info("not running");
+        }
+        return false;
+    }
+
+    public static void startEventExtraction() {
+        if (!eventExtractionIsRunning) {
+            eventExtractionIsRunning = true;
+            evp = new EventExtractionProcess();
+            evp.start();
+        } else {
+            LOGGER.info("already running");
+        }
+    }
+
+    public static boolean stopEventExtraction() {
+        if (eventExtractionIsRunning) {
+            boolean stopped = evp.stopExtraction();
+            eventExtractionIsRunning = false;
+            return stopped;
+        } else {
+            LOGGER.info("not running");
         }
         return false;
     }
@@ -141,7 +167,7 @@ public class ExtractionProcessManager {
             sp = new SnippetExtractionProcess();
             sp.start();
         } else {
-            System.out.println("already running");
+            LOGGER.info("already running");
         }
     }
 
@@ -151,7 +177,7 @@ public class ExtractionProcessManager {
             snippetExtractionIsRunning = false;
             return stopped;
         } else {
-            System.out.println("not running");
+            LOGGER.info("not running");
         }
         return false;
     }
@@ -162,7 +188,7 @@ public class ExtractionProcessManager {
             mp = new MIOExtractionProcess();
             mp.start();
         } else {
-            System.out.println("already running");
+            LOGGER.info("already running");
         }
     }
 
@@ -172,7 +198,7 @@ public class ExtractionProcessManager {
             mioExtractionIsRunning = false;
             return stopped;
         } else {
-            System.out.println("not running");
+            LOGGER.info("not running");
         }
         return false;
     }
@@ -185,7 +211,7 @@ public class ExtractionProcessManager {
         // get the current number of downloaded bytes from the database
         Crawler.sessionDownloadedBytes = DatabaseManager.getInstance().getExtractionStatusDownloadedBytes();
 
-        System.out.println(Crawler.sessionDownloadedBytes);
+        LOGGER.info(Crawler.sessionDownloadedBytes);
 
         SourceRetrieverManager.getInstance().setSource(Controller.getConfig().getInt("extraction.source"));
         SourceRetrieverManager.getInstance().setResultCount(Controller.getConfig().getInt("extraction.resultCount"));
@@ -200,56 +226,71 @@ public class ExtractionProcessManager {
                 startEntityExtraction();
                 waitingLoop(Controller.getConfig().getInt("extraction.entitySlot") * DateHelper.MINUTE_MS,
                         extractionStatusUpdateInteraval);
-                Logger.getRootLogger().info("stop entity extraction now...");
+                LOGGER.info("stop entity extraction now...");
                 stopEntityExtraction();
-                Logger.getRootLogger().info("entity extraction stopped, continue");
+                LOGGER.info("entity extraction stopped, continue");
             }
 
             if (Controller.getConfig().getInt("extraction.factSlot") > 0) {
                 startFactExtraction();
                 waitingLoop(Controller.getConfig().getInt("extraction.factSlot") * DateHelper.MINUTE_MS,
                         extractionStatusUpdateInteraval);
-                Logger.getRootLogger().info("stop fact extraction now...");
+                LOGGER.info("stop fact extraction now...");
                 stopFactExtraction();
-                Logger.getRootLogger().info("fact extraction stopped, continue");
+                LOGGER.info("fact extraction stopped, continue");
             }
 
             if (Controller.getConfig().getInt("extraction.mioSlot") > 0) {
                 startMIOExtraction();
                 waitingLoop(Controller.getConfig().getInt("extraction.mioSlot") * DateHelper.MINUTE_MS,
                         extractionStatusUpdateInteraval);
-                Logger.getRootLogger().info("stop mio extraction now...");
+                LOGGER.info("stop mio extraction now...");
                 stopMIOExtraction();
-                Logger.getRootLogger().info("mio extraction stopped, continue");
+                LOGGER.info("mio extraction stopped, continue");
             }
 
             if (Controller.getConfig().getInt("extraction.snippetSlot") > 0) {
                 startSnippetExtraction();
                 waitingLoop(Controller.getConfig().getInt("extraction.snippetSlot") * DateHelper.MINUTE_MS,
                         extractionStatusUpdateInteraval);
-                Logger.getRootLogger().info("stop snippet extraction now...");
+                LOGGER.info("stop snippet extraction now...");
                 stopSnippetExtraction();
-                Logger.getRootLogger().info("snippet extraction stopped, continue");
+                LOGGER.info("snippet extraction stopped, continue");
             }
 
             if (Controller.getConfig().getInt("extraction.qaSlot") > 0) {
                 startQAExtraction();
                 waitingLoop(Controller.getConfig().getInt("extraction.qaSlot") * DateHelper.MINUTE_MS,
                         extractionStatusUpdateInteraval);
-                Logger.getRootLogger().info("stop qa extraction now...");
+                LOGGER.info("stop qa extraction now...");
                 stopQAExtraction();
-                Logger.getRootLogger().info("qa extraction stopped, continue");
+                LOGGER.info("qa extraction stopped, continue");
+            }
+
+            if (Controller.getConfig().getInt("extraction.eventSlot") > 0) {
+                startEventExtraction();
+                waitingLoop(Controller.getConfig().getInt("extraction.eventSlot") * DateHelper.MINUTE_MS,
+                        extractionStatusUpdateInteraval);
+                LOGGER.info("stop event extraction now...");
+                stopEventExtraction();
+                LOGGER.info("event extraction stopped, continue");
             }
 
             // cleansing and management
-            if (loopCount % 10 == 0) {
-                FeedStoreManager fsm = new FeedStoreManager();
-                fsm.importFeeds();
-            }
-            if (loopCount % 50 == 0) {
-                FeedStoreManager fsm = new FeedStoreManager();
-                fsm.updateHeaderInformation();
-            }
+            // if (loopCount % 10 == 0) {
+            // LOGGER.info("MANAGEMENT: import feeds");
+            // FeedStoreManager fsm = new FeedStoreManager();
+            // fsm.importFeeds();
+            // }
+            // if (loopCount % 50 == 0) {
+            // LOGGER.info("MANAGEMENT: update feed header information");
+            // FeedStoreManager fsm = new FeedStoreManager();
+            // fsm.updateHeaderInformation();
+            // }
+            // if (loopCount % 60 == 0) {
+            // LOGGER.info("MANAGEMENT: refresh IP database");
+            // IPDatabaseManager.getInstance().refreshDB();
+            // }
 
             loopCount++;
         }
@@ -266,7 +307,7 @@ public class ExtractionProcessManager {
         for (int i = 0; i < steps; i++) {
             ThreadHelper.sleep(intervalMS);
             int progress = (int) Math.floor((double) 100 * i / steps);
-            System.out.println("progress: " + progress + "%");
+            LOGGER.info("progress: " + progress + "%");
 
             liveStatus.setPercent(progress);
             liveStatus.setTimeLeft(DateHelper.getTimeString(totalTimeMS - i * intervalMS));
@@ -297,6 +338,9 @@ public class ExtractionProcessManager {
         if (qaExtractionIsRunning) {
             return 5;
         }
+        if (eventExtractionIsRunning) {
+            return 6;
+        }
         return -1;
     }
     /**
@@ -316,6 +360,8 @@ public class ExtractionProcessManager {
                 return "Snippet Extraction";
             case 5:
                 return "QA Extraction";
+            case 6:
+                return "Event Extraction";
             default:
                 return "Unknown";
         }
@@ -327,7 +373,7 @@ public class ExtractionProcessManager {
      * @return An excerpt of the logs.
      */
     private static String getCurrentPhaseLoggerExcerpt() {
-        return FileHelper.readFileToString(Controller.getConfig().getString("extraction.liveStatusLogPath"));
+        return FileHelper.tail(Controller.getConfig().getString("extraction.liveStatusLogPath"), 50);
     }
 
     public static int getSourceRetrievalSite() {
