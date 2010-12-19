@@ -508,23 +508,23 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
 //    /**
 //     * @param wikipedia
-//     * @s----ee maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
+//     * @see maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
 //     */
 //    public void setWikipedia(Wikipedia wikipedia) {
 //        mauiFilter.setWikipedia(wikipedia);
 //    }
 
-    /**
-     * @param wikipediaServer
-     * @param wikipediaDatabase
-     * @param cacheData
-     * @param wikipediaDataDirectory
-     * @see maui.filters.MauiFilter#setWikipedia(java.lang.String, java.lang.String, boolean, java.lang.String)
-     */
-    public void setWikipedia(String wikipediaServer, String wikipediaDatabase, boolean cacheData,
-            String wikipediaDataDirectory) {
-        mauiFilter.setWikipedia(wikipediaServer, wikipediaDatabase, cacheData, wikipediaDataDirectory);
-    }
+//    /**
+//     * @param wikipediaServer
+//     * @param wikipediaDatabase
+//     * @param cacheData
+//     * @param wikipediaDataDirectory
+//     * @see maui.filters.MauiFilter#setWikipedia(java.lang.String, java.lang.String, boolean, java.lang.String)
+//     */
+//    public void setWikipedia(String wikipediaServer, String wikipediaDatabase, boolean cacheData,
+//            String wikipediaDataDirectory) {
+//        mauiFilter.setWikipedia(wikipediaServer, wikipediaDatabase, cacheData, wikipediaDataDirectory);
+//    }
 
     /**
      * Build global dictionaries from the test set.
