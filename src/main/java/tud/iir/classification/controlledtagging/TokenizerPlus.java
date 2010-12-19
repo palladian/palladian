@@ -26,6 +26,7 @@ import tud.iir.extraction.event.TagAnnotation;
 import tud.iir.extraction.event.TagAnnotations;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.CountMap;
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.Tokenizer;
@@ -55,7 +56,7 @@ public class TokenizerPlus {
     private AbstractPOSTagger posTagger = new LingPipePOSTagger();
 
     /** Whether to use POS tagging. */
-    private boolean usePosTagging = true;
+    private boolean usePosTagging = false;
     
     public interface TokenizerSettings {
         SnowballStemmer getStemmer();
@@ -200,6 +201,8 @@ public class TokenizerPlus {
                         return new ArrayList<Token>();
                     }
                 });
+        
+        Set<String> stopwords = settings.getStopwords();
 
         // gram size. do a reverse iteration,
         // as we prefer longer collocations
@@ -219,8 +222,8 @@ public class TokenizerPlus {
                 boolean accept = true;
 
                 // don't accept collocations which start or end with a stopword
-                accept = accept && !settings.getStopwords().contains(tokenArray[i].getUnstemmedValue());
-                accept = accept && !settings.getStopwords().contains(tokenArray[i + n - 1].getUnstemmedValue());
+                accept = accept && !stopwords.contains(tokenArray[i].getUnstemmedValue());
+                accept = accept && !stopwords.contains(tokenArray[i + n - 1].getUnstemmedValue());
 
                 if (!accept) {
                     continue;
@@ -243,7 +246,7 @@ public class TokenizerPlus {
                     unstemmedBuilder.append(currentToken.getUnstemmedValue()).append(" ");
                     
                     // XXX experimental
-                    if (!settings.getStopwords().contains(currentToken.getUnstemmedValue())) {
+                    if (!stopwords.contains(currentToken.getUnstemmedValue())) {
                     stemmedBuilder.append(currentToken.getStemmedValue()).append(" ");
                     }
                     // XXX
@@ -355,11 +358,22 @@ public class TokenizerPlus {
 
     public static void main(String[] args) {
         
+        String str = FileHelper.readFileToString("/Users/pk/temp/fao780/46140e.txt");
+        TokenizerPlus tokenizer = new TokenizerPlus();
+        tokenizer.usePosTagging = false;
+        
+        StopWatch sw = new StopWatch();
+//        Set<String> calculateWordNGrams = Tokenizer.calculateWordNGrams(str, 2);
+        List<Token> t = tokenizer.tokenize(str);
+        tokenizer.makeCollocations(t, 2);
+        System.out.println(sw);
+//        System.out.println(calculateWordNGrams.size());
+        
+        System.exit(0);
+        
         System.out.println(makeCanonicalForm("beta gamma alpha zeta"));
         System.exit(0);
 
-        TokenizerPlus tokenizer = new TokenizerPlus();
-        tokenizer.usePosTagging = false;
 
         Crawler crawler = new Crawler();
         // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Apple_iPhone");
@@ -374,7 +388,7 @@ public class TokenizerPlus {
         String text = HTMLHelper.htmlToString(doc);
 
         // String text = "the quick brown fox jumps over the lazy dog. brown foxes. brown fox. brown fox. fox";
-        StopWatch sw = new StopWatch();
+        // StopWatch sw = new StopWatch();
         List<Token> tokens = tokenizer.tokenize(text);
         System.out.println("# of tokens : " + tokens.size());
         List<Token> collocations = tokenizer.makeCollocations(tokens, 5);

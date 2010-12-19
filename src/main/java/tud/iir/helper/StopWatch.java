@@ -123,6 +123,11 @@ public class StopWatch {
     public String getElapsedTimeString() {
         return getElapsedTimeString(false);
     }
+    
+    @Override
+    public String toString() {
+        return getElapsedTimeString();
+    }
 
     public static void main(String[] args) {
         StopWatch s = new StopWatch();

@@ -71,6 +71,12 @@ public class FastWordCorrelationMatrix extends WordCorrelationMatrix {
         putToCorrelationsMap(word1, word2, wc);
         putToCorrelationsMap(word2, word1, wc);
     }
+    
+    @Override
+    public void clear() {
+        super.clear();
+        termTermCorrelations.clear();
+    }
 
     private void putToCorrelationsMap(String word1, String word2, WordCorrelation correlation) {
 

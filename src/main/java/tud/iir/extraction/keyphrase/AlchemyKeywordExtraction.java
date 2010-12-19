@@ -21,7 +21,7 @@ import tud.iir.web.HTTPPoster;
  * @author Philipp Katz
  * 
  */
-public class AlchemyKeywordExtraction extends AbstractKeyphraseExtractor {
+public class AlchemyKeywordExtraction extends KeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(AlchemyKeywordExtraction.class);
@@ -125,6 +125,11 @@ public class AlchemyKeywordExtraction extends AbstractKeyphraseExtractor {
     @Override
     public boolean needsTraining() {
         return false;
+    }
+    
+    @Override
+    public String getExtractorName() {
+        return "Alchemy API; Keyword/Term Extraction";
     }
     
     public static void main(String[] args) {

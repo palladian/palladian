@@ -611,8 +611,9 @@ public class FileHelper {
     }
 
     /**
-     * Deserialize.
-     *
+     * Deserialize a serialized object. This generic method does the cast for you.
+     * 
+     * @param <T> type of the objects.
      * @param filePath the file path
      * @return the object
      */

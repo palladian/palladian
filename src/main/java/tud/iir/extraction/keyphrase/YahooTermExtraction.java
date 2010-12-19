@@ -19,7 +19,7 @@ import tud.iir.web.HTTPPoster;
  * @author Philipp Katz
  *
  */
-public class YahooTermExtraction extends AbstractKeyphraseExtractor {
+public class YahooTermExtraction extends KeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(YahooTermExtraction.class);
@@ -77,6 +77,11 @@ public class YahooTermExtraction extends AbstractKeyphraseExtractor {
     @Override
     public boolean needsTraining() {
         return false;
+    }
+    
+    @Override
+    public String getExtractorName() {
+        return "Yahoo! Term Extraction";
     }
 
     public static void main(String[] args) {

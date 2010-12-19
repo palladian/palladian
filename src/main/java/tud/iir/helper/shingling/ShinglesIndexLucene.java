@@ -208,6 +208,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                     for (String hash : sketchArray) {
                         result.add(Long.valueOf(hash));
                     }
+                    break;
                 }
             }
             reader.close();
@@ -262,6 +263,7 @@ public class ShinglesIndexLucene extends ShinglesIndexBaseImpl {
                     for (String similarity : similarityArray) {
                         result.add(Integer.valueOf(similarity));
                     }
+                    break;
                 }
             }
             reader.close();

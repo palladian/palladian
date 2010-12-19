@@ -141,12 +141,12 @@ public final class CollectionHelper {
     // }
     // System.out.println("#Entries: "+list.size());
     // }
-    @SuppressWarnings("unchecked")
-    public static void print(Map map) {
-        Iterator<Map.Entry> mapIterator = map.entrySet().iterator();
+    //@SuppressWarnings("unchecked")
+    public static <S, T> void print(Map<S, T> map) {
+        Iterator<Map.Entry<S, T>> mapIterator = map.entrySet().iterator();
         while (mapIterator.hasNext()) {
-            @SuppressWarnings("rawtypes")
-            Map.Entry entry = mapIterator.next();
+            // @SuppressWarnings("rawtypes")
+            Map.Entry<S, T> entry = mapIterator.next();
             System.out.println(entry.getKey() + " : " + entry.getValue());
         }
         System.out.println("#Entries: " + map.entrySet().size());

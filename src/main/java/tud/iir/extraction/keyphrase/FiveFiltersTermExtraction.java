@@ -11,7 +11,7 @@ import org.json.JSONException;
 
 import tud.iir.web.HTTPPoster;
 
-public class FiveFiltersTermExtraction extends AbstractKeyphraseExtractor {
+public class FiveFiltersTermExtraction extends KeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FiveFiltersTermExtraction.class);
@@ -62,6 +62,11 @@ public class FiveFiltersTermExtraction extends AbstractKeyphraseExtractor {
     @Override
     public boolean needsTraining() {
         return false;
+    }
+    
+    @Override
+    public String getExtractorName() {
+        return "Five Filters Term Extraction";
     }
 
     public static void main(String[] args) {
