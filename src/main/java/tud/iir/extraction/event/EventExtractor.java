@@ -21,12 +21,14 @@ import org.apache.log4j.Logger;
 
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
+import tud.iir.daterecognition.DateGetter;
 import tud.iir.daterecognition.DateGetterHelper;
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StringHelper;
 import weka.core.stemmers.SnowballStemmer;
 
@@ -56,7 +58,7 @@ public class EventExtractor {
     private final String MODEL_WHERE;
     private final String MODEL_WHO;
 
-    // private boolean deepMode = true;
+    private boolean deepMode = false;
 
     /**
      * @return EventExtractor
@@ -86,8 +88,6 @@ public class EventExtractor {
             MODEL_WHO = config.getString("models.palladian.en.event.who");
             MODEL_WHERE = config.getString("models.palladian.en.event.where");
 
-            setWhoClassifier(Classifier.LINEAR_REGRESSION);
-            setWhereClassifier(Classifier.LINEAR_REGRESSION);
         } else {
             MODEL_WHO = "";
             MODEL_WHERE = "";
@@ -96,14 +96,12 @@ public class EventExtractor {
     }
 
     /**
-     * extracts an event from given url
+     * Creates an event with title and text from an given url.
      * 
      * @param url
-     *            - url of a news article
-     * @return Event - The event
+     * @return
      */
-    public static Event extractEventFromURL(String url) {
-
+    public static Event createEventFromURL(String url) {
         Event event = null;
         try {
 
@@ -120,6 +118,28 @@ public class EventExtractor {
             LOGGER.error("URL not found: " + url);
 
         }
+        return event;
+    }
+
+    /**
+     * extracts an event from given url and performs the whole 5W1H extraction
+     * 
+     * @param url
+     *            - url of a news article
+     * @return Event - The event
+     */
+    public static Event extractEventFromURL(String url) {
+
+        Event event = EventExtractor.createEventFromURL(url);
+
+        EventExtractor eventExtractor = new EventExtractor();
+        eventExtractor.setWhoClassifier(Classifier.NEURAL_NETWORK);
+        eventExtractor.setWhereClassifier(Classifier.NEURAL_NETWORK);
+
+        eventExtractor.getFeatureExtractor().setFeatures(event);
+
+        eventExtractor.extract5W1H(event);
+
         return event;
     }
 
@@ -153,19 +173,35 @@ public class EventExtractor {
      */
     public void extractWhen(Event event) {
 
-        /*
-         * final DateGetter dg = new DateGetter(event.getUrl());
-         * dg.setAllFalse(); dg.setTechHTMLContent(true);
-         * dg.setTechHTMLHead(true); dg.setTechHTTP(true); dg.setTechURL(true);
-         * CollectionHelper.print(dg.getDate());
-         */
+        Map<String, Double> rankedCandidates = new HashMap<String, Double>();
+
+        if (this.deepMode) {
+            final DateGetter dg = new DateGetter(event.getUrl());
+            dg.setAllFalse();
+            dg.setTechHTMLContent(true);
+            dg.setTechHTMLHead(true);
+            dg.setTechHTTP(true);
+            dg.setTechURL(true);
+            CollectionHelper.print(dg.getDate());
+
+            for (Annotation anno : featureExtractor.getDateAnnotations(event
+                    .getText())) {
+                rankedCandidates.put(anno.getEntity().getName(), 0.5);
+            }
+
+        }
 
         final ArrayList<ContentDate> dates = DateGetterHelper
                 .findALLDates(event.getText());
 
         try {
-            LOGGER.info("when:" + dates.get(0).getNormalizedDate());
+
+            for (ContentDate date : dates) {
+                rankedCandidates.put(date.getNormalizedDate().toString(), 1.0);
+            }
+            event.setWhenCandidates(rankedCandidates);
             event.setWhen(dates.get(0).getNormalizedDate().toString());
+
         } catch (final Exception e) {
             LOGGER.error(e);
         }
@@ -202,12 +238,8 @@ public class EventExtractor {
         }
 
         rankedCandidates = sortByValue(rankedCandidates);
-        final Object[] keys = rankedCandidates.keySet().toArray();
-        final Object[] values = rankedCandidates.values().toArray();
 
         if (rankedCandidates.size() > 0) {
-            LOGGER.info("highest ranked where:" + keys[0] + "(" + values[0]
-                    + ")");
             event.setWhereCandidates(rankedCandidates);
             event.setWhere(rankedCandidates.keySet().toArray()[0].toString());
         } else {
@@ -248,7 +280,6 @@ public class EventExtractor {
 
         final Map<String, Double> whyCandidates = new HashMap<String, Double>();
 
-        final String text = StringHelper.makeContinuousText(event.getText());
         String whatVerb = null;
 
         if (event.getWhat() != null) {
@@ -263,8 +294,8 @@ public class EventExtractor {
 
                 while (m.find()) {
                     for (int i = 1; i <= m.groupCount(); i++) {
-                        LOGGER.info(m.group(i) + " (" + m.start(i) + ","
-                                + m.end(i) + ")");
+                        // LOGGER.info(m.group(i) + " (" + m.start(i) + ","+
+                        // m.end(i) + ")");
                         if (whatVerb == null) {
                             whatVerb = m.group(i);
                         }
@@ -307,7 +338,7 @@ public class EventExtractor {
             event.setWhy(whyCandidates.keySet().toArray()[0].toString());
 
         } else {
-            LOGGER.info("no why found");
+            LOGGER.info("no WHY was found.");
         }
     }
 
@@ -319,13 +350,13 @@ public class EventExtractor {
         // regExpMap.put("(" + who + "(.*)to/TO [^ \t](.*)/VB)", 0.5);
         regExpMap.put("(" + what + "(.*)will)", 0.5);
         regExpMap.put("(since)", 0.2);
-        regExpMap.put("(cause)", 0.2);
-        regExpMap.put("(because)", 0.2);
+        regExpMap.put("(cause)", 0.3);
+        regExpMap.put("(because)", 0.3);
         regExpMap.put("(hence)", 0.2);
-        regExpMap.put("(therefore)", 0.2);
+        regExpMap.put("(therefore)", 0.3);
         regExpMap.put("(why)", 0.2);
-        regExpMap.put("(result)", 0.2);
-        regExpMap.put("(reason)", 0.2);
+        regExpMap.put("(result)", 0.4);
+        regExpMap.put("(reason)", 0.3);
         regExpMap.put("(provide)", 0.1);
         regExpMap.put("('s behind)", 0.2);
         regExpMap.put("(Due to)", 0.2);
@@ -385,7 +416,7 @@ public class EventExtractor {
         final String title = StringHelper.makeContinuousText(event.getTitle());
 
         LOGGER.info("title: " + title);
-        LOGGER.info("text: " + text);
+        // LOGGER.info("text: " + text);
 
         // event.setWho("police");
 
@@ -409,7 +440,6 @@ public class EventExtractor {
                 titleVerbPhrase = getSubsequentVerbPhrase(event.getTitle(), who);
                 if (titleVerbPhrase != null && !changed) {
                     event.setWho(who);
-                    LOGGER.info("new who:" + who);
                     changed = true;
                     // System.out.println("new who: " + who);
                 }
@@ -435,7 +465,7 @@ public class EventExtractor {
 
         }
 
-        LOGGER.info("most likely what: " + what);
+        // LOGGER.info("most likely what: " + what);
         event.setWhat(what);
 
     }
@@ -512,16 +542,18 @@ public class EventExtractor {
         // pattern matching "like..."
 
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
-
+        double position = 0.0;
         for (final String stc : event.getSentences()) {
 
             double confidence = StringHelper.calculateSimilarity(stc, event
-                    .getTitle());
+                    .getTitle())
+                    - position;
+            position = position + 0.001;
 
             if (stc.contains("like")) {
                 confidence = confidence + 0.1;
             }
-            if (confidence > 0.2) {
+            if (confidence > 0.1) {
                 rankedCandidates.put(stc, confidence);
             }
         }
@@ -531,7 +563,7 @@ public class EventExtractor {
             event.setHowCandidates(rankedCandidates);
             event.setHow(rankedCandidates.keySet().toArray()[0].toString());
         }
-        LOGGER.info("highest ranked HOW: " + event.getHow());
+
     }
 
     /**
@@ -562,13 +594,9 @@ public class EventExtractor {
 
         rankedCandidates = sortByValue(rankedCandidates);
         final Object[] values = rankedCandidates.keySet().toArray();
-        final Object[] keys = rankedCandidates.values().toArray();
+        // final Object[] keys = rankedCandidates.values().toArray();
 
         if (rankedCandidates.size() > 0) {
-            LOGGER
-                    .info("highest ranked who:" + values[0] + "(" + keys[0]
-                            + ")");
-
             event.setWhoCandidates(rankedCandidates);
             event.setWho(values[0].toString());
         }
@@ -628,54 +656,12 @@ public class EventExtractor {
         this.featureExtractor = featureExtractor;
     }
 
-    @SuppressWarnings("unused")
-    private void evaluateEvents() {
-        final Map<Integer, String[]> events = featureExtractor
-                .readCSV("data/news_articles.csv");
-        final EventExtractor eventExtractor = EventExtractor.getInstance();
-        eventExtractor.setWhoClassifier(Classifier.LINEAR_REGRESSION);
-        // eventExtractor.setWhereClassifier(Classifier.LINEAR_REGRESSION);
-
-        for (final Entry<Integer, String[]> entry : events.entrySet()) {
-            final String[] fields = entry.getValue();
-            // int id = entry.getKey();
-
-            final String url = fields[0];
-
-            final String title = fields[1];
-            final String who = fields[2];
-            final String where = fields[3];
-            final String what = fields[4];
-            final String why = fields[5];
-            final String how = fields[6];
-
-            final Event event = EventExtractor.extractEventFromURL(url);
-            featureExtractor.setFeatures(event);
-            eventExtractor.extractWho(event);
-
-            LOGGER.info("WHO: " + event.getWho() + " / " + who);
-        }
-
-    }
-
     /**
      * @param args
      */
     public static void main(String[] args) {
 
         LOGGER.setLevel(Level.ALL);
-        System.setProperty("wordnet.database.dir",
-                "/usr/local/WordNet-3.0/dict");
-
-        final EventExtractor eventExtractor = EventExtractor.getInstance();
-
-        eventExtractor.setWhoClassifier(Classifier.LINEAR_REGRESSION);
-        eventExtractor.setWhereClassifier(Classifier.LINEAR_REGRESSION);
-
-        final Event event = EventExtractor
-                .extractEventFromURL("http://www.bbc.co.uk/news/world-middle-east-11524774");
-
-        eventExtractor.getFeatureExtractor().setFeatures(event);
 
         // evaluateEvents();
 
@@ -683,10 +669,12 @@ public class EventExtractor {
         // eventExtractor.extractWhat(event);
         // eventExtractor.extractWhere(event);
         // eventExtractor.extractWhy(event);
-        // eventExtractor.extractWhen(event);
         // eventExtractor.extractHow(event);
 
-        eventExtractor.extract5W1H(event);
+        EventExtractor
+                .extractEventFromURL("http://www.bbc.co.uk/news/world-asia-pacific-12033330");
+
+        // eventExtractor.extract5W1H(event);
 
     }
 }

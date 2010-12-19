@@ -12,7 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.log4j.Level;
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.FeatureObject;
@@ -20,6 +21,7 @@ import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.tagger.LingPipeNER;
+import tud.iir.extraction.entity.ner.tagger.OpenNLPNER;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.knowledge.Entity;
@@ -43,12 +45,8 @@ public class EventFeatureExtractor {
     /** Instance of this EventFeatureExtractor. **/
     private static EventFeatureExtractor instance = null;
 
-    /** Default model path. **/
-    private static final String MODEL_PATH = "data/models/";
-
     /** model file for lingpipe rescoring chunker from muc6. */
-    private static final String MODEL_NER_LINGPIPE = MODEL_PATH
-            + "lingpipe/ne-en-news-muc6.AbstractCharLmRescoringChunker";
+    private final String MODEL_NER;
 
     public static final double CATEGORY_PERSON = 1.0;
     public static final double CATEGORY_LOCATION = 2.0;
@@ -71,11 +69,26 @@ public class EventFeatureExtractor {
     private static AbstractSentenceDetector sentenceDetector = new OpenNLPSentenceDetector();
 
     protected EventFeatureExtractor() {
-        ner.loadModel(MODEL_NER_LINGPIPE);
+
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (final ConfigurationException e) {
+            LOGGER.error("could not get model path from config/models.conf, "
+                    + e.getMessage());
+        }
+
+        if (config != null) {
+            MODEL_NER = config.getString("models.lingpipe.en.ner");
+        } else {
+            MODEL_NER = "";
+        }
+        // ner.loadModel("data/models/opennlp/namefind/en-ner-person.bin,data/models/opennlp/namefind/en-ner-location.bin,data/models/opennlp/namefind/en-ner-organization.bin");
+        ner.loadModel(MODEL_NER);
         posTagger.loadModel();
         phraseChunker.loadModel();
         parser.loadModel();
-        sentenceDetector.loadModel();
     }
 
     public static EventFeatureExtractor getInstance() {
@@ -249,7 +262,7 @@ public class EventFeatureExtractor {
         featureMap.put("titleEntityCount", titleEntityCount);
         featureMap.put("textEntityCount", textEntityCount);
         featureMap.put("type", typeId);
-        featureMap.put("distribution", Double.valueOf(twoDForm
+        featureMap.put("distribution", -Double.valueOf(twoDForm
                 .format(distribution)));
 
         return new FeatureObject(featureMap);
@@ -280,6 +293,15 @@ public class EventFeatureExtractor {
         }
 
         return annotations;
+
+    }
+
+    public Annotations getDateAnnotations(String text) {
+        OpenNLPNER timeNer = new OpenNLPNER();
+        timeNer
+                .loadModel("data/models/opennlp/namefind/en-ner-time.bin,data/models/opennlp/namefind/en-ner-date.bin");
+
+        return timeNer.getAnnotations(text);
 
     }
 
@@ -548,12 +570,9 @@ public class EventFeatureExtractor {
 
         // String sentence = "NBC Universal drops ad partnership with Google";
 
-        final Event event1 = EventExtractor
-                .extractEventFromURL("http://articles.latimes.com/2010/oct/14/business/la-fi-ct-nbcgoogle-20101014");
+        // final Event event1 = EventExtractor
+        // .extractEventFromURL("http://articles.latimes.com/2010/oct/14/business/la-fi-ct-nbcgoogle-20101014");
         //
-
-        final StopWatch sw = new StopWatch();
-        sw.start();
 
         // CollectionHelper.print(getNounAnnotations("this is my sentence"));
         /*
@@ -566,17 +585,22 @@ public class EventFeatureExtractor {
          */
 
         // EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
-        LOGGER.setLevel(Level.ALL);
-        posTagger.tag(event1.getTitle());
-        LOGGER.info(posTagger.getTagAnnotations().getTaggedString());
+        // LOGGER.setLevel(Level.ALL);
+        // posTagger.tag(event1.getTitle());
+        // LOGGER.info(posTagger.getTagAnnotations().getTaggedString());
 
-        phraseChunker.chunk(event1.getTitle());
-        LOGGER.info(phraseChunker.getTagAnnotations().getTaggedString());
+        // phraseChunker.chunk(event1.getTitle());
+        // LOGGER.info(phraseChunker.getTagAnnotations().getTaggedString());
         /*
          * parser.loadModel(); for (String str :
          * featureExtractor.getSentences(event1.getText())) { ((OpenNLPParser)
          * parser).link(((OpenNLPParser) parser) .getFullParse(str)); }
          */
+        // ner = new OpenNLPNER();
+        // ner.loadModel("data/models/opennlp/namefind/en-ner-person.bin,data/models/opennlp/namefind/en-ner-location.bin,data/models/opennlp/namefind/en-ner-organization.bin");
+
+        final StopWatch sw = new StopWatch();
+        sw.start();
 
         // PhraseChunker pc = new PhraseChunker(PhraseChunker.CHUNKER_OPENNLP);
         // pc.chunk(event.getTitle());
