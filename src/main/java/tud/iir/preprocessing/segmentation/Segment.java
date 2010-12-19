@@ -54,7 +54,7 @@ public class Segment {
 	 */
 	public Segment(Document document, String xPath, Node node, Integer depth, Double significance) {
 		
-		//node & depth can also be calculated here
+		//node & depth could also be calculated here
 		
 		this.document = document;
 		this.xPath = xPath;
@@ -62,8 +62,6 @@ public class Segment {
 		this.depth = depth;
 		this.variability = significance;
 		
-        //loadConfig("config/segmenter.conf");
-
 	}
 	
 	public Document getDocument() {

@@ -43,39 +43,31 @@ public class SimilarityCalculator {
         Iterator<String> it=page1.keySet().iterator();
         while (it.hasNext()) {
             key=(String) it.next();
-        	//System.out.println(key);
 
         	//If both maps contain same key, exermine if there is a difference in the value
         	if (page2.keySet().contains(key)) {
         		//Calculate the difference in the value
             	if (page2.get(key)==page1.get(key)) {
-            		//System.out.println("------------------gleich oft");
             		variance.add(new Double(0));
             	}
             	else {
-            		//int value=((Integer) page1.get(key)).intValue();
-            		//int value2=((Integer) page2.get(key2)).intValue();
-            		Integer value=((Integer) page1.get(key));//*tags1;
-            		Integer value2=((Integer) page2.get(key));//*tags2;
-            		//System.out.print(value+" "+value2+" ");
+            		Integer value=((Integer) page1.get(key));
+            		Integer value2=((Integer) page2.get(key));
             		
             		double d=0;
             		if (value>value2) d = (double) value2/value;
             		if (value<value2) d = (double) value/value2;
             		d=1-d;
-            		//System.out.println(d);
             		variance.add(d);
             	}
             }
         	//if both maps do not contain the same key
         	else {
-        		//System.out.println("++++++++++++++++++++++++++++++++++++++++++++++++++++++nicht gleich");
         		variance.add(new Double(1));
         	}        	
         }
 
     	//Evaluation
-    	//System.out.println("---------------------------");
     	System.out.println(variance);
     	
     	double countUp=0;
@@ -84,7 +76,6 @@ public class SimilarityCalculator {
         	countUp=countUp+((Double)it3.next());
         }
         result=countUp/variance.size();
-    	//System.out.println("Durchschnittlich: "+result);
 
     	return result;
     }
@@ -101,26 +92,19 @@ public class SimilarityCalculator {
     	
     	Map<String, Integer> helperMap=new HashMap<String, Integer>(page1);
     	
-    	//System.out.println("1:"+helperMap.size());
     	helperMap.keySet().retainAll(page2.keySet());
-    	//System.out.println("2:"+helperMap.size());
     	
     	int z1=helperMap.size();
-    	
-    	//helperMap=page1;
-    	
+    	   	
     	Set<String> s1=new HashSet<String>(page1.keySet());
     	Set<String> s2=new HashSet<String>(page2.keySet());
-    	//System.out.println(s1+"\n"+s2);
 
     	s1.addAll(s2);
 
     	int z2=s1.size();
     	
     	result=(double) z1/z2;
-    	
-    	//System.out.println("z1="+z1+" z2="+z2+" Jaccard="+result);
-    	
+    	    	
     	return result;
     }
 
@@ -138,11 +122,9 @@ public class SimilarityCalculator {
 		double result=0.0;
 		ArrayList<Map<String, Integer>> listOfNodeLines = new ArrayList<Map<String, Integer>>();
 		
-        //System.out.println(list.size()+" documents in list.");
         Iterator<Document> it = list.iterator();
         while (it.hasNext()) {
             Document doc = (Document)it.next();
-            //System.out.println();
             
             String simNode = HTMLHelper.htmlToString(XPathHelper.getNode(doc,xPath));
             
@@ -156,20 +138,16 @@ public class SimilarityCalculator {
         ArrayList<Double> allJaccAverage = new ArrayList<Double>();
         for (int i=0; i<listOfNodeLines.size(); i++) {
         	Map<String, Integer> currentNodeLines=(Map<String, Integer>) listOfNodeLines.get(i);
-        	//System.out.println("1-"+currentNodeLines);
         	ArrayList<Double> jaccArray = new ArrayList<Double>();
         	double jaccAverage=0.0;
         	
             for (int j=0; j<listOfNodeLines.size(); j++) {
             	Map<String, Integer> compareNodeLines=(Map<String, Integer>) listOfNodeLines.get(j);
-            	//System.out.println("2------"+compareNodeLines);
             	
 	            if (currentNodeLines!=compareNodeLines) {
 			        Double jacc = calculateJaccard(currentNodeLines, compareNodeLines);
 			        if (jacc.isNaN()) jacc=0.0;
-			        //System.out.println("Jacc="+jacc);
 			        jaccArray.add(jacc);
-			        //System.out.println(jaccArray);
 	            }
             }
             
@@ -177,7 +155,6 @@ public class SimilarityCalculator {
             	jaccAverage=jaccAverage+(Double)jaccArray.get(j);
             }
             jaccAverage=jaccAverage/jaccArray.size();
-            //System.out.println("Durchschnittswert="+jaccAverage);
             allJaccAverage.add(jaccAverage);
         }
 		
@@ -199,12 +176,7 @@ public class SimilarityCalculator {
 	 */
 	public static Map<String, Double> calculateSimilarityForAllNodes(Document docu, ArrayList<String> conflictNodes, ArrayList<Document> similarFiles) throws MalformedURLException, IOException {
 		
-		Crawler c = new Crawler();
-
         Map<String, Double> similarityOfNodes = new LinkedHashMap<String, Double>();
-        ArrayList<Document> testMap = new ArrayList<Document>(); 
-
-        //System.out.println("--------------------URI:"+docu.getDocumentURI());
         
         ArrayList<Document> listOfSimilarDocuments = new ArrayList<Document>();
         listOfSimilarDocuments = similarFiles;
