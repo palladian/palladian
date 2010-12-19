@@ -83,17 +83,20 @@ public class Feed {
     private int checks = 0;
 
     /**
-     * time in minutes until it is expected to find at least one new entry in the feed
+     * Time in minutes until it is expected to find at least one new entry in the feed.
      */
     private int minCheckInterval = 60;
 
     /**
-     * time in minutes until it is expected to find only new but one new entries in the feed
+     * Time in minutes until it is expected to find only new but one new entries in the feed.
      */
     private int maxCheckInterval = 120;
 
-    // TODO change
-    public long timeWithoutItem = 0;
+    public static int MIN_DELAY = 0;
+    public static int MAX_COVERAGE = 1;
+
+    /** Either MIN_DELAY (minCheckInterval) or MAX_COVERAGE (maxCheckInterval). */
+    private int updateMode = Feed.MIN_DELAY;
 
     /** a list of headlines that were found at the last check */
     private String lastHeadlines = "";
@@ -320,6 +323,19 @@ public class Feed {
 
     public int getMinCheckInterval() {
         return minCheckInterval;
+    }
+
+    /**
+     * Return either minCheckInterval of maxCheckInterval depending on updateMode.
+     * 
+     * @return The check interval depending on the updateMode.
+     */
+    public int getCheckInterval() {
+        if (getUpdateMode() == Feed.MIN_DELAY) {
+            return getMinCheckInterval();
+        }
+
+        return getMaxCheckInterval();
     }
 
     public void setLastHeadlines(String lastHeadlines) {
@@ -775,6 +791,14 @@ public class Feed {
             cgHeaderSize = null;
         }
         return cgHeaderSize;
+    }
+
+    public void setUpdateMode(int updateMode) {
+        this.updateMode = updateMode;
+    }
+
+    public int getUpdateMode() {
+        return updateMode;
     }
 
 }

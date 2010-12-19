@@ -15,7 +15,10 @@ import tud.iir.helper.StopWatch;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedDatabase;
 import tud.iir.news.FeedReader;
-import tud.iir.news.UpdateStrategy;
+import tud.iir.news.updates.FixUpdateStrategy;
+import tud.iir.news.updates.MAVUpdateStrategy;
+import tud.iir.news.updates.PostRateUpdateStrategy;
+import tud.iir.news.updates.UpdateStrategy;
 
 public class FeedReaderEvaluator {
 
@@ -141,7 +144,7 @@ public class FeedReaderEvaluator {
             benchmarkModeString = "time";
         }
 
-        String filePath = "data/temp/feedReaderEvaluation_" + feedReader.getCheckApproachName() + "_"
+        String filePath = "data/temp/feedReaderEvaluation_" + feedReader.getUpdateStrategyName() + "_"
         + getBenchmarkName() + "_"
         + benchmarkModeString + "_" + FeedReaderEvaluator.benchmarkSample + ".csv";
 
@@ -229,8 +232,7 @@ public class FeedReaderEvaluator {
         // read feed history file
         String historyFilePath = "";
         if (benchmarkDatasetFiles == null) {
-            System.out
-            .println("======================================================================================");
+            LOGGER.info("======================================================================================");
             benchmarkDatasetFiles = FileHelper.getFiles(BENCHMARK_DATASET_PATH);
         }
         for (File file : benchmarkDatasetFiles) {
@@ -246,7 +248,7 @@ public class FeedReaderEvaluator {
     /**
      * <p>
      * Create (snapshots of) all combinations of dataset evaluations.<br>
-     * Strategy: FIX, ADAPTIVE, PROBABILISTIC<br>
+     * Strategy: FIX, MAV, POSTRATE<br>
      * Policy: MIN_DELAY, MAX_COVERAGE<br>
      * Mode: POLL, TIME
      * </p>
@@ -255,9 +257,8 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSample = benchmarkSample;
 
-        UpdateStrategy[] strategies = { UpdateStrategy.UPDATE_FIXED, UpdateStrategy.UPDATE_FIXED,
-                UpdateStrategy.UPDATE_FIXED, UpdateStrategy.UPDATE_MOVING_AVERAGE,
-                UpdateStrategy.UPDATE_POST_RATE };
+        UpdateStrategy[] strategies = { new FixUpdateStrategy(), new FixUpdateStrategy(), new FixUpdateStrategy(),
+                new MAVUpdateStrategy(), new PostRateUpdateStrategy() };
 
         Integer[] policies = {BENCHMARK_MIN_DELAY,BENCHMARK_MAX_COVERAGE};
         Integer[] modes = { BENCHMARK_POLL, BENCHMARK_TIME };
@@ -270,17 +271,19 @@ public class FeedReaderEvaluator {
             int checkInterval = -1;
             if (fixNumber == 0) {
                 checkInterval = 60;
+                ((FixUpdateStrategy) strategy).setCheckInterval(checkInterval);
             } else if (fixNumber == 1) {
                 checkInterval = 1440;
+                ((FixUpdateStrategy) strategy).setCheckInterval(checkInterval);
             } else if (fixNumber == 2) {
                 checkInterval = -1;
+                ((FixUpdateStrategy) strategy).setCheckInterval(checkInterval);
             }
-
 
             for (Integer policy : policies) {
 
                 // for FIX with a preset interval min_delay and max_coverage are the same and we skip one
-                if (fixNumber < 2 && strategy == UpdateStrategy.UPDATE_FIXED && policy == BENCHMARK_MIN_DELAY) {
+                if (fixNumber < 2 && strategy instanceof FixUpdateStrategy && policy == BENCHMARK_MIN_DELAY) {
                     continue;
                 }
 
@@ -291,8 +294,8 @@ public class FeedReaderEvaluator {
                     setBenchmarkMode(mode);
 
                     FeedReader fc = new FeedReader(FeedDatabase.getInstance());
-                    fc.setCheckApproach(strategy, false);
-                    fc.setCheckInterval(checkInterval);
+                    fc.setUpdateStrategy(strategy, false);
+
 
                     LOGGER.info("start evaluation for strategy " + strategy + " (" + checkInterval + "min), policy "
                             + policy + ", and mode "
@@ -318,19 +321,19 @@ public class FeedReaderEvaluator {
         // fre.createAllEvaluations(1);
         // System.exit(0);
 
-        UpdateStrategy checkType = UpdateStrategy.UPDATE_FIXED;
-        checkType = UpdateStrategy.UPDATE_MOVING_AVERAGE;
-        // checkType = UpdateStrategy.UPDATE_POST_RATE;
-        checkType = UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE;
-
         // if -1 => fixed learned
         int checkInterval = -1;
 
-        FeedReaderEvaluator.benchmarkSample = 20;
+        UpdateStrategy updateStrategy = new FixUpdateStrategy();
+        ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
+        updateStrategy = new MAVUpdateStrategy();
+        updateStrategy = new PostRateUpdateStrategy();
+        // checkType = UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE;
+
+        FeedReaderEvaluator.benchmarkSample = 100;
 
         FeedReader fc = new FeedReader(FeedDatabase.getInstance());
-        fc.setCheckApproach(checkType, true);
-        fc.setCheckInterval(checkInterval);
+        fc.setUpdateStrategy(updateStrategy, true);
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
         setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
         setBenchmarkMode(BENCHMARK_POLL);

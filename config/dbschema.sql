@@ -579,24 +579,43 @@ CREATE TABLE IF NOT EXISTS `feed_evaluation_update_intervals` (
 -- Daten für Tabelle `feed_evaluation_update_intervals`
 --
 
+CREATE TABLE `events` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `url` varchar(1024) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `title` varchar(1024) CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `text` text CHARACTER SET utf8 COLLATE utf8_unicode_ci NOT NULL,
+  `who` varchar(512) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `what` varchar(1024) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `where` varchar(512) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `when` varchar(512) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL,
+  `why` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `how` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
+  `extractedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1
 
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `ip2country`
+-- Tabellenstruktur für Tabelle `ip2location`
 --
 
-CREATE TABLE IF NOT EXISTS `ip2country` (
-  `ipFrom` bigint(20) unsigned DEFAULT NULL,
-  `ipTo` bigint(20) unsigned DEFAULT NULL,
-  `registry` enum('apnic','arin','lacnic','ripencc','afrinic','iana') DEFAULT NULL,
-  `assignedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+CREATE TABLE IF NOT EXISTS `ip2location` (
+  `ipStart` bigint(20) unsigned NOT NULL,
   `countryCode` char(2) DEFAULT NULL,
-  `countryName` varchar(40) DEFAULT NULL
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `countryName` varchar(50) DEFAULT NULL,
+  `regionCode` varchar(20) DEFAULT NULL,
+  `regionName` varchar(50) DEFAULT NULL,
+  `city` varchar(50) DEFAULT NULL,
+  `zipCode` varchar(20) DEFAULT NULL,
+  `latitude` double DEFAULT NULL,
+  `longitude` double DEFAULT NULL,
+  `metrocode` int(10) unsigned DEFAULT NULL,
+  PRIMARY KEY (`ipStart`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1
 
 --
--- Daten für Tabelle `ip2country`
+-- Daten für Tabelle `ip2location`
 --
 
 

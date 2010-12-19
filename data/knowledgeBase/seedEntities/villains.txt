@@ -1,0 +1,218 @@
+C#comic,hero,villain#1
+Abraxas
+Ammo
+Air-Walker
+Arclight
+Apocalypse
+Angela
+Anti-Spawn
+Abomination
+Anti-Monitor
+Annihilus
+Blizzard
+Blackwing
+Blizzard II
+Bullseye
+Bane
+Bizarro
+Black Adam
+Brainiac
+Blizzard I
+Big Man
+Black Abbott
+Billy Kincaid
+Black Mamba
+Bomb Queen
+Blob
+Beetle
+Carnage
+Callisto
+Catwoman
+Chameleon
+Cheetah I
+Cheetah II
+Cheetah III
+Chromos
+Curse
+Cogliostro
+Cy-Gor
+Changeling
+Doctor Octopus
+Doctor Doom
+Darkseid
+Deadshot
+Doomsday
+Darkside
+Doctor Doom II
+Destroyer
+Doppelganger
+Dormammu
+Ego
+Electro
+Elle Bishop
+Fixer
+Fabian Cortez
+Fallen One II
+Frenzy
+Green Goblin II
+Green Goblin
+Gog
+General Zod
+Goliath III
+Galactus
+Goblin Queen
+Granny Goodness
+Harley Quinn
+Hobgoblin
+Iron Monger
+Joker
+Jigsaw
+Kingpin
+Kraven I
+Kraven II
+Kraven the Hunter
+Kang
+Lizard
+Lex Luthor
+Lady Deathstrike
+Leader
+Loki
+Living Brain
+Lobo
+Lady Bullseye
+Lightning Lord
+Luke Campbell
+Magneto
+Mach-IV
+Molten Man
+Metallo
+Mister Freeze
+Mister Mxyzptlk
+Mystique
+Mister Sinister
+Moses Magnum
+Mysterio I
+Moloch
+Maxima
+Morlun
+Mandarin
+Magus
+Mephisto
+Onslaught
+Omega Red
+Overtkill
+Penguin
+Poison Ivy
+Pyro
+Plastique
+Rhino
+Ras Al Ghul
+Riddler
+Razor-Fist II
+Redeemer II
+Redeemer III
+Red Mist
+Rick Flag
+Sabretooth
+Shocker
+Scarlet Witch
+Sinestro
+Swamp Thing
+Scarecrow
+Siryn
+Spider-Woman IV
+Sylar
+Spider-Carnage
+Scorpia
+Two-Face
+Tinkerer
+Toad
+Ultron
+Venom I
+Vulture
+Venom III
+Violator
+Vanisher
+Venom II
+Weapon XI
+Warp
+Yellow Claw
+Abyss
+Angel of Death
+Bloodwraith
+Basilisk I
+Chamberlain
+Cyborg Superman
+Chapel
+Crimson Dynamo II
+Crimson Dynamo III
+Crimson Dynamo IV
+Crimson Dynamo V
+Crimson Dynamo VI
+Crimson Dynamo VII
+Crimson Dynamo VIII
+Crimson Dynamo IX
+Crimson Dynamo X
+Crimson Dynamo XI
+Crimson Dynamo XII
+Dark Beast
+Disciple
+Deathlok
+Equinox
+Fatale
+Fenris
+Fever Pitch
+Flag-Smasher
+Flying Tiger
+Fitzroy, Trevor
+Frost, Adrienne
+Fallen One I
+Gorilla-Man
+Gormuu
+Graviton
+Grim Hunter
+Heap I
+Hunter Rose
+Jessica Priest
+John Sansker
+Jason Wynn
+Jackal
+Lodestone
+Lizard Man
+Mesmero
+Malebolgia
+Mammon
+Mekon
+Megamind
+Nyx
+Psycho-Man
+Ruby Thursday
+Razor-Fist
+Razor-Fist III
+Selene
+Splice
+Spiral
+Syndrome
+Spike
+Stryfe
+Taskmaster
+Tarantula
+Temptress
+Tiffany
+Thamuz
+Tony Twist
+Tremor
+Titanium Man
+Thanos
+Tighten
+Urizon
+Vulture II
+Xander
+Xavier, Cassandra Nova
+Xemu
+Xorr the God-Jewel
+Yandroth
+Yagzan
+Yashida, Shingen
+Zab
+Zera

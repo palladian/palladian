@@ -267,7 +267,7 @@ public class DatabaseManager {
         psCheckCleanExtractionStatus = connection.prepareStatement("SELECT COUNT(id) FROM live_status");
         psCleanExtractionStatus = connection.prepareStatement("TRUNCATE live_status");
         psGetExtractionStatusDownloadedBytes = connection
-                .prepareStatement("SELECT downloadedBytes FROM live_status WHERE id = IN (SELECT MAX(id) FROM live_status)");
+                .prepareStatement("SELECT downloadedBytes FROM live_status WHERE id IN (SELECT MAX(id) FROM live_status)");
 
     }
 

@@ -1,0 +1,171 @@
+C#river#1
+Nile
+Amazon
+Yangtze
+Mississippi
+Río de la Plata
+Yenisei
+Yellow
+Ob
+Paraná
+Congo
+Amur
+Lena
+Mekong
+Mackenzie
+Niger
+Murray
+Tocantins
+Volga
+Shatt al-Arab
+Madeira
+Purus
+Yukon
+Indus
+São Francisco
+Syr Darya
+Salween
+Saint Lawrence
+Rio Grande
+Lower Tunguska
+Brahmaputra
+Danube
+Zambezi
+Vilyuy
+Araguaia
+Amu Darya
+Japurá
+Nelson
+Paraguay
+Kolyma
+Ganges
+Pilcomayo
+Ishim
+Juruá
+Ural
+Arkansas
+Olenyok
+Dnieper
+Aldan
+Ubangi
+Negro
+Columbia
+Colorado
+Pearl
+Red
+Ayeyarwady
+Kasai
+Ohio
+Orinoco
+Tarim
+Xingu
+Orange
+Salado
+Vitim
+Tigris
+Songhua
+Tapajós
+Don
+Stony Tunguska
+Pechora
+Kama
+Limpopo
+Guaporé
+Indigirka
+Snake
+Senegal
+Uruguay
+Blue Nile
+Churchill
+Khatanga
+Okavango
+Volta
+Beni
+Platte
+Tobol
+Jubba
+Içá
+Magdalena
+Han
+Oka
+Pecos
+Godavari
+Río Grande
+Belaya
+Cooper
+Marañón
+Dniester
+Benue
+Ili
+Warburton
+Sutlej
+Yamuna
+Vyatka
+Fraser
+Mtkvari
+Grande
+Brazos
+Cauca
+Liao
+Yalong
+Iguaçu
+Olyokma
+Northern Dvina
+Krishna
+Iriri
+Narmada
+Lomami
+Ottawa
+Zeya
+Juruena
+Rhine
+Athabasca
+Elbe
+Canadian
+North Saskatchewan
+Draa
+Vaal
+Shire
+Nen
+Kızıl River
+Green
+Milk
+Chindwin
+Sankuru
+James
+Kapuas
+Desna
+Helmand
+Madre de Dios
+Tietê
+Vychegda
+Sepik
+Cimarron
+Anadyr
+Paraíba do Sul
+Jialing River
+Liard
+Cumberland
+White
+Huallaga
+Kwango
+Gambia
+Chenab
+Yellowstone
+Aras
+Chu River
+Donets
+Bermejo
+Fly
+Guaviare
+Kuskokwim
+Tennessee
+Vistula
+Aruwimi
+Daugava
+Gila
+Loire
+Essequibo
+Khoper
+Tagus
+

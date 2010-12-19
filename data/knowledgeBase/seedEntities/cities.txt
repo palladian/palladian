@@ -1,0 +1,233 @@
+C##1
+Kabul
+Tirana
+Algiers
+Andorra la Vella
+Luanda
+St. John's
+Buenos Aires
+Yerevan
+Canberra
+Vienna
+Baku
+Nassau
+Manama
+Dhaka
+Bridgetown
+Minsk
+Brussels
+Belmopan
+Porto-Novo
+Thimphu
+Sucre
+Sarajevo
+Gaborone
+Brasília
+Bandar Seri Begawan
+Sofia
+Ouagadougou
+Bujumbura
+Phnom Penh
+Yaoundé
+Ottawa
+Praia
+Bangui
+N'Djamena
+Santiago
+Beijing
+Bogotá
+Moroni
+Brazzaville
+Kinshasa
+San José
+Yamoussoukro
+Zagreb
+Havana
+Nicosia
+Prague
+Copenhagen
+Djibouti City
+Roseau
+Santo Domingo
+Dili
+Quito
+Cairo
+San Salvador
+Malabo
+Asmara
+Tallinn
+Addis Ababa
+Suva
+Helsinki
+Paris
+Libreville
+Banjul
+Tbilisi
+Berlin
+Accra
+Athens
+St. George's
+Guatemala City
+Conakry
+Bissau
+Georgetown
+Port-au-Prince
+Tegucigalpa
+Budapest
+Reykjavík
+New Delhi
+Jakarta
+Tehran
+Baghdad
+Dublin
+Jerusalem
+Rome
+Kingston
+Tokyo
+Amman
+Astana
+Nairobi
+Tarawa
+Pyongyang
+Seoul
+Kuwait City
+Bishkek
+Vientiane
+Riga
+Beirut
+Maseru
+Monrovia
+Tripoli
+Vaduz
+Vilnius
+Luxembourg City
+Skopje
+Antananarivo
+Lilongwe
+Kuala Lumpur
+Malé
+Bamako
+Valletta
+Majuro
+Nouakchott
+Port Louis
+Mexico City
+Palikir
+Chişinău
+Monaco
+Ulaanbaatar
+Podgorica
+Rabat
+Maputo
+Naypyidaw (Pyinmana)
+Windhoek
+Yaren District
+Kathmandu
+Amsterdam
+Wellington
+Managua
+Niamey
+Abuja
+Oslo
+Muscat
+Islamabad
+Ngerulmud
+Panama City
+Port Moresby
+Asunción
+Lima
+Manila
+Warsaw
+Lisbon
+Doha
+Bucharest
+Moscow
+Kigali
+Basseterre
+Castries
+Kingstown
+Apia
+San Marino
+São Tomé
+Riyadh
+Dakar
+Belgrade
+Victoria
+Freetown
+Singapore
+Bratislava
+Ljubljana
+Honiara
+Mogadishu
+Pretoria
+Madrid
+Sri Jayewardenepura Kotte
+Khartoum
+Paramaribo
+Mbabane
+Stockholm
+Bern
+Damascus
+Dushanbe
+Dodoma
+Bangkok
+Lomé
+Nukuʻalofa
+Port of Spain
+Tunis
+Ankara
+Ashgabat
+Funafuti
+Kampala
+Kiev
+Abu Dhabi
+London
+Washington D.C.
+Montevideo
+Tashkent
+Port Vila
+Vatican City
+Caracas
+Hanoi
+Sana'a
+Lusaka
+Harare
+Sukhumi
+Taipei
+Pristina
+Stepanakert
+El Aaiún
+Hargeisa
+Tskhinvali
+Tiraspol
+Pago Pago
+The Valley
+Hamilton
+Road Town
+George Town
+The Settlement
+West Island
+Avarua
+Stanley
+Cayenne
+Papeete
+Gibraltar
+Basse-Terre
+St Peter Port
+Saint Helier
+Douglas
+Fort-de-France
+Mamoudzou
+Plymouth
+Nouméa
+Alofi
+Saipan
+Adamstown
+San Juan
+Saint-Denis
+Jamestown
+Saint-Pierre
+Longyearbyen
+Nukunonu
+Cockburn Town
+Charlotte Amalie

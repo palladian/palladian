@@ -1,7 +1,5 @@
 package tud.iir.control;
 
-//import knowledge.KnowledgeManager;
-//import extraction.fact.FactExtractor;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -36,12 +34,14 @@ public class Controller {
     public static final int SELECTION = 2;
     public static final int SELECTION_HALF = 3;
 
-    public static final int EXTRACTION_SOURCES = WEB; // determines where to run the extraction, normally from all available sources (WEB) but for benchmarking
+    public static final int EXTRACTION_SOURCES = WEB; // determines where to run the extraction, normally from all
+                                                      // available sources (WEB) but for benchmarking
 
     // reasons maybe only on a selection
 
     /**
-     * DELETE FROM `entities_sources` WHERE extractionType > 10; DELETE FROM sources WHERE id NOT IN (SELECT sourceID FROM entities_sources); DELETE FROM
+     * DELETE FROM `entities_sources` WHERE extractionType > 10; DELETE FROM sources WHERE id NOT IN (SELECT sourceID
+     * FROM entities_sources); DELETE FROM
      * entities WHERE id NOT IN (SELECT entityID FROM entities_sources);
      */
     private Controller() {
@@ -83,6 +83,11 @@ public class Controller {
         // instantiate the controller
         Controller.getInstance();
 
+        if (args.length == 0) {
+            args = new String[1];
+            args[0] = "loop";
+        }
+
         // command line mode
         if (args.length > 0) {
 
@@ -99,12 +104,11 @@ public class Controller {
 
                 ExtractionProcessManager.startQAExtraction();
 
-            } else if(args[0].equalsIgnoreCase("mioextraction")){
-               
+            } else if (args[0].equalsIgnoreCase("mioextraction")) {
+
                 ExtractionProcessManager.startMIOExtraction();
-          
-            }
-            else if (args[0].equalsIgnoreCase("loop")) {
+
+            } else if (args[0].equalsIgnoreCase("loop")) {
 
                 ExtractionProcessManager.startFullExtractionLoop();
 
@@ -143,11 +147,10 @@ public class Controller {
                         System.out.println("start Q/A extraction process...");
                         ExtractionProcessManager.startQAExtraction();
 
-                    } else if(line.equalsIgnoreCase("extract mios")){
+                    } else if (line.equalsIgnoreCase("extract mios")) {
                         System.out.println("start mio extraction process...");
                         ExtractionProcessManager.startMIOExtraction();
-                    }
-                    else if (line.equalsIgnoreCase("evaluate benchmark facts")) {
+                    } else if (line.equalsIgnoreCase("evaluate benchmark facts")) {
 
                         System.out.println("start evaluation process...");
                         FactExtractor.getInstance().getKnowledgeManager().evaluateBenchmarkExtractions();

@@ -58,10 +58,13 @@ public class EventExtractor extends Extractor {
     private static final Logger LOGGER = Logger.getLogger(EventExtractor.class);
 
     /** A set of events that have been extracted. */
-    Set<Event> extractedEvents;
+    private Set<Event> extractedEvents;
 
     /** Keep track of which news articles we have analyzed for events already. */
-    Set<String> seenNewsArticles = new HashSet<String>();
+    private Set<String> seenNewsArticles = new HashSet<String>();
+
+    /** Number of events to extracts before saving them. */
+    private static final int SAVE_COUNT = 5;
 
     private WhereClassifier whereClassifier;
     private WhoClassifier whoClassifier;
@@ -672,17 +675,17 @@ public class EventExtractor extends Extractor {
     private Set<String> collectURLs() {
         Set<String> feedURLs = new HashSet<String>();
         feedURLs.add("http://rss.cnn.com/rss/edition.rss");
-        feedURLs.add("http://rss.cnn.com/rss/edition_world.rss");
-        feedURLs.add("http://rss.cnn.com/rss/edition_us.rss");
-        feedURLs.add("http://rss.cnn.com/rss/edition_europe.rss");
-        feedURLs.add("http://rss.cnn.com/rss/edition_business.rss");
-        feedURLs.add("http://rss.cnn.com/rss/edition_entertainment.rss");
-        feedURLs.add("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml");
-        feedURLs.add("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/world/rss.xml");
-        feedURLs.add("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/sci/tech/rss.xml");
-        feedURLs.add("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/entertainment/rss.xml");
-        feedURLs.add("http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml");
-        feedURLs.add("http://www.nytimes.com/services/xml/rss/nyt/GlobalHome.xml");
+        // feedURLs.add("http://rss.cnn.com/rss/edition_world.rss");
+        // feedURLs.add("http://rss.cnn.com/rss/edition_us.rss");
+        // feedURLs.add("http://rss.cnn.com/rss/edition_europe.rss");
+        // feedURLs.add("http://rss.cnn.com/rss/edition_business.rss");
+        // feedURLs.add("http://rss.cnn.com/rss/edition_entertainment.rss");
+        // feedURLs.add("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/front_page/rss.xml");
+        // feedURLs.add("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/world/rss.xml");
+        // feedURLs.add("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/sci/tech/rss.xml");
+        // feedURLs.add("http://newsrss.bbc.co.uk/rss/newsonline_uk_edition/entertainment/rss.xml");
+        // feedURLs.add("http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml");
+        // feedURLs.add("http://www.nytimes.com/services/xml/rss/nyt/GlobalHome.xml");
 
         NewsAggregator na = new NewsAggregator();
         Set<String> newsURLs = new HashSet<String>();
@@ -718,21 +721,27 @@ public class EventExtractor extends Extractor {
 
         extractedEvents = new HashSet<Event>();
 
-        Set<String> urls = collectURLs();
+        while (true) {
 
-        for (String url : urls) {
+            Set<String> urls = collectURLs();
 
-            if (isStopped()) {
-                break;
+            for (String url : urls) {
+
+                if (isStopped()) {
+                    break;
+                }
+
+                Event event = extractEventFromURL(url);
+
+                extractedEvents.add(event);
+
+                seenNewsArticles.add(url);
+
+                if (extractedEvents.size() == SAVE_COUNT) {
+                    saveExtractions(true);
+                }
             }
 
-            Event event = extractEventFromURL(url);
-            getFeatureExtractor().setFeatures(event);
-            extract5W1H(event);
-
-            extractedEvents.add(event);
-
-            seenNewsArticles.add(url);
         }
 
     }
@@ -740,9 +749,14 @@ public class EventExtractor extends Extractor {
     @Override
     protected void saveExtractions(boolean saveExtractions) {
 
-        EventDatabase edb = EventDatabase.getInstance();
-        for (Event event : extractedEvents) {
-            edb.addEvent(event);
+        if (saveExtractions) {
+
+            EventDatabase edb = EventDatabase.getInstance();
+            for (Event event : extractedEvents) {
+                edb.addEvent(event);
+            }
+            extractedEvents.clear();
+
         }
 
     }

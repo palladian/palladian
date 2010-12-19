@@ -94,9 +94,13 @@ public class EvaluationResult {
      */
     private Map<String, CountMap> assignments = new HashMap<String, CountMap>();
 
+    /** The exact match evaluation mode. */
     public static final int EXACT_MATCH = 0;
+
+    /** The MUC evaluation mode. */
     public static final int MUC = 1;
 
+    /** A marker that marks special fields. */
     public static final String SPECIAL_MARKER = "#";
     public static final String ERROR1 = SPECIAL_MARKER + "error1" + SPECIAL_MARKER;
     public static final String ERROR2 = SPECIAL_MARKER + "error2" + SPECIAL_MARKER;

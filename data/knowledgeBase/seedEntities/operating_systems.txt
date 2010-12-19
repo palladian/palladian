@@ -1,0 +1,83 @@
+C#game#1
+86-DOS
+A/UX
+aerolitheOS
+AIOS
+AIX
+AIX/370
+AIX/ESA
+AllianceOS
+Alto OS
+Amiga OS
+AMX RTOS
+AngelOS
+Antarctica
+AOS/VS
+Aperios
+Apollo Domain/OS
+ApolloOS
+Apostle
+Archimedes OS
+BeOS
+AtheOS
+AuroraOS
+BlueEyedOS
+Windows 7
+Windows 95
+Windows 98
+Windows 98 SE
+Windows 2000
+Windows Automotive
+Windows CE
+Windows ME
+Windows NT
+Windows Server 2003
+Windows Server 2003 R2
+Windows Server 2008
+Windows Server 2008 R2
+Windows Vista
+Windows XP
+WinMac
+BOS1810
+BoxOS
+OppcOS
+OS-2
+OS-9
+OS-C
+OS/2
+OS/2 Warp
+OS/9
+OS/360
+OS/390
+OS/400
+OS/ES
+OS/M
+OS4
+Mac OS 8
+Mac OS 9
+Mac OS X
+SunOS
+SunriseOS
+SuperDOS
+Symbian OS
+ZRTS 8000
+UNI/OS
+Unicos
+UNICOS/lc
+Uni FLEX
+Unisys U5000
+Unix System
+Symphony OS
+PocketPC 2003
+PowerMAX
+PowerOS
+PowerSX
+PowerUX
+ProDOS
+System 6
+System 7
+System V Release
+FreeBSD
+FreeDOS
+FreeDOWS
+FreeVMS

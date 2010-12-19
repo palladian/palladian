@@ -1,0 +1,91 @@
+CI#disease,sick,deadly#2
+AIDS
+Alzheimer's disease
+anxiety disorders
+arthritis
+asthma
+astigmatism
+benign prostate hyperplasia
+bipolar disorder
+brain cancer
+breast cancer
+cancer
+candidiasis
+cataracts
+celiac disease
+cervical cancer
+chicken pox
+chlamydia
+chronic fatigue syndrome
+chronic illness
+cold sores
+colon cancer
+constipation
+common cold
+COPD
+cough
+Crohn's disease
+cystic fibrosis
+dementia
+diabetes
+diarrhea
+depression
+eczema
+endometriosis
+eye disorders
+fibroids
+fibromyalgia
+flu
+food poisoning
+Gallstones
+genital herpes
+gonorrhea
+Graves' disease
+Hashimoto's thyroiditis
+hay fever
+headache
+heart disease
+hemochromatosis
+hepatitis
+herpes
+high cholesterol
+HIV
+Hodgkin's disease
+HPV
+hypertension
+impotence
+insomnia
+irritable bowel syndrome
+jaundice
+kidney disease
+lactose intolerance
+leukemia
+liver cancer
+liver disease
+lung cancer
+lupus
+Lyme disease
+lymphoma
+meningitis
+meningococcal disease
+mental illness
+myopia
+migraine
+multiple sclerosis
+muscular dystrophy
+narcolepsy
+Non-Hodgkin's lymphoma
+obesity
+osteoporosis
+otitis media
+ovarian cancer
+Parkinson's disease
+pelvic inflammatory disease
+pertussis
+premenstrual syndrome
+prostate cancer
+prostate disorders
+Raynaud's Phenomenon
+SARS
+thrush
+whooping cough

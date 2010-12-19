@@ -1,8 +1,5 @@
 package tud.iir.news;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -28,11 +25,11 @@ import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.news.evaluation.FeedBenchmarkFileReader;
 import tud.iir.news.evaluation.FeedReaderEvaluator;
-import tud.iir.persistence.DatabaseManager;
+import tud.iir.news.updates.FixUpdateStrategy;
+import tud.iir.news.updates.MAVUpdateStrategy;
+import tud.iir.news.updates.PostRateUpdateStrategy;
+import tud.iir.news.updates.UpdateStrategy;
 import tud.iir.web.Crawler;
-import weka.core.Attribute;
-import weka.core.FastVector;
-import weka.core.Instances;
 
 /**
  * The FeedReader reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
@@ -61,17 +58,10 @@ public final class FeedReader {
     /**
      * If a fixed checkInterval could not be learned, this one is taken (in minutes).
      */
-    private static final int DEFAULT_CHECK_TIME = 60;
+    public static final int DEFAULT_CHECK_TIME = 60;
 
     /** The chosen check Approach */
-    private UpdateStrategy updateStrategy = UpdateStrategy.UPDATE_FIXED;
-
-    /**
-     * The check interval in minutes, only used if the checkApproach is {@link UpdateStrategy.CHECK_FIXED} if
-     * checkInterval = -1 the
-     * interval will be determined automatically at the first immediate check of the feed by looking in its past.
-     */
-    private int checkInterval = -1;
+    private UpdateStrategy updateStrategy = new FixUpdateStrategy();
 
     /**
      * A scheduler that checks continuously if there are feeds in the {@link #feedCollection} that need to be updated. A
@@ -89,50 +79,11 @@ public final class FeedReader {
      */
     private final long wakeUpInterval = 150 * DateHelper.SECOND_MS;
 
-    private Instances instances;
-
-    public int prMinCheckIntervalPrediction = 0;
-
-    public int mavMinCheckIntervalPrediction = 0;
-
-    public int mavMedianMinCheckIntervalPrediction = 0;
-
-    public int nothingFoundCount = 0;
-
-    private PreparedStatement psGetPostRate;
-
     /** The private constructor. */
     public FeedReader(FeedStore feedStore) {
         super();
         checkScheduler = new Timer();
         feedCollection = feedStore.getFeeds();
-
-        FastVector attributes = new FastVector();
-        Attribute a1 = new Attribute("weight1");
-        Attribute a2 = new Attribute("weight2");
-        Attribute a3 = new Attribute("weight3");
-        // Attribute a4 = new Attribute("weight4");
-        // /Attribute a5 = new Attribute("weight5");
-        attributes.addElement(a1);
-        attributes.addElement(a2);
-        attributes.addElement(a3);
-        // attributes.addElement(a4);
-        // attributes.addElement(a5);
-        attributes.addElement(new Attribute("class"));
-
-        instances = new Instances("Rel", attributes, 0);
-        instances.setClassIndex(attributes.size() - 1);
-
-        try {
-            psGetPostRate = DatabaseManager
-                    .getInstance()
-                    .getConnection()
-                    .prepareStatement(
-                            "SELECT averageEntriesPerDay FROM feed_evaluation2_update_intervals WHERE feedID = ?");
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
     }
 
     /**
@@ -235,7 +186,7 @@ public final class FeedReader {
 
                     // we do not include all empty polls in fixed mode because the evaluation files would get too big,
                     // since the interval is fixed we can simply copy the last poll until we reach the end
-                    if (feed.historyFileCompletelyRead() && getCheckApproach() == UpdateStrategy.UPDATE_FIXED) {
+                    if (feed.historyFileCompletelyRead() && getUpdateStrategy() instanceof FixUpdateStrategy) {
                         break;
                     }
 
@@ -297,7 +248,7 @@ public final class FeedReader {
 
         stopContinuousReading();
 
-        LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getCheckApproach() + "): "
+        LOGGER.info("cancelled all scheduled readings, total size downloaded (" + getUpdateStrategy() + "): "
                 + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
         // System.out.println("abc");
     }
@@ -327,58 +278,161 @@ public final class FeedReader {
      */
     public synchronized void updateCheckIntervals(Feed feed) {
 
-        // the fixed minCheckInterval is (timeNewestEntry -
-        // timeOldestEntry)/60*(feedLength-1)
-        // the fixed maxCheckInterval is (timeNewestEntry - timeOldestEntry)/60
-
         FeedPostStatistics fps = new FeedPostStatistics(feed);
 
-        // get percentage of new feed posts
-        double pnTarget = feed.getTargetPercentageOfNewEntries();
+        // updateStrategy.update(feed, fps);
 
-        // calculate new update times depending on approach chosen
-        if (UpdateStrategy.UPDATE_FIXED.equals(updateStrategy)
-                && (checkInterval == -1 && feed.getChecks() > 0 || checkInterval != -1)) {
+        // List<FeedItem> entries = feed.getEntries();
+        //
+        // int minCheckInterval = feed.getMinCheckInterval();
+        // int maxCheckInterval = feed.getMaxCheckInterval();
+        //
+        // double newEntries = feed.getTargetPercentageOfNewEntries() * (feed.getWindowSize() - 1);
+        //
+        // // ######################### simple moving average ##############################
+        // if (newEntries > 0) {
+        // minCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
+        // maxCheckInterval = (int) (entries.size() * fps.getAveragePostGap() / DateHelper.MINUTE_MS);
+        // } else {
+        // if (fps.getIntervals().size() > 0) {
+        // double averagePostGap = fps.getAveragePostGap();
+        // // averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
+        // // averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
+        // averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
+        // averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
+        // minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
+        // maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
+        // }
+        // }
+        //
+        // feed.setMinCheckInterval(minCheckInterval);
+        // feed.setMaxCheckInterval(maxCheckInterval);
+        //
+        // // in case only one entry has been found use default check time
+        // if (entries.size() <= 1) {
+        // feed.setMinCheckInterval(FeedReader.DEFAULT_CHECK_TIME / 2);
+        // feed.setMaxCheckInterval(FeedReader.DEFAULT_CHECK_TIME);
+        // }
 
-            // the checkInterval for the feed must have been determined at the
-            // first check so don't do anything now OR the checkInterval is
-            // fixed and does not need to be changed
-            if (checkInterval != -1) {
-                feed.setMinCheckInterval(checkInterval);
-                feed.setMaxCheckInterval(checkInterval);
+        List<FeedItem> entries = feed.getEntries();
+
+        // learn the post distribution from the last seen entry to the newest one
+        // distribution minute of the day : frequency of news in that minute
+        Map<Integer, int[]> postDistribution = null;
+
+        if (feed.getChecks() == 0) {
+            postDistribution = new HashMap<Integer, int[]>();
+
+            // since the feed has no post distribution yet, we fill all minutes with 0 posts
+            for (int minute = 0; minute < 1440; minute++) {
+                int[] postsChances = { 0, 0 };
+                postDistribution.put(minute, postsChances);
             }
 
-        } else if (UpdateStrategy.UPDATE_FIXED.equals(updateStrategy) && checkInterval == -1
-                // || (UpdateStrategy.UPDATE_ADAPTIVE.equals(checkApproach) || UpdateStrategy.UPDATE_PROBABILISTIC
-                // .equals(checkApproach)) && feed.getChecks() == 0
-        ) {
+        } else {
+            postDistribution = feed.getMeticulousPostDistribution();
 
-            updateIntervalFixed(feed, fps);
-
-        }
-
-        // for on-the-fly updates switch from probabilistic to adaptive
-        else if (UpdateStrategy.UPDATE_MOVING_AVERAGE.equals(updateStrategy) || UpdateStrategy.UPDATE_POST_RATE
-                .equals(updateStrategy) && feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY
-        /* && feed.getChecks() > 0 */) {
-
-            updateIntervalAdaptive(feed, pnTarget, fps);
+            // in benchmark mode we keep it in memory
+            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+                postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
+            }
 
         }
 
-        if (UpdateStrategy.UPDATE_POST_RATE.equals(updateStrategy)
-                && feed.getActivityPattern() != FeedClassifier.CLASS_ON_THE_FLY) {
-
-            updateIntervalProbabilistic(feed, fps);
-
+        // update the minutes where an entry could have been posted
+        int minuteCounter = 0;
+        long timeLastSeenEntry = Long.MIN_VALUE;
+        if (feed.getLastFeedEntry() != null) {
+            timeLastSeenEntry = feed.getLastFeedEntry().getTime();
+        }
+        int startMinute = (int) DateHelper.getTimeOfDay(fps.getTimeOldestPost(), Calendar.MINUTE);
+        for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS, minuteCounter++) {
+            // we have counted the chances for entries before the last seen entry already, so we skip them here
+            if (t <= timeLastSeenEntry) {
+                continue;
+            }
+            int minuteOfDay = (startMinute + minuteCounter) % 1440;
+            int[] postsChances = postDistribution.get(minuteOfDay);
+            postsChances[1] = postsChances[1] + 1;
+            postDistribution.put(minuteOfDay, postsChances);
         }
 
-        if (UpdateStrategy.UPDATE_POST_RATE_MOVING_AVERAGE.equals(updateStrategy)) {
-
-            updateIntervalPRMAV(feed, pnTarget, fps);
-
+        // update the minutes where an entry was actually posted
+        for (FeedItem entry : entries) {
+            // we have counted the posts for entries before the last seen entry already, so we skip them here
+            if (entry.getPublished() == null || entry.getPublished().getTime() <= timeLastSeenEntry) {
+                continue;
+            }
+            int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
+            int[] postsChances = postDistribution.get(minuteOfDay);
+            postsChances[0] = postsChances[0] + 1;
+            postDistribution.put(minuteOfDay, postsChances);
         }
 
+        int t1 = 0, t2 = 0;
+        for (Map.Entry<Integer, int[]> a : postDistribution.entrySet()) {
+            t1 += a.getValue()[0];
+            t2 += a.getValue()[1];
+        }
+        // System.out.println(t1 + "," + t2);
+
+        feed.setMeticulousPostDistribution(postDistribution);
+
+        // in benchmark mode we keep it in memory, in real usage, we store the distribution in the database
+        if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+            FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
+        }
+
+        // only use calculated update intervals if one full day of distribution is available already
+
+        startMinute = 0;
+
+        if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
+            startMinute = (int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE);
+        } else {
+            startMinute = (int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE);
+        }
+
+        // // estimate time to next entry and time until list is full with
+        // only new but one entries
+
+        // set to one month maximum
+        int minCheckInterval = 31 * 1440;
+        boolean minCheckIntervalFound = false;
+
+        // set to six month maximum
+        int maxCheckInterval = 6 * 31 * 1440;
+
+        // add up all probabilities for the coming minutes until the
+        // estimated post number is 1
+        int currentMinute = startMinute;
+        double estimatedPosts = 0;
+        for (int c = 0; c < maxCheckInterval; c++) {
+
+            int[] postsChances = postDistribution.get(currentMinute);
+            double postProbability = 0;
+            if (postsChances[1] > 0) {
+                postProbability = (double) postsChances[0] / (double) postsChances[1];
+            }
+            estimatedPosts += postProbability;
+
+            if (estimatedPosts >= 1 && !minCheckIntervalFound) {
+                minCheckInterval = c;
+                minCheckIntervalFound = true;
+            }
+
+            if (estimatedPosts >= entries.size()) {
+                maxCheckInterval = c;
+                break;
+            }
+
+            currentMinute = (currentMinute + 1) % 1440;
+        }
+
+        feed.setMinCheckInterval(minCheckInterval);
+        feed.setMaxCheckInterval(maxCheckInterval);
+
+        // /////////
         feed.setLastFeedEntry(new Date(fps.getTimeNewestPost()));
         feed.increaseChecks();
     }
@@ -399,55 +453,24 @@ public final class FeedReader {
      * is saved in the feed store) unless you
      * reset the learned data.
      * 
-     * @param checkApproach The updating approach, can be one of {@link CHECK_FIXED}, {@link CHECK_ADAPTIVE}, or
-     *            {@link CHECK_PROBABILISTIC}
+     * @param updateStrategy The updating strategy for the feed reader.
      * @param resetLearnedValues If true, learned and calculated values such as check intervals etc. are reset and are
      *            retrained using the new check approach.
      */
-    public void setCheckApproach(UpdateStrategy checkApproach, boolean resetLearnedValues) {
-        if (!this.updateStrategy.equals(checkApproach) && resetLearnedValues) {
+    public void setUpdateStrategy(UpdateStrategy updateStrategy, boolean resetLearnedValues) {
+        if (!this.updateStrategy.equals(updateStrategy) && resetLearnedValues) {
             FeedDatabase.getInstance().changeCheckApproach();
         }
-        this.updateStrategy = checkApproach;
+        this.updateStrategy = updateStrategy;
     }
 
-    /**
-     * Set a fixed check interval in minutes. This is only effective if the checkType is set to {@link CHECK_FIXED}.
-     * 
-     * @param checkInterval Fixed check interval in minutes.
-     */
-    public void setCheckInterval(int checkInterval) {
-        this.checkInterval = checkInterval;
-    }
-
-    // ======================
-    // === Getter methods ===
-    // ======================
-
-    public UpdateStrategy getCheckApproach() {
+    public UpdateStrategy getUpdateStrategy() {
         return updateStrategy;
     }
 
     /** Get the human readable name of the chosen check approach. */
-    public String getCheckApproachName() {
-
-        String className = "unknown";
-
-        if (UpdateStrategy.UPDATE_FIXED.equals(updateStrategy) && checkInterval == -1) {
-            className = "fixed_learned";
-        } else if (UpdateStrategy.UPDATE_FIXED.equals(updateStrategy) && checkInterval != -1) {
-            className = "fixed_" + checkInterval;
-        } else if (UpdateStrategy.UPDATE_MOVING_AVERAGE.equals(updateStrategy)) {
-            className = "adaptive";
-        } else if (UpdateStrategy.UPDATE_POST_RATE.equals(updateStrategy)) {
-            className = "probabilistic";
-        }
-
-        return className;
-    }
-
-    public int getCheckInterval() {
-        return checkInterval;
+    public String getUpdateStrategyName() {
+        return getUpdateStrategy().getName();
     }
 
     public FeedProcessingAction getFeedProcessingAction() {
@@ -456,787 +479,6 @@ public final class FeedReader {
 
     public Collection<Feed> getFeeds() {
         return feedCollection;
-    }
-
-    // ======================
-    // === Helper methods ===
-    // ======================
-
-    /**
-     * Update the check intervals in fixed mode.
-     * 
-     * @param feed The feed.
-     * @param entries The feed entries.
-     * @param fps The feed post statistics.
-     */
-    private void updateIntervalFixed(Feed feed, FeedPostStatistics fps) {
-
-        List<FeedItem> entries = feed.getEntries();
-
-        // the checkInterval for the feed must be determined now
-        int fixedMinCheckInterval = DEFAULT_CHECK_TIME / 2;
-        int fixedMaxCheckInterval = DEFAULT_CHECK_TIME;
-
-        if (entries.size() > 1) {
-            // use average distance between pub dates and total difference
-            // between first and last entry
-            fixedMinCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-            fixedMaxCheckInterval = entries.size() * fixedMinCheckInterval;
-
-            // use median
-            //            if (fps.getMedianPostGap() != -1 && fps.getMedianPostGap() > DateHelper.MINUTE_MS) {
-            //                double minInterval = fps.getMedianPostGap() / (double) DateHelper.MINUTE_MS;
-            //                fixedMinCheckInterval = (int) minInterval;
-            //                // fixedMaxCheckInterval = fixedMinCheckInterval * (entries.size() - 1);
-            //                fixedMaxCheckInterval = (int) (minInterval * entries.size());
-            //            }
-
-            if (feed.getActivityPattern() == FeedClassifier.CLASS_DEAD) {
-                fixedMinCheckInterval = 10 * 800 + (int) (Math.random() * 200);
-                fixedMaxCheckInterval = 10 * 1440 + (int) (Math.random() * 600);
-            } else if (feed.getActivityPattern() == FeedClassifier.CLASS_CHUNKED) {
-
-                // for chunked entries the median post gap is likely to be zero so we set it to the time to the last
-                // post
-                fixedMinCheckInterval = (int) (fps.getTimeNewestPost() / DateHelper.MINUTE_MS);
-                fixedMaxCheckInterval = fixedMinCheckInterval;
-
-            } else if (feed.getActivityPattern() == FeedClassifier.CLASS_ON_THE_FLY) {
-
-                fixedMinCheckInterval = 60;
-                fixedMaxCheckInterval = 120;
-
-            }
-
-        } else {
-            fixedMinCheckInterval = 60;
-            fixedMaxCheckInterval = 120;
-        }
-
-        feed.setMinCheckInterval(fixedMinCheckInterval);
-        feed.setMaxCheckInterval(fixedMaxCheckInterval);
-    }
-
-    /**
-     * Update the intervals in adaptive mode.
-     * 
-     * @param feed The feed.
-     * @param entries The entries of the feed.
-     * @param pnTarget The percentage of new post entries.
-     */
-    private void updateIntervalAdaptive(Feed feed, double pnTarget, FeedPostStatistics fps) {
-
-        List<FeedItem> entries = feed.getEntries();
-
-        int minCheckInterval = feed.getMinCheckInterval();
-        int maxCheckInterval = feed.getMaxCheckInterval();
-
-        double newEntries = pnTarget * (feed.getWindowSize() - 1);
-
-        // ########################## linear wave #########################
-        // the factor by which the max checkInterval is multiplied, ranges between 2 and 0.5
-        // double fMax = 1.0;
-        // // all news are new, we should halve the checkInterval
-        // if (pnTarget > 1) {
-        // fMax = 0.5;
-        // }
-        // // some entries are not new so we increase the checkInterval
-        // else {
-        // // if (pnTarget == 0) {
-        // // pnTarget = 1.0 / feed.getWindowSize();
-        // // }
-        // // if (pnTarget < 0.1) {
-        // // pnTarget = 0.1;
-        // // }
-        // // fMax = 1 / pnTarget;
-        // fMax = 2 - pnTarget;
-        // }
-        // maxCheckInterval *= fMax;
-
-        // ######################### simple moving average for max policy ##############################
-        // if (newEntries > 0) {
-        // maxCheckInterval = entries.size() * (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-        // } else {
-        // double averagePostGap = fps.getAveragePostGap();
-        // if (fps.getIntervals().size() > 0) {
-        // averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
-        // averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
-        // maxCheckInterval = (int) (entries.size() * averagePostGap / DateHelper.MINUTE_MS);
-        // }
-        // }
-
-        // ######################### avg ##############################
-        // the factor by which the min checkInterval is multiplied, ranges between 2 and 0.5
-        // double fMin = 1.0;
-        // all news are new, we should halve the checkInterval
-        // if (newEntries >= 1) {
-        // fMin = 1.0 / newEntries;
-        // minCheckInterval *= fMin;
-        // }
-        // // we have not found any new entry so we increase the min checkInterval
-        // else {
-        // // minCheckInterval += fps.getMedianPostGap() / (2 * DateHelper.MINUTE_MS);
-        // minCheckInterval += fps.getAveragePostGap() / (2 * DateHelper.MINUTE_MS);
-        // }
-
-        // ######################### last interval for min policy ##############################
-        // if (newEntries > 0) {
-        // minCheckInterval = (int) (fps.getLastInterval() / DateHelper.MINUTE_MS);
-        // } else {
-        // minCheckInterval = (int) (fps.getDelayToNewestPost() / DateHelper.MINUTE_MS);
-        // }
-
-        // ######################### simple moving average for min policy ##############################
-        if (newEntries > 0) {
-            minCheckInterval = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-        } else {
-            if (fps.getIntervals().size() > 0) {
-                double averagePostGap = fps.getAveragePostGap();
-                // averagePostGap -= fps.getIntervals().get(0) / feed.getWindowSize();
-                // averagePostGap += fps.getDelayToNewestPost() / feed.getWindowSize();
-                averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
-                averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
-                minCheckInterval = (int) (averagePostGap / DateHelper.MINUTE_MS);
-            }
-        }
-
-        // ######################### simple moving median for min policy ##############################
-        // if (newEntries > 0) {
-        // minCheckInterval = (int) (fps.getMedianPostGap() / DateHelper.MINUTE_MS);
-        // } else {
-        // minCheckInterval = (int) (fps.getMedianPostGap2() / DateHelper.MINUTE_MS);
-        // }
-
-        // ######################### exponential moving average ##############################
-        // Double[] weights = new Double[5];
-        // weights[0] = 0.086;
-        // weights[1] = 0.107;
-        // weights[2] = 0.143;
-        // weights[3] = 0.216;
-        // weights[4] = 0.447;
-        // long minCheckIntervalTemp = 0;
-        // if (newEntries > 0) {
-        // for (int i = 0; i < fps.getIntervals().size(); i++) {
-        // minCheckIntervalTemp += weights[i + 1] * fps.getIntervals().get(i);
-        // }
-        // } else {
-        //
-        // List<Long> intervals = new ArrayList<Long>();
-        //
-        // // shift intervals
-        // for (int i = 1; i < fps.getIntervals().size(); i++) {
-        // intervals.add(fps.getIntervals().get(i));
-        // }
-        // intervals.add(fps.getDelayToNewestPost());
-        //
-        // for (int i = 0; i < intervals.size(); i++) {
-        // minCheckIntervalTemp += weights[i + 1] * intervals.get(i);
-        // }
-        //
-        // }
-        //
-        // minCheckInterval = (int) (minCheckIntervalTemp / DateHelper.MINUTE_MS);
-
-        // ######################### linear moving average ##############################
-        // double m = feed.getWindowSize() * feed.getWindowSize() / 2 - 0.5 * feed.getWindowSize();
-        // long minCheckIntervalTemp = 0;
-        // if (newEntries > 0) {
-        // for (int i = 0; i < fps.getIntervals().size(); i++) {
-        // minCheckIntervalTemp += i / m * fps.getIntervals().get(i);
-        // }
-        // } else {
-        //
-        // List<Long> intervals = new ArrayList<Long>();
-        //
-        // // shift intervals
-        // for (int i = 1; i < fps.getIntervals().size(); i++) {
-        // intervals.add(fps.getIntervals().get(i));
-        // }
-        // intervals.add(fps.getDelayToNewestPost());
-        //
-        // for (int i = 0; i < intervals.size(); i++) {
-        // minCheckIntervalTemp += i / m * intervals.get(i);
-        // }
-        //
-        // }
-        //
-        // minCheckInterval = (int) (minCheckIntervalTemp / DateHelper.MINUTE_MS);
-
-        // ########################### linear regression global weights ####################################
-        // LinearRegression lo = new LinearRegression();
-        //
-        // Instance instance;
-        // if (newEntries > 0) {
-        // instance = new Instance(4);
-        // instance.setDataset(instances);
-        // for (int i = 0; i < fps.getIntervals().size() - 1; i++) {
-        // instance.setValue(i, fps.getIntervals().get(i));
-        // }
-        // instance.setClassValue(fps.getLastInterval());
-        // instances.add(instance);
-        // nothingFoundCount = 0;
-        // } else {
-        // nothingFoundCount++;
-        // }
-        //
-        // try {
-        // lo.buildClassifier(instances);
-        // } catch (Exception e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        //
-        // if (instances.numInstances() > 4) {
-        // /*
-        // * for (int i = 0; i < lo.coefficients().length; i++) {
-        // * System.out.println(lo.coefficients()[i]);
-        // * }
-        // */
-        //
-        // instance = new Instance(4);
-        // for (int i = 0; i < fps.getIntervals().size() - 1; i++) {
-        // instance.setValue(i, fps.getIntervals().get(i));
-        // }
-        // // instance.setClassMissing();
-        //
-        // try {
-        // // System.out.println(lo.classifyInstance(instance) + "_" + feed.getId());
-        // minCheckInterval = (int) (lo.classifyInstance(instance) / DateHelper.MINUTE_MS);
-        // if (minCheckInterval < 0) {
-        // minCheckInterval = nothingFoundCount * (DEFAULT_CHECK_TIME / 2);
-        // }
-        // } catch (Exception e) {
-        // // TODO Auto-generated catch block
-        // e.printStackTrace();
-        // }
-        // }
-        // /////////////////////
-
-        feed.setMinCheckInterval(minCheckInterval);
-        feed.setMaxCheckInterval(maxCheckInterval);
-
-        // in case only one entry has been found use default check time
-        if (entries.size() <= 1) {
-            feed.setMinCheckInterval(DEFAULT_CHECK_TIME / 2);
-            feed.setMaxCheckInterval(DEFAULT_CHECK_TIME);
-        }
-    }
-
-    // mimic the min delay policy update interval proposed by "A New Aggregation Policy for RSS Services", 2008
-    private void updateIntervalPRMAV_(Feed feed, double pnTarget, FeedPostStatistics fps) {
-
-        int mTotal = 1168731;// 100884;
-        int mprSum = 188813;// 37605;
-
-        int experimentDays = (int) ((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / DateHelper.DAY_MS);
-        double mDaily = mTotal / (double) experimentDays;
-        double k = 2.7 * mDaily / mprSum; // was 1.8 => 79k
-
-        int minCheckInterval = (int) (1440 / (k * Math.sqrt(2.87)));
-
-        try {
-            psGetPostRate.setInt(1, feed.getId());
-
-            ResultSet rs = DatabaseManager.getInstance().runQuery(psGetPostRate);
-            rs.next();
-            double dailyPostRate = rs.getDouble(1);
-
-            double lookUpsPerDay = k * Math.sqrt(dailyPostRate);
-
-            minCheckInterval = (int) (1440 / lookUpsPerDay);
-
-        } catch (SQLException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            System.out.println("feed id: " + feed.getId());
-        }
-
-        feed.setMinCheckInterval(minCheckInterval);
-    }
-
-    private void updateIntervalPRMAV(Feed feed, double pnTarget, FeedPostStatistics fps) {
-
-        double newEntries = pnTarget * (feed.getWindowSize() - 1);
-
-        // determine winner of last prediction
-        double diffPR = feed.getBenchmarkLastLookupTime() + prMinCheckIntervalPrediction * DateHelper.MINUTE_MS
-                - fps.getTimeNewestPost();
-        double diffMAV = feed.getBenchmarkLastLookupTime() + mavMinCheckIntervalPrediction * DateHelper.MINUTE_MS
-                - fps.getTimeNewestPost();
-        double diffMAVMedian = feed.getBenchmarkLastLookupTime() + mavMedianMinCheckIntervalPrediction
-                * DateHelper.MINUTE_MS - fps.getTimeNewestPost();
-
-        boolean usePR = false;
-        boolean useMedian = false;
-        // if (newEntries > 0) {
-        // if (diffPR < diffMAV && diffPR > 0 || diffMAV < 0) {
-        // usePR = true;
-        // }
-        // } else {
-        // if (prMinCheckIntervalPrediction > mavMinCheckIntervalPrediction) {
-        // usePR = true;
-        // }
-        // }
-        if (newEntries > 0) {
-            if (Math.abs(diffPR) < Math.abs(diffMAV) && Math.abs(diffPR) < Math.abs(diffMAVMedian)) {
-                usePR = true;
-            } else if (Math.abs(diffMAVMedian) < Math.abs(diffPR) && Math.abs(diffMAVMedian) < Math.abs(diffMAV)) {
-                useMedian = true;
-            }
-        } else {
-            if (prMinCheckIntervalPrediction > mavMinCheckIntervalPrediction
-                    && prMinCheckIntervalPrediction > mavMedianMinCheckIntervalPrediction) {
-                usePR = true;
-            } else if (mavMedianMinCheckIntervalPrediction > prMinCheckIntervalPrediction
-                    && mavMedianMinCheckIntervalPrediction > mavMinCheckIntervalPrediction) {
-                useMedian = true;
-            }
-        }
-
-        // ////////////////////////////////////////////// post rate //////////////////////////////////////////
-        List<FeedItem> entries = feed.getEntries();
-
-        // learn the post distribution from the last seen entry to the newest one
-        // distribution minute of the day : frequency of news in that minute
-        Map<Integer, int[]> postDistribution = null;
-
-        if (feed.getChecks() == 0) {
-            postDistribution = new HashMap<Integer, int[]>();
-
-            // since the feed has no post distribution yet, we fill all minutes with 0 posts
-            for (int minute = 0; minute < 1440; minute++) {
-                int[] postsChances = { 0, 0 };
-                postDistribution.put(minute, postsChances);
-            }
-
-        } else {
-            postDistribution = feed.getMeticulousPostDistribution();
-
-            // in benchmark mode we keep it in memory
-            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
-            }
-
-        }
-
-        // update the minutes where an entry could have been posted
-        int minuteCounter = 0;
-        long timeLastSeenEntry = Long.MIN_VALUE;
-        if (feed.getLastFeedEntry() != null) {
-            timeLastSeenEntry = feed.getLastFeedEntry().getTime();
-        }
-        int startMinute = (int) DateHelper.getTimeOfDay(fps.getTimeOldestPost(), Calendar.MINUTE);
-        for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS, minuteCounter++) {
-            // we have counted the chances for entries before the last seen
-            // entry already, so we skip them here
-            if (t <= timeLastSeenEntry) {
-                continue;
-            }
-            int minuteOfDay = (startMinute + minuteCounter) % 1440;
-            int[] postsChances = postDistribution.get(minuteOfDay);
-            postsChances[1] = postsChances[1] + 1;
-            postDistribution.put(minuteOfDay, postsChances);
-        }
-
-        // update the minutes where an entry was actually posted
-        for (FeedItem entry : entries) {
-            // we have counted the posts for entries before the last seen
-            // entry already, so we skip them here
-            if (entry.getPublished() == null || entry.getPublished().getTime() <= timeLastSeenEntry) {
-                continue;
-            }
-            int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
-            int[] postsChances = postDistribution.get(minuteOfDay);
-            postsChances[0] = postsChances[0] + 1;
-            postDistribution.put(minuteOfDay, postsChances);
-        }
-
-        int t1 = 0, t2 = 0;
-        for (Map.Entry<Integer, int[]> a : postDistribution.entrySet()) {
-            // System.out.println(a.getKey()+":"+a.getValue()[0]+","+a.getValue()[1]);
-            t1 += a.getValue()[0];
-            t2 += a.getValue()[1];
-        }
-        // System.out.println(t1 + "," + t2);
-
-        feed.setMeticulousPostDistribution(postDistribution);
-
-        // in benchmark mode we keep it in memory, in real usage, we store the distribution in the database
-        if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-            FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
-        }
-
-        // only use calculated update intervals if one full day of distribution is available already
-        if (true || feed.oneFullDayHasBeenSeen()) {
-
-            startMinute = 0;
-
-            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                startMinute = (int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE);
-            } else {
-                startMinute = (int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE);
-            }
-
-            // // estimate time to next entry and time until list is full with
-            // only new but one entries
-
-            // set to one month maximum
-            int minCheckInterval = 31 * 1440;
-            boolean minCheckIntervalFound = false;
-
-            // set to six month maximum
-            int maxCheckInterval = 6 * 31 * 1440;
-
-            // add up all probabilities for the coming minutes until the
-            // estimated post number is 1
-            int currentMinute = startMinute;
-            double estimatedPosts = 0;
-            for (int c = 0; c < maxCheckInterval; c++) {
-
-                int[] postsChances = postDistribution.get(currentMinute);
-                double postProbability = 0;
-                if (postsChances[1] > 0) {
-                    postProbability = (double) postsChances[0] / (double) postsChances[1];
-                }
-                estimatedPosts += postProbability;
-
-                if (estimatedPosts >= 1 && !minCheckIntervalFound) {
-                    minCheckInterval = c;
-                    minCheckIntervalFound = true;
-                }
-
-                if (estimatedPosts >= entries.size()) {
-                    maxCheckInterval = c;
-                    break;
-                }
-
-                currentMinute = (currentMinute + 1) % 1440;
-            }
-
-            prMinCheckIntervalPrediction = minCheckInterval;
-
-        }
-
-        // ////////////////////////////////////////// MAV ///////////////////////////////////////////
-        if (newEntries > 0) {
-            mavMinCheckIntervalPrediction = (int) (fps.getAveragePostGap() / DateHelper.MINUTE_MS);
-        } else {
-            if (fps.getIntervals().size() > 0) {
-                double averagePostGap = fps.getAveragePostGap();
-                averagePostGap -= fps.getIntervals().get(0) / fps.getIntervals().size();
-                averagePostGap += fps.getDelayToNewestPost() / fps.getIntervals().size();
-                mavMinCheckIntervalPrediction = (int) (averagePostGap / DateHelper.MINUTE_MS);
-            }
-        }
-
-        // ////////////////////////////////////////// MAV median ///////////////////////////////////////////
-        if (newEntries > 0) {
-            mavMedianMinCheckIntervalPrediction = (int) (fps.getMedianPostGap() / DateHelper.MINUTE_MS);
-        } else {
-            mavMedianMinCheckIntervalPrediction = (int) (fps.getMedianPostGap2() / DateHelper.MINUTE_MS);
-        }
-
-        if (usePR) {
-            feed.setMinCheckInterval(prMinCheckIntervalPrediction);
-            feed.setMaxCheckInterval(1000);
-        } else if (useMedian) {
-            feed.setMinCheckInterval(mavMedianMinCheckIntervalPrediction);
-            feed.setMaxCheckInterval(1000);
-        } else {
-            feed.setMinCheckInterval(mavMinCheckIntervalPrediction);
-            feed.setMaxCheckInterval(1000);
-        }
-
-    }
-
-    /**
-     * Update the intervals in probabilistic mode.
-     * 
-     * @param feed The feed.
-     * @param entries The entries of the feed.
-     * @param fps The feed post statistics of the feed.
-     */
-    private void updateIntervalProbabilistic(Feed feed, FeedPostStatistics fps) {
-
-        List<FeedItem> entries = feed.getEntries();
-
-        // learn the post distribution from the last seen entry to the newest one
-        // distribution minute of the day : frequency of news in that minute
-        Map<Integer, int[]> postDistribution = null;
-
-        if (feed.getChecks() == 0) {
-            postDistribution = new HashMap<Integer, int[]>();
-
-            // since the feed has no post distribution yet, we fill all minutes with 0 posts
-            for (int minute = 0; minute < 1440; minute++) {
-                int[] postsChances = { 0, 0 };
-                postDistribution.put(minute, postsChances);
-            }
-
-        } else {
-            postDistribution = feed.getMeticulousPostDistribution();
-
-            // in benchmark mode we keep it in memory
-            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
-            }
-
-        }
-
-        // update the minutes where an entry could have been posted
-        int minuteCounter = 0;
-        long timeLastSeenEntry = Long.MIN_VALUE;
-        if (feed.getLastFeedEntry() != null) {
-            timeLastSeenEntry = feed.getLastFeedEntry().getTime();
-        }
-        int startMinute = (int) DateHelper.getTimeOfDay(fps.getTimeOldestPost(), Calendar.MINUTE);
-        for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS, minuteCounter++) {
-            // we have counted the chances for entries before the last seen
-            // entry already, so we skip them here
-            if (t <= timeLastSeenEntry) {
-                continue;
-            }
-            int minuteOfDay = (startMinute + minuteCounter) % 1440;
-            int[] postsChances = postDistribution.get(minuteOfDay);
-            postsChances[1] = postsChances[1] + 1;
-            postDistribution.put(minuteOfDay, postsChances);
-        }
-
-        // update the minutes where an entry was actually posted
-        for (FeedItem entry : entries) {
-            // we have counted the posts for entries before the last seen
-            // entry already, so we skip them here
-            if (entry.getPublished() == null || entry.getPublished().getTime() <= timeLastSeenEntry) {
-                continue;
-            }
-            int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
-            int[] postsChances = postDistribution.get(minuteOfDay);
-            postsChances[0] = postsChances[0] + 1;
-            postDistribution.put(minuteOfDay, postsChances);
-        }
-
-        int t1 = 0, t2 = 0;
-        for (Map.Entry<Integer, int[]> a : postDistribution.entrySet()) {
-            // System.out.println(a.getKey()+":"+a.getValue()[0]+","+a.getValue()[1]);
-            t1 += a.getValue()[0];
-            t2 += a.getValue()[1];
-        }
-        // System.out.println(t1 + "," + t2);
-
-        feed.setMeticulousPostDistribution(postDistribution);
-
-        // in benchmark mode we keep it in memory, in real usage, we store the distribution in the database
-        if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-            FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
-        }
-
-        // only use calculated update intervals if one full day of distribution is available already
-        if (true || feed.oneFullDayHasBeenSeen()) {
-
-            startMinute = 0;
-
-            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                startMinute = (int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE);
-            } else {
-                startMinute = (int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE);
-            }
-
-            // // estimate time to next entry and time until list is full with
-            // only new but one entries
-
-            // set to one month maximum
-            int minCheckInterval = 31 * 1440;
-            boolean minCheckIntervalFound = false;
-
-            // set to six month maximum
-            int maxCheckInterval = 6 * 31 * 1440;
-
-            // add up all probabilities for the coming minutes until the
-            // estimated post number is 1
-            int currentMinute = startMinute;
-            double estimatedPosts = 0;
-            for (int c = 0; c < maxCheckInterval; c++) {
-
-                int[] postsChances = postDistribution.get(currentMinute);
-                double postProbability = 0;
-                if (postsChances[1] > 0) {
-                    postProbability = (double) postsChances[0] / (double) postsChances[1];
-                }
-                estimatedPosts += postProbability;
-
-                if (estimatedPosts >= 1 && !minCheckIntervalFound) {
-                    minCheckInterval = c;
-                    minCheckIntervalFound = true;
-                }
-
-                if (estimatedPosts >= entries.size()) {
-                    maxCheckInterval = c;
-                    break;
-                }
-
-                currentMinute = (currentMinute + 1) % 1440;
-            }
-
-            feed.setMinCheckInterval(minCheckInterval);
-            feed.setMaxCheckInterval(maxCheckInterval);
-        }
-    }
-
-    private void updateIntervalProbabilistic_(Feed feed, FeedPostStatistics fps) {
-
-        List<FeedItem> entries = feed.getEntries();
-
-        if (feed.getChecks() == 0) {
-
-            // learn the post distribution from the past to get initial check intervals
-            // distribution minute of the day : frequency of news in that minute (items,chances)
-            Map<Integer, int[]> postDistribution = new HashMap<Integer, int[]>();
-
-            // since the feed has no post distribution yet, we fill all minutes with 0 posts
-            for (int minute = 0; minute < 1440; minute++) {
-                int[] postsChances = { 0, 0 };
-                postDistribution.put(minute, postsChances);
-            }
-
-            // update the minutes where an entry could have been posted
-            int minuteCounter = 0;
-            int startMinute = (int) DateHelper.getTimeOfDay(fps.getTimeOldestPost(), Calendar.MINUTE);
-            for (long t = fps.getTimeOldestPost(); t < fps.getTimeNewestPost() + DateHelper.MINUTE_MS; t += DateHelper.MINUTE_MS, minuteCounter++) {
-                int minuteOfDay = (startMinute + minuteCounter) % 1440;
-                int[] postsChances = postDistribution.get(minuteOfDay);
-                postsChances[1] = postsChances[1] + 1;
-                postDistribution.put(minuteOfDay, postsChances);
-            }
-            // for (Map.Entry<Integer, int[]> a : postDistribution.entrySet()) {
-            // System.out.println(a.getKey()+":"+a.getValue()[0]+","+a.getValue()[1]);
-            // }
-
-            // update the minutes where an entry was actually posted
-            for (FeedItem entry : entries) {
-                if (entry.getPublished() == null) {
-                    continue;
-                }
-                int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
-                int[] postsChances = postDistribution.get(minuteOfDay);
-                postsChances[0] = postsChances[0] + 1;
-                postDistribution.put(minuteOfDay, postsChances);
-            }
-
-            feed.setMeticulousPostDistribution(postDistribution);
-
-            // in benchmark mode we keep it in memory
-            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
-            }
-
-        } else if (feed.getChecks() > 0) {
-
-            // learn the post distribution from the last seen entry to the newest one
-            // distribution minute of the day : frequency of news in that minute
-            Map<Integer, int[]> postDistribution = feed.getMeticulousPostDistribution();
-
-            // in benchmark mode we keep it in memory
-            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
-            }
-
-            // update the minutes where an entry could have been posted
-            long timeLastSeenEntry = feed.getLastFeedEntry().getTime();
-
-            for (long t = fps.getTimeOldestPost(); t <= fps.getTimeNewestPost(); t += DateHelper.MINUTE_MS) {
-                // we have counted the chances for entries before the last seen
-                // entry already, so we skip them here
-                if (t <= timeLastSeenEntry) {
-                    continue;
-                }
-                int minuteOfDay = (int) DateHelper.getTimeOfDay(t, Calendar.MINUTE);
-                int[] postsChances = postDistribution.get(minuteOfDay);
-                postsChances[1] = postsChances[1] + 1;
-                postDistribution.put(minuteOfDay, postsChances);
-            }
-
-            // update the minutes where an entry was actually posted
-            for (FeedItem entry : entries) {
-                // we have counted the posts for entries before the last seen
-                // entry already, so we skip them here
-                if (entry.getPublished() == null || entry.getPublished().getTime() <= timeLastSeenEntry) {
-                    continue;
-                }
-                int minuteOfDay = (int) DateHelper.getTimeOfDay(entry.getPublished(), Calendar.MINUTE);
-                int[] postsChances = postDistribution.get(minuteOfDay);
-                postsChances[0] = postsChances[0] + 1;
-                postDistribution.put(minuteOfDay, postsChances);
-            }
-
-            // in benchmark mode we keep it in memory
-            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
-            }
-            feed.setMeticulousPostDistribution(postDistribution);
-
-            // only use calculated update intervals if one full day of distribution is available already
-            if (feed.oneFullDayHasBeenSeen()) {
-
-                int startMinute = 0;
-
-                if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                    startMinute = (int) DateHelper.getTimeOfDay(System.currentTimeMillis(), Calendar.MINUTE);
-                } else {
-                    startMinute = (int) DateHelper.getTimeOfDay(feed.getBenchmarkLookupTime(), Calendar.MINUTE);
-                }
-
-                // // estimate time to next entry and time until list is full with
-                // only new but one entries
-
-                // set to one month maximum
-                int minCheckInterval = 31 * 1440;
-                boolean minCheckIntervalFound = false;
-
-                // set to six month maximum
-                int maxCheckInterval = 6 * 31 * 1440;
-
-                // add up all probabilities for the coming minutes until the
-                // estimated post number is 1
-                int currentMinute = startMinute;
-                double estimatedPosts = 0;
-                for (int c = 0; c < maxCheckInterval; c++) {
-
-                    int[] postsChances = postDistribution.get(currentMinute);
-                    double postProbability = 0;
-                    if (postsChances[1] > 0) {
-                        postProbability = (double) postsChances[0] / (double) postsChances[1];
-                    }
-                    estimatedPosts += postProbability;
-
-                    if (estimatedPosts >= 1 && !minCheckIntervalFound) {
-                        minCheckInterval = c;
-                        minCheckIntervalFound = true;
-                    }
-
-                    if (estimatedPosts >= entries.size()) {
-                        maxCheckInterval = c;
-                        break;
-                    }
-
-                    currentMinute = (currentMinute + 1) % 1440;
-                }
-
-                feed.setMinCheckInterval(minCheckInterval);
-                feed.setMaxCheckInterval(maxCheckInterval);
-
-                // for (Map.Entry<Integer, int[]> a : postDistribution.entrySet()) {
-                // System.out.println(a.getKey()+":"+a.getValue()[0]+","+a.getValue()[1]);
-                // }
-
-                // remember at which iteration the probabilistic approach took over
-                // if (benchmark != BENCHMARK_OFF) {
-                // Integer iteration = probabilisticSwitchMap.get(feed.getId());
-                // if (iteration == null) {
-                // probabilisticSwitchMap.put(feed.getId(), feed.getChecks());
-                // }
-                // }
-            }
-        }
     }
 
     public void setStopped(boolean stopped) {
@@ -1255,12 +497,12 @@ public final class FeedReader {
     public static void main(String[] args) {
 
         FeedReader fchecker = new FeedReader(FeedDatabase.getInstance());
-        fchecker.setCheckApproach(UpdateStrategy.UPDATE_FIXED, true);
+        fchecker.setUpdateStrategy(new FixUpdateStrategy(), true);
         fchecker.startContinuousReading();
         System.exit(0);
 
         FeedReader fch = new FeedReader(new FeedStoreDummy());
-        fch.setCheckApproach(UpdateStrategy.UPDATE_FIXED, true);
+        fch.setUpdateStrategy(new FixUpdateStrategy(), true);
         Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
         feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
         feed.updateEntries(false);
@@ -1295,7 +537,7 @@ public final class FeedReader {
         }
 
         int runtime = -1;
-        UpdateStrategy checkType = UpdateStrategy.UPDATE_FIXED;
+        UpdateStrategy updateStrategy = new FixUpdateStrategy();
         int checkInterval = -1;
 
         if (cmd.hasOption("r")) {
@@ -1304,11 +546,12 @@ public final class FeedReader {
             formatter.printHelp("FeedReader", options);
         }
         if (cmd.hasOption("cf")) {
-            checkType = UpdateStrategy.UPDATE_FIXED;
+            updateStrategy = new FixUpdateStrategy();
+            ((FixUpdateStrategy) updateStrategy).setCheckInterval(checkInterval);
         } else if (cmd.hasOption("ca")) {
-            checkType = UpdateStrategy.UPDATE_MOVING_AVERAGE;
+            updateStrategy = new MAVUpdateStrategy();
         } else if (cmd.hasOption("cp")) {
-            checkType = UpdateStrategy.UPDATE_POST_RATE;
+            updateStrategy = new PostRateUpdateStrategy();
         }
         if (cmd.hasOption("ci")) {
             checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
@@ -1324,8 +567,7 @@ public final class FeedReader {
                         + feed.getChecks());
             }
         };
-        fc.setCheckApproach(checkType, true);
-        fc.setCheckInterval(checkInterval);
+        fc.setUpdateStrategy(updateStrategy, true);
         fc.setFeedProcessingAction(fpa);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
     }

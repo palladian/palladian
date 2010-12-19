@@ -18,14 +18,24 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 
+/**
+ * The NEREvaluator can be used to train and evaluate several NERs on the same data.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class NEREvaluator {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(NEREvaluator.class);
     
+    /** A list of NERs that should be evaluated. */
     private List<NamedEntityRecognizer> nerList;
+
+    /** A list of datasets that should be used for evaluation. */
     private List<Dataset> datasets;
 
+    /** The path to the file where the evaluation results are written to. */
     private final String evaluationFolder = "data/temp/nerEvaluation/";
 
     public NEREvaluator() {

@@ -49,16 +49,19 @@ import tud.iir.web.SourceRetrieverManager;
  */
 public class FactExtractor extends Extractor {
 
-    /** the instance of this class */
+    /** The instance of this class. */
     private static final FactExtractor INSTANCE = new FactExtractor();
     
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FactExtractor.class);
 
     //private HashSet<String> urlsSeenForEntity; // temporarily save the set of urls that have been used for extraction for the current entity (so that the url is
     // not used twice for a similar extraction)
     //private int counter = 1; // for indexing websiteX.html X > 0
 
+    /**
+     * The private constructor for this singleton class.
+     */
     private FactExtractor() {
         
         // do not analyze any binary files

@@ -22,6 +22,7 @@ import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.tagger.LingPipeNER;
 import tud.iir.extraction.entity.ner.tagger.OpenNLPNER;
+import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.knowledge.Entity;
@@ -254,7 +255,7 @@ public class EventFeatureExtractor {
 
         }
 
-        final double distribution = (avgOffset / annotations.size())
+        final double distribution = avgOffset / annotations.size()
                 / event.getText().length();
 
         final DecimalFormat twoDForm = new DecimalFormat("#.###");
@@ -262,8 +263,9 @@ public class EventFeatureExtractor {
         featureMap.put("titleEntityCount", titleEntityCount);
         featureMap.put("textEntityCount", textEntityCount);
         featureMap.put("type", typeId);
-        featureMap.put("distribution", -Double.valueOf(twoDForm
-                .format(distribution)));
+        // featureMap.put("distribution", -Double.valueOf(twoDForm
+        // .format(distribution)));
+        featureMap.put("distribution", -MathHelper.round(distribution, 3));
 
         return new FeatureObject(featureMap);
 

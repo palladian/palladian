@@ -83,7 +83,7 @@ public class FeedClassifier {
     }
 
     public static int classify(String feedURL) {
-        return classify(feedURL, null);
+        return classify(feedURL, new FeedStoreDummy());
     }
 
     /**

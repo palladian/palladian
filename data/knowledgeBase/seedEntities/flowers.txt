@@ -1,0 +1,52 @@
+C#flower,plant#1
+Camellia
+Oak-leaf Hydrangea
+Forget-me-not
+Saguaro Cactus blossom
+Apple blossom
+California Poppy
+Rocky Mountain Columbine
+Mountain laurel
+Peach blossom
+Orange blossom
+Cherokee Rose
+Azalea
+Hawaiian hibiscus
+Violet
+Peony
+Wild Prairie Rose
+Sunflower
+Goldenrod
+Magnolia
+Louisiana Iris
+Black-eyed susan
+Mayflower
+Dwarf Lake Iris
+Tickseed
+Hawthorn
+Bitterroot
+Sagebrush
+Purple lilac
+Yucca flower
+Rose
+Flowering Dogwood
+Scarlet Carnation
+Large white trillium
+Oklahoma Rose
+Mistletoe
+Indian Blanket
+Oregon grape
+Mountain Laurel
+Penngift Crown Vetch
+Yellow Jessamine
+Pasque flower
+Iris
+Purple Passionflower
+Texas Bluebonnet
+Sego lily
+Red Clover
+American Dogwood
+Coast Rhododendron
+Rhododendron
+Wood Violet
+Indian Paintbrush

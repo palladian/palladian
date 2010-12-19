@@ -1636,35 +1636,34 @@ public class Crawler {
      */
     public static File downloadBinaryFile(String urlString, String pathWithFileName) {
         File binFile = null;
-        if (Crawler.isValidURL(urlString, false)) {
-            URL u;
-            binFile = new File(pathWithFileName);
-            try {
-                u = new URL(urlString);
-                final BufferedInputStream in = new BufferedInputStream(u.openStream());
-                final BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
 
-                final byte[] buffer = new byte[4096];
+        URL u;
+        binFile = new File(pathWithFileName);
+        try {
+            u = new URL(urlString);
+            final BufferedInputStream in = new BufferedInputStream(u.openStream());
+            final BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
 
-                int n = 0;
-                while ((n = in.read(buffer)) != -1) {
-                    out.write(buffer, 0, n);
-                }
+            final byte[] buffer = new byte[4096];
 
-                in.close();
-                out.close();
-
-                int size = (int)binFile.length();
-                sessionDownloadedBytes += size;
-
-
-            } catch (Exception e) {
-
-                LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
-                binFile = null;
+            int n = 0;
+            while ((n = in.read(buffer)) != -1) {
+                out.write(buffer, 0, n);
             }
 
+            in.close();
+            out.close();
+
+            int size = (int) binFile.length();
+            sessionDownloadedBytes += size;
+
+
+        } catch (Exception e) {
+
+            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
+            binFile = null;
         }
+
         return binFile;
     }
 

@@ -41,7 +41,7 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
 /**
- * The SourceRetriever queries the indices of Yahoo!, Google, Microsoft and
+ * The SourceRetriever queries the indices of Yahoo!, Google, Microsoft, and
  * Hakia.
  * 
  * @author David Urbansky
@@ -50,22 +50,22 @@ import twitter4j.TwitterException;
  */
 public class SourceRetriever {
 
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(SourceRetriever.class);
 
     private SourceRetrieverManager srManager = null;
 
-    // determines how many sources (urls) should be retrieved
+    /** Determines how many sources (urls) should be retrieved. */
     private int resultCount;
 
-    // determines from which index the pages are going to be retrieved
+    /** Determines from which index the pages are going to be retrieved. */
     private int source;
 
-    // language constants
+    /** Language constants. */
     public static final int LANGUAGE_ENGLISH = 0;
     public static final int LANGUAGE_GERMAN = 1;
 
-    // the preferred language of the results
+    /** The preferred language of the results. */
     private int language = LANGUAGE_ENGLISH;
 
     public SourceRetriever() {

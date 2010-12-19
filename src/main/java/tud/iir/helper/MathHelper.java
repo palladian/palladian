@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.math.stat.descriptive.moment.StandardDeviation;
@@ -348,7 +349,7 @@ public class MathHelper {
             return collection;
         }
 
-        Collection<T> sampledCollection = new HashSet<T>();
+        Set<T> sampledCollection = new HashSet<T>();
 
         while (sampledCollection.size() < sampleSize) {
             int collectionSize = collection.size();
