@@ -19,7 +19,7 @@ import tud.iir.classification.WordCorrelation;
 import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.AssignmentMode;
 import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.ReRankingMode;
 import tud.iir.classification.page.evaluation.Dataset;
-import tud.iir.extraction.keyphrase.AbstractKeyphraseExtractor;
+import tud.iir.extraction.keyphrase.KeyphraseExtractor;
 import tud.iir.extraction.keyphrase.Keyphrase;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
@@ -31,10 +31,13 @@ import tud.iir.helper.StopWatch;
  * @author Philipp Katz
  * 
  */
-public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
+public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PalladianKeyphraseExtractor.class);
+
+    /** Limit for the amount of train data for the classifier; necessary because of memory limits. */
+    private static final int TRAIN_DATA_LIMIT = 160000;
 
     /** The TokenizerPlus is responsible for all tokenization steps. */
     private TokenizerPlus tokenizer;
@@ -46,7 +49,6 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
     private Classifier classifier = new Classifier(Classifier.BAGGING);
     // private Classifier classifier = new Classifier(Classifier.NEURAL_NETWORK);
 
-
     /** This class encapsulates all the customizable settings. */
     private KeyphraseExtractorSettings settings = new KeyphraseExtractorSettings();
 
@@ -55,201 +57,201 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
         tokenizer.setUsePosTagging(false);
     }
 
-//    /**
-//     * Builds and saves the corpus.
-//     * 
-//     * @param dataset
-//     */
-//    public void buildCorpus(final Dataset dataset) {
-//
-//        LOGGER.info("building corpus ...");
-//
-//        StopWatch sw = new StopWatch();
-//        final Counter counter = new Counter();
-//
-//        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
-//
-//            @Override
-//            public void performAction(String line, int lineNumber) {
-//
-//                String[] split = line.split(dataset.getSeparationString());
-//                if (split.length < 2) {
-//                    return;
-//                }
-//
-//                String text;
-//                if (dataset.isFirstFieldLink()) {
-//                    text = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
-//                } else {
-//                    text = split[0];
-//                }
-//
-//                Set<String> tags = new HashSet<String>();
-//                for (int i = 1; i < split.length; i++) {
-//                    tags.add(split[i]);
-//                }
-//                addToCorpus(text, tags);
-//
-//                counter.increment();
-//                if (counter.getCount() % 10 == 0) {
-//                    LOGGER.info("added " + counter + " lines");
-//                }
-//            }
-//        });
-//
-//        saveCorpus();
-//        LOGGER.info("built and saved corpus in " + sw.getElapsedTimeString());
-//    }
+    // /**
+    // * Builds and saves the corpus.
+    // *
+    // * @param dataset
+    // */
+    // public void buildCorpus(final Dataset dataset) {
+    //
+    // LOGGER.info("building corpus ...");
+    //
+    // StopWatch sw = new StopWatch();
+    // final Counter counter = new Counter();
+    //
+    // FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
+    //
+    // @Override
+    // public void performAction(String line, int lineNumber) {
+    //
+    // String[] split = line.split(dataset.getSeparationString());
+    // if (split.length < 2) {
+    // return;
+    // }
+    //
+    // String text;
+    // if (dataset.isFirstFieldLink()) {
+    // text = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
+    // } else {
+    // text = split[0];
+    // }
+    //
+    // Set<String> tags = new HashSet<String>();
+    // for (int i = 1; i < split.length; i++) {
+    // tags.add(split[i]);
+    // }
+    // addToCorpus(text, tags);
+    //
+    // counter.increment();
+    // if (counter.getCount() % 10 == 0) {
+    // LOGGER.info("added " + counter + " lines");
+    // }
+    // }
+    // });
+    //
+    // saveCorpus();
+    // LOGGER.info("built and saved corpus in " + sw.getElapsedTimeString());
+    // }
 
-//    /**
-//     * Builds and saves the corpus.
-//     * 
-//     * @param dataset
-//     */
-//    public void buildCorpus(String filePath) {
-//        Dataset dataset = new Dataset();
-//        dataset.setFirstFieldLink(false);
-//        dataset.setSeparationString("#");
-//        buildCorpus(dataset);
-//    }
+    // /**
+    // * Builds and saves the corpus.
+    // *
+    // * @param dataset
+    // */
+    // public void buildCorpus(String filePath) {
+    // Dataset dataset = new Dataset();
+    // dataset.setFirstFieldLink(false);
+    // dataset.setSeparationString("#");
+    // buildCorpus(dataset);
+    // }
 
-//    /**
-//     * Builds the classifier.
-//     * 
-//     * @param filePath
-//     * @param limit
-//     */
-//    public void buildClassifier(final Dataset dataset, final int limit) {
-//
-//        // write the training data to CSV file
-//        final String trainDataPath = "data/temp/KeyphraseExtractorTraining.csv";
-//        createTrainData(dataset, limit, trainDataPath);
-//
-//        // train and save the classifier
-//        StopWatch sw = new StopWatch();
-//        LOGGER.info("training classifier ...");
-//
-//        // TODO save memory; this is necessary, as the corpus consumes great amounts of memory, but
-//        // fortunately we don't need the corpus for the training process
-//        corpus = null;
-//
-//        // train a new Classifier using the CSV data from above
-//        // classifier = new CandidateClassifier();
-//        classifier.trainClassifier(trainDataPath, true);
-//
-//        // save the trained classifier
-//        saveClassifier();
-//
-//        // load the corpus again which has been removed from memory
-//        loadCorpus();
-//
-//        LOGGER.info("finished training in " + sw.getElapsedTimeString());
-//    }
+    // /**
+    // * Builds the classifier.
+    // *
+    // * @param filePath
+    // * @param limit
+    // */
+    // public void buildClassifier(final Dataset dataset, final int limit) {
+    //
+    // // write the training data to CSV file
+    // final String trainDataPath = "data/temp/KeyphraseExtractorTraining.csv";
+    // createTrainData(dataset, limit, trainDataPath);
+    //
+    // // train and save the classifier
+    // StopWatch sw = new StopWatch();
+    // LOGGER.info("training classifier ...");
+    //
+    // // TODO save memory; this is necessary, as the corpus consumes great amounts of memory, but
+    // // fortunately we don't need the corpus for the training process
+    // corpus = null;
+    //
+    // // train a new Classifier using the CSV data from above
+    // // classifier = new CandidateClassifier();
+    // classifier.trainClassifier(trainDataPath, true);
+    //
+    // // save the trained classifier
+    // saveClassifier();
+    //
+    // // load the corpus again which has been removed from memory
+    // loadCorpus();
+    //
+    // LOGGER.info("finished training in " + sw.getElapsedTimeString());
+    // }
 
-//    /**
-//     * Builds the classifier.
-//     * 
-//     * @param dataset
-//     */
-//    public void buildClassifier(Dataset dataset) {
-//        buildClassifier(dataset, -1);
-//    }
-//
-//    /**
-//     * Builds the classifier.
-//     * 
-//     * @param filePath
-//     * @param limit
-//     */
-//    public void buildClassifier(String filePath, final int limit) {
-//        Dataset dataset = new Dataset();
-//        dataset.setFirstFieldLink(false);
-//        dataset.setSeparationString("#");
-//        buildClassifier(dataset, limit);
-//    }
+    // /**
+    // * Builds the classifier.
+    // *
+    // * @param dataset
+    // */
+    // public void buildClassifier(Dataset dataset) {
+    // buildClassifier(dataset, -1);
+    // }
+    //
+    // /**
+    // * Builds the classifier.
+    // *
+    // * @param filePath
+    // * @param limit
+    // */
+    // public void buildClassifier(String filePath, final int limit) {
+    // Dataset dataset = new Dataset();
+    // dataset.setFirstFieldLink(false);
+    // dataset.setSeparationString("#");
+    // buildClassifier(dataset, limit);
+    // }
 
-//    /**
-//     * Create CSV data for training the classifier. This data can either be used directly for Weka or as imported to
-//     * KNIME.
-//     * 
-//     * @param dataset
-//     * @param limit
-//     * @param trainDataPath
-//     */
-//    public void createTrainData(final Dataset dataset, final int limit, String trainDataPath) {
-//        LOGGER.info("creating training data for classifier ...");
-//
-//        StopWatch sw = new StopWatch();
-//        final Counter counter = new Counter();
-//
-//        // keep the CSV training data in memory for now
-//        final StringBuilder trainData = new StringBuilder();
-//
-//        // create the training data for the classifier
-//        FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
-//
-//            @Override
-//            public void performAction(String line, int lineNumber) {
-//                String[] split = line.split(dataset.getSeparationString());
-//
-//                if (split.length < 2) {
-//                    return;
-//                }
-//
-//                String text;
-//                if (dataset.isFirstFieldLink()) {
-//                    text = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
-//                } else {
-//                    text = split[0];
-//                }
-//                // create the document model
-//                DocumentModel candidates = createDocumentModel(text);
-//
-//                // the manually assigned keyphrases
-//                Set<String> tags = new HashSet<String>();
-//                for (int i = 1; i < split.length; i++) {
-//                    tags.add(split[i].toLowerCase());
-//                }
-//
-//                // keep stemmed and unstemmed representation
-//                Set<String> stemmedTags = stem(tags);
-//                tags.addAll(stemmedTags);
-//
-//                // mark positive candidates, i.e. those which were manually assigned
-//                // in the training data
-//                for (Candidate candidate : candidates) {
-//                    boolean isCandidate = tags.contains(candidate.getStemmedValue());
-//                    isCandidate = isCandidate || tags.contains(candidate.getStemmedValue().replace(" ", ""));
-//                    isCandidate = isCandidate || tags.contains(candidate.getValue());
-//                    isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
-//                    candidate.setPositive(isCandidate);
-//                }
-//
-//                // if this is the first iteration, write header with feature names;
-//                // this is only for convenience reasons, for example if we want to
-//                // experiment with the classification with KNIME
-//                if (counter.getCount() == 0) {
-//                    Set<String> featureNames = candidates.iterator().next().getFeatures().keySet();
-//                    // trainData.append("#");
-//                    trainData.append(StringUtils.join(featureNames, ";")).append("\n");
-//                }
-//
-//                trainData.append(candidates.toCSV());
-//
-//                counter.increment();
-//                if (counter.getCount() % 10 == 0) {
-//                    LOGGER.info("added " + counter + " lines");
-//                }
-//                if (counter.getCount() == limit) {
-//                    breakLineLoop();
-//                }
-//            }
-//        });
-//
-//        // write the train data for the classifier to CSV file
-//        FileHelper.writeToFile(trainDataPath, trainData);
-//        LOGGER.info("created training data in " + sw.getElapsedTimeString());
-//    }
+    // /**
+    // * Create CSV data for training the classifier. This data can either be used directly for Weka or as imported to
+    // * KNIME.
+    // *
+    // * @param dataset
+    // * @param limit
+    // * @param trainDataPath
+    // */
+    // public void createTrainData(final Dataset dataset, final int limit, String trainDataPath) {
+    // LOGGER.info("creating training data for classifier ...");
+    //
+    // StopWatch sw = new StopWatch();
+    // final Counter counter = new Counter();
+    //
+    // // keep the CSV training data in memory for now
+    // final StringBuilder trainData = new StringBuilder();
+    //
+    // // create the training data for the classifier
+    // FileHelper.performActionOnEveryLine(dataset.getPath(), new LineAction() {
+    //
+    // @Override
+    // public void performAction(String line, int lineNumber) {
+    // String[] split = line.split(dataset.getSeparationString());
+    //
+    // if (split.length < 2) {
+    // return;
+    // }
+    //
+    // String text;
+    // if (dataset.isFirstFieldLink()) {
+    // text = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
+    // } else {
+    // text = split[0];
+    // }
+    // // create the document model
+    // DocumentModel candidates = createDocumentModel(text);
+    //
+    // // the manually assigned keyphrases
+    // Set<String> tags = new HashSet<String>();
+    // for (int i = 1; i < split.length; i++) {
+    // tags.add(split[i].toLowerCase());
+    // }
+    //
+    // // keep stemmed and unstemmed representation
+    // Set<String> stemmedTags = stem(tags);
+    // tags.addAll(stemmedTags);
+    //
+    // // mark positive candidates, i.e. those which were manually assigned
+    // // in the training data
+    // for (Candidate candidate : candidates) {
+    // boolean isCandidate = tags.contains(candidate.getStemmedValue());
+    // isCandidate = isCandidate || tags.contains(candidate.getStemmedValue().replace(" ", ""));
+    // isCandidate = isCandidate || tags.contains(candidate.getValue());
+    // isCandidate = isCandidate || tags.contains(candidate.getValue().replace(" ", ""));
+    // candidate.setPositive(isCandidate);
+    // }
+    //
+    // // if this is the first iteration, write header with feature names;
+    // // this is only for convenience reasons, for example if we want to
+    // // experiment with the classification with KNIME
+    // if (counter.getCount() == 0) {
+    // Set<String> featureNames = candidates.iterator().next().getFeatures().keySet();
+    // // trainData.append("#");
+    // trainData.append(StringUtils.join(featureNames, ";")).append("\n");
+    // }
+    //
+    // trainData.append(candidates.toCSV());
+    //
+    // counter.increment();
+    // if (counter.getCount() % 10 == 0) {
+    // LOGGER.info("added " + counter + " lines");
+    // }
+    // if (counter.getCount() == limit) {
+    // breakLineLoop();
+    // }
+    // }
+    // });
+    //
+    // // write the train data for the classifier to CSV file
+    // FileHelper.writeToFile(trainDataPath, trainData);
+    // LOGGER.info("created training data in " + sw.getElapsedTimeString());
+    // }
 
     /**
      * Add the supplied text to the corpus. This is used for the TF-IDF calculation.
@@ -279,25 +281,25 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
         corpus.addKeyphrases(keyphrases);
 
     }
-    
+
     private List<Candidate> trainData = new ArrayList<Candidate>();
-    
+
     @Override
     public void startTraining() {
+        corpus.clear();
         trainData.clear();
     }
-    
-    
+
     @Override
     public void train(String inputText, Set<String> keyphrases, int index) {
-        
+
         // add the document to the corpus
         addToCorpus(inputText, keyphrases);
-        
-        if (trainData.size() > 160000) {
+
+        if (trainData.size() > TRAIN_DATA_LIMIT) {
             return;
         }
-        
+
         // create the document model
         DocumentModel candidates = createDocumentModel(inputText);
 
@@ -314,28 +316,27 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
             isCandidate = isCandidate || keyphrases.contains(candidate.getValue().replace(" ", ""));
             candidate.setPositive(isCandidate);
         }
-        
-        trainData.addAll(candidates);        
-        
+
+        trainData.addAll(candidates);
+
     }
-    
+
     @Override
     public void endTraining() {
-        
+
         // keep the CSV training data in memory for now
         StringBuilder csvBuilder = new StringBuilder();
-        
+
         Set<String> featureNames = trainData.iterator().next().getFeatures().keySet();
         // trainData.append("#");
         csvBuilder.append(StringUtils.join(featureNames, ";")).append("\n");
-        
-        
+
         // write all values
         for (Candidate candidate : trainData) {
             Collection<Double> feautureValues = candidate.getFeatures().values();
             csvBuilder.append(StringUtils.join(feautureValues, ";")).append("\n");
         }
-        
+
         final String trainDataPath = "data/temp/KeyphraseExtractorTraining.csv";
         FileHelper.writeToFile(trainDataPath, csvBuilder);
         trainData.clear();
@@ -353,12 +354,9 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
 
         // load the corpus again which has been removed from memory
         loadCorpus();
-        
+
     }
 
-    
-    
-    
     private void saveCorpus() {
         String filePath = settings.getModelPath() + "/corpus.ser";
         LOGGER.info("saving corpus to " + filePath + " ...");
@@ -394,7 +392,7 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
         loadCorpus();
         loadClassifier();
     }
-    
+
     @Override
     public void startExtraction() {
         load();
@@ -402,7 +400,7 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
 
     @Override
     public Set<Keyphrase> extract(String text) {
-        
+
         addToCorpus(text);
 
         DocumentModel candidates = createDocumentModel(text);
@@ -517,6 +515,8 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
      * The re-ranking factor can be adjusted using {@link KeyphraseExtractorSettings#setCorrelationWeight(float)}. This
      * number is quite ad-hoc and has to be determined experimentally.
      * 
+     * TODO add length (e.g. num-of-terms-) re-ranking?
+     * 
      * @param candidates
      */
     private void reRankCandidates(DocumentModel candidates) {
@@ -528,6 +528,25 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
         }
 
         Collections.sort(candidates, new CandidateComparator());
+        
+        // XXX experimental
+        /*Iterator<Candidate> candidateIterator1  =candidates.iterator();
+        while (candidateIterator1.hasNext()) {
+            Candidate currentCandidate = candidateIterator1.next();
+            
+            double regressionValue = currentCandidate.getRegressionValue();
+            int wordCount = currentCandidate.getWordCount();
+            
+            regressionValue = regressionValue * Math.sqrt(2 * wordCount);
+            
+            currentCandidate.setRegressionValue(regressionValue);
+            
+        }
+        
+        Collections.sort(candidates, new CandidateComparator());*/
+        
+        
+        ////////////////////////////////////////////////////////
 
         // experimental: to normalize the range of the re-ranked tags back to their original range,
         // by keeping the lower/upper bounds, so we keep the general properties of the TF/IDF -- elsewise
@@ -655,18 +674,37 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
      */
     private String stem(String unstemmed) {
 
-        StringBuilder sb = new StringBuilder();
+//        StringBuilder sb = new StringBuilder();
+//        SnowballStemmer stemmer = settings.getStemmer();
+//
+//        // stem each part of the phrase
+//        String[] parts = unstemmed.toLowerCase().split(" ");
+//        for (String part : parts) {
+//            stemmer.setCurrent(part);
+//            stemmer.stem();
+//            sb.append(stemmer.getCurrent());
+//        }
+//
+//        return sb.toString();
+        
+        
+        // StringBuilder sb = new StringBuilder();
+        List<String> result = new ArrayList<String>();
         SnowballStemmer stemmer = settings.getStemmer();
+        Set<String> stopwords = settings.getStopwords();
 
         // stem each part of the phrase
         String[] parts = unstemmed.toLowerCase().split(" ");
         for (String part : parts) {
             stemmer.setCurrent(part);
             stemmer.stem();
-            sb.append(stemmer.getCurrent());
+            String current = stemmer.getCurrent();
+            if (!stopwords.contains(current)) {
+                result.add(current);
+            }
         }
-
-        return sb.toString();
+        Collections.sort(result);
+        return StringUtils.join(result, " ");
 
     }
 
@@ -705,8 +743,12 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
 
     @SuppressWarnings("unused")
     public static void main(String[] args) {
-
+        
+        
         final PalladianKeyphraseExtractor extractor = new PalladianKeyphraseExtractor();
+        System.out.println(extractor.stem("the quick brown fox jumps over the lazy dog"));
+        System.exit(0);
+        
 
         KeyphraseExtractorSettings extractorSettings = extractor.getSettings();
         extractorSettings.setAssignmentMode(AssignmentMode.COMBINED);
@@ -733,13 +775,13 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
         // //////////////////////////////////////////////
         // CORPUS CREATION
         // //////////////////////////////////////////////
-//        extractor.buildCorpus(filePath);
+        // extractor.buildCorpus(filePath);
         // extractor.loadCorpus();
 
         // //////////////////////////////////////////////
         // FEATURE SET FOR TRAINING CREATION
         // //////////////////////////////////////////////
-//        extractor.buildClassifier(filePath, 750);
+        // extractor.buildClassifier(filePath, 750);
         // extractor.saveClassifier(classPath);
         // System.exit(0);
 
@@ -838,6 +880,11 @@ public class PalladianKeyphraseExtractor extends AbstractKeyphraseExtractor {
     @Override
     public boolean needsTraining() {
         return true;
+    }
+
+    @Override
+    public String getExtractorName() {
+        return "Palladian Keyphrase Extractor";
     }
 
 }

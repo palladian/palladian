@@ -27,7 +27,7 @@ import tud.iir.web.HTTPPoster;
  * @author Philipp Katz
  * 
  */
-public class OpenCalaisSocialTagger extends AbstractKeyphraseExtractor {
+public class OpenCalaisSocialTagger extends KeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(OpenCalaisSocialTagger.class);
@@ -108,6 +108,11 @@ public class OpenCalaisSocialTagger extends AbstractKeyphraseExtractor {
     @Override
     public boolean needsTraining() {
         return false;
+    }
+    
+    @Override
+    public String getExtractorName() {
+        return "OpenCalais SocialTags";
     }
 
     public static void main(String[] args) {

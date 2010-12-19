@@ -122,26 +122,37 @@ public class Corpus implements Serializable {
         // we simply concatenate the *unstemmed* terms together, like "sanfrancisco";
         // this resembles human tagging behavior, for example in Delicious.
         String value1 = candidate1.getStemmedValue();
-        if (value1.contains(" ")) {
-            value1 = candidate1.getValue().replaceAll(" ", "").toLowerCase();
-        }
+        /// XXX
+//        if (value1.contains(" ")) {
+//            value1 = candidate1.getValue().replaceAll(" ", "").toLowerCase();
+//        }
         String value2 = candidate2.getStemmedValue();
-        if (value2.contains(" ")) {
-            value2 = candidate2.getValue().replaceAll(" ", "").toLowerCase();
-        }
+//        if (value2.contains(" ")) {
+//            value2 = candidate2.getValue().replaceAll(" ", "").toLowerCase();
+//        }
 
         WordCorrelation correlation = correlations.getCorrelation(value1, value2);
         return correlation;
 
     }
     
-    // TODO
-    public List<WordCorrelation> getCorrelations(Candidate candidate) {
-        String value1 = candidate.getStemmedValue();
-        if (value1.contains(" ")) {
-            value1 = candidate.getValue().replaceAll(" ", "").toLowerCase();
-        }
-        return correlations.getCorrelations(value1, -1);
+    // TODO no longer necessary
+//    public List<WordCorrelation> getCorrelations(Candidate candidate) {
+//        String value1 = candidate.getStemmedValue();
+//        if (value1.contains(" ")) {
+//            value1 = candidate.getValue().replaceAll(" ", "").toLowerCase();
+//        }
+//        return correlations.getCorrelations(value1, -1);
+//    }
+    
+    /**
+     * Clear all contents from this corpus.
+     */
+    public void clear() {
+        phrases.clear();
+        keyphrases.clear();
+        correlations.clear();
+        documentCount = 0;
     }
     
     @Override

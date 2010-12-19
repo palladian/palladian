@@ -17,6 +17,8 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.collections15.Bag;
+import org.apache.commons.collections15.bag.HashBag;
 // import org.apache.commons.collections15.Bag;
 // import org.apache.commons.collections15.bag.HashBag;
 import org.apache.log4j.Logger;
@@ -196,45 +198,45 @@ public class Shingles {
 
         Map<Integer, Set<Long>> documentsToCheck = index.getDocumentsForSketch(sketch);
         // determine all similar/identical documents by calculating the Jaccard distance
-        Set<Integer> similarDocuments = new HashSet<Integer>();
-        Iterator<Entry<Integer, Set<Long>>> iterator = documentsToCheck.entrySet().iterator();
-        while (iterator.hasNext()) {
-            Entry<Integer, Set<Long>> document = iterator.next();
-            // don't count the current document itself
-            if (document.getKey() == documentId) {
-                continue;
-            }
-            float distance = jaccardDistance(document.getValue(), sketch);
-            if (distance == 0) {
-                // identical document
-                debugMessage.append(" id:" + document.getKey());
-                similarDocuments.add(document.getKey());
-            } else if (distance < getSimilarityThreshold()) {
-                // similar document
-                debugMessage.append(" sim(" + distance + "):" + document.getKey());
-                similarDocuments.add(document.getKey());
-            }
-        }
+//        Set<Integer> similarDocuments = new HashSet<Integer>();
+//        Iterator<Entry<Integer, Set<Long>>> iterator = documentsToCheck.entrySet().iterator();
+//        while (iterator.hasNext()) {
+//            Entry<Integer, Set<Long>> document = iterator.next();
+//            // don't count the current document itself
+//            if (document.getKey() == documentId) {
+//                continue;
+//            }
+//            float distance = jaccardDistance(document.getValue(), sketch);
+//            if (distance == 0) {
+//                // identical document
+//                debugMessage.append(" id:" + document.getKey());
+//                similarDocuments.add(document.getKey());
+//            } else if (distance < getSimilarityThreshold()) {
+//                // similar document
+//                debugMessage.append(" sim(" + distance + "):" + document.getKey());
+//                similarDocuments.add(document.getKey());
+//            }
+//        }
 
         // //////////////////////// try to speed up /////////////////////////
 
-        // Bag<Integer> matchingDocs = new HashBag<Integer>();
-        // for (long hash : sketch) {
-        // Set<Integer> docsForHash = index.getDocumentsForHash(hash);
-        // matchingDocs.addAll(docsForHash);
-        // }
-        // // similarity candidates are in the Bag, which counts the number of matching hashes
-        // Set<Integer> similarDocs = new HashSet<Integer>();
-        // for (int curDocId : matchingDocs.uniqueSet()) {
-        // if (1 - (float) matchingDocs.getCount(curDocId) / sketch.size() < similarityThreshold) {
-        // similarDocs.add(curDocId);
-        // }
-        // }
+         Bag<Integer> matchingDocs = new HashBag<Integer>();
+         for (long hash : sketch) {
+         Set<Integer> docsForHash = index.getDocumentsForHash(hash);
+         matchingDocs.addAll(docsForHash);
+         }
+         // similarity candidates are in the Bag, which counts the number of matching hashes
+         Set<Integer> similarDocs = new HashSet<Integer>();
+         for (int curDocId : matchingDocs.uniqueSet()) {
+         if (1 - (float) matchingDocs.getCount(curDocId) / sketch.size() < similarityThreshold) {
+         similarDocs.add(curDocId);
+         }
+         }
 
         // determine all similar/identical documents by calculating the Jaccard distance
         Set<Integer> similarDocuments2 = new HashSet<Integer>();
 
-        for (int simDocId : similarDocuments) {
+        for (int simDocId : similarDocs) {
 
             Set<Long> simSketch = index.getSketchForDocument(simDocId);
 

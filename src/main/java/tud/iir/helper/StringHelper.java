@@ -45,10 +45,10 @@ public class StringHelper {
      */
     public static String makeSafeName(String name, int maxLength) {
         String safeName = name.replaceAll(" ", "_").replaceAll("/", "_").replaceAll("'", "").replaceAll("\"", "")
-        .replaceAll(",", "_").replaceAll("\\*", "_").replaceAll("\\.", "_").replaceAll(";", "_")
-        .replaceAll("\\:", "_").replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae")
-        .replaceAll("\\Ä", "Ae").replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue")
-        .replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
+                .replaceAll(",", "_").replaceAll("\\*", "_").replaceAll("\\.", "_").replaceAll(";", "_").replaceAll(
+                        "\\:", "_").replaceAll("\\!", "").replaceAll("\\?", "").replaceAll("\\ä", "ae").replaceAll(
+                        "\\Ä", "Ae").replaceAll("\\ö", "oe").replaceAll("\\Ö", "Oe").replaceAll("\\ü", "ue")
+                .replaceAll("\\Ü", "Ue").replaceAll("\\ß", "ss");
 
         if (maxLength > 0) {
             safeName = safeName.substring(0, Math.min(safeName.length(), maxLength));
@@ -195,7 +195,7 @@ public class StringHelper {
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                    + RegExp.getRegExp(Attribute.VALUE_STRING), e);
+                            + RegExp.getRegExp(Attribute.VALUE_STRING), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -219,7 +219,7 @@ public class StringHelper {
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                    + RegExp.getRegExp(Attribute.VALUE_NUMERIC), e);
+                            + RegExp.getRegExp(Attribute.VALUE_NUMERIC), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -403,7 +403,7 @@ public class StringHelper {
                     && Character.getType(ch) != Character.CONNECTOR_PUNCTUATION
                     && Character.getType(ch) != Character.CURRENCY_SYMBOL
                     && Character.getType(ch) != Character.DIRECTIONALITY_WHITESPACE && ch != '%' && ch != '.'
-                        && ch != ',' && ch != ':') {
+                    && ch != ',' && ch != ':') {
                 isNumericExpression = false;
                 break;
             }
@@ -416,8 +416,8 @@ public class StringHelper {
 
             if (m.find()) {
                 double number = Double.valueOf(StringNormalizer.normalizeNumber(m.group()));
-                double convertedNumber = UnitNormalizer.getNormalizedNumber(number,
-                        string.substring(m.end(), string.length()));
+                double convertedNumber = UnitNormalizer.getNormalizedNumber(number, string.substring(m.end(), string
+                        .length()));
                 if (number != convertedNumber) {
                     return true;
                 }
@@ -876,7 +876,9 @@ public class StringHelper {
      * 
      * @param array the array
      * @return the array as string
+     * @deprecated There is {@link StringUtils#join(Object[])}, which is more flexible and also works for Collections.
      */
+    @Deprecated
     public static String getArrayAsString(String[] array) {
         StringBuilder sb = new StringBuilder();
         for (String element : array) {
@@ -1275,7 +1277,7 @@ public class StringHelper {
         List<String> urls = new ArrayList<String>();
         Pattern p = Pattern
         // .compile("\\b(?:(?:ht|f)tp(?:s?)\\:\\/\\/|~\\/|\\/)?(?:\\w+:\\w+@)?(?:(?:[-\\w]+\\.)+(?:com|org|net|gov|mil|biz|info|mobi|name|aero|jobs|museum|travel|[a-z]{2}))(?::[\\d]{1,5})?(?:(?:(?:\\/(?:[-\\w~!$+|.,=]|%[a-f\\d]{2})+)+|\\/)+|\\?|#)?(?:(?:\\?(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)(?:&(?:[-\\w~!$+|.,*:]|%[a-f\\d{2}])+=?(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)*)*(?:#(?:[-\\w~!$+|.,*:=]|%[a-f\\d]{2})*)?\\b");
-        .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
+                .compile("(?i)\\b((?:[a-z][\\w-]+:(?:/{1,3}|[a-z0-9%])|www\\d{0,3}[.]|[a-z0-9.\\-]+[.][a-z]{2,4}/)(?:[^\\s()<>]+|\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\))+(?:\\(([^\\s()<>]+|(\\([^\\s()<>]+\\)))*\\)|[^\\s`!()\\[\\]{};:'\".,<>?«»“”‘’]))");
 
         Matcher m = p.matcher(text);
         while (m.find()) {

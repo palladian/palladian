@@ -228,6 +228,14 @@ public class WordCorrelationMatrix implements Serializable {
 
         return correlations;
     }
+    
+    /**
+     * Clear all correlations.
+     */
+    public void clear() {
+        termMap.clear();
+        termCorrelations.clear();
+    }
 
     @Override
     public String toString() {

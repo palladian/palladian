@@ -9,10 +9,10 @@ import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 
-public abstract class AbstractKeyphraseExtractor {
+public abstract class KeyphraseExtractor {
 
     /** The logger for this class. */
-    private static final Logger LOGGER = Logger.getLogger(AbstractKeyphraseExtractor.class);
+    private static final Logger LOGGER = Logger.getLogger(KeyphraseExtractor.class);
 
     /** Maximum number of keyphrases to assign. */
     private int keyphraseCount = 10;
@@ -84,7 +84,7 @@ public abstract class AbstractKeyphraseExtractor {
     }
 
     /**
-     * Indicate whether this tagger needs to be trained.
+     * Indicate whether this KeyphraseExtractor needs to be trained.
      * 
      * @return
      */
@@ -114,5 +114,7 @@ public abstract class AbstractKeyphraseExtractor {
     public void startExtraction() {
 
     }
+    
+    public abstract String getExtractorName();
 
 }

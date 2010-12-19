@@ -58,7 +58,7 @@ import weka.core.Instances;
  * @author Philipp Katz
  * 
  */
-public class MauiKeyphraseExtractor extends AbstractKeyphraseExtractor {
+public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MauiKeyphraseExtractor.class);
@@ -72,7 +72,7 @@ public class MauiKeyphraseExtractor extends AbstractKeyphraseExtractor {
     /** Document language */
     private String documentLanguage = "en";
 
-    /** Directory where vocabularies are stored **/
+    /** Directory where vocabularies are stored */
     private String vocabularyDirectory = "data/vocabularies";
 
     /** List of stopwords to be used */
@@ -177,6 +177,11 @@ public class MauiKeyphraseExtractor extends AbstractKeyphraseExtractor {
     @Override
     public boolean needsTraining() {
         return true;
+    }
+    
+    @Override
+    public String getExtractorName() {
+        return "Maui";
     }
 
     /**
@@ -503,7 +508,7 @@ public class MauiKeyphraseExtractor extends AbstractKeyphraseExtractor {
 
 //    /**
 //     * @param wikipedia
-//     * @see maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
+//     * @s----ee maui.filters.MauiFilter#setWikipedia(org.wikipedia.miner.model.Wikipedia)
 //     */
 //    public void setWikipedia(Wikipedia wikipedia) {
 //        mauiFilter.setWikipedia(wikipedia);
@@ -569,7 +574,7 @@ public class MauiKeyphraseExtractor extends AbstractKeyphraseExtractor {
         trainingDataset.setSeparationString("#");
         trainingDataset.setFirstFieldLink(true);
 
-        AbstractKeyphraseExtractor extractor = new MauiKeyphraseExtractor();
+        KeyphraseExtractor extractor = new MauiKeyphraseExtractor();
         extractor.train(trainingDataset);
         extractor.setKeyphraseCount(20);
 

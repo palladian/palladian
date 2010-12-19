@@ -80,7 +80,7 @@ public class ShinglesIndexJava extends ShinglesIndexBaseImpl {
     public void openIndex() {
 
         if (FileHelper.fileExists(getIndexFileName())) {
-            data = (ShinglesIndexJavaData) FileHelper.deserialize(getIndexFileName());
+            data = FileHelper.deserialize(getIndexFileName());
         } else {
             data = new ShinglesIndexJavaData();
         }
