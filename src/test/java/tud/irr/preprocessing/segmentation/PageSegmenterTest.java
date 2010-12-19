@@ -2,9 +2,6 @@ package tud.irr.preprocessing.segmentation;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.xml.parsers.ParserConfigurationException;
 
 import tud.iir.preprocessing.segmentation.PageSegmenter;
