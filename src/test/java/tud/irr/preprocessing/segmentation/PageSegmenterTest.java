@@ -1,4 +1,4 @@
-package tud.irr.preprocessing.segmentation;
+package tud.iir.preprocessing.segmentation;
 
 import java.io.IOException;
 import java.util.ArrayList;
