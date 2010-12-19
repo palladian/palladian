@@ -3,19 +3,13 @@ package tud.iir.preprocessing.segmentation;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -58,20 +52,13 @@ public class PageSegmenterTrainer {
     	File files[] = readURLsFromDisc(place);
 		Map<String, Integer> page1 = seg.createFingerprintForURL(c.getWebDocument(orgURL), numberOfQgrams, lengthOfQgrams);
         
-		//FileWriter doc1 = new FileWriter(place+"results.txt");
 		BufferedWriter doc1 = new BufferedWriter(new FileWriter(place+"results_"+numberOfQgrams+"_"+lengthOfQgrams+".xls"));
         doc1.write("Original file: "+orgURL);
         doc1.newLine();
         doc1.newLine();
         doc1.write("Similarity\tJaccard\tAverage\tFilename");
         doc1.newLine();
-        //doc1.write("----------\t----------\t----------");
         doc1.newLine();
-
-        /*doc1.write("testing\ttesting2"+"\n"+"testing3");
-        doc1.newLine();
-        doc1.write("t\te");
-        doc1.newLine();*/
     	
     	for (int i = 0; i < files.length; i++){
             Map<String, Integer> page2 = seg.createFingerprintForURL(c.getWebDocument(files[i].toString()), numberOfQgrams, lengthOfQgrams);
@@ -83,7 +70,6 @@ public class PageSegmenterTrainer {
             Double aver = (Math.round((vari+jacc)/2*100))/100.0;
             
             System.out.println("vari: "+vari+"   jacc: "+jacc+"   aver: "+aver);
-            //System.out.println(files[i]+"\n"+place);
             
             doc1.write(vari+"\t"+jacc+"\t"+aver+"\t"+files[i].toString().replace(place, ""));
             doc1.newLine();
@@ -119,15 +105,11 @@ public class PageSegmenterTrainer {
     	
     	for (int i = 0; i < files.length; i++){
             Map<String, Integer> page2 = seg.createFingerprintForURL(c.getWebDocument(files[i].toString()), numberOfQgrams, lengthOfQgrams);
-    		//System.out.println(page2);
     		
             Double vari = (Math.round((1-SimilarityCalculator.calculateSimilarity(page1, page2))*100))/100.0;
             Double jacc = (Math.round((SimilarityCalculator.calculateJaccard(page1, page2))*100))/100.0;
             
             Double aver = (Math.round((vari+jacc)/2*100))/100.0;
-            
-            //System.out.println("vari: "+vari+"   jacc: "+jacc+"   aver: "+aver);
-            //System.out.println(files[i]+"\n"+place);
             
             average.add(aver);
             
@@ -190,24 +172,19 @@ public class PageSegmenterTrainer {
        
     	URL url = new URL(URL);
         BufferedReader bufferedreader = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()));
-        String line = "";//bufferedreader.readLine();
+        String line = "";
         BufferedWriter doc1 = new BufferedWriter(new FileWriter(place));
 
         
         System.out.println("geht los-----");
         while((line = bufferedreader.readLine()) != null) {
-	        //System.out.println(line);
 	        doc1.write(line);
 	        doc1.newLine();
         
         }
         bufferedreader.close();
         doc1.close();
-        
-//        Crawler c = new Crawler();
-//        c.downloadAndSave(URL, place);
-
-        
+                
     }
     
     /**
@@ -271,8 +248,6 @@ public class PageSegmenterTrainer {
         			/*&& URL.length()>=currentElement.length()-1 && URL.length()<=currentElement.length()+1*/) {
         		place="test\\aehnlich\\"+title;
         		System.out.println("-->ähnlich");
-        		//System.out.println(URL+"-------"+currentElement);
-        		//System.out.println(URL.length()+" zu "+currentElement.length());
         	}
         	else {
         		place="test\\unaehnlich\\"+title;
@@ -340,38 +315,29 @@ public class PageSegmenterTrainer {
     	
     	Crawler c = new Crawler();
     	
-    	// /////////////Begin search some forum
     	Document d = c.getWebDocument(siteWithLinks);
     	
         HashSet<String> te = new HashSet<String>();
 		te=c.getLinks(d,true, false,"");
-		//System.out.println(te.size()+" Links gefunden.");
 		
 		int i=0;
-        Iterator it = te.iterator();
+        Iterator<String> it = te.iterator();
         while (it.hasNext()) {
         	String actURL = (String) it.next();
-        	//System.out.println(i+":"+actURL);
-        	
-        	
+        	      	
         	if (i==count) {
         		evaLinks.add(actURL);
-        		//System.out.println("^ in evaLinks");
         		System.out.println("1actURL: "+actURL);
 
         		limitHelp++;
         		i=0;
-        	}
-        	
-        	
+        	}       	        	
         	
         	i++;
         	if (limitHelp==limit) {
         		break;
         	}
         }
-        
-        
         
         System.out.println("---------------\nEVA-LINKS:");
         it = evaLinks.iterator();
@@ -391,26 +357,20 @@ public class PageSegmenterTrainer {
     private static String convertXPath(String orgXPath) {
     	String conXPath="";
     	
-    	//System.out.println("org: "+orgXPath);
     	orgXPath=orgXPath.toUpperCase();
     	
     	String[] split = orgXPath.split("/");
     	for (int i=1; i<split.length; i++) {
     		String actSplit = split[i];
-    		//System.out.println(actSplit);
     		
     		if (i>=3) {
-    			if (!actSplit.endsWith("]")/* && !actSplit.endsWith("A")*/) actSplit=actSplit+"[1]";
-    			
+    			if (!actSplit.endsWith("]")) actSplit=actSplit+"[1]";    			
     		}
     		
     		conXPath=conXPath+"/"+actSplit;
 
     	}
-    	
-    	
-    	//System.out.println("con: "+conXPath);
-
+ 
     	return conXPath;
     }
     
@@ -475,9 +435,6 @@ public class PageSegmenterTrainer {
             
             System.out.println("Länge: "+liste.size());
 
-
-            
-
             ArrayList<String> savedFiles= new ArrayList<String>();
             if (buildNew)  {
             	PageSegmenter seg = new PageSegmenter();
@@ -490,7 +447,6 @@ public class PageSegmenterTrainer {
             }
             
             //read
-            //readEvaluationFiles("C:\\Users\\Silvio\\Documents\\CSV\\Foren\\001\\", "001");
             PageSegmenter seg2 = new PageSegmenter();
             seg2.setDocument(savedFiles.get(0));
             
@@ -503,7 +459,7 @@ public class PageSegmenterTrainer {
             seg2.setSimilarFiles(simMap);
             
             seg2.startPageSegmentation();
-            ArrayList allSegments = seg2.getAllSegments();
+            ArrayList<?> allSegments = seg2.getAllSegments();
             
             int allFound = 0;
             int allCorrect = 0;
@@ -515,7 +471,6 @@ public class PageSegmenterTrainer {
             	String guessedColor = liste.get(i).split(sep)[3];
             	System.out.println("guessPath: "+guessedXPath);
             	
-            	//Gefunden? und Änderlichkeit eintragen
                 for (int i2=0; i2<allSegments.size(); i2++) {
                 	Segment segment = (Segment) allSegments.get(i2);
                 	String foundXPath = convertXPath(segment.getXPath());
@@ -546,7 +501,6 @@ public class PageSegmenterTrainer {
             		liste.set(i, liste.get(i)+sep+"0"+sep+"0");
                 }
  
-                //Uebereinstimmung eintragen
                 if (liste.get(i).split(sep)[3].equals(liste.get(i).split(sep)[5])) {
             		liste.set(i, liste.get(i)+sep+"1");
                 }
@@ -554,9 +508,8 @@ public class PageSegmenterTrainer {
             		liste.set(i, liste.get(i)+sep+"0");
                 }
             }
-            //System.out.println(seg.getSpecificSegments(Segment.Color.GREEN));
-            seg2.setStoreLocation("C:\\Users\\Silvio\\Documents\\doc2.html");
-            seg2.colorSegments();
+            //seg2.setStoreLocation("C:\\Users\\Silvio\\Documents\\doc2.html");
+            //seg2.colorSegments();
             
             String numberOfGuessedXPaths = "" + (liste.size()-1);
             String numberOfFoundXPaths = "" + allFound;
@@ -568,36 +521,26 @@ public class PageSegmenterTrainer {
             String allNumbers = numberOfGuessedXPaths + sep + numberOfFoundXPaths + sep + numberOfAllXPaths
             	+ sep + numberOfCorrectLabels + sep + numberOfIncorrectLabels +sep + numberOfNotAssignabels;
             
-            //berechne recall und precision
-//            double recall = allFound * 100 / (liste.size()-1);
-//            double precision = allCorrect * 100 / allFound;
-//            liste.add(sep+sep+sep+sep+allFound+" von "+(liste.size()-1)+sep+sep+allCorrect+" von "+allFound);
-//            liste.add(sep+sep+sep+sep+recall+sep+sep+precision);
+
             liste.add("");
             liste.add("guessed XP"+sep+"found XP"+sep+"all XP"+sep+"corr. Label"+sep+"incorr. Label"+sep+"not assignabel");
             liste.add(allNumbers);
             
-            //schreibe in Auswertungsdatei
             FileHelper.writeToFile(fullPlace+name+"_ausgewertet.csv", liste);
             
-            //schreibe in Haupt-Evaluierungs-Datei
             ArrayList<String> mainListe = (ArrayList<String>) FileHelper.readFileToArray(mainFile);         
             boolean foundEntry=false;
             for (int i=1; i<mainListe.size(); i++) {
             	if (mainListe.get(i).split(sep)[0].equals(liste.get(1).split(sep)[0])) {
-            		//mainListe.set(i, mainListe.get(i).split(sep)[0]+sep+recall+sep+precision);
             		mainListe.set(i, mainListe.get(i).split(sep)[0]+sep+allNumbers);
             		foundEntry=true;
             	}
             }
             if (!foundEntry) {
-            	//mainListe.add(liste.get(1).split(sep)[0]+sep+recall+sep+precision);
             	mainListe.add(liste.get(1).split(sep)[0]+sep+allNumbers);
             }
             FileHelper.writeToFile(mainFile, mainListe);
             
-	}
-    
-    
+	}      
 	
 }

@@ -1,7 +1,5 @@
 package tud.iir.preprocessing.segmentation;
 
-import java.io.File;
-import java.io.FilenameFilter;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -39,16 +37,10 @@ public class PageSegmenterHelper {
         for (int i = 0; i < values.size(); i++) {
 			if (!map.keySet().contains(values.get(i).toString())) {
 				map.put(values.get(i).toString(), 1);
-				//System.out.println(values.get(i).toString()+" neu eingefügt!");
 			} else {
 				map.put(values.get(i).toString(), map.get(values.get(i).toString()) + 1);
-				//System.out.println(values.get(i).toString()+" schon "+map.get(values.get(i).toString())+"x drin");
-
 			}
 		}
-        //map=sortMapByValue(map);
-        //System.out.println("MAP "+sortByValues(map));    	
-    	
     	return map;
     }
     
@@ -107,8 +99,7 @@ public class PageSegmenterHelper {
     	if (map.size()<number) limit=map.size();
     	else limit=number;
     	
-        for (int i = 0; i < limit/*map.size()*//*count*/; i++) {
-        	//result=result+map.values().toArray()[i]+"x "+map.keySet().toArray()[i]+"\n";
+        for (int i = 0; i < limit; i++) {
         	result.put((String)map.keySet().toArray()[i], (Integer)map.values().toArray()[i]);
         }
     	return result;
@@ -142,7 +133,6 @@ public class PageSegmenterHelper {
         DocumentBuilder db = dbf.newDocumentBuilder();
         Document doc = db.newDocument();
         
-        //System.out.println(element.getFirstChild().getNodeName()+"-------------");
         Node dup = doc.importNode(element, true);
         doc.appendChild(dup);
         
@@ -160,7 +150,6 @@ public class PageSegmenterHelper {
         Document d = c.getWebDocument(URL);
 
     	String dText=c.documentToString(d);
-    	//System.out.println("content:-------------\n"+dText);
     	
     	return dText;
     }
@@ -177,23 +166,16 @@ public class PageSegmenterHelper {
 		Crawler c = new Crawler();
         String domain = c.getDomain(title);
         title=c.getCleanURL(title);
-    	//System.out.println("Domain: "+domain+"\nTitle: "+title+"\nLabel: "+label);
     	label=title.replace(c.getCleanURL(domain), "");
     	title=title.replace("/","_");
 
     	title=title.replaceAll("[[^\\w\\däüöÄÜÖ\\+\\- ]]", "_");
     	label=label.replaceAll("[[^\\w\\däüöÄÜÖ\\+\\- ]]", "_");
 
-    	//System.out.println("Label: "+label);
-    	
     	if (label.length()>3 && label.indexOf("_",0)!=label.lastIndexOf("_")) label=label.substring(label.indexOf("_", 0)+1, label.indexOf("_", 2));
     	else label=label.substring(label.indexOf("_", 0)+1, label.length());
 
-    	//System.out.println("Domain: "+c.getCleanURL(domain)+"\nTitle: "+title+"\nLabel: "+label+"\n-----------------------");
     	return label;
-    }
-
-	
-	
+    }	
 	
 }
