@@ -13,6 +13,8 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 
+import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
@@ -33,7 +35,10 @@ public final class MIOExtractor extends Extractor {
     private static MIOExtractor instance = null;
 
     /** The maximum number of extraction threads. */
-    private static final int MAX_EXTRACTION_THREADS = 3;
+    private static final int MAX_EXTRACTION_THREADS = 5;
+
+    /** The path to the MIO model. */
+    static String MIO_MODEL_PATH;
 
     /**
      * Instantiates a new MIOExtractor.
@@ -47,6 +52,21 @@ public final class MIOExtractor extends Extractor {
 
         // its a trick for creating a singleton because of yml
         InCoFiConfiguration.instance = configuration;
+
+        PropertiesConfiguration config = null;
+
+        try {
+            config = new PropertiesConfiguration("config/models.conf");
+        } catch (final ConfigurationException e) {
+            LOGGER.error("could not get model path from config/models.conf, " + e.getMessage());
+        }
+
+        if (config != null) {
+            MIO_MODEL_PATH = config.getString("models.palladian.mio");
+
+        } else {
+            MIO_MODEL_PATH = "";
+        }
     }
 
     /**
@@ -85,79 +105,80 @@ public final class MIOExtractor extends Extractor {
         setKnowledgeManager(kManager);
 
         // loop until exit called
-        // while (!isStopped()) {
+        while (!isStopped()) {
 
-        // concepts
-        final ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
+            // concepts
+            final ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
 
-        // iterate through all concepts
-        for (Concept currentConcept : concepts) {
+            // iterate through all concepts
+            for (Concept currentConcept : concepts) {
 
-            // load Entities from DB for current concept
-            currentConcept.loadEntities(false);
-
-            if (isStopped()) {
-                LOGGER.info("mio extraction process stopped");
-                // clean the SWF-File-DownloadDirectory
-                // FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
-                break;
-            }
-
-            // iterate through all entities of current concept
-            ArrayList<Entity> conceptEntities;
-            if (continueFromLastExtraction) {
-                conceptEntities = currentConcept.getEntitiesByDate();
-            } else {
-                conceptEntities = currentConcept.getEntities();
-            }
-
-            // wait for a certain time when no entities were found, then restart
-            if (conceptEntities.isEmpty()) {
-                LOGGER.info("no entities for mio extraction, continue with next concept");
-                continue;
-            }
-
-            final ThreadGroup extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
-
-            for (Entity currentEntity : conceptEntities) {
+                // load Entities from DB for current concept
+                currentConcept.loadEntities(true);
 
                 if (isStopped()) {
                     LOGGER.info("mio extraction process stopped");
+                    // clean the SWF-File-DownloadDirectory
+                    // FileHelper.cleanDirectory( InCoFiConfiguration.getInstance().tempDirPath);
                     break;
                 }
 
-                // update live status
-                ExtractionProcessManager.liveStatus.setCurrentAction("Search for MIOs for " + currentEntity.getName()
-                        + " (" + currentConcept.getName() + ")");
+                // iterate through all entities of current concept
+                ArrayList<Entity> conceptEntities;
+                if (continueFromLastExtraction) {
+                    conceptEntities = currentConcept.getEntitiesByDate();
+                } else {
+                    conceptEntities = currentConcept.getEntities();
+                }
 
-                currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
+                // wait for a certain time when no entities were found, then restart
+                if (conceptEntities.isEmpty()) {
+                    LOGGER.info("no entities for mio extraction, continue with next concept");
+                    continue;
+                }
 
-                LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
-                        + currentEntity.getConcept().getName() + ")");
-                final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
-                        currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, getKnowledgeManager());
-                mioThread.start();
+                final ThreadGroup extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
 
-                LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
+                for (Entity currentEntity : conceptEntities) {
 
-                int count = 0;
-                while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                    LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
-                            + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
-                    if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
-                        LOGGER.warn("apparently " + getThreadCount()
-                                + " threads have not finished correctly but thread group is empty, continuing...");
-                        resetThreadCount();
-                        break;
-                    }
-
-                    ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
                     if (isStopped()) {
-                        count++;
-                    }
-                    if (count > 1) {
-                        LOGGER.info("waited 25 iterations after stop has been called, breaking now");
+                        LOGGER.info("mio extraction process stopped");
                         break;
+                    }
+
+                    // update live status
+                    ExtractionProcessManager.liveStatus.setCurrentAction("Search for MIOs for "
+                            + currentEntity.getName() + " (" + currentConcept.getName() + ")");
+
+                    currentEntity.setLastSearched(new Date(System.currentTimeMillis()));
+
+                    LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
+                            + currentEntity.getConcept().getName() + ")");
+                    final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
+                            currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, getKnowledgeManager());
+                    mioThread.start();
+
+                    LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
+
+                    int count = 0;
+                    while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
+                        LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
+                                + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
+                        if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
+                            LOGGER.warn("apparently " + getThreadCount()
+                                    + " threads have not finished correctly but thread group is empty, continuing...");
+                            resetThreadCount();
+                            break;
+                        }
+
+                        ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+                        if (isStopped()) {
+                            count++;
+                        }
+                        if (count > 1) {
+                            LOGGER.info("waited 25 iterations after stop has been called, breaking now");
+                            break;
+                        }
                     }
                 }
             }
@@ -172,7 +193,7 @@ public final class MIOExtractor extends Extractor {
     @Override
     protected void saveExtractions(final boolean saveResults) {
         if (saveResults) {
-            LOGGER.info("..Saving MIOExtractionResults");
+            LOGGER.info("saving MIOExtractionResults");
             getKnowledgeManager().saveExtractions();
         }
     }

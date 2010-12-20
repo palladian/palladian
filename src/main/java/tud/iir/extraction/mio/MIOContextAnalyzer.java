@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Locale;
 
 import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.MIO;
 
 public class MIOContextAnalyzer {
 

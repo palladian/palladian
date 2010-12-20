@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
-import tud.iir.extraction.mio.MIO;
+import tud.iir.knowledge.MIO;
 
 public class MIOClassifier extends Classifier {
 

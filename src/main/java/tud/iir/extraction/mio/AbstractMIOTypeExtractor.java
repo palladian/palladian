@@ -19,6 +19,7 @@ import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.MIO;
 import tud.iir.web.Crawler;
 
 public abstract class AbstractMIOTypeExtractor {

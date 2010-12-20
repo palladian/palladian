@@ -196,7 +196,7 @@ public class FeedDiscovery {
         sourceRetriever.setSource(getSearchEngine());
 
         // search for "Jim Carrey" in exact match mode (second parameter = true)
-        ArrayList<String> resultURLs = sourceRetriever.getURLs(query, true);
+        List<String> resultURLs = sourceRetriever.getURLs(query, true);
 
         // print the results
         // CollectionHelper.print(resultURLs);

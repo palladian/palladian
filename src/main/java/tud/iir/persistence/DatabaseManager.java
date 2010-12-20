@@ -1,7 +1,6 @@
 package tud.iir.persistence;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -212,12 +211,8 @@ public class DatabaseManager {
                 .prepareStatement("INSERT INTO `facts` SET entityID = ?,attributeID = ?,value = ?,trust = ?");
 
         psSnippetCheck = connection.prepareStatement("SELECT id FROM `snippets` WHERE entityID = ? AND text = ?");
-        // psInsertSnippet = connection
-        // .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, f_SearchIndex = ?, f_SearchIndexRank = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_CharacterCount = ?, f_StartsWithEntity = ?, f_WordCount = ?, f_SyllableCount = ?, f_CapitalizedWordCount = ?, regressionRank = ?");
         psInsertSnippet = connection
-                .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?, extractedAt = ?, regressionRank = ?, f_AggregatedRank = ?, f_SearchEngine1 = ?, f_SearchEngine2 = ?, f_SearchEngine3 = ?, f_SearchEngine4 = ?, f_SearchEngine5 = ?, f_SearchEngine6 = ?, f_SearchEngine7 = ?, f_SearchEngine8 = ?, f_SearchEngine9 = ?, f_PageRank = ?, f_TopLevelDomain = ?, f_MainContentCharCount = ?, f_CharacterCount = ?, f_LetterNumberPercentage = ?, f_SyllablesPerWordCount = ?, f_WordCount = ?, f_UniqueWordCount = ?, f_ComplexWordPercentage = ?, f_SentenceCount = ?, f_WordsPerSentenceCount = ?, f_FleschKincaidReadingEase = ?, f_GunningFogScore = ?, f_FleschKincaidGradeLevel = ?, f_AutomatedReadabilityIndex = ?, f_ColemanLiauIndex = ?, f_SmogIndex = ?, f_ContainsProperNoun = ?, f_CapitalizedWordCount = ?, f_StartsWithEntity = ?, f_RelatedEntityCount = ?");
-        // psUpdateSnippetRank =
-        // connection.prepareStatement("UPDATE `snippets` SET regressionRank = ? WHERE id = ?");
+                .prepareStatement("INSERT INTO `snippets` SET entityID = ?, sourceID = ?, text = ?");
 
         psAttributeSourceCheck = connection
                 .prepareStatement("SELECT id FROM `attributes_sources` WHERE attributeID = ? AND sourceID = ?");
@@ -1431,7 +1426,7 @@ public class DatabaseManager {
 
         if (entryID == -1) {
 
-            String url = snippet.getAggregatedResult().getSource().getUrl();
+            String url = snippet.getWebResult().getSource().getUrl();
             int sourceID = getSourceID(url);
 
             if (sourceID == -1) {
@@ -1442,47 +1437,12 @@ public class DatabaseManager {
                 psInsertSnippet.setInt(1, snippet.getEntity().getID());
                 psInsertSnippet.setInt(2, sourceID);
                 psInsertSnippet.setString(3, snippet.getText());
-                psInsertSnippet.setDate(4, new Date(System.currentTimeMillis()));
-                // psInsertSnippet.setDate(4, new Date(snippet.getExtractedAt().getTime()));
-                psInsertSnippet.setDouble(5, snippet.getRegressionRank());
-
-                psInsertSnippet.setDouble(6, snippet.getFeature("AggregatedRank"));
-                psInsertSnippet.setDouble(7, snippet.getFeature("SearchEngine1"));
-                psInsertSnippet.setDouble(8, snippet.getFeature("SearchEngine2"));
-                psInsertSnippet.setDouble(9, snippet.getFeature("SearchEngine3"));
-                psInsertSnippet.setDouble(10, snippet.getFeature("SearchEngine4"));
-                psInsertSnippet.setDouble(11, snippet.getFeature("SearchEngine5"));
-                psInsertSnippet.setDouble(12, snippet.getFeature("SearchEngine6"));
-                psInsertSnippet.setDouble(13, snippet.getFeature("SearchEngine7"));
-                psInsertSnippet.setDouble(14, snippet.getFeature("SearchEngine8"));
-                psInsertSnippet.setDouble(15, snippet.getFeature("SearchEngine9"));
-                psInsertSnippet.setDouble(16, snippet.getFeature("PageRank"));
-                psInsertSnippet.setDouble(17, snippet.getFeature("TopLevelDomain"));
-                psInsertSnippet.setDouble(18, snippet.getFeature("MainContentCharCount"));
-                psInsertSnippet.setDouble(19, snippet.getFeature("CharacterCount"));
-                psInsertSnippet.setDouble(20, snippet.getFeature("LetterNumberPercentage"));
-                psInsertSnippet.setDouble(21, snippet.getFeature("SyllablesPerWordCount"));
-                psInsertSnippet.setDouble(22, snippet.getFeature("WordCount"));
-                psInsertSnippet.setDouble(23, snippet.getFeature("UniqueWordCount"));
-                psInsertSnippet.setDouble(24, snippet.getFeature("ComplexWordPercentage"));
-                psInsertSnippet.setDouble(25, snippet.getFeature("SentenceCount"));
-                psInsertSnippet.setDouble(26, snippet.getFeature("WordsPerSentenceCount"));
-                psInsertSnippet.setDouble(27, snippet.getFeature("FleschKincaidReadingEase"));
-                psInsertSnippet.setDouble(28, snippet.getFeature("GunningFogScore"));
-                psInsertSnippet.setDouble(29, snippet.getFeature("FleschKincaidGradeLevel"));
-                psInsertSnippet.setDouble(30, snippet.getFeature("AutomatedReadabilityIndex"));
-                psInsertSnippet.setDouble(31, snippet.getFeature("ColemanLiauIndex"));
-                psInsertSnippet.setDouble(32, snippet.getFeature("SmogIndex"));
-                psInsertSnippet.setDouble(33, snippet.getFeature("ContainsProperNoun"));
-                psInsertSnippet.setDouble(34, snippet.getFeature("CapitalizedWordCount"));
-                psInsertSnippet.setDouble(35, snippet.getFeature("StartsWithEntity"));
-                psInsertSnippet.setDouble(36, snippet.getFeature("RelatedEntityCount"));
 
                 if (runUpdate(psInsertSnippet) == -1) {
                     return -1;
                 }
             } catch (SQLException e) {
-                // logger.logError(snippet.getName(), e);
+                LOGGER.error(e.getMessage());
                 return -1;
             }
             return getLastInsertID();

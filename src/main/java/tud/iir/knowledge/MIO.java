@@ -1,9 +1,4 @@
-/**
- * An interactive multimedia object.
- * 
- * @author Martin Werner
- */
-package tud.iir.extraction.mio;
+package tud.iir.knowledge;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +7,12 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.knowledge.Entity;
 
+/**
+ * An multimedia interactive object.
+ * 
+ * @author Martin Werner
+ */
 public class MIO {
 
     /** The Logger of this class. */
@@ -123,7 +122,7 @@ public class MIO {
             }
         }
 
-        if (!("").equals(fileEnding)) {
+        if (!"".equals(fileEnding)) {
 
             final String regExp = "[/=]?.[^/=]*\\." + fileEnding;
             Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);

@@ -721,7 +721,7 @@ public class EventExtractor extends Extractor {
 
         extractedEvents = new HashSet<Event>();
 
-        while (true) {
+        while (!isStopped()) {
 
             Set<String> urls = collectURLs();
 

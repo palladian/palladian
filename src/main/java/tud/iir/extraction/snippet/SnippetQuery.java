@@ -6,15 +6,15 @@ import tud.iir.knowledge.Entity;
 /**
  * A snippet query is a search query to retrieve relevant pages for an entity to extract snippets from.
  * 
- * @author Christopher Friedrich
+ * @author David Urbansky
  */
 public class SnippetQuery extends Query {
 
-    // every fact query is about a certain entity
+    /** Every snippet query is about a certain entity. */
     private Entity entity;
 
     public SnippetQuery(Entity entity) {
-        this.setEntity(entity);
+        setEntity(entity);
     }
 
     public void setEntity(Entity entity) {

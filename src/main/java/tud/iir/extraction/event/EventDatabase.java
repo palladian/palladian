@@ -16,14 +16,10 @@ public class EventDatabase {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(EventDatabase.class);
 
-    /** The database connection. */
-    private Connection connection;
-
     private PreparedStatement psAddEvent;
 
     private EventDatabase() {
         try {
-            connection = DatabaseManager.getInstance().getConnection();
             prepareStatements();
         } catch (SQLException e) {
             LOGGER.error("SQLException ", e);

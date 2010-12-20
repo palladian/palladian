@@ -1,9 +1,10 @@
 package tud.iir.extraction.qa;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -11,77 +12,89 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StringHelper;
 
+/**
+ * Definition of a question answer site.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class QASite implements Serializable {
 
     private static final long serialVersionUID = -3232813296290133466L;
 
-    // QA types
+    /** QA types. */
     public static int FAQ = 1;
     public static int QA_SITE = 2;
 
-    // the name of the site for identification
+    /** The name of the site for identification. */
     private String name = "";
 
-    // the type of the expected QAs
+    /** The type of the expected QAs. */
     private int type = 0;
 
-    // the maximum number of URLs that are crawled, -1 is infinity
+    /** The maximum number of URLs that are crawled, -1 is infinity. */
     private int maximumURLs = -1;
 
-    // the first URL to start the crawling process
+    /** the first URL to start the crawling process. */
     private String entryURL = "";
 
-    // the xPath that points to the question
+    /** The xPath that points to the question. */
     private String questionXPath = "";
 
-    // the xPath that points to the "best answer"
+    /** the xPath that points to the "best answer". */
     private String bestAnswerXPath = "";
 
-    // the xPath that points to all other answers
+    /** The xPath that points to all other answers. */
     private String allAnswersXPath = "";
 
-    // prefix that must appear before the answer
+    /** Prefix that must appear before the answer. */
     private String answerPrefix = "";
 
-    // suffix that must appear after the answer
+    /** Suffix that must appear after the answer. */
     private String answerSuffix = "";
 
-    // the stack on which the URLs are kept that need to be crawled
+    /** The stack on which the URLs are kept that need to be crawled. */
     private QAUrlStack urlStack = null;
 
-    // the stack of visited urls
+    /** The stack of visited URLs. */
     // TODO performance: write into index because memory fills up otherwise
-    private HashSet<String> urlsVisited = null;
+    private Set<String> urlsVisited = null;
 
-    // the prefix for pages with Q/As on them, preferably analyze those pages first
+    /** The prefix for pages with Q/As on them, preferably analyze those pages first. */
     private String greenPrefix = "";
 
-    // how many "/" appear in the url?
+    /** How many "/" appear in the url? */
     private int greenUrlDepth = 0;
 
-    // true if two different URLs to different questions have been processed to on common prefix
+    /** True if two different URLs to different questions have been processed to on common prefix. */
     private boolean greenPrefixCreated = false;
 
-    // the prefix for pages that directly link to pages with Q/As on them, preferably analyze those pages right after the green ones
+    /**
+     * The prefix for pages that directly link to pages with Q/As on them, preferably analyze those pages right after
+     * the green ones.
+     */
     private HashSet<String> yellowPrefixes = null;
 
-    // the prefix for pages that have no Q/As on them and it is still unknown whether they link to those pages.
+    /** The prefix for pages that have no Q/As on them and it is still unknown whether they link to those pages. */
     private HashSet<String> redPrefixes = null;
 
-    // if no URLs are available or the maximum number of URLs exceeded, the page votes for stopping the crawler
+    /** If no URLs are available or the maximum number of URLs exceeded, the page votes for stopping the crawler. */
     private boolean voted = false;
 
-    // count number of times no green, yellow or non-red prefix url has been found to clean url stack
+    /** Count number of times no green, yellow or non-red prefix url has been found to clean url stack. */
     private int nothingFoundCount = 0;
 
-    // count number of times no question and answer has been extracted, if too often in a row, choose url from stack randomly
+    /**
+     * Count number of times no question and answer has been extracted, if too often in a row, choose url from stack
+     * randomly.
+     */
     private int extractionFailCount = 0;
 
-    // save hashes of questions, to not extract the same question multiple times
+    /** Save hashes of questions, to not extract the same question multiple times. */
     // TODO performance: write into index because memory fills up otherwise
     private TreeSet<Integer> questionHashes = null;
 
-    public QASite(HashMap<String, Object> siteInformation) {
+    public QASite(Map<String, Object> siteInformation) {
         setName((String) siteInformation.get("name"));
         setType((String) siteInformation.get("type"));
         setMaximumURLs(siteInformation.get("maximumURLs"));
@@ -133,12 +146,13 @@ public class QASite implements Serializable {
     }
 
     public void setMaximumURLs(Object maximumURLs) {
-        if (maximumURLs == null)
+        if (maximumURLs == null) {
             return;
+        }
         try {
             this.maximumURLs = (Integer) maximumURLs;
         } catch (Exception e) {
-            Logger.getLogger(QAExtractor.class).error(this.getName() + " maximum urls", e);
+            Logger.getLogger(QAExtractor.class).error(getName() + " maximum urls", e);
         }
     }
 
@@ -159,8 +173,9 @@ public class QASite implements Serializable {
     }
 
     public String getBestAnswerXPath() {
-        if (this.bestAnswerXPath == null)
+        if (this.bestAnswerXPath == null) {
             return "";
+        }
         return this.bestAnswerXPath.toUpperCase();
     }
 
@@ -169,8 +184,9 @@ public class QASite implements Serializable {
     }
 
     public String getAllAnswersXPath() {
-        if (this.allAnswersXPath == null)
+        if (this.allAnswersXPath == null) {
             return "";
+        }
         return this.allAnswersXPath.toUpperCase();
     }
 
@@ -298,7 +314,7 @@ public class QASite implements Serializable {
         }
         urlStack.removeAll(removeURLs);
         Logger.getLogger(QAExtractor.class).info(
-                "cleansed urlStack of " + this.getName() + " (" + removeURLs.size() + " removed, new size " + urlStack.size() + ")");
+                "cleansed urlStack of " + getName() + " (" + removeURLs.size() + " removed, new size " + urlStack.size() + ")");
         Logger.getLogger(QAExtractor.class).info("red prefixes\n" + CollectionHelper.getPrint(redPrefixes));
         Logger.getLogger(QAExtractor.class).info("yellow prefixes\n" + CollectionHelper.getPrint(yellowPrefixes));
         Logger.getLogger(QAExtractor.class).info("green prefix\n" + getGreenPrefix());
@@ -310,10 +326,12 @@ public class QASite implements Serializable {
     }
 
     public synchronized boolean urlsAvailable() {
-        if (urlStack.size() == 0)
+        if (urlStack.size() == 0) {
             return false;
-        if (urlsVisited.size() >= getMaximumURLs() && getMaximumURLs() != -1)
+        }
+        if (urlsVisited.size() >= getMaximumURLs() && getMaximumURLs() != -1) {
             return false;
+        }
         return true;
     }
 
@@ -342,8 +360,9 @@ public class QASite implements Serializable {
         url = url.trim();
 
         // green prefix can not just be the entry URL
-        if (url.length() == getEntryURL().length())
+        if (url.length() == getEntryURL().length()) {
             return;
+        }
 
         int depthCount = getUrlDepth(url);
 
@@ -418,8 +437,9 @@ public class QASite implements Serializable {
      */
     private boolean hasYellowPrefix(String url) {
         for (String prefix : yellowPrefixes) {
-            if (url.startsWith(prefix))
+            if (url.startsWith(prefix)) {
                 return true;
+            }
         }
         return false;
     }
@@ -432,8 +452,9 @@ public class QASite implements Serializable {
     private void updateRedPrefix(String url) {
         url = url.trim();
 
-        if (url.equals(getGreenPrefix()))
+        if (url.equals(getGreenPrefix())) {
             return;
+        }
 
         for (String prefix : redPrefixes) {
             String shortenedPrefix = StringHelper.getLongestCommonString(prefix, url, false, false);
@@ -471,8 +492,9 @@ public class QASite implements Serializable {
         int depthCount = getUrlDepth(url);
         for (String prefix : redPrefixes) {
             String[] redPrefix = prefix.split("##");
-            if (url.startsWith(redPrefix[0]) && Integer.valueOf(redPrefix[1]) == depthCount)
+            if (url.startsWith(redPrefix[0]) && Integer.valueOf(redPrefix[1]) == depthCount) {
                 return true;
+            }
         }
 
         return false;
@@ -506,7 +528,7 @@ public class QASite implements Serializable {
 
     @Override
     public String toString() {
-        return this.getName() + " (" + getEntryURL() + ")";
+        return getName() + " (" + getEntryURL() + ")";
     }
 
 }

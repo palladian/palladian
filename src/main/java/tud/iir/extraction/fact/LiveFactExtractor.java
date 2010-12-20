@@ -2,6 +2,7 @@ package tud.iir.extraction.fact;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -70,7 +71,7 @@ public class LiveFactExtractor {
         sr.setSource(SourceRetrieverManager.GOOGLE);
         sr.setResultCount(numberOfPages);
 
-        ArrayList<String> urls = sr.getURLs(query, true);
+        List<String> urls = sr.getURLs(query, true);
         for (String url : urls) {
             // url =
             // "http://www2.panasonic.com/consumer-electronics/shop/Cameras-Camcorders/Digital-Cameras/Lumix-Digital-Cameras/model.DMC-FX35S.S_11002_7000000000000005702#tabsection";
@@ -85,17 +86,6 @@ public class LiveFactExtractor {
         // return (Fact[]) facts.toArray(new Fact[0]);
         return entity.getFacts();
     }
-
-    // private void saveExtractionsToDatabase() {
-    // // check whether query was directed towards an existing entity (some facts must have been found)
-    // if (entity.getFacts().size() > 4) {
-    // logger.info("facts are being saved!");
-    // DatabaseManager.getInstance().saveExtractions(km);
-    // } else {
-    // logger.info("less than 5 facts found, facts are not saved in database");
-    // }
-    //
-    // }
 
     public ArrayList<Fact> extractFacts(String url) {
         ArrayList<Fact> facts = new ArrayList<Fact>();

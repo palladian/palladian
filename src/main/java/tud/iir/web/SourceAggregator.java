@@ -47,7 +47,7 @@ public class SourceAggregator {
      * @return The list of AggregatedResults
      */
     public List<AggregatedResult> aggregateWebResults(Entity currentEntity, int method, int maxResults, int rankAggregationMethod) {
-        int[] indices = this.getIndices(currentEntity);
+        int[] indices = getIndices(currentEntity);
         return this.aggregateWebResults(currentEntity, method, indices, maxResults, rankAggregationMethod);
     }
 
@@ -91,7 +91,7 @@ public class SourceAggregator {
 
             String[] querySet = sq.getQuerySet();
             for (int i = 0; i < querySet.length; ++i) {
-                ArrayList<WebResult> webresults = sr.getWebResults(querySet[i], index, false);
+                List<WebResult> webresults = sr.getWebResults(querySet[i], index, false);
                 results.add(webresults);
             }
         }

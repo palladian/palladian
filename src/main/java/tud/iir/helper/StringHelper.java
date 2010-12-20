@@ -1297,6 +1297,20 @@ public class StringHelper {
         return "";
     }
 
+    public static List<String> getRegexpMatches(String regexp, String text) {
+
+        List<String> matches = new ArrayList<String>();
+
+        Pattern p = Pattern.compile(regexp);
+
+        Matcher m = p.matcher(text);
+        if (m.find()) {
+            matches.add(m.group());
+        }
+
+        return matches;
+    }
+
     /**
      * The main method.
      * 

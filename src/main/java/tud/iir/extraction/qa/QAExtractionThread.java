@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
 
 import tud.iir.extraction.PageAnalyzer;
+import tud.iir.helper.StopWatch;
 import tud.iir.helper.XPathHelper;
 import tud.iir.knowledge.QA;
 import tud.iir.knowledge.Source;
@@ -16,10 +17,14 @@ import tud.iir.web.Crawler;
 
 public class QAExtractionThread extends Thread {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(QAExtractionThread.class);
+
+    /** Use the crawler. */
     private Crawler crawler = null;
     private PageAnalyzer pa = null;
-    private static final Logger logger = Logger.getLogger(QAExtractionThread.class);
 
+    /** A question-answer website. */
     private QASite qaSite = null;
 
     public QAExtractionThread(ThreadGroup threadGroup, String name, QASite qaSite) {
@@ -33,10 +38,12 @@ public class QAExtractionThread extends Thread {
     public void run() {
         QAExtractor.getInstance().increaseThreadCount();
 
+        StopWatch sw = new StopWatch();
+
         // get web page from stack
         QAUrl qaURL = qaSite.getURLFromStack();
 
-        logger.info("try to extract Q/A (type " + qaURL.getType() + ") from " + qaURL.getUrl());
+        LOGGER.info("try to extract Q/A (type " + qaURL.getType() + ") from " + qaURL.getUrl());
 
         // set up the crawler
         crawler.setDocument(qaURL.getUrl());
@@ -59,8 +66,9 @@ public class QAExtractionThread extends Thread {
             qaSite.addURLToStack(newQAUrl);
         }
 
+        LOGGER.info("finished extracting Q/A (type " + qaURL.getType() + ") from " + qaURL.getUrl() + " in "
+                + sw.getElapsedTimeString());
         QAExtractor.getInstance().decreaseThreadCount();
-        // super.run();
     }
 
     /**
@@ -97,13 +105,13 @@ public class QAExtractionThread extends Thread {
 
         boolean questionNew = qaSite.addQuestionHash(question.hashCode());
         if (question.trim().length() > 0 && qa.getAnswers().size() > 0 && questionNew) {
-            logger.info("+++ add Q/A " + question + " | (" + qa.getAnswers().size() + ") " + qa.getAnswers().get(0));
+            LOGGER.info("+++ add Q/A " + question + " | (" + qa.getAnswers().size() + ") " + qa.getAnswers().get(0));
             qaSite.updatePositivePrefixes(qaURL);
             QAExtractor.getInstance().addQA(qa);
         } else if (question.trim().length() == 0) {
             qaSite.updateNegativePrefix(qaURL);
         } else if (!questionNew) {
-            logger.info("--- question has been seen before: " + question);
+            LOGGER.info("--- question has been seen before: " + question);
         }
     }
 

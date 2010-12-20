@@ -2,6 +2,12 @@ package tud.iir.extraction.qa;
 
 import java.io.Serializable;
 
+/**
+ * A question answer URL with its crawling classification.
+ * 
+ * @author David Urbansky
+ * 
+ */
 public class QAUrl implements Serializable {
 
     private static final long serialVersionUID = -1702458137622101290L;

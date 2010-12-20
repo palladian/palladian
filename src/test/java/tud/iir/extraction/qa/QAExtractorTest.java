@@ -1,6 +1,6 @@
 package tud.iir.extraction.qa;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 import tud.iir.knowledge.QA;
@@ -17,7 +17,7 @@ public class QAExtractorTest extends TestCase {
     public void testFAQExtraction() {
 
         QAExtractor quax = QAExtractor.getInstance();
-        ArrayList<QA> qas = null;
+        List<QA> qas = null;
 
         // cookie FAQ
         qas = quax.extractFAQ("data/test/webPages/faqExtraction1.html");

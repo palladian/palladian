@@ -13,12 +13,10 @@ public class QAExtractionProcess extends Thread {
 
     @Override
     public void run() {
-        // start qa extraction
         QAExtractor.getInstance().startExtraction();
     }
 
     public boolean stopExtraction() {
-        // stop qa extraction
         return QAExtractor.getInstance().stopExtraction(true);
     }
 }

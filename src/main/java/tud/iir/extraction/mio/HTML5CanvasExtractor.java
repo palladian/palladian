@@ -10,6 +10,7 @@ import java.util.List;
 
 import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.MIO;
 
 public class HTML5CanvasExtractor extends AbstractMIOTypeExtractor {
 

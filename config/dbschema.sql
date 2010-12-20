@@ -349,25 +349,6 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 
 -- --------------------------------------------------------
 
---
--- Tabellenstruktur für Tabelle `evaluations`
---
-
-CREATE TABLE IF NOT EXISTS `evaluations` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `snippetID` bigint(20) NOT NULL DEFAULT '0',
-  `evaluator` varchar(255) NOT NULL DEFAULT '',
-  `relevancy` int(11) NOT NULL DEFAULT '0',
-  `interestingness` int(11) NOT NULL DEFAULT '0',
-  `teaser` int(11) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `entityID` (`snippetID`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Daten für Tabelle `evaluations`
---
-
 
 -- --------------------------------------------------------
 
@@ -770,40 +751,7 @@ CREATE TABLE IF NOT EXISTS `snippets` (
   `entityID` bigint(20) unsigned NOT NULL,
   `sourceID` bigint(20) unsigned NOT NULL,
   `text` text NOT NULL,
-  `extractedAt` datetime NOT NULL,
-  `regressionRank` float DEFAULT NULL,
-  `f_AggregatedRank` float NOT NULL,
-  `f_SearchEngine1` float NOT NULL,
-  `f_SearchEngine2` float NOT NULL,
-  `f_SearchEngine3` float NOT NULL,
-  `f_SearchEngine4` float NOT NULL,
-  `f_SearchEngine5` float NOT NULL,
-  `f_SearchEngine6` float NOT NULL,
-  `f_SearchEngine7` float NOT NULL,
-  `f_SearchEngine8` float NOT NULL,
-  `f_SearchEngine9` float NOT NULL,
-  `f_PageRank` float NOT NULL,
-  `f_TopLevelDomain` float NOT NULL,
-  `f_MainContentCharCount` float NOT NULL,
-  `f_CharacterCount` float NOT NULL,
-  `f_LetterNumberPercentage` float NOT NULL,
-  `f_SyllablesPerWordCount` float NOT NULL,
-  `f_WordCount` float NOT NULL,
-  `f_UniqueWordCount` float NOT NULL,
-  `f_ComplexWordPercentage` float NOT NULL,
-  `f_SentenceCount` float NOT NULL,
-  `f_WordsPerSentenceCount` float NOT NULL,
-  `f_FleschKincaidReadingEase` float NOT NULL,
-  `f_GunningFogScore` float NOT NULL,
-  `f_FleschKincaidGradeLevel` float NOT NULL,
-  `f_AutomatedReadabilityIndex` float NOT NULL,
-  `f_ColemanLiauIndex` float NOT NULL,
-  `f_SmogIndex` float NOT NULL,
-  `f_ContainsProperNoun` float NOT NULL,
-  `f_CapitalizedWordCount` float NOT NULL,
-  `f_StartsWithEntity` float NOT NULL,
-  `f_RelatedEntityCount` float NOT NULL,
-  `source` int(11) NOT NULL DEFAULT '0',
+  `extractedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `entityID` (`entityID`),
   KEY `sourceID` (`sourceID`)
