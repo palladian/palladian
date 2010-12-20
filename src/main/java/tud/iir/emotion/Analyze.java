@@ -131,7 +131,7 @@ public class Analyze {
         String [] values;
         
        try {
-               myFile =new FileReader("tud/iir/src/emotion/wort2.csv");
+               myFile =new FileReader("src/main/java/tud/iir/emotion/wort2.csv");
                buff =new BufferedReader(myFile);
                while (true) {              
                    String line = buff.readLine();
