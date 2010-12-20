@@ -351,13 +351,27 @@ With the structure from Fig.~\ref{fig:structure} you can run your project. Just 
 
 \section{Access to Models and Data Sets} \label{sec:AccessModelsDataSets}
 
-Since models and data sets might be very large in file size, they are not included in the SVN repository. As generally no version control is neccessary for this data, we maintain our repository with rsync\footnote{\url{http://rsync.samba.org/}}. rsync is a utility which allows efficient file and directory synchronization between two, local or remote, locations. It was originally developed for Unix systems and should be included with all current Linux distributions and Mac OS X. Altough there are several ports for Windows systems, we recommend using the cwrsync\footnote{\url{http://www.itefix.no/i2/node/10650}} package.
+Since models and data sets might be very large in file size, they are not included in the SVN repository. As generally no version control is neccessary for this data, we maintain our repository with rsync\footnote{\url{http://rsync.samba.org/}}. rsync is a utility which allows efficient file and directory synchronization between two, local or remote, locations. It was originally developed for Unix systems and should be included with all current Linux distributions and Mac OS X. Altough there are several ports for Windows systems, we recommend using the cwrsync\footnote{\url{http://www.itefix.no/i2/node/10650}} package. 
 
-% TODO path to local directory
-% explain usage of sync scripts
-% create sync script for Linux
+Palladian comes with convenient ready-to-use scripts to download models and data sets from our central repository. The scripts are called \texttt{dataSync.bat} for Windows and \texttt{dataSync.sh} for Linux and Mac OS X and can be found in the \texttt{dev} directory. Make sure to set the \texttt{DESTINATION} variable inside the script before initial usage. On Windows operating systems, you further need to add the directory with the rsync binaries to your \texttt{PATH} environment variable, which can be done using the ``System Properties'' control panel (See Fig.~\ref{fig:rSyncWindowsPath1} and ~\ref{fig:rSyncWindowsPath2}).
 
 Please contact the toolkit managers if you need write access to the rsync repository.
+
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.8]{img/WindowsPath1.png}
+\caption{Configuring PATH on Windows}
+\label{fig:rSyncWindowsPath1}
+\end{figure}
+
+\begin{figure}
+\centering
+\includegraphics[scale=0.8]{img/WindowsPath2.png}
+\caption{Configuring PATH on Windows}
+\label{fig:rSyncWindowsPath2}
+\end{figure}
+
 
 \section{Reporting Issues using Redmine}
 To report issues with the toolkit or to view issues assigned to you, you need to register to Redmine. To do this send an E-Mail to the administrator at \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de} and provide your name, your advisor, and the reason why you are working on Palladian (i.e. thesis topic or research fellow). You will receive an E-Mail (not automatically so it might take some time) providing a link where you can set your password. If you successfully set a password for your account you can login on: \href{http://redmine.effingo.de/}{Redmine}.
