@@ -123,13 +123,13 @@ public class Corpus implements Serializable {
         // this resembles human tagging behavior, for example in Delicious.
         String value1 = candidate1.getStemmedValue();
         /// XXX
-//        if (value1.contains(" ")) {
-//            value1 = candidate1.getValue().replaceAll(" ", "").toLowerCase();
-//        }
+                    if (value1.contains(" ")) {
+                        value1 = candidate1.getValue().replaceAll(" ", "").toLowerCase();
+                    }
         String value2 = candidate2.getStemmedValue();
-//        if (value2.contains(" ")) {
-//            value2 = candidate2.getValue().replaceAll(" ", "").toLowerCase();
-//        }
+                    if (value2.contains(" ")) {
+                        value2 = candidate2.getValue().replaceAll(" ", "").toLowerCase();
+                    }
 
         WordCorrelation correlation = correlations.getCorrelation(value1, value2);
         return correlation;

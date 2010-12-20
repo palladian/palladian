@@ -255,14 +255,18 @@ public class KeyphraseExtractorEvaluator {
         // evaluator.addExtractor(mauiKeyphraseExtractor);
 
         Dataset dataset = new Dataset();
-        dataset.setPath("/Users/pk/temp/citeulike180/citeulike180index.txt");
-        dataset.setRootPath("/Users/pk/temp/citeulike180/documents/");
+        // dataset.setPath("/Users/pk/temp/citeulike180/citeulike180index.txt");
+        // dataset.setRootPath("/Users/pk/temp/citeulike180/documents/");
         // dataset.setPath("/Users/pk/temp/fao780.txt");
         // dataset.setRootPath("/Users/pk/temp/fao780/");
 
-        dataset.setSeparationString("#");
+        // dataset.setSeparationString("#");
+        
+        dataset.setPath("/Users/pk/temp/deliciousT140/deliciousT140index.txt");
+        dataset.setSeparationString(" ");
+        
         dataset.setFirstFieldLink(true);
-        dataset.setUsePercentTraining(50);
+        dataset.setUsePercentTraining(90);
 
         evaluator.evaluate(dataset, 1);
 

@@ -454,9 +454,9 @@ public class FileHelper {
      *         {@link filePath}.
      *         See error log for details (Exceptions)
      */
-    public static boolean writeToFile(String filePath, StringBuilder string) {
-        return writeToFile(filePath, string.toString());
-    }
+//    public static boolean writeToFile(String filePath, StringBuilder string) {
+//        return writeToFile(filePath, string.toString());
+//    }
 
     public static int performActionOnEveryLineText(String text, LineAction la) {
 
@@ -529,7 +529,7 @@ public class FileHelper {
      *         {@link filePath}.
      *         See error log for details (Exceptions)
      */
-    public static boolean writeToFile(String filePath, String string) {
+    public static boolean writeToFile(String filePath, CharSequence string) {
 
         boolean noErrorOccurred = true;
         File file = new File(filePath);
@@ -539,7 +539,7 @@ public class FileHelper {
 
         try {
             FileWriter fileWriter = new FileWriter(file);
-            fileWriter.write(string);
+            fileWriter.write(string.toString());
             fileWriter.flush();
             fileWriter.close();
         } catch (IOException e) {
@@ -601,7 +601,7 @@ public class FileHelper {
      * @throws IOException Signals that an I/O exception has occurred.
      * @author Philipp Katz
      */
-    public static void appendFile(String filePath, String stringToAppend) throws IOException {
+    public static void appendFile(String filePath, CharSequence stringToAppend) throws IOException {
 
         FileWriter fileWriter = new FileWriter(filePath, true);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);

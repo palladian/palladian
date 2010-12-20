@@ -271,6 +271,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
      * @param keyphrases
      */
     public void addToCorpus(String text, Set<String> keyphrases) {
+        
+        // TODO removal of Stopwords should be done before!
+        // TODO tokenizing multiple times when training!
 
         // tokenize the text and add the tokens/phrases to the corpus
         List<Token> tokens = tokenize(text);
@@ -282,12 +285,16 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
     }
 
-    private List<Candidate> trainData = new ArrayList<Candidate>();
+    // private List<Candidate> trainData = new ArrayList<Candidate>();
+    private List<DocumentModel> trainDocuments = new ArrayList<DocumentModel>();
+    int trainInstances = 0;
 
     @Override
     public void startTraining() {
         corpus.clear();
-        trainData.clear();
+        // trainData.clear();
+        trainDocuments.clear();
+        trainInstances = 0;
     }
 
     @Override
@@ -296,12 +303,13 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         // add the document to the corpus
         addToCorpus(inputText, keyphrases);
 
-        if (trainData.size() > TRAIN_DATA_LIMIT) {
+        // if (trainData.size() > TRAIN_DATA_LIMIT) {
+        if (trainInstances > TRAIN_DATA_LIMIT) {
             return;
         }
 
         // create the document model
-        DocumentModel candidates = createDocumentModel(inputText);
+        DocumentModel candidates = createDocumentModel(inputText, /*false*/ true);
 
         // keep stemmed and unstemmed representation
         Set<String> stemmedKeyphrases = stem(keyphrases);
@@ -317,7 +325,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
             candidate.setPositive(isCandidate);
         }
 
-        trainData.addAll(candidates);
+        // trainData.addAll(candidates);
+        trainDocuments.add(candidates);
+        trainInstances += candidates.size(); // XXX dirty
 
     }
 
@@ -327,19 +337,24 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         // keep the CSV training data in memory for now
         StringBuilder csvBuilder = new StringBuilder();
 
-        Set<String> featureNames = trainData.iterator().next().getFeatures().keySet();
+        // Set<String> featureNames = trainData.iterator().next().getFeatures().keySet();
+        Set<String> featureNames = trainDocuments.iterator().next().iterator().next().getFeatures().keySet();
         // trainData.append("#");
         csvBuilder.append(StringUtils.join(featureNames, ";")).append("\n");
 
         // write all values
+        for (DocumentModel trainData : trainDocuments) {
+            trainData.calculateCorrelations();
         for (Candidate candidate : trainData) {
             Collection<Double> feautureValues = candidate.getFeatures().values();
             csvBuilder.append(StringUtils.join(feautureValues, ";")).append("\n");
         }
+        }
 
         final String trainDataPath = "data/temp/KeyphraseExtractorTraining.csv";
         FileHelper.writeToFile(trainDataPath, csvBuilder);
-        trainData.clear();
+        ///// trainData.clear();
+        trainDocuments.clear();
 
         // TODO save memory; this is necessary, as the corpus consumes great amounts of memory, but
         // fortunately we don't need the corpus for the training process
@@ -377,7 +392,13 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         String filePath = settings.getModelPath() + "/classifier.ser";
         LOGGER.info("saving classifier " + filePath + " ...");
         StopWatch sw = new StopWatch();
+        
         classifier.saveTrainedClassifier(filePath);
+        
+        // for debugging; write the classifier as text representation
+        String classifierString = classifier.getClassifier().toString();
+        FileHelper.writeToFile("data/temp/KeyphraseExtractorClassifier.txt", classifierString);
+        
         LOGGER.info("saved classifier in " + sw.getElapsedTimeString());
     }
 
@@ -404,6 +425,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         addToCorpus(text);
 
         DocumentModel candidates = createDocumentModel(text);
+        
+        /// XXX
+        candidates.calculateCorrelations();
 
         // eliminate undesired candidates in advance
         ListIterator<Candidate> listIterator = candidates.listIterator();
@@ -636,12 +660,15 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
      * @param text
      * @return
      */
-    private DocumentModel createDocumentModel(String text) {
+    private DocumentModel createDocumentModel(String text, boolean createCandidates /* TODO */) {
 
         DocumentModel model = new DocumentModel(corpus);
         List<Token> tokens = tokenize(text);
         model.addTokens(tokens);
-        model.createCandidates();
+        
+        if (createCandidates) {
+            model.createCandidates();
+        }
 
         // when we are in controlled mode, we remove all non-keyphrases from the list of candidates.
         if (settings.isControlledMode()) {
@@ -650,6 +677,9 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
         return model;
 
+    }
+    private DocumentModel createDocumentModel(String text) {
+        return createDocumentModel(text, true);
     }
 
     private List<Token> tokenize(String text) {
@@ -660,6 +690,19 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
         tokens.addAll(uniGrams);
         tokens.addAll(collocations);
+        
+        
+        
+        // XXX
+//        Set<String> stopwords = settings.getStopwords();
+//        ListIterator<Token> lit = tokens.listIterator();
+//        while (lit.hasNext()) {
+//            Token current = lit.next();
+//            if (stopwords.contains(current.getUnstemmedValue())) {
+//                lit.remove();
+//            }
+//        }
+        // XXX
 
         return tokens;
 
