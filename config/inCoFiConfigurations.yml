@@ -24,7 +24,7 @@
              resultCount: 5
              
              # set which searchEngine should be used (1=Yahoo, 2=google, 6=bing)
-             searchEngine: 2
+             searchEngine: 6
              
              # set how many threads the urlDownloader can use
              urlDownloaderThreads: 10
@@ -33,7 +33,7 @@
              excludingTrustLimit: 30.2
              
              # set the directory which is used for downloading SWF-Files
-             tempDirPath: "F:/Temp/"
+             tempDirPath: "data/temp/mio/"
              
              # set a minimal trust-limit which defines when a MIOPage is qualified to be a RolePage
              rolePageTrustLimit: 80

@@ -44,18 +44,17 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
 
 /**
  * The main class for the Q/A extraction. (QUAX) QUAX knows a set of Q/A pages with information about question xPaths
- * and answer xPaths. QUAX performs a focused
- * crawl over the Q/A pages and remembers URLs of visited pages also over extraction session. New Q/As are extracted and
- * written in the database.
+ * and answer xPaths. QUAX performs a focused crawl over the Q/A pages and remembers URLs of visited pages also over
+ * extraction session. New Q/As are extracted and written in the database.
  * 
  * @author David Urbansky
  */
 public class QAExtractor extends Extractor {
 
-    /** the instance of this class */
+    /** The instance of this class. */
     private static QAExtractor INSTANCE = new QAExtractor();
 
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(QAExtractor.class);
 
     // private static final Logger flashOutputLogger = Logger.getLogger("FlashOutputLogger");
@@ -63,19 +62,22 @@ public class QAExtractor extends Extractor {
     /** if true, more statistics are gathered for benchmarking purposes */
     // private boolean benchmark = false;
 
-    /** list of QA tuples */
+    /** List of QA tuples. */
     private List<QA> qas;
 
-    /** count the number of extracted questions */
+    /** Count the number of extracted questions. */
     private int qaExtractionCount = 0;
 
-    /** a classifier for answers */
+    /** Number of questions to extracts before saving them. */
+    private static final int SAVE_COUNT = 5;
+
+    /** A classifier for answers. */
     private AnswerClassifier answerClassifier;
 
-    /** the list of QA sites that are used for crawling and extraction */
+    /** The list of QA sites that are used for crawling and extraction. */
     private QASites qaSites;
 
-    /** an FAQ site which holds all question hashes and visited URLs for any FAQ site during crawling */
+    /** An FAQ site which holds all question hashes and visited URLs for any FAQ site during crawling. */
     private QASite faqSite;
 
     /** a page analyzer */
@@ -101,7 +103,7 @@ public class QAExtractor extends Extractor {
         qas = new ArrayList<QA>();
 
         // create an empty qaSite for all FAQs that could occur while crawling
-        HashMap<String, Object> siteInformation = new HashMap<String, Object>();
+        Map<String, Object> siteInformation = new HashMap<String, Object>();
         siteInformation.put("name", "");
         siteInformation.put("type", "FAQ");
         siteInformation.put("maximumURLs", 1);
@@ -127,8 +129,7 @@ public class QAExtractor extends Extractor {
      * Load descriptions of sites to extract question and answers from.
      * 
      * @param continueExtraction If false, the extraction will start from the beginning, if true, it is tried to
-     *            deserialize QASites from previous extraction
-     *            run.
+     *            deserialize QASites from previous extraction run.
      */
     @SuppressWarnings("unchecked")
     private void loadSiteDescriptions() {
@@ -283,6 +284,10 @@ public class QAExtractor extends Extractor {
             // use another site in the next iteration
             i = (i + 1) % numberOfSites;
             iterations++;
+
+            if (qas.size() >= SAVE_COUNT) {
+                saveExtractions(true, false);
+            }
         }
 
         // stopExtraction(true);
@@ -291,13 +296,19 @@ public class QAExtractor extends Extractor {
         LOGGER.info("total Q/As extracted in this run: " + qaExtractionCount);
     }
 
-    @Override
-    protected void saveExtractions(boolean saveExtractions) {
+    private void saveExtractions(boolean saveExtractions, boolean saveExtractionStatus) {
         if (saveExtractions) {
             saveQAs();
             LOGGER.info("saved QAs to database...");
-            saveExtractionStatus();
+            if (saveExtractionStatus) {
+                saveExtractionStatus();
+            }
         }
+    }
+
+    @Override
+    protected void saveExtractions(boolean saveExtractions) {
+        saveExtractions(saveExtractions, true);
     }
 
     private void saveExtractionStatus() {
@@ -313,9 +324,9 @@ public class QAExtractor extends Extractor {
      * @param url The url to analyze.
      * @return A set of QA tuples if an FAQ was found.
      */
-    public ArrayList<QA> extractFAQ(String url) {
+    public List<QA> extractFAQ(String url) {
 
-        ArrayList<QA> faqQAs = new ArrayList<QA>();
+        List<QA> faqQAs = new ArrayList<QA>();
 
         // set up the crawler
         Crawler crawler = new Crawler();
@@ -429,7 +440,7 @@ public class QAExtractor extends Extractor {
     /**
      * Save QA tuples to the database.
      */
-    private void saveQAs() {
+    private synchronized void saveQAs() {
         if (qas.size() > 0) {
             LOGGER.info("save extracted Q/As to database");
             DatabaseManager.getInstance().addQAs(qas);
@@ -778,7 +789,7 @@ public class QAExtractor extends Extractor {
         QAExtractor.getInstance().startExtraction(false);
         System.exit(0);
 
-        ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://blog.pandora.com/faq/");
+        List<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://blog.pandora.com/faq/");
         // ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://secondlife.com/whatis/faq.php");
         // ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://www.freerice.com/faq.html");
         // ArrayList<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://bandcamp.com/faq");
@@ -819,7 +830,7 @@ public class QAExtractor extends Extractor {
 
         System.exit(0);
 
-        ArrayList<QA> qas = QAExtractor.getInstance().extractFAQ(
+        List<QA> qas = QAExtractor.getInstance().extractFAQ(
                 "http://www.abb.com/cawp/abbzh259/14ea3e81ca94263bc1256fbe0030e163.aspx");
         // HashSet<QA> qas = QAExtractor.getInstance().extractFAQ("http://www.sony.com/faq.shtml");
         // HashSet<QA> qas = QAExtractor.getInstance().extractFAQ("http://csottointer.kissnofrog.com/info/faq");

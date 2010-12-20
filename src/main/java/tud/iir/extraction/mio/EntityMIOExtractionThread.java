@@ -12,7 +12,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.Classifier;
 import tud.iir.classification.mio.MIOClassifier;
 import tud.iir.helper.DateHelper;
 import tud.iir.knowledge.Attribute;
@@ -20,6 +19,7 @@ import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.Fact;
 import tud.iir.knowledge.FactValue;
 import tud.iir.knowledge.KnowledgeManager;
+import tud.iir.knowledge.MIO;
 import tud.iir.knowledge.Source;
 
 /**
@@ -47,8 +47,8 @@ public class EntityMIOExtractionThread extends Thread {
      * @param entity the entity
      * @param knowledgeManager the knowledgeManager
      */
-    public EntityMIOExtractionThread(final ThreadGroup threadGroup, final String entityName, final Entity entity,
-            final KnowledgeManager knowledgeManager) {
+    public EntityMIOExtractionThread(ThreadGroup threadGroup, String entityName, Entity entity,
+            KnowledgeManager knowledgeManager) {
         super(threadGroup, entityName);
         this.entity = entity;
         this.knowledgeManager = knowledgeManager;
@@ -62,10 +62,10 @@ public class EntityMIOExtractionThread extends Thread {
     public void run() {
 
         MIOExtractor.getInstance().increaseThreadCount();
-        final long timeStamp1 = System.currentTimeMillis();
+        long timeStamp1 = System.currentTimeMillis();
 
         // get MIO containing pages
-        final List<MIO> mios = analyzeEntity(false);
+        List<MIO> mios = analyzeEntity(false);
 
         // if no MIO was found, redo with focus on weak-interactive MIOs (it must be allowed in configFile)
         if (mios.isEmpty() && InCoFiConfiguration.getInstance().redoWeak) {
@@ -74,14 +74,13 @@ public class EntityMIOExtractionThread extends Thread {
         }
 
         // load the trainedClassifier
-        final MIOClassifier mioClass = new MIOClassifier();
-        mioClass.loadTrainedClassifier("data/models/" + "MIOClassifier" + mioClass.getChosenClassifierName()
-                + ".model");
+        MIOClassifier mioClass = new MIOClassifier();
+        mioClass.loadTrainedClassifier(MIOExtractor.MIO_MODEL_PATH);
 
         Set<MIO> mioSet = new HashSet<MIO>();
         for (MIO mio : mios) {
 
-            // Calculate Trust
+            // calculate trust
             mioClass.classify(mio);
             mioSet.add(mio);
         }
@@ -95,11 +94,11 @@ public class EntityMIOExtractionThread extends Thread {
         // check that directURL- and findPageURL-length is not longer than 767
         for (MIO mio : mioSet) {
             if (mio.getDirectURL().length() >= 767) {
-                final String directURL = mio.getDirectURL().substring(0, 766);
+                String directURL = mio.getDirectURL().substring(0, 766);
                 mio.setDirectURL(directURL);
             }
             if (mio.getFindPageURL().length() >= 767) {
-                final String findPageURL = mio.getFindPageURL().substring(0, 766);
+                String findPageURL = mio.getFindPageURL().substring(0, 766);
                 mio.setFindPageURL(findPageURL);
             }
 

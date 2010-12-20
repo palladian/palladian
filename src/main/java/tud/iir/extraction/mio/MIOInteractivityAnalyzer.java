@@ -8,6 +8,8 @@ package tud.iir.extraction.mio;
 import java.util.List;
 import java.util.Locale;
 
+import tud.iir.knowledge.MIO;
+
 public class MIOInteractivityAnalyzer {
 
     /** The weak interaction indicators. */

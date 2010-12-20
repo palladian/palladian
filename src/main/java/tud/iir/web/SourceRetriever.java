@@ -364,27 +364,31 @@ public class SourceRetriever {
         return hitCount;
     }
 
-    public ArrayList<String> getURLs(String searchQuery, boolean exact) {
+    public List<String> getURLs(String searchQuery, boolean exact) {
         return this.getURLs(searchQuery, getSource(), exact);
     }
 
-    public ArrayList<String> getURLs(String searchQuery) {
+    public List<String> getURLs(String searchQuery) {
         return this.getURLs(searchQuery, getSource(), false);
     }
 
-    public ArrayList<String> getURLs(String searchQuery, int source) {
+    public List<String> getURLs(String searchQuery, int source) {
         return this.getURLs(searchQuery, source, false);
     }
 
-    public ArrayList<String> getURLs(String searchQuery, int source, boolean exact) {
-        ArrayList<String> urls = new ArrayList<String>();
+    public List<String> getURLs(String searchQuery, int source, boolean exact) {
+        List<String> urls = new ArrayList<String>();
 
-        ArrayList<WebResult> webresults = getWebResults(searchQuery, source, exact);
+        List<WebResult> webresults = getWebResults(searchQuery, source, exact);
         for (WebResult webresult : webresults) {
             urls.add(webresult.getUrl());
         }
 
         return urls;
+    }
+
+    public final List<WebResult> getWebResults(String searchQuery, boolean exact) {
+        return getWebResults(searchQuery, getSource(), exact);
     }
 
     /**
@@ -400,7 +404,7 @@ public class SourceRetriever {
      * 
      * @author Christopher Friedrich
      */
-    public final ArrayList<WebResult> getWebResults(String searchQuery, int source, boolean exact) {
+    public final List<WebResult> getWebResults(String searchQuery, int source, boolean exact) {
         // searchQuery = searchQuery.replaceAll(" ","+");
 
         if (exact) {
@@ -821,14 +825,12 @@ public class SourceRetriever {
     }
 
     /**
-     * TODO Query the Bing API. Maximum top 1,000 results (50 per query).
+     * Query the Bing API. Maximum top 1,000 results (50 per query).
      * 
-     * @param searchQuery
-     * @return
+     * @param searchQuery The search query.
+     * @return A list of web results.
      */
-    private ArrayList<WebResult> getWebResultsFromBing(String searchQuery) {
-
-        // http://api.bing.net/json.aspx?AppId=D35DE1803D6F6F03AB5044430997A91924AD347A&Version=2.0&Market=en-us&Adult=Moderate&Web.Count=25&Web.Offset=0&JsonType=callback&JsonCallback=searchDone&sources=web&Query=msdn%20blogs
+    private List<WebResult> getWebResultsFromBing(String searchQuery) {
 
         ArrayList<WebResult> webresults = new ArrayList<WebResult>();
 
@@ -859,16 +861,18 @@ public class SourceRetriever {
                 int resultSize = results.length();
                 for (int j = 0; j < resultSize; ++j) {
                     if (urlsCollected < getResultCount()) {
-                        // TODO: webresult.setTitle(title);
+
+                        // FIXME
                         String title = null;
 
-                        // TODO: setSummary(summary);
+                        // FIXME
                         String summary = null;
 
                         String currentURL = (String) results.getJSONObject(j).get("Url");
 
                         WebResult webresult = new WebResult(SourceRetrieverManager.GOOGLE, rank,
                                 new Source(currentURL), title, summary);
+
                         rank++;
 
                         LOGGER.info("bing retrieved url " + currentURL);
@@ -1324,13 +1328,13 @@ public class SourceRetriever {
         s.setSource(SourceRetrieverManager.GOOGLE_NEWS);
 
         // search for "Jim Carrey" in exact match mode (second parameter = true)
-        ArrayList<String> resultURLs = s.getURLs("Jim Carrey", true);
+        List<String> resultURLs = s.getURLs("Jim Carrey", true);
 
         // print the results
         CollectionHelper.print(resultURLs);
 
         // special example for Eduardo ;)
-        ArrayList<WebResult> webResults = s.getWebResults("Jim Carrey", SourceRetrieverManager.GOOGLE_NEWS, false);
+        List<WebResult> webResults = s.getWebResults("Jim Carrey", SourceRetrieverManager.GOOGLE_NEWS, false);
 
         for (WebResult webResult : webResults) {
             System.out.println(webResult.getTitle());
@@ -1355,7 +1359,7 @@ public class SourceRetriever {
 
         HashMap<Integer, String> arl = new HashMap<Integer, String>();
         for (int index : indices) {
-            ArrayList<WebResult> srs = s.getWebResults("microsoft", index, false);
+            List<WebResult> srs = s.getWebResults("microsoft", index, false);
             // CollectionHelper.print(srs);
             // System.out.println(index + ":" + srs.size());
             if (srs.size() > 0) {
@@ -1384,7 +1388,7 @@ public class SourceRetriever {
         SourceRetriever sr = new SourceRetriever();
         sr.setSource(SourceRetrieverManager.BING);
         sr.setResultCount(100);
-        ArrayList<String> al = sr.getURLs(queryString);
+        List<String> al = sr.getURLs(queryString);
         CollectionHelper.print(al);
         // String[] matchContent = { "Dresden" };
         // sr.getImages(queryString,SourceRetrieverManager.YAHOO_BOSS,

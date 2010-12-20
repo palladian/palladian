@@ -1,28 +1,35 @@
 package tud.iir.extraction.snippet;
 
 import tud.iir.knowledge.Entity;
-import tud.iir.knowledge.KnowledgeManager;
 
 /**
- * This class acts as query template builder factory. Given an entity, it generates a set of queries, which are sent to the search engines.
+ * This class acts as query template builder factory. Given an entity, it generates a set of queries, which are sent to
+ * the search engines.
  * 
- * @author Christopher Friedrich
+ * @author David Urbansky
+ * @author Christopher Friedrich *
+ * 
  */
 public class SnippetQueryFactory {
 
+    /** The instance of this class. */
     private static SnippetQueryFactory instance = null;
 
     private SnippetQueryFactory() {
     }
 
     public static SnippetQueryFactory getInstance() {
-        if (instance == null)
+        if (instance == null) {
             instance = new SnippetQueryFactory();
+        }
         return instance;
     }
 
     /**
-     * Given an entity, this method returns a SnippetQuery object, which is a set of search engine queries for a given entity.
+     * Given an entity, this method returns a SnippetQuery object, which is a set of search engine queries for a given
+     * entity.
+     * 
+     * @param entity The entity for which a query should be built.
      */
     public SnippetQuery createEntityQuery(Entity entity) {
         SnippetQuery sq = new SnippetQuery(entity);
@@ -36,15 +43,4 @@ public class SnippetQueryFactory {
         return sq;
     }
 
-    public static void main(String[] args) {
-
-        KnowledgeManager knowledgeManager = new KnowledgeManager();
-        knowledgeManager.createBenchmarkConcepts();
-        knowledgeManager.getConcepts().get(0);
-        SnippetQuery sq = SnippetQueryFactory.getInstance().createEntityQuery(new Entity("iPhone 3GS", knowledgeManager.getConcepts().get(0)));
-        System.out.println(sq.getQuerySet().length);
-        for (int i = 0, l = sq.getQuerySet().length; i < l; ++i) {
-            System.out.println(sq.getQuerySet()[i]);
-        }
-    }
 }

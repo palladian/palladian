@@ -14,6 +14,7 @@ import java.util.Map.Entry;
 import tud.iir.classification.Classifier;
 import tud.iir.classification.mio.MIOClassifier;
 import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.MIO;
 
 public class UniversalMIOExtractor {
 

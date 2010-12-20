@@ -27,6 +27,7 @@ import org.apache.log4j.Logger;
 
 import swf9.SWFHeader;
 import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.MIO;
 import tud.iir.web.Crawler;
 
 import com.anotherbigidea.flash.interfaces.SWFText;

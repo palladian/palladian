@@ -289,13 +289,19 @@ public class Source implements Serializable {
      * Get the main content block from the source URL page.
      * 
      * @return The main content string.
-     * 
-     * @author Christopher Friedrich
      */
     public String getMainContent() {
         if (mainContent == null) {
-            // this.mainContent = getMainContentFromListDiscoverer();
-            this.mainContent = getMainContentFromAlchemy();
+
+            try {
+                PageContentExtractor e = new PageContentExtractor();
+                mainContent = e.setDocument(new URL(url)).getResultText();
+            } catch (PageContentExtractorException e1) {
+                Logger.getRootLogger().error(e1.getMessage());
+            } catch (MalformedURLException e1) {
+                Logger.getRootLogger().error(e1.getMessage());
+            }
+
         }
 
         return mainContent;
@@ -304,81 +310,15 @@ public class Source implements Serializable {
     /**
      * Override the main content block for this object.
      * 
-     * @author Christopher Friedrich
      */
     public void setMainContent(String mainContent) {
         this.mainContent = mainContent;
     }
 
     /**
-     * Get the main content block from the source URL page using the AlchemyAPI web service.
-     * 
-     * @return The main content string.
-     * 
-     * @author Christopher Friedrich
-     * @author David Urbansky
-     */
-    private String getMainContentFromAlchemy() {
-        String result = null;
-
-        try {
-            PageContentExtractor e = new PageContentExtractor();
-            result = e.setDocument(new URL(url)).getResultText();
-        } catch (PageContentExtractorException e1) {
-            Logger.getRootLogger().error(e1.getMessage());
-        } catch (MalformedURLException e1) {
-            Logger.getRootLogger().error(e1.getMessage());
-        }
-        // try {
-        // AlchemyAPI alchemyAPI = new AlchemyAPI();
-        // alchemyAPI.SetAPIKey("edc9bbd6f2107c7c11ddc42962eabcab1b8aef85");
-        //
-        // Document doc = alchemyAPI.URLGetText(url);
-        // result = doc.getElementsByTagName("text").item(0).getTextContent();
-        // } catch (Exception e) {
-        //           
-        // }
-
-        return result;
-    }
-
-    /**
-     * Get the main content block from the source URL page using the PageAnalyzer.
-     * 
-     * @return The main content string.
-     * 
-     * @author Christopher Friedrich
-     */
-    // TODO: needs more improvements before it can be used to obtain reasonable results
-    /*private String getMainContentFromListDiscoverer() {
-        Crawler c = new Crawler();
-        Document document = c.getWebDocument(url);
-
-        PageAnalyzer pa = new PageAnalyzer();
-        pa.setDocument(document);
-
-        ListDiscoverer ld = new ListDiscoverer();
-        XPathSet xPathSet = ld.getXPathSet(document);
-        xPathSet = ld.removeSiblingPagePaths(xPathSet, url, document);
-
-        StringBuilder result = new StringBuilder();
-        for (String xPathSetEntry : xPathSet.getXPathMap().keySet()) {
-            String entry = StringHelper.trim(pa.getTextByXPath(xPathSetEntry));
-            if (entry != null && !entry.isEmpty()) {
-                // System.out.println("XXXXXXX: " + entry);
-                result.append(entry);
-            }
-        }
-
-        return result.toString();
-    }*/
-
-    /**
      * Get the top level domain (TLD) of the source URL.
      * 
      * @return The TLD of the source URL.
-     * 
-     * @author Christopher Friedrich
      */
     public String getTLD() {
         try {

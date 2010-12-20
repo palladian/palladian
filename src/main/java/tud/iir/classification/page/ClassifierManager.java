@@ -183,11 +183,11 @@ public class ClassifierManager {
         StringBuilder urlIndex = new StringBuilder();
         int fileCounter = 1;
 
-        System.out.println("Start retrieving web pages...");
+        LOGGER.info("Start retrieving web pages...");
         for (Map.Entry<String, HashSet<String>> category : dictionary.entrySet()) {
 
             for (String keyword : category.getValue()) {
-                ArrayList<String> urls = sr.getURLs(keyword);
+                List<String> urls = sr.getURLs(keyword);
 
                 for (String url : urls) {
                     String shortURLName = StringHelper.makeSafeName(Crawler.getCleanURL(url));
@@ -757,7 +757,7 @@ public class ClassifierManager {
         }
 
         // determine last line when we want to break in case we don't want to use all data from the dataset
-        int lastLine = (int) (FileHelper.getNumberOfLines(dataset.getPath()) * (dataset.getUsePercentTraining() / (double) 100.0));
+        int lastLine = (int) (FileHelper.getNumberOfLines(dataset.getPath()) * dataset.getUsePercentTraining() / 100.0);
 
         final Object[] obj = new Object[4];
         obj[0] = forTraining;
@@ -770,7 +770,7 @@ public class ClassifierManager {
             @Override
             public void performAction(String line, int lineNumber) {
 
-                if (lineNumber > ((Integer) obj[3])) {
+                if (lineNumber > (Integer) obj[3]) {
                     looping = false;
                     return;
                 }

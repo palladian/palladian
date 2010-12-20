@@ -1,6 +1,6 @@
 package tud.iir.extraction;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import junit.framework.TestCase;
 import tud.iir.extraction.qa.QAExtractor;
@@ -18,7 +18,7 @@ public class QATest extends TestCase {
     }
 
     public void testFAQExtraction() {
-        ArrayList<QA> qas = null;
+        List<QA> qas = null;
         qas = QAExtractor.getInstance().extractFAQ("data/test/webPages/faq/abb.html");
         assertEquals(18, qas.size()); // TODO 20 would be better
 

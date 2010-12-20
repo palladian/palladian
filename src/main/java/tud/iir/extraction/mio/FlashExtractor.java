@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 
 import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.MIO;
 import tud.iir.web.Crawler;
 
 public class FlashExtractor extends AbstractMIOTypeExtractor {

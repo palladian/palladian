@@ -3,6 +3,7 @@ package tud.iir.web;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
@@ -71,7 +72,7 @@ public class FeedFinder {
             queries[3] = "filetype:rss2 " + currentCategory;
 
             for (int i = 0; i < queries.length; i++) {
-                ArrayList<String> feedURLs = sr.getURLs(queries[i]);
+                List<String> feedURLs = sr.getURLs(queries[i]);
 
                 Iterator<String> feedURLIterator = feedURLs.iterator();
                 while (feedURLIterator.hasNext()) {

@@ -82,7 +82,7 @@ public class Testcsv {
         s.setSource(SourceRetrieverManager.GOOGLE);
 
 
-        ArrayList<WebResult> webURLs = s.getWebResults(searchQuery, 2, false);
+        List<WebResult> webURLs = s.getWebResults(searchQuery, 2, false);
 
         Integer f = webURLs.size();
         String url = null;

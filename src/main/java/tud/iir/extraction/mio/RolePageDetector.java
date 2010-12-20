@@ -12,6 +12,7 @@ import java.util.Set;
 
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
+import tud.iir.knowledge.MIO;
 import tud.iir.web.Crawler;
 
 public class RolePageDetector {

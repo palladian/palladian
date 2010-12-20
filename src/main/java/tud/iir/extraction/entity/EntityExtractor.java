@@ -330,7 +330,7 @@ public class EntityExtractor extends Extractor {
                             if (eq.getRetrievalExtractionType() == EntityQueryFactory.RETRIEVAL_EXTRACTION_TYPE_SEED) {
                                 exact = false;
                             }
-                            ArrayList<String> retrievedURLs = sr.getURLs(querySet[j], exact);
+                            List<String> retrievedURLs = sr.getURLs(querySet[j], exact);
                             urls.addAll(retrievedURLs);
                         }
                     }
@@ -458,7 +458,8 @@ public class EntityExtractor extends Extractor {
         Iterator<Concept> conceptIterator = getConcepts().iterator();
         while (conceptIterator.hasNext()) {
             Concept currentConcept = conceptIterator.next();
-            ArrayList<String> retrievedURLs = sr.getURLs("list of "
+            List<String> retrievedURLs = sr.getURLs(
+                    "list of "
                     + WordTransformer.wordToPlural(currentConcept.getName()), SourceRetrieverManager.GOOGLE, true);
 
             for (int i = 0; i < retrievedURLs.size(); i++) {
