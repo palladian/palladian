@@ -30,6 +30,7 @@ import tud.iir.helper.HTMLHelper;
  * 
  * @author Philipp Katz
  */
+@Deprecated
 public class DeliciousDatasetReader {
 
     private String dataPath = "";

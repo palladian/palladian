@@ -130,6 +130,11 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases, int index) {
+        
+        // XXX
+        if (index > 2000){
+            return;
+        }
 
         LOGGER.trace(">train " + index + " " + keyphrases);
 

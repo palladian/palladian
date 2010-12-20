@@ -16,6 +16,7 @@ import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.collections15.map.LazyMap;
 import org.apache.commons.lang.StringUtils;
 
+import tud.iir.classification.Stopwords;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.helper.StringHelper;
 
@@ -137,14 +138,14 @@ public class DocumentModel extends ArrayList<Candidate> {
         // save memory; we don't need the Tokens any longer.
         tokens.clear();
 
-        calculateCorrelations();
+        // XXX XXXXXXXX calculateCorrelations();
 
     }
 
     /**
      * Determine the correlation feature for the candidates.
      */
-    private void calculateCorrelations() {
+    /*private*/ public void calculateCorrelations() {
 
         Candidate[] candidateArray = toArray(new Candidate[size()]);
 
@@ -154,11 +155,17 @@ public class DocumentModel extends ArrayList<Candidate> {
                 Candidate cand2 = candidateArray[j];
 
                 WordCorrelation correlation = corpus.getCorrelation(cand1, cand2);
+//                if (correlation != null) {
+//                    double correlationValue = correlation.getRelativeCorrelation();
+//                    cand2.addCorrelation(correlationValue);
+//                    cand1.addCorrelation(correlationValue);
+//                }
+                double correlationValue = 0;
                 if (correlation != null) {
-                    double correlationValue = correlation.getRelativeCorrelation();
-                    cand2.addCorrelation(correlationValue);
-                    cand1.addCorrelation(correlationValue);
+                    correlationValue = correlation.getRelativeCorrelation();
                 }
+                cand2.addCorrelation(correlationValue);
+                cand1.addCorrelation(correlationValue);
 
             }
         }
@@ -257,6 +264,19 @@ public class DocumentModel extends ArrayList<Candidate> {
         }
         builder.append("]");
         return builder.toString();
+    }
+    
+    public int getNumCand() {
+        Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
+        int numCand = 0;
+        Set<Entry<String, List<Token>>> entrySet = tokens.entrySet();
+        for (Entry<String, List<Token>> entry : entrySet) {
+            if (!stopwords.contains(entry.getValue().iterator().next().getUnstemmedValue().toLowerCase())) {
+                numCand++;
+            }
+        }
+        return numCand;
+        // return tokens.size();
     }
 
 }
