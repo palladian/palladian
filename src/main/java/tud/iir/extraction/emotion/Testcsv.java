@@ -15,8 +15,6 @@ import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
 import tud.iir.web.WebResult;
 
-
-
 public class Testcsv {
 
     public static void main(String[] args) {
