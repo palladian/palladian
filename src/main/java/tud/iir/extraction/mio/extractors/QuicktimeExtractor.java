@@ -1,22 +1,23 @@
 /**
- * This class realizes the extraction of java applets.
+ * This is the Extractor for Quicktime (MOV) objects.
  * 
  * @author Martin Werner
  */
-package tud.iir.extraction.mio;
+package tud.iir.extraction.mio.extractors;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import tud.iir.extraction.mio.MIOPage;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.MIO;
 
-public class AppletExtractor extends AbstractMIOTypeExtractor {
+public class QuicktimeExtractor extends AbstractMIOTypeExtractor {
 
     /** The mioType. */
-    private static String mioType = "applet";
+    private static transient String mioType = "quicktime";
 
     /** The mioPage. */
     private transient MIOPage mioPage = null;
@@ -24,8 +25,8 @@ public class AppletExtractor extends AbstractMIOTypeExtractor {
     /** The entity. */
     private transient Entity entity = null;
 
-    /** The regular expression for extracting the URL */
-    private static String regExp = "(\".[^\"]*\\.class\")|(\".[^\"]*\\.class\\?.[^\"]*\")";
+    /** The regular expression for URL extraction. */
+    private static transient String regExp = "(\".[^\"]*\\.mov\")|(\".[^\"]*\\.mov\\?.[^\"]*\")";
 
     /*
      * (non-Javadoc)
@@ -33,7 +34,7 @@ public class AppletExtractor extends AbstractMIOTypeExtractor {
      * tud.iir.knowledge.Entity)
      */
     @Override
-    List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity) {
+    public List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity) {
         this.mioPage = mioPage;
         this.entity = entity;
 
@@ -41,7 +42,6 @@ public class AppletExtractor extends AbstractMIOTypeExtractor {
         final List<String> relevantTags = extractRelevantTags(mioPage.getContentAsString());
 
         mioList.addAll(analyzeRelevantTags(relevantTags));
-
         return mioList;
     }
 
@@ -50,8 +50,9 @@ public class AppletExtractor extends AbstractMIOTypeExtractor {
      * @see tud.iir.extraction.mio.MIOTypeExtractor#extractRelevantTags(java.lang.String)
      */
     @Override
-    List<String> extractRelevantTags(final String mioPageContent) {
+    final List<String> extractRelevantTags(final String mioPageContent) {
         String modMioPageContent = "";
+
         final List<String> relevantTags = new ArrayList<String>();
 
         // extract all <object>-tags
@@ -68,16 +69,6 @@ public class AppletExtractor extends AbstractMIOTypeExtractor {
 
         // extract all <script>-tags
         relevantTags.addAll(HTMLHelper.getConcreteTags(modMioPageContent, "script"));
-
-        // remove all <script>-tags
-        modMioPageContent = HTMLHelper.removeConcreteHTMLTag(modMioPageContent, "script");
-
-        // extract all <applet>-tags
-        relevantTags.addAll(HTMLHelper.getConcreteTags(modMioPageContent, "applet"));
-
-        // remove the <applet>-tags
-        // modMioPageContent = HTMLHelper.removeConcreteHTMLTag(modMioPageContent, "applet");
-
         return relevantTags;
     }
 
@@ -86,9 +77,9 @@ public class AppletExtractor extends AbstractMIOTypeExtractor {
      * @see tud.iir.extraction.mio.MIOTypeExtractor#analyzeRelevantTags(java.util.List)
      */
     @Override
-    List<MIO> analyzeRelevantTags(final List<String> relevantTags) {
+    final List<MIO> analyzeRelevantTags(final List<String> relevantTags) {
+
         final List<MIO> retrievedMIOs = new ArrayList<MIO>();
-      
         final List<MIO> tempMIOs = new ArrayList<MIO>();
 
         for (String relevantTag : relevantTags) {
@@ -100,16 +91,14 @@ public class AppletExtractor extends AbstractMIOTypeExtractor {
 
                 for (MIO mio : tempMIOs) {
                     final String tempAltText = extractALTTextFromTag(relevantTag);
-                   
                     if (tempAltText.length() > 2) {
-                       mio.setAltText(tempAltText);
+                        mio.setAltText(tempAltText);
                     }
                 }
             }
             // extract surrounding Information(Headlines, TextContent) and add to MIO-infos
             for (MIO mio : tempMIOs) {
                 extractSurroundingInfo(relevantTag, mioPage, mio);
-                // extractXMLInfo(relevantTag, mio);
             }
             retrievedMIOs.addAll(tempMIOs);
         }

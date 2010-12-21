@@ -1,10 +1,10 @@
 /**
  * This is an abstract class that is inherit by all MIOExtractors (e.g. FlashExtractor, SilverlightExtractor).
- * It contains needed methods and often used functionalities for extracting MIO-Information. 
+ * It contains needed methods and often used functionalities for extracting MIO-Information.
  * 
  * @author Martin Werner
  */
-package tud.iir.extraction.mio;
+package tud.iir.extraction.mio.extractors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import tud.iir.extraction.mio.MIOPage;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
@@ -31,7 +32,7 @@ public abstract class AbstractMIOTypeExtractor {
      * @param entity the entity
      * @return the list of extracted MIOs
      */
-   abstract List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity);
+    abstract public List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity);
 
     /**
      * Extract relevant HTML-tags.
@@ -39,7 +40,7 @@ public abstract class AbstractMIOTypeExtractor {
      * @param mioPageContent the mioPageContent
      * @return the list of relevant tags
      */
-   abstract List<String> extractRelevantTags(final String mioPageContent);
+    abstract List<String> extractRelevantTags(final String mioPageContent);
 
     /**
      * Analyze relevant tags.
@@ -57,32 +58,31 @@ public abstract class AbstractMIOTypeExtractor {
      * @param urlPattern the URL-RegEx-Pattern
      * @param entity the entity
      * @param mioType the MIO-Type
-     * @return the list
+     * @return A list of MIO objects.
      */
-    protected List<MIO> extractMioURL(final String content, final MIOPage mioPage, final String urlPattern,
-            final Entity entity, final String mioType) {
+    protected List<MIO> extractMioURL(String content, MIOPage mioPage, String urlPattern, Entity entity, String mioType) {
 
-        final List<MIO> resultList = new ArrayList<MIO>();
+        List<MIO> resultList = new ArrayList<MIO>();
 
-        final String regExp = urlPattern;
+        String regExp = urlPattern;
 
-        final Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         // remove wrong-leading-attributes like name="140.swf"
-        final String modConcreteTag = content.replaceAll("name=\".[^\"]*\"", "");
+        String modConcreteTag = content.replaceAll("name=\".[^\"]*\"", "");
 
         final Matcher matcher = pattern.matcher(modConcreteTag);
         while (matcher.find()) {
-            final String mioAdr = matcher.group(0).replaceAll("\"", "");
+            String mioAdr = matcher.group(0).replaceAll("\"", "");
             // System.out.println("URL: "+ mioAdr);
-            final String mioURL = Crawler.verifyURL(mioAdr, mioPage.getUrl());
-            final String testString = mioURL.toLowerCase(Locale.ENGLISH);
+            String mioURL = Crawler.verifyURL(mioAdr, mioPage.getUrl());
+            String testString = mioURL.toLowerCase(Locale.ENGLISH);
 
             if (!(testString.contains("expressinstall") || testString.contains("banner") || testString
                     .contains("header"))) {
 
                 if (mioURL.length() > 4 && mioURL.contains(".")) {
-                    final MIO mio = new MIO(mioType, mioURL, mioPage.getUrl(), entity);
+                    MIO mio = new MIO(mioType, mioURL, mioPage.getUrl(), entity);
                     resultList.add(mio);
                 }
             }
@@ -131,7 +131,7 @@ public abstract class AbstractMIOTypeExtractor {
 
             if (nodeString.contains(mio.getFileName())) {
                 Node tempNode = node;
-                
+
                 //try to find previous headlines
                 while (previousHeadlines.isEmpty() && !tempNode.getNodeName().equals("BODY")) {
                     previousHeadlines.addAll(extractPreviousHeadlines(tempNode));
@@ -202,22 +202,22 @@ public abstract class AbstractMIOTypeExtractor {
      * @param relevantTag the relevant tag
      * @param mio the mio
      */
-//    protected void extractXMLInfo(final String relevantTag, final MIO mio) {
-//        if (relevantTag.toLowerCase(Locale.ENGLISH).contains(".xml")) {
-//            
-//            try {
-//                FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
-//                FileHelper.appendFile("f:/xmlinfos.txt", relevantTag + "\r\n");
-//            } catch (IOException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//
-//            extractXMLNameFromTag(relevantTag, mio);
-//            extractXMLFileURLFromTag(relevantTag, mio);
-//        }
-//
-//    }
+    //    protected void extractXMLInfo(final String relevantTag, final MIO mio) {
+    //        if (relevantTag.toLowerCase(Locale.ENGLISH).contains(".xml")) {
+    //
+    //            try {
+    //                FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
+    //                FileHelper.appendFile("f:/xmlinfos.txt", relevantTag + "\r\n");
+    //            } catch (IOException e) {
+    //                // TODO Auto-generated catch block
+    //                e.printStackTrace();
+    //            }
+    //
+    //            extractXMLNameFromTag(relevantTag, mio);
+    //            extractXMLFileURLFromTag(relevantTag, mio);
+    //        }
+    //
+    //    }
 
     /**
      * Extract xml name from tag.
@@ -225,31 +225,31 @@ public abstract class AbstractMIOTypeExtractor {
      * @param relevantTag the relevant tag
      * @param mio the mio
      */
-//    private void extractXMLNameFromTag(final String relevantTag, final MIO mio) {
-//
-//        // TODO regExp überprüfen auf verschiedene formate
-//        String regExp = "\\\\.[^\"\\\\]*\\.xml";
-//        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-//        final Matcher matcher = pattern.matcher(relevantTag);
-//        final List<String> xmlFileNames = new ArrayList<String>();
-//        while (matcher.find()) {
-//            final String xmlName = matcher.group(0).replaceAll("\"", "");
-//            // FileHelper.appendFile("f:/xmlcontent.html",xmlName + " <br>");
-//            xmlFileNames.add(xmlName);
-//
-//        }
-//        if (!xmlFileNames.isEmpty()) {
-//      //      mio.addInfos("xmlFileName", xmlFileNames);
-//            try {
-//                FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
-//                FileHelper.appendFile("f:/xmlinfos.txt", "XMLName: "+xmlFileNames.toString() + "\r\n");
-//            } catch (IOException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//        }
-//
-//    }
+    //    private void extractXMLNameFromTag(final String relevantTag, final MIO mio) {
+    //
+    //        // TODO regExp überprüfen auf verschiedene formate
+    //        String regExp = "\\\\.[^\"\\\\]*\\.xml";
+    //        Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    //        final Matcher matcher = pattern.matcher(relevantTag);
+    //        final List<String> xmlFileNames = new ArrayList<String>();
+    //        while (matcher.find()) {
+    //            final String xmlName = matcher.group(0).replaceAll("\"", "");
+    //            // FileHelper.appendFile("f:/xmlcontent.html",xmlName + " <br>");
+    //            xmlFileNames.add(xmlName);
+    //
+    //        }
+    //        if (!xmlFileNames.isEmpty()) {
+    //      //      mio.addInfos("xmlFileName", xmlFileNames);
+    //            try {
+    //                FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
+    //                FileHelper.appendFile("f:/xmlinfos.txt", "XMLName: "+xmlFileNames.toString() + "\r\n");
+    //            } catch (IOException e) {
+    //                // TODO Auto-generated catch block
+    //                e.printStackTrace();
+    //            }
+    //        }
+    //
+    //    }
 
     /**
      * Extract xml file url from tag.
@@ -257,35 +257,35 @@ public abstract class AbstractMIOTypeExtractor {
      * @param relevantTag the relevant tag
      * @param mio the mio
      */
-//    private void extractXMLFileURLFromTag(final String relevantTag, final MIO mio) {
-//
-//        // TODO regExp überprüfen auf verschiedene formate
-//        final String regExp = "\".[^\"]*\\.xml\"";
-//        final Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-//        final Matcher matcher = pattern.matcher(relevantTag);
-//        final List<String> xmlFileURLs = new ArrayList<String>();
-//        while (matcher.find()) {
-//            String xmlName = matcher.group(0).replaceAll("\"", "");
-////            xmlName = Crawler.verifyURL(xmlName, mio.getFindPageURL());
-//            if (!xmlName.equals("")) {
-//                xmlFileURLs.add(xmlName);
-//                try {
-//                    FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
-//                    FileHelper.appendFile("f:/xmlinfos.txt", xmlName + "\r\n");
-//                } catch (IOException e) {
-//                    // TODO Auto-generated catch block
-//                    e.printStackTrace();
-//                }
-//            }
-//
-//        }
-//
-//        if (!xmlFileURLs.isEmpty()) {
-//         //   mio.addInfos("xmlFileURL", xmlFileURLs);
-//
-//        }
-//
-//    }
+    //    private void extractXMLFileURLFromTag(final String relevantTag, final MIO mio) {
+    //
+    //        // TODO regExp überprüfen auf verschiedene formate
+    //        final String regExp = "\".[^\"]*\\.xml\"";
+    //        final Pattern pattern = Pattern.compile(regExp, Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+    //        final Matcher matcher = pattern.matcher(relevantTag);
+    //        final List<String> xmlFileURLs = new ArrayList<String>();
+    //        while (matcher.find()) {
+    //            String xmlName = matcher.group(0).replaceAll("\"", "");
+    ////            xmlName = Crawler.verifyURL(xmlName, mio.getFindPageURL());
+    //            if (!xmlName.equals("")) {
+    //                xmlFileURLs.add(xmlName);
+    //                try {
+    //                    FileHelper.appendFile("f:/xmlinfos.txt", mio.getFindPageURL() + "\r\n");
+    //                    FileHelper.appendFile("f:/xmlinfos.txt", xmlName + "\r\n");
+    //                } catch (IOException e) {
+    //                    // TODO Auto-generated catch block
+    //                    e.printStackTrace();
+    //                }
+    //            }
+    //
+    //        }
+    //
+    //        if (!xmlFileURLs.isEmpty()) {
+    //         //   mio.addInfos("xmlFileURL", xmlFileURLs);
+    //
+    //        }
+    //
+    //    }
 
     /**
      * Extract ALT-text from relevant tag.

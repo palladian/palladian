@@ -121,13 +121,13 @@ public class EntityMIOExtractionThread extends Thread {
      * @param weakFlag the flag for retrieving weak-interactive MIOs (redo-function)
      * @return the list of retrieved MIOs
      */
-    private List<MIO> analyzeEntity(final boolean weakFlag) {
-        final MIOPageRetriever pageRetr = new MIOPageRetriever();
-        final List<MIOPage> mioPages = pageRetr.retrieveMIOPages(entity, weakFlag);
+    private List<MIO> analyzeEntity(boolean weakFlag) {
+        MIOPageRetriever pageRetr = new MIOPageRetriever();
+        List<MIOPage> mioPages = pageRetr.retrieveMIOPages(entity, weakFlag);
 
         // MIOAnalysis (content & context)
-        final UniversalMIOExtractor mioExtr = new UniversalMIOExtractor(entity);
-        final List<MIO> mios = mioExtr.analyzeMIOPages(mioPages);
+        UniversalMIOExtractor mioExtr = new UniversalMIOExtractor(entity);
+        List<MIO> mios = mioExtr.analyzeMIOPages(mioPages);
 
         return mios;
     }
@@ -138,8 +138,8 @@ public class EntityMIOExtractionThread extends Thread {
      * @param mioSet the set of retrieved MIOs
      * @param entity the entity
      */
-    private void detectRolePages(final Set<MIO> mioSet, final Entity entity) {
-        final RolePageDetector rpDetector = new RolePageDetector(entity);
+    private void detectRolePages(Set<MIO> mioSet, Entity entity) {
+        RolePageDetector rpDetector = new RolePageDetector(entity);
         rpDetector.detectRolePages(mioSet);
     }
 

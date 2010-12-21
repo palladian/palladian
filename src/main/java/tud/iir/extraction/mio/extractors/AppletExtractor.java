@@ -1,31 +1,32 @@
 /**
- * This class realizes the extraction of silverlight (xap) objects.
+ * This class realizes the extraction of java applets.
  * 
  * @author Martin Werner
  */
-package tud.iir.extraction.mio;
+package tud.iir.extraction.mio.extractors;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import tud.iir.extraction.mio.MIOPage;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.MIO;
 
-public class SilverlightExtractor extends AbstractMIOTypeExtractor {
+public class AppletExtractor extends AbstractMIOTypeExtractor {
 
-    /** The miType. */
-    private static String mioType = "silverlight";
+    /** The mioType. */
+    private static String mioType = "applet";
 
     /** The mioPage. */
-    private MIOPage mioPage = null;
+    private transient MIOPage mioPage = null;
 
     /** The entity. */
-    private Entity entity = null;
+    private transient Entity entity = null;
 
-    /** The regular expression for extraction the url */
-    private static String regExp = "(\".[^\"]*\\.xap\")|(\".[^\"]*\\.xap\\?.[^\"]*\")";
+    /** The regular expression for extracting the URL */
+    private static String regExp = "(\".[^\"]*\\.class\")|(\".[^\"]*\\.class\\?.[^\"]*\")";
 
     /*
      * (non-Javadoc)
@@ -33,7 +34,7 @@ public class SilverlightExtractor extends AbstractMIOTypeExtractor {
      * tud.iir.knowledge.Entity)
      */
     @Override
-    List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity) {
+    public List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity) {
         this.mioPage = mioPage;
         this.entity = entity;
 
@@ -41,6 +42,7 @@ public class SilverlightExtractor extends AbstractMIOTypeExtractor {
         final List<String> relevantTags = extractRelevantTags(mioPage.getContentAsString());
 
         mioList.addAll(analyzeRelevantTags(relevantTags));
+
         return mioList;
     }
 
@@ -51,7 +53,6 @@ public class SilverlightExtractor extends AbstractMIOTypeExtractor {
     @Override
     List<String> extractRelevantTags(final String mioPageContent) {
         String modMioPageContent = "";
-
         final List<String> relevantTags = new ArrayList<String>();
 
         // extract all <object>-tags
@@ -70,7 +71,13 @@ public class SilverlightExtractor extends AbstractMIOTypeExtractor {
         relevantTags.addAll(HTMLHelper.getConcreteTags(modMioPageContent, "script"));
 
         // remove all <script>-tags
-        // modMioPageContent = HTMLHelper.removeConcreteHTMLTag(modMioPageContent, "script");
+        modMioPageContent = HTMLHelper.removeConcreteHTMLTag(modMioPageContent, "script");
+
+        // extract all <applet>-tags
+        relevantTags.addAll(HTMLHelper.getConcreteTags(modMioPageContent, "applet"));
+
+        // remove the <applet>-tags
+        // modMioPageContent = HTMLHelper.removeConcreteHTMLTag(modMioPageContent, "applet");
 
         return relevantTags;
     }
@@ -81,9 +88,10 @@ public class SilverlightExtractor extends AbstractMIOTypeExtractor {
      */
     @Override
     List<MIO> analyzeRelevantTags(final List<String> relevantTags) {
-
         final List<MIO> retrievedMIOs = new ArrayList<MIO>();
+
         final List<MIO> tempMIOs = new ArrayList<MIO>();
+
         for (String relevantTag : relevantTags) {
             tempMIOs.clear();
             tempMIOs.addAll(extractMioURL(relevantTag, mioPage, regExp, entity, mioType));
