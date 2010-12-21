@@ -3,11 +3,12 @@
  * 
  * @author Martin Werner
  */
-package tud.iir.extraction.mio;
+package tud.iir.extraction.mio.extractors;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import tud.iir.extraction.mio.MIOPage;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.MIO;
@@ -29,7 +30,7 @@ public class HTML5CanvasExtractor extends AbstractMIOTypeExtractor {
      * tud.iir.knowledge.Entity)
      */
     @Override
-    List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity) {
+    public List<MIO> extractMIOsByType(final MIOPage mioPage, final Entity entity) {
         this.mioPage = mioPage;
         this.entity = entity;
 

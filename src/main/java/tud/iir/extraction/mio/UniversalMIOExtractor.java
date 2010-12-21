@@ -11,8 +11,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import tud.iir.classification.Classifier;
 import tud.iir.classification.mio.MIOClassifier;
+import tud.iir.extraction.mio.extractors.AppletExtractor;
+import tud.iir.extraction.mio.extractors.FlashExtractor;
+import tud.iir.extraction.mio.extractors.HTML5CanvasExtractor;
+import tud.iir.extraction.mio.extractors.QuicktimeExtractor;
+import tud.iir.extraction.mio.extractors.SilverlightExtractor;
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.MIO;
 
@@ -36,7 +40,7 @@ public class UniversalMIOExtractor {
      * @param mioPages the mio pages
      * @return the list
      */
-    public List<MIO> analyzeMIOPages(final List<MIOPage> mioPages) {
+    public List<MIO> analyzeMIOPages(List<MIOPage> mioPages) {
         List<MIO> mios = new ArrayList<MIO>();
 
         for (MIOPage mioPage : mioPages) {
@@ -67,41 +71,39 @@ public class UniversalMIOExtractor {
         return mios;
     }
 
-
-
     /**
-     * Extract all MIOs.
+     * Extract all MIOs from a given page.
      * 
      * @param mioPage the mioPage
-     * @return the list
+     * @return A list of extracted MIOs.
      */
-    private List<MIO> extractAllMIOs(final MIOPage mioPage) {
+    private List<MIO> extractAllMIOs(MIOPage mioPage) {
 
-        final List<String> relevantMIOTypes = InCoFiConfiguration.getInstance().getMIOTypes();
+        List<String> relevantMIOTypes = InCoFiConfiguration.getInstance().getMIOTypes();
         List<MIO> mioList = new ArrayList<MIO>();
 
         if (relevantMIOTypes.contains("flash")) {
-            final FlashExtractor flashExtractor = new FlashExtractor();
+            FlashExtractor flashExtractor = new FlashExtractor();
             mioList.addAll(flashExtractor.extractMIOsByType(mioPage, entity));
         }
 
         if (relevantMIOTypes.contains("silverlight")) {
-            final SilverlightExtractor slExtractor = new SilverlightExtractor();
+            SilverlightExtractor slExtractor = new SilverlightExtractor();
             mioList.addAll(slExtractor.extractMIOsByType(mioPage, entity));
         }
 
         if (relevantMIOTypes.contains("applet")) {
-            final AppletExtractor appletExtractor = new AppletExtractor();
+            AppletExtractor appletExtractor = new AppletExtractor();
             mioList.addAll(appletExtractor.extractMIOsByType(mioPage, entity));
         }
 
         if (relevantMIOTypes.contains("quicktime")) {
-            final QuicktimeExtractor qtExtractor = new QuicktimeExtractor();
+            QuicktimeExtractor qtExtractor = new QuicktimeExtractor();
             mioList.addAll(qtExtractor.extractMIOsByType(mioPage, entity));
 
         }
         if (relevantMIOTypes.contains("html5canvas")) {
-            final HTML5CanvasExtractor canvasExtractor = new HTML5CanvasExtractor();
+            HTML5CanvasExtractor canvasExtractor = new HTML5CanvasExtractor();
             mioList.addAll(canvasExtractor.extractMIOsByType(mioPage, entity));
         }
 

@@ -24,6 +24,11 @@ public class MIO {
     /** The MIO type. */
     private transient String mioType = "";
 
+    /** MIO types as they appear in the ontology */
+    public static String MIO_UNCLEAR = "unclear_mio";
+    public static String MIO_WEAK = "weak_mio";
+    public static String MIO_STRONG = "strong_mio";
+
     /** The find page URL. */
     private String findPageURL = "";
 
@@ -62,7 +67,7 @@ public class MIO {
      * @param findPageURL the find page URL
      * @param entity the entity
      */
-    public MIO(final String mioType, final String directURL, final String findPageURL, final Entity entity) {
+    public MIO(String mioType, String directURL, String findPageURL, Entity entity) {
 
         this.features = new HashMap<String, Double>();
         this.mioType = mioType;
@@ -376,12 +381,12 @@ public class MIO {
         this.surroundingText = surroundingText;
     }
 
-	@Override
-	public String toString() {
-		return "MIO [trust=" + trust + ", mioType=" + mioType
-				+ ", findPageURL=" + findPageURL + ", directURL=" + directURL
-				+ ", interactivityGrade=" + interactivityGrade + "]";
-	}
-    
+    @Override
+    public String toString() {
+        return "MIO [trust=" + trust + ", mioType=" + mioType
+        + ", findPageURL=" + findPageURL + ", directURL=" + directURL
+        + ", interactivityGrade=" + interactivityGrade + "]";
+    }
+
 
 }
