@@ -1,14 +1,5 @@
 sites:
-
-    - name:                   "Nobosh Answers"
-      type:                   QASite
-      entryURL:               http://answers.nobosh.com/
-      questionXPath:          "/html/body/div/div/div/div/div/div/div[2]/h1[1]"
-      bestAnswerXPath:        ""
-      allAnswersXPath:        "/html/body/div[1]/div[2]/div[1]/div[1]/div[2]/div[1]/div"
-      answerPrefix:           "ratings ) "
-      answerSuffix:           " Comments Sign in"
-      
+    
     - name:                   "Hubpages"
       type:                   QASite
       entryURL:               http://hubpages.com/ 
@@ -21,6 +12,10 @@ sites:
     - name:                   "Yahoo! Answers"
       type:                   QASite
       entryURL:               http://answers.yahoo.com/
+      samplePage:             http://answers.yahoo.com/question/index;_ylt=Aq37IY1MNeNXqb7vCkedsdzj1KIX;_ylv=3?qid=20101205131053AAzLX15
+      samplePageQuestion:     What is the origin of the Christmas tree?
+      samplePageBestAnswer:   One of the earliest stories relating back to Germany is about Saint Boniface.
+      samplePageAllAnswers:   Jesus was NOT born on Christmas. In 350AD
       questionXPath:          "/html/body/div/div[2]/div[1]/div[1]/div[1]/div[2]/h1"
       bestAnswerXPath:        "/html/body/div/div[2]/div[1]/div[1]/div[2]/div[2]/div[1]"
       allAnswersXPath:        "/html/body/div[1]/div[2]/div[1]/div[2]/div[2]/ul[1]/li/div[1]/div[2]/div[1]"

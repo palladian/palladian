@@ -9,10 +9,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -123,6 +123,18 @@ public class QAExtractor extends Extractor {
     public void setAnswerClassifier(int type) {
         answerClassifier = new AnswerClassifier(type);
         answerClassifier.useTrainedClassifier();
+    }
+
+    public void checkHealth() {
+        loadSiteDescriptions();
+
+        for (QASite qaSite : qaSites) {
+
+            // FIXME
+            qaSite.getSamplePageURL();
+
+        }
+
     }
 
     /**
@@ -467,9 +479,8 @@ public class QAExtractor extends Extractor {
 
         // get features for each candidate and classify/rank each candidate
         Map<String, Double> rankedCandidateAnswers = new HashMap<String, Double>();
-        for (Iterator<String> iterator = filteredAnswerCandidates.iterator(); iterator.hasNext();) {
+        for (String answerCandidateXPath : filteredAnswerCandidates) {
 
-            String answerCandidateXPath = iterator.next();
             // System.out.println("xpath: " + answerCandidateXPath);
             // String answerContent = pa.getTextByXPath(answerCandidateXPath);
             String htmlAnswerContent = pa.getHTMLTextByXPath(answerCandidateXPath);
@@ -485,9 +496,7 @@ public class QAExtractor extends Extractor {
         // choose best ranked answer candidate
         String highestRankedXPath = "";
         double highestRank = -1.0;
-        for (Iterator<Map.Entry<String, Double>> iterator = rankedCandidateAnswers.entrySet().iterator(); iterator
-                .hasNext();) {
-            Map.Entry<String, Double> entry = iterator.next();
+        for (Entry<String, Double> entry : rankedCandidateAnswers.entrySet()) {
             if (entry.getValue() > highestRank) {
                 highestRankedXPath = entry.getKey();
                 highestRank = entry.getValue();
@@ -516,14 +525,10 @@ public class QAExtractor extends Extractor {
         String[] targetNodes = { "div", "p", "td", "h2", "h3", "h4", "h5", "h6", "font" };
         answerCandidates = PageAnalyzer.keepXPathPointingTo(answerCandidates, targetNodes);
 
-        for (Iterator<String> iterator = answerCandidates.iterator(); iterator.hasNext();) {
-            String xPath = iterator.next();
-
+        for (String xPath : answerCandidates) {
             // check if current xPath is prefix of question xPaths
             boolean isPrefix = false;
-            for (Iterator<String> iterator2 = questionXPaths.iterator(); iterator2.hasNext();) {
-                String string = iterator2.next();
-
+            for (String string : questionXPaths) {
                 if (string.startsWith(xPath)) {
                     isPrefix = true;
                     break;
@@ -684,7 +689,7 @@ public class QAExtractor extends Extractor {
 
         // TODO get tag distance
         // distances[0] = StringHelper.countTags(diffText);
-        //			
+        //
         // if (distances[0] == -1) {
         // distances[0] = 100;
         // }
@@ -713,7 +718,7 @@ public class QAExtractor extends Extractor {
             }
 
             int questionIndex = Integer.valueOf(listOfFiles[i].getName().replaceAll("webpage", "").replaceAll(".html",
-                    "")) - 1;
+            "")) - 1;
 
             String question = questions.get(questionIndex);
             if (question.endsWith("?")) {
@@ -742,15 +747,10 @@ public class QAExtractor extends Extractor {
             double topSim = 0.0;
             String mostSimString = "";
             LinkedHashSet<String> xPaths = pa.constructAllXPaths(" ");
-            for (Iterator<String> iterator = xPaths.iterator(); iterator.hasNext();) {
-                String xPath = iterator.next();
-                // System.out.println(xPath);
-
+            for (String xPath : xPaths) {
                 // check if current xPath is prefix of question xpaths
                 boolean isPrefix = false;
-                for (Iterator<String> iterator2 = qXpaths.iterator(); iterator2.hasNext();) {
-                    String string = iterator2.next();
-
+                for (String string : qXpaths) {
                     if (string.startsWith(xPath)) {
                         isPrefix = true;
                         break;
@@ -831,7 +831,7 @@ public class QAExtractor extends Extractor {
         System.exit(0);
 
         List<QA> qas = QAExtractor.getInstance().extractFAQ(
-                "http://www.abb.com/cawp/abbzh259/14ea3e81ca94263bc1256fbe0030e163.aspx");
+        "http://www.abb.com/cawp/abbzh259/14ea3e81ca94263bc1256fbe0030e163.aspx");
         // HashSet<QA> qas = QAExtractor.getInstance().extractFAQ("http://www.sony.com/faq.shtml");
         // HashSet<QA> qas = QAExtractor.getInstance().extractFAQ("http://csottointer.kissnofrog.com/info/faq");
 
@@ -850,10 +850,10 @@ public class QAExtractor extends Extractor {
         pa.setDocument(c.getDocument());
         CollectionHelper.print(pa.constructAllXPaths("need to survive Kids out there are"));
         System.out
-                .println("result: "
-                        + pa
-                                .getTextByXPath("/html/body/div/form/div/div/div[2]/div[2]/div[1]/div[1]/div[2]/div[2]/h1[1]/span[1]"
-                                        .toUpperCase()));
+        .println("result: "
+                + pa
+                .getTextByXPath("/html/body/div/form/div/div/div[2]/div[2]/div[1]/div[1]/div[2]/div[2]/h1[1]/span[1]"
+                        .toUpperCase()));
         System.out.println("result: "
                 + pa.getTextByXPath("/html/body/div[2]/div[1]/div[1]/div[1]/div[7]/div[3]/div[1]/div[2]/div[2]"
                         .toUpperCase()));
