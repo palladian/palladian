@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
+import java.util.regex.Pattern;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -19,7 +20,6 @@ import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.collections15.map.LazyMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -27,7 +27,6 @@ import org.xml.sax.helpers.DefaultHandler;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
-import tud.iir.web.Crawler;
 
 /**
  * This class converts various datasets to our Palladian internal format.
@@ -42,9 +41,14 @@ public class Datasetwriter {
 
     public static void main(String[] args) {
 
-        createCiteULike("/home/pk/PalladianData/datasets/KeyphraseExtraction/citeulike180/taggers", "/home/pk/PalladianData/datasets/KeyphraseExtraction/citeulike180/citeulike180index.txt");
+        // createCiteULike(
+        //        "/home/pk/PalladianData/datasets/KeyphraseExtraction/citeulike180/taggers",
+        //        "/home/pk/PalladianData/datasets/KeyphraseExtraction/citeulike180/citeulike180index.txt");
         // createFAO("/Users/pk/temp/fao780", "/Users/pk/temp/fao780.txt");
-        // createDeliciousT140("/Users/pk/Studium/Diplomarbeit/delicioust140", "/Users/pk/temp/deliciousT140");
+        
+        
+        
+        createDeliciousT140("/home/pk/DATASETS/delicioust140", "/home/pk/temp/deliciousT140");
 
     }
 
@@ -126,21 +130,26 @@ public class Datasetwriter {
     public static void createDeliciousT140(final String pathToDatasetDirectory, final String pathToResultDirectory) {
 
         // filter settings
-        final int minimumUsers = 50;
-        final float minimumUserTagRatio = 0.05f;
-        // final List<String> filetypes = Arrays.asList("html");
-        final String separatorCharacter = " ";
+        final int MINIMUM_USERS = 50;
+        final float MINIMUM_USER_TAG_RATIO = 0.05f;
+        final String SEPARATOR_CHARACTER = " ";
+        final Pattern TAG_MATCH_PATTERN = Pattern.compile("[a-z0-9\\-\\.\\+\\#]+"); // we are not interested in tags with foreign characters
 
-        final Counter counter = new Counter();
-        final Crawler crawler = new Crawler();
-        crawler.setFeedAutodiscovery(false);
 
-        final String pathToIndexFile = pathToResultDirectory + "/deliciousT140index.txt";
+        final String pathToIndexFile = pathToResultDirectory + "/deliciousT140index.txt"; // index file to create
+        final String pathToDocsSubdirectory = pathToResultDirectory + "/docs/"; // subdirectory where to place the txt files
 
+        // clean up in advance ...
         if (FileHelper.fileExists(pathToIndexFile)) {
             FileHelper.delete(pathToIndexFile);
         }
+        if (FileHelper.directoryExists(pathToDocsSubdirectory)) {
+            FileHelper.delete(pathToDocsSubdirectory);
+        }
 
+        final Counter parseCounter = new Counter();
+        final Counter acceptCounter = new Counter();
+        
         try {
 
             SAXParser parser = SAXParserFactory.newInstance().newSAXParser();
@@ -170,59 +179,54 @@ public class Datasetwriter {
                 public void endElement(String uri, String localName, String qName) throws SAXException {
                     catchText = false;
                     if (qName.equals("filename")) {
-                        this.filename = getText();
+                        filename = getText();
                     } else if (qName.equals("filetype")) {
-                        this.filetype = getText();
+                        filetype = getText();
                     } else if (qName.equals("users")) {
-                        this.users = Integer.parseInt(getText());
+                        users = Integer.parseInt(getText());
                     } else if (qName.equals("name")) {
-                        this.currentTag = getText();
+                        currentTag = getText();
                     } else if (qName.equals("weight")) {
-                        this.currentWeight = Integer.parseInt(getText());
+                        currentWeight = Integer.parseInt(getText());
                     } else if (qName.equals("tag")) {
-                        if ((float) currentWeight / users >= minimumUserTagRatio) {
-                            this.tags.add(this.currentTag);
+                        boolean accept = (float) currentWeight / users >= MINIMUM_USER_TAG_RATIO;
+                        accept = accept && TAG_MATCH_PATTERN.matcher(currentTag).matches();
+                        if (accept) {
+                            tags.add(currentTag);
                         }
                     } else if (qName.equals("document")) {
-                        // boolean accept = filetypes.isEmpty() || filetypes.contains(filetype);
-                        boolean accept = filetype.equals("html");
-                        accept = accept && users >= minimumUsers;
-                        accept = accept && !tags.isEmpty();
-
-                        if (accept) {
-
-                            counter.increment();
-
-                            if (counter.getCount() % 1000 == 0) {
-                                LOGGER.info("wrote " + counter + " lines.");
-                            }
-
-                            if (counter.getCount() == 10000) {
-                                System.exit(0);
-                            }
-
-                            write();
-
-                            // System.out.println(filename + "\t" + users + "\t" + filetype + "\t" + tags);
-                            // System.out.println(lineToWrite);
-                        }
-                        this.tags.clear();
+                        writeEntry();
+                        tags.clear();
+                        parseCounter.increment();
                     }
                 }
 
-                private void write() throws SAXException {
+                private void writeEntry() throws SAXException {
 
-                    String pathToHtmlFile = pathToDatasetDirectory + "/fdocuments/" + filename.substring(0, 2) + "/"
-                            + filename.replace(".html", ".txt");
-                    if (new File(pathToHtmlFile).length() > 60000) {
+                    String pathToSubdirectory = filename.substring(0, 2) + "/" + filename;
+                    String pathToHtmlFile = pathToDatasetDirectory + "/fdocuments/" + pathToSubdirectory;
+
+                    boolean accept = filetype.equals("html");
+                    accept = accept && users >= MINIMUM_USERS;
+                    accept = accept && !tags.isEmpty();
+                    accept = accept && !(new File(pathToHtmlFile).length() > 60000);
+
+                    if (!accept) {
                         return;
                     }
 
+                    // parse the HTML file
+                    String content = FileHelper.readFileToString(pathToHtmlFile);
+                    String cleanContent = HTMLHelper.htmlToString(content, false);
+                    
+                    if (cleanContent.length() < 100) {
+                        return;
+                    }
+                    
                     // //////////// write line to the index file ///////////////////
-
                     StringBuilder lineToWrite = new StringBuilder();
-                    lineToWrite.append(filename).append(separatorCharacter);
-                    lineToWrite.append(StringUtils.join(tags, separatorCharacter));
+                    lineToWrite.append(pathToSubdirectory.replace(".html", ".txt")).append(SEPARATOR_CHARACTER);
+                    lineToWrite.append(StringUtils.join(tags, SEPARATOR_CHARACTER));
                     lineToWrite.append("\n");
 
                     try {
@@ -232,15 +236,13 @@ public class Datasetwriter {
                     }
 
                     // //////////// create .txt files from HTML pages ///////////////
-
-                    // Document doc = crawler.getWebDocument(pathToHtmlFile);
-                    // String content = HTMLHelper.htmlToString(doc);
-
-                    String content = FileHelper.readFileToString(pathToHtmlFile);
-                    String cleanContent = HTMLHelper.htmlToString(content, false);
-
-                    FileHelper.writeToFile(pathToResultDirectory + "/" + filename.replace(".html", ".txt"),
-                            cleanContent);
+                    FileHelper.writeToFile(pathToDocsSubdirectory + pathToSubdirectory.replace(".html", ".txt"), cleanContent);
+                    
+                    acceptCounter.increment();
+                    
+                    if (acceptCounter.getCount() % 1000 == 0) {
+                        LOGGER.info("wrote " + acceptCounter + " entries; parsed " + parseCounter + " entries.");
+                    }
 
                 }
 
@@ -271,7 +273,7 @@ public class Datasetwriter {
             LOGGER.error(e);
         }
 
-        LOGGER.info("done. wrote " + counter + " lines to " + pathToIndexFile);
+        LOGGER.info("done. wrote " + acceptCounter + " lines to " + pathToIndexFile);
 
     }
 

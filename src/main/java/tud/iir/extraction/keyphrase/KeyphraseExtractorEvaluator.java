@@ -57,17 +57,17 @@ public class KeyphraseExtractorEvaluator {
         LOGGER.info("evaluating " + extractor.getExtractorName() + " with " + dataset);
         StopWatch sw = new StopWatch();
 
-        createTrainTestData(dataset);
+        /////// XXX createTrainTestData(dataset);
 
         // train, if applicable
-        if (extractor.needsTraining()) {
-            Dataset trainingDataset = new Dataset();
-            trainingDataset.setPath(TEMP_TRAINING_DATA);
-            trainingDataset.setRootPath(dataset.getRootPath());
-            trainingDataset.setSeparationString(dataset.getSeparationString());
-            trainingDataset.setFirstFieldLink(dataset.isFirstFieldLink());
-            extractor.train(trainingDataset);
-        }
+//        if (extractor.needsTraining()) {
+//            Dataset trainingDataset = new Dataset();
+//            trainingDataset.setPath(TEMP_TRAINING_DATA);
+//            trainingDataset.setRootPath(dataset.getRootPath());
+//            trainingDataset.setSeparationString(dataset.getSeparationString());
+//            trainingDataset.setFirstFieldLink(dataset.isFirstFieldLink());
+//            extractor.train(trainingDataset);
+//        }
 
         // testing set
         Dataset testingDataset = new Dataset();
@@ -96,8 +96,8 @@ public class KeyphraseExtractorEvaluator {
 
         String fileToSeparate = dataset.getPath();
         int trainingDataPercentage = dataset.getUsePercentTraining();
-        // XXX boolean randomlyChooseLines = true;
-        boolean randomlyChooseLines = false;
+        boolean randomlyChooseLines = true;
+        // boolean randomlyChooseLines = false; // XXX
 
         try {
             separation.separateFile(fileToSeparate, TEMP_TRAINING_DATA, TEMP_TESTING_DATA, trainingDataPercentage,
@@ -144,7 +144,7 @@ public class KeyphraseExtractorEvaluator {
                 // depending of the Dataset settings
                 String text = split[0];
                 if (dataset.isFirstFieldLink()) {
-                    text = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
+                    text = FileHelper.readFileToString(dataset.getRootPath() + "/" + split[0]);
                 }
 
                 // automatically extract keyphrases
@@ -243,7 +243,7 @@ public class KeyphraseExtractorEvaluator {
 
     public static void main(String[] args) {
 
-        KeyphraseExtractor palladianKeyphraseExtractor = new PalladianKeyphraseExtractor();
+        // KeyphraseExtractor palladianKeyphraseExtractor = new PalladianKeyphraseExtractor();
         // KeyphraseExtractor alchemyKeyphraseExtractor = new AlchemyKeywordExtraction();
         KeyphraseExtractor mauiKeyphraseExtractor = new MauiKeyphraseExtractor();
         // extractor = new FiveFiltersTermExtraction();
@@ -251,8 +251,8 @@ public class KeyphraseExtractorEvaluator {
 
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
 
-        evaluator.addExtractor(palladianKeyphraseExtractor);
-        // evaluator.addExtractor(mauiKeyphraseExtractor);
+        // evaluator.addExtractor(palladianKeyphraseExtractor);
+        evaluator.addExtractor(mauiKeyphraseExtractor);
 
         Dataset dataset = new Dataset();
         // dataset.setPath("/Users/pk/temp/citeulike180/citeulike180index.txt");
@@ -262,11 +262,11 @@ public class KeyphraseExtractorEvaluator {
 
         // dataset.setSeparationString("#");
         
-        dataset.setPath("/Users/pk/temp/deliciousT140/deliciousT140index.txt");
+        dataset.setPath("/home/pk/temp/deliciousT140/deliciousT140index.txt");
         dataset.setSeparationString(" ");
-        
         dataset.setFirstFieldLink(true);
-        dataset.setUsePercentTraining(90);
+        dataset.setRootPath("/home/pk/temp/deliciousT140/docs");
+        dataset.setUsePercentTraining(50);
 
         evaluator.evaluate(dataset, 1);
 

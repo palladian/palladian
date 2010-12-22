@@ -51,6 +51,8 @@ import weka.core.Instances;
  * and mapping it to our common interface.
  * 
  * TODO removed Wikipedia stuff for now, to fix build problems on Hudson.
+ * TODO memory leak in Weka? http://comments.gmane.org/gmane.comp.ai.weka/22860
+ * TODO there is a f**** memory leak some where, updating to newest Weka doesnt help. Wasted hours until now: 4.
  * 
  * http://code.google.com/p/maui-indexer/
  * 
@@ -81,7 +83,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
     /** Build global dictionaries from the test set. */
     private boolean buildGlobalDictionary = false;
-
+    
     /** Debugging mode? */
     private boolean debugMode = false;
 
@@ -131,7 +133,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     public void train(String inputText, Set<String> keyphrases, int index) {
         
         // XXX
-        if (index > 2000){
+        if (index > 1500){
             return;
         }
 
@@ -139,7 +141,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
         double[] newInst = new double[3];
 
-        newInst[0] = (double) data.attribute(0).addStringValue(String.valueOf(inputText.hashCode()));
+        newInst[0] = (double) data.attribute(0).addStringValue("inputFile"); // just a dummy
         newInst[1] = (double) data.attribute(1).addStringValue(inputText);
         newInst[2] = (double) data.attribute(2).addStringValue(StringUtils.join(keyphrases, "\n"));
 
@@ -211,6 +213,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     private void loadModel() {
         LOGGER.trace(">loadModel");
         StopWatch sw = new StopWatch();
+        mauiFilter = null;
 
         try {
 
@@ -232,7 +235,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
             LOGGER.error(e);
         }
 
-        LOGGER.info("loaded model in " + sw.getElapsedTime());
+        LOGGER.info("loaded model in " + sw.getElapsedTimeString());
         LOGGER.trace("<loadModel");
     }
 
@@ -249,7 +252,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         Set<Keyphrase> result = new HashSet<Keyphrase>();
 
         double[] newInst = new double[3];
-        newInst[0] = (double) data.attribute(0).addStringValue(String.valueOf(inputText.hashCode()));
+        newInst[0] = (double) data.attribute(0).addStringValue("inputFile"); // just a dummy
         newInst[1] = (double) data.attribute(1).addStringValue(inputText);
         newInst[2] = Instance.missingValue();
         data.add(new Instance(1.0, newInst));
@@ -279,7 +282,8 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
             if (topRankedInstances[i] != null) {
 
                 // Candidate_original is at position 1
-                String text = topRankedInstances[i].stringValue(1);
+                // String text = topRankedInstances[i].stringValue(1);
+                String text = topRankedInstances[i].stringValue(mauiFilter.getOutputFormIndex());
                 double probability = topRankedInstances[i].value(mauiFilter.getProbabilityIndex());
 
                 LOGGER.debug(text + " " + probability);
@@ -287,6 +291,15 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
             }
         }
 
+        // XXX
+        try {
+            mauiFilter.batchFinished();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        
+        
         LOGGER.trace("<extract");
         return result;
     }
