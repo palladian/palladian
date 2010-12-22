@@ -857,7 +857,9 @@ public class FileHelper {
                 return false;
             } else {
                 for (File directoryFile : f.listFiles()) {
-                    directoryFile.delete();
+                    // directoryFile.delete();
+                    // changed this to work recursively -- Philipp, 2010-12-22.
+                    delete(directoryFile.getPath(), true);
                 }
             }
         }
@@ -1209,6 +1211,17 @@ public class FileHelper {
             return true;
         }
         return false;
+    }
+    
+    /**
+     * Check if specified directory exists.
+     * 
+     * @param directoryPath
+     * @return
+     */
+    public static boolean directoryExists(String directoryPath) {
+        File file = new File(directoryPath);
+        return file.exists() && file.isDirectory();
     }
 
     public static boolean createDirectory(String directoryPath) {
