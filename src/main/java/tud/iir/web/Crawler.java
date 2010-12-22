@@ -1641,10 +1641,10 @@ public class Crawler {
         binFile = new File(pathWithFileName);
         try {
             u = new URL(urlString);
-            final BufferedInputStream in = new BufferedInputStream(u.openStream());
-            final BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
+            BufferedInputStream in = new BufferedInputStream(u.openStream());
+            BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(binFile));
 
-            final byte[] buffer = new byte[4096];
+            byte[] buffer = new byte[4096];
 
             int n = 0;
             while ((n = in.read(buffer)) != -1) {

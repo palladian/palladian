@@ -60,7 +60,7 @@ public class RolePageDatabase {
     private void prepareStatements() throws SQLException {
         // // prepared statements for feeds
         final Connection connection = DatabaseManager.getInstance().getConnection();
-        psGetRolePages = connection.prepareStatement("SELECT * FROM rolepages WHERE conceptID = ?"); // `rolepages`
+        psGetRolePages = connection.prepareStatement("SELECT * FROM rolepages WHERE conceptID = ?");
         psUpdateRolePage = connection.prepareStatement("UPDATE rolepages SET url = ?, count = ? WHERE id = ?");
         psInsertRolePage = connection.prepareStatement("INSERT INTO rolepages SET url = ?,count = ?, conceptID = ?");
         psRemoveUnrelevantRolePage = connection.prepareStatement("DELETE FROM rolepages WHERE count < ?");
@@ -125,7 +125,7 @@ public class RolePageDatabase {
      */
     public List<RolePage> loadAllRolePagesForConcept(final Concept concept) {
 
-        final ArrayList<RolePage> dbRolePages = new ArrayList<RolePage>();
+        ArrayList<RolePage> dbRolePages = new ArrayList<RolePage>();
 
         ResultSet resultSet = null;
         try {
