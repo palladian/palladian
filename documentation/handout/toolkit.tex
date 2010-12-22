@@ -62,21 +62,21 @@
 \tableofcontents
 
 \chapter{Introduction}
-Internet Information Retrieval (IIR) is a research domain in computer science that is concerned with the retrieval, extraction, classification, and presentation of information from the Internet. This toolkit provides functionality which is often needed to perform IIR tasks such as crawling, classification, and extraction of various information types.
+Internet Information Retrieval (IIR) is a research domain in computer science concerned with the retrieval, extraction, classification, and presentation of information from the Internet. The toolkit provides functionality which is often needed to perform IIR tasks such as crawling, classification, and extraction of various types of information.
 
-\section{What is Palladian?}
+\section{What Palladian is}
 %TODO contributions
-Palladian is a collection of algorithms for text processing with focus on {\textbf classification}, {\textbf extraction}, and {\textbf retrieval}. The idea of Palladian is to reuse algorithms that are freely available and build upon them to drive research. When trying to learn and advance in a new field of research, one has to play around with a lot of code snippets from many different authors, this toolkit tries to ease this process too by making external libraries accessible through a single interface. This way new algorithms can be quickly compared to the state-of-the-art.
-Only the best results of students theses from the Dresden University of Technology find their way into the toolkit allowing all users to create more advanced programs in the future.
+Palladian is a collection of algorithms for text processing focused on {\textbf classification}, {\textbf extraction}, and {\textbf retrieval}. The concept of Palladian is system to reuse algorithms that are freely available and build upon them to drive research. When trying to learn and advance in a new field of research, one has to play around with many code snippets from various authors, this toolkit tries to ease this process by making external libraries accessible through a single interface. This way new algorithms can be quickly compared to the state-of-the-art.
+The best results from students at the Dresden University of Technology find their way into the toolkit allowing other users to create more advanced programs in the future.
 
 Our main contributions to the research community are:
 \begin{enumerate}
 \item New algorithms in the fields of classification and extraction that can easily be tested and applied to other projects.
-\item Bundling existing, well-established algorithms for the use through a single interface.
-\item Help making research more transparent by allowing to reproduce results with the included algorithms.
+\item Single interface access to bundles of well established algorithms.
+\item Helping make research more transparent by fomenting users to reproduce results with the included algorithms.
 \end{enumerate}
 
-Figure \ref{fig:architecture} shows the main packages of Palladian. You can see that the focus is on retrieval (Crawler, API access, feed reading...), preprocessing (tokenization, sentence splitting...), classification (KNN, Dictionary Classifier...), and extraction (named entities, tags...).
+Figure \ref{fig:architecture} shows the main packages of Palladian. The focus is evidently on retrieval (Crawler, API access, feed reading...), preprocessing (tokenization, sentence splitting...), classification (KNN, Dictionary Classifier...), and extraction (named entities, tags...).
 
 \begin{figure}[ht!]
 \centering
@@ -85,11 +85,11 @@ Figure \ref{fig:architecture} shows the main packages of Palladian. You can see 
 \label{fig:architecture}
 \end{figure}
 
-\section{What is Palladian NOT?}
-Palladian is not a complete natural language processing suite nor does it contain a {\textit complete} set of algorithms in any of the fields of classificatilds of classification, extraction, and information retrieval on, extraction, or information retrieval. Palladian is not commercial either, we like to answer questions as soon and comprehensive as possible but cannot guarantee this support.
+\section{What Palladian is NOT}
+Palladian is not a full natural language processing suite nor does it contain a {\textit full} set of algorithms in the fields of classification, extraction, and information retrieval. Palladian is not a commercial product either, we like to answer questions as soon and comprehensive as possible but cannot guarantee this support.
 
-\section{Who is the Intended Audience?}
-All algorithms are developed during scientific endeavors and therefore are also most likely to help other researchers who don't need perfect, bug-free software in commercial systems. In general everybody is welcome to use Palladian though.
+\section{Who the Intended User is}
+In general everybody is welcome to use Palladian, but the researchers that would develop algorithms and would like to quickly test or compare them are the focus. Researchers likely to help other researchers, that won't mind a software that is not perfect, bug-free or commercial.
 
 \section{License}
 The complete source code is licensed under the Apache License 2.0. All source files should include the following license snippet at the very top.
@@ -111,8 +111,9 @@ limitations under the License.
 
 \section{Alternative and Complimentary Toolkits}
 \label{sec:alternativesToPalladian}
-Some functionalities of this toolkit are covered in other libraries. Before you start using Palladian you might want to take a look at these alternatives. The objective of Palladian is to create new functionalities or improve existing ones, we do not intend to reinvent the wheel. For example, Palladian has no functionality for part-of-speech tagging (PoS tagging) since there are many toolkits that do this task pretty accurate already. In case you do not find the functionality you are looking for in this toolkit, you probably will in one of the following toolkits.
+Some functionalities of this toolkit are covered in other libraries. If you can't find the functionality you need in Palladian you might want to take a look at these alternatives. Some of the objectives of Palladian are to create new functionalities or improve existing ones, not to reinvent the wheel and redo work that functions well in other libraries.
 
+%TODO clean up list, bullets or table of services
 \begin{enumerate}
 \item \textbf{AlchemyAPI} \cite{alchemyapi} is a commercial web-service that can be used via several programming languages. The service offers named entity recognition, text classification, language identification, concept tagging, keyword extraction, content scraping, and web page cleaning.
 The service comes in 4 variants: free, basic, professional, and metered.
@@ -163,12 +164,12 @@ The library is licensed under the GNU General Public License.
 \end{enumerate}
 
 \chapter{Installation and Making it Work}
-Palladian is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on every commit using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.redmine.org/}{Redmine bugtracker}. The project encoding must be set to UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
+Palladian is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on every commit using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.redmine.org/}{Redmine bugtracker}. The project encoding is UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
 
-At the moment each of the systems manages its own user base so you need to register with each one individually. When you start working with the toolkit you might consider sending an E-Mail to the administrator to get access to Mantis, Nexus and Hudson. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
+Currently each systems manages its own user base so registration is needed for each one. To start working with the toolkit you should send an E-Mail to a toolkit administrator to get access to the systems. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
 \section{Building Palladian using Apache Maven}
 \label{sec:buildingthetoolkitusingapachemaven}
-Apache \textbf{Maven needs to be installed} before building the toolkit. How to do this is explained here: \href{http://maven.apache.org/download.html#Installation}{Maven installation}. There is one necessary manual step before you can start building the toolkit. You need to add our Nexus repository to your local maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content:
+Apache \textbf{Maven needs to be installed} to build the toolkit. Instructions for how to \href{http://maven.apache.org/download.html#Installation}{install Maven} can be found in the link. There is one manual step before you can start building the toolkit. You need to add our Nexus repository to your local Maven settings. Do this by \textbf{locating or creating the settings.xml file in your local home folder:} \texttt{\%YOUR\_HOME\_FOLDER\%/.m2/settings.xml} and adding the following content, replacing both user and password as provided by the toolkit administrator:
 \begin{verbatim}
 <settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -201,9 +202,9 @@ You need to set your username and your password in the server section. This can 
 \item Change to the toolkits root folder.
 \item Type \texttt{mvn clean install} to start the build process.
 \end{enumerate}
-There also is an \href{http://m2eclipse.sonatype.org/}{Eclipse plugin}, that allows you to issue maven build from within Eclipse. It is quite beta so be careful with it.
+There is also an \href{http://m2eclipse.sonatype.org/}{Eclipse plugin}, that allows you to issue maven build from within Eclipse. It is quite beta so it may present some issues.
 \section{Regular Builds and Tests using Hudson CI}
-Currently Palladian is build automatically every week using Hudson CI. Be careful to check in only working code or Hudson will send you and your advisor an E-Mail about broken code. If this happens try to fix your code as fast as possible and check in again. You can get details about the problem by logging into \href{http://www.effingo.de/hudson}{Hudson}. You can get a login by sending an E-Mail stating your advisor and why you nood to work with the toolkit to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de}
+Currently Palladian is build automatically every week using Hudson CI. Be careful to check in only working code or Hudson will send you and your advisor an E-Mail about broken code. If this happens try to fix your code as soon as possible and check it in again. You can get details about the problem by logging into \href{http://www.effingo.de/hudson}{Hudson}. You can get a login by sending an E-Mail stating your advisor and why you need to work with the toolkit to \href{mailto:klemens.muthmann@tu-dresden.de}{klemens.muthmann@tu-dresden.de}
 \subsection{The Continuous Integration Game}
 \label{sec:cigame}
 Hudson supports a game that rewards people committing code that improves the toolkit and punishing people breaking it. The leader (the person having the most points) is highly valued by the toolkit committers community. The rules for the game are explained in detail in the next section.
@@ -277,7 +278,7 @@ The Maven plugin adds the dependency to your pom.xml file, which should look lik
 \caption{POM with added dependency on the TUD Palladian toolkit.}
 \label{fig:pom01}
 \end{figure}
-\paragraph{Configuring your project} Since Maven by default still uses Java 1.4 (very conservative), but the toolkit depends on Java 1.6 (very visionary) you need to configure the Maven Java compiler plugin to use Java 1.6 by adding the following markup to your pom.xml (add it after the description element):
+\paragraph{Configuring your project} Since Maven by default still uses Java 1.4 (conservative), but the toolkit depends on Java 1.6 (current) you need to configure the Maven Java compiler plugin to use Java 1.6 by adding the following markup to your pom.xml (add it after the description element):
 \begin{verbatim}
 <build>
  <plugins>
@@ -301,7 +302,7 @@ The Maven plugin adds the dependency to your pom.xml file, which should look lik
  </plugins>
 </build>
 \end{verbatim}
-The same step is necessary to tell Eclipse that it should use Java 1.6 instead of 1.4. For this purpose open the project properties via the context menu for example. In the tree to the left choose \textit{Java Compiler} and change all three entries to 1.6. This is shown in Fig.~\ref{fig:java602} and Fig.~\ref{fig:java603}.
+It is also necessary to tell Eclipse to use Java 1.6 instead of 1.4. To do this open the project properties via the context menu and choose \textit{Java Compiler} there change all three entries to 1.6. This is shown in Fig.~\ref{fig:java602} and Fig.~\ref{fig:java603}.
 \begin{figure}
 \centering
 \includegraphics[width=\textwidth]{img/ht08.png}
@@ -314,14 +315,14 @@ The same step is necessary to tell Eclipse that it should use Java 1.6 instead o
 \caption{configure Eclipse to use Java 1.6}
 \label{fig:java603}
 \end{figure}
-\paragraph{Writing your first Palladian} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search bing for the term "Hello Palladian". The example is also shown in Fig.~\ref{fig:hellotoolkit}.
+\paragraph{Writing your first Palladian} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search bing for a string term . The example is also shown in Fig.~\ref{fig:hellotoolkit}.
 \begin{figure}
 \centering
 \includegraphics[trim=0 350px 600px 0,clip=true,width=\textwidth]{img/ht10.png}
 \caption{"Hello Palladian" Code}
 \label{fig:hellotoolkit}
 \end{figure}
-For the code to work you need three additional files that are already in the config folder in the toolkit project. These are \texttt{crawler.conf}, \texttt{apikeys.conf} and \texttt{feeds.conf}. You need to copy them to \texttt{src/main/resources/config}. The folder \texttt{src/main/resources} usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
+For the code to work you need copy three files from the config folder in the toolkit project to the config in the source code. These are \texttt{crawler.conf}, \texttt{apikeys.conf} and \texttt{feeds.conf}. You need to copy them to \texttt{src/main/resources/config}. The folder \texttt{src/main/resources} usually contains all resources that are not Java files but are required by your code. All files are shown in Fig.~\ref{fig:resource01}, \ref{fig:resource02} and \ref{fig:resource03}. Fig.~\ref{fig:structure} shows the final directory and file structure of your project.
 
 \begin{figure}
 \centering
