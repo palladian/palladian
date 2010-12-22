@@ -115,13 +115,9 @@
 							<!-- Optional -->
 							<onejarVersion>0.97</onejarVersion>
 
-							<!--
-								Optional, use only if you need to include native libraries
-								(dll's) <binlibs> <fileSet>
-								<directory>${project.build.directory}/dllextract</directory>
-								<includes> <include>test.dll</include> </includes> </fileSet>
-								</binlibs>
-							-->
+							<!-- Optional, use only if you need to include native libraries (dll's) 
+								<binlibs> <fileSet> <directory>${project.build.directory}/dllextract</directory> 
+								<includes> <include>test.dll</include> </includes> </fileSet> </binlibs> -->
 
 							<!-- Optional, default is false -->
 							<attachToBuild>false</attachToBuild>
@@ -276,10 +272,8 @@
 			<artifactId>stanfordner</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!--
-			<dependency> <groupId>edu.illinois</groupId>
-			<artifactId>lbj2</artifactId> <version>1.0</version> </dependency>
-		-->
+		<!-- <dependency> <groupId>edu.illinois</groupId> <artifactId>lbj2</artifactId> 
+			<version>1.0</version> </dependency> -->
 		<dependency>
 			<groupId>edu.illinois</groupId>
 			<artifactId>lbj2library</artifactId>
@@ -375,11 +369,8 @@
 			<artifactId>javaswf</artifactId>
 			<version>1.0</version>
 		</dependency>
-		<!--
-			<dependency> <groupId>tud.iir.external</groupId>
-			<artifactId>lbjEdited</artifactId> <version>1.2</version>
-			</dependency>
-		-->
+		<!-- <dependency> <groupId>tud.iir.external</groupId> <artifactId>lbjEdited</artifactId> 
+			<version>1.2</version> </dependency> -->
 		<dependency>
 			<groupId>tud.iir.external</groupId>
 			<artifactId>opennlp</artifactId>
@@ -443,7 +434,7 @@
 		<dependency>
 			<groupId>de.tud.cs.iir</groupId>
 			<artifactId>PalladianExternalCode</artifactId>
-			<version>0.7</version>
+			<version>0.7.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.lingway.ld</groupId>
