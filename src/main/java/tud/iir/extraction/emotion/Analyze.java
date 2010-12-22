@@ -138,7 +138,7 @@ public class Analyze {
         String [] values;
 
         try {
-            myFile = new FileReader("config/emotionDictionary_German.csv");
+            myFile = new FileReader("config/emotionDictionary_german.csv");
             buff = new BufferedReader(myFile);
             while (true) {
                 String line = buff.readLine();
