@@ -2,7 +2,6 @@ package tud.iir.extraction.qa;
 
 import java.io.Serializable;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -35,8 +34,20 @@ public class QASite implements Serializable {
     /** The maximum number of URLs that are crawled, -1 is infinity. */
     private int maximumURLs = -1;
 
-    /** the first URL to start the crawling process. */
+    /** The first URL to start the crawling process. */
     private String entryURL = "";
+
+    /** The URL of a page with a question and answer. */
+    private String samplePageURL = "";
+
+    /** The question of that sample page. */
+    private String samplePageQuestion = "";
+
+    /** A part of the best rated answer of that page. */
+    private String samplePageBestAnswer = "";
+
+    /** A part of another answer that belongs not to the best answer. */
+    private String samplePageAllAnswers = "";
 
     /** The xPath that points to the question. */
     private String questionXPath = "";
@@ -99,6 +110,12 @@ public class QASite implements Serializable {
         setType((String) siteInformation.get("type"));
         setMaximumURLs(siteInformation.get("maximumURLs"));
         setEntryURL((String) siteInformation.get("entryURL"));
+
+        setSamplePageURL((String) siteInformation.get("samplePageURL"));
+        setSamplePageQuestion((String) siteInformation.get("samplePageQuestion"));
+        setSamplePageBestAnswer((String) siteInformation.get("samplePageBestAnswer"));
+        setSamplePageAllAnswers((String) siteInformation.get("samplePageAllAnswers"));
+
         setQuestionXPath((String) siteInformation.get("questionXPath"));
 
         setBestAnswerXPath((String) siteInformation.get("bestAnswerXPath"));
@@ -164,6 +181,38 @@ public class QASite implements Serializable {
         this.entryURL = entryURL;
     }
 
+    public String getSamplePageURL() {
+        return samplePageURL;
+    }
+
+    public void setSamplePageURL(String samplePageURL) {
+        this.samplePageURL = samplePageURL;
+    }
+
+    public String getSamplePageQuestion() {
+        return samplePageQuestion;
+    }
+
+    public void setSamplePageQuestion(String samplePageQuestion) {
+        this.samplePageQuestion = samplePageQuestion;
+    }
+
+    public String getSamplePageBestAnswer() {
+        return samplePageBestAnswer;
+    }
+
+    public void setSamplePageBestAnswer(String samplePageBestAnswer) {
+        this.samplePageBestAnswer = samplePageBestAnswer;
+    }
+
+    public String getSamplePageAllAnswers() {
+        return samplePageAllAnswers;
+    }
+
+    public void setSamplePageAllAnswers(String samplePageAllAnswers) {
+        this.samplePageAllAnswers = samplePageAllAnswers;
+    }
+
     public String getQuestionXPath() {
         return questionXPath.toUpperCase();
     }
@@ -226,9 +275,7 @@ public class QASite implements Serializable {
         QAUrl greenPrefixUrl = null;
         QAUrl yellowPrefixUrl = null;
         QAUrl nonRedPrefixUrl = null;
-        for (Iterator<QAUrl> iterator = urlStack.iterator(); iterator.hasNext();) {
-            QAUrl qaUrl = iterator.next();
-
+        for (QAUrl qaUrl : urlStack) {
             int depthCount = getUrlDepth(qaUrl.getUrl());
 
             if (greenPrefixCreated() && qaUrl.getUrl().startsWith(getGreenPrefix()) && !hasRedPrefix(qaUrl.getUrl()) && getGreenPrefix().length() > 0) {
