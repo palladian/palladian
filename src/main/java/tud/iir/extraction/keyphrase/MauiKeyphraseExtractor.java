@@ -32,7 +32,6 @@ import maui.main.MauiTopicExtractor;
 import maui.stemmers.PorterStemmer;
 import maui.stemmers.Stemmer;
 import maui.stopwords.Stopwords;
-import maui.stopwords.StopwordsEnglish;
 import maui.vocab.Vocabulary;
 
 import org.apache.commons.lang.StringUtils;
@@ -76,7 +75,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     private String vocabularyDirectory = "data/vocabularies";
 
     /** List of stopwords to be used */
-    private Stopwords stopwords = new StopwordsEnglish("data/stopwords/stopwords_en.txt");
+    private Stopwords stopwords = new Stopwords("stopwords_en.txt");
 
     private Vocabulary vocabulary = null;
 
@@ -573,13 +572,16 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     }
 
     public static void main(String[] args) {
+        
+        MauiKeyphraseExtractor extractor = new MauiKeyphraseExtractor();
+        System.exit(0);
+        
 
         Dataset trainingDataset = new Dataset();
         trainingDataset.setPath("/home/pk/Desktop/documents/citeulike180splitaa.txt");
         trainingDataset.setSeparationString("#");
         trainingDataset.setFirstFieldLink(true);
 
-        KeyphraseExtractor extractor = new MauiKeyphraseExtractor();
         extractor.train(trainingDataset);
         extractor.setKeyphraseCount(20);
 

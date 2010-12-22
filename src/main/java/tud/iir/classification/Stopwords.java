@@ -79,6 +79,10 @@ public class Stopwords extends HashSet<String> {
         BufferedReader br = new BufferedReader(new InputStreamReader(stream));
         FileHelper.performActionOnEveryLine(br, readLineAction);
     }
+    
+    public boolean isStopword(String string) {
+        return contains(string);
+    }
 
     @Override
     public boolean add(String e) {
@@ -101,6 +105,12 @@ public class Stopwords extends HashSet<String> {
     }
 
     public static void main(String[] args) {
+        
+        Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
+        System.out.println(stopwords.contains("and"));
+        System.out.println(stopwords.contains("edurdo"));
+        
+        
         // Stopwords stopwords = new Stopwords();
         // System.out.println(stopwords.contains("The"));
         // System.out.println(stopwords);
