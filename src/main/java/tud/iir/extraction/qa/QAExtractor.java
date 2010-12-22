@@ -128,71 +128,99 @@ public class QAExtractor extends Extractor {
         answerClassifier.useTrainedClassifier();
     }
 
-    public void checkHealth() {
-        loadSiteDescriptions();
+    public boolean isHealthy(QASite qaSite) {
+        boolean healthy = true;
 
         Crawler crawler = new Crawler();
 
+        LOGGER.info("check health of page configuration: " + qaSite.getName());
+
+        // load sample page
+        Document webPage = crawler.getWebDocument(qaSite.getSamplePageURL());
+
+        pa.setDocument(webPage);
+
+        // check whether question xPath really points to question.
+        String questionTextPage = pa.getTextByXPath(qaSite.getQuestionXPath()).trim();
+        boolean questionMatches = questionTextPage.equalsIgnoreCase(qaSite.getSamplePageQuestion());
+
+        if (questionMatches) {
+            LOGGER.info("SUCCESS: question matches.");
+        } else {
+            healthy = false;
+            Set<String> xPaths = pa.constructAllXPaths(qaSite.getSamplePageQuestion(), false, true);
+            XPathSet xps = new XPathSet();
+            xps.add(xPaths);
+            String correctXPath = xps.getLongestXPath().replace("xhtml:", "");
+            LOGGER.info("FAILURE: questions don't match: \"" + questionTextPage + "\" != \""
+                    + qaSite.getSamplePageQuestion() + "\"");
+            LOGGER.info("       : old xpath: " + qaSite.getQuestionXPath() + " | new xpath: " + correctXPath);
+        }
+
+        // check whether best answer xPath really points to best answer.
+        String bestAnswerTextPage = pa.getTextByXPath(qaSite.getBestAnswerXPath());
+        boolean bestAnswerMatches = bestAnswerTextPage.indexOf(qaSite.getSamplePageBestAnswer()) > -1;
+
+        if (bestAnswerMatches) {
+            LOGGER.info("SUCCESS: best answer matches.");
+        } else {
+            healthy = false;
+            Set<String> xPaths = pa.constructAllXPaths(qaSite.getSamplePageBestAnswer());
+            XPathSet xps = new XPathSet();
+            xps.add(xPaths);
+            String correctXPath = xps.getLongestXPath().replace("xhtml:", "");
+            LOGGER.info("FAILURE: best answer doesn't match: \"" + bestAnswerTextPage + "\" <does not contain> \""
+                    + qaSite.getSamplePageBestAnswer() + "\"");
+            LOGGER.info("       : old xpath: " + qaSite.getBestAnswerXPath() + " | new xpath: " + correctXPath);
+        }
+
+        // check whether all answers xPath really points to the best answers.
+        String allAnswersTextPage = pa.getTextByXPath(qaSite.getAllAnswersXPath());
+        boolean allAnswersMatches = allAnswersTextPage.indexOf(qaSite.getSamplePageAllAnswers()) > -1;
+
+        if (allAnswersMatches) {
+            LOGGER.info("SUCCESS: all answers part matches.");
+        } else {
+            healthy = false;
+            Set<String> xPaths = pa.constructAllXPaths(qaSite.getSamplePageAllAnswers());
+            XPathSet xps = new XPathSet();
+            xps.add(xPaths);
+            String correctXPath = xps.getLongestXPath().replace("xhtml:", "");
+            correctXPath = PageAnalyzer.removeXPathIndices(correctXPath);
+            LOGGER.info("FAILURE: all answers don't match: \"" + allAnswersTextPage + "\" <does not contain> \""
+                    + qaSite.getSamplePageAllAnswers() + "\"");
+            LOGGER.info("       : old xpath: " + qaSite.getAllAnswersXPath() + " | new xpath: " + correctXPath);
+        }
+
+        return healthy;
+    }
+
+    public boolean checkHealth() {
+
+        boolean allHealthy = true;
+
+        boolean continueQAExtraction = ExtractionProcessManager.isContinueQAExtraction();
+        ExtractionProcessManager.setContinueQAExtraction(false);
+        loadSiteDescriptions();
+
         for (QASite qaSite : qaSites) {
 
-            LOGGER.info("check health of page configuration: " + qaSite.getName());
-
-            // load sample page
-            Document webPage = crawler.getWebDocument(qaSite.getSamplePageURL());
-
-            pa.setDocument(webPage);
-
-            // check whether question xPath really points to question.
-            String questionTextPage = pa.getTextByXPath(qaSite.getQuestionXPath()).trim();
-            boolean questionMatches = questionTextPage.equalsIgnoreCase(qaSite.getSamplePageQuestion());
-
-            if (questionMatches) {
-                LOGGER.info("SUCCESS: question matches.");
-            } else {
-                Set<String> xPaths = pa.constructAllXPaths(qaSite.getSamplePageQuestion(), false, true);
-                XPathSet xps = new XPathSet();
-                xps.add(xPaths);
-                String correctXPath = xps.getLongestXPath().replace("xhtml:", "");
-                LOGGER.info("FAILURE: questions don't match: \"" + questionTextPage + "\" != \""
-                        + qaSite.getSamplePageQuestion() + "\"");
-                LOGGER.info("       : old xpath: " + qaSite.getQuestionXPath() + " | new xpath: " + correctXPath);
-            }
-
-            // check whether best answer xPath really points to best answer.
-            String bestAnswerTextPage = pa.getTextByXPath(qaSite.getBestAnswerXPath());
-            boolean bestAnswerMatches = bestAnswerTextPage.indexOf(qaSite.getSamplePageBestAnswer()) > -1;
-
-            if (bestAnswerMatches) {
-                LOGGER.info("SUCCESS: best answer matches.");
-            } else {
-                Set<String> xPaths = pa.constructAllXPaths(qaSite.getSamplePageBestAnswer());
-                XPathSet xps = new XPathSet();
-                xps.add(xPaths);
-                String correctXPath = xps.getLongestXPath().replace("xhtml:", "");
-                LOGGER.info("FAILURE: best answer doesn't match: \"" + bestAnswerTextPage + "\" <does not contain> \""
-                        + qaSite.getSamplePageBestAnswer() + "\"");
-                LOGGER.info("       : old xpath: " + qaSite.getBestAnswerXPath() + " | new xpath: " + correctXPath);
-            }
-
-            // check whether all answers xPath really points to the best answers.
-            String allAnswersTextPage = pa.getTextByXPath(qaSite.getAllAnswersXPath());
-            boolean allAnswersMatches = allAnswersTextPage.indexOf(qaSite.getSamplePageAllAnswers()) > -1;
-
-            if (allAnswersMatches) {
-                LOGGER.info("SUCCESS: all answers part matches.");
-            } else {
-                Set<String> xPaths = pa.constructAllXPaths(qaSite.getSamplePageAllAnswers());
-                XPathSet xps = new XPathSet();
-                xps.add(xPaths);
-                String correctXPath = xps.getLongestXPath().replace("xhtml:", "");
-                correctXPath = PageAnalyzer.removeXPathIndices(correctXPath);
-                LOGGER.info("FAILURE: all answers don't match: \"" + allAnswersTextPage + "\" <does not contain> \""
-                        + qaSite.getSamplePageAllAnswers() + "\"");
-                LOGGER.info("       : old xpath: " + qaSite.getAllAnswersXPath() + " | new xpath: " + correctXPath);
+            if (!isHealthy(qaSite)) {
+                allHealthy = false;
+                break;
             }
 
         }
 
+        ExtractionProcessManager.setContinueQAExtraction(continueQAExtraction);
+
+        if (!allHealthy) {
+            LOGGER.error("FAILURE: Not all QA Site XPaths are up to date!");
+        } else {
+            LOGGER.info("SUCCESS: All QA Site XPaths are up to date!");
+        }
+
+        return allHealthy;
     }
 
     /**
@@ -845,7 +873,7 @@ public class QAExtractor extends Extractor {
     public static void main(String[] arguments) {
 
         QAExtractor.getInstance().checkHealth();
-        QAExtractor.getInstance().startExtraction(false);
+        // QAExtractor.getInstance().startExtraction(false);
         System.exit(0);
 
         List<QA> qas0 = QAExtractor.getInstance().extractFAQ("http://blog.pandora.com/faq/");
