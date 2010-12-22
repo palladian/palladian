@@ -36,7 +36,7 @@ public abstract class KeyphraseExtractor {
 
                 String inputText = split[0];
                 if (dataset.isFirstFieldLink()) {
-                    inputText = FileHelper.readFileToString(dataset.getRootPath() + split[0]);
+                    inputText = FileHelper.readFileToString(dataset.getRootPath() + "/" + split[0]);
                 }
 
                 // the manually assigned keyphrases
