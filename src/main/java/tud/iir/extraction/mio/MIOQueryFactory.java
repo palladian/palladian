@@ -64,8 +64,8 @@ public class MIOQueryFactory {
     public List<String> generateSearchQueries() {
 
         /** The search queries. */
-        final List<String> searchQueries = new ArrayList<String>();
-        final String entityName = entity.getName();
+        List<String> searchQueries = new ArrayList<String>();
+        String entityName = entity.getName();
         
         searchQueries.add(entityName);
         for (String searchWord : conceptSearchVocabulary) {
