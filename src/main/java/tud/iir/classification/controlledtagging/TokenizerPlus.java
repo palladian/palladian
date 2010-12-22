@@ -18,7 +18,6 @@ import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 import org.w3c.dom.Document;
 
-
 import tud.iir.classification.Stopwords;
 import tud.iir.extraction.event.AbstractPOSTagger;
 import tud.iir.extraction.event.LingPipePOSTagger;
@@ -43,7 +42,7 @@ import tud.iir.web.Crawler;
  * 
  */
 public class TokenizerPlus {
-    
+
     private TokenizerSettings settings;
 
     /** Snowball, used for stemming. */
@@ -57,25 +56,27 @@ public class TokenizerPlus {
 
     /** Whether to use POS tagging. */
     private boolean usePosTagging = false;
-    
+
     public interface TokenizerSettings {
         SnowballStemmer getStemmer();
+
         Set<String> getStopwords();
     }
-    
+
     public TokenizerPlus() {
         this(new TokenizerSettings() {
             @Override
             public Set<String> getStopwords() {
                 return new Stopwords(Stopwords.Predefined.EN);
             }
+
             @Override
             public SnowballStemmer getStemmer() {
                 return new englishStemmer();
             }
         });
     }
-    
+
     public TokenizerPlus(TokenizerSettings settings) {
         this.settings = settings;
     }
@@ -158,7 +159,7 @@ public class TokenizerPlus {
 
     private String stem(String unstemmed) {
         SnowballStemmer stemmer = settings.getStemmer();
-        
+
         stemmer.setCurrent(unstemmed.toLowerCase());
         stemmer.stem();
         return stemmer.getCurrent();
@@ -201,7 +202,7 @@ public class TokenizerPlus {
                         return new ArrayList<Token>();
                     }
                 });
-        
+
         Set<String> stopwords = settings.getStopwords();
 
         // gram size. do a reverse iteration,
@@ -244,10 +245,10 @@ public class TokenizerPlus {
 
                     lastSentencePosition = currentToken.getSentencePosition();
                     unstemmedBuilder.append(currentToken.getUnstemmedValue()).append(" ");
-                    
+
                     // XXX experimental
                     if (!stopwords.contains(currentToken.getUnstemmedValue())) {
-                    stemmedBuilder.append(currentToken.getStemmedValue()).append(" ");
+                        stemmedBuilder.append(currentToken.getStemmedValue()).append(" ");
                     }
                     // XXX
 
@@ -257,7 +258,7 @@ public class TokenizerPlus {
 
                     Token collocation = new Token();
                     String stemmedValue = stemmedBuilder.toString().trim();
-                    
+
                     // XXX experimental
                     stemmedValue = makeCanonicalForm(stemmedValue);
                     // XXX
@@ -345,7 +346,7 @@ public class TokenizerPlus {
             posTagger.loadModel();
         }
     }
-    
+
     private static String makeCanonicalForm(String text) {
         String[] split = text.split(" ");
         List<String> parts = new ArrayList<String>();
@@ -357,23 +358,26 @@ public class TokenizerPlus {
     }
 
     public static void main(String[] args) {
-        
-        String str = FileHelper.readFileToString("/Users/pk/temp/fao780/46140e.txt");
+
+        // String str = FileHelper.readFileToString("/Users/pk/temp/fao780/46140e.txt");
+        String str = FileHelper.readFileToString("/home/pk/Desktop/t0848e.txt");
+
         TokenizerPlus tokenizer = new TokenizerPlus();
-        tokenizer.usePosTagging = false;
+        // tokenizer.setUsePosTagging(true); // 46s:203ms
+        tokenizer.setUsePosTagging(false); // 7s:905ms
         
+
         StopWatch sw = new StopWatch();
-//        Set<String> calculateWordNGrams = Tokenizer.calculateWordNGrams(str, 2);
-        List<Token> t = tokenizer.tokenize(str);
-        tokenizer.makeCollocations(t, 2);
+        for (int i = 0; i < 10; i++) {
+            List<Token> t = tokenizer.tokenize(str);
+            tokenizer.makeCollocations(t, 4);
+        }
         System.out.println(sw);
-//        System.out.println(calculateWordNGrams.size());
-        
-        System.exit(0);
-        
-        System.out.println(makeCanonicalForm("beta gamma alpha zeta"));
+
         System.exit(0);
 
+        System.out.println(makeCanonicalForm("beta gamma alpha zeta"));
+        System.exit(0);
 
         Crawler crawler = new Crawler();
         // Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Apple_iPhone");

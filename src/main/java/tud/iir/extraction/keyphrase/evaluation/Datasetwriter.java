@@ -1,4 +1,4 @@
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase.evaluation;
 
 import java.io.File;
 import java.io.IOException;
@@ -42,9 +42,9 @@ public class Datasetwriter {
 
     public static void main(String[] args) {
 
-        // createCiteULike("/Users/pk/temp/citeulike180/taggers", "/Users/pk/temp/citeulike180.txt");
+        createCiteULike("/home/pk/PalladianData/datasets/KeyphraseExtraction/citeulike180/taggers", "/home/pk/PalladianData/datasets/KeyphraseExtraction/citeulike180/citeulike180index.txt");
         // createFAO("/Users/pk/temp/fao780", "/Users/pk/temp/fao780.txt");
-        createDeliciousT140("/Users/pk/Studium/Diplomarbeit/delicioust140", "/Users/pk/temp/deliciousT140");
+        // createDeliciousT140("/Users/pk/Studium/Diplomarbeit/delicioust140", "/Users/pk/temp/deliciousT140");
 
     }
 
