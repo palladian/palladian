@@ -29,6 +29,7 @@ import java.lang.Math;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -580,6 +581,7 @@ public class MauiFilter extends Filter {
 
 		} else {
 
+		    // FIXME memory leak is in convertInstance
 			FastVector vector = convertInstance(instance, false);
 			Enumeration<Instance> en = vector.elements();
 			while (en.hasMoreElements()) {
@@ -588,7 +590,7 @@ public class MauiFilter extends Filter {
 			}
 			return true;
 		}
-
+		
 	}
 
 	/**
@@ -1315,12 +1317,13 @@ public class MauiFilter extends Filter {
 			} else {
 				countPos++;
 			}
+
 		}
 		if (debugMode) {
 			System.err.println(countPos + " positive; " + countNeg
 					+ " negative instances");
 		}
-		
+
 		// Sort phrases according to their distance (stable sort)
 		double[] vals = new double[vector.size()];
 		for (int i = 0; i < vals.length; i++) {
