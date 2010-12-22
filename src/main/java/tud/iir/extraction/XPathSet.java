@@ -3,6 +3,7 @@ package tud.iir.extraction;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -25,6 +26,12 @@ public class XPathSet {
 
     public LinkedHashMap<String, Integer> getXPathMap() {
         return xPathMap;
+    }
+
+    public void add(Set<String> xPaths) {
+        for (String xPath : xPaths) {
+            add(xPath);
+        }
     }
 
     public void add(String xPath) {
@@ -69,6 +76,18 @@ public class XPathSet {
         }
 
         return "";
+    }
+
+    public String getLongestXPath() {
+        String longestPath = "";
+
+        for (String xPath : xPathMap.keySet()) {
+            if (xPath.length() > longestPath.length()) {
+                longestPath = xPath;
+            }
+        }
+
+        return longestPath;
     }
 
     /**
