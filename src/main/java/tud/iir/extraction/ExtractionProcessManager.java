@@ -291,6 +291,10 @@ public class ExtractionProcessManager {
             // LOGGER.info("MANAGEMENT: refresh IP database");
             // IPDatabaseManager.getInstance().refreshDB();
             // }
+            // if (loopCount % 60 == 0) {
+            // LOGGER.info("MANAGEMENT: check XPath health of QA Sites");
+            // QAExtractor.getInstance().checkHealth();
+            // }
 
             loopCount++;
         }

@@ -1,8 +1,8 @@
 sites:
-    
+
     - name:                   "Hubpages"
       type:                   "QASite"
-      entryURL:               "http://hubpages.com/" 
+      entryURL:               "http://hubpages.com/"
       samplePageURL:          "http://hubpages.com/question/92906/how-do-i-keep-my-cat-out-of-the-christmas-tree"
       samplePageQuestion:     "How do I keep my cat out of the Christmas Tree?"
       samplePageBestAnswer:   ""
@@ -11,7 +11,7 @@ sites:
       bestAnswerXPath:        ""
       allAnswersXPath:        "/html/body/div[4]/div/div/div/div[2]/div[1]"
       answerPrefix:           ""
-      answerSuffix:           ""    
+      answerSuffix:           ""
 
     - name:                   "Yahoo! Answers"
       type:                   "QASite"
@@ -37,20 +37,28 @@ sites:
       bestAnswerXPath:        "/HTML/BODY/DIV[1]/DIV[4]/DIV[2]/DIV[1]/DIV[1]/DIV[1]/DIV[4]/DIV[2]/DIV[2]/DIV[1]/DIV[1]"
       allAnswersXPath:        ""
       answerPrefix:           ""
-      answerSuffix:           " var gaframe = false;"  
+      answerSuffix:           " var gaframe = false;"
 
     - name:                   "Stack Overflow"
-      type:                   QASite
-      entryURL:               http://stackoverflow.com/
-      questionXPath:          "/html/body/div[2]/div[2]/div[1]/h2/a"
-      bestAnswerXPath:        "/html/body/div[2]/div[2]/div[2]/div[2]/div[2]/table/tr[1]/td[2]/div"
-      allAnswersXPath:        "/html/body/div[2]/div[2]/div[2]/div[2]/div/table/tr[1]/td[2]/div"
+      type:                   "QASite"
+      entryURL:               "http://stackoverflow.com/"
+      samplePageURL:          "http://stackoverflow.com/questions/4512696/update-a-column-all-rows"
+      samplePageQuestion:     "Update a column, all rows"
+      samplePageBestAnswer:   "try this"
+      samplePageAllAnswers:   "Since you already created the new field in a previous migration"
+      questionXPath:          "/HTML/BODY/DIV[4]/DIV[2]/DIV[1]/H1[1]/A"
+      bestAnswerXPath:        "/HTML/BODY/DIV[4]/DIV[2]/DIV[2]/DIV[2]/DIV[2]/TABLE[1]/TR[1]/TD[2]/DIV[1]"
+      allAnswersXPath:        "/HTML/BODY/DIV/DIV/DIV/DIV/DIV/TABLE/TR/TD/DIV"
       answerPrefix:           ""
       answerSuffix:           ""
 
     - name:                   "Mahalo Answers"
-      type:                   QASite
-      entryURL:               http://www.mahalo.com/answers/
+      type:                   "QASite"
+      entryURL:               "http://www.mahalo.com/answers/"
+      samplePageURL:          "http://www.mahalo.com/answers/did-you-buy-a-fake-christmas-tree-or-a-real-one"
+      samplePageQuestion:     "Did you buy a fake Christmas tree or a real one?"
+      samplePageBestAnswer:   "I love the smell of the pine"
+      samplePageAllAnswers:   "I have always had fresh trees"
       questionXPath:          "/html/body/div/div/div/div/div/div/h1"
       bestAnswerXPath:        "/html/body/div[2]/div[1]/div[1]/div[1]/div[7]/div/div[1]/div[2]/div[2]"
       allAnswersXPath:        "/html/body/div[2]/div[1]/div[1]/div[1]/div[8]/div/div[1]/div[2]/div[2]"
@@ -58,20 +66,27 @@ sites:
       answerSuffix:           ""
 
     - name:                   "ChaCha"
-      type:                   QASite
-      entryURL:               http://chacha.com/
-      questionXPath:          "/html/body/div/div/div/div/div/div/div/h1"
-      bestAnswerXPath:        "/html/body/div/div/div/div/div/div/h2"
+      type:                   "QASite"
+      entryURL:               "http://chacha.com/"
+      samplePageURL:          "http://www.chacha.com/question/what-are-christmas-trees"
+      samplePageQuestion:     "What are Christmas trees?"
+      samplePageBestAnswer:   "Christmas trees are a holiday decoration from evergreen trees."
+      samplePageAllAnswers:   ""
+      questionXPath:          "/HTML/BODY/DIV[1]/DIV[1]/SECTION[1]/DIV[1]/ARTICLE[1]/DIV[1]/HGROUP[1]/H1[1]"
+      bestAnswerXPath:        "/HTML/BODY/DIV[1]/DIV[1]/SECTION[1]/DIV[1]/ARTICLE[1]/DIV[1]/HGROUP[1]/H2[1]"
       allAnswersXPath:        ""
       answerPrefix:           ""
       answerSuffix:           ""
-      
-    - name:                   "Yedda"
-      type:                   QASite
-      entryURL:               http://yedda.com/
-      questionXPath:          "/html/body/div/form/div/div/div[2]/div[2]/div[1]/div[1]/div[2]/div[2]/h1[1]/span[1]"
+
+    - name:                   "AOL Answers"
+      type:                   "QASite"
+      entryURL:               "http://aolanswers.com/"
+      samplePageURL:          "http://aolanswers.com/questions/relationship_universals_human_951889921896358"
+      samplePageQuestion:     "What is the relationship between universals and human knowledge?"
+      samplePageBestAnswer:   ""
+      samplePageAllAnswers:   "A starseed is typically spherical, but when it needs to change direction it unfolds itself"
+      questionXPath:          "/HTML/BODY/DIV[2]/DIV[3]/FORM[1]/DIV[4]/DIV[3]/DIV[3]/H1[1]"
       bestAnswerXPath:        ""
-      allAnswersXPath:        "/html/body/div[2]/form[1]/div[4]/div[3]/div[7]/div[1]/div[1]/table[1]/tr[1]/td[1]/div[1]/div[1]/div[2]/div[2]/div[1]/span[1]/p"
+      allAnswersXPath:        "/HTML/BODY/DIV/DIV/FORM/DIV/DIV/DIV/DIV/TABLE/TR/TD/DIV/DIV/DIV[2]"
       answerPrefix:           ""
-      answerSuffix:           ""  
-      
+      answerSuffix:           ""
