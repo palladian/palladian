@@ -101,10 +101,10 @@ public class MediaWikiDatabase {
         psAllNamespaceIDs = connection.prepareStatement("SELECT namespaceID FROM namespaces WHERE wikiID = ?");
 
         psAddWiki = connection
-                .prepareStatement("INSERT INTO wikis(wikiName, wikiURL, pathToApi, lastCheckNewPages, crawler_username, crawler_password) VALUES (?,?,?,?,?,?)");
+                .prepareStatement("INSERT INTO wikis(wikiName, wikiURL, pathToApi, crawler_username, crawler_password) VALUES (?,?,?,?,?)");
 
         psUpdateWiki = connection
-                .prepareStatement("UPDATE wikis SET wikiURL= ?, pathToApi = ?, crawler_username = ?, crawler_password = ?, lastCheckNewPages = ? WHERE wikiID = ?");
+                .prepareStatement("UPDATE wikis SET wikiURL= ?, pathToApi = ?, crawler_username = ?, crawler_password = ? WHERE wikiID = ?");
 
         psUpdateNamespace = connection
                 .prepareStatement("UPDATE namespaces SET useForCrawling = ? WHERE wikiID = ? AND namespaceID = ?");
@@ -222,13 +222,8 @@ public class MediaWikiDatabase {
             psAddWiki.setString(1, wd.getWikiName());
             psAddWiki.setString(2, wd.getWikiURL());
             psAddWiki.setString(3, wd.getPathToAPI());
-            if (wd.getLastCheckForModifications() != null) {
-                psAddWiki.setString(4, convertDateToSQLDateTime(wd.getLastCheckForModifications()));
-            } else {
-                psAddWiki.setNull(4, java.sql.Types.DATE);
-            }
-            psAddWiki.setString(5, wd.getCrawlerUserName());
-            psAddWiki.setString(6, wd.getCrawlerPassword());
+            psAddWiki.setString(4, wd.getCrawlerUserName());
+            psAddWiki.setString(5, wd.getCrawlerPassword());
             DatabaseManager.getInstance().runUpdate(psAddWiki);
 
             // set namespaces to crawl
@@ -317,17 +312,19 @@ public class MediaWikiDatabase {
         wd.setWikiName(resultSet.getString(2));
         wd.setWikiURL(resultSet.getString(3));
         wd.setPathToAPI(resultSet.getString(4));
-        if (resultSet.getString(5) != null && !resultSet.getString(5).equalsIgnoreCase("NULL")) {
-            Date lastCheck = null;
-            try {
-                lastCheck = convertSQLDateTimeToDate(resultSet.getString(5));
-            } catch (Exception e) {
-                LOGGER.error(
-                        "Could not process the timestamp the wiki has been checked for new pages the last time. Wiki \""
-                                + resultSet.getString(2) + "\", timestamp: " + resultSet.getString(5) + " ", e);
-            }
-            wd.setLastCheckForModifications(lastCheck);
-        }
+
+        // FIXME: put to processing of namespaces
+        // if (resultSet.getString(5) != null && !resultSet.getString(5).equalsIgnoreCase("NULL")) {
+        // Date lastCheck = null;
+        // try {
+        // lastCheck = convertSQLDateTimeToDate(resultSet.getString(5));
+        // } catch (Exception e) {
+        // LOGGER.error(
+        // "Could not process the timestamp the wiki has been checked for new pages the last time. Wiki \""
+        // + resultSet.getString(2) + "\", timestamp: " + resultSet.getString(5) + " ", e);
+        // }
+        // wd.setLastCheckForModifications(lastCheck);
+        // }
         wd.setCrawlerUserName(resultSet.getString(6));
         wd.setCrawlerPassword(resultSet.getString(7));
         wd.setNamespacesToCrawl(getNamespacesToCrawl(wd.getWikiID()));
@@ -846,12 +843,7 @@ public class MediaWikiDatabase {
                 psUpdateWiki.setString(2, wd.getPathToAPI());
                 psUpdateWiki.setString(3, wd.getCrawlerUserName());
                 psUpdateWiki.setString(4, wd.getCrawlerPassword());
-                if (wd.getLastCheckForModifications() != null) {
-                    psUpdateWiki.setString(5, convertDateToSQLDateTime(wd.getLastCheckForModifications()));
-                } else {
-                    psUpdateWiki.setNull(5, java.sql.Types.DATE);
-                }
-                psUpdateWiki.setInt(6, wd.getWikiID());
+                psUpdateWiki.setInt(7, wd.getWikiID());
                 errorCount += ((DatabaseManager.getInstance().runUpdate(psUpdateWiki)) >= 0) ? 0 : 1;
 
                 // update namespaces to crawl. If there is any namespace specified, all namespaces in the list:
