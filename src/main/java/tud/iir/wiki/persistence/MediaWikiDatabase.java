@@ -1,4 +1,4 @@
-﻿package tud.iir.wiki.persistence;
+package tud.iir.wiki.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -171,7 +171,11 @@ public class MediaWikiDatabase {
      * @return String representation of the SQL data type DATETIME of the given DATE
      */
     private String convertDateToSQLDateTime(final Date date) {
-        return DateHelper.getDatetime("yyyy-MM-dd HH:mm:ss", date.getTime());
+        String datetime = DateHelper.getDatetime("yyyy-MM-dd HH:mm:ss", date.getTime());
+
+        LOGGER.info("convert date " + date + " to " + datetime);
+
+        return datetime;
     }
 
     /**
