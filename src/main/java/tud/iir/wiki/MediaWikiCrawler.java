@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 
 import net.sourceforge.jwbf.core.actions.util.ActionException;
 import net.sourceforge.jwbf.core.contentRep.SimpleArticle;
@@ -18,6 +19,7 @@ import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.DateHelper;
+import tud.iir.helper.LocalizeHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.wiki.data.Revision;
 import tud.iir.wiki.data.WikiDescriptor;
@@ -502,18 +504,22 @@ public class MediaWikiCrawler {
             // if (counter == BULK_WRITE_SIZE) break; //debug code, use to limit number of pages to crawl wikipedia
         }
     }
-    
-    
 
     /**
-     * Converts a {@link Date} to the String representation in MediaWiki format "yyyy-MM-dd'T'HH:mm:ss'Z'".
+     * Converts a {@link Date} to the String representation in MediaWiki format "yyyy-MM-dd'T'HH:mm:ss'Z'" in
+     * {@link TimeZone} UTC.
      * 
      * @param date The date to convert to.
-     * @return The date's String representation in MediaWiki format "yyyy-MM-dd'T'HH:mm:ss'Z'".
+     * @return The date's String representation in MediaWiki format "yyyy-MM-dd'T'HH:mm:ss'Z'" in {@link TimeZone} UTC.
      */
-    public static String convertDateToWikiFormat(final Date date) {
-        return DateHelper.getDatetime("yyyy-MM-dd'T'HH:mm:ss'Z'", date.getTime());
+    public String convertDateToWikiFormat(final Date date) {
+        LocalizeHelper.setTimeZoneUTC();
+        String wikiTime = DateHelper.getDatetime("yyyy-MM-dd'T'HH:mm:ss'Z'", date.getTime());
+        LocalizeHelper.restoreTimeZone();
+        return wikiTime;
     }
+
+
 
     /**
      * Central Method that controls the {@link MediaWikiCrawler}. If the Wiki is processed the first time, all data is
@@ -583,14 +589,14 @@ public class MediaWikiCrawler {
 
             long timeElapsed = System.currentTimeMillis() - wokeUp;
             if (timeElapsed < NEW_REVISIONS_INTERVAL) {
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Nothing to do for Wiki \"" + MW_DESCRIPTOR.getWikiName() + "\", going to sleep for "
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Nothing to do for Wiki \"" + MW_DESCRIPTOR.getWikiName() + "\", going to sleep for "
                             + (NEW_REVISIONS_INTERVAL - timeElapsed) / DateHelper.SECOND_MS + " seconds.");
                 }
                 ThreadHelper.sleep(NEW_REVISIONS_INTERVAL - timeElapsed);
             } else {
-                if (LOGGER.isInfoEnabled()) {
-                    LOGGER.info("Could not process all tasks for Wiki \"" + MW_DESCRIPTOR.getWikiName()
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Could not process all tasks for Wiki \"" + MW_DESCRIPTOR.getWikiName()
                             + "\" in time, processing took "
                             + ((timeElapsed - NEW_REVISIONS_INTERVAL) / DateHelper.SECOND_MS)
                             + " seconds, but should have been done within "
