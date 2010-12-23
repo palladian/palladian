@@ -105,6 +105,12 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         atts.addElement(new Attribute("document", (FastVector) null));
         atts.addElement(new Attribute("keyphrases", (FastVector) null));
         data = new Instances("keyphrase_training_data", atts, 0);
+        
+        // XXX
+        mauiFilter = new MauiFilter();
+        
+        setBasicWikipediaFeatures(false);
+        setAllWikipediaFeatures(false);
 
     }
 
@@ -113,7 +119,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
 
         LOGGER.trace(">startTraining");
 
-        mauiFilter = new MauiFilter();
+//        mauiFilter = new MauiFilter();
 
         mauiFilter.setDebug(debugMode);
         mauiFilter.setVocabularyName(vocabularyName);
@@ -213,7 +219,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     private void loadModel() {
         LOGGER.trace(">loadModel");
         StopWatch sw = new StopWatch();
-        mauiFilter = null;
+        // mauiFilter = null;
 
         try {
 

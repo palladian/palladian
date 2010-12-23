@@ -57,17 +57,17 @@ public class KeyphraseExtractorEvaluator {
         LOGGER.info("evaluating " + extractor.getExtractorName() + " with " + dataset);
         StopWatch sw = new StopWatch();
 
-        /////// XXX createTrainTestData(dataset);
+        createTrainTestData(dataset);
 
         // train, if applicable
-//        if (extractor.needsTraining()) {
-//            Dataset trainingDataset = new Dataset();
-//            trainingDataset.setPath(TEMP_TRAINING_DATA);
-//            trainingDataset.setRootPath(dataset.getRootPath());
-//            trainingDataset.setSeparationString(dataset.getSeparationString());
-//            trainingDataset.setFirstFieldLink(dataset.isFirstFieldLink());
-//            extractor.train(trainingDataset);
-//        }
+        if (extractor.needsTraining()) {
+            Dataset trainingDataset = new Dataset();
+            trainingDataset.setPath(TEMP_TRAINING_DATA);
+            trainingDataset.setRootPath(dataset.getRootPath());
+            trainingDataset.setSeparationString(dataset.getSeparationString());
+            trainingDataset.setFirstFieldLink(dataset.isFirstFieldLink());
+            extractor.train(trainingDataset);
+        }
 
         // testing set
         Dataset testingDataset = new Dataset();
