@@ -38,7 +38,7 @@ public class TokenizerTest extends TestCase {
     @Test
     public void testTokenize() {
         List<String> tokens = Tokenizer.tokenize("That poster costs $22.40. twenty-one.");
-        // CollectionHelper.print(tokens);
+        CollectionHelper.print(tokens);
         assertEquals(7, tokens.size());
 
         tokens = Tokenizer.tokenize("Mr. <MUSICIAN>John Hiatt</MUSICIAN> is awesome.");
@@ -50,11 +50,11 @@ public class TokenizerTest extends TestCase {
         tokens = Tokenizer.tokenize("Mr. ^<MUSICIAN>John Hiatt</MUSICIAN>) is awesome!!!");
         // CollectionHelper.print(tokens);
         assertEquals(11, tokens.size());
-        
+
         tokens = Tokenizer.tokenize("asp.net is very web 2.0. isn't it? web2.0, .net");
-        // CollectionHelper.print(tokens);
+        CollectionHelper.print(tokens);
         assertEquals(14, tokens.size());
-        
+
         tokens = Tokenizer.tokenize("40,000 residents");
         assertEquals(2, tokens.size());
     }

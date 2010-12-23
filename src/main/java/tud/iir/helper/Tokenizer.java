@@ -28,8 +28,11 @@ public class Tokenizer {
 
         Pattern pattern = Pattern.compile("(\\w+)([-\\.,](\\w+))*|\\.(\\w+)|</?(\\w+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
                 Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        // Pattern pattern = Pattern.compile("(\\w+)(-(\\w+))*|</?(\\w+)>|([^\\w\\s<]+)", Pattern.DOTALL
-        // | Pattern.CASE_INSENSITIVE);
+
+        pattern = Pattern
+                .compile(
+                        "([\\p{L}\\w]+)([-\\.,]([\\p{L}\\w]+))*|\\.([\\p{L}\\w]+)|</?([\\p{L}\\w]+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
+                        Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = pattern.matcher(inputString);
         while (matcher.find()) {
@@ -202,7 +205,7 @@ public class Tokenizer {
         List<String> sentences = new ArrayList<String>();
 
         Pattern pattern = Pattern
-                .compile("(?<!(\\.|\\()|Mr|mr|Mrs|mrs|Jr|jr|vs)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
+        .compile("(?<!(\\.|\\()|Mr|mr|Mrs|mrs|Jr|jr|vs)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
 
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
@@ -265,11 +268,11 @@ public class Tokenizer {
 
             if (startIndex > 0) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(startIndex - 1))
-                        && Character.isUpperCase(string.charAt(startIndex + 1));
+                && Character.isUpperCase(string.charAt(startIndex + 1));
             }
             if (!pointIsSentenceDelimiter && startIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = Character.isUpperCase(string.charAt(startIndex + 2))
-                        && string.charAt(startIndex + 1) == ' ';
+                && string.charAt(startIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -332,14 +335,14 @@ public class Tokenizer {
             // one digit after point
             if (endIndex < string.length() - 1) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 1))
-                        && Character.isUpperCase(string.charAt(endIndex + 1))
-                        || StringHelper.isBracket(string.charAt(endIndex + 1));
+                && Character.isUpperCase(string.charAt(endIndex + 1))
+                || StringHelper.isBracket(string.charAt(endIndex + 1));
             }
             // two digits after point
             if (!pointIsSentenceDelimiter && endIndex < string.length() - 2) {
                 pointIsSentenceDelimiter = !StringHelper.isNumber(string.charAt(endIndex + 2))
-                        && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string
-                                .charAt(endIndex + 2))) && string.charAt(endIndex + 1) == ' ';
+                && (Character.isUpperCase(string.charAt(endIndex + 2)) || StringHelper.isBracket(string
+                        .charAt(endIndex + 2))) && string.charAt(endIndex + 1) == ' ';
             }
             if (pointIsSentenceDelimiter) {
                 break;
@@ -380,6 +383,7 @@ public class Tokenizer {
 
     public static void main(String[] args) throws IOException {
 
+        System.out.println(Tokenizer.tokenize("schön"));
         System.out.println(Tokenizer.tokenize("web2.0 web 2.0 .net asp.net test-test 30,000 people"));
         System.exit(0);
 
