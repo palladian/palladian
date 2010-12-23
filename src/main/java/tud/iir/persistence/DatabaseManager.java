@@ -2125,7 +2125,8 @@ public class DatabaseManager {
      * Execute a prepared statement.
      * 
      * @param preparedStatement The prepared statement.
-     * @return the int
+     * @return (1) the row count for SQL Data Manipulation Language (DML) statements or (2) 0 for SQL statements that
+     *         return nothing or (3) -1 if an {@link SQLException} has been caught and written to error log.
      */
     public int runUpdate(PreparedStatement preparedStatement) {
         int result = 0;
