@@ -6,8 +6,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.Locale;
-import java.util.TimeZone;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -21,6 +19,7 @@ import tud.iir.normalization.DateNormalizer;
  * This class helps to transform and help with dates.
  * 
  * @author David Urbansky
+ * @author Sandro Reichert
  */
 public class DateHelper {
 
@@ -32,6 +31,8 @@ public class DateHelper {
     public static final long WEEK_MS = 7 * DAY_MS;
     public static final long MONTH_MS = 30 * DAY_MS;
     public static final long YEAR_MS = 365 * DAY_MS;
+
+
 
     public static boolean containsDate(String searchString) {
         Pattern pat = null;
@@ -54,16 +55,14 @@ public class DateHelper {
     }
 
     public static String getDatetime(String format, long timestamp) {
-        Locale vmLocale = Locale.getDefault();
-        Locale.setDefault(Locale.ENGLISH);
-        // TimeZone vmTimeZone = TimeZone.getDefault();
-        // TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
+        LocalizeHelper.setLocaleEnglish();
+        // LocalizeHelper.setUTC();
 
         DateFormat dfm = new SimpleDateFormat(format);
         String dateTime = dfm.format(new Date(timestamp));
 
-        Locale.setDefault(vmLocale);
-        // TimeZone.setDefault(vmTimeZone);
+        LocalizeHelper.restoreLocale();
+        // LocalizeHelper.restoreTimeZone();
         return dateTime;
     }
 
@@ -197,22 +196,17 @@ public class DateHelper {
      * @return The UNIX timestamp for that date.
      */
     public static long getTimestamp(String date) throws Exception {
-
-        Locale vmLocale = Locale.getDefault();
-        Locale.setDefault(Locale.ENGLISH);
-        TimeZone vmTimeZone = TimeZone.getDefault();
-        TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
+        LocalizeHelper.setUTCandEnglish();
 
         String normalizedDate = DateNormalizer.normalizeDate(date, true);
         long timestampUTC = Timestamp.valueOf(normalizedDate).getTime();
 
-        Locale.setDefault(vmLocale);
-        TimeZone.setDefault(vmTimeZone);
-
+        LocalizeHelper.restoreTimeZoneAndLocale();
         return timestampUTC;
         }
 
     
+
     public static void main(String[] t) {
         System.out.println(DateHelper.getCurrentDatetime());
         System.out.println(getTimeString(-1));
