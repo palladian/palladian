@@ -54,10 +54,17 @@ public class DateHelper {
     }
 
     public static String getDatetime(String format, long timestamp) {
+        Locale vmLocale = Locale.getDefault();
         Locale.setDefault(Locale.ENGLISH);
+        // TimeZone vmTimeZone = TimeZone.getDefault();
         // TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
+
         DateFormat dfm = new SimpleDateFormat(format);
-        return dfm.format(new Date(timestamp));
+        String dateTime = dfm.format(new Date(timestamp));
+
+        Locale.setDefault(vmLocale);
+        // TimeZone.setDefault(vmTimeZone);
+        return dateTime;
     }
 
     /**
@@ -191,14 +198,18 @@ public class DateHelper {
      */
     public static long getTimestamp(String date) throws Exception {
 
+        Locale vmLocale = Locale.getDefault();
         Locale.setDefault(Locale.ENGLISH);
+        TimeZone vmTimeZone = TimeZone.getDefault();
         TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
 
-        String normalizedDate = "";
+        String normalizedDate = DateNormalizer.normalizeDate(date, true);
+        long timestampUTC = Timestamp.valueOf(normalizedDate).getTime();
 
-            normalizedDate = DateNormalizer.normalizeDate(date, true);
+        Locale.setDefault(vmLocale);
+        TimeZone.setDefault(vmTimeZone);
 
-            return Timestamp.valueOf(normalizedDate).getTime();
+        return timestampUTC;
         }
 
     
