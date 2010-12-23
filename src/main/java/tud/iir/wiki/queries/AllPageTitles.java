@@ -73,7 +73,7 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
             .compile("<p pageid=\"(.*?)\" ns=\"(.*?)\" title=\"(.*?)\" />");
 
     /** Constant value for the aplimit-parameter. **/
-    private static final int LIMIT = 5;
+    private static final int LIMIT = 500;
 
     /** Information given in the constructor, necessary for creating next action. */
     private String prefix;
