@@ -1,0 +1,41 @@
+# configuration file for MediaWikiCrawler. For each MediaWiki to crawl, at least wikiName and wikiURL are required.
+# Each Wiki description has to start with a minus "-" 
+# 
+# sample
+#         # Unique name of this wiki, like "Wikipedia (en)". Required parameter.
+#    - wikiName: "Wikipedia (en)"
+#         # Path to the Wiki, like "http://en.wikipedia.org/". Required parameter.
+#      wikiURL: "http://en.wikipedia.org/"
+#         # Path to api.php, relative from wikiURL, like "/w/" for wikipedia. Must not contain the file name api.php
+#         # Optional parameter. Leave empty if unknown. 		
+#      pathToAPI: "/w/" 
+#         # User name to use for crawling.
+#         # Optional parameter. Leave empty if login is not required for reading
+#      crawlerUserName: "myname" 
+#         # The user's password. Optional parameter. 
+#      crawlerPassword: "mysecret"
+#         # The namespaceID's to include into crawling, separated by comma ",". All pages within these namespaces are crawled.
+#         # namespaceID's that do not exist in the Wiki are ignored.
+#         # known bug: to crawl a single namespace, add comma like "1,", otherwise all namespaces are crawled! 
+#         # Optional parameter. Leave empty to crawl all namespaces.
+#      namespacesToCrawl: "0, 1, 12" 
+#
+# plain sample 
+#    - wikiName: 
+#      wikiURL:  		
+#      pathToAPI:
+#      crawlerUserName:
+#      crawlerPassword: 
+#      namespacesToCrawl:
+
+
+wikiConfigurations:
+    - wikiName: "Aletheia Projektwiki"
+      wikiURL: "http://87.106.216.160/aletheia/"
+      crawlerUserName: "Sandro Crawler"
+      crawlerPassword: "********"
+      namespacesToCrawl: "1, 2, 3"
+#    - wikiName: "Wikipedia (en)"
+#      wikiURL: "http://en.wikipedia.org/"
+#      pathToAPI: "/w/"
+#      namespacesToCrawl: "1, 2"
