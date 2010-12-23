@@ -368,7 +368,7 @@ public class ChartCreator {
         if (totalResultMapMax.containsKey(HOUR_TO_PROCESS)) {
             transferredDataArray = totalResultMapMax.get(HOUR_TO_PROCESS);
         } else {
-            Arrays.fill(transferredDataArray, 0l);
+            Arrays.fill(transferredDataArray, 0L);
         }
         transferredDataArray[ROW_TO_WRITE] += SIZE_TO_ADD;
         totalResultMapMax.put(HOUR_TO_PROCESS, transferredDataArray);
