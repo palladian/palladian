@@ -1,4 +1,4 @@
-﻿package tud.iir.wiki.persistence;
+package tud.iir.wiki.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -1050,4 +1050,5 @@ public class MediaWikiDatabase {
 
 
 }
+
 
