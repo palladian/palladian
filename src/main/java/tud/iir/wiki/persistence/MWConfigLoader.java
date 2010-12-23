@@ -165,9 +165,10 @@ public class MWConfigLoader {
     }
 
     public static void main(String[] args) throws Exception {
-
-        // FIXME: remove 1 line debug code.
-        // resetDatabase();
+        //
+        // Locale.setDefault(Locale.ENGLISH);
+        // TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
+        // resetDatabase(); // debug code
 
         MWConfigLoader.getInstance().initializeCrawlers();
     }
