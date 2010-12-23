@@ -60,19 +60,18 @@ public class Analyze {
         words = readCsv();
 
         /* Produkteingabe */
-        //searchQuery = readProduct();
+       searchQuery = readProduct();
 
         /* Auslese aus Suchmaschine als Webresults in ArrayList */
 
-       //webURLs = getWebResult();
+       webURLs = getWebResult();
 
         /* Die Urls dieser Webresults in eine ArrayList auslesen */
-        //urls = getUrls();
-       // urls.add("http://www.mobil-talk.de/sony-ericsson-testberichte/213-sony-ericsson-w910i-testbericht-inkl-vielerlivebilder.html")["http://www.mobil-talk.de/sony-ericsson-testberichte/213-sony-ericsson-w910i-testbericht-inkl-vielerlivebilder.html")
+        urls = getUrls();
+      
         /* Extrahieren der Sätze aus dem Content und abspeichern als Objekt, mit den Parametern Satz/URL in einer Liste. */
-        //listSentence = getSentenceAndUrl(); 
-       SentenceEntry se = new SentenceEntry("Alles ist schön", "www.michele.de");
-       listSentence.add(se);
+       listSentence = getSentenceAndUrl(); 
+      
 
         /* Vergleich der Wörter */
 
@@ -88,9 +87,7 @@ public class Analyze {
             /* Liste der Tokens der einzelnen Sätze durchgehen */
             for (int i = 0; i < (tokens.size()); i++) {
                 w = tokens.get(i);
-                System.out.println(w);
-                System.out.println("gehört zu aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-
+               
                 /* Liste der Emotionensschlüsselwörter durchgehen */
                 for (String e : words.keySet()) {
                     emoW = words.get(e);
@@ -98,7 +95,7 @@ public class Analyze {
                     /* Liste der WordEntrys durchgehen und beide Vergleichswörter kleinschreiben */
                     for (int j = 0; j < (emoW.size()); j++) {
                         String vergleich = emoW.get(j).getWord();
-                        System.out.println(vergleich);
+                        
 
                         vergleich = vergleich.toLowerCase();
                         w = w.toLowerCase();
