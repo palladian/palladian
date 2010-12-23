@@ -1,4 +1,4 @@
-package tud.iir.wiki.persistence;
+﻿﻿package tud.iir.wiki.persistence;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -42,7 +43,7 @@ public class MediaWikiDatabase {
 
     // ////////////////// prepared statements ////////////////////
     private PreparedStatement psGetNamespaceIDsToCrawl;
-    private PreparedStatement psAllNamespaceIDs;
+    private PreparedStatement psAllNamespaces;
     private PreparedStatement psAddWiki;
     private PreparedStatement psUpdateWiki;
     private PreparedStatement psRemoveWiki;
@@ -98,13 +99,14 @@ public class MediaWikiDatabase {
         psGetNamespaceIDsToCrawl = connection
                 .prepareStatement("SELECT namespaceID FROM namespaces WHERE wikiID = ? AND useForCrawling = 1");
         
-        psAllNamespaceIDs = connection.prepareStatement("SELECT namespaceID FROM namespaces WHERE wikiID = ?");
+        psAllNamespaces = connection
+                .prepareStatement("SELECT namespaceID, useForCrawling FROM namespaces WHERE wikiID = ?");
 
         psAddWiki = connection
-                .prepareStatement("INSERT INTO wikis(wikiName, wikiURL, pathToApi, crawler_username, crawler_password) VALUES (?,?,?,?,?)");
+                .prepareStatement("INSERT INTO wikis(wikiName, wikiURL, pathToApi, lastCheckNewPages, crawler_username, crawler_password) VALUES (?,?,?,?,?,?)");
 
         psUpdateWiki = connection
-                .prepareStatement("UPDATE wikis SET wikiURL= ?, pathToApi = ?, crawler_username = ?, crawler_password = ? WHERE wikiID = ?");
+                .prepareStatement("UPDATE wikis SET wikiURL= ?, pathToApi = ?, lastCheckNewPages = ?, crawler_username = ?, crawler_password = ? WHERE wikiID = ?");
 
         psUpdateNamespace = connection
                 .prepareStatement("UPDATE namespaces SET useForCrawling = ? WHERE wikiID = ? AND namespaceID = ?");
@@ -222,8 +224,13 @@ public class MediaWikiDatabase {
             psAddWiki.setString(1, wd.getWikiName());
             psAddWiki.setString(2, wd.getWikiURL());
             psAddWiki.setString(3, wd.getPathToAPI());
-            psAddWiki.setString(4, wd.getCrawlerUserName());
-            psAddWiki.setString(5, wd.getCrawlerPassword());
+            if (wd.getLastCheckForModifications() != null) {
+                psAddWiki.setString(4, convertDateToSQLDateTime(wd.getLastCheckForModifications()));
+            } else {
+                psAddWiki.setNull(4, java.sql.Types.DATE);
+            }
+            psAddWiki.setString(5, wd.getCrawlerUserName());
+            psAddWiki.setString(6, wd.getCrawlerPassword());
             DatabaseManager.getInstance().runUpdate(psAddWiki);
 
             // set namespaces to crawl
@@ -312,19 +319,17 @@ public class MediaWikiDatabase {
         wd.setWikiName(resultSet.getString(2));
         wd.setWikiURL(resultSet.getString(3));
         wd.setPathToAPI(resultSet.getString(4));
-
-        // FIXME: put to processing of namespaces
-        // if (resultSet.getString(5) != null && !resultSet.getString(5).equalsIgnoreCase("NULL")) {
-        // Date lastCheck = null;
-        // try {
-        // lastCheck = convertSQLDateTimeToDate(resultSet.getString(5));
-        // } catch (Exception e) {
-        // LOGGER.error(
-        // "Could not process the timestamp the wiki has been checked for new pages the last time. Wiki \""
-        // + resultSet.getString(2) + "\", timestamp: " + resultSet.getString(5) + " ", e);
-        // }
-        // wd.setLastCheckForModifications(lastCheck);
-        // }
+        if (resultSet.getString(5) != null && !resultSet.getString(5).equalsIgnoreCase("NULL")) {
+            Date lastCheck = null;
+            try {
+                lastCheck = convertSQLDateTimeToDate(resultSet.getString(5));
+            } catch (Exception e) {
+                LOGGER.error(
+                        "Could not process the timestamp the wiki has been checked for new pages the last time. Wiki \""
+                                + resultSet.getString(2) + "\", timestamp: " + resultSet.getString(5) + " ", e);
+            }
+            wd.setLastCheckForModifications(lastCheck);
+        }
         wd.setCrawlerUserName(resultSet.getString(6));
         wd.setCrawlerPassword(resultSet.getString(7));
         wd.setNamespacesToCrawl(getNamespacesToCrawl(wd.getWikiID()));
@@ -832,6 +837,19 @@ public class MediaWikiDatabase {
      *         updating. If false, see error log for details.
      */
     public synchronized boolean updateWiki(final WikiDescriptor wd) {
+        return updateWiki(wd, true);
+    }
+
+    /**
+     * Updates the parameters wikiURL, pathToAPI, crawler_username, crawler_password in the data base. The namespaces to
+     * be crawled are updated iff updateNamespaces is set to {@code true}.
+     * 
+     * @param wd the Wiki to update.
+     * @param updateNamespaces Set to true to update namespaces or false to skip them.
+     * @return true if update was successful, false if Wiki does not exist in data base or any problem occurred while
+     *         updating. If false, see error log for details.
+     */
+    private synchronized boolean updateWiki(final WikiDescriptor wd, final boolean updateNamespaces) {
 
         int errorCount = 0;
         if (DEBUG && !wikiExists(wd.getWikiName())) {
@@ -841,36 +859,55 @@ public class MediaWikiDatabase {
             try {
                 psUpdateWiki.setString(1, wd.getWikiURL());
                 psUpdateWiki.setString(2, wd.getPathToAPI());
-                psUpdateWiki.setString(3, wd.getCrawlerUserName());
-                psUpdateWiki.setString(4, wd.getCrawlerPassword());
-                psUpdateWiki.setInt(7, wd.getWikiID());
+                if (wd.getLastCheckForModifications() != null) {
+                    psUpdateWiki.setString(3, convertDateToSQLDateTime(wd.getLastCheckForModifications()));
+                } else {
+                    psUpdateWiki.setNull(3, java.sql.Types.DATE);
+                }
+                psUpdateWiki.setString(4, wd.getCrawlerUserName());
+                psUpdateWiki.setString(5, wd.getCrawlerPassword());
+                psUpdateWiki.setInt(6, wd.getWikiID());
                 errorCount += ((DatabaseManager.getInstance().runUpdate(psUpdateWiki)) >= 0) ? 0 : 1;
 
-                // update namespaces to crawl. If there is any namespace specified, all namespaces in the list:
-                // crawling=true, for all others in database, set crawling=false
-                int wikiID = wd.getWikiID();
-                if (wd.getNamespacesToCrawl().size() > 0) {
-                    @SuppressWarnings("unchecked")
-                    HashSet<Integer> nameSpacesWD = (HashSet<Integer>) (wd.getNamespacesToCrawl()).clone();
-                    HashSet<Integer> nameSpacesDB = getAllNameSpaceIDs(wikiID);
-                    for (int nameSpaceIDInDB : nameSpacesDB) {
-                        if (nameSpacesWD.contains(nameSpaceIDInDB)) {
-                            errorCount += (updateNamespace(wikiID, nameSpaceIDInDB, true)) ? 0 : 1;
-                        } else {
-                            errorCount += (updateNamespace(wikiID, nameSpaceIDInDB, false)) ? 0 : 1;
-                            // errorCount += (removeNamespace(wikiID, nameSpaceIDInDB)) ? 0 : 1;
+                // update namespaces to crawl. If there is any namespace specified in the WikiDescriptor, set
+                // crawling=true for all namespaces in the list, for all others in database, set crawling=false
+                if (updateNamespaces) {
+                    int wikiID = wd.getWikiID();
+                    HashMap<Integer, Boolean> namespacesDB = getAllNamespaces(wikiID);
+                    boolean resetLastCheck = false;
+                    if (wd.getNamespacesToCrawl().size() > 0) {
+                        @SuppressWarnings("unchecked")
+                        HashSet<Integer> nameSpacesWD = (HashSet<Integer>) (wd.getNamespacesToCrawl()).clone();
+                        for (int nameSpaceIDInDB : namespacesDB.keySet()) {
+
+                            // namespace was in configuration and db, useForCrawling was set to false in db but is
+                            // changed to true, than set set date lastCheckNewPages to null for this wiki since the new
+                            // namespace has never been checked.
+                            if (nameSpacesWD.contains(nameSpaceIDInDB)) {
+                                if (!namespacesDB.get(nameSpaceIDInDB)) {
+                                    errorCount += (updateNamespace(wikiID, nameSpaceIDInDB, true)) ? 0 : 1;
+                                    resetLastCheck = true;
+                                }
+                            } else {
+                                errorCount += (updateNamespace(wikiID, nameSpaceIDInDB, false)) ? 0 : 1;
+                            }
+                            nameSpacesWD.remove(nameSpaceIDInDB);
                         }
-                        nameSpacesWD.remove(nameSpaceIDInDB);
+                        for (int nameSpaceIDInFile : nameSpacesWD) {
+                            errorCount += (addNamespace(wikiID, nameSpaceIDInFile, null, true)) ? 0 : 1;
+                        }
+                    } else {
+                        for (int namespaceIDInDB : namespacesDB.keySet()) {
+                            errorCount += (removeNamespace(wikiID, namespaceIDInDB)) ? 0 : 1;
+                        }
                     }
-                    for (int nameSpaceIDInFile : nameSpacesWD) {
-                        errorCount += (addNamespace(wikiID, nameSpaceIDInFile, null, true)) ? 0 : 1;
-                    }
-                } else {
-                    HashSet<Integer> namespacesDB = getAllNameSpaceIDs(wikiID);
-                    for (int namespaceIDInDB : namespacesDB) {
-                        errorCount += (removeNamespace(wikiID, namespaceIDInDB)) ? 0 : 1;
+
+                    if (resetLastCheck) {
+                        wd.setLastCheckForModifications(null);
+                        updateWiki(wd, false);
                     }
                 }
+
             } catch (SQLException e) {
                 LOGGER.error("updateWiki processing PreparedStatement " + psUpdateWiki.toString(), e);
                 errorCount++;
@@ -880,21 +917,21 @@ public class MediaWikiDatabase {
     }
 
     /**
-     * Returns all namespaceIDs for the given wikiID.
+     * Returns all namespaceIDs and the useForCrawling value for the given wikiID.
      * 
      * @param wikiID The wikiID to get all namespaces for.
-     * @return All namespaceIDs for the given wikiID.
+     * @return All namespaceIDs and the useForCrawling value for the given wikiID.
      */
-    public synchronized HashSet<Integer> getAllNameSpaceIDs(final int wikiID) {
-        HashSet<Integer> namespaces = new HashSet<Integer>();
+    public synchronized HashMap<Integer, Boolean> getAllNamespaces(final int wikiID) {
+        HashMap<Integer, Boolean> namespaces = new HashMap<Integer, Boolean>();
         try {
-            psAllNamespaceIDs.setInt(1, wikiID);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psAllNamespaceIDs);
+            psAllNamespaces.setInt(1, wikiID);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psAllNamespaces);
             while (resultSet.next()) {
-                namespaces.add(resultSet.getInt(1));
+                namespaces.put(resultSet.getInt(1), resultSet.getBoolean(2));
             }
         } catch (SQLException e) {
-            LOGGER.error("getAllNamespaces processing PreparedStatement " + psAllNamespaceIDs.toString(), e);
+            LOGGER.error("getAllNamespaces processing PreparedStatement " + psAllNamespaces.toString(), e);
                 }
         return namespaces;
             }
@@ -1050,5 +1087,3 @@ public class MediaWikiDatabase {
 
 
 }
-
-

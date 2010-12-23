@@ -7,6 +7,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import net.sourceforge.jwbf.core.actions.util.ActionException;
 import net.sourceforge.jwbf.core.contentRep.SimpleArticle;
@@ -193,7 +194,6 @@ public class MediaWikiCrawler {
      */
     private void crawlAndStoreAllPageTitles() {
         AllPageTitles apt = null;
-        Date currentDate = new Date();
 
         for (int namespaceID : MW_DESCRIPTOR.getNamespacesToCrawl()) {
             try {
@@ -220,9 +220,6 @@ public class MediaWikiCrawler {
                 addPagesToDB(pagesToAdd, pagesSkipped, (counter - pagesSkipped));
             }
         }
-        // update db wikis.lastCheckNewPages
-        MW_DESCRIPTOR.setLastCheckForModifications(currentDate);
-        MW_DATABASE.updateWiki(MW_DESCRIPTOR);
     }
 
     /**
@@ -359,7 +356,7 @@ public class MediaWikiCrawler {
             BOT.performAction(si);
 
             Map<Integer, String> namespacesAPI = si.getNamespaces();
-            HashSet<Integer> namespacesDB = MW_DATABASE.getAllNameSpaceIDs(MW_DESCRIPTOR.getWikiID());
+            Set<Integer> namespacesDB = MW_DATABASE.getAllNamespaces(MW_DESCRIPTOR.getWikiID()).keySet();
 
             if (namespacesDB.size() == 0) {
                 for (int namespaceID : namespacesAPI.keySet()) {
