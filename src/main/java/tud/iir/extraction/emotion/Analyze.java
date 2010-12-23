@@ -27,50 +27,52 @@ public class Analyze {
     private static final Logger LOGGER = Logger.getLogger(Analyze.class);
 
     /* Anlegen der Liste von Emotionen mit dazugehörigen Schlüsselwörtern */
-    static Map<String, ArrayList<WordEntry>> words = new HashMap<String, ArrayList<WordEntry>>();
+    Map<String, ArrayList<WordEntry>> words = new HashMap<String, ArrayList<WordEntry>>();
 
-    static String searchQuery = null;
-    static SourceRetriever s = new SourceRetriever();
-    static List<WebResult> webURLs = new ArrayList<WebResult>();
+    String searchQuery = null;
+    SourceRetriever s = new SourceRetriever();
+    List<WebResult> webURLs = new ArrayList<WebResult>();
 
-    static List<String> urls = new ArrayList<String>();
+    List<String> urls = new ArrayList<String>();
 
     /* Neue Liste mit den einzelnen Sätzen der Seiten */
-    static List<SentenceEntry> listSentence = new ArrayList<SentenceEntry>();
-    static String content = null;
-    static PageContentExtractor p = new PageContentExtractor();
+    List<SentenceEntry> listSentence = new ArrayList<SentenceEntry>();
+    String content = null;
+    PageContentExtractor p = new PageContentExtractor();
 
     /* Wörter aus den Sätzen, w = Wort für Vergleich, die anderen, die zwei Wörter davor. */
-    static String vorW = null;
-    static String vorWW = null;
-    static String w = null;
+    String vorW = null;
+    String vorWW = null;
+    String w = null;
 
-    static SentenceEntry en;
+    SentenceEntry en;
 
-    static boolean testUmlaut;
-    static boolean testClimax;
-    static List<WordEntry> emoW = new ArrayList<WordEntry>();
+    boolean testUmlaut;
+    boolean testClimax;
+    List<WordEntry> emoW = new ArrayList<WordEntry>();
 
     public Analyze() {
 
     }
 
     public void start() {
-        /* Auslesen aus CSV.Datei */
+       /* /* Auslesen aus CSV.Datei */
         words = readCsv();
 
         /* Produkteingabe */
-        searchQuery = readProduct();
+        //searchQuery = readProduct();
 
         /* Auslese aus Suchmaschine als Webresults in ArrayList */
 
-        webURLs = getWebResult();
+       //webURLs = getWebResult();
 
         /* Die Urls dieser Webresults in eine ArrayList auslesen */
-        urls = getUrls();
-
+        //urls = getUrls();
+       // urls.add("http://www.mobil-talk.de/sony-ericsson-testberichte/213-sony-ericsson-w910i-testbericht-inkl-vielerlivebilder.html")["http://www.mobil-talk.de/sony-ericsson-testberichte/213-sony-ericsson-w910i-testbericht-inkl-vielerlivebilder.html")
         /* Extrahieren der Sätze aus dem Content und abspeichern als Objekt, mit den Parametern Satz/URL in einer Liste. */
-        listSentence = getSentenceAndUrl();
+        //listSentence = getSentenceAndUrl(); 
+       SentenceEntry se = new SentenceEntry("Alles ist schön", "www.michele.de");
+       listSentence.add(se);
 
         /* Vergleich der Wörter */
 
@@ -81,10 +83,14 @@ public class Analyze {
             List<String> tokens = new ArrayList<String>();
 
             tokens = Tokenizer.tokenize(n);
+            //.add("schön");
 
             /* Liste der Tokens der einzelnen Sätze durchgehen */
             for (int i = 0; i < (tokens.size()); i++) {
                 w = tokens.get(i);
+                System.out.println(w);
+                System.out.println("gehört zu aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+
                 /* Liste der Emotionensschlüsselwörter durchgehen */
                 for (String e : words.keySet()) {
                     emoW = words.get(e);
@@ -92,6 +98,8 @@ public class Analyze {
                     /* Liste der WordEntrys durchgehen und beide Vergleichswörter kleinschreiben */
                     for (int j = 0; j < (emoW.size()); j++) {
                         String vergleich = emoW.get(j).getWord();
+                        System.out.println(vergleich);
+
                         vergleich = vergleich.toLowerCase();
                         w = w.toLowerCase();
                         Integer y = w.length();
@@ -210,6 +218,7 @@ public class Analyze {
         for (int i = 0; i < f; i++) {
             url = webURLs.get(i).getUrl();
             urls.add(url);
+            //urls.add("http://www.mobil-talk.de/sony-ericsson-testberichte/213-sony-ericsson-w910i-testbericht-inkl-vielerlivebilder.html");
         }
         return urls;
     }
@@ -251,7 +260,8 @@ public class Analyze {
     }
 
     private boolean getUmlaut(String w, String vergleich, int j, int y, int yy) {
-        if (w.length() > 5) {
+        //boolean testUmlaut = false;
+    	if (w.length() > 5) {
             /*
              * Abfrage ob Wort Umlaut enthält und im Plural ist - wie Bäume/Baum - Wenn ja als gefundenes Wort
              * abspeichern
@@ -288,7 +298,8 @@ public class Analyze {
 
     /* Abfrage ob Wort im Plural oder gesteigert. Wenn ja, abspeichern */
     private boolean getClimax(String w, String vergleich, int j, int y, int yy) {
-        if (w.endsWith("er") || w.endsWith("en") || w.endsWith("es") || w.endsWith("em")) {
+        //boolean testClimax = false;
+    	if (w.endsWith("er") || w.endsWith("en") || w.endsWith("es") || w.endsWith("em")) {
             String qs = w.substring(0, (y - 2));
             if (qs.equals(vergleich)) {
                 testClimax = true;
@@ -305,6 +316,8 @@ public class Analyze {
                     if (qs.equals(vergleich)) {
                         testClimax = true;
                     }
+                }else{
+                	testClimax = false;
                 }
             }
         }
