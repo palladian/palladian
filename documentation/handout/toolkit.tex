@@ -39,7 +39,6 @@
 \def\R{\mathbb{ R}}
 \def\S{\mathbb{ S}}
 
-%\date{\small\it May 16, 2000}
 \date{\today}
 %\title{\fcolorbox{red}{blue}{\color{white}Including colour, pdf graphics and hyperlinks
 %\footnote{A demonstration example including colored text and graphics}}}
@@ -53,11 +52,35 @@
 %\author{Klemens Muthmann \\
 %{\small TU Dresden, Department of Systems Engineering, Chair Computer Networks, IIR Group, Germany}
 %}
+\usepackage{fix-cm}
+\usepackage[absolute]{textpos}
+\newcommand{\bigsize}{\fontsize{18pt}{10pt}\selectfont}
+\newcommand{\titleelementsize}{\fontsize{12pt}{10pt}\selectfont}
 \begin{document}
-\maketitle
+%\maketitle
 %\begin{abstract}
 %This document explains basic functionalities of the TUDIIR Toolkit. Its intention is to explain (new) developers how to work with the toolkit and how to extend its capabilities.
 %\end{abstract}
+
+\begin{titlepage}
+\centering
+
+
+{\bigsize TUD Palladian Overview} \\
+
+\vspace{1.5cm}
+
+{\titleelementsize David Urbansky, Klemens Muthmann, Philipp Katz} \\
+\vspace{0.1cm}
+{\small TU Dresden, Department of Systems Engineering, Chair Computer Networks, IIR Group, Germany} \\
+\vspace{0.8cm}
+{\titleelementsize \today} \\
+\vspace{2cm}
+\includegraphics[width=0.5\textwidth]{img/logo.png}
+
+\end{titlepage}
+
+
 
 \tableofcontents
 
