@@ -105,21 +105,28 @@ public class Analyze {
                         boolean testNegation = getNegation(w, vorW, vorWW);
                         if (testNegation == false) {
                             if (testUmlaut == true) {
-                                save(j);
+                            	if(emoW.get(j).getSentenceUrlList().containsKey(n) == false){
+                            		save(j); 
+                            	}
                             } else {
                                 if (testClimax == true) {
-                                    save(j);
+                                	if(emoW.get(j).getSentenceUrlList().containsKey(n) == false){
+                                		save(j);                            	
+                                	} 
                                 } else {
                                     /* Abfrage ob Wörter einfach gleich sind */
                                     if (vergleich.equals(w)) {
-                                        save(j);
+                                    	if(emoW.get(j).getSentenceUrlList().containsKey(n) == false){
+                                    		save(j);                            	
+                                    	} 
                                     }
                                 }
                             }
-                        }
+                        
                     }
                     /* Wörter vor Token neu abspeichern */
-                }
+                    }
+                }    
                 vorWW = vorW;
                 vorW = w;
             }
@@ -249,11 +256,12 @@ public class Analyze {
     }
 
     private void save(int j) {
-        emoW.get(j).increment();
+    	emoW.get(j).increment();
         en.addWordEntry(emoW.get(j));
         String r = en.getUrl();
         String b = en.getSentence();
         emoW.get(j).saveSentenceUrl(b, r);
+    	
     }
 
     private boolean getUmlaut(String w, String vergleich, int j, int y, int yy) {
