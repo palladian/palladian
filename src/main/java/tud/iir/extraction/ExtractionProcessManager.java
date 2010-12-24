@@ -218,7 +218,7 @@ public class ExtractionProcessManager {
 
         // the interval in milliseconds in which the live_status table should be updated
         long extractionStatusUpdateInteraval = Controller.getConfig().getLong("extraction.statusUpdate")
-                * DateHelper.MINUTE_MS;
+                * DateHelper.SECOND_MS;
 
         int loopCount = 1;
         while (true) {
