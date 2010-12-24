@@ -76,6 +76,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      * @param codes the codes
      * @throws IOException Signals that an I/O exception has occurred.
      */
+    @Override
     public void tagDefineFontInfo(final int fontId, final String fontName, final int flags, final int[] codes)
             throws IOException {
         // fontCodes.put(new Integer(fontId), codes);
@@ -102,11 +103,12 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      * @return the sWF vectors
      * @throws IOException Signals that an I/O exception has occurred.
      */
+    @Override
     public SWFVectors tagDefineFont2(final int tagID, final int flags, final String name, int numGlyphs,
             final int ascent, final int descent, int leading, int[] codes, int[] advances, Rect[] bounds,
             int[] kernCodes1, int[] kernCodes2, int[] kernAdjustments) throws IOException {
         // fontCodes.put(new Integer(id), (codes != null) ? codes : new int[0]);
-        fontCodes.put(Integer.valueOf(tagID), (codes != null) ? codes : new int[0]);
+        fontCodes.put(Integer.valueOf(tagID), codes != null ? codes : new int[0]);
 
         return null;
     }
@@ -131,6 +133,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      * @param lineSpacing the line spacing
      * @throws IOException Signals that an I/O exception has occurred.
      */
+    @Override
     public void tagDefineTextField(int fieldId, String fieldName, String initialText, Rect boundary, int flags,
             AlphaColor textColor, int alignment, int fontId, int fontSize, int charLimit, int leftMargin,
             int rightMargin, int indentation, int lineSpacing) throws IOException {
@@ -148,6 +151,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      * @return the sWF text
      * @throws IOException Signals that an I/O exception has occurred.
      */
+    @Override
     public SWFText tagDefineText(int someId, Rect bounds, Matrix matrix) throws IOException {
         return new TextDumper();
     }
@@ -204,7 +208,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
                 {
                     chars[i] = (char) index;
                 } else {
-                    chars[i] = (char) (codes[index]);
+                    chars[i] = (char) codes[index];
                 }
             }
 
@@ -268,7 +272,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
 
         if (!url.toLowerCase(Locale.ENGLISH).endsWith(".swf")) {
             if (url.toLowerCase(Locale.ENGLISH).contains(".swf")) {
-                final int swfIndex = (url.toLowerCase(Locale.ENGLISH).indexOf(".swf")) + 4;
+                final int swfIndex = url.toLowerCase(Locale.ENGLISH).indexOf(".swf") + 4;
                 url = url.substring(0, swfIndex);
             } else {
                 // LOGGER.info("MIO-URL contains no swf");
@@ -276,19 +280,22 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
             }
 
         }
-        if (!("").equals(url)) {
+        if (!"".equals(url)) {
             // make directory if not exists
             File tempFile = new File(downloadPath);
             if (!tempFile.isDirectory()) {
                 tempFile.mkdir();
             }
-            final File mioFile = Crawler.downloadBinaryFile(url, downloadPath + mio.getFileName());
+            File mioFile = Crawler.downloadBinaryFile(url, downloadPath + mio.getFileName());
 
             if (mioFile != null) {
 
                 try {
-                    final String textContent = extractTextContent(mioFile);
-                    final SWFHeader header = extractHeader(mioFile);
+                    String textContent = extractTextContent(mioFile);
+
+                    // FIXME: ledt to java.util.zip.DateFormatExceptions "invalid distance code"
+                    // SWFHeader header = extractHeader(mioFile);
+                    SWFHeader header = null;
 
                     setFileSize(mio, mioFile);
                     setFeatures(mio, entity, textContent, header);
@@ -314,7 +321,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
     private void setFileSize(MIO mio, File mioFile) {
         if (mioFile != null) {
 
-            double size = (double) mioFile.length();
+            double size = mioFile.length();
             mio.setFileSize(size);
         }
 
@@ -330,7 +337,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
      */
     private void setFeatures(final MIO mio, Entity entity, String textContent, SWFHeader header) {
 
-        if (!("").equals(textContent)) {
+        if (!"".equals(textContent)) {
             mio.setFeature("TextContentRelevance", calcTextContentRelevance(textContent, entity));
         }
 
@@ -367,7 +374,7 @@ public class SWFContentAnalyzer extends SWFTagTypesImpl {
 
         double width = header.getWidth();
         double height = header.getHeight();
-        double relevance = (width * height);
+        double relevance = width * height;
         if (relevance > 70000) {
             result = 1;
         }
