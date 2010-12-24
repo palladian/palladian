@@ -35,7 +35,7 @@ public final class MIOExtractor extends Extractor {
     private static MIOExtractor instance = null;
 
     /** The maximum number of extraction threads. */
-    private static final int MAX_EXTRACTION_THREADS = 5;
+    private static final int MAX_EXTRACTION_THREADS = 3;
 
     /** The path to the MIO model. */
     static String MIO_MODEL_PATH;
@@ -154,7 +154,7 @@ public final class MIOExtractor extends Extractor {
 
                     LOGGER.info("  start mio extraction process for entity \"" + currentEntity.getName() + "\" ("
                             + currentEntity.getConcept().getName() + ")");
-                    final Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
+                    Thread mioThread = new EntityMIOExtractionThread(extractionThreadGroup,
                             currentEntity.getSafeName() + "MIOExtractionThread", currentEntity, getKnowledgeManager());
                     mioThread.start();
 

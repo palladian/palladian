@@ -1662,6 +1662,11 @@ public class Crawler {
 
             LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
             binFile = null;
+
+        } catch (Error e) {
+
+            LOGGER.error("Error downloading the file from: " + urlString + " " + e.getMessage());
+            binFile = null;
         }
 
         return binFile;
