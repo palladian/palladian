@@ -54,6 +54,10 @@ public class DateHelper {
         return getDatetime(format, System.currentTimeMillis());
     }
 
+    public static String getDatetime(long timestamp) {
+        return getDatetime("yyyy-MM-dd HH:mm:ss", timestamp);
+    }
+
     public static String getDatetime(String format, long timestamp) {
         LocalizeHelper.setLocaleEnglish();
         // LocalizeHelper.setUTC();
