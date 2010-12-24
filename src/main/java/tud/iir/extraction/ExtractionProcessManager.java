@@ -216,8 +216,9 @@ public class ExtractionProcessManager {
         SourceRetrieverManager.getInstance().setSource(Controller.getConfig().getInt("extraction.source"));
         SourceRetrieverManager.getInstance().setResultCount(Controller.getConfig().getInt("extraction.resultCount"));
 
-        // the interval in seconds in which the live_status table should be updated
-        int extractionStatusUpdateInteraval = Controller.getConfig().getInt("extraction.statusUpdate") * 1000;
+        // the interval in milliseconds in which the live_status table should be updated
+        long extractionStatusUpdateInteraval = Controller.getConfig().getLong("extraction.statusUpdate")
+                * DateHelper.MINUTE_MS;
 
         int loopCount = 1;
         while (true) {
@@ -307,6 +308,10 @@ public class ExtractionProcessManager {
      * @param intervalMS The interval in milliseconds when the loop should write live status updates.
      */
     private static void waitingLoop(long totalTimeMS, long intervalMS) {
+
+        LOGGER.info("start waiting loop for " + getExtractionPhaseName() + " wait "
+                + DateHelper.getTimeString(totalTimeMS) + " and wake up every " + DateHelper.getTimeString(intervalMS));
+
         long steps = totalTimeMS / intervalMS;
         for (int i = 0; i < steps; i++) {
             ThreadHelper.sleep(intervalMS);
