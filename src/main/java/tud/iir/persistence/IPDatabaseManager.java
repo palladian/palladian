@@ -237,7 +237,7 @@ public class IPDatabaseManager {
 	 */
 	public static void main(String[] args) {
 		IPDatabaseManager ipdb = new IPDatabaseManager();
-        ipdb.refreshDB();
+        // ipdb.refreshDB();
         System.out.println(ipdb.getLocationByIP("92.206.9.232"));
 	}
 
