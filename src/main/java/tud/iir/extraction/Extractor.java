@@ -144,6 +144,7 @@ public abstract class Extractor {
 
         // stop all threads that are still running
         if (extractionThreadGroup != null) {
+            LOGGER.info("interrupting " + getThreadCount() + " threads now");
             extractionThreadGroup.interrupt();
         }
         resetThreadCount();

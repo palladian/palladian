@@ -311,7 +311,7 @@ public class ExtractionProcessManager {
         for (int i = 0; i < steps; i++) {
             ThreadHelper.sleep(intervalMS);
             int progress = (int) Math.floor((double) 100 * i / steps);
-            LOGGER.info("progress: " + progress + "%");
+            LOGGER.info("progress of " + getExtractionPhaseName() + ": " + progress + "%");
 
             liveStatus.setPercent(progress);
             liveStatus.setTimeLeft(DateHelper.getTimeString(totalTimeMS - i * intervalMS));

@@ -18,14 +18,6 @@ import org.apache.log4j.Logger;
  * 
  * @author David Urbansky
  */
-/**
- * @author David
- * 
- */
-/**
- * @author David
- * 
- */
 public class MathHelper {
 
     public static double round(double number, int digits) {
@@ -38,7 +30,7 @@ public class MathHelper {
         try {
             power = (int) Math.floor(Math.log10(Double.valueOf(numberString)));
         } catch (NumberFormatException e) {
-            Logger.getRootLogger().error(numberString, e);
+            Logger.getRootLogger().error(numberString + ", " + e.getMessage());
         }
         return power;
     }
