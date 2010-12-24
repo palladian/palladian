@@ -309,8 +309,13 @@ public class ExtractionProcessManager {
      */
     private static void waitingLoop(long totalTimeMS, long intervalMS) {
 
+        // remember when we started since we can not rely on this waking up exactly every x seconds
+        long startTime = System.currentTimeMillis();
+        long endTime = startTime + totalTimeMS;
+
         LOGGER.info("start waiting loop for " + getExtractionPhaseName() + " wait "
-                + DateHelper.getTimeString(totalTimeMS) + " and wake up every " + DateHelper.getTimeString(intervalMS));
+                + DateHelper.getTimeString(totalTimeMS) + " and wake up every " + DateHelper.getTimeString(intervalMS)
+                + ", end latest at " + DateHelper.getDatetime(endTime));
 
         long steps = totalTimeMS / intervalMS;
         for (int i = 0; i < steps; i++) {
@@ -327,7 +332,11 @@ public class ExtractionProcessManager {
             DatabaseManager.getInstance().checkCleanExtractionStatus();
             DatabaseManager.getInstance().updateExtractionStatus(liveStatus);
 
-            // liveStatus = new LiveStatus();
+            if (System.currentTimeMillis() >= endTime) {
+                LOGGER.info("the time for " + getExtractionPhaseName() + " is up");
+                break;
+            }
+
         }
     }
 
