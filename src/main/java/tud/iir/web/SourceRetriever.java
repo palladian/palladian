@@ -1063,6 +1063,89 @@ public class SourceRetriever {
         srManager.addRequest(SourceRetrieverManager.HAKIA);
         return webresults;
     }
+    
+    public ArrayList<WebResult> getNewsResultsFromHakia(String searchQuery) {
+
+        ArrayList<WebResult> webresults = new ArrayList<WebResult>();
+        Document searchResult = null;
+
+        // query hakia for search engine results
+        try {
+        	
+            searchResult = DocumentBuilderFactory
+                    .newInstance()
+                    .newDocumentBuilder()
+                    .parse(
+                            "http://syndication.hakia.com/searchapi.aspx?search.type=news&search.pid="
+                                    + SourceRetrieverManager.getInstance().HAKIA_API_KEY
+                                    + "&search.query="
+                                    + searchQuery
+                                    + "&search.language=en&search.numberofresult="
+                                    + getResultCount());
+            LOGGER
+                    .debug("Search Results for "
+                            + searchQuery
+                            + "\n"
+                            + "http://syndication.hakia.com/searchapi.aspx?search.type=search&search.pid="
+                            + SourceRetrieverManager.getInstance().HAKIA_API_KEY
+                            + "&search.query=" + searchQuery
+                            + "&search.language=en&search.numberofresult="
+                            + getResultCount());
+        } catch (SAXException e1) {
+            LOGGER.error("hakia", e1);
+        } catch (IOException e1) {
+            LOGGER.error("hakia", e1);
+        } catch (ParserConfigurationException e1) {
+            LOGGER.error("hakia", e1);
+        }
+
+        // create an xpath to grab the returned urls
+        XPathFactory factory = XPathFactory.newInstance();
+        XPath xpath = factory.newXPath();
+
+        XPathExpression expr;
+
+        try {
+
+            LOGGER.debug(searchResult);
+            expr = xpath.compile("//Result");
+
+            Object result = expr.evaluate(searchResult, XPathConstants.NODESET);
+            NodeList nodes = (NodeList) result;
+            LOGGER.debug("URL Nodes: " + nodes.getLength());
+
+            int rank = 1;
+            int grabSize = Math.min(nodes.getLength(), getResultCount());
+            
+            for (int i = 0; i < grabSize; i++) {
+            	Node nodeResult = nodes.item(i);
+           	
+                String title = XPathHelper.getChildNode(nodeResult, "Title").getTextContent();
+
+                // TODO: setSummary(summary);
+                String summary = null;
+                
+                String date = XPathHelper.getChildNode(nodeResult, "Date").getTextContent();
+                String currentURL = XPathHelper.getChildNode(nodeResult, "Url").getTextContent();
+
+                WebResult webresult = new WebResult(
+                        SourceRetrieverManager.HAKIA, rank, new Source(
+                                currentURL), title, summary, date);
+                rank++;
+                
+                LOGGER.info("hakia retrieved url " + currentURL);
+                webresults.add(webresult);
+            }
+
+        } catch (XPathExpressionException e) {
+            LOGGER.error(searchQuery, e);
+        } catch (DOMException e) {
+            LOGGER.error(searchQuery, e);
+        }
+
+        srManager.addRequest(SourceRetrieverManager.HAKIA);
+        return webresults;
+    }
 
     private ArrayList<WebResult> getWebResultsFromTwitter(String searchQuery) {
 

@@ -18,12 +18,12 @@ import tud.iir.helper.RatedDateComparator;
  */
 public class WebPageDateEvaluator {
     /** Standard DateGetter. */
-    DateGetter dg = new DateGetter();
+    private DateGetter dg = new DateGetter();
 
     /** Standard DateRater. */
-    DateEvaluator dr = new DateEvaluator();
+    private DateEvaluator dr = new DateEvaluator();
 
-    ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
+    private  ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
 
     private String url;
     private boolean reference = false;
@@ -54,7 +54,7 @@ public class WebPageDateEvaluator {
      * <br>
      * Be sure than an url is set. Otherwise use <b>evaluate(String url)</b>.
      */
-    public void evaluate() {
+    public  void evaluate() {
         if (this.url != null) {
             ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
             HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
@@ -87,6 +87,37 @@ public class WebPageDateEvaluator {
         }
         return date;
     }
+    
+   /**
+    * 
+    * @param url
+    * @param externalSearch
+    * @return
+    */
+    public static ExtractedDate getBestRatedDate(String url,boolean externalSearch) {
+    	ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
+    	DateGetter dg = new DateGetter();
+    	DateEvaluator dr = new DateEvaluator();
+    	if (url != null) {
+            ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
+            HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
+            
+            dg.setURL(url);
+            dg.setTechReference(externalSearch);
+            dg.setTechArchive(externalSearch);
+            dates = dg.getDate();
+
+            ratedDates = dr.rate(dates);
+            list = DateArrayHelper.hashMapToArrayList(ratedDates);
+        }
+        ExtractedDate date = new ExtractedDate();
+        if (list != null && list.size() > 0) {
+            ArrayList<ExtractedDate> orderedList = list;
+            Collections.sort(orderedList, new RatedDateComparator<ExtractedDate>());
+            date = orderedList.get(0);
+        }
+        return date;
+    }
 
     /**
      * Found the best rate and returns all dates with this rate. <br>
@@ -106,7 +137,7 @@ public class WebPageDateEvaluator {
      * @return
      *         ArraylList of dates.
      */
-    public ArrayList<ExtractedDate> getAllBestRatedDate(boolean onlyFullDates) {
+    public ArrayList<ExtractedDate>  getAllBestRatedDate(boolean onlyFullDates) {
         ArrayList<ExtractedDate> dates = list;
         if (onlyFullDates) {
             dates = DateArrayHelper.filter(dates, DateArrayHelper.FILTER_FULL_DATE);

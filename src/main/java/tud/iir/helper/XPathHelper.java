@@ -216,6 +216,33 @@ public class XPathHelper {
 
         return node;
     }
+    
+    /**
+     * It seams to be, that getNodeByID returns parent node. <br>
+     * Here the ID-node will be returned.
+     * 
+     * @param document the document
+     * @param nodeId the id
+     * @return the node by id
+     */
+    public static Node getChildNodeByID(final Document document, final String nodeId) {
+
+        Node node = null;
+        try {
+            final List<Node> idNodes = XPathHelper.getNodes(document, "//*[@id='" + nodeId + "']");
+            for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
+                node = idNodes.get(i);
+            }
+        } catch (OutOfMemoryError e) {
+            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
+        } catch (NullPointerException e) {
+            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
+        } catch (Error e) {
+            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
+        }
+
+        return node;
+    }
 
     /**
      * Get a child node by xPath.

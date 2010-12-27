@@ -208,7 +208,6 @@ public class DateHelper {
         LocalizeHelper.restoreTimeZoneAndLocale();
         return timestampUTC;
         }
-
     
 
     public static void main(String[] t) {

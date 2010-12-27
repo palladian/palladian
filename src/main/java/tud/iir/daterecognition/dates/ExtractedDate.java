@@ -296,7 +296,8 @@ public class ExtractedDate {
                 dateString = removeAMPM(dateString, meridiem);
             }
             String[] parts = dateString.split(" ");
-            String[] date = parts[0].split("/");
+            String separator = ExtractedDateHelper.getSeparator(parts[0]);
+            String[] date = parts[0].split(separator);
             setDateValues(date, 2, 0, 1);
             StringBuffer sb = new StringBuffer();
             for (int i = 1; i < parts.length; i++) {

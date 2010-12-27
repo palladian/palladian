@@ -1,12 +1,15 @@
 package tud.iir.daterecognition;
 
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
+
+import com.ibm.icu.util.Calendar;
 
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
@@ -304,16 +307,19 @@ public final class DateGetterHelper {
         Matcher m;
 
         for (int i = 0; i < keys.length; i++) {
+        	
             keyBegin = text.toLowerCase(Locale.ENGLISH).indexOf(keys[i].toLowerCase(Locale.ENGLISH));
             if (keyBegin != -1) {
+            	
                 keyEnd = keyBegin + keys[i].length();
-
+                
                 if (keyBegin > 0) {
                     m = p.matcher(text.substring(keyBegin - 1, keyBegin));
                     if (m.find()) {
                         continue;
                     }
                 }
+                
                 if (keyEnd < text.length()) {
 
                     m = p.matcher(text.substring(keyEnd, keyEnd + 1));
@@ -321,17 +327,19 @@ public final class DateGetterHelper {
                         continue;
                     }
                 }
-
+                
                 int subBegin = Math.min(dateBegin, keyBegin);
                 int subende = Math.max(dateEnd, keyEnd);
                 String subText = text.substring(subBegin, subende);
-
+                
                 temp = StringHelper.countWhitespaces(subText);
                 if (temp < distance) {
                     distance = temp;
                     keyword = keys[i];
                 }
+                
             }
+            
         }
 
         if (keyword != null && distance < 20) {
@@ -339,5 +347,48 @@ public final class DateGetterHelper {
             date.set(ContentDate.DISTANCE_DATE_KEYWORD, distance);
             date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_CONTENT);
         }
+    }
+    
+    //Monat und Jahr sind nur gerundet.
+    public static ExtractedDate findRelativeDate(String text){
+    	
+    	ExtractedDate date = null;
+    	Object[] allRegExp = RegExp.getRealtiveDates();
+    	Pattern pattern;
+		Matcher matcher;
+		
+		for(int i=0; i<allRegExp.length; i++){
+			String[] regExp = (String[]) allRegExp[i];
+			pattern = Pattern.compile(regExp[0]);
+			matcher = pattern.matcher(text);
+			if (matcher.find()) {
+			    int start = matcher.start();
+			    int end = matcher.end();
+			    String relativeTime = text.substring(start, end);
+			    long number = Long.valueOf(relativeTime.split(" ")[0]);
+			    
+			    String format = regExp[1];
+			    GregorianCalendar cal = new GregorianCalendar();
+			    long actTime = cal.getTimeInMillis();
+			    long difTime = 0;
+			    long relTime;
+			    if(format.equalsIgnoreCase("min")){
+			    	difTime = number * 60 * 1000;
+			    }else if(format.equalsIgnoreCase("hour")){
+			    	difTime = number * 60 * 60 * 1000;
+			    }else if(format.equalsIgnoreCase("day")){
+			    	difTime = number * 24 * 60 * 60 * 1000;
+			    }else if(format.equalsIgnoreCase("mon")){
+			    	difTime = number * 30 * 24 * 60 * 60 * 1000;
+			    }else if(format.equalsIgnoreCase("year")){
+			    	difTime = number * 365 * 24 * 60 * 60 * 1000;
+			    }
+			    
+			    relTime = actTime - difTime;
+			    date = ExtractedDateHelper.createDate(relTime);
+			    break;
+			}
+		}
+		return date;
     }
 }

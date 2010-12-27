@@ -4,7 +4,7 @@ package tud.iir.knowledge;
  * This class maps the data types (xsd) to regular expressions.<br>
  * <br>
  * Also holds possible date strings as regular expressions. If you enter new ones, make sure you add it to the correct
- * get-method at the right position.
+ * get-method at the correct position.
  * 
  * @author David Urbansky
  * @author Martin Gregor
@@ -267,6 +267,13 @@ public class RegExp {
     public static final String[] DATE_USA_MM_D_Y_SEPARATOR = {
         "((" + DATE_USA_MM_D_Y_SEPARATOR_1 + ")|(" + DATE_USA_MM_D_Y_SEPARATOR_2 + ")|("
         + DATE_USA_MM_D_Y_SEPARATOR_3 + "))", "MM/DD/YYYY" };
+    
+    /** American date. MM/DD/YYYY. */
+    public static final String[] DATE_USA_MM_D_Y_T_SEPARATOR = {
+        "((" + DATE_USA_MM_D_Y_SEPARATOR_1 + ")|(" + DATE_USA_MM_D_Y_SEPARATOR_2 + ")|("
+        + DATE_USA_MM_D_Y_SEPARATOR_3 + "))"+ TIME_SEPARATOR + TIME + "("
+        + DIFF_UTC + "|" + TIMEZONE + ")?", "MM/DD/YYYY HH:MM:SS +UTC" };
+
 
     /** American date. MM/YYYY . */
     public static final String[] DATE_USA_MM_Y = { MONTH_NUMBER_NORMAL + "/" + YEAR_SHORT_LONG, "MM/YYYY" };
@@ -317,6 +324,21 @@ public class RegExp {
         WEEKDAY_NAME_SHORT + " " + MONTH_NAME_SHORT_ENG + " " + DAY_OF_MONTH_1 + " " + TIME_SEC + " " + LONG_YEAR
         + " " + DIFF_UTC, "WD MMM DD_1 HH:MM:SS YYYY +UTC" };
 
+    /*relative dates like 14 hours ago or 3 days ago*/
+    public static final String MINUTEUNIT = "((minute)|(minutes))";
+    public static final String HOURUNIT = "((hour)|(hours))";
+    public static final String DAYUNIT = "((day)|(days))";
+    public static final String MONTHUNIT = "((month)|(months))";
+    public static final String YEARUNIT = "((year)|(years))";
+    
+    public static final String[] RELATIVEDATEMIN = {"\\d* " + MINUTEUNIT + " ago", "min"};
+    public static final String[] RELATIVEDATEHOUR = {"\\d* " + HOURUNIT + " ago", "hour"};
+    public static final String[] RELATIVEDATEDAY = {"\\d* " + DAYUNIT + " ago", "day"};
+    public static final String[] RELATIVEDATEMON = {"\\d* " + MONTHUNIT + " ago", "mon"};
+    public static final String[] RELATIVEDATEYEAR = {"\\d* " + YEARUNIT + " ago", "year"};
+    
+    
+    
     // other dateformates
 
     /*
@@ -400,7 +422,7 @@ public class RegExp {
      */
     public static Object[] getIncTimeRegExp() {
         Object[] regExp = { DATE_ISO8601_YD_T, DATE_ISO8601_YMD_T, DATE_ISO8601_YWD_T, DATE_USA_MM_D_Y_T,
-                DATE_EU_D_MM_Y_T, DATE_USA_MMMM_D_Y_T, DATE_EU_D_MMMM_Y_T };
+                DATE_EU_D_MM_Y_T, DATE_USA_MMMM_D_Y_T, DATE_EU_D_MMMM_Y_T, DATE_USA_MM_D_Y_T_SEPARATOR};
         return regExp;
     }
 
@@ -501,6 +523,11 @@ public class RegExp {
         return regExp;
     }
 
+    public static Object[] getRealtiveDates(){
+    	final Object[] regExp = {RELATIVEDATEMIN, RELATIVEDATEHOUR, RELATIVEDATEDAY, RELATIVEDATEMON, RELATIVEDATEYEAR};
+    	return regExp;
+    }
+    
     public static String getTimezones() {
         return TIMEZONE;
     }

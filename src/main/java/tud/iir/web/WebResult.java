@@ -16,6 +16,7 @@ public class WebResult {
     private String title;
     private String summary;
     private Source source;
+    private String date;
 
     public WebResult(int index, int rank, Source source, String title, String summary) {
         super();
@@ -24,6 +25,15 @@ public class WebResult {
         this.source = source;
         this.title = title;
         this.summary = summary;
+    }
+    public WebResult(int index, int rank, Source source, String title, String summary, String date) {
+        super();
+        this.index = index;
+        this.rank = rank;
+        this.source = source;
+        this.title = title;
+        this.summary = summary;
+        this.date = date;
     }
 
     public int getIndex() {
@@ -50,6 +60,10 @@ public class WebResult {
         return source.getUrl();
     }
 
+    public String getDate(){
+    	return date;
+    }
+    
     @Override
     public String toString() {
         // return index + ":" + rank + ":" + url;
