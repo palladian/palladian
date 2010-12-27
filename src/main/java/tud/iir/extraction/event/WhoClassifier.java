@@ -190,10 +190,10 @@ public class WhoClassifier extends Classifier {
     public static void main(String[] args) {
 
         LOGGER.info("classifier runs");
-        final WhoClassifier wc = new WhoClassifier(Classifier.NEURAL_NETWORK);
-        wc.collectTrainingData("data/features/who.csv");
+        final WhoClassifier wc = new WhoClassifier(Classifier.BAGGING);
+        // wc.collectTrainingData("data/features/who.csv");
 
-        // wc.trainClassifier("data/features/who.csv");
+        wc.trainClassifier("data/features/who.csv");
 
         // wc.useTrainedClassifier(wc.MODEL);
         // wc.testClassifier(wc.MODEL);

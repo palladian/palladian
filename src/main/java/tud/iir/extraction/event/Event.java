@@ -39,12 +39,12 @@ public class Event extends Extractable {
     /** the sentences. **/
     private String[] sentences;
 
-    private String who;
-    private String where;
-    private String what;
-    private String why;
-    private String when;
-    private String how;
+    private String who = "";
+    private String where = "";
+    private String what = "";
+    private String why = "";
+    private String when = "";
+    private String how = "";
 
     /** The who candidates. **/
     private Map<String, Double> whoCandidates = new HashMap<String, Double>();

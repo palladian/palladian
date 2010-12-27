@@ -10,8 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -23,9 +23,8 @@ import org.apache.log4j.Logger;
 
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
-import tud.iir.daterecognition.DateGetter;
-import tud.iir.daterecognition.DateGetterHelper;
-import tud.iir.daterecognition.dates.ContentDate;
+import tud.iir.daterecognition.WebPageDateEvaluator;
+import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.extraction.Extractor;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
@@ -149,8 +148,8 @@ public class EventExtractor extends Extractor {
         Event event = EventExtractor.createEventFromURL(url);
 
         EventExtractor eventExtractor = new EventExtractor();
-        eventExtractor.setWhoClassifier(Classifier.NEURAL_NETWORK);
-        eventExtractor.setWhereClassifier(Classifier.NEURAL_NETWORK);
+        eventExtractor.setWhoClassifier(Classifier.BAGGING);
+        eventExtractor.setWhereClassifier(Classifier.BAGGING);
 
         eventExtractor.getFeatureExtractor().setFeatures(event);
 
@@ -191,36 +190,27 @@ public class EventExtractor extends Extractor {
 
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
 
-        if (this.deepMode) {
-            final DateGetter dg = new DateGetter(event.getUrl());
-            dg.setAllFalse();
-            dg.setTechHTMLContent(true);
-            dg.setTechHTMLHead(true);
-            dg.setTechHTTP(true);
-            dg.setTechURL(true);
-            CollectionHelper.print(dg.getDate());
+        WebPageDateEvaluator webPageDateEvaluator = new WebPageDateEvaluator();
+        webPageDateEvaluator.setUrl(event.getUrl());
+        webPageDateEvaluator.evaluate();
 
+        for (ExtractedDate ed : webPageDateEvaluator.getAllBestRatedDate()) {
+            rankedCandidates.put(ed.getNormalizedDateString(), ed.getRate());
+        }
+
+        ExtractedDate eDate = webPageDateEvaluator.getBestRatedDate();
+        event.setWhen(eDate.getNormalizedDateString());
+
+        // appling Namend Entity Recognition to find DateStrings
+        if (this.deepMode) {
             for (Annotation anno : featureExtractor.getDateAnnotations(event
                     .getText())) {
                 rankedCandidates.put(anno.getEntity().getName(), 0.5);
             }
-
         }
 
-        final ArrayList<ContentDate> dates = DateGetterHelper
-                .findALLDates(event.getText());
-
-        try {
-
-            for (ContentDate date : dates) {
-                rankedCandidates.put(date.getNormalizedDate().toString(), 1.0);
-            }
-            event.setWhenCandidates(rankedCandidates);
-            event.setWhen(dates.get(0).getNormalizedDate().toString());
-
-        } catch (final Exception e) {
-            LOGGER.error(e);
-        }
+        CollectionHelper.print(rankedCandidates);
+        event.setWhenCandidates(rankedCandidates);
 
     }
 
@@ -428,7 +418,6 @@ public class EventExtractor extends Extractor {
 
         String what = null;
 
-        final String text = StringHelper.makeContinuousText(event.getText());
         final String title = StringHelper.makeContinuousText(event.getTitle());
 
         LOGGER.info("title: " + title);
@@ -562,7 +551,8 @@ public class EventExtractor extends Extractor {
         for (final String stc : event.getSentences()) {
 
             double confidence = StringHelper.calculateSimilarity(stc, event
-                    .getTitle())
+                    .getWho()
+                    + " " + event.getWhat() + " " + event.getWhere())
                     - position;
             position = position + 0.001;
 
