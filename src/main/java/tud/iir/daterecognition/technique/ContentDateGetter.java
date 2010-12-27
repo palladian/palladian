@@ -59,19 +59,20 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
      * @return
      */
     private ArrayList<ContentDate> enterTextnodes(Node node, String doc, int depth) {
-
         ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
         if (node.getNodeType() == Node.TEXT_NODE) {
-
+        	
             dates.addAll(checkTextnode((Text) node, doc, depth));
-
+            
         } else {
+        	
             NodeList children = node.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
                 if (!children.item(i).getNodeName().equalsIgnoreCase("script")
                         && !children.item(i).getNodeName().equalsIgnoreCase("style"))
                     dates.addAll(enterTextnodes(children.item(i), doc, depth + 1));
             }
+            
         }
 
         return dates;
@@ -93,17 +94,20 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
         Node parent = node.getParentNode();
         Node tag = parent;
 
+        
         while (HTMLHelper.isSimpleElement(parent)) {
             parent = parent.getParentNode();
         }
-
+        
         ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
         Iterator<ContentDate> iterator = DateGetterHelper.findALLDates(text).iterator();
         if (iterator.hasNext()) {
             index = doc.indexOf(StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(text)));
             // System.out.println(HTMLHelper.replaceHTMLSymbols(text));
         }
+        
         while (iterator.hasNext()) {
+        	
             ContentDate date = iterator.next();
             date.set(ContentDate.STRUCTURE_DEPTH, depth);
             date.setTagNode(parent.toString());
@@ -132,12 +136,17 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
                     date.set(ContentDate.KEYWORDLOCATION, ContentDate.KEY_LOC_ATTR);
                 }
             }
+            
             if (date.getKeyword() == null) {
                 text = HTMLHelper.htmlToString(parent.getParentNode());
+                
                 DateGetterHelper.setNearestTextkeyword(text, date, KeyWords.BODY_CONTENT_KEYWORDS_ALL);
             }
+            
             dates.add(date);
+            
         }
+        
         return dates;
     }
 }

@@ -1153,10 +1153,13 @@ public class StringHelper {
     public static int countWhitespaces(String text) {
         int count = 0;
         String t = text;
-        while (t.indexOf(" ") != -1) {
+        /*while (t.indexOf(" ") != -1) {
             t = t.replaceFirst(" ", "");
             count++;
-        }
+        }*/
+        String[] temp = t.split(" ");
+        count= temp.length - 1;
+        //System.out.println(count);
         return count;
     }
 

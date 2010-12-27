@@ -1574,6 +1574,50 @@ public class Crawler {
         return headerMap;
     }
 
+
+    public Map<String, List<String>> getRequests(String pageURL) {
+        URL url;
+        URLConnection conn;
+        Map<String, List<String>> request = new HashMap<String, List<String>>();
+        try {
+            url = new URL(pageURL);
+            conn = url.openConnection();
+            request = conn.getRequestProperties(); 
+
+        } catch (MalformedURLException e) {
+            LOGGER.error(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        return request;
+    }
+
+    /**
+     * Gets the redirect URL, if such exists.
+     * @param urlString original URL.
+     * @return redirected URL as String or null;
+     */
+    public String getRedirectUrl(String urlString){
+		URL url = null;
+		URLConnection urlCon;
+		HttpURLConnection httpUrlCon;
+		String location = null;
+		try {
+		 	url = new URL(urlString);
+	        urlCon = url.openConnection();
+	        httpUrlCon = (HttpURLConnection) urlCon;
+	        httpUrlCon.setInstanceFollowRedirects(false);
+	        location = httpUrlCon.getHeaderField("Location");
+	        
+        } catch (IOException ioe) {
+            System.err.println(ioe.getStackTrace());
+           
+        }
+        
+        return location;
+	}
+    
     /**
      * Check if an URL is in a valid form and the file-ending is not blacklisted (see Extractor.java for blacklist)
      * 

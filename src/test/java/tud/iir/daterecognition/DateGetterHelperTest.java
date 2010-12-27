@@ -24,62 +24,65 @@ public class DateGetterHelperTest {
 
     @Test
     public void testGetURLDate() throws Exception {
-        final String url1 = "http://www.example.com/2010-06-30/example.html";
-        final String url2 = "http://www.zeit.de/sport/2010-06/example";
-        final String url3 = "http://www.nytimes.com2010_06_30/business/economy/30leonhardt.html?hp";
-        final String url4 = "http://www.example.com/2010/06/example.html";
-        final String url5 = "http://www.example.com/2010_06_30/example.html";
-        final String url6 = "http://www.example.com/2010_06/example.html";
-        final String url7 = "http://www.example.com/2010.06.30/example.html";
-        final String url8 = "http://www.example.com/2010.06/example.html";
-        final String url9 = "http://www.example.com/text/2010.06.30.html";
-        final String url10 = "http://www.example.com/text/2010/othertext/06_30/example.html";
-        final String url11 = "http://www.example.com/text/2010/othertext/06/30/example.html";
-        final String url12 = "http://www.example.com/text/2010/othertext/06/30example.html";
-        final String url13 = "http://www.example.com/text/2010/other/text/06_30example.html";
-        final String url14 = "http://www.example.com/text/othertext/20100630example.html";
-        final String url15 = "http://www.guardian.co.uk/world/2002/aug/06/iraq.johnhooper";
-
-        // Cases with given day
-        String time = "2010-06-30";
-        URLDateGetter udg = new URLDateGetter();
-        udg.setUrl(url1);
-        assertEquals(url1, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url3);
-        assertEquals(url3, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url5);
-        assertEquals(url5, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url7);
-        assertEquals(url7, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url9);
-        assertEquals(url9, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url10);
-        assertEquals(url10, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url11);
-        assertEquals(url11, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url12);
-        assertEquals(url12, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url13);
-        assertEquals(url13, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url14);
-        assertEquals(url14, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url15);
-        assertEquals(url15, "2002-08-06", udg.getFirstDate().getNormalizedDateString());
-
-        // Cases without given day, so day will be set to 1st
-        time = "2010-06";
-        udg.setUrl(url2);
-        assertEquals(url2, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url4);
-        assertEquals(url4, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url6);
-        assertEquals(url6, time, udg.getFirstDate().getNormalizedDateString());
-        udg.setUrl(url8);
-        assertEquals(url8, time, udg.getFirstDate().getNormalizedDateString());
+    	if(AllTests.ALL_TESTS){
+	        final String url1 = "http://www.example.com/2010-06-30/example.html";
+	        final String url2 = "http://www.zeit.de/sport/2010-06/example";
+	        final String url3 = "http://www.nytimes.com2010_06_30/business/economy/30leonhardt.html?hp";
+	        final String url4 = "http://www.example.com/2010/06/example.html";
+	        final String url5 = "http://www.example.com/2010_06_30/example.html";
+	        final String url6 = "http://www.example.com/2010_06/example.html";
+	        final String url7 = "http://www.example.com/2010.06.30/example.html";
+	        final String url8 = "http://www.example.com/2010.06/example.html";
+	        final String url9 = "http://www.example.com/text/2010.06.30.html";
+	        final String url10 = "http://www.example.com/text/2010/othertext/06_30/example.html";
+	        final String url11 = "http://www.example.com/text/2010/othertext/06/30/example.html";
+	        final String url12 = "http://www.example.com/text/2010/othertext/06/30example.html";
+	        final String url13 = "http://www.example.com/text/2010/other/text/06_30example.html";
+	        final String url14 = "http://www.example.com/text/othertext/20100630example.html";
+	        final String url15 = "http://www.guardian.co.uk/world/2002/aug/06/iraq.johnhooper";
+	
+	        // Cases with given day
+	        String time = "2010-06-30";
+	        URLDateGetter udg = new URLDateGetter();
+	        udg.setUrl(url1);
+	        assertEquals(url1, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url3);
+	        assertEquals(url3, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url5);
+	        assertEquals(url5, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url7);
+	        assertEquals(url7, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url9);
+	        assertEquals(url9, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url10);
+	        assertEquals(url10, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url11);
+	        assertEquals(url11, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url12);
+	        assertEquals(url12, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url13);
+	        assertEquals(url13, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url14);
+	        assertEquals(url14, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url15);
+	        assertEquals(url15, "2002-08-06", udg.getFirstDate().getNormalizedDateString());
+	
+	        // Cases without given day, so day will be set to 1st
+	        time = "2010-06";
+	        udg.setUrl(url2);
+	        assertEquals(url2, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url4);
+	        assertEquals(url4, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url6);
+	        assertEquals(url6, time, udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url8);
+	        assertEquals(url8, time, udg.getFirstDate().getNormalizedDateString());
+    	}
     }
 
     @Test
     public void testGetDateFromString() throws Exception {
+
 
         ExtractedDate date;
         String text;
@@ -291,6 +294,8 @@ public class DateGetterHelperTest {
         assertEquals("2006-08-04 14:52", date.getNormalizedDateString());
         date = DateGetterHelper.getDateFromString("Saturday, September 20. 2008", RegExp.DATE_USA_MMMM_D_Y);
         assertEquals("2008-09-20", date.getNormalizedDateString());
+        date = DateGetterHelper.getDateFromString("11-12-2010 19:48:00", RegExp.DATE_USA_MM_D_Y_T_SEPARATOR);
+        assertEquals("2010-11-12 19:48:00", date.getNormalizedDateString());
 
         // others
         text = "2010-07-02 19:07:49";
@@ -381,6 +386,7 @@ public class DateGetterHelperTest {
         assertEquals("2009-04-06 15:11", (DateGetterHelper.findDate("April  6, 2009  3:11 PM")).getNormalizedDateString());
         ExtractedDate date = DateGetterHelper.findDate("aug 4, 2006 / 14:52");
         assertEquals("2006-08-04 14:52", date.getNormalizedDateString());
+        
 
     }
 
@@ -412,24 +418,25 @@ public class DateGetterHelperTest {
 
     @Test
     public void testGetHTTPHeaderDate() {
-        System.out.println("testGetHTTPHeaderDate:");
-
-        /*
-         * ExtractedDate date = DateGetterHelper
-         * .getHTTPHeaderDate("http://www.spreeblick.com/2010/07/08/william-shatner-hat-leonard-nimoys-fahrrad-geklaut/"
-         * );
-         */
-        // String url = "http://www.zeit.de/politik/ausland/2010-09/russland-waldbraende-siedlungen";
-        String url = "http://www.spreeblick.com/2010/07/08/william-shatner-hat-leonard-nimoys-fahrrad-geklaut/";
-
-        HTTPDateGetter hdg = new HTTPDateGetter();
-        hdg.setUrl(url);
-
-        ArrayList<HTTPDate> dates = hdg.getDates();
-        for (int i = 0; i < dates.size(); i++) {
-            System.out.println(dates.get(i).getDateString());
-        }
-
+    	if(AllTests.ALL_TESTS){
+	        System.out.println("testGetHTTPHeaderDate:");
+	
+	        /*
+	         * ExtractedDate date = DateGetterHelper
+	         * .getHTTPHeaderDate("http://www.spreeblick.com/2010/07/08/william-shatner-hat-leonard-nimoys-fahrrad-geklaut/"
+	         * );
+	         */
+	        // String url = "http://www.zeit.de/politik/ausland/2010-09/russland-waldbraende-siedlungen";
+	        String url = "http://www.spreeblick.com/2010/07/08/william-shatner-hat-leonard-nimoys-fahrrad-geklaut/";
+	
+	        HTTPDateGetter hdg = new HTTPDateGetter();
+	        hdg.setUrl(url);
+	
+	        ArrayList<HTTPDate> dates = hdg.getDates();
+	        for (int i = 0; i < dates.size(); i++) {
+	            System.out.println(dates.get(i).getDateString());
+	        }
+    	}
     }
 
     @Test
@@ -462,46 +469,51 @@ public class DateGetterHelperTest {
     @Test
     public void testGetStructureDate2() {
 
-        // String url = "http://www.aftonbladet.se/wendela/ledig/article3476060.ab";
-        String url = "http://www.guardian.co.uk/world/2002/aug/06/iraq.johnhooper";
-
-        if (!AllTests.ALL_TESTS) {
-            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
-            DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllFalse();
-            dateGetter.setTechHTMLStruct(true);
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
-            date.addAll(dates);
-            DateArrayHelper.printDateArray(date);
-        }
+    	if(AllTests.ALL_TESTS){
+	        // String url = "http://www.aftonbladet.se/wendela/ledig/article3476060.ab";
+	        String url = "http://www.guardian.co.uk/world/2002/aug/06/iraq.johnhooper";
+	
+	        if (!AllTests.ALL_TESTS) {
+	            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+	            DateGetter dateGetter = new DateGetter(url);
+	            dateGetter.setAllFalse();
+	            dateGetter.setTechHTMLStruct(true);
+	            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+	            date.addAll(dates);
+	            DateArrayHelper.printDateArray(date);
+	        }
+    	}
     }
 
     @Test
     public void testGetContentDates() {
-        // final String url = "data/test/webPages/dateExtraction/kullin.htm";
-        // String url =
-        // "http://www.gatorsports.com/article/20100823/ARTICLES/100829802/1136?Title=Meyer-has-concerns-with-season-fast-approaching";
-        // String url = "http://www.truthdig.com/arts_culture/item/20071108_mark_sarvas_on_the_hot_zone/";
-        // String url =
-        // "http://www.scifisquad.com/2010/05/21/fridays-sci-fi-tv-its-a-spy-game-on-stargate-universe?icid=sphere_wpcom_tagsidebar/";
-        String url = "http://g4tv.com/games/pc/61502/star-wars-the-old-republic/index/";
-        // String url =
-        // "http://www.politicsdaily.com/2010/06/10/harry-reid-ads-tout-jobs-creation-spokesman-calls-sharron-angl/";
-        if (!AllTests.ALL_TESTS) {
-
-            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
-            // date.addAll(DateGetterHelper
-            // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
-            // date.addAll(DateGetterHelper
-            // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
-            DateGetter dateGetter = new DateGetter(url);
-            dateGetter.setAllFalse();
-            dateGetter.setTechHTMLContent(true);
-            ArrayList<ExtractedDate> dates = dateGetter.getDate();
-            date.addAll(dates);
-            DateArrayHelper.printDateArray(date);
-
-        }
+    	if(AllTests.ALL_TESTS){
+	        // final String url = "data/test/webPages/dateExtraction/kullin.htm";
+	        // String url =
+	        // "http://www.gatorsports.com/article/20100823/ARTICLES/100829802/1136?Title=Meyer-has-concerns-with-season-fast-approaching";
+	        // String url = "http://www.truthdig.com/arts_culture/item/20071108_mark_sarvas_on_the_hot_zone/";
+	        // String url =
+	        // "http://www.scifisquad.com/2010/05/21/fridays-sci-fi-tv-its-a-spy-game-on-stargate-universe?icid=sphere_wpcom_tagsidebar/";
+	        
+    		String url = "http://g4tv.com/games/pc/61502/star-wars-the-old-republic/index/";
+    		url = "data/webpages/daterecognition/webpage_1292927985086.html";
+	        // String url =
+	        // "http://www.politicsdaily.com/2010/06/10/harry-reid-ads-tout-jobs-creation-spokesman-calls-sharron-angl/";
+	        if (AllTests.ALL_TESTS) {
+	            ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
+	            // date.addAll(DateGetterHelper
+	            // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
+	            // date.addAll(DateGetterHelper
+	            // .getStructureDate("http://www.zeit.de/politik/deutschland/2010-07/gruene-hamburg-cdu"));
+	            DateGetter dateGetter = new DateGetter(url);
+	            dateGetter.setAllFalse();
+	            dateGetter.setTechHTMLContent(true);
+	            ArrayList<ExtractedDate> dates = dateGetter.getDate();
+	            date.addAll(dates);
+	            DateArrayHelper.printDateArray(date);
+	
+	        }
+    	}
     }
 
     @Test
@@ -529,7 +541,7 @@ public class DateGetterHelperTest {
         String url = "data/test/webPages/dateExtraction/alltop.htm";
         url = "http://www.zeit.de/2010/36/Wirtschaft-Konjunktur-Deutschland";
 
-        if (!AllTests.ALL_TESTS) {
+        if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllTrue();
@@ -546,7 +558,7 @@ public class DateGetterHelperTest {
     public void testGetDate2() {
         final String url = "http://www.friendfeed.com/share?title=Google+displays+incorrect+dates+from+news+sites&link=http://www.kullin.net/2010/05/google-displays-incorrect-dates-from-news-sites/";
 
-        if (!AllTests.ALL_TESTS) {
+        if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllFalse();
@@ -566,7 +578,7 @@ public class DateGetterHelperTest {
         String url = "http://www.spiegel.de/index.html";
         // String url = "data/test/webPages/dateExtraction/kullin.htm";
 
-        if (!AllTests.ALL_TESTS) {
+        if (AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             // date.addAll(DateGetterHelper
             // .getStructureDate("http://www.spiegel.de/schulspiegel/wissen/0,1518,706953,00.html"));
@@ -584,51 +596,84 @@ public class DateGetterHelperTest {
 
     @Test
     public void testGetHeadDates2() {
-        String url = "http://abclocal.go.com/wabc/story?section=news/local&id=6606410";
-
-        Crawler c = new Crawler();
-        c.setDocument(url);
-        Document document = c.getDocument();
-
-        HeadDateGetter hdg = new HeadDateGetter();
-        hdg.setDocument(document);
-
-        ArrayList<HeadDate> headDates = hdg.getDates();
-        DateArrayHelper.printDateArray(headDates);
+    	if(AllTests.ALL_TESTS){
+	        String url = "http://abclocal.go.com/wabc/story?section=news/local&id=6606410";
+	
+	        Crawler c = new Crawler();
+	        c.setDocument(url);
+	        Document document = c.getDocument();
+	
+	        HeadDateGetter hdg = new HeadDateGetter();
+	        hdg.setDocument(document);
+	
+	        ArrayList<HeadDate> headDates = hdg.getDates();
+	        DateArrayHelper.printDateArray(headDates);
+    	}
 
     }
 
     @Test
     public void testGetHeadDates() {
-        String url = "data/test/webPages/dateExtraction/zeit2.htm";
-        ArrayList<HeadDate> compareDates = new ArrayList<HeadDate>();
-        compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-        compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-        compareDates.add(new HeadDate("2010-09-03T09:44:12.597203+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-        compareDates.add(new HeadDate("2010-09-03T09:41:54.059727+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-        compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-        compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
-
-        Crawler c = new Crawler();
-        c.setDocument(url);
-        Document document = c.getDocument();
-        HeadDateGetter hdg = new HeadDateGetter();
-        hdg.setDocument(document);
-        ArrayList<HeadDate> headDates = hdg.getDates();
-        assertEquals(6, headDates.size());
-        for (int i = 0; i < headDates.size(); i++) {
-            assertEquals(compareDates.get(i).getDateString(), headDates.get(i).getDateString());
-        }
+    	if(AllTests.ALL_TESTS){
+	        String url = "data/test/webPages/dateExtraction/zeit2.htm";
+	        ArrayList<HeadDate> compareDates = new ArrayList<HeadDate>();
+	        compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+	        compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+	        compareDates.add(new HeadDate("2010-09-03T09:44:12.597203+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+	        compareDates.add(new HeadDate("2010-09-03T09:41:54.059727+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+	        compareDates.add(new HeadDate("2010-09-03T09:43:13.211280+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+	        compareDates.add(new HeadDate("2010-09-02T06:00:00+00:00", RegExp.DATE_ISO8601_YMD_T[1]));
+	
+	        Crawler c = new Crawler();
+	        c.setDocument(url);
+	        Document document = c.getDocument();
+	        HeadDateGetter hdg = new HeadDateGetter();
+	        hdg.setDocument(document);
+	        ArrayList<HeadDate> headDates = hdg.getDates();
+	        assertEquals(6, headDates.size());
+	        for (int i = 0; i < headDates.size(); i++) {
+	            assertEquals(compareDates.get(i).getDateString(), headDates.get(i).getDateString());
+	        }
+    	}
 
     }
 
     @Test
     public void testArchiveDate() {
-        String url = "http://www.spiegel.de";
-        DateGetter dg = new DateGetter(url);
-        dg.setAllFalse();
-        dg.setTechArchive(true);
-        ArrayList<ExtractedDate> dates = dg.getDate();
-        DateArrayHelper.printDateArray(dates);
+    	if(AllTests.ALL_TESTS){
+	    	String url = "http://www.spiegel.de";
+	        DateGetter dg = new DateGetter(url);
+	        dg.setAllFalse();
+	        dg.setTechArchive(true);
+	        ArrayList<ExtractedDate> dates = dg.getDate();
+	        DateArrayHelper.printDateArray(dates);
+    	}
+    }
+    
+    @Test
+    @Ignore
+    public void testFindRelativeDate(){
+    	String text = "5 days ago";
+    	ExtractedDate relDate = DateGetterHelper.findRelativeDate(text);
+    	assertEquals("2010-11-26", relDate.getNormalizedDate(false));
+    	text = "114 days ago";
+    	relDate = DateGetterHelper.findRelativeDate(text);
+    	assertEquals("2010-08-09", relDate.getNormalizedDate(false));
+    	text = "4 month ago";
+    	relDate = DateGetterHelper.findRelativeDate(text);
+    	assertEquals("2010-08-03", relDate.getNormalizedDate(false));
+    	text = "12 month ago";
+    	relDate = DateGetterHelper.findRelativeDate(text);
+    	assertEquals("2009-12-06", relDate.getNormalizedDate(false));
+    	text = "1 year ago";
+    	relDate = DateGetterHelper.findRelativeDate(text);
+    	assertEquals("2009-12-01", relDate.getNormalizedDate(false));
+    	text = "11 years ago";
+    	relDate = DateGetterHelper.findRelativeDate(text);
+    	assertEquals("1999-12-04", relDate.getNormalizedDate(false));
+    	text = "1 minute ago";
+    	relDate = DateGetterHelper.findRelativeDate(text);
+    	assertEquals("2010-12-01", relDate.getNormalizedDate(false));
+    	
     }
 }
