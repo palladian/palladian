@@ -299,6 +299,9 @@ public class ChartCreator {
      *            {@link PollingStrategy}s.
      * @param COLUMN_TO_WRITE the position in Long[] to write the data to.
      * @param NUMBER_OF_COLUMNS the total number of columns ({@link PollingStrategy}s)
+     * @param SIMULATE_ETAG_USAGE Use to simulate the usage of eTags and HTTP304. If true, and if the poll contains no
+     *            new item, only the header is added, otherwise the transfer volume of the poll (or the last poll if
+     *            polls are simulated)
      */
     private void volumeHelper(List<EvaluationFeedPoll> polls, Map<Integer, Long[]> totalResultMapMax,
             final int COLUMN_TO_WRITE, final int NUMBER_OF_COLUMNS, final boolean SIMULATE_ETAG_USAGE) {
@@ -313,6 +316,10 @@ public class ChartCreator {
             
             // in Davids DB nicht vorhandene Polls simulieren
             if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
+                
+                int sizeToAdd = (SIMULATE_ETAG_USAGE && poll.getSupportsConditionalGet()) ? poll
+                        .getConditionalGetResponseSize() : sizeOfPollLast;
+                
                 while (minuteLastStep + checkIntervalLast < TOTAL_EXPERIMENT_HOURS * 60) {
 
                     final int MINUTE_TO_PROCESS = (minuteLastStep + checkIntervalLast);
@@ -320,11 +327,11 @@ public class ChartCreator {
                     final int HOUR_TO_PROCESS = MINUTE_TO_PROCESS / 60 + 1;
 
                     addSizeOfPollToMap(totalResultMapMax, NUMBER_OF_COLUMNS, COLUMN_TO_WRITE, HOUR_TO_PROCESS,
-                            sizeOfPollLast);
+                            sizeToAdd);
 
                     LOGGER.info("simmuliere für FeedID " + feedIDLastStep + ", aktuelle Stunde: " + HOUR_TO_PROCESS
                             + " aktuelle Minute " + MINUTE_TO_PROCESS + " checkInterval " + checkIntervalLast
-                            + " addiere " + sizeOfPollLast + "bytes" + " totalResultMapMax Feld: "
+                            + " addiere " + sizeToAdd + "bytes" + " totalResultMapMax Feld: "
                             + totalResultMapMax.get(HOUR_TO_PROCESS)[COLUMN_TO_WRITE]);
 
                     minuteLastStep = MINUTE_TO_PROCESS;
@@ -335,16 +342,24 @@ public class ChartCreator {
             // aktuellen Poll behandeln
             final int HOUR_TO_PROCESS = poll.getHourOfExperiment();
 
-            int sizeOfPoll = poll.getSizeOfPoll();
-            if (SIMULATE_ETAG_USAGE && poll.getNewWindowItems() == 0f && poll.getSupportsConditionalGet() == true) {
+            int sizeOfPoll;
+            if (SIMULATE_ETAG_USAGE && poll.getNewWindowItems() == 0 && poll.getSupportsConditionalGet() == true) {
                     sizeOfPoll = poll.getConditionalGetResponseSize();
+            } else {
+                sizeOfPoll = poll.getSizeOfPoll();
             }
 
             addSizeOfPollToMap(totalResultMapMax, NUMBER_OF_COLUMNS, COLUMN_TO_WRITE, HOUR_TO_PROCESS, sizeOfPoll);
 
             if (poll.getNumberOfPoll() >= 2) {
-                minuteLastStep += poll.getCheckInterval();
+                minuteLastStep += checkIntervalLast;
             }
+
+            LOGGER.info("bearbeite      FeedID " + feedIDCurrent + ", aktuelle Stunde: " + HOUR_TO_PROCESS
+                    + " aktuelle Minute " + minuteLastStep + " checkInterval " + poll.getCheckInterval() + " addiere "
+                    + sizeOfPoll + "bytes" + " totalResultMapMax Feld: "
+                    + totalResultMapMax.get(HOUR_TO_PROCESS)[COLUMN_TO_WRITE]);
+
             feedIDLastStep = feedIDCurrent;
             sizeOfPollLast = sizeOfPoll;
             checkIntervalLast = poll.getCheckInterval();
@@ -402,6 +417,11 @@ public class ChartCreator {
     
         cumulatedVolumeSB.append("hour of experiment;");
         for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
+
+            // FIXME REMOVE DEBUG CODE
+            if (!pollingStrategy.equals(PollingStrategy.FIX60))
+                continue;
+
             LOGGER.info("starting to create data for " + pollingStrategy.toString());
             cumulatedVolumeSB.append(pollingStrategy.toString().toLowerCase()).append(";");
             feedIDStart = 1;
