@@ -26,13 +26,10 @@ public class Tokenizer {
 
         List<String> tokens = new ArrayList<String>();
 
-        Pattern pattern = Pattern.compile("(\\w+)([-\\.,](\\w+))*|\\.(\\w+)|</?(\\w+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
-                Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-
-        pattern = Pattern
+        Pattern pattern = Pattern
                 .compile(
-                        "([\\p{L}\\w]+)([-\\.,]([\\p{L}\\w]+))*|\\.([\\p{L}\\w]+)|</?([\\p{L}\\w]+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
-                        Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+                "([\\p{L}\\w]+)([-\\.,]([\\p{L}\\w]+))*|\\.([\\p{L}\\w]+)|</?([\\p{L}\\w]+)>|(\\$\\d+\\.\\d+)|([^\\w\\s<]+)",
+                Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
         Matcher matcher = pattern.matcher(inputString);
         while (matcher.find()) {
