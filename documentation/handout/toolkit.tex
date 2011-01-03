@@ -201,7 +201,7 @@ The library is licensed under the GNU General Public License.
 \end{enumerate}
 
 \chapter{Installation and Making it Work}
-Palladian is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see~\ref{sec:toolkitstructure}). It is build and tested automatically on every commit using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.redmine.org/}{Redmine bugtracker}. The project encoding is UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
+Palladian depends on Java 1.6. If you are using Linux, make sure to use Sun's proprietary JDK instead of OpenJDK to avoid build problems\footnote{Open a Terminal and enter \texttt{java -version} to check the currently installed Java version. The necessary steps to change your Java version depend on your Linux distribution, for Ubuntu flavours see \url{https://help.ubuntu.com/community/Java}.}. The code base is managed using \href{http://subversion.apache.org/}{Subversion (SVN)} (see Chapter~\ref{sec:toolkitstructure}). It is build and tested automatically on every commit using \href{http://maven.apache.org/}{Apache Maven} and \href{http://hudson-ci.org/}{Hudson CI}. Bugs might be reported using the \href{http://www.redmine.org/}{Redmine bugtracker}. The project encoding is UTF-8. To support unavailable libraries we manage our own Maven repository using \href{http://nexus.sonatype.org/}{Sonatype Nexus}. How to use these components is explained in the next sections.
 
 Currently each systems manages its own user base so registration is needed for each one. To start working with the toolkit you should send an E-Mail to a toolkit administrator to get access to the systems. Provide your name, the name of your advisor and the reason why you need to work with the toolkit and you will get your logins.
 \section{Building Palladian using Apache Maven}
@@ -255,7 +255,7 @@ The rules of the game are:
 \item +1 points for each new test that passes
 \item Adding/removing a HIGH priority PMD warning = --5/+5. Adding/removing a MEDIUM priority PMD warning = --3/+3. Adding/removing a LOW priority PMD warning = --1/+1.
 \item Adding/removing a violation = --1/+1. Adding/removing a duplication violation = +5/--5.
-\item Adding/removing a HIGH priority findbugs warning = -5/+5. Adding/removing a MEDIUM priority findbugs warning = --3/+3. Adding/removing a LOW priority findbugs warning = -1/+1
+\item Adding/removing a HIGH priority findbugs warning = --5/+5. Adding/removing a MEDIUM priority findbugs warning = --3/+3. Adding/removing a LOW priority findbugs warning = --1/+1
 \item Adding/removing a compiler warning = --1/+1.
 \item Checkstyle Plugin. Adding/removing a checkstyle warning = --1/+1.
 \end{itemize}
@@ -352,7 +352,7 @@ It is also necessary to tell Eclipse to use Java 1.6 instead of 1.4. To do this 
 \caption{configure Eclipse to use Java 1.6}
 \label{fig:java603}
 \end{figure}
-\paragraph{Writing your first Palladian} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search bing for a string term . The example is also shown in Fig.~\ref{fig:hellotoolkit}.
+\paragraph{Writing your first Code with Palladian} Now you can start to write your first code. Your project will already contain the default Maven directory structure. Do not change this structure since Maven depends on it\footnote{Of course you can change Mavens behaviour via the pom.xml but this requires additional configuration not covered by this document. Refer to the Maven documentation under \url{http://maven.apache.org/} for further information.}. As usual we will start with a very simple "Hello World" application. Create a new package \texttt{de.tud.inf.rn.iir.toolkit} and a new class \texttt{HelloToolkit} containing a \texttt{main} method. In this main method you can add actual toolkit code. We used the first example as described in Section~\ref{sec:howto} and search Bing for a string term . The example is also shown in Fig.~\ref{fig:hellotoolkit}.
 \begin{figure}
 \centering
 \includegraphics[trim=0 350px 600px 0,clip=true,width=\textwidth]{img/ht10.png}
@@ -447,6 +447,9 @@ palladian
 \end{verbatim}
 
 \section{Config Folder}
+
+% TODO this needs to be adapted to the new single config file ...
+
 \label{sec:config.conf}
 The config folder contains configuration files for several components of the toolkit. The files are explained in the following sections.
 
