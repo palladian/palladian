@@ -12,6 +12,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.emotionanalyzing.WordEntryList;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.helper.Tokenizer;
 import tud.iir.web.SourceRetriever;
@@ -83,6 +84,8 @@ public class Analyze {
 
             tokens = Tokenizer.tokenize(n);
             //.add("schön");
+            
+          // tokens.add("Träume");
 
             /* Liste der Tokens der einzelnen Sätze durchgehen */
             for (int i = 0; i < (tokens.size()); i++) {
@@ -103,6 +106,9 @@ public class Analyze {
                         Integer yy = vergleich.length();
 
                         boolean testNegation = getNegation(w, vorW, vorWW);
+                        boolean testClimax = getClimax(w, vergleich, j, y, yy);
+                        
+                       //boolean testUmlaut = getUmlaut(w, vergleich, j, y, yy);
                         if (testNegation == false) {
                             if (testUmlaut == true) {
                             	if(emoW.get(j).getSentenceUrlList().containsKey(n) == false){
@@ -153,7 +159,7 @@ public class Analyze {
             myFile = new FileReader("config/emotionDictionary_german.csv");
             buff = new BufferedReader(myFile);
             while (true) {
-                String line = buff.readLine();
+                String line = buff.readLine();  
                 if (line == null) {
                     break;
                 }
@@ -265,7 +271,7 @@ public class Analyze {
     }
 
     private boolean getUmlaut(String w, String vergleich, int j, int y, int yy) {
-        //boolean testUmlaut = false;
+        boolean testUmlaut = false;
     	if (w.length() > 5) {
             /*
              * Abfrage ob Wort Umlaut enthält und im Plural ist - wie Bäume/Baum - Wenn ja als gefundenes Wort
@@ -280,30 +286,59 @@ public class Analyze {
                 if (qs.equals(os) && (w.subSequence(0, 1).equals(w.subSequence(0, 1)))) {
                     testUmlaut = true;
                 } else {
-                    if (w.endsWith("e") || w.endsWith("s")) {
-                        String qu = w.substring(0, (y - 1));
-                        if (qu.equals(vergleich)) {
+                    if ((w.subSequence(1, 3)).equals("ae") || (w.subSequence(1, 3)).equals("oe") || (w.subSequence(1, 3)).equals("ue") && w.endsWith("e") || w.endsWith("s")){
+                    	String qu = w.substring(3, (y - 1));
+                        String ou = vergleich.substring(2, yy);
+                        if (qu.equals(ou) && (w.subSequence(0, 1).equals(w.subSequence(0, 1)))) {
                             testUmlaut = true;
                         }
                     } else {
-                        if (w.endsWith("ern")) {
-                            String qt = w.substring(0, (y - 3));
-                            if (qt.equals(vergleich)) {
+                        if ((w.subSequence(1, 3)).equals("ae") || (w.subSequence(1, 3)).equals("oe") || (w.subSequence(1, 3)).equals("ue") && w.endsWith("ern")) {
+                        	String qt = w.substring(3, (y - 3));
+                            String ot = vergleich.substring(2, yy);
+                            if (qt.equals(ot) && (w.subSequence(0, 1).equals(w.subSequence(0, 1)))) {
                                 testUmlaut = true;
                             }
                         }
                     }
+             }
+           }else{
+        	   if ((w.subSequence(2, 4)).equals("ae") || (w.subSequence(2, 4)).equals("oe")
+                       || (w.subSequence(2, 4)).equals("ue") && w.endsWith("en") || w.endsWith("es") || w.endsWith("er")
+                       || w.endsWith("em")) {
+                   String qs = w.substring(4, (y - 2));
+                   String os = vergleich.substring(3, yy);
+
+                   if (qs.equals(os) && (w.subSequence(0, 2).equals(w.subSequence(0, 2)))) {
+                       testUmlaut = true;
+                   } else {
+                       if ((w.subSequence(2, 4)).equals("ae") || (w.subSequence(2, 4)).equals("oe") || (w.subSequence(2, 4)).equals("ue") && w.endsWith("e") || w.endsWith("s")){
+                       	   String qu = w.substring(4, (y - 1));
+                           String ou = vergleich.substring(3, yy);
+                           if (qu.equals(ou) && (w.subSequence(0, 2).equals(w.subSequence(0, 2)))) {
+                               testUmlaut = true;
+                           }
+                       } else {
+                           if ((w.subSequence(2, 4)).equals("ae") || (w.subSequence(2, 4)).equals("oe") || (w.subSequence(2, 4)).equals("ue") && w.endsWith("ern")) {
+                           	String qt = w.substring(4, (y - 3));
+                               String ot = vergleich.substring(3, yy);
+                               if (qt.equals(ot) && (w.subSequence(0, 2).equals(w.subSequence(0, 2)))) {
+                                   testUmlaut = true;
+                               }
+                           }
+                       }
                 }
-            } else {
-                testUmlaut = false;
-            }
-        }
-        return testUmlaut;
+              }else {
+                  testUmlaut = false;
+              }
+           }
+      }
+		return testUmlaut;
     }
 
     /* Abfrage ob Wort im Plural oder gesteigert. Wenn ja, abspeichern */
     private boolean getClimax(String w, String vergleich, int j, int y, int yy) {
-        //boolean testClimax = false;
+        boolean testClimax = false;
     	if (w.endsWith("er") || w.endsWith("en") || w.endsWith("es") || w.endsWith("em")) {
             String qs = w.substring(0, (y - 2));
             if (qs.equals(vergleich)) {
