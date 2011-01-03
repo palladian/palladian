@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -30,19 +32,19 @@ import tud.iir.persistence.PersistenceManager;
  */
 public class KnowledgeManager implements Serializable {
 
-    /** the serial version id to serialize the KnowledgeManager */
+    /** The serial version id to serialize the KnowledgeManager. */
     private static final long serialVersionUID = 2284737131182925479L;
 
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(KnowledgeManager.class);
 
     private static final double ATTRIBUTE_SYNONYM_TRUST_THRESHOLD = 0.05;
     // private static final double ENTITY_TRUST_THRESHOLD = 0.9;
 
-    /** list of concepts held by the KnowledgeManager */
+    /** List of concepts held by the KnowledgeManager. */
     private ArrayList<Concept> concepts;
 
-    /** keep track of which fact has been reviewed already, only run highest corroboration fact value */
+    /** Keep track of which fact has been reviewed already, only run highest corroboration fact value. */
     private Set<Fact> factsReviewed = new HashSet<Fact>();
 
     // test on facts that have not been reviewed yet
@@ -1487,10 +1489,10 @@ public class KnowledgeManager implements Serializable {
         double f1Total = 0.0;
         double recallWeak = 0.0;
         double foundRatio = 0.0; // ratio of facts found to facts expected
-        HashMap<String, Double> extractionTypeEvaluations = new HashMap<String, Double>();
+        Map<String, Double> extractionTypeEvaluations = new HashMap<String, Double>();
         Integer[] extractionTypes = { ExtractionType.FREE_TEXT_SENTENCE, ExtractionType.COLON_PHRASE,
                 ExtractionType.PATTERN_PHRASE, ExtractionType.TABLE_CELL };
-        ArrayList<FactValue> highestRankedFactValues = new ArrayList<FactValue>();
+        List<FactValue> highestRankedFactValues = new ArrayList<FactValue>();
 
         // create log document
         Iterator<Concept> dIt = concepts.iterator();
@@ -2081,7 +2083,7 @@ public class KnowledgeManager implements Serializable {
                             corroboration2 = factValue.getCorroboration();
                             ++c;
                         } catch (Exception e) {
-                            LOGGER.error(currentMostCorroboratedFactValue.getValue(), e);
+                            LOGGER.error(currentMostCorroboratedFactValue.getValue());
                         }
                     }
 
@@ -2120,7 +2122,7 @@ public class KnowledgeManager implements Serializable {
         }
 
         // update trust for the extraction types used in the three fact values
-        ArrayList<FactValue> factValues = new ArrayList<FactValue>();
+        List<FactValue> factValues = new ArrayList<FactValue>();
         factValues.add(highestCorroborationDifferenceFactValue1);
         // factValues.add(highestCorroborationDifferenceFactValue2);
         // factValues.add(highestCorroborationDifferenceFactValue3);
@@ -2138,12 +2140,12 @@ public class KnowledgeManager implements Serializable {
             }
 
             // iterate through all fact values of the fact and update the trust for the extraction types used
-            ArrayList<FactValue> currentFactValues = currentFact.getValues(false);
+            List<FactValue> currentFactValues = currentFact.getValues(false);
             Iterator<FactValue> currentFactValuesIterator = currentFactValues.iterator();
             while (currentFactValuesIterator.hasNext()) {
                 FactValue currentFactValue = currentFactValuesIterator.next();
 
-                ArrayList<Integer> extractionTypesUsed = currentFactValue.getExtractionTypes(false); // TODO test with
+                List<Integer> extractionTypesUsed = currentFactValue.getExtractionTypes(false); // TODO test with
                                                                                                      // true and false
                 // HashSet<Integer> etUsed = new HashSet<Integer>();
                 // Iterator<Integer> etuIterator = extractionTypesUsed.iterator();
@@ -2174,7 +2176,7 @@ public class KnowledgeManager implements Serializable {
                                     .getValue()));
                         }
                     } catch (NumberFormatException e) {
-                        LOGGER.error(currentFactValue.getValue(), e);
+                        LOGGER.error(currentFactValue.getValue());
                     }
 
                     ExtractionType.addExtraction(extractionType, correct);
@@ -2201,11 +2203,11 @@ public class KnowledgeManager implements Serializable {
         }
 
         try {
-            System.out.println(highestCorroborationDifferenceFactValue1.getFact().getAttribute().getName() + " : "
+            LOGGER.info(highestCorroborationDifferenceFactValue1.getFact().getAttribute().getName() + " : "
                     + highestCorroborationDifferenceFactValue1.toString());
-            System.out.println(highestCorroborationDifferenceFactValue2.getFact().getAttribute().getName() + " : "
+            LOGGER.info(highestCorroborationDifferenceFactValue2.getFact().getAttribute().getName() + " : "
                     + highestCorroborationDifferenceFactValue2.toString());
-            System.out.println(highestCorroborationDifferenceFactValue3.getFact().getAttribute().getName() + " : "
+            LOGGER.info(highestCorroborationDifferenceFactValue3.getFact().getAttribute().getName() + " : "
                     + highestCorroborationDifferenceFactValue3.toString());
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
@@ -2256,20 +2258,20 @@ public class KnowledgeManager implements Serializable {
                         highestTrust = attributeSynonymTrust;
                     }
 
-                    System.out.println("trust for synonyms " + attribute1.getName() + " = " + attribute2.getName()
+                    LOGGER.info("trust for synonyms " + attribute1.getName() + " = " + attribute2.getName()
                             + ": " + attributeSynonymTrust);
 
                 }
             }
 
             if (highestTrustPair[0] != null && highestTrustPair[1] != null) {
-                System.out.println("highest trust in concept " + currentConcept.getName() + " between attributes "
+                LOGGER.info("highest trust in concept " + currentConcept.getName() + " between attributes "
                         + highestTrustPair[0].getName() + " = " + highestTrustPair[1].getName() + " with trust "
                         + highestTrust);
             }
 
             if (highestTrust >= ATTRIBUTE_SYNONYM_TRUST_THRESHOLD) {
-                System.out.println("enter synonyms " + highestTrustPair[0].getName() + ", "
+                LOGGER.info("enter synonyms " + highestTrustPair[0].getName() + ", "
                         + highestTrustPair[1].getName() + " with trust " + highestTrust);
                 DatabaseManager.getInstance().addAttributeSynonym(highestTrustPair[0].getID(),
                         highestTrustPair[1].getID(), highestTrust);
