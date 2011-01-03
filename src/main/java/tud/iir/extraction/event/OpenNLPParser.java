@@ -17,11 +17,11 @@ import opennlp.tools.parser.Parse;
 import opennlp.tools.parser.ParserFactory;
 import opennlp.tools.parser.ParserModel;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
@@ -36,7 +36,7 @@ public class OpenNLPParser extends AbstractParser {
      * Logger for this class.
      */
     protected static final Logger LOGGER = Logger
-            .getLogger(OpenNLPParser.class);
+    .getLogger(OpenNLPParser.class);
 
     private opennlp.tools.parser.Parse parse;
 
@@ -46,12 +46,7 @@ public class OpenNLPParser extends AbstractParser {
         this.setName("OpenNLP Parser");
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get model path from config/models.conf, "
-                    + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MODEL = config.getString("models.opennlp.en.parser");
@@ -69,7 +64,7 @@ public class OpenNLPParser extends AbstractParser {
 
             if (DataHolder.getInstance().containsDataObject(configModelPath)) {
                 parser = (opennlp.tools.parser.Parser) DataHolder.getInstance()
-                        .getDataObject(configModelPath);
+                .getDataObject(configModelPath);
 
             } else {
 
@@ -180,9 +175,9 @@ public class OpenNLPParser extends AbstractParser {
         TreebankLinker linker;
         try {
             if (DataHolder.getInstance().containsDataObject(
-                    "data/models/opennlp/coref/")) {
+            "data/models/opennlp/coref/")) {
                 linker = (TreebankLinker) DataHolder.getInstance()
-                        .getDataObject("data/models/opennlp/coref/");
+                .getDataObject("data/models/opennlp/coref/");
 
             } else {
 
@@ -199,7 +194,7 @@ public class OpenNLPParser extends AbstractParser {
             for (final Parse parse : parses) {
                 final DefaultParse dp = new DefaultParse(parse, sentenceNumber);
                 final Mention[] extents = linker.getMentionFinder()
-                        .getMentions(dp);
+                .getMentions(dp);
 
                 // construct new parses for mentions which do not have
                 // constituents

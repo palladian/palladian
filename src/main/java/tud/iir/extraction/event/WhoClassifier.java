@@ -7,12 +7,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
+import tud.iir.helper.ConfigHolder;
 import weka.core.Instance;
 
 /**
@@ -48,12 +48,7 @@ public class WhoClassifier extends Classifier {
 
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get model path from config/models.conf, "
-                    + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MODEL = config.getString("models.palladian.en.event.who");
@@ -74,7 +69,7 @@ public class WhoClassifier extends Classifier {
 
         try {
             final double[] fDistribution = getClassifier()
-                    .distributionForInstance(iUse);
+            .distributionForInstance(iUse);
 
             return (float) fDistribution[0];
         } catch (final Exception e) {
@@ -112,7 +107,7 @@ public class WhoClassifier extends Classifier {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(getChosenClassifier());
         Event event = EventExtractor
-                .createEventFromURL("http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
+        .createEventFromURL("http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
 
         eventExtractor.getFeatureExtractor().setFeatures(event);
         eventExtractor.extractWho(event);
@@ -126,7 +121,7 @@ public class WhoClassifier extends Classifier {
         weka.classifiers.Classifier trainedClassifier;
         try {
             trainedClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper
-                    .read(filePath);
+            .read(filePath);
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedClassifier);
         } catch (final Exception e) {
@@ -144,7 +139,7 @@ public class WhoClassifier extends Classifier {
         final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
 
         final Map<Integer, String[]> events = featureExtractor
-                .readCSV("data/news_articles.csv");
+        .readCSV("data/news_articles.csv");
 
         for (final Entry<Integer, String[]> entry : events.entrySet()) {
 

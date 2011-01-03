@@ -7,10 +7,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
@@ -25,7 +25,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
 
     /** the logger for this class */
     private static final Logger LOGGER = Logger
-            .getLogger(LingPipePOSTagger.class);
+    .getLogger(LingPipePOSTagger.class);
 
     private final String MODEL;
 
@@ -33,12 +33,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
         setName("LingPipe POS-Tagger");
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get modepath from config/models.conf, "
-                    + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MODEL = config.getString("models.lingpipe.en.postag");
@@ -64,7 +59,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
             if (DataHolder.getInstance()
                     .containsDataObject(configModelFilePath)) {
                 hmm = (HiddenMarkovModel) DataHolder.getInstance()
-                        .getDataObject(configModelFilePath);
+                .getDataObject(configModelFilePath);
             } else {
 
                 final StopWatch stopWatch = new StopWatch();
@@ -74,7 +69,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
                         configModelFilePath));
                 hmm = (HiddenMarkovModel) oi.readObject();
                 DataHolder.getInstance()
-                        .putDataObject(configModelFilePath, hmm);
+                .putDataObject(configModelFilePath, hmm);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + this.getName() + " from file "
@@ -128,7 +123,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
 
             final TagAnnotation tagAnnotation = new TagAnnotation(sentence
                     .indexOf(tagging.token(i)), tagging.tag(i).toUpperCase(
-                    new Locale("en")), tagging.token(i));
+                            new Locale("en")), tagging.token(i));
             tagAnnotations.add(tagAnnotation);
 
         }

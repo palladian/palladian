@@ -13,11 +13,11 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.extraction.LiveStatus;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -46,7 +46,7 @@ public class DatabaseManager {
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
 
-    /** the configuration file can be found under config/db.conf */
+    /** The configuration file can be found under config/palladian.properties. */
     private static PropertiesConfiguration config;
 
     private Connection connection;
@@ -118,15 +118,10 @@ public class DatabaseManager {
      * Instantiates a new database manager.
      */
     private DatabaseManager() {
-        try {
-            config = new PropertiesConfiguration("config/db.conf");
-            config.setThrowExceptionOnMissing(true);
-        } catch (ConfigurationException e) {
-            // LOGGER.error(e.getMessage());
-            // Attention: using the "eager" singleton idiom we must not use the class logger, as it has not yet been
-            // instantiated at this point; use the RootLogger instead.
-            Logger.getRootLogger().error(e.getMessage());
-        }
+
+        config = ConfigHolder.getInstance().getConfig();
+        config.setThrowExceptionOnMissing(true);
+
     }
 
     /**

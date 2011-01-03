@@ -13,13 +13,13 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Date;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
 
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.Extractor;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -55,11 +55,7 @@ public final class MIOExtractor extends Extractor {
 
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get model path from config/models.conf, " + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MIO_MODEL_PATH = config.getString("models.palladian.mio");

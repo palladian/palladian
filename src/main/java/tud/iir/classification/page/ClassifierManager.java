@@ -15,7 +15,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
@@ -32,6 +31,7 @@ import tud.iir.classification.page.evaluation.CrossValidator;
 import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.classification.page.evaluation.EvaluationSetting;
 import tud.iir.classification.page.evaluation.FeatureSetting;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
@@ -53,7 +53,7 @@ public class ClassifierManager {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ClassifierManager.class);
 
-    /** The configuration must be located in config/classification.conf */
+    /** The configuration must be located in config/palladian.properties. */
     private static PropertiesConfiguration config;
 
     /** The classifier used to categorize the web sites. */
@@ -99,21 +99,16 @@ public class ClassifierManager {
 
         stopWatch = new StopWatch();
 
-        // try to find the classification configuration, if it is not present
-        // use default values
-        try {
-            config = new PropertiesConfiguration("config/classification.conf");
-            if (config.getInt("page.trainingPercentage") > -1) {
-                setTrainingDataPercentage(config.getInt("page.trainingPercentage"));
-            }
-            createDictionaryIteratively = config.getBoolean("page.createDictionaryIteratively");
-            dictionaryClassifierIndexType = config.getInt("page.dictionaryClassifierIndexType");
-            dictionaryDatabaseType = config.getInt("page.databaseType");
-            createDictionaryNGramSearchMode = config.getBoolean("page.createDictionaryNGramSearchMode");
+        // try to find the classification configuration, if it is not present use default values
 
-        } catch (ConfigurationException e) {
-            LOGGER.error(e.getMessage());
+        config = ConfigHolder.getInstance().getConfig();
+        if (config.getInt("classification.page.trainingPercentage") > -1) {
+            setTrainingDataPercentage(config.getInt("classification.page.trainingPercentage"));
         }
+        createDictionaryIteratively = config.getBoolean("classification.page.createDictionaryIteratively");
+        dictionaryClassifierIndexType = config.getInt("classification.page.dictionaryClassifierIndexType");
+        dictionaryDatabaseType = config.getInt("classification.page.databaseType");
+        createDictionaryNGramSearchMode = config.getBoolean("classification.page.createDictionaryNGramSearchMode");
 
     }
 

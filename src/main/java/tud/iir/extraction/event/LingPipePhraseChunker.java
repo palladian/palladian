@@ -8,10 +8,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
@@ -64,7 +64,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     /** the logger for this class */
     private static final Logger LOGGER = Logger
-            .getLogger(LingPipePhraseChunker.class);
+    .getLogger(LingPipePhraseChunker.class);
 
     private static final Set<String> DETERMINER_TAGS = new HashSet<String>();
     private static final Set<String> ADJECTIVE_TAGS = new HashSet<String>();
@@ -198,12 +198,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
         setName("LingPipe Phrase Chunker");
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get modepath from config/models.conf, "
-                    + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MODEL = config.getString("models.lingpipe.en.postag");
@@ -250,9 +245,9 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 - start);
         tokenizer.tokenize(tokenList, whiteList);
         final String[] tokens = tokenList.<String> toArray(new String[tokenList
-                .size()]);
+                                                                      .size()]);
         final String[] whites = whiteList.<String> toArray(new String[whiteList
-                .size()]);
+                                                                      .size()]);
 
         // part-of-speech tag
         final int cacheSize = Integer.valueOf(100);
@@ -282,7 +277,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 // punctuation
                 int trimmedEndChunk = endChunk;
                 for (int k = i; --k >= 0
-                        && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
+                && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
                     trimmedEndChunk -= (whites[k].length() + tokens[k].length());
                 }
                 if (startChunk >= trimmedEndChunk) {
@@ -304,7 +299,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 }
                 int trimmedEndChunk = endChunk;
                 for (int k = i; --k >= 0
-                        && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
+                && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
                     trimmedEndChunk -= (whites[k].length() + tokens[k].length());
                 }
                 if (startChunk >= trimmedEndChunk) {
@@ -354,7 +349,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
             if (DataHolder.getInstance()
                     .containsDataObject(configModelFilePath)) {
                 hmm = (HiddenMarkovModel) DataHolder.getInstance()
-                        .getDataObject(configModelFilePath);
+                .getDataObject(configModelFilePath);
             } else {
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
@@ -363,7 +358,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                         configModelFilePath));
                 hmm = (HiddenMarkovModel) oi.readObject();
                 DataHolder.getInstance()
-                        .putDataObject(configModelFilePath, hmm);
+                .putDataObject(configModelFilePath, hmm);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + this.getName() + " from file "

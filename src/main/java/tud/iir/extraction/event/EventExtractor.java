@@ -5,18 +5,16 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
@@ -31,6 +29,7 @@ import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.StringHelper;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedItem;
@@ -92,12 +91,8 @@ public class EventExtractor extends Extractor {
 
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get model path from config/models.conf, "
-                    + e.getMessage());
-        }
+
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MODEL_WHO = config.getString("models.palladian.en.event.who");
@@ -222,7 +217,7 @@ public class EventExtractor extends Extractor {
     public void extractWhere(Event event) {
 
         final Map<Annotations, FeatureObject> features = event
-                .getAnnotationFeatures();
+        .getAnnotationFeatures();
 
         double[] result = null;
 
@@ -258,6 +253,7 @@ public class EventExtractor extends Extractor {
         final List<Entry<String, Double>> list = new LinkedList<Entry<String, Double>>(
                 map.entrySet());
         Collections.sort(list, new Comparator<Entry<String, Double>>() {
+            @Override
             public int compare(Entry<String, Double> obj1,
                     Entry<String, Double> obj2) {
                 return ((Comparable<Double>) obj1.getValue()).compareTo(obj2
@@ -268,9 +264,7 @@ public class EventExtractor extends Extractor {
         Collections.reverse(list);
 
         final Map<String, Double> result = new LinkedHashMap<String, Double>();
-        for (final Iterator<Entry<String, Double>> it = list.iterator(); it
-                .hasNext();) {
-            final Entry<String, Double> entry = it.next();
+        for (Entry<String, Double> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
 
@@ -290,7 +284,7 @@ public class EventExtractor extends Extractor {
 
         if (event.getWhat() != null) {
             final String tagged = featureExtractor.getPOSTags(event.getWhat())
-                    .getTaggedString();
+            .getTaggedString();
 
             // extracting the verb from whatPhrase
             try {
@@ -580,7 +574,7 @@ public class EventExtractor extends Extractor {
     public void extractWho(Event event) {
 
         final Map<Annotations, FeatureObject> features = event
-                .getAnnotationFeatures();
+        .getAnnotationFeatures();
 
         double[] result = null;
 
@@ -767,7 +761,7 @@ public class EventExtractor extends Extractor {
         // eventExtractor.extractHow(event);
 
         EventExtractor
-                .extractEventFromURL("http://www.bbc.co.uk/news/world-asia-pacific-12033330");
+        .extractEventFromURL("http://www.bbc.co.uk/news/world-asia-pacific-12033330");
 
         // eventExtractor.extract5W1H(event);
 

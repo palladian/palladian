@@ -18,9 +18,9 @@ import opennlp.tools.tokenize.TokenizerME;
 import opennlp.tools.tokenize.TokenizerModel;
 import opennlp.tools.util.InvalidFormatException;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
@@ -38,12 +38,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
         setName("OpenNLP POS-Tagger");
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get model path from config/models.conf, "
-                    + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MODEL = config.getString("models.opennlp.en.postag");
@@ -157,8 +152,8 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
         final String[] tokens = getTokenizer().tokenize(sentence);
 
         final List<String> tokenList = new ArrayList<String>();
-        for (int j = 0; j < tokens.length; j++) {
-            tokenList.add(tokens[j]);
+        for (String token : tokens) {
+            tokenList.add(token);
         }
 
         final List<String> tagList = ((POSTagger) getModel()).tag(tokenList);

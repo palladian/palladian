@@ -49,7 +49,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
@@ -72,6 +71,7 @@ import tud.iir.extraction.mio.MIOPage;
 import tud.iir.extraction.mio.UniversalMIOExtractor;
 import tud.iir.helper.Callback;
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
@@ -100,24 +100,24 @@ import tud.iir.persistence.DatabaseManager;
  */
 public class Crawler {
 
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(Crawler.class);
 
     // ///////////// constants with default configuration ////////
-    /** the user agent string that is used by the crawler */
+    /** The user agent string that is used by the crawler. */
     private static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-GB; rv:1.9.0.4) Gecko/2008102920 Firefox/3.0.4";
 
     /** the referer that is used by the crawler */
     private static final String REFERER = "";
 
     /** the default connection timeout */
-    public static final int DEFAULT_CONNECTION_TIMEOUT = 10000;
+    public static final int DEFAULT_CONNECTION_TIMEOUT = (int) (10 * DateHelper.SECOND_MS);
 
     /** the default read timeout when retrieving pages */
-    public static final int DEFAULT_READ_TIMEOUT = 16000;
+    public static final int DEFAULT_READ_TIMEOUT = (int) (16 * DateHelper.SECOND_MS);
 
     /** the default overall timeout (after which the connection is reset) */
-    public static final int DEFAULT_OVERALL_TIMEOUT = 60000;
+    public static final int DEFAULT_OVERALL_TIMEOUT = (int) (60 * DateHelper.SECOND_MS);
 
     /** the default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;
@@ -128,8 +128,6 @@ public class Crawler {
     public static final int GIGA_BYTES = 4;
 
     // //////////////////general settings ////////////////////
-    /** configs for the crawler can be set in config/crawler.conf */
-    private PropertiesConfiguration config = null;
 
     /** the document that is created after retrieving a web page */
     private Document document = null;
@@ -186,18 +184,18 @@ public class Crawler {
     private boolean outDomain = true;
 
     /** only follow domains that have one or more of these strings in their url */
-    private HashSet<String> onlyFollow = new HashSet<String>();
+    private Set<String> onlyFollow = new HashSet<String>();
 
     /** do not look for more URLs if visited stopCount pages already, -1 for infinity */
     private int stopCount = -1;
-    private HashSet<String> urlStack = null;
-    private HashSet<String> visitedURLs = new HashSet<String>();
+    private Set<String> urlStack = null;
+    private Set<String> visitedURLs = new HashSet<String>();
 
     /** all urls that have been visited or extracted */
-    private HashSet<String> seenURLs = new HashSet<String>();
+    private Set<String> seenURLs = new HashSet<String>();
 
-    private HashSet<String> urlRules = new HashSet<String>();
-    private HashSet<String> urlDump = new HashSet<String>();
+    private Set<String> urlRules = new HashSet<String>();
+    private Set<String> urlDump = new HashSet<String>();
 
     // ////////////////// proxy settings ////////////////////
     /** the proxy to use */
@@ -215,45 +213,37 @@ public class Crawler {
     // ///////////////////// constructors ///////////////////////
 
     public Crawler() {
-        initialize("config/crawler.conf");
+        loadConfig();
     }
 
     public Crawler(final int connectionTimeOut, final int readTimeOut, final int overallTimeOut) {
-        initialize("config/crawler.conf");
+        loadConfig();
         setConnectionTimout(connectionTimeOut);
         setReadTimeout(readTimeOut);
         setOverallTimeout(overallTimeOut);
     }
 
     public Crawler(String configPath) {
-        initialize(configPath);
-    }
-
-    private void initialize(String configPath) {
-        loadConfig(configPath);
+        loadConfig();
     }
 
     /**
      * Load the configuration file from the specified location and set the variables accordingly.
-     * 
-     * @param configPath The location of the configuration file.
      */
     @SuppressWarnings("unchecked")
-    public final void loadConfig(String configPath) {
-        try {
-            config = new PropertiesConfiguration(configPath);
-            setMaxThreads(config.getInt("maxThreads"));
-            setStopCount(config.getInt("stopCount"));
-            inDomain = config.getBoolean("inDomain");
-            outDomain = config.getBoolean("outDomain");
-            setSwitchProxyRequests(config.getInt("switchProxyRequests"));
-            setProxyList(config.getList("proxyList"));
-            setFeedAutodiscovery(config.getBoolean("feedAutoDiscovery"));
-            setNumRetries(config.getInt("numRetries", DEFAULT_NUM_RETRIES));
-        } catch (ConfigurationException e) {
-            LOGGER.warn("crawler configuration under " + configPath + " could not be loaded completely: "
-                    + e.getMessage());
-        }
+    public final void loadConfig() {
+
+        ConfigHolder configHolder = ConfigHolder.getInstance();
+        PropertiesConfiguration config = configHolder.getConfig();
+        setMaxThreads(config.getInt("crawler.maxThreads"));
+        setStopCount(config.getInt("crawler.stopCount"));
+        inDomain = config.getBoolean("crawler.inDomain");
+        outDomain = config.getBoolean("crawler.outDomain");
+        setSwitchProxyRequests(config.getInt("crawler.switchProxyRequests"));
+        setProxyList(config.getList("crawler.proxyList"));
+        setFeedAutodiscovery(config.getBoolean("crawler.feedAutoDiscovery"));
+        setNumRetries(config.getInt("crawler.numRetries", DEFAULT_NUM_RETRIES));
+
     }
 
     public void startCrawl(HashSet<String> urlStack, boolean inDomain, boolean outDomain) {
@@ -1582,7 +1572,7 @@ public class Crawler {
         try {
             url = new URL(pageURL);
             conn = url.openConnection();
-            request = conn.getRequestProperties(); 
+            request = conn.getRequestProperties();
 
         } catch (MalformedURLException e) {
             LOGGER.error(e.getMessage());
@@ -1599,25 +1589,25 @@ public class Crawler {
      * @return redirected URL as String or null;
      */
     public String getRedirectUrl(String urlString){
-		URL url = null;
-		URLConnection urlCon;
-		HttpURLConnection httpUrlCon;
-		String location = null;
-		try {
-		 	url = new URL(urlString);
-	        urlCon = url.openConnection();
-	        httpUrlCon = (HttpURLConnection) urlCon;
-	        httpUrlCon.setInstanceFollowRedirects(false);
-	        location = httpUrlCon.getHeaderField("Location");
-	        
+        URL url = null;
+        URLConnection urlCon;
+        HttpURLConnection httpUrlCon;
+        String location = null;
+        try {
+            url = new URL(urlString);
+            urlCon = url.openConnection();
+            httpUrlCon = (HttpURLConnection) urlCon;
+            httpUrlCon.setInstanceFollowRedirects(false);
+            location = httpUrlCon.getHeaderField("Location");
+
         } catch (IOException ioe) {
             System.err.println(ioe.getStackTrace());
-           
+
         }
-        
+
         return location;
-	}
-    
+    }
+
     /**
      * Check if an URL is in a valid form and the file-ending is not blacklisted (see Extractor.java for blacklist)
      * 
