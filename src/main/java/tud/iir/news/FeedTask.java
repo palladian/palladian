@@ -58,20 +58,27 @@ class FeedTask implements Runnable {
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
         // it can be done in parallel
         feed.updateEntries(false);
+        
+        // remember the time the feed has been checked
+        feed.setLastPollTime(new Date());
 
         // classify feed if it has never been classified before, do it once a month for each feed to be informed about
         // updates
+        LOGGER.debug("Activity Pattern: "+feed.getActivityPattern());
+        LOGGER.debug("Current time: "+System.currentTimeMillis());
+        LOGGER.debug("Last poll time: "+feed.getLastPollTime().getTime());
+        LOGGER.debug("Current time - last poll time: "+(System.currentTimeMillis() - feed.getLastPollTime().getTime()));
+        LOGGER.debug("Milliseconds in a mont: "+DateHelper.MONTH_MS);
         if (feed.getActivityPattern() == -1
                 || System.currentTimeMillis() - feed.getLastPollTime().getTime() > DateHelper.MONTH_MS) {
             FeedClassifier.classify(feed);
         }
 
-        // remember the time the feed has been checked
-        feed.setLastPollTime(new Date());
-
         feedChecker.updateCheckIntervals(feed);
 
         // perform actions on this feeds entries
+        LOGGER.debug("Performing action on feed: "+feed.getId() + "(" + feed.getFeedUrl()
+                + ")");
         feedChecker.getFeedProcessingAction().performAction(feed);
 
         // save the feed back to the database
