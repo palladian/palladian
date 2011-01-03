@@ -1,7 +1,7 @@
 package tud.iir.extraction.snippet;
 
-import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -102,7 +102,7 @@ public class SnippetExtractor extends Extractor {
         while (!isStopped()) {
 
             // concepts
-            ArrayList<Concept> concepts = knowledgeManager.getConcepts(true); // TODO?
+            List<Concept> concepts = knowledgeManager.getConcepts(true); // TODO?
 
             // iterate through all concepts
             for (Concept currentConcept : concepts) {
@@ -118,7 +118,7 @@ public class SnippetExtractor extends Extractor {
                 if (!isBenchmark()) {
                     currentConcept.loadEntities(continueFromLastExtraction);
                 }
-                ArrayList<Entity> conceptEntities;
+                List<Entity> conceptEntities;
                 if (continueFromLastExtraction) {
                     conceptEntities = currentConcept.getEntitiesByDate();
                 } else {
@@ -131,7 +131,7 @@ public class SnippetExtractor extends Extractor {
                     continue;
                 }
 
-                ThreadGroup extractionThreadGroup = new ThreadGroup("snippetExtractionThreadGroup");
+                extractionThreadGroup = new ThreadGroup("snippetExtractionThreadGroup");
 
                 for (Entity currentEntity : conceptEntities) {
 
@@ -154,11 +154,28 @@ public class SnippetExtractor extends Extractor {
                     snippetThread.start();
 
                     LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
-                    System.out.println("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
 
+                    int c = 0;
                     while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                        LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ")");
+                        LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
+                                + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
+
+                        if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
+                            LOGGER.warn("apparently " + getThreadCount()
+                                    + " threads have not finished correctly but thread group is empty, continuing...");
+                            resetThreadCount();
+                            break;
+                        }
+
                         ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+                        if (isStopped()) {
+                            c++;
+                        }
+
+                        if (c > 25) {
+                            LOGGER.info("waited 25 iterations after stop has been called, breaking now");
+                            break;
+                        }
                     }
 
                     if (getExtractedSnippetCount() == SAVE_COUNT) {
