@@ -27,6 +27,7 @@ public class WebPageDateEvaluator {
 
     private String url;
     private boolean reference = false;
+    private boolean archive = false;
 
     /**
      * Set url for webpage to be searched.
@@ -62,6 +63,7 @@ public class WebPageDateEvaluator {
 
             dg.setURL(url);
             dg.setTechReference(reference);
+            dg.setTechArchive(archive);
             dates = dg.getDate();
 
             ratedDates = dr.rate(dates);
@@ -165,5 +167,12 @@ public class WebPageDateEvaluator {
      */
     public void activateReference() {
         this.reference = true;
+    }
+    /**
+     * By default the technique archive is turned off. <br>
+     * Use this to active it.
+     */
+    public void activateArchive() {
+        this.archive = true;
     }
 }
