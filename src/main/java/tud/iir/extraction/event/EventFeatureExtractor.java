@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
@@ -22,6 +21,7 @@ import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.tagger.LingPipeNER;
 import tud.iir.extraction.entity.ner.tagger.OpenNLPNER;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
@@ -41,7 +41,7 @@ public class EventFeatureExtractor {
 
     /** the logger for this class */
     private static final Logger LOGGER = Logger
-            .getLogger(EventFeatureExtractor.class);
+    .getLogger(EventFeatureExtractor.class);
 
     /** Instance of this EventFeatureExtractor. **/
     private static EventFeatureExtractor instance = null;
@@ -73,12 +73,7 @@ public class EventFeatureExtractor {
 
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get model path from config/models.conf, "
-                    + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MODEL_NER = config.getString("models.lingpipe.en.ner");
@@ -181,7 +176,7 @@ public class EventFeatureExtractor {
             phrase = annotation.getEntity().getName();
 
             mention = mfactory
-                    .create(phrase, annotation.getMostLikelyTagName());
+            .create(phrase, annotation.getMostLikelyTagName());
             mentionId = coref.resolveMention(mention, 1);
 
             tmpAnnotations = new Annotations();
@@ -256,7 +251,7 @@ public class EventFeatureExtractor {
         }
 
         final double distribution = avgOffset / annotations.size()
-                / event.getText().length();
+        / event.getText().length();
 
         final DecimalFormat twoDForm = new DecimalFormat("#.###");
 
@@ -301,7 +296,7 @@ public class EventFeatureExtractor {
     public Annotations getDateAnnotations(String text) {
         OpenNLPNER timeNer = new OpenNLPNER();
         timeNer
-                .loadModel("data/models/opennlp/namefind/en-ner-time.bin,data/models/opennlp/namefind/en-ner-date.bin");
+        .loadModel("data/models/opennlp/namefind/en-ner-time.bin,data/models/opennlp/namefind/en-ner-date.bin");
 
         return timeNer.getAnnotations(text);
 
@@ -486,7 +481,7 @@ public class EventFeatureExtractor {
                 if (event != null && event.getText() != null) {
 
                     Map<Annotations, FeatureObject> featureMap = event
-                            .getAnnotationFeatures();
+                    .getAnnotationFeatures();
                     // hm.put(url, e);
 
                     if (event.getAnnotationFeatures() == null) {
@@ -516,9 +511,9 @@ public class EventFeatureExtractor {
                                     if (annotation.getEntity().getName()
                                             .toLowerCase().contains(
                                                     positive.toLowerCase())
-                                            || positive.contains(annotation
-                                                    .getEntity().getName()
-                                                    .toLowerCase())) {
+                                                    || positive.contains(annotation
+                                                            .getEntity().getName()
+                                                            .toLowerCase())) {
                                         contains = true;
                                     }
 

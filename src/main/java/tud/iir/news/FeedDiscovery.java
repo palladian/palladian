@@ -17,7 +17,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
@@ -25,6 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.Counter;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
@@ -122,15 +122,13 @@ public class FeedDiscovery {
     @SuppressWarnings("unchecked")
     public FeedDiscovery() {
         LOGGER.trace(">FeedDiscovery");
-        try {
-            PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
-            setMaxThreads(config.getInt("maxDiscoveryThreads", MAX_NUMBER_OF_THREADS));
-            setIgnores(config.getList("discoveryIgnoreList"));
-            setOnlyPreferred(config.getBoolean("onlyPreferred", true));
-            setSearchEngine(config.getInt("searchEngine", SourceRetrieverManager.YAHOO_BOSS));
-        } catch (ConfigurationException e) {
-            LOGGER.error("error loading configuration: " + e.getMessage());
-        }
+
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        setMaxThreads(config.getInt("feedDiscovery.maxDiscoveryThreads", MAX_NUMBER_OF_THREADS));
+        setIgnores(config.getList("feedDiscovery.discoveryIgnoreList"));
+        setOnlyPreferred(config.getBoolean("feedDiscovery.onlyPreferred", true));
+        setSearchEngine(config.getInt("feedDiscovery.searchEngine", SourceRetrieverManager.YAHOO_BOSS));
+
         LOGGER.trace("<FeedDiscovery");
     }
 
@@ -286,11 +284,11 @@ public class FeedDiscovery {
         // this XPath relatively complicated to be in conformance to the Atom autodiscovery "standard".
         // see: http://diveintomark.org/archives/2003/12/19/atom-autodiscovery
         List<Node> feedNodes = XPathHelper
-                .getNodes(
-                        document,
-                        "//LINK[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and "
-                                + "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or "
-                                + "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]");
+        .getNodes(
+                document,
+                "//LINK[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and "
+                + "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or "
+                + "translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/rss+xml')]");
 
         List<Node> atomNodes = new ArrayList<Node>();
         List<Node> rssNodes = new ArrayList<Node>();
@@ -617,7 +615,7 @@ public class FeedDiscovery {
         }
         if (discoveryTime != 0) {
             sb.append("    total time for discovery: " + DateHelper.getTimeString(discoveryTime)).append(newLine)
-                    .append(newLine);
+            .append(newLine);
         }
         /*
          * if (traffic.getCount() != 0) {

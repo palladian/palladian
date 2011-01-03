@@ -7,9 +7,9 @@ import java.util.List;
 import opennlp.tools.chunker.ChunkerME;
 import opennlp.tools.chunker.ChunkerModel;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
@@ -21,12 +21,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
         this.setName("OpenNLP Phrase Chunker");
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get model path from config/models.conf, "
-                    + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MODEL = config.getString("models.opennlp.en.chunker");
@@ -59,8 +54,8 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
             }
             if (((i + 1) < chunkList.size() && chunkList.get(i + 1).contains(
-                    "B-"))
-                    || i == chunkList.size() - 1) {
+            "B-"))
+            || i == chunkList.size() - 1) {
 
                 tagAnnotations.add(new TagAnnotation(sentence.indexOf(token),
                         tag, token));
@@ -105,7 +100,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
                 tbc = new ChunkerME(new ChunkerModel(new FileInputStream(
                         configModelFilePath)));
                 DataHolder.getInstance()
-                        .putDataObject(configModelFilePath, tbc);
+                .putDataObject(configModelFilePath, tbc);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + this.getName() + " from file "

@@ -1,8 +1,8 @@
 package tud.iir.web;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.log4j.Logger;
+
+import tud.iir.helper.ConfigHolder;
 
 /**
  * The SourceRetrieverManager holds information about query settings and
@@ -54,22 +54,16 @@ public class SourceRetrieverManager {
     private int numberOfTextRunnerRequests = 0;
 
     private SourceRetrieverManager() {
-        PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/apikeys.conf");
-            //config = new PropertiesConfiguration(SourceRetrieverManager.class.getResourceAsStream("/config/apikeys.conf").getFile());
-        } catch (ConfigurationException e) {
-            Logger.getRootLogger().error(e.getMessage());
-
-        }
+        ConfigHolder configHolder = ConfigHolder.getInstance();
+        PropertiesConfiguration config = configHolder.getConfig();
 
         if (config != null) {
-            YAHOO_API_KEY = config.getString("yahoo.api.key");
-            YAHOO_BOSS_API_KEY = config.getString("yahoo_boss.api.key");
-            HAKIA_API_KEY = config.getString("hakia.api.key");
-            GOOGLE_API_KEY = config.getString("google.api.key");
-            BING_API_KEY = config.getString("bing.api.key");
+            YAHOO_API_KEY = config.getString("api.yahoo.key");
+            YAHOO_BOSS_API_KEY = config.getString("api.yahoo_boss.key");
+            HAKIA_API_KEY = config.getString("api.hakia.key");
+            GOOGLE_API_KEY = config.getString("api.google.key");
+            BING_API_KEY = config.getString("api.bing.key");
         } else {
             YAHOO_API_KEY = "";
             YAHOO_BOSS_API_KEY = "";
@@ -109,24 +103,24 @@ public class SourceRetrieverManager {
      */
     public int getRequestCount(int source) {
         switch (source) {
-        case YAHOO:
-            return numberOfYahooRequests;
-        case YAHOO_BOSS:
-            return numberOfYahooRequests;
-        case GOOGLE:
-            return numberOfGoogleRequests;
-        case MICROSOFT:
-            return numberOfMicrosoftRequests;
-        case HAKIA:
-            return numberOfHakiaRequests;
-        case BING:
-            return numberOfBingRequests;
-        case TWITTER:
-            return numberOfTwitterRequests;
-        case GOOGLE_BLOGS:
-            return numberOfGoogleBlogsRequests;
-        case TEXTRUNNER:
-            return numberOfTextRunnerRequests;
+            case YAHOO:
+                return numberOfYahooRequests;
+            case YAHOO_BOSS:
+                return numberOfYahooRequests;
+            case GOOGLE:
+                return numberOfGoogleRequests;
+            case MICROSOFT:
+                return numberOfMicrosoftRequests;
+            case HAKIA:
+                return numberOfHakiaRequests;
+            case BING:
+                return numberOfBingRequests;
+            case TWITTER:
+                return numberOfTwitterRequests;
+            case GOOGLE_BLOGS:
+                return numberOfGoogleBlogsRequests;
+            case TEXTRUNNER:
+                return numberOfTextRunnerRequests;
         }
         return -1;
     }
@@ -139,35 +133,35 @@ public class SourceRetrieverManager {
      */
     public void addRequest(int source) {
         switch (source) {
-        case YAHOO:
-            numberOfYahooRequests++;
-            break;
-        case YAHOO_BOSS:
-            numberOfYahooRequests++;
-            break;
-        case GOOGLE:
-            numberOfGoogleRequests++;
-            break;
-        case MICROSOFT:
-            numberOfMicrosoftRequests++;
-            break;
-        case HAKIA:
-            numberOfHakiaRequests++;
-            break;
-        case BING:
-            numberOfBingRequests++;
-            break;
-        case TWITTER:
-            numberOfTwitterRequests++;
-            break;
-        case GOOGLE_BLOGS:
-            numberOfGoogleBlogsRequests++;
-            break;
-        case TEXTRUNNER:
-            numberOfTextRunnerRequests++;
-            break;
-        default:
-            break;
+            case YAHOO:
+                numberOfYahooRequests++;
+                break;
+            case YAHOO_BOSS:
+                numberOfYahooRequests++;
+                break;
+            case GOOGLE:
+                numberOfGoogleRequests++;
+                break;
+            case MICROSOFT:
+                numberOfMicrosoftRequests++;
+                break;
+            case HAKIA:
+                numberOfHakiaRequests++;
+                break;
+            case BING:
+                numberOfBingRequests++;
+                break;
+            case TWITTER:
+                numberOfTwitterRequests++;
+                break;
+            case GOOGLE_BLOGS:
+                numberOfGoogleBlogsRequests++;
+                break;
+            case TEXTRUNNER:
+                numberOfTextRunnerRequests++;
+                break;
+            default:
+                break;
         }
     }
 
@@ -198,15 +192,15 @@ public class SourceRetrieverManager {
 
         logs.append("\n");
         logs.append("Number of Yahoo! requests: ")
-                .append(numberOfYahooRequests).append("\n");
+        .append(numberOfYahooRequests).append("\n");
         logs.append("Number of Google requests: ").append(
                 numberOfGoogleRequests).append("\n");
         logs.append("Number of Microsoft requests: ").append(
                 numberOfMicrosoftRequests).append("\n");
         logs.append("Number of Hakia requests: ").append(numberOfHakiaRequests)
-                .append("\n");
+        .append("\n");
         logs.append("Number of Bing requests: ").append(numberOfBingRequests)
-                .append("\n");
+        .append("\n");
         logs.append("Number of Twitter requests: ").append(
                 numberOfTwitterRequests).append("\n");
         logs.append("Number of Google Blogs requests: ").append(
@@ -225,30 +219,30 @@ public class SourceRetrieverManager {
      */
     public static String getName(int source) {
         switch (source) {
-        case YAHOO:
-            return "Yahoo!";
-        case GOOGLE:
-            return "Google";
-        case MICROSOFT:
-            return "Microsoft";
-        case HAKIA:
-            return "Hakia";
-        case YAHOO_BOSS:
-            return "Yahoo! Boss";
-        case BING:
-            return "Bing";
-        case TWITTER:
-            return "Twitter";
-        case GOOGLE_BLOGS:
-            return "Google Blogs";
-        case TEXTRUNNER:
-            return "TextRunner";
-        case YAHOO_BOSS_NEWS:
-            return "Yahoo! Boss News";
-        case GOOGLE_NEWS:
-            return "Google News";
-        default:
-            return "<unknown>";
+            case YAHOO:
+                return "Yahoo!";
+            case GOOGLE:
+                return "Google";
+            case MICROSOFT:
+                return "Microsoft";
+            case HAKIA:
+                return "Hakia";
+            case YAHOO_BOSS:
+                return "Yahoo! Boss";
+            case BING:
+                return "Bing";
+            case TWITTER:
+                return "Twitter";
+            case GOOGLE_BLOGS:
+                return "Google Blogs";
+            case TEXTRUNNER:
+                return "TextRunner";
+            case YAHOO_BOSS_NEWS:
+                return "Yahoo! Boss News";
+            case GOOGLE_NEWS:
+                return "Google News";
+            default:
+                return "<unknown>";
         }
     }
 

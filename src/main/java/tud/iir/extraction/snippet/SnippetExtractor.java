@@ -3,12 +3,12 @@ package tud.iir.extraction.snippet;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.Extractor;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
@@ -54,11 +54,7 @@ public class SnippetExtractor extends Extractor {
 
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get model path from config/models.conf, " + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             POS_MODEL_PATH = config.getString("models.lingpipe.en.postag");

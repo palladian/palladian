@@ -12,11 +12,11 @@ import opennlp.tools.sentdetect.SentenceDetectorME;
 import opennlp.tools.sentdetect.SentenceModel;
 import opennlp.tools.util.InvalidFormatException;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StopWatch;
 
@@ -29,7 +29,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      * Logger for this class.
      */
     protected static final Logger LOGGER = Logger
-            .getLogger(OpenNLPSentenceDetector.class);
+    .getLogger(OpenNLPSentenceDetector.class);
 
     /** model for opennlp sentence detection */
     private final String MODEL;
@@ -42,12 +42,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
         PropertiesConfiguration config = null;
 
-        try {
-            config = new PropertiesConfiguration("config/models.conf");
-        } catch (final ConfigurationException e) {
-            LOGGER.error("could not get modepath from config/models.conf, "
-                    + e.getMessage());
-        }
+        config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
             MODEL = config.getString("models.opennlp.en.sentdetect");
@@ -97,7 +92,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         if (DataHolder.getInstance().containsDataObject(configModelFilePath)) {
 
             sdetector = (SentenceDetectorME) DataHolder.getInstance()
-                    .getDataObject(configModelFilePath);
+            .getDataObject(configModelFilePath);
 
         } else {
 
@@ -158,7 +153,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         onlpstd.loadModel();
 
         onlpstd
-                .detect("This are two example Sentences. Oh, we now in the second sentence already.");
+        .detect("This are two example Sentences. Oh, we now in the second sentence already.");
         CollectionHelper.print(onlpstd.getSentences());
 
         stopWatch.stop();
