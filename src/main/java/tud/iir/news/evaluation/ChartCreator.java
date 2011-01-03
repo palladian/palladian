@@ -359,7 +359,7 @@ public class ChartCreator {
      * and the value is written to it. Finally, the virtual row is written back into {@link totalResultMapMax}
      * 
      * @param totalResultMapMax the map to write the result to, schema: <hourOfExperiment,
-     *            culmulatedVolumePerAlgorithm{fix1440,fix60,ficLearned,adaptive,probabilistic} in Bytes>
+     *            cumulatedVolumePerAlgorithm{fix1440,fix60,ficLearned,adaptive,probabilistic} in Bytes>
      * @param NUMBER_OF_COLUMNS the number of columns = number of algorithms (5)
      * @param COLUMN_TO_WRITE the column to which {@link SIZE_TO_ADD} is written
      * @param HOUR_TO_PROCESS the row to which {@link SIZE_TO_ADD} is written
@@ -390,8 +390,8 @@ public class ChartCreator {
     private void cumulatedVolumePerTimeFile(final Policy POLICY, final boolean SIMULATE_ETAG_USAGE,
             final int FEED_ID_MAX) {
         LOGGER.info("starting to create sumVolumeFile for policy " + POLICY);
-        StringBuilder culmulatedVolumeSB = new StringBuilder();
-        // <hourOfExperiment, culmulatedVolumePerAlgorithm[fix1440,fix60,ficLearned,adaptive,probabilistic] in Bytes>
+        StringBuilder cumulatedVolumeSB = new StringBuilder();
+        // <hourOfExperiment, cumulatedVolumePerAlgorithm[fix1440,fix60,ficLearned,adaptive,probabilistic] in Bytes>
         Map<Integer, Long[]> totalResultMap = new TreeMap<Integer, Long[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
         final int NUMBER_OF_COLUMNS = PollingStrategy.values().length;
@@ -400,10 +400,10 @@ public class ChartCreator {
         final int FEED_ID_STEP = 10000;
         int columnToWrite = 0;
     
-        culmulatedVolumeSB.append("hour of experiment;");
+        cumulatedVolumeSB.append("hour of experiment;");
         for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
             LOGGER.info("starting to create data for " + pollingStrategy.toString());
-            culmulatedVolumeSB.append(pollingStrategy.toString().toLowerCase()).append(";");
+            cumulatedVolumeSB.append(pollingStrategy.toString().toLowerCase()).append(";");
             feedIDStart = 1;
             feedIDEnd = 10000;
 
@@ -417,7 +417,7 @@ public class ChartCreator {
             columnToWrite++;
             LOGGER.info("finished creating data for " + pollingStrategy.toString());
         }
-        culmulatedVolumeSB.append("\n");
+        cumulatedVolumeSB.append("\n");
 
         // //////////// write totalResultMapMax to StringBuilder, cumulating the values row-wise \\\\\\\\\\\\\\\\\
         final long BYTE_TO_MB = 1048576;
@@ -431,7 +431,7 @@ public class ChartCreator {
             for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
                 volumesCumulated[i] += volumes[i];
             }
-            culmulatedVolumeSB.append(currentHour).append(";").append(volumesCumulated[0] / BYTE_TO_MB).append(";")
+            cumulatedVolumeSB.append(currentHour).append(";").append(volumesCumulated[0] / BYTE_TO_MB).append(";")
                     .append(volumesCumulated[1] / BYTE_TO_MB).append(";").append(volumesCumulated[2] / BYTE_TO_MB)
                     .append(";").append(volumesCumulated[3] / BYTE_TO_MB).append(";")
                     .append(volumesCumulated[4] / BYTE_TO_MB).append(";\n");
@@ -450,7 +450,7 @@ public class ChartCreator {
             default:
                 throw new IllegalStateException("unknown Policy: " + POLICY.toString());
         }
-        boolean outputWritten = FileHelper.writeToFile(filePathToWrite, culmulatedVolumeSB);
+        boolean outputWritten = FileHelper.writeToFile(filePathToWrite, cumulatedVolumeSB);
         if (outputWritten) {
             LOGGER.info("sumVolumeFile for policy " + POLICY + " written to: " + filePathToWrite);
         } else {
