@@ -225,18 +225,18 @@ public final class EvaluationDatabase {
      * Private helper to processes a prepared Statement to get an average value like scoreMin or percentaegNewEntries by
      * poll and returns a result set containing the average value for each numberOfPoll.
      * 
-     * @param MAX_NUMBER_OF_POLLS The highest numberOfPolls value to calculate the average value for.
+     * @param maxNumberOfPolls The highest numberOfPolls value to calculate the average value for.
      * @param ps The PreparedStatement to process.
      * @return a result set containing the average value (specified by the PreparedStatement {@link ps) for each
      *         numberOfPoll.
      */
-    private List<EvaluationFeedPoll> getAverageValueByPoll(final int MAX_NUMBER_OF_POLLS, final PreparedStatement ps) {
+    private List<EvaluationFeedPoll> getAverageValueByPoll(final int maxNumberOfPolls, final PreparedStatement ps) {
         LOGGER.trace(">getAverageValueByPoll processing PreparedStatement " + ps.toString());
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
             ps.setLong(1, FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000L);
-            ps.setInt(2, MAX_NUMBER_OF_POLLS);
-            ps.setInt(3, MAX_NUMBER_OF_POLLS);
+            ps.setInt(2, maxNumberOfPolls);
+            ps.setInt(3, maxNumberOfPolls);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
@@ -257,17 +257,17 @@ public final class EvaluationDatabase {
      * {@link PollingStrategy}, MAX-policy and returns it as a result set. See
      * {@link EvaluationDatabase#psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll} for details on queries
      * 
-     * @param STRATEGY The {@link PollingStrategy} to get data for.
-     * @param MAX_NUMBER_OF_POLLS The number of polls to return. It is also used to make sure that every returned FeedID
+     * @param strategy The {@link PollingStrategy} to get data for.
+     * @param maxNumberOfPolls The number of polls to return. It is also used to make sure that every returned FeedID
      *            has that many polls.
      * @return a result set containing the average percentage of new items (averaged over all feeds that have at least
      *         {@link MAX_NUMBER_OF_POLLS} polls) for each numberOfPoll <= {@link MAX_NUMBER_OF_POLLS}.
      */
-    public List<EvaluationFeedPoll> getAveragePercentageNewEntriesPerPollFromMaxPoll(final PollingStrategy STRATEGY,
-            final int MAX_NUMBER_OF_POLLS) {
+    public List<EvaluationFeedPoll> getAveragePercentageNewEntriesPerPollFromMaxPoll(final PollingStrategy strategy,
+            final int maxNumberOfPolls) {
 
         PreparedStatement ps = null;
-        switch (STRATEGY) {
+        switch (strategy) {
             case MOVING_AVERAGE:
                 ps = psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll;
                 break;
@@ -284,9 +284,9 @@ public final class EvaluationDatabase {
                 ps = psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll;
                 break;
             default:
-                throw new IllegalStateException("unknown Algorithm: " + STRATEGY.toString());
+                throw new IllegalStateException("unknown Algorithm: " + strategy.toString());
         }
-        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, ps);
+        return getAverageValueByPoll(maxNumberOfPolls, ps);
     }
 
 
@@ -295,16 +295,16 @@ public final class EvaluationDatabase {
      * MIN-policy and returns a result set containing the average scoreMin for each numberOfPoll. See
      * {@link EvaluationDatabase#psGetAvgScoreMinByPollFromAdaptivePoll} for details on query
      * 
-     * @param STRATEGY The {@link PollingStrategy} to get data for.
-     * @param MAX_NUMBER_OF_POLLS The highest numberOfPolls value to calculate the average scoreMin.
+     * @param strategy The {@link PollingStrategy} to get data for.
+     * @param maxNumberOfPolls The highest numberOfPolls value to calculate the average scoreMin.
      * @return a result set containing the average scoreMin (averaged over all feeds that have at least
      *         {@link MAX_NUMBER_OF_POLLS} polls) for each numberOfPoll <= {@link MAX_NUMBER_OF_POLLS}.
      */
-    public List<EvaluationFeedPoll> getAverageScoreMinPerPollFromMinPoll(final PollingStrategy STRATEGY,
-            final int MAX_NUMBER_OF_POLLS) {
+    public List<EvaluationFeedPoll> getAverageScoreMinPerPollFromMinPoll(final PollingStrategy strategy,
+            final int maxNumberOfPolls) {
 
         PreparedStatement ps = null;
-        switch (STRATEGY) {
+        switch (strategy) {
             case MOVING_AVERAGE:
                 ps = psGetAvgScoreMinByPollFromAdaptivePoll;
                 break;
@@ -321,31 +321,31 @@ public final class EvaluationDatabase {
                 ps = psGetAvgScoreMinByPollFromFix1440Poll;
                 break;
             default:
-                throw new IllegalStateException("unknown Algorithm: " + STRATEGY.toString());
+                throw new IllegalStateException("unknown Algorithm: " + strategy.toString());
         }
-        return getAverageValueByPoll(MAX_NUMBER_OF_POLLS, ps);
+        return getAverageValueByPoll(maxNumberOfPolls, ps);
     }
 
     /**
-     * Queries the database to get all polls for the given {@link STRATEGY} and {@link Policy}. Returned FeedIDs are
-     * between {@link FEED_ID_START} and {@link FEED_ID_LIMIT}.
+     * Queries the database to get all polls for the given {@link PollingStrategy} and {@link Policy}. Returned FeedIDs
+     * are between {@link FEED_ID_START} and {@link FEED_ID_LIMIT}.
      * 
-     * @param STRATEGY The {@link Policy} to get data for.
-     * @param STRATEGY The {@link PollingStrategy} to get data for.
-     * @param FEED_ID_START FeedIDs to retrieve from database are between these values.
-     * @param FEED_ID_LIMIT FeedIDs to retrieve from database are between these values.
-     * @return List of {@link EvaluationFeedPoll} objects where each item is one poll of the given {@link STRATEGY} for
-     *         all FeedID between {@link FEED_ID_START} and {@link FEED_ID_LIMIT}.
+     * @param policy The {@link Policy} to get data for.
+     * @param strategy The {@link PollingStrategy} to get data for.
+     * @param feedIDStart FeedIDs to retrieve from database are between these values.
+     * @param feedIDLimit FeedIDs to retrieve from database are between these values.
+     * @return List of {@link EvaluationFeedPoll} objects where each item is one poll of the given
+     *         {@link PollingStrategy} for all FeedID between {@link feedIDStart} and {@link feedIDLimit}.
      */
-    public List<EvaluationFeedPoll> getTransferVolumeByHourFromTime(final Policy POLICY,
-            final PollingStrategy STRATEGY, final int FEED_ID_START, final int FEED_ID_LIMIT) {
+    public List<EvaluationFeedPoll> getTransferVolumeByHourFromTime(final Policy policy,
+            final PollingStrategy strategy, final int feedIDStart, final int feedIDLimit) {
 
-        LOGGER.trace(">getTransferVolumeByHour processing Algorithm " + STRATEGY.toString());
+        LOGGER.trace(">getTransferVolumeByHour processing Algorithm " + strategy.toString());
         PreparedStatement ps = null;
 
-        switch (POLICY) {
+        switch (policy) {
             case MAX:
-                switch (STRATEGY) {
+                switch (strategy) {
                     case MOVING_AVERAGE:
                         ps = psGetTransferVolumeByHourFromAdaptiveMaxTime;
                         break;
@@ -362,11 +362,11 @@ public final class EvaluationDatabase {
                         ps = psGetTransferVolumeByHourFromFix1440MaxMinTime;
                         break;
                     default:
-                        throw new IllegalStateException("unknown Algorithm: " + STRATEGY.toString());
+                        throw new IllegalStateException("unknown Algorithm: " + strategy.toString());
                 }
                 break;
             case MIN:
-                switch (STRATEGY) {
+                switch (strategy) {
                     case MOVING_AVERAGE:
                         ps = psGetTransferVolumeByHourFromAdaptiveMinTime;
                         break;
@@ -383,18 +383,18 @@ public final class EvaluationDatabase {
                         ps = psGetTransferVolumeByHourFromFix1440MaxMinTime;
                         break;
                     default:
-                        throw new IllegalStateException("unknown Algorithm: " + STRATEGY.toString());
+                        throw new IllegalStateException("unknown Algorithm: " + strategy.toString());
                 }
                 break;
             default:
-                throw new IllegalStateException("unknown Policy: " + POLICY.toString());
+                throw new IllegalStateException("unknown Policy: " + policy.toString());
         }
 
         List<EvaluationFeedPoll> result = new LinkedList<EvaluationFeedPoll>();
         try {
             ps.setLong(1, FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / 1000L);
-            ps.setInt(2, FEED_ID_START);
-            ps.setInt(3, FEED_ID_LIMIT);
+            ps.setInt(2, feedIDStart);
+            ps.setInt(3, feedIDLimit);
             ResultSet resultSet = DatabaseManager.getInstance().runQuery(ps);
             while (resultSet.next()) {
                 EvaluationFeedPoll feedPoll = new EvaluationFeedPoll();
@@ -409,9 +409,9 @@ public final class EvaluationDatabase {
                 result.add(feedPoll);
             }
         } catch (SQLException e) {
-            LOGGER.error(">getTransferVolumeByHour processing Algorithm " + STRATEGY.toString(), e);
+            LOGGER.error(">getTransferVolumeByHour processing Algorithm " + strategy.toString(), e);
         }
-        LOGGER.trace(">getTransferVolumeByHour processing Algorithm " + STRATEGY.toString());
+        LOGGER.trace(">getTransferVolumeByHour processing Algorithm " + strategy.toString());
         return result;
     }
 
