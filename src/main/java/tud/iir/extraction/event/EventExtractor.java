@@ -9,8 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -21,15 +21,18 @@ import org.apache.log4j.Logger;
 
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
-import tud.iir.daterecognition.WebPageDateEvaluator;
+import tud.iir.daterecognition.DateEvaluator;
+import tud.iir.daterecognition.DateGetter;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.extraction.Extractor;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.ConfigHolder;
+import tud.iir.helper.DateArrayHelper;
+import tud.iir.helper.RatedDateComparator;
+import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedItem;
@@ -90,7 +93,6 @@ public class EventExtractor extends Extractor {
         featureExtractor = new EventFeatureExtractor();
 
         PropertiesConfiguration config = null;
-
 
         config = ConfigHolder.getInstance().getConfig();
 
@@ -185,16 +187,39 @@ public class EventExtractor extends Extractor {
 
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
 
-        WebPageDateEvaluator webPageDateEvaluator = new WebPageDateEvaluator();
-        webPageDateEvaluator.setUrl(event.getUrl());
-        webPageDateEvaluator.evaluate();
+        ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
+        DateGetter dg = new DateGetter();
+        DateEvaluator dr = new DateEvaluator();
+        if (event.getUrl() != null) {
+            ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
+            HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
 
-        for (ExtractedDate ed : webPageDateEvaluator.getAllBestRatedDate()) {
-            rankedCandidates.put(ed.getNormalizedDateString(), ed.getRate());
+            dg.setURL(event.getUrl());
+            dg.setTechReference(false);
+            dg.setTechArchive(false);
+            dg.setTechHTTP(true);
+            dg.setTechURL(true);
+            dg.setTechHTMLStruct(true);
+            dg.setTechHTMLHead(true);
+            dg.setTechHTMLContent(true);
+            dates = dg.getDate();
+
+            ratedDates = dr.rate(dates);
+            list = DateArrayHelper.hashMapToArrayList(ratedDates);
+
+            for (Entry<ExtractedDate, Double> entry : ratedDates.entrySet()) {
+                rankedCandidates.put(entry.getKey().getNormalizedDateString(),
+                        entry.getValue());
+            }
         }
-
-        ExtractedDate eDate = webPageDateEvaluator.getBestRatedDate();
-        event.setWhen(eDate.getNormalizedDateString());
+        ExtractedDate date = new ExtractedDate();
+        if (list != null && list.size() > 0) {
+            ArrayList<ExtractedDate> orderedList = list;
+            Collections.sort(orderedList,
+                    new RatedDateComparator<ExtractedDate>());
+            date = orderedList.get(0);
+            event.setWhen(date.getNormalizedDateString());
+        }
 
         // appling Namend Entity Recognition to find DateStrings
         if (this.deepMode) {
@@ -204,7 +229,7 @@ public class EventExtractor extends Extractor {
             }
         }
 
-        CollectionHelper.print(rankedCandidates);
+        // CollectionHelper.print(rankedCandidates);
         event.setWhenCandidates(rankedCandidates);
 
     }
@@ -217,7 +242,7 @@ public class EventExtractor extends Extractor {
     public void extractWhere(Event event) {
 
         final Map<Annotations, FeatureObject> features = event
-        .getAnnotationFeatures();
+                .getAnnotationFeatures();
 
         double[] result = null;
 
@@ -284,7 +309,7 @@ public class EventExtractor extends Extractor {
 
         if (event.getWhat() != null) {
             final String tagged = featureExtractor.getPOSTags(event.getWhat())
-            .getTaggedString();
+                    .getTaggedString();
 
             // extracting the verb from whatPhrase
             try {
@@ -574,7 +599,7 @@ public class EventExtractor extends Extractor {
     public void extractWho(Event event) {
 
         final Map<Annotations, FeatureObject> features = event
-        .getAnnotationFeatures();
+                .getAnnotationFeatures();
 
         double[] result = null;
 
@@ -760,9 +785,16 @@ public class EventExtractor extends Extractor {
         // eventExtractor.extractWhy(event);
         // eventExtractor.extractHow(event);
 
-        EventExtractor
-        .extractEventFromURL("http://www.bbc.co.uk/news/world-asia-pacific-12033330");
+        final StopWatch sw = new StopWatch();
+        sw.start();
 
+        // ee.featureExtractor
+        // .getPOSTags("Mr Gates said they wanted to show solidarity with their allies in Seoul.");
+
+        // ee.featureExtractor.getPOSTags(event.getText());
+
+        sw.stop();
+        LOGGER.info("time elapsed: " + sw.getElapsedTimeString());
         // eventExtractor.extract5W1H(event);
 
     }
