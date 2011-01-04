@@ -78,6 +78,7 @@ public class ChartCreator {
      *            e.g. 20 generates 20 intervals of size {@link #chartInterval} plus one containing all feeds that are
      *            larger
      */
+    @SuppressWarnings("unused")
     private void createFeedSizeHistogrammFile(final int chartInterval, final int chartNumberOfIntervals) {
         List<EvaluationFeedPoll> polls = ED.getFeedSizes();
         int[] feedSizeDistribution = new int[chartNumberOfIntervals + 1];
@@ -118,6 +119,7 @@ public class ChartCreator {
      * Generates a *.csv file to generate a feed age histogram and stores it at {@link ChartCreator#FEED_AGE_FILE_PATH}.
      * csv file has pattern (feed file age;number of feeds;percentage of the feeds;)
      */
+    @SuppressWarnings("unused")
     private void createFeedAgeFile(){        
         List<EvaluationItemIntervalItem> polls = ED.getAverageUpdateIntervals();
         int[] feedAgeDistribution = new int[34];
@@ -130,8 +132,7 @@ public class ChartCreator {
                 i = averageUpdateIntervalHours;
             } else if (averageUpdateIntervalHours <= 24 * 2) {
                 i = 24; // 2 days
-            }
- else if (averageUpdateIntervalHours <= 24 * 3) {
+            } else if (averageUpdateIntervalHours <= 24 * 3) {
                 i = 25; // 3 days
             } else if (averageUpdateIntervalHours <= 24 * 4) {
                 i = 26; // 4 days
@@ -207,6 +208,7 @@ public class ChartCreator {
      * polling strategy separately. The csv file has the pattern (number of poll; adaptive; probabilistic; fix learned;
      * fix1h; fix1d)
      */
+    @SuppressWarnings("unused")
     private void createAverageScoreMinByPollFile() {
         LOGGER.info("starting to create timeliness2File...");
         StringBuilder timeliness2SB = new StringBuilder();        
@@ -235,6 +237,7 @@ public class ChartCreator {
      * strategy separately. File is written to {@link ChartCreator#PERCENTAGE_NEW_MAX_POLL_FILE_PATH}, file has structure
      * (numberOfPoll; adaptive; probabilistic; fix learned; fix1h; fix1d)
      */
+    @SuppressWarnings("unused")
     private void createPercentageNewMaxPollFile() {
         LOGGER.info("starting to create percentageNewMax...");
         StringBuilder percentageNewSB = new StringBuilder();
@@ -328,13 +331,14 @@ public class ChartCreator {
 
                     addSizeOfPollToMap(totalResultMapMax, NUMBER_OF_COLUMNS, COLUMN_TO_WRITE, HOUR_TO_PROCESS,
                             sizeToAdd);
-
-                    LOGGER.info("simmuliere für FeedID " + feedIDLastStep + ", aktuelle Stunde: " + HOUR_TO_PROCESS
-                            + " aktuelle Minute " + MINUTE_TO_PROCESS + " checkInterval " + checkIntervalLast
-                            + " addiere " + sizeToAdd + "bytes" + " totalResultMapMax Feld: "
-                            + totalResultMapMax.get(HOUR_TO_PROCESS)[COLUMN_TO_WRITE]);
-
                     minuteLastStep = MINUTE_TO_PROCESS;
+
+                    if (LOGGER.isDebugEnabled()) {
+                        LOGGER.debug("simmuliere für FeedID " + feedIDLastStep + ", aktuelle Stunde: "
+                                + HOUR_TO_PROCESS + " aktuelle Minute " + MINUTE_TO_PROCESS + " checkInterval "
+                                + checkIntervalLast + " addiere " + sizeToAdd + "bytes" + " totalResultMapMax Feld: "
+                                + totalResultMapMax.get(HOUR_TO_PROCESS)[COLUMN_TO_WRITE]);
+                    }
                 }
                 minuteLastStep = 0;
             }
@@ -354,15 +358,16 @@ public class ChartCreator {
             if (poll.getNumberOfPoll() >= 2) {
                 minuteLastStep += checkIntervalLast;
             }
-
-            LOGGER.info("bearbeite      FeedID " + feedIDCurrent + ", aktuelle Stunde: " + HOUR_TO_PROCESS
-                    + " aktuelle Minute " + minuteLastStep + " checkInterval " + poll.getCheckInterval() + " addiere "
-                    + sizeOfPoll + "bytes" + " totalResultMapMax Feld: "
-                    + totalResultMapMax.get(HOUR_TO_PROCESS)[COLUMN_TO_WRITE]);
-
             feedIDLastStep = feedIDCurrent;
             sizeOfPollLast = sizeOfPoll;
             checkIntervalLast = poll.getCheckInterval();
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("bearbeite      FeedID " + feedIDCurrent + ", aktuelle Stunde: " + HOUR_TO_PROCESS
+                        + " aktuelle Minute " + minuteLastStep + " checkInterval " + poll.getCheckInterval()
+                        + " addiere " + sizeOfPoll + "bytes" + " totalResultMapMax Feld: "
+                        + totalResultMapMax.get(HOUR_TO_PROCESS)[COLUMN_TO_WRITE]);
+            }
         }
     }
 
@@ -402,6 +407,7 @@ public class ChartCreator {
      *            added to the transfer volume (instead of the sizeOfPoll).
      * @param FEED_ID_MAX the highest FeedID in the data set.
      */
+    @SuppressWarnings("unused")
     private void cumulatedVolumePerTimeFile(final Policy POLICY, final boolean SIMULATE_ETAG_USAGE,
             final int FEED_ID_MAX) {
         LOGGER.info("starting to create sumVolumeFile for policy " + POLICY);
@@ -417,10 +423,6 @@ public class ChartCreator {
     
         cumulatedVolumeSB.append("hour of experiment;");
         for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
-
-            // FIXME REMOVE DEBUG CODE
-            if (!pollingStrategy.equals(PollingStrategy.FIX60))
-                continue;
 
             LOGGER.info("starting to create data for " + pollingStrategy.toString());
             cumulatedVolumeSB.append(pollingStrategy.toString().toLowerCase()).append(";");
@@ -511,8 +513,8 @@ public class ChartCreator {
         // cc.createFeedAgeFile(); // letzter Test 12.11. DB Schema v2
         // cc.createAverageScoreMinByPollFile(); // letzter Test 12.11. DB Schema v2
         // cc.createPercentageNewMaxPollFile(); // letzter Test 12.11. DB Schema v2
-        // cc.cumulatedVolumePerTimeFile(Policy.MAX, false, 210000); // letzter Test 12.11. DB Schema v2
-        // cc.cumulatedVolumePerTimeFile(Policy.MAX, true, 210000); // letzter Test 12.11. DB Schema v2
+        cc.cumulatedVolumePerTimeFile(Policy.MAX, false, 210000); // letzter Test 12.11. DB Schema v2
+        cc.cumulatedVolumePerTimeFile(Policy.MAX, true, 210000); // letzter Test 12.11. DB Schema v2
         cc.cumulatedVolumePerTimeFile(Policy.MIN, false, 210000); // letzter Test 12.11. DB Schema v2
         cc.cumulatedVolumePerTimeFile(Policy.MIN, true, 210000); // letzter Test 12.11. DB Schema v2
 	}
