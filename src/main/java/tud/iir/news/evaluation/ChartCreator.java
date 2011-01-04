@@ -20,18 +20,18 @@ public class ChartCreator {
 
     private static final Logger LOGGER = Logger.getLogger(ChartCreator.class);
     
-    private final String FEED_SIZE_HISTOGRAM_FILE_PATH = "data/temp/feedSizeHistogrammData.csv";
-    private final String FEED_AGE_FILE_PATH = "data/temp/feedAgeData.csv";
-    private final String TIMELINESS2_FILE_PATH = "data/temp/timeliness2Data.csv";
-    private final String PERCENTAGE_NEW_MAX_POLL_FILE_PATH = "data/temp/percentNewMaxPollData.csv";
-    private final String SUM_VOLUME_MAX_MIN_TIME_FILE_PATH = "data/temp/sumVolumeTimeData";
+    private static final String FEED_SIZE_HISTOGRAM_FILE_PATH = "data/temp/feedSizeHistogrammData.csv";
+    private static final String FEED_AGE_FILE_PATH = "data/temp/feedAgeData.csv";
+    private static final String TIMELINESS2_FILE_PATH = "data/temp/timeliness2Data.csv";
+    private static final String PERCENTAGE_NEW_MAX_POLL_FILE_PATH = "data/temp/percentNewMaxPollData.csv";
+    private static final String SUM_VOLUME_MAX_MIN_TIME_FILE_PATH = "data/temp/sumVolumeTimeData";
 
-    private final int MAX_NUMBER_OF_POLLS_SCORE_MIN;
-    private final int MAX_NUMBER_OF_POLLS_SCORE_MAX;
+    private final int maxNumberOfPollsScoreMax;
+    private final int maxNumberOfPollsScoreMin;
     
-    private final EvaluationDatabase ED;
+    private final EvaluationDatabase database;
     
-    private final int TOTAL_EXPERIMENT_HOURS;
+    private final int totalExperimentHours;
 
     /**
      * Our policies:<br />
@@ -45,16 +45,16 @@ public class ChartCreator {
     }
 
     /**
-     * @param MAX_NUMBER_OF_POLLS_SCORE_MIN The maximum number of polls to be used by methods creating data for the
+     * @param maxNumberOfPollsScoreMin The maximum number of polls to be used by methods creating data for the
      *            MIN-policy.
-     * @param MAX_NUMBER_OF_POLLS_SCORE_MAX The maximum number of polls to be used by methods creating data for the
+     * @param maxNumberOfPollsScoreMax The maximum number of polls to be used by methods creating data for the
      *            MAX-policy.
      */
-    public ChartCreator(final int MAX_NUMBER_OF_POLLS_SCORE_MIN, final int MAX_NUMBER_OF_POLLS_SCORE_MAX) {
-        this.ED = EvaluationDatabase.getInstance();
-        this.MAX_NUMBER_OF_POLLS_SCORE_MIN = MAX_NUMBER_OF_POLLS_SCORE_MIN;
-        this.MAX_NUMBER_OF_POLLS_SCORE_MAX = MAX_NUMBER_OF_POLLS_SCORE_MAX;
-        this.TOTAL_EXPERIMENT_HOURS = (int) ((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / DateHelper.HOUR_MS);
+    public ChartCreator(final int maxNumberOfPollsScoreMin, final int maxNumberOfPollsScoreMax) {
+        this.database = EvaluationDatabase.getInstance();
+        this.maxNumberOfPollsScoreMax = maxNumberOfPollsScoreMin;
+        this.maxNumberOfPollsScoreMin = maxNumberOfPollsScoreMax;
+        this.totalExperimentHours = (int) ((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / DateHelper.HOUR_MS);
     }
 
 
@@ -71,7 +71,7 @@ public class ChartCreator {
      */
     @SuppressWarnings("unused")
     private void createFeedSizeHistogrammFile(final int chartInterval, final int chartNumberOfIntervals) {
-        List<EvaluationFeedPoll> polls = ED.getFeedSizes();
+        List<EvaluationFeedPoll> polls = database.getFeedSizes();
         int[] feedSizeDistribution = new int[chartNumberOfIntervals + 1];
         int totalNumberOfFeeds = 0;
         
@@ -112,7 +112,7 @@ public class ChartCreator {
      */
     @SuppressWarnings("unused")
     private void createFeedAgeFile(){        
-        List<EvaluationItemIntervalItem> polls = ED.getAverageUpdateIntervals();
+        List<EvaluationItemIntervalItem> polls = database.getAverageUpdateIntervals();
         int[] feedAgeDistribution = new int[34];
         int totalNumberOfFeeds = 0;
         
@@ -212,7 +212,7 @@ public class ChartCreator {
         for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
             LOGGER.info("starting to create data for " + pollingStrategy.toString());
             timeliness2SB.append(pollingStrategy.toString().toLowerCase()).append(";");
-            polls = ED.getAverageScoreMinPerPollFromMinPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MIN);
+            polls = database.getAverageScoreMinPerPollFromMinPoll(pollingStrategy, maxNumberOfPollsScoreMax);
             processDataAggregatedByPoll(polls, timeliness2Map, columnToWrite, NUMBER_OF_COLUMNS);
             LOGGER.info("finished creating data for " + pollingStrategy.toString());
             columnToWrite++;
@@ -241,7 +241,8 @@ public class ChartCreator {
         for (PollingStrategy pollingStrategy : PollingStrategy.values()) {
             LOGGER.info("starting to create data for " + pollingStrategy.toString());
             percentageNewSB.append(pollingStrategy.toString().toLowerCase()).append(";");
-            polls = ED.getAveragePercentageNewEntriesPerPollFromMaxPoll(pollingStrategy, MAX_NUMBER_OF_POLLS_SCORE_MAX);
+            polls = database
+                    .getAveragePercentageNewEntriesPerPollFromMaxPoll(pollingStrategy, maxNumberOfPollsScoreMin);
             processDataAggregatedByPoll(polls, percentageNewMap, columnToWrite, NUMBER_OF_COLUMNS);
             LOGGER.info("finished creating data for " + pollingStrategy.toString());
             columnToWrite++;
@@ -284,21 +285,21 @@ public class ChartCreator {
      * Helper function to cumulate the sizeOfPoll values per hour.<br />
      * 
      * The function gets a list of {@link polls} which represents all polls one {@link PollingStrategy} (fix, adaptive,
-     * etc.) would have done within our experiment time (specified by {@link ChartCreator#TOTAL_EXPERIMENT_HOURS}.
+     * etc.) would have done within our experiment time (specified by {@link ChartCreator#totalExperimentHours}.
      * Missing polls are simulated by adding the sizeOfPoll of the last poll that has been done by the
      * {@link PollingStrategy}.
      * 
      * @param polls contains the polls done by one {@link PollingStrategy}
      * @param totalResultMapMax the map to write the output to. The map may contain values of other
      *            {@link PollingStrategy}s.
-     * @param COLUMN_TO_WRITE the position in Long[] to write the data to.
-     * @param NUMBER_OF_COLUMNS the total number of columns ({@link PollingStrategy}s)
-     * @param SIMULATE_ETAG_USAGE Use to simulate the usage of eTags and HTTP304. If true, and if the poll contains no
+     * @param columnToWrite the position in Long[] to write the data to.
+     * @param numberOfColumns the total number of columns ({@link PollingStrategy}s)
+     * @param simulateEtagUsage Use to simulate the usage of eTags and HTTP304. If true, and if the poll contains no
      *            new item, only the header is added, otherwise the transfer volume of the poll (or the last poll if
      *            polls are simulated)
      */
     private void volumeHelper(List<EvaluationFeedPoll> polls, Map<Integer, Long[]> totalResultMapMax,
-            final int COLUMN_TO_WRITE, final int NUMBER_OF_COLUMNS, final boolean SIMULATE_ETAG_USAGE) {
+            final int columnToWrite, final int numberOfColumns, final boolean simulateEtagUsage) {
 
         int feedIDLastStep = -1;
         int sizeOfPollLast = -1;
@@ -311,40 +312,40 @@ public class ChartCreator {
             // in Davids DB nicht vorhandene Polls simulieren
             if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
                 
-                int sizeToAdd = (SIMULATE_ETAG_USAGE && poll.getSupportsConditionalGet()) ? poll
+                int sizeToAdd = (simulateEtagUsage && poll.getSupportsConditionalGet()) ? poll
                         .getConditionalGetResponseSize() : sizeOfPollLast;
                 
-                while (minuteLastStep + checkIntervalLast < TOTAL_EXPERIMENT_HOURS * 60) {
+                while (minuteLastStep + checkIntervalLast < totalExperimentHours * 60) {
 
-                    final int MINUTE_TO_PROCESS = (minuteLastStep + checkIntervalLast);
+                    final int minuteToProcess = (minuteLastStep + checkIntervalLast);
                     // x/60 + 1: add 1 hour to result to start with hour 1 instead of 0 (minute 1 means hour 1)
-                    final int HOUR_TO_PROCESS = MINUTE_TO_PROCESS / 60 + 1;
+                    final int hourToProcess = minuteToProcess / 60 + 1;
 
-                    addSizeOfPollToMap(totalResultMapMax, NUMBER_OF_COLUMNS, COLUMN_TO_WRITE, HOUR_TO_PROCESS,
+                    addSizeOfPollToMap(totalResultMapMax, numberOfColumns, columnToWrite, hourToProcess,
                             sizeToAdd);
-                    minuteLastStep = MINUTE_TO_PROCESS;
+                    minuteLastStep = minuteToProcess;
 
                     if (LOGGER.isDebugEnabled()) {
-                        LOGGER.debug("simmuliere für FeedID " + feedIDLastStep + ", aktuelle Stunde: "
-                                + HOUR_TO_PROCESS + " aktuelle Minute " + MINUTE_TO_PROCESS + " checkInterval "
+                        LOGGER.debug("simmuliere für FeedID " + feedIDLastStep + ", aktuelle Stunde: " + hourToProcess
+                                + " aktuelle Minute " + minuteToProcess + " checkInterval "
                                 + checkIntervalLast + " addiere " + sizeToAdd + "bytes" + " totalResultMapMax Feld: "
-                                + totalResultMapMax.get(HOUR_TO_PROCESS)[COLUMN_TO_WRITE]);
+                                + totalResultMapMax.get(hourToProcess)[columnToWrite]);
                     }
                 }
                 minuteLastStep = 0;
             }
                    
             // aktuellen Poll behandeln
-            final int HOUR_TO_PROCESS = poll.getHourOfExperiment();
+            final int hourToProcess = poll.getHourOfExperiment();
 
             int sizeOfPoll;
-            if (SIMULATE_ETAG_USAGE && poll.getNewWindowItems() == 0 && poll.getSupportsConditionalGet() == true) {
+            if (simulateEtagUsage && poll.getNewWindowItems() == 0 && poll.getSupportsConditionalGet() == true) {
                     sizeOfPoll = poll.getConditionalGetResponseSize();
             } else {
                 sizeOfPoll = poll.getSizeOfPoll();
             }
 
-            addSizeOfPollToMap(totalResultMapMax, NUMBER_OF_COLUMNS, COLUMN_TO_WRITE, HOUR_TO_PROCESS, sizeOfPoll);
+            addSizeOfPollToMap(totalResultMapMax, numberOfColumns, columnToWrite, hourToProcess, sizeOfPoll);
 
             if (poll.getNumberOfPoll() >= 2) {
                 minuteLastStep += checkIntervalLast;
@@ -354,62 +355,61 @@ public class ChartCreator {
             checkIntervalLast = poll.getCheckInterval();
 
             if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("bearbeite      FeedID " + feedIDCurrent + ", aktuelle Stunde: " + HOUR_TO_PROCESS
+                LOGGER.debug("bearbeite      FeedID " + feedIDCurrent + ", aktuelle Stunde: " + hourToProcess
                         + " aktuelle Minute " + minuteLastStep + " checkInterval " + poll.getCheckInterval()
                         + " addiere " + sizeOfPoll + "bytes" + " totalResultMapMax Feld: "
-                        + totalResultMapMax.get(HOUR_TO_PROCESS)[COLUMN_TO_WRITE]);
+                        + totalResultMapMax.get(hourToProcess)[columnToWrite]);
             }
         }
     }
 
     /**
-     * Helper's helper to add a sizeOfPoll ({@link SIZE_TO_ADD}) to the given virtual column ({@link COLUMN_TO_WRITE})
-     * in the row ({@link HOUR_TO_PROCESS}) of a *.csv file, represented by the {@link totalResultMapMax}. If
-     * {@link totalResultMapMax} already contains an entry for ({@link HOUR_TO_PROCESS}), ({@link SIZE_TO_ADD}) is added
-     * to the specified ({@link COLUMN_TO_WRITE}), otherwise a new Long[] with {@link NUMBER_OF_COLUMNS} is generated
+     * Helper's helper to add a sizeOfPoll ({@link sizeToAdd}) to the given virtual column ({@link columnToWrite})
+     * in the row ({@link hourToProcess}) of a *.csv file, represented by the {@link totalResultMapMax}. If
+     * {@link totalResultMapMax} already contains an entry for ({@link hourToProcess}), ({@link sizeToAdd}) is added
+     * to the specified ({@link columnToWrite}), otherwise a new Long[] with {@link numberOfColumns} is generated
      * and the value is written to it. Finally, the virtual row is written back into {@link totalResultMapMax}
      * 
      * @param totalResultMapMax the map to write the result to, schema: <hourOfExperiment,
      *            cumulatedVolumePerAlgorithm{fix1440,fix60,ficLearned,adaptive,probabilistic} in Bytes>
-     * @param NUMBER_OF_COLUMNS the number of columns = number of algorithms (5)
-     * @param COLUMN_TO_WRITE the column to which {@link SIZE_TO_ADD} is written
-     * @param HOUR_TO_PROCESS the row to which {@link SIZE_TO_ADD} is written
-     * @param SIZE_TO_ADD the sizeOfPoll in bytes that is added to the specified field
+     * @param numberOfColumns the number of columns = number of algorithms (5)
+     * @param columnToWrite the column to which {@link SIZE_TO_ADD} is written
+     * @param hourToProcess the row to which {@link SIZE_TO_ADD} is written
+     * @param sizeToAdd the sizeOfPoll in bytes that is added to the specified field
      */
-    private void addSizeOfPollToMap(Map<Integer, Long[]> totalResultMapMax, final int NUMBER_OF_COLUMNS,
-            final int COLUMN_TO_WRITE, final int HOUR_TO_PROCESS, final int SIZE_TO_ADD) {
+    private void addSizeOfPollToMap(Map<Integer, Long[]> totalResultMapMax, final int numberOfColumns,
+            final int columnToWrite, final int hourToProcess, final int sizeToAdd) {
 
-        Long[] transferredDataArray = new Long[NUMBER_OF_COLUMNS];
-        if (totalResultMapMax.containsKey(HOUR_TO_PROCESS)) {
-            transferredDataArray = totalResultMapMax.get(HOUR_TO_PROCESS);
+        Long[] transferredDataArray = new Long[numberOfColumns];
+        if (totalResultMapMax.containsKey(hourToProcess)) {
+            transferredDataArray = totalResultMapMax.get(hourToProcess);
         } else {
             Arrays.fill(transferredDataArray, 0L);
         }
-        transferredDataArray[COLUMN_TO_WRITE] += SIZE_TO_ADD;
-        totalResultMapMax.put(HOUR_TO_PROCESS, transferredDataArray);
+        transferredDataArray[columnToWrite] += sizeToAdd;
+        totalResultMapMax.put(hourToProcess, transferredDataArray);
     }
 
     /**
      * Calculates the cumulated transfer volume per poll per {@link PollingStrategy} in megabytes to a *.csv file.
      * Every row represents one poll, every column is one {@link PollingStrategy}.
      * 
-     * @param POLICY The {@link Policy} to generate the file for.
-     * @param SIMULATE_ETAG_USAGE If true, for each poll that has no new item, the size of the conditional header is
+     * @param policy The {@link Policy} to generate the file for.
+     * @param simulateEtagUsage If true, for each poll that has no new item, the size of the conditional header is
      *            added to the transfer volume (instead of the sizeOfPoll).
-     * @param FEED_ID_MAX the highest FeedID in the data set.
+     * @param feedIDMax the highest FeedID in the data set.
      */
     @SuppressWarnings("unused")
-    private void cumulatedVolumePerTimeFile(final Policy POLICY, final boolean SIMULATE_ETAG_USAGE,
-            final int FEED_ID_MAX) {
-        LOGGER.info("starting to create sumVolumeFile for policy " + POLICY);
+    private void cumulatedVolumePerTimeFile(final Policy policy, final boolean simulateEtagUsage, final int feedIDMax) {
+        LOGGER.info("starting to create sumVolumeFile for policy " + policy);
         StringBuilder cumulatedVolumeSB = new StringBuilder();
         // <hourOfExperiment, cumulatedVolumePerAlgorithm[fix1440,fix60,ficLearned,adaptive,probabilistic] in Bytes>
         Map<Integer, Long[]> totalResultMap = new TreeMap<Integer, Long[]>();
         List<EvaluationFeedPoll> polls = new LinkedList<EvaluationFeedPoll>();
-        final int NUMBER_OF_COLUMNS = PollingStrategy.values().length;
+        final int numberOfColumns = PollingStrategy.values().length;
         int feedIDStart = 1;
         int feedIDEnd = 10000;
-        final int FEED_ID_STEP = 10000;
+        final int feedIDStep = 10000;
         int columnToWrite = 0;
     
         cumulatedVolumeSB.append("hour of experiment;");
@@ -420,12 +420,12 @@ public class ChartCreator {
             feedIDStart = 1;
             feedIDEnd = 10000;
 
-            while (feedIDEnd < FEED_ID_MAX) {
+            while (feedIDEnd < feedIDMax) {
                 LOGGER.info("checking feedIDs " + feedIDStart + " to " + feedIDEnd);
-                polls = ED.getTransferVolumeByHourFromTime(POLICY, pollingStrategy, feedIDStart, feedIDEnd);
-                volumeHelper(polls, totalResultMap, columnToWrite, NUMBER_OF_COLUMNS, SIMULATE_ETAG_USAGE);
-                feedIDStart += FEED_ID_STEP;
-                feedIDEnd += FEED_ID_STEP;
+                polls = database.getTransferVolumeByHourFromTime(policy, pollingStrategy, feedIDStart, feedIDEnd);
+                volumeHelper(polls, totalResultMap, columnToWrite, numberOfColumns, simulateEtagUsage);
+                feedIDStart += feedIDStep;
+                feedIDEnd += feedIDStep;
             }
             columnToWrite++;
             LOGGER.info("finished creating data for " + pollingStrategy.toString());
@@ -433,27 +433,27 @@ public class ChartCreator {
         cumulatedVolumeSB.append("\n");
 
         // //////////// write totalResultMapMax to StringBuilder, cumulating the values row-wise \\\\\\\\\\\\\\\\\
-        final long BYTE_TO_MB = 1048576;
-        Long[] volumesCumulated = new Long[NUMBER_OF_COLUMNS];
+        final long byteToMB = 1048576;
+        Long[] volumesCumulated = new Long[numberOfColumns];
         Arrays.fill(volumesCumulated, 0l);
         Iterator<Integer> it = totalResultMap.keySet().iterator();
         while (it.hasNext()) {
             int currentHour = it.next();
             Long[] volumes = totalResultMap.get(currentHour);
 
-            for (int i = 0; i < NUMBER_OF_COLUMNS; i++) {
+            for (int i = 0; i < numberOfColumns; i++) {
                 volumesCumulated[i] += volumes[i];
             }
-            cumulatedVolumeSB.append(currentHour).append(";").append(volumesCumulated[0] / BYTE_TO_MB).append(";")
-                    .append(volumesCumulated[1] / BYTE_TO_MB).append(";").append(volumesCumulated[2] / BYTE_TO_MB)
-                    .append(";").append(volumesCumulated[3] / BYTE_TO_MB).append(";")
-                    .append(volumesCumulated[4] / BYTE_TO_MB).append(";\n");
+            cumulatedVolumeSB.append(currentHour).append(";").append(volumesCumulated[0] / byteToMB).append(";")
+                    .append(volumesCumulated[1] / byteToMB).append(";").append(volumesCumulated[2] / byteToMB)
+                    .append(";").append(volumesCumulated[3] / byteToMB).append(";")
+                    .append(volumesCumulated[4] / byteToMB).append(";\n");
         }
 
         // //////////// write final output to file \\\\\\\\\\\\\\\\\
         String filePathToWrite = "";
-        String eTag = SIMULATE_ETAG_USAGE ? "ETag" : "NoETag";
-        switch (POLICY) {
+        String eTag = simulateEtagUsage ? "ETag" : "NoETag";
+        switch (policy) {
             case MAX:
                 filePathToWrite = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + "_Max" + eTag + ".csv";
                 break;
@@ -461,13 +461,13 @@ public class ChartCreator {
                 filePathToWrite = SUM_VOLUME_MAX_MIN_TIME_FILE_PATH + "_Min" + eTag + ".csv";
                 break;
             default:
-                throw new IllegalStateException("unknown Policy: " + POLICY.toString());
+                throw new IllegalStateException("unknown Policy: " + policy.toString());
         }
         boolean outputWritten = FileHelper.writeToFile(filePathToWrite, cumulatedVolumeSB);
         if (outputWritten) {
-            LOGGER.info("sumVolumeFile for policy " + POLICY + " written to: " + filePathToWrite);
+            LOGGER.info("sumVolumeFile for policy " + policy + " written to: " + filePathToWrite);
         } else {
-            LOGGER.fatal("sumVolumeFile for policy " + POLICY + " has not been written to: " + filePathToWrite);
+            LOGGER.fatal("sumVolumeFile for policy " + policy + " has not been written to: " + filePathToWrite);
         }
     } 
     
