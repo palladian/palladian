@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -32,14 +33,14 @@ import tud.iir.web.URLDownloader;
  */
 public class LanguageDatasetCompiler {
 
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(LanguageDatasetCompiler.class);
 
-    /** list of languages and the Google code to get results in those languages */
-    private HashMap<String, String> languages = new HashMap<String, String>();
+    /** List of languages and the Google code to get results in those languages. */
+    private Map<String, String> languages = new HashMap<String, String>();
 
-    /** path where the files should be saved */
-    private final String DIRECTORY_PATH = "data/datasets/classification/language/";
+    /** Path where the files should be saved. */
+    private static final String DIRECTORY_PATH = "data/datasets/classification/language/";
 
     public LanguageDatasetCompiler() {
         // all available languages from Google web search
@@ -152,9 +153,12 @@ public class LanguageDatasetCompiler {
     }
 
     /**
-     * Compiles a dataset for learning a classifier. It processes the following steps: 1. Query Google for each language
-     * to obtain web pages in the given
-     * language 2. Download x web pages and generate an entry in the dataset file. 3. Save the dataset file.
+     * Compiles a dataset for learning a classifier. It processes the following steps:<br>
+     * <ol>
+     * <li>Query Wikipedia for each language to obtain web pages in the given language</li>
+     * <li>Download x web pages and generate an entry in the dataset file</li>
+     * <li>Save the dataset file</li>
+     * </ol>
      * 
      * @param pagesPerLanguage Number of pages per language.
      */
@@ -284,7 +288,8 @@ public class LanguageDatasetCompiler {
      */
     public static void main(String[] args) {
         LanguageDatasetCompiler ldc = new LanguageDatasetCompiler();
-        // ldc.compileDataset(100);
+        ldc.compileDataset(100);
+        System.exit(0);
 
         Set<String> includeLanguages = new HashSet<String>();
         includeLanguages.add("da");
