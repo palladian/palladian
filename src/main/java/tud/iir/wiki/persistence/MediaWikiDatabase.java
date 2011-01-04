@@ -24,7 +24,7 @@ import tud.iir.wiki.data.Revision;
 import tud.iir.wiki.data.WikiDescriptor;
 import tud.iir.wiki.data.WikiPage;
 
-    /**
+/**
  * Data base persistence layer that provides adding, removing and reading of data used by {@link MediaWikiCrawler}.
  * 
  * In all removeX()-methods, deletion of foreign keys is done by data base, so make sure foreign keys and "ON DELETE
