@@ -10,7 +10,6 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import tud.iir.news.evaluation.ChartCreator.Policy;
-import tud.iir.news.evaluation.ChartCreator.PollingStrategy;
 import tud.iir.persistence.DatabaseManager;
 
 /**
@@ -269,19 +268,19 @@ public final class EvaluationDatabase {
 
         PreparedStatement ps = null;
         switch (STRATEGY) {
-            case ADAPTIVE:
+            case MOVING_AVERAGE:
                 ps = psGetAvgPercentageNewEntriesByPollFromAdaptiveMaxPoll;
                 break;
-            case PROBABILISTIC:
+            case POST_RATE:
                 ps = psGetAvgPercentageNewEntriesByPollFromPorbabilisticMaxPoll;
                 break;
             case FIX_LEARNED:
                 ps = psGetAvgPercentageNewEntriesByPollFromFixLearnedMaxPoll;
                 break;
-            case FIX60:
+            case FIX_1h:
                 ps = psGetAvgPercentageNewEntriesByPollFromFix60MaxMinPoll;
                 break;
-            case FIX1440:
+            case FIX_1d:
                 ps = psGetAvgPercentageNewEntriesByPollFromFix1440MaxMinPoll;
                 break;
             default:
@@ -306,19 +305,19 @@ public final class EvaluationDatabase {
 
         PreparedStatement ps = null;
         switch (STRATEGY) {
-            case ADAPTIVE:
+            case MOVING_AVERAGE:
                 ps = psGetAvgScoreMinByPollFromAdaptivePoll;
                 break;
-            case PROBABILISTIC:
+            case POST_RATE:
                 ps = psGetAvgScoreMinByPollFromPorbabilisticPoll;
                 break;
             case FIX_LEARNED:
                 ps = psGetAvgScoreMinByPollFromFixLearnedPoll;
                 break;
-            case FIX60:
+            case FIX_1h:
                 ps = psGetAvgScoreMinByPollFromFix60Poll;
                 break;
-            case FIX1440:
+            case FIX_1d:
                 ps = psGetAvgScoreMinByPollFromFix1440Poll;
                 break;
             default:
@@ -347,19 +346,19 @@ public final class EvaluationDatabase {
         switch (POLICY) {
             case MAX:
                 switch (STRATEGY) {
-                    case ADAPTIVE:
+                    case MOVING_AVERAGE:
                         ps = psGetTransferVolumeByHourFromAdaptiveMaxTime;
                         break;
-                    case PROBABILISTIC:
+                    case POST_RATE:
                         ps = psGetTransferVolumeByHourFromProbabilisticMaxTime;
                         break;
                     case FIX_LEARNED:
                         ps = psGetTransferVolumeByHourFromFixLearnedMaxTime;
                         break;
-                    case FIX60:
+                    case FIX_1h:
                         ps = psGetTransferVolumeByHourFromFix60MaxMinTime;
                         break;
-                    case FIX1440:
+                    case FIX_1d:
                         ps = psGetTransferVolumeByHourFromFix1440MaxMinTime;
                         break;
                     default:
@@ -368,19 +367,19 @@ public final class EvaluationDatabase {
                 break;
             case MIN:
                 switch (STRATEGY) {
-                    case ADAPTIVE:
+                    case MOVING_AVERAGE:
                         ps = psGetTransferVolumeByHourFromAdaptiveMinTime;
                         break;
-                    case PROBABILISTIC:
+                    case POST_RATE:
                         ps = psGetTransferVolumeByHourFromProbabilisticMinTime;
                         break;
                     case FIX_LEARNED:
                         ps = psGetTransferVolumeByHourFromFixLearnedMinTime;
                         break;
-                    case FIX60:
+                    case FIX_1h:
                         ps = psGetTransferVolumeByHourFromFix60MaxMinTime;
                         break;
-                    case FIX1440:
+                    case FIX_1d:
                         ps = psGetTransferVolumeByHourFromFix1440MaxMinTime;
                         break;
                     default:

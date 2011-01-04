@@ -34,15 +34,6 @@ public class ChartCreator {
     private final int TOTAL_EXPERIMENT_HOURS;
 
     /**
-     * all available polling strategies
-     * 
-     * @author Sandro Reichert
-     */
-    public enum PollingStrategy {
-        ADAPTIVE, PROBABILISTIC, FIX_LEARNED, FIX60, FIX1440
-    }
-
-    /**
      * Our policies:<br />
      * MIN: get every item as early as possible but not before it is available and <br />
      * MAX: only poll feed if all items in the window are new, but do not miss any item inbetween
@@ -399,7 +390,7 @@ public class ChartCreator {
     }
 
     /**
-     * Calculates the cumulated transfer volume per poll per {@link PollingStrategy} to a *.csv file.
+     * Calculates the cumulated transfer volume per poll per {@link PollingStrategy} in megabytes to a *.csv file.
      * Every row represents one poll, every column is one {@link PollingStrategy}.
      * 
      * @param POLICY The {@link Policy} to generate the file for.
