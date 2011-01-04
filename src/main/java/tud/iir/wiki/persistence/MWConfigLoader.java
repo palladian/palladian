@@ -139,14 +139,18 @@ public class MWConfigLoader {
     }
 
     /**
-     * Creates for every Wiki an own {@link MediaWikiCrawler}.
-     * 
-     * TODO: add multi thread support here to run every crawler with own thread or better, multiple threads per Wiki
+     * Creates for every Wiki in the database an own {@link MediaWikiCrawler}.
      */
     private void createCrawlers() {
         for (WikiDescriptor wikis : MW_DATABASE.getAllWikiDescriptors()) {
-            MediaWikiCrawler mwCrawler = new MediaWikiCrawler(wikis.getWikiName());
-            mwCrawler.run();
+            // MediaWikiCrawler mwCrawler = new MediaWikiCrawler(wikis.getWikiName());
+            // add multi thread support here to run every crawler with own thread or better, multiple threads per Wiki
+
+            Thread mediaWikiCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName()), "WikID-"
+                    + wikis.getWikiID());
+            mediaWikiCrawler.start();
+
+            // mwCrawler.run();
         }
     }
 
