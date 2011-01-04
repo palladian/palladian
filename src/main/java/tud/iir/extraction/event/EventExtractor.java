@@ -52,9 +52,6 @@ import com.aliasi.tokenizer.TokenizerFactory;
  */
 public class EventExtractor extends Extractor {
 
-    /** The instance of this class. */
-    private static final EventExtractor INSTANCE = new EventExtractor();
-
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(EventExtractor.class);
 
@@ -77,11 +74,12 @@ public class EventExtractor extends Extractor {
 
     private boolean deepMode = false;
 
-    /**
-     * @return EventExtractor
-     */
+    static class SingletonHolder {
+        static EventExtractor instance = new EventExtractor();
+    }
+
     public static EventExtractor getInstance() {
-        return INSTANCE;
+        return SingletonHolder.instance;
     }
 
     /**

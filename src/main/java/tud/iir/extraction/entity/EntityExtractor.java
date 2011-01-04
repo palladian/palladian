@@ -36,10 +36,7 @@ import tud.iir.web.SourceRetrieverManager;
  */
 public class EntityExtractor extends Extractor {
 
-    /** the instance of the entity extractor */
-    private static EntityExtractor INSTANCE = new EntityExtractor();
-
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(EntityExtractor.class);
 
     /** private HashMap<String,String[]> concepts; */
@@ -76,8 +73,12 @@ public class EntityExtractor extends Extractor {
         }
     }
 
+    static class SingletonHolder {
+        static EntityExtractor instance = new EntityExtractor();
+    }
+
     public static EntityExtractor getInstance() {
-        return INSTANCE;
+        return SingletonHolder.instance;
     }
 
     public void startExtraction(boolean phrase, boolean focusedCrawl, boolean seeds) {

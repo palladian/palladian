@@ -28,7 +28,7 @@ import tud.iir.web.SourceRetrieverManager;
 
 // TODO boolean matching problem? run benchmarks!
 
-// TODO merge similar numbers 
+// TODO merge similar numbers
 // TODO string similarity finder from file
 // TODO mixed must have numbers AND word characters (or just numbers and symbols?)
 // TODO add entity name in search query?
@@ -49,9 +49,6 @@ import tud.iir.web.SourceRetrieverManager;
  */
 public class FactExtractor extends Extractor {
 
-    /** The instance of this class. */
-    private static final FactExtractor INSTANCE = new FactExtractor();
-    
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FactExtractor.class);
 
@@ -63,17 +60,21 @@ public class FactExtractor extends Extractor {
      * The private constructor for this singleton class.
      */
     private FactExtractor() {
-        
+
         // do not analyze any binary files
         addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
-        
+
         if (GUIManager.isInstanciated()) {
             // instance.logger.addObserver(GUIManager.getInstance());
         }
     }
 
+    static class SingletonHolder {
+        static FactExtractor instance = new FactExtractor();
+    }
+
     public static FactExtractor getInstance() {
-        return INSTANCE;
+        return SingletonHolder.instance;
     }
 
     /**
@@ -120,7 +121,7 @@ public class FactExtractor extends Extractor {
             // iterate through all concepts
             for (Concept currentConcept : concepts) {
 
-                System.out.println("Concept: " + currentConcept.getName());
+                LOGGER.info("Concept: " + currentConcept.getName());
 
                 if (currentConcept.getAttributes().size() == 0) {
                     LOGGER.info("no attributes found for the concept " + currentConcept.getName());
@@ -234,55 +235,55 @@ public class FactExtractor extends Extractor {
 
                     // // series, data, 0:time,1:value
                     // ArrayList<ArrayList<Double[]>> quantities = new ArrayList<ArrayList<Double[]>>();
-                    //					
+                    //
                     // // collect total entity and total fact extraction
                     // ArrayList<Double[]> tableTrust = new ArrayList<Double[]>();
                     // ArrayList<Double[]> phraseTrust = new ArrayList<Double[]>();
                     // ArrayList<Double[]> colonTrust = new ArrayList<Double[]>();
                     // ArrayList<Double[]> freeTextTrust = new ArrayList<Double[]>();
-                    //					
+                    //
                     // Double[] data;
                     // StringBuilder as3String = new StringBuilder();
                     // for (int i = 0; i < 174; i++) {
                     // System.out.println("update Trust iteration: " + i);
 
                     // Double[] par = getKnowledgeManager().evaluateBenchmarkExtractionsGetPAR();
-                    //												
+                    //
                     // data = new Double[2];
                     // data[0] = (double) i;
                     // data[1] = ExtractionType.getTrust(ExtractionType.TABLE_CELL);
                     // tableTrust.add(data);
                     // as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints1.push(p);").append("\n");
-                    //						
+                    //
                     // data = new Double[2];
                     // data[0] = (double) i;
                     // data[1] = ExtractionType.getTrust(ExtractionType.PATTERN_PHRASE);
                     // phraseTrust.add(data);
                     // as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints2.push(p);").append("\n");
-                    //						
+                    //
                     // data = new Double[2];
                     // data[0] = (double) i;
                     // data[1] = ExtractionType.getTrust(ExtractionType.COLON_PHRASE);
                     // colonTrust.add(data);
                     // as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints3.push(p);").append("\n");
-                    //						
+                    //
                     // data = new Double[2];
                     // data[0] = (double) i;
                     // data[1] = ExtractionType.getTrust(ExtractionType.FREE_TEXT_SENTENCE);
                     // freeTextTrust.add(data);
                     // as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints4.push(p);").append("\n");
-                    //								
+                    //
                     // data = new Double[2];
                     // data[0] = (double) i;
                     // data[1] = par[0];
                     // as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints5.push(p);").append("\n");
-                    //						
+                    //
                     // data = new Double[2];
                     // data[0] = (double) i;
                     // data[1] = par[1];
                     // as3String.append("p = new Point("+data[0]+","+data[1]+"); dataPoints6.push(p);").append("\n");
-                    //						
-                    //						
+                    //
+                    //
                     // data = new Double[2];
                     // data[0] = (double) i;
                     // data[1] = par[2];
@@ -292,7 +293,7 @@ public class FactExtractor extends Extractor {
                     // }
 
                     getKnowledgeManager().evaluateBenchmarkExtractions();
-                    //					
+                    //
                     // ArrayList<String> seriesNames = new ArrayList<String>();
                     // seriesNames.add("Table");
                     // seriesNames.add("Phrase");
@@ -302,7 +303,7 @@ public class FactExtractor extends Extractor {
                     // quantities.add(phraseTrust);
                     // quantities.add(colonTrust);
                     // quantities.add(freeTextTrust);
-                    //					
+                    //
                     // FileHelper.writeToFile("data/test/asText.txt", as3String);
                     //
                     // ChartCreator.createLineChart("data/logs/"+Logger.getInstance().getDateString()+"_learnedTrust.png", quantities, seriesNames,
@@ -679,20 +680,20 @@ public class FactExtractor extends Extractor {
         // KnowledgeManager dm = new KnowledgeManager();
         // dm.createBenchmarkConcepts(true);
         // FactExtractor.getInstance().setKnowledgeManager(dm);
-        //		
+        //
         // ArrayList<Concept> concepts = dm.getConcepts();
-        //		
+        //
         // // iterate through all concepts
         // Iterator<Concept> conceptIterator = concepts.iterator();
         // while (conceptIterator.hasNext()) {
         // Concept currentConcept = conceptIterator.next();
         // ArrayList<Entity> conceptEntities = currentConcept.getEntities();
         // HashSet<Attribute> currentAttributes = currentConcept.getAttributes();
-        //			
+        //
         // Iterator<Entity> entityIterator = conceptEntities.iterator();
         // while (entityIterator.hasNext()) {
         // Entity currentEntity = entityIterator.next();
-        //				
+        //
         // Iterator<Attribute> attributeIterator = currentAttributes.iterator();
         // while (attributeIterator.hasNext()) {
         // Attribute currentAttribute = attributeIterator.next();
@@ -719,7 +720,7 @@ public class FactExtractor extends Extractor {
         // test multiple attributes
         // Entity e = new Entity("Australia",KnowledgeManager.getInstance().getDomains().get(0));
         // FactQuery fq = FactQueryFactory.getInstance().createFactQueryForManyAttributes(e, FactQueryFactory.TYPE_X);
-        //		
+        //
         // System.out.println(fq);
         // FactExtractor.getInstance().extractFromFactPages(fq);
     }
