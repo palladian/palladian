@@ -40,7 +40,7 @@ import tud.iir.wiki.queries.RevisionsByTitleQuery;
  * @author Sandro Reichert
  * 
  */
-public class MediaWikiCrawler {
+public class MediaWikiCrawler implements Runnable {
 
     /** The global logger */
     private static final Logger LOGGER = Logger.getLogger(MediaWikiCrawler.class);
@@ -284,7 +284,6 @@ public class MediaWikiCrawler {
      */
     private int crawlRevisionsByTitle(final String pageName, final Long revisionIDStart, final boolean skipFirst) {
        
-        //TODO remove pageID request from db - increases speed
         final Integer pageID = MW_DATABASE.getPageID(MW_DESCRIPTOR.getWikiID(), pageName);
 
         if (pageID == null) {
@@ -595,14 +594,11 @@ public class MediaWikiCrawler {
                 }
                 ThreadHelper.sleep(NEW_REVISIONS_INTERVAL - timeElapsed);
             } else {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("Could not process all tasks for Wiki \"" + MW_DESCRIPTOR.getWikiName()
-                            + "\" in time, processing took "
-                            + ((timeElapsed - NEW_REVISIONS_INTERVAL) / DateHelper.SECOND_MS)
-                            + " seconds, but should have been done within "
-                            + (NEW_REVISIONS_INTERVAL / DateHelper.SECOND_MS)
-                            + " seconds. Please provide more resources!");
-                }
+                LOGGER.error("Could not process all tasks for Wiki \"" + MW_DESCRIPTOR.getWikiName()
+                        + "\" in time, processing took "
+                        + ((timeElapsed - NEW_REVISIONS_INTERVAL) / DateHelper.SECOND_MS)
+                        + " seconds, but should have been done within "
+                        + (NEW_REVISIONS_INTERVAL / DateHelper.SECOND_MS) + " seconds. Please provide more resources!");
             }
         }
     }
