@@ -54,9 +54,6 @@ import uk.ac.shef.wit.simmetrics.similaritymetrics.QGramsDistance;
  */
 public class QAExtractor extends Extractor {
 
-    /** The instance of this class. */
-    private static QAExtractor INSTANCE = new QAExtractor();
-
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(QAExtractor.class);
 
@@ -89,15 +86,19 @@ public class QAExtractor extends Extractor {
     private QAExtractor() {
         setPa(new PageAnalyzer());
         initialize();
+    }   
+    
+    static class SingletonHolder {
+        static QAExtractor instance = new QAExtractor();
     }
-
+    
     /**
      * Get the instance of the QAExtractor, which itself is singleton.
      * 
      * @return The QAExtractor instance.
      */
     public static QAExtractor getInstance() {
-        return INSTANCE;
+        return SingletonHolder.instance;
     }
 
     private void initialize() {

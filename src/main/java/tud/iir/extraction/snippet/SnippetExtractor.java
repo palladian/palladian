@@ -32,9 +32,6 @@ import tud.iir.persistence.DatabaseManager;
  */
 public class SnippetExtractor extends Extractor {
 
-    /** The instance of this class. */
-    private static final SnippetExtractor INSTANCE = new SnippetExtractor();
-
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(SnippetExtractor.class);
 
@@ -65,8 +62,12 @@ public class SnippetExtractor extends Extractor {
 
     }
 
+    static class SingletonHolder {
+        static SnippetExtractor instance = new SnippetExtractor();
+    }
+
     public static SnippetExtractor getInstance() {
-        return INSTANCE;
+        return SingletonHolder.instance;
     }
 
     /**

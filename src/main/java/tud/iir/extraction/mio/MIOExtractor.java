@@ -31,9 +31,6 @@ public final class MIOExtractor extends Extractor {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MIOExtractor.class);
 
-    /** The instance of this class. */
-    private static MIOExtractor instance = null;
-
     /** The maximum number of extraction threads. */
     private static final int MAX_EXTRACTION_THREADS = 3;
 
@@ -65,16 +62,12 @@ public final class MIOExtractor extends Extractor {
         }
     }
 
-    /**
-     * Gets the single instance of MIOExtractor.
-     * 
-     * @return single instance of MIOExtractor
-     */
+    static class SingletonHolder {
+        static MIOExtractor instance = new MIOExtractor();
+    }
+
     public static MIOExtractor getInstance() {
-        if (instance == null) {
-            instance = new MIOExtractor();
-        }
-        return instance;
+        return SingletonHolder.instance;
     }
 
     /**
@@ -97,14 +90,14 @@ public final class MIOExtractor extends Extractor {
         setStopped(false);
 
         // load concepts and attributes from ontology (and rdb)
-        final KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
+        KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
         setKnowledgeManager(kManager);
 
         // loop until exit called
         while (!isStopped()) {
 
             // concepts
-            final ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
+            ArrayList<Concept> concepts = knowledgeManager.getConcepts(true);
 
             // iterate through all concepts
             for (Concept currentConcept : concepts) {
@@ -120,7 +113,7 @@ public final class MIOExtractor extends Extractor {
                 }
 
                 // iterate through all entities of current concept
-                ArrayList<Entity> conceptEntities;
+                List<Entity> conceptEntities;
                 if (continueFromLastExtraction) {
                     conceptEntities = currentConcept.getEntitiesByDate();
                 } else {
@@ -133,7 +126,7 @@ public final class MIOExtractor extends Extractor {
                     continue;
                 }
 
-                final ThreadGroup extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
+                extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
 
                 for (Entity currentEntity : conceptEntities) {
 
@@ -171,7 +164,7 @@ public final class MIOExtractor extends Extractor {
                         if (isStopped()) {
                             count++;
                         }
-                        if (count > 1) {
+                        if (count > 25) {
                             LOGGER.info("waited 25 iterations after stop has been called, breaking now");
                             break;
                         }
