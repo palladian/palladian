@@ -26,7 +26,7 @@ public class MWConfigLoader {
     private static MWConfigLoader instance = null;
 
     /** The instance of the {@link MediaWikiDatabase} which acts as persistence layer. */
-    private final MediaWikiDatabase MW_DATABASE = MediaWikiDatabase.getInstance();
+    private final MediaWikiDatabase mwDatabase = MediaWikiDatabase.getInstance();
 
     /**
      * Instantiates a new MWConfigLoader.
@@ -93,7 +93,7 @@ public class MWConfigLoader {
     public void initializeCrawlers() {
         // load known Wikis from db
         TreeMap<String, WikiDescriptor> wikisInDB = new TreeMap<String, WikiDescriptor>();
-        for (WikiDescriptor wd : MW_DATABASE.getAllWikiDescriptors()) {
+        for (WikiDescriptor wd : mwDatabase.getAllWikiDescriptors()) {
             wikisInDB.put(wd.getWikiName(), wd);
         }
 
@@ -123,16 +123,16 @@ public class MWConfigLoader {
                 // copy internal stuff from db that can not be contained in config file
                 wd.setWikiID(wikisInDB.get(wikiName).getWikiID());
                 wd.setLastCheckForModifications(wikisInDB.get(wikiName).getLastCheckForModifications());
-                MW_DATABASE.updateWiki(wd);
+                mwDatabase.updateWiki(wd);
                 wikisInDB.remove(wd.getWikiName());
             } else {
-                MW_DATABASE.addWiki(wd);
+                mwDatabase.addWiki(wd);
             }
         }
 
         // remove all Wikis in db that are in db but not in config file
         for (WikiDescriptor wikiToDelete : wikisInDB.values()) {
-            MW_DATABASE.removeWiki(wikiToDelete.getWikiID());
+            mwDatabase.removeWiki(wikiToDelete.getWikiID());
         }
 
         createCrawlers();
@@ -142,7 +142,7 @@ public class MWConfigLoader {
      * Creates for every Wiki in the database an own {@link MediaWikiCrawler}.
      */
     private void createCrawlers() {
-        for (WikiDescriptor wikis : MW_DATABASE.getAllWikiDescriptors()) {
+        for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
             // MediaWikiCrawler mwCrawler = new MediaWikiCrawler(wikis.getWikiName());
             // add multi thread support here to run every crawler with own thread or better, multiple threads per Wiki
 
