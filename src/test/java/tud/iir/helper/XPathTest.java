@@ -63,6 +63,9 @@ public class XPathTest extends TestCase {
         // test add XMLNS
         assertEquals(XPathHelper.addNameSpaceToXPath("//TABLE/TR/TD/A[4]"), "//xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]");
         assertEquals(XPathHelper.addNameSpaceToXPath("/TABLE/TR/TD/A[4]"), "/xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]");
+        assertEquals(XPathHelper.addNameSpaceToXPath("/TABLE/TR[2]/TD/A"), "/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A");
+        assertEquals(XPathHelper.addNameSpaceToXPath("/TABLE/TR[2]/TD/A/text()"),
+                "/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A/text()");
 
         // test remove counts
         assertEquals("/html/body/div/div/div/div/ul/li", PageAnalyzer.removeXPathIndices("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li[11]"));
