@@ -114,7 +114,7 @@ public class RecentChanges extends TitleQuery<WikiPage> {
      *            omitted and the API's default is used (default: all types).
      * @throws VersionException if version is incompatible
      */
-    public RecentChanges(MediaWikiBot bot, String rcstart, int[] namespaces, String rctype)
+    public RecentChanges(final MediaWikiBot bot, final String rcstart, final int[] namespaces, final String rctype)
             throws VersionException {
         super(bot);
 
@@ -139,12 +139,12 @@ public class RecentChanges extends TitleQuery<WikiPage> {
      *            omitted
      * @return a
      */
-    private Get generateRequest(String rcstart) {
+    private Get generateRequest(final String rcstart) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("enter RecentChangePages.generateRequest");
         }
         
-        String uS = "/api.php?action=query&list=recentchanges"
+        final String query = "/api.php?action=query&list=recentchanges"
                 + "&rcprop="
                 + MediaWiki.encode(rcprop)
                 + ((rcstart != null && rcstart.length() > 0) ? ("&rcstart=" + rcstart + "&rcdir=newer") : "")
@@ -156,7 +156,7 @@ public class RecentChanges extends TitleQuery<WikiPage> {
                         : "")
                         + "&format=xml";
 
-        return new Get(uS);
+        return new Get(query);
     }
 
     /**
@@ -242,18 +242,18 @@ public class RecentChanges extends TitleQuery<WikiPage> {
      * If there is one, a new request is added to msgs by calling
      * generateRequest. If no exists, the string is empty.
      * 
-     * @param s
+     * @param wikiResponse
      *            text for parsing
      * @return The timestamp in Wiki format to start a follow-up request.
      */
     @Override
-    protected String parseHasMore(final String s) {
+    protected String parseHasMore(final String wikiResponse) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("enter GetAllPagetitles.parseHasMore(String)");
         }
-        Matcher m = HAS_MORE_PATTERN.matcher(s);
-        if (m.find()) {
-            return m.group(1);
+        final Matcher matcher = HAS_MORE_PATTERN.matcher(wikiResponse);
+        if (matcher.find()) {
+            return matcher.group(1);
         } else {
             return null;
         }

@@ -105,7 +105,7 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
      *            revision ID to start from, may be null to return all revisions
      * @throws VersionException if version is incompatible
      */
-    public RevisionsByTitleQuery(MediaWikiBot bot, String pageTitle, Long rvStartID)
+    public RevisionsByTitleQuery(final MediaWikiBot bot, final String pageTitle, final Long rvStartID)
             throws VersionException {
         super(bot);
 
@@ -121,7 +121,7 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
      *            revision ID to start from, may be null to start from most recent
      * @return a
      */
-    private Get generateRequest(String rvStartID) {
+    private Get generateRequest(final String rvStartID) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("enter RevisionByTitleQuery.generateRequest");
         }
@@ -132,12 +132,12 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
         }
         rvprop = rvprop.substring(0, rvprop.length() - 1);
 
-        String uS = "/api.php?action=query&prop=revisions&titles=" + MediaWiki.encode(pageTitle)
+        final String query = "/api.php?action=query&prop=revisions&titles=" + MediaWiki.encode(pageTitle)
                 + ((properties != null && rvprop.length() > 0) ? ("&rvprop=" + MediaWiki.encode(rvprop)) : "")
                 + ((rvStartID != null && rvStartID.length() > 0) ? ("&rvstartid=" + rvStartID) : "") + "&rvdir=newer"
                 + "&rvlimit=" + LIMIT + "&format=xml";
 
-        return new Get(uS);
+        return new Get(query);
     }
 
     /**
@@ -164,7 +164,9 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
         final Collection<Revision> revisions = new Vector<Revision>();
 
         try {
-            Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder()
+            final Document document = DocumentBuilderFactory
+                    .newInstance()
+                    .newDocumentBuilder()
                     .parse(new StringInputStream(StringHelper.stripNonValidXMLCharacters(StringHelper
                             .removeNonAsciiCharacters(XML))));
             for (Node revision : XPathHelper.getNodes(document, "//rev")) {
@@ -172,11 +174,11 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
                         .getTextContent()));
 
                 final Node userNode = revision.getAttributes().getNamedItem("user");
-                final String author = (userNode != null) ? MediaWiki.decode(userNode.getTextContent())
-                        : "User has been deleted!";
+                final String author = (userNode == null) ? "User has been deleted!" : MediaWiki.decode(userNode
+                        .getTextContent());
                 try {
-                    final Date timestamp = (DateGetterHelper.findDate(revision.getAttributes()
-                            .getNamedItem("timestamp").getTextContent())).getNormalizedDate();
+                    final Date timestamp = DateGetterHelper.findDate(
+                            revision.getAttributes().getNamedItem("timestamp").getTextContent()).getNormalizedDate();
                     revisions.add(new Revision(revisionID, timestamp, author));
                 } catch (Exception e) {
                     LOGGER.error(
@@ -201,18 +203,18 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
      * If there is one, a new request is added to msgs by calling
      * generateRequest. If no exists, the string is empty.
      * 
-     * @param s
+     * @param wikiResponse
      *            text for parsing
      * @return The revisionID to start a follow-up request for.
      */
     @Override
-    protected String parseHasMore(final String s) {
+    protected String parseHasMore(final String wikiResponse) {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("enter GetAllPagetitles.parseHasMore(String)");
         }
-        Matcher m = HAS_MORE_PATTERN.matcher(s);
-        if (m.find()) {
-            return m.group(1);
+        final Matcher matcher = HAS_MORE_PATTERN.matcher(wikiResponse);
+        if (matcher.find()) {
+            return matcher.group(1);
         } else {
             return null;
         }
