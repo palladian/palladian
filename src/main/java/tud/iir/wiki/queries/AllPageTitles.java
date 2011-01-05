@@ -69,7 +69,7 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
                     | Pattern.MULTILINE);
 
     /** Pattern to parse returned page, @see {@link #parseArticleTitles(String)} */
-    private static final Pattern ARTICLE_TITLES_PATTERN = Pattern
+    private static final Pattern TITLE_PATTERN = Pattern
             .compile("<p pageid=\"(.*?)\" ns=\"(.*?)\" title=\"(.*?)\" />");
 
     /** Constant value for the aplimit-parameter. **/
@@ -88,7 +88,7 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
     private String from;
 
     /** Defines whether redirect pages should be included or not. */
-    private RedirectFilter rf;
+    private RedirectFilter redirectFilter;
 
     /** distinguish between first call and additional calls to process paged results */
     private boolean isFirstCall = true;
@@ -102,7 +102,7 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
      * @param namespaces The Wiki's namespaceID to get all pages for.
      * @throws VersionException if version is incompatible
      */
-    public AllPageTitles(MediaWikiBot bot, int namespace) throws VersionException {
+    public AllPageTitles(final MediaWikiBot bot, final int namespace) throws VersionException {
         this(bot, null, null, RedirectFilter.all, namespace);
 
     }
@@ -119,12 +119,13 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
      * @param namespace The Wiki's namespaceID to get all pages for.
      * @throws VersionException if version is incompatible
      */
-    public AllPageTitles(MediaWikiBot bot, String from, String prefix, RedirectFilter rf, int namespace)
+    public AllPageTitles(final MediaWikiBot bot, final String from, final String prefix, final RedirectFilter rf,
+            final int namespace)
             throws VersionException {
         super(bot);
 
         this.bot = bot;
-        this.rf = rf;
+        this.redirectFilter = rf;
         this.prefix = prefix;
         this.namespace = namespace;
         this.from = from;
@@ -141,7 +142,7 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
      * @param namespace The Wiki's namespaceID to get all pages for.
      * @return a {@link Get} object representing the query.
      */
-    private Get generateRequest(String from, String prefix, RedirectFilter rf, int namespace) {
+    private Get generateRequest(final String from, String prefix, final RedirectFilter rf, final int namespace) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("enter GetAllPagetitles.generateRequest" + "(String,String,boolean,boolean,String)");
         }
@@ -155,33 +156,33 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
             apfilterredir = "nonredirects";
         }
         
-        String uS = "/api.php?action=query&list=allpages"
+        final String query = "/api.php?action=query&list=allpages"
                 + ((from != null && from.length() > 0) ? ("&apfrom=" + MediaWiki.encode(from)) : "")
                 + ((prefix != null) ? ("&apprefix=" + MediaWiki.encode(prefix)) : "") + "&apnamespace=" + namespace
                 + "&apfilterredir=" + apfilterredir + "&aplimit=" + LIMIT + "&format=xml";
-        return new Get(uS);
+        return new Get(query);
 
     }
 
     /**
      * Picks the page title, pageID and namespaceID from the String (called with a MediaWiki API response).
      * 
-     * @param s Text for parsing, usually a MediaWiki API response.
+     * @param wikiResponse Text for parsing, usually a MediaWiki API response.
      * @return a {@link Collection} of {@link WikiPage}s contained in the API response, for each {@link WikiPage},
      *         title, pageID and namespaceID are set.
      */
     @Override
-    protected Collection<WikiPage> parseArticleTitles(String s) {
+    protected Collection<WikiPage> parseArticleTitles(final String wikiResponse) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("enter GetAllPagetitles.parseArticleTitles(String)");
         }
-        Collection<WikiPage> pages = new Vector<WikiPage>();
-        Matcher m = ARTICLE_TITLES_PATTERN.matcher(s);
+        final Collection<WikiPage> pages = new Vector<WikiPage>();
+        final Matcher matcher = TITLE_PATTERN.matcher(wikiResponse);
         WikiPage wikiPage = null;
-        while (m.find()) {
-            int pageID = Integer.parseInt(MediaWiki.decode(m.group(1)));
-            int namespace = Integer.parseInt(MediaWiki.decode(m.group(2)));
-            String title = MediaWiki.decode(m.group(3));
+        while (matcher.find()) {
+            final int pageID = Integer.parseInt(MediaWiki.decode(matcher.group(1)));
+            final int namespace = Integer.parseInt(MediaWiki.decode(matcher.group(2)));
+            final String title = MediaWiki.decode(matcher.group(3));
             if (LOG.isDebugEnabled()) {
                 LOG.debug("Found page title: \"" + title + "\"");
             }
@@ -199,17 +200,17 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
      * If there is one, a new request is added to msgs by calling
      * generateRequest. If no exists, the string is empty.
      * 
-     * @param s text for parsing
+     * @param wikiResponse text for parsing, usually a MediaWiki API response.
      * @return the title of the next page.
      */
     @Override
-    protected String parseHasMore(final String s) {
+    protected String parseHasMore(final String wikiResponse) {
         if (LOG.isTraceEnabled()) {
             LOG.trace("enter GetAllPagetitles.parseHasMore(String)");
         }
-        Matcher m = HAS_MORE_PATTERN.matcher(s);
-        if (m.find()) {
-            return MediaWiki.decode(m.group(1));
+        final Matcher matcher = HAS_MORE_PATTERN.matcher(wikiResponse);
+        if (matcher.find()) {
+            return MediaWiki.decode(matcher.group(1));
         } else {
             return "";
         }
@@ -222,9 +223,9 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
     protected HttpAction prepareCollection() {
         if (isFirstCall) {
             isFirstCall = false;
-            return generateRequest(from, prefix, rf, namespace);
+            return generateRequest(from, prefix, redirectFilter, namespace);
         }
-        return generateRequest(getNextPageInfo(), prefix, rf, namespace);
+        return generateRequest(getNextPageInfo(), prefix, redirectFilter, namespace);
     }
 
     /**
@@ -233,7 +234,7 @@ public class AllPageTitles extends TitleQuery<WikiPage> {
     @Override
     protected Object clone() throws CloneNotSupportedException {
         try {
-            return new AllPageTitles(bot, from, prefix, rf, namespace);
+            return new AllPageTitles(bot, from, prefix, redirectFilter, namespace);
         } catch (VersionException e) {
             throw new CloneNotSupportedException(e.getLocalizedMessage());
         }

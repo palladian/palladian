@@ -64,7 +64,7 @@ public class GetRendering extends MWAction {
      * @param title The title of the page to get parsed.
      * @throws VersionException if not supported
      */
-    public GetRendering(MediaWikiBot bot, String title) throws VersionException {
+    public GetRendering(final MediaWikiBot bot, final String title) throws VersionException {
         super(bot.getVersion());
         this.bot = bot;
         msg = new Get("/api.php?action=parse&page=" + MediaWiki.encode(title) + "&titles=API&format=xml");
@@ -93,26 +93,26 @@ public class GetRendering extends MWAction {
      * {@inheritDoc}
      */
     @Override
-    public String processAllReturningText(String s) throws ProcessException {
-        html = findElement("text", s).getTextTrim();
+    public String processAllReturningText(final String wikiResponse) throws ProcessException {
+        html = findElement("text", wikiResponse).getTextTrim();
         html = html.replace("\n", "");
         switch (bot.getVersion()) {
             case MW1_12:
                 break;
             default:
-                int last = html.lastIndexOf("<!--");
+                final int last = html.lastIndexOf("<!--");
                 html = html.substring(0, last);
         }
         return "";
     }
 
 
-    protected Element findElement(String elementName, String xml) {
-        SAXBuilder builder = new SAXBuilder();
+    protected Element findElement(final String elementName, final String xml) {
+        final SAXBuilder builder = new SAXBuilder();
         Element root = null;
         try {
-            Reader i = new StringReader(xml);
-            Document doc = builder.build(new InputSource(i));
+            final Reader stringReader = new StringReader(xml);
+            final Document doc = builder.build(new InputSource(stringReader));
 
             root = doc.getRootElement();
 
@@ -127,19 +127,19 @@ public class GetRendering extends MWAction {
             return null;
     }
 
-    private Element findContent(final Element e, final String name) {
+    private Element findContent(final Element parent, final String name) {
         Element found = null;
         @SuppressWarnings("unchecked")
-        Iterator<Element> el = e.getChildren().iterator();
-        while (el.hasNext()) {
-            Element element = el.next();
+        final Iterator<Element> childrenIT = parent.getChildren().iterator();
+        while (childrenIT.hasNext()) {
+            final Element child = childrenIT.next();
 
-            if (element.getQualifiedName().equalsIgnoreCase(name)) {
+            if (child.getQualifiedName().equalsIgnoreCase(name)) {
                 // System.out.println(element.getQualifiedName());
-                return element;
+                return child;
 
             } else {
-                found = findContent(element, name);
+                found = findContent(child, name);
             }
 
         }
