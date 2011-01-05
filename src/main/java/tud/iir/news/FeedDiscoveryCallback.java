@@ -1,15 +1,13 @@
 package tud.iir.news;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.FileHelper;
-import tud.iir.helper.LineAction;
 import tud.iir.web.Crawler;
 import tud.iir.web.CrawlerCallback;
 
@@ -27,7 +25,7 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
     private static final FeedDiscoveryCallback INSTANCE = new FeedDiscoveryCallback();
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(FeedDiscoveryCallback.class);
+    // private static final Logger LOGGER = Logger.getLogger(FeedDiscoveryCallback.class);
 
     /** The default file where the discovered feeds are written to. */ 
     public static final String DEFAULT_FILE_PATH = "data/discovered_feeds.txt";
@@ -40,12 +38,8 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
 
     private FeedDiscoveryCallback() {
         Logger.getRootLogger().trace("FeedDiscoveryCallback.<init>");
-        try {
-            PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
-            filePath = config.getString("crawlerDiscoveryList", DEFAULT_FILE_PATH);
-        } catch (ConfigurationException e) {
-            Logger.getRootLogger().error("failed to read configuration: " + e.getMessage());
-        }
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        filePath = config.getString("crawlerDiscoveryList", DEFAULT_FILE_PATH);
     }
 
     /**
@@ -64,39 +58,8 @@ public class FeedDiscoveryCallback implements CrawlerCallback {
                 // output to the file must be synced, or we will lose data when
                 // writing from multiple crawl threads
                 synchronized (this) {
-                    appendLineIfNotPresent(filePath, feed);
+                    FileHelper.appendLineIfNotPresent(filePath, feed);
                 }
-            }
-        }
-    }
-
-    /**
-     * Appends a line to the specified text file if it does not already exist.
-     * 
-     * TODO move this to FileHelper?
-     * 
-     * @param filePath
-     * @param string
-     */
-    private static void appendLineIfNotPresent(String filePath, final String string) {
-        final boolean[] add = new boolean[] { true };
-        // if file exists already, check if it contains specified line
-        if (FileHelper.fileExists(filePath)) {
-            FileHelper.performActionOnEveryLine(filePath, new LineAction() {
-                @Override
-                public void performAction(String line, int lineNumber) {
-                    if (line.equals(string)) {
-                        add[0] = false;
-                        breakLineLoop();
-                    }
-                }
-            });
-        }
-        if (add[0]) {
-            try {
-                FileHelper.appendFile(filePath, string + "\n");
-            } catch (IOException e) {
-                LOGGER.error("could not write to file " + filePath);
             }
         }
     }

@@ -609,6 +609,35 @@ public class FileHelper {
         bufferedWriter.close();
 
     }
+    
+    /**
+     * Appends a line to the specified text file if it does not already exist.
+     * 
+     * @param filePath the file path; file will be created if it does not exist
+     * @param stringToAppend the string to append
+     */
+    public static void appendLineIfNotPresent(String filePath, final CharSequence stringToAppend) {
+        final boolean[] add = new boolean[] { true };
+        // if file exists already, check if it contains specified line
+        if (fileExists(filePath)) {
+            performActionOnEveryLine(filePath, new LineAction() {
+                @Override
+                public void performAction(String line, int lineNumber) {
+                    if (line.equals(stringToAppend)) {
+                        add[0] = false;
+                        breakLineLoop();
+                    }
+                }
+            });
+        }
+        if (add[0]) {
+            try {
+                appendFile(filePath, stringToAppend + "\n");
+            } catch (IOException e) {
+                LOGGER.error("could not write to file " + filePath);
+            }
+        }
+    }
 
     /**
      * Prepends (i. e. inserts a the beginning) a String to the specified File.
@@ -1368,4 +1397,6 @@ public class FileHelper {
     public static void removeLine(File file, int i) throws IOException {
 
     }
+
+
 }
