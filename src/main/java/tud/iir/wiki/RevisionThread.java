@@ -25,23 +25,27 @@ public class RevisionThread implements Runnable {
     /** The global logger */
     private static final Logger LOGGER = Logger.getLogger(RevisionThread.class);
 
-    private final MediaWikiDatabase MW_DATABASE;
+    /** The database used to persist results */
+    private final MediaWikiDatabase mwDatabase;
 
-    private final WikiDescriptor MW_DESCRIPTOR;
+    private final WikiDescriptor mwDescriptor;
 
-    private final MediaWikiBot BOT;
+    /** The jwbf bot that does all the communication with the MediaWiki API. */
+    private final MediaWikiBot bot;
 
-    private final WikiPage PAGE;
+    /** The page to crawl revisions for. */
+    private final WikiPage page;
 
     /**
-     * @param MW_DESCRIPTOR The Wiki the PAGE is in.
-     * @param PAGE The page to crawl revisions for.
+     * @param bot The jwbf bot that does all the communication with the MediaWiki API.
+     * @param mwDescriptor The Wiki the PAGE is in.
+     * @param page The page to crawl revisions for.
      */
-    public RevisionThread(MediaWikiBot bot, final WikiDescriptor MW_DESCRIPTOR, final WikiPage PAGE) {
-        this.MW_DATABASE = MediaWikiDatabase.getInstance();
-        this.MW_DESCRIPTOR = MW_DESCRIPTOR;
-        this.BOT = bot;
-        this.PAGE = PAGE;
+    public RevisionThread(MediaWikiBot bot, final WikiDescriptor mwDescriptor, final WikiPage page) {
+        this.mwDatabase = MediaWikiDatabase.getInstance();
+        this.mwDescriptor = mwDescriptor;
+        this.bot = bot;
+        this.page = page;
     }
 
     @Override
@@ -50,7 +54,7 @@ public class RevisionThread implements Runnable {
         // prepare query for revisions
         RevisionsByTitleQuery rbtq = null;
         try {
-            rbtq = new RevisionsByTitleQuery(BOT, PAGE.getTitle(), PAGE.getNewestRevisionID());
+            rbtq = new RevisionsByTitleQuery(bot, page.getTitle(), page.getNewestRevisionID());
         } catch (VersionException e) {
             LOGGER.fatal("Fetching page revisions is not supported by this Wiki version. " + e);
         }
@@ -61,22 +65,22 @@ public class RevisionThread implements Runnable {
         for (Revision revision : rbtq) {
 
             // write revision to database
-            boolean revisionAdded = MW_DATABASE.addRevision(MW_DESCRIPTOR.getWikiID(), PAGE.getPageID(), revision);
+            boolean revisionAdded = mwDatabase.addRevision(mwDescriptor.getWikiID(), page.getPageID(), revision);
             if (revisionAdded) {
                 revisionsAdded++;
                 if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("add wikiID:" + MW_DESCRIPTOR.getWikiID() + " pageID:" + PAGE.getPageID()
+                    LOGGER.debug("add wikiID:" + mwDescriptor.getWikiID() + " pageID:" + page.getPageID()
                             + " revisionID:" + revision.getRevisionID() + " " + revision.getTimestamp());
                 }
             } else {
                 revisionsSkipped++;
-                LOGGER.error("skip wikiID:" + MW_DESCRIPTOR.getWikiID() + " pageID:" + PAGE.getPageID()
+                LOGGER.error("skip wikiID:" + mwDescriptor.getWikiID() + " pageID:" + page.getPageID()
                         + " revisionID:" + revision.getRevisionID() + " " + revision.getTimestamp());
             }
         }
         if (LOGGER.isInfoEnabled()) {
             LOGGER.info("Processed " + (revisionsAdded + revisionsSkipped) + " revision(s) for page \""
-                    + PAGE.getTitle() + "\" : added " + revisionsAdded + " , skipped " + revisionsSkipped);
+                    + page.getTitle() + "\" : added " + revisionsAdded + " , skipped " + revisionsSkipped);
         }
     }
 

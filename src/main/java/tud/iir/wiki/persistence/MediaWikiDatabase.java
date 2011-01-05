@@ -35,7 +35,7 @@ import tud.iir.wiki.data.WikiPage;
     public class MediaWikiDatabase {
 
     /** the instance of this class */
-    private final static MediaWikiDatabase INSTANCE = new MediaWikiDatabase();
+    private static final MediaWikiDatabase INSTANCE = new MediaWikiDatabase();
 
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(MediaWikiDatabase.class);

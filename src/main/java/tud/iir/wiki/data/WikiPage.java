@@ -6,6 +6,11 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+/**
+ * Representation of a Wiki page with title, pageID, namespaceID, content, revisions, etc.
+ * 
+ * @author Sandro Reichert
+ */
 public class WikiPage {
 
     /** The global logger */
@@ -32,6 +37,12 @@ public class WikiPage {
     /** The page's revision history. */
     private TreeMap<Long, Revision> revisions = new TreeMap<Long, Revision>();
 
+    /**
+     * The revisionID of the newest revision. Ugly hack since one have to be careful to synchronize it with
+     * {@link #revisions}.
+     * 
+     * @see {@link #setNewestRevisionID(Long)}
+     */
     private Long newestRevisionID = null;
 
     /** The date this page should be checked for new revisions the next time */
@@ -116,7 +127,7 @@ public class WikiPage {
     }
 
     /**
-     * @param pageContentHTML The page's content as HTML representation, rendered by the Wiki.
+     * @param pageContent The page's content as HTML representation, rendered by the Wiki.
      */
     public final void setPageContent(String pageContent) {
         this.pageContentHTML = pageContent;
@@ -136,7 +147,7 @@ public class WikiPage {
     /**
      * @return The page's revision history as pairs of (revisionID, {@link Revision}).
      */
-    public TreeMap<Long, Revision> getRevisions() {
+    public final TreeMap<Long, Revision> getRevisions() {
         return revisions;
     }
 
@@ -156,7 +167,7 @@ public class WikiPage {
      * 
      * @param revision The revision from Wiki API.
      */
-    public void addRevision(final Revision revision) {
+    public final void addRevision(final Revision revision) {
         if (revisions.containsKey(revision.getRevisionID())) {
             LOGGER.error("Revision " + revision.getRevisionID() + " could not be added, it is already contained!");
         } else {
@@ -172,7 +183,7 @@ public class WikiPage {
      * @param newesRevisionID the revisionId read from table pages, might be null if page content has never been
      *            crawled.
      */
-    public void setNewestRevisionID(Long newesRevisionID) {
+    public final void setNewestRevisionID(Long newesRevisionID) {
         this.newestRevisionID = newesRevisionID;
     }
 
@@ -181,7 +192,7 @@ public class WikiPage {
      * 
      * @return The highest revisionID of this page or null if no revision is known.
      */
-    public Long getNewestRevisionID() {
+    public final Long getNewestRevisionID() {
         return newestRevisionID;
     }
 
@@ -201,7 +212,7 @@ public class WikiPage {
      * 
      * @param nextCheck The date this page should be checked for new revisions the next time.
      */
-    public void setNextCheck(Date nextCheck) {
+    public final void setNextCheck(Date nextCheck) {
         this.nextCheck = nextCheck;
     }
 
