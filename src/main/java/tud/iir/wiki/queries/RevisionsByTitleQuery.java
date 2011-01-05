@@ -170,11 +170,11 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
             for (Node revision : XPathHelper.getNodes(document, "//rev")) {
                 final long revisionID = Long.parseLong(MediaWiki.decode(revision.getAttributes().getNamedItem("revid")
                         .getTextContent()));
-                final String quthor = MediaWiki.decode(revision.getAttributes().getNamedItem("user").getTextContent());
+                final String author = MediaWiki.decode(revision.getAttributes().getNamedItem("user").getTextContent());
                 try {
                     final Date timestamp = (DateGetterHelper.findDate(revision.getAttributes()
                             .getNamedItem("timestamp").getTextContent())).getNormalizedDate();
-                    revisions.add(new Revision(revisionID, timestamp, quthor));
+                    revisions.add(new Revision(revisionID, timestamp, author));
                 } catch (Exception e) {
                     LOGGER.error(
                             "Error parsing Wiki timestamp \""

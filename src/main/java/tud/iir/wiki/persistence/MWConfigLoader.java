@@ -32,7 +32,7 @@ public class MWConfigLoader {
      * Instantiates a new MWConfigLoader.
      */
     private MWConfigLoader() {
-        // loadInCoFiConfiguration and prepare to use as singleton
+        // load MWCrawlerConfiguration and prepare to use as singleton
         MWCrawlerConfiguration configuration = loadConfigurationFromConfigFile();
 
         // its a trick for creating a singleton because of yml
@@ -53,8 +53,6 @@ public class MWConfigLoader {
 
     /**
      * Load the concept-specific MWCrawlerConfiguration from configuration-file {@link #CONFIG_FILE_PATH}.
-     * 
-     * TODO: change to load from central Aletheia config
      * 
      * @return the MWCrawlerConfiguration, loaded from config file.
      */
@@ -139,28 +137,21 @@ public class MWConfigLoader {
     }
 
     /**
-     * Creates for every Wiki in the database an own {@link MediaWikiCrawler}.
+     * Creates for every Wiki in the database an own {@link MediaWikiCrawler}, running as own thread.
      */
     private void createCrawlers() {
         for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
-            // MediaWikiCrawler mwCrawler = new MediaWikiCrawler(wikis.getWikiName());
-            // add multi thread support here to run every crawler with own thread or better, multiple threads per Wiki
-
-            Thread mediaWikiCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName()), "WikID-"
-                    + wikis.getWikiID());
-            mediaWikiCrawler.start();
-
-            // mwCrawler.run();
+            Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName()), "WikID-" + wikis.getWikiID());
+            mwCrawler.start();
         }
     }
 
-
     /**
-     * Helper for debugging to reset the database.
+     * Debug helper to reset the database. All Wikis and their complete content is removed from the database.
+     * Use with caution...
      */
     @SuppressWarnings("unused")
     private static void resetDatabase() {
-        // FIXME: change logging if function is used for normal program execution!
         LOGGER.fatal("Reseting database! ");
         for (WikiDescriptor wiki : MediaWikiDatabase.getInstance().getAllWikiDescriptors()) {
             MediaWikiDatabase.getInstance().removeWiki(wiki.getWikiID());
@@ -169,7 +160,7 @@ public class MWConfigLoader {
     }
 
     public static void main(String[] args) throws Exception {
-        //
+
         // Locale.setDefault(Locale.ENGLISH);
         // TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
         // resetDatabase(); // debug code
