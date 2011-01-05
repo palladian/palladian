@@ -45,7 +45,7 @@ public class DatasetCreator {
     private static final Logger LOGGER = Logger.getLogger(DatasetCreator.class);
 
     /** Path to the folder where the dataset is stored. */
-    protected static final String DATASET_PATH = "G:\\Projects\\Programming\\Other\\feedPosts\\";
+    protected static final String DATASET_PATH = "data"+System.getProperty("file.separator")+"datasets"+System.getProperty("file.separator")+"feedPosts"+System.getProperty("file.separator");
 
     /**
      * Start creating the dataset.
@@ -88,6 +88,7 @@ public class DatasetCreator {
                 String safeFeedName = StringHelper.makeSafeName(feed.getFeedUrl().replaceFirst("http://www.", "")
                         .replaceFirst("www.", ""), 30);
                 String filePath = DATASET_PATH + feed.getId() + "_" + safeFeedName + ".csv";
+                LOGGER.debug("Saving feed to: "+filePath);
 
                 // get entries from the file
                 File postEntryFile = new File(filePath);
@@ -126,6 +127,7 @@ public class DatasetCreator {
                 StringBuilder newEntries = new StringBuilder();
                 int newPosts = 0;
 
+                LOGGER.debug("Feed entries: "+feedEntries.size());
                 for (FeedItem entry : feedEntries) {
 
                     if (entry == null || entry.getPublished() == null) {
@@ -173,6 +175,7 @@ public class DatasetCreator {
                 }
 
                 try {
+                	LOGGER.debug("Saving new file content: "+newEntries.toString());
                     FileHelper.prependFile(filePath, newEntries.toString());
                 } catch (IOException e) {
                     LOGGER.error("could not prepend new file entries (" + newEntries + ") to " + filePath);
@@ -399,10 +402,10 @@ public class DatasetCreator {
      */
     public static void main(String[] args) {
 
-        // DatasetCreator dc = new DatasetCreator();
-        // dc.createDataset();
+         DatasetCreator dc = new DatasetCreator();
+         dc.createDataset();
         // DatasetCreator.renewFileIDs();
-        DatasetCreator.cleanUp(true);
+//        DatasetCreator.cleanUp(true);
         // DatasetCreator.combineFeedHistories();
         // dc.addFeedMetaInformation();
 
