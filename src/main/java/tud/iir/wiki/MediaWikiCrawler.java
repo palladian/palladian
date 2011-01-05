@@ -161,6 +161,16 @@ public class MediaWikiCrawler implements Runnable {
             // db-query (-> modify prepared statement to update page)
             boolean pageUpdated = mwDatabase.updatePage(mwDescriptor.getWikiID(), pageID,
                     Long.parseLong(sa.getRevisionId()), htmlContent, predictNextCheck(pageID));
+            if (!pageUpdated || LOGGER.isDebugEnabled()){
+                String msg = "\n   Page \"" + pageName + "\" has HTML content:\n" + htmlContent
+                        + "\n   HTML content has " + (pageUpdated ? "" : "NOT ") + "been written to database.";
+                if (!pageUpdated) {
+                    LOGGER.error(msg);
+                } else {
+                    LOGGER.debug(msg);
+                }
+            }
+                
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("\n   Page \"" + pageName + "\" has HTML content:\n" + htmlContent
                         + "\n   HTML content has " + (pageUpdated ? "" : "NOT ") + "been written to database.");
