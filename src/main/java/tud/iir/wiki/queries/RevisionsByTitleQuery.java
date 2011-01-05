@@ -170,7 +170,10 @@ public class RevisionsByTitleQuery extends TitleQuery<Revision> {
             for (Node revision : XPathHelper.getNodes(document, "//rev")) {
                 final long revisionID = Long.parseLong(MediaWiki.decode(revision.getAttributes().getNamedItem("revid")
                         .getTextContent()));
-                final String author = MediaWiki.decode(revision.getAttributes().getNamedItem("user").getTextContent());
+
+                final Node userNode = revision.getAttributes().getNamedItem("user");
+                final String author = (userNode != null) ? MediaWiki.decode(userNode.getTextContent())
+                        : "User has been deleted!";
                 try {
                     final Date timestamp = (DateGetterHelper.findDate(revision.getAttributes()
                             .getNamedItem("timestamp").getTextContent())).getNormalizedDate();
