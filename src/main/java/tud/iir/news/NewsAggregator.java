@@ -18,7 +18,6 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -31,6 +30,7 @@ import tud.iir.daterecognition.DateGetterHelper;
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.Counter;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
@@ -127,13 +127,9 @@ public class NewsAggregator {
     }
 
     private void loadConfig() {
-        try {
-            PropertiesConfiguration config = new PropertiesConfiguration("config/feeds.conf");
-            setMaxThreads(config.getInt("maxAggregationThreads", DEFAULT_MAX_THREADS));
-            setDownloadPages(config.getBoolean("downloadAssociatedPages", false));
-        } catch (ConfigurationException e) {
-            LOGGER.error("error loading configuration " + e.getMessage());
-        }
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        setMaxThreads(config.getInt("maxAggregationThreads", DEFAULT_MAX_THREADS));
+        setDownloadPages(config.getBoolean("downloadAssociatedPages", false));
     }
 
     /**
