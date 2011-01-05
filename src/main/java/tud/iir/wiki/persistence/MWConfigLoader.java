@@ -14,7 +14,7 @@ import tud.iir.wiki.data.MWCrawlerConfiguration;
 import tud.iir.wiki.data.WikiDescriptor;
 import tud.iir.wiki.data.WikiDescriptorYAML;
 
-public class MWConfigLoader {
+public final class MWConfigLoader {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MWConfigLoader.class);

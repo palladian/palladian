@@ -32,7 +32,7 @@ import tud.iir.wiki.data.WikiPage;
  * 
  * @author Sandro Reichert
  */
-    public class MediaWikiDatabase {
+public final class MediaWikiDatabase {
 
     /** the instance of this class */
     private static final MediaWikiDatabase INSTANCE = new MediaWikiDatabase();

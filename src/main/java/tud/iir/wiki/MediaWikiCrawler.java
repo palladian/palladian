@@ -231,24 +231,24 @@ public class MediaWikiCrawler implements Runnable {
      * 
      * @param pagesToAdd The pages to be added to the data base. Caution: the set is cleared after adding to data base,
      *            call method with a copy if you want to keep it.
-     * @param skipCounter The number of skipped pages in previous call(s).
-     * @param pageCounter The number of pages that have been added in previous call(s) plus the number of pages in the
+     * @param previousSkips The number of skipped pages in previous call(s).
+     * @param addedPages The number of pages that have been added in previous call(s) plus the number of pages in the
      *            given set. Required for logging purpose only.
      * @return The accumulated number of skipped pages, that is skipCounter plus the number of pages that have been
      *         skipped in the current call.
      */
-    private int addPagesToDB(HashSet<WikiPage> pagesToAdd, int skipCounter, int pageCounter) {
+    private int addPagesToDB(final HashSet<WikiPage> pagesToAdd, final int previousSkips, int addedPages) {
         if (pagesToAdd.size() == 0) {
-            return skipCounter;
+            return previousSkips;
         }
 
-        int skipped = mwDatabase.addPages(pagesToAdd);
-        skipCounter += skipped;
-        pageCounter -= skipped;
+        final int skipped = mwDatabase.addPages(pagesToAdd);
+        final int skipCounter = previousSkips + skipped;
+        final int addCounter = addedPages - skipped;
         if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Processed " + (pageCounter + skipCounter) + " pages for namespace "
-                    + pagesToAdd.iterator().next().getNamespaceID()
-                    + " : added " + pageCounter + " , skipped " + skipCounter + " in total.");
+            LOGGER.debug("Processed " + (addCounter + skipCounter) + " pages for namespace "
+                    + pagesToAdd.iterator().next().getNamespaceID() + " : added " + addCounter + " , skipped "
+                    + skipCounter + " in total.");
         }
         return skipCounter;
     }
