@@ -257,7 +257,6 @@ public class Feed {
     public void updateEntries(Boolean usePageContentExtractor) {
         NewsAggregator aggregator = new NewsAggregator();
         aggregator.setDownloadPages(usePageContentExtractor);
-        List<FeedItem> entries = new ArrayList<FeedItem>();
         try {
             // FIXME
             Feed f = aggregator.downloadFeed(this);
@@ -265,7 +264,6 @@ public class Feed {
         } catch (NewsAggregatorException e) {
             LOGGER.error("Unable to load entries for feed at address: " + getFeedUrl() + ", " + e.getMessage());
         }
-        setEntries(entries);
         setPlainXML(PageAnalyzer.getRawMarkup(aggregator.getPlainXMLFeed()));
     }
 
@@ -799,6 +797,17 @@ public class Feed {
 
     public int getUpdateMode() {
         return updateMode;
+    }
+    
+    
+    public static void main(String[] args) throws Exception{
+        
+        NewsAggregator aggregator = new NewsAggregator();
+        Feed feed = aggregator.downloadFeed("http://www.tagesschau.de/xml/rss2");
+        System.out.println("# entries : " + feed.getEntries().size());
+
+        feed.updateEntries(true);
+        System.out.println("# entries after updateEntries : " + feed.getEntries().size());
     }
 
 }
