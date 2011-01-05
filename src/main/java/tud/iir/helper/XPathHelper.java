@@ -75,8 +75,6 @@ public class XPathHelper {
     /**
      * Add the xhtml namespace to an xPath in case it does not have it yet.
      * 
-     * TODO this also adds the namespace to XPath functions. For example "//div/text()" is transformed to
-     * "//xhtml:div/xhtml:text()".
      * 
      * @param xPath The xPath.
      * @return The xPath with included xhtml namespace.
@@ -89,7 +87,9 @@ public class XPathHelper {
         // this is a fix NOT to touch slashes inside quotes,
         // for example in @type='application/rss+xml'
         // RegEx from http://stackoverflow.com/questions/632475/regex-to-pick-commas-outside-of-quotes
-        return xPath.replaceAll("(/)(?=\\w(?:[^']|'[^']*')*$)", "/xhtml:");
+        // return xPath.replaceAll("(/)(?=\\w(?:[^']|'[^']*')*$)", "/xhtml:");
+        return xPath.replaceAll("(/)(?=\\w+(\\[|\\/|$)(?:[^']|'[^']*')*$)", "/xhtml:");
+
     }
 
     /**
