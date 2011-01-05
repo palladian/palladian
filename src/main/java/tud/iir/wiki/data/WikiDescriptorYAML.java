@@ -49,7 +49,7 @@ public class WikiDescriptorYAML {
      * 
      * @return Set of namespace id's to use for crawling or null, if no namespaces are defined.
      */
-    public HashSet<Integer> getNamespacesToCrawl() {
+    public final HashSet<Integer> getNamespacesToCrawl() {
         HashSet<Integer> output = null;
         if (namespacesToCrawl != null && !namespacesToCrawl.equalsIgnoreCase("")) {
             output = new HashSet<Integer>();

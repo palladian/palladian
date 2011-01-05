@@ -38,7 +38,7 @@ public class MWCrawlerConfiguration {
      * 
      * @return all Wiki configurations from config file, each Wiki is represented by one {@link WikiDescriptorYAML}.
      */
-    public WikiDescriptorYAML[] getWikiConfigurations() {
+    public final WikiDescriptorYAML[] getWikiConfigurations() {
         return wikiConfigurations;
     }
 

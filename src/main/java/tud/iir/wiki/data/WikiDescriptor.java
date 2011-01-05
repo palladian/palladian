@@ -127,7 +127,7 @@ public class WikiDescriptor {
     /**
      * @param timestampLastCheckForModifications Date the crawler did the last check for new pages and new revisions.
      */
-    public void setLastCheckForModifications(Date timestampLastCheckForModifications) {
+    public final void setLastCheckForModifications(Date timestampLastCheckForModifications) {
         this.timestampLastCheckForModifications = timestampLastCheckForModifications;
     }
 
@@ -193,7 +193,7 @@ public class WikiDescriptor {
      * @param namespacesToCrawl Set of namespace id's to use for crawling. All pages in this namespace are crawled, no
      *            page of any other namespace.
      */
-    public void setNamespacesToCrawl(HashSet<Integer> namespacesToCrawl) {
+    public final void setNamespacesToCrawl(HashSet<Integer> namespacesToCrawl) {
         this.namespacesToCrawl = namespacesToCrawl;
     }
 
@@ -203,7 +203,7 @@ public class WikiDescriptor {
      * 
      * @return URL of the API's folder, like "http://en.wikipedia.org/w/"
      */
-    public URL getWikiApiURL() {
+    public final URL getWikiApiURL() {
         String wikiPath = wikiURL.toString();
         String wikiAPI = (wikiPath.endsWith("/")) ? wikiPath : wikiPath + "/";
         wikiAPI += (pathToAPI.startsWith("/")) ? pathToAPI.substring(1, pathToAPI.length()) : pathToAPI;
