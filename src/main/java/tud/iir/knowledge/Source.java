@@ -30,17 +30,17 @@ public class Source implements Serializable {
 
     // TODO duplicate content (e.g. copied wikipedia articles) have strong bias
     private int id = -1;
-    
+
     /** the fact value the source belongs to */
-    private FactValue factValue; 
+    private FactValue factValue;
     //private Entity entity; // which entity has been found at this source
-    
+
     /** the URL of the source */
     private String url;
-    
+
     /** how much can the source be trusted in giving correct information */
     private double trust = 0.5;
-    
+
     /** determines how the extraction was performed */
     private int extractionType = ExtractionType.UNKNOWN;
 
@@ -246,7 +246,7 @@ public class Source implements Serializable {
         long hash = jHash.hash(("info:" + domain).getBytes());
 
         String url = "http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&" + "ch=6" + hash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:"
-                + domain;
+        + domain;
 
         try {
             URLConnection con;
@@ -295,7 +295,7 @@ public class Source implements Serializable {
 
             try {
                 PageContentExtractor e = new PageContentExtractor();
-                mainContent = e.setDocument(new URL(url)).getResultText();
+                mainContent = e.setDocument(new URL(getUrl())).getResultText();
             } catch (PageContentExtractorException e1) {
                 Logger.getRootLogger().error(e1.getMessage());
             } catch (MalformedURLException e1) {
@@ -338,7 +338,7 @@ public class Source implements Serializable {
         }
         return false;
     }
-    
+
     @Override
     public String toString() {
         return "Source:" + url;
