@@ -2,8 +2,7 @@
 SQLyog Community v8.63 
 MySQL - 5.1.36-community : Database - wiki_crawler
 *********************************************************************
-*/
-
+*/
 
 /*!40101 SET NAMES utf8 */;
 
@@ -36,7 +35,7 @@ CREATE TABLE `pages` (
   `pageTitle` varchar(255) COLLATE utf8_bin NOT NULL COMMENT 'The name of the page, unique per wiki',
   `namespaceID` smallint(6) DEFAULT NULL COMMENT 'The namespace ID of this page',
   `sourceDynamics` float DEFAULT NULL COMMENT 'calculated from all timestamps of all revisions',
-  `pageContent` text COLLATE utf8_bin COMMENT 'The page''s rendered content as shown in a browser, Wiki markup is not contained ',
+  `pageContent` mediumtext COLLATE utf8_bin COMMENT 'The page''s rendered content as shown in a browser, Wiki markup is not contained ',
   `revisionID` bigint(20) DEFAULT NULL COMMENT 'The Wiki''s revision id the pageContent has.',
   `nextCheck` datetime DEFAULT NULL COMMENT 'The timestamp to check this page for new revisions. Timestamp written by predictor.',
   PRIMARY KEY (`wikiID`,`pageID`),
