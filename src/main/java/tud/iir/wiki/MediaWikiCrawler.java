@@ -63,7 +63,6 @@ public class MediaWikiCrawler implements Runnable {
     /** time period to wake up and check data base for pages that need to be checked for new revisions */
     private final long newRevisionsInterval = DateHelper.MINUTE_MS / 3;
 
-
     /*
      * use if want to use threads. problem: not faster with threads since jwbf seems to have some internals preventing
      * parallelization.
@@ -157,17 +156,28 @@ public class MediaWikiCrawler implements Runnable {
             final String htmlContent = crawlPageContent(pageName);
             final int pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageName);
 
-            // TODO room for optimization: do we really need the pageID here? use PAGE_NAME as identifier to save 1
-            // db-query (-> modify prepared statement to update page)
-            boolean pageUpdated = mwDatabase.updatePage(mwDescriptor.getWikiID(), pageID,
-                    Long.parseLong(sa.getRevisionId()), htmlContent, predictNextCheck(pageID));
-            if (!pageUpdated || LOGGER.isDebugEnabled()) {
-                final String msg = "\n   Page \"" + pageName + "\" has HTML content:\n" + htmlContent
-                        + "\n   HTML content has " + (pageUpdated ? "" : "NOT ") + "been written to database.";
-                if (pageUpdated) {
-                    LOGGER.debug(msg);
-                } else {
-                    LOGGER.error(msg);
+            // FIXME: find better solution for this bug
+            // quick workaround for bug in SimpleArticle:
+            // bug: if a page is missing, the MediaWiki API's response contains an element 'missing' but this element
+            // is not processed by GetRevision#findContent(...)
+            // workaround: if revisionID is empty, we assume that the page is not contained in the Wiki anymore and
+            // ignore it for now.
+            if (sa.getRevisionId().equals("")) {
+                LOGGER.error("Could not retrieve page content for page \"" + pageName + "\", page seems to be deleted.");
+            } else {
+            
+                // TODO room for optimization: do we really need the pageID here? use PAGE_NAME as identifier to save 1
+                // db-query (-> modify prepared statement to update page)
+                boolean pageUpdated = mwDatabase.updatePage(mwDescriptor.getWikiID(), pageID,
+                        Long.parseLong(sa.getRevisionId()), htmlContent, predictNextCheck(pageID));
+                if (!pageUpdated || LOGGER.isDebugEnabled()) {
+                    final String msg = "\n   Page \"" + pageName + "\" has HTML content:\n" + htmlContent
+                            + "\n   HTML content has " + (pageUpdated ? "" : "NOT ") + "been written to database.";
+                    if (pageUpdated) {
+                        LOGGER.debug(msg);
+                    } else {
+                        LOGGER.error(msg);
+                    }
                 }
             }
         } catch (Exception e) {
@@ -285,7 +295,7 @@ public class MediaWikiCrawler implements Runnable {
      * @return The number of revisions that have been added. Negative value in case of an error (see error log).
      */
     private int crawlRevisionsByTitle(final String pageName, final Long revisionIDStart, final boolean skipFirst) {
-       
+
         final Integer pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageName);
 
         if (pageID == null) {
@@ -363,8 +373,8 @@ public class MediaWikiCrawler implements Runnable {
 
             if (namespacesDB.size() == 0) {
                 for (int namespaceID : namespacesAPI.keySet()) {
-                    mwDatabase.addNamespace(mwDescriptor.getWikiID(), namespaceID, namespacesAPI.get(namespaceID),
-                            true);
+                    mwDatabase
+                            .addNamespace(mwDescriptor.getWikiID(), namespaceID, namespacesAPI.get(namespaceID), true);
                 }
             } else {
                 for (int namespaceID : namespacesAPI.keySet()) {
@@ -372,8 +382,8 @@ public class MediaWikiCrawler implements Runnable {
                         mwDatabase.updateNamespaceName(mwDescriptor.getWikiID(), namespaceID,
                                 namespacesAPI.get(namespaceID));
                     } else {
-                        mwDatabase.addNamespace(mwDescriptor.getWikiID(), namespaceID,
-                                namespacesAPI.get(namespaceID), false);
+                        mwDatabase.addNamespace(mwDescriptor.getWikiID(), namespaceID, namespacesAPI.get(namespaceID),
+                                false);
                     }
                 }
             }
@@ -437,8 +447,6 @@ public class MediaWikiCrawler implements Runnable {
     // nextBot = (nextBot == POOL_SIZE - 1) ? 0 : nextBot++;
     // return bot;
     // }
-
-
 
     /**
      * Calls the MediaWiki API, retrieves all new pages created since the last check for new pages and stores them in
@@ -520,8 +528,6 @@ public class MediaWikiCrawler implements Runnable {
         return wikiTime;
     }
 
-
-
     /**
      * Central Method that controls the {@link MediaWikiCrawler}. If the Wiki is processed the first time, all data is
      * fetched from the API and processed. Afterwards, continuous crawling is entered: the Wiki is periodically checked
@@ -599,8 +605,8 @@ public class MediaWikiCrawler implements Runnable {
                 LOGGER.error("Could not process all tasks for Wiki \"" + mwDescriptor.getWikiName()
                         + "\" in time, processing took "
                         + ((timeElapsed - newRevisionsInterval) / DateHelper.SECOND_MS)
-                        + " seconds, but should have been done within "
-                        + (newRevisionsInterval / DateHelper.SECOND_MS) + " seconds. Please provide more resources!");
+                        + " seconds, but should have been done within " + (newRevisionsInterval / DateHelper.SECOND_MS)
+                        + " seconds. Please provide more resources!");
             }
         }
     }
