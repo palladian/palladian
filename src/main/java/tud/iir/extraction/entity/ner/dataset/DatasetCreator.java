@@ -23,6 +23,7 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.WordTransformer;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
@@ -73,6 +74,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @param seedFolderPath The path to the folder with the seed entities. Each file must be named with the concept
      *            name (_partX is ignored for markup) and there must be one seed entity per line.
      */
+    @Override
     public final void createDataset(String seedFolderPath) {
         StopWatch stopWatch = new StopWatch();
 
@@ -106,11 +108,11 @@ public class DatasetCreator implements DatasetCreatorInterface {
         StringBuilder meta = new StringBuilder();
 
         meta.append("Start Date of Creation: ")
-                .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime()))
-                .append("\n");
+        .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime()))
+        .append("\n");
         meta.append("Dataset created in: ").append(stopWatch.getElapsedTimeString()).append("\n");
         meta.append("Total Generated Traffic: ").append(Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES))
-                .append("MB\n");
+        .append("MB\n");
         meta.append("Search Engine used: ").append(SourceRetrieverManager.getName(getSourceAPI())).append("\n");
         meta.append("Minimum Mentions per Entity Targeted: ").append(getMentionsPerEntity()).append("\n");
 
@@ -120,8 +122,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
             String entitiesWithFewMentions = (String) object[1];
             Double averageMentionsPerEntity = (Double) object[2];
             meta.append("  Too Few Mentions: ").append(conceptName).append("\n  Entities with few mentions: ")
-                    .append(entitiesWithFewMentions).append("\n  Average Mentions per Entity: ")
-                    .append(averageMentionsPerEntity);
+            .append(entitiesWithFewMentions).append("\n  Average Mentions per Entity: ")
+            .append(averageMentionsPerEntity);
         }
 
         meta.append("Concepts Searched (").append(conceptsSearched.size()).append("):\n");
@@ -196,7 +198,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @return The name of the concept.
      */
     private String getConceptNameFromFileName(String fileName) {
-        return fileName.replaceAll("_part(\\d)", "");
+        return WordTransformer.wordToSingular(fileName.replaceAll("_part(\\d)", ""));
     }
 
     /**
@@ -230,7 +232,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         for (String seedEntity : seedEntities) {
 
             seedFileCopy.append(seedEntity).append("###")
-                    .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
+            .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
 
             List<String> urls = getWebPages(seedEntity);
             urlDownloader.add(urls);
@@ -317,7 +319,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
             String escapedSeed = StringHelper.escapeForRegularExpression(seedEntity);
             String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
-                    + "(?=\\s)";
+            + "(?=\\s)";
 
             // mark up html
             webPageContent = webPageContent.replaceAll(searchRegexp, "<" + conceptName.toUpperCase()
@@ -335,8 +337,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         if (webPageContent.length() > 10) {
             FileHelper.writeToFile(
                     getDataSetLocation() + seedFileName + "/html/"
-                            + StringHelper.makeSafeName(webPage.getDocumentURI(), 30)
-                            + ".html", webPageContent);
+                    + StringHelper.makeSafeName(webPage.getDocumentURI(), 30)
+                    + ".html", webPageContent);
 
             LOGGER.debug("saved html file");
         }
@@ -348,9 +350,11 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
             if (webPageText.length() > 10) {
 
-                FileHelper.writeToFile(
-                        getDataSetLocation() + seedFileName + "/"
-                                + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml", webPageText);
+                String filePath = getDataSetLocation() + seedFileName + "/"
+                        + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
+                FileHelper.writeToFile(filePath, webPageText);
+
+                FileHelper.removeDuplicateLines(filePath, filePath);
 
                 LOGGER.debug("saved text file");
             }
@@ -457,54 +461,6 @@ public class DatasetCreator implements DatasetCreatorInterface {
         return sourceAPI;
     }
 
-    /**
-     * Split the all.xml file for each concept in training and testing files.
-     * Also create a column representation for each file "all.tsv".
-     */
-    /*
-     * public void splitAndTransformDatasets() {
-     * File folder = new File(dataSetLocation);
-     * if (folder.exists() && folder.isDirectory()) {
-     * File[] files = folder.listFiles();
-     * for (File file : files) {
-     * if (file.isDirectory() && new File(dataSetLocation + file.getName() + "/text/all.xml").exists()) {
-     * splitDataset(dataSetLocation + file.getName() + "/text/all.xml");
-     * }
-     * }
-     * }
-     * }
-     */
-
-    /*
-     * private void splitDataset(String filePath) {
-     * // split dataset in training and testing
-     * StringBuilder training = new StringBuilder();
-     * StringBuilder testing = new StringBuilder();
-     * final Object[] obj = new StringBuilder[2];
-     * obj[0] = training;
-     * obj[1] = testing;
-     * LineAction la = new LineAction(obj) {
-     * @Override
-     * public void performAction(String line, int lineNumber) {
-     * if (line.length() == 0) {
-     * return;
-     * }
-     * if (lineNumber % 2 == 0) {
-     * ((StringBuilder) obj[0]).append(line).append("\n");
-     * } else {
-     * ((StringBuilder) obj[1]).append(line).append("\n");
-     * }
-     * }
-     * };
-     * FileHelper.performActionOnEveryLine(filePath, la);
-     * String folderPath = FileHelper.getFilePath(filePath);
-     * FileHelper.writeToFile(folderPath + "training.xml", training);
-     * FileHelper.writeToFile(folderPath + "testing.xml", testing);
-     * // create column representations
-     * FileFormatParser.xmlToColumn(folderPath + "training.xml", folderPath + "training.tsv", "\t");
-     * FileFormatParser.xmlToColumn(folderPath + "testing.xml", folderPath + "testing.tsv", "\t");
-     * }
-     */
 
     /**
      * @param args
