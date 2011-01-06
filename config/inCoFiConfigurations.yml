@@ -42,7 +42,7 @@
              rolePageRelevanceValue: 500
              
              # set if SWFContent should be downloaded and analyzed
-             analyzeSWFContent: "true"
+             analyzeSWFContent: "false"
              
              # set if the Analyzing of Links should be limited to that which contains concept-vocabulary
              # this speeds up linkAnalyzing but reduces the result-amount
