@@ -21,6 +21,7 @@ import org.ho.yaml.Yaml;
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.Extractor;
 import tud.iir.helper.ConfigHolder;
+import tud.iir.helper.FileHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
@@ -186,6 +187,9 @@ public final class MIOExtractor extends Extractor {
             LOGGER.info("saving MIOExtractionResults");
             getKnowledgeManager().saveExtractions();
         }
+
+        // remove temporarily downloaded swf files
+        FileHelper.delete(InCoFiConfiguration.getInstance().tempDirPath, true);
     }
 
     /**

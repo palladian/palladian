@@ -1825,7 +1825,11 @@ public class Crawler {
             }
 
             if (urlConnection instanceof HttpURLConnection) {
-                setLastResponseCode(((HttpURLConnection)urlConnection).getResponseCode());
+                try {
+                    setLastResponseCode(((HttpURLConnection) urlConnection).getResponseCode());
+                } catch (Exception e) {
+                    LOGGER.error("could not get response code for URL " + url + ", " + e.getMessage());
+                }
             }
 
             // use connection timeout from Palladian
