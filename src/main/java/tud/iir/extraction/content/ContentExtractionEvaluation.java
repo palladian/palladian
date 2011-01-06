@@ -8,6 +8,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -39,8 +40,12 @@ import de.l3s.boilerpipe.extractors.ExtractorBase;
  */
 public class ContentExtractionEvaluation {
 
-    /** base path with the evaluation data set. */
-    private static final String BASE_PATH = "/home/pk/DATASETS/L3S-GN1-20100130203947-00001/";
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ContentExtractionEvaluation.class);
+
+    /** Base path with the evaluation data set. */
+    // private static final String BASE_PATH = "/home/pk/DATASETS/L3S-GN1-20100130203947-00001/";
+    private static final String BASE_PATH = "/home/pk/PalladianData/datasets/ContentExtraction/L3S-GN1-20100130203947-00001/";
 
     private Crawler crawler = new Crawler();
 
@@ -91,7 +96,7 @@ public class ContentExtractionEvaluation {
     public String evaluate(Map<String, String> dataset) {
 
         StringBuilder sb = new StringBuilder();
-        System.out.println("File name in test set\tURL\tBoilerplate score\tPalladian score");
+        LOGGER.info("File name in test set\tURL\tBoilerplate score\tPalladian score");
         int count = 0;
         int[] stats = { 0, 0, 0 };
         float[] score = { 0, 0 };
@@ -113,11 +118,11 @@ public class ContentExtractionEvaluation {
             } else {
                 stats[2]++;
             }
-            
+
             if (result[0] == -1) {
                 errors[0]++;
             } else {
-                score[0] += result[0];                
+                score[0] += result[0];
             }
             if (result[1] == -1) {
                 errors[1]++;
@@ -126,24 +131,22 @@ public class ContentExtractionEvaluation {
             }
 
             count++;
-            
-            
 
-            System.out.println(resultStr);
+            LOGGER.info(resultStr);
             sb.append(resultStr).append("\n");
 
         }
 
-        System.out.println("------------- and the winner is --------------");
-        System.out.println(" # Boilerpipe  : " + stats[0]);
-        System.out.println(" # Palladian   : " + stats[1]);
-        System.out.println(" # Equality    : " + stats[2]);
-        System.out.println("------------------ score ---------------------");
-        System.out.println(" Boilerpipe    : " + score[0] / (count - errors[0]));
-        System.out.println(" Palladian     : " + score[1] / (count - errors[1]));
-        System.out.println("----------------- errors ---------------------");
-        System.out.println(" Boilerpipe    : " + errors[0]);
-        System.out.println(" Palladian     : " + errors[1]);
+        LOGGER.info("------------- and the winner is --------------");
+        LOGGER.info(" # Boilerpipe  : " + stats[0]);
+        LOGGER.info(" # Palladian   : " + stats[1]);
+        LOGGER.info(" # Equality    : " + stats[2]);
+        LOGGER.info("------------------ score ---------------------");
+        LOGGER.info(" Boilerpipe    : " + score[0] / (count - errors[0]));
+        LOGGER.info(" Palladian     : " + score[1] / (count - errors[1]));
+        LOGGER.info("----------------- errors ---------------------");
+        LOGGER.info(" Boilerpipe    : " + errors[0]);
+        LOGGER.info(" Palladian     : " + errors[1]);
 
         return sb.toString();
 
@@ -197,8 +200,11 @@ public class ContentExtractionEvaluation {
 
         // get the real content data, which is wrapped in <SPAN> tags with class 'x-nc-sel2'
         StringBuilder sb = new StringBuilder();
-        //List<Node> nodes = XPathHelper.getNodes(annotatedDocument, "//SPAN[@class='x-nc-sel2']/text()");
-        List<Node> nodes = XPathHelper.getNodes(annotatedDocument, "//SPAN[@class='x-nc-sel2']");
+
+        // see Mail David, 2010-01-04, 23:51
+        // for explanation of XPath expression
+        List<Node> nodes = XPathHelper.getNodes(annotatedDocument,
+                "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2']");
         for (Node node : nodes) {
             sb.append(node.getTextContent()).append(" ");
         }
@@ -238,6 +244,15 @@ public class ContentExtractionEvaluation {
     public static void main(String[] args) {
 
         ContentExtractionEvaluation evaluation = new ContentExtractionEvaluation();
+
+        // String text = evaluation.getRealText("ec407a8c-7d1b-4485-816d-39a1887f84b3");
+        // text = normalizeString(text);
+        // System.out.println(text);
+        //
+        // System.exit(0);
+
+        // ////////////////////////////////////////////////////////////////////////////////
+
         Map<String, String> dataset = evaluation.readIndexFile();
         String result = evaluation.evaluate(dataset);
         FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation.tsv", result);
