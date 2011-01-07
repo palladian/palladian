@@ -12,7 +12,6 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.emotionanalyzing.WordEntryList;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.helper.Tokenizer;
 import tud.iir.web.SourceRetriever;
