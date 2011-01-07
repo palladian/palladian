@@ -25,8 +25,8 @@ public final class MWConfigLoader {
     /** The instance of this class. */
     private static MWConfigLoader instance = null;
 
-    /** The instance of the {@link MediaWikiDatabase} which acts as persistence layer. */
-    private final MediaWikiDatabase mwDatabase = MediaWikiDatabase.getInstance();
+    /** The {@link MediaWikiDatabase} which acts as persistence layer. */
+    private final MediaWikiDatabase mwDatabase = new MediaWikiDatabase();
 
     /**
      * Instantiates a new MWConfigLoader.
@@ -151,10 +151,10 @@ public final class MWConfigLoader {
      * Use with caution...
      */
     @SuppressWarnings("unused")
-    private static void resetDatabase() {
+    private void resetDatabase() {
         LOGGER.fatal("Reseting database! ");
-        for (WikiDescriptor wiki : MediaWikiDatabase.getInstance().getAllWikiDescriptors()) {
-            MediaWikiDatabase.getInstance().removeWiki(wiki.getWikiID());
+        for (WikiDescriptor wiki : mwDatabase.getAllWikiDescriptors()) {
+            mwDatabase.removeWiki(wiki.getWikiID());
             LOGGER.fatal("Removed all data for Wiki \"" + wiki.getWikiName() + "\".");
         }
     }

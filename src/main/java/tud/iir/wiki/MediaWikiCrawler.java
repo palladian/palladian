@@ -107,7 +107,7 @@ public class MediaWikiCrawler implements Runnable {
      * @param wikiName The name of the Wiki this crawler processes.
      */
     public MediaWikiCrawler(final String wikiName) {
-        this.mwDatabase = MediaWikiDatabase.getInstance();
+        this.mwDatabase = new MediaWikiDatabase();
         if (!mwDatabase.wikiExists(wikiName)) {
             throw new IllegalArgumentException("Wiki name \"" + wikiName
                     + "\" is unknown in data base! Can not create MediaWikiCrawler!");
@@ -163,9 +163,12 @@ public class MediaWikiCrawler implements Runnable {
             // workaround: if revisionID is empty, we assume that the page is not contained in the Wiki anymore and
             // ignore it for now.
             if (sa.getRevisionId().equals("")) {
-                LOGGER.error("Could not retrieve page content for page \"" + pageName + "\", page seems to be deleted.");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("Could not retrieve page content for page \"" + pageName
+                            + "\", page seems to be deleted.");
+                }
             } else {
-            
+
                 // TODO room for optimization: do we really need the pageID here? use PAGE_NAME as identifier to save 1
                 // db-query (-> modify prepared statement to update page)
                 boolean pageUpdated = mwDatabase.updatePage(mwDescriptor.getWikiID(), pageID,
@@ -255,11 +258,11 @@ public class MediaWikiCrawler implements Runnable {
         final int skipped = mwDatabase.addPages(pagesToAdd);
         final int skipCounter = previousSkips + skipped;
         final int addCounter = addedPages - skipped;
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Processed " + (addCounter + skipCounter) + " pages for namespace "
-                    + pagesToAdd.iterator().next().getNamespaceID() + " : added " + addCounter + " , skipped "
-                    + skipCounter + " in total.");
-        }
+
+        LOGGER.info("Processed " + (addCounter + skipCounter) + " pages for namespace "
+                + pagesToAdd.iterator().next().getNamespaceID() + " : added " + addCounter + " , skipped "
+                + skipCounter + " in total.");
+
         return skipCounter;
     }
 
