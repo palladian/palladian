@@ -149,7 +149,7 @@ public class Feed {
      */
     private String plainXML;
 
-    private double targetPercentageOfNewEntries = -1;
+    private double targetPercentageOfNewEntries = -1.0;
 
     public Feed() {
         super();
@@ -509,7 +509,7 @@ public class Feed {
      */
     public double getTargetPercentageOfNewEntries() {
 
-        if (targetPercentageOfNewEntries == -1) {
+        if (targetPercentageOfNewEntries < 0) {
 
             // compare old and new entry titles to get percentage pn of new entries
             String[] oldTitlesArray = getLastHeadlines().split(TITLE_SEPARATION);
@@ -798,10 +798,10 @@ public class Feed {
     public int getUpdateMode() {
         return updateMode;
     }
-    
-    
+
+
     public static void main(String[] args) throws Exception{
-        
+
         NewsAggregator aggregator = new NewsAggregator();
         Feed feed = aggregator.downloadFeed("http://www.tagesschau.de/xml/rss2");
         System.out.println("# entries : " + feed.getEntries().size());

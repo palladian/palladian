@@ -40,10 +40,7 @@ import tud.iir.knowledge.Source;
  */
 public class DatabaseManager {
 
-    /** the instance of the DatabaseManager */
-    private final static DatabaseManager INSTANCE = new DatabaseManager();
-
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
 
     /** The configuration file can be found under config/palladian.properties. */
@@ -124,6 +121,10 @@ public class DatabaseManager {
 
     }
 
+    static class SingletonHolder {
+        static DatabaseManager instance = new DatabaseManager();
+    }
+
     /**
      * Gets the single instance of DatabaseManager.
      * 
@@ -131,15 +132,17 @@ public class DatabaseManager {
      */
     public static DatabaseManager getInstance() {
         try {
-            if (INSTANCE.connection == null || INSTANCE.connection != null && INSTANCE.connection.isClosed()) {
-                INSTANCE.establishConnection();
+            if (SingletonHolder.instance.connection == null || SingletonHolder.instance.connection != null
+                    && SingletonHolder.instance.connection.isClosed()) {
+                SingletonHolder.instance.establishConnection();
             }
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
         } catch (ClassNotFoundException e) {
             LOGGER.error(e.getMessage());
         }
-        return INSTANCE;
+
+        return SingletonHolder.instance;
     }
 
     /**
