@@ -93,9 +93,13 @@ public class DatasetCreator {
                 // get entries from the file
                 File postEntryFile = new File(filePath);
                 if (!postEntryFile.exists()) {
-                    new File(postEntryFile.getParent()).mkdirs();
+                    boolean directoriesCreated = new File(postEntryFile.getParent()).mkdirs();
                     try {
-                        postEntryFile.createNewFile();
+                        if (directoriesCreated) {
+                            postEntryFile.createNewFile();
+                        } else {
+                            LOGGER.error("could not create the directories " + filePath);
+                        }
                     } catch (IOException e) {
                         LOGGER.error("could not create the file " + filePath);
                     }
@@ -142,7 +146,7 @@ public class DatasetCreator {
                         fileEntryID += "\"###NO_TITLE###\";";
                     } else {
                         fileEntryID += "\""
-                                + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
+                            + entry.getTitle().replaceAll("\"", "'").replaceAll(";", "putSemicolonHere") + "\";";
                     }
                     fileEntryID += "\"" + StringHelper.trim(entry.getLink()) + "\";";
                     fileEntry = entry.getPublished().getTime() + ";" + fileEntryID;
@@ -175,7 +179,7 @@ public class DatasetCreator {
                 }
 
                 try {
-                	LOGGER.debug("Saving new file content: "+newEntries.toString());
+                    LOGGER.debug("Saving new file content: "+newEntries.toString());
                     FileHelper.prependFile(filePath, newEntries.toString());
                 } catch (IOException e) {
                     LOGGER.error("could not prepend new file entries (" + newEntries + ") to " + filePath);
@@ -204,47 +208,47 @@ public class DatasetCreator {
         StopWatch sw = new StopWatch();
 
         String cleanPath = DATASET_PATH + "clean\\";
-        
+
         FileWriter fileWriter = null;
-		try {
-			fileWriter = new FileWriter(cleanPath+"all.csv");
-		} catch (IOException e1) {
-			LOGGER.error(e1.getMessage());
-		}
-        
-		int c = 0;
+        try {
+            fileWriter = new FileWriter(cleanPath+"all.csv");
+        } catch (IOException e1) {
+            LOGGER.error(e1.getMessage());
+        }
+
+        int c = 0;
         File[] files = FileHelper.getFiles(cleanPath);
         for (File file : files) {
-        	
-        	String feedID = file.getName().substring(0,file.getName().indexOf("_"));
-        	
-        	List<String> contents = FileHelper.readFileToArray(file);
-        	
-        	for (String line : contents) {
-        	
-	        	try {
-	        		fileWriter.write(feedID+";");
-	                fileWriter.write(line);
-	                fileWriter.flush();	                
-	            } catch (IOException e) {
-	                LOGGER.error(file + ", " + e.getMessage());
-	            }
-            
-        	}
-        	
-        	c++;
-            LOGGER.info("percent done: " + MathHelper.round(100*c/(double)files.length, 2));            
+
+            String feedID = file.getName().substring(0,file.getName().indexOf("_"));
+
+            List<String> contents = FileHelper.readFileToArray(file);
+
+            for (String line : contents) {
+
+                try {
+                    fileWriter.write(feedID+";");
+                    fileWriter.write(line);
+                    fileWriter.flush();
+                } catch (IOException e) {
+                    LOGGER.error(file + ", " + e.getMessage());
+                }
+
+            }
+
+            c++;
+            LOGGER.info("percent done: " + MathHelper.round(100*c/(double)files.length, 2));
         }
-        
+
         try {
-        	fileWriter.close();
+            fileWriter.close();
         } catch (Exception e) {
-        	LOGGER.error(e.getMessage());
-		}
-        
+            LOGGER.error(e.getMessage());
+        }
+
         LOGGER.info("all files combined to all.csv in " + sw.getElapsedTimeString());
     }
-    
+
     /**
      * Cleaning up performs the following steps:
      * <ul>
@@ -292,8 +296,8 @@ public class DatasetCreator {
                 // .replaceAll("(\n)(?=.)", "");
 
                 String cleansed = raw.replaceAll("(\t)+", "").replaceAll("\"(\n)+", "\"").replaceAll("(\n)+\"", "\"")
-                        .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
-                        .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
+                .replaceAll("(\n)(?!((.*?\\d;\")|(.*?MISS;)))", "")
+                .replaceAll("(?<=\"http([^\"]){0,200});(?=(.)+\")", ":");
 
                 FileHelper.writeToFile(cleanPath + file.getName(), cleansed);
 
@@ -322,7 +326,7 @@ public class DatasetCreator {
                         LOGGER.warn("bad format in file " + file.getName() + " skip cleaning this entry");
                         continue;
                     }
-                    
+
                     // check whether timestamp is valid, that is, not newer than current timestamp or smaller than
                     // 946684800 (01/01/2000)
                     long timestamp = Long.valueOf(entry.substring(0, entry.indexOf(";")));
@@ -363,8 +367,10 @@ public class DatasetCreator {
         for (File file : files) {
 
             if (file.length() == 0) {
-                file.delete();
-                deleteCount++;
+                boolean deleted = file.delete();
+                if (deleted) {
+                    deleteCount++;
+                }
             }
         }
 
@@ -402,10 +408,10 @@ public class DatasetCreator {
      */
     public static void main(String[] args) {
 
-         DatasetCreator dc = new DatasetCreator();
-         dc.createDataset();
+        DatasetCreator dc = new DatasetCreator();
+        dc.createDataset();
         // DatasetCreator.renewFileIDs();
-//        DatasetCreator.cleanUp(true);
+        //        DatasetCreator.cleanUp(true);
         // DatasetCreator.combineFeedHistories();
         // dc.addFeedMetaInformation();
 

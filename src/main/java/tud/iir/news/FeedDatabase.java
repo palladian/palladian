@@ -36,10 +36,7 @@ import tud.iir.persistence.DatabaseManager;
  */
 public class FeedDatabase implements FeedStore {
 
-    /** The instance of this class. */
-    private final static FeedDatabase INSTANCE = new FeedDatabase();
-
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
 
     /** the database connection */
@@ -76,8 +73,12 @@ public class FeedDatabase implements FeedStore {
         }
     }
 
+    static class SingletonHolder {
+        static FeedDatabase instance = new FeedDatabase();
+    }
+
     public static FeedDatabase getInstance() {
-        return INSTANCE;
+        return SingletonHolder.instance;
     }
 
     private void prepareStatements() throws SQLException {
