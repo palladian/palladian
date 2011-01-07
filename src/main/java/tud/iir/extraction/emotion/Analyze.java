@@ -12,11 +12,14 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.emotionanalyzing.WordEntryList;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.helper.Tokenizer;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
 import tud.iir.web.WebResult;
+
+
 
 
 public class Analyze {
@@ -74,7 +77,7 @@ public class Analyze {
         /* Vergleich der Wörter */
 
         /* Liste mit gefundenen Sätzen durchgehen, Umlaute entfernen, in Tokens umwandeln und in ArrayList speichern. */
-        for (int h = 0; h < listSentence.size(); h++) {
+        for (int h = 0; h < (listSentence.size()); h++) {
             en = listSentence.get(h);
             String n = en.getSentence();
             List<String> tokens = new ArrayList<String>();
@@ -85,7 +88,7 @@ public class Analyze {
           // tokens.add("Träume");
 
             /* Liste der Tokens der einzelnen Sätze durchgehen */
-            for (int i = 0; i < tokens.size(); i++) {
+            for (int i = 0; i < (tokens.size()); i++) {
                 w = tokens.get(i);
                
                 /* Liste der Emotionensschlüsselwörter durchgehen */
@@ -93,7 +96,7 @@ public class Analyze {
                     emoW = words.get(e);
 
                     /* Liste der WordEntrys durchgehen und beide Vergleichswörter kleinschreiben */
-                    for (int j = 0; j < emoW.size(); j++) {
+                    for (int j = 0; j < (emoW.size()); j++) {
                         String vergleich = emoW.get(j).getWord();
                         
 
@@ -122,6 +125,28 @@ public class Analyze {
                                     	if(emoW.get(j).getSentenceUrlList().containsKey(n) == false){
                                     		save(j);                            	
                                     	} 
+                                    }else {
+                                    	if ((w.equals("gut") && vorW.equals("nicht")) || (w.equals("gut") && vorWW.equals("nicht"))){
+                                    		for (String g : words.keySet()){
+                                    			List<WordEntry> wordentries = new ArrayList<WordEntry>();
+                                    			wordentries = (words.get(g));
+                                    			for (int f = 0; f<(wordentries.size()); f++){
+                                    				if (wordentries.get(f).getWord().equals("nichtgut")){
+                                    					wordentries.get(f).increment();
+                                    					 en.addWordEntry(wordentries.get(f));
+                                    				     String r = en.getUrl();
+                                    				     String b = en.getSentence();
+                                    					wordentries.get(f).saveSentenceUrl(r, b);
+                                    				}
+                                    				
+                                    			}
+                                    			
+                                    		}
+                                    		
+                                    		
+                                    			
+                                    		
+                                    	}
                                     }
                                 }
                             }
@@ -206,7 +231,7 @@ public class Analyze {
     }
 
     private List<WebResult> getWebResult() {
-        s.setResultCount(20);
+        s.setResultCount(10);
 
         s.setLanguage(SourceRetriever.LANGUAGE_GERMAN);
 
@@ -231,7 +256,7 @@ public class Analyze {
     }
 
     private List<SentenceEntry> getSentenceAndUrl() {
-        for (int l = 0; l < urls.size(); l++) {
+        for (int l = 0; l < (urls.size()); l++) {
             String t = urls.get(l);
             content = p.getResultText(t);
 
@@ -251,8 +276,7 @@ public class Analyze {
     /* Abfrage ob Negation vorhanden */
     private boolean getNegation(String w, String vorW, String vorWW) {
         boolean testNegation = true;
-        if ("nicht".equals(vorWW) == false && "ohne".equals(vorWW) == false && "keine".equals(vorW) == false && "nicht"
-                .equals(vorW) == false) {
+        if (("nicht".equals(vorWW) == false) && ("nichts".equals(vorWW) == false) && ("ohne".equals(vorW) == false) && ("ohne".equals(vorWW) == false) && ("keine".equals(vorW) == false) && ("kein".equals(vorW) == false) && ("nicht".equals(vorW) == false)) {
             testNegation = false;
         }
         return testNegation;
@@ -274,52 +298,52 @@ public class Analyze {
              * Abfrage ob Wort Umlaut enthält und im Plural ist - wie Bäume/Baum - Wenn ja als gefundenes Wort
              * abspeichern
              */
-            if (w.subSequence(1, 3).equals("ae") || w.subSequence(1, 3).equals("oe")
-                    || w.subSequence(1, 3).equals("ue") && w.endsWith("en") || w.endsWith("es") || w.endsWith("er")
+            if ((w.subSequence(1, 3)).equals("ae") || (w.subSequence(1, 3)).equals("oe")
+                    || (w.subSequence(1, 3)).equals("ue") && w.endsWith("en") || w.endsWith("es") || w.endsWith("er")
                     || w.endsWith("em")) {
                 String qs = w.substring(3, (y - 2));
                 String os = vergleich.substring(2, yy);
 
-                if (qs.equals(os) && w.subSequence(0, 1).equals(w.subSequence(0, 1))) {
+                if (qs.equals(os) && (w.subSequence(0, 1).equals(w.subSequence(0, 1)))) {
                     testUmlaut = true;
                 } else {
-                    if (w.subSequence(1, 3).equals("ae") || w.subSequence(1, 3).equals("oe") || w.subSequence(1, 3).equals("ue") && w.endsWith("e") || w.endsWith("s")){
+                    if ((w.subSequence(1, 3)).equals("ae") || (w.subSequence(1, 3)).equals("oe") || (w.subSequence(1, 3)).equals("ue") && w.endsWith("e") || w.endsWith("s")){
                     	String qu = w.substring(3, (y - 1));
                         String ou = vergleich.substring(2, yy);
-                        if (qu.equals(ou) && w.subSequence(0, 1).equals(w.subSequence(0, 1))) {
+                        if (qu.equals(ou) && (w.subSequence(0, 1).equals(w.subSequence(0, 1)))) {
                             testUmlaut = true;
                         }
                     } else {
-                        if (w.subSequence(1, 3).equals("ae") || w.subSequence(1, 3).equals("oe") || w.subSequence(1, 3).equals("ue") && w.endsWith("ern")) {
+                        if ((w.subSequence(1, 3)).equals("ae") || (w.subSequence(1, 3)).equals("oe") || (w.subSequence(1, 3)).equals("ue") && w.endsWith("ern")) {
                         	String qt = w.substring(3, (y - 3));
                             String ot = vergleich.substring(2, yy);
-                            if (qt.equals(ot) && w.subSequence(0, 1).equals(w.subSequence(0, 1))) {
+                            if (qt.equals(ot) && (w.subSequence(0, 1).equals(w.subSequence(0, 1)))) {
                                 testUmlaut = true;
                             }
                         }
                     }
              }
            }else{
-        	   if (w.subSequence(2, 4).equals("ae") || w.subSequence(2, 4).equals("oe")
-                       || w.subSequence(2, 4).equals("ue") && w.endsWith("en") || w.endsWith("es") || w.endsWith("er")
+        	   if ((w.subSequence(2, 4)).equals("ae") || (w.subSequence(2, 4)).equals("oe")
+                       || (w.subSequence(2, 4)).equals("ue") && w.endsWith("en") || w.endsWith("es") || w.endsWith("er")
                        || w.endsWith("em")) {
                    String qs = w.substring(4, (y - 2));
                    String os = vergleich.substring(3, yy);
 
-                   if (qs.equals(os) && w.subSequence(0, 2).equals(w.subSequence(0, 2))) {
+                   if (qs.equals(os) && (w.subSequence(0, 2).equals(w.subSequence(0, 2)))) {
                        testUmlaut = true;
                    } else {
-                       if (w.subSequence(2, 4).equals("ae") || w.subSequence(2, 4).equals("oe") || w.subSequence(2, 4).equals("ue") && w.endsWith("e") || w.endsWith("s")){
+                       if ((w.subSequence(2, 4)).equals("ae") || (w.subSequence(2, 4)).equals("oe") || (w.subSequence(2, 4)).equals("ue") && w.endsWith("e") || w.endsWith("s")){
                        	   String qu = w.substring(4, (y - 1));
                            String ou = vergleich.substring(3, yy);
-                           if (qu.equals(ou) && w.subSequence(0, 2).equals(w.subSequence(0, 2))) {
+                           if (qu.equals(ou) && (w.subSequence(0, 2).equals(w.subSequence(0, 2)))) {
                                testUmlaut = true;
                            }
                        } else {
-                           if (w.subSequence(2, 4).equals("ae") || w.subSequence(2, 4).equals("oe") || w.subSequence(2, 4).equals("ue") && w.endsWith("ern")) {
+                           if ((w.subSequence(2, 4)).equals("ae") || (w.subSequence(2, 4)).equals("oe") || (w.subSequence(2, 4)).equals("ue") && w.endsWith("ern")) {
                            	String qt = w.substring(4, (y - 3));
                                String ot = vergleich.substring(3, yy);
-                               if (qt.equals(ot) && w.subSequence(0, 2).equals(w.subSequence(0, 2))) {
+                               if (qt.equals(ot) && (w.subSequence(0, 2).equals(w.subSequence(0, 2)))) {
                                    testUmlaut = true;
                                }
                            }
