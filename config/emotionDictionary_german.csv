@@ -1,6 +1,6 @@
 Highlight;Freude
 Traum;Freude
-Spa�;Freude
+Spaß;Freude
 Wahre;Freude
 perfekt;Freude
 überwältigt;Freude
@@ -13,7 +13,7 @@ klasse;Freude
 erstaunlich;Freude
 super;Freude
 glücklich;Freude
-brillant;Freude
+brilliant;Freude
 wundervoll;Freude
 glücklicherweise;Freude
 unwiderstehlich;Freude
@@ -28,8 +28,6 @@ vollendet;Freude
 vollkommen;Freude
 vorbildlich;Freude
 tipptopp;Freude
-tadellos;Freude
-bestes;Freude
 berührt;Freude
 bezaubert;Freude
 erregt;Freude
@@ -59,7 +57,6 @@ trefflich;Freude
 triumphal;Freude
 vortrefflich;Freude
 vorzüglich;Freude
-wunderbar;Freude
 überwältigend;Freude
 bombig;Freude
 doll;Freude
@@ -117,10 +114,8 @@ himmlisch;Freude
 astrein;Freude
 erfreulicherweise;Freude
 anziehend;Freude
-attraktiv;Freude
 fesselnd;Freude
 reizend;Freude
-reizvoll;Freude
 verführerisch;Freude
 zauberhaft;Freude
 umwerfend;Freude
@@ -140,9 +135,6 @@ bedenkenlos;Vertrauen
 angebracht;Vertrauen
 angemessen;Vertrauen
 empfehlungswürdig;Vertrauen
-geeignet;Vertrauen
-nützlich;Vertrauen
-passend;Vertrauen
 ratsam;Vertrauen
 sinnvoll;Vertrauen
 vernünftig;Vertrauen
@@ -194,7 +186,6 @@ ausreichen;Vertrauen
 befriedigen;Vertrauen
 entsprechen;Vertrauen
 erfüllen;Vertrauen
-genügen;Vertrauen
 trauen;Vertrauen
 überzeugt;Vertrauen
 recht;Vertrauen
@@ -243,8 +234,6 @@ Misshandlung;Ärger
 Schikane;Ärger
 Peinigung;Ärger
 Tortur;Ärger
-Leid;Ärger
-Leiden;Ärger
 Schmerz;Ärger
 Hölle;Ärger
 Plage;Ärger
@@ -302,6 +291,7 @@ bedrängen;Ärger
 behelligen;Ärger
 belästigen;Ärger
 furchtbar;Ärger
+scheisse;Ärger
 nervt;Ärger
 unmenschlich;Ärger
 ätzend;Ärger
@@ -338,7 +328,6 @@ irrsinnig;Ärger
 jämmerlich;Ärger
 abscheulich;Ärger
 ärgerlich;Ärger
-unangenehm;Ärger
 unfair;Ärger
 blöd;Ärger
 fies;Ärger
@@ -408,25 +397,19 @@ gut;Zufriedenheit
 zufrieden;Zufriedenheit
 überdurchschnittlich;Zufriedenheit
 ausgezeichnet;Zufriedenheit
-wunderschönen;Zufriedenheit
 ausreichend;Zufriedenheit
 umfangreich;Zufriedenheit
 erwähnenswert;Zufriedenheit
 ideal;Zufriedenheit
 einmalig;Zufriedenheit
 okay;Zufriedenheit
-exzellent;Zufriedenheit
 bestes;Zufriedenheit
 wunderbar;Zufriedenheit
-erstklassig;Zufriedenheit
 top;Zufriedenheit
 gerechtfertigt;Zufriedenheit
 großartiges;Zufriedenheit
 Ordnung;Zufriedenheit
-herausragend;Zufriedenheit
 praktisch;Zufriedenheit
-exzellente;Zufriedenheit
-einwandfrei;Zufriedenheit
 beste;Zufriedenheit
 optimal;Zufriedenheit
 zufriedenstellend;Zufriedenheit
@@ -475,7 +458,6 @@ anerkennenswert;Zufriedenheit
 begrüßnswert;Zufriedenheit
 bestens;Zufriedenheit
 fabelhaft;Zufriedenheit
-genial;Zufriedenheit
 tadellos;Zufriedenheit
 nützlich;Zufriedenheit
 geeignet;Zufriedenheit
@@ -485,7 +467,6 @@ vorteilhaft;Zufriedenheit
 problemlos;Zufriedenheit
 leicht;Zufriedenheit
 mühelos;Zufriedenheit
-enorm;Zufriedenheit
 umfassend;Zufriedenheit
 vielfältig;Zufriedenheit
 beispielhaft;Zufriedenheit
@@ -547,7 +528,6 @@ vermisst;Enttäuschung
 ungeeignet;Enttäuschung
 versagen;Enttäuschung
 enttäuschen;Enttäuschung
-abraten;Enttäuschung
 bedauern;Enttäuschung
 Ernüchterung;Enttäuschung
 Desillusion;Enttäuschung
@@ -621,7 +601,6 @@ billig;Enttäuschung
 erbärmlich;Enttäuschung
 fehlerhaft;Enttäuschung
 geringwertig;Enttäuschung
-schlecht;Enttäuschung
 schwach;Enttäuschung
 spärlich;Enttäuschung
 unbefriedigend;Enttäuschung
@@ -632,7 +611,6 @@ dürftig;Enttäuschung
 lausig;Enttäuschung
 schäbig;Enttäuschung
 zweitklassig;Enttäuschung
-mies;Enttäuschung
 miserabel;Enttäuschung
 beanstanden;Enttäuschung
 kritisieren;Enttäuschung
@@ -670,7 +648,6 @@ unqualifiziert;Enttäuschung
 unproduktiv;Enttäuschung
 außerstande;Enttäuschung
 unvermögend;Enttäuschung
-leiden;Enttäuschung
 dulden;Enttäuschung
 ertragen;Enttäuschung
 hinnehmen;Enttäuschung
@@ -680,3 +657,5 @@ scheitern;Enttäuschung
 ausfallen;Enttäuschung
 aussetzen;Enttäuschung
 ernüchtern;Enttäuschung
+schlecht;Enttäuschung
+nichtgut;Enttäuschung
