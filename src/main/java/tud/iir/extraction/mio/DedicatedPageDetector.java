@@ -5,9 +5,7 @@
  */
 package tud.iir.extraction.mio;
 
-import java.util.List;
-
-import tud.iir.helper.HTMLHelper;
+import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
 
 /**
@@ -22,9 +20,9 @@ public class DedicatedPageDetector {
      * 
      * @param mioPage the mioPage
      */
-    public void calculateDedicatedPageTrust(final MIOPage mioPage) {
+    public void calculateDedicatedPageTrust(MIOPage mioPage) {
 
-        final String pageContent = mioPage.getContentAsString();
+        String pageContent = mioPage.getContentAsString();
 
         // check for existence of Flash-DedicatedPage-Indicators
         int flashInd = 0;
@@ -33,25 +31,27 @@ public class DedicatedPageDetector {
             flashInd++;
         }
 
-        final String bodyContent = Crawler.extractBodyContent(pageContent, false);
+        String bodyContent = Crawler.extractBodyContent(pageContent, false);
         if (!("error").equalsIgnoreCase(bodyContent)) {
 
             // check for existence of images in the body
-            final List<String> imageTags = HTMLHelper.getConcreteTags(bodyContent, "img");
-            final int numberOfImages = imageTags.size();
+            // List<String> imageTags = HTMLHelper.getConcreteTags(bodyContent, "img");
+            // int numberOfImages = imageTags.size();
+            int numberOfImages = XPathHelper.getNodes(mioPage.getWebDocument(), "//IMG").size();
 
             // check for links in the body
-            final List<String> linksList = HTMLHelper.getConcreteTags(bodyContent, "a");
-            final int numberOfLinks = linksList.size();
+            // List<String> linksList = HTMLHelper.getConcreteTags(bodyContent, "a");
+            // int numberOfLinks = linksList.size();
+            int numberOfLinks = XPathHelper.getNodes(mioPage.getWebDocument(), "//A").size();
 
             // get the textual content of the body only
-            final String trimmedBodyContent = Crawler.extractBodyContent(pageContent, true);
+            String trimmedBodyContent = Crawler.extractBodyContent(pageContent, true);
 
             // get length of textual body content
-            final int trimmedBodyContentLength = trimmedBodyContent.length();
+            int trimmedBodyContentLength = trimmedBodyContent.length();
 
             // calculate the DedicatedPage-Trust with the values
-            final double dpTrust = calculateDPTrustFactor(trimmedBodyContentLength, numberOfLinks, numberOfImages,
+            double dpTrust = calculateDPTrustFactor(trimmedBodyContentLength, numberOfLinks, numberOfImages,
                     flashInd);
 
             mioPage.setDedicatedPageTrust(dpTrust);

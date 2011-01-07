@@ -581,6 +581,7 @@ public class Crawler {
     /**
      * 
      * Extracts the content of the body out of a given pageContent; textOnly-Parameter allows to get the textual content
+     * FIXME: other versions of this exist
      * 
      */
     public static String extractBodyContent(String pageContent, boolean textOnly) {
@@ -964,7 +965,7 @@ public class Crawler {
         // FIXME 2011-01-06; this seems to cause this problem:
         // http://sourceforge.net/tracker/?func=detail&aid=3109537&group_id=195122&atid=952178
         // catching Throwable in #setDocument above; guess we have to wait for a new Neko release,
-        // supposedly breaking other stuff :( 
+        // supposedly breaking other stuff :(
         parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
         parser.setProperty("http://cyberneko.org/html/properties/filters", new XMLDocumentFilter[] { new TBODYFix() });
         // end fix.
