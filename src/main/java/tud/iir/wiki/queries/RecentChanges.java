@@ -143,7 +143,7 @@ public class RecentChanges extends TitleQuery<WikiPage> {
         if (LOGGER.isTraceEnabled()) {
             LOGGER.trace("enter RecentChangePages.generateRequest");
         }
-        
+
         final String query = "/api.php?action=query&list=recentchanges"
                 + "&rcprop="
                 + MediaWiki.encode(rcprop)
@@ -152,9 +152,7 @@ public class RecentChanges extends TitleQuery<WikiPage> {
                 + "&rclimit="
                 + LIMIT
                 + ((namespaces != null && namespaces.length > 0) ? ("&rcnamespace=" + MediaWiki.encode(MWAction
-                        .createNsString(namespaces)))
-                        : "")
-                        + "&format=xml";
+                        .createNsString(namespaces))) : "") + "&format=xml";
 
         return new Get(query);
     }
@@ -210,8 +208,8 @@ public class RecentChanges extends TitleQuery<WikiPage> {
                 LOGGER.error(
                         "Error parsing Wiki timestamp \""
                                 + MediaWiki.decode(recentChange.getAttributes().getNamedItem("timestamp")
-                                        .getTextContent())
-                                + "\", revisionID " + revisionID + " has not been added. ", e);
+                                        .getTextContent()) + "\", revisionID " + revisionID + " has not been added. ",
+                        e);
             }
 
             if (pages.containsKey(wikiPage.getPageID())) {
@@ -258,7 +256,6 @@ public class RecentChanges extends TitleQuery<WikiPage> {
             return null;
         }
     }
-
 
     /**
      * {@inheritDoc}
