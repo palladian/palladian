@@ -433,7 +433,7 @@ public class EventExtractor extends Extractor {
      */
     public void extractWhat(Event event) {
 
-        String what = null;
+        String what = "";
 
         final String title = StringHelper.makeContinuousText(event.getTitle());
 
@@ -785,7 +785,9 @@ public class EventExtractor extends Extractor {
 
         final StopWatch sw = new StopWatch();
         sw.start();
-
+        Event event = EventExtractor
+                .extractEventFromURL("http://www.guardian.co.uk/society/2010/dec/24/freezing-weather-homeless-charities/print");
+        // System.out.println(StringHelper.makeContinuousText(event.getText()));
         // ee.featureExtractor
         // .getPOSTags("Mr Gates said they wanted to show solidarity with their allies in Seoul.");
 
