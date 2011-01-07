@@ -108,7 +108,7 @@ class SchedulerTask extends TimerTask {
     private Boolean needsLookup(Feed feed) {
         long now = System.currentTimeMillis();
         return feed.getChecks() == 0 || feed.getLastPollTime() == null
-                || now - feed.getLastPollTime().getTime() > feed.getMaxCheckInterval() * DateHelper.MINUTE_MS;
+        || now - feed.getLastPollTime().getTime() > feed.getCheckInterval() * DateHelper.MINUTE_MS;
     }
 
     /**

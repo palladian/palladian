@@ -300,6 +300,8 @@ public class Source implements Serializable {
                 Logger.getRootLogger().error(e1.getMessage());
             } catch (MalformedURLException e1) {
                 Logger.getRootLogger().error(e1.getMessage());
+            } catch (Exception e1) {
+                Logger.getRootLogger().error(e1.getMessage());
             }
 
         }
