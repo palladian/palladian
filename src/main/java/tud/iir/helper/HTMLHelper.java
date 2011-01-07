@@ -146,74 +146,76 @@ public class HTMLHelper {
      */
     public static List<String> listTags(String htmlText) {
         List<String> tags = new ArrayList<String>();
-        
 
-    	List<String> lev = new ArrayList<String>();
-    	String currentTag="";
-        
-    	Pattern pattern = Pattern.compile("(\\<.*?>)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+
+        List<String> lev = new ArrayList<String>();
+        String currentTag="";
+
+        Pattern pattern = Pattern.compile("(\\<.*?>)", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(htmlText);
 
         while (matcher.find()) {
-        	currentTag=matcher.group();
-        	
-        	// Delete arguments within the tags
-        	if (currentTag.contains(" ")) {
-        		currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
-        		
-        		//System.out.print("+++++++++++++++++++"+currentTag);
+            currentTag=matcher.group();
 
-        		if (currentTag.contains("<!") || currentTag.contains("<html") || currentTag.contains("<head") 
-            			|| currentTag.contains("<title") || currentTag.contains("<body") /*|| currentTag.contains("meta_name")*/) continue;
-        		
-        		
-        		
-//            	if (currentTag.contains("http") || currentTag.contains("span") || currentTag.contains("href")) {
-//            		currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
-//            	}
-//            	
-//            	if (currentTag.contains("id=")) {
-//            		currentTag=currentTag.substring(0, currentTag.indexOf("id=")-1).concat(
-//            		currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("id=")+4)+1, currentTag.indexOf(">")+1));
-//            	}
-//            	
-//            	if (currentTag.contains("name=")) {
-//            		currentTag=currentTag.substring(0, currentTag.indexOf("name=")-1).concat(
-//            		currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("name=")+6)+1, currentTag.indexOf(">")+1));
-//            	}
-//            	
-//            	
-//            	
-//            	if (currentTag.substring(0,2).equals("<i")) currentTag="<img>";
-//            	if (currentTag.substring(0,2).equals("<a")) currentTag="<a>";
-//            	if (currentTag.contains("<div class")) currentTag="<div>";
-//            	if (currentTag.contains("<meta ")) currentTag="<meta>";
-//            	
-//
-//            	
-//        		//System.out.println(" ersetzt zu "+currentTag);
-//
-//            	
-//        		currentTag=currentTag.replaceAll(" ", "_");
-        	}
-        	        	
-        	/*Versuch die aktuelle Ebene einzubeziehen - fehlgeschlagen, nicht brauchbar
+            // Delete arguments within the tags
+            if (currentTag.contains(" ")) {
+                currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
+
+                //System.out.print("+++++++++++++++++++"+currentTag);
+
+                if (currentTag.contains("<!") || currentTag.contains("<html") || currentTag.contains("<head")
+                        || currentTag.contains("<title") || currentTag.contains("<body") /*|| currentTag.contains("meta_name")*/) {
+                    continue;
+                }
+
+
+
+                //            	if (currentTag.contains("http") || currentTag.contains("span") || currentTag.contains("href")) {
+                //            		currentTag=currentTag.substring(0, currentTag.indexOf(" "))+">";
+                //            	}
+                //
+                //            	if (currentTag.contains("id=")) {
+                //            		currentTag=currentTag.substring(0, currentTag.indexOf("id=")-1).concat(
+                //            		currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("id=")+4)+1, currentTag.indexOf(">")+1));
+                //            	}
+                //
+                //            	if (currentTag.contains("name=")) {
+                //            		currentTag=currentTag.substring(0, currentTag.indexOf("name=")-1).concat(
+                //            		currentTag.substring(currentTag.indexOf("\"",currentTag.indexOf("name=")+6)+1, currentTag.indexOf(">")+1));
+                //            	}
+                //
+                //
+                //
+                //            	if (currentTag.substring(0,2).equals("<i")) currentTag="<img>";
+                //            	if (currentTag.substring(0,2).equals("<a")) currentTag="<a>";
+                //            	if (currentTag.contains("<div class")) currentTag="<div>";
+                //            	if (currentTag.contains("<meta ")) currentTag="<meta>";
+                //
+                //
+                //
+                //        		//System.out.println(" ersetzt zu "+currentTag);
+                //
+                //
+                //        		currentTag=currentTag.replaceAll(" ", "_");
+            }
+
+            /*Versuch die aktuelle Ebene einzubeziehen - fehlgeschlagen, nicht brauchbar
         	if (!currentTag.contains("/")) level++;
         	tags.add(level+currentTag);
         	if (currentTag.contains("/")) level--;
         	tags.add(level+currentTag);*/
-        	
-        	
-        	if (!lev.contains(currentTag)) {
-        		//System.out.println(currentTag+"..."+lev);
-        		
-        		lev.add(currentTag);
-        		//lev2.add("1"+"o"+currentTag);
-        		//currentTag="1"+"o"+currentTag;
-        		
-        	}
-        	
-        	tags.add(currentTag);
+
+
+            if (!lev.contains(currentTag)) {
+                //System.out.println(currentTag+"..."+lev);
+
+                lev.add(currentTag);
+                //lev2.add("1"+"o"+currentTag);
+                //currentTag="1"+"o"+currentTag;
+
+            }
+
+            tags.add(currentTag);
         }
 
         return tags;
@@ -371,6 +373,7 @@ public class HTMLHelper {
      * In contrast to @link{@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which works on Strings
      * and just strips out all tags via RegExes, this approach tries to keep some structure for displaying HTML content
      * in text mode in a readable form.
+     * FIXME: "namespace not declared" errors pop up too often
      * 
      * @param node
      * @return
@@ -386,7 +389,7 @@ public class HTMLHelper {
 
                 @Override
                 public void startElement(String uri, String localName, String qName, Attributes attributes)
-                        throws SAXException {
+                throws SAXException {
                     String tag = localName.toLowerCase();
                     if (IGNORE_INSIDE.contains(tag)) {
                         ignoreCharacters = true;
@@ -443,6 +446,7 @@ public class HTMLHelper {
      * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
      * whitespace is handled more correctly than in {@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}
      * which never worked well for me.
+     * TODO: "namespace not declared errors"
      * 
      * @param html
      * @param oneLine
@@ -810,17 +814,17 @@ public class HTMLHelper {
     }
 
     public static void main(String[] args) throws Exception {
-        
+
         String input = FileHelper.readFileToString("NewFile2.xml");
         // input = StringEscapeUtils.unescapeXml(input);
-//        System.out.println(input.hashCode());
+        //        System.out.println(input.hashCode());
 
         input = StringEscapeUtils.unescapeHtml(input);
 
         System.out.println(input);
-        
+
         HTMLHelper.stringToXml(input);
-        
+
         System.exit(0);
 
         System.out.println(removeHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
