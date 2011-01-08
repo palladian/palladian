@@ -23,13 +23,13 @@ public class CollectaClient implements Runnable {
     public FileWriter fileWriter;
 
     public static void main(String args[]) {
-        (new Thread(new CollectaClient("en", ""))).start();
+        new Thread(new CollectaClient("en", "")).start();
     }
 
     public CollectaClient(String languageCode, String directoryPath) {
         this.languageCode = languageCode;
         try {
-            fileWriter = new FileWriter(directoryPath + languageCode + "/messages.txt");
+            fileWriter = new FileWriter(directoryPath + languageCode + "/messages.txt", true);
         } catch (IOException e) {
             LOGGER.error(e.getMessage());
         }
@@ -47,8 +47,8 @@ public class CollectaClient implements Runnable {
 
     @Override
     public void run() {
-        this.connect();
-        this.initializeIQListener();
+        connect();
+        initializeIQListener();
         while (connection.isConnected()) {
             try {
                 Thread.sleep(100);
@@ -84,7 +84,7 @@ public class CollectaClient implements Runnable {
                     String content = StringHelper.getSubstringBetween(msg.toXML(), "<content>", "</content>");
                     content = StringEscapeUtils.unescapeHtml(content);
 
-                    LOGGER.info("\nMessage:" + content);
+                    LOGGER.info("\nMessage (" + languageCode + "):" + content);
                     try {
                         fileWriter.write(content);
                         fileWriter.write("\n");
@@ -97,7 +97,7 @@ public class CollectaClient implements Runnable {
             }
         };
         connection.addPacketListener(myListener, null);
-        connection.sendPacket(this.searchRequest());
-        connection.sendPacket(this.searchRequest());
+        connection.sendPacket(searchRequest());
+        connection.sendPacket(searchRequest());
     }
 }

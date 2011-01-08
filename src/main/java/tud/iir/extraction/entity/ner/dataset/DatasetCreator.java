@@ -487,7 +487,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         // DatasetCreator.deduplicateSeedLists("data/knowledgeBase/seedEntities/");
         // System.exit(0);
-        DatasetCreator datasetCreator = new DatasetCreator("www_test");
+        DatasetCreator datasetCreator = new DatasetCreator("www_test2");
         datasetCreator.setDataSetLocation("data/datasets/ner/");
 
         // datasetCreator.splitAndTransformDatasets();
