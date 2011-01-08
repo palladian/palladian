@@ -79,8 +79,8 @@ public class MicroBloggingLanguageDatasetCompiler extends LanguageDatasetCompile
             Thread t = new Thread(cc);
             t.start();
 
-            // collect data for language for 10 minutes
-            ThreadHelper.sleep(minutes + DateHelper.MINUTE_MS);
+            // collect data for language for x minutes
+            ThreadHelper.sleep(minutes * DateHelper.MINUTE_MS);
 
             try {
                 cc.fileWriter.close();
@@ -92,6 +92,8 @@ public class MicroBloggingLanguageDatasetCompiler extends LanguageDatasetCompile
         }
 
         FileHelper.writeToFile(DIRECTORY_PATH + "languageDocumentIndex.txt", dataSetIndex);
+        FileHelper.removeDuplicateLines(DIRECTORY_PATH + "languageDocumentIndex.txt", DIRECTORY_PATH
+                + "languageDocumentIndex.txt");
 
         cleanDataset();
 

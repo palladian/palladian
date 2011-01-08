@@ -21,6 +21,7 @@ import org.ho.yaml.Yaml;
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.Extractor;
 import tud.iir.helper.ConfigHolder;
+import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
@@ -151,9 +152,14 @@ public final class MIOExtractor extends Extractor {
 
                     LOGGER.info("THREAD STARTED (" + getThreadCount() + "): " + currentEntity.getName());
 
+                    // sleep for a short time to let the threads start and increase the thread counter, otherwise too
+                    // many threads get started
+                    ThreadHelper.sleep(2 * DateHelper.SECOND_MS);
+
                     int count = 0;
                     while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                        LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + ") "
+                        LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (count: " + getThreadCount() + ", allowed: "
+                                + MAX_EXTRACTION_THREADS + ") "
                                 + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
                         if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
                             LOGGER.warn("apparently " + getThreadCount()

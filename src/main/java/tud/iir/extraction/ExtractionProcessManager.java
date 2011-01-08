@@ -320,8 +320,9 @@ public class ExtractionProcessManager {
         long steps = totalTimeMS / intervalMS;
         for (int i = 0; i < steps; i++) {
             ThreadHelper.sleep(intervalMS);
-            int progress = (int) Math.floor((double) 100 * i / steps);
-            LOGGER.info("progress of " + getExtractionPhaseName() + ": " + progress + "%");
+            // int progress = (int) Math.floor((double) 100 * i / steps);
+            int progress = (int) Math.floor((double) 100 * (System.currentTimeMillis() - startTime) / totalTimeMS);
+            LOGGER.info("progress of " + getExtractionPhaseName() + ": " + progress + "% (" + i + "/" + steps + ")");
 
             liveStatus.setPercent(progress);
             liveStatus.setTimeLeft(DateHelper.getTimeString(totalTimeMS - i * intervalMS));
