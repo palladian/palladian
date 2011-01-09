@@ -36,7 +36,7 @@ public class SnippetExtractor extends Extractor {
     private static final Logger LOGGER = Logger.getLogger(SnippetExtractor.class);
 
     /** The maximum number of extraction threads. */
-    protected static final int MAX_EXTRACTION_THREADS = 10;
+    protected static final int MAX_EXTRACTION_THREADS = 5;
 
     /** The number of results that should be retrieved per snippet query. */
     public static final int RESULTS_PER_SNIPPET = 20;

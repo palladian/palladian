@@ -19,8 +19,8 @@ import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
 import tud.iir.web.URLDownloader;
-import tud.iir.web.WebResult;
 import tud.iir.web.URLDownloader.URLDownloaderCallback;
+import tud.iir.web.WebResult;
 
 /**
  * @author Martin Wunderwald
@@ -166,7 +166,7 @@ public class EventAggregator {
 
         LOGGER.info("downloading " + webresults.size() + " pages");
 
-        final URLDownloader downloader = new URLDownloader();
+        URLDownloader downloader = new URLDownloader();
         downloader.setMaxThreads(5);
 
         for (final WebResult wr : webresults) {
@@ -178,7 +178,7 @@ public class EventAggregator {
             @Override
             public void finished(String url, InputStream inputStream) {
                 try {
-                    final PageContentExtractor extractor = new PageContentExtractor();
+                    PageContentExtractor extractor = new PageContentExtractor();
                     extractor.setDocument(new InputSource(inputStream));
                     // Document page = extractor.getResultDocument();
                     eventMap.get(url).setText(extractor.getResultText());

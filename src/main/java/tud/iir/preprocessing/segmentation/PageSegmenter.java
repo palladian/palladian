@@ -258,7 +258,7 @@ public class PageSegmenter {
 
         URLDownloader urlDownloader = new URLDownloader();
 
-        HashSet<String> links = new HashSet<String>();
+        Set<String> links = new HashSet<String>();
         links.addAll(c.getLinks(d, true, false, ""));
         System.out.println("Anzahl Links: " + links.size());
 
@@ -322,8 +322,8 @@ public class PageSegmenter {
         for (int i = 0; i < size; i++) {
             String currentURL = te2.get(i);
             String currentLabel = PageSegmenterHelper.getLabelOfURL(currentURL);
-            if (!label.equals(currentLabel) && (label.matches("^[0-9]+$") && !currentLabel.matches("^[0-9]+$"))
-                    || (!label.equals(currentLabel) && (!label.matches("^[0-9]+$")))) {
+            if (!label.equals(currentLabel) && label.matches("^[0-9]+$") && !currentLabel.matches("^[0-9]+$")
+                    || !label.equals(currentLabel) && !label.matches("^[0-9]+$")) {
                 te2.remove(i);
                 i--;
                 te2.add(size - 1, currentURL);
@@ -352,7 +352,7 @@ public class PageSegmenter {
             while (it2.hasNext()) {
                 Document currentDocument = it2.next();
 
-                if ((HTMLHelper.htmlToString(d)).equals(HTMLHelper.htmlToString(currentDocument))) {
+                if (HTMLHelper.htmlToString(d).equals(HTMLHelper.htmlToString(currentDocument))) {
                     System.out.println("#####################################################");
                     continue;
                 }
@@ -362,7 +362,7 @@ public class PageSegmenter {
                 Double vari = SimilarityCalculator.calculateSimilarity(page1, page2);
                 Double jacc = SimilarityCalculator.calculateJaccard(page1, page2);
 
-                String variString = (((Double) ((1 - vari) * 100)).toString());
+                String variString = ((Double) ((1 - vari) * 100)).toString();
                 variString = variString.substring(0, Math.min(5, variString.length()));
 
                 double erg = (1 - vari + jacc) / 2;
@@ -432,8 +432,8 @@ public class PageSegmenter {
             n2.setNodeValue("###");
             n2.setTextContent("#####");
 
-            if (helpList2.getLength() > (i)) {
-                n2 = (helpList2.item(i));
+            if (helpList2.getLength() > i) {
+                n2 = helpList2.item(i);
             }
 
             String constructXPath = pa.constructXPath(n1);
@@ -688,7 +688,7 @@ public class PageSegmenter {
         ArrayList<String> nonConflictNodes = new ArrayList<String>();
 
         for (int i = 0; i < similarFiles.size(); i++) {
-            System.out.println((i + 1) + ".Runde-----------------------------------------");
+            System.out.println(i + 1 + ".Runde-----------------------------------------");
 
             Document document2 = similarFiles.get(i);
             Node bodyNode2 = document2.getElementsByTagName("body").item(0);
@@ -702,8 +702,8 @@ public class PageSegmenter {
                     maxDepth, "/HTML/BODY");
 
             System.out.println(allNodes[0].size() + "-" + conflictNodes.size() + "="
-                    + (allNodes[0].size() - conflictNodes.size()) + " zu " + (conflictNodes.size() * 50 / 100));
-            if ((allNodes[0].size() - conflictNodes.size()) < conflictNodes.size() * 50 / 100
+                    + (allNodes[0].size() - conflictNodes.size()) + " zu " + conflictNodes.size() * 50 / 100);
+            if (allNodes[0].size() - conflictNodes.size() < conflictNodes.size() * 50 / 100
                     || conflictNodes.size() == 0) {
                 // adds the new conflict nodes to the list of all conflict nodes
                 for (int j = 0; j < allNodes[0].size(); j++) {

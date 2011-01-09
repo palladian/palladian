@@ -107,19 +107,19 @@ public class Crawler {
     /** The user agent string that is used by the crawler. */
     private static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-GB; rv:1.9.0.4) Gecko/2008102920 Firefox/3.0.4";
 
-    /** the referer that is used by the crawler */
+    /** The referer that is used by the crawler. */
     private static final String REFERER = "";
 
-    /** the default connection timeout */
+    /** The default connection timeout. */
     public static final int DEFAULT_CONNECTION_TIMEOUT = (int) (10 * DateHelper.SECOND_MS);
 
-    /** the default read timeout when retrieving pages */
+    /** The default read timeout when retrieving pages. */
     public static final int DEFAULT_READ_TIMEOUT = (int) (16 * DateHelper.SECOND_MS);
 
-    /** the default overall timeout (after which the connection is reset) */
+    /** The default overall timeout (after which the connection is reset). */
     public static final int DEFAULT_OVERALL_TIMEOUT = (int) (60 * DateHelper.SECOND_MS);
 
-    /** the default number of retries when downloading fails. */
+    /** The default number of retries when downloading fails. */
     public static final int DEFAULT_NUM_RETRIES = 0;
 
     public static final int BYTES = 1;

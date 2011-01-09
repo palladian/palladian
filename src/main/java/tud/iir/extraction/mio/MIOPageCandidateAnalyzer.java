@@ -31,7 +31,7 @@ public class MIOPageCandidateAnalyzer {
      * 
      * @param mioPageCandidates the mIO page candidates
      */
-    public MIOPageCandidateAnalyzer(final List<String> mioPageCandidates) {
+    public MIOPageCandidateAnalyzer(List<String> mioPageCandidates) {
 
         this.mioPageCandidates = mioPageCandidates;
         mioPages = new ArrayList<MIOPage>();
@@ -44,15 +44,15 @@ public class MIOPageCandidateAnalyzer {
      * @param entity the entity
      * @return the identified mioPages as list
      */
-    public final List<MIOPage> identifyMIOPages(final Entity entity) {
+    public final List<MIOPage> identifyMIOPages(Entity entity) {
 
         // initialize SearchWordMatcher
-        final SearchWordMatcher swMatcher = new SearchWordMatcher(entity.getName());
+        SearchWordMatcher swMatcher = new SearchWordMatcher(entity.getName());
         final FastMIODetector fMIODec = new FastMIODetector();
         final IFrameAnalyzer iframeAnalyzer = new IFrameAnalyzer(swMatcher);
         final LinkAnalyzer linkAnalyzer = new LinkAnalyzer(swMatcher, entity.getConcept());
 
-        final URLDownloader downloader = new URLDownloader();
+        URLDownloader downloader = new URLDownloader();
         // set how many threads the urlDownloader can use (see configuration-file)
         downloader.setMaxThreads(InCoFiConfiguration.getInstance().urlDownloaderThreads);
         // add pages to downloader
@@ -65,7 +65,7 @@ public class MIOPageCandidateAnalyzer {
             public void finished(String url, InputStream inputStream) {
                 final Document webDocument = Crawler.getWebDocumentFromInputStream(inputStream, url);
                 final String pageContent = Crawler.documentToString(webDocument);
-                if (!("").equals(pageContent)) {
+                if (!"".equals(pageContent)) {
 
                 	// search current page for MIO
                     if (fMIODec.containsMIO(pageContent)) {
