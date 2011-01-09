@@ -46,7 +46,7 @@
              
              # set if the Analyzing of Links should be limited to that which contains concept-vocabulary
              # this speeds up linkAnalyzing but reduces the result-amount
-             limitLinkAnalyzing: "false"
+             limitLinkAnalyzing: "true"
              
              # set which mioTypes should be retrieved (possible are: flash, applet, silverlight, quicktime, html5canvas)
              mioTypes: "flash, applet, silverlight, quicktime, html5canvas"
