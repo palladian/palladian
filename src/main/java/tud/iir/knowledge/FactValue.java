@@ -49,8 +49,8 @@ public class FactValue implements Serializable {
     public FactValue(String value, Source source, int extractionType) {
         this.sources = new ArrayList<Source>();
         // this.extractionTypes = new ArrayList<Integer>();
-        this.setValue(value);
-        this.addSource(source);
+        setValue(value);
+        addSource(source);
         // this.addExtractionType(extractionType);
     }
 
@@ -158,11 +158,12 @@ public class FactValue implements Serializable {
         // count each url only once for each fact value
         HashSet<String> sourceURLs = new HashSet<String>();
 
-        Iterator<Source> sIt = this.getSources().iterator();
+        Iterator<Source> sIt = getSources().iterator();
         while (sIt.hasNext()) {
             Source s = sIt.next();
-            if (sourceURLs.add(s.getUrl()))
+            if (sourceURLs.add(s.getUrl())) {
                 corroboration += s.getTrust();
+            }
         }
         return MathHelper.round(corroboration, 2);
     }
@@ -185,14 +186,15 @@ public class FactValue implements Serializable {
         HashSet<String> sourceURLs = new HashSet<String>();
 
         double addedSourceTrust = 0.0;
-        Iterator<Source> sIt = this.getSources().iterator();
+        Iterator<Source> sIt = getSources().iterator();
         while (sIt.hasNext()) {
             Source s = sIt.next();
-            if (sourceURLs.add(s.getUrl()))
+            if (sourceURLs.add(s.getUrl())) {
                 addedSourceTrust += s.getTrust();
+            }
         }
 
-        corroboration = etn + (sn * addedSourceTrust);
+        corroboration = etn + sn * addedSourceTrust;
 
         return MathHelper.round(corroboration, 2);
     }
@@ -240,7 +242,7 @@ public class FactValue implements Serializable {
         // HashSet<String> sourceURLs = new HashSet<String>();
 
         double addedSourceTrust = 0.0;
-        Iterator<Source> sIt = this.getSources().iterator();
+        Iterator<Source> sIt = getSources().iterator();
         while (sIt.hasNext()) {
             Source s = sIt.next();
             // if (sourceURLs.add(s.getUrl()))
@@ -281,7 +283,7 @@ public class FactValue implements Serializable {
         // HashSet<String> sourceURLs = new HashSet<String>();
         //
         double addedSourceTrust = 0.0;
-        Iterator<Source> sIt = this.getSources().iterator();
+        Iterator<Source> sIt = getSources().iterator();
         while (sIt.hasNext()) {
             Source s = sIt.next();
             // if (sourceURLs.add(s.getUrl()))
@@ -306,7 +308,7 @@ public class FactValue implements Serializable {
             try {
                 corroboration *= Math.pow(NumericFactDistribution.getPowerDistributionFactor(getFact().getID(), Double.valueOf(getValue())), samePowerValues);
             } catch (NumberFormatException e) {
-                Logger.getRootLogger().error(getValue(), e);
+                Logger.getRootLogger().error(getValue() + ", " + e.getMessage());
             }
         }
 
@@ -343,16 +345,21 @@ public class FactValue implements Serializable {
 
     private int getNumberOfDifferentExtractionTypes() {
         int extractionTypesUsed = 0;
-        if (getNumberOfFreeTextExtractions() > 0)
+        if (getNumberOfFreeTextExtractions() > 0) {
             ++extractionTypesUsed;
-        if (getNumberOfPatternPhraseExtractions() > 0)
+        }
+        if (getNumberOfPatternPhraseExtractions() > 0) {
             ++extractionTypesUsed;
-        if (getNumberOfColonPhraseExtractions() > 0)
+        }
+        if (getNumberOfColonPhraseExtractions() > 0) {
             ++extractionTypesUsed;
-        if (getNumberOfStructuredPhraseExtractions() > 0)
+        }
+        if (getNumberOfStructuredPhraseExtractions() > 0) {
             ++extractionTypesUsed;
-        if (getNumberOfTableCellExtractions() > 0)
+        }
+        if (getNumberOfTableCellExtractions() > 0) {
             ++extractionTypesUsed;
+        }
         return extractionTypesUsed;
     }
 
@@ -363,8 +370,9 @@ public class FactValue implements Serializable {
         for (int i = 0, l = this.sources.size(); i < l; ++i) {
             Source currentSource = this.sources.get(i);
             if (sourcesReviewed.add(currentSource.getUrl())) {
-                if (currentSource.getExtractionType() == ExtractionType.FREE_TEXT_SENTENCE)
+                if (currentSource.getExtractionType() == ExtractionType.FREE_TEXT_SENTENCE) {
                     ++countFreeTextSentence;
+                }
             }
         }
 
@@ -378,8 +386,9 @@ public class FactValue implements Serializable {
         for (int i = 0, l = this.sources.size(); i < l; ++i) {
             Source currentSource = this.sources.get(i);
             if (sourcesReviewed.add(currentSource.getUrl())) {
-                if (currentSource.getExtractionType() == ExtractionType.PATTERN_PHRASE)
+                if (currentSource.getExtractionType() == ExtractionType.PATTERN_PHRASE) {
                     ++countPatternPhrase;
+                }
             }
         }
 
@@ -393,8 +402,9 @@ public class FactValue implements Serializable {
         for (int i = 0, l = this.sources.size(); i < l; ++i) {
             Source currentSource = this.sources.get(i);
             if (sourcesReviewed.add(currentSource.getUrl())) {
-                if (currentSource.getExtractionType() == ExtractionType.COLON_PHRASE)
+                if (currentSource.getExtractionType() == ExtractionType.COLON_PHRASE) {
                     ++countColonPhrase;
+                }
             }
         }
 
@@ -408,8 +418,9 @@ public class FactValue implements Serializable {
         for (int i = 0, l = this.sources.size(); i < l; ++i) {
             Source currentSource = this.sources.get(i);
             if (sourcesReviewed.add(currentSource.getUrl())) {
-                if (currentSource.getExtractionType() == ExtractionType.STRUCTURED_PHRASE)
+                if (currentSource.getExtractionType() == ExtractionType.STRUCTURED_PHRASE) {
                     ++countStructuredPhrase;
+                }
             }
         }
 
@@ -423,8 +434,9 @@ public class FactValue implements Serializable {
         for (int i = 0, l = this.sources.size(); i < l; ++i) {
             Source currentSource = this.sources.get(i);
             if (sourcesReviewed.add(currentSource.getUrl())) {
-                if (currentSource.getExtractionType() == ExtractionType.TABLE_CELL)
+                if (currentSource.getExtractionType() == ExtractionType.TABLE_CELL) {
                     ++countTableCell;
+                }
             }
         }
 
@@ -463,35 +475,40 @@ public class FactValue implements Serializable {
             shownSomething = true;
         }
         if (countPatternPhrase > 0) {
-            if (shownSomething)
+            if (shownSomething) {
                 extractionTypeInformation += ", ";
+            }
             extractionTypeInformation += countPatternPhrase + "x pattern phrase";
             shownSomething = true;
         }
         if (countColonPhrase > 0) {
-            if (shownSomething)
+            if (shownSomething) {
                 extractionTypeInformation += ", ";
+            }
             extractionTypeInformation += countColonPhrase + "x colon pattern";
             shownSomething = true;
         }
         if (countStructuredPhrase > 0) {
-            if (shownSomething)
+            if (shownSomething) {
                 extractionTypeInformation += ", ";
+            }
             extractionTypeInformation += countStructuredPhrase + "x structured phrase";
             shownSomething = true;
         }
         if (countTableCell > 0) {
-            if (shownSomething)
+            if (shownSomething) {
                 extractionTypeInformation += ", ";
+            }
             extractionTypeInformation += countTableCell + "x table";
         }
 
-        ArrayList<Source> sources = this.getSources();
+        ArrayList<Source> sources = getSources();
         StringBuilder sourcesString = new StringBuilder();
         for (int i = 0, l = sources.size(); i < l; ++i) {
             sourcesString.append(sources.get(i).getUrl()).append("(").append(sources.get(i).getTrust()).append(")");
-            if (i < l - 1)
+            if (i < l - 1) {
                 sourcesString.append(",");
+            }
         }
 
         extractionTypeInformation += ")";
@@ -499,7 +516,7 @@ public class FactValue implements Serializable {
         // return
         // this.getValue()+"/"+this.getCorroboration()+extractionTypeInformation+" factor "+NumberFactDistribution.getPowerDistributionFactor(getFact().getID(),
         // Double.valueOf(getValue()))+"("+getFact().getSamePowerFactValues(this)+") from "+sourcesString.toString();
-        return this.getValue() + "/" + MathHelper.round(this.getRelativeTrust(), 3) + "/" + this.getCorroboration() + extractionTypeInformation + " from "
+        return getValue() + "/" + MathHelper.round(getRelativeTrust(), 3) + "/" + getCorroboration() + extractionTypeInformation + " from "
                 + sourcesString.toString();
     }
 }
