@@ -42,7 +42,7 @@ public class RevisionThread implements Runnable {
      * @param page The page to crawl revisions for.
      */
     public RevisionThread(MediaWikiBot bot, final WikiDescriptor mwDescriptor, final WikiPage page) {
-        this.mwDatabase = MediaWikiDatabase.getInstance();
+        this.mwDatabase = new MediaWikiDatabase();
         this.mwDescriptor = mwDescriptor;
         this.bot = bot;
         this.page = page;
