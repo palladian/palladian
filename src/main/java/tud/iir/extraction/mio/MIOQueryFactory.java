@@ -34,7 +34,7 @@ public class MIOQueryFactory {
      * @param entity the entity
      * @param weakFlag the weak flag
      */
-    MIOQueryFactory(final Entity entity, boolean weakFlag) {
+    MIOQueryFactory(Entity entity, boolean weakFlag) {
         this.entity = entity;
         this.concept = entity.getConcept();
 
@@ -73,7 +73,7 @@ public class MIOQueryFactory {
             if (searchWord.endsWith("_")) {
                 // for the case: "play Quantum of Solice"
                 int pos = searchWord.lastIndexOf("_");
-                final String modSearchWord = searchWord.substring(0, pos--);
+                String modSearchWord = searchWord.substring(0, pos--);
                 searchQueries.add("\"" + modSearchWord + " " + entityName + "\"");
             } else {
                 searchQueries.add(entityName + " \"" + searchWord + "\"");
