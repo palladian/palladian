@@ -301,10 +301,11 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // Crawler c = new Crawler();
         // webPage = c.getWebDocument("http://www.letourdefrance.btinternet.co.uk/vin01.html");
 
-        String webPageContent = Crawler.documentToString(webPage);
+        String webPageContent = "";
 
         String webPageText = "";
         try {
+            webPageContent = Crawler.documentToString(webPage);
             webPageText = new PageContentExtractor().setDocument(webPage).getResultText();
         } catch (PageContentExtractorException e) {
             LOGGER.error("could not extract clean content from " + webPage.getDocumentURI() + ", " + e.getMessage());

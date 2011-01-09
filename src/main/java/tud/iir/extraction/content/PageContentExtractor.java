@@ -723,7 +723,7 @@ public class PageContentExtractor {
 
             LOGGER.debug("Looking at sibling node: " + siblingNode + " (" + siblingNode.getAttribute("class") + ":"
                     + siblingNode.getAttribute("id") + ")"
-                    + (hasReadability(siblingNode) ? (" with score " + getReadability(siblingNode)) : ""));
+                    + (hasReadability(siblingNode) ? " with score " + getReadability(siblingNode) : ""));
 
             if (siblingNode == topCandidate) {
                 append = true;
@@ -877,7 +877,7 @@ public class PageContentExtractor {
             Element linkElement = (Element) links.item(i);
             linkLength += getInnerText(linkElement).length();
         }
-        float linkDensity = (textLength != 0) ? (float) linkLength / textLength : 0;
+        float linkDensity = textLength != 0 ? (float) linkLength / textLength : 0;
 
         LOGGER.trace("<getLinkDensity " + linkDensity);
         return linkDensity;
@@ -936,7 +936,7 @@ public class PageContentExtractor {
         LOGGER.trace(">clean");
 
         NodeList targetList = e.getElementsByTagName(tag);
-        boolean isEmbed = (tag.equalsIgnoreCase("object") || tag.equalsIgnoreCase("embed"));
+        boolean isEmbed = tag.equalsIgnoreCase("object") || tag.equalsIgnoreCase("embed");
 
         for (int y = targetList.getLength() - 1; y >= 0; y--) {
             /* Allow youtube and vimeo videos through as people usually want to see those. */
@@ -996,7 +996,7 @@ public class PageContentExtractor {
 
             LOGGER.debug("Cleaning Conditionally " + element + " (" + element.getAttribute("class") + ":"
                     + element.getAttribute("id") + ")"
-                    + (hasReadability(element) ? (" with score " + getReadability(element)) : ""));
+                    + (hasReadability(element) ? " with score " + getReadability(element) : ""));
 
             if (weight + contentScore < 0) {
                 element.getParentNode().removeChild(element);
@@ -1036,7 +1036,7 @@ public class PageContentExtractor {
                     toRemove = true;
                 } else if (weight >= 25 && linkDensity > 0.5) {
                     toRemove = true;
-                } else if ((embedCount == 1 && contentLength < 75) || embedCount > 1) {
+                } else if (embedCount == 1 && contentLength < 75 || embedCount > 1) {
                     toRemove = true;
                 }
 
@@ -1158,6 +1158,25 @@ public class PageContentExtractor {
             // print usage help
             HelpFormatter formatter = new HelpFormatter();
             formatter.printHelp("PageContentExtractor [options] inputUrlOrFilePath", options);
+
+            PageContentExtractor extractor = new PageContentExtractor();
+
+            // this method is heavily overloaded and accepts various types of input
+            String url = "http://www.ccc.govt.nz/cityleisure/recreationsport/sportsrecreationguide/orienteering.aspx";
+            url = "http://www.abc.net.au/news/tag/cricket/";
+            url = "http://www.lynchburg.edu/equestrian.xml";
+            url = "http://manteno.govoffice.com/index.asp?Type=B_BASIC&SEC={0D9936D0-B3A8-4614-9140-4EAAACCDE62B}&DE={5C4D155C-AC28-409D-9CE8-87735F1AC462}";
+
+            extractor.setDocument(new URL(url));
+
+            // get the main content as text representation
+            String contentText = extractor.getResultText();
+
+            // get the title
+            String title = extractor.getResultTitle();
+
+            System.out.println("title: " + title);
+            System.out.println("content: " + contentText);
         }
 
     }
