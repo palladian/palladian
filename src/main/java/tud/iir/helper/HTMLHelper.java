@@ -365,8 +365,8 @@ public class HTMLHelper {
             tagList.add(matcher.group(0));
         }
 
-        LOGGER.info("get concrete tags took " + sw.getElapsedTimeString() + " for a string of length "
-                + pageString.length());
+        // LOGGER.info("get concrete tags took " + sw.getElapsedTimeString() + " for a string of length "+
+        // pageString.length());
 
         return tagList;
     }
