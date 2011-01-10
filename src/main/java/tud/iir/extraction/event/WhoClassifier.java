@@ -106,8 +106,8 @@ public class WhoClassifier extends Classifier {
     public void testClassifier(String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(getChosenClassifier());
-        Event event = EventExtractor
-        .createEventFromURL("http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
+        Event event = EventExtractor.getInstance().createEventFromURL(
+                "http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
 
         eventExtractor.getFeatureExtractor().setFeatures(event);
         eventExtractor.extractWho(event);
@@ -156,7 +156,7 @@ public class WhoClassifier extends Classifier {
             // String why = fields[5];
             // String how = fields[6];
 
-            eventMap.put(url, EventExtractor.extractEventFromURL(url));
+            eventMap.put(url, EventExtractor.getInstance().extractEventFromURL(url));
 
             featureExtractor.setAnnotationFeatures(eventMap);
 

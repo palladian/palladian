@@ -98,8 +98,8 @@ public class WhereClassifier extends Classifier {
     public void testClassifier(String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         // eventExtractor.setWhereClassifier(getChosenClassifier());
-        final Event event = EventExtractor
-        .createEventFromURL("http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
+        final Event event = EventExtractor.getInstance().createEventFromURL(
+                "http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
         eventExtractor.getFeatureExtractor().setFeatures(event);
         eventExtractor.extractWhere(event);
 
@@ -122,27 +122,27 @@ public class WhereClassifier extends Classifier {
 
     public void collectTrainingData(String filePath) {
 
-        final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
+        EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
 
-        final Map<Integer, String[]> events = featureExtractor
+        Map<Integer, String[]> events = featureExtractor
         .readCSV("data/news_articles.csv");
 
-        for (final Entry<Integer, String[]> entry : events.entrySet()) {
+        for (Entry<Integer, String[]> entry : events.entrySet()) {
 
-            final HashMap<String, Event> eventMap = new HashMap<String, Event>();
+            Map<String, Event> eventMap = new HashMap<String, Event>();
 
-            final String[] fields = entry.getValue();
+            String[] fields = entry.getValue();
             // int id = entry.getKey();
 
-            final String url = fields[0];
+            String url = fields[0];
             // String title = fields[1];
             // final String who = fields[2];
-            final String where = fields[3];
+            String where = fields[3];
             // String what = fields[4];
             // String why = fields[5];
             // String how = fields[6];
 
-            eventMap.put(url, EventExtractor.extractEventFromURL(url));
+            eventMap.put(url, EventExtractor.getInstance().extractEventFromURL(url));
 
             featureExtractor.setAnnotationFeatures(eventMap);
 
@@ -165,9 +165,9 @@ public class WhereClassifier extends Classifier {
 
     public void collectOnlineTrainingData(String filePath) {
 
-        final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
+        EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
 
-        final HashMap<String, String[]> data = new HashMap<String, String[]>();
+        Map<String, String[]> data = new HashMap<String, String[]>();
         data.put("ghazni bomb", new String[] { "Afghanistan", "afghanistan",
         "Ghazni" });
         data.put("venezuela", new String[] { "venezuela", "Venezuela",
@@ -186,12 +186,12 @@ public class WhereClassifier extends Classifier {
         data.put("berlin anniversary", new String[] { "berlin", "Berlin",
         "germany" });
 
-        for (final Entry<String, String[]> entry : data.entrySet()) {
-            final String query = entry.getKey();
-            final ArrayList<String> wheres = new ArrayList<String>();
+        for (Entry<String, String[]> entry : data.entrySet()) {
+            String query = entry.getKey();
+            List<String> wheres = new ArrayList<String>();
             wheres.addAll(Arrays.asList(entry.getValue()));
 
-            final HashMap<String, Event> eventMap = (HashMap<String, Event>) EventFeatureExtractor
+            HashMap<String, Event> eventMap = (HashMap<String, Event>) EventFeatureExtractor
             .aggregateEvents(query);
             featureExtractor.setAnnotationFeatures(eventMap);
             featureExtractor.writeCSV(filePath, eventMap, wheres, true);
@@ -205,7 +205,7 @@ public class WhereClassifier extends Classifier {
      */
     public static void main(String[] args) {
 
-        final WhereClassifier wc = new WhereClassifier(
+        WhereClassifier wc = new WhereClassifier(
                 Classifier.NEURAL_NETWORK);
         // wc.collectTrainingData("data/features/where.csv");
         // wc.collectOnlineTrainingData("data/features/where_online.csv");
