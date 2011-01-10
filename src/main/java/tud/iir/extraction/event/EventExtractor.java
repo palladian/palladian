@@ -9,8 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -85,7 +85,7 @@ public class EventExtractor extends Extractor {
     /**
      * construtor of this class
      */
-    protected EventExtractor() {
+    private EventExtractor() {
         super();
         // do not analyze any binary files
         featureExtractor = new EventFeatureExtractor();
@@ -111,11 +111,11 @@ public class EventExtractor extends Extractor {
      * @param url
      * @return
      */
-    public static Event createEventFromURL(String url) {
+    public Event createEventFromURL(String url) {
         Event event = null;
         try {
 
-            final PageContentExtractor pce = new PageContentExtractor();
+            PageContentExtractor pce = new PageContentExtractor();
             pce.setDocument(url);
             final String rawText = pce.getResultText();
             event = new Event(pce.getResultTitle(), StringHelper
@@ -138,17 +138,16 @@ public class EventExtractor extends Extractor {
      *            - url of a news article
      * @return Event - The event
      */
-    public static Event extractEventFromURL(String url) {
+    public Event extractEventFromURL(String url) {
 
-        Event event = EventExtractor.createEventFromURL(url);
+        Event event = createEventFromURL(url);
 
-        EventExtractor eventExtractor = new EventExtractor();
-        eventExtractor.setWhoClassifier(Classifier.BAGGING);
-        eventExtractor.setWhereClassifier(Classifier.BAGGING);
+        setWhoClassifier(Classifier.BAGGING);
+        setWhereClassifier(Classifier.BAGGING);
 
-        eventExtractor.getFeatureExtractor().setFeatures(event);
+        getFeatureExtractor().setFeatures(event);
 
-        eventExtractor.extract5W1H(event);
+        extract5W1H(event);
 
         return event;
     }
@@ -785,8 +784,8 @@ public class EventExtractor extends Extractor {
 
         final StopWatch sw = new StopWatch();
         sw.start();
-        Event event = EventExtractor
-                .extractEventFromURL("http://www.guardian.co.uk/society/2010/dec/24/freezing-weather-homeless-charities/print");
+        Event event = EventExtractor.getInstance().extractEventFromURL(
+                "http://www.guardian.co.uk/society/2010/dec/24/freezing-weather-homeless-charities/print");
         // System.out.println(StringHelper.makeContinuousText(event.getText()));
         // ee.featureExtractor
         // .getPOSTags("Mr Gates said they wanted to show solidarity with their allies in Seoul.");
