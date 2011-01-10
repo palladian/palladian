@@ -104,7 +104,7 @@ public class Feed {
     /** number of times the feed was checked but could not be found or parsed */
     private int unreachableCount = 0;
 
-    /** timestamp of the last feed entry found in this feed */
+    /** Timestamp of the last feed entry found in this feed. */
     private Date lastFeedEntry = null;
 
     /**

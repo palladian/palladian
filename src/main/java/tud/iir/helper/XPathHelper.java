@@ -38,7 +38,7 @@ public class XPathHelper {
      * @param document The document.
      * @return True if the document has an xhtml namespace declared, else false.
      */
-    public static boolean hasXMLNS(final Document document) {
+    public static boolean hasXMLNS(Document document) {
 
         if (document == null) {
             return false;
@@ -117,7 +117,7 @@ public class XPathHelper {
      * @return the nodes
      */
     @SuppressWarnings("unchecked")
-    public static List<Node> getNodes(final Node node, final String xPath) {
+    public static List<Node> getNodes(Node node, String xPath) {
 
         List<Node> nodes = new ArrayList<Node>();
         try {
@@ -146,16 +146,27 @@ public class XPathHelper {
      * @param xPath The xPath.
      * @return The node that the xPath points to.
      */
-    public static Node getNode(final Node node, final String xPath) {
+    public static Node getNode(Node node, String xPath) {
         if (node == null) {
             return null;
         }
         Node targetNode = null;
-        final List<Node> nodeList = getNodes(node, xPath);
+        List<Node> nodeList = getNodes(node, xPath);
         if (nodeList.iterator().hasNext()) {
             targetNode = nodeList.iterator().next();
         }
         return targetNode;
+    }
+
+    public static String getNodeTextContent(Document document, String xPath) {
+        String textContent = "";
+
+        Node node = getNode(document, xPath);
+        if (node != null) {
+            textContent = node.getTextContent();
+        }
+
+        return textContent;
     }
 
     /**
@@ -165,12 +176,12 @@ public class XPathHelper {
      * @param xPath the x path
      * @return the node
      */
-    public static Node getNode(final Document doc, String xPath) {
+    public static Node getNode(Document doc, String xPath) {
         if (doc == null) {
             return null;
         }
         Node targetNode = null;
-        final List<Node> nodeList = getNodes(doc, xPath);
+        List<Node> nodeList = getNodes(doc, xPath);
         if (nodeList.iterator().hasNext()) {
             targetNode = nodeList.iterator().next();
         }
@@ -198,11 +209,11 @@ public class XPathHelper {
      * @param nodeId the id
      * @return the node by id
      */
-    public static Node getNodeByID(final Document document, final String nodeId) {
+    public static Node getNodeByID(Document document, String nodeId) {
 
         Node node = null;
         try {
-            final List<Node> idNodes = XPathHelper.getNodes(document, "//*[@id='" + nodeId + "']");
+            List<Node> idNodes = XPathHelper.getNodes(document, "//*[@id='" + nodeId + "']");
             for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
                 node = idNodes.get(i).getParentNode();
             }
@@ -216,7 +227,7 @@ public class XPathHelper {
 
         return node;
     }
-    
+
     /**
      * It seams to be, that getNodeByID returns parent node. <br>
      * Here the ID-node will be returned.
@@ -225,11 +236,11 @@ public class XPathHelper {
      * @param nodeId the id
      * @return the node by id
      */
-    public static Node getChildNodeByID(final Document document, final String nodeId) {
+    public static Node getChildNodeByID(Document document, String nodeId) {
 
         Node node = null;
         try {
-            final List<Node> idNodes = XPathHelper.getNodes(document, "//*[@id='" + nodeId + "']");
+            List<Node> idNodes = XPathHelper.getNodes(document, "//*[@id='" + nodeId + "']");
             for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
                 node = idNodes.get(i);
             }
@@ -251,7 +262,7 @@ public class XPathHelper {
      * @param xPath The xPath that points to a node.
      * @return A node that matches the xPath and descends from the given node.
      */
-    public static Node getChildNode(final Node node, final String xPath) {
+    public static Node getChildNode(Node node, String xPath) {
         if (node == null) {
             return null;
         }
@@ -311,12 +322,12 @@ public class XPathHelper {
      * @param node the (parent)node
      * @return the childNodes
      */
-    public static List<Node> getChildNodes(final Node node) {
+    public static List<Node> getChildNodes(Node node) {
 
-        final List<Node> children = new ArrayList<Node>();
+        List<Node> children = new ArrayList<Node>();
 
         try {
-            final NodeList childNodes = node.getChildNodes();
+            NodeList childNodes = node.getChildNodes();
             if (childNodes != null) {
                 for (int x = 0; x < childNodes.getLength(); x++) {
                     if (childNodes.item(x).getNodeName() != null && isChildOf(childNodes.item(x), node)) {
@@ -337,7 +348,7 @@ public class XPathHelper {
      * @param node the node
      * @return the node as string
      */
-    public static String convertNodeToString(final Node node) {
+    public static String convertNodeToString(Node node) {
         Transformer trans = null;
         try {
             trans = TransformerFactory.newInstance().newTransformer();
@@ -367,12 +378,12 @@ public class XPathHelper {
      * @param node the node
      * @return the previous siblings
      */
-    public static List<Node> getPreviousSiblings(final Node node) {
+    public static List<Node> getPreviousSiblings(Node node) {
 
-        final Node parentNode = node.getParentNode();
+        Node parentNode = node.getParentNode();
 
-        final List<Node> previousSiblings = new ArrayList<Node>();
-        final List<Node> childNodes = XPathHelper.getChildNodes(parentNode);
+        List<Node> previousSiblings = new ArrayList<Node>();
+        List<Node> childNodes = XPathHelper.getChildNodes(parentNode);
 
         for (Node childNode : childNodes) {
             if (childNode.isSameNode(node)) {

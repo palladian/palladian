@@ -425,17 +425,17 @@
     <rdfs:label>primary</rdfs:label>
     <rdfs:subClassOf rdf:resource="http://www.w3.org/2002/07/owl#Thing"/>
   </rdf:Description>
-    <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#weak_mio">
+    <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#_weakMio_">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdfs:domain rdf:resource="http://www.webknox.com/owl/ontology.owl#Printer"/>
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
   </rdf:Description>
-  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#strong_mio">
+  <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#_strongMio_">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdfs:domain rdf:resource="http://www.webknox.com/owl/ontology.owl#Printer"/>
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>
   </rdf:Description>
-    <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#unclear_mio">
+    <rdf:Description rdf:about="http://www.webknox.com/owl/ontology.owl#_unclearMio_">
     <rdf:type rdf:resource="http://www.w3.org/2002/07/owl#DatatypeProperty"/>
     <rdfs:domain rdf:resource="http://www.webknox.com/owl/ontology.owl#Printer"/>
     <rdfs:range rdf:resource="http://www.w3.org/2001/XMLSchema#string"/>

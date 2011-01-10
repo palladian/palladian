@@ -66,7 +66,7 @@ class SchedulerTask extends TimerTask {
             }
 
             if (needsLookup(feed)) {
-                //                incrementThreadPoolSize();
+                // incrementThreadPoolSize();
                 scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedChecker)));
                 feedCount++;
             }

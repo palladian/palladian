@@ -346,6 +346,8 @@ public class HTMLHelper {
      */
     public static List<String> getConcreteTags(String pageString, String beginTag, String endTag) {
 
+        StopWatch sw = new StopWatch();
+
         List<String> tagList = new ArrayList<String>();
         String regExp = "";
         if (beginTag.equals(endTag)) {
@@ -362,6 +364,9 @@ public class HTMLHelper {
         while (matcher.find()) {
             tagList.add(matcher.group(0));
         }
+
+        LOGGER.info("get concrete tags took " + sw.getElapsedTimeString() + " for a string of length "
+                + pageString.length());
 
         return tagList;
     }

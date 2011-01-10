@@ -25,9 +25,9 @@ public class MIO {
     private transient String mioType = "";
 
     /** MIO types as they appear in the ontology */
-    public static String MIO_UNCLEAR = "unclear_mio";
-    public static String MIO_WEAK = "weak_mio";
-    public static String MIO_STRONG = "strong_mio";
+    public static String MIO_UNCLEAR = "_unclearMio_";
+    public static String MIO_WEAK = "_weakMio_";
+    public static String MIO_STRONG = "_strongMio_";
 
     /** The find page URL. */
     private String findPageURL = "";
