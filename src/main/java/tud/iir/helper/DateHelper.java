@@ -207,8 +207,8 @@ public class DateHelper {
 
         LocalizeHelper.restoreTimeZoneAndLocale();
         return timestampUTC;
-        }
-    
+    }
+
 
     public static void main(String[] t) {
         System.out.println(DateHelper.getCurrentDatetime());
