@@ -10,7 +10,6 @@ import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.Extractor;
 import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DateHelper;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
 import tud.iir.knowledge.KnowledgeManager;
@@ -154,7 +153,12 @@ public class SnippetExtractor extends Extractor {
 
                     // sleep for a short time to let the threads start and increase the thread counter, otherwise too
                     // many threads get started
-                    ThreadHelper.sleep(2 * DateHelper.SECOND_MS);
+                    try {
+                        Thread.sleep(2 * DateHelper.SECOND_MS);
+                    } catch (InterruptedException e) {
+                        LOGGER.warn(e.getMessage());
+                        setStopped(true);
+                    }
 
                     while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
                         if (!waitForFreeThreadSlot(LOGGER)) {

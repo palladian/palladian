@@ -30,7 +30,6 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
@@ -457,7 +456,13 @@ public class FeedDiscovery {
                 // if maximum # of Threads are already running, wait here
                 while (counter.getCount() >= maxThreads) {
                     LOGGER.trace("max # of Threads running. waiting ...");
-                    ThreadHelper.sleep(1000);
+
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        LOGGER.warn(e.getMessage());
+                        break;
+                    }
                 }
 
                 counter.increment();
@@ -491,7 +496,12 @@ public class FeedDiscovery {
         // keep on running until all Threads have finished and
         // the Stack is empty
         while (counter.getCount() > 0 || sites.size() > 0) {
-            ThreadHelper.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                break;
+            }
             LOGGER.trace("waiting ... threads:" + counter.getCount() + " stack:" + sites.size());
         }
         LOGGER.trace("done");

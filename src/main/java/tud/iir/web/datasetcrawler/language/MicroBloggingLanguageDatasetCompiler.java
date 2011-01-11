@@ -6,7 +6,6 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
 
 /**
@@ -80,7 +79,11 @@ public class MicroBloggingLanguageDatasetCompiler extends LanguageDatasetCompile
             t.start();
 
             // collect data for language for x minutes
-            ThreadHelper.sleep(minutes * DateHelper.MINUTE_MS);
+            try {
+                Thread.sleep(minutes * DateHelper.MINUTE_MS);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+            }
 
             try {
                 cc.fileWriter.close();

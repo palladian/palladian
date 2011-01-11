@@ -36,7 +36,6 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
 import tud.iir.web.HeaderInformation;
@@ -464,12 +463,12 @@ public class NewsAggregator {
                     FeedContentClassifier classifier = new FeedContentClassifier();
                     int textType = classifier.determineFeedTextType(feed);
                     feed.setTextType(textType);
-                    
+
                     // classify the feed's activity pattern
                     feed.setActivityPattern(FeedClassifier.classify(feed.getEntries()));
-                    
+
                     feed.setWindowSize(feed.getEntries().size());
-                    
+
                     // set feed and site URL
                     feed.setFeedUrl(feedUrl,true);
 
@@ -532,7 +531,13 @@ public class NewsAggregator {
             // if maximum # of Threads are already running, wait here
             while (threadCounter.getCount() >= maxThreads) {
                 LOGGER.trace("max # of Threads running. waiting ...");
-                ThreadHelper.sleep(1000);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    LOGGER.warn(e.getMessage());
+                }
+
             }
 
             threadCounter.increment();
@@ -556,7 +561,12 @@ public class NewsAggregator {
         // keep on running until all Threads have finished and
         // the Stack is empty
         while (threadCounter.getCount() > 0 || urlStack.size() > 0) {
-            ThreadHelper.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                break;
+            }
             LOGGER.trace("waiting ... threads:" + threadCounter.getCount() + " stack:" + urlStack.size());
         }
 
@@ -631,7 +641,12 @@ public class NewsAggregator {
             // if maximum # of Threads are already running, wait here
             while (threadCounter.getCount() >= maxThreads) {
                 LOGGER.trace("max # of Threads running. waiting ...");
-                ThreadHelper.sleep(1000);
+
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    LOGGER.warn(e.getMessage());
+                }
             }
 
             threadCounter.increment();
@@ -688,7 +703,12 @@ public class NewsAggregator {
 
         // keep on running until all Threads have finished and the stack is empty
         while (threadCounter.getCount() > 0 || feedsStack.size() > 0) {
-            ThreadHelper.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                break;
+            }
             LOGGER.trace("waiting ... threads:" + threadCounter.getCount() + " stack:" + feedsStack.size());
         }
         stopWatch.stop();
@@ -719,7 +739,13 @@ public class NewsAggregator {
         while (true) {
             aggregate();
             LOGGER.info("sleeping for " + waitMinutes + " minutes");
-            ThreadHelper.sleep(waitMinutes * DateHelper.MINUTE_MS);
+
+            try {
+                Thread.sleep(waitMinutes * DateHelper.MINUTE_MS);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                break;
+            }
         }
     }
 

@@ -5,6 +5,8 @@ import java.net.URLConnection;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.DateHelper;
+
 /**
  * The ConnectionTimeout is necessary because Java does not set timeouts when a server starts sending data and stops without sending an end signal.
  * 
@@ -13,11 +15,12 @@ import org.apache.log4j.Logger;
  */
 public final class ConnectionTimeout implements Runnable {
 
-    /** the connection timeout class */
+    /** The connection timeout class. */
     private URLConnection urlConnection = null;
-    private int timeout = 120000;
 
-    /** whether the timeout is active or not */
+    private int timeout = (int) (2 * DateHelper.MINUTE_MS);
+
+    /** Whether the timeout is active or not. */
     private boolean active = true;
 
     public ConnectionTimeout(URLConnection urlConnection, int timeout) {
@@ -53,7 +56,7 @@ public final class ConnectionTimeout implements Runnable {
             }catch(Exception e){
                 Logger.getRootLogger().error("urlConnection time-out failed" + urlConnection.getURL());
             }
-            
+
         } else {
             // System.out.println("Disconnect not attempted.");
         }
