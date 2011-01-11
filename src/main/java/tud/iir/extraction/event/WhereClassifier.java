@@ -16,23 +16,29 @@ import tud.iir.helper.ConfigHolder;
 import weka.core.Instance;
 
 /**
+ * The Where Classfier.
+ * 
  * @author Martin Wunderwald
  */
 public class WhereClassifier extends Classifier {
 
-    /** the logger for this class */
+    /** the logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(WhoClassifier.class);
 
+    /** the model path. **/
     private final String MODEL;
+
     /**
-     * the feature names
+     * the feature names.
      */
     private final String[] featureNames;
 
     /**
+     * Constructor.
+     * 
      * @param type
      */
-    public WhereClassifier(int type) {
+    public WhereClassifier(final int type) {
         super(type);
 
         featureNames = new String[3];
@@ -55,10 +61,12 @@ public class WhereClassifier extends Classifier {
     }
 
     /**
+     * classifies a feature object.
+     * 
      * @param fo
      * @return
      */
-    public float classify(FeatureObject fo) {
+    public float classify(final FeatureObject fo) {
 
         final Instance iUse = createInstance(getFvWekaAttributes(),
                 discretize(fo.getFeatures()), getTrainingSet());
@@ -81,7 +89,7 @@ public class WhereClassifier extends Classifier {
      * @param path
      */
     @Override
-    public void trainClassifier(String filePath) {
+    public void trainClassifier(final String filePath) {
         final ArrayList<FeatureObject> fo = readFeatureObjects(filePath);
         setTrainingObjects(fo);
         super.trainClassifier(filePath);
@@ -94,8 +102,12 @@ public class WhereClassifier extends Classifier {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.classification.Classifier#testClassifier(java.lang.String)
+     */
     @Override
-    public void testClassifier(String filePath) {
+    public void testClassifier(final String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         // eventExtractor.setWhereClassifier(getChosenClassifier());
         final Event event = eventExtractor
@@ -109,7 +121,7 @@ public class WhereClassifier extends Classifier {
     /**
      * Use an already trained classifier.
      */
-    public void useTrainedClassifier(String filePath) {
+    public void useTrainedClassifier(final String filePath) {
         weka.classifiers.Classifier trainedAnswerClassifier;
         try {
             trainedAnswerClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper
@@ -121,7 +133,12 @@ public class WhereClassifier extends Classifier {
         }
     }
 
-    public void collectTrainingData(String filePath) {
+    /**
+     * Reads training data from a csv file.
+     * 
+     * @param filePath
+     */
+    public void collectTrainingData(final String filePath) {
 
         EventExtractor eventExtractor = EventExtractor.getInstance();
 
@@ -156,18 +173,21 @@ public class WhereClassifier extends Classifier {
             } else {
                 wheres.add(where);
             }
-            // LOGGER.info(whos);
 
             eventExtractor.getFeatureExtractor().writeCSV(filePath, eventMap,
                     wheres, true);
-
-            // CollectionHelper.print(eventMap);
 
         }
 
     }
 
-    public void collectOnlineTrainingData(String filePath) {
+    /**
+     * collects online training data via a search engine and writes it into a
+     * csv file.
+     * 
+     * @param filePath
+     */
+    public void collectOnlineTrainingData(final String filePath) {
 
         EventFeatureExtractor featureExtractor = EventFeatureExtractor
                 .getInstance();

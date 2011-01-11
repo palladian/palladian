@@ -14,6 +14,11 @@ public class TagAnnotation {
     /** The token of the annotation. */
     private String chunk = "";
 
+    /**
+     * Constructor.
+     * 
+     * @param tagAnnotation
+     */
     public TagAnnotation(TagAnnotation tagAnnotation) {
         offset = tagAnnotation.getOffset();
         length = tagAnnotation.getLength();
@@ -21,6 +26,13 @@ public class TagAnnotation {
         chunk = tagAnnotation.getChunk();
     }
 
+    /**
+     * Constructor.
+     * 
+     * @param offset
+     * @param tag
+     * @param chunk
+     */
     public TagAnnotation(int offset, String tag, String chunk) {
         this.offset = offset;
         length = chunk.length();
@@ -31,7 +43,7 @@ public class TagAnnotation {
     /**
      * @return the offset
      */
-    public int getOffset() {
+    public final int getOffset() {
         return offset;
     }
 
@@ -39,14 +51,14 @@ public class TagAnnotation {
      * @param offset
      *            the offset to set
      */
-    public void setOffset(int offset) {
+    public final void setOffset(int offset) {
         this.offset = offset;
     }
 
     /**
      * @return the length
      */
-    public int getLength() {
+    public final int getLength() {
         return length;
     }
 
@@ -54,14 +66,14 @@ public class TagAnnotation {
      * @param length
      *            the length to set
      */
-    public void setLength(int length) {
+    public final void setLength(int length) {
         this.length = length;
     }
 
     /**
      * @return the tag
      */
-    public String getTag() {
+    public final String getTag() {
         return tag;
     }
 
@@ -69,14 +81,14 @@ public class TagAnnotation {
      * @param tag
      *            the tag to set
      */
-    public void setTag(String tag) {
+    public final void setTag(String tag) {
         this.tag = tag;
     }
 
     /**
      * @return the chunk
      */
-    public String getChunk() {
+    public final String getChunk() {
         return chunk;
     }
 
@@ -84,7 +96,7 @@ public class TagAnnotation {
      * @param chunk
      *            the chunk to set
      */
-    public void setChunk(String chunk) {
+    public final void setChunk(String chunk) {
         this.chunk = chunk;
     }
 

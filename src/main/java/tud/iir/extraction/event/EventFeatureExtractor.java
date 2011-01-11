@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -33,7 +32,7 @@ import com.aliasi.coref.MentionFactory;
 import com.aliasi.coref.WithinDocCoref;
 
 /**
- * EventFeatureExtractor to extract Features from Events
+ * EventFeatureExtractor to extract Features from Events.
  * 
  * @author Martin Wunderwald
  */
@@ -43,15 +42,16 @@ public class EventFeatureExtractor {
     private static final Logger LOGGER = Logger
             .getLogger(EventFeatureExtractor.class);
 
-    /** Instance of this EventFeatureExtractor. **/
-    private static EventFeatureExtractor instance = null;
-
-    /** model file for lingpipe rescoring chunker from muc6. */
+    /** model file. */
     private final String MODEL_NER;
 
+    /** NER category mapping person. **/
     public static final double CATEGORY_PERSON = 1.0;
+    /** NER category mapping location. **/
     public static final double CATEGORY_LOCATION = 2.0;
+    /** NER category mapping org. **/
     public static final double CATEGORY_ORG = 3.0;
+    /** NER category mapping noun. **/
     public static final double CATEGORY_NOUN = 4.0;
 
     /** The NamedEntityRecognizer. **/
@@ -69,6 +69,9 @@ public class EventFeatureExtractor {
     /** The SentenceDetector. **/
     private static AbstractSentenceDetector sentenceDetector = new OpenNLPSentenceDetector();
 
+    /**
+     * Constructor.
+     */
     private EventFeatureExtractor() {
 
         PropertiesConfiguration config = null;
@@ -87,16 +90,22 @@ public class EventFeatureExtractor {
         parser.loadModel();
     }
 
+    /**
+     * @author Martin Wunderwald
+     */
     static class SingletonHolder {
         static EventFeatureExtractor instance = new EventFeatureExtractor();
     }
 
+    /**
+     * @return instance of EventFeatureExtractor
+     */
     public static EventFeatureExtractor getInstance() {
         return SingletonHolder.instance;
     }
 
     /**
-     * sets the features of an event
+     * Sets the features of an event.
      * 
      * @param event
      */
@@ -107,7 +116,7 @@ public class EventFeatureExtractor {
     }
 
     /**
-     * sets the entityFeatures for a whole Map of Events
+     * Sets the entityFeatures for a whole Map of Events.
      * 
      * @param eventMap
      */
@@ -124,7 +133,7 @@ public class EventFeatureExtractor {
     }
 
     /**
-     * sets the EntityFeatures for a given event
+     * Sets the EntityFeatures for a given event.
      * 
      * @param event
      */
@@ -147,7 +156,7 @@ public class EventFeatureExtractor {
     }
 
     /**
-     * performing co-reference resolution
+     * Performing co-reference resolution.
      * 
      * @param event
      * @return
@@ -202,11 +211,11 @@ public class EventFeatureExtractor {
     }
 
     /**
-     * calculates features for a Set of Chunks
+     * calculates features for a Set of Annotations.
      * 
      * @param event
-     * @param chunkSet
-     * @return
+     * @param annotations
+     * @return the feature Object
      */
     private static FeatureObject calculateAnnotationFeatures(Event event,
             Annotations annotations) {
@@ -254,8 +263,6 @@ public class EventFeatureExtractor {
         final double distribution = avgOffset / annotations.size()
                 / event.getText().length();
 
-        final DecimalFormat twoDForm = new DecimalFormat("#.###");
-
         featureMap.put("titleEntityCount", titleEntityCount);
         featureMap.put("textEntityCount", textEntityCount);
         featureMap.put("type", typeId);
@@ -271,9 +278,9 @@ public class EventFeatureExtractor {
      * Annotates NounPhrases in Title and first Sentence.
      * 
      * @param event
-     * @return
+     * @return the annotations
      */
-    private Annotations getNounAnnotations(String text) {
+    public Annotations getNounAnnotations(String text) {
 
         phraseChunker.loadModel();
         phraseChunker.chunk(text);
@@ -294,6 +301,12 @@ public class EventFeatureExtractor {
 
     }
 
+    /**
+     * Annotates Dates by the OpenNLP NER
+     * 
+     * @param text
+     * @return annotations
+     */
     public Annotations getDateAnnotations(String text) {
         OpenNLPNER timeNer = new OpenNLPNER();
         timeNer
@@ -305,10 +318,9 @@ public class EventFeatureExtractor {
 
     /**
      * performs Namend Entity Recognition on the given event and annotates nouns
-     * in headline
+     * in headline.
      * 
      * @param event
-     * @return
      */
     private void setAnnotations(Event event) {
 
@@ -340,6 +352,12 @@ public class EventFeatureExtractor {
 
     }
 
+    /**
+     * returns POS-Tags of a string.
+     * 
+     * @param sentence
+     * @return the tag annotations
+     */
     public TagAnnotations getPOSTags(String sentence) {
         posTagger.tag(sentence);
         return posTagger.getTagAnnotations();
@@ -374,7 +392,7 @@ public class EventFeatureExtractor {
      * chunks.
      * 
      * @param sentence
-     * @return
+     * @return the sentences
      */
     public String[] getSentences(String text) {
         sentenceDetector.loadModel();
@@ -620,7 +638,7 @@ public class EventFeatureExtractor {
         final StopWatch sw = new StopWatch();
         sw.start();
 
-        Annotations annos = oner.getAnnotations(text);
+        LOGGER.info(oner.getAnnotations(text).toString());
 
         // PhraseChunker pc = new PhraseChunker(PhraseChunker.CHUNKER_OPENNLP);
         // pc.chunk(event.getTitle());

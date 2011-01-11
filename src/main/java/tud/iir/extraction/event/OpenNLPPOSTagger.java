@@ -29,12 +29,16 @@ import tud.iir.helper.StopWatch;
  */
 public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
+    /** The tokenizer. **/
     private Tokenizer tokenizer;
 
+    /** model file path. **/
     private final String MODEL;
+    /** tokenizer model file path. **/
     private final String MODEL_TOK;
 
     public OpenNLPPOSTagger() {
+        super();
         setName("OpenNLP POS-Tagger");
         PropertiesConfiguration config = null;
 
@@ -101,7 +105,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
      * @see tud.iir.extraction.event.POSTagger#loadModel(java.lang.String)
      */
     @Override
-    public boolean loadModel(String configModelFilePath) {
+    public boolean loadModel(final String configModelFilePath) {
 
         POSTaggerME tagger = null;
 
@@ -147,7 +151,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
      * @see tud.iir.extraction.event.POSTagger#tag(java.lang.String)
      */
     @Override
-    public void tag(String sentence) {
+    public void tag(final String sentence) {
 
         final String[] tokens = getTokenizer().tokenize(sentence);
 
@@ -170,12 +174,21 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.extraction.event.AbstractPOSTagger#tag(java.lang.String,
+     * java.lang.String)
+     */
     @Override
-    public void tag(String sentence, String configModelFilePath) {
+    public void tag(final String sentence, final String configModelFilePath) {
         this.loadModel(configModelFilePath);
         this.tag(sentence);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.extraction.event.AbstractPOSTagger#loadModel()
+     */
     @Override
     public boolean loadModel() {
         this.loadModel(MODEL);
