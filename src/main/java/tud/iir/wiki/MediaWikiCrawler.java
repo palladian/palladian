@@ -69,10 +69,20 @@ public class MediaWikiCrawler implements Runnable {
     /** Count the number of consecutive login errors. */
     private int consecutiveLoginErrors = 0;
 
-    /** If more than this many consecutive login errors occur, give up and stop thread. */
+    /**
+     * If more than this many consecutive login errors occur, give up and stop thread. Be careful with this value to
+     * avoid stopping the crawler because of network error etc.
+     * 
+     * @see #LOGIN_RETRY_TIME.
+     */
     private int maxConsecutiveLoginErrors = 10;
 
-    /** Time to wait between 2 login errors. */
+    /**
+     * Time to wait between 2 login errors. Be careful with this value to avoid stopping the crawler because of network
+     * error etc.
+     * 
+     * @see #maxConsecutiveLoginErrors
+     */
     private static final long LOGIN_RETRY_TIME = DateHelper.HOUR_MS;
 
     private boolean stopThread = false;
@@ -81,7 +91,7 @@ public class MediaWikiCrawler implements Runnable {
     private long pageCheckInterval = DateHelper.MINUTE_MS;
 
     /** time period to wake up and check data base for pages that need to be checked for new revisions */
-    private final long newRevisionsInterval = DateHelper.MINUTE_MS / 3;
+    private final long newRevisionsInterval = DateHelper.MINUTE_MS;
 
     /*
      * use if want to use threads. problem: not faster with threads since jwbf seems to have some internals preventing
