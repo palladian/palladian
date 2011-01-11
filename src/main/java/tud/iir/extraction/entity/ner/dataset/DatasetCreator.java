@@ -1,6 +1,8 @@
 package tud.iir.extraction.entity.ner.dataset;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -92,6 +94,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         }
 
         writeMetaInformationFile(stopWatch, conceptsSearched);
+
+        postProcessDataset(seedFolderPath, getDataSetLocation() + getDatasetName() + "/");
 
         LOGGER.info("created " + seedFiles.length + " datasets in " + stopWatch.getElapsedTimeString()
                 + ", total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + "MB");
@@ -250,7 +254,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
                 markupWebPage(document, seedFileName, seedEntities);
                 uc++;
 
-                LOGGER.info("marked up page " + document.getDocumentURI() + " " + ec + "/" + seedEntities.size() + ", "
+                LOGGER.debug("marked up page " + document.getDocumentURI() + " " + ec + "/" + seedEntities.size()
+                        + ", "
                         + uc + "/" + urls.size());
             }
 
@@ -294,7 +299,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
      */
     private void markupWebPage(Document webPage, String seedFileName, List<String> seedEntities) {
 
-        LOGGER.info("mark up web page: " + webPage.getDocumentURI() + " (" + seedFileName + ")");
+        LOGGER.debug("mark up web page: " + webPage.getDocumentURI() + " (" + seedFileName + ")");
 
         String conceptName = getConceptNameFromFileName(seedFileName);
 
@@ -422,6 +427,55 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
     }
 
+    /**
+     * Perform cleanup and combining tasks. In particular, create a single text file for each concept containing all
+     * file contents.
+     */
+    public static void postProcessDataset(String seedFolderPath, String dataSetLocation) {
+
+        File[] seedFiles = FileHelper.getFiles(seedFolderPath);
+
+        // iterate over all concepts (seed files)
+        for (File file : seedFiles) {
+            String seedFileName = FileHelper.getFileName(file.getName());
+
+            if (seedFileName.length() == 0) {
+                continue;
+            }
+
+            FileWriter combinedFile = null;
+            try {
+                combinedFile = new FileWriter(dataSetLocation + seedFileName + "/all.xml");
+            } catch (IOException e) {
+                LOGGER.error("could not create file, " + e.getMessage());
+            }
+
+            File[] taggedFiles = FileHelper.getFiles(dataSetLocation + seedFileName + "/");
+            for (File taggedFile : taggedFiles) {
+
+                String content = FileHelper.readFileToString(taggedFile);
+
+                if (content.length() < 5) {
+                    continue;
+                }
+
+                try {
+                    combinedFile.write(content);
+                    combinedFile.write("\n");
+                } catch (IOException e) {
+                    LOGGER.error(e.getMessage());
+                }
+            }
+
+            try {
+                combinedFile.close();
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            }
+        }
+
+    }
+
     public void setDatasetName(String datasetName) {
         this.datasetName = datasetName;
     }
@@ -487,7 +541,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // System.exit(0);
 
         // DatasetCreator.deduplicateSeedLists("data/knowledgeBase/seedEntities/");
-        // System.exit(0);
+        DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "data/datasets/ner/www_test2/");
+        System.exit(0);
         DatasetCreator datasetCreator = new DatasetCreator("www_test2");
         datasetCreator.setDataSetLocation("data/datasets/ner/");
 
