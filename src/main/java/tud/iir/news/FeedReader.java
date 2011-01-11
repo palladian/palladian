@@ -22,7 +22,6 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.news.evaluation.FeedBenchmarkFileReader;
 import tud.iir.news.evaluation.FeedReaderEvaluator;
 import tud.iir.news.updates.FixUpdateStrategy;
@@ -240,7 +239,14 @@ public final class FeedReader {
             if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_OFF) {
                 LOGGER.trace("time is not up, keep reading feeds");
                 LOGGER.debug("current total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + " MB");
-                ThreadHelper.sleep(1 * DateHelper.MINUTE_MS);
+
+                try {
+                    Thread.sleep(1 * DateHelper.MINUTE_MS);
+                } catch (InterruptedException e) {
+                    LOGGER.warn(e.getMessage());
+                    setStopped(true);
+                    break;
+                }
             }
 
         }

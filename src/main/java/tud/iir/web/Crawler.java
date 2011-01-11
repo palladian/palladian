@@ -76,7 +76,6 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.Concept;
@@ -273,7 +272,12 @@ public class Crawler {
                 maxThreadsNow = 1;
             }
             while (getThreadCount() >= maxThreadsNow) {
-                ThreadHelper.sleep(2000);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    LOGGER.warn(e.getMessage());
+                    return;
+                }
             }
 
             String url = getURLFromStack();
@@ -284,7 +288,12 @@ public class Crawler {
             // if stack is still empty, let all threads finish before checking
             // in loop again
             while (urlStack.isEmpty() && getThreadCount() > 0) {
-                ThreadHelper.sleep(500);
+                try {
+                    Thread.sleep(500);
+                } catch (InterruptedException e) {
+                    LOGGER.warn(e.getMessage());
+                    return;
+                }
             }
 
             // crawl(urlIterator.next());
@@ -299,7 +308,12 @@ public class Crawler {
 
         // wait for the threads to finish
         while (getThreadCount() > 0) {
-            ThreadHelper.sleep(500);
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                return;
+            }
         }
 
         LOGGER.info("-----------------------------------------------");

@@ -10,7 +10,6 @@ import org.w3c.dom.Node;
 
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
 
@@ -79,7 +78,12 @@ public class QuoteCrawler {
                     quotes.add(quote);
                 }
 
-                ThreadHelper.sleep(2000);
+                try {
+                    Thread.sleep(2000);
+                } catch (InterruptedException e) {
+                    LOGGER.warn(e.getMessage());
+                    return;
+                }
             }
 
         }

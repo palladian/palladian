@@ -14,7 +14,6 @@ import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.Counter;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
@@ -28,7 +27,7 @@ import tud.iir.web.URLDownloader.URLDownloaderCallback;
 public class EventAggregator {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger
-            .getLogger(EventAggregator.class);
+    .getLogger(EventAggregator.class);
 
     /** Used for all downloading purposes. */
     private static Crawler crawler = new Crawler();
@@ -112,7 +111,12 @@ public class EventAggregator {
             // if maximum # of Threads are already running, wait here
             while (threadCounter.getCount() >= maxThreads) {
                 LOGGER.trace("max # of Threads running. waiting ...");
-                ThreadHelper.sleep(1000);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    LOGGER.warn(e.getMessage());
+                    break;
+                }
             }
 
             threadCounter.increment();
@@ -139,7 +143,12 @@ public class EventAggregator {
             new Thread(runnable).start();
         }
         while (threadCounter.getCount() > 0 || eventStack.size() > 0) {
-            ThreadHelper.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                break;
+            }
             LOGGER.trace("waiting ... threads:" + threadCounter.getCount()
                     + " stack:" + eventStack.size());
         }

@@ -54,7 +54,7 @@ public abstract class Extractor {
 
     /** List of binary file extensions. */
     public static final String[] URL_BINARY_BLACKLIST = { "pdf", "doc", "ppt", "xls", "png", "jpg", "jpeg", "gif", "ai", "svg", "zip", "avi", "exe", "msi",
-            "wav", "mp3", "wmv" };
+        "wav", "mp3", "wmv" };
 
     /** List of textual file extensions. */
     public static final String[] URL_TEXTUAL_BLACKLIST = { "cfm", "db", "svg", "txt" };
@@ -109,7 +109,7 @@ public abstract class Extractor {
     protected boolean isURLallowed(String url) {
 
         for (String forbiddenSuffix : blackList) {
-            
+
             url=url.trim();
             if (url.endsWith("." + forbiddenSuffix)) {
                 return false;
@@ -138,13 +138,20 @@ public abstract class Extractor {
     public boolean stopExtraction(boolean saveResults) {
         setStopped(true);
 
-        ThreadHelper.sleep(2 * DateHelper.SECOND_MS);
+        ThreadHelper.deepSleep(2 * DateHelper.SECOND_MS);
 
         // let all current threads finish
         int waitCount = 0;
         while (getThreadCount() > 0 && waitCount < 25) {
             LOGGER.info("stop extraction but wait for " + getThreadCount() + " threads to finish (wait count: " + waitCount + "/25)");
-            ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+
+            try {
+                Thread.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                break;
+            }
+
             waitCount++;
         }
 
@@ -176,7 +183,14 @@ public abstract class Extractor {
             return false;
         }
 
-        ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+        try {
+            Thread.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+        } catch (InterruptedException e) {
+            LOGGER.warn(e.getMessage());
+            setStopped(true);
+            iterationsWaited = 0;
+            return false;
+        }
 
         if (isStopped()) {
             iterationsWaited++;

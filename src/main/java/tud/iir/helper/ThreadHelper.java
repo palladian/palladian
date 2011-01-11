@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 
 public class ThreadHelper {
 
-    public static void sleep(long milliseconds) {
+    public static void deepSleep(long milliseconds) {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException e) {
@@ -12,7 +12,7 @@ public class ThreadHelper {
         }
     }
 
-    public static void sleep(int milliseconds) {
+    public static void deepSleep(int milliseconds) {
         try {
             Thread.sleep(milliseconds);
         } catch (InterruptedException e) {

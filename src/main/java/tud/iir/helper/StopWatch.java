@@ -123,7 +123,7 @@ public class StopWatch {
     public String getElapsedTimeString() {
         return getElapsedTimeString(false);
     }
-    
+
     @Override
     public String toString() {
         return getElapsedTimeString();
@@ -136,7 +136,11 @@ public class StopWatch {
             int c = i * i * i;
             double d = c + c * c * c * c;
             System.out.println(d);
-            ThreadHelper.sleep(1);
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
 
         s.stop();

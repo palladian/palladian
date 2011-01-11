@@ -17,7 +17,6 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StringHelper;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
 import tud.iir.web.URLStack;
@@ -46,8 +45,9 @@ public class DeliciousCrawler {
         // crawler.setProxy(proxy);
 
         urlStack = (URLStack) FileHelper.deserialize("data/benchmarkSelection/page/urlStack.ser");
-        if (urlStack == null)
+        if (urlStack == null) {
             urlStack = new URLStack();
+        }
     }
 
     private Node getNextChildNode(Node startNode, String nodeName, String classNames) {
@@ -92,7 +92,11 @@ public class DeliciousCrawler {
             }
         }
 
-        ThreadHelper.sleep((int) (Math.random() * 2000));
+        try {
+            Thread.sleep((int) (Math.random() * 2000));
+        } catch (InterruptedException e) {
+            LOGGER.warn(e.getMessage());
+        }
 
         return tagList;
     }
@@ -170,7 +174,12 @@ public class DeliciousCrawler {
 
             }
 
-            ThreadHelper.sleep((int) (Math.random() * 5000));
+            try {
+                Thread.sleep((int) (Math.random() * 5000));
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                return;
+            }
         }
 
         LOGGER.info("serializing results...");
@@ -203,8 +212,9 @@ public class DeliciousCrawler {
                 HashMap<String, Integer> tagMap = (HashMap<String, Integer>) obj2[0];
                 for (int i = 1; i < lineParts.length; i++) {
                     String tag = DeliciousCrawler.cleanTag(lineParts[i]);
-                    if (tag.length() < 2)
+                    if (tag.length() < 2) {
                         continue;
+                    }
 
                     tag = normalizeTag(tag);
 
@@ -223,7 +233,7 @@ public class DeliciousCrawler {
         final Object[] obj = new Object[3];
         obj[0] = new StringBuilder(); // the cleansed output
         obj[1] = minAppearance; // minimal appearance of a tag to be kept
-        obj[2] = (HashMap<String, Integer>) la.arguments[0]; // tags and counts
+        obj[2] = la.arguments[0]; // tags and counts
 
         la = new LineAction(obj) {
 
@@ -260,8 +270,9 @@ public class DeliciousCrawler {
 
                     // remove all tags that appear less then minAppearance times
                     HashMap<String, Integer> tagMap = (HashMap<String, Integer>) obj[2];
-                    if (tagMap.get(tag) == null || tagMap.get(tag) < (Integer) obj[1])
+                    if (tagMap.get(tag) == null || tagMap.get(tag) < (Integer) obj[1]) {
                         continue;
+                    }
 
                     lineString.append(tag).append(" ");
                 }
@@ -308,8 +319,9 @@ public class DeliciousCrawler {
                 HashMap<String, Integer> tagMap = (HashMap<String, Integer>) obj[1];
                 for (int i = 1; i < lineParts.length; i++) {
                     String tag = DeliciousCrawler.cleanTag(lineParts[i]);
-                    if (tag.length() < 2)
+                    if (tag.length() < 2) {
                         continue;
+                    }
 
                     if (tagMap.containsKey(tag)) {
                         tagMap.put(tag, tagMap.get(tag) + 1);
@@ -332,8 +344,9 @@ public class DeliciousCrawler {
         };
 
         String location = "data/benchmarkSelection/page/deliciouspages";
-        if (suffix.length() > 0)
+        if (suffix.length() > 0) {
             location += suffix;
+        }
         location += ".txt";
 
         FileHelper.performActionOnEveryLine(location, la);
@@ -353,8 +366,9 @@ public class DeliciousCrawler {
         for (Entry<String, Integer> t : tagMap.entrySet()) {
             s.append("\t" + t.getKey() + ":\t\t" + t.getValue() + " (" + MathHelper.round((double) t.getValue() * 100.0 / (double) totalURLs, 2)
                     + "% of all URLs)\n");
-            if (c >= 50)
+            if (c >= 50) {
                 break;
+            }
             c++;
         }
 
@@ -368,8 +382,9 @@ public class DeliciousCrawler {
         c = 0;
         for (String tag : tagSorted) {
             s.append("\t" + tag + "\n");
-            if (c >= 500)
+            if (c >= 500) {
                 break;
+            }
             c++;
         }
 
@@ -739,7 +754,12 @@ public class DeliciousCrawler {
         while (true) {
             c.crawl();
             // DeliciousCrawler.analyzeDataSet("");
-            ThreadHelper.sleep(2 * DateHelper.MINUTE_MS);
+            try {
+                Thread.sleep(2 * DateHelper.MINUTE_MS);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                break;
+            }
         }
     }
 

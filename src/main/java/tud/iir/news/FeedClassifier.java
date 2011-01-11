@@ -9,7 +9,6 @@ import org.apache.log4j.Logger;
 
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.StopWatch;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.web.Crawler;
 
 /**
@@ -74,7 +73,13 @@ public class FeedClassifier {
         while (!threadPool.isTerminated()) {
             LOGGER.info(sw.getElapsedTimeString() + ", traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES)
                     + "MB");
-            ThreadHelper.sleep(1 * DateHelper.MINUTE_MS);
+
+            try {
+                Thread.sleep(1 * DateHelper.MINUTE_MS);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                break;
+            }
 
         }
 

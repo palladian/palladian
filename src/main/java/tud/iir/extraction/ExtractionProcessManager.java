@@ -218,7 +218,7 @@ public class ExtractionProcessManager {
 
         // the interval in milliseconds in which the live_status table should be updated
         long extractionStatusUpdateInteraval = Controller.getConfig().getLong("extraction.statusUpdate")
-                * DateHelper.SECOND_MS;
+        * DateHelper.SECOND_MS;
 
         int loopCount = 1;
         while (true) {
@@ -319,7 +319,8 @@ public class ExtractionProcessManager {
 
         long steps = totalTimeMS / intervalMS;
         for (int i = 0; i < steps; i++) {
-            ThreadHelper.sleep(intervalMS);
+            ThreadHelper.deepSleep(intervalMS);
+
             // int progress = (int) Math.floor((double) 100 * i / steps);
             int progress = (int) Math.floor((double) 100 * (System.currentTimeMillis() - startTime) / totalTimeMS);
             LOGGER.info("progress of " + getExtractionPhaseName() + ": " + progress + "% (" + i + "/" + steps + ")");

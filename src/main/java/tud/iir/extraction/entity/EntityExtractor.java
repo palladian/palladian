@@ -16,7 +16,6 @@ import tud.iir.gui.GUIManager;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.helper.WordNet;
 import tud.iir.helper.WordTransformer;
 import tud.iir.knowledge.Concept;
@@ -64,11 +63,11 @@ public class EntityExtractor extends Extractor {
     private EntityExtractor() {
         currentNumberOfExtractions = 0;
         currentExtractionStatus = new EntityExtractionStatus();
-        
+
         // do not analyze any binary files
         addSuffixesToBlackList(Extractor.URL_BINARY_BLACKLIST);
         //addSuffixesToBlackList(new String[]{"dat"});
-        
+
         if (GUIManager.isInstanciated()) {
             // instance.logger.addObserver(GUIManager.getInstance());
         }
@@ -149,7 +148,7 @@ public class EntityExtractor extends Extractor {
             stopExtraction(false);
             getLogger().info(
                     "SAVE EXTRACTIONS | " + " | memory usage (free:" + Runtime.getRuntime().freeMemory() + ",total:" + Runtime.getRuntime().totalMemory()
-                            + ",max:" + Runtime.getRuntime().maxMemory() + ")");
+                    + ",max:" + Runtime.getRuntime().maxMemory() + ")");
             getKnowledgeManager().saveExtractions();
             LOGGER.debug("STOPPED");
 
@@ -370,7 +369,12 @@ public class EntityExtractor extends Extractor {
                         // sleep for a short time to let the threads start and increase the thread counter, otherwise
                         // too
                         // many threads get started
-                        ThreadHelper.sleep(2 * DateHelper.SECOND_MS);
+                        try {
+                            Thread.sleep(2 * DateHelper.SECOND_MS);
+                        } catch (InterruptedException e) {
+                            LOGGER.warn(e.getMessage());
+                            setStopped(true);
+                        }
 
                         while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
                             if (!waitForFreeThreadSlot(LOGGER)) {
@@ -570,7 +574,7 @@ public class EntityExtractor extends Extractor {
         // km.getConcept("Nation").setLastSearched(new Date(System.currentTimeMillis()));
         // // get concepts and sort them by lastSearched (oldest and null first)
         // ArrayList<Concept> concepts = km.getConcepts(true);
-        //		
+        //
         // for (int i = 0; i < concepts.size(); i++) {
         // logger.debug(concepts.get(i).getName()+" "+concepts.get(i).getLastSearched() + " " + concepts.get(i).getSynonymsToString());
         // }
@@ -586,19 +590,19 @@ public class EntityExtractor extends Extractor {
         // EntityExtractor ee = EntityExtractor.getInstance();
         // Entity newEntity = new Entity("E1",new Concept("C1"));
         // ee.getExtractions().addExtraction(newEntity, EntityQueryFactory.RETRIEVAL_EXTRACTION_TYPE_PHRASE, 4);
-        //		
+        //
         // newEntity = new Entity("E1",new Concept("C1"));
         // ee.getExtractions().addExtraction(newEntity, EntityQueryFactory.RETRIEVAL_EXTRACTION_TYPE_PHRASE, 4);
-        //		
+        //
         // newEntity = new Entity("E2",new Concept("C1"));
         // ee.getExtractions().addExtraction(newEntity, EntityQueryFactory.RETRIEVAL_EXTRACTION_TYPE_PHRASE, 4);
-        //		
+        //
         // newEntity = new Entity("E1",new Concept("C1"));
         // ee.getExtractions().addExtraction(newEntity, EntityQueryFactory.RETRIEVAL_EXTRACTION_TYPE_PHRASE, 2);
-        //		
+        //
         // newEntity = new Entity("E2",new Concept("C2"));
         // ee.getExtractions().addExtraction(newEntity, EntityQueryFactory.RETRIEVAL_EXTRACTION_TYPE_PHRASE, 4);
-        //		
+        //
         // EntityExtractions entityExtractions = ee.getExtractions();
         // Iterator<Entry<EntityExtraction, Integer>> i = entityExtractions.getExtractions(true).entrySet().iterator();
         // while (i.hasNext()) {

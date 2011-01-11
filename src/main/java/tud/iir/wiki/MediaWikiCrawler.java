@@ -19,7 +19,6 @@ import org.apache.log4j.Logger;
 
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.LocalizeHelper;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.wiki.data.Revision;
 import tud.iir.wiki.data.WikiDescriptor;
 import tud.iir.wiki.data.WikiPage;
@@ -175,7 +174,7 @@ public class MediaWikiCrawler implements Runnable {
                         Long.parseLong(sa.getRevisionId()), htmlContent, predictNextCheck(pageID));
                 if (!pageUpdated || LOGGER.isDebugEnabled()) {
                     final String msg = "\n   Page \"" + pageName + "\" has HTML content:\n" + htmlContent
-                            + "\n   HTML content has " + (pageUpdated ? "" : "NOT ") + "been written to database.";
+                    + "\n   HTML content has " + (pageUpdated ? "" : "NOT ") + "been written to database.";
                     if (pageUpdated) {
                         LOGGER.debug(msg);
                     } else {
@@ -377,7 +376,7 @@ public class MediaWikiCrawler implements Runnable {
             if (namespacesDB.size() == 0) {
                 for (int namespaceID : namespacesAPI.keySet()) {
                     mwDatabase
-                            .addNamespace(mwDescriptor.getWikiID(), namespaceID, namespacesAPI.get(namespaceID), true);
+                    .addNamespace(mwDescriptor.getWikiID(), namespaceID, namespacesAPI.get(namespaceID), true);
                 }
             } else {
                 for (int namespaceID : namespacesAPI.keySet()) {
@@ -536,6 +535,7 @@ public class MediaWikiCrawler implements Runnable {
      * fetched from the API and processed. Afterwards, continuous crawling is entered: the Wiki is periodically checked
      * for new pages or revisions.
      */
+    @Override
     public void run() {
         login();
 
@@ -603,7 +603,13 @@ public class MediaWikiCrawler implements Runnable {
                     LOGGER.debug("Nothing to do for Wiki \"" + mwDescriptor.getWikiName() + "\", going to sleep for "
                             + (newRevisionsInterval - timeElapsed) / DateHelper.SECOND_MS + " seconds.");
                 }
-                ThreadHelper.sleep(newRevisionsInterval - timeElapsed);
+
+                try {
+                    Thread.sleep(newRevisionsInterval - timeElapsed);
+                } catch (InterruptedException e) {
+                    LOGGER.warn(e.getMessage());
+                }
+
             } else {
                 LOGGER.error("Could not process all tasks for Wiki \"" + mwDescriptor.getWikiName()
                         + "\" in time, processing took "

@@ -10,7 +10,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import tud.iir.helper.Counter;
-import tud.iir.helper.ThreadHelper;
 
 /**
  * Allows simultaneous downloading of multiple URLs. The resulting InputStreams are cached by this class and can be
@@ -76,7 +75,12 @@ public class URLDownloader {
             // if maximum # of Threads are already running, wait here
             while (counter.getCount() >= getMaxThreads()) {
                 LOGGER.trace("max # of Threads running. waiting ...");
-                ThreadHelper.sleep(1000);
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    LOGGER.warn(e.getMessage());
+                    return downloadedDocuments;
+                }
             }
 
             if (errors.getCount() == getMaxFails()) {
@@ -116,7 +120,12 @@ public class URLDownloader {
         // keep on running until all Threads have finished and
         // the Stack is empty
         while (counter.getCount() > 0 || urlStack.size() > 0) {
-            ThreadHelper.sleep(1000);
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                LOGGER.warn(e.getMessage());
+                return downloadedDocuments;
+            }
             LOGGER.debug("waiting ... threads:" + counter.getCount() + " stack:" + urlStack.size());
         }
         LOGGER.trace("<start");
