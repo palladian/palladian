@@ -65,7 +65,7 @@ public class WhereClassifier extends Classifier {
 
         try {
             final double[] fDistribution = getClassifier()
-            .distributionForInstance(iUse);
+                    .distributionForInstance(iUse);
 
             return (float) fDistribution[0];
         } catch (final Exception e) {
@@ -98,8 +98,9 @@ public class WhereClassifier extends Classifier {
     public void testClassifier(String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         // eventExtractor.setWhereClassifier(getChosenClassifier());
-        final Event event = EventExtractor.getInstance().createEventFromURL(
-                "http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
+        final Event event = eventExtractor
+                .createEventFromURL("http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
+
         eventExtractor.getFeatureExtractor().setFeatures(event);
         eventExtractor.extractWhere(event);
 
@@ -112,7 +113,7 @@ public class WhereClassifier extends Classifier {
         weka.classifiers.Classifier trainedAnswerClassifier;
         try {
             trainedAnswerClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper
-            .read(filePath);
+                    .read(filePath);
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedAnswerClassifier);
         } catch (final Exception e) {
@@ -122,10 +123,10 @@ public class WhereClassifier extends Classifier {
 
     public void collectTrainingData(String filePath) {
 
-        EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
+        EventExtractor eventExtractor = EventExtractor.getInstance();
 
-        Map<Integer, String[]> events = featureExtractor
-        .readCSV("data/news_articles.csv");
+        final Map<Integer, String[]> events = eventExtractor
+                .getFeatureExtractor().readCSV("data/news_articles.csv");
 
         for (Entry<Integer, String[]> entry : events.entrySet()) {
 
@@ -142,9 +143,11 @@ public class WhereClassifier extends Classifier {
             // String why = fields[5];
             // String how = fields[6];
 
-            eventMap.put(url, EventExtractor.getInstance().extractEventFromURL(url));
+            eventMap.put(url, EventExtractor.getInstance().extractEventFromURL(
+                    url));
 
-            featureExtractor.setAnnotationFeatures(eventMap);
+            eventExtractor.getFeatureExtractor()
+                    .setAnnotationFeatures(eventMap);
 
             List<String> wheres = new ArrayList<String>();
 
@@ -155,7 +158,8 @@ public class WhereClassifier extends Classifier {
             }
             // LOGGER.info(whos);
 
-            featureExtractor.writeCSV(filePath, eventMap, wheres, true);
+            eventExtractor.getFeatureExtractor().writeCSV(filePath, eventMap,
+                    wheres, true);
 
             // CollectionHelper.print(eventMap);
 
@@ -165,18 +169,19 @@ public class WhereClassifier extends Classifier {
 
     public void collectOnlineTrainingData(String filePath) {
 
-        EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
+        EventFeatureExtractor featureExtractor = EventFeatureExtractor
+                .getInstance();
 
         Map<String, String[]> data = new HashMap<String, String[]>();
         data.put("ghazni bomb", new String[] { "Afghanistan", "afghanistan",
-        "Ghazni" });
+                "Ghazni" });
         data.put("venezuela", new String[] { "venezuela", "Venezuela",
-        "caracas" });
+                "caracas" });
         data.put("indonesia train crash", new String[] { "indonesia",
-        "Indonesia" });
+                "Indonesia" });
         data.put("pakistan drones", new String[] { "pakistan", "Pakistan" });
         data.put("stuttgart 21", new String[] { "stuttgart", "Stuttgart",
-        "germany" });
+                "germany" });
         data.put("ecuador correa",
                 new String[] { "ecuador", "Ecuador", "Quito" });
         data.put("ramallah israel", new String[] { "ramallah", "Ramallah",
@@ -184,7 +189,7 @@ public class WhereClassifier extends Classifier {
         data.put("nigeria blast",
                 new String[] { "nigeria", "Nigeria", "Abuja" });
         data.put("berlin anniversary", new String[] { "berlin", "Berlin",
-        "germany" });
+                "germany" });
 
         for (Entry<String, String[]> entry : data.entrySet()) {
             String query = entry.getKey();
@@ -192,7 +197,7 @@ public class WhereClassifier extends Classifier {
             wheres.addAll(Arrays.asList(entry.getValue()));
 
             HashMap<String, Event> eventMap = (HashMap<String, Event>) EventFeatureExtractor
-            .aggregateEvents(query);
+                    .aggregateEvents(query);
             featureExtractor.setAnnotationFeatures(eventMap);
             featureExtractor.writeCSV(filePath, eventMap, wheres, true);
 
@@ -205,8 +210,7 @@ public class WhereClassifier extends Classifier {
      */
     public static void main(String[] args) {
 
-        WhereClassifier wc = new WhereClassifier(
-                Classifier.NEURAL_NETWORK);
+        WhereClassifier wc = new WhereClassifier(Classifier.NEURAL_NETWORK);
         // wc.collectTrainingData("data/features/where.csv");
         // wc.collectOnlineTrainingData("data/features/where_online.csv");
         // WhereClassifier wc = new WhereClassifier(Classifier.BAYES_NET);

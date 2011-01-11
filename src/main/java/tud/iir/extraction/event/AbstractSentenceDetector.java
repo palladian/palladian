@@ -30,7 +30,7 @@ public abstract class AbstractSentenceDetector {
     private String[] sentences;
 
     /**
-     * loads the chunker model into the chunker
+     * loads the chunker model into the chunker.
      * 
      * @param configModelFilePath
      * @return
@@ -38,7 +38,7 @@ public abstract class AbstractSentenceDetector {
     public abstract boolean loadModel(String configModelFilePath);
 
     /**
-     * loads the default chunker model into the chunker
+     * loads the default chunker model into the chunker.
      * 
      * @return
      */
@@ -46,7 +46,7 @@ public abstract class AbstractSentenceDetector {
 
     /**
      * chunks a sentence and writes parts in @see {@link #chunks} and @see
-     * {@link #tokens}
+     * {@link #tokens}.
      * 
      * @param sentence
      */
@@ -54,33 +54,45 @@ public abstract class AbstractSentenceDetector {
 
     /**
      * chunks a senntence with given model file path and writes it into @see
-     * {@link #chunks} and @see {@link #tokens}
+     * {@link #chunks} and @see {@link #tokens}.
      * 
      * @param sentence
      * @param configModelFilePath
      */
     public abstract void detect(String text, String configModelFilePath);
 
-    public Object getModel() {
+    /**
+     * @return
+     */
+    public final Object getModel() {
         return model;
     }
 
-    public void setModel(Object model) {
+    /**
+     * @param model
+     */
+    public final void setModel(Object model) {
         this.model = model;
     }
 
-    public String getName() {
+    /**
+     * @return
+     */
+    public final String getName() {
         return name;
     }
 
-    public void setName(String name) {
+    /**
+     * @param name
+     */
+    public final void setName(String name) {
         this.name = name;
     }
 
     /**
      * @return the sentences
      */
-    public String[] getSentences() {
+    public final String[] getSentences() {
         return sentences;
     }
 
@@ -88,7 +100,7 @@ public abstract class AbstractSentenceDetector {
      * @param sentences
      *            the sentences to set
      */
-    public void setSentences(String[] sentences) {
+    public final void setSentences(String[] sentences) {
         this.sentences = sentences;
     }
 

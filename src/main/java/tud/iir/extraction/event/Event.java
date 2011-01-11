@@ -17,12 +17,13 @@ import tud.iir.web.WebResult;
  */
 public class Event extends Extractable {
 
+    /** serial version uid. **/
     private static final long serialVersionUID = 1023303092784471374L;
 
-    /* holds the co-referenced Annotations and one featureObject each. */
+    /** holds the co-referenced Annotations and one featureObject each. **/
     private Map<Annotations, FeatureObject> annotationFeatures;
 
-    /* holds the simple annotations in text and headline. */
+    /** holds the simple annotations in text and headline. **/
     private Annotations annotations;
 
     /** clean event text. **/
@@ -39,11 +40,17 @@ public class Event extends Extractable {
     /** the sentences. **/
     private String[] sentences;
 
+    /** the extracted who. **/
     private String who = "";
+    /** the extracted where. **/
     private String where = "";
+    /** the extracted what. **/
     private String what = "";
+    /** the extracted why. **/
     private String why = "";
+    /** the extracted when. **/
     private String when = "";
+    /** the extracted how. **/
     private String how = "";
 
     /** The who candidates. **/
@@ -91,6 +98,7 @@ public class Event extends Extractable {
      * @param text
      */
     public Event(String title, String text) {
+        super();
         this.text = text;
         this.title = title;
         setExtractedAt(new Date(System.currentTimeMillis()));
@@ -104,6 +112,7 @@ public class Event extends Extractable {
      * @param url
      */
     public Event(String title, String text, String url) {
+        super();
         this.text = text;
         this.title = title;
         this.url = url;
@@ -114,7 +123,7 @@ public class Event extends Extractable {
     /**
      * @return the annotations
      */
-    public Annotations getAnnotations() {
+    public final Annotations getAnnotations() {
         return annotations;
     }
 
@@ -122,7 +131,7 @@ public class Event extends Extractable {
      * @param annotations
      *            the annotations to set
      */
-    public void setAnnotations(Annotations annotations) {
+    public final void setAnnotations(final Annotations annotations) {
         this.annotations = annotations;
     }
 
@@ -131,7 +140,7 @@ public class Event extends Extractable {
      * 
      * @return the text
      */
-    public String getText() {
+    public final String getText() {
         return text;
     }
 
@@ -141,14 +150,14 @@ public class Event extends Extractable {
      * @param text
      *            the text to set
      */
-    public void setText(String text) {
+    public final void setText(final String text) {
         this.text = text;
     }
 
     /**
      * @return the rawText
      */
-    public String getRawText() {
+    public final String getRawText() {
         return rawText;
     }
 
@@ -156,14 +165,14 @@ public class Event extends Extractable {
      * @param rawText
      *            the rawText to set
      */
-    public void setRawText(String rawText) {
+    public final void setRawText(final String rawText) {
         this.rawText = rawText;
     }
 
     /**
      * @return the sentences
      */
-    public String[] getSentences() {
+    public final String[] getSentences() {
         return sentences;
     }
 
@@ -171,14 +180,14 @@ public class Event extends Extractable {
      * @param sentences
      *            the sentences to set
      */
-    public void setSentences(String[] sentences) {
+    public void setSentences(final String[] sentences) {
         this.sentences = sentences;
     }
 
     /**
      * @return the title
      */
-    public String getTitle() {
+    public final String getTitle() {
         return title;
     }
 
@@ -186,14 +195,14 @@ public class Event extends Extractable {
      * @param title
      *            the title to set
      */
-    public void setTitle(String title) {
+    public final void setTitle(final String title) {
         this.title = title;
     }
 
     /**
      * @return the url
      */
-    public String getUrl() {
+    public final String getUrl() {
         return url;
     }
 
@@ -201,14 +210,14 @@ public class Event extends Extractable {
      * @param url
      *            the url to set
      */
-    public void setUrl(String url) {
+    public final void setUrl(final String url) {
         this.url = url;
     }
 
     /**
      * @return the webresults
      */
-    public List<WebResult> getWebresults() {
+    public final List<WebResult> getWebresults() {
         return webresults;
     }
 
@@ -216,14 +225,14 @@ public class Event extends Extractable {
      * @param webresults
      *            the webresults to set
      */
-    public void setWebresults(List<WebResult> webresults) {
+    public final void setWebresults(final List<WebResult> webresults) {
         this.webresults = webresults;
     }
 
     /**
      * @return the annotationFeatures
      */
-    public Map<Annotations, FeatureObject> getAnnotationFeatures() {
+    public final Map<Annotations, FeatureObject> getAnnotationFeatures() {
         return annotationFeatures;
     }
 
@@ -231,15 +240,15 @@ public class Event extends Extractable {
      * @param annotationFeatures
      *            the annotationFeatures to set
      */
-    public void setAnnotationFeatures(
-            Map<Annotations, FeatureObject> annotationFeatures) {
+    public final void setAnnotationFeatures(
+            final Map<Annotations, FeatureObject> annotationFeatures) {
         this.annotationFeatures = annotationFeatures;
     }
 
     /**
      * @return the who
      */
-    public String getWho() {
+    public final String getWho() {
         return who;
     }
 
@@ -247,14 +256,14 @@ public class Event extends Extractable {
      * @param who
      *            the who to set
      */
-    public void setWho(String who) {
+    public void setWho(final String who) {
         this.who = who;
     }
 
     /**
      * @return the where
      */
-    public String getWhere() {
+    public final String getWhere() {
         return where;
     }
 
@@ -262,14 +271,14 @@ public class Event extends Extractable {
      * @param where
      *            the where to set
      */
-    public void setWhere(String where) {
+    public final void setWhere(final String where) {
         this.where = where;
     }
 
     /**
      * @return the what
      */
-    public String getWhat() {
+    public final String getWhat() {
         return what;
     }
 
@@ -277,14 +286,14 @@ public class Event extends Extractable {
      * @param what
      *            the what to set
      */
-    public void setWhat(String what) {
+    public final void setWhat(final String what) {
         this.what = what;
     }
 
     /**
      * @return the why
      */
-    public String getWhy() {
+    public final String getWhy() {
         return why;
     }
 
@@ -292,7 +301,7 @@ public class Event extends Extractable {
      * @param why
      *            the why to set
      */
-    public void setWhy(String why) {
+    public final void setWhy(final String why) {
         this.why = why;
     }
 
@@ -307,14 +316,14 @@ public class Event extends Extractable {
      * @param when
      *            the when to set
      */
-    public void setWhen(String when) {
+    public final void setWhen(final String when) {
         this.when = when;
     }
 
     /**
      * @return the how
      */
-    public String getHow() {
+    public final String getHow() {
         return how;
     }
 
@@ -322,14 +331,14 @@ public class Event extends Extractable {
      * @param how
      *            the how to set
      */
-    public void setHow(String how) {
+    public final void setHow(final String how) {
         this.how = how;
     }
 
     /**
      * @return the whoCandidates
      */
-    public Map<String, Double> getWhoCandidates() {
+    public final Map<String, Double> getWhoCandidates() {
         return whoCandidates;
     }
 
@@ -337,21 +346,21 @@ public class Event extends Extractable {
      * @param whoCandidates
      *            the whoCandidates to set
      */
-    public void setWhoCandidates(Map<String, Double> whoCandidates) {
+    public void setWhoCandidates(final Map<String, Double> whoCandidates) {
         this.whoCandidates = whoCandidates;
     }
 
     /**
      * @return the whereCandidates
      */
-    public Map<String, Double> getWhereCandidates() {
+    public final Map<String, Double> getWhereCandidates() {
         return whereCandidates;
     }
 
     /**
      * @return the whenCandidates
      */
-    public Map<String, Double> getWhenCandidates() {
+    public final Map<String, Double> getWhenCandidates() {
         return whenCandidates;
     }
 
@@ -359,14 +368,14 @@ public class Event extends Extractable {
      * @param whenCandidates
      *            the whenCandidates to set
      */
-    public void setWhenCandidates(Map<String, Double> whenCandidates) {
+    public final void setWhenCandidates(final Map<String, Double> whenCandidates) {
         this.whenCandidates = whenCandidates;
     }
 
     /**
      * @return the howCandidates
      */
-    public Map<String, Double> getHowCandidates() {
+    public final Map<String, Double> getHowCandidates() {
         return howCandidates;
     }
 
@@ -374,7 +383,7 @@ public class Event extends Extractable {
      * @param howCandidates
      *            the howCandidates to set
      */
-    public void setHowCandidates(Map<String, Double> howCandidates) {
+    public final void setHowCandidates(final Map<String, Double> howCandidates) {
         this.howCandidates = howCandidates;
     }
 
@@ -382,14 +391,15 @@ public class Event extends Extractable {
      * @param whereCandidates
      *            the whereCandidates to set
      */
-    public void setWhereCandidates(Map<String, Double> whereCandidates) {
+    public final void setWhereCandidates(
+            final Map<String, Double> whereCandidates) {
         this.whereCandidates = whereCandidates;
     }
 
     /**
      * @return the whatCandidates
      */
-    public Map<String, Double> getWhatCandidates() {
+    public final Map<String, Double> getWhatCandidates() {
         return whatCandidates;
     }
 
@@ -397,14 +407,14 @@ public class Event extends Extractable {
      * @param whatCandidates
      *            the whatCandidates to set
      */
-    public void setWhatCandidates(Map<String, Double> whatCandidates) {
+    public final void setWhatCandidates(final Map<String, Double> whatCandidates) {
         this.whatCandidates = whatCandidates;
     }
 
     /**
      * @return the whyCandidates
      */
-    public Map<String, Double> getWhyCandidates() {
+    public final Map<String, Double> getWhyCandidates() {
         return whyCandidates;
     }
 
@@ -412,7 +422,7 @@ public class Event extends Extractable {
      * @param whyCandidates
      *            the whyCandidates to set
      */
-    public void setWhyCandidates(Map<String, Double> whyCandidates) {
+    public final void setWhyCandidates(Map<String, Double> whyCandidates) {
         this.whyCandidates = whyCandidates;
     }
 

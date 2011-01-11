@@ -61,7 +61,7 @@ public abstract class AbstractPOSTagger {
     /**
      * Getter for model.
      * 
-     * @return
+     * @return the model
      */
     public Object getModel() {
         return model;
@@ -79,7 +79,7 @@ public abstract class AbstractPOSTagger {
     /**
      * Getter for the name.
      * 
-     * @return
+     * @return the name
      */
     public String getName() {
         return name;

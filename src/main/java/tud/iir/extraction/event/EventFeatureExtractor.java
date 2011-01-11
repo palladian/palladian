@@ -69,7 +69,7 @@ public class EventFeatureExtractor {
     /** The SentenceDetector. **/
     private static AbstractSentenceDetector sentenceDetector = new OpenNLPSentenceDetector();
 
-    protected EventFeatureExtractor() {
+    private EventFeatureExtractor() {
 
         PropertiesConfiguration config = null;
 
@@ -87,11 +87,12 @@ public class EventFeatureExtractor {
         parser.loadModel();
     }
 
+    static class SingletonHolder {
+        static EventFeatureExtractor instance = new EventFeatureExtractor();
+    }
+
     public static EventFeatureExtractor getInstance() {
-        if (instance == null) {
-            instance = new EventFeatureExtractor();
-        }
-        return instance;
+        return SingletonHolder.instance;
     }
 
     /**

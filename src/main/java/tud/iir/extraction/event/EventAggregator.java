@@ -19,8 +19,8 @@ import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
 import tud.iir.web.URLDownloader;
-import tud.iir.web.URLDownloader.URLDownloaderCallback;
 import tud.iir.web.WebResult;
+import tud.iir.web.URLDownloader.URLDownloaderCallback;
 
 /**
  * @author Martin Wunderwald
@@ -33,13 +33,13 @@ public class EventAggregator {
     /** Used for all downloading purposes. */
     private static Crawler crawler = new Crawler();
 
-    /** default maximum count of threads */
+    /** default maximum count of threads. */
     private static final int DEFAULT_MAX_THREADS = 20;
 
-    /** default searchengine for news aggregation */
+    /** default searchengine for news aggregation. */
     private static final int DEFAULT_SEARCH_ENGINE = SourceRetrieverManager.GOOGLE_NEWS;
 
-    /** resultCount */
+    /** the result count. */
     private int resultCount = 10;
 
     /** aaggregated events. **/
@@ -160,13 +160,15 @@ public class EventAggregator {
     }
 
     /**
+     * Fetches page content into a map of events.
+     * 
      * @param webresults
      */
-    private void fetchPageContentIntoEvents(List<WebResult> webresults) {
+    private void fetchPageContentIntoEvents(final List<WebResult> webresults) {
 
         LOGGER.info("downloading " + webresults.size() + " pages");
 
-        URLDownloader downloader = new URLDownloader();
+        final URLDownloader downloader = new URLDownloader();
         downloader.setMaxThreads(5);
 
         for (final WebResult wr : webresults) {
@@ -176,9 +178,9 @@ public class EventAggregator {
 
         downloader.start(new URLDownloaderCallback() {
             @Override
-            public void finished(String url, InputStream inputStream) {
+            public void finished(final String url, final InputStream inputStream) {
                 try {
-                    PageContentExtractor extractor = new PageContentExtractor();
+                    final PageContentExtractor extractor = new PageContentExtractor();
                     extractor.setDocument(new InputSource(inputStream));
                     // Document page = extractor.getResultDocument();
                     eventMap.get(url).setText(extractor.getResultText());
@@ -193,7 +195,10 @@ public class EventAggregator {
 
     }
 
-    public Map<String, Event> getEventmap() {
+    /**
+     * @return the event map
+     */
+    public final Map<String, Event> getEventmap() {
         return eventMap;
     }
 
@@ -203,14 +208,14 @@ public class EventAggregator {
      * 
      * @param maxThreads
      */
-    public void setMaxThreads(int maxThreads) {
+    public final void setMaxThreads(final int maxThreads) {
         this.maxThreads = maxThreads;
     }
 
     /**
      * @return the resultCount
      */
-    public int getResultCount() {
+    public final int getResultCount() {
         return resultCount;
     }
 
@@ -218,14 +223,14 @@ public class EventAggregator {
      * @param resultCount
      *            the resultCount to set
      */
-    public void setResultCount(int resultCount) {
+    public final void setResultCount(final int resultCount) {
         this.resultCount = resultCount;
     }
 
     /**
      * @return the events
      */
-    public List<Event> getEvents() {
+    public final List<Event> getEvents() {
         return events;
     }
 
@@ -233,14 +238,14 @@ public class EventAggregator {
      * @param events
      *            the events to set
      */
-    public void setEvents(List<Event> events) {
+    public final void setEvents(final List<Event> events) {
         this.events = events;
     }
 
     /**
      * @return the query
      */
-    public String getQuery() {
+    public final String getQuery() {
         return query;
     }
 
@@ -248,14 +253,14 @@ public class EventAggregator {
      * @param query
      *            the query to set
      */
-    public void setQuery(String query) {
+    public final void setQuery(final String query) {
         this.query = query;
     }
 
     /**
      * @return the eventMap
      */
-    public Map<String, Event> getEventMap() {
+    public final Map<String, Event> getEventMap() {
         return eventMap;
     }
 
@@ -263,14 +268,14 @@ public class EventAggregator {
      * @param eventMap
      *            the eventMap to set
      */
-    public void setEventMap(Map<String, Event> eventMap) {
+    public final void setEventMap(final Map<String, Event> eventMap) {
         this.eventMap = eventMap;
     }
 
     /**
      * @return the searchEngine
      */
-    public int getSearchEngine() {
+    public final int getSearchEngine() {
         return searchEngine;
     }
 
@@ -278,10 +283,13 @@ public class EventAggregator {
      * @param searchEngine
      *            the searchEngine to set
      */
-    public void setSearchEngine(int searchEngine) {
+    public final void setSearchEngine(final int searchEngine) {
         this.searchEngine = searchEngine;
     }
 
+    /**
+     * @param args
+     */
     public static void main(String[] args) {
 
         final EventAggregator eag = new EventAggregator();
