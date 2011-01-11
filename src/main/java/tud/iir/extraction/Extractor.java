@@ -23,13 +23,19 @@ public abstract class Extractor {
     protected static final Logger LOGGER = Logger.getLogger(Extractor.class);
 
     /** 5 minutes wait in case no entities were found in the database. */
-    protected static final int WAIT_FOR_ENTITIES_TIMEOUT = 300000;
+    protected static final int WAIT_FOR_ENTITIES_TIMEOUT = (int) (30 * DateHelper.SECOND_MS);
 
     /** Number of parallel extraction threads. */
     protected static final int MAX_EXTRACTION_THREADS = 10;
 
     /** Wait 10 seconds if all extraction threads are currently running. */
-    protected static final int WAIT_FOR_FREE_THREAD_SLOT = 10000;
+    protected static final int WAIT_FOR_FREE_THREAD_SLOT = (int) (10 * DateHelper.SECOND_MS);
+
+    /** Wait a maximum of 30 iterations with {@link WAIT_FOR_FREE_THREAD_SLOT} for extraction threads to finish. */
+    protected static final int WAIT_FOR_FREE_THREAD_SLOT_COUNT = 30;
+
+    /** The number of iterations waited for threads to finish. */
+    protected int iterationsWaited = 0;
 
     /** The knowledge manager. */
     protected KnowledgeManager knowledgeManager;
@@ -152,6 +158,36 @@ public abstract class Extractor {
         LOGGER.info("stop extraction (save results: " + saveResults + ")");
 
         saveExtractions(saveResults);
+
+        return true;
+    }
+
+    protected boolean waitForFreeThreadSlot(Logger logger) {
+
+        logger.info("NEED TO WAIT FOR FREE THREAD SLOT (count: " + getThreadCount() + ", allowed: "
+                + MAX_EXTRACTION_THREADS + ") " + iterationsWaited + "/" + WAIT_FOR_FREE_THREAD_SLOT_COUNT + ", "
+                + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
+
+        if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
+            logger.warn("apparently " + getThreadCount()
+                    + " threads have not finished correctly but thread group is empty, continuing...");
+            resetThreadCount();
+            iterationsWaited = 0;
+            return false;
+        }
+
+        ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
+
+        if (isStopped()) {
+            iterationsWaited++;
+        }
+
+        if (iterationsWaited > WAIT_FOR_FREE_THREAD_SLOT_COUNT) {
+            logger.info("waited " + WAIT_FOR_FREE_THREAD_SLOT_COUNT
+                    + " iterations after stop has been called, breaking now");
+            iterationsWaited = 0;
+            return false;
+        }
 
         return true;
     }

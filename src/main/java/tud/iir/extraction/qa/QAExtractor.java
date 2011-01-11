@@ -32,7 +32,6 @@ import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
-import tud.iir.helper.ThreadHelper;
 import tud.iir.knowledge.QA;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
@@ -348,13 +347,9 @@ public class QAExtractor extends Extractor {
             if (iterations > numberOfSites || ExtractionProcessManager.isContinueQAExtraction()) {
                 maxThreads = 3 * numberOfSites;
             }
+
             while (getThreadCount() >= maxThreads) {
-                LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (" + getThreadCount() + " active threads)");
-                ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
-                if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
-                    LOGGER.warn("apparently " + getThreadCount()
-                            + " threads have not finished correctly but thread group is empty, continuing...");
-                    resetThreadCount();
+                if (!waitForFreeThreadSlot(LOGGER)) {
                     break;
                 }
             }

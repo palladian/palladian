@@ -263,15 +263,20 @@ public class XPathHelper {
      * @return A node that matches the xPath and descends from the given node.
      */
     public static Node getChildNode(Node node, String xPath) {
+        return getChildNode(node, xPath, true);
+    }
+
+    public static Node getChildNode(Node node, String xPath, boolean addNameSpace) {
         if (node == null) {
             return null;
         }
         Node childNode = null;
-        if (getChildNodes(node, xPath).iterator().hasNext()) {
-            childNode = getChildNodes(node, xPath).iterator().next();
+        if (getChildNodes(node, xPath, addNameSpace).iterator().hasNext()) {
+            childNode = getChildNodes(node, xPath, addNameSpace).iterator().next();
         }
         return childNode;
     }
+
 
     /**
      * Check whether a node is a child (descendant) of another node.
@@ -301,10 +306,16 @@ public class XPathHelper {
      * @return The child nodes.
      */
     public static List<Node> getChildNodes(Node node, String xPath) {
+        return getChildNodes(node, xPath, true);
+    }
+
+    public static List<Node> getChildNodes(Node node, String xPath, boolean addNameSpace) {
         List<Node> childNodes = null;
         List<Node> childNodesMatch = new ArrayList<Node>();
 
-        xPath = addNameSpaceToXPath(xPath);
+        if (addNameSpace) {
+            xPath = addNameSpaceToXPath(xPath);
+        }
         childNodes = getNodes(node, xPath);
 
         for (Node cn : childNodes) {

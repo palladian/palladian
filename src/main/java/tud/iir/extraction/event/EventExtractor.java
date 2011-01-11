@@ -712,6 +712,8 @@ public class EventExtractor extends Extractor {
             }
         }
 
+        LOGGER.info(newsURLs.size() + " new URLs added for event exraction");
+
         return newsURLs;
     }
 
