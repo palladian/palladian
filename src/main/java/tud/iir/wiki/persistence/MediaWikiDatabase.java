@@ -4,17 +4,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.apache.commons.collections15.map.LRUMap;
 import org.apache.log4j.Logger;
 
 import tud.iir.daterecognition.DateGetterHelper;
@@ -22,6 +19,7 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.LocalizeHelper;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.wiki.MediaWikiCrawler;
+import tud.iir.wiki.data.PageTitleCache;
 import tud.iir.wiki.data.Revision;
 import tud.iir.wiki.data.WikiDescriptor;
 import tud.iir.wiki.data.WikiPage;
@@ -42,96 +40,89 @@ public final class MediaWikiDatabase {
     /** do not call LOGGER.isDebugEnabled() 1000 times */
     private static final boolean DEBUG = LOGGER.isDebugEnabled();
 
-    /**
-     * Cache to resolve pageIDs from pageTitles without asking the database since this would require the row pageTitle
-     * to be indexed which is slow.
-     */
-    private final Map<Integer, LRUMap<String, Integer>> pageTitleCache;
-
-    private static final int mapInitialCapacity = 2000;
+    private final PageTitleCache cache;
 
     // ////////////////// prepared statements ////////////////////
     /** @see #prepareStatements() */
-    private final String sqlGetNamespaceIDsToCrawl = "SELECT namespaceID FROM namespaces WHERE wikiID = ? AND useForCrawling = 1";
+    private static final String sqlGetNamespaceIDsToCrawl = "SELECT namespaceID FROM namespaces WHERE wikiID = ? AND useForCrawling = 1";
 
     /** @see #prepareStatements() */
-    private final String sqlAllNamespaces = "SELECT namespaceID, useForCrawling FROM namespaces WHERE wikiID = ?";
+    private static final String sqlAllNamespaces = "SELECT namespaceID, useForCrawling FROM namespaces WHERE wikiID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlAddWiki = "INSERT INTO wikis(wikiName, wikiURL, pathToApi, lastCheckNewPages, crawler_username, crawler_password) VALUES (?,?,?,?,?,?)";
+    private static final String sqlAddWiki = "INSERT INTO wikis(wikiName, wikiURL, pathToApi, lastCheckNewPages, crawler_username, crawler_password) VALUES (?,?,?,?,?,?)";
 
     /** @see #prepareStatements() */
-    private final String sqlUpdateWiki = "UPDATE wikis SET wikiURL= ?, pathToApi = ?, lastCheckNewPages = ?, crawler_username = ?, crawler_password = ? WHERE wikiID = ?";
+    private static final String sqlUpdateWiki = "UPDATE wikis SET wikiURL= ?, pathToApi = ?, lastCheckNewPages = ?, crawler_username = ?, crawler_password = ? WHERE wikiID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlRemoveWiki = "DELETE FROM wikis WHERE wikiID = ?";
+    private static final String sqlRemoveWiki = "DELETE FROM wikis WHERE wikiID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlGetWikiDescriptorByName = "SELECT * FROM wikis WHERE wikiName COLLATE utf8_bin = ?";
+    private static final String sqlGetWikiDescriptorByName = "SELECT * FROM wikis WHERE wikiName COLLATE utf8_bin = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlGetWikiDescriptorByID = "SELECT * FROM wikis WHERE wikiID = ?";
+    private static final String sqlGetWikiDescriptorByID = "SELECT * FROM wikis WHERE wikiID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlGetAllWikiDescriptors = "SELECT * FROM wikis ORDER BY wikiName";
+    private static final String sqlGetAllWikiDescriptors = "SELECT * FROM wikis ORDER BY wikiName";
 
     /** @see #prepareStatements() */
-    private final String sqlAddPage = "INSERT INTO pages(wikiID, pageID, pageTitle, namespaceID, sourceDynamics, pageContent, revisionID, nextCheck) VALUES (?,?,?,?,?,?,?,?)";
+    private static final String sqlAddPage = "INSERT INTO pages(wikiID, pageID, pageTitle, namespaceID, sourceDynamics, pageContent, revisionID, nextCheck) VALUES (?,?,?,?,?,?,?,?)";
 
     /** @see #prepareStatements() */
-    private final String sqlUpdatePage = "UPDATE pages SET revisionID = ?, pageContent = ?, nextCheck = ? WHERE wikiID = ? AND pageID = ?";
+    private static final String sqlUpdatePage = "UPDATE pages SET revisionID = ?, pageContent = ?, nextCheck = ? WHERE wikiID = ? AND pageID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlUpdatePageNextCheck = "UPDATE pages SET nextCheck = ? WHERE wikiID = ? AND pageTitle COLLATE utf8_bin = ?";
+    private static final String sqlUpdatePageNextCheck = "UPDATE pages SET nextCheck = ? WHERE wikiID = ? AND pageID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlRemoveAllPages = "DELETE FROM pages WHERE wikiID = ?";
+    private static final String sqlRemoveAllPages = "DELETE FROM pages WHERE wikiID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlAddNamespace = "INSERT INTO namespaces(wikiID, namespaceID, namespaceName, useForCrawling) VALUES (?,?,?,?)";
+    private static final String sqlAddNamespace = "INSERT INTO namespaces(wikiID, namespaceID, namespaceName, useForCrawling) VALUES (?,?,?,?)";
 
     /** @see #prepareStatements() */
-    private final String sqlGetNamespace = "SELECT namespaceID FROM namespaces WHERE wikiID = ? AND namespaceID = ?";
+    // TODO: wird das statement benötigt??
+    private static final String sqlGetNamespace = "SELECT namespaceID FROM namespaces WHERE wikiID = ? AND namespaceID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlUpdateNamespace = "UPDATE namespaces SET useForCrawling = ? WHERE wikiID = ? AND namespaceID = ?";
+    private static final String sqlUpdateNamespace = "UPDATE namespaces SET useForCrawling = ? WHERE wikiID = ? AND namespaceID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlUpdateNamespaceName = "UPDATE namespaces SET namespaceName = ? WHERE wikiID = ? AND namespaceID = ?";
+    private static final String sqlUpdateNamespaceName = "UPDATE namespaces SET namespaceName = ? WHERE wikiID = ? AND namespaceID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlRemoveNamespace = "DELETE FROM namespaces WHERE wikiID = ? AND namespaceID = ?";
+    private static final String sqlRemoveNamespace = "DELETE FROM namespaces WHERE wikiID = ? AND namespaceID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlGetPageByPageID = "SELECT pageID FROM pages WHERE wikiID = ? AND pageID = ?";
+    private static final String sqlGetPageByPageID = "SELECT namespaceID, sourceDynamics, pageContent, revisionID FROM pages WHERE wikiID = ? AND pageID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlGetPageByTitle = "SELECT pageID, namespaceID, sourceDynamics, pageContent, revisionID, nextCheck FROM pages WHERE wikiID = ? AND pageTitle COLLATE utf8_bin = ?";
+    private static final String sqlGetPageIDByPageTitle = "SELECT pageID FROM pages WHERE wikiID = ? AND pageTitle COLLATE utf8_bin = ? ";
 
     /** @see #prepareStatements() */
-    private final String sqlGetPageIDByPageTitle = "SELECT pageID FROM pages WHERE wikiID = ? AND pageTitle COLLATE utf8_bin = ? ";
+    private static final String sqlGetPagesToUpdate = "SELECT pageID, pageTitle, namespaceID, sourceDynamics, revisionID, nextCheck FROM pages WHERE wikiID = ? AND (nextCheck IS NULL OR TIMEDIFF(nextCheck, ?) < 0)";
 
     /** @see #prepareStatements() */
-    private final String sqlGetPagesToUpdate = "SELECT pageID, pageTitle, namespaceID, sourceDynamics, revisionID, nextCheck FROM pages WHERE wikiID = ? AND (nextCheck IS NULL OR  TIMEDIFF(nextCheck, ?) < 0)";
+    private static final String sqlAddRevision = "INSERT INTO revisions(wikiID, pageID, revisionID, timestamp, author) VALUES (?,?,?,?,?)";
+
+    // /** @see #prepareStatements() */
+    // private static final String sqlGetRevision =
+    // "SELECT * FROM revisions WHERE wikiID = ? AND pageID = ? AND revisionID = ?";
 
     /** @see #prepareStatements() */
-    private final String sqlAddRevision = "INSERT INTO revisions(wikiID, pageID, revisionID, timestamp, author) VALUES (?,?,?,?,?)";
-
-    /** @see #prepareStatements() */
-    private final String sqlGetRevision = "SELECT * FROM revisions WHERE wikiID = ? AND pageID = ? AND revisionID = ?";
-
-    /** @see #prepareStatements() */
-    private final String sqlGetAllPageTitlesToCrawl = "SELECT pageTitle FROM pages WHERE wikiID = ? AND namespaceID IN (SELECT namespaceID FROM namespaces WHERE pages.wikiID = namespaces.wikiID AND useForCrawling = 1)";
+    private static final String sqlGetAllPageTitlesToCrawl = "SELECT pageTitle FROM pages "
+            + "WHERE wikiID = ? AND namespaceID IN "
+            + "(SELECT namespaceID FROM namespaces WHERE pages.wikiID = namespaces.wikiID AND useForCrawling = 1)";
 
     /**
      * Constructor that prepares all {@link PreparedStatement}s.
      */
     public MediaWikiDatabase() {
-
-        // FIXME initialize page title cache
-        pageTitleCache = Collections.synchronizedMap(new HashMap<Integer, LRUMap<String, Integer>>());
+        cache = new PageTitleCache();
         for (WikiDescriptor wiki : getAllWikiDescriptors()) {
-            addWikiToCache(wiki.getWikiName());
+            cache.addWiki(wiki.getWikiID());
         }
     }
 
@@ -145,7 +136,6 @@ public final class MediaWikiDatabase {
     private final PreparedStatement getPreparedStatement(final String sql) throws SQLException {
         return DatabaseManager.getInstance().getConnection().prepareStatement(sql);
     }
-
 
     /**
      * Converts a given {@link java.util.Date} to the String representation of the SQL data type DATETIME ("yyyy-MM-dd
@@ -199,8 +189,6 @@ public final class MediaWikiDatabase {
         return namespaces;
     }
 
-
-
     /**
      * Adds a Wiki to the database. If a Wiki with the same name already exists, nothing is done. {@see #updateWiki()}
      * for updating an existing Wiki.
@@ -236,7 +224,7 @@ public final class MediaWikiDatabase {
             LOGGER.error("addNewWiki processing PreparedStatement " + sqlAddWiki, e);
             return false;
         }
-        addWikiToCache(wd.getWikiName()); // FIXME
+        cache.addWiki(getWikiDescriptor(wd.getWikiName()).getWikiID());
         return true;
     }
 
@@ -367,12 +355,14 @@ public final class MediaWikiDatabase {
             } else {
                 psAddPage.setNull(8, java.sql.Types.DATE);
             }
+
             errorCount += ((DatabaseManager.getInstance().runUpdate(psAddPage)) >= 0) ? 0 : 1;
 
             for (Revision revision : page.getRevisions().values()) {
                 errorCount += (addRevision(page.getWikiID(), page.getPageID(), revision)) ? 0 : 1;
             }
-            addPageToCache(page.getWikiID(), page.getTitle(), page.getPageID());// FIXME
+
+            cache.addPage(page.getWikiID(), page.getTitle(), page.getPageID());
         } catch (SQLException e) {
             LOGGER.error("Cant add page to database, pageID " + page.getPageID() + " \"" + page.getTitle()
                     + "\", namespace " + page.getNamespaceID() + " for wikiID " + page.getWikiID() + ": "
@@ -390,7 +380,7 @@ public final class MediaWikiDatabase {
      * @param wikiPages The pages to add to database.
      * @return The number of pages that have been skipped. See error log for details if return value > 0.
      */
-    public synchronized int addPages(final Set<WikiPage> wikiPages) {
+    public int addPages(final Set<WikiPage> wikiPages) {
 
         setAutoCommit(false);
         int skipCounter = 0;
@@ -462,46 +452,46 @@ public final class MediaWikiDatabase {
         return namespaceExists;
     }
 
-    /**
-     * Checks whether the given pageID is already contained for this wikiID.
-     * 
-     * Method should be used in debug mode only since it is resource consuming (additional data base request), analyze
-     * SQLexception instead if a page does not exist.
-     * 
-     * @param wikiID The ID of the Wiki the namespace is in.
-     * @param pageID The pageID to be found in the Wiki.
-     * @return true if it is contained, false otherwise.
-     */
-    private boolean pageExists(final int wikiID, final int pageID) {
-        boolean pageIDExists = false;
+    // /**
+    // * Checks whether the given pageID is already contained for this wikiID.
+    // *
+    // * Method should be used in debug mode only since it is resource consuming (additional data base request), analyze
+    // * SQLexception instead if a page does not exist.
+    // *
+    // * @param wikiID The ID of the Wiki the namespace is in.
+    // * @param pageID The pageID to be found in the Wiki.
+    // * @return true if it is contained, false otherwise.
+    // */
+    // private boolean pageExists(final int wikiID, final int pageID) {
+    // boolean pageIDExists = false;
+    //
+    // try {
+    // PreparedStatement psGetPageByPageID = getPreparedStatement(sqlGetPageByPageID);
+    // psGetPageByPageID.setInt(1, wikiID);
+    // psGetPageByPageID.setInt(2, pageID);
+    // ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetPageByPageID);
+    // if (resultSet.next()) {
+    // pageIDExists = true;
+    // }
+    // } catch (SQLException e) {
+    // LOGGER.error("pageIDExists processing PreparedStatement " + sqlGetPageByPageID, e);
+    // }
+    // return pageIDExists;
+    // }
 
-        try {
-            PreparedStatement psGetPageByPageID = getPreparedStatement(sqlGetPageByPageID);
-            psGetPageByPageID.setInt(1, wikiID);
-            psGetPageByPageID.setInt(2, pageID);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetPageByPageID);
-            if (resultSet.next()) {
-                pageIDExists = true;
-            }
-        } catch (SQLException e) {
-            LOGGER.error("pageIDExists processing PreparedStatement " + sqlGetPageByPageID, e);
-            }
-        return pageIDExists;
-    }
-
-    /**
-     * Checks whether the given pageTitle is already contained for Wiki wikiID.
-     * 
-     * Method should be used in debug mode only since it is resource consuming (additional data base request), analyze
-     * SQLexception instead if a page does not exist.
-     * 
-     * @param wikiID The ID of the Wiki the namespace is in.
-     * @param pageTitle The name of the page (title) to be found in the Wiki.
-     * @return true if it is contained, false otherwise.
-     */
-    private boolean pageExists(final int wikiID, final String pageTitle) {
-        return (getPageID(wikiID, pageTitle) == null) ? false : true;
-    }
+    // /**
+    // * Checks whether the given pageTitle is already contained for Wiki wikiID.
+    // *
+    // * Method should be used in debug mode only since it is resource consuming (additional data base request), analyze
+    // * SQLexception instead if a page does not exist.
+    // *
+    // * @param wikiID The ID of the Wiki the namespace is in.
+    // * @param pageTitle The name of the page (title) to be found in the Wiki.
+    // * @return true if it is contained, false otherwise.
+    // */
+    // private boolean pageExists(final int wikiID, final String pageTitle) {
+    // return (getPageID(wikiID, pageTitle) == null) ? false : true;
+    // }
 
     /**
      * Returns the pageID that belongs to the given pageTitle in Wiki wikiID
@@ -517,7 +507,7 @@ public final class MediaWikiDatabase {
             throw new IllegalArgumentException("PAGE_TITLE must not be null");
         }
 
-        pageID = getPageIDFromCache(wikiID, pageTitle);// FIXME
+        pageID = cache.getPageID(wikiID, pageTitle);
 
         // if cache-miss, load pageID from database.
         if (pageID == null) {
@@ -532,39 +522,39 @@ public final class MediaWikiDatabase {
             } catch (SQLException e) {
                 LOGGER.error("getPageID processing PreparedStatement " + sqlGetPageIDByPageTitle, e);
             }
-            addPageToCache(wikiID, pageTitle, pageID); // FIXME
+            cache.addPage(wikiID, pageTitle, pageID);
         }
         return pageID;
     }
 
     /**
-     * Get a page without its revisions. (data from table pages only)
+     * Get a page without its revisions. (data from table pages only: faster.)
      * 
      * @param wikiID The ID of the Wiki the searched page is in.
      * @param pageTitle The name of the page (title) to get information about.
      * @return {@link WikiPage} containing data from table pages but not from table revisions.
      */
-    public WikiPage getPage(final int wikiID, final String pageTitle) {
+    public WikiPage getPlainPage(final int wikiID, final String pageTitle) {
         WikiPage page = null;
         if (pageTitle == null) {
             throw new IllegalArgumentException("PAGE_TITLE must not be null");
         }
         try {
+            int pageID = getPageID(wikiID, pageTitle);
+            PreparedStatement psGetPageBypageID = getPreparedStatement(sqlGetPageByPageID);
+            psGetPageBypageID.setInt(1, wikiID);
+            psGetPageBypageID.setInt(2, pageID);
+            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetPageBypageID);
 
-            // TODO change to pageID
-            PreparedStatement psGetPageByTitle = getPreparedStatement(sqlGetPageByTitle);
-            psGetPageByTitle.setInt(1, wikiID);
-            psGetPageByTitle.setString(2, pageTitle);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetPageByTitle);
             if (resultSet.next()) {
                 page = new WikiPage();
                 page.setWikiID(wikiID);
                 page.setTitle(pageTitle);
-                page.setPageID(resultSet.getInt(1));
-                page.setNamespaceID(resultSet.getInt(2));
-                page.setSourceDynamics(resultSet.getFloat(3));
-                page.setPageContent(resultSet.getString(4));
-                page.setNewestRevisionID(resultSet.getLong(5));
+                page.setPageID(pageID);
+                page.setNamespaceID(resultSet.getInt(1));
+                page.setSourceDynamics(resultSet.getFloat(2));
+                page.setPageContent(resultSet.getString(3));
+                page.setNewestRevisionID(resultSet.getLong(4));
 
                 if (resultSet.getString(6) != null && !resultSet.getString(6).equalsIgnoreCase("NULL")) {
                     Date lastCheck = null;
@@ -579,7 +569,7 @@ public final class MediaWikiDatabase {
                 }
             }
         } catch (SQLException e) {
-            LOGGER.error("getPage processing PreparedStatement " + sqlGetPageByTitle, e);
+            LOGGER.error("getPage processing PreparedStatement " + sqlGetPageByPageID, e);
         }
         return page;
     }
@@ -605,24 +595,19 @@ public final class MediaWikiDatabase {
      */
     public boolean addRevision(final int wikiID, final int pageID, final Revision revision) {
         boolean success = false;
-        if (DEBUG && revisionExists(wikiID, pageID, revision.getRevisionID())) {
-            LOGGER.debug("Could not add revisionID=" + revision.getRevisionID() + "to database. WikiID=" + wikiID
-                    + ", pageID = " + pageID + ", timestamp=" + revision.getTimestamp()
-                    + ". , it is already contained in data base!");
-        } else {
-            try {
-                PreparedStatement psAddRevision = getPreparedStatement(sqlAddRevision);
-                psAddRevision.setInt(1, wikiID);
-                psAddRevision.setInt(2, pageID);
-                psAddRevision.setLong(3, revision.getRevisionID());
-                psAddRevision.setString(4, convertDateToSQLDateTime(revision.getTimestamp()));
-                psAddRevision.setString(5, revision.getAuthor());
-                success = ((DatabaseManager.getInstance().runUpdate(psAddRevision)) >= 0); // ? true : false;
-            } catch (SQLException e) {
-                LOGGER.error("Could not add revisionID=" + revision.getRevisionID() + "to database. WikiID=" + wikiID
-                        + ", pageID = " + pageID + ", timestamp=" + revision.getTimestamp() + ". " + e);
-            }
+        try {
+            PreparedStatement psAddRevision = getPreparedStatement(sqlAddRevision);
+            psAddRevision.setInt(1, wikiID);
+            psAddRevision.setInt(2, pageID);
+            psAddRevision.setLong(3, revision.getRevisionID());
+            psAddRevision.setString(4, convertDateToSQLDateTime(revision.getTimestamp()));
+            psAddRevision.setString(5, revision.getAuthor());
+            success = ((DatabaseManager.getInstance().runUpdate(psAddRevision)) >= 0); // ? true : false;
+        } catch (SQLException e) {
+            LOGGER.error("Could not add revisionID=" + revision.getRevisionID() + "to database. WikiID=" + wikiID
+                    + ", pageID = " + pageID + ", timestamp=" + revision.getTimestamp() + ". " + e);
         }
+
         return success;
     }
 
@@ -672,30 +657,30 @@ public final class MediaWikiDatabase {
         return skipCounter;
     }
 
-    /**
-     * Checks whether the given triple (wikiID, pageID, revisionID) is already contained in the database.
-     * 
-     * @param wikiID The ID of the Wiki the namespace is in.
-     * @param pageID The Wiki's pageID.
-     * @param revisionID The Wiki's id of the revision to be found.
-     * @return true if it is contained, false otherwise.
-     */
-    private boolean revisionExists(final int wikiID, final int pageID, final double revisionID) {
-        boolean revisionExists = false;
-        try {
-            PreparedStatement psGetRevision = getPreparedStatement(sqlGetRevision);
-            psGetRevision.setInt(1, wikiID);
-            psGetRevision.setInt(2, pageID);
-            psGetRevision.setDouble(3, revisionID);
-            ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetRevision);
-            if (resultSet.next()) {
-                revisionExists = true;
-            }
-        } catch (SQLException e) {
-            LOGGER.error("revisionExists processing PreparedStatement " + sqlGetRevision, e);
-        }
-        return revisionExists;
-    }
+    // /**
+    // * Checks whether the given triple (wikiID, pageID, revisionID) is already contained in the database.
+    // *
+    // * @param wikiID The ID of the Wiki the namespace is in.
+    // * @param pageID The Wiki's pageID.
+    // * @param revisionID The Wiki's id of the revision to be found.
+    // * @return true if it is contained, false otherwise.
+    // */
+    // private boolean revisionExists(final int wikiID, final int pageID, final double revisionID) {
+    // boolean revisionExists = false;
+    // try {
+    // PreparedStatement psGetRevision = getPreparedStatement(sqlGetRevision);
+    // psGetRevision.setInt(1, wikiID);
+    // psGetRevision.setInt(2, pageID);
+    // psGetRevision.setDouble(3, revisionID);
+    // ResultSet resultSet = DatabaseManager.getInstance().runQuery(psGetRevision);
+    // if (resultSet.next()) {
+    // revisionExists = true;
+    // }
+    // } catch (SQLException e) {
+    // LOGGER.error("revisionExists processing PreparedStatement " + sqlGetRevision, e);
+    // }
+    // return revisionExists;
+    // }
 
     /**
      * Returns a {@link List} of all page titles that are used for crawling.
@@ -714,15 +699,14 @@ public final class MediaWikiDatabase {
                 titles.add(resultSet.getString(1));
             }
         } catch (SQLException e) {
-            LOGGER.error(
-"getAllPageTitlesToCrawl processing PreparedStatement " + sqlGetAllPageTitlesToCrawl, e);
+            LOGGER.error("getAllPageTitlesToCrawl processing PreparedStatement " + sqlGetAllPageTitlesToCrawl, e);
         }
         return titles;
     }
 
     /**
      * Returns a {@link List} of all page titles that should be updated since their predicted date of a new revision is
-     * in the past of the given date.
+     * in the past of the given date. The pages' revision are not returned.
      * 
      * @param wikiID The internal Wiki ID to get the pages for.
      * @param date The date to compare the predicted date with, usually the current date.
@@ -785,7 +769,7 @@ public final class MediaWikiDatabase {
                 PreparedStatement psRemoveWiki = getPreparedStatement(sqlRemoveWiki);
                 psRemoveWiki.setInt(1, wikiID);
                 success = ((DatabaseManager.getInstance().runUpdate(psRemoveWiki)) >= 0); // ? true : false;
-                removeWikiFromPageTitleCache(wikiID); // FIXME
+                cache.removeWiki(wikiID);
             } catch (SQLException e) {
                 LOGGER.error("removeWiki processing PreparedStatement " + sqlRemoveWiki, e);
             }
@@ -811,7 +795,7 @@ public final class MediaWikiDatabase {
                 PreparedStatement psRemoveAllPages = getPreparedStatement(sqlRemoveAllPages);
                 psRemoveAllPages.setInt(1, wikiID);
                 success = ((DatabaseManager.getInstance().runUpdate(psRemoveAllPages)) >= 0); // ? true : false;
-                removeAllPagesFromCache(wikiID); // FIXME
+                cache.removeAllPages(wikiID);
                 if (DEBUG) {
                     LOGGER.debug("Removed all pages for Wiki \"" + getWikiDescriptor(wikiID).getWikiName() + "\"");
                 }
@@ -1029,26 +1013,22 @@ public final class MediaWikiDatabase {
     public boolean updatePage(final int wikiID, final int pageID, final long revisionID, final String pageContent,
             final Date nextCheck) {
         boolean success = false;
-        if (DEBUG && !pageExists(wikiID, pageID)) {
-            LOGGER.debug("Could not update page with ID \"" + pageID
-                    + "\" because it is not contained in the data base.");
-        } else {
-            try {
-                PreparedStatement psUpdatePage = getPreparedStatement(sqlUpdatePage);
-                psUpdatePage.setLong(1, revisionID);
-                psUpdatePage.setString(2, pageContent);
-                if (nextCheck != null) {
-                    psUpdatePage.setString(3, convertDateToSQLDateTime(nextCheck));
-                } else {
-                    psUpdatePage.setNull(3, java.sql.Types.DATE);
-                }
-                psUpdatePage.setInt(4, wikiID);
-                psUpdatePage.setInt(5, pageID);
-                success = ((DatabaseManager.getInstance().runUpdate(psUpdatePage)) >= 0) ? true : false;
-            } catch (SQLException e) {
-                LOGGER.error("updatepage processing PreparedStatement " + sqlUpdatePage, e);
+        try {
+            PreparedStatement psUpdatePage = getPreparedStatement(sqlUpdatePage);
+            psUpdatePage.setLong(1, revisionID);
+            psUpdatePage.setString(2, pageContent);
+            if (nextCheck != null) {
+                psUpdatePage.setString(3, convertDateToSQLDateTime(nextCheck));
+            } else {
+                psUpdatePage.setNull(3, java.sql.Types.DATE);
             }
+            psUpdatePage.setInt(4, wikiID);
+            psUpdatePage.setInt(5, pageID);
+            success = ((DatabaseManager.getInstance().runUpdate(psUpdatePage)) >= 0) ? true : false;
+        } catch (SQLException e) {
+            LOGGER.error("updatepage processing PreparedStatement " + sqlUpdatePage, e);
         }
+
         return success;
     }
 
@@ -1082,107 +1062,27 @@ public final class MediaWikiDatabase {
      * Update the time stamp to check this page the next time for new revisions.
      * 
      * @param wikiID The wikiID of the Wiki.
-     * @param pageTitle The title of the page to update.
+     * @param pageID The pageID of the page to update.
      * @param nextCheck The predicted date to check this page for new revisions.
      * @return true if update was successful, false if any problem occurred while updating. If false, see error log for
      *         details.
      */
-    public boolean updatePage(final int wikiID, final String pageTitle, final Date nextCheck) {
+    public boolean updatePage(final int wikiID, final int pageID, final Date nextCheck) {
         boolean success = false;
-        if (DEBUG && !pageExists(wikiID, pageTitle)) {
-            LOGGER.debug("Could not update page with ID \"" + pageTitle
-                    + "\" because it is not contained in the data base.");
-        } else {
-            try {
-                PreparedStatement psUpdatePageNextCheck = getPreparedStatement(sqlUpdatePageNextCheck);
-                psUpdatePageNextCheck.setInt(2, wikiID);
-                psUpdatePageNextCheck.setString(3, pageTitle);
-                if (nextCheck != null) {
-                    psUpdatePageNextCheck.setString(1, convertDateToSQLDateTime(nextCheck));
-                } else {
-                    psUpdatePageNextCheck.setNull(1, java.sql.Types.DATE);
-                }
-                success = ((DatabaseManager.getInstance().runUpdate(psUpdatePageNextCheck)) >= 0) ? true : false;
-            } catch (SQLException e) {
-                LOGGER.error("updatePageNextCheck processing PreparedStatement " + sqlUpdatePageNextCheck, e);
+        try {
+            PreparedStatement psUpdatePageNextCheck = getPreparedStatement(sqlUpdatePageNextCheck);
+            psUpdatePageNextCheck.setInt(2, wikiID);
+            psUpdatePageNextCheck.setInt(3, pageID);
+            if (nextCheck != null) {
+                psUpdatePageNextCheck.setString(1, convertDateToSQLDateTime(nextCheck));
+            } else {
+                psUpdatePageNextCheck.setNull(1, java.sql.Types.DATE);
             }
+            success = ((DatabaseManager.getInstance().runUpdate(psUpdatePageNextCheck)) >= 0) ? true : false;
+        } catch (SQLException e) {
+            LOGGER.error("updatePageNextCheck processing PreparedStatement " + sqlUpdatePageNextCheck, e);
         }
         return success;
-    }
-
-    /**
-     * Adds a new {@link LRUMap} to {@link #pageTitleCache} to store mappings of page titles to pageIDs for the given
-     * wiki.
-     * 
-     * @param wikiName The name of the Wiki to add to the cache.
-     */
-    private synchronized void addWikiToCache(final String wikiName) {
-        final Integer wikiID = getWikiDescriptor(wikiName).getWikiID();
-        if (pageTitleCache.containsKey(wikiID)) {
-            LOGGER.error("PAGE_TITLE_CACHE already contains wiki \"" + wikiName + "\"");
-        } else {
-            pageTitleCache.put(wikiID, new LRUMap<String, Integer>(mapInitialCapacity));
-        }
-    }
-
-    /**
-     * Removes the given Wiki from the {@link #pageTitleCache}.
-     * 
-     * @param wikiID The Wiki to remove from the cache.
-     */
-    private synchronized void removeWikiFromPageTitleCache(final int wikiID) {
-        if (pageTitleCache.containsKey(wikiID)) {
-            pageTitleCache.remove(wikiID);
-        } else {
-            LOGGER.error("PAGE_TITLE_CACHE does not contain wikiID " + wikiID);
-        }
-    }
-
-    /**
-     * Add the given {@link WikiPage}'s title and pageID to to the {@link #pageTitleCache}.
-     * 
-     * @param page The page to add to the cache.
-     */
-    private synchronized void addPageToCache(final int wikiID, final String pageTitle, final int pageID) {
-        if (pageTitleCache.containsKey(wikiID)) {
-            final LRUMap<String, Integer> lruMap = pageTitleCache.get(wikiID);
-            lruMap.put(pageTitle, pageID);
-            // LOGGER.info("Added wikiID " + wikiID + " page \"" + pageTitle + "\" to cache.");
-        } else {
-            LOGGER.error("PAGE_TITLE_CACHE does not contain wikiID " + wikiID);
-        }
-    }
-
-    /**
-     * Removes all mappings of page titles to pageIDs in {@link #pageTitleCache} for the given wikiID.
-     * 
-     * @param wikiID The Wiki to remove all cache entries for.
-     */
-    private synchronized void removeAllPagesFromCache(final int wikiID) {
-        if (pageTitleCache.containsKey(wikiID)) {
-            pageTitleCache.put(wikiID, new LRUMap<String, Integer>(mapInitialCapacity));
-        }
-    }
-
-    /**
-     * Lookup in {@link #pageTitleCache}, return the pageID that belongs to the given pageTitle in Wiki wikiID.
-     * 
-     * @param wikiID The ID of the Wiki the namespace is in.
-     * @param pageTitle The name of the page (title) to be found in the Wiki.
-     * @return The pageID or {@code null} if there is no mapping for the given parameters.
-     */
-    private synchronized Integer getPageIDFromCache(final int wikiID, final String pageTitle) {
-        Integer pageID = null;
-        if (pageTitleCache.containsKey(wikiID)) {
-            // FIXME: cache als eigene Klasse schreiben, kapseln und equals Methode überschreiben
-            pageID = pageTitleCache.get(wikiID).get(pageTitle);
-        }
-        // if (pageID != null) {
-        // LOGGER.info("Cachehit for wikiID " + wikiID + " page " + pageTitle);
-        // } else {
-        // LOGGER.info("CacheMISS for wikiID " + wikiID + " page " + pageTitle);
-        // }
-        return pageID;
     }
 
 }
