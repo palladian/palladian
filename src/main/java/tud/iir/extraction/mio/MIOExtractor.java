@@ -156,24 +156,8 @@ public final class MIOExtractor extends Extractor {
                     // many threads get started
                     ThreadHelper.sleep(2 * DateHelper.SECOND_MS);
 
-                    int count = 0;
                     while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                        LOGGER.info("NEED TO WAIT FOR FREE THREAD SLOT (count: " + getThreadCount() + ", allowed: "
-                                + MAX_EXTRACTION_THREADS + ") "
-                                + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
-                        if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
-                            LOGGER.warn("apparently " + getThreadCount()
-                                    + " threads have not finished correctly but thread group is empty, continuing...");
-                            resetThreadCount();
-                            break;
-                        }
-
-                        ThreadHelper.sleep(WAIT_FOR_FREE_THREAD_SLOT);
-                        if (isStopped()) {
-                            count++;
-                        }
-                        if (count > 25) {
-                            LOGGER.info("waited 25 iterations after stop has been called, breaking now");
+                        if (!waitForFreeThreadSlot(LOGGER)) {
                             break;
                         }
                     }
