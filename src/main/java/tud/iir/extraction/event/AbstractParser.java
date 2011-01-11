@@ -39,7 +39,7 @@ public abstract class AbstractParser {
      * loads the model into the parser.
      * 
      * @param configModelPath
-     * @return
+     * @return Boolean
      */
     public abstract boolean loadModel(String configModelPath);
 
@@ -60,7 +60,7 @@ public abstract class AbstractParser {
     /**
      * @return the model
      */
-    public Object getModel() {
+    public final Object getModel() {
         return model;
     }
 
@@ -68,14 +68,14 @@ public abstract class AbstractParser {
      * @param model
      *            the model to set
      */
-    public void setModel(Object model) {
+    public final void setModel(Object model) {
         this.model = model;
     }
 
     /**
      * @return the name
      */
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
@@ -83,14 +83,14 @@ public abstract class AbstractParser {
      * @param name
      *            the name to set
      */
-    public void setName(String name) {
+    public final void setName(String name) {
         this.name = name;
     }
 
     /**
      * @return the tagAnnotations
      */
-    public TagAnnotations getTagAnnotations() {
+    public final TagAnnotations getTagAnnotations() {
         return tagAnnotations;
     }
 
@@ -98,7 +98,7 @@ public abstract class AbstractParser {
      * @param tagAnnotations
      *            the tagAnnotations to set
      */
-    public void setTagAnnotations(TagAnnotations tagAnnotations) {
+    public final void setTagAnnotations(TagAnnotations tagAnnotations) {
         this.tagAnnotations = tagAnnotations;
     }
 
@@ -122,6 +122,12 @@ public abstract class AbstractParser {
         LOGGER.info("time elapsed: " + stopWatch.getElapsedTimeString());
     }
 
+    /**
+     * Converts a parse tree into Annotations.
+     * 
+     * @param parse
+     * @param tagAnnotations
+     */
     public void parse2Annotations(Parse parse, TagAnnotations tagAnnotations) {
         if (parse.getChildCount() > 0) {
             for (int i = 0; i < parse.getChildCount(); i++) {
@@ -138,6 +144,11 @@ public abstract class AbstractParser {
 
     }
 
+    /**
+     * Prints out the parse tree.
+     * 
+     * @param parse
+     */
     public void printParse(Parse parse) {
         if (parse.getChildCount() > 0) {
             for (int i = 0; i < parse.getChildCount(); i++) {

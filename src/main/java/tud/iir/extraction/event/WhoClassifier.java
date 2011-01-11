@@ -69,7 +69,7 @@ public class WhoClassifier extends Classifier {
 
         try {
             final double[] fDistribution = getClassifier()
-            .distributionForInstance(iUse);
+                    .distributionForInstance(iUse);
 
             return (float) fDistribution[0];
         } catch (final Exception e) {
@@ -106,8 +106,10 @@ public class WhoClassifier extends Classifier {
     public void testClassifier(String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(getChosenClassifier());
-        Event event = EventExtractor.getInstance().createEventFromURL(
-                "http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
+        Event event = EventExtractor
+                .getInstance()
+                .createEventFromURL(
+                        "http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
 
         eventExtractor.getFeatureExtractor().setFeatures(event);
         eventExtractor.extractWho(event);
@@ -121,7 +123,7 @@ public class WhoClassifier extends Classifier {
         weka.classifiers.Classifier trainedClassifier;
         try {
             trainedClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper
-            .read(filePath);
+                    .read(filePath);
             createWekaAttributes(featureNames.length, featureNames);
             setClassifier(trainedClassifier);
         } catch (final Exception e) {
@@ -136,10 +138,10 @@ public class WhoClassifier extends Classifier {
      */
     public void collectTrainingData(String filePath) {
 
-        final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
+        EventExtractor eventExtractor = EventExtractor.getInstance();
 
-        final Map<Integer, String[]> events = featureExtractor
-        .readCSV("data/news_articles.csv");
+        final Map<Integer, String[]> events = eventExtractor
+                .getFeatureExtractor().readCSV("data/news_articles.csv");
 
         for (final Entry<Integer, String[]> entry : events.entrySet()) {
 
@@ -156,9 +158,10 @@ public class WhoClassifier extends Classifier {
             // String why = fields[5];
             // String how = fields[6];
 
-            eventMap.put(url, EventExtractor.getInstance().extractEventFromURL(url));
+            eventMap.put(url, eventExtractor.extractEventFromURL(url));
 
-            featureExtractor.setAnnotationFeatures(eventMap);
+            eventExtractor.getFeatureExtractor()
+                    .setAnnotationFeatures(eventMap);
 
             List<String> whos = new ArrayList<String>();
 
@@ -168,7 +171,8 @@ public class WhoClassifier extends Classifier {
                 whos.add(who);
             }
 
-            featureExtractor.writeCSV(filePath, eventMap, whos, true);
+            eventExtractor.getFeatureExtractor().writeCSV(filePath, eventMap,
+                    whos, true);
 
             // CollectionHelper.print(eventMap);
 

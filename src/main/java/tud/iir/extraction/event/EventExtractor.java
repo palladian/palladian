@@ -9,8 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -45,7 +45,10 @@ import com.aliasi.tokenizer.Tokenizer;
 import com.aliasi.tokenizer.TokenizerFactory;
 
 /**
- * Event Extractor
+ * <p>
+ * Event Extractor. The Event Extractor extracts the 5W1H answers from a news
+ * article.
+ * </p>
  * 
  * @author Martin Wunderwald
  * @author David Urbansky
@@ -64,20 +67,31 @@ public class EventExtractor extends Extractor {
     /** Number of events to extracts before saving them. */
     private static final int SAVE_COUNT = 5;
 
+    /** The WhereClassfier to classify possible where entities. **/
     private WhereClassifier whereClassifier;
+
+    /** The WhoClassifier to classify possible who entities. **/
     private WhoClassifier whoClassifier;
 
+    /** An instance of the featureExtractor used for text processing. **/
     private EventFeatureExtractor featureExtractor;
 
     private final String MODEL_WHERE;
     private final String MODEL_WHO;
 
+    /** Experimental deepMode for deeper 5W1H extraction. **/
     private boolean deepMode = false;
 
+    /**
+     * @author Martin Wunderwald
+     */
     static class SingletonHolder {
         static EventExtractor instance = new EventExtractor();
     }
 
+    /**
+     * @return instance of EventExtractor
+     */
     public static EventExtractor getInstance() {
         return SingletonHolder.instance;
     }
@@ -88,7 +102,7 @@ public class EventExtractor extends Extractor {
     private EventExtractor() {
         super();
         // do not analyze any binary files
-        featureExtractor = new EventFeatureExtractor();
+        featureExtractor = EventFeatureExtractor.getInstance();
 
         PropertiesConfiguration config = null;
 
@@ -111,7 +125,7 @@ public class EventExtractor extends Extractor {
      * @param url
      * @return
      */
-    public Event createEventFromURL(String url) {
+    public Event createEventFromURL(final String url) {
         Event event = null;
         try {
 
@@ -786,8 +800,9 @@ public class EventExtractor extends Extractor {
 
         final StopWatch sw = new StopWatch();
         sw.start();
-        Event event = EventExtractor.getInstance().extractEventFromURL(
-                "http://www.guardian.co.uk/society/2010/dec/24/freezing-weather-homeless-charities/print");
+        EventExtractor eventExtractor = EventExtractor.getInstance();
+        Event event = eventExtractor
+                .extractEventFromURL("http://www.guardian.co.uk/society/2010/dec/24/freezing-weather-homeless-charities/print");
         // System.out.println(StringHelper.makeContinuousText(event.getText()));
         // ee.featureExtractor
         // .getPOSTags("Mr Gates said they wanted to show solidarity with their allies in Seoul.");
