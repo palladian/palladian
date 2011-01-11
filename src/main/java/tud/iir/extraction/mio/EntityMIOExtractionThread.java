@@ -79,6 +79,9 @@ public class EntityMIOExtractionThread extends Thread {
 
         Set<MIO> mioSet = new HashSet<MIO>();
         for (MIO mio : mios) {
+            if (interrupted()) {
+                break;
+            }
 
             // calculate trust
             mioClass.classify(mio);
@@ -93,6 +96,10 @@ public class EntityMIOExtractionThread extends Thread {
 
         // check that directURL- and findPageURL-length is not longer than 767
         for (MIO mio : mioSet) {
+            if (interrupted()) {
+                break;
+            }
+
             if (mio.getDirectURL().length() >= 767) {
                 String directURL = mio.getDirectURL().substring(0, 766);
                 mio.setDirectURL(directURL);

@@ -1,5 +1,7 @@
 package tud.iir.extraction;
 
+import java.util.Set;
+
 import org.apache.log4j.Logger;
 
 import tud.iir.control.Controller;
@@ -9,8 +11,10 @@ import tud.iir.extraction.fact.FactExtractionProcess;
 import tud.iir.extraction.mio.MIOExtractionProcess;
 import tud.iir.extraction.qa.QAExtractionProcess;
 import tud.iir.extraction.snippet.SnippetExtractionProcess;
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
@@ -205,6 +209,9 @@ public class ExtractionProcessManager {
 
     public static void startFullExtractionLoop() {
 
+        Set<Thread> threads = ThreadHelper.getAllNonDaemonThreads();
+        CollectionHelper.print(threads);
+
         // SourceRetrieverManager.getInstance().setSource(SourceRetrieverManager.GOOGLE);
         // SourceRetrieverManager.getInstance().setResultCount(100);
 
@@ -222,6 +229,8 @@ public class ExtractionProcessManager {
 
         int loopCount = 1;
         while (true) {
+
+            StopWatch sw = new StopWatch();
 
             if (Controller.getConfig().getInt("extraction.entitySlot") > 0) {
                 startEntityExtraction();
@@ -276,6 +285,15 @@ public class ExtractionProcessManager {
                 stopEventExtraction();
                 LOGGER.info("event extraction stopped, continue");
             }
+
+            LOGGER.info("this loop took " + sw.getElapsedTimeString());
+            LOGGER.info("the following non-daemon threads are still running:");
+            threads = ThreadHelper.getAllNonDaemonThreads();
+            LOGGER.info(CollectionHelper.getPrint(threads));
+
+            LOGGER.info("the following daemon threads are still running:");
+            threads = ThreadHelper.getAllDaemonThreads();
+            LOGGER.info(CollectionHelper.getPrint(threads));
 
             // cleansing and management
             // if (loopCount % 10 == 0) {

@@ -51,6 +51,10 @@ public class EntitySnippetExtractionThread extends Thread {
 
         String[] querySet = sq.getQuerySet();
         for (String query : querySet) {
+            if (interrupted()) {
+                break;
+            }
+
             List<WebResult> webResults = sr.getWebResults(query, false);
             results.addAll(webResults);
         }
@@ -59,6 +63,10 @@ public class EntitySnippetExtractionThread extends Thread {
         SnippetBuilder sb = new SnippetBuilder();
         List<Snippet> snippetCandidates = new ArrayList<Snippet>();
         for (WebResult webresult : results) {
+
+            if (interrupted()) {
+                break;
+            }
 
             List<Snippet> extractedSnippets = sb.extractSnippets(entity, webresult);
             if (extractedSnippets != null) {
@@ -82,7 +90,8 @@ public class EntitySnippetExtractionThread extends Thread {
 
         LOGGER.info("Thread for \"" + entity.getName() + "\" " + "(" + entity.getID() + ") " + "finished in "
                 + DateHelper.getRuntime(t1) + "s, " + snippetCandidates.size() + " snippets, from " + sources.size()
-                + " sources were extracted.");
+                + " sources were extracted");
+
         SnippetExtractor.getInstance().decreaseThreadCount();
     }
 }

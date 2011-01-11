@@ -1,9 +1,8 @@
 package tud.iir.extraction.qa;
 
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Node;
@@ -48,13 +47,17 @@ public class QAExtractionThread extends Thread {
         // set up the crawler
         crawler.setDocument(qaURL.getUrl());
         pa.setDocument(crawler.getDocument());
-        HashSet<String> inDomainLinks = null;
+        Set<String> inDomainLinks = null;
 
         inDomainLinks = crawler.getLinks(true, false, qaSite.getEntryURL());
         extractFromQASite(qaURL);
 
         // add all internal links to stack
         for (String url : inDomainLinks) {
+
+            if (interrupted()) {
+                break;
+            }
 
             // replace ?xyz if not "=" follows
             url = url.replaceAll("\\?[^=]+(?!(.*?=))", "");
@@ -94,8 +97,7 @@ public class QAExtractionThread extends Thread {
             }
 
             List<Node> answerNodes = XPathHelper.getNodes(crawler.getDocument(), qaSite.getAllAnswersXPath());
-            for (Iterator<Node> iterator = answerNodes.iterator(); iterator.hasNext();) {
-                Node node = iterator.next();
+            for (Node node : answerNodes) {
                 String answer = node.getTextContent();
                 if (answer.length() > 0) {
                     qa.addAnswer(answer, qaURL.getUrl(), qaSite.getAllAnswersXPath());
