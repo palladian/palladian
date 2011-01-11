@@ -90,7 +90,7 @@ public class EntityFactExtractionThread extends Thread {
             Attribute currentAttribute = attributeArray[i];
             currentAttribute.setLastSearched(new Date(System.currentTimeMillis()));
 
-            if (FactExtractor.getInstance().isStopped()) {
+            if (interrupted() || FactExtractor.getInstance().isStopped()) {
                 LOGGER.info("fact extraction process stopped");
                 break;
             }
@@ -205,7 +205,7 @@ public class EntityFactExtractionThread extends Thread {
             // }
             // String path = IndexManager.getInstance().getIndexPath()+"/";
             // String filename = "website"+counter+".html";
-            //			
+            //
             // // download urls only once but when they are free text queries (because these have not been tested on
             // general query results)
             // if (fq.getFactStructureType() == FactQuery.FREE_TEXT_ONLY || urlsSeenForEntity.add(url)) {
@@ -213,14 +213,14 @@ public class EntityFactExtractionThread extends Thread {
             // IndexManager.getInstance().writeIndex(filename, url, resultID);
             // logger.log("download and index "+url+" resultID "+resultID,true);
             // ++counter;
-            //					
+            //
             // } else {
             // logger.log("error when downloading "+url,true);
             // }
             // } else {
             // logger.log("url has been downloaded already "+url,true);
             // }
-            //			
+            //
             // ///////////////////////////////////////////////////////////////////////
 
             LOGGER.info("analyze url: " + url);
@@ -364,8 +364,8 @@ public class EntityFactExtractionThread extends Thread {
         }
 
         String[] querySet = fq.getQuerySet();
-        for (int i = 0; i < querySet.length; i++) {
-            images.addAll(sr.getImages(querySet[i], SourceRetrieverManager.GOOGLE, false, matchContent));
+        for (String element : querySet) {
+            images.addAll(sr.getImages(element, SourceRetrieverManager.GOOGLE, false, matchContent));
         }
 
         // start image analysis
@@ -547,12 +547,12 @@ public class EntityFactExtractionThread extends Thread {
                 // System.out.println("found in sentence ("+factString.getType()+") "+m.group()+" (closest so far: "+shortestDistanceValue+") after value:"+afterValueText/*+distance+" "+attributeIndex+" "+shortestDistance*/);
                 LOGGER.info("found in sentence (" + factString.getExtractionType() + ") " + m.group()
                         + " (closest so far: " + shortestDistanceValue + ") after value:" + afterValueText/*
-                                                                                                           * +distance+" "
-                                                                                                           * +
-                                                                                                           * attributeIndex
-                                                                                                           * +" "+
-                                                                                                           * shortestDistance
-                                                                                                           */);
+                         * +distance+" "
+                         * +
+                         * attributeIndex
+                         * +" "+
+                         * shortestDistance
+                         */);
             }
 
             // add fact candidate for entity and attribute, checking whether fact or fact value has been entered already
@@ -577,7 +577,7 @@ public class EntityFactExtractionThread extends Thread {
             // fact so take everything
             // if (attribute.getValueType() == Attribute.VALUE_STRING && searchString.length() < 40 &&
             // factString.getType() == ExtractionType.TABLE_CELL) {
-            //        		
+            //
             // // add fact candidate for entity and attribute, checking whether fact or fact value has been entered
             // already is done in the entity and fact class
             // respectively
@@ -585,8 +585,8 @@ public class EntityFactExtractionThread extends Thread {
             // //entity.addFactAndValue(new Fact(attribute),new FactValue(searchString,new
             // Source(Source.SEMI_STRUCTURED,getCurrentSource())));
             // addFactValue(entity,attribute,searchString,factString.getType());
-            //    			
-            //        	       	
+            //
+            //
             // } else
 
             // for strings, numbers, booleans and dates take the first appearance only
