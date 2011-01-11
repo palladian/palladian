@@ -21,15 +21,23 @@ import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.TokenizerFactory;
 import com.aliasi.util.FastCache;
 
+/**
+ * @author Martin Wunderwald
+ */
 public class LingPipePOSTagger extends AbstractPOSTagger {
 
-    /** the logger for this class */
+    /** the logger for this class. */
     private static final Logger LOGGER = Logger
-    .getLogger(LingPipePOSTagger.class);
+            .getLogger(LingPipePOSTagger.class);
 
+    /** the model. **/
     private final String MODEL;
 
+    /**
+     * Constructor.
+     */
     public LingPipePOSTagger() {
+        super();
         setName("LingPipe POS-Tagger");
         PropertiesConfiguration config = null;
 
@@ -42,14 +50,23 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
         }
     }
 
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.extraction.event.AbstractPOSTagger#loadModel()
+     */
     @Override
     public boolean loadModel() {
         this.loadModel(MODEL);
         return false;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see
+     * tud.iir.extraction.event.AbstractPOSTagger#loadModel(java.lang.String)
+     */
     @Override
-    public boolean loadModel(String configModelFilePath) {
+    public boolean loadModel(final String configModelFilePath) {
 
         ObjectInputStream oi = null;
 
@@ -59,7 +76,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
             if (DataHolder.getInstance()
                     .containsDataObject(configModelFilePath)) {
                 hmm = (HiddenMarkovModel) DataHolder.getInstance()
-                .getDataObject(configModelFilePath);
+                        .getDataObject(configModelFilePath);
             } else {
 
                 final StopWatch stopWatch = new StopWatch();
@@ -69,7 +86,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
                         configModelFilePath));
                 hmm = (HiddenMarkovModel) oi.readObject();
                 DataHolder.getInstance()
-                .putDataObject(configModelFilePath, hmm);
+                        .putDataObject(configModelFilePath, hmm);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + this.getName() + " from file "
@@ -98,8 +115,12 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.extraction.event.AbstractPOSTagger#tag(java.lang.String)
+     */
     @Override
-    public void tag(String sentence) {
+    public void tag(final String sentence) {
 
         final int cacheSize = Integer.valueOf(100);
         final FastCache<String, double[]> cache = new FastCache<String, double[]>(
@@ -123,7 +144,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
 
             final TagAnnotation tagAnnotation = new TagAnnotation(sentence
                     .indexOf(tagging.token(i)), tagging.tag(i).toUpperCase(
-                            new Locale("en")), tagging.token(i));
+                    new Locale("en")), tagging.token(i));
             tagAnnotations.add(tagAnnotation);
 
         }
@@ -131,6 +152,11 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.extraction.event.AbstractPOSTagger#tag(java.lang.String,
+     * java.lang.String)
+     */
     @Override
     public void tag(String sentence, String configModelFilePath) {
         this.loadModel(configModelFilePath);

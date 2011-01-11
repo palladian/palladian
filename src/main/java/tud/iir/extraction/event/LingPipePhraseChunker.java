@@ -29,7 +29,7 @@ import com.aliasi.util.FastCache;
 import com.aliasi.util.Strings;
 
 /**
- * Expects to chunk 1 sentence at a time.
+ * Expects to chunk 1 sentence at a time. Needs lingPipe pos-tag model.
  * 
  * @author Martin Wunderwald
  */
@@ -64,7 +64,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     /** the logger for this class */
     private static final Logger LOGGER = Logger
-    .getLogger(LingPipePhraseChunker.class);
+            .getLogger(LingPipePhraseChunker.class);
 
     private static final Set<String> DETERMINER_TAGS = new HashSet<String>();
     private static final Set<String> ADJECTIVE_TAGS = new HashSet<String>();
@@ -228,7 +228,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
     }
 
     /**
-     * internal chunking method
+     * The internal chunking method.
      * 
      * @param cs
      * @param start
@@ -245,9 +245,9 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 - start);
         tokenizer.tokenize(tokenList, whiteList);
         final String[] tokens = tokenList.<String> toArray(new String[tokenList
-                                                                      .size()]);
+                .size()]);
         final String[] whites = whiteList.<String> toArray(new String[whiteList
-                                                                      .size()]);
+                .size()]);
 
         // part-of-speech tag
         final int cacheSize = Integer.valueOf(100);
@@ -277,7 +277,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 // punctuation
                 int trimmedEndChunk = endChunk;
                 for (int k = i; --k >= 0
-                && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
+                        && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
                     trimmedEndChunk -= (whites[k].length() + tokens[k].length());
                 }
                 if (startChunk >= trimmedEndChunk) {
@@ -299,7 +299,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 }
                 int trimmedEndChunk = endChunk;
                 for (int k = i; --k >= 0
-                && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
+                        && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
                     trimmedEndChunk -= (whites[k].length() + tokens[k].length());
                 }
                 if (startChunk >= trimmedEndChunk) {
@@ -326,7 +326,8 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
      * java.lang.String)
      */
     @Override
-    public final void chunk(String sentence, String configModelFilePath) {
+    public final void chunk(final String sentence,
+            final String configModelFilePath) {
         this.loadModel(configModelFilePath);
         this.chunk(sentence);
     }
@@ -338,7 +339,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
      * )
      */
     @Override
-    public final boolean loadModel(String configModelFilePath) {
+    public final boolean loadModel(final String configModelFilePath) {
 
         ObjectInputStream oi = null;
 
@@ -349,7 +350,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
             if (DataHolder.getInstance()
                     .containsDataObject(configModelFilePath)) {
                 hmm = (HiddenMarkovModel) DataHolder.getInstance()
-                .getDataObject(configModelFilePath);
+                        .getDataObject(configModelFilePath);
             } else {
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
@@ -358,7 +359,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                         configModelFilePath));
                 hmm = (HiddenMarkovModel) oi.readObject();
                 DataHolder.getInstance()
-                .putDataObject(configModelFilePath, hmm);
+                        .putDataObject(configModelFilePath, hmm);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + this.getName() + " from file "

@@ -16,24 +16,25 @@ import tud.iir.helper.ConfigHolder;
 import weka.core.Instance;
 
 /**
- * The Who Classifier
+ * The Who Classifier.
  * 
  * @author Martin Wunderwald
  */
 public class WhoClassifier extends Classifier {
 
     /**
-     * the feature names
+     * the feature names.
      */
     private final String[] featureNames;
 
     /** the logger for this class */
     private static final Logger LOGGER = Logger.getLogger(WhoClassifier.class);
 
+    /** The model file path. **/
     private final String MODEL;
 
     /**
-     * constructor.
+     * Constructor.
      * 
      * @param type
      */
@@ -59,10 +60,12 @@ public class WhoClassifier extends Classifier {
     }
 
     /**
+     * Classifies the feature object.
+     * 
      * @param fo
-     * @return
+     * @return distribution
      */
-    public float classify(FeatureObject fo) {
+    public float classify(final FeatureObject fo) {
 
         final Instance iUse = createInstance(getFvWekaAttributes(),
                 discretize(fo.getFeatures()), getTrainingSet());
@@ -85,7 +88,7 @@ public class WhoClassifier extends Classifier {
      * @param path
      */
     @Override
-    public void trainClassifier(String filePath) {
+    public void trainClassifier(final String filePath) {
         final ArrayList<FeatureObject> fo = readFeatureObjects(filePath);
         setTrainingObjects(fo);
         super.trainClassifier(filePath);
@@ -103,7 +106,7 @@ public class WhoClassifier extends Classifier {
      * @see tud.iir.classification.Classifier#testClassifier(java.lang.String)
      */
     @Override
-    public void testClassifier(String filePath) {
+    public void testClassifier(final String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(getChosenClassifier());
         Event event = EventExtractor
@@ -119,7 +122,7 @@ public class WhoClassifier extends Classifier {
     /**
      * Use an already trained classifier.
      */
-    public void useTrainedClassifier(String filePath) {
+    public void useTrainedClassifier(final String filePath) {
         weka.classifiers.Classifier trainedClassifier;
         try {
             trainedClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper
@@ -136,7 +139,7 @@ public class WhoClassifier extends Classifier {
      * 
      * @param filePath
      */
-    public void collectTrainingData(String filePath) {
+    public void collectTrainingData(final String filePath) {
 
         EventExtractor eventExtractor = EventExtractor.getInstance();
 

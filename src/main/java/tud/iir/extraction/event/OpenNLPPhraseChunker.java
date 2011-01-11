@@ -15,9 +15,14 @@ import tud.iir.helper.StopWatch;
 
 public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
+    /** The model path. **/
     private final String MODEL;
 
+    /**
+     * Constructor.
+     */
     public OpenNLPPhraseChunker() {
+        super();
         this.setName("OpenNLP Phrase Chunker");
         PropertiesConfiguration config = null;
 
@@ -30,7 +35,14 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
         }
     }
 
-    public void chunk(String sentence, List<String> tokenList,
+    /**
+     * Chunks a sentence into annotations by a given list of tokens and postags.
+     * 
+     * @param sentence
+     * @param tokenList
+     * @param posList
+     */
+    public void chunk(final String sentence, List<String> tokenList,
             List<String> posList) {
 
         final List<String> chunkList = ((ChunkerME) getModel()).chunk(
@@ -54,8 +66,8 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
             }
             if (((i + 1) < chunkList.size() && chunkList.get(i + 1).contains(
-            "B-"))
-            || i == chunkList.size() - 1) {
+                    "B-"))
+                    || i == chunkList.size() - 1) {
 
                 tagAnnotations.add(new TagAnnotation(sentence.indexOf(token),
                         tag, token));
@@ -64,14 +76,25 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
         this.setTagAnnotations(tagAnnotations);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see
+     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
+     * java.lang.String)
+     */
     @Override
-    public void chunk(String sentence, String configModelFilePath) {
+    public final void chunk(String sentence, String configModelFilePath) {
         this.loadModel(configModelFilePath);
         this.chunk(sentence);
     }
 
+    /*
+     * (non-Javadoc)
+     * @see
+     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
+     */
     @Override
-    public void chunk(String sentence) {
+    public final void chunk(String sentence) {
 
         final OpenNLPPOSTagger tagger = new OpenNLPPOSTagger();
         tagger.loadModel();
@@ -82,8 +105,14 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see
+     * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
+     * )
+     */
     @Override
-    public boolean loadModel(String configModelFilePath) {
+    public final boolean loadModel(String configModelFilePath) {
         try {
 
             ChunkerME tbc = null;
@@ -100,7 +129,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
                 tbc = new ChunkerME(new ChunkerModel(new FileInputStream(
                         configModelFilePath)));
                 DataHolder.getInstance()
-                .putDataObject(configModelFilePath, tbc);
+                        .putDataObject(configModelFilePath, tbc);
 
                 stopWatch.stop();
                 LOGGER.info("Reading " + this.getName() + " from file "
@@ -118,8 +147,12 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     }
 
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
+     */
     @Override
-    public boolean loadModel() {
+    public final boolean loadModel() {
         return this.loadModel(MODEL);
     }
 

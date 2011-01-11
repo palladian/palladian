@@ -803,6 +803,7 @@ public class EventExtractor extends Extractor {
         EventExtractor eventExtractor = EventExtractor.getInstance();
         Event event = eventExtractor
                 .extractEventFromURL("http://www.guardian.co.uk/society/2010/dec/24/freezing-weather-homeless-charities/print");
+        eventExtractor.extract5W1H(event);
         // System.out.println(StringHelper.makeContinuousText(event.getText()));
         // ee.featureExtractor
         // .getPOSTags("Mr Gates said they wanted to show solidarity with their allies in Seoul.");

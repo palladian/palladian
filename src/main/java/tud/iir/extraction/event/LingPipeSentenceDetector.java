@@ -20,6 +20,7 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * Constructor.
      */
     public LingPipeSentenceDetector() {
+        super();
         setName("LingPipe MaximumEntropy SentenceDetector");
     }
 
@@ -30,13 +31,13 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * )
      */
     @Override
-    public void detect(String text) {
+    public void detect(final String text) {
         final Chunking chunking = ((SentenceChunker) getModel()).chunk(text);
         final String[] sentences = new String[chunking.chunkSet().size()];
-        int i = 0;
+        int ite = 0;
         for (final Chunk chunk : chunking.chunkSet()) {
-            sentences[i] = text.substring(chunk.start(), chunk.end());
-            i++;
+            sentences[ite] = text.substring(chunk.start(), chunk.end());
+            ite++;
         }
         setSentences(sentences);
     }
@@ -48,7 +49,7 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * , java.lang.String)
      */
     @Override
-    public void detect(String text, String configModelFilePath) {
+    public void detect(final String text, final String configModelFilePath) {
         detect(text);
     }
 
@@ -59,7 +60,7 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * .String)
      */
     @Override
-    public boolean loadModel(String configModelFilePath) {
+    public boolean loadModel(final String configModelFilePath) {
         final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
         final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
 

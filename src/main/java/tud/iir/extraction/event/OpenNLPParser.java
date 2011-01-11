@@ -36,13 +36,15 @@ public class OpenNLPParser extends AbstractParser {
      * Logger for this class.
      */
     protected static final Logger LOGGER = Logger
-    .getLogger(OpenNLPParser.class);
+            .getLogger(OpenNLPParser.class);
 
     private opennlp.tools.parser.Parse parse;
 
+    /** The model path. **/
     private final String MODEL;
 
     public OpenNLPParser() {
+        super();
         this.setName("OpenNLP Parser");
         PropertiesConfiguration config = null;
 
@@ -56,7 +58,7 @@ public class OpenNLPParser extends AbstractParser {
     }
 
     @Override
-    public boolean loadModel(String configModelPath) {
+    public boolean loadModel(final String configModelPath) {
 
         try {
 
@@ -64,7 +66,7 @@ public class OpenNLPParser extends AbstractParser {
 
             if (DataHolder.getInstance().containsDataObject(configModelPath)) {
                 parser = (opennlp.tools.parser.Parser) DataHolder.getInstance()
-                .getDataObject(configModelPath);
+                        .getDataObject(configModelPath);
 
             } else {
 
@@ -105,7 +107,7 @@ public class OpenNLPParser extends AbstractParser {
      *         initialized or the sentence is empty
      */
     @Override
-    public void parse(String sentence) {
+    public final void parse(final String sentence) {
 
         parse(sentence, 0);
 
@@ -118,7 +120,7 @@ public class OpenNLPParser extends AbstractParser {
      * @param sentence
      * @param index
      */
-    public void parse(String sentence, int index) {
+    public final void parse(final String sentence, final int index) {
 
         parse = getFullParse(sentence)[index];
 
@@ -130,9 +132,12 @@ public class OpenNLPParser extends AbstractParser {
     }
 
     /**
-     * @return the full parse
+     * Returns the full parse for a sentence as openNLP parse.
+     * 
+     * @param sentence
+     * @return full parse
      */
-    public opennlp.tools.parser.Parse[] getFullParse(String sentence) {
+    public opennlp.tools.parser.Parse[] getFullParse(final String sentence) {
 
         opennlp.tools.parser.Parse[] parse;
 
@@ -168,16 +173,16 @@ public class OpenNLPParser extends AbstractParser {
      * @param parses
      *            array of full parses of sentences
      */
-    public static void link(Parse[] parses) {
+    public static void link(final Parse[] parses) {
         int sentenceNumber = 0;
         final List<Mention> document = new ArrayList<Mention>();
 
         TreebankLinker linker;
         try {
             if (DataHolder.getInstance().containsDataObject(
-            "data/models/opennlp/coref/")) {
+                    "data/models/opennlp/coref/")) {
                 linker = (TreebankLinker) DataHolder.getInstance()
-                .getDataObject("data/models/opennlp/coref/");
+                        .getDataObject("data/models/opennlp/coref/");
 
             } else {
 
@@ -194,7 +199,7 @@ public class OpenNLPParser extends AbstractParser {
             for (final Parse parse : parses) {
                 final DefaultParse dp = new DefaultParse(parse, sentenceNumber);
                 final Mention[] extents = linker.getMentionFinder()
-                .getMentions(dp);
+                        .getMentions(dp);
 
                 // construct new parses for mentions which do not have
                 // constituents
@@ -217,12 +222,11 @@ public class OpenNLPParser extends AbstractParser {
                 // Mention[document.size()]);
                 // DiscourseEntity[] entities = linker.getEntities(ms);
                 // TODO return results in an appropriate data structure
-                CollectionHelper.print(document);
+                LOGGER.info(document.toString());
             }
 
         } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.error(e);
         }
     }
 }

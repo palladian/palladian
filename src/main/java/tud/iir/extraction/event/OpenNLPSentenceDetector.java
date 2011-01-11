@@ -29,15 +29,16 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      * Logger for this class.
      */
     protected static final Logger LOGGER = Logger
-    .getLogger(OpenNLPSentenceDetector.class);
+            .getLogger(OpenNLPSentenceDetector.class);
 
-    /** model for opennlp sentence detection */
+    /** model path for opennlp sentence detection. */
     private final String MODEL;
 
     /**
      * constructor for this class.
      */
     public OpenNLPSentenceDetector() {
+        super();
         setName("OpenNLP Sentence Detector");
 
         PropertiesConfiguration config = null;
@@ -92,7 +93,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         if (DataHolder.getInstance().containsDataObject(configModelFilePath)) {
 
             sdetector = (SentenceDetectorME) DataHolder.getInstance()
-            .getDataObject(configModelFilePath);
+                    .getDataObject(configModelFilePath);
 
         } else {
 
@@ -123,6 +124,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
                     try {
                         modelIn.close();
                     } catch (final IOException e) {
+                        LOGGER.error(e);
                     }
                 }
             }
@@ -130,7 +132,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
         setModel(sdetector);
 
-        return false;
+        return true;
     }
 
     /*
@@ -153,7 +155,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         onlpstd.loadModel();
 
         onlpstd
-        .detect("This are two example Sentences. Oh, we now in the second sentence already.");
+                .detect("This are two example Sentences. Oh, we now in the second sentence already.");
         CollectionHelper.print(onlpstd.getSentences());
 
         stopWatch.stop();
