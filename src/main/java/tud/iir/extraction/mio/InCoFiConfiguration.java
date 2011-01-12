@@ -155,9 +155,9 @@ public class InCoFiConfiguration {
      */
     public List<String> getVocByConceptName(String conceptName) {
         String cName = conceptName.toLowerCase(Locale.ENGLISH);
-        List<String> vocabularyList;
+        List<String> vocabularyList = new ArrayList<String>();
 
-        // if vocabulary-map does not exist, do generate
+        // if vocabulary-map does not exist, generate
         if (searchVocabulary == null) {
             searchVocabulary = new HashMap<String, List<String>>();
             for (YamlVocEntry vocEntry : vocabulary) {
@@ -167,9 +167,10 @@ public class InCoFiConfiguration {
         }
 
         // take specific vocabulary from map, if no entry for the concept exists use the universal vocabulary
-        vocabularyList = searchVocabulary.get(cName);
-        if (vocabularyList == null) {
-            vocabularyList = searchVocabulary.get("universal");
+        if (searchVocabulary.get(cName) == null) {
+            vocabularyList.addAll(searchVocabulary.get("universal"));
+        } else {
+            vocabularyList.addAll(searchVocabulary.get(cName));
         }
 
         return vocabularyList;

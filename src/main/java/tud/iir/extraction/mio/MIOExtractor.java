@@ -34,7 +34,7 @@ public final class MIOExtractor extends Extractor {
     private static final Logger LOGGER = Logger.getLogger(MIOExtractor.class);
 
     /** The maximum number of extraction threads. */
-    private static final int MAX_EXTRACTION_THREADS = 3;
+    private static final int MAX_EXTRACTION_THREADS = 1;
 
     /** The path to the MIO model. */
     static String MIO_MODEL_PATH;
@@ -58,7 +58,6 @@ public final class MIOExtractor extends Extractor {
 
         if (config != null) {
             MIO_MODEL_PATH = config.getString("models.palladian.mio");
-
         } else {
             MIO_MODEL_PATH = "";
         }
@@ -122,7 +121,7 @@ public final class MIOExtractor extends Extractor {
                     conceptEntities = currentConcept.getEntities();
                 }
 
-                // conceptEntities.add(new Entity("Bill Gates", new Concept("Person")));
+                // conceptEntities.add(new Entity("Bill Gates" + Math.random(), new Concept("Person")));
 
                 // wait for a certain time when no entities were found, then restart
                 if (conceptEntities.isEmpty()) {
@@ -201,7 +200,6 @@ public final class MIOExtractor extends Extractor {
 
             returnValue = config;
         } catch (FileNotFoundException e) {
-
             LOGGER.error(e.getMessage());
         }
         return returnValue;

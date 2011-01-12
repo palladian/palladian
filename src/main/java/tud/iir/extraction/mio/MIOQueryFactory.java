@@ -17,16 +17,16 @@ public class MIOQueryFactory {
     // private transient List<RolePage> rolePages;
 
     /** The entity. */
-    private final transient Entity entity;
+    private Entity entity;
 
     /** The concept. */
-    private final transient Concept concept;
+    private Concept concept;
 
     /** The value specifies how much a rolePage must be counted to be relevant. */
     // private transient int rolePageRelevanceValue;
 
     /** The concept search vocabulary. */
-    private final List<String> conceptSearchVocabulary;
+    private List<String> conceptSearchVocabulary;
 
     /**
      * Instantiates a new MIOQueryFactory.
@@ -78,9 +78,10 @@ public class MIOQueryFactory {
             } else {
                 searchQueries.add(entityName + " \"" + searchWord + "\"");
             }
+
         }
 
-        // add rolePages to search query, something might be wrong here because the number of queries grows
+        // add rolePages to search query
         // exponentially
         // if (!rolePages.isEmpty()) {
         //
