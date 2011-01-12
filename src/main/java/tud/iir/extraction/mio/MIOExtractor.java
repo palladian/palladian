@@ -34,7 +34,7 @@ public final class MIOExtractor extends Extractor {
     private static final Logger LOGGER = Logger.getLogger(MIOExtractor.class);
 
     /** The maximum number of extraction threads. */
-    private static final int MAX_EXTRACTION_THREADS = 1;
+    private static final int MAX_EXTRACTION_THREADS = 3;
 
     /** The path to the MIO model. */
     static String MIO_MODEL_PATH;
