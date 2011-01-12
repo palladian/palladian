@@ -1,7 +1,6 @@
 package tud.iir.news;
 
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -173,13 +172,14 @@ public class NewsAggregator {
             // well, which we use inside Palladian.
             plainXMLFeed = crawler.getXMLDocument(feedUrl, false, headerInformation);
             if (plainXMLFeed == null) {
-                if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
-                    throw new NewsAggregatorException("could not get document from " + feedUrl);
-                } else {
-                    // TODO return cached document here (from disk or database)
-                    LOGGER.debug("the feed was not modified: " + feedUrl);
-                    return null;
-                }
+                throw new NewsAggregatorException("could not get document from " + feedUrl);
+                // if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
+                // // TODO
+                // } else {
+                // // TODO return cached document here (from disk or database)
+                // LOGGER.debug("the feed was not modified: " + feedUrl);
+                // return null;
+                // }
             }
             result = feedInput.build(plainXMLFeed);
 

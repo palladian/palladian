@@ -23,7 +23,7 @@ public class MIOPageRetriever {
      * @param entity the entity
      * @return the list
      */
-    public List<MIOPage> retrieveMIOPages(final Entity entity, final boolean weakFlag) {
+    public List<MIOPage> retrieveMIOPages(Entity entity, boolean weakFlag) {
 
         List<MIOPage> mioPages;
 
@@ -32,10 +32,10 @@ public class MIOPageRetriever {
 
         // initiate search with searchEngines
         List<String> mioPageCandidates = getMIOPageCandidates(searchQueries);
-        
+
         LOGGER.info("Analyzing MIOPageCandidates startet..for " + entity.getName() + " Count: "
                 + mioPageCandidates.size());
-        
+
         // analyze the MIOPageCandidates for MIO-existence
         mioPages = analyzeMIOPageCandidates(mioPageCandidates, entity);
 
@@ -43,7 +43,7 @@ public class MIOPageRetriever {
 
         // detect DedicatedPages
         DedicatedPageDetector dpDetector = new DedicatedPageDetector();
-        for (MIOPage mioPage : mioPages) {            
+        for (MIOPage mioPage : mioPages) {
             dpDetector.calculateDedicatedPageTrust(mioPage);
         }
         return mioPages;

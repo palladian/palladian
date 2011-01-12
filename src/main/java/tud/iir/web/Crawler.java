@@ -1839,16 +1839,18 @@ public class Crawler {
 
             }
 
-            if (urlConnection instanceof HttpURLConnection) {
-                try {
-                    setLastResponseCode(((HttpURLConnection) urlConnection).getResponseCode());
-                } catch (Exception e) {
-                    LOGGER.error("could not get response code for URL " + url + ", " + e.getMessage());
-                }
-            }
-
             // use connection timeout from Palladian
             timeout = new ConnectionTimeout(urlConnection, overallTimeout);
+
+            // TODO? getResponseCode seems to be extremely slow or just hangs, similar to
+            // http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4352956
+            // if (urlConnection instanceof HttpURLConnection) {
+            // try {
+            // setLastResponseCode(((HttpURLConnection) urlConnection).getResponseCode());
+            // } catch (Exception e) {
+            // LOGGER.error("could not get response code for URL " + url + ", " + e.getMessage());
+            // }
+            // }
 
             String encoding = urlConnection.getContentEncoding();
             LOGGER.trace("encoding " + encoding);
@@ -2016,14 +2018,6 @@ public class Crawler {
             LOGGER.trace("disabled feed autodiscovery");
             removeCrawlerCallback(FeedDiscoveryCallback.getInstance());
         }
-    }
-
-    public void setLastResponseCode(int i) {
-        this.lastResponseCode = i;
-    }
-
-    public int getLastResponseCode() {
-        return lastResponseCode;
     }
 
     public void setNumRetries(int numRetries) {

@@ -122,6 +122,8 @@ public final class MIOExtractor extends Extractor {
                     conceptEntities = currentConcept.getEntities();
                 }
 
+                // conceptEntities.add(new Entity("Bill Gates", new Concept("Person")));
+
                 // wait for a certain time when no entities were found, then restart
                 if (conceptEntities.isEmpty()) {
                     LOGGER.info("no entities for mio extraction, continue with next concept");
