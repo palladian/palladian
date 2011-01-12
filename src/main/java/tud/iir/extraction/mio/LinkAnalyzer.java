@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -63,7 +64,7 @@ public class LinkAnalyzer {
         while (matcher.find()) {
             final String completeLinkTag = matcher.group(0);
 
-            if (!("").equals(completeLinkTag) && completeLinkTag != null) {
+            if (!"".equals(completeLinkTag) && completeLinkTag != null) {
                 linkTags.add(completeLinkTag);
             }
         }
@@ -99,7 +100,7 @@ public class LinkAnalyzer {
             if (!linkURLs.isEmpty()) {
 
                 for (String checkURL : linkURLs) {
-                    final double similarity = (double) jaroWinkler.getSimilarity(checkURL, linkURL);
+                    final double similarity = jaroWinkler.getSimilarity(checkURL, linkURL);
                     if (similarity > 0.99) {
                         isExisting = true;
                         break;
@@ -233,11 +234,11 @@ public class LinkAnalyzer {
         conceptVoc.addAll(InCoFiConfiguration.getInstance().getVocByConceptName("weakMIOs"));
 
         for (String keyword : conceptVoc) {
-                   relevantVoc.add(keyword);
-              }
+            relevantVoc.add(keyword);
+        }
 
         // remove duplicates
-        HashSet<String> hashSet = new HashSet<String>(relevantVoc);
+        Set<String> hashSet = new HashSet<String>(relevantVoc);
         relevantVoc.clear();
         relevantVoc.addAll(hashSet);
 
