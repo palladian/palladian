@@ -898,6 +898,8 @@ public class Crawler {
     public void setDocument(String url, boolean isXML, boolean callback, HeaderInformation headerInformation) {
         document = null;
 
+        url = url.trim();
+
         try {
 
             // read from file with file input stream

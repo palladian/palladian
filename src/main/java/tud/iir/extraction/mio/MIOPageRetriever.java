@@ -41,11 +41,11 @@ public class MIOPageRetriever {
 
         LOGGER.info("MIOPageCandidateAnalysis finished for " + entity.getName());
 
-        // detect DedicatedPages
-        DedicatedPageDetector dpDetector = new DedicatedPageDetector();
-        for (MIOPage mioPage : mioPages) {
-            dpDetector.calculateDedicatedPageTrust(mioPage);
-        }
+        // detect DedicatedPages, this might take some time
+        // DedicatedPageDetector dpDetector = new DedicatedPageDetector();
+        // for (MIOPage mioPage : mioPages) {
+        // dpDetector.calculateDedicatedPageTrust(mioPage);
+        // }
         return mioPages;
     }
 

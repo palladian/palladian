@@ -154,7 +154,7 @@ public abstract class LanguageDatasetCompiler {
 
         // LanguageDatasetCompiler ldc = new WikipediaLanguageDatasetCompiler();
         LanguageDatasetCompiler ldc = new MicroBloggingLanguageDatasetCompiler();
-        ldc.compileDataset(150);
+        ldc.compileDataset(50);
         System.exit(0);
 
         Set<String> includeLanguages = new HashSet<String>();
