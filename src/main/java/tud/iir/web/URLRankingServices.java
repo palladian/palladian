@@ -28,6 +28,7 @@ import org.json.JSONObject;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
@@ -203,29 +204,26 @@ public class URLRankingServices {
 
     public URLRankingServices() {
         StopWatch sw = new StopWatch();
-        try {
-            PropertiesConfiguration configuration = new PropertiesConfiguration("config/apikeys.conf");
-            bitlyLogin = configuration.getString("bitly.api.login");
-            bitlyApikey = configuration.getString("bitly.api.key");
-            mixxApikey = configuration.getString("mixx.api.key");
-            redditUsername = configuration.getString("reddit.api.username");
-            redditPassword = configuration.getString("reddit.api.password");
-            yahooApikey = configuration.getString("yahoo.api.key");
-            majesticApikey = configuration.getString("majestic.api.key");
-            competeApikey = configuration.getString("compete.api.key");
 
-            // we use a rather short timeout here, as responses are short.
-            crawler.setOverallTimeout(5000);
+        PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
+        bitlyLogin = configuration.getString("bitly.api.login");
+        bitlyApikey = configuration.getString("bitly.api.key");
+        mixxApikey = configuration.getString("mixx.api.key");
+        redditUsername = configuration.getString("reddit.api.username");
+        redditPassword = configuration.getString("reddit.api.password");
+        yahooApikey = configuration.getString("yahoo.api.key");
+        majesticApikey = configuration.getString("majestic.api.key");
+        competeApikey = configuration.getString("compete.api.key");
 
-            // set TTL for cache to 24 hours
-            cache.setTtlSeconds(CACHE_TTL_SECONDS);
+        // we use a rather short timeout here, as responses are short.
+        crawler.setOverallTimeout(5000);
 
-            // per default, we want to check all services
-            check = Arrays.asList(Service.values());
+        // set TTL for cache to 24 hours
+        cache.setTtlSeconds(CACHE_TTL_SECONDS);
 
-        } catch (ConfigurationException e) {
-            LOGGER.error("failed loading configuration " + e.getMessage());
-        }
+        // per default, we want to check all services
+        check = Arrays.asList(Service.values());
+
         LOGGER.trace("<init> URLRankingServices:" + sw.getElapsedTime());
     }
 
@@ -757,7 +755,7 @@ public class URLRankingServices {
 
         String response = crawler.download("http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&"
                 + "ch=6" + urlHash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:" + StringHelper.urlEncode(prUrl));
-        
+
         if (response != null && !response.isEmpty()) {
             if (response.contains(":")) {
                 response = response.split(":")[2].trim();
