@@ -1,6 +1,5 @@
 package tud.iir.news;
 
-import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -411,13 +410,14 @@ public class NewsDownloader {
 
         Document xmlDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
         if (xmlDocument == null) {
-            if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
-                throw new NewsAggregatorException("could not get document from " + feedUrl);
-            } else {
-                // TODO return cached document here (from disk or database)
-                LOGGER.debug("the feed was not modified: " + feedUrl);
-                return null;
-            }
+            throw new NewsAggregatorException("could not get document from " + feedUrl);
+            // if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
+            // // TODO
+            // } else {
+            // // TODO return cached document here (from disk or database)
+            // LOGGER.debug("the feed was not modified: " + feedUrl);
+            // return null;
+            // }
         }
 
         return xmlDocument;
