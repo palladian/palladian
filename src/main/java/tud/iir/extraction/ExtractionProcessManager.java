@@ -14,6 +14,7 @@ import tud.iir.extraction.snippet.SnippetExtractionProcess;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.ThreadHelper;
 import tud.iir.persistence.DatabaseManager;
@@ -217,8 +218,9 @@ public class ExtractionProcessManager {
 
         // get the current number of downloaded bytes from the database
         Crawler.sessionDownloadedBytes = DatabaseManager.getInstance().getExtractionStatusDownloadedBytes();
+        long startTraffic = Crawler.sessionDownloadedBytes;
 
-        LOGGER.info(Crawler.sessionDownloadedBytes);
+        LOGGER.info("total traffic in this session " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES));
 
         SourceRetrieverManager.getInstance().setSource(Controller.getConfig().getInt("extraction.source"));
         SourceRetrieverManager.getInstance().setResultCount(Controller.getConfig().getInt("extraction.resultCount"));
@@ -231,6 +233,8 @@ public class ExtractionProcessManager {
         while (true) {
 
             StopWatch sw = new StopWatch();
+
+            long loopTraffic = 0;
 
             if (Controller.getConfig().getInt("extraction.entitySlot") > 0) {
                 startEntityExtraction();
@@ -287,6 +291,9 @@ public class ExtractionProcessManager {
             }
 
             LOGGER.info("this loop (#" + loopCount + ") took " + sw.getElapsedTimeString());
+            loopTraffic = Crawler.sessionDownloadedBytes - startTraffic;
+            LOGGER.info("total traffic in this loop " + MathHelper.round(loopTraffic / (1024 * 1024), 2) + "MB");
+
             LOGGER.info("the following non-daemon threads are still running:");
             threads = ThreadHelper.getAllNonDaemonThreads();
             LOGGER.info(CollectionHelper.getPrint(threads));
