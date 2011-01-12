@@ -14,7 +14,7 @@ import tud.iir.knowledge.Entity;
 public class MIOQueryFactory {
 
     /** The role pages. */
-    private transient List<RolePage> rolePages;
+    // private transient List<RolePage> rolePages;
 
     /** The entity. */
     private final transient Entity entity;
@@ -23,7 +23,7 @@ public class MIOQueryFactory {
     private final transient Concept concept;
 
     /** The value specifies how much a rolePage must be counted to be relevant. */
-    private transient int rolePageRelevanceValue;
+    // private transient int rolePageRelevanceValue;
 
     /** The concept search vocabulary. */
     private final List<String> conceptSearchVocabulary;
@@ -48,12 +48,12 @@ public class MIOQueryFactory {
         }
 
         // load rolePageRelevanceValue from InCoFiConfiguration
-        this.rolePageRelevanceValue = InCoFiConfiguration.getInstance().rolePageRelevanceValue;
+        // this.rolePageRelevanceValue = InCoFiConfiguration.getInstance().rolePageRelevanceValue;
 
         // load the RolePages from Database that where not already used with this entity
-        rolePages = new ArrayList<RolePage>();
-        final RolePageDatabase rolePageDB = new RolePageDatabase();
-        rolePages = rolePageDB.loadNotUsedRolePagesForEntity(entity);
+        // rolePages = new ArrayList<RolePage>();
+        // final RolePageDatabase rolePageDB = new RolePageDatabase();
+        // rolePages = rolePageDB.loadNotUsedRolePagesForEntity(entity);
     }
 
     /**
