@@ -191,6 +191,8 @@ public class ExtractedDate {
             setDateValues(dateString.split("-"), 2, 0, 1);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_MMMM_Y[1])) {
             setDateValues(dateString.split(" "), 1, 0, -1);
+        }else if (format.equalsIgnoreCase(RegExp.DATE_EUSA_YYYY_MMM_D[1])) {
+            setDateValues(dateString.split("-"), 0, 1, 2);
         } else if (format.equalsIgnoreCase(RegExp.DATE_EU_MM_Y[1])) {
             String separator = ExtractedDateHelper.getSeparator(dateString);
             setDateValues(dateString.split(separator), 1, 0, -1);

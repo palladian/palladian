@@ -140,6 +140,8 @@ public class RegExp {
     public static final String[] DATE_ISO8601_YMD_SEPARATOR = {
         "((" + DATE_ISO8601_YMD_SEPARATOR_1 + ")|(" + DATE_ISO8601_YMD_SEPARATOR_2 + ")|("
         + DATE_ISO8601_YMD_SEPARATOR_3 + "))", "YYYY-MM-DD" };
+    
+    
     /** ISO8601 YYYY-MM . */
     public static final String[] DATE_ISO8601_YM = { YEAR_SHORT_LONG + "-" + MONTH_NUMBER_DOUBLE, "YYYY-MM" };
     /** ISO8601 YYYY-WW-D TIME+UTC . */
@@ -297,6 +299,8 @@ public class RegExp {
     // US and European dates
     /** American and European date. "MMMM YYYY . */
     public static final String[] DATE_EUSA_MMMM_Y = { MONTH_NAME_LONG + " " + YEAR_SHORT_LONG, "MMMM YYYY" };
+    /** US ans EU. YYYY-MMM-D*/
+    public static final String[] DATE_EUSA_YYYY_MMM_D = {LONG_YEAR + "-" + MONTH_NAME_LONG + "-" + DAY_OF_MONTH_1_2, "YYYY-MMM-D"};
 
     // RFC standards
     /** RFC 1123. WD, DD MMM YYYY HH:MM:SS TZ . */
@@ -433,7 +437,7 @@ public class RegExp {
      */
     public static Object[] get3PartRegExp() {
         Object[] regExp = { DATE_ISO8601_YMD, DATE_USA_MM_D_Y, DATE_EU_D_MM_Y, DATE_USA_MMMM_D_Y,
-                DATE_USA_MMMM_D_Y_SEP, DATE_EU_D_MMMM_Y, DATE_ISO8601_YWD, DATE_URL_D, DATE_USA_MM_D_Y_SEPARATOR };
+                DATE_USA_MMMM_D_Y_SEP, DATE_EU_D_MMMM_Y, DATE_ISO8601_YWD, DATE_URL_D, DATE_USA_MM_D_Y_SEPARATOR, DATE_EUSA_YYYY_MMM_D, DATE_ISO8601_YMD_SEPARATOR };
         return regExp;
     }
 

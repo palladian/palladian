@@ -242,5 +242,12 @@ public class DateGetter {
         tech_reference = true;
         tech_archive = true;
     }
+    
+    public void setDocument(Document document){
+    	this.document = document;
+    }
+    public Document getDocument(){
+    	return this.document;
+    }
 
 }

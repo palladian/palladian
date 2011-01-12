@@ -19,10 +19,31 @@ import tud.iir.knowledge.KeyWords;
  */
 public class HeadDateRater extends TechniqueDateRater<HeadDate> {
 
-    @Override
+	protected byte hightPriority;
+	protected byte middlePriority;
+	protected byte lowPriority;
+	
+    public HeadDateRater(PageDateType dateType) {
+		super(dateType);
+		switch(this.dateType){
+			case publish: 
+				hightPriority = KeyWords.PUBLISH_KEYWORD;
+				middlePriority = KeyWords.MODIFIED_KEYWORD;
+				lowPriority = KeyWords.OTHER_KEYWORD;
+				break;
+			case last_modified:
+				hightPriority = KeyWords.MODIFIED_KEYWORD;
+				middlePriority = KeyWords.PUBLISH_KEYWORD;
+				lowPriority = KeyWords.OTHER_KEYWORD;
+				break;
+		}
+	}
+
+	@Override
     public HashMap<HeadDate, Double> rate(ArrayList<HeadDate> list) {
-        // TODO Auto-generated method stub
-        return evaluateHeadDate(list);
+        HashMap<HeadDate, Double> returnDates = evaluateHeadDate(list);
+        this.ratedDates = returnDates;
+        return returnDates;
     }
 
     // zuerst high prio keywors bewerten - darumter das ältestte datum wählen rest abwerten
@@ -36,16 +57,16 @@ public class HeadDateRater extends TechniqueDateRater<HeadDate> {
      * @param List of head-dates.
      * @return Hashmap with dates and rateings.
      */
-    private HashMap<HeadDate, Double> evaluateHeadDate(ArrayList<HeadDate> headDates) {
+    protected HashMap<HeadDate, Double> evaluateHeadDate(ArrayList<HeadDate> headDates) {
         HashMap<HeadDate, Double> result = new HashMap<HeadDate, Double>();
         double rate;
         HeadDate date;
         for (int i = 0; i < headDates.size(); i++) {
             date = headDates.get(i);
             byte keywordPriority = DateRaterHelper.getKeywordPriority(date);
-            if (keywordPriority == KeyWords.FIRST_PRIORITY) {
+            if (keywordPriority == hightPriority) {
                 rate = 1;
-            } else if (keywordPriority == KeyWords.SECOND_PRIORITY) {
+            } else if (keywordPriority == middlePriority) {
                 rate = -1;
             } else {
                 rate = -2;
@@ -78,14 +99,25 @@ public class HeadDateRater extends TechniqueDateRater<HeadDate> {
 
         DateComparator dc = new DateComparator();
         ArrayList<HeadDate> dates = dc.orderDates(result);
-        HeadDate oldest = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
+        HeadDate tempDate;
+        switch(dateType){
+	        case publish:
+	        	tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
+	        	break;
+	        case last_modified:
+	        	tempDate = dc.getYoungestDate(DateArrayHelper.getExactestMap(result));
+	        	break;
+        	default:
+        		tempDate = dc.getOldestDate(DateArrayHelper.getExactestMap(result));
+        		break;
+        }
 
         double diff;
         double oldRate;
         double newRate;
 
         for (int i = 0; i < dates.size(); i++) {
-            diff = dc.getDifference(oldest, dates.get(i), DateComparator.MEASURE_HOUR);
+            diff = dc.getDifference(tempDate, dates.get(i), DateComparator.MEASURE_HOUR);
             if (diff > 24) {
                 diff = 24;
             }
@@ -94,7 +126,7 @@ public class HeadDateRater extends TechniqueDateRater<HeadDate> {
             newRate = oldRate - (oldRate * (diff / 24.0));
             result.put(date, Math.round(newRate * 10000) / 10000.0);
         }
-
+        
         return result;
     }
 

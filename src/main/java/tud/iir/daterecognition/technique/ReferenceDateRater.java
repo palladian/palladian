@@ -17,13 +17,18 @@ import tud.iir.helper.DateComparator;
  */
 public class ReferenceDateRater extends TechniqueDateRater<ReferenceDate> {
 
-    private String url;
+    public ReferenceDateRater(PageDateType dateType) {
+		super(dateType);
+	}
+
+	private String url;
 
     @Override
     public HashMap<ReferenceDate, Double> rate(ArrayList<ReferenceDate> list) {
         HashMap<ReferenceDate, Double> evaluatedDates = new HashMap<ReferenceDate, Double>();
         ReferenceDate date = getYoungest(list);
         evaluatedDates.put(date, date.getRate());
+        this.ratedDates = evaluatedDates;
         return evaluatedDates;
     }
 

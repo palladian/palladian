@@ -1,7 +1,9 @@
 package tud.iir.helper;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map.Entry;
 
 /**
  * Helper functions for common (untyped/generic) arrays.
@@ -44,5 +46,19 @@ public class ArrayHelper {
 
         return helpArray;
     }
-
+    
+    /**
+     * Returns a ArrayList of keys of map. 
+     * @param <T>
+     * @param <V>
+     * @param map
+     * @return
+     */
+    public static <T,V> ArrayList<T> toArrayList(HashMap<T, V> map){
+    	ArrayList<T> returnList = new ArrayList<T>();
+    	for(Entry<T, V> e : map.entrySet()){
+    		returnList.add(e.getKey());
+    	}
+    	return returnList;
+    }  
 }

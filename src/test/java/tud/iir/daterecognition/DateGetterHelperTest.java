@@ -123,6 +123,8 @@ public class DateGetterHelperTest {
         assertEquals(date.getDateString(), text, date.getNormalizedDateString());
         date = DateGetterHelper.getDateFromString("2010_07_02", RegExp.DATE_ISO8601_YMD_SEPARATOR);
         assertEquals(date.getDateString(), "2010-07-02", date.getNormalizedDateString());
+        date = DateGetterHelper.getDateFromString("2010/07/02", RegExp.DATE_ISO8601_YMD_SEPARATOR);
+        assertEquals(date.getDateString(), "2010-07-02", date.getNormalizedDateString());
 
         // ISO_YMD
         text = "2010-06-05";
@@ -386,7 +388,14 @@ public class DateGetterHelperTest {
         assertEquals("2009-04-06 15:11", (DateGetterHelper.findDate("April  6, 2009  3:11 PM")).getNormalizedDateString());
         ExtractedDate date = DateGetterHelper.findDate("aug 4, 2006 / 14:52");
         assertEquals("2006-08-04 14:52", date.getNormalizedDateString());
-        
+        date = DateGetterHelper.findDate("2007-aug-12");
+        assertEquals("2007-08-12", date.getNormalizedDateString());
+        date = DateGetterHelper.findDate("2007-aug.-12");
+        assertEquals("2007-08-12", date.getNormalizedDateString());
+        date = DateGetterHelper.findDate("2007-August-12");
+        assertEquals("2007-08-12", date.getNormalizedDateString());
+        date = DateGetterHelper.findDate("2010/07/02");
+        assertEquals("2010-07-02", date.getNormalizedDateString());
 
     }
 
@@ -540,8 +549,8 @@ public class DateGetterHelperTest {
     public void testGetDate() {
         String url = "data/test/webPages/dateExtraction/alltop.htm";
         url = "http://www.zeit.de/2010/36/Wirtschaft-Konjunktur-Deutschland";
-
-        if (AllTests.ALL_TESTS) {
+        url="http://www.abanet.org/antitrust/committees/intell_property/standardsettingresources.html";
+        if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
             dateGetter.setAllTrue();

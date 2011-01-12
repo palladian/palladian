@@ -31,5 +31,6 @@ public abstract class TechniqueDateGetter<T> {
     public void setDocument(Document document) {
         this.document = document;
     }
+    
 
 }

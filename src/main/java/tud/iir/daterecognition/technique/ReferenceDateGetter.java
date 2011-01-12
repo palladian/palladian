@@ -63,7 +63,7 @@ public class ReferenceDateGetter extends TechniqueDateGetter {
             dateGetter.setTechArchive(false);
 
             DateComparator dc = new DateComparator();
-            DateEvaluator de = new DateEvaluator();
+            DateEvaluator de = new DateEvaluator(PageDateType.publish);
             int i = 0;
             while (linksTo.hasNext()) {
                 String link = linksTo.next();

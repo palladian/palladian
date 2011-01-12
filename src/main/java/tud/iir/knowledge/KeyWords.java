@@ -12,9 +12,9 @@ import tud.iir.helper.ArrayHelper;
  */
 public final class KeyWords {
 
-    public static final byte FIRST_PRIORITY = 1;
-    public static final byte SECOND_PRIORITY = 2;
-    public static final byte THIRD_PRIORITY = 3;
+    public static final byte PUBLISH_KEYWORD = 1;
+    public static final byte MODIFIED_KEYWORD = 2;
+    public static final byte OTHER_KEYWORD = 3;
 
     /** Keyowrds found in HTTP-header. */
     public static final String[] HTPP_KEYWORDS = { "date", "Date", "DATE", "last-modified", "Last-Modified",
@@ -67,11 +67,11 @@ public final class KeyWords {
         byte keywordPriority = -1;
         if (keyword != null) {
             if (hasKeyword(keyword, KeyWords.firstPriorityKeywords)) {
-                keywordPriority = KeyWords.FIRST_PRIORITY;
+                keywordPriority = KeyWords.PUBLISH_KEYWORD;
             } else if (hasKeyword(keyword, KeyWords.secondPriorityKeywords)) {
-                keywordPriority = KeyWords.SECOND_PRIORITY;
+                keywordPriority = KeyWords.MODIFIED_KEYWORD;
             } else if (hasKeyword(keyword, KeyWords.thirdPriorityKexwords)) {
-                keywordPriority = KeyWords.THIRD_PRIORITY;
+                keywordPriority = KeyWords.OTHER_KEYWORD;
             }
         }
         return keywordPriority;
