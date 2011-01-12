@@ -18,6 +18,7 @@ import tud.iir.daterecognition.technique.ArchiveDateRater;
 import tud.iir.daterecognition.technique.ContentDateRater;
 import tud.iir.daterecognition.technique.HeadDateRater;
 import tud.iir.daterecognition.technique.HttpDateRater;
+import tud.iir.daterecognition.technique.PageDateType;
 import tud.iir.daterecognition.technique.ReferenceDateRater;
 import tud.iir.daterecognition.technique.StructureDateRater;
 import tud.iir.daterecognition.technique.UrlDateRater;
@@ -38,18 +39,26 @@ public class DateEvaluator {
     private String url;
     private boolean referneceLookUp = false;
 
-    private HttpDateRater httpdr = new HttpDateRater();
-    private HeadDateRater headdr = new HeadDateRater();
-    private UrlDateRater udr = new UrlDateRater();
-    private StructureDateRater sdr = new StructureDateRater();
-    private ContentDateRater cdr = new ContentDateRater();
-    private ArchiveDateRater adr = new ArchiveDateRater();
-    private ReferenceDateRater rdr = new ReferenceDateRater();
+    private HttpDateRater httpdr;
+    private HeadDateRater headdr;
+    private UrlDateRater udr;
+    private StructureDateRater sdr;
+    private ContentDateRater cdr;
+    private ArchiveDateRater adr;
+    private ReferenceDateRater rdr;
 
     /**
      * Standard constructor.
      */
     public DateEvaluator() {
+    	setPubMod(PageDateType.publish);
+    }
+    
+    /**
+     * Standard constructor.
+     */
+    public DateEvaluator(PageDateType pub_mod) {
+    	setPubMod(pub_mod);
     }
 
     /**
@@ -57,8 +66,9 @@ public class DateEvaluator {
      * 
      * @param url
      */
-    public DateEvaluator(String url) {
+    public DateEvaluator(String url, PageDateType pub_mod) {
         this.url = url;
+        setPubMod(pub_mod);
     }
 
     /**
@@ -67,9 +77,19 @@ public class DateEvaluator {
      * @param url
      * @param referenceLookUp
      */
-    public DateEvaluator(String url, boolean referenceLookUp) {
+    public DateEvaluator(String url, boolean referenceLookUp, PageDateType pub_mod) {
         this.url = url;
         this.referneceLookUp = referenceLookUp;
+        setPubMod(pub_mod);
+    }
+    private void setPubMod(PageDateType pub_mod){
+    	httpdr = new HttpDateRater(pub_mod);
+		headdr = new HeadDateRater(pub_mod);
+		udr = new UrlDateRater(pub_mod);
+		sdr = new StructureDateRater(pub_mod);
+		cdr = new ContentDateRater(pub_mod);
+		adr = new ArchiveDateRater(pub_mod);
+		rdr = new ReferenceDateRater(pub_mod);
     }
 
     /**

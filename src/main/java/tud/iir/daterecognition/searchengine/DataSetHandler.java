@@ -12,6 +12,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +37,23 @@ public class DataSetHandler{
 	private static final int SEARCH_HAKIA = 2;
 	private static final int SEARCH_ASK = 3;
 	
+	/**
+	 * False Negative. -2
+	 */
+	public static final int FN = -2;
+	/**
+	 * False Positive. -1
+	 */
+	public static final int FP = -1;
+	/**
+	 * True Negative. 0
+	 */
+	public static final int TN = 0;
+	/**
+	 * True Positive. 1
+	 */
+	public static final int TP = 1;
+	
 	public static final String separator = " *;_;* "; 
 	
 	public static void main(String[] args){
@@ -53,12 +71,16 @@ public class DataSetHandler{
 		
 		//downloadUrls("data/webpages/daterecognition/");
 		
-		//createSearchDatesAndDownload("data/evaluation/dateextraction/dataset.txt");
+		createSearchDatesAndDownload("data/evaluation/dateextraction/dataset.txt");
 	}
 	
-	
+	/**
+	 * Takes URL out of "urlset", tries to download it and, if downloaded search for google, hakia and ask date. <br>
+	 * Writes results in to file.
+	 * @param path
+	 */
 	private static void createSearchDatesAndDownload(String path){
-		ArrayList<DBExport> set = loadURLsFromUrlset(1);
+		ArrayList<DBExport> set = loadURLsFromUrlset(0);
 		GoogleDateGetter gdg = new GoogleDateGetter();
 		HakiaDateGetter hdg = new HakiaDateGetter();
 		AskDateGetter adg = new AskDateGetter();
@@ -342,5 +364,60 @@ public class DataSetHandler{
 		Crawler crawler = new Crawler();
 		return crawler.getHeaders(url);
 	}
+	
+
+	
+	
+	public static HashMap<String, Integer> getClassification(String table, String round, ArrayList<String>urls){
+		HashMap<String, Integer> classificationMap = new HashMap<String, Integer>();
+		String url;
+		openConnection();
+		for(int i=0; i<urls.size(); i++){
+			url = urls.get(i);
+			try {
+				String sqlQuery ="SELECT * FROM " + table + " WHERE url='" + url + "'";
+				rs = DataSetHandler.st.executeQuery(sqlQuery);
+				while(DataSetHandler.rs.next() ) {
+					classificationMap.put(url, rs.getInt(round));
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		closeConnection();
+		return classificationMap;
+	}
+	
+	public static void writeInDB(String table, String url, int compare, String round){
+    	DataSetHandler.openConnection();
+    	String sqlQuery ="INSERT INTO " + table + " (url, " + round + ") VALUES ('"+ url + "','" + compare + "') ON DUPLICATE KEY UPDATE " + round + "='" + compare + "'";
+    	try {
+			DataSetHandler.st.executeUpdate(sqlQuery);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	DataSetHandler.closeConnection();
+    }
+	
+	public static void addCloumn(String table, String ColumnName, String type, String defaultVal){
+		String defaultString = "";
+		if(defaultVal!=null && !defaultVal.equalsIgnoreCase("")){
+			defaultString = "DEFAULT '" + defaultVal + "'";
+		}
+		String sqlQuery = "ALTER TABLE  " + table + " ADD  " + ColumnName + " " + type + " NOT NULL " + defaultString;
+		openConnection();
+		try {
+			st.execute(sqlQuery);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		closeConnection();
+	}
+	
+	
 	
 }

@@ -17,9 +17,31 @@ import tud.iir.knowledge.KeyWords;
  */
 public class StructureDateRater extends TechniqueDateRater<StructureDate> {
 
-    @Override
+	protected byte hightPriority;
+	protected byte middlePriority;
+	protected byte lowPriority;
+	
+    public StructureDateRater(PageDateType dateType) {
+		super(dateType);
+		switch(this.dateType){
+			case publish: 
+				hightPriority = KeyWords.PUBLISH_KEYWORD;
+				middlePriority = KeyWords.MODIFIED_KEYWORD;
+				lowPriority = KeyWords.OTHER_KEYWORD;
+				break;
+			case last_modified:
+				hightPriority = KeyWords.MODIFIED_KEYWORD;
+				middlePriority = KeyWords.PUBLISH_KEYWORD;
+				lowPriority = KeyWords.OTHER_KEYWORD;
+				break;
+		}
+	}
+
+	@Override
     public HashMap<StructureDate, Double> rate(ArrayList<StructureDate> list) {
-        return evaluateStructDate(list);
+    	HashMap<StructureDate, Double> returnDates = evaluateStructDate(list); 
+    	this.ratedDates = returnDates;
+    	return returnDates;
     }
 
     /**
@@ -37,12 +59,12 @@ public class StructureDateRater extends TechniqueDateRater<StructureDate> {
         for (int i = 0; i < structDates.size(); i++) {
             StructureDate date = structDates.get(i);
             byte keywordPriority = DateRaterHelper.getKeywordPriority(date);
-            if (keywordPriority == KeyWords.FIRST_PRIORITY) {
+            if (keywordPriority == hightPriority) {
                 rate = 1;
-            } else if (keywordPriority == KeyWords.SECOND_PRIORITY) {
+            } else if (keywordPriority == middlePriority) {
                 rate = -1; // TODO: rate bestimmen.
 
-            } else if (keywordPriority == KeyWords.THIRD_PRIORITY) {
+            } else if (keywordPriority == lowPriority) {
                 rate = -2; // TODO: rate bestimmen.
 
             } else {

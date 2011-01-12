@@ -16,7 +16,11 @@ import tud.iir.knowledge.RegExp;
  */
 public class UrlDateRater extends TechniqueDateRater<URLDate> {
 
-    @Override
+    public UrlDateRater(PageDateType dateType) {
+		super(dateType);
+	}
+
+	@Override
     public HashMap<URLDate, Double> rate(ArrayList<URLDate> list) {
         return evaluateURLDate(list);
     }
@@ -51,6 +55,7 @@ public class UrlDateRater extends TechniqueDateRater<URLDate> {
             }
             evaluate.put(date, rate);
         }
+        this.ratedDates = evaluate;
         return evaluate;
     }
 

@@ -19,7 +19,11 @@ import tud.iir.helper.RatedDateComparator;
  */
 public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
 
-    /**
+    public ArchiveDateRater(PageDateType dateType) {
+		super(dateType);
+	}
+
+	/**
      * Enter archive dates and other rated dates.<br>
      * Archive date will be rated in dependency of other rated dates.<br>
      * Archive date will be rated 1, if it is older then best rated date of the other dates or all the other dates are
@@ -47,6 +51,7 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
             }
         }
         list.get(0).setRate(map.get(list.get(0)));
+        this.ratedDates = map;
         return map;
     }
 
@@ -59,5 +64,4 @@ public class ArchiveDateRater extends TechniqueDateRater<ArchiveDate> {
         // TODO Auto-generated method stub
         return null;
     }
-
 }

@@ -3,6 +3,8 @@ package tud.iir.daterecognition.technique;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import bsh.util.Httpd;
+
 import tud.iir.daterecognition.ExtractedDateHelper;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.HTTPDate;
@@ -17,9 +19,15 @@ import tud.iir.helper.DateComparator;
  */
 public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
 
-    @Override
+    public HttpDateRater(PageDateType dateType) {
+		super(dateType);
+	}
+
+	@Override
     public HashMap<HTTPDate, Double> rate(ArrayList<HTTPDate> list) {
-        return evaluateHTTPDate(list);
+    	HashMap<HTTPDate, Double> returnDates = evaluateHTTPDate(list);
+    	this.ratedDates = returnDates;
+        return returnDates;
     }
 
     /**
@@ -31,14 +39,27 @@ public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
      * @return
      */
     private HashMap<HTTPDate, Double> evaluateHTTPDate(ArrayList<HTTPDate> httpDates) {
+    	ExtractedDate current = ExtractedDateHelper.createActualDate();
+    	return evaluateHTTPDate(httpDates, current);
+    }
+
+    /**
+     * Evaluates HTTP dates.<br>
+     * Therefore, a date older then 12 hours from this point of time will be rated with 0.75.
+     * If more then one date exists, a weight reduces each rating in dependency of age.
+     * 
+     * @param httpDates
+     * @return
+     */
+    public HashMap<HTTPDate, Double> evaluateHTTPDate(ArrayList<HTTPDate> httpDates,ExtractedDate downloadedDate) {
         HTTPDate date = null;
         HashMap<HTTPDate, Double> result = new HashMap<HTTPDate, Double>();
         double rate = 0;
         for (int i = 0; i < httpDates.size(); i++) {
             date = httpDates.get(i);
-            ExtractedDate current = ExtractedDateHelper.createActualDate();
+            
             DateComparator dc = new DateComparator();
-            double timedifference = dc.getDifference(httpDates.get(0), current, DateComparator.MEASURE_HOUR);
+            double timedifference = dc.getDifference(httpDates.get(i), downloadedDate, DateComparator.MEASURE_HOUR);
 
             if (timedifference > 12) {
                 rate = 0.75;// 75% aller Webseiten haben richtigen last modified tag, aber bei dif. von 3h ist dies zu
@@ -71,5 +92,4 @@ public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
 
         return result;
     }
-
 }

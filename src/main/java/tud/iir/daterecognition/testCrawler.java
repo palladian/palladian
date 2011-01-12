@@ -15,6 +15,7 @@ import org.w3c.dom.Document;
 
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.URLDate;
+import tud.iir.daterecognition.technique.PageDateType;
 import tud.iir.daterecognition.technique.URLDateGetter;
 import tud.iir.daterecognition.technique.UrlDateRater;
 import tud.iir.helper.DateArrayHelper;
@@ -494,7 +495,7 @@ public class testCrawler {
 
                 ArrayList<URLDate> dates = dg.getDate();
 
-                UrlDateRater udr = new UrlDateRater();
+                UrlDateRater udr = new UrlDateRater(PageDateType.publish);
                 HashMap<URLDate, Double> dateMap = udr.rate(dates);
                 for (Entry<URLDate, Double> e : dateMap.entrySet()) {
                     if (e.getValue() == 1) {
@@ -570,7 +571,7 @@ public class testCrawler {
         dg.setTechArchive(false);
         dg.setTechReference(false);
 
-        DateEvaluator de = new DateEvaluator();
+        DateEvaluator de = new DateEvaluator(PageDateType.publish);
 
         ArrayList<ExtractedDate> dgDates;
         HashMap<ExtractedDate, Double> deDates;
@@ -942,7 +943,7 @@ public class testCrawler {
         dg.setAllFalse();
         dg.setTechHTTP(true);
 
-        DateEvaluator de = new DateEvaluator();
+        DateEvaluator de = new DateEvaluator(PageDateType.publish);
 
         ArrayList<ExtractedDate> dgDates = new ArrayList<ExtractedDate>();
         HashMap<ExtractedDate, Double> deDates = new HashMap<ExtractedDate, Double>();

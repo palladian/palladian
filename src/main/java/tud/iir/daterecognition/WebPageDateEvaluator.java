@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 
+import org.w3c.dom.Document;
+
 import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.daterecognition.technique.PageDateType;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.RatedDateComparator;
 
@@ -21,14 +24,20 @@ public class WebPageDateEvaluator {
     private DateGetter dg = new DateGetter();
 
     /** Standard DateRater. */
-    private DateEvaluator dr = new DateEvaluator();
+    private DateEvaluator dr = new DateEvaluator(PageDateType.publish);
 
     private  ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
 
     private String url;
+    private Document document;
     private boolean reference = false;
     private boolean archive = false;
 
+
+    public void setPubMod(PageDateType pub_mod){
+    	this.dr = new DateEvaluator(pub_mod);
+    }
+    
     /**
      * Set url for webpage to be searched.
      * 
@@ -48,6 +57,18 @@ public class WebPageDateEvaluator {
         this.url = url;
         evaluate();
     }
+    
+    /**
+     * Look up for all dates of webpage and rate them.<br>
+     * Writes results in list, get it by getter-methods.
+     * 
+     * @param url for webpage.
+     */
+    public void evaluate(Document doc) {
+        this.url = doc.getDocumentURI();
+        this.document = doc;
+        evaluate();
+    }
 
     /**
      * Look up for all dates of webpage and rate them.<br>
@@ -56,11 +77,15 @@ public class WebPageDateEvaluator {
      * Be sure than an url is set. Otherwise use <b>evaluate(String url)</b>.
      */
     public  void evaluate() {
+    	
         if (this.url != null) {
             ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
             HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
             ExtractedDate date = new ExtractedDate();
-
+            
+            if(document != null){
+            	dg.setDocument(document);
+            }
             dg.setURL(url);
             dg.setTechReference(reference);
             dg.setTechArchive(archive);
@@ -97,29 +122,81 @@ public class WebPageDateEvaluator {
     * @return
     */
     public static ExtractedDate getBestRatedDate(String url,boolean externalSearch) {
-    	ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
-    	DateGetter dg = new DateGetter();
-    	DateEvaluator dr = new DateEvaluator();
-    	if (url != null) {
-            ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-            HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
-            
-            dg.setURL(url);
-            dg.setTechReference(externalSearch);
-            dg.setTechArchive(externalSearch);
-            dates = dg.getDate();
-
-            ratedDates = dr.rate(dates);
-            list = DateArrayHelper.hashMapToArrayList(ratedDates);
-        }
-        ExtractedDate date = new ExtractedDate();
-        if (list != null && list.size() > 0) {
-            ArrayList<ExtractedDate> orderedList = list;
-            Collections.sort(orderedList, new RatedDateComparator<ExtractedDate>());
-            date = orderedList.get(0);
-        }
-        return date;
+    	return getBestRatedDate(url, externalSearch, PageDateType.publish);
     }
+    
+    /**
+     * 
+     * @param url
+     * @param externalSearch
+     * @return
+     */
+     public static ExtractedDate getBestRatedDate(String url, boolean externalSearch, PageDateType pub_mod) {
+     	ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
+     	DateGetter dg = new DateGetter();
+     	DateEvaluator dr = new DateEvaluator(pub_mod);
+     	if (url != null) {
+             ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
+             HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
+             
+             dg.setURL(url);
+             dg.setTechReference(externalSearch);
+             dg.setTechArchive(externalSearch);
+             dates = dg.getDate();
+
+             ratedDates = dr.rate(dates);
+             list = DateArrayHelper.hashMapToArrayList(ratedDates);
+         }
+         ExtractedDate date = new ExtractedDate();
+         if (list != null && list.size() > 0) {
+             ArrayList<ExtractedDate> orderedList = list;
+             Collections.sort(orderedList, new RatedDateComparator<ExtractedDate>());
+             date = orderedList.get(0);
+         }
+         return date;
+     }
+    
+    /**
+     * 
+     * @param url
+     * @param externalSearch
+     * @return
+     */
+     public static ExtractedDate getBestRatedDate(Document document,boolean externalSearch, PageDateType pub_mod) {
+     	ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
+     	DateGetter dg = new DateGetter();
+     	DateEvaluator dr = new DateEvaluator(pub_mod);
+     	if (document != null) {
+             ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
+             HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
+             
+             dg.setDocument(document);
+             dg.setURL(document.getDocumentURI());
+             dg.setTechReference(externalSearch);
+             dg.setTechArchive(externalSearch);
+             dates = dg.getDate();
+
+             ratedDates = dr.rate(dates);
+             list = DateArrayHelper.hashMapToArrayList(ratedDates);
+         }
+         ExtractedDate date = new ExtractedDate();
+         if (list != null && list.size() > 0) {
+             ArrayList<ExtractedDate> orderedList = list;
+             Collections.sort(orderedList, new RatedDateComparator<ExtractedDate>());
+             date = orderedList.get(0);
+         }
+         return date;
+     }
+     
+     /**
+      * 
+      * @param url
+      * @param externalSearch
+      * @return
+      */
+      public static ExtractedDate getBestRatedDate(Document document,boolean externalSearch) {
+          return getBestRatedDate(document,externalSearch, PageDateType.publish);
+      }
 
     /**
      * Found the best rate and returns all dates with this rate. <br>

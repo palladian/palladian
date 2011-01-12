@@ -4,28 +4,135 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Map.Entry;
 
+import tud.iir.daterecognition.DateConverter;
 import tud.iir.daterecognition.DateGetterHelper;
 import tud.iir.daterecognition.ExtractedDateHelper;
+import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.HTTPDate;
+import tud.iir.daterecognition.searchengine.DBExport;
 import tud.iir.daterecognition.searchengine.DataSetHandler;
+import tud.iir.daterecognition.technique.ContentDateGetter;
+import tud.iir.daterecognition.technique.ContentDateRater;
 import tud.iir.daterecognition.technique.HTTPDateGetter;
+import tud.iir.daterecognition.technique.HttpDateRater;
+import tud.iir.daterecognition.technique.PageDateType;
+import tud.iir.daterecognition.technique.TechniqueDateGetter;
+import tud.iir.daterecognition.technique.TechniqueDateRater;
+import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
-import tud.iir.helper.DateHelper;
+
 
 public class HttpEvaluator {
 
+	
+	
+	
+	
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		evaluateLastModified();
+		//evaluateLastModified();
+		
+		HTTPDateGetter dg = new HTTPDateGetter();
+		HttpDateRater dr = new HttpDateRater(PageDateType.publish);
+		
+		
+		//evaluate("pub0",DBExport.PUB_DATE, dg, dr);
+		//evaluate("mod0",DBExport.MOD_DATE, dg, dr);
+		System.out.println(EvaluationHelper.count("pub0", EvaluationHelper.HTTPEVAL, 200, DataSetHandler.TP));
+		System.out.println(EvaluationHelper.count("mod0", EvaluationHelper.HTTPEVAL, 200, DataSetHandler.TP));
+		//EvaluationHelper.calculateOutput(0, EvaluationHelper.HTTPEVAL, 350);
+		//Integer[] list = {50, 100, 150, 200, 250, 300, 350};
+		//EvaluationHelper.calculateConfidenceInterval(EvaluationHelper.HTTPEVAL, "pub0", list);
+		System.out.println("pub:");
+		double ci = EvaluationHelper.calculateCI(EvaluationHelper.HTTPEVAL, "pub0", DataSetHandler.TP, 150, false);
+		System.out.println("CI: " + ci);
+		System.out.println("Sample Size: " + EvaluationHelper.calculateSampleSize(ci));
+		System.out.println("mod:");
+		ci = EvaluationHelper.calculateCI(EvaluationHelper.HTTPEVAL, "mod0", DataSetHandler.TP, 150, false);
+		System.out.println("CI: " + ci);
+		System.out.println("Sample Size: " + EvaluationHelper.calculateSampleSize(ci));
+		
 
+		
+	}
+
+	private static void evaluate(String round,int pub_mod, HTTPDateGetter dg, HttpDateRater dr){
+		int truePositiv = 0;
+		int trueNegative = 0;
+		int falsePositv = 0;
+		int falseNegativ = 0;
+		int counter=0;
+		int compare;
+		HashMap<String, DBExport> set = EvaluationHelper.readFile();
+		
+		for(Entry<String, DBExport> e : set.entrySet()){
+			String tempDateString = "";
+			
+			System.out.println(e.getValue().getUrl());
+			System.out.print("get dates... ");
+			
+			ArrayList<HTTPDate> dates = new ArrayList<HTTPDate>();
+			ExtractedDate dateDate = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_DATE));
+			HTTPDate tempDate = DateConverter.convert(dateDate, DateConverter.TECH_HTTP_HEADER);
+			if(tempDate != null){
+				dates.add(tempDate);
+			}
+			ExtractedDate lastDate = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_LAST));
+			tempDate = DateConverter.convert(lastDate, DateConverter.TECH_HTTP_HEADER);
+			if(tempDate != null){
+				dates.add(tempDate);
+			}
+			
+			System.out.print("rate...");
+			
+			ExtractedDate downloadedDate = DateGetterHelper.findDate(e.getValue().get(DBExport.ACTUAL_DATE));
+			HashMap<HTTPDate, Double> dateArray = dr.evaluateHTTPDate(dates, downloadedDate);
+			double rate = DateArrayHelper.getHighestRate(dateArray);
+			dates = DateArrayHelper.getRatedDates(dateArray, rate);
+			if(dates.size()>0 && dates.get(0) != null){
+				tempDate = dates.get(0);
+				tempDateString = tempDate.getNormalizedDate(true);
+				
+			}else{
+				tempDate = null;
+			}
+			
+			System.out.println("compare...");
+			
+			compare = EvaluationHelper.compareDate(tempDate, e.getValue(), pub_mod);
+			System.out.print(compare + " httpDate:" + tempDateString + " - " + pub_mod + ":" + e.getValue().get(pub_mod));
+			switch(compare){
+				case DataSetHandler.FN:
+					falseNegativ++;
+					break;
+				case DataSetHandler.FP:
+					falsePositv++;
+					break;
+				case DataSetHandler.TN:
+					trueNegative++;
+					break;
+				case DataSetHandler.TP:
+					truePositiv++;
+					break;
+					
+			}
+			DataSetHandler.writeInDB(EvaluationHelper.HTTPEVAL, e.getValue().getUrl(), compare, round);
+			counter++;
+			System.out.println();
+			System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv);
+			System.out.println("---------------------------------------------------------------------");
+		}
+		System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv);
 	}
 	
+	/**
+	 * Gets for all headers from urls out of DB "allurls" the last-modified-tag. compares it to actual date.
+	 */
 	private static void evaluateLastModified(){
 		HashMap<String, String[]> evalMap = new HashMap<String, String[]>();
 		
@@ -93,5 +200,4 @@ public class HttpEvaluator {
 		DataSetHandler.closeConnection();
 		
 	}
-
 }

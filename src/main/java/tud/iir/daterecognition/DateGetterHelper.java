@@ -69,7 +69,10 @@ public final class DateGetterHelper {
      *         If no match is found return <b>null</b>.
      */
     public static ArrayList<ContentDate> findALLDates(String text) {
-        String dateString = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(text));
+    	//String dateString = org.apache.commons.lang.StringEscapeUtils.unescapeHtml(text);
+    	//dateString = StringHelper.removeDoubleWhitespaces(dateString);
+    	String dateString = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(text));
+    	
         ArrayList<ContentDate> contentDates = new ArrayList<ContentDate>();
         ExtractedDate date = null;
         Object[] regExps = RegExp.getAllRegExp();
@@ -80,7 +83,8 @@ public final class DateGetterHelper {
                 int index = dateString.indexOf(date.getDateString());
                 cDate.set(ContentDate.DATEPOS_IN_TAGTEXT, index);
                 contentDates.add(cDate);
-                dateString = dateString.replaceFirst(date.getDateString(), getXs(date.getDateString()));
+                //Bei ReplaceFirst wird der Matcher verwendet, der aber manchaml zu problemen führt: "http://kerneltrap.org/node/1776"
+                dateString = dateString.replace(date.getDateString(), getXs(date.getDateString()));
                 i--;
             }
         }

@@ -28,11 +28,25 @@ public class URLDateGetter extends TechniqueDateGetter<URLDate> {
     }
 
     /**
+     * An url has only one date. So first date is this one. <br>
+     * Use setUrl before.
+     * @return
+     */
+    public URLDate getFirstDate() {
+
+        URLDate date = new URLDate();
+        if (url != null) {
+            date = getURLDate(url);
+        }
+        return date;
+
+    }
+    /**
      * An url has only one date. So first date is this one.
      * 
      * @return
      */
-    public URLDate getFirstDate() {
+    public URLDate getFirstDate(String url) {
 
         URLDate date = new URLDate();
         if (url != null) {

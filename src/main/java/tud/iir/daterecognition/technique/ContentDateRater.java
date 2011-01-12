@@ -21,9 +21,32 @@ import tud.iir.knowledge.KeyWords;
  */
 public class ContentDateRater extends TechniqueDateRater<ContentDate> {
 
-    @Override
+
+    private byte hightPriority;
+    private byte middlePriority;
+    private byte lowPriority;
+	
+    public ContentDateRater(PageDateType dateType) {
+		super(dateType);
+		switch(this.dateType){
+		case publish: 
+			hightPriority = KeyWords.PUBLISH_KEYWORD;
+			middlePriority = KeyWords.MODIFIED_KEYWORD;
+			lowPriority = KeyWords.OTHER_KEYWORD;
+			break;
+		case last_modified:
+			hightPriority = KeyWords.MODIFIED_KEYWORD;
+			middlePriority = KeyWords.PUBLISH_KEYWORD;
+			lowPriority = KeyWords.OTHER_KEYWORD;
+			break;
+		}
+	}
+
+	@Override
     public HashMap<ContentDate, Double> rate(ArrayList<ContentDate> list) {
-        return evaluateContentDate(list);
+    	HashMap<ContentDate, Double> returnDates = evaluateContentDate(list);
+    	this.ratedDates = returnDates;
+        return returnDates;
     }
 
     /**
@@ -116,7 +139,6 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
             double newRate = (1.0 * contResult.get(key) * countSame / contDates.size());
             contResult.put(key, Math.round(newRate * factor_keyword * 10000) / 10000.0);
         }
-
         return contResult;
     }
 
@@ -156,7 +178,6 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         return attrResult;
 
     }
-
     /**
      * Sets the factor for keyword-classes.
      * 
@@ -168,11 +189,11 @@ public class ContentDateRater extends TechniqueDateRater<ContentDate> {
         double factor = 0;
         byte keywordPriority = DateRaterHelper.getKeywordPriority(date);
         if (key != null) {
-            if (keywordPriority == KeyWords.FIRST_PRIORITY) {
+            if (keywordPriority == hightPriority) {
                 factor = 1;
-            } else if (keywordPriority == KeyWords.SECOND_PRIORITY) {
+            } else if (keywordPriority == middlePriority) {
                 factor = 0.7;
-            } else if (keywordPriority == KeyWords.THIRD_PRIORITY) {
+            } else if (keywordPriority == lowPriority) {
                 factor = 0.5;
             } else {
                 factor = 0.0;
