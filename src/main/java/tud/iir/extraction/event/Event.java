@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.w3c.dom.Document;
+
 import tud.iir.classification.FeatureObject;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.knowledge.Extractable;
@@ -36,6 +38,9 @@ public class Event extends Extractable {
     private String url;
     /** a list of webresults refering to the article. **/
     private List<WebResult> webresults;
+
+    /** the webpage as document. **/
+    private Document document;
 
     /** the sentences. **/
     private String[] sentences;
@@ -167,6 +172,21 @@ public class Event extends Extractable {
      */
     public final void setRawText(final String rawText) {
         this.rawText = rawText;
+    }
+
+    /**
+     * @return the document
+     */
+    public Document getDocument() {
+        return document;
+    }
+
+    /**
+     * @param document
+     *            the document to set
+     */
+    public void setDocument(Document document) {
+        this.document = document;
     }
 
     /**
