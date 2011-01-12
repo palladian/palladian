@@ -155,12 +155,55 @@ public abstract class Extractor {
             waitCount++;
         }
 
+        Set<Thread> threads = ThreadHelper.getAllNonDaemonThreads();
+        LOGGER.info("there are " + threads.size() + " threads running (counted: " + getThreadCount()
+                + "), interrupting extraction thread group now...");
+
+        int tgCount = 0;
+        int interrupted = 0;
+        int alive = 0;
+        for (Thread t : threads) {
+            if (t.getThreadGroup() == extractionThreadGroup) {
+                tgCount++;
+            }
+            if (t.isInterrupted()) {
+                interrupted++;
+            }
+            if (t.isAlive()) {
+                alive++;
+            }
+        }
+        LOGGER.info(tgCount + " of " + threads.size() + " are in the current extractionThreadGroup, " + alive
+                + " are alive, and " + interrupted + " are interrupted");
+
         // stop all threads that are still running
         if (extractionThreadGroup != null) {
             LOGGER.info("interrupting " + getThreadCount() + " threads now");
             extractionThreadGroup.interrupt();
         }
         resetThreadCount();
+
+        ThreadHelper.deepSleep(10 * DateHelper.SECOND_MS);
+
+        threads = ThreadHelper.getAllNonDaemonThreads();
+        LOGGER.info("...now there are " + threads.size() + " threads running (counted: " + getThreadCount() + ")");
+
+        tgCount = 0;
+        interrupted = 0;
+        alive = 0;
+        for (Thread t : threads) {
+            if (t.getThreadGroup() == extractionThreadGroup) {
+                tgCount++;
+            }
+            if (t.isInterrupted()) {
+                interrupted++;
+            }
+            if (t.isAlive()) {
+                alive++;
+            }
+        }
+        LOGGER.info(tgCount + " of " + threads.size() + " are in the current extractionThreadGroup, " + alive
+                + " are alive, and " + interrupted + " are interrupted");
 
         LOGGER.info("stop extraction (save results: " + saveResults + ")");
 
@@ -169,19 +212,19 @@ public abstract class Extractor {
         return true;
     }
 
-    protected boolean waitForFreeThreadSlot(Logger logger) {
+    protected boolean waitForFreeThreadSlot(Logger logger, int maxExtractionThreads) {
 
         logger.info("NEED TO WAIT FOR FREE THREAD SLOT (count: " + getThreadCount() + ", allowed: "
-                + MAX_EXTRACTION_THREADS + ") " + iterationsWaited + "/" + WAIT_FOR_FREE_THREAD_SLOT_COUNT + ", "
+                + maxExtractionThreads + ") " + iterationsWaited + "/" + WAIT_FOR_FREE_THREAD_SLOT_COUNT + ", "
                 + extractionThreadGroup.activeCount() + "," + extractionThreadGroup.activeGroupCount());
 
-        if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
-            logger.warn("apparently " + getThreadCount()
-                    + " threads have not finished correctly but thread group is empty, continuing...");
-            resetThreadCount();
-            iterationsWaited = 0;
-            return false;
-        }
+        // if (extractionThreadGroup.activeCount() + extractionThreadGroup.activeGroupCount() == 0) {
+        // logger.warn("apparently " + getThreadCount()
+        // + " threads have not finished correctly but thread group is empty, continuing...");
+        // resetThreadCount();
+        // iterationsWaited = 0;
+        // return false;
+        // }
 
         try {
             Thread.sleep(WAIT_FOR_FREE_THREAD_SLOT);

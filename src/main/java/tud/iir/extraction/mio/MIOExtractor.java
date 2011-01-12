@@ -128,7 +128,7 @@ public final class MIOExtractor extends Extractor {
                     continue;
                 }
 
-                extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup");
+                extractionThreadGroup = new ThreadGroup("mioExtractionThreadGroup" + DateHelper.getCurrentDatetime());
 
                 for (Entity currentEntity : conceptEntities) {
 
@@ -161,7 +161,7 @@ public final class MIOExtractor extends Extractor {
                     }
 
                     while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                        if (!waitForFreeThreadSlot(LOGGER)) {
+                        if (!waitForFreeThreadSlot(LOGGER, MAX_EXTRACTION_THREADS)) {
                             break;
                         }
                     }

@@ -85,12 +85,12 @@ public class QAExtractor extends Extractor {
     private QAExtractor() {
         setPa(new PageAnalyzer());
         initialize();
-    }   
-    
+    }
+
     static class SingletonHolder {
         static QAExtractor instance = new QAExtractor();
     }
-    
+
     /**
      * Get the instance of the QAExtractor, which itself is singleton.
      * 
@@ -349,7 +349,7 @@ public class QAExtractor extends Extractor {
             }
 
             while (getThreadCount() >= maxThreads) {
-                if (!waitForFreeThreadSlot(LOGGER)) {
+                if (!waitForFreeThreadSlot(LOGGER, MAX_EXTRACTION_THREADS)) {
                     break;
                 }
             }

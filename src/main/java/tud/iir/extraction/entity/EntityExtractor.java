@@ -377,7 +377,7 @@ public class EntityExtractor extends Extractor {
                         }
 
                         while (getThreadCount() >= MAX_EXTRACTION_THREADS) {
-                            if (!waitForFreeThreadSlot(LOGGER)) {
+                            if (!waitForFreeThreadSlot(LOGGER, MAX_EXTRACTION_THREADS)) {
                                 break;
                             }
                         }

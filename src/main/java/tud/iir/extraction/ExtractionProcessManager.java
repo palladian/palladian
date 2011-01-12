@@ -210,7 +210,7 @@ public class ExtractionProcessManager {
     public static void startFullExtractionLoop() {
 
         Set<Thread> threads = ThreadHelper.getAllNonDaemonThreads();
-        CollectionHelper.print(threads);
+        LOGGER.info(CollectionHelper.getPrint(threads));
 
         // SourceRetrieverManager.getInstance().setSource(SourceRetrieverManager.GOOGLE);
         // SourceRetrieverManager.getInstance().setResultCount(100);
