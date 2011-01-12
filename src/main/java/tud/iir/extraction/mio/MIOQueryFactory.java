@@ -80,19 +80,21 @@ public class MIOQueryFactory {
             }
         }
 
-        // add rolePages to Searchquery
-        if (!rolePages.isEmpty()) {
+        // add rolePages to search query, something might be wrong here because the number of queries grows
+        // exponentially
+        // if (!rolePages.isEmpty()) {
+        //
+        // for (RolePage rolePage : rolePages) {
+        // if (rolePage.getCount() >= rolePageRelevanceValue) {
+        // searchQueries.add(rolePage.getHostname() + " " + entityName);
+        //
+        // // add RolePageUsage information to database
+        // final RolePageDatabase rpDB = new RolePageDatabase();
+        // rpDB.insertRolePageUsage(rolePage, entity);
+        // }
+        // }
+        // }
 
-            for (RolePage rolePage : rolePages) {
-                if (rolePage.getCount() >= rolePageRelevanceValue) {
-                    searchQueries.add(rolePage.getHostname() + " " + entityName);
-
-                    // add RolePageUsage information to database
-                    final RolePageDatabase rpDB = new RolePageDatabase();
-                    rpDB.insertRolePageUsage(rolePage, entity);
-                }
-            }
-        }       
         return searchQueries;
     }
 
