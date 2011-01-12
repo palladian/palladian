@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
+
 import tud.iir.web.SourceRetriever;
 
 public class SearchAgent {
@@ -34,11 +36,11 @@ public class SearchAgent {
      * @param searchQueries the search queries
      * @return the list
      */
-    public List<String> initiateSearch(final List<String> searchQueries) {
+    public List<String> initiateSearch(List<String> searchQueries) {
 
         List<String> mioPageCandidateList = querySearchEngine(searchEngine, searchQueries);
         mioPageCandidateList = removeDuplicates(mioPageCandidateList);
-       
+
         return mioPageCandidateList;
     }
 
@@ -50,17 +52,21 @@ public class SearchAgent {
      * @return the list
      */
     private List<String> querySearchEngine(int searchEngine, List<String> searchQueries) {
-        final SourceRetriever sRetriever = new SourceRetriever();
+        SourceRetriever sRetriever = new SourceRetriever();
         sRetriever.setResultCount(resultCount);
 
         // set focus on english content
-        sRetriever.setLanguage(0);
+        sRetriever.setLanguage(SourceRetriever.LANGUAGE_ENGLISH);
         sRetriever.setSource(searchEngine);
 
-        final List<String> resultList = new ArrayList<String>();
+        Logger.getRootLogger().info(
+                "MIO SearchAgent query search engine " + searchEngine + " with " + searchQueries.size()
+                + " queries expecting " + resultCount + " answers for each query");
+
+        List<String> resultList = new ArrayList<String>();
 
         for (String searchQuery : searchQueries) {
-            final List<String> resultURLList = sRetriever.getURLs(searchQuery, false);
+            List<String> resultURLList = sRetriever.getURLs(searchQuery, false);
             resultList.addAll(resultURLList);
         }
 
@@ -73,8 +79,8 @@ public class SearchAgent {
      * @param resultList the result list
      * @return the array list
      */
-    private List<String> removeDuplicates(final List<String> resultList) {
-        final Set<String> hashSet = new HashSet<String>(resultList);
+    private List<String> removeDuplicates(List<String> resultList) {
+        Set<String> hashSet = new HashSet<String>(resultList);
         resultList.clear();
         resultList.addAll(hashSet);
 

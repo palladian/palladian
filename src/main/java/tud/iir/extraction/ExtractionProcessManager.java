@@ -286,7 +286,7 @@ public class ExtractionProcessManager {
                 LOGGER.info("event extraction stopped, continue");
             }
 
-            LOGGER.info("this loop took " + sw.getElapsedTimeString());
+            LOGGER.info("this loop (#" + loopCount + ") took " + sw.getElapsedTimeString());
             LOGGER.info("the following non-daemon threads are still running:");
             threads = ThreadHelper.getAllNonDaemonThreads();
             LOGGER.info(CollectionHelper.getPrint(threads));

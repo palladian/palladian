@@ -28,14 +28,14 @@ public class Controller {
 
     public static final String NAME = "WebKnox";
     public static final String ID = "WebKnox";
-    public static final double VERSION = 0.12;
+    public static final double VERSION = 0.16;
 
     public static final int WEB = 1;
     public static final int SELECTION = 2;
     public static final int SELECTION_HALF = 3;
 
     public static final int EXTRACTION_SOURCES = WEB; // determines where to run the extraction, normally from all
-                                                      // available sources (WEB) but for benchmarking
+    // available sources (WEB) but for benchmarking
 
     // reasons maybe only on a selection
 
