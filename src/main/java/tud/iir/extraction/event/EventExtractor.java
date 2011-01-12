@@ -1,5 +1,6 @@
 package tud.iir.extraction.event;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,6 +19,11 @@ import java.util.regex.PatternSyntaxException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
+import org.apache.xerces.parsers.DOMParser;
+import org.apache.xerces.xni.parser.XMLDocumentFilter;
+import org.cyberneko.html.HTMLConfiguration;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
@@ -26,7 +32,7 @@ import tud.iir.daterecognition.DateGetter;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.extraction.Extractor;
 import tud.iir.extraction.content.PageContentExtractor;
-import tud.iir.extraction.content.PageContentExtractorException;
+import tud.iir.extraction.content.PreflightFilter;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.helper.ConfigHolder;
@@ -38,6 +44,7 @@ import tud.iir.news.Feed;
 import tud.iir.news.FeedItem;
 import tud.iir.news.NewsAggregator;
 import tud.iir.news.NewsAggregatorException;
+import tud.iir.web.Crawler;
 import weka.core.stemmers.SnowballStemmer;
 
 import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
@@ -127,20 +134,43 @@ public class EventExtractor extends Extractor {
      */
     public Event createEventFromURL(final String url) {
         Event event = null;
-        try {
+        Document document = null;
 
+        try {
             PageContentExtractor pce = new PageContentExtractor();
-            pce.setDocument(url);
+
+            if (Crawler.isValidURL(url, false)) {
+                DOMParser parser = new DOMParser(new HTMLConfiguration());
+                XMLDocumentFilter[] filters = { new PreflightFilter(LOGGER) };
+                parser
+                        .setProperty(
+                                "http://cyberneko.org/html/properties/filters",
+                                filters);
+
+                parser.setFeature(
+                        "http://cyberneko.org/html/features/insert-namespaces",
+                        true);
+                parser.setProperty(
+                        "http://cyberneko.org/html/properties/names/elems",
+                        "lower");
+
+                URL docurl = new URL(url);
+                parser.parse(new InputSource(docurl.openStream()));
+                document = parser.getDocument();
+                pce.setDocument(document);
+            } else {
+                pce.setDocument(url);
+            }
+
             final String rawText = pce.getResultText();
             event = new Event(pce.getResultTitle(), StringHelper
                     .makeContinuousText(rawText), url);
+
             event.setRawText(rawText);
+            event.setDocument(document);
 
-        } catch (final PageContentExtractorException e) {
-
+        } catch (Throwable e) {
             LOGGER.error(e);
-            LOGGER.error("URL not found: " + url);
-
         }
         return event;
     }
@@ -199,41 +229,43 @@ public class EventExtractor extends Extractor {
         Map<String, Double> rankedCandidates = new HashMap<String, Double>();
 
         ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
-        DateGetter dg = new DateGetter();
+
+        // list = DateArrayHelper.hashMapToArrayList(ratedDates);
+
         DateEvaluator dr = new DateEvaluator();
-        if (event.getUrl() != null) {
+        if (event.getUrl() != null && event.getDocument() != null) {
             ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
             HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
+            DateGetter dateGetter = new DateGetter(event.getUrl(), event
+                    .getDocument());
+            dateGetter.setAllFalse();
+            dateGetter.setTechHTMLContent(true);
+            dateGetter.setTechHTMLHead(true);
+            dateGetter.setTechHTMLStruct(true);
+            // dateGetter.setTechReference(true);
 
-            dg.setURL(event.getUrl());
-            dg.setTechReference(false);
-            dg.setTechArchive(false);
-            dg.setTechHTTP(true);
-            dg.setTechURL(true);
-            dg.setTechHTMLStruct(true);
-            dg.setTechHTMLHead(true);
-            dg.setTechHTMLContent(true);
-            dates = dg.getDate();
+            dates = dateGetter.getDate();
 
             ratedDates = dr.rate(dates);
-            list = DateArrayHelper.hashMapToArrayList(ratedDates);
 
+            list = DateArrayHelper.hashMapToArrayList(ratedDates);
             for (Entry<ExtractedDate, Double> entry : ratedDates.entrySet()) {
                 rankedCandidates.put(entry.getKey().getNormalizedDateString(),
                         entry.getValue());
             }
         }
+
         ExtractedDate date = new ExtractedDate();
         if (list != null && list.size() > 0) {
             ArrayList<ExtractedDate> orderedList = list;
             Collections.sort(orderedList,
                     new RatedDateComparator<ExtractedDate>());
             date = orderedList.get(0);
-            event.setWhen(date.getNormalizedDateString());
+            event.setWhen(date.getDateString());
         }
 
         // appling Namend Entity Recognition to find DateStrings
-        if (this.deepMode) {
+        if (this.deepMode || event.getWhen().isEmpty()) {
             for (Annotation anno : featureExtractor.getDateAnnotations(event
                     .getText())) {
                 rankedCandidates.put(anno.getEntity().getName(), 0.5);
@@ -470,8 +502,7 @@ public class EventExtractor extends Extractor {
              * String[] parts = null; if (who.contains(" ")) { parts =
              * who.split(" "); } else { parts = new String[] { who }; }
              */
-
-            if (!changed) {
+            if (!changed && event.getTitle().contains(who)) {
                 titleVerbPhrase = getSubsequentVerbPhrase(event.getTitle(), who);
                 if (titleVerbPhrase != null && !changed) {
                     event.setWho(who);
@@ -519,7 +550,7 @@ public class EventExtractor extends Extractor {
                 .getParse(sentence)) {
 
             if (foundNoun && tagAnnotation.getTag().contains("V")
-                    && tagAnnotation.getChunk().length() < 100) {
+                    && tagAnnotation.getChunk().length() < 150) {
                 verbPhrases.add(tagAnnotation.getChunk());
                 // foundVerb = true;
                 foundNoun = false;
@@ -800,14 +831,22 @@ public class EventExtractor extends Extractor {
 
         final StopWatch sw = new StopWatch();
         sw.start();
-        EventExtractor eventExtractor = EventExtractor.getInstance();
-        Event event = eventExtractor
-                .extractEventFromURL("http://www.guardian.co.uk/society/2010/dec/24/freezing-weather-homeless-charities/print");
-        eventExtractor.extract5W1H(event);
-        // System.out.println(StringHelper.makeContinuousText(event.getText()));
-        // ee.featureExtractor
-        // .getPOSTags("Mr Gates said they wanted to show solidarity with their allies in Seoul.");
 
+        EventExtractor eventExtractor = EventExtractor.getInstance();
+        eventExtractor
+                .extractEventFromURL("http://www.bbc.co.uk/news/health-12160618");
+
+        // System.out.println(StringHelper.makeContinuousText(event.getText()));
+
+        // String ssv = eventExtractor
+        // .getSubsequentVerbPhrase(
+        // "A court in Pakistan has sentenced a Muslim prayer leader and his son to life in jail for blasphemy.",
+        // "court");
+        // LOGGER.info(ssv);
+
+        // ee.featureExtractor //.getPOSTags(
+        // "Mr Gates said they wanted to show solidarity with their allies in Seoul."
+        // );
         // ee.featureExtractor.getPOSTags(event.getText());
 
         sw.stop();

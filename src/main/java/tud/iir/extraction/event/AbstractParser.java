@@ -4,7 +4,6 @@ import opennlp.tools.parser.Parse;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StopWatch;
 
 /**
@@ -113,10 +112,9 @@ public abstract class AbstractParser {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        onlpp
-                .parse("Government considers relocations after Indonesian tsunami");
-
-        CollectionHelper.print(onlpp.getTagAnnotations());
+        Parse[] parse = onlpp
+                .getFullParse("Wikileaks' Julian Assange 'fears US death penalty'");
+        onlpp.printParse(parse[0]);
 
         stopWatch.stop();
         LOGGER.info("time elapsed: " + stopWatch.getElapsedTimeString());
