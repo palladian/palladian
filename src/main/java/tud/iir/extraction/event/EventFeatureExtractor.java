@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -15,6 +16,9 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.FeatureObject;
+import tud.iir.daterecognition.DateEvaluator;
+import tud.iir.daterecognition.DateGetter;
+import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
@@ -110,9 +114,9 @@ public class EventFeatureExtractor {
      * @param event
      */
     public void setFeatures(Event event) {
-        event.setSentences(getSentences(event.getText()));
-        setAnnotations(event);
-        setAnnotationFeatures(event);
+        this.setSentences(event);
+        this.setAnnotations(event);
+        this.setAnnotationFeatures(event);
     }
 
     /**
@@ -125,8 +129,8 @@ public class EventFeatureExtractor {
         for (final Entry<String, Event> entry : eventMap.entrySet()) {
             final Event event = entry.getValue();
             if (event != null && event.getText() != null) {
-                setAnnotations(event);
-                setAnnotationFeatures(event);
+                this.setAnnotations(event);
+                this.setAnnotationFeatures(event);
             }
         }
 
@@ -137,7 +141,7 @@ public class EventFeatureExtractor {
      * 
      * @param event
      */
-    public void setAnnotationFeatures(Event event) {
+    private void setAnnotationFeatures(Event event) {
 
         final HashMap<Integer, Annotations> corefAnnotations = (HashMap<Integer, Annotations>) getCoreferenceAnnotations(event);
         final HashMap<Annotations, FeatureObject> annotationFeatures = new HashMap<Annotations, FeatureObject>();
@@ -153,6 +157,15 @@ public class EventFeatureExtractor {
         // setting entity features for the chunks
         event.setAnnotationFeatures(annotationFeatures);
 
+    }
+
+    /**
+     * sets the sentences for an event.
+     * 
+     * @param event
+     */
+    private void setSentences(Event event) {
+        event.setSentences(getSentences(event.getText()));
     }
 
     /**
@@ -299,6 +312,28 @@ public class EventFeatureExtractor {
 
         return annotations;
 
+    }
+
+    public HashMap<ExtractedDate, Double> getRatedDates(Event event) {
+        DateEvaluator dr = new DateEvaluator();
+        HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
+
+        if (event.getUrl() != null && event.getDocument() != null) {
+            ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
+            DateGetter dateGetter = new DateGetter(event.getUrl(), event
+                    .getDocument());
+            dateGetter.setAllFalse();
+            dateGetter.setTechHTMLContent(true);
+            dateGetter.setTechHTMLHead(true);
+            dateGetter.setTechHTMLStruct(true);
+            // dateGetter.setTechReference(true);
+
+            dates = dateGetter.getDate();
+
+            ratedDates = dr.rate(dates);
+
+        }
+        return ratedDates;
     }
 
     /**
