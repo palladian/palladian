@@ -27,8 +27,6 @@ import org.xml.sax.InputSource;
 
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
-import tud.iir.daterecognition.DateEvaluator;
-import tud.iir.daterecognition.DateGetter;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.extraction.Extractor;
 import tud.iir.extraction.content.PageContentExtractor;
@@ -226,35 +224,20 @@ public class EventExtractor extends Extractor {
      */
     public void extractWhen(Event event) {
 
-        Map<String, Double> rankedCandidates = new HashMap<String, Double>();
-
+        HashMap<String, Double> rankedCandidates = new HashMap<String, Double>();
+        HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
         ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
 
-        // list = DateArrayHelper.hashMapToArrayList(ratedDates);
+        ratedDates = featureExtractor.getRatedDates(event);
 
-        DateEvaluator dr = new DateEvaluator();
-        if (event.getUrl() != null && event.getDocument() != null) {
-            ArrayList<ExtractedDate> dates = new ArrayList<ExtractedDate>();
-            HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
-            DateGetter dateGetter = new DateGetter(event.getUrl(), event
-                    .getDocument());
-            dateGetter.setAllFalse();
-            dateGetter.setTechHTMLContent(true);
-            dateGetter.setTechHTMLHead(true);
-            dateGetter.setTechHTMLStruct(true);
-            // dateGetter.setTechReference(true);
-
-            dates = dateGetter.getDate();
-
-            ratedDates = dr.rate(dates);
-
-            list = DateArrayHelper.hashMapToArrayList(ratedDates);
-            for (Entry<ExtractedDate, Double> entry : ratedDates.entrySet()) {
-                rankedCandidates.put(entry.getKey().getNormalizedDateString(),
-                        entry.getValue());
-            }
+        // putting the rated dates as ranked candidates into the even object
+        for (Entry<ExtractedDate, Double> entry : ratedDates.entrySet()) {
+            rankedCandidates.put(entry.getKey().getNormalizedDateString(),
+                    entry.getValue());
         }
 
+        // finding out the highest rankend
+        list = DateArrayHelper.hashMapToArrayList(ratedDates);
         ExtractedDate date = new ExtractedDate();
         if (list != null && list.size() > 0) {
             ArrayList<ExtractedDate> orderedList = list;
@@ -570,6 +553,10 @@ public class EventExtractor extends Extractor {
         return verbPhrases.size() > 0 ? verbPhrases.get(0) : null;
     }
 
+    /**
+     * @param annotations
+     * @return
+     */
     public String longestTerm(Annotations annotations) {
 
         String term = "";
@@ -585,6 +572,12 @@ public class EventExtractor extends Extractor {
 
     }
 
+    /**
+     * returns the shortest term from a list of annotations.
+     * 
+     * @param annotations
+     * @return shortest term
+     */
     public String shortestTerm(Annotations annotations) {
 
         String term = "longlonglonglonglonglong";
