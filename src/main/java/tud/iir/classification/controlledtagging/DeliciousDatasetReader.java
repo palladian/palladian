@@ -19,8 +19,7 @@ import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
-import tud.iir.helper.FileHelper;
-import tud.iir.helper.HTMLHelper;
+import tud.iir.helper.Counter;
 
 // TODO this should go into another package?
 /**
@@ -331,29 +330,30 @@ public class DeliciousDatasetReader {
         // and only files which have a maximum size of 600.000 bytes
         DatasetFilter filter = new DatasetFilter();
         filter.addAllowedFiletype("html");
-        filter.setMinUsers(50);
-        filter.setMinUserTagRatio(0.1);
-        filter.setMaxFileSize(600000);
+        // filter.setMinUsers(50);
+        // filter.setMinUserTagRatio(0.1);
+        filter.setMaxFileSize(500000);
         reader.setFilter(filter);
 
+        final Counter c = new Counter();
         // callback for every entry in the data set
         DatasetCallback callback = new DatasetCallback() {
 
             @Override
             public void callback(DatasetEntry entry) {
 
-                String content = FileHelper.readFileToString(entry.getPath());
-                String cleanContent = HTMLHelper.htmlToString(content, true);
-                System.out.println(entry);
-                System.out.println(cleanContent);
+                c.increment();
 
             }
         };
 
+
         // read ten entries, starting at 100th matching entry.
         // defining an offset is useful for evaluation purposes,
         // allowing to separate into train and test set
-        reader.read(callback, 10, 100);
+        reader.read(callback);
+
+        System.out.println(c);
 
     }
 

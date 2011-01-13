@@ -52,7 +52,6 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
-import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.cyberneko.html.parsers.DOMParser;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -174,6 +173,19 @@ public class Crawler {
 
     /** The response code of the last HTTP request. */
     private int lastResponseCode = -1;
+
+    /**
+     * The maximum file size which should be downloaded (TODO: only web documents?). -1 means no limit. If you think
+     * that's a good idea, see: http://articles-articles-articles.com/index.php?page=mostpopulararticles Muhahahaha.
+     */
+    private long maxFileSize = 500000;
+
+    /**
+     * Guess the average compression ratio that could be reached using gzip or deflate. If set this to zero, the
+     * download only interrupts after reaching the maxFileSize, otherwise already after reaching
+     * (1 / compressionSaving)[%] * maxFileSize [Bytes] (only if compression can be used).
+     */
+    private double compressionSaving = 0.5;
 
     // ////////////////// crawl settings ////////////////////
     /** whether to crawl within a certain domain */
@@ -982,8 +994,9 @@ public class Crawler {
         // http://sourceforge.net/tracker/?func=detail&aid=3109537&group_id=195122&atid=952178
         // catching Throwable in #setDocument above; guess we have to wait for a new Neko release,
         // supposedly breaking other stuff :(
-        parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
-        parser.setProperty("http://cyberneko.org/html/properties/filters", new XMLDocumentFilter[] { new TBODYFix() });
+        // parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
+        // parser.setProperty("http://cyberneko.org/html/properties/filters", new XMLDocumentFilter[] { new TBODYFix()
+        // });
         // end fix.
 
         InputSource is = new InputSource(dataStream);
@@ -1782,8 +1795,7 @@ public class Crawler {
 
     /**
      * Download from specified URL string. This method caches the incoming InputStream and blocks until all incoming
-     * data has been read or the timeout has been
-     * reached.
+     * data has been read or the timeout has been reached.
      * 
      * @param urlString
      * @return
@@ -1862,8 +1874,15 @@ public class Crawler {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int length;
+            long cumLength = 0;
             while ((length = urlInputStream.read(buffer)) >= 0) {
                 outputStream.write(buffer, 0, length);
+                cumLength += length;
+                if (cumLength > maxFileSize
+                        || (encoding != null && cumLength > ((1.0 / compressionSaving) * maxFileSize))) {
+                    LOGGER.warn("the contents of " + url + " were too big, stop downloading...");
+                    throw new IOException();
+                }
             }
             urlInputStream.close();
             outputStream.close();
@@ -2067,10 +2086,10 @@ public class Crawler {
         } catch (IOException ioEx) {
             LOGGER.error(ioEx.getMessage());
         }
+
         document = parser.getDocument();
         if (document != null) {
             document.setDocumentURI(url);
-
         }
 
         return document;
