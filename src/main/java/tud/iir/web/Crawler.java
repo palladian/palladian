@@ -52,6 +52,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.commons.validator.UrlValidator;
 import org.apache.log4j.Logger;
+import org.apache.xerces.xni.parser.XMLDocumentFilter;
 import org.cyberneko.html.parsers.DOMParser;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -994,9 +995,8 @@ public class Crawler {
         // http://sourceforge.net/tracker/?func=detail&aid=3109537&group_id=195122&atid=952178
         // catching Throwable in #setDocument above; guess we have to wait for a new Neko release,
         // supposedly breaking other stuff :(
-        // parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
-        // parser.setProperty("http://cyberneko.org/html/properties/filters", new XMLDocumentFilter[] { new TBODYFix()
-        // });
+        parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
+        parser.setProperty("http://cyberneko.org/html/properties/filters", new XMLDocumentFilter[] { new TBODYFix() });
         // end fix.
 
         InputSource is = new InputSource(dataStream);
