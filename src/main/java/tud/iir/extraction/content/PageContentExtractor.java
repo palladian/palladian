@@ -2,6 +2,7 @@ package tud.iir.extraction.content;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.LinkedList;
 import java.util.List;
@@ -189,8 +190,8 @@ public class PageContentExtractor {
      */
     public PageContentExtractor setDocument(URL url) throws PageContentExtractorException {
         try {
-            Document document = crawler.getWebDocument(url);
-            return setDocument(document);
+            InputStream is = crawler.downloadInputStream(url.toString());
+            return setDocument(new InputSource(is));
         } catch (Throwable t) {
             throw new PageContentExtractorException(t);
         }
@@ -1095,6 +1096,31 @@ public class PageContentExtractor {
         return Float.valueOf(element.getAttribute(READABILITY_ATTR));
     }
 
+    /**
+     * Usage example for the book.
+     * @throws Exception
+     */
+    @SuppressWarnings("unused")
+    public static void usageExample() throws Exception {
+
+        PageContentExtractor extractor = new PageContentExtractor();
+
+        // this method is heavily overloaded and accepts various types of input
+        String url = "http://www.wired.com/gadgetlab/2010/05/iphone-4g-ads/";
+        extractor.setDocument(url);
+
+        // get the main content as text representation
+        String contentText = extractor.getResultText();
+
+        // get the main content as DOM representation
+        Document contentDocument = extractor.getResultDocument();
+
+        // get the title
+        String title = extractor.getResultTitle();
+
+    }
+
+
     // private Document createResultDocument() {
     // Document result = Helper.createDocument();
     //
@@ -1187,28 +1213,5 @@ public class PageContentExtractor {
 
     }
 
-    /**
-     * Usage example for the book.
-     * @throws Exception
-     */
-    @SuppressWarnings("unused")
-    public static void usageExample() throws Exception {
-
-        PageContentExtractor extractor = new PageContentExtractor();
-
-        // this method is heavily overloaded and accepts various types of input
-        String url = "http://www.wired.com/gadgetlab/2010/05/iphone-4g-ads/";
-        extractor.setDocument(url);
-
-        // get the main content as text representation
-        String contentText = extractor.getResultText();
-
-        // get the main content as DOM representation
-        Document contentDocument = extractor.getResultDocument();
-
-        // get the title
-        String title = extractor.getResultTitle();
-
-    }
 
 }
