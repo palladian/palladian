@@ -295,11 +295,8 @@ public class Source implements Serializable {
 
             try {
                 PageContentExtractor e = new PageContentExtractor();
-                mainContent = e.setDocument(new URL(getUrl())).getResultText();
+                mainContent = e.setDocument(getUrl()).getResultText();
             } catch (PageContentExtractorException e1) {
-                Logger.getRootLogger().error(
-                        "getMainContent did not work for URL: " + getUrl() + ", " + e1.getMessage());
-            } catch (MalformedURLException e1) {
                 Logger.getRootLogger().error(
                         "getMainContent did not work for URL: " + getUrl() + ", " + e1.getMessage());
             } catch (Exception e1) {

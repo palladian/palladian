@@ -64,7 +64,6 @@ import org.xml.sax.SAXException;
 
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.extraction.entity.EntityExtractor;
-import tud.iir.extraction.mio.EntityMIOExtractionThread;
 import tud.iir.extraction.mio.FastMIODetector;
 import tud.iir.extraction.mio.MIOExtractor;
 import tud.iir.extraction.mio.MIOPage;
@@ -77,14 +76,11 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
-import tud.iir.knowledge.Attribute;
 import tud.iir.knowledge.Concept;
 import tud.iir.knowledge.Entity;
-import tud.iir.knowledge.KnowledgeManager;
 import tud.iir.knowledge.MIO;
 import tud.iir.multimedia.ImageHandler;
 import tud.iir.news.FeedDiscoveryCallback;
-import tud.iir.persistence.DatabaseManager;
 
 /**
  * The Crawler downloads pages from the web. List of proxies can be found here: http://www.proxy-list.org/en/index.php
@@ -149,11 +145,11 @@ public class Crawler {
     /** number of active threads */
     private int threadCount = 0;
 
-    /** accumulates the download size in bytes for this crawler. */
-    private int totalDownloadSize = 0;
+    /** Accumulates the download size in bytes for this crawler. */
+    private long totalDownloadSize = 0;
 
     /** Saves the last download size in bytes for this crawler. */
-    private int lastDownloadSize = 0;
+    private long lastDownloadSize = 0;
 
     /** Keep track of the total number of bytes downloaded by all crawler instances used. */
     public static long sessionDownloadedBytes = 0;
@@ -1027,6 +1023,18 @@ public class Crawler {
         return getDocument();
     }
 
+    /**
+     * Get a web page ((X)HTML document).
+     * 
+     * @param url The URL or file path of the web page.
+     * @return The W3C document.
+     */
+    public Document getWebDocument(URL url) {
+        setDocument(url.toExternalForm(), false, true);
+        numberOfDownloadedPages++;
+        return getDocument();
+    }
+
     public Document getWebDocument(InputStream is, String URI) {
         try {
             parse(is, false, URI);
@@ -1352,15 +1360,15 @@ public class Crawler {
         return totalDownloadSize;
     }
 
-    public void setTotalDownloadSize(int totalDownloadSize) {
+    public void setTotalDownloadSize(long totalDownloadSize) {
         this.totalDownloadSize = totalDownloadSize;
     }
 
-    public int getLastDownloadSize() {
+    public long getLastDownloadSize() {
         return lastDownloadSize;
     }
 
-    public void setLastDownloadSize(int lastDownloadSize) {
+    public void setLastDownloadSize(long lastDownloadSize) {
         this.lastDownloadSize = lastDownloadSize;
     }
 
@@ -1369,7 +1377,7 @@ public class Crawler {
      * 
      * @param size The size in bytes that should be added to the download counters.
      */
-    private synchronized void addDownloadSize(int size) {
+    private synchronized void addDownloadSize(long size) {
         this.totalDownloadSize += size;
         this.lastDownloadSize = size;
         sessionDownloadedBytes += size;
@@ -1878,8 +1886,9 @@ public class Crawler {
             while ((length = urlInputStream.read(buffer)) >= 0) {
                 outputStream.write(buffer, 0, length);
                 cumLength += length;
-                if (cumLength > maxFileSize
+                if (maxFileSize > -1 && cumLength > maxFileSize
                         || (encoding != null && cumLength > ((1.0 / compressionSaving) * maxFileSize))) {
+                    addDownloadSize(cumLength);
                     LOGGER.warn("the contents of " + url + " were too big, stop downloading...");
                     throw new IOException();
                 }
@@ -2120,13 +2129,14 @@ public class Crawler {
 
         System.exit(0);
 
-        KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
-        Thread mioThread = new EntityMIOExtractionThread(new ThreadGroup("mioExtractionThreadGroup"),
-                entity.getSafeName() + "MIOExtractionThread", entity, kManager);
-        mioThread.start();
-
-        System.out.println(kManager.getConcept("MobilePhone").getEntities().get(0).getFactForAttribute(new Attribute("strong_mio",1,new Concept("MobilePhone"))));
-        System.exit(0);
+        // KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
+        // Thread mioThread = new EntityMIOExtractionThread(new ThreadGroup("mioExtractionThreadGroup"),
+        // entity.getSafeName() + "MIOExtractionThread", entity, kManager);
+        // mioThread.start();
+        //
+        // System.out.println(kManager.getConcept("MobilePhone").getEntities().get(0).getFactForAttribute(new
+        // Attribute("strong_mio",1,new Concept("MobilePhone"))));
+        // System.exit(0);
 
         Crawler cr = new Crawler();
         HeaderInformation headerInformation = new HeaderInformation(new Date(System.currentTimeMillis() - 5

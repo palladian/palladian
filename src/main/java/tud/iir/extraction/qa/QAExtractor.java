@@ -334,7 +334,10 @@ public class QAExtractor extends Extractor {
         }
 
         // update live status
-        ExtractionProcessManager.liveStatus.setCurrentAction("Search for QAs from " + (numberOfSites - stopVotes)
+        ExtractionProcessManager.liveStatus.setCurrentAction("search for QAs from " + (numberOfSites - stopVotes)
+                + " out of " + numberOfSites + " sites");
+
+        LOGGER.info("search for QAs from " + (numberOfSites - stopVotes)
                 + " out of " + numberOfSites + " sites");
 
         int iterations = 0;
