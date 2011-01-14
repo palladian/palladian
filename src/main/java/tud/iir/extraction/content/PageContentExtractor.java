@@ -93,7 +93,11 @@ public class PageContentExtractor {
     private static final Pattern NORMALIZE_RE = Pattern.compile("\\s{2,}");
     private static final Pattern VIDEO_RE = Pattern.compile("http:\\/\\/(www\\.)?(youtube|vimeo)\\.com", Pattern.CASE_INSENSITIVE);
 
+    /** The DOM parser has different settings that distinguish it from the one in the Crawler. */
     private DOMParser parser;
+
+    /** We use the Crawler to take care of retrieving the document from remote locations. */
+    private Crawler crawler;
 
     /** the original document */
     private Document document;
@@ -127,6 +131,8 @@ public class PageContentExtractor {
 
             parser.setFeature("http://cyberneko.org/html/features/insert-namespaces", true);
             parser.setProperty("http://cyberneko.org/html/properties/names/elems", "lower");
+
+            crawler = new Crawler();
 
         } catch (SAXNotSupportedException e) {
             LOGGER.error("initialization of DOMParser failed", e);
@@ -183,8 +189,8 @@ public class PageContentExtractor {
      */
     public PageContentExtractor setDocument(URL url) throws PageContentExtractorException {
         try {
-            parser.parse(new InputSource(url.openStream()));
-            return setDocument(parser.getDocument());
+            Document document = crawler.getWebDocument(url);
+            return setDocument(document);
         } catch (Throwable t) {
             throw new PageContentExtractorException(t);
         }
