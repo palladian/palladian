@@ -74,6 +74,8 @@ import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.HTMLHelper;
+import tud.iir.helper.MathHelper;
+import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.knowledge.Concept;
@@ -169,13 +171,13 @@ public class Crawler {
     private boolean feedAutodiscovery = false;
 
     /** The response code of the last HTTP request. */
-    private int lastResponseCode = -1;
+    // private int lastResponseCode = -1;
 
     /**
      * The maximum file size which should be downloaded (TODO: only web documents?). -1 means no limit. If you think
      * that's a good idea, see: http://articles-articles-articles.com/index.php?page=mostpopulararticles Muhahahaha.
      */
-    private long maxFileSize = 500000;
+    private long maxFileSize = 1000000;
 
     /**
      * Guess the average compression ratio that could be reached using gzip or deflate. If set this to zero, the
@@ -1398,6 +1400,14 @@ public class Crawler {
         return sessionDownloadedBytes;
     }
 
+    public long getMaxFileSize() {
+        return maxFileSize;
+    }
+
+    public void setMaxFileSize(long maxFileSize) {
+        this.maxFileSize = maxFileSize;
+    }
+
     private void callCrawlerCallback(Document document) {
         for (CrawlerCallback crawlerCallback : crawlerCallbacks) {
             LOGGER.trace("call crawler callback " + crawlerCallback + "  for " + document.getDocumentURI());
@@ -1886,8 +1896,8 @@ public class Crawler {
             while ((length = urlInputStream.read(buffer)) >= 0) {
                 outputStream.write(buffer, 0, length);
                 cumLength += length;
-                if (maxFileSize > -1 && cumLength > maxFileSize
-                        || (encoding != null && cumLength > ((1.0 / compressionSaving) * maxFileSize))) {
+                if (maxFileSize > -1
+                        && (cumLength > maxFileSize || (encoding != null && cumLength > ((1.0 / compressionSaving) * maxFileSize)))) {
                     addDownloadSize(cumLength);
                     LOGGER.warn("the contents of " + url + " were too big, stop downloading...");
                     throw new IOException();
@@ -2104,10 +2114,68 @@ public class Crawler {
         return document;
     }
 
+    public static void performanceCheck() {
+
+        Set<String> urls = new HashSet<String>();
+
+        urls.add("http://www.literatura-obcojezyczna.1up.pl/mapa/1107045/informatyka/");
+        urls.add("http://www.territorioscuola.com/wikipedia/en.wikipedia.php?title=Wikipedia:WikiProject_Deletion_sorting/Bands_and_musicians/archive");
+        urls.add("http://www.designquote.net/directory/ny");
+        urls.add("http://wikyou.info/index3.php?key=clwyd");
+        urls.add("http://lashperfect.com/eyelash-salon-finder");
+        urls.add("http://www.ics.heacademy.ac.uk/publications/book_reviews/books.php?status=r&ascendby=author");
+        urls.add("http://www.letrs.indiana.edu/cgi/t/text/text-idx?c=wright2;cc=wright2;view=text;rgn=main;idno=wright2-0671");
+        urls.add("http://justintadlock.com/archives/2007/12/09/structure-wordpress-theme");
+        urls.add("http://www.editionbeauce.com/archives/photos/");
+        urls.add("http://nouvellevintage.wordmess.net/20100309/hello-from-the-absense/");
+        urls.add("http://xn--0tru33arqi4jn7xzda.jp/index3.php?key=machinerie");
+        urls.add("http://katalog.svkul.cz/a50s.htm");
+        urls.add("http://gosiqumup.fortunecity.com/2009_04_01_archive.html");
+        urls.add("http://freepages.genealogy.rootsweb.ancestry.com/~sauve/indexh.htm");
+        urls.add("http://www.blog-doubleclix.com/index.php?q=erix");
+        urls.add("http://meltingpot.fortunecity.com/virginia/670/FichierLoiselle.htm");
+        urls.add("http://canada-info.ca/directory/category/consulting/index.php");
+        urls.add("http://www.infopig.com/news/07-19-2008.html");
+
+        Crawler crawler = new Crawler();
+        crawler.setMaxFileSize(-1);
+
+        double[] x = new double[urls.size()];
+        double[] y = new double[urls.size()];
+        int c = 0;
+        long sumBytes = 0;
+        long sumTime = 0;
+        for (String url : urls) {
+            StopWatch sw = new StopWatch();
+            crawler.getWebDocument(url);
+
+            LOGGER.info(sw.getElapsedTimeString() + " for " + crawler.getLastDownloadSize() + " Bytes of url "
+                    + url);
+
+            sumBytes += crawler.getLastDownloadSize();
+            sumTime += sw.getElapsedTime();
+            x[c] = crawler.getLastDownloadSize();
+            y[c] = sw.getElapsedTime();
+            c++;
+        }
+
+        double[] parameters = MathHelper.performLinearRegression(x, y);
+
+        LOGGER.info("the linear regression formula for download and parsing time [ms] in respect to the size is: "
+                + Math.round(parameters[0])
+                + " * downloadSize [KB] + " + parameters[1]);
+        LOGGER.info("total time [ms] and total traffic [Bytes]: " + sumTime + " / " + sumBytes);
+        LOGGER.info("on average: " + MathHelper.round((sumBytes / 1024) / (sumTime / 1000), 2) + "[KB/s]");
+    }
+
     /**
      * @param args
      */
     public static void main(String[] args) {
+
+        Crawler.performanceCheck();
+
+        System.exit(0);
 
         MIOExtractor.getInstance();
         Crawler crawler2 = new Crawler();
