@@ -22,12 +22,12 @@ public abstract class AbstractParser {
     /**
      * Object holding the model.
      */
-    private Object model;
+    private Object model = null;
 
     /**
      * Name of the Parser.
      */
-    private String name;
+    private String name = null;
 
     /**
      * Tagged Annotaions.
@@ -40,21 +40,27 @@ public abstract class AbstractParser {
      * @param configModelPath
      * @return Boolean
      */
-    public abstract boolean loadModel(String configModelPath);
+    public abstract AbstractParser loadModel(String configModelPath);
 
     /**
-     * loads the default model into the parser.
+     * loads the default model into the parser. Method returns <code>this</code>
+     * instance of AbstractParser, to allow convenient concatenations of method
+     * invocations, like:
+     * <code>new OpenNLPParser().loadDefaultModel().parse(...).getTagAnnotations();</code>
      * 
      * @return success
      */
-    public abstract boolean loadModel();
+    public abstract AbstractParser loadDefaultModel();
 
     /**
      * Parses a given string and writes it into the parse object of this class.
+     * Method returns <code>this</code> instance of AbstractParser, to allow
+     * convenient concatenations of method invocations, like:
+     * <code>new OpenNLPParser().loadDefaultModel().parse(...).getTagAnnotations();</code>
      * 
      * @param Sentence
      */
-    public abstract void parse(String sentence);
+    public abstract AbstractParser parse(String sentence);
 
     /**
      * @return the model
@@ -102,25 +108,6 @@ public abstract class AbstractParser {
     }
 
     /**
-     * @param args
-     */
-    public static void main(String[] args) {
-        final OpenNLPParser onlpp = new OpenNLPParser();
-
-        onlpp.loadModel();
-
-        final StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
-
-        Parse[] parse = onlpp
-                .getFullParse("Wikileaks' Julian Assange 'fears US death penalty'");
-        onlpp.printParse(parse[0]);
-
-        stopWatch.stop();
-        LOGGER.info("time elapsed: " + stopWatch.getElapsedTimeString());
-    }
-
-    /**
      * Converts a parse tree into Annotations.
      * 
      * @param parse
@@ -163,6 +150,25 @@ public abstract class AbstractParser {
                 }
             }
         }
+    }
+
+    /**
+     * @param args
+     */
+    public static void main(String[] args) {
+        final OpenNLPParser onlpp = new OpenNLPParser();
+
+        onlpp.loadDefaultModel();
+
+        final StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        Parse[] parse = onlpp
+                .getFullParse("Wikileaks' Julian Assange 'fears US death penalty'");
+        onlpp.printParse(parse[0]);
+
+        stopWatch.stop();
+        LOGGER.info("time elapsed: " + stopWatch.getElapsedTimeString());
     }
 
 }

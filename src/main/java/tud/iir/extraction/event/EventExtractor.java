@@ -85,7 +85,7 @@ public class EventExtractor extends Extractor {
     private final String MODEL_WHO;
 
     /** Experimental deepMode for deeper 5W1H extraction. **/
-    private boolean deepMode = false;
+    private boolean deepMode = true;
 
     /**
      * @author Martin Wunderwald

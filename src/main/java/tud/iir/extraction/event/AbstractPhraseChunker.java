@@ -17,28 +17,31 @@ public abstract class AbstractPhraseChunker {
             .getLogger(AbstractPhraseChunker.class);
 
     /** Holds the model. **/
-    private Object model;
+    private Object model = null;
 
     /** Holds the name of the chunker. **/
-    private String name;
+    private String name = null;
 
     /** holds the tag Annotations. **/
     private TagAnnotations tagAnnotations;
 
     /**
-     * Loads the chunker model into the chunker.
+     * Loads the chunker model into the chunker. Method returns
+     * <code>this</code> instance of AbstractPhraseChunker, to allow convenient
+     * concatenations of method invocations, like:
+     * <code>new OpenNLPPhraseChunker().loadDefaultModel().chunk(...).getTagAnnotations();</code>
      * 
      * @param configModelFilePath
      * @return
      */
-    public abstract boolean loadModel(String configModelFilePath);
+    public abstract AbstractPhraseChunker loadModel(String configModelFilePath);
 
     /**
      * Loads the default chunker model into the chunker.
      * 
      * @return
      */
-    public abstract boolean loadModel();
+    public abstract AbstractPhraseChunker loadDefaultModel();
 
     /**
      * Chunks a sentence and writes parts in @see {@link #chunks} and @see
@@ -46,7 +49,7 @@ public abstract class AbstractPhraseChunker {
      * 
      * @param sentence
      */
-    public abstract void chunk(String sentence);
+    public abstract AbstractPhraseChunker chunk(String sentence);
 
     /**
      * Chunks a senntence with given model file path and writes it into @see
@@ -55,7 +58,8 @@ public abstract class AbstractPhraseChunker {
      * @param sentence
      * @param configModelFilePath
      */
-    public abstract void chunk(String sentence, String configModelFilePath);
+    public abstract AbstractPhraseChunker chunk(String sentence,
+            String configModelFilePath);
 
     /**
      * Getter for the Chunker Model.
@@ -114,7 +118,7 @@ public abstract class AbstractPhraseChunker {
     public static void main(String[] args) {
 
         final OpenNLPPhraseChunker onlppc = new OpenNLPPhraseChunker();
-        onlppc.loadModel();
+        onlppc.loadDefaultModel();
 
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();

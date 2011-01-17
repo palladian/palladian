@@ -17,7 +17,7 @@ public abstract class AbstractPOSTagger {
             .getLogger(AbstractPOSTagger.class);
 
     /** model for open nlp pos-tagging. */
-    private Object model;
+    private Object model = null;
 
     /** name for the POS Tagger. */
     private String name = "unknown";
@@ -26,21 +26,28 @@ public abstract class AbstractPOSTagger {
     private TagAnnotations tagAnnotations;
 
     /**
-     * tags a string and writes the tags into @see {@link #tags} and @see
-     * {@link #tokens}.
+     * Tags a string and writes the tags into @see {@link #tags} and @see
+     * {@link #tokens}. Method returns <code>this</code> instance of
+     * AbstractPOSTagger, to allow convenient concatenations of method
+     * invocations, like:
+     * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
      * 
      * @param sentence
      */
-    public abstract void tag(String sentence);
+    public abstract AbstractPOSTagger tag(String sentence);
 
     /**
      * tags a string and writes the tags into @see {@link #tags} and @see
-     * {@link #tokens}.
+     * {@link #tokens}. Method returns <code>this</code> instance of
+     * AbstractPOSTagger, to allow convenient concatenations of method
+     * invocations, like:
+     * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
      * 
      * @param sentence
      * @param configModelFilePath
      */
-    public abstract void tag(String sentence, String configModelFilePath);
+    public abstract AbstractPOSTagger tag(String sentence,
+            String configModelFilePath);
 
     /**
      * loads model into @see {@link #model}.
@@ -48,15 +55,31 @@ public abstract class AbstractPOSTagger {
      * @param configModelFilePath
      * @return
      */
-    public abstract boolean loadModel(String configModelFilePath);
+    public abstract AbstractPOSTagger loadModel(String configModelFilePath);
 
     /**
-     * loads the default model into @see {@link #model}.
+     * loads the default model into @see {@link #model}. Method returns
+     * <code>this</code> instance of AbstractPOSTagger, to allow convenient
+     * concatenations of method invocations, like:
+     * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
      * 
      * @param configModelFilePath
      * @return
      */
-    public abstract boolean loadModel();
+    public abstract AbstractPOSTagger loadDefaultModel();
+
+    /**
+     * loads the default model into @see {@link #model}. Method returns
+     * <code>this</code> instance of AbstractPOSTagger, to allow convenient
+     * concatenations of method invocations, like:
+     * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
+     * 
+     * @param configModelFilePath
+     * @return
+     */
+    public AbstractPOSTagger loadModel() {
+        return this.loadDefaultModel();
+    }
 
     /**
      * Getter for model.
@@ -130,7 +153,7 @@ public abstract class AbstractPOSTagger {
     public static void main(String[] args) {
 
         final OpenNLPPOSTagger lppt = new OpenNLPPOSTagger();
-        lppt.loadModel();
+        lppt.loadDefaultModel();
 
         final StopWatch sw = new StopWatch();
         sw.start();
