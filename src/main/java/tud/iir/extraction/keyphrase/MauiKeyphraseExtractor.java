@@ -53,6 +53,9 @@ import weka.core.Instances;
  * TODO removed Wikipedia stuff for now, to fix build problems on Hudson.
  * TODO memory leak in Weka? http://comments.gmane.org/gmane.comp.ai.weka/22860
  * TODO there is a f**** memory leak some where, updating to newest Weka doesnt help. Wasted hours until now: 4.
+ * at first glance, the problem seems to be caused by weka:
+ * 3.5.5 and 3.5.7 --> good
+ * 3.6.2 --> evil
  * 
  * http://code.google.com/p/maui-indexer/
  * 

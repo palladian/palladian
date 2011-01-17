@@ -26,7 +26,6 @@ import weka.core.Attribute;
 import weka.core.FastVector;
 import weka.core.Instance;
 import weka.core.Instances;
-import weka.core.Utils;
 
 public class Classifier {
 
@@ -394,48 +393,6 @@ public class Classifier {
      */
     public ArrayList<FeatureObject> readFeatureObjects(String filePath) {
         return readFeatureObjects(filePath, false);
-        // ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
-        //
-        // try {
-        // FileReader in = new FileReader(filePath);
-        // BufferedReader br = new BufferedReader(in);
-        //
-        // String line = "";
-        // do {
-        // line = br.readLine();
-        // if (line == null) {
-        // break;
-        // }
-        //
-        // // skip empty/comment lines
-        // if (line.isEmpty() || line.startsWith("#")) {
-        // continue;
-        // }
-        //
-        // String[] featureStrings = line.split(";");
-        // Double[] features = new Double[featureStrings.length];
-        // String[] featureNames = new String[featureStrings.length];
-        // for (int i = 0; i < featureStrings.length; i++) {
-        // features[i] = Double.valueOf(featureStrings[i]);
-        // }
-        // FeatureObject fo = new FeatureObject(features, featureNames);
-        // featureObjects.add(fo);
-        //
-        // } while (line != null);
-        //
-        // in.close();
-        // br.close();
-        //
-        // } catch (FileNotFoundException e) {
-        // LOGGER.error(filePath, e);
-        // } catch (IOException e) {
-        // LOGGER.error(filePath, e);
-        // } catch (OutOfMemoryError e) {
-        // LOGGER.error(filePath, e);
-        // }
-        //
-        // // System.out.println(featureObjects.size());
-        // return featureObjects;
     }
 
     public FastVector getFvWekaAttributes() {

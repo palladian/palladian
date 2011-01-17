@@ -1,4 +1,4 @@
-package tud.iir.web;
+package tud.iir.web.ranking;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,7 +19,6 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 
 import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -32,7 +31,7 @@ import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
-import tud.iir.knowledge.Source;
+import tud.iir.web.Crawler;
 
 import com.temesoft.google.pr.JenkinsHash;
 
@@ -42,13 +41,12 @@ import com.temesoft.google.pr.JenkinsHash;
  * 
  * http://tools.seobook.com/firefox/seo-for-firefox.html
  * 
- * TODO possibility to disable caching
  * TODO specific caching for domains
  * 
  * @author Philipp Katz
  * 
  */
-public class URLRankingServices {
+public class RankingRetriever {
 
     /** Type safe enum for all available ranking services. */
     public enum Service {
@@ -118,7 +116,12 @@ public class URLRankingServices {
         /**
          * Get "Domain ranking based on Unique Visitor estimate for month/year" from Compete.
          */
-        COMPETE_RANK(13, true);
+        COMPETE_RANK(13, true),
+
+        /**
+         * Get the trustworthiness from Web of Trust.
+         */
+        WOT_TRUSTWORTHINESS(14, true);
 
         private int serviceId;
         private boolean domainLevel;
@@ -172,10 +175,7 @@ public class URLRankingServices {
     // http://code.google.com/intl/de/apis/feedburner/awareness_api.html
 
     /** The class logger. */
-    private static final Logger LOGGER = Logger.getLogger(URLRankingServices.class);
-
-    /** Time interval in seconds, after the cached values are considered invalid. */
-    private static final int CACHE_TTL_SECONDS = 60 * 60 * 24;
+    private static final Logger LOGGER = Logger.getLogger(RankingRetriever.class);
 
     /** Various logins, passwords, API keys. */
     private String bitlyLogin;
@@ -196,42 +196,39 @@ public class URLRankingServices {
     /** Crawler for downloading purposes. */
     private Crawler crawler = new Crawler();
 
-    /** Database cache for retrieved ranking values. */
-    private URLRankingCache cache = new URLRankingCache();
+    /** Ccache for retrieved ranking values. */
+    private RankingCache cache = new RankingCacheMemory();
 
     /** The services to check. */
     private Collection<Service> check;
 
-    public URLRankingServices() {
+    public RankingRetriever() {
         StopWatch sw = new StopWatch();
 
         PropertiesConfiguration configuration = ConfigHolder.getInstance().getConfig();
-        bitlyLogin = configuration.getString("bitly.api.login");
-        bitlyApikey = configuration.getString("bitly.api.key");
-        mixxApikey = configuration.getString("mixx.api.key");
-        redditUsername = configuration.getString("reddit.api.username");
-        redditPassword = configuration.getString("reddit.api.password");
-        yahooApikey = configuration.getString("yahoo.api.key");
-        majesticApikey = configuration.getString("majestic.api.key");
-        competeApikey = configuration.getString("compete.api.key");
+        bitlyLogin = configuration.getString("api.bitly.login");
+        bitlyApikey = configuration.getString("api.bitly.key");
+        mixxApikey = configuration.getString("api.mixx.key");
+        redditUsername = configuration.getString("api.reddit.username");
+        redditPassword = configuration.getString("api.reddit.password");
+        yahooApikey = configuration.getString("api.yahoo.key");
+        majesticApikey = configuration.getString("api.majestic.key");
+        competeApikey = configuration.getString("api.compete.key");
 
         // we use a rather short timeout here, as responses are short.
         crawler.setOverallTimeout(5000);
 
-        // set TTL for cache to 24 hours
-        cache.setTtlSeconds(CACHE_TTL_SECONDS);
-
         // per default, we want to check all services
         check = Arrays.asList(Service.values());
 
-        LOGGER.trace("<init> URLRankingServices:" + sw.getElapsedTime());
+        LOGGER.trace("<init> RankingRetriever:" + sw.getElapsedTime());
     }
 
     /**
      * Define the services which to check. Use this, if you do not want to check all available services. For instance,
      * if you only want to check Google Page Rank and Yahoo! Page links, use:
      * 
-     * <code>setServices(Arrays.asList(new Service[] { Service.GOOGLE_PAGE_RANK, Service.YAHOO_PAGE_LINKS }));</code>
+     * <code>setServices(Arrays.asList(Service.GOOGLE_PAGE_RANK, Service.YAHOO_PAGE_LINKS));</code>
      * 
      * @param services
      */
@@ -247,28 +244,12 @@ public class URLRankingServices {
      * @param url
      * @return
      */
-    public Map<Service, Float> getRanking(String url) {
-        Source source = cache.getSource(url);
-        if (source == null) {
-            source = new Source(url);
-        }
-        return getRanking(source);
-    }
-
-    /**
-     * Get ranking for supplied Source from all specified ranking services. By default, all available services are
-     * checked, see {@link Service#values()}. Use {@link #setServices(Collection)} to specify the services to be checked
-     * by this method.
-     * 
-     * @param url
-     * @return
-     */
-    public Map<Service, Float> getRanking(final Source source) {
+    public Map<Service, Float> getRanking(final String url) {
 
         final Map<Service, Float> result = Collections.synchronizedMap(new HashMap<Service, Float>());
 
         // get rankings from the cache
-        final Map<Service, Float> cachedRankings = cache.get(source);
+        final Map<Service, Float> cachedRankings = cache.get(url);
 
         // rankings which we downloaded from the web -- these will be cached
         final Map<Service, Float> downloadedRankings = Collections.synchronizedMap(new HashMap<Service, Float>());
@@ -284,7 +265,7 @@ public class URLRankingServices {
                 @Override
                 public void run() {
 
-                    LOGGER.trace("start thread for " + service + " : " + source);
+                    LOGGER.trace("start thread for " + service + " : " + url);
 
                     // -1 means : need to get the ranking from web api
                     float ranking = -1;
@@ -294,13 +275,13 @@ public class URLRankingServices {
                     }
 
                     if (ranking == -1) {
-                        ranking = getRanking(source, service);
+                        ranking = getRanking(url, service);
                         downloadedRankings.put(service, ranking);
                     }
 
                     result.put(service, ranking);
 
-                    LOGGER.trace("finished thread for " + service + " : " + source);
+                    LOGGER.trace("finished thread for " + service + " : " + url);
 
                 }
             };
@@ -318,9 +299,10 @@ public class URLRankingServices {
         }
 
         // add the downloaded rankings to the cache
-        cache.add(source, downloadedRankings);
+        cache.add(url, downloadedRankings);
 
         return result;
+
     }
 
     /**
@@ -330,9 +312,9 @@ public class URLRankingServices {
      * @param service
      * @return
      */
-    public float getRanking(Source source, Service service) {
+    public float getRanking(String url, Service service) {
 
-        setUrl(source.getUrl());
+        setUrl(url);
         float value = -1;
 
         try {
@@ -375,6 +357,9 @@ public class URLRankingServices {
                     break;
                 case COMPETE_RANK:
                     value = getDomainsCompeteRank();
+                    break;
+                case WOT_TRUSTWORTHINESS:
+                    value = getWebOfTrustWorthiness();
                     break;
             }
         } catch (Exception e) {
@@ -719,7 +704,7 @@ public class URLRankingServices {
 
     /**
      * Get the number of Tweets containing the URL's domain. It makes no sense to search for full page links as they are
-     * too long for Twitter in most cases. Use {@link URLRankingServices#getBitlyClicks(String)} as an indicator
+     * too long for Twitter in most cases. Use {@link RankingRetriever#getBitlyClicks(String)} as an indicator
      * instead.
      * 
      * @return count of Tweets for URL's domain. Maximum count returned is 100. -1 is returned on error.
@@ -874,11 +859,73 @@ public class URLRankingServices {
         return result;
     }
 
+    /**
+     * Get ranking from Web of Trust. We just take the "Trustworthiness" factor, not considering "Vendor reliability",
+     * "Privacy", or "Child safety". Also we do not cosider the confidence values.
+     * 
+     * http://www.mywot.com/en/api
+     * http://www.mywot.com/wiki/API
+     * 
+     * @return
+     */
+    private int getWebOfTrustWorthiness() {
+
+        int result = -1;
+
+        String domain = Crawler.getDomain(getUrl(), false);
+        Document doc = crawler.getXMLDocument("http://api.mywot.com/0.4/public_query2?target=" + domain);
+
+        if (doc != null) {
+
+            Node trustworthiness = XPathHelper.getNode(doc, "//application[@name='0']/@r");
+            if (trustworthiness != null) {
+                String trustText = trustworthiness.getTextContent();
+                result = Integer.valueOf(trustText);
+            } else {
+                result = 0;
+            }
+
+        }
+
+        LOGGER.trace("WOT Trustworthiness for " + getUrl() + " -> " + result);
+        return result;
+
+    }
+
+    /**
+     * @param ttlSeconds
+     * @see tud.iir.web.ranking.RankingCache#setTtlSeconds(int)
+     */
+    public void setCacheTtlSeconds(int ttlSeconds) {
+        cache.setTtlSeconds(ttlSeconds);
+    }
+
+    /**
+     * Set the cache implmentation to be used.
+     * 
+     * @param cache
+     */
+    public void setCache(RankingCache cache) {
+        this.cache = cache;
+    }
+
+    /**
+     * Get the used cache.
+     * 
+     * @return
+     */
+    public RankingCache getCache() {
+        return cache;
+    }
+
     public static void main(String[] args) throws Exception {
 
-        String url = "http://www.engadget.com/2010/05/07/how-would-you-change-apples-ipad/";
+        // String url = "http://www.engadget.com/2010/05/07/how-would-you-change-apples-ipad/";
+        // String url = "http://www.tagesschau.de";
+        String url = "http://www.porn.com";
 
-        URLRankingServices urlRankingServices = new URLRankingServices();
+        RankingRetriever urlRankingServices = new RankingRetriever();
+
         urlRankingServices.setCacheTtlSeconds(-1);
         StopWatch sw = new StopWatch();
         Map<Service, Float> ranking = urlRankingServices.getRanking(url);
@@ -898,17 +945,10 @@ public class URLRankingServices {
         System.out.println("  Alexa rank:                         " + ranking.get(Service.ALEXA_RANK));
         System.out.println("  Majestic-SEO referring domains:     " + ranking.get(Service.MAJESTIC_SEO));
         System.out.println("  Compete rank for domain:            " + ranking.get(Service.COMPETE_RANK));
+        System.out.println("  WOT Trustworthiness for domain:     " + ranking.get(Service.WOT_TRUSTWORTHINESS));
         System.out.println("-----------------------------------------------------------------");
         System.out.println(sw.getElapsedTimeString());
 
-    }
-
-    /**
-     * @param ttlSeconds
-     * @see tud.iir.web.URLRankingCache#setTtlSeconds(int)
-     */
-    public void setCacheTtlSeconds(int ttlSeconds) {
-        cache.setTtlSeconds(ttlSeconds);
     }
 
 }
