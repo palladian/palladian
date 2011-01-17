@@ -9,14 +9,17 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.extraction.XPathSet;
+import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.Tokenizer;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
+import tud.iir.web.resources.WebImage;
 
 /**
  * <p>
@@ -45,7 +48,7 @@ public class PageSentenceExtractor {
     private String mainContentHTML = "";
     private String mainContentText = "";
 
-    private List<String> imageURLs;
+    private List<WebImage> imageURLs;
 
     public PageSentenceExtractor() {
         crawler = new Crawler();
@@ -117,26 +120,26 @@ public class PageSentenceExtractor {
         // System.out.println(mainContentText);
     }
 
-    public List<String> getImages(String fileType) {
+    public List<WebImage> getImages(String fileType) {
 
-        List<String> filteredImages = new ArrayList<String>();
+        List<WebImage> filteredImages = new ArrayList<WebImage>();
         String ftSmall = fileType.toLowerCase();
-        for (String imageURL : getImages()) {
-            if (imageURL.toLowerCase().endsWith(ftSmall)) {
-                filteredImages.add(imageURL);
+        for (WebImage webImage : getImages()) {
+            if (webImage.getType().toLowerCase().equalsIgnoreCase(ftSmall)) {
+                filteredImages.add(webImage);
             }
         }
 
         return filteredImages;
     }
 
-    public List<String> getImages() {
+    public List<WebImage> getImages() {
 
         if (imageURLs != null) {
             return imageURLs;
         }
 
-        imageURLs = new ArrayList<String>();
+        imageURLs = new ArrayList<WebImage>();
 
         // we need to query the result document with an xpath but the name space check has to be done on the original
         // document
@@ -148,13 +151,36 @@ public class PageSentenceExtractor {
         List<Node> imageNodes = XPathHelper.getChildNodes(mainContentNode, imgXPath);
         for (Node node : imageNodes) {
             try {
-                String imageURL = node.getAttributes().getNamedItem("src").getTextContent();
+
+                WebImage webImage = new WebImage();
+
+                NamedNodeMap nnm = node.getAttributes();
+                String imageURL = nnm.getNamedItem("src").getTextContent();
 
                 if (!imageURL.startsWith("http")) {
-                    imageURL = getDocument().getDocumentURI() + imageURL;
+                    if (imageURL.startsWith("/")) {
+                        imageURL = Crawler.getDomain(getDocument().getDocumentURI()) + imageURL;
+                    } else {
+                        imageURL = getDocument().getDocumentURI() + imageURL;
+                    }
                 }
 
-                imageURLs.add(imageURL);
+                webImage.setUrl(imageURL);
+
+                if (nnm.getNamedItem("alt") != null) {
+                    webImage.setAlt(nnm.getNamedItem("alt").getTextContent());
+                }
+                if (nnm.getNamedItem("title") != null) {
+                    webImage.setTitle(nnm.getNamedItem("title").getTextContent());
+                }
+                if (nnm.getNamedItem("width") != null) {
+                    webImage.setWidth(Integer.parseInt(nnm.getNamedItem("width").getTextContent()));
+                }
+                if (nnm.getNamedItem("height") != null) {
+                    webImage.setHeight(Integer.parseInt(nnm.getNamedItem("height").getTextContent()));
+                }
+
+                imageURLs.add(webImage);
 
             } catch (NullPointerException e) {
                 LOGGER.warn("an image has not all necessary attributes");
@@ -209,6 +235,9 @@ public class PageSentenceExtractor {
         // CollectionHelper.print(pe.getImages());
 
         PageSentenceExtractor pe = new PageSentenceExtractor();
+
+        CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
+        System.out.println(pe.getMainContentText());
 
         // CollectionHelper.print(pe.setDocument(
         // "data/datasets/L3S-GN1-20100130203947-00001/original/2281f3c1-7a86-4c4c-874c-b19964e588f1.html")
