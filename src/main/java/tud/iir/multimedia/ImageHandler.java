@@ -213,14 +213,15 @@ public class ImageHandler {
     }
 
     /**
-     * Rescaling an image using JAI SubsampleAverage. The image looks smooth after rescaling.
+     * Rescale an image to fill a in a given box but having parts potentially outside of the box.
+     * For example, a 600x200 image is transformed to 300x100 to fit a 200x100 box.
      * 
-     * @param bufferedImage The input image.
-     * @param newWidth The desired new width (size) of the image.
-     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
-     * @return The scaled image.
+     * @param bufferedImage The buffered image which should be transformed.
+     * @param boxWidth The width of the box in which the image should be positioned.
+     * @param boxHeight The height of the box in which the image should be positioned.
+     * @return The transformed buffered image.
      */
-    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth, boolean fit) {
+    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
 
         if (bufferedImage == null) {
             logger.warn("given image was NULL");
@@ -230,11 +231,19 @@ public class ImageHandler {
         int iWidth = bufferedImage.getWidth();
         int iHeight = bufferedImage.getHeight();
 
-        double scale = (double) newWidth / (double) iWidth;
+        double imageRatio = (double) iWidth / (double) iHeight;
+        double boxRatio = (double) boxWidth / (double) boxHeight;
 
-        if (fit && iWidth < iHeight) {
-            scale = (double) newWidth / (double) iHeight;
+        double scale = (double) boxWidth / (double) iWidth;
+
+        if (imageRatio > boxRatio) {
+            scale = (double) boxHeight / (double) iHeight;
         }
+
+        return rescaleImage(bufferedImage, scale);
+    }
+
+    private static BufferedImage rescaleImage(BufferedImage bufferedImage, double scale) {
 
         // "SubsampleAverage" is smooth but does only work for downscaling. If upscaling, we need to use "Scale".
         boolean upscale = false;
@@ -274,6 +283,33 @@ public class ImageHandler {
         }
 
         return resizedImage.getAsBufferedImage();
+    }
+
+    /**
+     * Rescaling an image using JAI SubsampleAverage. The image looks smooth after rescaling.
+     * 
+     * @param bufferedImage The input image.
+     * @param newWidth The desired new width (size) of the image.
+     * @param fit If true, the newWidth will be the maximum side length of the image. Default is false.
+     * @return The scaled image.
+     */
+    public static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth, boolean fit) {
+
+        if (bufferedImage == null) {
+            logger.warn("given image was NULL");
+            return null;
+        }
+
+        int iWidth = bufferedImage.getWidth();
+        int iHeight = bufferedImage.getHeight();
+
+        double scale = (double) newWidth / (double) iWidth;
+
+        if (fit && iWidth < iHeight) {
+            scale = (double) newWidth / (double) iHeight;
+        }
+
+        return rescaleImage(bufferedImage, scale);
     }
 
     public static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth) {
@@ -716,6 +752,12 @@ public class ImageHandler {
         // url = "http://www.thehollywoodnews.com/artman2/uploads/1/jim-carrey_1.jpg";
         // URL urlLocation;
         try {
+
+            BufferedImage im = ImageHandler
+                    .load("http://img-cdn.mediaplex.com/0/9609/82826/160x600_budget_gpsgeneric_0909.gif");
+            im = ImageHandler.rescaleImage(im, 240, 150);
+            ImageHandler.saveImage(im, "jpg", "test2.jpg");
+            System.exit(0);
 
             // urlLocation = new URL(url);
             BufferedImage bufferedImage = ImageIO.read(new File("data/test/images/tdk5.jpg"));

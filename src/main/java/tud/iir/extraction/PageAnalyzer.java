@@ -936,13 +936,15 @@ public class PageAnalyzer {
         try {
             // TODO next line, DOMXPath instead of XPath and document.getLastChild changed (might lead to different
             // evaluation results)
-            xpath = XPathHelper.addNameSpaceToXPath(document, xpath);
+            // xpath = XPathHelper.addNameSpaceToXPath(document, xpath);
+            //
+            // // TODO no attribute xpath working "/@href"
+            // DOMXPath xpathObj = new DOMXPath(xpath);
+            // xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+            //
+            // List<Node> results = xpathObj.selectNodes(document.getLastChild());
 
-            // TODO no attribute xpath working "/@href"
-            DOMXPath xpathObj = new DOMXPath(xpath);
-            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-
-            List<Node> results = xpathObj.selectNodes(document.getLastChild());
+            List<Node> results = XPathHelper.getNodes(document, xpath);
 
             Iterator<Node> nodeIterator = results.iterator();
             while (nodeIterator.hasNext()) {
@@ -954,9 +956,6 @@ public class PageAnalyzer {
                 // together
             }
 
-        } catch (JaxenException e) {
-            Logger.getRootLogger().error(xpath + " " + e.getMessage());
-            return "#error#";
         } catch (DOMException e) {
             Logger.getRootLogger().error(xpath + " " + e.getMessage());
             return "#error#";
@@ -1100,6 +1099,25 @@ public class PageAnalyzer {
         return xPath.replaceAll("\\[(\\d)+\\]", "");
     }
 
+    /**
+     * For example: /html/div/p[3]/small => /html/div/p/small
+     * 
+     * @param xPath
+     * @return
+     */
+    public static String removeXPathIndicesFromLastCountNode(String xPath) {
+
+        String xPathR = StringHelper.reverseString(xPath);
+        xPathR = xPathR.replaceFirst("\\](\\d)+\\[", "");
+
+        return StringHelper.reverseString(xPathR);
+        // int i = xPath.lastIndexOf("]");
+        // String xPath1 = xPath.substring(0, i);
+        // String xPath2 = xPath.substring(i);
+        // xPath2 = removeXPathIndices(xPath2);
+        // return xPath1 + xPath2;
+    }
+
     public static String removeXPathIndices(String xPath, String[] removeCountElements) {
         for (String removeCountElement : removeCountElements) {
             xPath = xPath.replaceAll(removeCountElement + "\\[(\\d)+\\]", removeCountElement);
@@ -1139,14 +1157,16 @@ public class PageAnalyzer {
      * @return A string representation of the node and its sub nodes.
      */
     public static String getReadableTextDump(Node node) {
-        StringBuilder sb = new StringBuilder();
 
         // ignore css and script nodes
-        if (node.getNodeName().equalsIgnoreCase("script") || node.getNodeName().equalsIgnoreCase("style")
+        if (node == null || node.getNodeName().equalsIgnoreCase("script")
+                || node.getNodeName().equalsIgnoreCase("style")
                 || node.getNodeName().equalsIgnoreCase("#comment") || node.getNodeName().equalsIgnoreCase("option")
                 || node.getNodeName().equalsIgnoreCase("meta") || node.getNodeName().equalsIgnoreCase("head")) {
             return "";
         }
+
+        StringBuilder sb = new StringBuilder();
 
         // System.out.println(node.getNodeName()+node.getTextContent());
         if (node.getTextContent() != null) {
@@ -1158,9 +1178,8 @@ public class PageAnalyzer {
         }
         if (isWrappingNode(node)) {
             sb.append("\n");
-        } else {
-            // sb.append(" ");
         }
+
         Node child = node.getFirstChild();
         while (child != null) {
             sb.append(getReadableTextDump(child));

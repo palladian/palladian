@@ -193,14 +193,14 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             if (tagStartIndex > -1) {
                 tagName = modelName.substring(tagStartIndex + 1, modelName.indexOf(".", tagStartIndex));
             } else {
-                LOGGER.warn("model name does not comply \"openNLP_TAG.bin\" format");
+                LOGGER.warn("model name does not comply \"openNLP_TAG.bin\" format: " + modelName);
             }
 
             try {
                 finders[finderIndex] = new NameFinderME(new TokenNameFinderModel(new FileInputStream(
                         new File(modelName))));
             } catch (IOException e) {
-                LOGGER.error(getName() + " error in loading model: " + e.getMessage());
+                LOGGER.error(getName() + " error in loading model: " + modelName + " , " + e.getMessage());
                 return false;
             }
             tags[finderIndex] = tagName.toUpperCase();

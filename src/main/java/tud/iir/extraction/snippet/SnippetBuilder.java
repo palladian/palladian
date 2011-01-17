@@ -10,6 +10,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import tud.iir.control.Controller;
+import tud.iir.extraction.content.PageContentExtractor;
+import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.DataHolder;
 import tud.iir.helper.StringHelper;
 import tud.iir.knowledge.Concept;
@@ -41,6 +43,12 @@ import com.aliasi.tokenizer.TokenizerFactory;
  */
 public class SnippetBuilder {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(SnippetBuilder.class);
+
+    /** Use the PageContentExtractor to get the main content sections of the page. */
+    private PageContentExtractor pageContentExtractor = new PageContentExtractor();
+
     /**
      * Return a list of sentences of the main content block of the AggregatedResult as snippets extracted, where each
      * sentence must at least consist of a verb
@@ -55,7 +63,13 @@ public class SnippetBuilder {
         ArrayList<Snippet> results = new ArrayList<Snippet>();
 
         // get sentences with entity
-        String text = webresult.getSource().getMainContent();
+        String text = "";
+        String url = webresult.getSource().getUrl();
+        try {
+            text = pageContentExtractor.setDocument(url).getResultText();
+        } catch (PageContentExtractorException e) {
+            LOGGER.error("could not get result text for url: " + url + ", " + e.getMessage());
+        }
         if (text == null) {
             return null;
         }

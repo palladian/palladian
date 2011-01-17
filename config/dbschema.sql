@@ -624,26 +624,6 @@ CREATE TABLE IF NOT EXISTS `live_status` (
 -- Daten für Tabelle `live_status`
 --
 
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `ontology_listeners`
---
-
-CREATE TABLE IF NOT EXISTS `ontology_listeners` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `url` varchar(100) NOT NULL,
-  `concept` varchar(30) NOT NULL,
-  `attribute` varchar(30) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Daten für Tabelle `ontology_listeners`
---
-
-
 -- --------------------------------------------------------
 
 --

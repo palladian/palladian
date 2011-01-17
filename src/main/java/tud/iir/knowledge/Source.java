@@ -1,11 +1,8 @@
 package tud.iir.knowledge;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -13,10 +10,6 @@ import org.apache.log4j.Logger;
 
 import tud.iir.extraction.ExtractionProcessManager;
 import tud.iir.extraction.ExtractionType;
-import tud.iir.extraction.content.PageContentExtractor;
-import tud.iir.extraction.content.PageContentExtractorException;
-
-import com.temesoft.google.pr.JenkinsHash;
 
 /**
  * A source from which an extraction was performed.
@@ -225,88 +218,6 @@ public class Source implements Serializable {
 
     public void setID(int id) {
         this.id = id;
-    }
-
-    /**
-     * Retrieve the PageRank for the source URL from Google. Using the toolbarqueries.google.com endpoint.
-     * 
-     * @return Google Page Rank for source URL.
-     * 
-     * @author Christopher Friedrich
-     */
-    private static int getPageRank(String domain) {
-
-        // TODO: optimize, by caching PR's in the DB
-
-        int result = -1;
-        JenkinsHash jHash = new JenkinsHash();
-
-        String googlePrResult = "";
-
-        long hash = jHash.hash(("info:" + domain).getBytes());
-
-        String url = "http://toolbarqueries.google.com/search?client=navclient-auto&hl=en&" + "ch=6" + hash + "&ie=UTF-8&oe=UTF-8&features=Rank&q=info:"
-        + domain;
-
-        try {
-            URLConnection con;
-
-            con = new URL(url).openConnection();
-
-            InputStream is = con.getInputStream();
-            byte[] buff = new byte[1024];
-            int read = is.read(buff);
-            while (read > 0) {
-                googlePrResult = new String(buff, 0, read);
-                read = is.read(buff);
-            }
-            googlePrResult = googlePrResult.split(":")[2].trim();
-            result = new Long(googlePrResult).intValue();
-        } catch (MalformedURLException e) {
-            Logger.getRootLogger().error(e.getMessage());
-        } catch (IOException e) {
-            Logger.getRootLogger().error(e.getMessage());
-        }
-
-        return result;
-    }
-
-    /**
-     * Get Google's PageRank for the source URL.
-     * 
-     * @return Google Page Rank for source URL.
-     * 
-     * @author Christopher Friedrich
-     */
-    public double getPageRank() {
-        if (this.pageRank < 0) {
-            this.pageRank = getPageRank(getUrl());
-        }
-        return this.pageRank;
-    }
-
-    /**
-     * Get the main content block from the source URL page.
-     * 
-     * @return The main content string.
-     */
-    public String getMainContent() {
-        if (mainContent == null) {
-
-            try {
-                PageContentExtractor e = new PageContentExtractor();
-                mainContent = e.setDocument(getUrl()).getResultText();
-            } catch (PageContentExtractorException e1) {
-                Logger.getRootLogger().error(
-                        "getMainContent did not work for URL: " + getUrl() + ", " + e1.getMessage());
-            } catch (Exception e1) {
-                Logger.getRootLogger().error(
-                        "getMainContent did not work for URL: " + getUrl() + ", " + e1.getMessage());
-            }
-
-        }
-
-        return mainContent;
     }
 
     /**

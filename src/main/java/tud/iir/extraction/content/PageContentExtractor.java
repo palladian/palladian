@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -30,6 +31,7 @@ import org.xml.sax.SAXNotSupportedException;
 
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
+import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
 
 // TODO move to preprocessing package
@@ -64,6 +66,10 @@ import tud.iir.web.Crawler;
  * determined, the algorithm also checks its siblings whether they contain content, too.
  * </p>
  * 
+ * <p>
+ * Score on boilerplate dataset: 0.9090505 (r1505);
+ * </p>
+ * 
  * @version Based on: SVN r152, Jun 28, 2010
  * 
  * @see <a href="http://lab.arc90.com/experiments/readability">Website</a>
@@ -75,7 +81,7 @@ import tud.iir.web.Crawler;
  */
 public class PageContentExtractor {
 
-    /** the logger for this class */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(PageContentExtractor.class);
 
     /** name of attribute for storing readability values in DOM elements */
@@ -97,13 +103,13 @@ public class PageContentExtractor {
     /** The DOM parser has different settings that distinguish it from the one in the Crawler. */
     private DOMParser parser;
 
-    /** We use the Crawler to take care of retrieving the document from remote locations. */
+    /** We use the Crawler to take care of retrieving the input stream from remote locations. */
     private Crawler crawler;
 
-    /** the original document */
+    /** The original document. */
     private Document document;
 
-    /** the filtered and result document */
+    /** The filtered and result document. */
     private Document resultDocument;
 
     private boolean weightClasses;
@@ -254,6 +260,43 @@ public class PageContentExtractor {
     public String getResultText() {
         String result = HTMLHelper.htmlToString(getResultDocument());
         return result;
+    }
+
+    /**
+     * Returns a list of (absolute) image URLs that are contained in the main content block.
+     * 
+     * @return A list of image URLs.
+     */
+    public List<String> getImages() {
+        List<String> imageURLs = new ArrayList<String>();
+
+        String baseURL = document.getDocumentURI();
+
+        // PageAnalyzer.printDOM(resultDocument, "");
+
+        // we need to query the result document with an xpath but the name space check has to be done on the original
+        // document
+        String imgXPath = "//img";
+        if (XPathHelper.hasXMLNS(document)) {
+            imgXPath = XPathHelper.addNameSpaceToXPath(imgXPath);
+        }
+
+        List<Node> imageNodes = XPathHelper.getNodes(getResultDocument(), imgXPath);
+        for (Node node : imageNodes) {
+            try {
+                String imageURL = node.getAttributes().getNamedItem("src").getTextContent();
+
+                if (!imageURL.startsWith("http")) {
+                    imageURL = baseURL + imageURL;
+                }
+
+                imageURLs.add(imageURL);
+            } catch (NullPointerException e) {
+                LOGGER.warn("an image has not all necessary attributes");
+            }
+        }
+
+        return imageURLs;
     }
 
     /**
@@ -455,7 +498,6 @@ public class PageContentExtractor {
         // use cases.
 
         cleanStyles(document.getDocumentElement());
-
     }
 
     /**

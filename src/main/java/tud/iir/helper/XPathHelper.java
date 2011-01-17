@@ -57,6 +57,25 @@ public class XPathHelper {
     }
 
     /**
+     * Get the xPath that points to the parent element of the given xPath.<br>
+     * For example: /DIV/P/A => /DIV/P
+     * 
+     * @param xPath The xPath for which the parent xPath should be found.
+     * @return The xPath that points to the parent node of the given xPath.
+     */
+    public static String getParentXPath(String xPath) {
+
+        String parentXPath = xPath;
+
+        int i = xPath.lastIndexOf("/");
+        if (i > -1) {
+            parentXPath = xPath.substring(0, i);
+        }
+
+        return parentXPath;
+    }
+
+    /**
      * Add the xhtml namespace to an xPath.
      * 
      * @param document The document.

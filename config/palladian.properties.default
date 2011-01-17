@@ -33,6 +33,7 @@ models.palladian.mio = data/models/palladian/mio/MIOClassifierLinearRegression.m
 
 datasets.root = data/datasets/
 datasets.delicoust140 = /Users/pk/Studium/Diplomarbeit/delicioust140/
+datasets.boilerplate = /home/pk/PalladianData/datasets/ContentExtraction/L3S-GN1-20100130203947-00001/
 
 ######################## Database ########################
 
@@ -65,7 +66,7 @@ crawler.switchProxyRequests = -1
 
 # enables feed auto discovery for every parsed page
 # see feeds.conf to configure path to the file.
-crawler.feedAutoDiscovery = true
+crawler.feedAutoDiscovery = false
 
 # maximum number of retries if download request fails, default is 0 and means no retry
 crawler.numRetries = 0
