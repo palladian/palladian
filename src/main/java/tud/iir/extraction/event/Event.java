@@ -28,6 +28,9 @@ public class Event extends Extractable {
     /** holds the simple annotations in text and headline. **/
     private Annotations annotations;
 
+    /** holds the coreferenced annotations **/
+    private HashMap<Integer, Annotations> corefAnnotations;
+
     /** clean event text. **/
     private String text;
     /** raw text extracted from webpage. **/
@@ -138,6 +141,22 @@ public class Event extends Extractable {
      */
     public final void setAnnotations(final Annotations annotations) {
         this.annotations = annotations;
+    }
+
+    /**
+     * @return the corefAnnotations
+     */
+    public HashMap<Integer, Annotations> getCorefAnnotations() {
+        return corefAnnotations;
+    }
+
+    /**
+     * @param corefAnnotations
+     *            the corefAnnotations to set
+     */
+    public void setCorefAnnotations(
+            HashMap<Integer, Annotations> corefAnnotations) {
+        this.corefAnnotations = corefAnnotations;
     }
 
     /**

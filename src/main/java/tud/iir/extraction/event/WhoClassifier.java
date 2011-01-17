@@ -109,12 +109,12 @@ public class WhoClassifier extends Classifier {
     public void testClassifier(final String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor.setWhoClassifier(getChosenClassifier());
-        Event event = EventExtractor
+        final Event event = EventExtractor
                 .getInstance()
                 .createEventFromURL(
                         "http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
 
-        eventExtractor.getFeatureExtractor().setFeatures(event);
+        eventExtractor.getFeatureExtractor().calculateFeatures(event);
         eventExtractor.extractWho(event);
 
     }
@@ -141,7 +141,7 @@ public class WhoClassifier extends Classifier {
      */
     public void collectTrainingData(final String filePath) {
 
-        EventExtractor eventExtractor = EventExtractor.getInstance();
+        final EventExtractor eventExtractor = EventExtractor.getInstance();
 
         final Map<Integer, String[]> events = eventExtractor
                 .getFeatureExtractor().readCSV("data/news_articles.csv");
