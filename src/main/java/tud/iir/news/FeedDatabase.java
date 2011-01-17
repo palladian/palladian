@@ -64,7 +64,7 @@ public class FeedDatabase implements FeedStore {
     private PreparedStatement psGetEntryById;
     private PreparedStatement psDeleteEntryById;
 
-    private FeedDatabase() {
+    protected FeedDatabase() {
         try {
             connection = DatabaseManager.getInstance().getConnection();
             prepareStatements();

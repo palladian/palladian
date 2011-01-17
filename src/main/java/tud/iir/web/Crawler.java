@@ -1884,9 +1884,6 @@ public class Crawler {
             // }
             // }
 
-            String encoding = urlConnection.getContentEncoding();
-            LOGGER.trace("encoding " + encoding);
-
             // buffer incoming InputStream
             InputStream urlInputStream = urlConnection.getInputStream();
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -1897,7 +1894,8 @@ public class Crawler {
                 outputStream.write(buffer, 0, length);
                 cumLength += length;
                 if (maxFileSize > -1
-                        && (cumLength > maxFileSize || (encoding != null && cumLength > ((1.0 / compressionSaving) * maxFileSize)))) {
+                        && (cumLength > maxFileSize || useCompression
+                                && cumLength > 1.0 / compressionSaving * maxFileSize)) {
                     addDownloadSize(cumLength);
                     LOGGER.warn("the contents of " + url + " were too big, stop downloading...");
                     throw new IOException();
@@ -1909,6 +1907,14 @@ public class Crawler {
             addDownloadSize(outputStream.size());
 
             result = new ByteArrayInputStream(outputStream.toByteArray());
+
+            // XXX? getContentEncoding might block, another fix might be to get the encoding ourself by reading the
+            // header
+            String encoding = "";
+            if (useCompression) {
+                encoding = urlConnection.getContentEncoding();
+            }
+            LOGGER.trace("encoding " + encoding);
 
             // if result is compressed, wrap it accordingly
             if (encoding != null) {
@@ -2165,7 +2171,7 @@ public class Crawler {
                 + Math.round(parameters[0])
                 + " * downloadSize [KB] + " + parameters[1]);
         LOGGER.info("total time [ms] and total traffic [Bytes]: " + sumTime + " / " + sumBytes);
-        LOGGER.info("on average: " + MathHelper.round((sumBytes / 1024) / (sumTime / 1000), 2) + "[KB/s]");
+        LOGGER.info("on average: " + MathHelper.round(sumBytes / 1024 / (sumTime / 1000), 2) + "[KB/s]");
     }
 
     /**
@@ -2173,8 +2179,16 @@ public class Crawler {
      */
     public static void main(String[] args) {
 
-        Crawler.performanceCheck();
+        Crawler c12 = new Crawler();
+        try {
+            c12.downloadInputStream("http://www.cinefreaks.com");
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        System.exit(0);
 
+        Crawler.performanceCheck();
         System.exit(0);
 
         MIOExtractor.getInstance();

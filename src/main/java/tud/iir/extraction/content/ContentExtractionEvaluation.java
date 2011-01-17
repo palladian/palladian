@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
+import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StringHelper;
@@ -32,11 +33,11 @@ import de.l3s.boilerpipe.extractors.ExtractorBase;
  * 
  * We use the data set which is provided by the authors of Boilerpipe and available on the project's web page. It
  * contains 621 web pages where humans manually annotated relevant content areas. For the evaluation we compare the data
- * from the data set which the extracted text by Boilerpipe and PageContentExtractor. Therefor we use the Levenshtein
+ * from the data set which the extracted text by Boilerpipe and PageContentExtractor. Therefore we use the Levenshtein
  * similarity, the higher the similarity, the better the extraction result, obviously.
  * 
  * @author Philipp Katz
- * 
+ * @author David Urbansky
  */
 public class ContentExtractionEvaluation {
 
@@ -44,16 +45,20 @@ public class ContentExtractionEvaluation {
     private static final Logger LOGGER = Logger.getLogger(ContentExtractionEvaluation.class);
 
     /** Base path with the evaluation data set. */
-    // private static final String BASE_PATH = "/home/pk/DATASETS/L3S-GN1-20100130203947-00001/";
-    private static final String BASE_PATH = "/home/pk/PalladianData/datasets/ContentExtraction/L3S-GN1-20100130203947-00001/";
+    private final String BASE_PATH;
 
+    /** Use the Crawler to retrieve documents. */
     private Crawler crawler = new Crawler();
 
-    /** the similarity metric to be used for scoring. */
-    // private AbstractStringMetric similarityMetric = new Levenshtein();
+    /**
+     * Whether only a comparison of the main content block should be done. If false, also user generated content is
+     * compared.
+     */
+    private boolean mainContentOnly = true;
 
     public ContentExtractionEvaluation() {
         crawler.setFeedAutodiscovery(false);
+        BASE_PATH = ConfigHolder.getInstance().getConfig().getString("datasets.boilerplate");
     }
 
     /**
@@ -84,6 +89,14 @@ public class ContentExtractionEvaluation {
 
         return data;
 
+    }
+
+    public boolean isMainContentOnly() {
+        return mainContentOnly;
+    }
+
+    public void setMainContentOnly(boolean mainContentOnly) {
+        this.mainContentOnly = mainContentOnly;
     }
 
     /**
@@ -149,14 +162,13 @@ public class ContentExtractionEvaluation {
         LOGGER.info(" Palladian     : " + errors[1]);
 
         return sb.toString();
-
     }
 
     /**
-     * Return:
+     * Return:<br>
      * 
-     * float[0] -> Boilerplate score
-     * float[1] -> Palladian score
+     * float[0] -> Boilerplate score<br>
+     * float[1] -> Palladian score<br>
      * 
      * @param uuid
      * @return
@@ -174,6 +186,7 @@ public class ContentExtractionEvaluation {
             // I use the ArticleExtractor here which gave best results at first glance.
             ExtractorBase boilerplateExtractor = ArticleExtractor.INSTANCE;
             String boilerplateExtracted = boilerplateExtractor.getText(new URL("file://" + testDataPath));
+            // String boilerplateExtracted = new PageSentenceExtractor().setDocument(testDataPath).getMainContentText();
             result[0] = getScore(realText, boilerplateExtracted);
         } catch (Exception e) {
             // ignore. show error in results.
@@ -198,21 +211,33 @@ public class ContentExtractionEvaluation {
         // get the manually annotated document from the data set
         Document annotatedDocument = crawler.getWebDocument(BASE_PATH + "annotated/" + uuid + ".html");
 
-        // get the real content data, which is wrapped in <SPAN> tags with class 'x-nc-sel2'
         StringBuilder sb = new StringBuilder();
 
-        // see Mail David, 2010-01-04, 23:51
-        // for explanation of XPath expression
-        List<Node> nodes = XPathHelper.getNodes(annotatedDocument,
-                "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2']");
+        // get the real content data, which is wrapped in <SPAN> tags with class 'x-nc-sel2' and the additional user
+        // data from tags with 'x-nc-sel5'
+        String xPath;
+        if (isMainContentOnly()) {
+            xPath = "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2']";
+        } else {
+            xPath = "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2' or ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel5']";
+        }
+
+        // get nodes containing the tagged text
+        List<Node> nodes = XPathHelper.getNodes(annotatedDocument, xPath);
         for (Node node : nodes) {
             sb.append(node.getTextContent()).append(" ");
         }
 
         return sb.toString();
-
     }
 
+    /**
+     * Get the score for the extracted text.
+     * 
+     * @param real The expected text as tagged in the dataset.
+     * @param extracted The extracted text.
+     * @return The similarity score between the two texts.
+     */
     private float getScore(String real, String extracted) {
 
         real = normalizeString(real);
@@ -222,7 +247,6 @@ public class ContentExtractionEvaluation {
         // return similarityMetric.getSimilarity(real, extracted);
 
         return StringHelper.getLevenshteinSim(real, extracted);
-
     }
 
     /**
@@ -254,9 +278,13 @@ public class ContentExtractionEvaluation {
         // ////////////////////////////////////////////////////////////////////////////////
 
         Map<String, String> dataset = evaluation.readIndexFile();
+        evaluation.setMainContentOnly(true);
         String result = evaluation.evaluate(dataset);
-        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation.tsv", result);
+        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainContentOnly.tsv", result);
 
+        evaluation.setMainContentOnly(false);
+        result = evaluation.evaluate(dataset);
+        FileHelper.writeToFile("data/evaluation/ContentExtractionEvaluation_mainAndUserContent.tsv", result);
     }
 
 }

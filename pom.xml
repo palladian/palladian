@@ -476,7 +476,6 @@
 			<id>releases</id>
 			<url>http://www.effingo.de/nexus/content/repositories/releases/</url>
 		</repository>
-
 		<snapshotRepository>
 			<id>snapshots</id>
 			<name>Effingo Internal Snapshots</name>

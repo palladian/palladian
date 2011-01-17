@@ -91,7 +91,8 @@ public class XPathSet {
     }
 
     /**
-     * Return the longest (or highest priority) path that contains the highest count path as a substring. TODO b/a = a/b (website1.html)
+     * Return the longest (or highest priority) path that contains the highest count path as a substring. TODO b/a = a/b
+     * (website1.html)
      * 
      * @return The longest xPath with the highest count.
      */
@@ -114,7 +115,8 @@ public class XPathSet {
                 continue;
             }
 
-            if (xPath.indexOf(highestHitCountXPath) > -1 && xPath.length() > longestHighCountXPath.length() && entry.getValue() > highestHitCount / 6) {
+            if (xPath.indexOf(highestHitCountXPath) > -1 && xPath.length() > longestHighCountXPath.length()
+                    && entry.getValue() > highestHitCount / 6) {
                 longestHighCountXPath = xPath;
             } else {
                 break;
@@ -125,7 +127,8 @@ public class XPathSet {
         String[] stagesArray = longestHighCountXPath.replace(highestHitCountXPath, "").split("/");
         int stages = stagesArray.length - 1;
 
-        Logger.getRootLogger().debug("longest high count: " + longestHighCountXPath.toLowerCase() + " stages: " + stages);
+        Logger.getRootLogger().debug(
+                "longest high count: " + longestHighCountXPath.toLowerCase() + " stages: " + stages);
 
         // check whether there is text content at the specified path, otherwise move stages up until
         // text content is found or the highest count xpath is reached

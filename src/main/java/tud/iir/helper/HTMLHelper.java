@@ -372,12 +372,17 @@ public class HTMLHelper {
     }
 
     /**
+     * <p>
      * Converts HTML markup to a more or less human readable string. For example we insert line breaks for HTML block
      * level elements, filter out comments, scripts and stylesheets, remove unnecessary white space and so on.
+     * </p>
      * 
-     * In contrast to @link{@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which works on Strings
-     * and just strips out all tags via RegExes, this approach tries to keep some structure for displaying HTML content
-     * in text mode in a readable form.
+     * <p>
+     * In contrast to {@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which works on Strings and
+     * just strips out all tags via RegExes, this approach tries to keep some structure for displaying HTML content in
+     * text mode in a readable form.
+     * </p>
+     * 
      * FIXME: "namespace not declared" errors pop up too often
      * 
      * @param node

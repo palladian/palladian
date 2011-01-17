@@ -70,6 +70,11 @@ public class XPathTest extends TestCase {
         // test remove counts
         assertEquals("/html/body/div/div/div/div/ul/li", PageAnalyzer.removeXPathIndices("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li[11]"));
 
+        assertEquals(
+                "/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li/small",
+                PageAnalyzer
+                        .removeXPathIndicesFromLastCountNode("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li[11]/small"));
+
         // test remove count not
         String[] rcElements = { "ul", "div" };
         String xPath = PageAnalyzer.removeXPathIndicesNot(
