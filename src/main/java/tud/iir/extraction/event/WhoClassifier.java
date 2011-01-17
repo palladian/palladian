@@ -17,7 +17,7 @@ import weka.core.Instance;
 
 /**
  * The Who Classifier.
- * 
+ *
  * @author Martin Wunderwald
  */
 public class WhoClassifier extends Classifier {
@@ -35,7 +35,7 @@ public class WhoClassifier extends Classifier {
 
     /**
      * Constructor.
-     * 
+     *
      * @param type
      */
     public WhoClassifier(int type) {
@@ -61,7 +61,7 @@ public class WhoClassifier extends Classifier {
 
     /**
      * Classifies the feature object.
-     * 
+     *
      * @param fo
      * @return distribution
      */
@@ -84,7 +84,7 @@ public class WhoClassifier extends Classifier {
 
     /**
      * Train and save a classifier.
-     * 
+     *
      * @param path
      */
     @Override
@@ -103,6 +103,7 @@ public class WhoClassifier extends Classifier {
 
     /*
      * (non-Javadoc)
+     * 
      * @see tud.iir.classification.Classifier#testClassifier(java.lang.String)
      */
     @Override
@@ -136,7 +137,7 @@ public class WhoClassifier extends Classifier {
 
     /**
      * Collect Trainingdata from different sources.
-     * 
+     *
      * @param filePath
      */
     public void collectTrainingData(final String filePath) {

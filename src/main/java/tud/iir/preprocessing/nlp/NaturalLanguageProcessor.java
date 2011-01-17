@@ -3,6 +3,13 @@ package tud.iir.preprocessing.nlp;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 
+/**
+ * The NaturalLanguageProcessor holds functionality from the field of natural
+ * language processing, such as a <code>NamedEntityRecognizer</code>,
+ * <code>POSTagger</code> and <code>Parser</code>.
+ * 
+ * @author Martin Wunderwald
+ */
 public abstract class NaturalLanguageProcessor {
 
     /** The Named Entity Recognizer. **/
@@ -21,9 +28,14 @@ public abstract class NaturalLanguageProcessor {
     protected AbstractSentenceDetector sentenceDetector;
 
     /**
+     * prepares the processor by loading its parts.
+     */
+    protected abstract void init();
+
+    /**
      * @return the ner
      */
-    public NamedEntityRecognizer getNer() {
+    public final NamedEntityRecognizer getNer() {
         return ner;
     }
 
@@ -31,14 +43,14 @@ public abstract class NaturalLanguageProcessor {
      * @param ner
      *            the ner to set
      */
-    public void setNer(final NamedEntityRecognizer ner) {
+    public final void setNer(final NamedEntityRecognizer ner) {
         this.ner = ner;
     }
 
     /**
      * @return the posTagger
      */
-    public AbstractPOSTagger getPosTagger() {
+    public final AbstractPOSTagger getPosTagger() {
         return posTagger;
     }
 
@@ -46,14 +58,14 @@ public abstract class NaturalLanguageProcessor {
      * @param posTagger
      *            the posTagger to set
      */
-    public void setPosTagger(final AbstractPOSTagger posTagger) {
+    public final void setPosTagger(final AbstractPOSTagger posTagger) {
         this.posTagger = posTagger;
     }
 
     /**
      * @return the phraseChunker
      */
-    public AbstractPhraseChunker getPhraseChunker() {
+    public final AbstractPhraseChunker getPhraseChunker() {
         return phraseChunker;
     }
 
@@ -61,14 +73,14 @@ public abstract class NaturalLanguageProcessor {
      * @param phraseChunker
      *            the phraseChunker to set
      */
-    public void setPhraseChunker(final AbstractPhraseChunker phraseChunker) {
+    public final void setPhraseChunker(final AbstractPhraseChunker phraseChunker) {
         this.phraseChunker = phraseChunker;
     }
 
     /**
      * @return the parser
      */
-    public AbstractParser getParser() {
+    public final AbstractParser getParser() {
         return parser;
     }
 
@@ -76,14 +88,14 @@ public abstract class NaturalLanguageProcessor {
      * @param parser
      *            the parser to set
      */
-    public void setParser(final AbstractParser parser) {
+    public final void setParser(final AbstractParser parser) {
         this.parser = parser;
     }
 
     /**
      * @return the sentenceDetector
      */
-    public AbstractSentenceDetector getSentenceDetector() {
+    public final AbstractSentenceDetector getSentenceDetector() {
         return sentenceDetector;
     }
 
@@ -91,7 +103,7 @@ public abstract class NaturalLanguageProcessor {
      * @param sentenceDetector
      *            the sentenceDetector to set
      */
-    public void setSentenceDetector(
+    public final void setSentenceDetector(
             final AbstractSentenceDetector sentenceDetector) {
         this.sentenceDetector = sentenceDetector;
     }
@@ -102,7 +114,7 @@ public abstract class NaturalLanguageProcessor {
      * @param sentence
      * @return the tag annotations
      */
-    public TagAnnotations getPOSTags(final String sentence) {
+    public final TagAnnotations getPOSTags(final String sentence) {
         return posTagger.loadDefaultModel().tag(sentence).getTagAnnotations();
     }
 
@@ -113,7 +125,7 @@ public abstract class NaturalLanguageProcessor {
      *            - The sentence
      * @return The part of speach tags.
      */
-    public TagAnnotations getPhraseChunks(final String sentence) {
+    public final TagAnnotations getPhraseChunks(final String sentence) {
         return phraseChunker.loadDefaultModel().chunk(sentence)
                 .getTagAnnotations();
     }
@@ -124,7 +136,7 @@ public abstract class NaturalLanguageProcessor {
      * @param sentence
      * @return the parse
      */
-    public TagAnnotations getParse(final String sentence) {
+    public final TagAnnotations getParse(final String sentence) {
         return parser.loadDefaultModel().parse(sentence).getTagAnnotations();
     }
 
@@ -135,7 +147,7 @@ public abstract class NaturalLanguageProcessor {
      * @param sentence
      * @return the sentences
      */
-    public String[] getSentences(final String text) {
+    public final String[] getSentences(final String text) {
         // sentenceDetector.loadDefaultModel();
         return sentenceDetector.loadDefaultModel().detect(text).getSentences();
     }

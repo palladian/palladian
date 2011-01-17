@@ -17,7 +17,7 @@ import weka.core.Instance;
 
 /**
  * The Where Classfier.
- * 
+ *
  * @author Martin Wunderwald
  */
 public class WhereClassifier extends Classifier {
@@ -35,7 +35,7 @@ public class WhereClassifier extends Classifier {
 
     /**
      * Constructor.
-     * 
+     *
      * @param type
      */
     public WhereClassifier(final int type) {
@@ -62,7 +62,7 @@ public class WhereClassifier extends Classifier {
 
     /**
      * classifies a feature object.
-     * 
+     *
      * @param fo
      * @return
      */
@@ -85,7 +85,7 @@ public class WhereClassifier extends Classifier {
 
     /**
      * Train and save a classifier.
-     * 
+     *
      * @param path
      */
     @Override
@@ -104,6 +104,7 @@ public class WhereClassifier extends Classifier {
 
     /*
      * (non-Javadoc)
+     * 
      * @see tud.iir.classification.Classifier#testClassifier(java.lang.String)
      */
     @Override
@@ -135,7 +136,7 @@ public class WhereClassifier extends Classifier {
 
     /**
      * Reads training data from a csv file.
-     * 
+     *
      * @param filePath
      */
     public void collectTrainingData(final String filePath) {
@@ -184,7 +185,7 @@ public class WhereClassifier extends Classifier {
     /**
      * collects online training data via a search engine and writes it into a
      * csv file.
-     * 
+     *
      * @param filePath
      */
     public void collectOnlineTrainingData(final String filePath) {

@@ -13,8 +13,8 @@ import tud.iir.knowledge.Extractable;
 import tud.iir.web.WebResult;
 
 /**
- * Event Object Class
- * 
+ * Event Object Class.
+ *
  * @author Martin Wunderwald
  */
 public class Event extends Extractable {
@@ -28,7 +28,7 @@ public class Event extends Extractable {
     /** holds the simple annotations in text and headline. **/
     private Annotations annotations;
 
-    /** holds the coreferenced annotations **/
+    /** holds the coreferenced annotations. **/
     private HashMap<Integer, Annotations> corefAnnotations;
 
     /** clean event text. **/
@@ -89,7 +89,7 @@ public class Event extends Extractable {
 
     /**
      * Constructor.
-     * 
+     *
      * @param url
      */
     public Event(String url) {
@@ -101,7 +101,7 @@ public class Event extends Extractable {
 
     /**
      * Constructor.
-     * 
+     *
      * @param title
      * @param text
      */
@@ -114,7 +114,7 @@ public class Event extends Extractable {
 
     /**
      * Constructor.
-     * 
+     *
      * @param title
      * @param text
      * @param url
@@ -161,7 +161,7 @@ public class Event extends Extractable {
 
     /**
      * Getter for text.
-     * 
+     *
      * @return the text
      */
     public final String getText() {
@@ -170,7 +170,7 @@ public class Event extends Extractable {
 
     /**
      * Sets text.
-     * 
+     *
      * @param text
      *            the text to set
      */

@@ -16,7 +16,7 @@ public class TagAnnotation {
 
     /**
      * Constructor.
-     * 
+     *
      * @param tagAnnotation
      */
     public TagAnnotation(TagAnnotation tagAnnotation) {
@@ -28,7 +28,7 @@ public class TagAnnotation {
 
     /**
      * Constructor.
-     * 
+     *
      * @param offset
      * @param tag
      * @param chunk

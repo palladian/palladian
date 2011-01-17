@@ -27,7 +27,7 @@ import tud.iir.helper.StopWatch;
 
 /**
  * OpenNLP Parser
- * 
+ *
  * @author Martin Wunderwald
  */
 public class OpenNLPParser extends AbstractParser {
@@ -99,7 +99,7 @@ public class OpenNLPParser extends AbstractParser {
 
     /**
      * Peforms a full parsing on a sentence of space-delimited tokens.
-     * 
+     *
      * @param sentence
      *            the sentence
      * @return parse of the sentence or <code>null</code>, if the parser is not
@@ -115,7 +115,7 @@ public class OpenNLPParser extends AbstractParser {
     /**
      * Persforms a full parse and selects the given index where 0 is the most
      * likely parse
-     * 
+     *
      * @param sentence
      * @param index
      */
@@ -134,7 +134,7 @@ public class OpenNLPParser extends AbstractParser {
 
     /**
      * Returns the full parse for a sentence as openNLP parse.
-     * 
+     *
      * @param sentence
      * @return full parse
      */
@@ -170,7 +170,7 @@ public class OpenNLPParser extends AbstractParser {
 
     /**
      * Identifies coreferences in an array of full parses of sentences.
-     * 
+     *
      * @param parses
      *            array of full parses of sentences
      */
