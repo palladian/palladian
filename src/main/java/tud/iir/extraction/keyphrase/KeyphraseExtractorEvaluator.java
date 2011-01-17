@@ -250,7 +250,7 @@ public class KeyphraseExtractorEvaluator {
         // extractor = new YahooTermExtraction();
 
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
-
+        
         // evaluator.addExtractor(palladianKeyphraseExtractor);
         evaluator.addExtractor(mauiKeyphraseExtractor);
 
@@ -262,10 +262,12 @@ public class KeyphraseExtractorEvaluator {
 
         // dataset.setSeparationString("#");
         
-        dataset.setPath("/home/pk/temp/deliciousT140/deliciousT140index.txt");
+//        dataset.setPath("/home/pk/temp/deliciousT140/deliciousT140index.txt");
+//        dataset.setRootPath("/home/pk/temp/deliciousT140/docs");
+        dataset.setPath("/Users/pk/temp/deliciousT140/deliciousT140index.txt");
+        dataset.setRootPath("/Users/pk/temp/deliciousT140/docs");
         dataset.setSeparationString(" ");
         dataset.setFirstFieldLink(true);
-        dataset.setRootPath("/home/pk/temp/deliciousT140/docs");
         dataset.setUsePercentTraining(50);
 
         evaluator.evaluate(dataset, 1);

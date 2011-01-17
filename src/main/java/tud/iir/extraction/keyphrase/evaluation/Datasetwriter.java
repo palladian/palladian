@@ -48,7 +48,8 @@ public class Datasetwriter {
         
         
         
-        createDeliciousT140("/home/pk/DATASETS/delicioust140", "/home/pk/temp/deliciousT140");
+        // createDeliciousT140("/home/pk/DATASETS/delicioust140", "/home/pk/temp/deliciousT140");
+        createDeliciousT140("/Users/pk/Studium/Diplomarbeit/delicioust140", "/Users/pk/temp/deliciousT140");
 
     }
 
