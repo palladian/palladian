@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package tud.iir.preprocessing.nlp;
 
@@ -31,7 +31,7 @@ public abstract class AbstractPOSTagger {
      * AbstractPOSTagger, to allow convenient concatenations of method
      * invocations, like:
      * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
-     * 
+     *
      * @param sentence
      */
     public abstract AbstractPOSTagger tag(String sentence);
@@ -42,7 +42,7 @@ public abstract class AbstractPOSTagger {
      * AbstractPOSTagger, to allow convenient concatenations of method
      * invocations, like:
      * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
-     * 
+     *
      * @param sentence
      * @param configModelFilePath
      */
@@ -51,7 +51,7 @@ public abstract class AbstractPOSTagger {
 
     /**
      * loads model into @see {@link #model}.
-     * 
+     *
      * @param configModelFilePath
      * @return
      */
@@ -62,7 +62,7 @@ public abstract class AbstractPOSTagger {
      * <code>this</code> instance of AbstractPOSTagger, to allow convenient
      * concatenations of method invocations, like:
      * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
-     * 
+     *
      * @param configModelFilePath
      * @return
      */
@@ -73,7 +73,7 @@ public abstract class AbstractPOSTagger {
      * <code>this</code> instance of AbstractPOSTagger, to allow convenient
      * concatenations of method invocations, like:
      * <code>new OpenNLPPOSTagger().loadDefaultModel().tag(...).getTagAnnotations();</code>
-     * 
+     *
      * @param configModelFilePath
      * @return
      */
@@ -83,7 +83,7 @@ public abstract class AbstractPOSTagger {
 
     /**
      * Getter for model.
-     * 
+     *
      * @return the model
      */
     public Object getModel() {
@@ -92,7 +92,7 @@ public abstract class AbstractPOSTagger {
 
     /**
      * Settermethod for the model.
-     * 
+     *
      * @param model
      */
     public void setModel(Object model) {
@@ -101,7 +101,7 @@ public abstract class AbstractPOSTagger {
 
     /**
      * Getter for the name.
-     * 
+     *
      * @return the name
      */
     public String getName() {
@@ -110,7 +110,7 @@ public abstract class AbstractPOSTagger {
 
     /**
      * Setter for the name.
-     * 
+     *
      * @param name
      */
     public void setName(String name) {
@@ -119,7 +119,7 @@ public abstract class AbstractPOSTagger {
 
     /**
      * also tags a sentence and returns the @see {@link #tags}
-     * 
+     *
      * @param sentence
      * @return the tag annotations
      */
@@ -130,7 +130,7 @@ public abstract class AbstractPOSTagger {
 
     /**
      * Getter for the tagAnnotations.
-     * 
+     *
      * @return the tagAnnotations
      */
     public TagAnnotations getTagAnnotations() {
@@ -139,7 +139,7 @@ public abstract class AbstractPOSTagger {
 
     /**
      * Settermethod for tagAnnotations.
-     * 
+     *
      * @param tagAnnotations
      *            the tagAnnotations to set
      */

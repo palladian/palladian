@@ -30,7 +30,7 @@ import com.aliasi.util.Strings;
 
 /**
  * Expects to chunk 1 sentence at a time. Needs lingPipe pos-tag model.
- * 
+ *
  * @author Martin Wunderwald
  */
 public class LingPipePhraseChunker extends AbstractPhraseChunker {
@@ -209,6 +209,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
      */
@@ -230,7 +231,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     /**
      * The internal chunking method.
-     * 
+     *
      * @param cs
      * @param start
      * @param end
@@ -322,6 +323,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
      * java.lang.String)
@@ -336,6 +338,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
      * )
@@ -394,6 +397,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
      */
     @Override

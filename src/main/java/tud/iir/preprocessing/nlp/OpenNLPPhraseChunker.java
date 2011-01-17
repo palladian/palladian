@@ -37,7 +37,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     /**
      * Chunks a sentence into annotations by a given list of tokens and postags.
-     * 
+     *
      * @param sentence
      * @param tokenList
      * @param posList
@@ -79,6 +79,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
      * java.lang.String)
@@ -92,6 +93,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
      */
@@ -108,6 +110,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
      * )
@@ -149,6 +152,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     /*
      * (non-Javadoc)
+     * 
      * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
      */
     @Override

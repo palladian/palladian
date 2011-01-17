@@ -170,7 +170,7 @@ public class EventAggregator {
 
     /**
      * Fetches page content into a map of events.
-     * 
+     *
      * @param webresults
      */
     private void fetchPageContentIntoEvents(final List<WebResult> webresults) {
@@ -214,7 +214,7 @@ public class EventAggregator {
     /**
      * Sets the maximum number of parallel threads when aggregating or adding
      * multiple new feeds.
-     * 
+     *
      * @param maxThreads
      */
     public final void setMaxThreads(final int maxThreads) {

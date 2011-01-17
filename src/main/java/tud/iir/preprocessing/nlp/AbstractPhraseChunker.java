@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package tud.iir.preprocessing.nlp;
 
@@ -30,23 +30,23 @@ public abstract class AbstractPhraseChunker {
      * <code>this</code> instance of AbstractPhraseChunker, to allow convenient
      * concatenations of method invocations, like:
      * <code>new OpenNLPPhraseChunker().loadDefaultModel().chunk(...).getTagAnnotations();</code>
-     * 
+     *
      * @param configModelFilePath
-     * @return
+     * @return phraseChunker
      */
     public abstract AbstractPhraseChunker loadModel(String configModelFilePath);
 
     /**
      * Loads the default chunker model into the chunker.
-     * 
-     * @return
+     *
+     * @return phraseChunker
      */
     public abstract AbstractPhraseChunker loadDefaultModel();
 
     /**
      * Chunks a sentence and writes parts in @see {@link #chunks} and @see
      * {@link #tokens}.
-     * 
+     *
      * @param sentence
      */
     public abstract AbstractPhraseChunker chunk(String sentence);
@@ -54,7 +54,7 @@ public abstract class AbstractPhraseChunker {
     /**
      * Chunks a senntence with given model file path and writes it into @see
      * {@link #chunks} and @see {@link #tokens}.
-     * 
+     *
      * @param sentence
      * @param configModelFilePath
      */
@@ -63,7 +63,7 @@ public abstract class AbstractPhraseChunker {
 
     /**
      * Getter for the Chunker Model.
-     * 
+     *
      * @return
      */
     public final Object getModel() {
@@ -72,7 +72,7 @@ public abstract class AbstractPhraseChunker {
 
     /**
      * Setter for the chunker model.
-     * 
+     *
      * @param model
      */
     public final void setModel(Object model) {
@@ -81,7 +81,7 @@ public abstract class AbstractPhraseChunker {
 
     /**
      * Getter for the name.
-     * 
+     *
      * @return
      */
     public final String getName() {
@@ -90,7 +90,7 @@ public abstract class AbstractPhraseChunker {
 
     /**
      * Setter for name.
-     * 
+     *
      * @param name
      */
     public final void setName(String name) {

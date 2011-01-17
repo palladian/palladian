@@ -155,7 +155,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
         final String[] tokens = getTokenizer().tokenize(sentence);
 
         final List<String> tokenList = new ArrayList<String>();
-        for (String token : tokens) {
+        for (final String token : tokens) {
             tokenList.add(token);
         }
 

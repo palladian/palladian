@@ -35,6 +35,12 @@ import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
 import com.aliasi.tokenizer.Tokenizer;
 import com.aliasi.tokenizer.TokenizerFactory;
 
+/**
+ * The EventProcessor holds the NLP functionality and additional methods for
+ * event extraction.
+ *
+ * @author Martin Wunderwald
+ */
 public class EventProcessor extends NaturalLanguageProcessor {
 
     /** the logger for this class. */
@@ -52,8 +58,10 @@ public class EventProcessor extends NaturalLanguageProcessor {
 
     }
 
-    /**
-     * prepares the processor by loading its parts.
+    /*
+     * (non-Javadoc)
+     * 
+     * @see tud.iir.preprocessing.nlp.NaturalLanguageProcessor#init()
      */
     protected void init() {
 
@@ -100,7 +108,7 @@ public class EventProcessor extends NaturalLanguageProcessor {
 
     /**
      * Performing co-reference resolution.
-     * 
+     *
      * @param event
      * @return
      */
@@ -152,7 +160,7 @@ public class EventProcessor extends NaturalLanguageProcessor {
     /**
      * performs Namend Entity Recognition on the given event and annotates nouns
      * in headline.
-     * 
+     *
      * @param event
      */
     private void annotateEvent(Event event) {
@@ -193,7 +201,7 @@ public class EventProcessor extends NaturalLanguageProcessor {
 
     /**
      * Annotates NounPhrases in Title and first Sentence.
-     * 
+     *
      * @param event
      * @return the annotations
      */
@@ -220,7 +228,7 @@ public class EventProcessor extends NaturalLanguageProcessor {
 
     /**
      * annotates Dates by the OpenNLP NER.
-     * 
+     *
      * @param text
      * @return annotations
      */
@@ -241,6 +249,8 @@ public class EventProcessor extends NaturalLanguageProcessor {
     }
 
     /**
+     * Uses the <code>DateEvaluator</code> to find and rate dates within an event.
+     *
      * @param event
      * @return
      */
@@ -266,6 +276,13 @@ public class EventProcessor extends NaturalLanguageProcessor {
         return ratedDates;
     }
 
+    /**
+     * Returns the set of regular expressions for the why extraction.
+     *
+     * @param who
+     * @param what
+     * @return
+     */
     public Map<String, Double> getWhyRegExp(String who, String what) {
 
         final Map<String, Double> regExpMap = new HashMap<String, Double>();
@@ -289,6 +306,8 @@ public class EventProcessor extends NaturalLanguageProcessor {
     }
 
     /**
+     * returns the subsequent verbPhrase of a word within a sentence.
+     *
      * @param sentence
      * @param word
      * @return
@@ -322,6 +341,8 @@ public class EventProcessor extends NaturalLanguageProcessor {
     }
 
     /**
+     * returns the longest subsstring.
+     *
      * @param str1
      * @param str2
      * @return
@@ -366,6 +387,8 @@ public class EventProcessor extends NaturalLanguageProcessor {
     }
 
     /**
+     * returns the longest term within a set of annotations.
+     *
      * @param annotations
      * @return
      */
@@ -386,7 +409,7 @@ public class EventProcessor extends NaturalLanguageProcessor {
 
     /**
      * returns the shortest term from a list of annotations.
-     * 
+     *
      * @param annotations
      * @return shortest term
      */

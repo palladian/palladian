@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package tud.iir.preprocessing.nlp;
 
@@ -34,7 +34,7 @@ public abstract class AbstractSentenceDetector {
      * <code>this</code> instance of AbstractSentenceDetector, to allow
      * convenient concatenations of method invocations, like:
      * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
-     * 
+     *
      * @param configModelFilePath
      * @return
      */
@@ -46,7 +46,7 @@ public abstract class AbstractSentenceDetector {
      * <code>this</code> instance of AbstractSentenceDetector, to allow
      * convenient concatenations of method invocations, like:
      * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
-     * 
+     *
      * @return
      */
     public abstract AbstractSentenceDetector loadDefaultModel();
@@ -57,7 +57,7 @@ public abstract class AbstractSentenceDetector {
      * AbstractSentenceDetector, to allow convenient concatenations of method
      * invocations, like:
      * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
-     * 
+     *
      * @param sentence
      */
     public abstract AbstractSentenceDetector detect(String text);
@@ -68,7 +68,7 @@ public abstract class AbstractSentenceDetector {
      * <code>this</code> instance of AbstractSentenceDetector, to allow
      * convenient concatenations of method invocations, like:
      * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
-     * 
+     *
      * @param sentence
      * @param configModelFilePath
      */

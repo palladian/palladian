@@ -49,7 +49,7 @@ import tud.iir.web.Crawler;
  * Event Extractor. The Event Extractor extracts the 5W1H answers from a news
  * article.
  * </p>
- * 
+ *
  * @author Martin Wunderwald
  * @author David Urbansky
  */
@@ -126,7 +126,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * Creates an event with title and text from an given url.
-     * 
+     *
      * @param url
      * @return
      */
@@ -176,7 +176,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * extracts an event from given url and performs the whole 5W1H extraction
-     * 
+     *
      * @param url
      *            - url of a news article
      * @return Event - The event
@@ -198,7 +198,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * extracts the 5W1H from an given event
-     * 
+     *
      * @param event
      */
     public void extract5W1H(Event event) {
@@ -221,7 +221,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * extracts the when from an given event
-     * 
+     *
      * @param event
      */
     public void extractWhen(Event event) {
@@ -264,7 +264,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * extracts the where from an given event
-     * 
+     *
      * @param event
      */
     public void extractWhere(Event event) {
@@ -327,7 +327,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * extracts the why from an given event
-     * 
+     *
      * @param event
      */
     public void extractWhy(Event event) {
@@ -399,7 +399,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * extracts the what from an given event
-     * 
+     *
      * @param event
      */
     public void extractWhat(Event event) {
@@ -466,7 +466,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * Extracts the How from a given event.
-     * 
+     *
      * @param event
      */
     public void extractHow(Event event) {
@@ -500,7 +500,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * extracts the who and whoCandidates from an given event.
-     * 
+     *
      * @param event
      */
     public void extractWho(Event event) {
@@ -538,7 +538,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * Returns the Where Classifier
-     * 
+     *
      * @return
      */
     public WhereClassifier getWhereClassifier() {
@@ -547,7 +547,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * Setter of WhereClassifier.
-     * 
+     *
      * @param type
      */
     public void setWhereClassifier(int type) {
@@ -557,7 +557,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * Getter of WhoClassifier
-     * 
+     *
      * @return
      */
     public WhoClassifier getWhoClassifier() {
@@ -566,7 +566,7 @@ public class EventExtractor extends Extractor {
 
     /**
      * Setter of WhoClassifier
-     * 
+     *
      * @param type
      */
     public void setWhoClassifier(int type) {

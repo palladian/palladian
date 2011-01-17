@@ -8,7 +8,7 @@ import tud.iir.helper.StopWatch;
 
 /**
  * This is the AbstractParser.
- * 
+ *
  * @author Martin Wunderwald
  */
 public abstract class AbstractParser {
@@ -36,7 +36,7 @@ public abstract class AbstractParser {
 
     /**
      * loads the model into the parser.
-     * 
+     *
      * @param configModelPath
      * @return Boolean
      */
@@ -47,7 +47,7 @@ public abstract class AbstractParser {
      * instance of AbstractParser, to allow convenient concatenations of method
      * invocations, like:
      * <code>new OpenNLPParser().loadDefaultModel().parse(...).getTagAnnotations();</code>
-     * 
+     *
      * @return success
      */
     public abstract AbstractParser loadDefaultModel();
@@ -57,7 +57,7 @@ public abstract class AbstractParser {
      * Method returns <code>this</code> instance of AbstractParser, to allow
      * convenient concatenations of method invocations, like:
      * <code>new OpenNLPParser().loadDefaultModel().parse(...).getTagAnnotations();</code>
-     * 
+     *
      * @param Sentence
      */
     public abstract AbstractParser parse(String sentence);
@@ -73,7 +73,7 @@ public abstract class AbstractParser {
      * @param model
      *            the model to set
      */
-    public final void setModel(Object model) {
+    public final void setModel(final Object model) {
         this.model = model;
     }
 
@@ -88,7 +88,7 @@ public abstract class AbstractParser {
      * @param name
      *            the name to set
      */
-    public final void setName(String name) {
+    public final void setName(final String name) {
         this.name = name;
     }
 
@@ -103,13 +103,13 @@ public abstract class AbstractParser {
      * @param tagAnnotations
      *            the tagAnnotations to set
      */
-    public final void setTagAnnotations(TagAnnotations tagAnnotations) {
+    public final void setTagAnnotations(final TagAnnotations tagAnnotations) {
         this.tagAnnotations = tagAnnotations;
     }
 
     /**
      * Converts a parse tree into Annotations.
-     * 
+     *
      * @param parse
      * @param tagAnnotations
      */
@@ -131,7 +131,7 @@ public abstract class AbstractParser {
 
     /**
      * Prints out the parse tree.
-     * 
+     *
      * @param parse
      */
     public void printParse(Parse parse) {
@@ -163,7 +163,7 @@ public abstract class AbstractParser {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
 
-        Parse[] parse = onlpp
+        final Parse[] parse = onlpp
                 .getFullParse("Wikileaks' Julian Assange 'fears US death penalty'");
         onlpp.printParse(parse[0]);
 
