@@ -45,6 +45,9 @@ import tud.iir.helper.MathHelper;
  */
 public class ImageHandler {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ImageHandler.class);
+
     // image similarity mean square error
     public static final int MSE = 1;
 
@@ -53,8 +56,6 @@ public class ImageHandler {
 
     // image similarity with image difference and average gray values
     public static final int DIFFG = 3;
-
-    private static final Logger logger = Logger.getLogger(ImageHandler.class);
 
     static {
         System.setProperty("com.sun.media.jai.disableMediaLib", "true");
@@ -71,9 +72,9 @@ public class ImageHandler {
                 bufferedImage = ImageIO.read(new File(url));
             }
         } catch (MalformedURLException e) {
-            Logger.getRootLogger().error(url, e);
+            LOGGER.error(url + ", " + e.getMessage());
         } catch (IOException e) {
-            Logger.getRootLogger().error(url, e);
+            LOGGER.error(url + ", " + e.getMessage());
         }
 
         return bufferedImage;
@@ -107,15 +108,15 @@ public class ImageHandler {
                         normalizedImages.add(image);
                     }
                 } catch (IOException e) {
-                    Logger.getRootLogger().error(image.getURL(), e);
+                    LOGGER.error(image.getURL(), e);
                 } catch (ArrayIndexOutOfBoundsException e) {
-                    Logger.getRootLogger().error(image.getURL(), e);
+                    LOGGER.error(image.getURL(), e);
                 } catch (IllegalArgumentException e) {
-                    Logger.getRootLogger().error(image.getURL(), e);
+                    LOGGER.error(image.getURL(), e);
                 } catch (CMMException e) {
-                    Logger.getRootLogger().error(image.getURL(), e);
+                    LOGGER.error(image.getURL(), e);
                 } catch (Exception e) {
-                    Logger.getRootLogger().error(image.getURL(), e);
+                    LOGGER.error(image.getURL(), e);
                 }
             }
             images.clear();
@@ -157,9 +158,9 @@ public class ImageHandler {
             return matchingImageURLs;
 
         } catch (MalformedURLException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } catch (OutOfMemoryError e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
 
         return new String[0];
@@ -176,9 +177,9 @@ public class ImageHandler {
             bufferedImage = ImageIO.read(new URL(imageURL));
 
         } catch (MalformedURLException e) {
-            Logger.getRootLogger().error(e.getMessage() + " for image " + imageURL + " (target width: " + width + ")");
+            LOGGER.error(e.getMessage() + " for image " + imageURL + " (target width: " + width + ")");
         } catch (IOException e) {
-            Logger.getRootLogger().error(e.getMessage() + " for image " + imageURL + " (target width: " + width + ")");
+            LOGGER.error(e.getMessage() + " for image " + imageURL + " (target width: " + width + ")");
         }
 
         return rescaleImage(bufferedImage, width);
@@ -224,7 +225,7 @@ public class ImageHandler {
     public static BufferedImage rescaleImage(BufferedImage bufferedImage, int boxWidth, int boxHeight) {
 
         if (bufferedImage == null) {
-            logger.warn("given image was NULL");
+            LOGGER.warn("given image was NULL");
             return null;
         }
 
@@ -296,7 +297,7 @@ public class ImageHandler {
     public static BufferedImage rescaleImage(BufferedImage bufferedImage, int newWidth, boolean fit) {
 
         if (bufferedImage == null) {
-            logger.warn("given image was NULL");
+            LOGGER.warn("given image was NULL");
             return null;
         }
 
@@ -327,7 +328,7 @@ public class ImageHandler {
     public static BufferedImage rescaleImage2(BufferedImage bufferedImage, int newWidth, boolean fit) {
 
         if (bufferedImage == null) {
-            logger.warn("given image was NULL");
+            LOGGER.warn("given image was NULL");
             return null;
         }
 
@@ -373,7 +374,7 @@ public class ImageHandler {
     public static BufferedImage rescaleImage3(BufferedImage bufferedImage, int newWidth, boolean fit) {
 
         if (bufferedImage == null) {
-            logger.warn("given image was NULL");
+            LOGGER.warn("given image was NULL");
             return null;
         }
 
@@ -433,7 +434,7 @@ public class ImageHandler {
     public static BufferedImage rescaleImage_broken(BufferedImage bufferedImage, int width) {
 
         if (bufferedImage == null) {
-            logger.error("image was null and could not be rescaled");
+            LOGGER.error("image was null and could not be rescaled");
             return null;
         }
 
@@ -480,17 +481,17 @@ public class ImageHandler {
             }
 
             // save image
-            Logger.getRootLogger().info("write " + savePath + " with " + fileExtension);
+            LOGGER.info("write " + savePath + " with " + fileExtension);
             ImageIO.write(bi, fileExtension, new File(savePath));
 
         } catch (MalformedURLException e) {
-            Logger.getRootLogger().error(url, e);
+            LOGGER.error(url, e);
         } catch (IOException e) {
-            Logger.getRootLogger().error(url, e);
+            LOGGER.error(url, e);
         } catch (NullPointerException e) {
-            Logger.getRootLogger().error(url, e);
+            LOGGER.error(url, e);
         } catch (IllegalArgumentException e) {
-            Logger.getRootLogger().error(url, e);
+            LOGGER.error(url, e);
         }
     }
 
@@ -499,7 +500,7 @@ public class ImageHandler {
         int grayCount = 0;
 
         if (image1.getWidth() != image2.getWidth()) {
-            logger.warn("Images do not have the same size.");
+            LOGGER.warn("Images do not have the same size.");
             return image1;
         }
 
@@ -524,7 +525,7 @@ public class ImageHandler {
 
         float averageGray = grayCount / (float) pixelCount;
 
-        logger.debug(averageGray);
+        LOGGER.debug(averageGray);
 
         return substractedImage;
     }
@@ -684,7 +685,7 @@ public class ImageHandler {
                     iwp.setCompressionMode(ImageWriteParam.MODE_EXPLICIT);
                     iwp.setCompressionQuality(quality);
                 } else if (quality < 1) {
-                    logger.warn("compression is not supported for " + fileType + " files, " + filePath);
+                    LOGGER.warn("compression is not supported for " + fileType + " files, " + filePath);
                 }
 
                 File outFile = new File(filePath);
@@ -698,9 +699,9 @@ public class ImageHandler {
             return true;
 
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
 
         return false;
@@ -719,9 +720,9 @@ public class ImageHandler {
             ImageIO.write(image, fileType, new File(filePath));
             return true;
         } catch (IOException e) {
-            logger.error("saving of image failed, " + e.getMessage());
+            LOGGER.error("saving of image failed, " + e.getMessage());
         } catch (NullPointerException e) {
-            logger.error("saving of image failed, " + e.getMessage());
+            LOGGER.error("saving of image failed, " + e.getMessage());
         }
         return false;
     }
@@ -740,7 +741,7 @@ public class ImageHandler {
             JAI.create("encode", bufferedImage, new FileOutputStream(new File(filePath)), fileType.toUpperCase(), null);
             return true;
         } catch (Exception e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
 
         return false;
@@ -813,11 +814,11 @@ public class ImageHandler {
             ImageIO.write(substractedImage, "jpg", new File("data/multimedia/test.jpg"));
 
         } catch (MalformedURLException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } catch (IOException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } catch (Exception e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
     }
 }
