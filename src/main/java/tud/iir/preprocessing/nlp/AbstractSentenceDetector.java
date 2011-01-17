@@ -1,7 +1,7 @@
 /**
  * 
  */
-package tud.iir.extraction.event;
+package tud.iir.preprocessing.nlp;
 
 import org.apache.log4j.Logger;
 

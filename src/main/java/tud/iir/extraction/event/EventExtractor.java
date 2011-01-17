@@ -43,11 +43,6 @@ import tud.iir.news.FeedItem;
 import tud.iir.news.NewsAggregator;
 import tud.iir.news.NewsAggregatorException;
 import tud.iir.web.Crawler;
-import weka.core.stemmers.SnowballStemmer;
-
-import com.aliasi.tokenizer.IndoEuropeanTokenizerFactory;
-import com.aliasi.tokenizer.Tokenizer;
-import com.aliasi.tokenizer.TokenizerFactory;
 
 /**
  * <p>
@@ -67,7 +62,7 @@ public class EventExtractor extends Extractor {
     private Set<Event> extractedEvents;
 
     /** Keep track of which news articles we have analyzed for events already. */
-    private Set<String> seenNewsArticles = new HashSet<String>();
+    private final Set<String> seenNewsArticles = new HashSet<String>();
 
     /** Number of events to extracts before saving them. */
     private static final int SAVE_COUNT = 5;
@@ -81,11 +76,14 @@ public class EventExtractor extends Extractor {
     /** An instance of the featureExtractor used for text processing. **/
     private EventFeatureExtractor featureExtractor;
 
+    /** An instance of the eventProcessor used for text processing. **/
+    private EventProcessor eventProcessor;
+
     private final String MODEL_WHERE;
     private final String MODEL_WHO;
 
     /** Experimental deepMode for deeper 5W1H extraction. **/
-    private boolean deepMode = true;
+    private final boolean deepMode = false;
 
     /**
      * @author Martin Wunderwald
@@ -107,7 +105,9 @@ public class EventExtractor extends Extractor {
     private EventExtractor() {
         super();
         // do not analyze any binary files
-        featureExtractor = EventFeatureExtractor.getInstance();
+        featureExtractor = new EventFeatureExtractor();
+        eventProcessor = new EventProcessor();
+        eventProcessor.init();
 
         PropertiesConfiguration config = null;
 
@@ -135,11 +135,12 @@ public class EventExtractor extends Extractor {
         Document document = null;
 
         try {
-            PageContentExtractor pce = new PageContentExtractor();
+            final PageContentExtractor pce = new PageContentExtractor();
 
             if (Crawler.isValidURL(url, false)) {
-                DOMParser parser = new DOMParser(new HTMLConfiguration());
-                XMLDocumentFilter[] filters = { new PreflightFilter(LOGGER) };
+                final DOMParser parser = new DOMParser(new HTMLConfiguration());
+                final XMLDocumentFilter[] filters = { new PreflightFilter(
+                        LOGGER) };
                 parser
                         .setProperty(
                                 "http://cyberneko.org/html/properties/filters",
@@ -152,7 +153,7 @@ public class EventExtractor extends Extractor {
                         "http://cyberneko.org/html/properties/names/elems",
                         "lower");
 
-                URL docurl = new URL(url);
+                final URL docurl = new URL(url);
                 parser.parse(new InputSource(docurl.openStream()));
                 document = parser.getDocument();
                 pce.setDocument(document);
@@ -167,7 +168,7 @@ public class EventExtractor extends Extractor {
             event.setRawText(rawText);
             event.setDocument(document);
 
-        } catch (Throwable e) {
+        } catch (final Throwable e) {
             LOGGER.error(e);
         }
         return event;
@@ -182,12 +183,13 @@ public class EventExtractor extends Extractor {
      */
     public Event extractEventFromURL(String url) {
 
-        Event event = createEventFromURL(url);
+        final Event event = createEventFromURL(url);
 
         setWhoClassifier(Classifier.BAGGING);
         setWhereClassifier(Classifier.BAGGING);
 
-        getFeatureExtractor().setFeatures(event);
+        getEventProcessor().processEvent(event);
+        getFeatureExtractor().calculateFeatures(event);
 
         extract5W1H(event);
 
@@ -224,14 +226,14 @@ public class EventExtractor extends Extractor {
      */
     public void extractWhen(Event event) {
 
-        HashMap<String, Double> rankedCandidates = new HashMap<String, Double>();
+        final HashMap<String, Double> rankedCandidates = new HashMap<String, Double>();
         HashMap<ExtractedDate, Double> ratedDates = new HashMap<ExtractedDate, Double>();
         ArrayList<ExtractedDate> list = new ArrayList<ExtractedDate>();
 
-        ratedDates = featureExtractor.getRatedDates(event);
+        ratedDates = eventProcessor.getRatedDates(event);
 
         // putting the rated dates as ranked candidates into the even object
-        for (Entry<ExtractedDate, Double> entry : ratedDates.entrySet()) {
+        for (final Entry<ExtractedDate, Double> entry : ratedDates.entrySet()) {
             rankedCandidates.put(entry.getKey().getNormalizedDateString(),
                     entry.getValue());
         }
@@ -240,7 +242,7 @@ public class EventExtractor extends Extractor {
         list = DateArrayHelper.hashMapToArrayList(ratedDates);
         ExtractedDate date = new ExtractedDate();
         if (list != null && list.size() > 0) {
-            ArrayList<ExtractedDate> orderedList = list;
+            final ArrayList<ExtractedDate> orderedList = list;
             Collections.sort(orderedList,
                     new RatedDateComparator<ExtractedDate>());
             date = orderedList.get(0);
@@ -248,9 +250,9 @@ public class EventExtractor extends Extractor {
         }
 
         // appling Namend Entity Recognition to find DateStrings
-        if (this.deepMode || event.getWhen().isEmpty()) {
-            for (Annotation anno : featureExtractor.getDateAnnotations(event
-                    .getText())) {
+        if (deepMode || event.getWhen().isEmpty()) {
+            for (final Annotation anno : eventProcessor
+                    .getDateAnnotations(event.getText())) {
                 rankedCandidates.put(anno.getEntity().getName(), 0.5);
             }
         }
@@ -284,7 +286,8 @@ public class EventExtractor extends Extractor {
                     EventFeatureExtractor.CATEGORY_LOCATION)) {
                 result = whereClassifier.classifySoft(fo);
 
-                rankedCandidates.put(longestTerm(entry.getKey()), result[0]);
+                rankedCandidates.put(
+                        eventProcessor.longestTerm(entry.getKey()), result[0]);
             }
 
         }
@@ -315,7 +318,7 @@ public class EventExtractor extends Extractor {
         Collections.reverse(list);
 
         final Map<String, Double> result = new LinkedHashMap<String, Double>();
-        for (Entry<String, Double> entry : list) {
+        for (final Entry<String, Double> entry : list) {
             result.put(entry.getKey(), entry.getValue());
         }
 
@@ -334,7 +337,7 @@ public class EventExtractor extends Extractor {
         String whatVerb = null;
 
         if (event.getWhat() != null) {
-            final String tagged = featureExtractor.getPOSTags(event.getWhat())
+            final String tagged = eventProcessor.getPOSTags(event.getWhat())
                     .getTaggedString();
 
             // extracting the verb from whatPhrase
@@ -366,10 +369,11 @@ public class EventExtractor extends Extractor {
         // System.out.println("who:" + who + ",what:" + event.getWhat() + "("
         // + whatVerb + ")");
 
-        final Map<String, Double> regExpMap = getWhyRegExp(who, whatVerb);
+        final Map<String, Double> regExpMap = eventProcessor.getWhyRegExp(who,
+                whatVerb);
         String taggedStc = null;
         for (final String stc : event.getSentences()) {
-            taggedStc = featureExtractor.getPOSTags(stc).getTaggedString();
+            taggedStc = eventProcessor.getPOSTags(stc).getTaggedString();
             for (final Entry<String, Double> entry : regExpMap.entrySet()) {
 
                 final Pattern pattern = Pattern.compile(entry.getKey());
@@ -391,67 +395,6 @@ public class EventExtractor extends Extractor {
         } else {
             LOGGER.info("no WHY was found.");
         }
-    }
-
-    private Map<String, Double> getWhyRegExp(String who, String what) {
-
-        final Map<String, Double> regExpMap = new HashMap<String, Double>();
-
-        regExpMap.put("(" + what + "(.*)to/TO [^ \t](.*)/VB)", 0.5);
-        // regExpMap.put("(" + who + "(.*)to/TO [^ \t](.*)/VB)", 0.5);
-        regExpMap.put("(" + what + "(.*)will)", 0.5);
-        regExpMap.put("(since)", 0.2);
-        regExpMap.put("(cause)", 0.3);
-        regExpMap.put("(because)", 0.3);
-        regExpMap.put("(hence)", 0.2);
-        regExpMap.put("(therefore)", 0.3);
-        regExpMap.put("(why)", 0.2);
-        regExpMap.put("(result)", 0.4);
-        regExpMap.put("(reason)", 0.3);
-        regExpMap.put("(provide)", 0.1);
-        regExpMap.put("('s behind)", 0.2);
-        regExpMap.put("(Due to)", 0.2);
-
-        return regExpMap;
-    }
-
-    public List<String> longestSubstrings(String str1, String str2) {
-
-        final String s1 = StringHelper.removeStopWords(str1);
-        final String s2 = StringHelper.removeStopWords(str2);
-
-        final TokenizerFactory mTokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-        final Tokenizer tokenizer1 = mTokenizerFactory.tokenizer(s1
-                .toCharArray(), 0, s1.length());
-        final Tokenizer tokenizer2 = mTokenizerFactory.tokenizer(s2
-                .toCharArray(), 0, s2.length());
-
-        final List<String> a1 = new ArrayList<String>();
-        final List<String> a2 = new ArrayList<String>();
-        final List<String> w1 = new ArrayList<String>();
-        final List<String> w2 = new ArrayList<String>();
-
-        tokenizer1.tokenize(a1, w1);
-        tokenizer2.tokenize(a2, w2);
-
-        // CollectionHelper.print(a1);
-        final SnowballStemmer ss = new SnowballStemmer();
-
-        for (int i = 0; i < a1.size(); i++) {
-            a1.set(i, ss.stem(a1.get(i).toLowerCase().trim()));
-        }
-        for (int i = 0; i < a2.size(); i++) {
-            a2.set(i, ss.stem(a2.get(i).toLowerCase().trim()));
-        }
-
-        if (a1.size() > a2.size()) {
-            a1.retainAll(a2);
-            return a1;
-        } else {
-            a2.retainAll(a1);
-            return a2;
-        }
-
     }
 
     /**
@@ -486,7 +429,8 @@ public class EventExtractor extends Extractor {
              * who.split(" "); } else { parts = new String[] { who }; }
              */
             if (!changed && event.getTitle().contains(who)) {
-                titleVerbPhrase = getSubsequentVerbPhrase(event.getTitle(), who);
+                titleVerbPhrase = eventProcessor.getSubsequentVerbPhrase(event
+                        .getTitle(), who);
                 if (titleVerbPhrase != null && !changed) {
                     event.setWho(who);
                     changed = true;
@@ -505,7 +449,8 @@ public class EventExtractor extends Extractor {
             for (final String stc : event.getSentences()) {
 
                 if (stc.contains(event.getWho()) && what == null) {
-                    what = getSubsequentVerbPhrase(stc, event.getWho());
+                    what = eventProcessor.getSubsequentVerbPhrase(stc, event
+                            .getWho());
                 }
 
             }
@@ -516,79 +461,6 @@ public class EventExtractor extends Extractor {
 
         // LOGGER.info("most likely what: " + what);
         event.setWhat(what);
-
-    }
-
-    /**
-     * @param sentence
-     * @param word
-     * @return
-     */
-    private String getSubsequentVerbPhrase(String sentence, String word) {
-
-        final ArrayList<String> verbPhrases = new ArrayList<String>();
-        boolean foundNoun = false;
-        // boolean foundVerb = false;
-        for (final TagAnnotation tagAnnotation : featureExtractor
-                .getParse(sentence)) {
-
-            if (foundNoun && tagAnnotation.getTag().contains("V")
-                    && tagAnnotation.getChunk().length() < 150) {
-                verbPhrases.add(tagAnnotation.getChunk());
-                // foundVerb = true;
-                foundNoun = false;
-
-            }
-            if (tagAnnotation.getTag().contains("N")
-                    && tagAnnotation.getChunk().contains(word)) {
-
-                foundNoun = true;
-            }
-            /*
-             * if (foundVerb && tagAnnotation.getTag().contains("NN")) {
-             * verbPhrases.set(0, verbPhrases.get(0) +
-             * tagAnnotation.getChunk()); }
-             */
-        }
-        return verbPhrases.size() > 0 ? verbPhrases.get(0) : null;
-    }
-
-    /**
-     * @param annotations
-     * @return
-     */
-    public String longestTerm(Annotations annotations) {
-
-        String term = "";
-
-        for (final Annotation annotation : annotations) {
-            if (term.length() < annotation.getLength()) {
-                term = annotation.getEntity().getName();
-
-            }
-
-        }
-        return term;
-
-    }
-
-    /**
-     * returns the shortest term from a list of annotations.
-     * 
-     * @param annotations
-     * @return shortest term
-     */
-    public String shortestTerm(Annotations annotations) {
-
-        String term = "longlonglonglonglonglong";
-
-        for (final Annotation annotation : annotations) {
-            if (term.length() > annotation.getLength()) {
-                term = annotation.getEntity().getName();
-            }
-
-        }
-        return term;
 
     }
 
@@ -648,7 +520,8 @@ public class EventExtractor extends Extractor {
             result = whoClassifier.classifySoft(fo);
 
             // put in the shortest term of the annotations found in text
-            rankedCandidates.put(longestTerm(entry.getKey()), result[0]);
+            rankedCandidates.put(eventProcessor.longestTerm(entry.getKey()),
+                    result[0]);
 
         }
 
@@ -716,8 +589,23 @@ public class EventExtractor extends Extractor {
         this.featureExtractor = featureExtractor;
     }
 
+    /**
+     * @return the eventProcessor
+     */
+    public EventProcessor getEventProcessor() {
+        return eventProcessor;
+    }
+
+    /**
+     * @param eventProcessor
+     *            the eventProcessor to set
+     */
+    public void setEventProcessor(EventProcessor eventProcessor) {
+        this.eventProcessor = eventProcessor;
+    }
+
     private Set<String> collectURLs() {
-        Set<String> feedURLs = new HashSet<String>();
+        final Set<String> feedURLs = new HashSet<String>();
         feedURLs.add("http://rss.cnn.com/rss/edition.rss");
         // feedURLs.add("http://rss.cnn.com/rss/edition_world.rss");
         // feedURLs.add("http://rss.cnn.com/rss/edition_us.rss");
@@ -731,21 +619,21 @@ public class EventExtractor extends Extractor {
         // feedURLs.add("http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml");
         // feedURLs.add("http://www.nytimes.com/services/xml/rss/nyt/GlobalHome.xml");
 
-        NewsAggregator na = new NewsAggregator();
-        Set<String> newsURLs = new HashSet<String>();
+        final NewsAggregator na = new NewsAggregator();
+        final Set<String> newsURLs = new HashSet<String>();
 
-        for (String feedURL : feedURLs) {
+        for (final String feedURL : feedURLs) {
             try {
-                Feed feed = na.downloadFeed(feedURL, true);
-                List<FeedItem> feedItems = feed.getEntries();
+                final Feed feed = na.downloadFeed(feedURL, true);
+                final List<FeedItem> feedItems = feed.getEntries();
 
-                for (FeedItem feedItem : feedItems) {
+                for (final FeedItem feedItem : feedItems) {
                     if (!seenNewsArticles.contains(feedItem.getLink())) {
                         newsURLs.add(feedItem.getLink());
                     }
                 }
 
-            } catch (NewsAggregatorException e) {
+            } catch (final NewsAggregatorException e) {
                 LOGGER.error(e.getMessage());
             }
         }
@@ -769,15 +657,15 @@ public class EventExtractor extends Extractor {
 
         while (!isStopped()) {
 
-            Set<String> urls = collectURLs();
+            final Set<String> urls = collectURLs();
 
-            for (String url : urls) {
+            for (final String url : urls) {
 
                 if (isStopped()) {
                     break;
                 }
 
-                Event event = extractEventFromURL(url);
+                final Event event = extractEventFromURL(url);
 
                 extractedEvents.add(event);
 
@@ -797,8 +685,8 @@ public class EventExtractor extends Extractor {
 
         if (saveExtractions) {
 
-            EventDatabase edb = EventDatabase.getInstance();
-            for (Event event : extractedEvents) {
+            final EventDatabase edb = EventDatabase.getInstance();
+            for (final Event event : extractedEvents) {
                 edb.addEvent(event);
             }
             extractedEvents.clear();
@@ -825,7 +713,7 @@ public class EventExtractor extends Extractor {
         final StopWatch sw = new StopWatch();
         sw.start();
 
-        EventExtractor eventExtractor = EventExtractor.getInstance();
+        final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor
                 .extractEventFromURL("http://www.bbc.co.uk/news/health-12160618");
 

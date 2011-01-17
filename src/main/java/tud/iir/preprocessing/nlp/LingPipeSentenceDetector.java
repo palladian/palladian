@@ -1,7 +1,7 @@
 /**
  *
  */
-package tud.iir.extraction.event;
+package tud.iir.preprocessing.nlp;
 
 import com.aliasi.chunk.Chunk;
 import com.aliasi.chunk.Chunking;

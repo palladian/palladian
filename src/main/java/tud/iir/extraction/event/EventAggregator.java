@@ -27,7 +27,7 @@ import tud.iir.web.URLDownloader.URLDownloaderCallback;
 public class EventAggregator {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger
-    .getLogger(EventAggregator.class);
+            .getLogger(EventAggregator.class);
 
     /** Used for all downloading purposes. */
     private static Crawler crawler = new Crawler();
@@ -113,7 +113,7 @@ public class EventAggregator {
                 LOGGER.trace("max # of Threads running. waiting ...");
                 try {
                     Thread.sleep(1000);
-                } catch (InterruptedException e) {
+                } catch (final InterruptedException e) {
                     LOGGER.warn(e.getMessage());
                     break;
                 }
@@ -145,7 +145,7 @@ public class EventAggregator {
         while (threadCounter.getCount() > 0 || eventStack.size() > 0) {
             try {
                 Thread.sleep(1000);
-            } catch (InterruptedException e) {
+            } catch (final InterruptedException e) {
                 LOGGER.warn(e.getMessage());
                 break;
             }
