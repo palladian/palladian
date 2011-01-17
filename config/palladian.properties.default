@@ -8,6 +8,13 @@ models.opennlp.en.chunker = data/models/opennlp/chunker/en-chunker.bin
 models.opennlp.en.coref = data/models/opennlp/coref/
 models.opennlp.en.parser = data/models/opennlp/parser/en-parser-chunking.bin
 models.opennlp.en.sentdetect = data/models/opennlp/sentdetect/en-sent.bin
+models.opennlp.en.ner.time = data/models/opennlp/namefind/en-ner-time.bin
+models.opennlp.en.ner.date = data/models/opennlp/namefind/en-ner-date.bin
+models.opennlp.en.ner.location = data/models/opennlp/namefind/en-ner-location.bin
+models.opennlp.en.ner.money = data/models/opennlp/namefind/en-ner-money.bin
+models.opennlp.en.ner.organization = data/models/opennlp/namefind/en-ner-organization.bin
+models.opennlp.en.ner.percentage = data/models/opennlp/namefind/en-ner-percentage.bin
+models.opennlp.en.ner.person = data/models/opennlp/namefind/en-ner-person.bin
 
 models.lingpipe.en.postag = data/models/lingpipe/pos-en-general-brown.HiddenMarkovModel
 models.lingpipe.en.ner = data/models/lingpipe/ne-en-news-muc6.AbstractCharLmRescoringChunker
