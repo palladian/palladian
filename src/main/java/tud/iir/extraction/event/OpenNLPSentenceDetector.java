@@ -59,10 +59,10 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      * )
      */
     @Override
-    public void detect(String text) {
+    public OpenNLPSentenceDetector detect(String text) {
 
         setSentences(((SentenceDetectorME) getModel()).sentDetect(text));
-
+        return this;
     }
 
     /*
@@ -72,9 +72,10 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      * , java.lang.String)
      */
     @Override
-    public void detect(String text, String configModelFilePath) {
+    public OpenNLPSentenceDetector detect(String text,
+            String configModelFilePath) {
         loadModel(configModelFilePath);
-        detect(text);
+        return detect(text);
     }
 
     /*
@@ -84,7 +85,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      * .String)
      */
     @Override
-    public boolean loadModel(String configModelFilePath) {
+    public OpenNLPSentenceDetector loadModel(String configModelFilePath) {
 
         SentenceModel sentenceModel = null;
         InputStream modelIn = null;
@@ -132,7 +133,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
 
         setModel(sdetector);
 
-        return true;
+        return this;
     }
 
     /*
@@ -140,7 +141,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      * @see tud.iir.extraction.event.AbstractSentenceDetector#loadModel()
      */
     @Override
-    public boolean loadModel() {
+    public OpenNLPSentenceDetector loadDefaultModel() {
         return this.loadModel(MODEL);
     }
 
@@ -152,7 +153,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         final StopWatch stopWatch = new StopWatch();
         stopWatch.start();
         final OpenNLPSentenceDetector onlpstd = new OpenNLPSentenceDetector();
-        onlpstd.loadModel();
+        onlpstd.loadDefaultModel();
 
         onlpstd
                 .detect("This are two example Sentences. Oh, we now in the second sentence already.");

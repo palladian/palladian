@@ -31,7 +31,7 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * )
      */
     @Override
-    public void detect(final String text) {
+    public LingPipeSentenceDetector detect(final String text) {
         final Chunking chunking = ((SentenceChunker) getModel()).chunk(text);
         final String[] sentences = new String[chunking.chunkSet().size()];
         int ite = 0;
@@ -40,6 +40,7 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
             ite++;
         }
         setSentences(sentences);
+        return this;
     }
 
     /*
@@ -49,8 +50,9 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * , java.lang.String)
      */
     @Override
-    public void detect(final String text, final String configModelFilePath) {
-        detect(text);
+    public LingPipeSentenceDetector detect(final String text,
+            final String configModelFilePath) {
+        return detect(text);
     }
 
     /*
@@ -60,14 +62,14 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * .String)
      */
     @Override
-    public boolean loadModel(final String configModelFilePath) {
+    public LingPipeSentenceDetector loadModel(final String configModelFilePath) {
         final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
         final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
 
         final SentenceChunker sentenceChunker = new SentenceChunker(
                 tokenizerFactory, sentenceModel);
         setModel(sentenceChunker);
-        return false;
+        return this;
     }
 
     /*
@@ -75,7 +77,7 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * @see tud.iir.extraction.event.AbstractSentenceDetector#loadModel()
      */
     @Override
-    public boolean loadModel() {
+    public LingPipeSentenceDetector loadDefaultModel() {
         return loadModel(null);
     }
 

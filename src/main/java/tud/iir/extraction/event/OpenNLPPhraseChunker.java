@@ -42,8 +42,8 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
      * @param tokenList
      * @param posList
      */
-    public void chunk(final String sentence, List<String> tokenList,
-            List<String> posList) {
+    public OpenNLPPhraseChunker chunk(final String sentence,
+            List<String> tokenList, List<String> posList) {
 
         final List<String> chunkList = ((ChunkerME) getModel()).chunk(
                 tokenList, posList);
@@ -74,6 +74,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
             }
         }
         this.setTagAnnotations(tagAnnotations);
+        return this;
     }
 
     /*
@@ -83,9 +84,10 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
      * java.lang.String)
      */
     @Override
-    public final void chunk(String sentence, String configModelFilePath) {
+    public final OpenNLPPhraseChunker chunk(String sentence,
+            String configModelFilePath) {
         this.loadModel(configModelFilePath);
-        this.chunk(sentence);
+        return this.chunk(sentence);
     }
 
     /*
@@ -94,14 +96,13 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
      * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
      */
     @Override
-    public final void chunk(String sentence) {
+    public final OpenNLPPhraseChunker chunk(String sentence) {
 
         final OpenNLPPOSTagger tagger = new OpenNLPPOSTagger();
-        tagger.loadModel();
-        tagger.tag(sentence);
+        tagger.loadDefaultModel().tag(sentence);
 
-        chunk(sentence, tagger.getTagAnnotations().getTokenList(), tagger
-                .getTagAnnotations().getTagList());
+        return chunk(sentence, tagger.getTagAnnotations().getTokenList(),
+                tagger.getTagAnnotations().getTagList());
 
     }
 
@@ -112,7 +113,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
      * )
      */
     @Override
-    public final boolean loadModel(String configModelFilePath) {
+    public final OpenNLPPhraseChunker loadModel(String configModelFilePath) {
         try {
 
             ChunkerME tbc = null;
@@ -139,12 +140,11 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
             setModel(tbc);
 
-            return true;
         } catch (final IOException e) {
             LOGGER.error(e);
-            return false;
         }
 
+        return this;
     }
 
     /*
@@ -152,7 +152,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
      * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
      */
     @Override
-    public final boolean loadModel() {
+    public final OpenNLPPhraseChunker loadDefaultModel() {
         return this.loadModel(MODEL);
     }
 

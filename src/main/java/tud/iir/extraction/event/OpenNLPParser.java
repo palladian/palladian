@@ -58,7 +58,7 @@ public class OpenNLPParser extends AbstractParser {
     }
 
     @Override
-    public boolean loadModel(final String configModelPath) {
+    public OpenNLPParser loadModel(final String configModelPath) {
 
         try {
 
@@ -86,15 +86,14 @@ public class OpenNLPParser extends AbstractParser {
 
             setModel(parser);
 
-            return true;
         } catch (final IOException e) {
             LOGGER.error(e);
-            return false;
         }
+        return this;
     }
 
     @Override
-    public boolean loadModel() {
+    public OpenNLPParser loadDefaultModel() {
         return this.loadModel(MODEL);
     }
 
@@ -107,9 +106,9 @@ public class OpenNLPParser extends AbstractParser {
      *         initialized or the sentence is empty
      */
     @Override
-    public final void parse(final String sentence) {
+    public final OpenNLPParser parse(final String sentence) {
 
-        parse(sentence, 0);
+        return parse(sentence, 0);
 
     }
 
@@ -120,7 +119,7 @@ public class OpenNLPParser extends AbstractParser {
      * @param sentence
      * @param index
      */
-    public final void parse(final String sentence, final int index) {
+    public final OpenNLPParser parse(final String sentence, final int index) {
 
         parse = getFullParse(sentence)[index];
 
@@ -129,6 +128,8 @@ public class OpenNLPParser extends AbstractParser {
         parse2Annotations(parse, tagAnnotations);
 
         setTagAnnotations(tagAnnotations);
+
+        return this;
     }
 
     /**

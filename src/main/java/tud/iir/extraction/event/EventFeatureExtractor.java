@@ -46,9 +46,6 @@ public class EventFeatureExtractor {
     private static final Logger LOGGER = Logger
             .getLogger(EventFeatureExtractor.class);
 
-    /** model file. */
-    private final String MODEL_NER;
-
     /** NER category mapping person. **/
     public static final double CATEGORY_PERSON = 1.0;
     /** NER category mapping location. **/
@@ -83,15 +80,16 @@ public class EventFeatureExtractor {
         config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            MODEL_NER = config.getString("models.lingpipe.en.ner");
+            ner.loadModel(config.getString("models.lingpipe.en.ner"));
+            posTagger.loadDefaultModel();
+            phraseChunker.loadDefaultModel();
+            parser.loadDefaultModel();
+            sentenceDetector.loadDefaultModel();
         } else {
-            MODEL_NER = "";
+            LOGGER.error("Error while loading palladian config file.");
         }
         // ner.loadModel("data/models/opennlp/namefind/en-ner-person.bin,data/models/opennlp/namefind/en-ner-location.bin,data/models/opennlp/namefind/en-ner-organization.bin");
-        ner.loadModel(MODEL_NER);
-        posTagger.loadModel();
-        phraseChunker.loadModel();
-        parser.loadModel();
+
     }
 
     /**
@@ -295,7 +293,7 @@ public class EventFeatureExtractor {
      */
     public Annotations getNounAnnotations(String text) {
 
-        phraseChunker.loadModel();
+        phraseChunker.loadDefaultModel();
         phraseChunker.chunk(text);
 
         final TagAnnotations tagAnnotations = phraseChunker.getTagAnnotations();
@@ -337,13 +335,21 @@ public class EventFeatureExtractor {
     }
 
     /**
-     * Annotates Dates by the OpenNLP NER
+     * annotates Dates by the OpenNLP NER.
      * 
      * @param text
      * @return annotations
      */
     public Annotations getDateAnnotations(String text) {
         OpenNLPNER timeNer = new OpenNLPNER();
+
+        PropertiesConfiguration config = null;
+        config = ConfigHolder.getInstance().getConfig();
+
+        if (config != null) {
+            timeNer.loadModel(config.getString("models.opennlp.en.ner.time")
+                    + "," + config.getString("models.opennlp.en.ner.date"));
+        }
         timeNer
                 .loadModel("data/models/opennlp/namefind/en-ner-time.bin,data/models/opennlp/namefind/en-ner-date.bin");
 
@@ -406,8 +412,7 @@ public class EventFeatureExtractor {
      * @return The part of speach tags.
      */
     public TagAnnotations getPhraseChunks(String sentence) {
-        phraseChunker.chunk(sentence);
-        return phraseChunker.getTagAnnotations();
+        return phraseChunker.chunk(sentence).getTagAnnotations();
     }
 
     /**
@@ -417,9 +422,7 @@ public class EventFeatureExtractor {
      * @return the parse
      */
     public TagAnnotations getParse(String sentence) {
-        parser.loadModel();
-        parser.parse(sentence);
-        return parser.getTagAnnotations();
+        return parser.loadDefaultModel().parse(sentence).getTagAnnotations();
     }
 
     /**
@@ -430,9 +433,8 @@ public class EventFeatureExtractor {
      * @return the sentences
      */
     public String[] getSentences(String text) {
-        sentenceDetector.loadModel();
-        sentenceDetector.detect(text);
-        return sentenceDetector.getSentences();
+        // sentenceDetector.loadDefaultModel();
+        return sentenceDetector.detect(text).getSentences();
     }
 
     /**

@@ -30,36 +30,50 @@ public abstract class AbstractSentenceDetector {
     private String[] sentences;
 
     /**
-     * loads the chunker model into the chunker.
+     * loads the chunker model into the chunker. Method returns
+     * <code>this</code> instance of AbstractSentenceDetector, to allow
+     * convenient concatenations of method invocations, like:
+     * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
      * 
      * @param configModelFilePath
      * @return
      */
-    public abstract boolean loadModel(String configModelFilePath);
+    public abstract AbstractSentenceDetector loadModel(
+            String configModelFilePath);
 
     /**
-     * loads the default chunker model into the chunker.
+     * loads the default chunker model into the chunker.Method returns
+     * <code>this</code> instance of AbstractSentenceDetector, to allow
+     * convenient concatenations of method invocations, like:
+     * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
      * 
      * @return
      */
-    public abstract boolean loadModel();
+    public abstract AbstractSentenceDetector loadDefaultModel();
 
     /**
      * chunks a sentence and writes parts in @see {@link #chunks} and @see
-     * {@link #tokens}.
+     * {@link #tokens}. Method returns <code>this</code> instance of
+     * AbstractSentenceDetector, to allow convenient concatenations of method
+     * invocations, like:
+     * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
      * 
      * @param sentence
      */
-    public abstract void detect(String text);
+    public abstract AbstractSentenceDetector detect(String text);
 
     /**
      * chunks a senntence with given model file path and writes it into @see
-     * {@link #chunks} and @see {@link #tokens}.
+     * {@link #chunks} and @see {@link #tokens}. Method returns
+     * <code>this</code> instance of AbstractSentenceDetector, to allow
+     * convenient concatenations of method invocations, like:
+     * <code>new OpenNLPSentenceDetector().loadDefaultModel().detect(...).getTagAnnotations();</code>
      * 
      * @param sentence
      * @param configModelFilePath
      */
-    public abstract void detect(String text, String configModelFilePath);
+    public abstract AbstractSentenceDetector detect(String text,
+            String configModelFilePath);
 
     /**
      * @return
@@ -113,7 +127,7 @@ public abstract class AbstractSentenceDetector {
         stopWatch.start();
 
         final LingPipeSentenceDetector lpsd = new LingPipeSentenceDetector();
-        lpsd.loadModel();
+        lpsd.loadDefaultModel();
         lpsd.detect("This is my sentence. This is another!");
         CollectionHelper.print(lpsd.getSentences());
 

@@ -59,7 +59,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
      * @param configModelFilePath
      * @return
      */
-    public boolean loadTokenizer(String configModelFilePath) {
+    public OpenNLPPOSTagger loadTokenizer(String configModelFilePath) {
 
         InputStream modelIn;
 
@@ -67,7 +67,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
             setTokenizer((Tokenizer) DataHolder.getInstance().getDataObject(
                     configModelFilePath));
-            return true;
+
         } else {
 
             try {
@@ -81,7 +81,6 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
                             tokenizer);
                     setTokenizer(tokenizer);
 
-                    return true;
                 } catch (final IOException e) {
                     LOGGER.error(e);
                 } finally {
@@ -97,7 +96,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
                 LOGGER.error(e);
             }
         }
-        return false;
+        return this;
     }
 
     /*
@@ -105,7 +104,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
      * @see tud.iir.extraction.event.POSTagger#loadModel(java.lang.String)
      */
     @Override
-    public boolean loadModel(final String configModelFilePath) {
+    public OpenNLPPOSTagger loadModel(final String configModelFilePath) {
 
         POSTaggerME tagger = null;
 
@@ -143,7 +142,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
 
         setModel(tagger);
 
-        return true;
+        return this;
     }
 
     /*
@@ -151,7 +150,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
      * @see tud.iir.extraction.event.POSTagger#tag(java.lang.String)
      */
     @Override
-    public void tag(final String sentence) {
+    public OpenNLPPOSTagger tag(final String sentence) {
 
         final String[] tokens = getTokenizer().tokenize(sentence);
 
@@ -171,7 +170,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
         }
 
         this.setTagAnnotations(tagAnnotations);
-
+        return this;
     }
 
     /*
@@ -180,9 +179,9 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
      * java.lang.String)
      */
     @Override
-    public void tag(final String sentence, final String configModelFilePath) {
-        this.loadModel(configModelFilePath);
-        this.tag(sentence);
+    public OpenNLPPOSTagger tag(final String sentence,
+            final String configModelFilePath) {
+        return this.loadModel(configModelFilePath).tag(sentence);
     }
 
     /*
@@ -190,10 +189,8 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
      * @see tud.iir.extraction.event.AbstractPOSTagger#loadModel()
      */
     @Override
-    public boolean loadModel() {
-        this.loadModel(MODEL);
-        this.loadTokenizer(MODEL_TOK);
-        return false;
+    public OpenNLPPOSTagger loadDefaultModel() {
+        return loadModel(MODEL).loadTokenizer(MODEL_TOK);
     }
 
     /**

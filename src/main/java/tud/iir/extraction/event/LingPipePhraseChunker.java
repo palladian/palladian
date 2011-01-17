@@ -213,7 +213,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
      * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
      */
     @Override
-    public void chunk(String sentence) {
+    public LingPipePhraseChunker chunk(String sentence) {
         final char[] cs = Strings.toCharArray(sentence);
         final Chunking chunking = this.chunk(cs, 0, cs.length);
         final TagAnnotations tagAnnotations = new TagAnnotations();
@@ -225,6 +225,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
         }
 
         this.setTagAnnotations(tagAnnotations);
+        return this;
     }
 
     /**
@@ -326,10 +327,11 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
      * java.lang.String)
      */
     @Override
-    public final void chunk(final String sentence,
+    public final LingPipePhraseChunker chunk(final String sentence,
             final String configModelFilePath) {
         this.loadModel(configModelFilePath);
-        this.chunk(sentence);
+        return this.chunk(sentence);
+
     }
 
     /*
@@ -339,7 +341,8 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
      * )
      */
     @Override
-    public final boolean loadModel(final String configModelFilePath) {
+    public final LingPipePhraseChunker loadModel(
+            final String configModelFilePath) {
 
         ObjectInputStream oi = null;
 
@@ -369,13 +372,13 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
             }
 
             setModel(hmm);
-            return true;
+
         } catch (final IOException ie) {
             LOGGER.error("IO Error: " + ie.getMessage());
-            return false;
+
         } catch (final ClassNotFoundException ce) {
             LOGGER.error("Class error: " + ce.getMessage());
-            return false;
+
         } finally {
             if (oi != null) {
                 try {
@@ -385,6 +388,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 }
             }
         }
+        return this;
 
     }
 
@@ -393,9 +397,8 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
      * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
      */
     @Override
-    public final boolean loadModel() {
+    public final LingPipePhraseChunker loadDefaultModel() {
         return this.loadModel(MODEL);
-
     }
 
 }

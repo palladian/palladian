@@ -55,9 +55,8 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
      * @see tud.iir.extraction.event.AbstractPOSTagger#loadModel()
      */
     @Override
-    public boolean loadModel() {
-        this.loadModel(MODEL);
-        return false;
+    public LingPipePOSTagger loadDefaultModel() {
+        return this.loadModel(MODEL);
     }
 
     /*
@@ -66,7 +65,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
      * tud.iir.extraction.event.AbstractPOSTagger#loadModel(java.lang.String)
      */
     @Override
-    public boolean loadModel(final String configModelFilePath) {
+    public LingPipePOSTagger loadModel(final String configModelFilePath) {
 
         ObjectInputStream oi = null;
 
@@ -95,14 +94,13 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
             }
 
             setModel(hmm);
-            return true;
 
         } catch (final IOException ie) {
             LOGGER.error("IO Error: " + ie.getMessage());
-            return false;
+
         } catch (final ClassNotFoundException ce) {
             LOGGER.error("Class error: " + ce.getMessage());
-            return false;
+
         } finally {
             if (oi != null) {
                 try {
@@ -112,7 +110,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
                 }
             }
         }
-
+        return this;
     }
 
     /*
@@ -120,7 +118,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
      * @see tud.iir.extraction.event.AbstractPOSTagger#tag(java.lang.String)
      */
     @Override
-    public void tag(final String sentence) {
+    public LingPipePOSTagger tag(final String sentence) {
 
         final int cacheSize = Integer.valueOf(100);
         final FastCache<String, double[]> cache = new FastCache<String, double[]>(
@@ -149,7 +147,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
 
         }
         this.setTagAnnotations(tagAnnotations);
-
+        return this;
     }
 
     /*
@@ -158,9 +156,8 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
      * java.lang.String)
      */
     @Override
-    public void tag(String sentence, String configModelFilePath) {
-        this.loadModel(configModelFilePath);
-        this.tag(sentence);
+    public LingPipePOSTagger tag(String sentence, String configModelFilePath) {
+        return this.loadModel(configModelFilePath).tag(sentence);
     }
 
 }
