@@ -16,6 +16,7 @@ public class FeedImporter {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedImporter.class);
 
+    /** */
     private int maxThreads = 10;
 
     private final FeedStore store;
