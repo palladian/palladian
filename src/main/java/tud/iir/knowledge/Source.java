@@ -251,6 +251,19 @@ public class Source implements Serializable {
         }
         return false;
     }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        int hash = 1;
+        hash = hash * 31 + (getUrl()==null ? 0 :getUrl().hashCode());
+        hash = hash * 31 
+                    + getExtractionType();
+        return hash;
+
+    }
 
     @Override
     public String toString() {

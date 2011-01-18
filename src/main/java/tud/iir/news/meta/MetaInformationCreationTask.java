@@ -4,6 +4,7 @@
 package tud.iir.news.meta;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -15,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.MathHelper;
@@ -48,6 +50,8 @@ public final class MetaInformationCreationTask implements Runnable {
     private PreparedStatement psSupportsEtag;
 
     private PreparedStatement psResponseSize;
+    
+    private PreparedStatement psSupportsPubSubHubBub;
 
     public MetaInformationCreationTask(Feed feed) {
         this.feed = feed;
@@ -58,6 +62,7 @@ public final class MetaInformationCreationTask implements Runnable {
             psSupportsLMS = connection.prepareStatement("UPDATE feeds SET supportsLMS=? WHERE id=?");
             psSupportsEtag = connection.prepareStatement("UPDATE feeds SET supportsETag=? WHERE id=?");
             psResponseSize = connection.prepareStatement("UPDATE feeds SET conditionGetResponseSize=? WHERE id=?");
+            psSupportsPubSubHubBub = connection.prepareStatement("UPDATE feeds SET supportsPubSubHubBub=? WHERE id=?");
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
             System.exit(1);
@@ -92,7 +97,6 @@ public final class MetaInformationCreationTask implements Runnable {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
         Boolean supports304 = false;
 
         try {
@@ -108,9 +112,16 @@ public final class MetaInformationCreationTask implements Runnable {
         if (supports304) {
             responseSize = getFeedResponseSize((HttpURLConnection) connection);
         }
+        Boolean supportsPubSubHubBub = Boolean.valueOf(false);
 
         try {
-            writeMetaInformationToDatabase(feed, supports304, supportsETag, responseSize);
+            supportsPubSubHubBub = getFeedSupportsPubSubHubBub(connection);
+        } catch (IOException e1) {
+            LOGGER.error("Could not get Content with information about PubSubHubBub information for feed with id: "+feed.getId()+".");
+        }
+
+        try {
+            writeMetaInformationToDatabase(feed, supports304, supportsETag, responseSize, supportsPubSubHubBub);
         } catch (SQLException e) {
             e.printStackTrace();
             throw new RuntimeException("Unable to store results to Database.", e);
@@ -127,14 +138,17 @@ public final class MetaInformationCreationTask implements Runnable {
                 + ")");
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param responseSize
-     * @return
-     */
+    private Boolean getFeedSupportsPubSubHubBub(final URLConnection connection) throws IOException {
+        final InputStream plainXMLInput = connection.getInputStream();
+        final String plainXML = IOUtils.toString(plainXMLInput);
+        IOUtils.closeQuietly(plainXMLInput);
+        if (plainXML.contains("rel=\"hub\"")) {
+            return Boolean.valueOf(true);
+        } else {
+            return Boolean.valueOf(false);
+        }
+    }
+
     private Integer getFeedResponseSize(final HttpURLConnection connection) {
         int ret = 0;
         try {
@@ -150,14 +164,6 @@ public final class MetaInformationCreationTask implements Runnable {
         return ret;
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param feed
-     * @return
-     */
     private Boolean getSupportsETag(final URLConnection connection) {
         boolean ret = false;
         ret = connection.getHeaderField("Etag") == null;
@@ -184,21 +190,8 @@ public final class MetaInformationCreationTask implements Runnable {
         return ret;
     }
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param feed
-     * @param supportsLMS
-     * @param supportsETag
-     * @param etagResponseSize2
-     * @param responseSize
-     * @throws SQLException
-     */
     private void writeMetaInformationToDatabase(Feed feed, Boolean supportsLMS, Boolean supportsETag,
-            Integer responseSizeValue)
-    throws SQLException {
+            Integer responseSizeValue, Boolean supportsPubSubHubBub) throws SQLException {
 
         Integer id = feed.getId();
 
@@ -213,6 +206,10 @@ public final class MetaInformationCreationTask implements Runnable {
         psResponseSize.setInt(1, responseSizeValue);
         psResponseSize.setInt(2, id);
         dbManager.runUpdate(psResponseSize);
+        
+        psSupportsPubSubHubBub.setBoolean(1, supportsPubSubHubBub);
+        psSupportsPubSubHubBub.setInt(2, id);
+        dbManager.runUpdate(psSupportsPubSubHubBub);
     }
 
     /**
