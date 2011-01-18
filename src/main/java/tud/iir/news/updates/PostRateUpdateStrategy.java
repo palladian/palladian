@@ -24,7 +24,7 @@ public class PostRateUpdateStrategy implements UpdateStrategy {
 
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
-        List<FeedItem> entries = feed.getEntries();
+        List<FeedItem> entries = feed.getItems();
 
         // learn the post distribution from the last seen entry to the newest one
         // distribution minute of the day : frequency of news in that minute

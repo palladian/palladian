@@ -30,7 +30,7 @@ class FeedTask implements Runnable {
      * The feed checker calling this task. // FIXME This is a workaround. Can be fixed by externalizing update
      * strategies to a true strategy pattern.
      */
-    private final FeedReader feedChecker;
+    private final FeedReader feedReader;
 
     /**
      * Creates a new retrieval task for a provided feed.
@@ -39,7 +39,7 @@ class FeedTask implements Runnable {
      */
     public FeedTask(Feed feed, FeedReader feedChecker) {
         this.feed = feed;
-        this.feedChecker = feedChecker;
+        this.feedReader = feedChecker;
     }
 
     @Override
@@ -51,14 +51,17 @@ class FeedTask implements Runnable {
         LOGGER.debug(DateHelper.getCurrentDatetime() + ": running feed task " + feed.getId() + "(" + feed.getFeedUrl()
                 + ")");
 
-        NewsAggregator fa = new NewsAggregator();
-        fa.setDownloadPages(false);
-        fa.setUseBandwidthSavingHTTPHeaders(true);
 
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
         // it can be done in parallel
-        feed.updateEntries(false);
-        
+        FeedDownloader feedDownloader = new FeedDownloader();
+        try {
+            feedDownloader.updateItems(feed);
+        } catch (NewsAggregatorException e) {
+            LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
+            return;
+        }
+
         // remember the time the feed has been checked
         feed.setLastPollTime(new Date());
 
@@ -74,15 +77,15 @@ class FeedTask implements Runnable {
             FeedClassifier.classify(feed);
         }
 
-        feedChecker.updateCheckIntervals(feed);
+        feedReader.updateCheckIntervals(feed);
 
         // perform actions on this feeds entries
         LOGGER.debug("Performing action on feed: "+feed.getId() + "(" + feed.getFeedUrl()
                 + ")");
-        feedChecker.getFeedProcessingAction().performAction(feed);
+        feedReader.getFeedProcessingAction().performAction(feed);
 
         // save the feed back to the database
-        fa.updateFeed(feed);
+        feedReader.updateFeed(feed);
 
         // LOGGER.info("End of Thread");
         // SchedulerTask.decrementThreadsAlive();

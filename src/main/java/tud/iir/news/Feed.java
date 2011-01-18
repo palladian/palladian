@@ -10,6 +10,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.helper.CollectionHelper;
@@ -56,7 +57,7 @@ public class Feed {
     /** The size of the feed in bytes. */
     private long byteSize = 0;
 
-    private List<FeedItem> entries;
+    private List<FeedItem> items;
 
     /** The number of feed entries presented for each request. */
     private int windowSize = -1;
@@ -147,7 +148,10 @@ public class Feed {
     /**
      * The raw XML markup for this feed.
      */
-    private String plainXML;
+    private Document document;
+
+    /** Caching the raw xml markup of the document as string. */
+    private String rawMarkup;
 
     private double targetPercentageOfNewEntries = -1.0;
 
@@ -238,38 +242,24 @@ public class Feed {
         this.textType = textType;
     }
 
-    public void setEntries(List<FeedItem> entries) {
-        this.entries = entries;
-    }
-
-    public List<FeedItem> getEntries() {
-        return entries;
-    }
-
-    public List<FeedItem> getEntries(Boolean update, Boolean usePageContentExtractor) {
-        if (update) {
-            updateEntries(usePageContentExtractor);
+    public void setItems(List<FeedItem> items) {
+        for (FeedItem feedItem : items) {
+            feedItem.setFeed(this);
         }
-        return getEntries();
+        this.items = items;
     }
 
-    // TODO move this to virtual class FeedFetcher
-    public void updateEntries(Boolean usePageContentExtractor) {
-        NewsAggregator aggregator = new NewsAggregator();
-        aggregator.setDownloadPages(usePageContentExtractor);
-        try {
-            // FIXME
-            Feed f = aggregator.downloadFeed(this);
-            setEntries(f.getEntries());
-        } catch (NewsAggregatorException e) {
-            LOGGER.error("Unable to load entries for feed at address: " + getFeedUrl() + ", " + e.getMessage());
-        }
-        setPlainXML(PageAnalyzer.getRawMarkup(aggregator.getPlainXMLFeed()));
+    public List<FeedItem> getItems() {
+        return items;
     }
 
+    /**
+     * Free the memory because feed objects might be held in memory. Free the memory whenever you get the feed only once
+     * and won't let the garbage collector take care of it.
+     */
     public void freeMemory() {
-        setPlainXML("");
-        setEntries(new ArrayList<FeedItem>());
+        rawMarkup = "";
+        setItems(new ArrayList<FeedItem>());
     }
 
     public void setChecks(int checks) {
@@ -480,13 +470,13 @@ public class Feed {
      * sometimes the headlines for several entries are the same but they point to different articles.
      * </p>
      * 
-     * @param entries Feed entries.
+     * @param items Feed entries.
      * @return A separated string with the headlines of all feed entries.
      */
     private StringBuilder getNewEntryTitles() {
 
         StringBuilder titles = new StringBuilder();
-        for (FeedItem entry : getEntries()) {
+        for (FeedItem entry : getItems()) {
             titles.append(entry.getTitle() + entry.getLink()).append(TITLE_SEPARATION);
         }
 
@@ -509,7 +499,7 @@ public class Feed {
      */
     public double getTargetPercentageOfNewEntries() {
 
-        if (targetPercentageOfNewEntries < 0) {
+        if (targetPercentageOfNewEntries < 0.0) {
 
             // compare old and new entry titles to get percentage pn of new entries
             String[] oldTitlesArray = getLastHeadlines().split(TITLE_SEPARATION);
@@ -566,7 +556,7 @@ public class Feed {
         int result = 1;
         result = prime * result + (added == null ? 0 : added.hashCode());
         result = prime * result + checks;
-        result = prime * result + (entries == null ? 0 : entries.hashCode());
+        result = prime * result + (items == null ? 0 : items.hashCode());
         result = prime * result + (feedUrl == null ? 0 : feedUrl.hashCode());
         result = prime * result + format;
         result = prime * result + id;
@@ -611,11 +601,11 @@ public class Feed {
         if (checks != other.checks) {
             return false;
         }
-        if (entries == null) {
-            if (other.entries != null) {
+        if (items == null) {
+            if (other.items != null) {
                 return false;
             }
-        } else if (!entries.equals(other.entries)) {
+        } else if (!items.equals(other.items)) {
             return false;
         }
         if (feedUrl == null) {
@@ -699,17 +689,21 @@ public class Feed {
     }
 
     /**
-     * @param plainXML The raw XML markup for this feed.
-     */
-    public void setPlainXML(String plainXML) {
-        this.plainXML = plainXML;
-    }
-
-    /**
      * @return The raw XML markup for this feed.
      */
-    public String getPlainXML() {
-        return plainXML;
+    public String getRawMarkup() {
+        if (rawMarkup == null) {
+            rawMarkup = PageAnalyzer.getRawMarkup(getDocument());
+        }
+        return rawMarkup;
+    }
+
+    public Document getDocument() {
+        return document;
+    }
+
+    public void setDocument(Document document) {
+        this.document = document;
     }
 
     public void setWindowSize(int windowSize) {
@@ -797,17 +791,6 @@ public class Feed {
 
     public int getUpdateMode() {
         return updateMode;
-    }
-
-
-    public static void main(String[] args) throws Exception{
-
-        NewsAggregator aggregator = new NewsAggregator();
-        Feed feed = aggregator.downloadFeed("http://www.tagesschau.de/xml/rss2");
-        System.out.println("# entries : " + feed.getEntries().size());
-
-        feed.updateEntries(true);
-        System.out.println("# entries after updateEntries : " + feed.getEntries().size());
     }
 
 }

@@ -31,7 +31,7 @@ public class FixUpdateStrategy implements UpdateStrategy {
         // if fixed learned (checkInterval = -1, we only set the interval at the very first poll)
         if (feed.getChecks() == 0 || getCheckInterval() != -1) {
 
-            List<FeedItem> entries = feed.getEntries();
+            List<FeedItem> entries = feed.getItems();
 
             // the checkInterval for the feed must be determined now
             int fixedMinCheckInterval = FeedReader.DEFAULT_CHECK_TIME / 2;

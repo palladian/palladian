@@ -8,7 +8,7 @@ import tud.iir.control.AllTests;
 
 public class FeedContentClassifierTest {
 
-    FeedContentClassifier classifier = new FeedContentClassifier(new FeedStoreDummy());
+    FeedContentClassifier classifier = new FeedContentClassifier();
 
     @Test
     public void testFeedContentClassifier() {
