@@ -6,31 +6,51 @@ package tud.iir.web.ranking;
 import java.util.Collections;
 import java.util.Map;
 
+import tud.iir.helper.TTLMap;
 import tud.iir.web.ranking.RankingRetriever.Service;
 
 /**
- * TODO implement a real in-memory cache, using an expiring map.
- * http://www.vipan.com/htdocs/cachehelp.html
+ * In-memory cache for rankings using an expiring map.
+ * 
  * @author Philipp Katz
- *
+ * 
  */
 public class RankingCacheMemory extends RankingCache {
 
-    /* (non-Javadoc)
-     * @see tud.iir.web.URLRankingCache#add(java.lang.String, java.util.Map)
+    private TTLMap<String, Map<Service, Float>> cache;
+
+    public RankingCacheMemory() {
+        cache = new TTLMap<String, Map<Service, Float>>();
+        cache.setCleanInterval(1000);
+        cache.setTimeToLive(getTtlSeconds() * 1000);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.web.RankingCache#add(java.lang.String, java.util.Map)
      */
     @Override
     public void add(String url, Map<Service, Float> rankings) {
-        // TODO Auto-generated method stub
-
+        cache.put(url, rankings);
     }
 
-    /* (non-Javadoc)
-     * @see tud.iir.web.URLRankingCache#get(java.lang.String)
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.web.RankingCache#get(java.lang.String)
      */
     @Override
     public Map<Service, Float> get(String url) {
-        return Collections.emptyMap();
+        Map<Service, Float> result = cache.get(url);
+        if (result == null) {
+            result = Collections.emptyMap();
+        }
+        return result;
+    }
+
+    @Override
+    public void setTtlSeconds(int ttlSeconds) {
+        super.setTtlSeconds(ttlSeconds);
+        cache.setTimeToLive(ttlSeconds * 1000);
     }
 
 }

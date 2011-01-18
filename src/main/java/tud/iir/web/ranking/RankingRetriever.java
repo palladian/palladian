@@ -299,7 +299,9 @@ public class RankingRetriever {
         }
 
         // add the downloaded rankings to the cache
-        cache.add(url, downloadedRankings);
+        if (!downloadedRankings.isEmpty()) {
+            cache.add(url, downloadedRankings);
+        }
 
         return result;
 
@@ -920,13 +922,15 @@ public class RankingRetriever {
 
     public static void main(String[] args) throws Exception {
 
-        // String url = "http://www.engadget.com/2010/05/07/how-would-you-change-apples-ipad/";
+        String url = "http://www.engadget.com/2010/05/07/how-would-you-change-apples-ipad/";
         // String url = "http://www.tagesschau.de";
-        String url = "http://www.porn.com";
+        // String url = "http://www.porn.com";
 
         RankingRetriever urlRankingServices = new RankingRetriever();
 
-        urlRankingServices.setCacheTtlSeconds(-1);
+        // urlRankingServices.setCacheTtlSeconds(-1);
+        urlRankingServices.setCacheTtlSeconds(5);
+
         StopWatch sw = new StopWatch();
         Map<Service, Float> ranking = urlRankingServices.getRanking(url);
 
@@ -948,6 +952,8 @@ public class RankingRetriever {
         System.out.println("  WOT Trustworthiness for domain:     " + ranking.get(Service.WOT_TRUSTWORTHINESS));
         System.out.println("-----------------------------------------------------------------");
         System.out.println(sw.getElapsedTimeString());
+
+
 
     }
 
