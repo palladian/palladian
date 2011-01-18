@@ -52,7 +52,7 @@ class FeedTask implements Runnable {
                 + ")");
 
         NewsAggregator fa = new NewsAggregator();
-        fa.setDownloadPages(true);
+        fa.setDownloadPages(false);
         fa.setUseBandwidthSavingHTTPHeaders(true);
 
         // parse the feed and get all its entries, do that here since that takes some time and this is a thread so
