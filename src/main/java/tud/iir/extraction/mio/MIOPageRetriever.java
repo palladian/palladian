@@ -33,6 +33,12 @@ public class MIOPageRetriever {
         // initiate search with searchEngines
         List<String> mioPageCandidates = getMIOPageCandidates(searchQueries);
 
+        // List<String> mioPageCandidates = new ArrayList<String>();
+        // mioPageCandidates.add("http://www.cinefreaks.com/");
+        // mioPageCandidates.add("http://www.miniclip.com/games/en/");
+        // mioPageCandidates.add("http://www.miniclip.com/games/en/action.php");
+        // mioPageCandidates.add("http://www.miniclip.com/games/mini-golf/en/");
+
         LOGGER.info("Analyzing MIOPageCandidates startet..for " + entity.getName() + " Count: "
                 + mioPageCandidates.size());
 
@@ -82,10 +88,10 @@ public class MIOPageRetriever {
      * @param entity the entity
      * @return the list
      */
-    private List<MIOPage> analyzeMIOPageCandidates(final List<String> mioPageCandidates, final Entity entity) {
-        final MIOPageCandidateAnalyzer candidateAnalyzer = new MIOPageCandidateAnalyzer(mioPageCandidates);
+    private List<MIOPage> analyzeMIOPageCandidates(List<String> mioPageCandidates, Entity entity) {
+        MIOPageCandidateAnalyzer candidateAnalyzer = new MIOPageCandidateAnalyzer(mioPageCandidates);
         // start and get Results of PageAnalyzing
-        final List<MIOPage> mioPages = candidateAnalyzer.identifyMIOPages(entity);
+        List<MIOPage> mioPages = candidateAnalyzer.identifyMIOPages(entity);
 
         return mioPages;
     }
