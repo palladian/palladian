@@ -223,8 +223,16 @@ public final class MIOExtractor extends Extractor {
      */
     public static void main(final String[] abc) {
 
-        final MIOExtractor mioEx = MIOExtractor.getInstance();
-        mioEx.startExtraction(false);
+        Entity e = new Entity("mini");
+        Concept c = new Concept("Car");
+        e.setConcept(c);
+        Thread mioThread = new EntityMIOExtractionThread(new ThreadGroup("tg__1"), e.getSafeName()
+                + "MIOExtractionThread", e, new KnowledgeManager());
+        mioThread.start();
+
+        // final MIOExtractor mioEx = MIOExtractor.getInstance();
+        // mioEx.startExtraction(false);
+
         // mioEx.stopExtraction(true);
     }
 

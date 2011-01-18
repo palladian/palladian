@@ -3,6 +3,7 @@ package tud.iir.web;
 import java.io.InputStream;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -190,16 +191,28 @@ public class URLDownloader {
 
         // usage example ...:
         URLDownloader downloader = new URLDownloader();
-        downloader.setMaxThreads(3);
+        downloader.setMaxThreads(20);
 
-        downloader.add("http://www.tagesschau.de/");
-        downloader.add("http://www.spiegel.de/");
-        downloader.add("http://www.taz.de/");
-        downloader.add("http://www.spreeblick.com/");
-        downloader.add("http://faz.net/");
-        downloader.add("http://www.gizmodo.de/");
-        downloader.add("http://www.heise.de/");
-        downloader.add("http://www.readwriteweb.com/");
+        // downloader.add("http://www.tagesschau.de/");
+        // downloader.add("http://www.spiegel.de/");
+        // downloader.add("http://www.taz.de/");
+        // downloader.add("http://www.spreeblick.com/");
+        // downloader.add("http://faz.net/");
+        // downloader.add("http://www.gizmodo.de/");
+        // downloader.add("http://www.heise.de/");
+        // downloader.add("http://www.readwriteweb.com/");
+
+        SourceRetriever sr = new SourceRetriever();
+        sr.setSource(SourceRetrieverManager.BING);
+        sr.setResultCount(1000);
+        List<String> urls = sr.getURLs("site:miniclip.com \"game\"");
+
+        for (String url : urls) {
+            downloader.add(url);
+        }
+        // downloader.add("http://www.miniclip.com/games/en/");
+        // downloader.add("http://www.miniclip.com/games/en/action.php");
+        // downloader.add("http://www.miniclip.com/games/mini-golf/en/");
 
         downloader.start(new URLDownloaderCallback() {
 
