@@ -423,6 +423,7 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `conditionalGetResponseSize` int(11) DEFAULT NULL,
   `lastPollTime` timestamp NULL DEFAULT NULL,
   `lastETag` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `supportsPubSubHubBub` tinyint(1) DEFAULT NULL COMMENT 'true if feed supports the hub relation used by PubSubHubBub',
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
