@@ -21,7 +21,7 @@ public class MAVUpdateStrategy implements UpdateStrategy {
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
 
-        List<FeedItem> entries = feed.getEntries();
+        List<FeedItem> entries = feed.getItems();
 
         int minCheckInterval = feed.getMinCheckInterval();
         int maxCheckInterval = feed.getMaxCheckInterval();

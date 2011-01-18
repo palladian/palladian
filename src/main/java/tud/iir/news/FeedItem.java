@@ -5,6 +5,13 @@ import java.util.Date;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+
+import tud.iir.extraction.PageAnalyzer;
+import tud.iir.helper.XPathHelper;
+
 /**
  * Represents a news item within a feed ({@link Feed}).
  * 
@@ -14,14 +21,24 @@ import java.util.TreeMap;
  */
 public class FeedItem {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(FeedItem.class);
+
     private int id = -1;
 
+    /** The feed to which this item belongs to. */
+    private Feed feed;
+
+    /**
+     * For performance reasons, we need to get feed items from the database and in that case we don't have the feed
+     * object.
+     */
     private int feedId = -1;
 
     private String title;
     private String link;
 
-    /** original ID from the feed */
+    /** Original ID from the feed. */
     private String rawId;
 
     /** publish date from the feed */
@@ -36,14 +53,8 @@ public class FeedItem {
     /** entryText which we downloaded from the corresponding web page. */
     private String pageText;
 
-    /** arbitrary, numeric features, used for feature extraction and classification. */
+    /** Arbitrary, numeric features, used for feature extraction and classification. */
     private SortedMap<String, Double> features = new TreeMap<String, Double>();
-    /**
-     * <p>
-     * The raw XML markup for this feed entry.
-     * </p>
-     */
-    private String plainXML;
 
     public int getId() {
         return id;
@@ -54,11 +65,10 @@ public class FeedItem {
     }
 
     public int getFeedId() {
+        if (getFeed() != null) {
+            return getFeed().getId();
+        }
         return feedId;
-    }
-
-    public void setFeedId(int feedId) {
-        this.feedId = feedId;
     }
 
     public String getTitle() {
@@ -180,18 +190,61 @@ public class FeedItem {
         return sb.toString();
     }
 
-    /**
-     * @param plainXML The raw XML markup for this feed entry.
-     */
-    public void setPlainXML(String plainXML) {
-        this.plainXML = plainXML;
-    }
-    
+
     /**
      * @return The raw XML markup for this feed entry.
      */
-    public String getPlainXML() {
-        return plainXML;
+    public String getRawMarkup() {
+        String rawMarkup = "";
+
+        rawMarkup = PageAnalyzer.getRawMarkup(getNode());
+
+        return rawMarkup;
+    }
+
+    /**
+     * <p>
+     * Extracts the DOM node of the provided feed entry from the feed currently processed by the aggregator.
+     * </p>
+     * 
+     * @return The extracted DOM node representing the provided feed entry.
+     */
+    Node getNode() {
+
+        // for rss
+        Node node = null;
+
+        try {
+
+            Document document = getFeed().getDocument();
+            node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
+
+            if (node == null) {
+                node = XPathHelper.getNode(document, "//item[title=\"" + getTitle().replaceAll("\"", "&quot;") + "\"]");
+
+                // for atom
+                if (node == null) {
+                    node = XPathHelper.getNode(document, "//entry[id=\"" + getRawId() + "\"]");
+                }
+            }
+
+        } catch (Exception e) {
+            LOGGER.error("synd entry was not complete, " + e.getMessage());
+        }
+
+        return node;
+    }
+
+    public void setFeed(Feed feed) {
+        this.feed = feed;
+    }
+
+    public Feed getFeed() {
+        return feed;
+    }
+
+    public void setFeedId(int feedId) {
+        this.feedId = feedId;
     }
 
 }

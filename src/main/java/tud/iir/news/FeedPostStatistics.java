@@ -67,7 +67,7 @@ public class FeedPostStatistics {
 
     private final void calculateStatistics(Feed feed) {
 
-        List<FeedItem> feedEntries = feed.getEntries();
+        List<FeedItem> feedEntries = feed.getItems();
 
         long timeOldestEntry = Long.MAX_VALUE;
         long timeNewestEntry = 0;

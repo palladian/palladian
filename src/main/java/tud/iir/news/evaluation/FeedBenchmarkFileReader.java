@@ -306,7 +306,7 @@ public class FeedBenchmarkFileReader {
 
             cumulatedDelay += Math.abs(cumulatedPollDelay);
 
-            feed.setEntries(entries);
+            feed.setItems(entries);
 
             // now that we set the entries we can add information about the poll to the poll series
             PollData pollData = new PollData();

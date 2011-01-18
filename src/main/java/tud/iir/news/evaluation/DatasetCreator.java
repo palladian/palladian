@@ -107,7 +107,7 @@ public class DatasetCreator {
                 List<String> fileEntries = FileHelper.readFileToArray(filePath);
 
                 // get all posts in the feed as timestamp;headline;link
-                List<FeedItem> feedEntries = feed.getEntries();
+                List<FeedItem> feedEntries = feed.getItems();
 
                 if (feedEntries == null) {
                     LOGGER.warn("no feed entries for " + feed.getFeedUrl());
@@ -117,14 +117,14 @@ public class DatasetCreator {
                 // Calculating size of feed header and footer, which should always stay the same.
                 long summedFeedEntrySize = 0;
                 for (FeedItem entry : feedEntries) {
-                    String entryPlainXML = entry.getPlainXML();
+                    String entryPlainXML = entry.getRawMarkup();
                     Integer entrySize = entryPlainXML.getBytes().length;
                     summedFeedEntrySize += entrySize;
                 }
 
                 // LOGGER.info("feed: "+feed);
                 // LOGGER.debug("feed.getPlainXML: "+feed.getPlainXML());
-                String feedPlainXML = feed.getPlainXML();
+                String feedPlainXML = feed.getRawMarkup();
                 Integer feedSize = feedPlainXML.getBytes().length;
                 long feedContainerSize = feedSize - summedFeedEntrySize;
 
@@ -150,7 +150,7 @@ public class DatasetCreator {
                     }
                     fileEntryID += "\"" + StringHelper.trim(entry.getLink()) + "\";";
                     fileEntry = entry.getPublished().getTime() + ";" + fileEntryID;
-                    fileEntry += entry.getPlainXML().getBytes().length + ";";
+                    fileEntry += entry.getRawMarkup().getBytes().length + ";";
                     fileEntry += feedContainerSize + ";";
                     fileEntry += feedEntries.size();
 

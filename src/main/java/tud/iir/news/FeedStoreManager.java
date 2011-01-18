@@ -52,12 +52,12 @@ public class FeedStoreManager {
 
         StopWatch sw = new StopWatch();
         LOGGER.info("start importing feeds");
-        
-        NewsAggregator na = new NewsAggregator(FeedDatabase.getInstance());
-        
+
+        FeedImporter na = new FeedImporter(FeedDatabase.getInstance());
+
         // add feeds which are not present yet
-        int numberImported = na.addFeedsFromFile(filePath);
-        
+        int numberImported = na.addFeedsFromFile(filePath, false);
+
         // empty the feed file
         FileHelper.writeToFile(filePath, "");
 

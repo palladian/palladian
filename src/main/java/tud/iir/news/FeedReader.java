@@ -71,10 +71,12 @@ public final class FeedReader {
      */
     private Timer checkScheduler;
 
+    /** The feedstore. */
+    private FeedStore feedStore;
+
     /**
      * Defines the time in milliseconds when the FeedReader should wake up the checkScheduler to see which feeds should
-     * be
-     * read.
+     * be read.
      */
     private final long wakeUpInterval = 150 * DateHelper.SECOND_MS;
 
@@ -82,6 +84,7 @@ public final class FeedReader {
     public FeedReader(FeedStore feedStore) {
         super();
         checkScheduler = new Timer();
+        this.feedStore = feedStore;
         feedCollection = feedStore.getFeeds();
     }
 
@@ -320,7 +323,7 @@ public final class FeedReader {
         // feed.setMaxCheckInterval(FeedReader.DEFAULT_CHECK_TIME);
         // }
 
-        List<FeedItem> entries = feed.getEntries();
+        List<FeedItem> entries = feed.getItems();
 
         // learn the post distribution from the last seen entry to the newest one
         // distribution minute of the day : frequency of news in that minute
@@ -495,12 +498,18 @@ public final class FeedReader {
         return stopped;
     }
 
+    public void updateFeed(Feed feed) {
+        getFeedStore().updateFeed(feed);
+    }
+
     /**
      * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
      * checkType=1),
+     * 
+     * @throws NewsAggregatorException
      */
     @SuppressWarnings("static-access")
-    public static void main(String[] args) {
+    public static void main(String[] args) throws NewsAggregatorException {
 
         FeedReader fchecker = new FeedReader(FeedDatabase.getInstance());
         fchecker.setUpdateStrategy(new FixUpdateStrategy(), true);
@@ -511,7 +520,9 @@ public final class FeedReader {
         fch.setUpdateStrategy(new FixUpdateStrategy(), true);
         Feed feed = new Feed("http://de.answers.yahoo.com/rss/allq");
         feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
-        feed.updateEntries(false);
+
+        FeedDownloader feedDownloader = new FeedDownloader();
+        feedDownloader.updateItems(feed);
         // feed.increaseChecks();
         fch.updateCheckIntervals(feed);
         System.exit(0);
@@ -576,6 +587,14 @@ public final class FeedReader {
         fc.setUpdateStrategy(updateStrategy, true);
         fc.setFeedProcessingAction(fpa);
         fc.startContinuousReading(runtime * DateHelper.MINUTE_MS);
+    }
+
+    public void setFeedStore(FeedStore feedStore) {
+        this.feedStore = feedStore;
+    }
+
+    public FeedStore getFeedStore() {
+        return feedStore;
     }
 
 }

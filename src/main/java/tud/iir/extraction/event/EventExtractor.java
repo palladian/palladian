@@ -625,7 +625,7 @@ public class EventExtractor extends Extractor {
         for (final String feedURL : feedURLs) {
             try {
                 final Feed feed = na.downloadFeed(feedURL, true);
-                final List<FeedItem> feedItems = feed.getEntries();
+                final List<FeedItem> feedItems = feed.getItems();
 
                 for (final FeedItem feedItem : feedItems) {
                     if (!seenNewsArticles.contains(feedItem.getLink())) {

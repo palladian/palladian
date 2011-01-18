@@ -22,8 +22,8 @@ public class FeedDatabaseTest {
     //@Ignore
     public void testAddFeed() throws NewsAggregatorException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        NewsAggregator newsAggregator = new NewsAggregator();
-        Feed feed = newsAggregator.downloadFeed(feedUrl);
+        FeedDownloader newsAggregator = new FeedDownloader();
+        Feed feed = newsAggregator.getFeed(feedUrl);
         db.addFeed(feed);
     }
 
@@ -31,8 +31,8 @@ public class FeedDatabaseTest {
     @Ignore
     public void testAddDuplicateFeed() throws NewsAggregatorException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        NewsAggregator newsAggregator = new NewsAggregator();
-        Feed feed = newsAggregator.downloadFeed(feedUrl);
+        FeedDownloader feedDownloader = new FeedDownloader();
+        Feed feed = feedDownloader.getFeed(feedUrl);
         System.out.println(db.addFeed(feed));
     }
 
@@ -40,9 +40,9 @@ public class FeedDatabaseTest {
     @Ignore
     public void testAddEntries() throws NewsAggregatorException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
-        NewsAggregator newsAggregator = new NewsAggregator();
+        FeedDownloader newsAggregator = new FeedDownloader();
         Feed feed = db.getFeedByUrl(feedUrl);
-        List<FeedItem> entries = newsAggregator.downloadFeed(feedUrl).getEntries();
+        List<FeedItem> entries = newsAggregator.getFeed(feedUrl).getItems();
         for (FeedItem entry : entries) {
             db.addFeedEntry(feed, entry);
         }
@@ -65,14 +65,14 @@ public class FeedDatabaseTest {
     public void testAddDuplicateEntry() throws NewsAggregatorException {
         String feedUrl = "http://www.tagesschau.de/xml/rss2";
 
-        NewsAggregator aggregator = new NewsAggregator();
-        Feed feed = aggregator.downloadFeed(feedUrl);
+        FeedDownloader aggregator = new FeedDownloader();
+        Feed feed = aggregator.getFeed(feedUrl);
 
         System.out.println(feed);
         db.addFeed(feed);
         System.out.println("added");
 
-        List<FeedItem> entries = aggregator.downloadFeed(feedUrl).getEntries();
+        List<FeedItem> entries = aggregator.getFeed(feedUrl).getItems();
         System.out.println(entries);
         FeedItem firstEntry = entries.iterator().next();
         System.out.println(firstEntry);
@@ -91,7 +91,7 @@ public class FeedDatabaseTest {
     // List<Entry> entries = db.getEntries(feed);
     // CollectionHelper.print(entries);
     // }
-    //	
+    //
     // @Test
     // @Ignore
     // public void testGetEntries2() {

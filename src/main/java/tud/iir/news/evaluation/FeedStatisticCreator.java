@@ -573,7 +573,7 @@ public class FeedStatisticCreator {
 
             FeedBenchmarkFileReader fbfr = new FeedBenchmarkFileReader(feed, fc);
             fbfr.updateEntriesFromDisk();
-            if (feed.getEntries() == null || feed.getEntries().size() < 1) {
+            if (feed.getItems() == null || feed.getItems().size() < 1) {
                 continue;
             }
             FeedPostStatistics fps = new FeedPostStatistics(feed);

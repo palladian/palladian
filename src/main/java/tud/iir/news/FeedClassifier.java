@@ -87,10 +87,6 @@ public class FeedClassifier {
                 + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + "MB");
     }
 
-    public static int classify(String feedURL) {
-        return classify(feedURL, new FeedStoreDummy());
-    }
-
     /**
      * Classify a feed directly by its items.
      * 
@@ -101,7 +97,7 @@ public class FeedClassifier {
         int feedClass = CLASS_UNKNOWN;
 
         Feed feed = new Feed();
-        feed.setEntries(items);
+        feed.setItems(items);
         FeedPostStatistics fps = new FeedPostStatistics(feed);
 
         // // use rule based classification
@@ -159,15 +155,9 @@ public class FeedClassifier {
      * @param feedURL The URL of the feed.
      * @return The class of the feed.
      */
-    public static int classify(String feedURL, FeedStore feedStore) {
+    public static int classify(String feedURL) {
 
-        NewsAggregator newsAggregator;
-
-        if (feedStore == null) {
-            newsAggregator = new NewsAggregator();
-        } else {
-            newsAggregator = new NewsAggregator(feedStore);
-        }
+        FeedDownloader feedDownloader = new FeedDownloader();
 
         List<FeedItem> items = new ArrayList<FeedItem>();
 
@@ -176,9 +166,8 @@ public class FeedClassifier {
 
         try {
 
-            newsAggregator.setDownloadPages(false);
-            Feed feed = newsAggregator.downloadFeed(feedURL);
-            items = feed.getEntries();
+            Feed feed = feedDownloader.getFeed(feedURL);
+            items = feed.getItems();
 
         } catch (NewsAggregatorException e) {
             LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());

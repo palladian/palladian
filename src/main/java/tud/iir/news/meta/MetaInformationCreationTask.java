@@ -129,7 +129,7 @@ public final class MetaInformationCreationTask implements Runnable {
 
         feed.freeMemory();
         feed.setLastHeadlines("");
-        feed.setEntries(null);
+        feed.setItems(null);
 
         MetaInformationCreator.counter++;
         LOGGER.info("percent done: "

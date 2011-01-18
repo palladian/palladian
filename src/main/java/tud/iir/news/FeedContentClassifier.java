@@ -11,6 +11,7 @@ import tud.iir.helper.StringHelper;
 // TODO introduce MIXED type?
 public class FeedContentClassifier {
 
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedClassifier.class);
 
     private static final boolean DEBUG = false;
@@ -21,19 +22,16 @@ public class FeedContentClassifier {
 
     private static final int ENTRIES_TO_CHECK = 20;
 
-    private NewsAggregator newsAggregator;
+    private FeedDownloader feedDownloader;
 
     public FeedContentClassifier() {
-        newsAggregator = new NewsAggregator();
-    }
-
-    public FeedContentClassifier(FeedStore store) {
-        newsAggregator = new NewsAggregator(store);
+        feedDownloader = new FeedDownloader();
     }
 
     public int determineFeedTextType(String feedUrl) {
         try {
-            Feed feed = newsAggregator.downloadFeed(feedUrl, true);
+            Feed feed = feedDownloader.getFeed(feedUrl);
+            feedDownloader.fetchPageContentForEntries(feed.getItems());
             return determineFeedTextType(feed);
         } catch (NewsAggregatorException e) {
             return -1;
@@ -60,7 +58,7 @@ public class FeedContentClassifier {
 
         // check max. 20 feed entries.
         // stop analyzing if we have more than 5 errors
-        Iterator<FeedItem> entryIterator = feed.getEntries().iterator();
+        Iterator<FeedItem> entryIterator = feed.getItems().iterator();
         while (entryIterator.hasNext() && count < ENTRIES_TO_CHECK && errors < MAX_ERRORS) {
             FeedItem entry = entryIterator.next();
 
@@ -127,7 +125,7 @@ public class FeedContentClassifier {
         // if more than 80 % of feed's entries contain no text -> assume no text
         // else --> assume partial text
         int result = Feed.TEXT_TYPE_PARTIAL;
-        if (feed.getEntries().isEmpty()) {
+        if (feed.getItems().isEmpty()) {
             result = Feed.TEXT_TYPE_UNDETERMINED;
         } else if ((float) full / count >= 0.6) {
             result = Feed.TEXT_TYPE_FULL;

@@ -393,7 +393,6 @@ public class NewsAggregator {
 
             // Set raw xml content to feed entry.
             Node feedEntryNode = getFeedEntryNode(syndEntry);
-            entry.setPlainXML(PageAnalyzer.getRawMarkup(feedEntryNode));
 
             // logger.trace(entry);
             result.add(entry);
@@ -457,7 +456,7 @@ public class NewsAggregator {
 
                 feed = downloadFeed(feedUrl);
 
-                if (feed.getEntries().size() <= MAX_FEED_ENTRIES) {
+                if (feed.getItems().size() <= MAX_FEED_ENTRIES) {
 
                     // classify feed's text extent
                     FeedContentClassifier classifier = new FeedContentClassifier();
@@ -465,9 +464,9 @@ public class NewsAggregator {
                     feed.setTextType(textType);
 
                     // classify the feed's activity pattern
-                    feed.setActivityPattern(FeedClassifier.classify(feed.getEntries()));
+                    feed.setActivityPattern(FeedClassifier.classify(feed.getItems()));
 
-                    feed.setWindowSize(feed.getEntries().size());
+                    feed.setWindowSize(feed.getItems().size());
 
                     // set feed and site URL
                     feed.setFeedUrl(feedUrl,true);
@@ -475,7 +474,7 @@ public class NewsAggregator {
                     // add feed & entries to the store
                     store.addFeed(feed);
 
-                    for (FeedItem feedEntry : feed.getEntries()) {
+                    for (FeedItem feedEntry : feed.getItems()) {
                         store.addFeedEntry(feed, feedEntry);
                     }
 
@@ -658,7 +657,7 @@ public class NewsAggregator {
                     try {
 
                         // first, download feed with all entries, but without downloading link
-                        List<FeedItem> downloadedEntries = downloadFeed(feed.getFeedUrl(), false).getEntries();
+                        List<FeedItem> downloadedEntries = downloadFeed(feed.getFeedUrl(), false).getItems();
 
                         // check, which we already have and add the missing ones.
                         List<FeedItem> toAdd = new ArrayList<FeedItem>();
@@ -794,7 +793,7 @@ public class NewsAggregator {
     }
 
     /**
-     * Returns a feed and its entries from a specified feed URL. Use {@link Feed#getEntries()} to get feed's entries.
+     * Returns a feed and its entries from a specified feed URL. Use {@link Feed#getItems()} to get feed's entries.
      * 
      * @param feedUrl
      * @return
@@ -839,8 +838,7 @@ public class NewsAggregator {
             fetchPageContentForEntries(entries);
         }
 
-        feed.setEntries(entries);
-        feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
+        feed.setItems(entries);
         return feed;
     }
 
@@ -848,8 +846,7 @@ public class NewsAggregator {
         SyndFeed syndFeed = getFeedWithRome(feedData);
         Feed feed = getFeed(syndFeed, feedData.getFeedUrl());
         List<FeedItem> entries = getEntries(syndFeed);
-        feed.setEntries(entries);
-        feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
+        feed.setItems(entries);
         return feed;
     }
 
