@@ -169,7 +169,7 @@ public class FeedClassifier {
             Feed feed = feedDownloader.getFeed(feedURL);
             items = feed.getItems();
 
-        } catch (NewsAggregatorException e) {
+        } catch (FeedDownloaderException e) {
             LOGGER.error("feed could not be found and classified, feedURL: " + feedURL + ", " + e.getMessage());
 
             if (crawler.getResponseCode(feedURL) == 200) {

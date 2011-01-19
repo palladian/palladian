@@ -174,7 +174,7 @@ public class NewsAggregator {
                             newEntries++;
                         }
 
-                    } catch (NewsAggregatorException e) {
+                    } catch (FeedDownloaderException e) {
                         errors.increment();
                     } finally {
                         threadCounter.decrement();

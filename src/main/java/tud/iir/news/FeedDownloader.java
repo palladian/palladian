@@ -70,7 +70,7 @@ public class FeedDownloader {
      * 
      * @param feedUrl
      * @return
-     * @throws NewsAggregatorException when Feed could not be retrieved, e.g. when server is down or feed cannot be
+     * @throws FeedDownloaderException when Feed could not be retrieved, e.g. when server is down or feed cannot be
      *             parsed.
      */
 
@@ -79,9 +79,9 @@ public class FeedDownloader {
      * 
      * @param feedUrl
      * @return
-     * @throws NewsAggregatorException
+     * @throws FeedDownloaderException
      */
-    private Feed getFeed(Document feedDocument) throws NewsAggregatorException {
+    private Feed getFeed(Document feedDocument) throws FeedDownloaderException {
 
         SyndFeed syndFeed = buildRomeFeed(feedDocument);
         String feedUrl = syndFeed.getLink(); // TODO
@@ -128,9 +128,9 @@ public class FeedDownloader {
      * Download the items for the given feed and set them.
      * 
      * @param feed
-     * @throws NewsAggregatorException
+     * @throws FeedDownloaderException
      */
-    public void updateItems(Feed feed) throws NewsAggregatorException {
+    public void updateItems(Feed feed) throws FeedDownloaderException {
         Feed downloadedFeed = getFeed(feed.getFeedUrl());
         feed.setItems(downloadedFeed.getItems());
     }
@@ -198,7 +198,6 @@ public class FeedDownloader {
                 entryLink = Crawler.makeFullURL(syndFeed.getLink(), entryLink);
             }
             entry.setLink(entryLink);
-
 
             String entryText = getEntryText(syndEntry);
             entry.setItemText(entryText);
@@ -283,7 +282,7 @@ public class FeedDownloader {
             // check type of linked file; ignore audio, video or pdf files ...
             String fileType = FileHelper.getFileType(entryLink);
             boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
-            || fileType.equals("pdf");
+                    || fileType.equals("pdf");
             if (ignore) {
                 LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
             } else {
@@ -366,7 +365,7 @@ public class FeedDownloader {
         return useBandwidthSavingHTTPHeaders;
     }
 
-    // public Feed downloadFeed(String feedUrl) throws NewsAggregatorException {
+    // public Feed downloadFeed(String feedUrl) throws FeedDownloaderException {
     // SyndFeed syndFeed = fetchRomeFeed(feedUrl);
     // Feed feed = getFeed(syndFeed, feedUrl);
     // List<FeedItem> entries = getEntries(syndFeed);
@@ -376,7 +375,7 @@ public class FeedDownloader {
     // return feed;
     // }
     //
-    // public Feed downloadFeed(Feed feedData) throws NewsAggregatorException {
+    // public Feed downloadFeed(Feed feedData) throws FeedDownloaderException {
     // SyndFeed syndFeed = fetchRomeFeed(feedData);
     // Feed feed = getFeed(syndFeed, feedData.getFeedUrl());
     // List<FeedItem> entries = getEntries(syndFeed);
@@ -385,11 +384,11 @@ public class FeedDownloader {
     // return feed;
     // }
 
-    public Feed getFeed(String feedUrl) throws NewsAggregatorException {
+    public Feed getFeed(String feedUrl) throws FeedDownloaderException {
         return getFeed(feedUrl, null);
     }
 
-    public Feed getFeed(String feedUrl, HeaderInformation headerInformation) throws NewsAggregatorException {
+    public Feed getFeed(String feedUrl, HeaderInformation headerInformation) throws FeedDownloaderException {
 
         LOGGER.trace(">downloadFeed " + feedUrl);
         StopWatch sw = new StopWatch();
@@ -397,60 +396,59 @@ public class FeedDownloader {
         Document feedDocument = downloadFeed(feedUrl, headerInformation);
         Feed feed = getFeed(feedDocument);
 
-        //        Feed result = null;
+        // Feed result = null;
 
-        //        try {
-
+        // try {
 
         // create the header information to download feed only if it has changed
         // HeaderInformation headerInformation = null;
 
-        //            if (isUseBandwidthSavingHTTPHeaders() && feed != null) {
-        //                headerInformation = new HeaderInformation(feed.getLastPollTime(), feed.getLastETag());
-        //            }
+        // if (isUseBandwidthSavingHTTPHeaders() && feed != null) {
+        // headerInformation = new HeaderInformation(feed.getLastPollTime(), feed.getLastETag());
+        // }
         //
-        //            // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
-        //            // well, which we use inside Palladian.
-        //            /** We keep an instance of the plain parsed XML feed to do more operations if SyndFeed fails. */
-        //            Document xmlDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
-        //            if (xmlDocument == null) {
-        //                if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
-        //                    throw new NewsAggregatorException("could not get document from " + feedUrl);
-        //                } else {
-        //                    // TODO return cached document here (from disk or database)
-        //                    LOGGER.debug("the feed was not modified: " + feedUrl);
-        //                    return null;
-        //                }
-        //            }
+        // // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
+        // // well, which we use inside Palladian.
+        // /** We keep an instance of the plain parsed XML feed to do more operations if SyndFeed fails. */
+        // Document xmlDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
+        // if (xmlDocument == null) {
+        // if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
+        // throw new FeedDownloaderException("could not get document from " + feedUrl);
+        // } else {
+        // // TODO return cached document here (from disk or database)
+        // LOGGER.debug("the feed was not modified: " + feedUrl);
+        // return null;
+        // }
+        // }
 
-        //        } catch (IllegalArgumentException e) {
-        //            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-        //            throw new NewsAggregatorException(e);
-        //        } catch (FeedException e) {
-        //            LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-        //            throw new NewsAggregatorException(e);
-        //        }
+        // } catch (IllegalArgumentException e) {
+        // LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
+        // throw new FeedDownloaderException(e);
+        // } catch (FeedException e) {
+        // LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
+        // throw new FeedDownloaderException(e);
+        // }
 
         LOGGER.debug("downloaded feed in " + sw.getElapsedTimeString());
         LOGGER.trace("<downloadFeed " + sw.getElapsedTimeString());
-        //        return result;
+        // return result;
         return feed;
 
     }
-    
-    public Feed getFeed(String feedUrl, boolean downloadPages) throws NewsAggregatorException {
-        
+
+    public Feed getFeed(String feedUrl, boolean downloadPages) throws FeedDownloaderException {
+
         Feed feed = getFeed(feedUrl);
         fetchPageContentForEntries(feed.getItems());
         return feed;
-        
+
     }
 
-    private Document downloadFeed(String feedUrl, HeaderInformation headerInformation) throws NewsAggregatorException {
+    private Document downloadFeed(String feedUrl, HeaderInformation headerInformation) throws FeedDownloaderException {
 
         Document xmlDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
         if (xmlDocument == null) {
-            throw new NewsAggregatorException("could not get document from " + feedUrl);
+            throw new FeedDownloaderException("could not get document from " + feedUrl);
             // if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
             // // TODO
             // } else {
@@ -463,7 +461,7 @@ public class FeedDownloader {
         return xmlDocument;
     }
 
-    private SyndFeed buildRomeFeed(Document xmlDocument) throws NewsAggregatorException {
+    private SyndFeed buildRomeFeed(Document xmlDocument) throws FeedDownloaderException {
 
         SyndFeedInput feedInput = new SyndFeedInput();
 
@@ -477,25 +475,23 @@ public class FeedDownloader {
             syndFeed = feedInput.build(xmlDocument);
         } catch (IllegalArgumentException e) {
             LOGGER.error("getRomeFeed " + xmlDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
-            throw new NewsAggregatorException(e);
+            throw new FeedDownloaderException(e);
         } catch (FeedException e) {
             LOGGER.error("getRomeFeed " + xmlDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
-            throw new NewsAggregatorException(e);
+            throw new FeedDownloaderException(e);
         }
 
         return syndFeed;
 
     }
 
-
     public static void main(String[] args) throws Exception {
 
-        FeedDownloader downloader = new FeedDownloader();
+        // FeedDownloader downloader = new FeedDownloader();
 
-        Feed feed = downloader.getFeed("http://www.tagesschau.de/xml/rss2");
-        //        System.out.println(feed);
-        //        System.out.println(feed.getEntries());
-
+        // Feed feed = downloader.getFeed("http://www.tagesschau.de/xml/rss2");
+        // System.out.println(feed);
+        // System.out.println(feed.getEntries());
 
     }
 

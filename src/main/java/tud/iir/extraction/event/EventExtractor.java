@@ -41,7 +41,7 @@ import tud.iir.helper.StringHelper;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedDownloader;
 import tud.iir.news.FeedItem;
-import tud.iir.news.NewsAggregatorException;
+import tud.iir.news.FeedDownloaderException;
 import tud.iir.web.Crawler;
 
 /**
@@ -612,7 +612,7 @@ public class EventExtractor extends Extractor {
                     }
                 }
 
-            } catch (final NewsAggregatorException e) {
+            } catch (final FeedDownloaderException e) {
                 LOGGER.error(e.getMessage());
             }
         }

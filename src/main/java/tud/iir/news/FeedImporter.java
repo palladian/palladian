@@ -99,7 +99,7 @@ public class FeedImporter {
                 LOGGER.info(infoMsg);
                 added = true;
 
-            } catch (NewsAggregatorException e) {
+            } catch (FeedDownloaderException e) {
                 LOGGER.error("error adding feed " + feedUrl + " " + e.getMessage());
             }
         } else {
