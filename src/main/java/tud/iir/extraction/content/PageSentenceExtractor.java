@@ -218,6 +218,17 @@ public class PageSentenceExtractor {
         return text.toString();
     }
 
+    public String getSentencesString() {
+        StringBuilder text = new StringBuilder();
+        List<String> sentences = getSentences();
+
+        for (String string : sentences) {
+            text.append(string).append(" ");
+        }
+
+        return text.toString();
+    }
+
     /**
      * @param args
      * @throws PageContentExtractorException

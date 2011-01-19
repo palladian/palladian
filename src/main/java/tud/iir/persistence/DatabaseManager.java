@@ -145,6 +145,15 @@ public class DatabaseManager {
         return SingletonHolder.instance;
     }
 
+    public void establishConnection(String driver, String type, String host, String port, String name,
+            String username, String password) throws SQLException, ClassNotFoundException {
+
+        Class.forName(driver);
+        String url = "jdbc:" + type + "://" + host + ":" + port + "/" + name;
+        url += "?useServerPrepStmts=false&cachePrepStmts=false";
+        connection = DriverManager.getConnection(url, username, password);
+    }
+
     /**
      * Load DB driver, establish DB connection, prepare statements.
      * 
