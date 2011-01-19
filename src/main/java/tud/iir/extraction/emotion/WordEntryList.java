@@ -2,7 +2,7 @@ package tud.iir.extraction.emotion;
 
 import java.util.ArrayList;
 
-public class WordEntryList extends ArrayList{
+public class WordEntryList<T> extends ArrayList<WordEntry> {
 
 
     //public ArrayList<WordEntry> wordEntryArray;

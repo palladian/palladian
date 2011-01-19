@@ -14,7 +14,6 @@ public class EntityExtractionProcess extends Thread {
     @Override
     public void run() {
         // start entity extraction
-        // EntityExtractor.getInstance().setBenchmark(true); // TODO put that somewhere else
         EntityExtractor.getInstance().startExtraction(true, true, true);
     }
 
