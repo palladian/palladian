@@ -19,6 +19,7 @@ import tud.iir.helper.ConfigHolder;
 import tud.iir.helper.Counter;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.StopWatch;
+import tud.iir.news.FeedContentClassifier.FeedContentType;
 import tud.iir.web.Crawler;
 
 /**
@@ -164,7 +165,7 @@ public class NewsAggregator {
                                 toAdd.add(feedEntry);
                             }
                         }
-                        boolean fetchPages = isDownloadPages() && feed.getTextType() != Feed.TEXT_TYPE_FULL;
+                        boolean fetchPages = isDownloadPages() && feed.getContentType() != FeedContentType.FULL;
                         if (fetchPages && !toAdd.isEmpty()) {
                             feedDownloader.fetchPageContentForEntries(toAdd);
                             downloadedPages.increment(toAdd.size());

@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
+import tud.iir.news.FeedContentClassifier.FeedContentType;
 import tud.iir.web.Crawler;
 
 /**
@@ -72,9 +73,9 @@ public class FeedImporter {
                 // classify feed's text extent
                 if (classifyTextExtent) {
                     FeedContentClassifier classifier = new FeedContentClassifier(feedDownloader);
-                    int textType = classifier.determineFeedTextType(feed);
-                    feed.setTextType(textType);
-                    infoMsg.append(" (textType:").append(classifier.getReadableFeedTextType(textType)).append(")");
+                    FeedContentType contentType = classifier.determineContentType(feed);
+                    feed.setContentType(contentType);
+                    infoMsg.append(" (contentType:").append(contentType).append(")");
                 }
 
                 // classify the feed's activity pattern

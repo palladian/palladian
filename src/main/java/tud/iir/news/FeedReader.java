@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
+import tud.iir.news.FeedContentClassifier.FeedContentType;
 import tud.iir.news.evaluation.FeedBenchmarkFileReader;
 import tud.iir.news.evaluation.FeedReaderEvaluator;
 import tud.iir.news.updates.FixUpdateStrategy;
@@ -329,7 +330,7 @@ public final class FeedReader {
                         toAdd.add(item);
                     }
                 }
-                boolean fetchPages = downloadPages && feed.getTextType() != Feed.TEXT_TYPE_FULL;
+                boolean fetchPages = downloadPages && feed.getContentType() != FeedContentType.FULL;
                 if (fetchPages && !toAdd.isEmpty()) {
                     feedDownloader.fetchPageContentForEntries(toAdd);
                     // downloadedPages.increment(toAdd.size());
