@@ -455,10 +455,10 @@ CREATE TABLE IF NOT EXISTS `feeds_post_distribution` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `feed_entries`
+-- Tabellenstruktur für Tabelle `feed_items`
 --
 
-CREATE TABLE IF NOT EXISTS `feed_entries` (
+CREATE TABLE IF NOT EXISTS `feed_items` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `feedId` int(10) unsigned NOT NULL,
   `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -473,44 +473,7 @@ CREATE TABLE IF NOT EXISTS `feed_entries` (
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 --
--- Daten für Tabelle `feed_entries`
---
-
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `feed_entries_tags`
---
-
-CREATE TABLE IF NOT EXISTS `feed_entries_tags` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `name_unique` (`name`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
---
--- Daten für Tabelle `feed_entries_tags`
---
-
-
--- --------------------------------------------------------
-
---
--- Tabellenstruktur für Tabelle `feed_entry_tag`
---
-
-CREATE TABLE IF NOT EXISTS `feed_entry_tag` (
-  `entryId` int(10) unsigned NOT NULL,
-  `tagId` int(10) NOT NULL,
-  `weight` float unsigned NOT NULL,
-  PRIMARY KEY (`entryId`,`tagId`),
-  KEY `tagId_index` (`tagId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
---
--- Daten für Tabelle `feed_entry_tag`
+-- Daten für Tabelle `feed_items`
 --
 
 
@@ -545,20 +508,7 @@ CREATE TABLE IF NOT EXISTS `feed_evaluation_polls` (
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `feed_evaluation_update_intervals`
---
-
-CREATE TABLE IF NOT EXISTS `feed_evaluation_update_intervals` (
-  `id` int(10) unsigned NOT NULL COMMENT 'feedID',
-  `updateClass` int(11) NOT NULL COMMENT 'the feeds update class (activity pattern)',
-  `averageEntriesPerDay` double NOT NULL COMMENT 'the average number of new entries per day',
-  `medianItemInterval` bigint(20) NOT NULL COMMENT 'the feed''s median item interval in milliseconds (several items may be updated at the same time)',
-  `averageUpdateInterval` varchar(25) NOT NULL COMMENT 'the feeds average update interval in milliseconds (one update may contain several items)',
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
-
---
--- Daten für Tabelle `feed_evaluation_update_intervals`
+-- Tabellenstruktur für Tabelle `events`
 --
 
 CREATE TABLE `events` (
@@ -779,22 +729,18 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `source_ranking_features`
+-- Tabellenstruktur für Tabelle `rankingCache`
 --
 
-CREATE TABLE IF NOT EXISTS `source_ranking_features` (
+CREATE TABLE IF NOT EXISTS `rankingCache` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `sourceId` bigint(20) unsigned NOT NULL,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `service` tinyint(4) NOT NULL,
   `ranking` float NOT NULL,
   `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `sourceId_service_unique` (`sourceId`,`service`)
+  UNIQUE KEY `url_service_unique` (`url`,`service`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
---
--- Daten für Tabelle `source_ranking_features`
---
 
 
 -- --------------------------------------------------------

@@ -86,10 +86,4 @@ public class CollectionFeedSource implements FeedStore {
         return null;
     }
 
-    @Override
-    public Set<Integer> getFeedEntryIdsTaggedAs(String tag) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
 }

@@ -4,21 +4,15 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.controlledtagging.Tag;
-import tud.iir.classification.controlledtagging.TagComparator;
 import tud.iir.helper.StopWatch;
 import tud.iir.persistence.DatabaseManager;
 
@@ -27,7 +21,6 @@ import tud.iir.persistence.DatabaseManager;
  * 
  * TODO change schema to InnoDB?
  * TODO move Tag storage from DB to Lucene index.
- * TODO change name from "FeedEntry" to "News", update DB schema accordingly.
  * 
  * @author Philipp Katz
  * @author David Urbansky
@@ -56,11 +49,11 @@ public class FeedDatabase implements FeedStore {
     private PreparedStatement psChangeCheckApproach;
     private PreparedStatement psGetEntries;
     private PreparedStatement psGetAllEntries;
-    private PreparedStatement psGetEntrysTags;
-    private PreparedStatement psGetTagId;
-    private PreparedStatement psInsertTag;
-    private PreparedStatement psTagFeedEntry;
-    private PreparedStatement getEntryIdByTag;
+    // private PreparedStatement psGetEntrysTags;
+    // private PreparedStatement psGetTagId;
+    // private PreparedStatement psInsertTag;
+    // private PreparedStatement psTagFeedEntry;
+    // private PreparedStatement getEntryIdByTag;
     private PreparedStatement psGetEntryById;
     private PreparedStatement psDeleteEntryById;
 
@@ -86,7 +79,7 @@ public class FeedDatabase implements FeedStore {
         // // prepared statements for feeds
         Connection connection = DatabaseManager.getInstance().getConnection();
         psAddFeedEntry = connection
-        .prepareStatement("INSERT IGNORE INTO feed_entries SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?");
+        .prepareStatement("INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, text = ?, pageText = ?");
         psAddFeed = connection
         .prepareStatement("INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, format = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?");
         psUpdateFeed = connection
@@ -102,30 +95,29 @@ public class FeedDatabase implements FeedStore {
         psGetFeedByID = connection
         .prepareStatement("SELECT feedUrl, siteUrl, title, format, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, activityPattern FROM feeds WHERE id = ?");
         psGetEntryByRawId = connection
-        .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_entries WHERE rawID = ?");
+        .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items WHERE rawID = ?");
         psGetEntryByRawId2 = connection
-        .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_entries WHERE feedId = ? AND rawID = ?");
+        .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items WHERE feedId = ? AND rawID = ?");
         psChangeCheckApproach = connection
         .prepareStatement("UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL");
 
         psGetEntries = connection
-        .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_entries LIMIT ? OFFSET ?");
+        .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items LIMIT ? OFFSET ?");
         psGetAllEntries = connection
-        .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_entries");
-        psGetEntryById = connection.prepareStatement("SELECT * FROM feed_entries WHERE id = ?");
-        psDeleteEntryById = connection.prepareStatement("DELETE FROM feed_entries WHERE id = ?");
+        .prepareStatement("SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items");
+        psGetEntryById = connection.prepareStatement("SELECT * FROM feed_items WHERE id = ?");
+        psDeleteEntryById = connection.prepareStatement("DELETE FROM feed_items WHERE id = ?");
 
         // tagging specific
-        psGetEntrysTags = connection
-        // .prepareStatement("SELECT name, weight FROM feed_entries_tags, feed_entry_tag WHERE feed_entries_tags = feed_entry_tag.tagId AND feed_entry_tag.entryId = ?");
-        .prepareStatement("SELECT name, weight FROM feed_entries_tags ets, feed_entry_tag et WHERE ets.id = et.tagId AND et.entryId = ?");
-
-        psGetTagId = connection.prepareStatement("SELECT id FROM feed_entries_tags WHERE name = ?");
-        psInsertTag = connection.prepareStatement("INSERT INTO feed_entries_tags SET name = ?");
-        psTagFeedEntry = connection
-        .prepareStatement("INSERT INTO feed_entry_tag SET entryId = ?, tagId = ?, weight = ?");
-        getEntryIdByTag = connection
-        .prepareStatement("SELECT entryId FROM feed_entry_tag, feed_entries_tags WHERE tagId = feed_entries_tags.id AND name = ?");
+//        psGetEntrysTags = connection
+//        .prepareStatement("SELECT name, weight FROM feed_entries_tags ets, feed_entry_tag et WHERE ets.id = et.tagId AND et.entryId = ?");
+//
+//        psGetTagId = connection.prepareStatement("SELECT id FROM feed_entries_tags WHERE name = ?");
+//        psInsertTag = connection.prepareStatement("INSERT INTO feed_entries_tags SET name = ?");
+//        psTagFeedEntry = connection
+//        .prepareStatement("INSERT INTO feed_entry_tag SET entryId = ?, tagId = ?, weight = ?");
+//        getEntryIdByTag = connection
+//        .prepareStatement("SELECT entryId FROM feed_entry_tag, feed_entries_tags WHERE tagId = feed_entries_tags.id AND name = ?");
     }
 
     @Override
@@ -516,90 +508,90 @@ public class FeedDatabase implements FeedStore {
      * @param entry
      * @return
      */
-    public List<Tag> getTags(FeedItem entry) {
-        List<Tag> tags = new ArrayList<Tag>();
+//    public List<Tag> getTags(FeedItem entry) {
+//        List<Tag> tags = new ArrayList<Tag>();
+//
+//        try {
+//            psGetEntrysTags.setInt(1, entry.getId());
+//            ResultSet rs = psGetEntrysTags.executeQuery();
+//            while (rs.next()) {
+//                String tagName = rs.getString("name");
+//                float tagWeight = rs.getFloat("weight");
+//                Tag tag = new Tag(tagName, tagWeight);
+//                tags.add(tag);
+//            }
+//            Collections.sort(tags, new TagComparator());
+//            rs.close();
+//        } catch (SQLException e) {
+//            LOGGER.error(e);
+//        }
+//
+//        return tags;
+//    }
 
-        try {
-            psGetEntrysTags.setInt(1, entry.getId());
-            ResultSet rs = psGetEntrysTags.executeQuery();
-            while (rs.next()) {
-                String tagName = rs.getString("name");
-                float tagWeight = rs.getFloat("weight");
-                Tag tag = new Tag(tagName, tagWeight);
-                tags.add(tag);
-            }
-            Collections.sort(tags, new TagComparator());
-            rs.close();
-        } catch (SQLException e) {
-            LOGGER.error(e);
-        }
+//    public void assignTags(FeedItem entry, List<Tag> tags) {
+//
+//        try {
+//
+//            // if we have no tags, we add a relation with -1 to indicate that no tags could be assigned.
+//            if (tags.isEmpty()) {
+//                psTagFeedEntry.setInt(1, entry.getId());
+//                psTagFeedEntry.setInt(2, -1);
+//                psTagFeedEntry.setFloat(3, 0);
+//                psTagFeedEntry.executeUpdate();
+//            }
+//
+//            for (Tag tag : tags) {
+//
+//                // get tag ID from database, or add tag to DB if not exists
+//                psGetTagId.setString(1, tag.getName());
+//                ResultSet rsGetTagId = psGetTagId.executeQuery();
+//                int tagId;
+//                if (rsGetTagId.next()) {
+//
+//                    tagId = rsGetTagId.getInt(1);
+//
+//                } else {
+//
+//                    psInsertTag.setString(1, tag.getName());
+//                    psInsertTag.executeUpdate();
+//                    tagId = DatabaseManager.getInstance().getLastInsertID();
+//
+//                }
+//                rsGetTagId.close();
+//
+//                // add relation between tag and feed
+//                psTagFeedEntry.setInt(1, entry.getId());
+//                psTagFeedEntry.setInt(2, tagId);
+//                psTagFeedEntry.setFloat(3, tag.getOriginalWeight());
+//                psTagFeedEntry.executeUpdate();
+//
+//            }
+//        } catch (SQLException e) {
+//            LOGGER.error(e);
+//        }
+//    }
 
-        return tags;
-    }
-
-    public void assignTags(FeedItem entry, List<Tag> tags) {
-
-        try {
-
-            // if we have no tags, we add a relation with -1 to indicate that no tags could be assigned.
-            if (tags.isEmpty()) {
-                psTagFeedEntry.setInt(1, entry.getId());
-                psTagFeedEntry.setInt(2, -1);
-                psTagFeedEntry.setFloat(3, 0);
-                psTagFeedEntry.executeUpdate();
-            }
-
-            for (Tag tag : tags) {
-
-                // get tag ID from database, or add tag to DB if not exists
-                psGetTagId.setString(1, tag.getName());
-                ResultSet rsGetTagId = psGetTagId.executeQuery();
-                int tagId;
-                if (rsGetTagId.next()) {
-
-                    tagId = rsGetTagId.getInt(1);
-
-                } else {
-
-                    psInsertTag.setString(1, tag.getName());
-                    psInsertTag.executeUpdate();
-                    tagId = DatabaseManager.getInstance().getLastInsertID();
-
-                }
-                rsGetTagId.close();
-
-                // add relation between tag and feed
-                psTagFeedEntry.setInt(1, entry.getId());
-                psTagFeedEntry.setInt(2, tagId);
-                psTagFeedEntry.setFloat(3, tag.getOriginalWeight());
-                psTagFeedEntry.executeUpdate();
-
-            }
-        } catch (SQLException e) {
-            LOGGER.error(e);
-        }
-    }
-
-    @Override
-    public Set<Integer> getFeedEntryIdsTaggedAs(String tag) {
-        StopWatch sw = new StopWatch();
-
-        Set<Integer> entryIds = new HashSet<Integer>();
-
-        try {
-            getEntryIdByTag.setString(1, tag);
-            ResultSet rs = getEntryIdByTag.executeQuery();
-            while (rs.next()) {
-                entryIds.add(rs.getInt(1));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            LOGGER.error(e);
-        }
-
-        LOGGER.trace("getEntryIdsTaggedAs " + tag + " : " + sw.getElapsedTimeString());
-        return entryIds;
-    }
+//    @Override
+//    public Set<Integer> getFeedEntryIdsTaggedAs(String tag) {
+//        StopWatch sw = new StopWatch();
+//
+//        Set<Integer> entryIds = new HashSet<Integer>();
+//
+//        try {
+//            getEntryIdByTag.setString(1, tag);
+//            ResultSet rs = getEntryIdByTag.executeQuery();
+//            while (rs.next()) {
+//                entryIds.add(rs.getInt(1));
+//            }
+//            rs.close();
+//        } catch (SQLException e) {
+//            LOGGER.error(e);
+//        }
+//
+//        LOGGER.trace("getEntryIdsTaggedAs " + tag + " : " + sw.getElapsedTimeString());
+//        return entryIds;
+//    }
 
     public void deleteFeedEntryById(int id) {
 
@@ -672,10 +664,10 @@ public class FeedDatabase implements FeedStore {
 
     public void clearFeedTables() {
         LOGGER.trace(">cleanTables");
-        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries");
+        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_items");
         DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feeds");
-        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries_tags");
-        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entry_tag");
+//        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entries_tags");
+//        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE feed_entry_tag");
         LOGGER.trace("<cleanTables");
     }
 
@@ -706,10 +698,10 @@ public class FeedDatabase implements FeedStore {
         System.out.println(sw.getElapsedTimeString());
 
         System.exit(0);
-        FeedItem dummy = new FeedItem();
-        dummy.setId(123);
-        List<Tag> tags = fd.getTags(dummy);
-        System.out.println(tags);
+//        FeedItem dummy = new FeedItem();
+//        dummy.setId(123);
+//        List<Tag> tags = fd.getTags(dummy);
+//        System.out.println(tags);
 
     }
 
