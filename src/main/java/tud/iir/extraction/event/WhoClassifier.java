@@ -109,13 +109,14 @@ public class WhoClassifier extends Classifier {
     @Override
     public void testClassifier(final String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
+        EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
         eventExtractor.setWhoClassifier(getChosenClassifier());
         final Event event = EventExtractor
                 .getInstance()
                 .createEventFromURL(
                         "http://edition.cnn.com/2010/WORLD/europe/09/28/russia.moscow.mayor/?hpt=T1");
 
-        eventExtractor.getFeatureExtractor().calculateFeatures(event);
+        featureExtractor.calculateFeatures(event);
         eventExtractor.extractWho(event);
 
     }
@@ -143,9 +144,10 @@ public class WhoClassifier extends Classifier {
     public void collectTrainingData(final String filePath) {
 
         final EventExtractor eventExtractor = EventExtractor.getInstance();
+        final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
 
-        final Map<Integer, String[]> events = eventExtractor
-                .getFeatureExtractor().readCSV("data/news_articles.csv");
+        final Map<Integer, String[]> events = featureExtractor
+                .readCSV("data/news_articles.csv");
 
         for (final Entry<Integer, String[]> entry : events.entrySet()) {
 
@@ -164,8 +166,7 @@ public class WhoClassifier extends Classifier {
 
             eventMap.put(url, eventExtractor.extractEventFromURL(url));
 
-            eventExtractor.getFeatureExtractor()
-                    .setAnnotationFeatures(eventMap);
+            featureExtractor.setAnnotationFeatures(eventMap);
 
             List<String> whos = new ArrayList<String>();
 
@@ -175,8 +176,7 @@ public class WhoClassifier extends Classifier {
                 whos.add(who);
             }
 
-            eventExtractor.getFeatureExtractor().writeCSV(filePath, eventMap,
-                    whos, true);
+            featureExtractor.writeCSV(filePath, eventMap, whos, true);
 
             // CollectionHelper.print(eventMap);
 

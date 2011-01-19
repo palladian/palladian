@@ -7,7 +7,7 @@ import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
  * The NaturalLanguageProcessor holds functionality from the field of natural
  * language processing, such as a <code>NamedEntityRecognizer</code>,
  * <code>POSTagger</code> and <code>Parser</code>.
- * 
+ *
  * @author Martin Wunderwald
  */
 public abstract class NaturalLanguageProcessor {
@@ -110,7 +110,7 @@ public abstract class NaturalLanguageProcessor {
 
     /**
      * returns POS-Tags of a string.
-     * 
+     *
      * @param sentence
      * @return the tag annotations
      */
@@ -119,8 +119,8 @@ public abstract class NaturalLanguageProcessor {
     }
 
     /**
-     * performs phrase chunking on a sentence
-     * 
+     * performs phrase chunking on a sentence.
+     *
      * @param sentence
      *            - The sentence
      * @return The part of speach tags.
@@ -132,7 +132,7 @@ public abstract class NaturalLanguageProcessor {
 
     /**
      * returns a Parse on a sentence.
-     * 
+     *
      * @param sentence
      * @return the parse
      */
@@ -143,7 +143,7 @@ public abstract class NaturalLanguageProcessor {
     /**
      * Split a provided string into sentences and return a set of sentence
      * chunks.
-     * 
+     *
      * @param sentence
      * @return the sentences
      */
