@@ -64,17 +64,6 @@ public class FeedDownloader {
     private Crawler crawler = new Crawler();
 
     /**
-     * Downloads a feed from the web and parses with ROME.
-     * 
-     * To access feeds from outside use {@link #downloadFeed(String)}.
-     * 
-     * @param feedUrl
-     * @return
-     * @throws FeedDownloaderException when Feed could not be retrieved, e.g. when server is down or feed cannot be
-     *             parsed.
-     */
-
-    /**
      * Get feed information about a Atom/RSS feed, using ROME library.
      * 
      * @param feedUrl
@@ -131,8 +120,11 @@ public class FeedDownloader {
      * @throws FeedDownloaderException
      */
     public void updateItems(Feed feed) throws FeedDownloaderException {
+
         Feed downloadedFeed = getFeed(feed.getFeedUrl());
         feed.setItems(downloadedFeed.getItems());
+        feed.setDocument(downloadedFeed.getDocument());
+
     }
 
     private Date getPublishDate(FeedItem feedItem) {
@@ -233,7 +225,6 @@ public class FeedDownloader {
                 } else {
                     LOGGER.debug("found publish date in original feed file: " + publishDate);
                 }
-
             }
             entry.setPublished(publishDate);
 
@@ -365,25 +356,6 @@ public class FeedDownloader {
         return useBandwidthSavingHTTPHeaders;
     }
 
-    // public Feed downloadFeed(String feedUrl) throws FeedDownloaderException {
-    // SyndFeed syndFeed = fetchRomeFeed(feedUrl);
-    // Feed feed = getFeed(syndFeed, feedUrl);
-    // List<FeedItem> entries = getEntries(syndFeed);
-    //
-    // feed.setEntries(entries);
-    // feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
-    // return feed;
-    // }
-    //
-    // public Feed downloadFeed(Feed feedData) throws FeedDownloaderException {
-    // SyndFeed syndFeed = fetchRomeFeed(feedData);
-    // Feed feed = getFeed(syndFeed, feedData.getFeedUrl());
-    // List<FeedItem> entries = getEntries(syndFeed);
-    // feed.setEntries(entries);
-    // feed.setPlainXML(PageAnalyzer.getRawMarkup(plainXMLFeed));
-    // return feed;
-    // }
-
     public Feed getFeed(String feedUrl) throws FeedDownloaderException {
         return getFeed(feedUrl, null);
     }
@@ -396,42 +368,8 @@ public class FeedDownloader {
         Document feedDocument = downloadFeed(feedUrl, headerInformation);
         Feed feed = getFeed(feedDocument);
 
-        // Feed result = null;
-
-        // try {
-
-        // create the header information to download feed only if it has changed
-        // HeaderInformation headerInformation = null;
-
-        // if (isUseBandwidthSavingHTTPHeaders() && feed != null) {
-        // headerInformation = new HeaderInformation(feed.getLastPollTime(), feed.getLastETag());
-        // }
-        //
-        // // get the XML input via the crawler, this allows to input files with the "path/to/filename.xml" schema as
-        // // well, which we use inside Palladian.
-        // /** We keep an instance of the plain parsed XML feed to do more operations if SyndFeed fails. */
-        // Document xmlDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
-        // if (xmlDocument == null) {
-        // if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
-        // throw new FeedDownloaderException("could not get document from " + feedUrl);
-        // } else {
-        // // TODO return cached document here (from disk or database)
-        // LOGGER.debug("the feed was not modified: " + feedUrl);
-        // return null;
-        // }
-        // }
-
-        // } catch (IllegalArgumentException e) {
-        // LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-        // throw new FeedDownloaderException(e);
-        // } catch (FeedException e) {
-        // LOGGER.error("getFeedWithRome " + feedUrl + " " + e.toString() + " " + e.getMessage());
-        // throw new FeedDownloaderException(e);
-        // }
-
         LOGGER.debug("downloaded feed in " + sw.getElapsedTimeString());
         LOGGER.trace("<downloadFeed " + sw.getElapsedTimeString());
-        // return result;
         return feed;
 
     }

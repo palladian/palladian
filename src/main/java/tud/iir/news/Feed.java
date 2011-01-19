@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -225,14 +225,6 @@ public class Feed {
     public void setLanguage(String language) {
         this.language = language;
     }
-
-    // public int getTextType() {
-    // return textType;
-    // }
-    //
-    // public void setTextType(int textType) {
-    // this.textType = textType;
-    // }
 
     public FeedContentType getContentType() {
         return contentType;
