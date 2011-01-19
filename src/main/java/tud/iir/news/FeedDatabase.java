@@ -140,8 +140,8 @@ public class FeedDatabase implements FeedStore {
             psAddFeed.setInt(5, feed.getTextType());
             psAddFeed.setString(6, feed.getLanguage());
             psAddFeed.setInt(7, feed.getChecks());
-            psAddFeed.setInt(8, feed.getMinCheckInterval());
-            psAddFeed.setInt(9, feed.getMaxCheckInterval());
+            psAddFeed.setInt(8, feed.getUpdateInterval());
+            psAddFeed.setInt(9, feed.getUpdateInterval());
             psAddFeed.setString(10, feed.getLastHeadlines());
             psAddFeed.setInt(11, feed.getUnreachableCount());
             psAddFeed.setTimestamp(12, feed.getLastFeedEntrySQLTimestamp());
@@ -183,8 +183,8 @@ public class FeedDatabase implements FeedStore {
             ps.setInt(5, feed.getTextType());
             ps.setString(6, feed.getLanguage());
             ps.setInt(7, feed.getChecks());
-            ps.setInt(8, feed.getMinCheckInterval());
-            ps.setInt(9, feed.getMaxCheckInterval());
+            ps.setInt(8, feed.getUpdateInterval());
+            ps.setInt(9, feed.getUpdateInterval());
             ps.setString(10, feed.getLastHeadlines());
             ps.setInt(11, feed.getUnreachableCount());
             ps.setTimestamp(12, feed.getLastFeedEntrySQLTimestamp());
@@ -285,8 +285,8 @@ public class FeedDatabase implements FeedStore {
         feed.setLanguage(resultSet.getString("language"));
         feed.setAdded(resultSet.getTimestamp("added"));
         feed.setChecks(resultSet.getInt("checks"));
-        feed.setMinCheckInterval(resultSet.getInt("minCheckInterval"));
-        feed.setMaxCheckInterval(resultSet.getInt("maxCheckInterval"));
+        feed.setUpdateInterval(resultSet.getInt("minCheckInterval"));
+        feed.setUpdateInterval(resultSet.getInt("maxCheckInterval"));
         feed.setLastHeadlines(resultSet.getString("lastHeadlines"));
         feed.setUnreachableCount(resultSet.getInt("unreachableCount"));
         feed.setLastFeedEntry(resultSet.getTimestamp("lastFeedEntry"));

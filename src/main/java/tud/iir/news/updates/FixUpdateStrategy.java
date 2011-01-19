@@ -17,7 +17,7 @@ import tud.iir.news.FeedReader;
  * @author David Urbansky
  * 
  */
-public class FixUpdateStrategy implements UpdateStrategy {
+public class FixUpdateStrategy extends UpdateStrategy {
 
     /**
      * The check interval in minutes. If checkInterval = -1 the interval will be determined automatically at the first
@@ -65,8 +65,11 @@ public class FixUpdateStrategy implements UpdateStrategy {
                 fixedMaxCheckInterval = FeedReader.DEFAULT_CHECK_TIME;
             }
 
-            feed.setMinCheckInterval(fixedMinCheckInterval);
-            feed.setMaxCheckInterval(fixedMaxCheckInterval);
+            if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+                feed.setUpdateInterval(getAllowedUpdateInterval(fixedMinCheckInterval));
+            } else {
+                feed.setUpdateInterval(getAllowedUpdateInterval(fixedMaxCheckInterval));
+            }
 
         }
 

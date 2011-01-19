@@ -146,11 +146,14 @@ public class FeedDownloader {
         try {
             pubDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
         } catch (NullPointerException e) {
-            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode);
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
+                    + feedItem.getFeedUrl() + ", " + e.getMessage());
         } catch (DOMException e) {
-            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode);
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
+                    + feedItem.getFeedUrl() + ", " + e.getMessage());
         } catch (Exception e) {
-            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode);
+            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
+                    + feedItem.getFeedUrl() + ", " + e.getMessage());
         }
 
         return pubDate;
@@ -394,11 +397,6 @@ public class FeedDownloader {
         Document feedDocument = downloadFeed(feedUrl, headerInformation);
         Feed feed = getFeed(feedDocument);
 
-
-
-
-
-
         //        Feed result = null;
 
         //        try {
@@ -433,7 +431,7 @@ public class FeedDownloader {
         //            throw new NewsAggregatorException(e);
         //        }
 
-        LOGGER.info("downloaded feed in " + sw.getElapsedTimeString());
+        LOGGER.debug("downloaded feed in " + sw.getElapsedTimeString());
         LOGGER.trace("<downloadFeed " + sw.getElapsedTimeString());
         //        return result;
         return feed;

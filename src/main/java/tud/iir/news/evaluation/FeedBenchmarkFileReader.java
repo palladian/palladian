@@ -390,20 +390,14 @@ public class FeedBenchmarkFileReader {
 
             feedChecker.updateCheckIntervals(feed);
 
-            if (FeedReaderEvaluator.benchmarkPolicy == FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE) {
-                pollData.setCheckInterval(feed.getMaxCheckInterval());
-            } else {
-                pollData.setCheckInterval(feed.getMinCheckInterval());
-            }
+
+            pollData.setCheckInterval(feed.getUpdateInterval());
 
             // add poll data object to series of poll data
             feed.getPollDataSeries().add(pollData);
 
-            if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_MIN_DELAY) {
-                feed.addToBenchmarkLookupTime(feed.getMinCheckInterval() * DateHelper.MINUTE_MS);
-            } else if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_MAX_COVERAGE) {
-                feed.addToBenchmarkLookupTime(feed.getMaxCheckInterval() * DateHelper.MINUTE_MS);
-            }
+
+            feed.addToBenchmarkLookupTime(feed.getUpdateInterval() * DateHelper.MINUTE_MS);
 
         } catch (Exception e) {
             e.printStackTrace();

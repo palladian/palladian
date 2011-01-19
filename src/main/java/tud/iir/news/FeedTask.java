@@ -44,9 +44,7 @@ class FeedTask implements Runnable {
 
     @Override
     public void run() {
-        // LOGGER.info("Beginning of thread.");
-        // SchedulerTask.decrementThreadPoolSize();
-        // SchedulerTask.incrementThreadsAlive();
+        LOGGER.trace("beginning of feed task");
 
         LOGGER.debug(DateHelper.getCurrentDatetime() + ": running feed task " + feed.getId() + "(" + feed.getFeedUrl()
                 + ")");

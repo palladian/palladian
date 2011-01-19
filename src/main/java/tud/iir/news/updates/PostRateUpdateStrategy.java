@@ -20,7 +20,7 @@ import tud.iir.news.evaluation.FeedReaderEvaluator;
  * @author David Urbansky
  * 
  */
-public class PostRateUpdateStrategy implements UpdateStrategy {
+public class PostRateUpdateStrategy extends UpdateStrategy {
 
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
@@ -139,8 +139,11 @@ public class PostRateUpdateStrategy implements UpdateStrategy {
             currentMinute = (currentMinute + 1) % 1440;
         }
 
-        feed.setMinCheckInterval(minCheckInterval);
-        feed.setMaxCheckInterval(maxCheckInterval);
+        if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+            feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
+        } else {
+            feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
+        }
     }
 
     @Override

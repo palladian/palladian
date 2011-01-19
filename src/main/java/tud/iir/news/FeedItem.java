@@ -229,10 +229,17 @@ public class FeedItem {
             }
 
         } catch (Exception e) {
-            LOGGER.error("synd entry was not complete, " + e.getMessage());
+            LOGGER.error("synd entry was not complete (" + getFeedUrl() + "), " + e.getMessage());
         }
 
         return node;
+    }
+
+    public String getFeedUrl() {
+        if (getFeed() != null) {
+            return getFeed().getFeedUrl();
+        }
+        return "";
     }
 
     public void setFeed(Feed feed) {
