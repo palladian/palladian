@@ -596,15 +596,19 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     public static void main(String[] args) {
         
         MauiKeyphraseExtractor extractor = new MauiKeyphraseExtractor();
-        System.exit(0);
+        // System.exit(0);
         
 
         Dataset trainingDataset = new Dataset();
-        trainingDataset.setPath("/home/pk/Desktop/documents/citeulike180splitaa.txt");
+        trainingDataset.setPath("/home/pk/Desktop/Maui_Small/dataset.txt");
         trainingDataset.setSeparationString("#");
         trainingDataset.setFirstFieldLink(true);
 
         extractor.train(trainingDataset);
+        
+        System.exit(0);
+        
+        
         extractor.setKeyphraseCount(20);
 
         extractor.startExtraction();

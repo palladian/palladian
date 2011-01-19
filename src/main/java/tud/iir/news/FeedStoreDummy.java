@@ -10,8 +10,9 @@ import org.apache.log4j.Logger;
  * Dummy/mock class which can be used instead of "real" database for testing purposes.
  * 
  * @author Philipp Katz
- * 
+ * @deprecated functionality provided by {@link CollectionFeedSource}.
  */
+@Deprecated
 public class FeedStoreDummy implements FeedStore {
 
     private static final Logger logger = Logger.getLogger(FeedStoreDummy.class);
