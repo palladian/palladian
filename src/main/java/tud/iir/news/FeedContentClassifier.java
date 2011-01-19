@@ -9,6 +9,8 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 
 // TODO introduce MIXED type?
+// TODO use enum for types
+
 public class FeedContentClassifier {
 
     /** The logger for this class. */
@@ -23,8 +25,13 @@ public class FeedContentClassifier {
     private static final int ENTRIES_TO_CHECK = 20;
 
     private FeedDownloader feedDownloader;
+    
+    public FeedContentClassifier(FeedDownloader feedDownloader) {
+        this.feedDownloader = feedDownloader;
+    }
 
-    public FeedContentClassifier() {
+    /** Testing constructor. */
+    FeedContentClassifier() {
         feedDownloader = new FeedDownloader();
     }
 

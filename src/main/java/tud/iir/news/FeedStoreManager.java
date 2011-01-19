@@ -54,9 +54,10 @@ public class FeedStoreManager {
         LOGGER.info("start importing feeds");
 
         FeedImporter na = new FeedImporter(FeedDatabase.getInstance());
+        na.setStoreItems(false);
 
         // add feeds which are not present yet
-        int numberImported = na.addFeedsFromFile(filePath, false);
+        int numberImported = na.addFeedsFromFile(filePath);
 
         // empty the feed file
         FileHelper.writeToFile(filePath, "");
@@ -80,9 +81,9 @@ public class FeedStoreManager {
         Crawler c = new Crawler();
         Document document = c.getWebDocument("http://www.newser.com/");
 
-        NewsAggregator na = new NewsAggregator();
-        Feed f = na.downloadFeed("http://www.buzzfeed.com/index.xml");
-        System.out.println(f.getFormat() + "," + f.getTextType());
+        // NewsAggregator na = new NewsAggregator();
+        // Feed f = na.downloadFeed("http://www.buzzfeed.com/index.xml");
+        // System.out.println(f.getFormat() + "," + f.getTextType());
 
     }
 

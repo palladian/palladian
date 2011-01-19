@@ -10,8 +10,8 @@ import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -39,8 +39,8 @@ import tud.iir.helper.RatedDateComparator;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.news.Feed;
+import tud.iir.news.FeedDownloader;
 import tud.iir.news.FeedItem;
-import tud.iir.news.NewsAggregator;
 import tud.iir.news.NewsAggregatorException;
 import tud.iir.web.Crawler;
 
@@ -598,12 +598,12 @@ public class EventExtractor extends Extractor {
         // feedURLs.add("http://www.nytimes.com/services/xml/rss/nyt/HomePage.xml");
         // feedURLs.add("http://www.nytimes.com/services/xml/rss/nyt/GlobalHome.xml");
 
-        final NewsAggregator na = new NewsAggregator();
+        final FeedDownloader fd = new FeedDownloader();
         final Set<String> newsURLs = new HashSet<String>();
 
         for (final String feedURL : feedURLs) {
             try {
-                final Feed feed = na.downloadFeed(feedURL, true);
+                final Feed feed = fd.getFeed(feedURL, true);
                 final List<FeedItem> feedItems = feed.getItems();
 
                 for (final FeedItem feedItem : feedItems) {
