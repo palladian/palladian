@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.StopWatch;
+import tud.iir.news.FeedContentClassifier.FeedContentType;
 import tud.iir.persistence.DatabaseManager;
 
 /**
@@ -128,7 +129,7 @@ public class FeedDatabase implements FeedStore {
             psAddFeed.setString(2, feed.getSiteUrl());
             psAddFeed.setString(3, feed.getTitle());
             psAddFeed.setInt(4, feed.getFormat());
-            psAddFeed.setInt(5, feed.getTextType());
+            psAddFeed.setInt(5, feed.getContentType().getIdentifier());
             psAddFeed.setString(6, feed.getLanguage());
             psAddFeed.setInt(7, feed.getChecks());
             psAddFeed.setInt(8, feed.getUpdateInterval());
@@ -171,7 +172,7 @@ public class FeedDatabase implements FeedStore {
             ps.setString(2, feed.getSiteUrl());
             ps.setString(3, feed.getTitle());
             ps.setInt(4, feed.getFormat());
-            ps.setInt(5, feed.getTextType());
+            ps.setInt(5, feed.getContentType().getIdentifier());
             ps.setString(6, feed.getLanguage());
             ps.setInt(7, feed.getChecks());
             ps.setInt(8, feed.getUpdateInterval());
@@ -272,7 +273,7 @@ public class FeedDatabase implements FeedStore {
         feed.setSiteUrl(resultSet.getString("siteUrl"));
         feed.setTitle(resultSet.getString("title"));
         feed.setFormat(resultSet.getInt("format"));
-        feed.setTextType(resultSet.getInt("textType"));
+        feed.setContentType(FeedContentType.getByIdentifier(resultSet.getInt("textType")));
         feed.setLanguage(resultSet.getString("language"));
         feed.setAdded(resultSet.getTimestamp("added"));
         feed.setChecks(resultSet.getInt("checks"));

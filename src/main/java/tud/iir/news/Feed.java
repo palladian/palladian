@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.helper.CollectionHelper;
+import tud.iir.news.FeedContentClassifier.FeedContentType;
 import tud.iir.news.evaluation.PollDataSeries;
 import tud.iir.web.Crawler;
 
@@ -39,12 +40,6 @@ public class Feed {
     public static final int FORMAT_ATOM = 1;
     public static final int FORMAT_RSS = 2;
 
-    // different text lengths in feeds
-    public static final int TEXT_TYPE_UNDETERMINED = 0;
-    public static final int TEXT_TYPE_NONE = 1;
-    public static final int TEXT_TYPE_PARTIAL = 2;
-    public static final int TEXT_TYPE_FULL = 3;
-
     private int id = -1;
     private String feedUrl;
     private String siteUrl;
@@ -52,7 +47,9 @@ public class Feed {
     private int format;
     private Date added;
     private String language;
-    private int textType = TEXT_TYPE_UNDETERMINED;
+
+    /** Store the extent of text in the feed. */
+    private FeedContentType contentType;
 
     /** The size of the feed in bytes. */
     private long byteSize = 0;
@@ -229,12 +226,20 @@ public class Feed {
         this.language = language;
     }
 
-    public int getTextType() {
-        return textType;
+    // public int getTextType() {
+    // return textType;
+    // }
+    //
+    // public void setTextType(int textType) {
+    // this.textType = textType;
+    // }
+
+    public FeedContentType getContentType() {
+        return contentType;
     }
 
-    public void setTextType(int textType) {
-        this.textType = textType;
+    public void setContentType(FeedContentType contentType) {
+        this.contentType = contentType;
     }
 
     public void setItems(List<FeedItem> items) {
@@ -530,7 +535,7 @@ public class Feed {
         result = prime * result + (meticulousPostDistribution == null ? 0 : meticulousPostDistribution.hashCode());
         result = prime * result + updateInterval;
         result = prime * result + (siteUrl == null ? 0 : siteUrl.hashCode());
-        result = prime * result + textType;
+        result = prime * result + contentType.getIdentifier();
         result = prime * result + (title == null ? 0 : title.hashCode());
         result = prime * result + unreachableCount;
         result = prime * result + activityPattern;
@@ -628,7 +633,7 @@ public class Feed {
         } else if (!siteUrl.equals(other.siteUrl)) {
             return false;
         }
-        if (textType != other.textType) {
+        if (contentType != other.contentType) {
             return false;
         }
         if (title == null) {

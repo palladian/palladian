@@ -2,6 +2,7 @@ package tud.iir.news;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import org.apache.log4j.Logger;
 
@@ -9,9 +10,30 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.StringHelper;
 
 // TODO introduce MIXED type?
-// TODO use enum for types
-
+// TODO create a trained classifier.
 public class FeedContentClassifier {
+    
+    public static enum FeedContentType {
+        
+        UNDETERMINED(0), NONE(1), PARTIAL(2), FULL(3);
+        
+        private int identifier;
+
+        private FeedContentType(int identifier) {
+            this.identifier = identifier;
+        }
+        public int getIdentifier() {
+            return identifier;
+        }
+        public static FeedContentType getByIdentifier(int identifier) {
+            for (FeedContentType t : FeedContentType.values()) {
+                if (t.getIdentifier() == identifier) {
+                    return t;
+                }
+            }
+            throw new NoSuchElementException("no content type with identifier " + identifier);
+        }
+    }
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedClassifier.class);
@@ -35,13 +57,13 @@ public class FeedContentClassifier {
         feedDownloader = new FeedDownloader();
     }
 
-    public int determineFeedTextType(String feedUrl) {
+    public FeedContentType determineContentType(String feedUrl) {
         try {
             Feed feed = feedDownloader.getFeed(feedUrl);
             feedDownloader.fetchPageContentForEntries(feed.getItems());
-            return determineFeedTextType(feed);
+            return determineContentType(feed);
         } catch (FeedDownloaderException e) {
-            return -1;
+            return FeedContentType.UNDETERMINED;
         }
     }
 
@@ -53,7 +75,7 @@ public class FeedContentClassifier {
      * @param feedUrl
      * @return
      */
-    public int determineFeedTextType(Feed feed) {
+    public FeedContentType determineContentType(Feed feed) {
         LOGGER.trace(">determineFeedTextType " + feed);
 
         // count iterations
@@ -131,45 +153,45 @@ public class FeedContentClassifier {
         // if more than 60 % of feed's entries contain full text -> assume full text
         // if more than 80 % of feed's entries contain no text -> assume no text
         // else --> assume partial text
-        int result = Feed.TEXT_TYPE_PARTIAL;
+        FeedContentType result = FeedContentType.PARTIAL;
         if (feed.getItems().isEmpty()) {
-            result = Feed.TEXT_TYPE_UNDETERMINED;
+            result = FeedContentType.UNDETERMINED;
         } else if ((float) full / count >= 0.6) {
-            result = Feed.TEXT_TYPE_FULL;
+            result = FeedContentType.FULL;
         } else if ((float) none / count >= 0.8) {
-            result = Feed.TEXT_TYPE_NONE;
+            result = FeedContentType.NONE;
         } else if (count == 0) {
-            result = Feed.TEXT_TYPE_UNDETERMINED;
+            result = FeedContentType.UNDETERMINED;
         }
 
         LOGGER.debug("feed " + feed.getFeedUrl() + " none:" + none + " partial:" + partial + " full:" + full + " -> "
-                + getReadableFeedTextType(result));
+                + result);
 
         LOGGER.trace("<determineFeedTextType " + result);
         return result;
     }
 
-    public String getReadableFeedTextType(int i) {
-        switch (i) {
-            case Feed.TEXT_TYPE_FULL:
-                return "full";
-            case Feed.TEXT_TYPE_NONE:
-                return "none";
-            case Feed.TEXT_TYPE_PARTIAL:
-                return "partial";
-            case Feed.TEXT_TYPE_UNDETERMINED:
-                return "undetermined";
-            default:
-                return "<invalid>";
-        }
-
-    }
+//    public String getReadableFeedTextType(FeedContentType t) {
+//        switch (t) {
+//            case FULL:
+//                return "full";
+//            case NONE:
+//                return "none";
+//            case PARTIAL:
+//                return "partial";
+//            case UNDETERMINED:
+//                return "undetermined";
+//            default:
+//                return "<invalid>";
+//        }
+//
+//    }
 
     public static void main(String[] args) {
 
         FeedContentClassifier feedContentClassifier = new FeedContentClassifier();
-        int type = feedContentClassifier.determineFeedTextType("http://daringfireball.net/index.xml");
-        System.out.println(feedContentClassifier.getReadableFeedTextType(type));
+        FeedContentType type = feedContentClassifier.determineContentType("http://daringfireball.net/index.xml");
+        System.out.println(type);
 
     }
 
