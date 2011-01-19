@@ -4,6 +4,13 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Stack;
 
+import org.apache.commons.cli.BasicParser;
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.OptionBuilder;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.Counter;
@@ -11,16 +18,32 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.web.Crawler;
 
+/**
+ * The FeedImporter allows to add new feeds to the database.
+ * 
+ * @author Philipp Katz
+ * @author David Urbansky
+ * 
+ */
 public class FeedImporter {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedImporter.class);
 
-    /** */
+    /** Maximum number of simultaneous threads when adding multiple feeds at once. */
     private int maxThreads = 10;
 
+    /** The store which keeps the feeds and items. */
     private final FeedStore store;
+
+    /** The downloader for getting the feeds. */
     private FeedDownloader feedDownloader;
+
+    /** Whether to store the items of the added feed, or only the feed data. */
+    private boolean storeItems = false;
+
+    /** Whether to classify the text extent of each added feed, see {@link FeedContentClassifier}. */
+    private boolean classifyTextExtent = false;
 
     public FeedImporter(FeedStore store) {
         this.store = store;
@@ -31,10 +54,9 @@ public class FeedImporter {
      * Adds a new feed for aggregation.
      * 
      * @param feedUrl The url of the feed.
-     * @param storeItem Whether to store the items from the feed in the database.
      * @return true, if feed was added.
      */
-    public boolean addFeed(String feedUrl, boolean storeItems) {
+    public boolean addFeed(String feedUrl) {
         LOGGER.trace(">addFeed " + feedUrl);
         boolean added = false;
 
@@ -42,15 +64,23 @@ public class FeedImporter {
         if (feed == null) {
             try {
 
+                StringBuilder infoMsg = new StringBuilder();
+                infoMsg.append("added feed ").append(feedUrl);
+
                 feed = feedDownloader.getFeed(feedUrl);
 
                 // classify feed's text extent
-                FeedContentClassifier classifier = new FeedContentClassifier();
-                int textType = classifier.determineFeedTextType(feed);
-                feed.setTextType(textType);
+                if (classifyTextExtent) {
+                    FeedContentClassifier classifier = new FeedContentClassifier(feedDownloader);
+                    int textType = classifier.determineFeedTextType(feed);
+                    feed.setTextType(textType);
+                    infoMsg.append(" (textType:").append(classifier.getReadableFeedTextType(textType)).append(")");
+                }
 
                 // classify the feed's activity pattern
-                feed.setActivityPattern(FeedClassifier.classify(feed.getItems()));
+                int activityPattern = FeedClassifier.classify(feed.getItems());
+                feed.setActivityPattern(activityPattern);
+                infoMsg.append(" (activityPattern:").append(activityPattern).append(")");
 
                 feed.setWindowSize(feed.getItems().size());
 
@@ -66,8 +96,7 @@ public class FeedImporter {
                     }
                 }
 
-                LOGGER.info("added feed to store " + feedUrl + " (textType:"
-                        + classifier.getReadableFeedTextType(textType) + ")");
+                LOGGER.info(infoMsg);
                 added = true;
 
             } catch (NewsAggregatorException e) {
@@ -88,7 +117,9 @@ public class FeedImporter {
      * @param feedUrls
      * @return Number of added feeds.
      */
-    public int addFeeds(Collection<String> feedUrls, final boolean storeItems) {
+    public int addFeeds(Collection<String> feedUrls) {
+
+        // TODO also use a thread pool here?
 
         // Stack to store the URLs we will add
         final Stack<String> urlStack = new Stack<String>();
@@ -124,7 +155,7 @@ public class FeedImporter {
                 @Override
                 public void run() {
                     try {
-                        boolean added = addFeed(currentUrl, storeItems);
+                        boolean added = addFeed(currentUrl);
                         if (added) {
                             addCounter.increment();
                         }
@@ -167,13 +198,96 @@ public class FeedImporter {
      * @param fileName The name of the file where the feed URLs are stored.
      * @return The number of feeds added.
      */
-    public int addFeedsFromFile(String filePath, boolean storeItems) {
-        LOGGER.trace(">addFeedsFromFile");
+    public int addFeedsFromFile(String filePath) {
         List<String> feedUrls = FileHelper.readFileToArray(filePath);
-        LOGGER.info("adding " + feedUrls.size() + " feeds");
-        int result = addFeeds(feedUrls, storeItems);
-        LOGGER.trace("<addFeedsFromFile " + result);
-        return result;
+        int added = addFeeds(feedUrls);
+        LOGGER.info("file contained " + feedUrls.size() + " entries;");
+        LOGGER.info("added " + added + " feeds.");
+        return added;
+    }
+
+    /**
+     * Set, whether to store the items of the added feeds.
+     * 
+     * @param storeItems
+     */
+    public void setStoreItems(boolean storeItems) {
+        this.storeItems = storeItems;
+    }
+
+    /**
+     * Set the maximum number of threads when adding multiple feeds.
+     * 
+     * @param maxThreads
+     */
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
+    }
+
+    /**
+     * Set, whether to classify the text extent of the added feeds. See {@link FeedContentClassifier} for more
+     * information.
+     * 
+     * @param classifyTextExtent
+     */
+    public void setClassifyTextExtent(boolean classifyTextExtent) {
+        this.classifyTextExtent = classifyTextExtent;
+    }
+
+    @SuppressWarnings("static-access")
+    public static void main(String[] args) {
+
+        CommandLineParser parser = new BasicParser();
+
+        // CLI usage: FeedImporter [-add <feed-Url>] [-addFile <file>] [-classifyText] [-storeItems] [-threads nn]
+        Options options = new Options();
+        options.addOption(OptionBuilder.withLongOpt("add").withDescription("adds a feed").hasArg()
+                .withArgName("feedUrl").create());
+        options.addOption(OptionBuilder.withLongOpt("addFile").withDescription("add multiple feeds from supplied file")
+                .hasArg().withArgName("file").create());
+        options.addOption(OptionBuilder.withLongOpt("classifyText")
+                .withDescription("classify the text entent of each feed").create());
+        options.addOption(OptionBuilder.withLongOpt("storeItems")
+                .withDescription("also store the items of each added feed to the database").create());
+        options.addOption(OptionBuilder.withLongOpt("threads")
+                .withDescription("maximum number of simultaneous threads").hasArg().withArgName("nn")
+                .withType(Number.class).create());
+
+        try {
+
+            FeedImporter importer = new FeedImporter(FeedDatabase.getInstance());
+
+            CommandLine cmd = parser.parse(options, args);
+
+            if (args.length < 1) {
+                // no arguments given, print usage help in catch clause.
+                throw new ParseException(null);
+            }
+
+            if (cmd.hasOption("classifyText")) {
+                importer.setClassifyTextExtent(true);
+            }
+            if (cmd.hasOption("storeItems")) {
+                importer.setStoreItems(true);
+            }
+            if (cmd.hasOption("threads")) {
+                importer.setMaxThreads(((Number) cmd.getParsedOptionValue("threads")).intValue());
+            }
+            if (cmd.hasOption("add")) {
+                importer.addFeed(cmd.getOptionValue("add"));
+            }
+            if (cmd.hasOption("addFile")) {
+                importer.addFeedsFromFile(cmd.getOptionValue("addFile"));
+            }
+
+            return;
+
+        } catch (ParseException e) {
+            // print usage help
+            HelpFormatter formatter = new HelpFormatter();
+            formatter.printHelp(FeedImporter.class.getName() + " [options]", options);
+        }
+
     }
 
 }

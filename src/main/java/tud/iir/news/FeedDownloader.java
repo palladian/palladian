@@ -437,6 +437,14 @@ public class FeedDownloader {
         return feed;
 
     }
+    
+    public Feed getFeed(String feedUrl, boolean downloadPages) throws NewsAggregatorException {
+        
+        Feed feed = getFeed(feedUrl);
+        fetchPageContentForEntries(feed.getItems());
+        return feed;
+        
+    }
 
     private Document downloadFeed(String feedUrl, HeaderInformation headerInformation) throws NewsAggregatorException {
 

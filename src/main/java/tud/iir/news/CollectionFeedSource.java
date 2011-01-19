@@ -3,13 +3,13 @@ package tud.iir.news;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 /**
  * A feed source providing feeds from a static collection. The collection is provided to an object of this class upon
- * its creation.
+ * its creation. Can be used as mock class for testing purposes when no database is available.
  * 
  * @author Klemens Muthmann
+ * @author Philipp Katz
  * 
  */
 public class CollectionFeedSource implements FeedStore {
@@ -29,6 +29,13 @@ public class CollectionFeedSource implements FeedStore {
             throw new IllegalArgumentException("Collection of feeds: " + feeds + " is not valid.");
         }
         this.feeds = feeds;
+    }
+
+    /**
+     * Creates a new feed source initialized with an empty collection.
+     */
+    public CollectionFeedSource() {
+        this(new ArrayList<Feed>());
     }
 
     @Override

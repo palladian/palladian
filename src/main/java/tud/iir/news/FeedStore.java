@@ -1,7 +1,6 @@
 package tud.iir.news;
 
 import java.util.List;
-import java.util.Set;
 
 // TODO move to persistence
 /**

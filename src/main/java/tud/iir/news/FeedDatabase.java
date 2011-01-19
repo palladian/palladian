@@ -20,7 +20,6 @@ import tud.iir.persistence.DatabaseManager;
  * The FeedDatabase is an implementation of the FeedStore that stores feeds and entries in a relational database.
  * 
  * TODO change schema to InnoDB?
- * TODO move Tag storage from DB to Lucene index.
  * 
  * @author Philipp Katz
  * @author David Urbansky
