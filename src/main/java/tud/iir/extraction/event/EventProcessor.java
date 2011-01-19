@@ -46,6 +46,9 @@ public class EventProcessor extends NaturalLanguageProcessor {
     /** the logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(EventProcessor.class);
 
+    /** An instance of the featureExtractor used for text processing. **/
+    private EventFeatureExtractor featureExtractor;
+
     /**
      * @param args
      */
@@ -73,8 +76,13 @@ public class EventProcessor extends NaturalLanguageProcessor {
 
         this.loadDefaultModels();
 
+        featureExtractor = new EventFeatureExtractor();
+
     }
 
+    /**
+     * loads the default models for each part of the processor.
+     */
     private void loadDefaultModels() {
         PropertiesConfiguration config = null;
 
@@ -94,11 +102,18 @@ public class EventProcessor extends NaturalLanguageProcessor {
 
     }
 
+    /**
+     * preprocesses an event.
+     *
+     * @param event
+     */
     public void processEvent(Event event) {
 
         if (event.getText().length() > 0) {
             event.setSentences(getSentences(event.getText()));
             annotateEvent(event);
+            featureExtractor.calculateFeatures(event);
+
         } else {
             LOGGER
                     .info("Error while proccessing event, is the event already created from url?");
@@ -112,7 +127,7 @@ public class EventProcessor extends NaturalLanguageProcessor {
      * @param event
      * @return
      */
-    public Map<Integer, Annotations> getCoreferenceAnnotations(
+    private Map<Integer, Annotations> getCorefAnnotations(
             Annotations annotations) {
 
         /*
@@ -194,7 +209,7 @@ public class EventProcessor extends NaturalLanguageProcessor {
         // now performing coreference annotation
 
         event
-                .setCorefAnnotations((HashMap<Integer, Annotations>) getCoreferenceAnnotations(event
+                .setCorefAnnotations((HashMap<Integer, Annotations>) getCorefAnnotations(event
                         .getAnnotations()));
 
     }
@@ -205,7 +220,7 @@ public class EventProcessor extends NaturalLanguageProcessor {
      * @param event
      * @return the annotations
      */
-    public Annotations getNounAnnotations(String text) {
+    private Annotations getNounAnnotations(String text) {
 
         phraseChunker.loadDefaultModel();
         phraseChunker.chunk(text);
@@ -281,7 +296,7 @@ public class EventProcessor extends NaturalLanguageProcessor {
      *
      * @param who
      * @param what
-     * @return
+     * @return map of regular expressions
      */
     public Map<String, Double> getWhyRegExp(String who, String what) {
 
@@ -310,9 +325,9 @@ public class EventProcessor extends NaturalLanguageProcessor {
      *
      * @param sentence
      * @param word
-     * @return
+     * @return verbphrase
      */
-    public String getSubsequentVerbPhrase(String sentence, String word) {
+    public String getSubsequentVP(String sentence, String word) {
 
         final ArrayList<String> verbPhrases = new ArrayList<String>();
         boolean foundNoun = false;
@@ -341,11 +356,11 @@ public class EventProcessor extends NaturalLanguageProcessor {
     }
 
     /**
-     * returns the longest subsstring.
+     * returns the longest substring.
      *
      * @param str1
      * @param str2
-     * @return
+     * @return list of strings
      */
     public List<String> longestSubstrings(String str1, String str2) {
 

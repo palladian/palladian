@@ -73,9 +73,6 @@ public class EventExtractor extends Extractor {
     /** The WhoClassifier to classify possible who entities. **/
     private WhoClassifier whoClassifier;
 
-    /** An instance of the featureExtractor used for text processing. **/
-    private EventFeatureExtractor featureExtractor;
-
     /** An instance of the eventProcessor used for text processing. **/
     private EventProcessor eventProcessor;
 
@@ -105,7 +102,6 @@ public class EventExtractor extends Extractor {
     private EventExtractor() {
         super();
         // do not analyze any binary files
-        featureExtractor = new EventFeatureExtractor();
         eventProcessor = new EventProcessor();
         eventProcessor.init();
 
@@ -188,8 +184,7 @@ public class EventExtractor extends Extractor {
         setWhoClassifier(Classifier.BAGGING);
         setWhereClassifier(Classifier.BAGGING);
 
-        getEventProcessor().processEvent(event);
-        getFeatureExtractor().calculateFeatures(event);
+        eventProcessor.processEvent(event);
 
         extract5W1H(event);
 
@@ -429,7 +424,7 @@ public class EventExtractor extends Extractor {
              * who.split(" "); } else { parts = new String[] { who }; }
              */
             if (!changed && event.getTitle().contains(who)) {
-                titleVerbPhrase = eventProcessor.getSubsequentVerbPhrase(event
+                titleVerbPhrase = eventProcessor.getSubsequentVP(event
                         .getTitle(), who);
                 if (titleVerbPhrase != null && !changed) {
                     event.setWho(who);
@@ -449,8 +444,7 @@ public class EventExtractor extends Extractor {
             for (final String stc : event.getSentences()) {
 
                 if (stc.contains(event.getWho()) && what == null) {
-                    what = eventProcessor.getSubsequentVerbPhrase(stc, event
-                            .getWho());
+                    what = eventProcessor.getSubsequentVP(stc, event.getWho());
                 }
 
             }
@@ -572,21 +566,6 @@ public class EventExtractor extends Extractor {
     public void setWhoClassifier(int type) {
         whoClassifier = new WhoClassifier(type);
         whoClassifier.useTrainedClassifier(MODEL_WHO);
-    }
-
-    /**
-     * @return the featureExtractor
-     */
-    public EventFeatureExtractor getFeatureExtractor() {
-        return featureExtractor;
-    }
-
-    /**
-     * @param featureExtractor
-     *            the featureExtractor to set
-     */
-    public void setFeatureExtractor(EventFeatureExtractor featureExtractor) {
-        this.featureExtractor = featureExtractor;
     }
 
     /**
@@ -715,7 +694,7 @@ public class EventExtractor extends Extractor {
 
         final EventExtractor eventExtractor = EventExtractor.getInstance();
         eventExtractor
-                .extractEventFromURL("http://www.bbc.co.uk/news/health-12160618");
+                .extractEventFromURL("http://www.bbc.co.uk/news/world-africa-12209621");
 
         // System.out.println(StringHelper.makeContinuousText(event.getText()));
 

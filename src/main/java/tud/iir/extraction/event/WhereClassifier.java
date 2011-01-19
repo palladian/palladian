@@ -110,11 +110,12 @@ public class WhereClassifier extends Classifier {
     @Override
     public void testClassifier(final String filePath) {
         final EventExtractor eventExtractor = EventExtractor.getInstance();
+        final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
         // eventExtractor.setWhereClassifier(getChosenClassifier());
         final Event event = eventExtractor
                 .createEventFromURL("http://www.bbc.co.uk/news/world-middle-east-10851692?print=true");
 
-        eventExtractor.getFeatureExtractor().calculateFeatures(event);
+        featureExtractor.calculateFeatures(event);
         eventExtractor.extractWhere(event);
 
     }
@@ -142,9 +143,10 @@ public class WhereClassifier extends Classifier {
     public void collectTrainingData(final String filePath) {
 
         final EventExtractor eventExtractor = EventExtractor.getInstance();
+        final EventFeatureExtractor featureExtractor = new EventFeatureExtractor();
 
-        final Map<Integer, String[]> events = eventExtractor
-                .getFeatureExtractor().readCSV("data/news_articles.csv");
+        final Map<Integer, String[]> events = featureExtractor
+                .readCSV("data/news_articles.csv");
 
         for (final Entry<Integer, String[]> entry : events.entrySet()) {
 
@@ -164,8 +166,7 @@ public class WhereClassifier extends Classifier {
             eventMap.put(url, EventExtractor.getInstance().extractEventFromURL(
                     url));
 
-            eventExtractor.getFeatureExtractor()
-                    .setAnnotationFeatures(eventMap);
+            featureExtractor.setAnnotationFeatures(eventMap);
 
             List<String> wheres = new ArrayList<String>();
 
@@ -175,8 +176,7 @@ public class WhereClassifier extends Classifier {
                 wheres.add(where);
             }
 
-            eventExtractor.getFeatureExtractor().writeCSV(filePath, eventMap,
-                    wheres, true);
+            featureExtractor.writeCSV(filePath, eventMap, wheres, true);
 
         }
 
