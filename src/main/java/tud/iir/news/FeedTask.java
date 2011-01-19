@@ -55,7 +55,7 @@ class FeedTask implements Runnable {
         FeedDownloader feedDownloader = new FeedDownloader();
         try {
             feedDownloader.updateItems(feed);
-        } catch (NewsAggregatorException e) {
+        } catch (FeedDownloaderException e) {
             LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
             return;
         }

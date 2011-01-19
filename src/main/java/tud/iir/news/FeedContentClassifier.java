@@ -40,7 +40,7 @@ public class FeedContentClassifier {
             Feed feed = feedDownloader.getFeed(feedUrl);
             feedDownloader.fetchPageContentForEntries(feed.getItems());
             return determineFeedTextType(feed);
-        } catch (NewsAggregatorException e) {
+        } catch (FeedDownloaderException e) {
             return -1;
         }
     }

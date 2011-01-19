@@ -16,13 +16,13 @@ public class FeedDownloaderTest {
 
     @Test
     // @Ignore
-    public void readFeedFromFile() throws NewsAggregatorException {
+    public void readFeedFromFile() throws FeedDownloaderException {
         aggregator.getFeed("data/test/feeds/feed1.xml");
         aggregator.getFeed("data/test/feeds/feed2.xml");
     }
 
     @Test
-    public void downloadFeed() throws NewsAggregatorException {
+    public void downloadFeed() throws FeedDownloaderException {
         if (AllTests.ALL_TESTS) {
             Feed feed = aggregator.getFeed("http://www.gizmodo.de/feed/atom");
             // System.out.println(feed);

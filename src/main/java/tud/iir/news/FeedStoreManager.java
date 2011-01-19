@@ -75,9 +75,9 @@ public class FeedStoreManager {
 
     /**
      * @param args
-     * @throws NewsAggregatorException
+     * @throws FeedDownloaderException
      */
-    public static void main(String[] args) throws NewsAggregatorException {
+    public static void main(String[] args) throws FeedDownloaderException {
         Crawler c = new Crawler();
         Document document = c.getWebDocument("http://www.newser.com/");
 

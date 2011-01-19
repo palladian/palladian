@@ -3,6 +3,7 @@ package tud.iir.news;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 import java.util.Timer;
 
 import org.apache.commons.cli.CommandLine;
@@ -294,6 +295,56 @@ public final class FeedReader {
         feed.setLastFeedEntry(new Date(fps.getTimeNewestPost()));
         feed.increaseChecks();
     }
+    
+    /**
+     * Use the {@link FeedReader} for aggregating feed items.
+     * @param downloadPages
+     */
+    public void aggregate(boolean downloadPages) {
+        aggregate(-1, downloadPages);
+    }
+
+    /**
+     * Use the {@link FeedReader} for aggregating feed items for the specified duration.
+     * @param duration time in milliseconds, -1 for no limit. 
+     * @param downloadPages
+     */
+    public void aggregate(long duration, final boolean downloadPages) {
+        
+        final FeedDownloader feedDownloader = new FeedDownloader();
+        FeedProcessingAction processingAction = new FeedProcessingAction() {
+
+            @Override
+            public void performAction(Feed feed) {
+
+                // int newEntries = 0;
+                List<FeedItem> items = feed.getItems();
+                LOGGER.debug("aggregating entries from " + feed.getFeedUrl());
+
+                // check, which we already have and add the missing ones.
+                List<FeedItem> toAdd = new ArrayList<FeedItem>();
+                for (FeedItem item : items) {
+                    boolean add = feedStore.getFeedEntryByRawId(feed.getId(), item.getRawId()) == null;
+                    if (add) {
+                        toAdd.add(item);
+                    }
+                }
+                boolean fetchPages = downloadPages && feed.getTextType() != Feed.TEXT_TYPE_FULL;
+                if (fetchPages && !toAdd.isEmpty()) {
+                    feedDownloader.fetchPageContentForEntries(toAdd);
+                    // downloadedPages.increment(toAdd.size());
+                }
+                for (FeedItem feedEntry : toAdd) {
+                    feedStore.addFeedEntry(feed, feedEntry);
+                    // newEntries++;
+                }
+
+            }
+        };
+        setFeedProcessingAction(processingAction);
+        startContinuousReading(duration);
+
+    }
 
     // ======================
     // === Setter methods ===
@@ -355,10 +406,10 @@ public final class FeedReader {
      * Sample usage. Command line: parameters: checkType("cf" or "ca" or "cp") runtime(in minutes) checkInterval(only if
      * checkType=1),
      * 
-     * @throws NewsAggregatorException
+     * @throws FeedDownloaderException
      */
     @SuppressWarnings("static-access")
-    public static void main(String[] args) throws NewsAggregatorException {
+    public static void main(String[] args) throws FeedDownloaderException {
 
         FeedReader fchecker = new FeedReader(FeedDatabase.getInstance());
         fchecker.setUpdateStrategy(new FixUpdateStrategy(), true);
