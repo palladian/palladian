@@ -16,15 +16,15 @@ import tud.iir.news.FeedReader;
  * @author David Urbansky
  * 
  */
-public class MAVUpdateStrategy implements UpdateStrategy {
+public class MAVUpdateStrategy extends UpdateStrategy {
 
     @Override
     public void update(Feed feed, FeedPostStatistics fps) {
 
         List<FeedItem> entries = feed.getItems();
 
-        int minCheckInterval = feed.getMinCheckInterval();
-        int maxCheckInterval = feed.getMaxCheckInterval();
+        int minCheckInterval = feed.getUpdateInterval();
+        int maxCheckInterval = feed.getUpdateInterval();
 
         double newEntries = feed.getTargetPercentageOfNewEntries() * (feed.getWindowSize() - 1);
 
@@ -209,13 +209,19 @@ public class MAVUpdateStrategy implements UpdateStrategy {
         // }
         // /////////////////////
 
-        feed.setMinCheckInterval(minCheckInterval);
-        feed.setMaxCheckInterval(maxCheckInterval);
+        if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+            feed.setUpdateInterval(getAllowedUpdateInterval(minCheckInterval));
+        } else {
+            feed.setUpdateInterval(getAllowedUpdateInterval(maxCheckInterval));
+        }
 
         // in case only one entry has been found use default check time
         if (entries.size() <= 1) {
-            feed.setMinCheckInterval(FeedReader.DEFAULT_CHECK_TIME / 2);
-            feed.setMaxCheckInterval(FeedReader.DEFAULT_CHECK_TIME);
+            if (feed.getUpdateMode() == Feed.MIN_DELAY) {
+                feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME / 2));
+            } else {
+                feed.setUpdateInterval(getAllowedUpdateInterval(FeedReader.DEFAULT_CHECK_TIME));
+            }
         }
     }
 

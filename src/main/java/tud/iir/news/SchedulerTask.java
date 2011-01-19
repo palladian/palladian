@@ -24,7 +24,7 @@ class SchedulerTask extends TimerTask {
     /**
      * The collection of all the feeds this scheduler should create update threads for.
      */
-    private final FeedReader feedChecker;
+    private final FeedReader feedReader;
 
     /**
      * The thread pool managing threads that read feeds from the feed sources provided by {@link #collectionOfFeeds}.
@@ -39,15 +39,12 @@ class SchedulerTask extends TimerTask {
      * @param collectionOfFeeds The collection of all the feeds this scheduler should create update threads for.
      * @param threadPoolSize The maximum number of threads to distribute reading feeds to.
      */
-    public SchedulerTask(FeedReader feedChecker) {
+    public SchedulerTask(FeedReader feedReader) {
         super();
-        threadPool = Executors.newFixedThreadPool(FeedReader.MAX_THREAD_POOL_SIZE);
-        this.feedChecker = feedChecker;
+        threadPool = Executors.newFixedThreadPool(feedReader.getThreadPoolSize());
+        this.feedReader = feedReader;
         scheduledTasks = new HashMap<Integer, Future<?>>();
     }
-
-    private static int threadPoolQueueSize = 0;
-    private static int threadsAlive = 0;
 
     /*
      * (non-Javadoc)
@@ -57,7 +54,7 @@ class SchedulerTask extends TimerTask {
     public void run() {
         LOGGER.debug("wake up to check feeds");
         int feedCount = 0;
-        for (Feed feed : feedChecker.getFeeds()) {
+        for (Feed feed : feedReader.getFeeds()) {
             LOGGER.debug("checking feed at address: " + feed.getFeedUrl());
 
             // check whether feed is in the queue already
@@ -67,33 +64,13 @@ class SchedulerTask extends TimerTask {
 
             if (needsLookup(feed)) {
                 // incrementThreadPoolSize();
-                scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedChecker)));
+                scheduledTasks.put(feed.getId(), threadPool.submit(new FeedTask(feed, feedReader)));
                 feedCount++;
             }
 
         }
 
         LOGGER.info("scheduled " + feedCount + " feeds for reading");
-    }
-
-    public static synchronized void incrementThreadPoolSize() {
-        threadPoolQueueSize++;
-        LOGGER.info("inc queue size to: " + threadPoolQueueSize);
-    }
-
-    public static synchronized void decrementThreadPoolSize() {
-        threadPoolQueueSize--;
-        LOGGER.info("dec queue size to: " + threadPoolQueueSize);
-    }
-
-    public static synchronized void incrementThreadsAlive() {
-        threadsAlive++;
-        LOGGER.info("inc threads alive to: " + threadsAlive);
-    }
-
-    public static synchronized void decrementThreadsAlive() {
-        threadsAlive--;
-        LOGGER.info("dec threads alive to: " + threadsAlive);
     }
 
     /**
@@ -108,7 +85,7 @@ class SchedulerTask extends TimerTask {
     private Boolean needsLookup(Feed feed) {
         long now = System.currentTimeMillis();
         return feed.getChecks() == 0 || feed.getLastPollTime() == null
-        || now - feed.getLastPollTime().getTime() > feed.getCheckInterval() * DateHelper.MINUTE_MS;
+                || now - feed.getLastPollTime().getTime() > feed.getUpdateInterval() * DateHelper.MINUTE_MS;
     }
 
     /**

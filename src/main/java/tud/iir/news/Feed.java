@@ -86,12 +86,7 @@ public class Feed {
     /**
      * Time in minutes until it is expected to find at least one new entry in the feed.
      */
-    private int minCheckInterval = 60;
-
-    /**
-     * Time in minutes until it is expected to find only new but one new entries in the feed.
-     */
-    private int maxCheckInterval = 120;
+    private int updateInterval = 60;
 
     public static int MIN_DELAY = 0;
     public static int MAX_COVERAGE = 1;
@@ -282,48 +277,16 @@ public class Feed {
     }
 
     /**
-     * Set the max check interval.
-     * Min = 4 minutes, max = 6 month (267840 minutes)
-     * 
-     * @param maxCheckInterval The max check interval in minutes.
-     */
-    public void setMaxCheckInterval(int maxCheckInterval) {
-        maxCheckInterval = Math.max(4, maxCheckInterval);
-        maxCheckInterval = Math.min(267840, maxCheckInterval);
-        this.maxCheckInterval = maxCheckInterval;
-    }
-
-    public int getMaxCheckInterval() {
-        return maxCheckInterval;
-    }
-
-    /**
      * Set the min check interval.
-     * Min = 2 minutes, max = 1 month (44640 minutes)
      * 
      * @param minCheckInterval The min check interval in minutes.
      */
-    public void setMinCheckInterval(int minCheckInterval) {
-        minCheckInterval = Math.max(2, minCheckInterval);
-        minCheckInterval = Math.min(44640, minCheckInterval);
-        this.minCheckInterval = minCheckInterval;
+    public void setUpdateInterval(int updateInterval) {
+        this.updateInterval = updateInterval;
     }
 
-    public int getMinCheckInterval() {
-        return minCheckInterval;
-    }
-
-    /**
-     * Return either minCheckInterval of maxCheckInterval depending on updateMode.
-     * 
-     * @return The check interval depending on the updateMode.
-     */
-    public int getCheckInterval() {
-        if (getUpdateMode() == Feed.MIN_DELAY) {
-            return getMinCheckInterval();
-        }
-
-        return getMaxCheckInterval();
+    public int getUpdateInterval() {
+        return updateInterval;
     }
 
     public void setLastHeadlines(String lastHeadlines) {
@@ -564,9 +527,8 @@ public class Feed {
         result = prime * result + (lastPollTime == null ? 0 : lastPollTime.hashCode());
         result = prime * result + (lastFeedEntry == null ? 0 : lastFeedEntry.hashCode());
         result = prime * result + (lastHeadlines == null ? 0 : lastHeadlines.hashCode());
-        result = prime * result + maxCheckInterval;
         result = prime * result + (meticulousPostDistribution == null ? 0 : meticulousPostDistribution.hashCode());
-        result = prime * result + minCheckInterval;
+        result = prime * result + updateInterval;
         result = prime * result + (siteUrl == null ? 0 : siteUrl.hashCode());
         result = prime * result + textType;
         result = prime * result + (title == null ? 0 : title.hashCode());
@@ -649,9 +611,6 @@ public class Feed {
         } else if (!lastHeadlines.equals(other.lastHeadlines)) {
             return false;
         }
-        if (maxCheckInterval != other.maxCheckInterval) {
-            return false;
-        }
         if (meticulousPostDistribution == null) {
             if (other.meticulousPostDistribution != null) {
                 return false;
@@ -659,7 +618,7 @@ public class Feed {
         } else if (!meticulousPostDistribution.equals(other.meticulousPostDistribution)) {
             return false;
         }
-        if (minCheckInterval != other.minCheckInterval) {
+        if (updateInterval != other.updateInterval) {
             return false;
         }
         if (siteUrl == null) {

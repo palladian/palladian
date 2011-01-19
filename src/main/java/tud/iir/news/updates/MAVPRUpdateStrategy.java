@@ -14,7 +14,7 @@ import tud.iir.news.FeedReader;
  * @author David Urbansky
  * 
  */
-public class MAVPRUpdateStrategy implements UpdateStrategy {
+public class MAVPRUpdateStrategy extends UpdateStrategy {
 
     /** The prediction for the next item of the post rate strategy. */
     private int prCheckIntervalPrediction;
@@ -44,30 +44,25 @@ public class MAVPRUpdateStrategy implements UpdateStrategy {
             }
         }
         
-        int mavMin = FeedReader.DEFAULT_CHECK_TIME / 2;
-        int mavMax = FeedReader.DEFAULT_CHECK_TIME;
+        int mavInterval = FeedReader.DEFAULT_CHECK_TIME;
         UpdateStrategy mav = new MAVUpdateStrategy();
         mav.update(feed, fps);
-        mavMin = feed.getMinCheckInterval();
-        mavMax = feed.getMaxCheckInterval();
-        mavCheckIntervalPrediction = feed.getCheckInterval();
+        mavInterval = feed.getUpdateInterval();
+        mavCheckIntervalPrediction = feed.getUpdateInterval();
         
-        int prMin = FeedReader.DEFAULT_CHECK_TIME / 2;
-        int prMax = FeedReader.DEFAULT_CHECK_TIME;
+        int prInterval = FeedReader.DEFAULT_CHECK_TIME;
         UpdateStrategy pr = new PostRateUpdateStrategy();
         pr.update(feed, fps);
-        prMin = feed.getMinCheckInterval();
-        prMax = feed.getMaxCheckInterval();
-        prCheckIntervalPrediction = feed.getMinCheckInterval();
+        prInterval = feed.getUpdateInterval();
+        prCheckIntervalPrediction = feed.getUpdateInterval();
         
         if (usePostRate) {
             pr.update(feed, fps);
-            feed.setMinCheckInterval(mavMin);
-            feed.setMaxCheckInterval(mavMax);
+            feed.setUpdateInterval(getAllowedUpdateInterval(mavInterval));
+
         } else {
             mav.update(feed, fps);
-            feed.setMinCheckInterval(prMin);
-            feed.setMaxCheckInterval(prMax);
+            feed.setUpdateInterval(getAllowedUpdateInterval(prInterval));
         }
 
     }
