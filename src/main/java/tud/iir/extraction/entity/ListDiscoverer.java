@@ -90,9 +90,9 @@ public class ListDiscoverer {
                 nodeText = nodeText.replaceAll("\\[", "").replaceAll("\\]", "");
                 // System.out.println(nodeText+" | "+currentNode.getTextContent());
                 if (nodeText.length() > 0
-                        && (((nodeText.length() <= 3 && StringHelper.isNumber(nodeText)) || (nodeText.length() == 1 && StringHelper
-                                .isCompletelyUppercase(nodeText))) || (nodeText.toLowerCase().indexOf("next") > -1 && nodeText
-                                .length() < 8))) {
+                        && (nodeText.length() <= 3 && StringHelper.isNumber(nodeText) || nodeText.length() == 1 && StringHelper
+                                .isCompletelyUppercase(nodeText) || nodeText.toLowerCase().indexOf("next") > -1 && nodeText
+                                .length() < 8)) {
                     paginationPaths.add(PageAnalyzer.removeXPathIndices(pa.constructXPath(currentNode),
                             removeCountElements));
                 }
@@ -139,9 +139,9 @@ public class ListDiscoverer {
                     Iterator<String> hrefTextIterator = hrefTexts.iterator();
                     while (hrefTextIterator.hasNext()) {
                         String currentHrefText = hrefTextIterator.next();
-                        if (i % 2 == 0)
+                        if (i % 2 == 0) {
                             hrefText1 = currentHrefText;
-                        else {
+                        } else {
                             hrefText2 = currentHrefText;
                             float hrefSimilarity = stringDistanceMetric.getSimilarity(hrefText1, hrefText2);
                             similaritySum += hrefSimilarity;
@@ -165,7 +165,7 @@ public class ListDiscoverer {
                 }
                 int count = paginationPaths.getCountOfXPath(paginationXPath);
                 // System.out.println("one element: "+pa.getTextByXpath(document, paginationXPath));
-                if ((count == 1)/*
+                if (count == 1/*
                                  * || (count == 2 && !StringHelper.trim(pa.getTextByXpath(document,
                                  * paginationXPath)).equals("1,2"))
                                  */) {
@@ -205,7 +205,7 @@ public class ListDiscoverer {
                     try {
                         pageNumbers.add(Integer.valueOf(nodeText));
                     } catch (NumberFormatException e) {
-                        Logger.getRootLogger().error(nodeText, e);
+                        Logger.getRootLogger().error(nodeText + "," + e.getMessage());
                     }
                 }
             }
@@ -282,8 +282,9 @@ public class ListDiscoverer {
             String currentXPath = listElements[i];
 
             List<Node> results = XPathHelper.getNodes(document, currentXPath);
-            if (results == null)
+            if (results == null) {
                 continue;
+            }
             for (int j = 0; j < results.size(); j++) {
                 Node currentNode = results.get(j);
                 // String xPath = PageAnalyzer.removeCounts(pa.constructXPath(currentNode));
@@ -332,8 +333,9 @@ public class ListDiscoverer {
 
         // if no page specific list has been found (one that does not also appear on the sibling page) return empty
         // string
-        if (xPathSet.getXPathMap().size() == 0)
+        if (xPathSet.getXPathMap().size() == 0) {
             return "";
+        }
 
         // get list path
         entityXPath = xPathSet.getHighestCountXPath(); // TODO test without that
@@ -344,8 +346,9 @@ public class ListDiscoverer {
             int column = findEntityColumn(document, entityXPath);
 
             // no column is uniform, return empty xPath
-            if (column == -1)
+            if (column == -1) {
                 return "";
+            }
             entityXPath = setIndex(entityXPath, "TD", column);
 
             /*
@@ -384,12 +387,14 @@ public class ListDiscoverer {
 
         PageAnalyzer pa = new PageAnalyzer();
         String siblingURL = crawler.getSiblingPage(document);
-        if (siblingURL.length() == 0)
+        if (siblingURL.length() == 0) {
             return xPathSet;
+        }
 
         Document siblingDocument = crawler.getWebDocument(siblingURL);
-        if (siblingDocument == null)
+        if (siblingDocument == null) {
             return xPathSet;
+        }
 
         XPathSet siblingXPathSet = getXPathSet(siblingDocument);
         LinkedHashMap<String, Integer> siblingXPathSetMap = siblingXPathSet.getXPathMap();
@@ -478,7 +483,7 @@ public class ListDiscoverer {
             for (int j = 0; j < columnNodes.size(); j++) {
                 columnEntries.add(columnNodes.get(j).getTextContent());
             }
-            if ((entriesUniform(columnEntries, true) && columnEntries.size() > 0) || pureColumnNodes.size() <= 1) {
+            if (entriesUniform(columnEntries, true) && columnEntries.size() > 0 || pureColumnNodes.size() <= 1) {
                 uniformColumns.add(i);
                 Logger.getLogger(EntityExtractor.class).info("Column " + i + "/" + columnCount + " is uniform");
             } else {
@@ -507,8 +512,9 @@ public class ListDiscoverer {
     private String setIndex(String xPath, String element, int index) {
         String updatedXPath = xPath;
         int elementIndex = xPath.lastIndexOf(element);
-        if (elementIndex == -1)
+        if (elementIndex == -1) {
             return xPath;
+        }
         updatedXPath = xPath.substring(0, elementIndex);
         if (updatedXPath.matches(element + "\\[")) {
             if (index == 0) {
@@ -562,16 +568,18 @@ public class ListDiscoverer {
             }
 
             try {
-                if (StringHelper.isNumericExpression(entry) || StringHelper.isTimeExpression(entry))
+                if (StringHelper.isNumericExpression(entry) || StringHelper.isTimeExpression(entry)) {
                     numericEntries++;
+                }
             } catch (NumberFormatException e) {
                 Logger.getLogger(EntityExtractor.class).error(entry, e);
             } catch (OutOfMemoryError e) {
                 Logger.getLogger(EntityExtractor.class).error(entry, e);
             }
 
-            if (StringHelper.isCompletelyUppercase(entry))
+            if (StringHelper.isCompletelyUppercase(entry)) {
                 completelyCapitalized++;
+            }
 
             if (entry.length() == 0) {
                 missingEntries++;
