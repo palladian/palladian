@@ -85,8 +85,10 @@ class FeedTask implements Runnable {
         // save the feed back to the database
         feedReader.updateFeed(feed);
 
-        // LOGGER.info("End of Thread");
-        // SchedulerTask.decrementThreadsAlive();
+        // since the feed is kept in memory we need to remove all items and the document stored in the feed
+        feed.freeMemory();
+
+        LOGGER.trace("end of feed task");
     }
 
 }
