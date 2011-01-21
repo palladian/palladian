@@ -6,8 +6,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -251,6 +251,7 @@ public class Feed {
      */
     public void freeMemory() {
         rawMarkup = "";
+        document = null;
         setItems(new ArrayList<FeedItem>());
     }
 
