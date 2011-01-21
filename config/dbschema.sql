@@ -323,6 +323,27 @@ CREATE TABLE IF NOT EXISTS `entities_sources` (
 
 -- --------------------------------------------------------
 
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `sources`
+--
+
+CREATE TABLE IF NOT EXISTS `sources` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `url` varchar(500) DEFAULT NULL,
+  `entityTrust` double unsigned NOT NULL DEFAULT '0.5',
+  `voting` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `url` (`url`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+--
+-- Daten für Tabelle `sources`
+--
+
+
+-- --------------------------------------------------------
 --
 -- Tabellenstruktur für Tabelle `entity_trust_view`
 --
@@ -524,7 +545,7 @@ CREATE TABLE `events` (
   `how` text CHARACTER SET utf8 COLLATE utf8_unicode_ci,
   `extractedAt` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -544,7 +565,7 @@ CREATE TABLE IF NOT EXISTS `ip2location` (
   `longitude` double DEFAULT NULL,
   `metrocode` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`ipStart`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 --
 -- Daten für Tabelle `ip2location`
@@ -693,27 +714,7 @@ CREATE TABLE IF NOT EXISTS `snippets` (
 --
 
 
--- --------------------------------------------------------
 
---
--- Tabellenstruktur für Tabelle `sources`
---
-
-CREATE TABLE IF NOT EXISTS `sources` (
-  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `url` varchar(500) DEFAULT NULL,
-  `entityTrust` double unsigned NOT NULL DEFAULT '0.5',
-  `voting` tinyint(1) NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `url` (`url`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
-
---
--- Daten für Tabelle `sources`
---
-
-
--- --------------------------------------------------------
 
 --
 -- Tabellenstruktur für Tabelle `sources_entities_view`
