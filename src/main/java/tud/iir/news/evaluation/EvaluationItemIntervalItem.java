@@ -9,30 +9,22 @@ package tud.iir.news.evaluation;
  */
 public class EvaluationItemIntervalItem {
 
-    /* FeedID */
+    /** FeedID */
     private int feedID = -1; 
     
-    /* the feed's update class, e.g. zombie, constant */
+    /** The feed's update class, e.g. zombie, constant. */
     private int activityPattern = -1;
     
-    /* the average number of new entries per day */
+    /** The average number of new entries per day. */
     private double averageEntriesPerDay = -1;
     
-    /* the feed's median item interval in minutes (several items may be updated at the same time) */
+    /** The feed's median item interval in minutes (several items may be updated at the same time). */
     private long medianItemInterval = -1;
     
-    /* the feed's average update interval in minutes (one update may contain several items) */
+    /** The feed's average update interval in minutes (one update may contain several items). */
     private long averageUpdateInterval = -1;
     
     
-    /**
-     * 
-     */
-    public EvaluationItemIntervalItem() {
-        // TODO Auto-generated constructor stub
-    }
-
-
     /**
      * @return the feedID
      */
@@ -118,12 +110,6 @@ public class EvaluationItemIntervalItem {
     }
 
 
-
-
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -131,43 +117,43 @@ public class EvaluationItemIntervalItem {
         result = prime * result + activityPattern;
         long temp;
         temp = Double.doubleToLongBits(averageEntriesPerDay);
-        result = prime * result + (int) (temp ^ (temp >>> 32));
-        result = prime * result + (int) (averageUpdateInterval ^ (averageUpdateInterval >>> 32));
+        result = prime * result + (int) (temp ^ temp >>> 32);
+        result = prime * result + (int) (averageUpdateInterval ^ averageUpdateInterval >>> 32);
         result = prime * result + feedID;
-        result = prime * result + (int) (medianItemInterval ^ (medianItemInterval >>> 32));
+        result = prime * result + (int) (medianItemInterval ^ medianItemInterval >>> 32);
         return result;
     }
 
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
+        if (this == obj) {
             return true;
-        if (obj == null)
+        }
+        if (obj == null) {
             return false;
-        if (getClass() != obj.getClass())
+        }
+        if (getClass() != obj.getClass()) {
             return false;
+        }
         EvaluationItemIntervalItem other = (EvaluationItemIntervalItem) obj;
-        if (activityPattern != other.activityPattern)
+        if (activityPattern != other.activityPattern) {
             return false;
-        if (Double.doubleToLongBits(averageEntriesPerDay) != Double.doubleToLongBits(other.averageEntriesPerDay))
+        }
+        if (Double.doubleToLongBits(averageEntriesPerDay) != Double.doubleToLongBits(other.averageEntriesPerDay)) {
             return false;
-        if (averageUpdateInterval != other.averageUpdateInterval)
+        }
+        if (averageUpdateInterval != other.averageUpdateInterval) {
             return false;
-        if (feedID != other.feedID)
+        }
+        if (feedID != other.feedID) {
             return false;
-        if (medianItemInterval != other.medianItemInterval)
+        }
+        if (medianItemInterval != other.medianItemInterval) {
             return false;
+        }
         return true;
     }
 
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
     @Override
     public String toString() {
         return "EvaluationItemIntervals [feedID=" + feedID + ", activityPattern=" + activityPattern
