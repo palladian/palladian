@@ -403,17 +403,17 @@ public class FileHelper {
      */
     public static int performActionOnEveryLine(String filePath, LineAction la) {
         int lineNumber = 1;
-        
+
         try {
             FileReader in = new FileReader(filePath);
             lineNumber = performActionOnEveryLine(in, la);
         } catch (FileNotFoundException e) {
             LOGGER.error(filePath + ", " + e.getMessage());
         }
-        
-        return lineNumber - 1;
+
+        return lineNumber;
     }
-    
+
     public static int performActionOnEveryLine(Reader reader, LineAction la) {
 
         int lineNumber = 1;
@@ -454,9 +454,9 @@ public class FileHelper {
      *         {@link filePath}.
      *         See error log for details (Exceptions)
      */
-//    public static boolean writeToFile(String filePath, StringBuilder string) {
-//        return writeToFile(filePath, string.toString());
-//    }
+    //    public static boolean writeToFile(String filePath, StringBuilder string) {
+    //        return writeToFile(filePath, string.toString());
+    //    }
 
     public static int performActionOnEveryLineText(String text, LineAction la) {
 
@@ -609,7 +609,7 @@ public class FileHelper {
         bufferedWriter.close();
 
     }
-    
+
     /**
      * Appends a line to the specified text file if it does not already exist.
      * 
@@ -1241,7 +1241,7 @@ public class FileHelper {
         }
         return false;
     }
-    
+
     /**
      * Check if specified directory exists.
      * 

@@ -108,6 +108,15 @@ public class ClassifierPerformance implements Serializable {
         return number;
     }
 
+    public double getCorrectlyClassified() {
+        int correctlyClassified = 0;
+        for (Category c : getCategories()) {
+            correctlyClassified += getNumberOfCorrectClassifiedDocumentsInCategory(c);
+        }
+
+        return correctlyClassified / (double) getTestDocuments().size();
+    }
+
     /**
      * calculate and return the precision for a given category
      * 
@@ -262,7 +271,7 @@ public class ClassifierPerformance implements Serializable {
             }
 
             accuracy = (truePositives + trueNegatives)
-                    / (truePositives + trueNegatives + falsePositives + falseNegatives);
+            / (truePositives + trueNegatives + falsePositives + falseNegatives);
 
         } catch (ArithmeticException e) {
             Logger.getRootLogger().error("ERROR Division By Zero for Accuracy in Category " + category.getName());
@@ -288,7 +297,7 @@ public class ClassifierPerformance implements Serializable {
         try {
             // the number of documents that belong to the given category
             int documentCount = getTestDocuments().getRealNumberOfCategory(category)
-                    + getTrainingDocuments().getRealNumberOfCategory(category);
+            + getTrainingDocuments().getRealNumberOfCategory(category);
 
             // the total number of documents assigned to categories, one document can be assigned to multiple
             // categories!
@@ -302,7 +311,7 @@ public class ClassifierPerformance implements Serializable {
                 }
 
                 totalAssigned += getTestDocuments().getRealNumberOfCategory(c)
-                        + getTrainingDocuments().getRealNumberOfCategory(c);
+                + getTrainingDocuments().getRealNumberOfCategory(c);
             }
 
             // double ratio = (double) documentCount / (double) (testDocuments.size() + trainingDocuments.size());
