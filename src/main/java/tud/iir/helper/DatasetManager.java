@@ -274,7 +274,7 @@ public class DatasetManager {
 
         int deletedFiles = 0;
 
-        // iterate over all languages
+        // iterate over all folders
         File[] classFolders = FileHelper.getFiles(corpusRootFolderPath);
         for (File classFolder : classFolders) {
 
@@ -303,11 +303,15 @@ public class DatasetManager {
 
         DatasetManager dsm = new DatasetManager();
 
-        String corpusRootFolderPath = "data/datasets/ner/www_test/";
-        dsm.cleanDataset(corpusRootFolderPath);
+        // String corpusRootFolderPath = "data/datasets/ner/www_test/";
+        // dsm.cleanDataset(corpusRootFolderPath);
+        // dsm.createIndex(corpusRootFolderPath);
+        // dsm.splitIndex(corpusRootFolderPath + "index.txt", 50);
+        // dsm.splitIndexParts(corpusRootFolderPath + "index_split1.txt");
+
+        String corpusRootFolderPath = "C:\\Data\\datasets\\20newsgroups-18828\\";
         dsm.createIndex(corpusRootFolderPath);
-        dsm.splitIndex(corpusRootFolderPath + "index.txt", 50);
-        dsm.splitIndexParts(corpusRootFolderPath + "index_split1.txt");
+        dsm.splitIndex(corpusRootFolderPath + "index.txt", 65);
 
     }
 
