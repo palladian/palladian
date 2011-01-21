@@ -2,6 +2,7 @@ package tud.iir.news.evaluation;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
@@ -24,6 +25,7 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedClassifier;
+import tud.iir.news.FeedDatabase;
 import tud.iir.news.FeedPostStatistics;
 import tud.iir.news.FeedReader;
 import tud.iir.news.FeedStore;
@@ -37,6 +39,9 @@ import tud.iir.web.Crawler;
  * 
  */
 public class FeedStatisticCreator {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(FeedStatisticCreator.class);
 
     /**
      * Perform maxCoveragePolicyEvaluation on all evaluation tables.
@@ -555,6 +560,14 @@ public class FeedStatisticCreator {
 
     }
 
+    /**
+     * Generate a csv containing the following information:<br>
+     * feedID;activityPattern;avgEntriesPerDay;medianPostGap;averagePostGap
+     * 
+     * @param feedStore The store where the feeds are held.
+     * @param statisticOutputPath The path where the output should be written to.
+     * @throws IOException
+     */
     public static void createFeedUpdateIntervalDistribution(FeedStore feedStore, String statisticOutputPath)
             throws IOException {
 
@@ -597,6 +610,159 @@ public class FeedStatisticCreator {
         }
 
         csv.close();
+    }
+
+    /**
+     * Generate a csv file containing the following information:<br>
+     * feedID;realAverageUpdateInterval;averageIntervalFix1d;averageIntervalFix1h;averageIntervalFixLearned;
+     * averageIntervalPostRate;averageIntervalMAV
+     * 
+     * @param feedStore The store where the feeds are held.
+     * @param statisticOutputPath The path where the output should be written to.
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void createFeedUpdateIntervals(FeedStore feedStore, String statisticOutputPath) throws IOException,
+            SQLException {
+
+        DatabaseManager dbm = DatabaseManager.getInstance();
+        PreparedStatement psFix1d = dbm
+                .getConnection()
+                .prepareStatement(
+                        "SELECT AVG(checkInterval) FROM feed_evaluation2_fix1440_max_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+        PreparedStatement psFix1h = dbm
+                .getConnection()
+                .prepareStatement(
+                        "SELECT AVG(checkInterval) FROM feed_evaluation2_fix60_max_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+        PreparedStatement psFixLearned = dbm
+                .getConnection()
+                .prepareStatement(
+                        "SELECT AVG(checkInterval) FROM feed_evaluation2_fix_learned_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+        PreparedStatement psFixPostRate = dbm
+                .getConnection()
+                .prepareStatement(
+                        "SELECT AVG(checkInterval) FROM feed_evaluation2_probabilistic_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+        PreparedStatement psFixMAV = dbm
+                .getConnection()
+                .prepareStatement(
+                        "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+
+        // create the file we want to write to
+        FileWriter csv = new FileWriter(statisticOutputPath);
+
+        int c = 0;
+        int totalSize = feedStore.getFeeds().size();
+        for (Feed feed : feedStore.getFeeds()) {
+
+            String safeFeedName = feed.getId() + "_";
+            String historyFilePath = FeedReaderEvaluator.findHistoryFile(safeFeedName);
+
+            // determine the real average update interval of the feeds by looking at the first and last poll timestamp
+            // and the number of items
+            long newestItemTime = 0;
+            long oldestItemTime = 0;
+            List<String> items = FileHelper.readFileToArray(historyFilePath);
+
+            if (items.size() <= 1) {
+                continue;
+            }
+
+            for (String item : items) {
+                String[] itemParts = item.split(";");
+                if (newestItemTime == 0) {
+                    newestItemTime = Long.valueOf(itemParts[0]);
+                }
+                oldestItemTime = Long.valueOf(itemParts[0]);
+            }
+
+            long totalTime = (newestItemTime - oldestItemTime) / DateHelper.MINUTE_MS;
+
+            double realAverageUpdateInterval = MathHelper.round(totalTime / ((double) items.size() - 1), 2);
+
+            // limit feeds to a maximum real average update interval of 31 days = 44640 minutes
+            if (realAverageUpdateInterval > 44640) {
+                LOGGER.warn("feed had real update interval of" + realAverageUpdateInterval
+                        + ", that is too few updates, we skip");
+                continue;
+            }
+            
+            StringBuilder temp = new StringBuilder();
+
+            temp.append(String.valueOf(feed.getId() + ";"));
+            temp.append(String.valueOf(realAverageUpdateInterval) + ";");
+
+            // get the number of polls for the feed from the database for the update strategies
+            psFix1d.setInt(1, feed.getId());
+            double updateInterval = getUpdateInterval(psFix1d);
+            if (updateInterval < 1) {
+                LOGGER.warn("feed had " + items.size()
+                        + " items and the number of polls was too small to calculate a meaningful value");
+                continue;
+            }
+            temp.append(String.valueOf(updateInterval) + ";");
+
+            psFix1h.setInt(1, feed.getId());
+            updateInterval = getUpdateInterval(psFix1h);
+            if (updateInterval < 1) {
+                LOGGER.warn("feed had " + items.size()
+                        + " items and the number of polls was too small to calculate a meaningful value");
+                continue;
+            }
+            temp.append(String.valueOf(updateInterval) + ";");
+
+            psFixLearned.setInt(1, feed.getId());
+            updateInterval = getUpdateInterval(psFixLearned);
+            if (updateInterval < 1) {
+                LOGGER.warn("feed had " + items.size()
+                        + " items and the number of polls was too small to calculate a meaningful value");
+                continue;
+            }
+            temp.append(String.valueOf(updateInterval) + ";");
+
+            psFixPostRate.setInt(1, feed.getId());
+            updateInterval = getUpdateInterval(psFixPostRate);
+            if (updateInterval < 1) {
+                LOGGER.warn("feed had " + items.size()
+                        + " items and the number of polls was too small to calculate a meaningful value");
+                continue;
+            }
+            temp.append(String.valueOf(updateInterval) + ";");
+
+            psFixMAV.setInt(1, feed.getId());
+            updateInterval = getUpdateInterval(psFixMAV);
+            if (updateInterval < 1) {
+                LOGGER.warn("feed had " + items.size()
+                        + " items and the number of polls was too small to calculate a meaningful value");
+                continue;
+            }
+            temp.append(String.valueOf(updateInterval) + ";");
+
+            csv.write(temp.toString());
+            csv.write("\n");
+
+            csv.flush();
+
+            c++;
+
+            Logger.getRootLogger().info("percent done: " + MathHelper.round(100 * c / (double) totalSize, 2));
+        }
+
+        csv.close();
+    }
+
+    private static double getUpdateInterval(PreparedStatement ps) throws SQLException {
+        ResultSet rs = null;
+        rs = DatabaseManager.getInstance().runQuery(ps);
+        if (rs.next()) {
+
+            return rs.getDouble(1);
+
+        } else {
+            LOGGER.error("did not get number of polls strategy with ps: " + ps);
+            System.exit(1);
+        }
+
+        return -1.0;
     }
 
     public static void createGeneralStatistics(FeedStore feedStore, String statisticOutputPath) {
@@ -672,7 +838,8 @@ public class FeedStatisticCreator {
         // FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation2_fix60_max_min_poll");
         // FeedStatisticCreator.minDelayPolicyEvaluationAll();
         // FeedStatisticCreator.timelinessChart();
-        FeedStatisticCreator.delayChart();
+        // FeedStatisticCreator.delayChart();
+        FeedStatisticCreator.createFeedUpdateIntervals(FeedDatabase.getInstance(), "data/temp/feedUpdateIntervals.csv");
 
     }
 
