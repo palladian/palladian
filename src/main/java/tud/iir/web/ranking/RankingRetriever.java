@@ -196,7 +196,10 @@ public class RankingRetriever {
     /** Crawler for downloading purposes. */
     private Crawler crawler = new Crawler();
 
-    /** Ccache for retrieved ranking values. */
+    /**
+     * Ccache for retrieved ranking values. FIXME: problematic since a new timer task (daemon thread) is created when
+     * creating and instance of the RankingRetriever.
+     */
     private RankingCache cache = new RankingCacheMemory();
 
     /** The services to check. */
@@ -260,7 +263,7 @@ public class RankingRetriever {
         for (final Service service : check) {
 
             // This thread will download the rankings from the web APIs if neccessary.
-            Thread rankingThread = new Thread() {
+            Thread rankingThread = new Thread("RankingRetrieverThread") {
 
                 @Override
                 public void run() {
