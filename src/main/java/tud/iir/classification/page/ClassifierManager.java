@@ -308,12 +308,16 @@ public class ClassifierManager {
 
         this.classifier = classifier;
 
+        StopWatch sw = new StopWatch();
+
         // read the testing URLs from the given dataset
         readTrainingTestingData(dataset, false, classifier.getClassificationType());
 
         LOGGER.info("start classifying " + testUrls.size() + " documents");
 
         preprocessDocuments(classifier.getClassificationType(), false, false, dataset);
+
+        LOGGER.info("preprocessed documents in " + sw.getElapsedTimeString());
 
         if (classifier instanceof DictionaryClassifier) {
             classifier.setCategories(((DictionaryClassifier) classifier).getCategories());
@@ -326,6 +330,8 @@ public class ClassifierManager {
         }
 
         writeLog(classifier);
+
+        LOGGER.info("classified " + testUrls.size() + " documents in " + sw.getElapsedTimeString());
 
         return classifier.getPerformance();
     }
@@ -870,14 +876,13 @@ public class ClassifierManager {
         ClassifierManager classifierManager = new ClassifierManager();
 
         // the path to the classifier we want to use
-        // String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
-        String classifierPath = "data/models/ngc/NewsgroupClassifier.ser";
+        String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
 
         // specify the dataset that should be used as testing data
         Dataset dataset = new Dataset();
 
         // set the path to the dataset (should NOT overlap with the training set)
-        dataset.setPath("C:\\Data\\datasets\\20newsgroups-18828\\index_split2.txt");
+        dataset.setPath("data/datasets/classification/language/languageDocumentIndex2.txt");
 
         // tell the preprocessor that the first field in the file is a link to the actual document
         dataset.setFirstFieldLink(true);
@@ -891,7 +896,7 @@ public class ClassifierManager {
 
         LOGGER.info(classifierPerformance.getCorrectlyClassified());
 
-        System.out.println("finished testing classifier in " + stopWatch.getElapsedTimeString());
+        LOGGER.info("finished testing classifier in " + stopWatch.getElapsedTimeString());
     }
 
     /**
@@ -909,17 +914,14 @@ public class ClassifierManager {
         Dataset dataset = new Dataset();
 
         // set the path to the dataset
-        // dataset.setPath("data/datasets/classification/language/languageDocumentIndex.txt");
-        dataset.setPath("C:\\Data\\datasets\\20newsgroups-18828\\index_split1.txt");
-        // classifierManager.setCreateDictionaryIteratively(true);
+        dataset.setPath("data/datasets/classification/language/languageDocumentIndex.txt");
 
         // tell the preprocessor that the first field in the file is a link to the actual document
         dataset.setFirstFieldLink(true);
 
         // create a text classifier by giving a name and a path where it should be saved to
-        // TextClassifier classifier = new DictionaryClassifier("LanguageClassifier",
-        // "data/models/palladianLanguageClassifier/");
-        TextClassifier classifier = new DictionaryClassifier("NewsgroupClassifier", "data/models/ngc/");
+        TextClassifier classifier = new DictionaryClassifier("LanguageClassifier",
+                "data/models/palladianLanguageClassifier/");
 
         // specify the settings for the classification
         ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
@@ -970,7 +972,7 @@ public class ClassifierManager {
     @SuppressWarnings("static-access")
     public static void main(String[] args) {
 
-        // trainLanguageModel();
+        trainLanguageModel();
         evaluateLanguageModel();
         // useLanguageModel();
         System.exit(0);

@@ -308,6 +308,8 @@ public class DictionaryDBIndexH2 extends DictionaryIndex {
 
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
+        } catch (NullPointerException e) {
+            LOGGER.error(e.getMessage(), e);
         }
 
         return categoryEntries;

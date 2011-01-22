@@ -26,7 +26,7 @@ public final class ConnectionTimeout implements Runnable {
     public ConnectionTimeout(URLConnection urlConnection, int timeout) {
         this.urlConnection = urlConnection;
         this.timeout = timeout;
-        new Thread(this).start();
+        new Thread(this, "ConnectionTimeoutThread").start();
     }
 
     @Override

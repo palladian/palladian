@@ -197,10 +197,10 @@ public class RankingRetriever {
     private Crawler crawler = new Crawler();
 
     /**
-     * Ccache for retrieved ranking values. FIXME: problematic since a new timer task (daemon thread) is created when
+     * Cache for retrieved ranking values. FIXME: problematic since a new timer task (daemon thread) is created when
      * creating and instance of the RankingRetriever.
      */
-    private RankingCache cache = new RankingCacheMemory();
+    private RankingCache cache;// = new RankingCacheMemory();
 
     /** The services to check. */
     private Collection<Service> check;
@@ -244,15 +244,23 @@ public class RankingRetriever {
      * see {@link Service#values()}. Use {@link #setServices(Collection)} to specify the services to be checked by this
      * method.
      * 
-     * @param url
+     * @param cleanURL
      * @return
      */
     public Map<Service, Float> getRanking(final String url) {
 
+        // clean anchors
+        final String cleanURL = url.replaceAll("#.*", "");
+
         final Map<Service, Float> result = Collections.synchronizedMap(new HashMap<Service, Float>());
 
         // get rankings from the cache
-        final Map<Service, Float> cachedRankings = cache.get(url);
+        final Map<Service, Float> cachedRankings;
+        if (cache != null) {
+            cachedRankings = cache.get(url);
+        } else {
+            cachedRankings = new HashMap<RankingRetriever.Service, Float>();
+        }
 
         // rankings which we downloaded from the web -- these will be cached
         final Map<Service, Float> downloadedRankings = Collections.synchronizedMap(new HashMap<Service, Float>());
@@ -268,7 +276,7 @@ public class RankingRetriever {
                 @Override
                 public void run() {
 
-                    LOGGER.trace("start thread for " + service + " : " + url);
+                    LOGGER.trace("start thread for " + service + " : " + cleanURL);
 
                     // -1 means : need to get the ranking from web api
                     float ranking = -1;
@@ -278,13 +286,13 @@ public class RankingRetriever {
                     }
 
                     if (ranking == -1) {
-                        ranking = getRanking(url, service);
+                        ranking = getRanking(cleanURL, service);
                         downloadedRankings.put(service, ranking);
                     }
 
                     result.put(service, ranking);
 
-                    LOGGER.trace("finished thread for " + service + " : " + url);
+                    LOGGER.trace("finished thread for " + service + " : " + cleanURL);
 
                 }
             };
@@ -302,8 +310,8 @@ public class RankingRetriever {
         }
 
         // add the downloaded rankings to the cache
-        if (!downloadedRankings.isEmpty()) {
-            cache.add(url, downloadedRankings);
+        if (!downloadedRankings.isEmpty() && cache != null) {
+            cache.add(cleanURL, downloadedRankings);
         }
 
         return result;
