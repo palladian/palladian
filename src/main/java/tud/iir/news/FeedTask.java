@@ -16,7 +16,7 @@ import tud.iir.helper.DateHelper;
  * @see FeedReader
  * 
  */
-class FeedTask implements Runnable {
+class FeedTask extends Thread {
 
     /** The logger for this class. */
     private final static Logger LOGGER = Logger.getLogger(FeedTask.class);
@@ -38,6 +38,7 @@ class FeedTask implements Runnable {
      * @param feed The feed retrieved by this task.
      */
     public FeedTask(Feed feed, FeedReader feedChecker) {
+        setName("FeedTask:" + feed.getFeedUrl());
         this.feed = feed;
         this.feedReader = feedChecker;
     }
