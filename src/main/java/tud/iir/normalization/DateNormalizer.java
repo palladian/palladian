@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.DateHelper;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 
 // TODO put normalization from StringHelper and MathHelper here
 /**

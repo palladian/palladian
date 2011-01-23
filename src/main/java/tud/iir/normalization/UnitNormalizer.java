@@ -7,10 +7,8 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.MathHelper;
+import tud.iir.helper.RegExp;
 import tud.iir.helper.StringHelper;
-import tud.iir.knowledge.Attribute;
-import tud.iir.knowledge.AttributeRange;
-import tud.iir.knowledge.RegExp;
 
 /**
  * The UnitNormalizer normalizes units.
@@ -18,6 +16,13 @@ import tud.iir.knowledge.RegExp;
  * @author David Urbansky
  */
 public class UnitNormalizer {
+
+    public static final int UNIT_UNITLESS = 0;
+    public static final int UNIT_TIME = 1;
+    public static final int UNIT_DIGITAL = 2;
+    public static final int UNIT_FREQUENCY = 3;
+    public static final int UNIT_LENGTH = 4;
+    public static final int UNIT_WEIGHT = 5;
 
     private static boolean isTimeUnit(String unit) {
         HashSet<String> timeUnits = new HashSet<String>();
@@ -158,7 +163,7 @@ public class UnitNormalizer {
      * @return True if unitB is bigger than unitS.
      */
     public static boolean isBigger(String unitB, String unitS) {
-        return (unitLookup(unitB) > unitLookup(unitS));
+        return unitLookup(unitB) > unitLookup(unitS);
     }
 
     /**
@@ -429,42 +434,43 @@ public class UnitNormalizer {
 
     public static String getUnitTypeName(String string) {
         int unitType = getUnitType(string);
-        if (unitType == AttributeRange.UNIT_TIME) {
+        if (unitType == UNIT_TIME) {
             return "sec";
-        } else if (unitType == AttributeRange.UNIT_DIGITAL) {
+        } else if (unitType == UNIT_DIGITAL) {
             return "bytes";
-        } else if (unitType == AttributeRange.UNIT_FREQUENCY) {
+        } else if (unitType == UNIT_FREQUENCY) {
             return "Hz";
-        } else if (unitType == AttributeRange.UNIT_LENGTH) {
+        } else if (unitType == UNIT_LENGTH) {
             return "cm";
-        } else if (unitType == AttributeRange.UNIT_WEIGHT) {
+        } else if (unitType == UNIT_WEIGHT) {
             return "g";
-        } else
+        } else {
             return "";
+        }
     }
 
     public static int getUnitType(String string) {
         String words[] = string.split(" ");
-        int unitType = AttributeRange.UNIT_UNITLESS;
+        int unitType = UNIT_UNITLESS;
 
         for (int i = 0; i < words.length; i++) {
             String word = words[i].toLowerCase();
             if (isTimeUnit(word)) {
-                unitType = AttributeRange.UNIT_TIME;
+                unitType = UNIT_TIME;
             }
             if (isDigitalUnit(word)) {
-                unitType = AttributeRange.UNIT_DIGITAL;
+                unitType = UNIT_DIGITAL;
             }
             if (isFrequencyUnit(word)) {
-                unitType = AttributeRange.UNIT_FREQUENCY;
+                unitType = UNIT_FREQUENCY;
             }
             if (isLengthUnit(word)) {
-                unitType = AttributeRange.UNIT_LENGTH;
+                unitType = UNIT_LENGTH;
             }
             if (isWeightUnit(word)) {
-                unitType = AttributeRange.UNIT_WEIGHT;
+                unitType = UNIT_WEIGHT;
             }
-            if (unitType != AttributeRange.UNIT_UNITLESS) {
+            if (unitType != UNIT_UNITLESS) {
                 break; // we found a unit
             }
         }
@@ -567,7 +573,7 @@ public class UnitNormalizer {
         // because of trimming RAM: 2GB - 80GB HDD becomes 2GB 80GB
         // second unit must be same type (time, distance etc.) and smaller
         restWordSequence = restWordSequence.trim();
-        Pattern pat = Pattern.compile("\\A" + RegExp.getRegExp(Attribute.VALUE_NUMERIC));
+        Pattern pat = Pattern.compile("\\A" + RegExp.getRegExp(RegExp.VALUE_NUMERIC));
         Matcher m = pat.matcher(restWordSequence);
 
         m.region(0, restWordSequence.length());
