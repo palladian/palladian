@@ -1,6 +1,10 @@
 package tud.iir.classification.page;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
+
+import org.junit.Test;
+
 import tud.iir.classification.Categories;
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
@@ -8,11 +12,89 @@ import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Dictionary;
 import tud.iir.classification.Term;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
+import tud.iir.classification.page.evaluation.Dataset;
+import tud.iir.classification.page.evaluation.FeatureSetting;
 
 public class ClassifierTest extends TestCase {
 
     public ClassifierTest(String name) {
         super(name);
+    }
+
+    @Test
+    /**
+     * Build a simple dictionary of 4 documents and test regression:<br>
+     * document (class/value)    | words
+     * 1 (1)                     | a b c
+     * 2 (4)                     |     c d e
+     * 3 (5)                     |          f g h
+     * 4 (10)                    |   b c          i 
+     */
+    public void testRegressionTextClassifier() {
+
+        // create a classifier mananger object
+        ClassifierManager classifierManager = new ClassifierManager();
+
+        // specify the dataset that should be used as training data
+        Dataset dataset = new Dataset();
+
+        // set the path to the dataset
+        dataset.setPath("data/test/classifier/index_learning.txt");
+
+        // tell the preprocessor that the first field in the file is a link to the actual document
+        dataset.setFirstFieldLink(true);
+
+        // create a text classifier by giving a name and a path where it should be saved to
+        TextClassifier classifier = new DictionaryClassifier();
+
+        // specify the settings for the classification
+        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+
+        // we use only a single category per document
+        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.REGRESSION);
+
+        // we want the classifier to be serialized in the end
+        classificationTypeSetting.setSerializeClassifier(false);
+
+        // specify feature settings that should be used by the classifier
+        FeatureSetting featureSetting = new FeatureSetting();
+
+        // we want to create character-level n-grams
+        featureSetting.setTextFeatureType(FeatureSetting.WORD_NGRAMS);
+
+        // the minimum length of our n-grams should be 1
+        featureSetting.setMinNGramLength(1);
+
+        // the maximum length of our n-grams should be 1
+        featureSetting.setMaxNGramLength(1);
+
+        // terms can be one char
+        featureSetting.setMinimumTermLength(1);
+
+        // we assign the settings to our classifier
+        classifier.setClassificationTypeSetting(classificationTypeSetting);
+        classifier.setFeatureSetting(featureSetting);
+
+        // now we can train the classifier using the given dataset
+        classifierManager.trainClassifier(dataset, classifier);
+
+        // test different documents
+        ClassificationDocument classifiedDocument;
+
+        classifiedDocument = classifier.classify("a");
+        Assert.assertEquals("1.0", classifiedDocument.getMainCategoryEntry().getCategory().getName());
+
+        classifiedDocument = classifier.classify("b");
+        Assert.assertEquals("5.5", classifiedDocument.getMainCategoryEntry().getCategory().getName());
+
+        // 1/3 * 1 + 1/3 * 4 + 1/3 * 10 = 5
+        classifiedDocument = classifier.classify("c");
+        Assert.assertEquals("5.0", classifiedDocument.getMainCategoryEntry().getCategory().getName());
+
+        // that is kind of experimental since the calculation uses squared relevances that might not apply for
+        // regression
+        classifiedDocument = classifier.classify("a c");
+        Assert.assertEquals("1.9999999999999996", classifiedDocument.getMainCategoryEntry().getCategory().getName());
     }
 
     public void testClassifier() {

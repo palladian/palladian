@@ -4,7 +4,6 @@ import java.io.File;
 import java.util.List;
 
 import junit.framework.TestCase;
-import tud.iir.knowledge.RegExp;
 
 /**
  * Test cases for the StringHelper class.

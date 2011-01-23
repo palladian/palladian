@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import org.junit.Test;
 
 import tud.iir.daterecognition.dates.ExtractedDate;
-import tud.iir.knowledge.RegExp;
 
 public class DateComparatorTest {
 

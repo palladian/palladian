@@ -17,7 +17,7 @@ import tud.iir.daterecognition.technique.HTTPDateGetter;
 import tud.iir.daterecognition.technique.HeadDateGetter;
 import tud.iir.daterecognition.technique.URLDateGetter;
 import tud.iir.helper.DateArrayHelper;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 import tud.iir.web.Crawler;
 
 public class DateGetterHelperTest {

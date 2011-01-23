@@ -3,7 +3,6 @@ package tud.iir.control;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import tud.iir.classification.page.ClassifierTest;
-import tud.iir.extraction.ListDiscoveryTest;
 import tud.iir.normalization.NormalizationTest;
 import tud.iir.web.CrawlerTest;
 
@@ -22,7 +21,6 @@ public class HudsonTests {
         // $JUnit-BEGIN$
         suite.addTestSuite(ClassifierTest.class);
         suite.addTestSuite(CrawlerTest.class);
-        suite.addTestSuite(ListDiscoveryTest.class);
         suite.addTestSuite(NormalizationTest.class);
 
         // $JUnit-END$
