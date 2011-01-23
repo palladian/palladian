@@ -6,7 +6,7 @@ import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 import tud.iir.web.Crawler;
 
 public class StringTagger {
