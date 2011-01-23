@@ -235,6 +235,8 @@ public class ClassificationDocument {
                 return "tag";
             case ClassificationTypeSetting.HIERARCHICAL:
                 return "hierarchical";
+            case ClassificationTypeSetting.REGRESSION:
+                return "regression";
         }
         return "unknown";
     }

@@ -24,6 +24,9 @@ public class ClassificationTypeSetting implements Serializable {
     /** Take all categories ant treat them as tags. */
     public static final int TAG = 3;
 
+    /** The output variable is a number. */
+    public static final int REGRESSION = 4;
+
     /**
      * the classification type under which the classifier operates, this must be one of {@link SINGLE},
      * {@link HIERARCHICAL}, or {@link TAG}
