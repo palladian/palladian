@@ -32,7 +32,7 @@ public class DictionaryClassifier extends TextClassifier {
     protected Dictionary dictionary = null;
 
     /** The path to the dictionary, whether where it should be or has been serialized. */
-    private String dictionaryPath = "";
+    private String dictionaryPath = null;
 
     /** Hold all possible dictionaries in a map. */
     protected Map<Integer, Dictionary> dictionaries = new HashMap<Integer, Dictionary>();
@@ -174,6 +174,10 @@ public class DictionaryClassifier extends TextClassifier {
      * Load the dictionary into memory, or activate it when several have been loaded.
      */
     public void loadDictionary(int classType) {
+
+        if (dictionaryPath == null) {
+            return;
+        }
 
         if (dictionaries.get(classType) == null) {
             String modelFilePath = getDictionaryPath() + getDictionaryName() + ".ser";
@@ -447,6 +451,19 @@ public class DictionaryClassifier extends TextClassifier {
         // keep only top category for single mode
         else if (classType == ClassificationTypeSetting.SINGLE) {
             document.limitCategories(1, 1, 0.0);
+        }
+
+        // calculate one regression value for the given documents
+        else if (classType == ClassificationTypeSetting.REGRESSION) {
+            double regressionValue = 0;
+            for (CategoryEntry ce : document.getAssignedCategoryEntries()) {
+                if (ce.getRelevance() > 0) {
+                    regressionValue += Double.valueOf(ce.getCategory().getName()) * ce.getRelevance();
+                }
+            }
+            document.getAssignedCategoryEntries().clear();
+            document.addCategoryEntry(new CategoryEntry(document.getAssignedCategoryEntries(), new Category(String
+                    .valueOf(regressionValue)), 1));
         }
 
         if (document.getAssignedCategoryEntries().isEmpty()) {

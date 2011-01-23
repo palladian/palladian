@@ -10,8 +10,6 @@ import java.util.Iterator;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.entity.EntityClassifier;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.persistence.DatabaseManager;
@@ -633,7 +631,7 @@ public class Classifier {
         // System.out.println(fos.iterator().next());
         // System.exit(0);
 
-        EntityClassifier bc = new EntityClassifier(Classifier.NEURAL_NETWORK);
+        // EntityClassifier bc = new EntityClassifier(Classifier.NEURAL_NETWORK);
         // bc.trainClassifier("data/trainingSets/trainingConcept1.txt");
         // bc.trainClassifier(1);
 
@@ -646,15 +644,15 @@ public class Classifier {
         String[] featureNames = { "a", "b", "c" };
 
         FeatureObject fo = new FeatureObject(features, featureNames);
-        boolean c = bc.classifyBinary(fo, true);
-        if (c) {
-            System.out.println("object is classified as positive");
-        } else {
-            System.out.println("object is classified as negative");
-        }
+        // boolean c = bc.classifyBinary(fo, true);
+        // if (c) {
+        // System.out.println("object is classified as positive");
+        // } else {
+        // System.out.println("object is classified as negative");
+        // }
 
         System.exit(0);
-        ArrayList<FeatureObject> fol = bc.getTrainingObjects();
-        CollectionHelper.print(fol);
+        // ArrayList<FeatureObject> fol = bc.getTrainingObjects();
+        // CollectionHelper.print(fol);
     }
 }

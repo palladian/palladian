@@ -56,7 +56,7 @@ public class Helper {
                     }
 
                     for (int i = 0; i < parts.length; i++) {
-                        dbm.addAssessmentInstance(conceptIDs.get(i), Integer.valueOf(parts[i]), classValue);
+                        // dbm.addAssessmentInstance(conceptIDs.get(i), Integer.valueOf(parts[i]), classValue);
                     }
                 }
 
