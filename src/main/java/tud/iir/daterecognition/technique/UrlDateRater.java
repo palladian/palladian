@@ -5,7 +5,7 @@ import java.util.HashMap;
 
 import tud.iir.daterecognition.DateRaterHelper;
 import tud.iir.daterecognition.dates.URLDate;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 
 /**
  * 

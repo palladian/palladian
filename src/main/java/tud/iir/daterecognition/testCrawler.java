@@ -21,7 +21,7 @@ import tud.iir.daterecognition.technique.UrlDateRater;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
 import tud.iir.helper.RatedDateComparator;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 import tud.iir.web.Crawler;
 import tud.iir.web.CrawlerCallback;
 

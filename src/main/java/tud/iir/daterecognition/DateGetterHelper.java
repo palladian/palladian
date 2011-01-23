@@ -14,8 +14,8 @@ import com.ibm.icu.util.Calendar;
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.HTMLHelper;
+import tud.iir.helper.RegExp;
 import tud.iir.helper.StringHelper;
-import tud.iir.knowledge.RegExp;
 
 /**
  * DateGetterHelper provides the techniques to find dates out of webpages. Also provides different helper methods.

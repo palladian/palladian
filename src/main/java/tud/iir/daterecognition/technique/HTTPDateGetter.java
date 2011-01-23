@@ -9,8 +9,8 @@ import tud.iir.daterecognition.DateConverter;
 import tud.iir.daterecognition.DateGetterHelper;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.HTTPDate;
+import tud.iir.helper.RegExp;
 import tud.iir.knowledge.KeyWords;
-import tud.iir.knowledge.RegExp;
 import tud.iir.web.Crawler;
 
 /**

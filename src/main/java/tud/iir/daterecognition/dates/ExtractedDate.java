@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 
 import tud.iir.daterecognition.ExtractedDateHelper;
 import tud.iir.helper.DateHelper;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 
 /**
  * Represents a date, found in a webpage. <br>
