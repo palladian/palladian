@@ -63,11 +63,6 @@ import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import tud.iir.extraction.PageAnalyzer;
-import tud.iir.extraction.entity.EntityExtractor;
-import tud.iir.extraction.mio.FastMIODetector;
-import tud.iir.extraction.mio.MIOExtractor;
-import tud.iir.extraction.mio.MIOPage;
-import tud.iir.extraction.mio.UniversalMIOExtractor;
 import tud.iir.helper.Callback;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.ConfigHolder;
@@ -78,9 +73,6 @@ import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
-import tud.iir.knowledge.Concept;
-import tud.iir.knowledge.Entity;
-import tud.iir.knowledge.MIO;
 import tud.iir.multimedia.ImageHandler;
 import tud.iir.news.FeedDiscoveryCallback;
 
@@ -840,7 +832,8 @@ public class Crawler {
             siblingURL = similarityMap.entrySet().iterator().next().getKey().replace(" ", "%20");
         }
 
-        EntityExtractor.getInstance().getLogger().info("sibling url: " + siblingURL);
+        LOGGER.info("sibling url: " + siblingURL);
+
         return siblingURL;
     }
 
@@ -1680,7 +1673,8 @@ public class Crawler {
         // URL url = null;
         boolean returnValue = false;
 
-        if (MIOExtractor.getInstance().isURLallowed(url)) {
+        // FIXME: URL filter for black and whitelists (currently in Extractor)
+        // if (MIOExtractor.getInstance().isURLallowed(url)) {
 
             String[] schemes = { "http", "https" };
             UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
@@ -1689,29 +1683,7 @@ public class Crawler {
                 returnValue = true;
             }
 
-            // if (pageURL != null && !pageURL.contains(";")) {
-            //
-            // try {
-            // url = new URL(pageURL);
-            // } catch (MalformedURLException e) {
-            // // e.printStackTrace();
-            // return false;
-            // }
-            // if (checkHTTPResp) {
-            // try {
-            // conn = url.openConnection();
-            // } catch (IOException e) {
-            // // e.printStackTrace();
-            // return false;
-            // }
-            // // get HttpResponse StatusCode
-            // String HttpResponseCode = conn.getHeaderField(0);
-            // if (!HttpResponseCode.contains("200")) {
-            // returnValue = false;
-            // }
-            // }
-            // returnValue=true;
-        }
+        // }
 
         return returnValue;
     }
@@ -2192,25 +2164,26 @@ public class Crawler {
         Crawler.performanceCheck();
         System.exit(0);
 
-        MIOExtractor.getInstance();
-        Crawler crawler2 = new Crawler();
-        String url = "http://www.gsmarena.com/samsung_i9000_galaxy_s-3d-spin-3115.php";
-        Document webDocument = crawler2.getWebDocument(url);
-        String pageContent = Crawler.documentToString(webDocument);
-        List<MIOPage> mioPages = new ArrayList<MIOPage>();
-        FastMIODetector fMIODec = new FastMIODetector();
-        if (fMIODec.containsMIO(pageContent)) {
-            MIOPage mioPage = new MIOPage(url, webDocument);
-            mioPages.add(mioPage);
-        }
-        Entity entity = new Entity("Samsung I9000 Galaxy S");
-        entity.setConcept(new Concept("MobilePhone"));
-        UniversalMIOExtractor mioExtr = new UniversalMIOExtractor(entity);
-        List<MIO> mios = mioExtr.analyzeAndClassifyMIOPages(mioPages);
-
-        CollectionHelper.print(mios);
-
-        System.exit(0);
+        // // how to extract MIOs ////
+        /*
+         * MIOExtractor.getInstance();
+         * Crawler crawler2 = new Crawler();
+         * String url = "http://www.gsmarena.com/samsung_i9000_galaxy_s-3d-spin-3115.php";
+         * Document webDocument = crawler2.getWebDocument(url);
+         * String pageContent = Crawler.documentToString(webDocument);
+         * List<MIOPage> mioPages = new ArrayList<MIOPage>();
+         * FastMIODetector fMIODec = new FastMIODetector();
+         * if (fMIODec.containsMIO(pageContent)) {
+         * MIOPage mioPage = new MIOPage(url, webDocument);
+         * mioPages.add(mioPage);
+         * }
+         * Entity entity = new Entity("Samsung I9000 Galaxy S");
+         * entity.setConcept(new Concept("MobilePhone"));
+         * UniversalMIOExtractor mioExtr = new UniversalMIOExtractor(entity);
+         * List<MIO> mios = mioExtr.analyzeAndClassifyMIOPages(mioPages);
+         * CollectionHelper.print(mios);
+         * System.exit(0);
+         */
 
         // KnowledgeManager kManager = DatabaseManager.getInstance().loadOntology();
         // Thread mioThread = new EntityMIOExtractionThread(new ThreadGroup("mioExtractionThreadGroup"),

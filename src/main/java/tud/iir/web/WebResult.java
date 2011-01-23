@@ -1,6 +1,6 @@
 package tud.iir.web;
 
-import tud.iir.knowledge.Source;
+import tud.iir.web.resources.Source;
 
 /**
  * The knowledge unit web result.
