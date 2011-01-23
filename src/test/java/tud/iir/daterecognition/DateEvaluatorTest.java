@@ -8,7 +8,7 @@ import org.junit.Test;
 import tud.iir.control.AllTests;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.DateArrayHelper;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 
 public class DateEvaluatorTest {
 

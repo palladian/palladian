@@ -3,8 +3,6 @@ package tud.iir.control;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import tud.iir.classification.page.ClassifierTest;
-import tud.iir.extraction.FactExtractionTest;
-import tud.iir.extraction.ListDiscoveryTest;
 import tud.iir.helper.DBStoreTest;
 import tud.iir.helper.XPathTest;
 import tud.iir.multimedia.ImageHandlerTest;
@@ -29,8 +27,6 @@ public class AllTests {
         suite.addTestSuite(DictionaryFileIndexTest.class);
         suite.addTestSuite(CrawlerTest.class);
         suite.addTestSuite(ImageHandlerTest.class);
-        suite.addTestSuite(FactExtractionTest.class);
-        suite.addTestSuite(ListDiscoveryTest.class);
         suite.addTestSuite(NormalizationTest.class);
         suite.addTestSuite(XPathTest.class);
         suite.addTestSuite(DBStoreTest.class);
