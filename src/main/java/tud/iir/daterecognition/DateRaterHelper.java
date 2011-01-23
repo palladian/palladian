@@ -9,8 +9,8 @@ import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
 import tud.iir.helper.HTMLHelper;
+import tud.iir.helper.RegExp;
 import tud.iir.knowledge.KeyWords;
-import tud.iir.knowledge.RegExp;
 
 /**
  * This class contains methods to help DateRate to rate dates. Like the name said.

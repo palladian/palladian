@@ -6,7 +6,7 @@ import tud.iir.daterecognition.DateConverter;
 import tud.iir.daterecognition.DateGetterHelper;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.URLDate;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 
 /**
  * 

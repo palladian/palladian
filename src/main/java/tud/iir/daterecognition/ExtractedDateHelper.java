@@ -6,7 +6,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import tud.iir.daterecognition.dates.ExtractedDate;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 
 /**
  * This class contains methods, that help ExtractedDate to define the correct date values.

@@ -21,7 +21,7 @@ import com.lowagie.text.html.WebColors;
 import tud.iir.daterecognition.DateGetterHelper;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.HTMLHelper;
-import tud.iir.knowledge.RegExp;
+import tud.iir.helper.RegExp;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.WebResult;
