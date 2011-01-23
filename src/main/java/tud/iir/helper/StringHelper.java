@@ -18,8 +18,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import tud.iir.knowledge.Attribute;
-import tud.iir.knowledge.RegExp;
 import tud.iir.normalization.StringNormalizer;
 import tud.iir.normalization.UnitNormalizer;
 
@@ -191,11 +189,11 @@ public class StringHelper {
     public static boolean containsProperNoun(String searchString) {
         Pattern pat = null;
         try {
-            pat = Pattern.compile(RegExp.getRegExp(Attribute.VALUE_STRING));
+            pat = Pattern.compile(RegExp.getRegExp(RegExp.VALUE_STRING));
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                            + RegExp.getRegExp(Attribute.VALUE_STRING), e);
+                            + RegExp.getRegExp(RegExp.VALUE_STRING), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -215,11 +213,11 @@ public class StringHelper {
     public static boolean containsNumber(String searchString) {
         Pattern pat = null;
         try {
-            pat = Pattern.compile(RegExp.getRegExp(Attribute.VALUE_NUMERIC));
+            pat = Pattern.compile(RegExp.getRegExp(RegExp.VALUE_NUMERIC));
         } catch (PatternSyntaxException e) {
             Logger.getRootLogger().error(
                     "PatternSyntaxException for " + searchString + " with regExp "
-                            + RegExp.getRegExp(Attribute.VALUE_NUMERIC), e);
+                            + RegExp.getRegExp(RegExp.VALUE_NUMERIC), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);
@@ -410,7 +408,7 @@ public class StringHelper {
             // System.out.println(Character.getType(ch)+" "+Character.DECIMAL_DIGIT_NUMBER);
         }
 
-        Pattern pattern = Pattern.compile("^" + RegExp.getRegExp(Attribute.VALUE_NUMERIC));
+        Pattern pattern = Pattern.compile("^" + RegExp.getRegExp(RegExp.VALUE_NUMERIC));
         Matcher m = pattern.matcher(string);
         try {
 
@@ -1413,7 +1411,7 @@ public class StringHelper {
         int colonIndex = neighborhood.indexOf(":");
         while (colonIndex > -1) {
 
-            Pattern cp = Pattern.compile(RegExp.getRegExp(Attribute.VALUE_STRING) + ":$");
+            Pattern cp = Pattern.compile(RegExp.getRegExp(RegExp.VALUE_STRING) + ":$");
             Matcher cpm = cp.matcher(neighborhood.substring(Math.max(0, colonIndex - 30), colonIndex + 1));
             // System.out.println("String before colon: " + neighborhood.substring(Math.max(0, colonIndex - 30),
             // colonIndex + 1));
