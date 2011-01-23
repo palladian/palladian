@@ -10,8 +10,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import tud.iir.knowledge.Attribute;
-import tud.iir.knowledge.RegExp;
 import tud.iir.normalization.DateNormalizer;
 
 // TODO Move to Extraction package
@@ -37,10 +35,11 @@ public class DateHelper {
     public static boolean containsDate(String searchString) {
         Pattern pat = null;
         try {
-            pat = Pattern.compile(RegExp.getRegExp(Attribute.VALUE_DATE));
+            pat = Pattern.compile(RegExp.getRegExp(RegExp.VALUE_DATE));
         } catch (PatternSyntaxException e) {
             org.apache.log4j.Logger.getRootLogger().error(
-                    "PatternSyntaxException for " + searchString + " with regExp " + RegExp.getRegExp(Attribute.VALUE_DATE), e);
+                    "PatternSyntaxException for " + searchString + " with regExp "
+                            + RegExp.getRegExp(RegExp.VALUE_DATE), e);
             return false;
         }
         Matcher m = pat.matcher(searchString);

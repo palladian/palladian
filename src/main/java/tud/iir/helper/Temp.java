@@ -11,6 +11,13 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import tud.iir.classification.page.ClassificationDocument;
+import tud.iir.classification.page.ClassifierManager;
+import tud.iir.classification.page.DictionaryClassifier;
+import tud.iir.classification.page.TextClassifier;
+import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
+import tud.iir.classification.page.evaluation.Dataset;
+import tud.iir.classification.page.evaluation.FeatureSetting;
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.news.Feed;
 import tud.iir.news.FeedDatabase;
@@ -25,6 +32,83 @@ import tud.iir.web.Crawler;
  */
 public class Temp {
 
+    public static void classify() {
+
+        // create a classifier mananger object
+        ClassifierManager classifierManager = new ClassifierManager();
+
+        // specify the dataset that should be used as training data
+        Dataset dataset = new Dataset();
+
+        // set the path to the dataset
+        dataset.setPath("G:\\My Dropbox\\movieRatingsTitleTraining.csv");
+
+        dataset.setSeparationString("###");
+
+        // tell the preprocessor that the first field in the file is a link to the actual document
+        dataset.setFirstFieldLink(false);
+
+        // create a text classifier by giving a name and a path where it should be saved to
+        TextClassifier classifier = new DictionaryClassifier();
+
+        // specify the settings for the classification
+        ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
+
+        // we use only a single category per document
+        classificationTypeSetting.setClassificationType(ClassificationTypeSetting.REGRESSION);
+
+        // we want the classifier to be serialized in the end
+        classificationTypeSetting.setSerializeClassifier(false);
+
+        // specify feature settings that should be used by the classifier
+        FeatureSetting featureSetting = new FeatureSetting();
+
+        // we want to create character-level n-grams
+        featureSetting.setTextFeatureType(FeatureSetting.CHAR_NGRAMS);
+
+        // the minimum length of our n-grams should be 1
+        featureSetting.setMinNGramLength(3);
+
+        // the maximum length of our n-grams should be 1
+        featureSetting.setMaxNGramLength(7);
+
+        // terms can be one char
+        featureSetting.setMinimumTermLength(3);
+
+        // we assign the settings to our classifier
+        classifier.setClassificationTypeSetting(classificationTypeSetting);
+        classifier.setFeatureSetting(featureSetting);
+
+        // now we can train the classifier using the given dataset
+        classifierManager.trainClassifier(dataset, classifier);
+
+        // set the path to the dataset
+        List<String> movies = FileHelper.readFileToArray("G:\\My Dropbox\\movieRatingsTitleTesting.csv");
+
+        StringBuilder sb = new StringBuilder();
+        int totalRealRating = 0;
+        for (String movie : movies) {
+            String[] parts = movie.split("###");
+
+            ClassificationDocument cd = classifier.classify(parts[0]);
+            sb.append(cd.getMainCategoryEntry().getCategory().getName()).append(";").append(parts[1]).append("\n");
+            totalRealRating += Integer.valueOf(parts[1]);
+        }
+
+        FileHelper.writeToFile("data/temp/rmseOutput.txt", sb);
+        System.out.println(MathHelper.calculateRMSE("data/temp/rmseOutput.txt", ";"));
+        System.out.println("Average Rating: " + totalRealRating / movies.size());
+
+        sb = new StringBuilder();
+        for (String movie : movies) {
+            String[] parts = movie.split("###");
+            sb.append(totalRealRating / movies.size()).append(";").append(parts[1]).append("\n");
+        }
+
+        FileHelper.writeToFile("data/temp/rmseOutputGuess.txt", sb);
+        System.out.println(MathHelper.calculateRMSE("data/temp/rmseOutputGuess.txt", ";"));
+
+    }
 
     public static void createTrainingData() {
 
@@ -191,6 +275,9 @@ public class Temp {
      * @throws Exception
      */
     public static void main(String[] args) throws Exception {
+
+        Temp.classify();
+        System.exit(0);
 
         FileHelper
         .removeDuplicateLines(
