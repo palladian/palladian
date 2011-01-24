@@ -303,15 +303,11 @@ public class DatasetManager {
 
         DatasetManager dsm = new DatasetManager();
 
-        // String corpusRootFolderPath = "data/datasets/ner/www_test/";
-        // dsm.cleanDataset(corpusRootFolderPath);
-        // dsm.createIndex(corpusRootFolderPath);
-        // dsm.splitIndex(corpusRootFolderPath + "index.txt", 50);
-        // dsm.splitIndexParts(corpusRootFolderPath + "index_split1.txt");
-
-        String corpusRootFolderPath = "C:\\Data\\datasets\\20newsgroups-18828\\";
+        String corpusRootFolderPath = "data/datasets/ner/www_test2/";
+        dsm.cleanDataset(corpusRootFolderPath);
         dsm.createIndex(corpusRootFolderPath);
-        dsm.splitIndex(corpusRootFolderPath + "index.txt", 65);
+        dsm.splitIndex(corpusRootFolderPath + "index.txt", 50);
+        // dsm.splitIndexParts(corpusRootFolderPath + "index_split1.txt");
 
     }
 

@@ -32,7 +32,6 @@ import tud.iir.classification.page.ClassificationDocument;
 import tud.iir.classification.page.DictionaryClassifier;
 import tud.iir.classification.page.Preprocessor;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
-import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.extraction.entity.ner.Annotation;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
@@ -648,15 +647,22 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
 
-        Dataset trainingDataset = new Dataset();
-        trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
-        tagger.train(trainingDataset, "data/models/tudner/tudner.model");
-
-        Dataset testingDataset = new Dataset();
-        testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
-        EvaluationResult er = tagger.evaluate(testingDataset, "data/models/tudner/tudner.model");
+        // using a column trainig and testing file
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA.txt", "data/temp/tudner.model",
+                TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
+
+        // Dataset trainingDataset = new Dataset();
+        // trainingDataset.setPath("data/datasets/ner/www_test2/index_split1.txt");
+        // tagger.train(trainingDataset, "data/models/tudner/tudner.model");
+        //
+        // Dataset testingDataset = new Dataset();
+        // testingDataset.setPath("data/datasets/ner/www_test2/index_split2.txt");
+        // EvaluationResult er = tagger.evaluate(testingDataset, "data/models/tudner/tudner.model");
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
 
     }
 
