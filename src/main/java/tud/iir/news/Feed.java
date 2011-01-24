@@ -33,19 +33,19 @@ public class Feed {
     /** Symbols to separate headlines. */
     public static final String TITLE_SEPARATION = "#-#";
 
-    /**
-     * Different formats of feeds; this has just informational character; the parser of the aggregator will determine
-     * the feed's format automatically.
-     * TODO can be removed?
-     */
-    public static final int FORMAT_ATOM = 1;
-    public static final int FORMAT_RSS = 2;
+//    /**
+//     * Different formats of feeds; this has just informational character; the parser of the aggregator will determine
+//     * the feed's format automatically.
+//     * TODO can be removed?
+//     */
+//    public static final int FORMAT_ATOM = 1;
+//    public static final int FORMAT_RSS = 2;
 
     private int id = -1;
     private String feedUrl;
     private String siteUrl;
     private String title;
-    private int format;
+//    private int format;
     private Date added;
     private String language;
 
@@ -196,13 +196,13 @@ public class Feed {
         this.title = title;
     }
 
-    public int getFormat() {
-        return format;
-    }
-
-    public void setFormat(int format) {
-        this.format = format;
-    }
+//    public int getFormat() {
+//        return format;
+//    }
+//
+//    public void setFormat(int format) {
+//        this.format = format;
+//    }
 
     public Date getAdded() {
         return added;
@@ -524,7 +524,7 @@ public class Feed {
         result = prime * result + checks;
         result = prime * result + (items == null ? 0 : items.hashCode());
         result = prime * result + (feedUrl == null ? 0 : feedUrl.hashCode());
-        result = prime * result + format;
+//        result = prime * result + format;
         result = prime * result + id;
         result = prime * result + (language == null ? 0 : language.hashCode());
         result = prime * result + (lastPollTime == null ? 0 : lastPollTime.hashCode());
@@ -580,9 +580,9 @@ public class Feed {
         } else if (!feedUrl.equals(other.feedUrl)) {
             return false;
         }
-        if (format != other.format) {
-            return false;
-        }
+//        if (format != other.format) {
+//            return false;
+//        }
         if (id != other.id) {
             return false;
         }
