@@ -55,7 +55,7 @@ class FeedTask extends Thread {
         // it can be done in parallel
         FeedDownloader feedDownloader = new FeedDownloader();
         try {
-            feedDownloader.updateItems(feed);
+            feedDownloader.updateFeed(feed);
         } catch (FeedDownloaderException e) {
             LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
             feed.incrementUnreachableCount();

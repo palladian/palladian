@@ -113,7 +113,7 @@ public class FeedDatabase implements FeedStore {
             psAddFeed.setString(1, feed.getFeedUrl());
             psAddFeed.setString(2, feed.getSiteUrl());
             psAddFeed.setString(3, feed.getTitle());
-            psAddFeed.setInt(4, feed.getFormat());
+//            psAddFeed.setInt(4, feed.getFormat());
             psAddFeed.setInt(5, feed.getContentType().getIdentifier());
             psAddFeed.setString(6, feed.getLanguage());
             psAddFeed.setInt(7, feed.getChecks());
@@ -156,7 +156,7 @@ public class FeedDatabase implements FeedStore {
             ps.setString(1, feed.getFeedUrl());
             ps.setString(2, feed.getSiteUrl());
             ps.setString(3, feed.getTitle());
-            ps.setInt(4, feed.getFormat());
+//            ps.setInt(4, feed.getFormat());
             ps.setInt(5, feed.getContentType().getIdentifier());
             ps.setString(6, feed.getLanguage());
             ps.setInt(7, feed.getChecks());
@@ -257,7 +257,7 @@ public class FeedDatabase implements FeedStore {
         feed.setFeedUrl(resultSet.getString("feedUrl"));
         feed.setSiteUrl(resultSet.getString("siteUrl"));
         feed.setTitle(resultSet.getString("title"));
-        feed.setFormat(resultSet.getInt("format"));
+//        feed.setFormat(resultSet.getInt("format"));
         feed.setContentType(FeedContentType.getByIdentifier(resultSet.getInt("textType")));
         feed.setLanguage(resultSet.getString("language"));
         feed.setAdded(resultSet.getTimestamp("added"));

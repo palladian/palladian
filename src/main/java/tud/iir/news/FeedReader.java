@@ -34,8 +34,6 @@ import tud.iir.web.Crawler;
 /**
  * The FeedReader reads news from feeds in a database. It learns when it is necessary to check the feed again for news.
  * 
- * TODO set thread pool size via property file.
- * 
  * @author David Urbansky
  * @author Klemens Muthmann
  * 
@@ -435,7 +433,7 @@ public final class FeedReader {
         feed.setActivityPattern(FeedClassifier.CLASS_SLICED);
 
         FeedDownloader feedDownloader = new FeedDownloader();
-        feedDownloader.updateItems(feed);
+        feedDownloader.updateFeed(feed);
         // feed.increaseChecks();
         fch.updateCheckIntervals(feed);
         System.exit(0);

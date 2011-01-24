@@ -27,7 +27,6 @@ import tud.iir.web.HeaderInformation;
 import tud.iir.web.URLDownloader;
 import tud.iir.web.URLDownloader.URLDownloaderCallback;
 
-import com.sun.syndication.feed.WireFeed;
 import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -51,6 +50,9 @@ public class FeedDownloader {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedDownloader.class);
 
+    /** Used for all downloading purposes. */
+    private Crawler crawler = new Crawler();
+
     /**
      * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
      * documents.
@@ -60,8 +62,112 @@ public class FeedDownloader {
      */
     private boolean useBandwidthSavingHTTPHeaders = false;
 
-    /** Used for all downloading purposes. */
-    private Crawler crawler = new Crawler();
+    // ///////////////////////////////////////////////////
+    // FeedDownloader API
+    // ///////////////////////////////////////////////////
+
+    /**
+     * Download a feed from the specified URL.
+     * 
+     * @param feedUrl the URL to the RSS or Atom feed.
+     * @return
+     * @throws FeedDownloaderException
+     */
+    public Feed getFeed(String feedUrl) throws FeedDownloaderException {
+        return getFeed(feedUrl, false, null);
+    }
+
+    /**
+     * Download a feed from the specified URL.
+     * 
+     * @param feedUrl the URL to the RSS or Atom feed.
+     * @param scrapePages set to <code>true</code>, to scrape the contents from the corresponding pages of each
+     *            {@link FeedItem}.
+     * @return
+     * @throws FeedDownloaderException
+     */
+    public Feed getFeed(String feedUrl, boolean scrapePages) throws FeedDownloaderException {
+        return getFeed(feedUrl, scrapePages, null);
+    }
+
+    /**
+     * Download a feed from the specified URL.
+     * 
+     * @param feedUrl the URL to the RSS or Atom feed.
+     * @param headerInformation header information containing ETag/lastModifiedSince data
+     * @return
+     * @throws FeedDownloaderException
+     */
+    public Feed getFeed(String feedUrl, HeaderInformation headerInformation) throws FeedDownloaderException {
+        return getFeed(feedUrl, false, headerInformation);
+    }
+
+    /**
+     * Downloads a feed from the specified URL.
+     * 
+     * @param feedUrl the URL to the RSS or Atom feed.
+     * @param scrapePages set to <code>true</code>, to scrape the contents from the corresponding pages of each
+     *            {@link FeedItem}.
+     * @param headerInformation header information containing ETag/lastModifiedSince data.
+     * @return
+     * @throws FeedDownloaderException
+     */
+    public Feed getFeed(String feedUrl, boolean scrapePages, HeaderInformation headerInformation)
+            throws FeedDownloaderException {
+        StopWatch sw = new StopWatch();
+
+        Document feedDocument = downloadFeed(feedUrl, headerInformation);
+        Feed feed = getFeed(feedDocument);
+
+        if (scrapePages) {
+            fetchPageContentForEntries(feed.getItems());
+        }
+
+        LOGGER.debug("downloaded feed from " + feedUrl + " in " + sw.getElapsedTimeString());
+        return feed;
+
+    }
+
+    /**
+     * Updates the supplied {@link Feed} with new items. This means, the existing items (if any) are replaced by current
+     * items downloaded from web.
+     * 
+     * @param feed
+     * @throws FeedDownloaderException
+     */
+    public void updateFeed(Feed feed) throws FeedDownloaderException {
+        Feed downloadedFeed = getFeed(feed.getFeedUrl());
+        feed.setItems(downloadedFeed.getItems());
+        feed.setDocument(downloadedFeed.getDocument());
+    }
+
+    // ///////////////////////////////////////////////////
+    // Settings
+    // ///////////////////////////////////////////////////
+
+    /**
+     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
+     * documents.
+     * 
+     * @param useBandwidthSavingHTTPHeaders
+     */
+    public void setUseBandwidthSavingHTTPHeaders(boolean useBandwidthSavingHTTPHeaders) {
+        this.useBandwidthSavingHTTPHeaders = useBandwidthSavingHTTPHeaders;
+    }
+
+    /**
+     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
+     * documents.
+     * 
+     * @return
+     */
+    public boolean isUseBandwidthSavingHTTPHeaders() {
+        return useBandwidthSavingHTTPHeaders;
+    }
+
+    // ///////////////////////////////////////////////////
+    // private ROME specific methods
+    // ///////////////////////////////////////////////////
 
     /**
      * Get feed information about a Atom/RSS feed, using ROME library.
@@ -72,35 +178,29 @@ public class FeedDownloader {
      */
     private Feed getFeed(Document feedDocument) throws FeedDownloaderException {
 
-        SyndFeed syndFeed = buildRomeFeed(feedDocument);
-        String feedUrl = syndFeed.getLink(); // TODO
-
-        LOGGER.trace(">getFeed " + feedUrl);
-
-        WireFeed wireFeed = syndFeed.originalWireFeed();
-
         Feed result = new Feed();
+
+        SyndFeed syndFeed = buildRomeFeed(feedDocument);
+
+        // URL of the feed itself
+        String feedUrl = feedDocument.getDocumentURI();
         result.setFeedUrl(feedUrl);
+
         if (syndFeed.getLink() != null) {
             result.setSiteUrl(syndFeed.getLink().trim());
         }
+
         if (syndFeed.getTitle() != null && syndFeed.getTitle().length() > 0) {
             result.setTitle(syndFeed.getTitle().trim());
         } else {
             // fallback, use feedUrl as title
             result.setTitle(feedUrl);
         }
+
         result.setLanguage(syndFeed.getLanguage());
 
-        // determine feed format
-        if (wireFeed instanceof com.sun.syndication.feed.rss.Channel) {
-            result.setFormat(Feed.FORMAT_RSS);
-        } else if (wireFeed instanceof com.sun.syndication.feed.atom.Feed) {
-            result.setFormat(Feed.FORMAT_ATOM);
-        }
-
-        // get Feed entries from rome and set to our feed
-        List<FeedItem> entries = getEntries(syndFeed, feedDocument);
+        // get Feed items with ROME and assign to feed
+        List<FeedItem> entries = getFeedItems(syndFeed, feedDocument);
         result.setItems(entries);
 
         // get the size of the feed
@@ -108,144 +208,193 @@ public class FeedDownloader {
             result.setByteSize(PageAnalyzer.getRawMarkup(feedDocument).getBytes().length);
         }
 
-        LOGGER.trace("<getFeed " + result);
         return result;
-
     }
 
     /**
-     * Download the items for the given feed and set them.
+     * Get {@link FeedItem}s from the specified {@link SyndFeed}.
      * 
-     * @param feed
-     * @throws FeedDownloaderException
-     */
-    public void updateItems(Feed feed) throws FeedDownloaderException {
-
-        Feed downloadedFeed = getFeed(feed.getFeedUrl());
-        feed.setItems(downloadedFeed.getItems());
-        feed.setDocument(downloadedFeed.getDocument());
-
-    }
-
-    private Date getPublishDate(FeedItem feedItem) {
-
-        Date pubDate = null;
-
-        Node node = feedItem.getNode();
-
-        Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
-
-        try {
-            pubDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
-        } catch (NullPointerException e) {
-            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
-                    + feedItem.getFeedUrl() + ", " + e.getMessage());
-        } catch (DOMException e) {
-            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
-                    + feedItem.getFeedUrl() + ", " + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
-                    + feedItem.getFeedUrl() + ", " + e.getMessage());
-        }
-
-        return pubDate;
-    }
-
-    /**
-     * Get entries of specified Atom/RSS feed.
-     * 
-     * @param feedUrl
+     * @param syndFeed
+     * @param feedDocument
      * @return
      */
     @SuppressWarnings("unchecked")
-    private List<FeedItem> getEntries(SyndFeed syndFeed, Document feedDocument) {
-        LOGGER.trace(">getEntries");
+    private List<FeedItem> getFeedItems(SyndFeed syndFeed, Document feedDocument) {
 
         List<FeedItem> result = new LinkedList<FeedItem>();
-
-        // only try a certain amount of times to extract a pub date, if none is found don't keep trying
-        // TODO this is not considered at the momeent?
-        // int failedDateExtractions = 0;
-
         List<SyndEntry> syndEntries = syndFeed.getEntries();
+
         for (SyndEntry syndEntry : syndEntries) {
 
-            FeedItem entry = new FeedItem();
+            FeedItem item = new FeedItem();
 
-            // //////////// title //////////////
-            // remove HTML tags and unescape HTML entities from title
-            String title = syndEntry.getTitle();
-            if (title != null) {
-                title = HTMLHelper.removeHTMLTags(title, true, true, true, true);
-                title = StringEscapeUtils.unescapeHtml(title);
-                title = title.trim();
-            }
+            String title = getEntryTitle(syndEntry);
+            item.setTitle(title);
 
-            entry.setTitle(title);
-
-            // some feeds provide relative URLs -- convert.
-            String entryLink = syndEntry.getLink();
-            if (entryLink != null && entryLink.length() > 0) {
-                entryLink = entryLink.trim();
-                entryLink = Crawler.makeFullURL(syndFeed.getLink(), entryLink);
-            }
-            entry.setLink(entryLink);
+            String entryLink = getEntryLink(syndFeed, syndEntry);
+            item.setLink(entryLink);
 
             String entryText = getEntryText(syndEntry);
-            entry.setItemText(entryText);
+            item.setItemText(entryText);
 
-            // //////////// raw id //////////////
-            // get ID information from raw feed entries
-            String rawId = null;
-            Object wireEntry = syndEntry.getWireEntry();
-            if (wireEntry instanceof com.sun.syndication.feed.atom.Entry) {
-                com.sun.syndication.feed.atom.Entry atomEntry = (com.sun.syndication.feed.atom.Entry) wireEntry;
-                rawId = atomEntry.getId();
-            } else if (wireEntry instanceof com.sun.syndication.feed.rss.Item) {
-                com.sun.syndication.feed.rss.Item rssItem = (com.sun.syndication.feed.rss.Item) wireEntry;
-                Guid guid = rssItem.getGuid();
-                if (guid != null) {
-                    rawId = guid.getValue();
-                }
-            }
+            String rawId = getEntryRawId(syndEntry);
+            item.setRawId(rawId);
 
-            // //////////// publish date //////////////
-            Date publishDate = syndEntry.getPublishedDate();
-            if (publishDate == null) {
+            // TODO only try a certain amount of times to extract a pub date, if none is found don't keep trying
+            Date publishDate = getEntryPublishDate(syndEntry, item);
+            item.setPublished(publishDate);
 
-                // FIXME there are still some entries without date (David: why? does rome not get some date formats?)
-
-                // try to find the date since Rome library failed
-                publishDate = getPublishDate(entry);
-
-                // if no publish date is provided, we take the update instead
-                if (publishDate == null) {
-                    publishDate = syndEntry.getUpdatedDate();
-                    // failedDateExtractions++;
-                } else {
-                    LOGGER.debug("found publish date in original feed file: " + publishDate);
-                }
-            }
-            entry.setPublished(publishDate);
-
-            // fallback -- if we can get no ID from the feed,
-            // we take the Link as identification instead
-            if (rawId == null) {
-                rawId = syndEntry.getLink();
-                LOGGER.trace("id is missing, taking link instead");
-            }
-            if (rawId != null) {
-                entry.setRawId(rawId.trim());
-            } else {
-                LOGGER.warn("could not get id for entry");
-            }
-
-            // logger.trace(entry);
-            result.add(entry);
+            result.add(item);
         }
 
-        LOGGER.trace("<getEntries");
         return result;
+    }
+
+    /**
+     * Get link from {@link SyndEntry}, some feeds provide relative URLs, which we need to convert.
+     * TODO also consider feed's URL here?
+     * 
+     * @param syndFeed
+     * @param syndEntry
+     * @return
+     */
+    private String getEntryLink(SyndFeed syndFeed, SyndEntry syndEntry) {
+        String entryLink = syndEntry.getLink();
+        if (entryLink != null && entryLink.length() > 0) {
+            entryLink = entryLink.trim();
+            entryLink = Crawler.makeFullURL(syndFeed.getLink(), entryLink);
+        }
+        return entryLink;
+    }
+
+    /**
+     * Get title from {@link SyndEntry}, remove HTML tags and unescape HTML entities from title.
+     * 
+     * @param syndEntry
+     * @return
+     */
+    private String getEntryTitle(SyndEntry syndEntry) {
+        String title = syndEntry.getTitle();
+        if (title != null) {
+            title = HTMLHelper.removeHTMLTags(title);
+            title = StringEscapeUtils.unescapeHtml(title);
+            title = title.trim();
+        }
+        return title;
+    }
+
+    /**
+     * Get text content from {@link SyndEntry}; either from content/summary/description element.
+     * 
+     * @param syndEntry
+     * @return text content or <code>null</code> if no content found.
+     */
+    @SuppressWarnings("unchecked")
+    private String getEntryText(SyndEntry syndEntry) {
+
+        // get the content from SyndEntry; either from content or from description
+        String entryText = null;
+        List<SyndContent> contents = syndEntry.getContents();
+        if (contents != null) {
+            for (SyndContent content : contents) {
+                if (content.getValue() != null && content.getValue().length() != 0) {
+                    entryText = content.getValue();
+                }
+            }
+        }
+        if (entryText == null && syndEntry.getDescription() != null) {
+            entryText = syndEntry.getDescription().getValue();
+        }
+
+        // clean up: strip out HTML tags, unescape HTML code
+        if (entryText != null) {
+            entryText = HTMLHelper.htmlToString(entryText, false);
+            entryText = StringEscapeUtils.unescapeHtml(entryText);
+            entryText = entryText.trim();
+        }
+
+        return entryText;
+    }
+
+    /**
+     * Get ID from {@link SyndEntry}. This is the "raw" ID which is assigned in the feed itself, either as
+     * <code>guid</code> element in RSS or as <code>id</code> element in Atom.
+     * 
+     * @param syndEntry
+     * @return raw id or <code>null</code> if no id found
+     */
+    private String getEntryRawId(SyndEntry syndEntry) {
+
+        String rawId = null;
+        Object wireEntry = syndEntry.getWireEntry();
+
+        if (wireEntry instanceof com.sun.syndication.feed.atom.Entry) {
+            com.sun.syndication.feed.atom.Entry atomEntry = (com.sun.syndication.feed.atom.Entry) wireEntry;
+            rawId = atomEntry.getId();
+        } else if (wireEntry instanceof com.sun.syndication.feed.rss.Item) {
+            com.sun.syndication.feed.rss.Item rssItem = (com.sun.syndication.feed.rss.Item) wireEntry;
+            Guid guid = rssItem.getGuid();
+            if (guid != null) {
+                rawId = guid.getValue();
+            }
+        }
+
+        // we could not get the ID from the SyndEntry, so we take the link as identification instead
+        if (rawId == null) {
+            rawId = syndEntry.getLink();
+            LOGGER.warn("id is missing, taking link instead");
+        }
+
+        // we could ultimately get no ID
+        if (rawId == null) {
+            LOGGER.warn("could not get id for entry");
+        }
+
+        return rawId;
+    }
+
+    /**
+     * Get the publish date from {@link SyndEntry}. If ROME fails to parse the {@link SyndEntry}, try to get the date
+     * using Palladian's sophisticated date recognition techniques.
+     * 
+     * @param syndEntry
+     * @param item
+     * @return
+     */
+    private Date getEntryPublishDate(SyndEntry syndEntry, FeedItem item) {
+
+        Date publishDate = syndEntry.getPublishedDate();
+
+        // ROME library failed to get the date, use DateGetter
+        // FIXME there are still some entries without date (David: why? does rome not get some date formats?)
+        if (publishDate == null) {
+
+            Node node = item.getNode();
+            Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
+
+            try {
+                publishDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
+            } catch (NullPointerException e) {
+                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
+                        + item.getFeedUrl() + ", " + e.getMessage());
+            } catch (DOMException e) {
+                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
+                        + item.getFeedUrl() + ", " + e.getMessage());
+            } catch (Exception e) {
+                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
+                        + item.getFeedUrl() + ", " + e.getMessage());
+            }
+
+        }
+
+        if (publishDate != null) {
+            LOGGER.debug("found publish date in original feed file: " + publishDate);
+        } else {
+            // as a last resort, use the entry's updated date
+            publishDate = syndEntry.getUpdatedDate();
+        }
+
+        return publishDate;
     }
 
     /**
@@ -298,89 +447,6 @@ public class FeedDownloader {
         LOGGER.debug("finished downloading");
     }
 
-    /**
-     * Try to get the text content from SyndEntry; either from content/summary/description element. Returns null if no
-     * text content exists.
-     * 
-     * @param syndEntry
-     * @return
-     */
-    @SuppressWarnings("unchecked")
-    private String getEntryText(SyndEntry syndEntry) {
-        LOGGER.trace(">getEntryText");
-
-        // get content from SyndEntry
-        // either from content or from description
-        String entryText = null;
-        List<SyndContent> contents = syndEntry.getContents();
-        if (contents != null) {
-            for (SyndContent content : contents) {
-                if (content.getValue() != null && content.getValue().length() != 0) {
-                    entryText = content.getValue();
-                }
-            }
-        }
-        if (entryText == null && syndEntry.getDescription() != null) {
-            entryText = syndEntry.getDescription().getValue();
-
-        }
-
-        // clean up --> strip out HTML tags, unescape HTML code
-        if (entryText != null) {
-            entryText = HTMLHelper.htmlToString(entryText, false);
-            entryText = StringEscapeUtils.unescapeHtml(entryText);
-            entryText = entryText.trim();
-        }
-        LOGGER.trace("<getEntryText ");
-        return entryText;
-    }
-
-    /**
-     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
-     * documents.
-     * 
-     * @param useBandwidthSavingHTTPHeaders
-     */
-    public void setUseBandwidthSavingHTTPHeaders(boolean useBandwidthSavingHTTPHeaders) {
-        this.useBandwidthSavingHTTPHeaders = useBandwidthSavingHTTPHeaders;
-    }
-
-    /**
-     * WARNING: this does not work yet. In order to make it work we would need to cache the last successfully retrieved
-     * documents.
-     * 
-     * @return
-     */
-    public boolean isUseBandwidthSavingHTTPHeaders() {
-        return useBandwidthSavingHTTPHeaders;
-    }
-
-    public Feed getFeed(String feedUrl) throws FeedDownloaderException {
-        return getFeed(feedUrl, null);
-    }
-
-    public Feed getFeed(String feedUrl, HeaderInformation headerInformation) throws FeedDownloaderException {
-
-        LOGGER.trace(">downloadFeed " + feedUrl);
-        StopWatch sw = new StopWatch();
-
-        Document feedDocument = downloadFeed(feedUrl, headerInformation);
-        Feed feed = getFeed(feedDocument);
-
-        LOGGER.debug("downloaded feed in " + sw.getElapsedTimeString());
-        LOGGER.trace("<downloadFeed " + sw.getElapsedTimeString());
-        return feed;
-
-    }
-
-    public Feed getFeed(String feedUrl, boolean downloadPages) throws FeedDownloaderException {
-
-        Feed feed = getFeed(feedUrl);
-        fetchPageContentForEntries(feed.getItems());
-        return feed;
-
-    }
-
     private Document downloadFeed(String feedUrl, HeaderInformation headerInformation) throws FeedDownloaderException {
 
         Document xmlDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
@@ -422,11 +488,40 @@ public class FeedDownloader {
 
     }
 
+    /**
+     * Print feed with content in human readable form.
+     * 
+     * @param feed
+     */
+    public static void printFeed(Feed feed) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append(feed.getTitle()).append("\n");
+        sb.append("feedUrl : ").append(feed.getFeedUrl()).append("\n");
+        sb.append("siteUrl : ").append(feed.getSiteUrl()).append("\n");
+        sb.append("-----------------------------------").append("\n");
+        List<FeedItem> items = feed.getItems();
+        if (items != null) {
+            for (FeedItem item : items) {
+                sb.append(item.getTitle()).append("\t");
+                sb.append(item.getLink()).append("\n");
+            }
+            sb.append("-----------------------------------").append("\n");
+            sb.append("# entries: ").append(items.size());
+        }
+
+        System.out.println(sb.toString());
+
+    }
+
     public static void main(String[] args) throws Exception {
 
-        // FeedDownloader downloader = new FeedDownloader();
+        FeedDownloader downloader = new FeedDownloader();
 
-        // Feed feed = downloader.getFeed("http://www.tagesschau.de/xml/rss2");
+        Feed feed = downloader.getFeed("http://badatsports.com/feed/");
+        printFeed(feed);
+
         // System.out.println(feed);
         // System.out.println(feed.getEntries());
 
