@@ -260,7 +260,7 @@ public class FeedDownloader {
 
         URLDownloader downloader = new URLDownloader();
         downloader.setMaxThreads(5);
-        // PageContentExtractor extractor = new PageContentExtractor();
+
         final Map<String, FeedItem> entries = new HashMap<String, FeedItem>();
 
         for (FeedItem feedEntry : feedEntries) {
@@ -290,7 +290,6 @@ public class FeedDownloader {
                     extractor.setDocument(new InputSource(inputStream));
                     String pageText = extractor.getResultText();
                     entries.get(url).setPageText(pageText);
-                    // feedEntry.setPageContent(page);
                 } catch (PageContentExtractorException e) {
                     LOGGER.error("PageContentExtractorException " + e);
                 }

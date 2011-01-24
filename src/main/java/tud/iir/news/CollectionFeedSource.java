@@ -70,25 +70,19 @@ public class CollectionFeedSource implements FeedStore {
     }
 
     @Override
-    public boolean addFeedEntry(Feed feed, FeedItem entry) {
+    public boolean addFeedItem(Feed feed, FeedItem entry) {
         // TODO Auto-generated method stub
         return false;
     }
 
     @Override
-    public FeedItem getFeedEntryByRawId(String rawId) {
+    public FeedItem getFeedItemByRawId(int feedId, String rawId) {
         // TODO Auto-generated method stub
         return null;
     }
 
     @Override
-    public FeedItem getFeedEntryByRawId(int feedId, String rawId) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public List<FeedItem> getFeedEntries(String sqlQuery) {
+    public List<FeedItem> getFeedItems(String sqlQuery) {
         // TODO Auto-generated method stub
         return null;
     }

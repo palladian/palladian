@@ -26,7 +26,7 @@ public class ShinglesPerformanceTest {
         StopWatch sw = new StopWatch();
 
         do {
-            List<FeedItem> entries = fd.getFeedEntries(fetch, offset);
+            List<FeedItem> entries = fd.getFeedItems(fetch, offset);
             lastFetch = entries.size();
 
             for (FeedItem feedEntry : entries) {

@@ -93,7 +93,7 @@ public class FeedImporter {
 
                 if (storeItems) {
                     for (FeedItem feedEntry : feed.getItems()) {
-                        store.addFeedEntry(feed, feedEntry);
+                        store.addFeedItem(feed, feedEntry);
                     }
                 }
 

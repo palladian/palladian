@@ -58,6 +58,7 @@ class FeedTask extends Thread {
             feedDownloader.updateItems(feed);
         } catch (FeedDownloaderException e) {
             LOGGER.error("update items of the feed didn't work well, " + e.getMessage());
+            // TODO increment unreachableCount for feed and save to DB here?
             return;
         }
 
