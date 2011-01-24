@@ -24,6 +24,7 @@ import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.RegExp;
 import tud.iir.web.Crawler;
 import tud.iir.web.SourceRetriever;
+import tud.iir.web.SourceRetrieverManager;
 import tud.iir.web.WebResult;
 
 public class HakiaDateGetter {
@@ -50,7 +51,7 @@ public class HakiaDateGetter {
 		ExtractedDate date = null;
 		SourceRetriever sr = new SourceRetriever();
 		sr.setResultCount(100);
-		ArrayList<WebResult> wr = sr.getNewsResultsFromHakia(title);
+		List<WebResult> wr = sr.getWebResults(title, SourceRetrieverManager.HAKIA_NEWS, false);
 		
 		for(int i=0; i<wr.size(); i++){
 			WebResult result = wr.get(i);

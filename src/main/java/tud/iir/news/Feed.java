@@ -36,6 +36,7 @@ public class Feed {
     /**
      * Different formats of feeds; this has just informational character; the parser of the aggregator will determine
      * the feed's format automatically.
+     * TODO can be removed?
      */
     public static final int FORMAT_ATOM = 1;
     public static final int FORMAT_RSS = 2;
