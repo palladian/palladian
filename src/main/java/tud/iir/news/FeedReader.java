@@ -336,7 +336,7 @@ public final class FeedReader {
                 }
                 boolean fetchPages = downloadPages && feed.getContentType() != FeedContentType.FULL;
                 if (fetchPages && !toAdd.isEmpty()) {
-                    feedDownloader.fetchPageContentForEntries(toAdd);
+                    feedDownloader.scrapePages(toAdd);
                     // downloadedPages.increment(toAdd.size());
                 }
                 for (FeedItem feedEntry : toAdd) {

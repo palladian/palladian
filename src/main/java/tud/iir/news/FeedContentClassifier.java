@@ -60,7 +60,7 @@ public class FeedContentClassifier {
     public FeedContentType determineContentType(String feedUrl) {
         try {
             Feed feed = feedDownloader.getFeed(feedUrl);
-            feedDownloader.fetchPageContentForEntries(feed.getItems());
+            feedDownloader.scrapePages(feed.getItems());
             return determineContentType(feed);
         } catch (FeedDownloaderException e) {
             return FeedContentType.UNDETERMINED;
