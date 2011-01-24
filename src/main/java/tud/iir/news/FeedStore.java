@@ -48,18 +48,7 @@ public interface FeedStore {
      * @param feed
      * @param entry
      */
-    boolean addFeedEntry(Feed feed, FeedItem entry);
-
-    /**
-     * Get an entry by its rawId.
-     * 
-     * @deprecated use {@link #getFeedEntryByRawId(int, String)} instead.
-     * 
-     * @param rawId
-     * @return the FeedEntry with specified rawId, <code>null</code> if FeedEntry does not exist.
-     */
-    @Deprecated
-    FeedItem getFeedEntryByRawId(String rawId);
+    boolean addFeedItem(Feed feed, FeedItem entry);
 
     /**
      * Get an entry for a specific feed by its rawId.
@@ -68,7 +57,7 @@ public interface FeedStore {
      * @param rawId
      * @return the FeedEntry with specified rawId, <code>null</code> if FeedEntry does not exist.
      */
-    FeedItem getFeedEntryByRawId(int feedId, String rawId);
+    FeedItem getFeedItemByRawId(int feedId, String rawId);
 
     Feed getFeedByID(int feedID);
 
@@ -79,23 +68,6 @@ public interface FeedStore {
      * @param sqlQuery
      * @return
      */
-    List<FeedItem> getFeedEntries(String sqlQuery);
-
-    // Set<Integer> getFeedEntryIdsTaggedAs(String tag);
-
-    // /**
-    // * Get specified number of entries from a feed.
-    // * @param feed
-    // * @param limit specify the number of recent entries, -1 for no limit.
-    // * @return
-    // */
-    // public abstract List<Entry> getEntries(Feed feed, int limit);
-    //	
-    // /**
-    // * Get entries from a feed.
-    // * @param feed
-    // * @return
-    // */
-    // public abstract List<Entry> getEntries(Feed feed);
+    List<FeedItem> getFeedItems(String sqlQuery);
 
 }

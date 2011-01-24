@@ -14,8 +14,11 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.ConfigHolder;
+import tud.iir.helper.Counter;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
@@ -82,12 +85,14 @@ public final class FeedReader {
      */
     private final long wakeUpInterval = 150 * DateHelper.SECOND_MS;
 
-    /** The private constructor. */
+    /** The constructor. */
     public FeedReader(FeedStore feedStore) {
         super();
         checkScheduler = new Timer();
         this.feedStore = feedStore;
         feedCollection = feedStore.getFeeds();
+        PropertiesConfiguration config = ConfigHolder.getInstance().getConfig();
+        threadPoolSize = config.getInteger("feedReader.threadPoolSize", DEFAULT_THREAD_POOL_SIZE);
     }
 
     /**
@@ -313,19 +318,20 @@ public final class FeedReader {
     public void aggregate(long duration, final boolean downloadPages) {
         
         final FeedDownloader feedDownloader = new FeedDownloader();
+        final Counter newItems = new Counter();
+        
         FeedProcessingAction processingAction = new FeedProcessingAction() {
 
             @Override
             public void performAction(Feed feed) {
 
-                // int newEntries = 0;
                 List<FeedItem> items = feed.getItems();
                 LOGGER.debug("aggregating entries from " + feed.getFeedUrl());
 
                 // check, which we already have and add the missing ones.
                 List<FeedItem> toAdd = new ArrayList<FeedItem>();
                 for (FeedItem item : items) {
-                    boolean add = feedStore.getFeedEntryByRawId(feed.getId(), item.getRawId()) == null;
+                    boolean add = feedStore.getFeedItemByRawId(feed.getId(), item.getRawId()) == null;
                     if (add) {
                         toAdd.add(item);
                     }
@@ -336,14 +342,16 @@ public final class FeedReader {
                     // downloadedPages.increment(toAdd.size());
                 }
                 for (FeedItem feedEntry : toAdd) {
-                    feedStore.addFeedEntry(feed, feedEntry);
-                    // newEntries++;
+                    feedStore.addFeedItem(feed, feedEntry);
+                    newItems.increment();
                 }
 
             }
         };
         setFeedProcessingAction(processingAction);
         startContinuousReading(duration);
+        
+        LOGGER.info("# of new entries : " + newItems);
 
     }
 
@@ -411,6 +419,10 @@ public final class FeedReader {
      */
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws FeedDownloaderException {
+        
+        FeedReader r = new FeedReader(FeedDatabase.getInstance());
+        r.aggregate(10000, false);
+        System.exit(0);
 
         FeedReader fchecker = new FeedReader(FeedDatabase.getInstance());
         fchecker.setUpdateStrategy(new FixUpdateStrategy(), true);

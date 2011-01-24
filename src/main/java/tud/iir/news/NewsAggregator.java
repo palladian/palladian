@@ -29,9 +29,9 @@ import tud.iir.web.Crawler;
  * <li>Downloading feeds and entries is done with {@link FeedDownloader}</li>
  * <li>Scraping page content for feeds is done with {@link FeedDownloader}</li>
  * <li>Adding feeds to database is done via {@link FeedImporter}</li>
+ * <li>Aggregating feeds is done via {@link FeedReader}</li>
  * <ul>
  * 
- * TODO move the aggregation method to {@link FeedReader} and kill this class.<br>
  * TODO add a "lastSuccessfullAggregation" attribute to feed, so we can filter out obsolute feeds.<br>
  * TODO we should check if an entry was modified and update.<br>
  * TODO add a general filter to ignore specific types of feeds, for example by language, count of entries, URL pattern,
@@ -160,7 +160,7 @@ public class NewsAggregator {
                         // check, which we already have and add the missing ones.
                         List<FeedItem> toAdd = new ArrayList<FeedItem>();
                         for (FeedItem feedEntry : downloadedItems) {
-                            boolean add = store.getFeedEntryByRawId(feed.getId(), feedEntry.getRawId()) == null;
+                            boolean add = store.getFeedItemByRawId(feed.getId(), feedEntry.getRawId()) == null;
                             if (add) {
                                 toAdd.add(feedEntry);
                             }
@@ -171,7 +171,7 @@ public class NewsAggregator {
                             downloadedPages.increment(toAdd.size());
                         }
                         for (FeedItem feedEntry : toAdd) {
-                            store.addFeedEntry(feed, feedEntry);
+                            store.addFeedItem(feed, feedEntry);
                             newEntries++;
                         }
 
