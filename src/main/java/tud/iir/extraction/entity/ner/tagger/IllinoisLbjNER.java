@@ -15,7 +15,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.external.lbj.IO.Keyboard;
 import tud.iir.external.lbj.Tagger.BracketFileManager;
 import tud.iir.external.lbj.Tagger.DemoEngine;
@@ -373,16 +372,23 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         // // evaluate
         // //lbt.evaluateNER("data/temp/ne-esp-muc6.model", "data/temp/esp.testb");
 
-        Dataset trainingDataset = new Dataset();
-        trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
-        tagger.train(trainingDataset, "data/temp/illinoislbjner." + tagger.getModelFileEnding());
-
-        Dataset testingDataset = new Dataset();
-        testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
-        EvaluationResult er = tagger.evaluate(testingDataset,
- "data/temp/illinoislbjner." + tagger.getModelFileEnding());
+        // using a column trainig and testing file
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA.txt", "data/temp/lbj.model",
+                TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
+
+        // Dataset trainingDataset = new Dataset();
+        // trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
+        // tagger.train(trainingDataset, "data/temp/illinoislbjner." + tagger.getModelFileEnding());
+        //
+        // Dataset testingDataset = new Dataset();
+        // testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
+        // EvaluationResult er = tagger.evaluate(testingDataset,
+        // "data/temp/illinoislbjner." + tagger.getModelFileEnding());
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
 
     }
 }

@@ -22,6 +22,7 @@ import tud.iir.extraction.entity.ner.Entity;
 import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
+import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
@@ -432,6 +433,14 @@ public class LingPipeNER extends NamedEntityRecognizer {
         // lpt.evaluateNER("data/temp/ne-esp-muc6.model",
         // "data/temp/esp.testb");
 
+        // using a column trainig and testing file
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lingpipe.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA.txt", "data/temp/lingpipe.model",
+                TaggingFormat.COLUMN);
+        System.out.println(er.getMUCResultsReadable());
+        System.out.println(er.getExactMatchResultsReadable());
+
+        // using a dataset
         // Dataset trainingDataset = new Dataset();
         // trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
         // tagger.train(trainingDataset, "data/temp/lingpipe.model");

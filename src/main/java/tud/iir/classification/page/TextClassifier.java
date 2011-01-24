@@ -22,6 +22,7 @@ import tud.iir.web.Crawler;
  */
 public abstract class TextClassifier implements Serializable {
 
+    /** The serialize version ID. */
     private static final long serialVersionUID = 7180813470321257741L;
 
     /** The logger for this class. */

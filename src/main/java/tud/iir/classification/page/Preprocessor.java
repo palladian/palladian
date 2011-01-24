@@ -15,8 +15,6 @@ import tud.iir.helper.StringHelper;
 import tud.iir.helper.Tokenizer;
 import tud.iir.web.Crawler;
 
-//import edu.unc.ils.PorterStemmer;
-
 /**
  * The preprocessor reads the terms for a given resource and weights them according to their relevance.
  * 
@@ -27,18 +25,17 @@ import tud.iir.web.Crawler;
  */
 public final class Preprocessor implements Serializable {
 
-    // characters that will be eliminated
-    // private String[] illegalTermCharacters = { "\t", " ", ",", "\"", "'", ":", ";", "\\(", "\\)", "\\.", "\\!", "\\?", "\\{", "\\}" };
-
+    /** The serialize version ID. */
     private static final long serialVersionUID = -7623884004056059738L;
 
-    // the weights for the terms that appear in different areas of the resource
+    /** The weights for the terms that appear in different areas of the resource. */
     public static final double WEIGHT_DOMAIN_TERM = 8.0;
     public static final double WEIGHT_TITLE_TERM = 7.0;
     public static final double WEIGHT_KEYWORD_TERM = 6.0;
     public static final double WEIGHT_META_TERM = 4.0;
     public static final double WEIGHT_BODY_TERM = 1.0;
 
+    /** The crawler. */
     private transient Crawler crawler = null;
 
     /**
@@ -47,12 +44,13 @@ public final class Preprocessor implements Serializable {
     private TextClassifier classifier;
 
     /**
-     * global map of terms, all documents that are processed by this preprocessor share this term map, this will save memory since strings do not have to be
-     * copied but references to the terms will be kept
+     * Global map of terms, all documents that are processed by this preprocessor share this term map, this will save
+     * memory since strings do not have to be
+     * copied but references to the terms will be kept.
      */
     private Map<String, Term> termMap = new HashMap<String, Term>();
 
-    /** the term x weight map */
+    /** The term x weight map. */
     private Map<Term, Double> map;
 
     public Preprocessor(TextClassifier classifier) {
@@ -76,7 +74,7 @@ public final class Preprocessor implements Serializable {
     }
 
     /**
-     * extract terms from the meta description of a web page, given in the meta tag "description"
+     * Extract terms from the meta description of a web page, given in the meta tag "description".
      * 
      * @param pageString The website contents.
      */
@@ -88,7 +86,7 @@ public final class Preprocessor implements Serializable {
     }
 
     /**
-     * extract terms from the title of a web page, given in the title tag
+     * Extract terms from the title of a web page, given in the title tag.
      * 
      * @param pageString The website contents.
      */
