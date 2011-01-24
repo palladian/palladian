@@ -299,6 +299,10 @@ public class Feed {
     public void setUnreachableCount(int unreachableCount) {
         this.unreachableCount = unreachableCount;
     }
+    
+    public void incrementUnreachableCount() {
+        unreachableCount++;
+    }
 
     public int getUnreachableCount() {
         return unreachableCount;
