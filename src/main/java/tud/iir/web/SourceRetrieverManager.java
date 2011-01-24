@@ -21,6 +21,8 @@ public class SourceRetrieverManager {
     public static final int YAHOO = 1;
     public static final int GOOGLE = 2;
     // public static final int GOOGLE_PAGE = 5;
+    /** @deprecated obsolete; use {@link #BING} instead. */
+    @Deprecated
     public static final int MICROSOFT = 3;
     public static final int HAKIA = 4;
     public static final int YAHOO_BOSS = 5;
@@ -30,6 +32,7 @@ public class SourceRetrieverManager {
     public static final int TEXTRUNNER = 9;
     public static final int YAHOO_BOSS_NEWS = 10;
     public static final int GOOGLE_NEWS = 11;
+    public static final int HAKIA_NEWS = 12;
     // TODO add maximum number of queries per day
     // TODO automatically shift between extraction sources once too many queries
     // have been sent
@@ -171,14 +174,10 @@ public class SourceRetrieverManager {
      * @return An array of indices.
      */
     public static int[] getSearchEngines() {
-        int[] indices = { SourceRetrieverManager.YAHOO,
-                SourceRetrieverManager.GOOGLE,
-                SourceRetrieverManager.MICROSOFT, SourceRetrieverManager.HAKIA,
-                SourceRetrieverManager.YAHOO_BOSS, SourceRetrieverManager.BING,
-                SourceRetrieverManager.TWITTER,
-                SourceRetrieverManager.GOOGLE_BLOGS,
-                SourceRetrieverManager.TEXTRUNNER,
-                SourceRetrieverManager.GOOGLE_NEWS };
+        int[] indices = { SourceRetrieverManager.YAHOO, SourceRetrieverManager.GOOGLE,
+                SourceRetrieverManager.MICROSOFT, SourceRetrieverManager.HAKIA, SourceRetrieverManager.YAHOO_BOSS,
+                SourceRetrieverManager.BING, SourceRetrieverManager.TWITTER, SourceRetrieverManager.GOOGLE_BLOGS,
+                SourceRetrieverManager.TEXTRUNNER, SourceRetrieverManager.GOOGLE_NEWS };
         return indices;
     }
 
@@ -191,22 +190,14 @@ public class SourceRetrieverManager {
         StringBuilder logs = new StringBuilder();
 
         logs.append("\n");
-        logs.append("Number of Yahoo! requests: ")
-        .append(numberOfYahooRequests).append("\n");
-        logs.append("Number of Google requests: ").append(
-                numberOfGoogleRequests).append("\n");
-        logs.append("Number of Microsoft requests: ").append(
-                numberOfMicrosoftRequests).append("\n");
-        logs.append("Number of Hakia requests: ").append(numberOfHakiaRequests)
-        .append("\n");
-        logs.append("Number of Bing requests: ").append(numberOfBingRequests)
-        .append("\n");
-        logs.append("Number of Twitter requests: ").append(
-                numberOfTwitterRequests).append("\n");
-        logs.append("Number of Google Blogs requests: ").append(
-                numberOfGoogleBlogsRequests).append("\n");
-        logs.append("Number of TextRunner requests: ").append(
-                numberOfTextRunnerRequests).append("\n");
+        logs.append("Number of Yahoo! requests: ").append(numberOfYahooRequests).append("\n");
+        logs.append("Number of Google requests: ").append(numberOfGoogleRequests).append("\n");
+        logs.append("Number of Microsoft requests: ").append(numberOfMicrosoftRequests).append("\n");
+        logs.append("Number of Hakia requests: ").append(numberOfHakiaRequests).append("\n");
+        logs.append("Number of Bing requests: ").append(numberOfBingRequests).append("\n");
+        logs.append("Number of Twitter requests: ").append(numberOfTwitterRequests).append("\n");
+        logs.append("Number of Google Blogs requests: ").append(numberOfGoogleBlogsRequests).append("\n");
+        logs.append("Number of TextRunner requests: ").append(numberOfTextRunnerRequests).append("\n");
 
         return logs.toString();
     }
@@ -251,8 +242,7 @@ public class SourceRetrieverManager {
         queryString = "%22top speed of [a%7cthe] Bugatti Veyron is%22 %7c %22top speed of  Bugatti Veyron is%22";
         queryString = "\"top speed of [a|the] Bugatti Veyron is\" | \"top speed of  Bugatti Veyron is\"";
         // queryString = "top speed of the Bugatti Veyron is";
-        new SourceRetriever().getURLs(queryString,
-                SourceRetrieverManager.YAHOO, true);
+        new SourceRetriever().getURLs(queryString, SourceRetrieverManager.YAHOO, true);
         // new SourceRetriever().getURLs(queryString,SourceRetriever.GOOGLE,
         // true);
         // new SourceRetriever().getURLs(queryString,SourceRetriever.MICROSOFT,
