@@ -39,16 +39,16 @@ import tud.iir.wiki.queries.RevisionsByTitleQuery;
  */
 public class MediaWikiCrawler implements Runnable {
 
-    /** The global logger */
+    /** The global logger. */
     private static final Logger LOGGER = Logger.getLogger(MediaWikiCrawler.class);
 
-    /** do not call LOGGER.isDebugEnabled() 1000 times */
+    /** Do not call LOGGER.isDebugEnabled() 1000 times. */
     private static final boolean DEBUG = LOGGER.isDebugEnabled();
 
-    /** do not call LOGGER.isInfoEnabled() 1000 times */
+    /** Do not call LOGGER.isInfoEnabled() 1000 times. */
     private static final boolean INFO = LOGGER.isInfoEnabled();
 
-    /** used for logging to periodically write status output */
+    /** Used for logging to periodically write status output. */
     private static final int INFO_SIZE = 100;
 
     /**
@@ -380,7 +380,7 @@ public class MediaWikiCrawler implements Runnable {
             Long revisionID = revision.getRevisionID();
             // skip revision with revisionIDStart since we want get newer revisions only. Do not increase
             // revisionsSkipped since it is used to count revisions that should have been added but failed
-            if (skipFirst && (revisionID.equals(revisionIDStart))) {
+            if (skipFirst && revisionID.equals(revisionIDStart)) {
                 continue;
             }
 
@@ -687,7 +687,7 @@ public class MediaWikiCrawler implements Runnable {
             }
 
             // check for new pages that have been created since last check (or since complete crawl)
-            if ((System.currentTimeMillis() - mwDescriptor.getLastCheckForModifications().getTime()) > pageCheckInterval) {
+            if (System.currentTimeMillis() - mwDescriptor.getLastCheckForModifications().getTime() > pageCheckInterval) {
                 Date currentDate = new Date();
 
                 crawlAndStoreNamespaces();
@@ -732,8 +732,8 @@ public class MediaWikiCrawler implements Runnable {
             } else {
                 LOGGER.error("Could not process all tasks for Wiki \"" + mwDescriptor.getWikiName()
                         + "\" in time, processing took "
-                        + ((timeElapsed - newRevisionsInterval) / DateHelper.SECOND_MS)
-                        + " seconds, but should have been done within " + (newRevisionsInterval / DateHelper.SECOND_MS)
+                        + (timeElapsed - newRevisionsInterval) / DateHelper.SECOND_MS
+                        + " seconds, but should have been done within " + newRevisionsInterval / DateHelper.SECOND_MS
                         + " seconds. Please provide more resources!");
             }
         }
