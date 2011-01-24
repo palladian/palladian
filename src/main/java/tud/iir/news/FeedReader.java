@@ -421,7 +421,7 @@ public final class FeedReader {
     public static void main(String[] args) throws FeedDownloaderException {
         
         FeedReader r = new FeedReader(FeedDatabase.getInstance());
-        r.aggregate(10000, false);
+        r.aggregate(1000 * 60 * 5, false);
         System.exit(0);
 
         FeedReader fchecker = new FeedReader(FeedDatabase.getInstance());
