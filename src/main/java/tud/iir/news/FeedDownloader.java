@@ -35,15 +35,16 @@ import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
 /**
- * NewsAggregator uses ROME library to fetch and parse feeds from the web. Feeds are stored persistently, aggregation
- * method fetches new entries.
- * 
- * https://rome.dev.java.net/ *
+ * The FeedDownloader is responsible for fetching RSS and Atom feeds. We use Palladians {@link Crawler} for downloading
+ * the feeds and ROME for parsing the XML formats. This class implements various fallback mechanisms for parsing
+ * problems caused by ROME or invalid feeds. This class also includes capabilities, to scrape links feed items, to fetch
+ * additional content.
  * 
  * @author Philipp Katz
  * @author David Urbansky
  * @author Klemens Muthmann
  * 
+ * @see https://rome.dev.java.net/
  */
 public class FeedDownloader {
 
@@ -116,11 +117,11 @@ public class FeedDownloader {
             throws FeedDownloaderException {
         StopWatch sw = new StopWatch();
 
-        Document feedDocument = downloadFeed(feedUrl, headerInformation);
+        Document feedDocument = downloadFeedDocument(feedUrl, headerInformation);
         Feed feed = getFeed(feedDocument);
 
         if (scrapePages) {
-            fetchPageContentForEntries(feed.getItems());
+            scrapePages(feed.getItems());
         }
 
         LOGGER.debug("downloaded feed from " + feedUrl + " in " + sw.getElapsedTimeString());
@@ -139,6 +140,55 @@ public class FeedDownloader {
         Feed downloadedFeed = getFeed(feed.getFeedUrl());
         feed.setItems(downloadedFeed.getItems());
         feed.setDocument(downloadedFeed.getDocument());
+    }
+
+    /**
+     * Fetch associated page content for specified {@link FeedItem}s. Do not download binary files, like PDFs, audio or
+     * video files. Downloading is done concurrently.
+     * 
+     * @param feedItems the FeedItems to scrape.
+     */
+    public void scrapePages(List<FeedItem> feedItems) {
+        LOGGER.debug("downloading " + feedItems.size() + " pages");
+
+        URLDownloader downloader = new URLDownloader();
+        downloader.setMaxThreads(5);
+
+        final Map<String, FeedItem> entries = new HashMap<String, FeedItem>();
+
+        for (FeedItem feedEntry : feedItems) {
+            String entryLink = feedEntry.getLink();
+
+            if (entryLink == null) {
+                continue;
+            }
+
+            // check type of linked file; ignore audio, video or pdf files ...
+            String fileType = FileHelper.getFileType(entryLink);
+            boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
+                    || fileType.equals("pdf");
+            if (ignore) {
+                LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
+            } else {
+                downloader.add(feedEntry.getLink());
+                entries.put(feedEntry.getLink(), feedEntry);
+            }
+        }
+
+        downloader.start(new URLDownloaderCallback() {
+            @Override
+            public void finished(String url, InputStream inputStream) {
+                try {
+                    PageContentExtractor extractor = new PageContentExtractor();
+                    extractor.setDocument(new InputSource(inputStream));
+                    String pageText = extractor.getResultText();
+                    entries.get(url).setPageText(pageText);
+                } catch (PageContentExtractorException e) {
+                    LOGGER.error("PageContentExtractorException " + e);
+                }
+            }
+        });
+        LOGGER.debug("finished downloading");
     }
 
     // ///////////////////////////////////////////////////
@@ -180,7 +230,7 @@ public class FeedDownloader {
 
         Feed result = new Feed();
 
-        SyndFeed syndFeed = buildRomeFeed(feedDocument);
+        SyndFeed syndFeed = buildSyndFeed(feedDocument);
 
         // URL of the feed itself
         String feedUrl = feedDocument.getDocumentURI();
@@ -397,60 +447,11 @@ public class FeedDownloader {
         return publishDate;
     }
 
-    /**
-     * Fetch associated page content using {@link PageContentExtractor} for specified FeedEntries. Do not download
-     * binary files, like PDFs, audio or video files. Downloading is done concurrently.
-     * XXX
-     * 
-     * @param feedEntry
-     */
-    public void fetchPageContentForEntries(List<FeedItem> feedEntries) {
-        LOGGER.debug("downloading " + feedEntries.size() + " pages");
+    private Document downloadFeedDocument(String feedUrl, HeaderInformation headerInformation)
+            throws FeedDownloaderException {
 
-        URLDownloader downloader = new URLDownloader();
-        downloader.setMaxThreads(5);
-
-        final Map<String, FeedItem> entries = new HashMap<String, FeedItem>();
-
-        for (FeedItem feedEntry : feedEntries) {
-            String entryLink = feedEntry.getLink();
-
-            if (entryLink == null) {
-                continue;
-            }
-
-            // check type of linked file; ignore audio, video or pdf files ...
-            String fileType = FileHelper.getFileType(entryLink);
-            boolean ignore = FileHelper.isAudioFile(fileType) || FileHelper.isVideoFile(fileType)
-                    || fileType.equals("pdf");
-            if (ignore) {
-                LOGGER.debug("ignoring filetype " + fileType + " from " + entryLink);
-            } else {
-                downloader.add(feedEntry.getLink());
-                entries.put(feedEntry.getLink(), feedEntry);
-            }
-        }
-
-        downloader.start(new URLDownloaderCallback() {
-            @Override
-            public void finished(String url, InputStream inputStream) {
-                try {
-                    PageContentExtractor extractor = new PageContentExtractor();
-                    extractor.setDocument(new InputSource(inputStream));
-                    String pageText = extractor.getResultText();
-                    entries.get(url).setPageText(pageText);
-                } catch (PageContentExtractorException e) {
-                    LOGGER.error("PageContentExtractorException " + e);
-                }
-            }
-        });
-        LOGGER.debug("finished downloading");
-    }
-
-    private Document downloadFeed(String feedUrl, HeaderInformation headerInformation) throws FeedDownloaderException {
-
-        Document xmlDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
-        if (xmlDocument == null) {
+        Document feedDocument = crawler.getXMLDocument(feedUrl, false, headerInformation);
+        if (feedDocument == null) {
             throw new FeedDownloaderException("could not get document from " + feedUrl);
             // if (crawler.getLastResponseCode() != HttpURLConnection.HTTP_NOT_MODIFIED) {
             // // TODO
@@ -461,30 +462,30 @@ public class FeedDownloader {
             // }
         }
 
-        return xmlDocument;
+        return feedDocument;
     }
 
-    private SyndFeed buildRomeFeed(Document xmlDocument) throws FeedDownloaderException {
-
-        SyndFeedInput feedInput = new SyndFeedInput();
-
-        // this preserves the "raw" feed data and gives direct access to RSS/Atom specific elements see
-        // http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
-        feedInput.setPreserveWireFeed(true);
-
-        SyndFeed syndFeed;
+    private SyndFeed buildSyndFeed(Document feedDocument) throws FeedDownloaderException {
 
         try {
-            syndFeed = feedInput.build(xmlDocument);
+
+            SyndFeedInput feedInput = new SyndFeedInput();
+
+            // this preserves the "raw" feed data and gives direct access to RSS/Atom specific elements see
+            // http://wiki.java.net/bin/view/Javawsxml/PreservingWireFeeds
+            feedInput.setPreserveWireFeed(true);
+
+            SyndFeed syndFeed = feedInput.build(feedDocument);
+
+            return syndFeed;
+
         } catch (IllegalArgumentException e) {
-            LOGGER.error("getRomeFeed " + xmlDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
+            LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
             throw new FeedDownloaderException(e);
         } catch (FeedException e) {
-            LOGGER.error("getRomeFeed " + xmlDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
+            LOGGER.error("getRomeFeed " + feedDocument.getDocumentURI() + " " + e.toString() + " " + e.getMessage());
             throw new FeedDownloaderException(e);
         }
-
-        return syndFeed;
 
     }
 
@@ -518,12 +519,8 @@ public class FeedDownloader {
     public static void main(String[] args) throws Exception {
 
         FeedDownloader downloader = new FeedDownloader();
-
         Feed feed = downloader.getFeed("http://badatsports.com/feed/");
         printFeed(feed);
-
-        // System.out.println(feed);
-        // System.out.println(feed.getEntries());
 
     }
 
