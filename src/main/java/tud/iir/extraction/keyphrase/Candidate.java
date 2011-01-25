@@ -14,7 +14,6 @@ import tud.iir.helper.Tokenizer;
  * @author Philipp Katz
  * 
  */
-// public class Candidate {
 class Candidate {
 
     private DocumentModel document;
