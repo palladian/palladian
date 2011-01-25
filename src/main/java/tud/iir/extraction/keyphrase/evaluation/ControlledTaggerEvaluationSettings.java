@@ -1,4 +1,8 @@
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase.evaluation;
+
+import tud.iir.extraction.keyphrase.ControlledTaggerSettings;
+import tud.iir.extraction.keyphrase.ControlledTaggerSettings.TaggingCorrelationType;
+import tud.iir.extraction.keyphrase.ControlledTaggerSettings.TaggingType;
 
 
 /**

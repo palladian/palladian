@@ -1,11 +1,9 @@
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase.evaluation;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -21,7 +19,6 @@ import org.xml.sax.helpers.DefaultHandler;
 
 import tud.iir.helper.Counter;
 
-// TODO this should go into another package?
 /**
  * Parser for Delicious data set from http://nlp.uned.es/social-tagging/delicioust140/
  * 
@@ -60,7 +57,7 @@ public class DeliciousDatasetReader {
         private String filename;
         private String filetype;
         private int numUsers;
-        private List<Tag> tags = new ArrayList<Tag>();
+        private Bag<String> tags = new HashBag<String>();
 
         @Override
         public String toString() {
@@ -94,14 +91,6 @@ public class DeliciousDatasetReader {
 
         @Deprecated
         public Bag<String> getTags() {
-            Bag<String> resultBag = new HashBag<String>();
-            for (Tag tag : tags) {
-                resultBag.add(tag.getName(), (int) tag.getWeight());
-            }
-            return resultBag;
-        }
-
-        public List<Tag> getAssignedTags() {
             return tags;
         }
 
@@ -154,8 +143,8 @@ public class DeliciousDatasetReader {
             return accept;
         }
 
-        protected boolean accept(Tag tag, DatasetEntry entry) {
-            boolean accept = tag.getWeight() / entry.getNumUsers() >= minUserTagRatio;
+        protected boolean accept(String tag, int count, DatasetEntry entry) {
+            boolean accept = (float) count / entry.getNumUsers() >= minUserTagRatio;
             return accept;
         }
 
@@ -172,7 +161,8 @@ public class DeliciousDatasetReader {
         private DatasetEntry entry = new DatasetEntry();
         private StringBuffer textBuffer = new StringBuffer();
         private boolean catchText = false;
-        private Tag tag = new Tag();
+        private String tag;
+        private int count;
 
         @Override
         public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
@@ -194,14 +184,13 @@ public class DeliciousDatasetReader {
             } else if (qName.equals("users")) {
                 entry.numUsers = Integer.parseInt(getText());
             } else if (qName.equals("name")) {
-                tag.setName(getText());
+                tag = getText();
             } else if (qName.equals("weight")) {
-                tag.setWeight(Integer.parseInt(getText()));
+                count = Integer.parseInt(getText());
             } else if (qName.equals("tag")) {
-                if (filter.accept(tag, entry)) {
-                    entry.tags.add(tag);
+                if (filter.accept(tag, count, entry)) {
+                    entry.tags.add(tag, count);
                 }
-                tag = new Tag();
             } else if (qName.equals("document")) {
                 if (filter.accept(entry)) {
                     if (++currentIndex > offset) {

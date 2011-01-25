@@ -1,4 +1,4 @@
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,11 +16,9 @@ import org.tartarus.snowball.SnowballStemmer;
 import tud.iir.classification.Classifier;
 import tud.iir.classification.FeatureObject;
 import tud.iir.classification.WordCorrelation;
-import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.AssignmentMode;
-import tud.iir.classification.controlledtagging.KeyphraseExtractorSettings.ReRankingMode;
 import tud.iir.classification.page.evaluation.Dataset;
-import tud.iir.extraction.keyphrase.KeyphraseExtractor;
-import tud.iir.extraction.keyphrase.Keyphrase;
+import tud.iir.extraction.keyphrase.KeyphraseExtractorSettings.AssignmentMode;
+import tud.iir.extraction.keyphrase.KeyphraseExtractorSettings.ReRankingMode;
 import tud.iir.helper.Counter;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;

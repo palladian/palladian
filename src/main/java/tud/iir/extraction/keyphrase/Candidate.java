@@ -1,4 +1,4 @@
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
