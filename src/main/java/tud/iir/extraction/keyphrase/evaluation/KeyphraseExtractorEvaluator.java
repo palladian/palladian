@@ -1,4 +1,4 @@
-package tud.iir.extraction.keyphrase;
+package tud.iir.extraction.keyphrase.evaluation;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,10 +11,11 @@ import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
-import tud.iir.classification.controlledtagging.ControlledTaggerEvaluationResult;
-import tud.iir.classification.controlledtagging.PalladianKeyphraseExtractor;
 import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.classification.page.evaluation.TrainingDataSeparation;
+import tud.iir.extraction.keyphrase.Keyphrase;
+import tud.iir.extraction.keyphrase.KeyphraseExtractor;
+import tud.iir.extraction.keyphrase.PalladianKeyphraseExtractor;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.helper.StopWatch;
@@ -53,11 +54,17 @@ public class KeyphraseExtractorEvaluator {
     }
 
     public void evaluate(KeyphraseExtractor extractor, Dataset dataset) {
+        evaluate(extractor, dataset, -1, false);
+    }
+
+    public void evaluate(KeyphraseExtractor extractor, Dataset dataset, int testLimit, boolean useExistingTestData) {
 
         LOGGER.info("evaluating " + extractor.getExtractorName() + " with " + dataset);
         StopWatch sw = new StopWatch();
 
-        createTrainTestData(dataset);
+        if (!useExistingTestData) {
+            createTrainTestData(dataset);
+        }
 
         // train, if applicable
         if (extractor.needsTraining()) {
@@ -77,7 +84,7 @@ public class KeyphraseExtractorEvaluator {
         testingDataset.setFirstFieldLink(dataset.isFirstFieldLink());
 
         // evaluation
-        ControlledTaggerEvaluationResult result = test(extractor, testingDataset);
+        ControlledTaggerEvaluationResult result = test(extractor, testingDataset, testLimit);
 
         // write result file
         try {
@@ -243,16 +250,17 @@ public class KeyphraseExtractorEvaluator {
 
     public static void main(String[] args) {
 
-        // KeyphraseExtractor palladianKeyphraseExtractor = new PalladianKeyphraseExtractor();
-        // KeyphraseExtractor alchemyKeyphraseExtractor = new AlchemyKeywordExtraction();
-        KeyphraseExtractor mauiKeyphraseExtractor = new MauiKeyphraseExtractor();
-        // extractor = new FiveFiltersTermExtraction();
-        // extractor = new YahooTermExtraction();
+        KeyphraseExtractor keyphraseExtractor;
+        keyphraseExtractor = new PalladianKeyphraseExtractor();
+        // keyphraseExtractor = new AlchemyKeywordExtraction();
+        // keyphraseExtractor = new ControlledTagger();
+        // keyphraseExtractor = new FiveFiltersTermExtraction();
+        // keyphraseExtractor = new YahooTermExtraction();
 
         KeyphraseExtractorEvaluator evaluator = new KeyphraseExtractorEvaluator();
-        
+
         // evaluator.addExtractor(palladianKeyphraseExtractor);
-        evaluator.addExtractor(mauiKeyphraseExtractor);
+        // evaluator.addExtractor(controlledTagger);
 
         Dataset dataset = new Dataset();
         // dataset.setPath("/Users/pk/temp/citeulike180/citeulike180index.txt");
@@ -261,16 +269,16 @@ public class KeyphraseExtractorEvaluator {
         // dataset.setRootPath("/Users/pk/temp/fao780/");
 
         // dataset.setSeparationString("#");
-        
-//        dataset.setPath("/home/pk/temp/deliciousT140/deliciousT140index.txt");
-//        dataset.setRootPath("/home/pk/temp/deliciousT140/docs");
+
+        // dataset.setPath("/home/pk/temp/deliciousT140/deliciousT140index.txt");
+        // dataset.setRootPath("/home/pk/temp/deliciousT140/docs");
         dataset.setPath("/Users/pk/temp/deliciousT140/deliciousT140index.txt");
         dataset.setRootPath("/Users/pk/temp/deliciousT140/docs");
         dataset.setSeparationString(" ");
         dataset.setFirstFieldLink(true);
         dataset.setUsePercentTraining(50);
 
-        evaluator.evaluate(dataset, 1);
+        evaluator.evaluate(keyphraseExtractor, dataset, -1, true);
 
     }
 

@@ -17,7 +17,7 @@ public abstract class KeyphraseExtractor {
     /** Maximum number of keyphrases to assign. */
     private int keyphraseCount = 10;
 
-    public void train(final Dataset dataset) {
+    public final void train(final Dataset dataset) {
 
         LOGGER.info("training");
 

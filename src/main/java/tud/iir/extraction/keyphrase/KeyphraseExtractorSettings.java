@@ -1,4 +1,4 @@
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase;
 
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -7,7 +7,7 @@ import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
 import tud.iir.classification.Stopwords;
-import tud.iir.classification.controlledtagging.TokenizerPlus.TokenizerSettings;
+import tud.iir.extraction.keyphrase.TokenizerPlus.TokenizerSettings;
 
 public class KeyphraseExtractorSettings implements TokenizerSettings {
 

@@ -1,7 +1,7 @@
 /**
  * 
  */
-package tud.iir.classification.controlledtagging;
+package tud.iir.extraction.keyphrase.evaluation;
 
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
