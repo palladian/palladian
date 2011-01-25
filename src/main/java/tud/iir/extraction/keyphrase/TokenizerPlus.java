@@ -55,9 +55,8 @@ public class TokenizerPlus {
     /** Whether to use POS tagging. */
     private boolean usePosTagging = false;
 
-    public interface TokenizerSettings {
+    public static interface TokenizerSettings {
         SnowballStemmer getStemmer();
-
         Set<String> getStopwords();
     }
 

@@ -89,7 +89,6 @@ public class DeliciousDatasetReader {
             return new File(getPath());
         }
 
-        @Deprecated
         public Bag<String> getTags() {
             return tags;
         }
