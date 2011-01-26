@@ -18,8 +18,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import tud.iir.normalization.StringNormalizer;
-import tud.iir.normalization.UnitNormalizer;
+import tud.iir.preprocessing.normalization.StringNormalizer;
+import tud.iir.preprocessing.normalization.UnitNormalizer;
 
 /**
  * The StringHelper adds string functionality.

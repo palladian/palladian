@@ -22,6 +22,9 @@ public class Dataset {
     /** What percentage of the dataset should be used for training (0,100]. */
     private int usePercentTraining = 100;
 
+    /** Whether the dataset is a column formatted file for Named Entity Recognition. */
+    private boolean columnNER = false;
+
     /**
      * Whether the first field that is separated by the separation string links to a document or is the document itself.
      */
@@ -71,6 +74,14 @@ public class Dataset {
 
     public boolean isFirstFieldLink() {
         return firstFieldLink;
+    }
+
+    public void setColumnNER(boolean columnNER) {
+        this.columnNER = columnNER;
+    }
+
+    public boolean isColumnNER() {
+        return columnNER;
     }
 
     @Override

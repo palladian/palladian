@@ -9,10 +9,10 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 
 import tud.iir.daterecognition.DateGetterHelper;
+import tud.iir.daterecognition.KeyWords;
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
-import tud.iir.knowledge.KeyWords;
 
 /**
  * This class extracts all dates out of the content of webpages.

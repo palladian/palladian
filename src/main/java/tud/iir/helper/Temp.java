@@ -19,10 +19,10 @@ import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.classification.page.evaluation.FeatureSetting;
 import tud.iir.extraction.PageAnalyzer;
-import tud.iir.news.Feed;
-import tud.iir.news.FeedDatabase;
-import tud.iir.news.evaluation.FeedReaderEvaluator;
 import tud.iir.web.Crawler;
+import tud.iir.web.feeds.Feed;
+import tud.iir.web.feeds.FeedDatabase;
+import tud.iir.web.feeds.evaluation.FeedReaderEvaluator;
 
 /**
  * Dump class to test various algorithms.

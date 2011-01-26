@@ -49,7 +49,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 import tud.iir.extraction.PageAnalyzer;
-import tud.iir.knowledge.HTMLSymbols;
 
 /**
  * Some HTML and XML/DOM specific helper methods.

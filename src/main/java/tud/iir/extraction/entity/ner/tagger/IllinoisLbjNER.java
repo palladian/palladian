@@ -142,7 +142,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         FileHelper.writeToFile("data/temp/illinoislbjNerConfig.config", configFileContent);
 
         // count the number of models
-        int l1 = FileHelper.getFiles("data/models/illinoisner/data/models").length;
+        int l1 = FileHelper.getFiles(FileHelper.getFilePath(modelFilePath)).length;
 
         Parameters.readConfigAndLoadExternalData("data/temp/illinoislbjNerConfig.config");
         Parameters.forceNewSentenceOnLineBreaks = true;
@@ -163,7 +163,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         LearningCurve.getLearningCurve(trainingFilePath2, testingFilePath2);
 
         // check if a new model has been added, if not return false
-        if (FileHelper.getFiles("data/models/illinoisner/data/models").length == l1) {
+        if (FileHelper.getFiles(FileHelper.getFilePath(modelFilePath)).length == l1) {
             return false;
         }
 
@@ -372,9 +372,16 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         // // evaluate
         // //lbt.evaluateNER("data/temp/ne-esp-muc6.model", "data/temp/esp.testb");
 
+        // String a = "abc [MISC A$  ] def";
+        // a = a.replace("[MISC A$  ]", "<MISC>A$</MISC>");
+        //
+        // FileFormatParser.bracketToXML("data/temp/illinoisInputText_tagged.txt",
+        // "data/temp/illinoisInputText_tagged.txt");
+        // System.exit(0);
+
         // using a column trainig and testing file
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA.txt", "data/temp/lbj.model",
+        // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/lbj.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA_small.txt", "data/temp/lbj.model",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());

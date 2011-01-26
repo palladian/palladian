@@ -1,4 +1,4 @@
-package tud.iir.knowledge;
+package tud.iir.daterecognition;
 
 import tud.iir.helper.ArrayHelper;
 

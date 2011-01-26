@@ -98,6 +98,10 @@ public abstract class NamedEntityRecognizer {
 
     public boolean train(Dataset dataset, String modelFilePath) {
 
+        if (dataset.isColumnNER()) {
+            return train(dataset.getPath(), modelFilePath);
+        }
+
         String tempFilePath = "data/temp/nerConcatenated.xml";
         String tempColumnFilePath = FileHelper.appendToFileName(tempFilePath, "_tsv");
 

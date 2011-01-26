@@ -10,7 +10,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import tud.iir.normalization.DateNormalizer;
+import tud.iir.preprocessing.normalization.DateNormalizer;
 
 // TODO Move to Extraction package
 /**

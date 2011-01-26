@@ -9,9 +9,9 @@ import org.w3c.dom.NodeList;
 
 import tud.iir.daterecognition.DateConverter;
 import tud.iir.daterecognition.DateGetterHelper;
+import tud.iir.daterecognition.KeyWords;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.StructureDate;
-import tud.iir.knowledge.KeyWords;
 
 /**
  * This class extracts dates out of the structure of a HTML-document.

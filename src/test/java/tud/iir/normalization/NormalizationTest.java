@@ -3,6 +3,8 @@ package tud.iir.normalization;
 import junit.framework.TestCase;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
+import tud.iir.preprocessing.normalization.StringNormalizer;
+import tud.iir.preprocessing.normalization.UnitNormalizer;
 
 /**
  * Test cases for the normalization.

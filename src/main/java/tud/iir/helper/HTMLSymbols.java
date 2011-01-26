@@ -1,4 +1,4 @@
-package tud.iir.knowledge;
+package tud.iir.helper;
 
 import java.util.ArrayList;
 
