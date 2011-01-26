@@ -16,30 +16,30 @@ import tud.iir.helper.CollectionHelper;
 public class PalladianKeyphraseExtractorExample {
 
     public static void main(String[] args) {
-        
+
         PalladianKeyphraseExtractor keyphraseExtractor = new PalladianKeyphraseExtractor();
         KeyphraseExtractorSettings settings = keyphraseExtractor.getSettings();
-        
+
         // Path to Corpus+Classifier
-        settings.setModelPath("data/models/PalladianKeyphraseExtractor");
-        
+        settings.setModelPath("C:\\Data\\models\\PalladianKeyphraseExtractor");
+
         // extract 10 keyphrases per document
         settings.setAssignmentMode(AssignmentMode.FIXED_COUNT);
         settings.setKeyphraseCount(20);
-        
-        // maximum length of extracted keyphrases 
+
+        // maximum length of extracted keyphrases
         settings.setPhraseLength(3);
-        
+
         // Pattern, which keyphrases have to match
         settings.setPattern("[a-zA-Z\\s\\-]{3,}");
-        
+
         // load the model files
         keyphraseExtractor.load();
-        
+
         // extract keyphrases
         String text = getSampleText();
         Set<Keyphrase> keyphrases = keyphraseExtractor.extract(text);
-        
+
         // result
         CollectionHelper.print(keyphrases);
 
