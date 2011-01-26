@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import tud.iir.daterecognition.DateRaterHelper;
+import tud.iir.daterecognition.KeyWords;
 import tud.iir.daterecognition.dates.StructureDate;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
-import tud.iir.knowledge.KeyWords;
 
 /**
  * This class rates structure dates by keywords.

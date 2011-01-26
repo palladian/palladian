@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import tud.iir.daterecognition.DateRaterHelper;
+import tud.iir.daterecognition.KeyWords;
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.helper.DateArrayHelper;
-import tud.iir.knowledge.KeyWords;
 
 /**
  *This class evaluates content-dates. <br>

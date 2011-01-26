@@ -42,7 +42,7 @@ public class NEREvaluator {
         new File(evaluationFolder).mkdirs();
     }
 
-    private void trainAllNERs(Dataset datasetTraining) {
+    public void trainAllNERs(Dataset datasetTraining) {
 
         for (NamedEntityRecognizer ner : getNerList()) {
 

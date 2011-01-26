@@ -204,57 +204,67 @@ public class FileFormatParser {
         FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
     }
 
-    public static void columnToColumnBIO(String inputFilePath, String outputFilePath, String columnSeparator) {
+    public static void columnToColumnBIO(String inputFilePath, String outputFilePath, final String columnSeparator) {
 
-        final Object[] obj = new Object[3];
+        final Object[] obj = new Object[1];
         // the bio format string
-        obj[0] = new StringBuilder();
+        final StringBuilder sb = new StringBuilder();
 
         // the last tag
-        obj[1] = "";
-
-        // the column separator
-        obj[2] = columnSeparator;
+        obj[0] = "";
 
         LineAction la = new LineAction(obj) {
 
             @Override
             public void performAction(String line, int lineNumber) {
 
-                String[] parts = line.split((String) obj[2]);
+                String[] parts = line.split(columnSeparator);
 
                 if (parts.length < 2) {
                     return;
                 }
 
+                // sometimes the column file has several columnSeparators and we should take the last part, for example
+                // a line could be "15. Apr DATE" so we have two white spaces but only DATE is the tag token.
+                int lastIndex = parts.length - 1;
+
+                // the content before the tag
+                String tokenContent = "";
+                for (int i = 0; i < lastIndex; i++) {
+                    if (i > 0) {
+                        tokenContent += columnSeparator;
+                    }
+                    tokenContent += parts[i];
+                }
+
                 String bioTag = "O";
 
-                if (!parts[1].equalsIgnoreCase("o")) {
+                if (!parts[lastIndex].equalsIgnoreCase("o")) {
 
-                    if (!((String) obj[1]).equalsIgnoreCase(parts[1])) {
+                    if (!((String) obj[0]).equalsIgnoreCase(parts[lastIndex])) {
 
-                        bioTag = "B-" + parts[1];
+                        bioTag = "B-" + parts[lastIndex];
 
-                    } else if (((String) obj[1]).equalsIgnoreCase(parts[1])) {
+                    } else if (((String) obj[0]).equalsIgnoreCase(parts[lastIndex])) {
 
-                        bioTag = "I-" + parts[1];
+                        bioTag = "I-" + parts[lastIndex];
 
                     }
 
                 }
 
                 // assign last tag
-                obj[1] = parts[1];
+                obj[0] = parts[lastIndex];
 
                 // create transformed line
-                ((StringBuilder) obj[0]).append(parts[0]).append((String) obj[2]).append(bioTag).append("\n");
+                sb.append(tokenContent).append(columnSeparator).append(bioTag).append("\n");
 
             }
         };
 
         FileHelper.performActionOnEveryLine(inputFilePath, la);
 
-        FileHelper.writeToFile(outputFilePath, (StringBuilder) obj[0]);
+        FileHelper.writeToFile(outputFilePath, sb);
     }
 
     public static void columnBIOToColumn(String inputFilePath, String outputFilePath, String columnSeparator) {
@@ -411,8 +421,8 @@ public class FileFormatParser {
             String tagName = StringHelper.getSubstringBetween(matcher.group(0), "[", " ");
             String tagContent = StringHelper.getSubstringBetween(matcher.group(0), " ", " ]");
 
-            String xmlTag = "<" + tagName + ">" + tagContent + "</" + tagName + ">";
-            outputText = outputText.replaceAll(StringHelper.escapeForRegularExpression(matcher.group(0)), xmlTag);
+            String xmlTag = "<" + tagName + ">" + tagContent.trim() + "</" + tagName + ">";
+            outputText = outputText.replace(matcher.group(0), xmlTag);
         }
 
         FileHelper.writeToFile(outputFilePath, outputText);

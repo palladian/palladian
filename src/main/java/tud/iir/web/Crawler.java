@@ -74,7 +74,7 @@ import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.multimedia.ImageHandler;
-import tud.iir.news.FeedDiscoveryCallback;
+import tud.iir.web.feeds.FeedDiscoveryCallback;
 
 /**
  * The Crawler downloads pages from the web. List of proxies can be found here: http://www.proxy-list.org/en/index.php

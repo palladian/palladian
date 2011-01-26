@@ -6,13 +6,13 @@ import java.util.Map.Entry;
 
 import tud.iir.daterecognition.DateRaterHelper;
 import tud.iir.daterecognition.ExtractedDateHelper;
+import tud.iir.daterecognition.KeyWords;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.daterecognition.dates.HeadDate;
 import tud.iir.daterecognition.technique.HeadDateRater;
 import tud.iir.daterecognition.technique.PageDateType;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
-import tud.iir.knowledge.KeyWords;
 
 public class TestHeadDateRater extends HeadDateRater {
 	

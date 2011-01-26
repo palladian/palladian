@@ -3,8 +3,8 @@ package tud.iir.helper.shingling;
 import java.util.List;
 
 import tud.iir.helper.StopWatch;
-import tud.iir.news.FeedDatabase;
-import tud.iir.news.FeedItem;
+import tud.iir.web.feeds.FeedDatabase;
+import tud.iir.web.feeds.FeedItem;
 
 public class ShinglesPerformanceTest {
 

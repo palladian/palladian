@@ -5,8 +5,8 @@ import java.util.TimerTask;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.news.FeedReader;
-import tud.iir.news.FeedProcessingAction;
+import tud.iir.web.feeds.FeedProcessingAction;
+import tud.iir.web.feeds.FeedReader;
 
 /**
  * The {@link FeedReader} schedules {@link FeedTask}s for each {@link Feed}. The {@link FeedTask} will run every time
