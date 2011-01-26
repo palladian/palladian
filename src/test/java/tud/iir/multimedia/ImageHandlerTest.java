@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 
 import junit.framework.TestCase;
 import tud.iir.helper.FileHelper;
+import tud.iir.preprocessing.multimedia.ImageHandler;
 
 /**
  * Test cases for the image handler.

@@ -73,7 +73,7 @@ import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
-import tud.iir.multimedia.ImageHandler;
+import tud.iir.preprocessing.multimedia.ImageHandler;
 import tud.iir.web.feeds.FeedDiscoveryCallback;
 
 /**
@@ -1676,12 +1676,12 @@ public class Crawler {
         // FIXME: URL filter for black and whitelists (currently in Extractor)
         // if (MIOExtractor.getInstance().isURLallowed(url)) {
 
-            String[] schemes = { "http", "https" };
-            UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
+        String[] schemes = { "http", "https" };
+        UrlValidator urlValidator = new UrlValidator(schemes, UrlValidator.ALLOW_2_SLASHES);
 
-            if (urlValidator.isValid(url)) {
-                returnValue = true;
-            }
+        if (urlValidator.isValid(url)) {
+            returnValue = true;
+        }
 
         // }
 
