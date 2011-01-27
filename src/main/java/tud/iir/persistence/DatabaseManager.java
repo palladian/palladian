@@ -1,16 +1,13 @@
 package tud.iir.persistence;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 
-import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.log4j.Logger;
-
-import tud.iir.helper.ConfigHolder;
 
 /**
  * The DatabaseManager writes and reads data to the database.
@@ -24,285 +21,261 @@ public class DatabaseManager {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
-
-    /** The configuration file can be found under config/palladian.properties. */
-    private static PropertiesConfiguration config;
-
-    private Connection connection;
-
-
-    // TODO in entities domainID instead of conceptID (or no cascade or best new table that connects an entity with all
-    // synonyms) because deleting a
-    // concept (one synonym) might lead to deletion of all entities for that concept
+    
     /**
-     * Instantiates a new database manager.
-     */
-    protected DatabaseManager() {
-
-        config = ConfigHolder.getInstance().getConfig();
-        config.setThrowExceptionOnMissing(true);
-
-    }
-
-    static class SingletonHolder {
-        static DatabaseManager instance = new DatabaseManager();
-    }
-
-    /**
-     * Gets the single instance of DatabaseManager.
-     * 
-     * @return single instance of DatabaseManager
-     */
-    public static DatabaseManager getInstance() {
-        try {
-            if (SingletonHolder.instance.connection == null || SingletonHolder.instance.connection != null
-                    && SingletonHolder.instance.connection.isClosed()) {
-                SingletonHolder.instance.establishConnection();
-            }
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-        } catch (ClassNotFoundException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        return SingletonHolder.instance;
-    }
-
-    public void establishConnection(String driver, String type, String host, String port, String name,
-            String username, String password) throws SQLException, ClassNotFoundException {
-
-        Class.forName(driver);
-        String url = "jdbc:" + type + "://" + host + ":" + port + "/" + name;
-        url += "?useServerPrepStmts=false&cachePrepStmts=false";
-        connection = DriverManager.getConnection(url, username, password);
-    }
-
-    /**
-     * Load DB driver, establish DB connection, prepare statements.
-     * 
-     * @throws SQLException
-     * @throws ClassNotFoundException
-     */
-    private void establishConnection() throws SQLException, ClassNotFoundException {
-
-        Class.forName(config.getString("db.driver"));
-        String url = "jdbc:" + config.getString("db.type") + "://" + config.getString("db.host") + ":"
-        + config.getString("db.port") + "/" + config.getString("db.name");
-        url += "?useServerPrepStmts=false&cachePrepStmts=false";
-        connection = DriverManager.getConnection(url, config.getString("db.username"), config.getString("db.password"));
-
-    }
-
-    /**
-     * Return the connection.
+     * Get a {@link Connection} from the {@link ConnectionManager}.
      * 
      * @return
+     * @throws SQLException
      */
-    public Connection getConnection() {
-        return connection;
+    public final Connection getConnection() throws SQLException {
+        return ConnectionManager.getInstance().getConnection();
     }
 
+//    /**
+//     * Execute a query using a {@link PreparedStatement}.
+//     * 
+//     * @param preparedStatement
+//     * @return
+//     */
+//    public final ResultSetIterator runQuery(PreparedStatement preparedStatement) {
+//        ResultSetIterator result = null;
+//        try {
+//            ResultSet rs = preparedStatement.executeQuery();
+//            result = new ResultSetIterator(preparedStatement, rs);
+//        } catch (SQLException e) {
+//            LOGGER.error(e);
+//        }
+//        return result;
+//    }
+
+
+    
     /**
-     * Gets the last insert id.
+     * Run a query operation on the database.
      * 
-     * @return the last insert id
+     * @param <T>
+     * @param callback
+     * @param converter
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return Number of processed results.
      */
-    public int getLastInsertID() {
+    public final <T> int runQuery(ResultCallback<T> callback, RowConverter<T> converter, String sql, Object... args) {
 
-        int lastInsertID = -1;
-
-        try {
-            PreparedStatement psLastInsertID = connection.prepareStatement("SELECT LAST_INSERT_ID()");
-            ResultSet rs = runQuery(psLastInsertID);
-            rs.next();
-            lastInsertID = Integer.valueOf(rs.getString(1));
-        } catch (NumberFormatException e) {
-            LOGGER.error(e.getMessage());
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        return lastInsertID;
-    }
-
-    /**
-     * Run query.
-     * 
-     * @param query the query
-     * @return the result set
-     */
-    public ResultSet runQuery(String query) {
-        return runQuery(query, "");
-    }
-
-    /**
-     * Run query.
-     * 
-     * @param statement the statement
-     * @return the result set
-     */
-    public ResultSet runQuery(PreparedStatement statement) {
-        ResultSet rs = null;
-
-        try {
-            rs = statement.executeQuery();
-        } catch (NumberFormatException e) {
-            LOGGER.error(e.getMessage());
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-        } catch (NullPointerException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        return rs;
-    }
-
-    /**
-     * Run query.
-     * 
-     * @param query the query
-     * @param text the text
-     * @return the result set
-     */
-    public ResultSet runQuery(String query, String text) {
-        ResultSet rs = null;
+        Connection connection = null;
         PreparedStatement ps = null;
-        Statement stmt = null;
+        ResultSet rs = null;
+        int counter = 0;
+
         try {
-            if (text.length() > 0) {
-                // ps = connection.prepareStatement(query,ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
-                // ps.setFetchSize(Integer.MIN_VALUE);
-                ps = connection.prepareStatement(query);
-                ps.setString(1, text);
-                rs = ps.executeQuery();
-            } else {
-                // stmt = connection.createStatement(ResultSet.TYPE_FORWARD_ONLY,ResultSet.CONCUR_READ_ONLY);
-                // stmt.setFetchSize(Integer.MIN_VALUE);
-                stmt = connection.createStatement();
-                rs = stmt.executeQuery(query);
+
+            connection = getConnection();
+            ps = connection.prepareStatement(sql);
+
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
             }
-        } catch (NumberFormatException e) {
-            LOGGER.error(e.getMessage());
+
+            rs = ps.executeQuery();
+            
+            while (rs.next() && callback.isLooping()) {
+                T item = converter.convert(rs);
+                callback.processResult(item, ++counter);
+            }
+
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
+        } finally {
+            close(connection, ps, rs);
+        }
+        
+        return counter;
+
+    }
+    
+    /**
+     * 
+     * @param <T>
+     * @param converter
+     * @param sql
+     * @param args
+     * @return
+     */
+    @SuppressWarnings("unchecked")
+    public final <T> T runSingleQuery(RowConverter<T> converter, String sql, Object... args) {
+        
+        final Object[] result = new Object[1];
+        
+        ResultCallback<T> callback = new ResultCallback<T>() {
+
+            @Override
+            public void processResult(T object, int number) {
+                result[0] = object;
+                breakLoop();
+            }
+        };
+        
+        runQuery(callback, converter, sql, args);
+        
+        return (T) result[0];
+        
+    }
+    
+    /**
+     * 
+     * @param sql
+     * @param args
+     * @return
+     */
+    public final Map<String, Object> runSingleQuery(String sql, Object... args) {
+        return runSingleQuery(new SimpleRowConverter(), sql, args);
+    }
+
+//    /**
+//     * Execute an update using a {@link PreparedStatement}.
+//     * 
+//     * @param preparedStatement The prepared statement.
+//     * @return (1) the row count for SQL Data Manipulation Language (DML) statements or (2) 0 for SQL statements that
+//     *         return nothing or (3) -1 if an {@link SQLException} has been caught and written to error log.
+//     */
+//    public final int runUpdate(PreparedStatement preparedStatement) {
+//        int result;
+//        try {
+//            result = preparedStatement.executeUpdate();
+//        } catch (SQLException e) {
+//            LOGGER.error(e.getMessage());
+//            return -1;
+//        }
+//        return result;
+//    }
+
+    /**
+     * Run an update operation and return the number of affected rows.
+     * 
+     * @param updateStatement Update statement which may contain parameter markers.
+     * @param args Arguments for parameter markers in updateStatement, if any.
+     * @return The number of affected rows, or -1 if an error occurred.
+     */
+    public final int runUpdate(String updateStatement, Object... args) {
+
+        int affectedRows;
+        Connection connection = null;
+        PreparedStatement ps = null;
+
+        try {
+
+            connection = getConnection();
+            ps = connection.prepareStatement(updateStatement);
+
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
+            }
+
+            affectedRows = ps.executeUpdate();
+
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+            affectedRows = -1;
+        } finally {
+            close(connection, ps);
         }
 
-        return rs;
+        return affectedRows;
+
     }
 
     /**
-     * Run query.
+     * Run an update operation and return the insert ID.
      * 
-     * @param query the query
-     * @param texts the texts
-     * @return the result set
+     * @param updateStatement Update statement which may contain parameter markers.
+     * @param args Arguments for parameter markers in updateStatement, if any.
+     * @return The generated ID, or 0 if no row was inserted, or -1 if an error occurred.
      */
-    public ResultSet runQuery(String query, String[] texts) {
+    public final int runUpdateReturnId(String updateStatement, Object... args) {
+
+        int generatedId;
+        Connection connection = null;
+        PreparedStatement ps = null;
         ResultSet rs = null;
 
         try {
-            if (texts.length > 0) {
-                java.sql.PreparedStatement ps = connection.prepareStatement(query);
-                for (int i = 1; i <= texts.length; i++) {
-                    ps.setString(i, texts[i - 1]);
-                }
-                rs = ps.executeQuery();
-            } else {
-                Statement stmt = connection.createStatement();
-                rs = stmt.executeQuery(query);
+
+            connection = getConnection();
+            ps = connection.prepareStatement(updateStatement, Statement.RETURN_GENERATED_KEYS);
+
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
             }
-        } catch (NumberFormatException e) {
-            LOGGER.error(e.getMessage());
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-        }
 
-        return rs;
-    }
+            ps.executeUpdate();
 
-    /**
-     * Execute a prepared statement.
-     * 
-     * @param preparedStatement The prepared statement.
-     * @return (1) the row count for SQL Data Manipulation Language (DML) statements or (2) 0 for SQL statements that
-     *         return nothing or (3) -1 if an {@link SQLException} has been caught and written to error log.
-     */
-    public int runUpdate(PreparedStatement preparedStatement) {
-        int result = 0;
-        try {
-            result = preparedStatement.executeUpdate();
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-            return -1;
-        }
-        return result;
-    }
-
-    /**
-     * Run update.
-     * 
-     * @param update the update
-     * @return the int
-     */
-    public int runUpdate(String update) {
-        return runUpdate(update, "");
-    }
-
-    /**
-     * Run update.
-     * 
-     * @param update the update
-     * @param text the text
-     * @return the int
-     */
-    public int runUpdate(String update, String text) {
-        int result = 0;
-        try {
-            // Statement stmt = connection.createStatement();
-            if (text.length() > 0) {
-                java.sql.PreparedStatement ps = connection.prepareStatement(update);
-                ps.setString(1, text);
-                result = ps.executeUpdate();
-                ps.close();
+            rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                generatedId = rs.getInt(1);
             } else {
-                Statement stmt = connection.createStatement();
-                result = stmt.executeUpdate(update);
-                stmt.close();
+                generatedId = 0;
             }
+
         } catch (SQLException e) {
             LOGGER.error(e.getMessage());
+            generatedId = -1;
+        } finally {
+            close(connection, ps, rs);
         }
-        return result;
+
+        return generatedId;
+
+    }
+    
+    public static final void close(Connection connection) {
+        close(connection, null, null);
     }
 
     /**
-     * Run update.
+     * Convenient helper method to close database resources.
      * 
-     * @param update the update
-     * @param texts the texts
-     * @return the int
+     * @param connection
+     * @param statement
      */
-    public int runUpdate(String update, String[] texts) {
-        int result = 0;
-        try {
-            if (texts.length > 0) {
-                java.sql.PreparedStatement ps = connection.prepareStatement(update);
-                for (int i = 1; i <= texts.length; i++) {
-                    ps.setString(i, texts[i - 1]);
-                }
-                result = ps.executeUpdate();
-                ps.close();
-            } else {
-                Statement stmt = connection.createStatement();
-                result = stmt.executeUpdate(update);
-                stmt.close();
-            }
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-        }
-        return result;
+    public static final void close(Connection connection, Statement statement) {
+        close(connection, statement, null);
+    }
+    
+    public static final void close(Connection connection, ResultSet resultSet) {
+        close(connection, null, resultSet);
     }
 
+    /**
+     * Convenient helper method to close database resources.
+     * 
+     * @param connection
+     * @param statement
+     * @param resultSet
+     */
+    public static final void close(Connection connection, Statement statement, ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                LOGGER.error("error closing ResultSet : " + e.getMessage());
+            }
+        }
+        if (statement != null) {
+            try {
+                statement.close();
+            } catch (SQLException e) {
+                LOGGER.error("error closing Statement : " + e.getMessage());
+            }
+        }
+        if (connection != null) {
+            try {
+                connection.close();
+            } catch (SQLException e) {
+                LOGGER.error("error closing Connection : " + e.getMessage());
+            }
+        }
+    }
 
     /**
      * *************************************************************************************************
@@ -310,50 +283,53 @@ public class DatabaseManager {
      * *************************************************************************************************.
      */
 
-
-
     /**
      * Test procedure.
      */
-    public void testProcedure() {
-        try {
-            Statement stmt = connection.createStatement();
-            // ResultSet rs = stmt.executeQuery("CALL source_voting_procedure");
-            ResultSet rs = stmt.executeQuery("SELECT source_voting_function()");
-            if (rs.next()) {
-                System.out.println(rs.getInt(1));
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        System.out.println("finished");
-    }
+//    public void testProcedure() {
+//        Connection connection = null;
+//        Statement stmt = null;
+//        ResultSet rs = null;
+//        try {
+//            connection = getConnection();
+//            stmt = connection.createStatement();
+//            rs = stmt.executeQuery("SELECT source_voting_function()");
+//            if (rs.next()) {
+//                LOGGER.info(rs.getInt(1));
+//            }
+//        } catch (SQLException e) {
+//            LOGGER.error(e);
+//        } finally {
+//            close(connection, stmt, rs);
+//        }
+//        LOGGER.info("finished");
+//    }
 
     /**
      * Sql script to grab the worst performing indexes in the whole server. Source:
      * http://forge.mysql.com/tools/tool.php?id=85
      * 
      */
-    public void getWorstIndices() {
-        runQuery("SELECT t.TABLE_SCHEMA AS `db`" + ", t.TABLE_NAME AS `table`" + ", s.INDEX_NAME AS `index name`"
-                + ", s.COLUMN_NAME AS `field name`" + ", s.SEQ_IN_INDEX `seq in index`"
-                + ", s2.max_columns AS `# cols`" + ", s.CARDINALITY AS `card`" + ", t.TABLE_ROWS AS `est rows`"
-                + ", ROUND(((s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) * 100), 2) AS `sel %`"
-                + "FROM INFORMATION_SCHEMA.STATISTICS s" + "INNER JOIN INFORMATION_SCHEMA.TABLES t"
-                + "ON s.TABLE_SCHEMA = t.TABLE_SCHEMA" + "AND s.TABLE_NAME = t.TABLE_NAME" + "INNER JOIN (" + "SELECT"
-                + "TABLE_SCHEMA" + ", TABLE_NAME" + ", INDEX_NAME" + ", MAX(SEQ_IN_INDEX) AS max_columns"
-                + "FROM INFORMATION_SCHEMA.STATISTICS" + "WHERE TABLE_SCHEMA != 'mysql'"
-                + "GROUP BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME" + ") AS s2" + "ON s.TABLE_SCHEMA = s2.TABLE_SCHEMA"
-                + "AND s.TABLE_NAME = s2.TABLE_NAME" + "AND s.INDEX_NAME = s2.INDEX_NAME"
-                + "WHERE t.TABLE_SCHEMA != 'mysql'" + // filter out the mysql system
-                // DB
-                "AND t.TABLE_ROWS > 10" + // only tables with some rows
-                "AND s.CARDINALITY IS NOT NULL" + // need at least one non-NULL value in the field
-                "AND (s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) < 1.00" + // selectivity < 1.0 b/c unique indexes are
-                // perfect anyway
-                "ORDER BY `sel %`, s.TABLE_SCHEMA, s.TABLE_NAME" + // switch to `sel %` DESC for best non-unique indexes
-        "LIMIT 20;");
-    }
+//    public void getWorstIndices() {
+//        runQuery("SELECT t.TABLE_SCHEMA AS `db`" + ", t.TABLE_NAME AS `table`" + ", s.INDEX_NAME AS `index name`"
+//                + ", s.COLUMN_NAME AS `field name`" + ", s.SEQ_IN_INDEX `seq in index`"
+//                + ", s2.max_columns AS `# cols`" + ", s.CARDINALITY AS `card`" + ", t.TABLE_ROWS AS `est rows`"
+//                + ", ROUND(((s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) * 100), 2) AS `sel %`"
+//                + "FROM INFORMATION_SCHEMA.STATISTICS s" + "INNER JOIN INFORMATION_SCHEMA.TABLES t"
+//                + "ON s.TABLE_SCHEMA = t.TABLE_SCHEMA" + "AND s.TABLE_NAME = t.TABLE_NAME" + "INNER JOIN (" + "SELECT"
+//                + "TABLE_SCHEMA" + ", TABLE_NAME" + ", INDEX_NAME" + ", MAX(SEQ_IN_INDEX) AS max_columns"
+//                + "FROM INFORMATION_SCHEMA.STATISTICS" + "WHERE TABLE_SCHEMA != 'mysql'"
+//                + "GROUP BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME" + ") AS s2" + "ON s.TABLE_SCHEMA = s2.TABLE_SCHEMA"
+//                + "AND s.TABLE_NAME = s2.TABLE_NAME" + "AND s.INDEX_NAME = s2.INDEX_NAME"
+//                + "WHERE t.TABLE_SCHEMA != 'mysql'" + // filter out the mysql system
+//                // DB
+//                "AND t.TABLE_ROWS > 10" + // only tables with some rows
+//                "AND s.CARDINALITY IS NOT NULL" + // need at least one non-NULL value in the field
+//                "AND (s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) < 1.00" + // selectivity < 1.0 b/c unique indexes are
+//                // perfect anyway
+//                "ORDER BY `sel %`, s.TABLE_SCHEMA, s.TABLE_NAME" + // switch to `sel %` DESC for best non-unique indexes
+//                "LIMIT 20;");
+//    }
 
     /**
      * The main method.
@@ -362,7 +338,24 @@ public class DatabaseManager {
      * @throws Exception the exception
      */
     public static void main(String[] args) throws Exception {
-
+        
+//        DatabaseManager dm = new DatabaseManager();
+//        
+//        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+//            
+//            @Override
+//            public void processResult(Map<String, Object> object, int number) {
+//                // System.out.println(object);
+//            }
+//        };
+        
+        // int result = dm.runQuery(callback, new SimpleRowConverter(), "SELECT * FROM feeds");
+        // System.out.println("matches: " + result);
+        
+        
+        // Map<String, Object> result2 = dm.runSingleQuery("SELECT * FROM feeds WHERE feedUrl = 'http://www.lexusreports.com/rss/master'");
+        // System.out.println(result2);
+        
         // DatabaseManager.getInstance().clearCompleteDatabase();
         //
         // KnowledgeManager km = new KnowledgeManager();
