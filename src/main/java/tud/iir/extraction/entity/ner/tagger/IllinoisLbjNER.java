@@ -1,5 +1,6 @@
 package tud.iir.extraction.entity.ner.tagger;
 
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.StringTokenizer;
 
@@ -29,6 +30,7 @@ import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.LineAction;
 import LBJ2.classify.Classifier;
 
 /**
@@ -195,8 +197,34 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         // last parameter is debug mode
         NETagPlain.tagFile(inputTextPath, taggedFilePath, false);
 
-        FileFormatParser.bracketToXML(taggedFilePath, taggedFilePath);
-        Annotations annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedFilePath);
+        // transform text back to online line since the tagger puts one sentence on each line
+        String taggedFilePathTransformed = inputTextPath.replaceAll("\\.txt", "_tagged_transformed.txt");
+        try {
+            final FileWriter fileWriter = new FileWriter(taggedFilePathTransformed);
+
+            LineAction la = new LineAction() {
+
+                @Override
+                public void performAction(String line, int lineNumber) {
+                    try {
+                        line = line.substring(0, line.length() - 3) + ". ";
+                        fileWriter.write(line);
+                        fileWriter.flush();
+                    } catch (IOException e) {
+                        LOGGER.error("could not write line, " + e.getMessage());
+                    }
+                }
+            };
+
+            FileHelper.performActionOnEveryLine(taggedFilePath, la);
+            fileWriter.close();
+
+        } catch (IOException e) {
+            LOGGER.error("could not transform tagged text, " + e.getMessage());
+        }
+
+        FileFormatParser.bracketToXML(taggedFilePathTransformed, taggedFilePathTransformed);
+        Annotations annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedFilePathTransformed);
 
         CollectionHelper.print(annotations);
 

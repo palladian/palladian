@@ -24,23 +24,19 @@ import tud.iir.helper.Tokenizer;
 public class FileFormatParser {
 
 	
-	public static Set<String> getTagsFromColumnFile(String trainingFilePath, String separator) {
+    public static Set<String> getTagsFromColumnFile(String trainingFilePath, final String separator) {
     	
-		Set<String> tags = new HashSet<String>(); 
-		
-		final Object[] args = new Object[2];
-		args[0] = separator;
-		args[1] = tags;
-		
-    	LineAction la = new LineAction(args) {
+		final Set<String> tags = new HashSet<String>();
+
+        LineAction la = new LineAction() {
 			
 			@Override
 			public void performAction(String line, int lineNumber) {
                 if (line.length() == 0) {
                     return;
                 }
-                String[] parts = line.split((String) args[0]);
-				((HashSet)args[1]).add(parts[1]);				
+                String[] parts = line.split(separator);
+                tags.add(parts[parts.length - 1]);
 			}
 		};
 		
@@ -438,6 +434,13 @@ public class FileFormatParser {
     public static void columnTrainingToTest(String inputFilePath, String outputFilePath, String columnSeparator) {
         String inputFile = FileHelper.readFileToString(inputFilePath);
         inputFile = inputFile.replaceAll(columnSeparator, columnSeparator + columnSeparator);
+        FileHelper.writeToFile(outputFilePath, inputFile);
+    }
+
+    public static void removeWhiteSpaceInFirstColumn(String inputFilePath, String outputFilePath, String replacement) {
+        String inputFile = FileHelper.readFileToString(inputFilePath);
+        // inputFile = inputFile.replaceAll("(?<=.+) (?=.+)", replacement);
+        inputFile = inputFile.replace(" ", replacement);
         FileHelper.writeToFile(outputFilePath, inputFile);
     }
 

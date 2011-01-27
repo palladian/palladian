@@ -43,13 +43,43 @@ import de.julielab.jnet.utils.Utils;
  * .de/Resources/Software/NLP+Tools/Download/Stand_alone+Tools.html</a>
  * </p>
  * 
+ * <pre>
+ * pos_feat_enabled = true
+ * pos_feat_unit = pos
+ * pos_feat_position = 1
+ * pos_begin_flag = false
+ * 
+ * offset_conjunctions = (-1)(1)
+ * 
+ * gap_character = @
+ * 
+ * stemming_enabled = true
+ * feat_wc_enabled = true
+ * feat_bwc_enabled = true
+ * feat_bioregexp_enabled = true
+ * </pre>
+ * 
  * @author David Urbansky
  * 
  */
 public class JulieNER extends NamedEntityRecognizer {
 
+    /** Hold the configuration settings here instead of a file. */
+    private String configFileContent = "";
+
     public JulieNER() {
         setName("Julie NER");
+
+        configFileContent += "pos_feat_enabled = false" + "\n";
+        configFileContent += "pos_feat_unit = pos" + "\n";
+        configFileContent += "pos_feat_position = 1" + "\n";
+        configFileContent += "pos_begin_flag = false" + "\n";
+        configFileContent += "offset_conjunctions = (-1)(1)" + "\n";
+        configFileContent += "gap_character = @" + "\n";
+        configFileContent += "stemming_enabled = true" + "\n";
+        configFileContent += "feat_wc_enabled = true" + "\n";
+        configFileContent += "feat_bwc_enabled = true" + "\n";
+        configFileContent += "feat_bioregexp_enabled = true" + "\n";
     }
 
     public void demo() {
@@ -79,6 +109,10 @@ public class JulieNER extends NamedEntityRecognizer {
     @Override
     public boolean loadModel(String configModelFilePath) {
         StopWatch stopWatch = new StopWatch();
+
+        if (!configModelFilePath.endsWith("." + getModelFileEnding())) {
+            configModelFilePath += "." + getModelFileEnding();
+        }
 
         File modelFile = new File(configModelFilePath);
 
@@ -168,12 +202,14 @@ public class JulieNER extends NamedEntityRecognizer {
 
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
-        return train(trainingFilePath, modelFilePath, "");
+        FileHelper.writeToFile("data/temp/julieNerConfig.config", configFileContent);
+        return train(trainingFilePath, modelFilePath, "data/temp/julieNerConfig.config");
     }
 
     public boolean train(String trainingFilePath, String modelFilePath, String configFilePath) {
 
-        FileFormatParser.columnToSlash(trainingFilePath, "data/temp/julieTraining.txt", "\t", "|");
+        FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, "data/temp/julieTraining.txt", "_");
+        FileFormatParser.columnToSlash("data/temp/julieTraining.txt", "data/temp/julieTraining.txt", "\t", "|");
 
         File trainFile = new File("data/temp/julieTraining.txt");
         File tagsFile = createTagsFile(trainingFilePath, "\t");
@@ -322,12 +358,48 @@ public class JulieNER extends NamedEntityRecognizer {
         // System.out.println(tagger.evaluate("data/datasets/ner/sample/testingXML.xml",
         // "data/temp/personPhoneCity.mod.gz", TaggingFormat.XML));
 
+        // String a =
+        // "=-DOCSTART-|O EU|ORG rejects|O German|MISC call|O to|O boycott|O British|MISC lamb|O .|O Peter|PER Blackburn|PER";
+        // String[] tokens = a.trim().split("[\t ]+");
+        // String features[];
+        // String label, word;
+        // String featureName; // name of feature for units given by featureConfig
+        // for (int i = 0; i < tokens.length; i++) {
+        //
+        // features = tokens[i].split("\\|+");
+        //
+        // word = features[0];
+        // label = features[features.length - 1];
+        // }
+        //
+        // FileHelper.writeToFile("data/temp/abc.txt", a);
+        // ArrayList<String> ppdSentences = Utils.readFile(new File("data/temp/julieTraining.txt"));
+        // ArrayList<Sentence> sentences = new ArrayList<Sentence>();
+        //
+        // NETagger tagger2;
+        // tagger2 = new NETagger();
+        //
+        // for (String ppdSentence : ppdSentences) {
+        // try {
+        // sentences.add(tagger2.PPDtoUnits(ppdSentence));
+        // } catch (JNETException e) {
+        // e.printStackTrace();
+        // }
+        // }
+
         // /////////////////////////// train and test /////////////////////////////
-        tagger.train("data/datasets/ner/politician/text/training.tsv", "data/temp/juliener.mod");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
-                "data/temp/juliener.mod", TaggingFormat.COLUMN);
+        // using a column trainig and testing file
+        // tagger.train("data/datasets/ner/conll/training_verysmall.txt", "data/temp/juliener.mod");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA_small.txt", "data/temp/juliener.mod",
+                TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
+
+        // tagger.train("data/datasets/ner/politician/text/training.tsv", "data/temp/juliener.mod");
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
+        // "data/temp/juliener.mod", TaggingFormat.COLUMN);
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
 
     }
 
