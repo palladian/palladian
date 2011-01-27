@@ -65,7 +65,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getLastFeedEntrySQLTimestamp());
         parameters.add(feed.getActivityPattern());
-        int result = runUpdateReturnId(psAddFeed, parameters.toArray());
+        int result = runUpdateReturnId(psAddFeed, parameters);
         if (result > 0) {
             feed.setId(result);
             added = true;
@@ -103,7 +103,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getActivityPattern());
         parameters.add(feed.getId());
 
-        int result = runUpdate(psUpdateFeed, parameters.toArray());
+        int result = runUpdate(psUpdateFeed, parameters);
         if (result == 1) {
             updated = true;
         }
@@ -141,7 +141,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
             parameters.add(distributionEntry.getKey());
             parameters.add(distributionEntry.getValue()[0]);
             parameters.add(distributionEntry.getValue()[1]);
-            runUpdate(psUpdateFeedPostDistribution, parameters.toArray());
+            runUpdate(psUpdateFeedPostDistribution, parameters);
         }
     }
 
@@ -182,7 +182,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(entry.getItemText());
         parameters.add(entry.getPageText());
 
-        int result = runUpdateReturnId(psAddFeedItem, parameters.toArray());
+        int result = runUpdateReturnId(psAddFeedItem, parameters);
         if (result > 0) {
             entry.setId(result);
             added = true;

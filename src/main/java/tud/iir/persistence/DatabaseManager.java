@@ -215,6 +215,10 @@ public class DatabaseManager {
 
     }
     
+    public final int runUpdateReturnId(String updateStatement, List<Object> args) {
+        return runUpdateReturnId(updateStatement, args.toArray());
+    }
+    
     public static final void close(Connection connection) {
         close(connection, null, null);
     }
