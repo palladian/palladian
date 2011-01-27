@@ -2,9 +2,9 @@ package tud.iir.persistence;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Random;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.ConfigHolder;
@@ -33,7 +33,7 @@ public class ConnectionManager {
 
     /** Hold the lazy initialized singleton instance. */
     private static class SingletonHolder {
-        private static ConnectionManager instance = new ConnectionManager();
+        private static final ConnectionManager INSTANCE = new ConnectionManager();
     }
 
     /**
@@ -42,7 +42,7 @@ public class ConnectionManager {
      * @return
      */
     public static final ConnectionManager getInstance() {
-        return SingletonHolder.instance;
+        return SingletonHolder.INSTANCE;
     }
 
     /**
@@ -74,6 +74,14 @@ public class ConnectionManager {
             jdbcUrl.append("jdbc:").append(config.getString("db.type")).append("://");
             jdbcUrl.append(config.getString("db.host")).append(":").append(config.getString("db.port")).append("/");
             jdbcUrl.append(config.getString("db.name"));
+            
+            // additional parameters for the URL, if supplied
+            String[] params = config.getStringArray("db.parameter");
+            String paramString = StringUtils.join(params, "&");
+            if (!paramString.isEmpty()) {
+                jdbcUrl.append("?").append(paramString);                
+            }
+            
             LOGGER.debug("JDBC URL : " + jdbcUrl);
 
             boneConfig.setJdbcUrl(jdbcUrl.toString());
@@ -109,14 +117,16 @@ public class ConnectionManager {
 
     public static void main(String[] args) throws Exception {
 
-        final Random random = new Random();
+        ConnectionManager.getInstance();
+        
+        /*final Random random = new Random();
 
         for (int i = 0; i < 1000; i++) {
             new Thread() {
                 public void run() {
                     try {
                         Connection connection = ConnectionManager.getInstance().getConnection();
-                        // prepend to do something with the connection
+                        // pretend to do something with the connection
                         sleep(random.nextInt(10000));
                         connection.close();
                     } catch (SQLException e) {
@@ -126,7 +136,7 @@ public class ConnectionManager {
                     }
                 };
             }.start();
-        }
+        }*/
     }
 
 }
