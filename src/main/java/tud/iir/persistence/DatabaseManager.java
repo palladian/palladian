@@ -5,6 +5,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
@@ -31,25 +33,6 @@ public class DatabaseManager {
     public final Connection getConnection() throws SQLException {
         return ConnectionManager.getInstance().getConnection();
     }
-
-//    /**
-//     * Execute a query using a {@link PreparedStatement}.
-//     * 
-//     * @param preparedStatement
-//     * @return
-//     */
-//    public final ResultSetIterator runQuery(PreparedStatement preparedStatement) {
-//        ResultSetIterator result = null;
-//        try {
-//            ResultSet rs = preparedStatement.executeQuery();
-//            result = new ResultSetIterator(preparedStatement, rs);
-//        } catch (SQLException e) {
-//            LOGGER.error(e);
-//        }
-//        return result;
-//    }
-
-
     
     /**
      * Run a query operation on the database.
@@ -94,6 +77,28 @@ public class DatabaseManager {
 
     }
     
+    public final int runQuery(ResultCallback<Map<String, Object>> callback, String sql, Object... args) {
+        return runQuery(callback, new SimpleRowConverter(), sql, args);
+    }
+    
+    public final <T> List<T> runQuery(RowConverter<T> converter, String sql, Object... args) {
+        
+        final List<T> result = new ArrayList<T>();
+        
+        ResultCallback<T> callback = new ResultCallback<T>() {
+
+            @Override
+            public void processResult(T object, int number) {
+                result.add(object);
+            }
+            
+        };
+        
+        runQuery(callback, converter, sql, args);
+        
+        return result;
+    }
+    
     /**
      * 
      * @param <T>
@@ -131,24 +136,6 @@ public class DatabaseManager {
     public final Map<String, Object> runSingleQuery(String sql, Object... args) {
         return runSingleQuery(new SimpleRowConverter(), sql, args);
     }
-
-//    /**
-//     * Execute an update using a {@link PreparedStatement}.
-//     * 
-//     * @param preparedStatement The prepared statement.
-//     * @return (1) the row count for SQL Data Manipulation Language (DML) statements or (2) 0 for SQL statements that
-//     *         return nothing or (3) -1 if an {@link SQLException} has been caught and written to error log.
-//     */
-//    public final int runUpdate(PreparedStatement preparedStatement) {
-//        int result;
-//        try {
-//            result = preparedStatement.executeUpdate();
-//        } catch (SQLException e) {
-//            LOGGER.error(e.getMessage());
-//            return -1;
-//        }
-//        return result;
-//    }
 
     /**
      * Run an update operation and return the number of affected rows.

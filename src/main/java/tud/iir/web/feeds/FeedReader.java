@@ -26,6 +26,9 @@ import tud.iir.web.Crawler;
 import tud.iir.web.feeds.FeedContentClassifier.FeedContentType;
 import tud.iir.web.feeds.evaluation.FeedBenchmarkFileReader;
 import tud.iir.web.feeds.evaluation.FeedReaderEvaluator;
+import tud.iir.web.feeds.persistence.CollectionFeedSource;
+import tud.iir.web.feeds.persistence.FeedDatabase;
+import tud.iir.web.feeds.persistence.FeedStore;
 import tud.iir.web.feeds.updates.FixUpdateStrategy;
 import tud.iir.web.feeds.updates.MAVUpdateStrategy;
 import tud.iir.web.feeds.updates.PostRateUpdateStrategy;
@@ -376,7 +379,7 @@ public final class FeedReader {
      */
     public void setUpdateStrategy(UpdateStrategy updateStrategy, boolean resetLearnedValues) {
         if (!this.updateStrategy.equals(updateStrategy) && resetLearnedValues) {
-            FeedDatabase.getInstance().changeCheckApproach();
+            new FeedDatabase().changeCheckApproach();
         }
         this.updateStrategy = updateStrategy;
     }
@@ -419,11 +422,11 @@ public final class FeedReader {
     @SuppressWarnings("static-access")
     public static void main(String[] args) throws FeedDownloaderException {
 
-        FeedReader r = new FeedReader(FeedDatabase.getInstance());
+        FeedReader r = new FeedReader(new FeedDatabase());
         r.aggregate(1000 * 60 * 5, false);
         System.exit(0);
 
-        FeedReader fchecker = new FeedReader(FeedDatabase.getInstance());
+        FeedReader fchecker = new FeedReader(new FeedDatabase());
         fchecker.setUpdateStrategy(new FixUpdateStrategy(), true);
         fchecker.startContinuousReading();
         System.exit(0);
@@ -486,7 +489,7 @@ public final class FeedReader {
             checkInterval = Integer.valueOf(cmd.getOptionValue("ci"));
         }
 
-        FeedReader fc = new FeedReader(FeedDatabase.getInstance());
+        FeedReader fc = new FeedReader(new FeedDatabase());
         FeedProcessingAction fpa = new FeedProcessingAction() {
 
             @Override

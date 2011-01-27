@@ -10,8 +10,8 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 
 import tud.iir.web.feeds.Feed;
-import tud.iir.web.feeds.FeedDatabase;
-import tud.iir.web.feeds.FeedStore;
+import tud.iir.web.feeds.persistence.FeedDatabase;
+import tud.iir.web.feeds.persistence.FeedStore;
 
 /**
  * @author Klemens Muthmann
