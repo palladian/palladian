@@ -1,7 +1,7 @@
 @ECHO OFF
 
 ::: the local directory with the data, no trailing slash
-SET DESTINATION=C:\Programming\Palladian\data
+SET DESTINATION=H:\PalladianData
 
 ::: password for read access to the server
 ::: do not hard code the admin password here as this file is public

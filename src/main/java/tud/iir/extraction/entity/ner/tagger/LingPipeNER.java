@@ -83,7 +83,9 @@ public class LingPipeNER extends NamedEntityRecognizer {
         try {
             String trainingFilePath2 = trainingFilePath.replaceAll("\\.",
                     "_tranformed.");
-            FileFormatParser.tsvToSsv(trainingFilePath, trainingFilePath2);
+
+            FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, trainingFilePath2, "_");
+            FileFormatParser.tsvToSsv(trainingFilePath2, trainingFilePath2);
 
             FileFormatParser.columnToColumnBIO(trainingFilePath2, trainingFilePath2, " ");
 
@@ -434,8 +436,8 @@ public class LingPipeNER extends NamedEntityRecognizer {
         // "data/temp/esp.testb");
 
         // using a column trainig and testing file
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lingpipe.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA.txt", "data/temp/lingpipe.model",
+        tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/lingpipe.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA_small.txt", "data/temp/lingpipe.model",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
