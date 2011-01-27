@@ -1,6 +1,9 @@
-package tud.iir.web.feeds;
+package tud.iir.web.feeds.persistence;
 
 import java.util.List;
+
+import tud.iir.web.feeds.Feed;
+import tud.iir.web.feeds.FeedItem;
 
 // TODO move to persistence
 /**

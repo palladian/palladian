@@ -27,10 +27,10 @@ import tud.iir.persistence.DatabaseManager;
 import tud.iir.web.Crawler;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedClassifier;
-import tud.iir.web.feeds.FeedDatabase;
 import tud.iir.web.feeds.FeedPostStatistics;
 import tud.iir.web.feeds.FeedReader;
-import tud.iir.web.feeds.FeedStore;
+import tud.iir.web.feeds.persistence.FeedDatabase;
+import tud.iir.web.feeds.persistence.FeedStore;
 
 /**
  * The FeedStatisticCreator creates a file with statistics about feeds from a feed store.

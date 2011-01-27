@@ -18,6 +18,8 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.web.Crawler;
 import tud.iir.web.feeds.FeedContentClassifier.FeedContentType;
+import tud.iir.web.feeds.persistence.FeedDatabase;
+import tud.iir.web.feeds.persistence.FeedStore;
 
 /**
  * The FeedImporter allows to add new feeds to the database.
@@ -256,7 +258,7 @@ public class FeedImporter {
 
         try {
 
-            FeedImporter importer = new FeedImporter(FeedDatabase.getInstance());
+            FeedImporter importer = new FeedImporter(new FeedDatabase());
 
             CommandLine cmd = parser.parse(options, args);
 

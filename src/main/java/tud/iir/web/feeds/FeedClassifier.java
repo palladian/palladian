@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.web.Crawler;
+import tud.iir.web.feeds.persistence.FeedStore;
 
 /**
  * The FeedClassifier classifies a feed in terms of their update intervals.

@@ -9,6 +9,7 @@ import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.web.Crawler;
 import tud.iir.web.feeds.meta.MetaInformationCreator;
+import tud.iir.web.feeds.persistence.FeedDatabase;
 
 
 /**
@@ -53,7 +54,7 @@ public class FeedStoreManager {
         StopWatch sw = new StopWatch();
         LOGGER.info("start importing feeds");
 
-        FeedImporter na = new FeedImporter(FeedDatabase.getInstance());
+        FeedImporter na = new FeedImporter(new FeedDatabase());
         na.setStoreItems(false);
 
         // add feeds which are not present yet

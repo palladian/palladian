@@ -1,8 +1,11 @@
-package tud.iir.web.feeds;
+package tud.iir.web.feeds.persistence;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
+import tud.iir.web.feeds.Feed;
+import tud.iir.web.feeds.FeedItem;
 
 /**
  * A feed source providing feeds from a static collection. The collection is provided to an object of this class upon

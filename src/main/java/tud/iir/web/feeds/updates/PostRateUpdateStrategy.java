@@ -7,10 +7,10 @@ import java.util.Map;
 
 import tud.iir.helper.DateHelper;
 import tud.iir.web.feeds.Feed;
-import tud.iir.web.feeds.FeedDatabase;
 import tud.iir.web.feeds.FeedItem;
 import tud.iir.web.feeds.FeedPostStatistics;
 import tud.iir.web.feeds.evaluation.FeedReaderEvaluator;
+import tud.iir.web.feeds.persistence.FeedDatabase;
 
 /**
  * <p>

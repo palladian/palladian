@@ -17,11 +17,11 @@ import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedClassifier;
-import tud.iir.web.feeds.FeedDatabase;
 import tud.iir.web.feeds.FeedItem;
 import tud.iir.web.feeds.FeedProcessingAction;
 import tud.iir.web.feeds.FeedReader;
-import tud.iir.web.feeds.FeedStore;
+import tud.iir.web.feeds.persistence.FeedDatabase;
+import tud.iir.web.feeds.persistence.FeedStore;
 import tud.iir.web.feeds.updates.FixUpdateStrategy;
 
 /**

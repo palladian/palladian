@@ -1,5 +1,7 @@
 package tud.iir.web.feeds;
 
+import tud.iir.web.feeds.persistence.FeedStore;
+
 public class FeedClassificationThread implements Runnable {
 
     private Feed feed;
