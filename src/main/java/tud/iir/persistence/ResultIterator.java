@@ -1,0 +1,75 @@
+package tud.iir.persistence;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+
+import org.apache.log4j.Logger;
+
+public class ResultIterator<T> implements Iterator<T> {
+
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(ResultIterator.class);
+
+    private final Connection connection;
+    private final Statement statement;
+    private final ResultSet resultSet;
+
+    private final RowConverter<T> rowConverter;
+
+    /** reference to the next item which can be retrieved via next(). */
+    private T next = null;
+
+    public ResultIterator(Connection connection, Statement statement, ResultSet resultSet, RowConverter<T> rowConverter) {
+        this.connection = connection;
+        this.statement = statement;
+        this.resultSet = resultSet;
+        this.rowConverter = rowConverter;
+    }
+
+    @Override
+    public boolean hasNext() {
+        boolean hasNext = true;
+        try {
+            if (next == null) {
+                if (resultSet.next()) {
+                    next = rowConverter.convert(resultSet);
+                } else {
+                    close();
+                    hasNext = false;
+                }
+            }
+        } catch (SQLException e) {
+            LOGGER.error(e);
+        }
+        return hasNext;
+    }
+
+    @Override
+    public T next() {
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
+        try {
+            return next;
+        } finally {
+            // set the reference to null, so that the next entry is retrieved by hasNext().
+            next = null;
+        }
+    }
+
+    @Override
+    public void remove() {
+        // we do not allow modifications.
+        throw new UnsupportedOperationException();
+    }
+
+    public void close() {
+        LOGGER.info("closing ...");
+        DatabaseManager.close(connection, statement, resultSet);
+    }
+
+}

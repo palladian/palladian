@@ -77,10 +77,25 @@ public class DatabaseManager {
 
     }
     
+    /**
+     * 
+     * @param callback
+     * @param sql
+     * @param args
+     * @return
+     */
     public final int runQuery(ResultCallback<Map<String, Object>> callback, String sql, Object... args) {
         return runQuery(callback, new SimpleRowConverter(), sql, args);
     }
     
+    /**
+     * 
+     * @param <T>
+     * @param converter
+     * @param sql
+     * @param args
+     * @return
+     */
     public final <T> List<T> runQuery(RowConverter<T> converter, String sql, Object... args) {
         
         final List<T> result = new ArrayList<T>();
@@ -97,6 +112,58 @@ public class DatabaseManager {
         runQuery(callback, converter, sql, args);
         
         return result;
+    }
+
+    /**
+     * 
+     * @param <T>
+     * @param converter
+     * @param sql
+     * @param args
+     * @return
+     */
+    public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, Object... args) {
+        
+        ResultIterator<T> result = null;
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet resultSet = null;
+        
+        try {
+            
+            connection = getConnection();
+            ps = connection.prepareStatement(sql);
+            
+            // do not buffer the whole ResultSet in memory, but use streaming to save memory
+            // TODO make this a global option?
+            ps.setFetchSize(Integer.MIN_VALUE);
+            
+            for (int i = 0; i < args.length; i++) {
+                ps.setObject(i + 1, args[i]);
+            }
+            
+            resultSet = ps.executeQuery();
+            result = new ResultIterator<T>(connection, ps, resultSet, converter);
+            
+        } catch (SQLException e) {
+            LOGGER.error(e);
+            close(connection, ps, resultSet);
+        }
+        
+        return result;
+        
+    }
+    
+    /**
+     * 
+     * @param <T>
+     * @param converter
+     * @param sql
+     * @param args
+     * @return
+     */
+    public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, List<Object> args) {
+        return runQueryWithIterator(converter, sql, args.toArray());
     }
     
     /**
@@ -215,10 +282,20 @@ public class DatabaseManager {
 
     }
     
+    /**
+     * 
+     * @param updateStatement
+     * @param args
+     * @return
+     */
     public final int runUpdateReturnId(String updateStatement, List<Object> args) {
         return runUpdateReturnId(updateStatement, args.toArray());
     }
     
+    /**
+     * 
+     * @param connection
+     */
     public static final void close(Connection connection) {
         close(connection, null, null);
     }
