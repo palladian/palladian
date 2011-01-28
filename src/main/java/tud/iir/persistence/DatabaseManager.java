@@ -115,6 +115,11 @@ public class DatabaseManager {
     }
 
     /**
+     * Allows to iterate over available items without buffering the content of the whole result in memory first, using a
+     * standard Iterator interface. The underlying Iterator implementation does not allow modifications, so a call to
+     * {@link Iterator#remove()} will cause an {@link UnsupportedOperationException}. The ResultSet which is used by the
+     * implementation is closed, after the last element has been retrieved, if you break the iteration loop, you must
+     * manually call {@link ResultIterator#close()}}.
      * 
      * @param <T>
      * @param converter
@@ -123,35 +128,36 @@ public class DatabaseManager {
      * @return
      */
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, Object... args) {
-        
+
         ResultIterator<T> result = null;
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet resultSet = null;
-        
+
         try {
-            
+
             connection = getConnection();
             ps = connection.prepareStatement(sql);
-            
+
             // do not buffer the whole ResultSet in memory, but use streaming to save memory
+            // http://webmoli.com/2009/02/01/jdbc-performance-tuning-with-optimal-fetch-size/
             // TODO make this a global option?
             ps.setFetchSize(Integer.MIN_VALUE);
-            
+
             for (int i = 0; i < args.length; i++) {
                 ps.setObject(i + 1, args[i]);
             }
-            
+
             resultSet = ps.executeQuery();
             result = new ResultIterator<T>(connection, ps, resultSet, converter);
-            
+
         } catch (SQLException e) {
             LOGGER.error(e);
             close(connection, ps, resultSet);
         }
-        
+
         return result;
-        
+
     }
     
     /**
