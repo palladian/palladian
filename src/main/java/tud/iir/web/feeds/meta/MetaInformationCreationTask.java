@@ -9,8 +9,6 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -38,35 +36,36 @@ import tud.iir.web.feeds.Feed;
 public final class MetaInformationCreationTask implements Runnable {
 
     private final static Logger LOGGER = Logger.getLogger(MetaInformationCreator.class);
+    
 
     private Feed feed;
 
-    private DatabaseManager dbManager;
+    private DatabaseManager dbManager = new DatabaseManager();
 
-    private Connection connection;
+//    private Connection connection;
 
-    private PreparedStatement psSupportsLMS;
+    private static final String psSupportsLMS = "UPDATE feeds SET supportsLMS=? WHERE id=?";
 
-    private PreparedStatement psSupportsEtag;
+    private static final String psSupportsEtag = "UPDATE feeds SET supportsETag=? WHERE id=?";
 
-    private PreparedStatement psResponseSize;
+    private static final String psResponseSize = "UPDATE feeds SET conditionGetResponseSize=? WHERE id=?";
 
-    private PreparedStatement psSupportsPubSubHubBub;
+    private static final String psSupportsPubSubHubBub = "UPDATE feeds SET supportsPubSubHubBub=? WHERE id=?";
 
     public MetaInformationCreationTask(Feed feed) {
         this.feed = feed;
-        dbManager = DatabaseManager.getInstance();
-        connection = dbManager.getConnection();
-
-        try {
-            psSupportsLMS = connection.prepareStatement("UPDATE feeds SET supportsLMS=? WHERE id=?");
-            psSupportsEtag = connection.prepareStatement("UPDATE feeds SET supportsETag=? WHERE id=?");
-            psResponseSize = connection.prepareStatement("UPDATE feeds SET conditionGetResponseSize=? WHERE id=?");
-            psSupportsPubSubHubBub = connection.prepareStatement("UPDATE feeds SET supportsPubSubHubBub=? WHERE id=?");
-        } catch (SQLException e) {
-            LOGGER.error(e.getMessage());
-            System.exit(1);
-        }
+//        dbManager = DatabaseManager.getInstance();
+//        connection = dbManager.getConnection();
+//
+//        try {
+//            psSupportsLMS = connection.prepareStatement();
+//            psSupportsEtag = connection.prepareStatement();
+//            psResponseSize = connection.prepareStatement();
+//            psSupportsPubSubHubBub = connection.prepareStatement();
+//        } catch (SQLException e) {
+//            LOGGER.error(e.getMessage());
+//            System.exit(1);
+//        }
     }
 
     /**
@@ -195,21 +194,29 @@ public final class MetaInformationCreationTask implements Runnable {
 
         Integer id = feed.getId();
 
-        psSupportsLMS.setBoolean(1, supportsLMS);
-        psSupportsLMS.setInt(2, id);
-        dbManager.runUpdate(psSupportsLMS);
-
-        psSupportsEtag.setBoolean(1, supportsETag);
-        psSupportsEtag.setInt(2, id);
-        dbManager.runUpdate(psSupportsEtag);
-
-        psResponseSize.setInt(1, responseSizeValue);
-        psResponseSize.setInt(2, id);
-        dbManager.runUpdate(psResponseSize);
-
-        psSupportsPubSubHubBub.setBoolean(1, supportsPubSubHubBub);
-        psSupportsPubSubHubBub.setInt(2, id);
-        dbManager.runUpdate(psSupportsPubSubHubBub);
+//        psSupportsLMS.setBoolean(1, supportsLMS);
+//        psSupportsLMS.setInt(2, id);
+//        dbManager.runUpdate(psSupportsLMS);
+//        
+//
+//        psSupportsEtag.setBoolean(1, supportsETag);
+//        psSupportsEtag.setInt(2, id);
+//        dbManager.runUpdate(psSupportsEtag);
+//        
+//
+//        psResponseSize.setInt(1, responseSizeValue);
+//        psResponseSize.setInt(2, id);
+//        dbManager.runUpdate(psResponseSize);
+//
+//        psSupportsPubSubHubBub.setBoolean(1, supportsPubSubHubBub);
+//        psSupportsPubSubHubBub.setInt(2, id);
+//        dbManager.runUpdate(psSupportsPubSubHubBub);
+        
+        
+        dbManager.runUpdate(psSupportsLMS, supportsLMS, id);
+        dbManager.runUpdate(psSupportsEtag, supportsETag, id);
+        dbManager.runUpdate(psResponseSize, responseSizeValue, id);
+        dbManager.runUpdate(psSupportsPubSubHubBub, supportsPubSubHubBub, id);
     }
 
     /**
