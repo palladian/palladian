@@ -423,6 +423,7 @@ public final class FeedReader {
     public static void main(String[] args) throws FeedDownloaderException {
 
         FeedReader r = new FeedReader(new FeedDatabase());
+        r.setThreadPoolSize(1);
         r.aggregate(1000 * 60 * 5, false);
         System.exit(0);
 
