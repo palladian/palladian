@@ -21,8 +21,8 @@ import tud.iir.classification.page.evaluation.FeatureSetting;
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.web.Crawler;
 import tud.iir.web.feeds.Feed;
-import tud.iir.web.feeds.FeedDatabase;
 import tud.iir.web.feeds.evaluation.FeedReaderEvaluator;
+import tud.iir.web.feeds.persistence.FeedDatabase;
 
 /**
  * Dump class to test various algorithms.
@@ -112,7 +112,8 @@ public class Temp {
 
     public static void createTrainingData() {
 
-        List<Feed> feeds = FeedDatabase.getInstance().getFeeds();
+        FeedDatabase fd = new FeedDatabase();
+        List<Feed> feeds = fd.getFeeds();
 
         FileWriter fileWriter = null;
         try {

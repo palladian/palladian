@@ -1,11 +1,10 @@
 package tud.iir.classification;
 
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -13,6 +12,7 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.persistence.DatabaseManager;
+import tud.iir.persistence.ResultCallback;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.functions.LibSVM;
@@ -269,32 +269,57 @@ public class Classifier {
     }
 
     public ArrayList<FeatureObject> readFeatureObjects(int conceptID, PreparedStatement featureQuery) {
-        ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
+        final ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
 
-        DatabaseManager dbm = DatabaseManager.getInstance();
-        ResultSet rs = dbm.runQuery(featureQuery);
+        DatabaseManager dbm = new DatabaseManager();
 
-        try {
-            while (rs.next()) {
-                int columnCount = rs.getMetaData().getColumnCount();
+        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
 
-                Double[] features = new Double[columnCount - 1]; // ignore "id" column
-                String[] featureNames = new String[columnCount - 1]; // ignore "id" column
+            @Override
+            public void processResult(Map<String, Object> object, int number) {
 
-                // start with 2 to skip "id"
-                for (int i = 2; i <= columnCount; i++) {
-                    features[i - 2] = rs.getDouble(i);
-                    featureNames[i - 2] = rs.getMetaData().getColumnLabel(i);
-                }
+                // FIXME:
+                // int columnCount = rs.getMetaData().getColumnCount();
+                // Double[] features = new Double[columnCount - 1]; // ignore "id" column
+                // String[] featureNames = new String[columnCount - 1]; // ignore "id" column
+                //
+                // // start with 2 to skip "id"
+                // for (int i = 2; i <= columnCount; i++) {
+                // features[i - 2] = rs.getDouble(i);
+                // featureNames[i - 2] = rs.getMetaData().getColumnLabel(i);
+                // }
+                //
+                // FeatureObject fo = new FeatureObject(features, featureNames);
+                // featureObjects.add(fo);
 
-                FeatureObject fo = new FeatureObject(features, featureNames);
-                featureObjects.add(fo);
             }
-            rs.close();
-            rs = null;
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        };
+
+        dbm.runQuery(callback, featureQuery.toString());
+
+        // ResultSet rs = dbm.runQuery(featureQuery);
+        //
+        // try {
+        // while (rs.next()) {
+        // int columnCount = rs.getMetaData().getColumnCount();
+        //
+        // Double[] features = new Double[columnCount - 1]; // ignore "id" column
+        // String[] featureNames = new String[columnCount - 1]; // ignore "id" column
+        //
+        // // start with 2 to skip "id"
+        // for (int i = 2; i <= columnCount; i++) {
+        // features[i - 2] = rs.getDouble(i);
+        // featureNames[i - 2] = rs.getMetaData().getColumnLabel(i);
+        // }
+        //
+        // FeatureObject fo = new FeatureObject(features, featureNames);
+        // featureObjects.add(fo);
+        // }
+        // rs.close();
+        // rs = null;
+        // } catch (SQLException e) {
+        // e.printStackTrace();
+        // }
 
         return featureObjects;
     }
