@@ -1,6 +1,8 @@
 package tud.iir.extraction.entity.ner.tagger;
 
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
 
@@ -208,10 +210,27 @@ public class JulieNER extends NamedEntityRecognizer {
 
     public boolean train(String trainingFilePath, String modelFilePath, String configFilePath) {
 
-        FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, "data/temp/julieTraining.txt", "_");
-        FileFormatParser.columnToSlash("data/temp/julieTraining.txt", "data/temp/julieTraining.txt", "\t", "|");
+        String tempFilePath = "data/temp/julieTraining.txt";
+        FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, tempFilePath, "_");
+        FileFormatParser.columnToSlash(tempFilePath, tempFilePath, "\t", "|");
 
-        File trainFile = new File("data/temp/julieTraining.txt");
+        // put sentences on lines splitting on " .|O "
+        String[] taggedSentences = FileHelper.readFileToString(tempFilePath).split(" \\.\\|O ");
+        FileWriter fw;
+        try {
+            fw = new FileWriter(tempFilePath);
+            for (String sentence : taggedSentences) {
+                if (sentence.trim().length() > 0) {
+                fw.append(sentence).append(" .|O\n");
+                fw.flush();
+                }
+            }
+            fw.close();
+        } catch (IOException e1) {
+            LOGGER.error(e1.getMessage());
+        }
+
+        File trainFile = new File(tempFilePath);
         File tagsFile = createTagsFile(trainingFilePath, "\t");
 
         // configFilePath = "config/defaultFeatureConf.conf";
@@ -389,7 +408,7 @@ public class JulieNER extends NamedEntityRecognizer {
 
         // /////////////////////////// train and test /////////////////////////////
         // using a column trainig and testing file
-        // tagger.train("data/datasets/ner/conll/training_verysmall.txt", "data/temp/juliener.mod");
+        // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener.mod");
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA_small.txt", "data/temp/juliener.mod",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());

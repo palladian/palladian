@@ -52,7 +52,7 @@ public class DatasetCreator {
      */
     public void createDataset() {
 
-        FeedStore feedStore = FeedDatabase.getInstance();
+        FeedStore feedStore = new FeedDatabase();
 
         // all feeds need to be classified in advance to filter them accordingly
         // FeedClassifier.classifyFeedInStore(feedStore);

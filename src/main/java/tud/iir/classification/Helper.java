@@ -28,7 +28,7 @@ public class Helper {
         LineAction la = new LineAction() {
 
             List<Integer> conceptIDs = new ArrayList<Integer>();
-            DatabaseManager dbm = DatabaseManager.getInstance();
+            DatabaseManager dbm = new DatabaseManager();
 
             @Override
             public void performAction(String line, int lineNumber) {
