@@ -8,10 +8,10 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.StopWatch;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.persistence.ResultCallback;
+import tud.iir.persistence.ResultIterator;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedItem;
 
@@ -260,58 +260,8 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * 
      * @return
      */
-//    public Iterator<FeedItem> getFeedItems() {
-//
-//        final ResultSet rs = DatabaseManager.getInstance().runQuery(psGetAllItems);
-//        return new Iterator<FeedItem>() {
-//
-//            /** reference to the next FeedEntry which can be retrieved via next(). */
-//            private FeedItem next = null;
-//
-//            @Override
-//            public boolean hasNext() {
-//                boolean hasNext = true;
-//                try {
-//                    if (next == null) {
-//                        if (rs.next()) {
-//                            next = getFeedItem(rs);
-//                        } else {
-//                            if (!rs.isClosed()) {
-//                                rs.close();
-//                            }
-//                            hasNext = false;
-//                        }
-//                    }
-//                } catch (SQLException e) {
-//                    LOGGER.error(e);
-//                }
-//                return hasNext;
-//            }
-//
-//            @Override
-//            public FeedItem next() {
-//                if (!hasNext()) {
-//                    throw new NoSuchElementException();
-//                }
-//                try {
-//                    return next;
-//                } finally {
-//                    // set the reference to null, so that the next entry is retrieved by hasNext().
-//                    next = null;
-//                }
-//            }
-//
-//            @Override
-//            public void remove() {
-//                // we do not allow modifications.
-//                throw new UnsupportedOperationException();
-//            }
-//
-//        };
-//    }
-    
-    public void getFeedItems(ResultCallback<FeedItem> callback) {
-        runQuery(callback, new FeedItemRowConverter(), psGetAllItems);
+    public ResultIterator<FeedItem> getFeedItems() {
+        return runQueryWithIterator(new FeedItemRowConverter(), psGetAllItems);
     }
 
     public void clearFeedTables() {
@@ -322,6 +272,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     public static void main(String[] args) {
+        
 
         // clear feed specfic tables
         // FeedDatabase.getInstance().clearFeedTables();
@@ -332,8 +283,14 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         System.out.println(sw.getElapsedTimeString());
         
         
-        List<Feed> feeds = fd.getFeeds();
-        CollectionHelper.print(feeds);
+//        List<Feed> feeds = fd.getFeeds();
+//        CollectionHelper.print(feeds);
+        
+        ResultIterator<FeedItem> feedItems = fd.getFeedItems();
+        System.out.println(feedItems);
+        while (feedItems.hasNext()) {
+            feedItems.next();
+        }
         
         
         // List<FeedEntry> result = fd.getFeedEntries(100, -1);
