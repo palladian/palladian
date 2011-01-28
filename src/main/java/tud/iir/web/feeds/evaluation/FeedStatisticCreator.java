@@ -24,6 +24,7 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.persistence.DatabaseManager;
+import tud.iir.persistence.ResultCallback;
 import tud.iir.web.Crawler;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedClassifier;
@@ -82,7 +83,7 @@ public class FeedStatisticCreator {
      */
     public static void maxCoveragePolicyEvaluation(int avgStyle, String tableName) throws SQLException {
 
-        StringBuilder csv = new StringBuilder();
+        final StringBuilder csv = new StringBuilder();
 
         String avgStyleExplanation = "";
         String query = "";
@@ -98,11 +99,12 @@ public class FeedStatisticCreator {
             avgStyleExplanation = "average over all polls of all feeds";
             query = query2;
         }
+        final String avgStyleExplanationF = avgStyleExplanation;
 
-        DecimalFormat format = new DecimalFormat("#.###################");
+        final DecimalFormat format = new DecimalFormat("#.###################");
         format.setDecimalFormatSymbols(DecimalFormatSymbols.getInstance(Locale.ENGLISH));
 
-        DatabaseManager dbm = DatabaseManager.getInstance();
+        DatabaseManager dbm = new DatabaseManager();
 
         Double coverage = null;
         Double percentNew = null;
@@ -110,23 +112,30 @@ public class FeedStatisticCreator {
         Double missedPercent = null;
         Double traffic = null;
 
-        ResultSet rs = dbm.runQuery(query);
-        while (rs.next()) {
-            coverage = rs.getDouble("coverage");
-            percentNew = rs.getDouble("percentNew");
-            missed = rs.getDouble("missedItems");
-            missedPercent = rs.getDouble("missedPercent");
-            traffic = rs.getDouble("traffic");
-        }
+        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
 
-        // build csv
-        csv.append("\"================= Average Performance (").append(avgStyleExplanation)
-        .append(", regardless of feed activity pattern) =================\"\n");
-        csv.append("Coverage:;" + format.format(coverage)).append("\n");
-        csv.append("Percent New:;" + format.format(100 * percentNew)).append("\n");
-        csv.append("Missed:;" + format.format(missed)).append("\n");
-        csv.append("Percent Missed Items / Window Size:;" + format.format(100 * missedPercent)).append("\n");
-        csv.append("Traffic Per Item:;" + traffic).append("\n\n");
+            @Override
+            public void processResult(Map<String, Object> object, int number) {
+
+                double coverage = (Double) object.get("coverage");
+                double percentNew = (Double) object.get("percentNew");
+                double missed = (Double) object.get("missedItems");
+                double missedPercent = (Double) object.get("missedPercent");
+                double traffic = (Double) object.get("traffic");
+
+                // build csv
+                csv.append("\"================= Average Performance (").append(avgStyleExplanationF)
+                .append(", regardless of feed activity pattern) =================\"\n");
+                csv.append("Coverage:;" + format.format(coverage)).append("\n");
+                csv.append("Percent New:;" + format.format(100 * percentNew)).append("\n");
+                csv.append("Missed:;" + format.format(missed)).append("\n");
+                csv.append("Percent Missed Items / Window Size:;" + format.format(100 * missedPercent)).append("\n");
+                csv.append("Traffic Per Item:;" + traffic).append("\n\n");
+
+            }
+        };
+        dbm.runQuery(callback, query);
+
 
         // create statistics by activity pattern
         Integer[] activityPatternIDs = FeedClassifier.getActivityPatternIDs();
@@ -149,20 +158,8 @@ public class FeedStatisticCreator {
 
             String queryAP = query.replaceAll("numberOfPoll > 1", "numberOfPoll > 1 AND activityPattern = "
                     + activityPatternID);
-            rs = dbm.runQuery(queryAP);
 
-            while (rs.next()) {
-                coverage = rs.getDouble("coverage");
-                percentNew = rs.getDouble("percentNew");
-                missed = rs.getDouble("missedItems");
-                missedPercent = rs.getDouble("missedPercent");
-                traffic = rs.getDouble("traffic");
-            }
-            csv.append("Coverage:;" + format.format(coverage)).append("\n");
-            csv.append("Percent New:;" + format.format(100 * percentNew)).append("\n");
-            csv.append("Missed:;" + format.format(missed)).append("\n");
-            csv.append("Percent Missed Items / Window Size:;" + format.format(100 * missedPercent)).append("\n");
-            csv.append("Traffic Per Item:;" + traffic).append("\n\n");
+            dbm.runQuery(callback, queryAP);
         }
 
         System.out.println(csv);
@@ -174,7 +171,7 @@ public class FeedStatisticCreator {
     private static double calculateMedianDelay(int avgStyle, int activityPattern, String tableName) throws SQLException {
 
         List<Double> valueList = new ArrayList<Double>();
-        DatabaseManager dbm = DatabaseManager.getInstance();
+        DatabaseManager dbm = new DatabaseManager();
 
         String query = "";
         String countQuery = "SELECT COUNT(*) AS c FROM " + tableName;
@@ -629,23 +626,23 @@ public class FeedStatisticCreator {
         PreparedStatement psFix1d = dbm
         .getConnection()
         .prepareStatement(
-                "SELECT AVG(checkInterval) FROM feed_evaluation2_fix1440_max_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+        "SELECT AVG(checkInterval) FROM feed_evaluation2_fix1440_max_min_poll WHERE feedID = ? AND numberOfPoll > 1");
         PreparedStatement psFix1h = dbm
         .getConnection()
         .prepareStatement(
-                "SELECT AVG(checkInterval) FROM feed_evaluation2_fix60_max_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+        "SELECT AVG(checkInterval) FROM feed_evaluation2_fix60_max_min_poll WHERE feedID = ? AND numberOfPoll > 1");
         PreparedStatement psFixLearned = dbm
         .getConnection()
         .prepareStatement(
-                "SELECT AVG(checkInterval) FROM feed_evaluation2_fix_learned_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+        "SELECT AVG(checkInterval) FROM feed_evaluation2_fix_learned_min_poll WHERE feedID = ? AND numberOfPoll > 1");
         PreparedStatement psFixPostRate = dbm
         .getConnection()
         .prepareStatement(
-                "SELECT AVG(checkInterval) FROM feed_evaluation2_probabilistic_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+        "SELECT AVG(checkInterval) FROM feed_evaluation2_probabilistic_min_poll WHERE feedID = ? AND numberOfPoll > 1");
         PreparedStatement psFixMAV = dbm
         .getConnection()
         .prepareStatement(
-                "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_poll WHERE feedID = ? AND numberOfPoll > 1");
+        "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_poll WHERE feedID = ? AND numberOfPoll > 1");
 
         // create the file we want to write to
         FileWriter csv = new FileWriter(statisticOutputPath);
@@ -751,18 +748,22 @@ public class FeedStatisticCreator {
     }
 
     private static double getUpdateInterval(PreparedStatement ps) throws SQLException {
-        ResultSet rs = null;
-        rs = DatabaseManager.getInstance().runQuery(ps);
-        if (rs.next()) {
+        DatabaseManager dbm = new DatabaseManager();
 
-            return rs.getDouble(1);
+        final Double[] updateInterval = new Double[1];
 
-        } else {
-            LOGGER.error("did not get number of polls strategy with ps: " + ps);
-            System.exit(1);
-        }
+        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
 
-        return -1.0;
+            @Override
+            public void processResult(Map<String, Object> object, int number) {
+                updateInterval[0] = (Double) object.get("updateInterval");
+            }
+
+        };
+
+        dbm.runQuery(callback, ps);
+
+        return updateInterval[0];
     }
 
     public static void createGeneralStatistics(FeedStore feedStore, String statisticOutputPath) {
@@ -839,7 +840,7 @@ public class FeedStatisticCreator {
         // FeedStatisticCreator.minDelayPolicyEvaluationAll();
         // FeedStatisticCreator.timelinessChart();
         // FeedStatisticCreator.delayChart();
-        FeedStatisticCreator.createFeedUpdateIntervals(FeedDatabase.getInstance(), "data/temp/feedUpdateIntervals.csv");
+        FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(), "data/temp/feedUpdateIntervals.csv");
 
     }
 

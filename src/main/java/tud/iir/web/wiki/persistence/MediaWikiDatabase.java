@@ -133,9 +133,10 @@ public final class MediaWikiDatabase {
      * @return The precompiled {@link PreparedStatement}.
      * @throws SQLException If a database access error occurs or this method is called on a closed connection.
      */
-    private final PreparedStatement getPreparedStatement(final String sql) throws SQLException {
-        return DatabaseManager.getInstance().getConnection().prepareStatement(sql);
-    }
+    // private final PreparedStatement getPreparedStatement(final String sql) throws SQLException {
+    //
+    // return DatabaseManager.getInstance().getConnection().prepareStatement(sql);
+    // }
 
     /**
      * Converts a given {@link java.util.Date} to the String representation of the SQL data type DATETIME ("yyyy-MM-dd

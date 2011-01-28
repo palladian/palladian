@@ -140,7 +140,7 @@ public class JulieNER extends NamedEntityRecognizer {
         FileHelper.writeToFile("data/temp/julieInputText.txt", inputText);
         FileFormatParser.textToColumn("data/temp/julieInputText.txt", "data/temp/julieInputTextColumn.txt", " ");
         FileFormatParser.columnToSlash("data/temp/julieInputTextColumn.txt", "data/temp/julieTrainingSlash.txt", " ",
-                "|");
+        "|");
 
         File testDataFile = new File("data/temp/julieTrainingSlash.txt");
 
@@ -221,8 +221,8 @@ public class JulieNER extends NamedEntityRecognizer {
             fw = new FileWriter(tempFilePath);
             for (String sentence : taggedSentences) {
                 if (sentence.trim().length() > 0) {
-                fw.append(sentence).append(" .|O\n");
-                fw.flush();
+                    fw.append(sentence).append(" .|O\n");
+                    fw.flush();
                 }
             }
             fw.close();
@@ -297,7 +297,7 @@ public class JulieNER extends NamedEntityRecognizer {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
@@ -408,8 +408,8 @@ public class JulieNER extends NamedEntityRecognizer {
 
         // /////////////////////////// train and test /////////////////////////////
         // using a column trainig and testing file
-        // tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/juliener.mod");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA_small.txt", "data/temp/juliener.mod",
+        tagger.train("data/test/ner/training.txt", "data/temp/juliener.mod");
+        EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/temp/juliener.mod",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());

@@ -23,26 +23,26 @@ import tud.iir.helper.Tokenizer;
  */
 public class FileFormatParser {
 
-	
+
     public static Set<String> getTagsFromColumnFile(String trainingFilePath, final String separator) {
-    	
-		final Set<String> tags = new HashSet<String>();
+
+        final Set<String> tags = new HashSet<String>();
 
         LineAction la = new LineAction() {
-			
-			@Override
-			public void performAction(String line, int lineNumber) {
+
+            @Override
+            public void performAction(String line, int lineNumber) {
                 if (line.length() == 0) {
                     return;
                 }
                 String[] parts = line.split(separator);
                 tags.add(parts[parts.length - 1]);
-			}
-		};
-		
-		FileHelper.performActionOnEveryLine(trainingFilePath, la);
-		
-		return tags;    	
+            }
+        };
+
+        FileHelper.performActionOnEveryLine(trainingFilePath, la);
+
+        return tags;
     }
 
     private static String getTextFromXML(String inputFilePath) {
@@ -370,15 +370,15 @@ public class FileFormatParser {
 
         FileHelper.writeToFile(columnFilePath, columnString);
     }
-    
+
     public static void columnToSlash(String columnFilePath, String slashFilePath, String columnSeparator) {
-    	columnToSlash(columnFilePath,slashFilePath,columnSeparator);
+        columnToSlash(columnFilePath,slashFilePath,columnSeparator);
     }
-    
+
     public static void columnToSlash(String columnFilePath, String slashFilePath, String columnSeparator, String slashSign) {
-    	StringBuilder slashFile = new StringBuilder();
-    	
-    	final Object[] obj = new Object[3];
+        StringBuilder slashFile = new StringBuilder();
+
+        final Object[] obj = new Object[3];
         obj[0] = slashFile;
         obj[1] = columnSeparator;
         obj[2] = slashSign;
@@ -400,8 +400,8 @@ public class FileFormatParser {
         };
 
         FileHelper.performActionOnEveryLine(columnFilePath, la);
-    	
-    	FileHelper.writeToFile(slashFilePath, slashFile);
+
+        FileHelper.writeToFile(slashFilePath, slashFile);
     }
 
     public static void bracketToXML(String inputFilePath, String outputFilePath) {
@@ -449,20 +449,20 @@ public class FileFormatParser {
         inputFile = inputFile.replaceAll("\\t", " ");
         FileHelper.writeToFile(outputFilePath, inputFile);
     }
-    
+
     public static void textToColumn(String inputFilePath, String outputFilePath, String separator) {
-        
-    	String inputFile = FileHelper.readFileToString(inputFilePath);
-    	List<String> tokens = Tokenizer.tokenize(inputFile);
-    	
-    	StringBuilder columnFile = new StringBuilder();
-    	for (String token : tokens) {
-    		columnFile.append(token).append(separator).append("X").append("\n");
-    	}
-    	
+
+        String inputFile = FileHelper.readFileToString(inputFilePath);
+        List<String> tokens = Tokenizer.tokenize(inputFile);
+
+        StringBuilder columnFile = new StringBuilder();
+        for (String token : tokens) {
+            columnFile.append(token).append(separator).append("X").append("\n");
+        }
+
         FileHelper.writeToFile(outputFilePath, columnFile);
     }
-    
+
     public static Annotations getAnnotations(String taggedTextFilePath, TaggingFormat format) {
 
         if (format.equals(TaggingFormat.XML)) {
@@ -487,7 +487,7 @@ public class FileFormatParser {
      * @param taggedText The XML tagged text. For example "The &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; is a phone."
      * @return A list of annotations that were found in the text.
      */
-    public static Annotations getAnnotationsFromXMLText(String taggedText) {
+    private static Annotations getAnnotationsFromXMLText(String taggedText) {
         Annotations annotations = new Annotations();
 
         // count offset that is caused by the tags, this should be taken into account when calculating the offset of the
@@ -499,7 +499,7 @@ public class FileFormatParser {
         // text <PERSON><PHONE>John J</PHONE>. Smith</PERSON> lives
         // text <PERSON><PHONE>John J</PHONE>. <PHONE>Smith</PHONE></PERSON> lives
         // text <PERSON><PHONE>John <PERSON>J</PERSON></PHONE>. <PHONE>Smith</PHONE></PERSON> lives
-        
+
         // get locations of annotations
         Pattern pattern = Pattern.compile("<(.*?)>(.{1,1000}?)</\\1>", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
 
@@ -548,6 +548,9 @@ public class FileFormatParser {
 
     public static Annotations getAnnotationsFromXMLFile(String taggedTextFilePath) {
         String taggedText = FileHelper.readFileToString(taggedTextFilePath);
+
+        // throw out special characters that might disturb tokenization such as "'" or "=".
+        taggedText = taggedText.replace("'", "").replace("=", "");
         return getAnnotationsFromXMLText(taggedText);
     }
 
