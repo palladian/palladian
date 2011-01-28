@@ -293,7 +293,7 @@ public class FeedReaderEvaluator {
 
                     setBenchmarkMode(mode);
 
-                    FeedReader fc = new FeedReader(FeedDatabase.getInstance());
+                    FeedReader fc = new FeedReader(new FeedDatabase());
                     fc.setUpdateStrategy(strategy, false);
 
 
@@ -332,7 +332,7 @@ public class FeedReaderEvaluator {
 
         FeedReaderEvaluator.benchmarkSample = 100;
 
-        FeedReader fc = new FeedReader(FeedDatabase.getInstance());
+        FeedReader fc = new FeedReader(new FeedDatabase());
         fc.setUpdateStrategy(updateStrategy, true);
         // setBenchmarkPolicy(BENCHMARK_MAX_COVERAGE);
         setBenchmarkPolicy(BENCHMARK_MIN_DELAY);
