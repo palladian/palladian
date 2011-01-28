@@ -119,6 +119,9 @@ public class FeedDownloader {
 
         Document feedDocument = downloadFeedDocument(feedUrl, headerInformation);
         Feed feed = getFeed(feedDocument);
+        
+        // store the originating document in the feed
+        feed.setDocument(feedDocument);
 
         if (scrapePages) {
             scrapePages(feed.getItems());
