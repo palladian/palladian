@@ -32,7 +32,7 @@ public class MetaInformationCreator {
 
 
     public MetaInformationCreator() {
-        feedStore = FeedDatabase.getInstance();
+        feedStore = new FeedDatabase();
     }
 
 
