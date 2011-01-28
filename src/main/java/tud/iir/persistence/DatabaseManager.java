@@ -228,6 +228,9 @@ public class DatabaseManager {
             connection = getConnection();
             ps = connection.prepareStatement(updateStatement);
 
+            // do we need a special treatment for NULL values here?
+            // if you should stumble across this comment while debugging,
+            // the answer is likely: yes, we do!
             for (int i = 0; i < args.length; i++) {
                 ps.setObject(i + 1, args[i]);
             }
@@ -243,6 +246,16 @@ public class DatabaseManager {
 
         return affectedRows;
 
+    }
+    
+    /**
+     * 
+     * @param updateStatement
+     * @param args
+     * @return
+     */
+    public final int runUpdate(String updateStatement, List<Object> args) {
+        return runUpdate(updateStatement, args.toArray());
     }
 
     /**

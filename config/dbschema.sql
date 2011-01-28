@@ -428,7 +428,6 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `feedUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `siteUrl` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `format` tinyint(4) NOT NULL,
   `textType` tinyint(4) NOT NULL,
   `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `language` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
