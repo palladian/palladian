@@ -44,7 +44,8 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
 
             // in benchmark mode we keep it in memory
             if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-                postDistribution = FeedDatabase.getInstance().getFeedPostDistribution(feed);
+                FeedDatabase fd = new FeedDatabase();
+                postDistribution = fd.getFeedPostDistribution(feed);
             }
 
         }
@@ -90,7 +91,8 @@ public class PostRateUpdateStrategy extends UpdateStrategy {
 
         // in benchmark mode we keep it in memory, in real usage, we store the distribution in the database
         if (FeedReaderEvaluator.getBenchmarkPolicy() == FeedReaderEvaluator.BENCHMARK_OFF) {
-            FeedDatabase.getInstance().updateFeedPostDistribution(feed, postDistribution);
+            FeedDatabase fd = new FeedDatabase();
+            fd.updateFeedPostDistribution(feed, postDistribution);
         }
 
         // only use calculated update intervals if one full day of distribution is available already

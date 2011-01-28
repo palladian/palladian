@@ -23,17 +23,17 @@ public class DatabaseManager {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
-    
+
     /**
      * Get a {@link Connection} from the {@link ConnectionManager}.
      * 
      * @return
      * @throws SQLException
      */
-    public final Connection getConnection() throws SQLException {
+    protected final Connection getConnection() throws SQLException {
         return ConnectionManager.getInstance().getConnection();
     }
-    
+
     /**
      * Run a query operation on the database.
      * 
@@ -61,7 +61,7 @@ public class DatabaseManager {
             }
 
             rs = ps.executeQuery();
-            
+
             while (rs.next() && callback.isLooping()) {
                 T item = converter.convert(rs);
                 callback.processResult(item, ++counter);
@@ -72,11 +72,11 @@ public class DatabaseManager {
         } finally {
             close(connection, ps, rs);
         }
-        
+
         return counter;
 
     }
-    
+
     /**
      * 
      * @param callback
@@ -87,7 +87,7 @@ public class DatabaseManager {
     public final int runQuery(ResultCallback<Map<String, Object>> callback, String sql, Object... args) {
         return runQuery(callback, new SimpleRowConverter(), sql, args);
     }
-    
+
     /**
      * 
      * @param <T>
@@ -97,20 +97,20 @@ public class DatabaseManager {
      * @return
      */
     public final <T> List<T> runQuery(RowConverter<T> converter, String sql, Object... args) {
-        
+
         final List<T> result = new ArrayList<T>();
-        
+
         ResultCallback<T> callback = new ResultCallback<T>() {
 
             @Override
             public void processResult(T object, int number) {
                 result.add(object);
             }
-            
+
         };
-        
+
         runQuery(callback, converter, sql, args);
-        
+
         return result;
     }
 
@@ -159,7 +159,7 @@ public class DatabaseManager {
         return result;
 
     }
-    
+
     /**
      * 
      * @param <T>
@@ -171,7 +171,7 @@ public class DatabaseManager {
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, List<Object> args) {
         return runQueryWithIterator(converter, sql, args.toArray());
     }
-    
+
     /**
      * 
      * @param <T>
@@ -182,9 +182,9 @@ public class DatabaseManager {
      */
     @SuppressWarnings("unchecked")
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, Object... args) {
-        
+
         final Object[] result = new Object[1];
-        
+
         ResultCallback<T> callback = new ResultCallback<T>() {
 
             @Override
@@ -193,13 +193,13 @@ public class DatabaseManager {
                 breakLoop();
             }
         };
-        
+
         runQuery(callback, converter, sql, args);
-        
+
         return (T) result[0];
-        
+
     }
-    
+
     /**
      * 
      * @param sql
@@ -287,7 +287,7 @@ public class DatabaseManager {
         return generatedId;
 
     }
-    
+
     /**
      * 
      * @param updateStatement
@@ -297,7 +297,7 @@ public class DatabaseManager {
     public final int runUpdateReturnId(String updateStatement, List<Object> args) {
         return runUpdateReturnId(updateStatement, args.toArray());
     }
-    
+
     /**
      * 
      * @param connection
@@ -315,7 +315,7 @@ public class DatabaseManager {
     public static final void close(Connection connection, Statement statement) {
         close(connection, statement, null);
     }
-    
+
     public static final void close(Connection connection, ResultSet resultSet) {
         close(connection, null, resultSet);
     }
@@ -360,50 +360,50 @@ public class DatabaseManager {
     /**
      * Test procedure.
      */
-//    public void testProcedure() {
-//        Connection connection = null;
-//        Statement stmt = null;
-//        ResultSet rs = null;
-//        try {
-//            connection = getConnection();
-//            stmt = connection.createStatement();
-//            rs = stmt.executeQuery("SELECT source_voting_function()");
-//            if (rs.next()) {
-//                LOGGER.info(rs.getInt(1));
-//            }
-//        } catch (SQLException e) {
-//            LOGGER.error(e);
-//        } finally {
-//            close(connection, stmt, rs);
-//        }
-//        LOGGER.info("finished");
-//    }
+    //    public void testProcedure() {
+    //        Connection connection = null;
+    //        Statement stmt = null;
+    //        ResultSet rs = null;
+    //        try {
+    //            connection = getConnection();
+    //            stmt = connection.createStatement();
+    //            rs = stmt.executeQuery("SELECT source_voting_function()");
+    //            if (rs.next()) {
+    //                LOGGER.info(rs.getInt(1));
+    //            }
+    //        } catch (SQLException e) {
+    //            LOGGER.error(e);
+    //        } finally {
+    //            close(connection, stmt, rs);
+    //        }
+    //        LOGGER.info("finished");
+    //    }
 
     /**
      * Sql script to grab the worst performing indexes in the whole server. Source:
      * http://forge.mysql.com/tools/tool.php?id=85
      * 
      */
-//    public void getWorstIndices() {
-//        runQuery("SELECT t.TABLE_SCHEMA AS `db`" + ", t.TABLE_NAME AS `table`" + ", s.INDEX_NAME AS `index name`"
-//                + ", s.COLUMN_NAME AS `field name`" + ", s.SEQ_IN_INDEX `seq in index`"
-//                + ", s2.max_columns AS `# cols`" + ", s.CARDINALITY AS `card`" + ", t.TABLE_ROWS AS `est rows`"
-//                + ", ROUND(((s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) * 100), 2) AS `sel %`"
-//                + "FROM INFORMATION_SCHEMA.STATISTICS s" + "INNER JOIN INFORMATION_SCHEMA.TABLES t"
-//                + "ON s.TABLE_SCHEMA = t.TABLE_SCHEMA" + "AND s.TABLE_NAME = t.TABLE_NAME" + "INNER JOIN (" + "SELECT"
-//                + "TABLE_SCHEMA" + ", TABLE_NAME" + ", INDEX_NAME" + ", MAX(SEQ_IN_INDEX) AS max_columns"
-//                + "FROM INFORMATION_SCHEMA.STATISTICS" + "WHERE TABLE_SCHEMA != 'mysql'"
-//                + "GROUP BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME" + ") AS s2" + "ON s.TABLE_SCHEMA = s2.TABLE_SCHEMA"
-//                + "AND s.TABLE_NAME = s2.TABLE_NAME" + "AND s.INDEX_NAME = s2.INDEX_NAME"
-//                + "WHERE t.TABLE_SCHEMA != 'mysql'" + // filter out the mysql system
-//                // DB
-//                "AND t.TABLE_ROWS > 10" + // only tables with some rows
-//                "AND s.CARDINALITY IS NOT NULL" + // need at least one non-NULL value in the field
-//                "AND (s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) < 1.00" + // selectivity < 1.0 b/c unique indexes are
-//                // perfect anyway
-//                "ORDER BY `sel %`, s.TABLE_SCHEMA, s.TABLE_NAME" + // switch to `sel %` DESC for best non-unique indexes
-//                "LIMIT 20;");
-//    }
+    //    public void getWorstIndices() {
+    //        runQuery("SELECT t.TABLE_SCHEMA AS `db`" + ", t.TABLE_NAME AS `table`" + ", s.INDEX_NAME AS `index name`"
+    //                + ", s.COLUMN_NAME AS `field name`" + ", s.SEQ_IN_INDEX `seq in index`"
+    //                + ", s2.max_columns AS `# cols`" + ", s.CARDINALITY AS `card`" + ", t.TABLE_ROWS AS `est rows`"
+    //                + ", ROUND(((s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) * 100), 2) AS `sel %`"
+    //                + "FROM INFORMATION_SCHEMA.STATISTICS s" + "INNER JOIN INFORMATION_SCHEMA.TABLES t"
+    //                + "ON s.TABLE_SCHEMA = t.TABLE_SCHEMA" + "AND s.TABLE_NAME = t.TABLE_NAME" + "INNER JOIN (" + "SELECT"
+    //                + "TABLE_SCHEMA" + ", TABLE_NAME" + ", INDEX_NAME" + ", MAX(SEQ_IN_INDEX) AS max_columns"
+    //                + "FROM INFORMATION_SCHEMA.STATISTICS" + "WHERE TABLE_SCHEMA != 'mysql'"
+    //                + "GROUP BY TABLE_SCHEMA, TABLE_NAME, INDEX_NAME" + ") AS s2" + "ON s.TABLE_SCHEMA = s2.TABLE_SCHEMA"
+    //                + "AND s.TABLE_NAME = s2.TABLE_NAME" + "AND s.INDEX_NAME = s2.INDEX_NAME"
+    //                + "WHERE t.TABLE_SCHEMA != 'mysql'" + // filter out the mysql system
+    //                // DB
+    //                "AND t.TABLE_ROWS > 10" + // only tables with some rows
+    //                "AND s.CARDINALITY IS NOT NULL" + // need at least one non-NULL value in the field
+    //                "AND (s.CARDINALITY / IFNULL(t.TABLE_ROWS, 0.01)) < 1.00" + // selectivity < 1.0 b/c unique indexes are
+    //                // perfect anyway
+    //                "ORDER BY `sel %`, s.TABLE_SCHEMA, s.TABLE_NAME" + // switch to `sel %` DESC for best non-unique indexes
+    //                "LIMIT 20;");
+    //    }
 
     /**
      * The main method.
@@ -412,24 +412,24 @@ public class DatabaseManager {
      * @throws Exception the exception
      */
     public static void main(String[] args) throws Exception {
-        
-//        DatabaseManager dm = new DatabaseManager();
-//        
-//        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
-//            
-//            @Override
-//            public void processResult(Map<String, Object> object, int number) {
-//                // System.out.println(object);
-//            }
-//        };
-        
+
+        //        DatabaseManager dm = new DatabaseManager();
+        //
+        //        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+        //
+        //            @Override
+        //            public void processResult(Map<String, Object> object, int number) {
+        //                // System.out.println(object);
+        //            }
+        //        };
+
         // int result = dm.runQuery(callback, new SimpleRowConverter(), "SELECT * FROM feeds");
         // System.out.println("matches: " + result);
-        
-        
+
+
         // Map<String, Object> result2 = dm.runSingleQuery("SELECT * FROM feeds WHERE feedUrl = 'http://www.lexusreports.com/rss/master'");
         // System.out.println(result2);
-        
+
         // DatabaseManager.getInstance().clearCompleteDatabase();
         //
         // KnowledgeManager km = new KnowledgeManager();

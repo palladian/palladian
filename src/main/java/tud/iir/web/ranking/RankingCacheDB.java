@@ -42,10 +42,10 @@ public class RankingCacheDB extends RankingCache {
         Connection connection = DatabaseManager.getInstance().getConnection();
         try {
             getRankings = connection
-                    .prepareStatement("SELECT ranking, service FROM rankingCache WHERE url = ? AND CURRENT_TIMESTAMP - updated < ?");
+            .prepareStatement("SELECT ranking, service FROM rankingCache WHERE url = ? AND CURRENT_TIMESTAMP - updated < ?");
             getRankings2 = connection.prepareStatement("SELECT ranking, service FROM rankingCache WHERE url = ?");
             addRanking = connection
-                    .prepareStatement("INSERT INTO rankingCache (url, service, ranking) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ranking = VALUES(ranking), updated = CURRENT_TIMESTAMP");
+            .prepareStatement("INSERT INTO rankingCache (url, service, ranking) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE ranking = VALUES(ranking), updated = CURRENT_TIMESTAMP");
         } catch (SQLException e) {
             LOGGER.error(e);
         }
@@ -56,6 +56,7 @@ public class RankingCacheDB extends RankingCache {
      * (non-Javadoc)
      * @see tud.iir.web.URLRankingCache#get(tud.iir.knowledge.Source)
      */
+    @Override
     public Map<Service, Float> get(String url) {
 
         Map<Service, Float> result = new HashMap<Service, Float>();
@@ -95,6 +96,7 @@ public class RankingCacheDB extends RankingCache {
      * (non-Javadoc)
      * @see tud.iir.web.URLRankingCache#add(tud.iir.knowledge.Source, java.util.Map)
      */
+    @Override
     public void add(String url, Map<Service, Float> rankings) {
 
         try {
@@ -113,7 +115,7 @@ public class RankingCacheDB extends RankingCache {
     }
 
     private void clear() {
-        DatabaseManager.getInstance().runUpdate("TRUNCATE TABLE rankingCache");
+        new DatabaseManager().runUpdate("TRUNCATE TABLE rankingCache");
     }
 
     public static void main(String[] args) {
@@ -122,7 +124,7 @@ public class RankingCacheDB extends RankingCache {
         cache.clear();
 
         // cache.setTtlSeconds(10);
-        //        
+        //
         // cache.add("http://cnn.com/", RankingRetriever.Service.BITLY_CLICKS, 100);
         // cache.get("http://cnn.com/", RankingRetriever.Service.BITLY_CLICKS);
         // cache.add("http://cnn.com/", RankingRetriever.Service.BITLY_CLICKS, 120);

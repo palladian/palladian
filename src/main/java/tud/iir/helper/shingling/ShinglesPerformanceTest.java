@@ -3,12 +3,12 @@ package tud.iir.helper.shingling;
 import java.util.List;
 
 import tud.iir.helper.StopWatch;
-import tud.iir.web.feeds.FeedDatabase;
 import tud.iir.web.feeds.FeedItem;
+import tud.iir.web.feeds.persistence.FeedDatabase;
 
 public class ShinglesPerformanceTest {
 
-    private static FeedDatabase fd = FeedDatabase.getInstance();
+    private static FeedDatabase fd = new FeedDatabase();
 
     public static void main(String[] args) {
         runTest(new ShinglesIndexJDBM(), 10000);
