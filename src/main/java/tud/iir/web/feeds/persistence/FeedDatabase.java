@@ -1,8 +1,9 @@
 package tud.iir.web.feeds.persistence;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,6 +13,7 @@ import tud.iir.helper.StopWatch;
 import tud.iir.persistence.DatabaseManager;
 import tud.iir.persistence.ResultCallback;
 import tud.iir.persistence.ResultIterator;
+import tud.iir.persistence.RowConverter;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedItem;
 
@@ -226,40 +228,38 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      */
     @Override
     public List<FeedItem> getFeedItems(String sqlQuery) {
-        List<FeedItem> result = runQuery(new FeedItemRowConverter(), sqlQuery);
-        return result;
+        return runQuery(new FeedItemRowConverter(), sqlQuery);
     }
 
-//    public List<FeedItem> getFeedItemsForEvaluation(String sqlQuery) {
-//        List<FeedItem> result = new LinkedList<FeedItem>();
-//        try {
-//            ResultSet rs = connection.createStatement().executeQuery(sqlQuery);
-//            while (rs.next()) {
-//                FeedItem entry = getFeedItem(rs);
-//                result.add(entry);
-//                entry.putFeature("relevant", rs.getFloat("relevant"));
-//            }
-//            rs.close();
-//        } catch (SQLException e) {
-//            LOGGER.error(sqlQuery + " : " + e);
-//
-//        }
-//        return result;
-//    }
+    public List<FeedItem> getFeedItemsForEvaluation(String sqlQuery) {
+        RowConverter<FeedItem> converter = new RowConverter<FeedItem>() {
 
+            @Override
+            public FeedItem convert(ResultSet resultSet) throws SQLException {
+                FeedItem entry = new FeedItem();
+
+                entry.setId(resultSet.getInt("id"));
+                entry.setFeedId(resultSet.getInt("feedId"));
+                entry.setTitle(resultSet.getString("title"));
+                entry.setLink(resultSet.getString("link"));
+                entry.setRawId(resultSet.getString("rawId"));
+                entry.setPublished(resultSet.getTimestamp("published"));
+                entry.setItemText(resultSet.getString("text"));
+                entry.setPageText(resultSet.getString("pageText"));
+                entry.setAdded(resultSet.getTimestamp("added"));
+                entry.putFeature("relevant", resultSet.getFloat("relevant"));
+
+                return entry;
+            }
+
+        };
+        return runQuery(converter, sqlQuery);
+    }
 
     public void deleteFeedItemById(int id) {
         runUpdate(psDeleteItemById, id);
     }
 
-    /**
-     * Allows to iterate over all available news in the database without buffering the contents of the whole result in
-     * memory first, using a standard Iterator interface. The underlying Iterator implementation does not allow
-     * modifications, so a call to {@link Iterator#remove()} will cause an {@link UnsupportedOperationException}. The
-     * ResultSet which is used by the implementation is closed, after the last element has been retrieved.
-     * 
-     * @return
-     */
     public ResultIterator<FeedItem> getFeedItems() {
         return runQueryWithIterator(new FeedItemRowConverter(), psGetAllItems);
     }
