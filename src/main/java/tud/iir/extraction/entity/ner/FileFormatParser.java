@@ -36,6 +36,9 @@ public class FileFormatParser {
                     return;
                 }
                 String[] parts = line.split(separator);
+                if (parts.length != 2) {
+                    return;
+                }
                 tags.add(parts[parts.length - 1]);
             }
         };
@@ -550,7 +553,7 @@ public class FileFormatParser {
         String taggedText = FileHelper.readFileToString(taggedTextFilePath);
 
         // throw out special characters that might disturb tokenization such as "'" or "=".
-        taggedText = taggedText.replace("'", "").replace("=", "");
+        // taggedText = taggedText.replace("'", "").replace("=", "");
         return getAnnotationsFromXMLText(taggedText);
     }
 

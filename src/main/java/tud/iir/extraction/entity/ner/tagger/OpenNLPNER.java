@@ -271,7 +271,7 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             System.exit(1);
         }
 
-        String conceptName = FileHelper.getFileName(modelFilePath).replaceAll("openNLP_", "");
+        String conceptName = FileHelper.getFileName(modelFilePath).replaceAll("openNLP_", "").toUpperCase();
 
         // open nlp needs xml format
         FileFormatParser.columnToXML(trainingFilePath, "data/temp/openNLPNERTraining.xml", "\t");
@@ -279,9 +279,9 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         String content = FileHelper.readFileToString("data/temp/openNLPNERTraining.xml");
 
         // we need to use the tag style <START:tagname> blabla <END>
-        content = content.replaceAll("<" + conceptName.toUpperCase() + ">", "<START:" + conceptName.toLowerCase()
+        content = content.replaceAll("<" + conceptName + ">", "<START:" + conceptName.toLowerCase()
                 + "> ");
-        content = content.replaceAll("</" + conceptName.toUpperCase() + "> ", " <END> ");
+        content = content.replaceAll("</" + conceptName + "> ", " <END> ");
         FileHelper.writeToFile("data/temp/openNLPNERTraining.xml", content);
 
         ObjectStream<String> lineStream;
@@ -291,7 +291,8 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
             ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
 
-            model = NameFinderME.train("en", conceptName.toUpperCase(), sampleStream,
+            model = NameFinderME
+                    .train("en", conceptName, sampleStream,
                     Collections.<String, Object> emptyMap(), 100, 5);
 
         } catch (UnsupportedEncodingException e) {
@@ -441,11 +442,11 @@ public class OpenNLPNER extends NamedEntityRecognizer {
 
         // TODO one model per concept
         Dataset trainingDataset = new Dataset();
-        trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
+        trainingDataset.setPath("data/datasets/ner/www_test_0/index_split1.txt");
         tagger.train(trainingDataset, "data/temp/openNLP.bin");
 
         Dataset testingDataset = new Dataset();
-        testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
+        testingDataset.setPath("data/datasets/ner/www_test_0/index_split2.txt");
         EvaluationResult er = tagger.evaluate(testingDataset,
                 "data/temp/openNLP_MOVIE.bin,data/temp/openNLP_POLITICIAN.bin");
         // EvaluationResult er = tagger.evaluate(testingDataset, "data/models/opennlp/openNLP_person.bin");
