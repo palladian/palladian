@@ -43,6 +43,7 @@ public class PageSentenceExtractor {
     private Node mainContentNode;
 
     private Crawler crawler;
+
     private List<String> sentences = new ArrayList<String>();
     private String mainContentHTML = "";
     private String mainContentText = "";
@@ -63,6 +64,14 @@ public class PageSentenceExtractor {
         imageURLs = null;
         parseDocument();
         return this;
+    }
+
+    public Crawler getCrawler() {
+        return crawler;
+    }
+
+    public void setCrawler(Crawler crawler) {
+        this.crawler = crawler;
     }
 
     public Document getDocument() {
@@ -111,7 +120,12 @@ public class PageSentenceExtractor {
         // shortestMatchingXPath =
         // "//xhtml:DIV[3]/xhtml:TABLE[1]/xhtml:TR[1]/xhtml:TD[1]/xhtml:TABLE[1]/xhtml:TR[2]/xhtml:TD[1]/xhtml:P/xhtml:FONT";
         mainContentNode = XPathHelper.getNode(getDocument(), shortestMatchingXPath);
+        if (mainContentNode == null) {
+            LOGGER.warn("could not get main content node for URL: " + getDocument().getDocumentURI());
+        }
+
         mainContentHTML = PageAnalyzer.getRawMarkup(mainContentNode);
+
         // mainContentHTML = mainContentHTML.replaceAll("\n{2,}","");
         mainContentText = HTMLHelper.htmlToString(mainContentNode);
 
@@ -245,9 +259,12 @@ public class PageSentenceExtractor {
         // CollectionHelper.print(pe.getImages());
 
         PageSentenceExtractor pe = new PageSentenceExtractor();
-        pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
+        PageContentExtractor pe2 = new PageContentExtractor();
+        // pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
+        pe.setDocument("http://www.hollyscoop.com/cameron-diaz/52.aspx");
 
         // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
+        System.out.println(pe2.getResultText());
         System.out.println(pe.getMainContentText());
         // CollectionHelper.print(pe.getSentences());
 

@@ -187,6 +187,14 @@ public class URLDownloader {
         return maxFails;
     }
 
+    public Crawler getCrawler() {
+        return crawler;
+    }
+
+    public void setCrawler(Crawler crawler) {
+        this.crawler = crawler;
+    }
+
     public static void main(String[] args) {
 
         // usage example ...:
