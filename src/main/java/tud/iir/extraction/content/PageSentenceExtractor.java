@@ -14,7 +14,6 @@ import org.w3c.dom.Node;
 
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.extraction.XPathSet;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.Tokenizer;
 import tud.iir.helper.XPathHelper;
@@ -246,9 +245,11 @@ public class PageSentenceExtractor {
         // CollectionHelper.print(pe.getImages());
 
         PageSentenceExtractor pe = new PageSentenceExtractor();
+        pe.setDocument("http://www.allaboutbirds.org/guide/Peregrine_Falcon/lifehistory");
 
-        CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
+        // CollectionHelper.print(pe.setDocument("http://www.bbc.co.uk/news/science-environment-12209801").getImages());
         System.out.println(pe.getMainContentText());
+        // CollectionHelper.print(pe.getSentences());
 
         // CollectionHelper.print(pe.setDocument(
         // "data/datasets/L3S-GN1-20100130203947-00001/original/2281f3c1-7a86-4c4c-874c-b19964e588f1.html")
