@@ -226,6 +226,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         FileFormatParser.bracketToXML(taggedFilePathTransformed, taggedFilePathTransformed);
         Annotations annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedFilePathTransformed);
 
+        // FileHelper.writeToFile("data/test/ner/illinoisOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
 
         return annotations;
