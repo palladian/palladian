@@ -89,8 +89,10 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // iterate over all concepts (seed files)
         for (File file : seedFiles) {
             String seedFileName = FileHelper.getFileName(file.getName());
-            createDatasetForConcept(seedFileName, file);
-            conceptsSearched.add(getConceptNameFromFileName(seedFileName));
+            if (seedFileName.length() > 1) {
+                createDatasetForConcept(seedFileName, file);
+                conceptsSearched.add(getConceptNameFromFileName(seedFileName));
+            }
         }
 
         writeMetaInformationFile(stopWatch, conceptsSearched);
@@ -216,7 +218,11 @@ public class DatasetCreator implements DatasetCreatorInterface {
         StopWatch stopWatch = new StopWatch();
 
         URLDownloader urlDownloader = new URLDownloader();
+        urlDownloader.getCrawler().setUseCompression(false);
         List<String> seedEntities = FileHelper.readFileToArray(seedFile);
+
+        // remove first line which is not a seed
+        seedEntities.remove(0);
 
         // get a random sample of seeds from the list
         Collection<String> randomSet = MathHelper.randomSample(seedEntities, getSeedsPerConcept());
@@ -235,6 +241,10 @@ public class DatasetCreator implements DatasetCreatorInterface {
         int ec = 0;
         for (String seedEntity : seedEntities) {
 
+            StopWatch sw = new StopWatch();
+
+            LOGGER.info("start processing seed entity " + seedEntity);
+
             seedFileCopy.append(seedEntity).append("###")
             .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
 
@@ -242,6 +252,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             urlDownloader.add(urls);
 
             Set<Document> documents = urlDownloader.start();
+            LOGGER.info("downloaded " + urls.size() + " URLs for " + seedEntity);
 
             ec++;
             int uc = 0;
@@ -259,6 +270,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
                         + uc + "/" + urls.size());
             }
 
+            LOGGER.info("processed seed entity:" + seedEntity + " in " + sw.getElapsedTimeString());
         }
 
         conceptSeeds.put(seedFileName, seedEntities);
