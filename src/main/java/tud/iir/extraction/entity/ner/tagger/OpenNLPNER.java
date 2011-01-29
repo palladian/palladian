@@ -8,6 +8,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import opennlp.tools.namefind.NameFinderEventStream;
 import opennlp.tools.namefind.NameFinderME;
@@ -35,7 +39,6 @@ import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 
@@ -134,15 +137,21 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         // CollectionHelper.print(nameSpans);
         // CollectionHelper.print(nameOutcomes);
 
+        // if this is true, we have tagged a token already and should not tag it again with another name finder
+        boolean tagOpen = false;
+        String openTag = "";
+
         for (int ti = 0, tl = tokens.length; ti < tl; ti++) {
             for (int fi = 0, fl = finders.length; fi < fl; fi++) {
                 // check for end tags
                 if (ti != 0) {
-                    if ((nameOutcomes[fi][ti].endsWith(NameFinderME.START) || nameOutcomes[fi][ti]
+                    if (tagOpen
+                            && (nameOutcomes[fi][ti].endsWith(NameFinderME.START) || nameOutcomes[fi][ti]
                             .endsWith(NameFinderME.OTHER))
                             && (nameOutcomes[fi][ti - 1].endsWith(NameFinderME.START) || nameOutcomes[fi][ti - 1]
                                     .endsWith(NameFinderME.CONTINUE))) {
-                        output.append("</").append(tags[fi]).append(">");
+                        output.append("</").append(openTag).append(">");
+                        tagOpen = false;
                     }
                 }
             }
@@ -150,9 +159,14 @@ public class OpenNLPNER extends NamedEntityRecognizer {
                 output.append(text.substring(spans[ti - 1].getEnd(), spans[ti].getStart()));
             }
             // check for start tags
+
             for (int fi = 0, fl = finders.length; fi < fl; fi++) {
-                if (nameOutcomes[fi][ti].endsWith(NameFinderME.START)) {
-                    output.append("<").append(tags[fi]).append(">");
+                if (!tagOpen) {
+                    if (nameOutcomes[fi][ti].endsWith(NameFinderME.START)) {
+                        openTag = tags[fi];
+                        tagOpen = true;
+                        output.append("<").append(openTag).append(">");
+                    }
                 }
             }
             output.append(tokens[ti]);
@@ -231,12 +245,13 @@ public class OpenNLPNER extends NamedEntityRecognizer {
             LOGGER.error("could not tag text with " + getName() + ", " + e.getMessage());
         }
 
-        String taggedTextFilePath = "data/temp/taggedText.txt";
+        String taggedTextFilePath = "data/test/ner/openNLPOutput.txt";
         FileHelper.writeToFile(taggedTextFilePath, taggedText);
-
         annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
 
-        CollectionHelper.print(annotations);
+        FileHelper.writeToFile("data/test/ner/openNLPOutput2.txt", tagText(inputText, annotations));
+
+        // CollectionHelper.print(annotations);
 
         return annotations;
     }
@@ -263,61 +278,100 @@ public class OpenNLPNER extends NamedEntityRecognizer {
         return true;
     }
 
+    private Set<String> getUsedTags(String filePath) {
+
+        Set<String> tags = new HashSet<String>();
+
+        String inputString = FileHelper.readFileToString(filePath);
+
+        Pattern pattern = Pattern.compile("</?(.*?)>");
+
+        Matcher matcher = pattern.matcher(inputString);
+        while (matcher.find()) {
+            tags.add(matcher.group(1));
+        }
+
+        return tags;
+    }
+
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
-        if (modelFilePath.lastIndexOf("_") == -1) {
-            LOGGER.fatal("model name does not comply \"openNLP_TAG.bin\" format: " + modelFilePath);
-            System.exit(1);
-        }
-
-        String conceptName = FileHelper.getFileName(modelFilePath).replaceAll("openNLP_", "").toUpperCase();
+        // if (modelFilePath.lastIndexOf("_") == -1) {
+        // LOGGER.fatal("model name does not comply \"openNLP_TAG.bin\" format: " + modelFilePath);
+        // System.exit(1);
+        // }
 
         // open nlp needs xml format
         FileFormatParser.columnToXML(trainingFilePath, "data/temp/openNLPNERTraining.xml", "\t");
 
-        String content = FileHelper.readFileToString("data/temp/openNLPNERTraining.xml");
+        // let us get all tags that are used
+        Set<String> usedTags = getUsedTags("data/temp/openNLPNERTraining.xml");
+        LOGGER.info("found " + usedTags.size() + " tags in the training file, computing " + usedTags.size()
+                + " models now");
 
-        // we need to use the tag style <START:tagname> blabla <END>
-        content = content.replaceAll("<" + conceptName + ">", "<START:" + conceptName.toLowerCase()
-                + "> ");
-        content = content.replaceAll("</" + conceptName + "> ", " <END> ");
-        FileHelper.writeToFile("data/temp/openNLPNERTraining.xml", content);
+        // create one model for each used tag, that is delete all the other tags from the file and learn
+        for (String tag : usedTags) {
 
-        ObjectStream<String> lineStream;
-        TokenNameFinderModel model = null;
-        try {
-            lineStream = new PlainTextByLineStream(new FileInputStream("data/temp/openNLPNERTraining.xml"), "UTF-8");
+            LOGGER.info("start learning for " + tag);
 
-            ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
+            String conceptName = tag.toUpperCase();
 
-            model = NameFinderME
-                    .train("en", conceptName, sampleStream,
-                    Collections.<String, Object> emptyMap(), 100, 5);
+            modelFilePath = FileHelper.getFilePath(modelFilePath) + "openNLP_" + conceptName + ".bin";
 
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error(e.getMessage());
-        } catch (FileNotFoundException e) {
-            LOGGER.error(e.getMessage());
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        }
+            String content = FileHelper.readFileToString("data/temp/openNLPNERTraining.xml");
 
-        BufferedOutputStream modelOut = null;
+            // we need to use the tag style <START:tagname> blabla <END>
+            content = content.replaceAll("<" + conceptName + ">", "<START:" + conceptName.toLowerCase() + "> ");
+            content = content.replaceAll("</" + conceptName + ">", " <END> ");
 
-        try {
-            modelOut = new BufferedOutputStream(new FileOutputStream(modelFilePath));
-            model.serialize(modelOut);
-        } catch (IOException e) {
-            LOGGER.error(e.getMessage());
-        } finally {
-            if (modelOut != null) {
-                try {
-                    modelOut.close();
-                } catch (IOException e) {
-                    LOGGER.error("could not close model file, " + e.getMessage());
+            // we need to remove all other tags for training the current tag
+            for (String otherTag : usedTags) {
+                if (otherTag.equalsIgnoreCase(tag)) {
+                    continue;
+                }
+                content = content.replace("<" + otherTag.toUpperCase() + ">", "");
+                content = content.replace("</" + otherTag.toUpperCase() + ">", "");
+            }
+
+            FileHelper.writeToFile("data/temp/openNLPNERTraining" + conceptName + ".xml", content);
+
+            ObjectStream<String> lineStream;
+            TokenNameFinderModel model = null;
+            try {
+                lineStream = new PlainTextByLineStream(new FileInputStream("data/temp/openNLPNERTraining" + conceptName
+                        + ".xml"), "UTF-8");
+
+                ObjectStream<NameSample> sampleStream = new NameSampleDataStream(lineStream);
+
+                model = NameFinderME.train("en", conceptName, sampleStream, Collections.<String, Object> emptyMap(),
+                        100, 5);
+
+            } catch (UnsupportedEncodingException e) {
+                LOGGER.error(e.getMessage());
+            } catch (FileNotFoundException e) {
+                LOGGER.error(e.getMessage());
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            }
+
+            BufferedOutputStream modelOut = null;
+
+            try {
+                modelOut = new BufferedOutputStream(new FileOutputStream(modelFilePath));
+                model.serialize(modelOut);
+            } catch (IOException e) {
+                LOGGER.error(e.getMessage());
+            } finally {
+                if (modelOut != null) {
+                    try {
+                        modelOut.close();
+                    } catch (IOException e) {
+                        LOGGER.error("could not close model file, " + e.getMessage());
+                    }
                 }
             }
+
         }
 
 

@@ -51,7 +51,7 @@ public class ChartCreator {
      *            MAX-policy.
      */
     public ChartCreator(final int maxNumberOfPollsScoreMin, final int maxNumberOfPollsScoreMax) {
-        this.database = EvaluationDatabase.getInstance();
+        this.database = new EvaluationDatabase();
         this.maxNumberOfPollsScoreMax = maxNumberOfPollsScoreMin;
         this.maxNumberOfPollsScoreMin = maxNumberOfPollsScoreMax;
         this.totalExperimentHours = (int) ((FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND) / DateHelper.HOUR_MS);
@@ -312,12 +312,12 @@ public class ChartCreator {
             // in Davids DB nicht vorhandene Polls simulieren
             if(feedIDLastStep != -1 && feedIDLastStep != feedIDCurrent) {
                 
-                int sizeToAdd = (simulateEtagUsage && poll.getSupportsConditionalGet()) ? poll
+                int sizeToAdd = simulateEtagUsage && poll.getSupportsConditionalGet() ? poll
                         .getConditionalGetResponseSize() : sizeOfPollLast;
                 
                 while (minuteLastStep + checkIntervalLast < totalExperimentHours * 60) {
 
-                    final int minuteToProcess = (minuteLastStep + checkIntervalLast);
+                    final int minuteToProcess = minuteLastStep + checkIntervalLast;
                     // x/60 + 1: add 1 hour to result to start with hour 1 instead of 0 (minute 1 means hour 1)
                     final int hourToProcess = minuteToProcess / 60 + 1;
 

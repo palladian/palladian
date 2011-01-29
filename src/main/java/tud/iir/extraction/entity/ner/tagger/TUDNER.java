@@ -130,9 +130,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         Annotations dictionaryRecognizedAnnotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
         annotations.addAll(dictionaryRecognizedAnnotations);
 
-        String taggedText = tagText(inputText, dictionaryRecognizedAnnotations);
-        // FileHelper.writeToFile("t.csv", taggedText);
-        System.out.println(taggedText);
+        // FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt",tagText(inputText,
+        // dictionaryRecognizedAnnotations));
 
         return annotations;
     }
@@ -183,7 +182,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             // String sentence = StringHelper.getSentence(text, m.start());
 
             String annotationText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
-            System.out.println("annotation text: " + annotationText);
+            // System.out.println("annotation text: " + annotationText);
 
             // use prefixes only
             String[] windowWords = getWindowWords(inputText, annotation.getOffset(), annotation.getEndIndex(), true,

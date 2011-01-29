@@ -30,4 +30,15 @@ public class Entity {
         this.tagName = tagName;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Entity [name=");
+        builder.append(name);
+        builder.append(", tagName=");
+        builder.append(tagName);
+        builder.append("]");
+        return builder.toString();
+    }
+
 }

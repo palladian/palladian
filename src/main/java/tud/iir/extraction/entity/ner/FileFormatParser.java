@@ -490,7 +490,7 @@ public class FileFormatParser {
      * @param taggedText The XML tagged text. For example "The &lt;PHONE&gt;iphone 4&lt;/PHONE&gt; is a phone."
      * @return A list of annotations that were found in the text.
      */
-    private static Annotations getAnnotationsFromXMLText(String taggedText) {
+    public static Annotations getAnnotationsFromXMLText(String taggedText) {
         Annotations annotations = new Annotations();
 
         // count offset that is caused by the tags, this should be taken into account when calculating the offset of the

@@ -155,8 +155,11 @@ public class StanfordNER extends NamedEntityRecognizer {
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
+        String trainingFilePath2 = FileHelper.appendToFileName(trainingFilePath, "_t");
+        FileFormatParser.removeWhiteSpaceInFirstColumn(trainingFilePath, trainingFilePath2, "_");
+
         // set the location to the training and the model file in the configs and save the file
-        configFileContent = configFileContent.replaceAll("###TRAINING_FILE###", trainingFilePath);
+        configFileContent = configFileContent.replaceAll("###TRAINING_FILE###", trainingFilePath2);
         configFileContent = configFileContent.replaceAll("###MODEL_FILE###", modelFilePath);
         FileHelper.writeToFile("data/temp/stanfordNerConfig.props", configFileContent);
 
@@ -256,15 +259,38 @@ public class StanfordNER extends NamedEntityRecognizer {
             FileHelper.writeToFile(taggedTextFilePath, taggedText);
 
             FileFormatParser.slashToXML(taggedTextFilePath, taggedTextFilePath);
+
+            // clean file
+            cleanFile(taggedTextFilePath);
+
             annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
+
+            FileHelper.writeToFile("data/test/ner/stanfordNEROutput.txt", tagText(inputText, annotations));
 
         } catch (IOException e) {
             LOGGER.error(getName() + " could not tag input, " + e.getMessage());
         }
 
-        CollectionHelper.print(annotations);
+        // CollectionHelper.print(annotations);
 
         return annotations;
+    }
+
+    private void cleanFile(String filePath) {
+        String content = FileHelper.readFileToString(filePath);
+
+        content = content.replace("-LRB-", " (");
+        content = content.replace("-RRB-", " )");
+        content = content.replace("=- ", "=-");
+        content = content.replace("''", "\"");
+        content = content.replace("\\/", "/");
+        content = content.replaceAll("(?<!\\.)\\.\\. ", ". ");
+
+        // XXX: this is just because of the conll 2003 dataset
+        content = content.replace("T. O'", "T.O'");
+
+
+        FileHelper.writeToFile(filePath, content);
     }
 
     @Override
