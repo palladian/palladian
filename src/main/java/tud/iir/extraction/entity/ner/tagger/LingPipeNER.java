@@ -184,6 +184,7 @@ public class LingPipeNER extends NamedEntityRecognizer {
             annotations.add(annotation);
         }
 
+        // FileHelper.writeToFile("data/test/ner/lingPipeOutput.txt", tagText(inputText, annotations));
         // CollectionHelper.print(annotations);
 
         return annotations;
@@ -436,9 +437,13 @@ public class LingPipeNER extends NamedEntityRecognizer {
         // "data/temp/esp.testb");
 
         // using a column trainig and testing file
-        tagger.train("data/datasets/ner/conll/training_small.txt", "data/temp/lingpipe.model");
-        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA_small.txt", "data/temp/lingpipe.model",
+        tagger.train("data/test/ner/training.txt", "data/temp/lingpipe.model");
+        EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/temp/lingpipe.model",
                 TaggingFormat.COLUMN);
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lingpipe.model");
+        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA.txt", "data/temp/lingpipe.model",
+        // TaggingFormat.COLUMN);
+
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
 

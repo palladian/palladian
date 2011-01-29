@@ -20,7 +20,6 @@ import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
-import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.StopWatch;
 import de.julielab.jnet.tagger.JNETException;
@@ -164,11 +163,15 @@ public class JulieNER extends NamedEntityRecognizer {
 
             Utils.writeFile(outFile, tagger.predictIOB(sentences, showSegmentConfidence));
 
+            reformatOutput(outFile);
+
         } catch (Exception e) {
             LOGGER.error(getName() + " error in creating annotations: " + e.getMessage());
         }
-        annotations = FileFormatParser.getAnnotationsFromColumn(outFile.getPath());
-        CollectionHelper.print(annotations);
+        annotations = FileFormatParser.getAnnotationsFromXMLFile(outFile.getPath());
+
+        FileHelper.writeToFile("data/test/ner/julieOutput.txt", tagText(inputText, annotations));
+        // CollectionHelper.print(annotations);
 
         return annotations;
     }
@@ -177,6 +180,88 @@ public class JulieNER extends NamedEntityRecognizer {
     public Annotations getAnnotations(String inputText, String configModelFilePath) {
         loadModel(configModelFilePath);
         return getAnnotations(inputText);
+    }
+
+    /**
+     * The output of the named entity recognition is not well formatted and we need to reformat it.
+     * 
+     * @param file The file where the prediction output is written in BIO format. This file will be overwritten.
+     */
+    private void reformatOutput(File file) {
+
+        // transform to XML
+        FileFormatParser.columnToXML(file.getPath(), file.getPath(), "\t");
+
+        String content = FileHelper.readFileToString(file);
+
+        // =-
+        content = content.replace("=- ", "=-");
+
+        // O'Brien
+        content = content.replaceAll("(?<= [A-Z])' (?=(\\<.{1,100}\\>)?[A-Z])", "'");
+
+
+        content = content.replaceAll("(?<=[A-Z]\\</.{1,100}\\>)' (?=(\\<.{1,100}\\>)?[A-Z])", "'");
+        
+        // Tom's
+        content = content.replaceAll("' [s|S](?=\\W)", "'s");
+
+        // I'm
+        content = content.replaceAll("' [m|M](?=\\W)", "'m");
+
+        // won't
+        content = content.replaceAll("' [t|T](?=\\W)", "'t");
+
+        // they're
+        content = content.replaceAll("' re(?=\\W)", "'re");
+
+        // I've
+        content = content.replaceAll("' ve(?=\\W)", "'ve");
+
+        // we'll
+        content = content.replaceAll("' ll(?=\\W)", "'ll");
+
+        // x-based
+        content = content.replace("- based", "-based");
+
+        // @reuters
+        content = content.replaceAll("@ (?=\\w)", "@");
+
+        // @ 101
+        content = content.replaceAll("@(?=\\d)", "@ ");
+
+        // `
+        content = content.replace("` ", "`");
+
+        // Gama'a
+        content = content.replace("Gama' a", "Gama'a");
+        content = content.replace("Gama</PER>' a", "Gama</PER>'a");
+        content = content.replace("' o.", "'o.");
+        content = content.replace("' o ", "'o ");
+        content = content.replace("</PER>' o", "</PER>'o");
+
+        // d'a
+        content = content.replace("d' a", "d'a");
+
+        // +
+        content = content.replace("+ ", "+");
+
+        // 6/
+        content = content.replaceAll("(?<=\\d)/ ", "/");
+
+        // - 4
+        content = content.replaceAll("(?<=(\\d|\\(|\\)))- (?=\\d+(\\s))", "-");
+
+        // $ 6= 4
+        content = content.replaceAll("(?<=\\d)= (?=\\d+(\\s))", "=");
+
+        // 4:
+        content = content.replaceAll("(?<=\\d): ", ":");
+
+        // )-1
+        // content = content.replaceAll("(?<=\\))- (?=\\d)", "-");
+        FileHelper.writeToFile(file.getPath(), content);
+
     }
 
     /**
