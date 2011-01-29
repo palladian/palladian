@@ -16,8 +16,8 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
+import tud.iir.extraction.content.PageSentenceExtractor;
 import tud.iir.helper.CountMap;
 import tud.iir.helper.DatasetCreatorInterface;
 import tud.iir.helper.DateHelper;
@@ -95,7 +95,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         writeMetaInformationFile(stopWatch, conceptsSearched);
 
-        postProcessDataset(seedFolderPath, getDataSetLocation() + getDatasetName() + "/");
+        // postProcessDataset(seedFolderPath, getDataSetLocation() + getDatasetName() + "/");
 
         LOGGER.info("created " + seedFiles.length + " datasets in " + stopWatch.getElapsedTimeString()
                 + ", total traffic: " + Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES) + "MB");
@@ -311,10 +311,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         String webPageText = "";
         try {
             webPageContent = Crawler.documentToString(webPage);
-            webPageText = new PageContentExtractor().setDocument(webPage).getResultText();
-        } catch (PageContentExtractorException e) {
-            LOGGER.error("could not extract clean content from " + webPage.getDocumentURI() + ", " + e.getMessage());
-            return;
+            // webPageText = new PageContentExtractor().setDocument(webPage).getResultText();
+            webPageText = new PageSentenceExtractor().setDocument(webPage).getMainContentText();
         } catch (Exception e) {
             LOGGER.error("could not extract clean content from " + webPage.getDocumentURI() + ", " + e.getMessage());
             return;
@@ -541,9 +539,9 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // System.exit(0);
 
         // DatasetCreator.deduplicateSeedLists("data/knowledgeBase/seedEntities/");
-        DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "data/datasets/ner/www_test2/");
-        System.exit(0);
-        DatasetCreator datasetCreator = new DatasetCreator("www_test2");
+        // DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "data/datasets/ner/www_test2/");
+        // System.exit(0);
+        DatasetCreator datasetCreator = new DatasetCreator("www");
         datasetCreator.setDataSetLocation("data/datasets/ner/");
 
         // datasetCreator.splitAndTransformDatasets();
