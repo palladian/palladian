@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.persistence.DatabaseManager;
-import tud.iir.persistence.ResultCallback;
+import tud.iir.persistence.SimpleResultCallback;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.functions.LibSVM;
@@ -273,7 +273,7 @@ public class Classifier {
 
         DatabaseManager dbm = new DatabaseManager();
 
-        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {

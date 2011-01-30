@@ -11,9 +11,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -22,7 +22,7 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.persistence.DatabaseManager;
-import tud.iir.persistence.ResultCallback;
+import tud.iir.persistence.SimpleResultCallback;
 import tud.iir.web.Crawler;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedClassifier;
@@ -104,7 +104,7 @@ public class FeedStatisticCreator {
 
         DatabaseManager dbm = new DatabaseManager();
 
-        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {
@@ -176,7 +176,7 @@ public class FeedStatisticCreator {
             countQuery += " WHERE activityPattern = " + activityPattern;
         }
 
-        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback = new SimpleResultCallback() {
             @Override
             public void processResult(Map<String, Object> object, int number) {
                 valueList.add((Double) object.get("delay"));
@@ -287,7 +287,7 @@ public class FeedStatisticCreator {
 
         // Double trafficPerNewItemCG = null;
 
-        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {
@@ -310,7 +310,7 @@ public class FeedStatisticCreator {
                         + DateHelper.getTimeString(1000L * ((Double) calculateMedianDelay(avgStyle, -1, tableName))
                                 .longValue())).append("\n");
 
-        ResultCallback<Map<String, Object>> callback2 = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback2 = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {
@@ -323,7 +323,7 @@ public class FeedStatisticCreator {
         dbm.runQuery(callback2, queryA);
 
 
-        ResultCallback<Map<String, Object>> callback3 = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback3 = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {
@@ -416,7 +416,7 @@ public class FeedStatisticCreator {
         ints[0] = -1;
         ints[1] = 1;
 
-        ResultCallback<Map<String, Object>> callback3 = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback3 = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {
@@ -478,7 +478,7 @@ public class FeedStatisticCreator {
         ints[0] = -1;
         ints[1] = 1;
 
-        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {
@@ -582,7 +582,6 @@ public class FeedStatisticCreator {
     public static void createFeedUpdateIntervals(FeedStore feedStore, String statisticOutputPath) throws IOException,
     SQLException {
 
-        DatabaseManager dbm = new DatabaseManager();
         String psFix1d = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix1440_max_min_poll WHERE feedID = ? AND numberOfPoll > 1";
         String psFix1h = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix60_max_min_poll WHERE feedID = ? AND numberOfPoll > 1";
         String psFixLearned = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix_learned_min_poll WHERE feedID = ? AND numberOfPoll > 1";
@@ -697,7 +696,7 @@ public class FeedStatisticCreator {
 
         final Double[] updateInterval = new Double[1];
 
-        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {

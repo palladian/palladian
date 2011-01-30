@@ -14,6 +14,32 @@ public class ResultIterator<T> implements Iterator<T> {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ResultIterator.class);
 
+    @SuppressWarnings("unchecked")
+    private static final class NullIterator extends ResultIterator {
+
+        public NullIterator() {
+            super(null, null, null, null);
+        }
+
+        @Override
+        public boolean hasNext() {
+            return false;
+        }
+
+        @Override
+        public Object next() {
+            throw new NoSuchElementException();
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+    }
+
+    public static final NullIterator NULL_ITERATOR = new NullIterator();
+
     private final Connection connection;
     private final Statement statement;
     private final ResultSet resultSet;

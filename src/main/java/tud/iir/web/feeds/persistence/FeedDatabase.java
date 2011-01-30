@@ -11,9 +11,9 @@ import org.apache.log4j.Logger;
 
 import tud.iir.helper.StopWatch;
 import tud.iir.persistence.DatabaseManager;
-import tud.iir.persistence.ResultCallback;
 import tud.iir.persistence.ResultIterator;
 import tud.iir.persistence.RowConverter;
+import tud.iir.persistence.SimpleResultCallback;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedItem;
 
@@ -48,6 +48,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String psGetAllItems = "SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items";
     private static final String psGetItemById = "SELECT * FROM feed_items WHERE id = ?";
     private static final String psDeleteItemById = "DELETE FROM feed_items WHERE id = ?";
+    private static final String psClearTables = "TRUNCATE TABLE feeds; TRUNCATE TABLE feed_items; TRUNCATE TABLE feeds_post_distribution";
 
     @Override
     public boolean addFeed(Feed feed) {
@@ -118,7 +119,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     public Map<Integer, int[]> getFeedPostDistribution(Feed feed) {
         final Map<Integer, int[]> postDistribution = new HashMap<Integer, int[]>();
 
-        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {
@@ -265,10 +266,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     public void clearFeedTables() {
-        LOGGER.trace(">cleanTables");
-        runUpdate("TRUNCATE TABLE feed_items");
-        runUpdate("TRUNCATE TABLE feeds");
-        LOGGER.trace("<cleanTables");
+        runUpdate(psClearTables);
     }
 
     public static void main(String[] args) {
