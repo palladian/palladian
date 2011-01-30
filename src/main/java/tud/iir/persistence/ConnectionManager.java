@@ -110,8 +110,8 @@ public class ConnectionManager {
         try {
             return connectionPool.getConnection();
         } finally {
-            LOGGER.debug("returned pool connection; created:" + connectionPool.getTotalCreatedConnections() + " free:"
-                    + connectionPool.getTotalFree() + " used:" + connectionPool.getTotalLeased());
+//            LOGGER.debug("get pool connection; created:" + connectionPool.getTotalCreatedConnections() + " free:"
+//                    + connectionPool.getTotalFree() + " used:" + connectionPool.getTotalLeased());
         }
     }
 

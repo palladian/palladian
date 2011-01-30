@@ -12,7 +12,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
- * The DatabaseManager writes and reads data to the database.
+ * The {@link DatabaseManager} provides general database specific functionality.
+ * 
+ * No {@link SQLException} are exposed.
  * 
  * @author David Urbansky
  * @author Christopher Friedrich
@@ -55,11 +57,7 @@ public class DatabaseManager {
 
             connection = getConnection();
             ps = connection.prepareStatement(sql);
-
-            for (int i = 0; i < args.length; i++) {
-                ps.setObject(i + 1, args[i]);
-            }
-
+            fillPreparedStatement(ps, args);
             rs = ps.executeQuery();
 
             while (rs.next() && callback.isLooping()) {
@@ -77,6 +75,20 @@ public class DatabaseManager {
 
     }
 
+    private static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
+
+        // do we need a special treatment for NULL values here?
+        // if you should stumble across this comment while debugging,
+        // the answer is likely: yes, we do!
+        for (int i = 0; i < args.length; i++) {
+            ps.setObject(i + 1, args[i]);
+        }
+    }
+
+    private static final void fillPreparedStatement(PreparedStatement ps, List<Object> args) throws SQLException {
+        fillPreparedStatement(ps, args.toArray());
+    }
+
     /**
      * 
      * @param callback
@@ -84,8 +96,12 @@ public class DatabaseManager {
      * @param args
      * @return
      */
-    public final int runQuery(ResultCallback<Map<String, Object>> callback, String sql, Object... args) {
+    public final int runQuery(SimpleResultCallback callback, String sql, Object... args) {
         return runQuery(callback, new SimpleRowConverter(), sql, args);
+    }
+
+    public final int runQuery(RawResultCallback callback, String sql, Object... args) {
+        return runQuery(callback, new NopRowConverter(), sql, args);
     }
 
     /**
@@ -117,9 +133,9 @@ public class DatabaseManager {
     /**
      * Allows to iterate over available items without buffering the content of the whole result in memory first, using a
      * standard Iterator interface. The underlying Iterator implementation does not allow modifications, so a call to
-     * {@link Iterator#remove()} will cause an {@link UnsupportedOperationException}. The ResultSet which is used by the
-     * implementation is closed, after the last element has been retrieved, if you break the iteration loop, you must
-     * manually call {@link ResultIterator#close()}}.
+     * {@link Iterator#remove()} will cause an {@link UnsupportedOperationException}. Database resources used by the
+     * implementation are closed, after the last element has been retrieved. If you break the iteration loop, you must
+     * manually call {@link ResultIterator#close()} .
      * 
      * @param <T>
      * @param converter
@@ -129,7 +145,8 @@ public class DatabaseManager {
      */
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, Object... args) {
 
-        ResultIterator<T> result = null;
+        @SuppressWarnings("unchecked")
+        ResultIterator<T> result = ResultIterator.NULL_ITERATOR;
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet resultSet = null;
@@ -144,9 +161,7 @@ public class DatabaseManager {
             // TODO make this a global option?
             ps.setFetchSize(Integer.MIN_VALUE);
 
-            for (int i = 0; i < args.length; i++) {
-                ps.setObject(i + 1, args[i]);
-            }
+            fillPreparedStatement(ps, args);
 
             resultSet = ps.executeQuery();
             result = new ResultIterator<T>(connection, ps, resultSet, converter);
@@ -173,12 +188,13 @@ public class DatabaseManager {
     }
 
     /**
+     * Run a query operation for a single entry on the database.
      * 
      * @param <T>
      * @param converter
      * @param sql
      * @param args
-     * @return
+     * @return The retrieved entry for the given query, or <code>null</code> no entry found.
      */
     @SuppressWarnings("unchecked")
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, Object... args) {
@@ -204,7 +220,7 @@ public class DatabaseManager {
 
         final Integer[] count = new Integer[1];
 
-        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
+        SimpleResultCallback callback = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {
@@ -231,6 +247,10 @@ public class DatabaseManager {
         return runSingleQuery(new SimpleRowConverter(), sql, args);
     }
 
+    public final boolean entryExists(String sql, Object... args) {
+        return runSingleQuery(sql, args) != null;
+    }
+
     /**
      * Run an update operation and return the number of affected rows.
      * 
@@ -248,13 +268,7 @@ public class DatabaseManager {
 
             connection = getConnection();
             ps = connection.prepareStatement(updateStatement);
-
-            // do we need a special treatment for NULL values here?
-            // if you should stumble across this comment while debugging,
-            // the answer is likely: yes, we do!
-            for (int i = 0; i < args.length; i++) {
-                ps.setObject(i + 1, args[i]);
-            }
+            fillPreparedStatement(ps, args);
 
             affectedRows = ps.executeUpdate();
 
@@ -268,7 +282,7 @@ public class DatabaseManager {
         return affectedRows;
 
     }
-    
+
     /**
      * 
      * @param updateStatement
@@ -279,12 +293,63 @@ public class DatabaseManager {
         return runUpdate(updateStatement, args.toArray());
     }
 
+    public final int[] runBatchUpdate(String updateStatement, BatchDataProvider provider) {
+
+        Connection connection = null;
+        PreparedStatement ps = null;
+        int[] result = new int[0];
+
+        try {
+
+            connection = getConnection();
+            connection.setAutoCommit(false);
+            ps = connection.prepareStatement(updateStatement);
+
+            for (int i = 0; i < provider.getCount(); i++) {
+                List<Object> args = provider.getData(i);
+                fillPreparedStatement(ps, args);
+                ps.addBatch();
+            }
+
+            result = ps.executeBatch();
+            connection.commit();
+            connection.setAutoCommit(true);
+
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+        } finally {
+            close(connection, ps);
+        }
+
+        return result;
+
+    }
+
+    public final int[] runBatchUpdate(String updateStatement, final List<List<Object>> batchArgs) {
+
+        BatchDataProvider provider = new BatchDataProvider() {
+
+            @Override
+            public List<Object> getData(int number) {
+                List<Object> args = batchArgs.get(number);
+                return args;
+            }
+
+            @Override
+            public int getCount() {
+                return batchArgs.size();
+            }
+        };
+        return runBatchUpdate(updateStatement, provider);
+
+    }
+
     /**
-     * Run an update operation and return the insert ID.
+     * Run an update operation and return the generated insert ID.
      * 
      * @param updateStatement Update statement which may contain parameter markers.
      * @param args Arguments for parameter markers in updateStatement, if any.
-     * @return The generated ID, or 0 if no row was inserted, or -1 if an error occurred.
+     * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
     public final int runUpdateReturnId(String updateStatement, Object... args) {
 
@@ -297,11 +362,7 @@ public class DatabaseManager {
 
             connection = getConnection();
             ps = connection.prepareStatement(updateStatement, Statement.RETURN_GENERATED_KEYS);
-
-            for (int i = 0; i < args.length; i++) {
-                ps.setObject(i + 1, args[i]);
-            }
-
+            fillPreparedStatement(ps, args);
             ps.executeUpdate();
 
             rs = ps.getGeneratedKeys();
@@ -332,11 +393,15 @@ public class DatabaseManager {
         return runUpdateReturnId(updateStatement, args.toArray());
     }
 
+    // //////////////////////////////////////////////////////////////////////////////
+    // Helper methods
+    // //////////////////////////////////////////////////////////////////////////////
+
     /**
      * 
      * @param connection
      */
-    public static final void close(Connection connection) {
+    protected static final void close(Connection connection) {
         close(connection, null, null);
     }
 
@@ -346,11 +411,11 @@ public class DatabaseManager {
      * @param connection
      * @param statement
      */
-    public static final void close(Connection connection, Statement statement) {
+    protected static final void close(Connection connection, Statement statement) {
         close(connection, statement, null);
     }
 
-    public static final void close(Connection connection, ResultSet resultSet) {
+    protected static final void close(Connection connection, ResultSet resultSet) {
         close(connection, null, resultSet);
     }
 
@@ -361,7 +426,7 @@ public class DatabaseManager {
      * @param statement
      * @param resultSet
      */
-    public static final void close(Connection connection, Statement statement, ResultSet resultSet) {
+    protected static final void close(Connection connection, Statement statement, ResultSet resultSet) {
         if (resultSet != null) {
             try {
                 resultSet.close();
