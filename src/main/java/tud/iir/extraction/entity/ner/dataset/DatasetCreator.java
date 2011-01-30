@@ -75,7 +75,6 @@ public class DatasetCreator implements DatasetCreatorInterface {
         this.datasetName = datasetName;
         downloadFilter = new DownloadFilter();
         downloadFilter.setExcludeFileTypes(DownloadFilter.BINARY_FILE_TYPES);
-        downloadFilter.getExcludeFileTypes().add("html");
     }
 
     /**
