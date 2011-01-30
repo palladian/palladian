@@ -23,13 +23,13 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
      */
     public OpenNLPPhraseChunker() {
         super();
-        this.setName("OpenNLP Phrase Chunker");
+        setName("OpenNLP Phrase Chunker");
         PropertiesConfiguration config = null;
 
         config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            MODEL = config.getString("models.opennlp.en.chunker");
+            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.chunker");
         } else {
             MODEL = "";
         }
@@ -65,15 +65,15 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
                 tag = chunkList.get(i).substring(2);
 
             }
-            if (((i + 1) < chunkList.size() && chunkList.get(i + 1).contains(
-                    "B-"))
+            if (i + 1 < chunkList.size() && chunkList.get(i + 1).contains(
+                    "B-")
                     || i == chunkList.size() - 1) {
 
                 tagAnnotations.add(new TagAnnotation(sentence.indexOf(token),
                         tag, token));
             }
         }
-        this.setTagAnnotations(tagAnnotations);
+        setTagAnnotations(tagAnnotations);
         return this;
     }
 
@@ -87,7 +87,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
     @Override
     public final OpenNLPPhraseChunker chunk(String sentence,
             String configModelFilePath) {
-        this.loadModel(configModelFilePath);
+        loadModel(configModelFilePath);
         return this.chunk(sentence);
     }
 
@@ -136,7 +136,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
                         .putDataObject(configModelFilePath, tbc);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + this.getName() + " from file "
+                LOGGER.info("Reading " + getName() + " from file "
                         + configModelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
             }
@@ -157,7 +157,7 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
      */
     @Override
     public final OpenNLPPhraseChunker loadDefaultModel() {
-        return this.loadModel(MODEL);
+        return loadModel(MODEL);
     }
 
 }

@@ -165,11 +165,8 @@ public class Crawler {
     /** The response code of the last HTTP request. */
     // private int lastResponseCode = -1;
 
-    /**
-     * The maximum file size which should be downloaded (TODO: only web documents?). -1 means no limit. If you think
-     * that's a good idea, see: http://articles-articles-articles.com/index.php?page=mostpopulararticles Muhahahaha.
-     */
-    private long maxFileSize = 1000000;
+    /** The filter for the crawler. */
+    private DownloadFilter downloadFilter = new DownloadFilter();
 
     /**
      * Guess the average compression ratio that could be reached using gzip or deflate. If set this to zero, the
@@ -1393,14 +1390,6 @@ public class Crawler {
         return sessionDownloadedBytes;
     }
 
-    public long getMaxFileSize() {
-        return maxFileSize;
-    }
-
-    public void setMaxFileSize(long maxFileSize) {
-        this.maxFileSize = maxFileSize;
-    }
-
     private void callCrawlerCallback(Document document) {
         for (CrawlerCallback crawlerCallback : crawlerCallbacks) {
             LOGGER.trace("call crawler callback " + crawlerCallback + "  for " + document.getDocumentURI());
@@ -1808,6 +1797,15 @@ public class Crawler {
     throws IOException {
         LOGGER.trace(">download " + url);
 
+        // check whether we are allowed to download the file from this URL
+        String fileType = FileHelper.getFileType(url.toString());
+        if (!getDownloadFilter().getIncludeFileTypes().contains(fileType)
+                && getDownloadFilter().getIncludeFileTypes().size() > 0
+                || getDownloadFilter().getExcludeFileTypes().contains(fileType)) {
+            LOGGER.debug("filtered URL: " + url);
+            return null;
+        }
+
         ConnectionTimeout timeout = null;
         InputStream result = null;
 
@@ -1862,6 +1860,7 @@ public class Crawler {
             byte[] buffer = new byte[1024];
             int length;
             long cumLength = 0;
+            long maxFileSize = getDownloadFilter().getMaxFileSize();
             while ((length = urlInputStream.read(buffer)) >= 0) {
                 outputStream.write(buffer, 0, length);
                 cumLength += length;
@@ -2092,6 +2091,14 @@ public class Crawler {
         return document;
     }
 
+    public void setDownloadFilter(DownloadFilter downloadFilter) {
+        this.downloadFilter = downloadFilter;
+    }
+
+    public DownloadFilter getDownloadFilter() {
+        return downloadFilter;
+    }
+
     public static void performanceCheck() {
 
         Set<String> urls = new HashSet<String>();
@@ -2116,7 +2123,7 @@ public class Crawler {
         urls.add("http://www.infopig.com/news/07-19-2008.html");
 
         Crawler crawler = new Crawler();
-        crawler.setMaxFileSize(-1);
+        crawler.getDownloadFilter().setMaxFileSize(-1);
 
         double[] x = new double[urls.size()];
         double[] y = new double[urls.size()];

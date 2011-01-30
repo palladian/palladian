@@ -45,8 +45,8 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
         config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            MODEL = config.getString("models.opennlp.en.postag");
-            MODEL_TOK = config.getString("models.opennlp.en.tokenize");
+            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.postag");
+            MODEL_TOK = config.getString("models.root") + config.getString("models.opennlp.en.tokenize");
         } else {
             MODEL = "";
             MODEL_TOK = "";
@@ -126,7 +126,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
                         tagger);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + this.getName() + " from file "
+                LOGGER.info("Reading " + getName() + " from file "
                         + configModelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
 
@@ -169,7 +169,7 @@ public class OpenNLPPOSTagger extends AbstractPOSTagger {
             tagAnnotations.add(tagAnnotation);
         }
 
-        this.setTagAnnotations(tagAnnotations);
+        setTagAnnotations(tagAnnotations);
         return this;
     }
 

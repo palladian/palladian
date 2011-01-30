@@ -46,7 +46,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
         config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            MODEL = config.getString("models.opennlp.en.sentdetect");
+            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.sentdetect");
         } else {
             MODEL = "";
         }
@@ -110,7 +110,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
                 sdetector = new SentenceDetectorME(sentenceModel);
                 DataHolder.getInstance().putDataObject(configModelFilePath,
                         sdetector);
-                LOGGER.info("Reading " + this.getName() + " from file "
+                LOGGER.info("Reading " + getName() + " from file "
                         + configModelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
 
@@ -142,7 +142,7 @@ public class OpenNLPSentenceDetector extends AbstractSentenceDetector {
      */
     @Override
     public OpenNLPSentenceDetector loadDefaultModel() {
-        return this.loadModel(MODEL);
+        return loadModel(MODEL);
     }
 
     /**
