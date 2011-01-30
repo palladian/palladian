@@ -29,6 +29,15 @@ public class FileHelperTest extends TestCase {
     }
 
     @Test
+    public void testGetFileType() {
+        assertEquals("jpg", FileHelper.getFileType("data/temp/abc.jpg"));
+        assertEquals("jpg", FileHelper.getFileType("abc.jpg"));
+        assertEquals("jpg", FileHelper.getFileType("http://www.test.com/abc.jpg"));
+        assertEquals("aspx", FileHelper.getFileType("http://www.test.com/abc.aspx?param1=123"));
+        assertEquals("aspx", FileHelper.getFileType("http://www.test.com/abc.aspx?param1=123&Web.Offset=abc"));
+    }
+
+    @Test
     public void testAppendToFileName() {
         assertEquals("data/temp/abc_0.jpg", FileHelper.appendToFileName("data/temp/abc.jpg", "_0"));
         assertEquals("abcX123.jpg", FileHelper.appendToFileName("abc.jpg", "X123"));

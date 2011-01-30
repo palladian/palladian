@@ -44,7 +44,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
         config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            MODEL = config.getString("models.lingpipe.en.postag");
+            MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
         } else {
             MODEL = "";
         }
@@ -88,7 +88,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
                         .putDataObject(configModelFilePath, hmm);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + this.getName() + " from file "
+                LOGGER.info("Reading " + getName() + " from file "
                         + configModelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
             }
@@ -146,7 +146,7 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
             tagAnnotations.add(tagAnnotation);
 
         }
-        this.setTagAnnotations(tagAnnotations);
+        setTagAnnotations(tagAnnotations);
         return this;
     }
 

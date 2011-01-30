@@ -3,6 +3,7 @@ package tud.iir.extraction.entity.ner.dataset;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +28,7 @@ import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
 import tud.iir.helper.WordTransformer;
 import tud.iir.web.Crawler;
+import tud.iir.web.DownloadFilter;
 import tud.iir.web.SourceRetriever;
 import tud.iir.web.SourceRetrieverManager;
 import tud.iir.web.URLDownloader;
@@ -66,8 +68,14 @@ public class DatasetCreator implements DatasetCreatorInterface {
     /** Save a map with concept name and the seeds searched for every concept. */
     private Map<String, List<String>> conceptSeeds;
 
+    /** The filter for the crawler. We are not interested in binary files. */
+    private DownloadFilter downloadFilter;
+
     public DatasetCreator(String datasetName) {
         this.datasetName = datasetName;
+        downloadFilter = new DownloadFilter();
+        downloadFilter.setExcludeFileTypes(DownloadFilter.BINARY_FILE_TYPES);
+        downloadFilter.getExcludeFileTypes().add("html");
     }
 
     /**
@@ -219,6 +227,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
         URLDownloader urlDownloader = new URLDownloader();
         urlDownloader.getCrawler().setUseCompression(false);
+        urlDownloader.getCrawler().setDownloadFilter(downloadFilter);
         List<String> seedEntities = FileHelper.readFileToArray(seedFile);
 
         // remove first line which is not a seed
@@ -227,9 +236,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // get a random sample of seeds from the list
         Collection<String> randomSet = MathHelper.randomSample(seedEntities, getSeedsPerConcept());
 
-        for (String randomSeed : randomSet) {
-            seedEntities.add(randomSeed);
-        }
+        seedEntities = new ArrayList<String>();
+        seedEntities.addAll(randomSet);
 
         // mix the entities
         // Set<String> mixedSeedEntities = new HashSet<String>();
@@ -243,7 +251,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
             StopWatch sw = new StopWatch();
 
-            LOGGER.info("start processing seed entity " + seedEntity);
+            LOGGER.info("start processing seed entity " + seedEntity + " (" + seedFileName + ")");
 
             seedFileCopy.append(seedEntity).append("###")
             .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
@@ -252,7 +260,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             urlDownloader.add(urls);
 
             Set<Document> documents = urlDownloader.start();
-            LOGGER.info("downloaded " + urls.size() + " URLs for " + seedEntity);
+            LOGGER.info("downloaded " + urls.size() + " URLs for " + seedEntity + " (" + seedFileName + ")");
 
             ec++;
             int uc = 0;
@@ -270,7 +278,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
                         + uc + "/" + urls.size());
             }
 
-            LOGGER.info("processed seed entity:" + seedEntity + " in " + sw.getElapsedTimeString());
+            LOGGER.info("processed seed entity:" + seedEntity + " (" + seedFileName + ")" + " in "
+                    + sw.getElapsedTimeString());
         }
 
         conceptSeeds.put(seedFileName, seedEntities);
@@ -353,7 +362,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         if (webPageContent.length() > 10) {
             FileHelper.writeToFile(
                     getDataSetLocation() + seedFileName + "/html/"
-                    + StringHelper.makeSafeName(webPage.getDocumentURI(), 30)
+                            + StringHelper.makeSafeName(Crawler.getCleanURL(webPage.getDocumentURI()), 30)
                     + ".html", webPageContent);
 
             LOGGER.debug("saved html file");

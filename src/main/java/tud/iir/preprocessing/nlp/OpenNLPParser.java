@@ -45,13 +45,13 @@ public class OpenNLPParser extends AbstractParser {
 
     public OpenNLPParser() {
         super();
-        this.setName("OpenNLP Parser");
+        setName("OpenNLP Parser");
         PropertiesConfiguration config = null;
 
         config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            MODEL = config.getString("models.opennlp.en.parser");
+            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.parser");
         } else {
             MODEL = "";
         }
@@ -79,7 +79,7 @@ public class OpenNLPParser extends AbstractParser {
                 DataHolder.getInstance().putDataObject(configModelPath, parser);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + this.getName() + " from file "
+                LOGGER.info("Reading " + getName() + " from file "
                         + configModelPath + " in "
                         + stopWatch.getElapsedTimeString());
             }
@@ -94,7 +94,7 @@ public class OpenNLPParser extends AbstractParser {
 
     @Override
     public OpenNLPParser loadDefaultModel() {
-        return this.loadModel(MODEL);
+        return loadModel(MODEL);
     }
 
     /**
@@ -142,7 +142,7 @@ public class OpenNLPParser extends AbstractParser {
 
         opennlp.tools.parser.Parse[] parse;
 
-        if (((opennlp.tools.parser.Parser) getModel()) != null
+        if ((opennlp.tools.parser.Parser) getModel() != null
                 && sentence.length() > 0) {
             parse = ParserTool.parseLine(sentence,
                     ((opennlp.tools.parser.Parser) getModel()), 1);

@@ -201,7 +201,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
         config = ConfigHolder.getInstance().getConfig();
 
         if (config != null) {
-            MODEL = config.getString("models.lingpipe.en.postag");
+            MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
         } else {
             MODEL = "";
         }
@@ -225,7 +225,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
             tagAnnotations.add(tagAnnotation);
         }
 
-        this.setTagAnnotations(tagAnnotations);
+        setTagAnnotations(tagAnnotations);
         return this;
     }
 
@@ -280,7 +280,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 int trimmedEndChunk = endChunk;
                 for (int k = i; --k >= 0
                         && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
-                    trimmedEndChunk -= (whites[k].length() + tokens[k].length());
+                    trimmedEndChunk -= whites[k].length() + tokens[k].length();
                 }
                 if (startChunk >= trimmedEndChunk) {
                     startChunk = endChunk;
@@ -302,7 +302,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                 int trimmedEndChunk = endChunk;
                 for (int k = i; --k >= 0
                         && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
-                    trimmedEndChunk -= (whites[k].length() + tokens[k].length());
+                    trimmedEndChunk -= whites[k].length() + tokens[k].length();
                 }
                 if (startChunk >= trimmedEndChunk) {
                     startChunk = endChunk;
@@ -331,7 +331,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
     @Override
     public final LingPipePhraseChunker chunk(final String sentence,
             final String configModelFilePath) {
-        this.loadModel(configModelFilePath);
+        loadModel(configModelFilePath);
         return this.chunk(sentence);
 
     }
@@ -368,7 +368,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
                         .putDataObject(configModelFilePath, hmm);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + this.getName() + " from file "
+                LOGGER.info("Reading " + getName() + " from file "
                         + configModelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
 
@@ -402,7 +402,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
      */
     @Override
     public final LingPipePhraseChunker loadDefaultModel() {
-        return this.loadModel(MODEL);
+        return loadModel(MODEL);
     }
 
 }

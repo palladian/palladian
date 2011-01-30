@@ -165,10 +165,26 @@ public class FileHelper {
      */
     public static String getFileType(String path) {
         String fileType = "";
+
+        int lastQM = path.indexOf("?");
+
+        // find last dot before "?"
         int lastDot = path.lastIndexOf(".");
+
+        if (lastQM > -1) {
+            lastDot = path.substring(0, lastQM).lastIndexOf(".");
+        }
+
         if (lastDot > -1) {
             fileType = path.substring(lastDot + 1, path.length());
         }
+
+        // throw away everything after "?"
+        lastQM = fileType.indexOf("?");
+        if (lastQM > -1) {
+            fileType = fileType.substring(0, lastQM);
+        }
+
         return fileType;
     }
 
