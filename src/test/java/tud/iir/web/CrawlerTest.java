@@ -38,7 +38,7 @@ public class CrawlerTest extends TestCase {
         assertEquals("https://example.com", Crawler.getDomain("https://example.com/index.html"));
         assertEquals("", Crawler.getDomain(""));
         assertEquals("", Crawler.getDomain(null));
-        assertEquals("", Crawler.getDomain("file:///test.html"));
+        assertEquals("", Crawler.getDomain("file:///test.html")); // TODO return localhost here?
         assertEquals("localhost", Crawler.getDomain("file://localhost/test.html", false));
     }
     
