@@ -41,7 +41,7 @@ public class Feed {
     private String language;
 
     /** Store the extent of text in the feed. */
-    private FeedContentType contentType;
+    private FeedContentType contentType = FeedContentType.UNDETERMINED;
 
     /** The size of the feed in bytes. */
     private long byteSize = 0;
