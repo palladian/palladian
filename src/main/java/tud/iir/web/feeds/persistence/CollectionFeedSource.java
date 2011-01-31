@@ -28,8 +28,8 @@ public class CollectionFeedSource implements FeedStore {
      * @param feeds The collection of feeds this source provides.
      */
     public CollectionFeedSource(final Collection<Feed> feeds) {
-        if (feeds == null || feeds.isEmpty()) {
-            throw new IllegalArgumentException("Collection of feeds: " + feeds + " is not valid.");
+        if (feeds == null) {
+            throw new NullPointerException("Collection of feeds must not be null.");
         }
         this.feeds = feeds;
     }

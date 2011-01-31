@@ -46,7 +46,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String psGetAllItems = "SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items";
     private static final String psGetItemById = "SELECT * FROM feed_items WHERE id = ?";
     private static final String psDeleteItemById = "DELETE FROM feed_items WHERE id = ?";
-    private static final String psClearTables = "TRUNCATE TABLE feeds; TRUNCATE TABLE feed_items; TRUNCATE TABLE feeds_post_distribution";
 
     @Override
     public boolean addFeed(Feed feed) {
@@ -264,10 +263,16 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     public void clearFeedTables() {
-        runUpdate(psClearTables);
+        runUpdate("TRUNCATE TABLE feeds");
+        runUpdate("TRUNCATE TABLE feed_items");
+        runUpdate("TRUNCATE TABLE feeds_post_distribution");
+        runUpdate("TRUNCATE TABLE feed_evaluation_polls");
     }
 
     public static void main(String[] args) {
+        
+        new FeedDatabase().clearFeedTables();
+        System.exit(0);
         
 
         // clear feed specfic tables
