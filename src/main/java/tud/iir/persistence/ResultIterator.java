@@ -9,6 +9,14 @@ import java.util.NoSuchElementException;
 
 import org.apache.log4j.Logger;
 
+/**
+ * This class enables iterations of database results. Database resources are kept open while iterating, until the whole
+ * result has been iterated through. If you abort iterating before the whole iteration, you <b>must</b> call
+ * {@link #close()}, elsewise resources will leak.
+ * 
+ * @param <T> Type of the processed objects.
+ * @author Philipp Katz
+ */
 public class ResultIterator<T> implements Iterator<T> {
 
     /** The logger for this class. */
@@ -94,7 +102,7 @@ public class ResultIterator<T> implements Iterator<T> {
     }
 
     public void close() {
-        LOGGER.info("closing ...");
+        LOGGER.trace("closing ...");
         DatabaseManager.close(connection, statement, resultSet);
     }
 
