@@ -116,13 +116,11 @@ public class FeedDownloader {
      */
     public Feed getFeed(String feedUrl, boolean scrapePages, HeaderInformation headerInformation)
             throws FeedDownloaderException {
+
         StopWatch sw = new StopWatch();
 
         Document feedDocument = downloadFeedDocument(feedUrl, headerInformation);
         Feed feed = getFeed(feedDocument);
-        
-        // store the originating document in the feed
-        feed.setDocument(feedDocument);
 
         if (scrapePages) {
             scrapePages(feed.getItems());
@@ -131,6 +129,17 @@ public class FeedDownloader {
         LOGGER.debug("downloaded feed from " + feedUrl + " in " + sw.getElapsedTimeString());
         return feed;
 
+    }
+
+    /**
+     * Returns a feed from the specified Document.
+     * 
+     * @param document the Document containing the RSS or Atom feed.
+     * @return
+     * @throws FeedDownloaderException
+     */
+    public Feed getFeed(Document document) throws FeedDownloaderException {
+        return getFeedWithRome(document);
     }
 
     /**
@@ -230,7 +239,7 @@ public class FeedDownloader {
      * @return
      * @throws FeedDownloaderException
      */
-    private Feed getFeed(Document feedDocument) throws FeedDownloaderException {
+    private Feed getFeedWithRome(Document feedDocument) throws FeedDownloaderException {
 
         Feed result = new Feed();
 
@@ -261,6 +270,9 @@ public class FeedDownloader {
         if (feedDocument != null) {
             result.setByteSize(PageAnalyzer.getRawMarkup(feedDocument).getBytes().length);
         }
+
+        // store the originating document in the feed
+        result.setDocument(feedDocument);
 
         return result;
     }
@@ -328,13 +340,13 @@ public class FeedDownloader {
      * @return
      */
     private String getEntryTitle(SyndEntry syndEntry) {
-//        String title = syndEntry.getTitle();
-//        if (title != null) {
-//            title = HTMLHelper.removeHTMLTags(title);
-//            title = StringEscapeUtils.unescapeHtml(title);
-//            title = title.trim();
-//        }
-//        return title;
+        // String title = syndEntry.getTitle();
+        // if (title != null) {
+        // title = HTMLHelper.removeHTMLTags(title);
+        // title = StringEscapeUtils.unescapeHtml(title);
+        // title = title.trim();
+        // }
+        // return title;
         return cleanup(syndEntry.getTitle());
     }
 
@@ -346,56 +358,56 @@ public class FeedDownloader {
      */
     @SuppressWarnings("unchecked")
     private String getEntryText(SyndEntry syndEntry) {
-        
+
         //
         // I modified this method to return the *longest* text fragment which we can retrieve
         // from the feed item. -- Philipp, 2011-01-28.
         //
 
         // get the content from SyndEntry; either from content or from description
-//        String entryText = null;
-//        List<SyndContent> contents = syndEntry.getContents();
-//        if (contents != null) {
-//            for (SyndContent content : contents) {
-//                if (content.getValue() != null && content.getValue().length() != 0) {
-//                    entryText = content.getValue();
-//                }
-//            }
-//        }
-//        if (entryText == null && syndEntry.getDescription() != null) {
-//            entryText = syndEntry.getDescription().getValue();
-//        }
-        
-        List<String> contentCandidates = new ArrayList<String>();
-      List<SyndContent> contents = syndEntry.getContents();
-      if (contents != null) {
-          for (SyndContent content : contents) {
-              String contentValue = content.getValue();
-            if (contentValue != null && contentValue.length() != 0) {
-                  String contentText = cleanup(contentValue);
-                  contentCandidates.add(contentText);
-              }
-          }
-      }
-      if (syndEntry.getDescription() != null) {
-      String description = syndEntry.getDescription().getValue(); 
-      contentCandidates.add(cleanup(description));
-      }
-      
-      // determine best candidate
-      String entryText  =null;
-      for (String candidate : contentCandidates) {
-        if (entryText == null || entryText.length() < candidate.length()) {
-            entryText = candidate;
-        }
-    }
+        // String entryText = null;
+        // List<SyndContent> contents = syndEntry.getContents();
+        // if (contents != null) {
+        // for (SyndContent content : contents) {
+        // if (content.getValue() != null && content.getValue().length() != 0) {
+        // entryText = content.getValue();
+        // }
+        // }
+        // }
+        // if (entryText == null && syndEntry.getDescription() != null) {
+        // entryText = syndEntry.getDescription().getValue();
+        // }
 
-//        // clean up: strip out HTML tags, unescape HTML code
-//        if (entryText != null) {
-//            entryText = HTMLHelper.htmlToString(entryText, false);
-//            entryText = StringEscapeUtils.unescapeHtml(entryText);
-//            entryText = entryText.trim();
-//        }
+        List<String> contentCandidates = new ArrayList<String>();
+        List<SyndContent> contents = syndEntry.getContents();
+        if (contents != null) {
+            for (SyndContent content : contents) {
+                String contentValue = content.getValue();
+                if (contentValue != null && contentValue.length() != 0) {
+                    String contentText = cleanup(contentValue);
+                    contentCandidates.add(contentText);
+                }
+            }
+        }
+        if (syndEntry.getDescription() != null) {
+            String description = syndEntry.getDescription().getValue();
+            contentCandidates.add(cleanup(description));
+        }
+
+        // determine best candidate
+        String entryText = null;
+        for (String candidate : contentCandidates) {
+            if (entryText == null || entryText.length() < candidate.length()) {
+                entryText = candidate;
+            }
+        }
+
+        // // clean up: strip out HTML tags, unescape HTML code
+        // if (entryText != null) {
+        // entryText = HTMLHelper.htmlToString(entryText, false);
+        // entryText = StringEscapeUtils.unescapeHtml(entryText);
+        // entryText = entryText.trim();
+        // }
 
         return entryText;
     }
@@ -537,7 +549,7 @@ public class FeedDownloader {
         }
 
     }
-    
+
     /**
      * Clean up method to strip out undesired characters from feed text contents, like HTML tags and escaped entities.
      * 
@@ -550,7 +562,6 @@ public class FeedDownloader {
             clean = HTMLHelper.htmlToString(dirty, false);
             clean = StringEscapeUtils.unescapeHtml(clean);
             clean = clean.trim();
-
         }
         return clean;
     }
@@ -584,14 +595,17 @@ public class FeedDownloader {
     }
 
     public static void main(String[] args) throws Exception {
-        
-//        String clean = cleanup("Anonymous created the <a href=\"/forum/message.php?msg_id=126707\" title=\"phpMyAdmin\">Welcome to Open Discussion</a> forum thread");
-//        System.out.println(clean);
-//        System.exit(0);
+
+        // String clean =
+        // cleanup("Anonymous created the <a href=\"/forum/message.php?msg_id=126707\" title=\"phpMyAdmin\">Welcome to Open Discussion</a> forum thread");
+        // System.out.println(clean);
+        // System.exit(0);
 
         FeedDownloader downloader = new FeedDownloader();
         // Feed feed = downloader.getFeed("http://badatsports.com/feed/");
-        Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
+        // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
+        Feed feed = downloader
+                .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-devel/limit/100/offset/1000/rss");
         printFeed(feed);
 
     }
