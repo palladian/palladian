@@ -1,4 +1,4 @@
-package tud.iir.normalization;
+package tud.iir.preprocessing.normalization;
 
 import org.junit.Test;
 

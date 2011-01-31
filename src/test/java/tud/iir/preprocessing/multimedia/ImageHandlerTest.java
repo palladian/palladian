@@ -1,4 +1,4 @@
-package tud.iir.multimedia;
+package tud.iir.preprocessing.multimedia;
 
 import java.awt.image.BufferedImage;
 

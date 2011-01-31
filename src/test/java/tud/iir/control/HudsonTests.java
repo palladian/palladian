@@ -3,7 +3,7 @@ package tud.iir.control;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import tud.iir.classification.page.ClassifierTest;
-import tud.iir.normalization.NormalizationTest;
+import tud.iir.preprocessing.normalization.NormalizationTest;
 import tud.iir.web.CrawlerTest;
 
 /**

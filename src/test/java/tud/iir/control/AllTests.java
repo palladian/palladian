@@ -5,9 +5,9 @@ import junit.framework.TestSuite;
 import tud.iir.classification.page.ClassifierTest;
 import tud.iir.helper.DBStoreTest;
 import tud.iir.helper.XPathTest;
-import tud.iir.multimedia.ImageHandlerTest;
-import tud.iir.normalization.NormalizationTest;
 import tud.iir.persistence.DictionaryFileIndexTest;
+import tud.iir.preprocessing.multimedia.ImageHandlerTest;
+import tud.iir.preprocessing.normalization.NormalizationTest;
 import tud.iir.web.CrawlerTest;
 
 /**
