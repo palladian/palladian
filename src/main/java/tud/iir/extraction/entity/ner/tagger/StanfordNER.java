@@ -237,31 +237,15 @@ public class StanfordNER extends NamedEntityRecognizer {
 
             String fileContents = StringUtils.slurpFile(inputTextPath);
 
+            // parse(new DocumentPreprocessor(PTBTokenizerFactory.newWordTokenizerFactory("americanize=false"))
+            // .getWordsFromString(str));
+
             List<List<CoreLabel>> out = classifier.classify(fileContents);
             StringBuilder taggedText = new StringBuilder();
-            for (List<CoreLabel> sentence : out) {
-                for (CoreLabel word : sentence) {
-                    LOGGER.debug(word.word() + '/' + word.get(AnswerAnnotation.class) + ' ');
-
-                    taggedText.append(word.word()).append("/").append(word.get(AnswerAnnotation.class).toUpperCase())
-                            .append(" ");
-
-                    // String tag = word.get(AnswerAnnotation.class);
-                    // if (!tag.equalsIgnoreCase("o")) {
-                    // taggedText.append("<").append(word.get(AnswerAnnotation.class)).append(">");
-                    // taggedText.append(word.word());
-                    // taggedText.append("</").append(word.get(AnswerAnnotation.class)).append(">");
-                    // }
-                }
-            }
+            taggedText.append(classifier.classifyWithInlineXML(inputText));
 
             String taggedTextFilePath = "data/temp/taggedText.txt";
             FileHelper.writeToFile(taggedTextFilePath, taggedText);
-
-            FileFormatParser.slashToXML(taggedTextFilePath, taggedTextFilePath);
-
-            // clean file
-            cleanFile(taggedTextFilePath);
 
             annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedTextFilePath);
 
@@ -274,23 +258,6 @@ public class StanfordNER extends NamedEntityRecognizer {
         // CollectionHelper.print(annotations);
 
         return annotations;
-    }
-
-    private void cleanFile(String filePath) {
-        String content = FileHelper.readFileToString(filePath);
-
-        content = content.replace("-LRB-", " (");
-        content = content.replace("-RRB-", " )");
-        content = content.replace("=- ", "=-");
-        content = content.replace("''", "\"");
-        content = content.replace("\\/", "/");
-        content = content.replaceAll("(?<!\\.)\\.\\. ", ". ");
-
-        // XXX: this is just because of the conll 2003 dataset
-        content = content.replace("T. O'", "T.O'");
-
-
-        FileHelper.writeToFile(filePath, content);
     }
 
     @Override
