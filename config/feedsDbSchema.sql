@@ -1,3 +1,26 @@
+-- phpMyAdmin SQL Dump
+-- version 3.2.4
+-- http://www.phpmyadmin.net
+--
+-- Host: localhost
+-- Erstellungszeit: 31. Januar 2011 um 11:38
+-- Server Version: 5.1.41
+-- PHP-Version: 5.3.1
+
+SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
+
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+
+--
+-- Datenbank: `feeds`
+--
+
+-- --------------------------------------------------------
+
 --
 -- Tabellenstruktur für Tabelle `feeds`
 --
@@ -25,7 +48,12 @@ CREATE TABLE IF NOT EXISTS `feeds` (
   `supportsPubSubHubBub` tinyint(1) DEFAULT NULL COMMENT 'true if feed supports the hub relation used by PubSubHubBub',
   PRIMARY KEY (`id`),
   UNIQUE KEY `feedUrl` (`feedUrl`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=2 ;
+
+--
+-- Daten für Tabelle `feeds`
+--
+
 
 -- --------------------------------------------------------
 
@@ -38,28 +66,14 @@ CREATE TABLE IF NOT EXISTS `feeds_post_distribution` (
   `minuteOfDay` int(10) unsigned NOT NULL DEFAULT '0',
   `posts` int(10) unsigned DEFAULT NULL,
   `chances` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`feedID`,`minuteOfDay`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
+  PRIMARY KEY (`feedID`,`minuteOfDay`),
+  CONSTRAINT `feeds_post_distribution_ibfk_1` FOREIGN KEY (`feedID`) REFERENCES `feeds` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 --
--- Tabellenstruktur für Tabelle `feed_items`
+-- Daten für Tabelle `feeds_post_distribution`
 --
 
-CREATE TABLE IF NOT EXISTS `feed_items` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `feedId` int(10) unsigned NOT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `link` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `rawId` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `published` datetime DEFAULT NULL,
-  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `text` text COLLATE utf8_unicode_ci,
-  `pageText` text COLLATE utf8_unicode_ci COMMENT 'text which we scraped from the corresponding page',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `feedId_rawId_unique` (`feedId`,`rawId`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=1 ;
 
 -- --------------------------------------------------------
 
@@ -81,7 +95,38 @@ CREATE TABLE IF NOT EXISTS `feed_evaluation_polls` (
   `cumulatedDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too early and too late',
   `cumulatedLateDelay` double DEFAULT NULL COMMENT 'cumulated delay in seconds, adds absolute delay of polls that were too late',
   `timeliness` double DEFAULT NULL COMMENT 'averaged over all new and missed items in the poll including early polls, NULL if no new item has been discovered (only for evaluation mode MIN interesting)',
-  `timelinessLate` double DEFAULT NULL COMMENT 'averaged over all new and missed items in the poll, NULL if no new item has been discovered (only for evaluation mode MIN interesting)'
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+  `timelinessLate` double DEFAULT NULL COMMENT 'averaged over all new and missed items in the poll, NULL if no new item has been discovered (only for evaluation mode MIN interesting)',
+  PRIMARY KEY (`feedID`,`numberOfPoll`),
+  CONSTRAINT `feed_evaluation_polls_ibfk_1` FOREIGN KEY (`feedID`) REFERENCES `feeds` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+--
+-- Daten für Tabelle `feed_evaluation_polls`
+--
+
 
 -- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `feed_items`
+--
+
+CREATE TABLE IF NOT EXISTS `feed_items` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `feedId` int(10) unsigned NOT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `link` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `rawId` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `published` datetime DEFAULT NULL,
+  `added` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `text` text COLLATE utf8_unicode_ci,
+  `pageText` text COLLATE utf8_unicode_ci COMMENT 'text which we scraped from the corresponding page',
+  PRIMARY KEY (`id`),
+  CONSTRAINT `feed_items_ibfk_1` FOREIGN KEY (`feedId`) REFERENCES `feeds` (`id`) ON DELETE CASCADE,
+  UNIQUE KEY `feedId_rawId_unique` (`feedId`,`rawId`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci AUTO_INCREMENT=101 ;
+
+--
+-- Daten für Tabelle `feed_items`
+--
+

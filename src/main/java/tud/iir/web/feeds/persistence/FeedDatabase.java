@@ -20,8 +20,6 @@ import tud.iir.web.feeds.FeedItem;
 /**
  * The FeedDatabase is an implementation of the FeedStore that stores feeds and items in a relational database.
  * 
- * TODO change schema to InnoDB?
- * 
  * @author Philipp Katz
  * @author David Urbansky
  * @author Klemens Muthmann
