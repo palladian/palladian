@@ -12,9 +12,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 
 /**
- * The {@link DatabaseManager} provides general database specific functionality.
- * 
- * No {@link SQLException} are exposed.
+ * The {@link DatabaseManager} provides general database specific functionality. This implementation aims on wrapping
+ * all ugly SQL specific details like {@link SQLException}s and automatically closes resources for you where applicable.
+ * If you need to create your own application specific persistence layer, you may create your own subclass.
  * 
  * @author David Urbansky
  * @author Christopher Friedrich
@@ -32,7 +32,7 @@ public class DatabaseManager {
      * @return
      * @throws SQLException
      */
-    private final Connection getConnection() throws SQLException {
+    protected final Connection getConnection() throws SQLException {
         return ConnectionManager.getInstance().getConnection();
     }
 
@@ -121,19 +121,31 @@ public class DatabaseManager {
         };
 
         runQuery(callback, converter, sql, args);
-
         return result;
     }
 
     /**
+     * Run a query operation on the database, return the result as List.
+     * 
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return List with results.
+     */
+    public final <T> List<T> runQuery(RowConverter<T> converter, String sql, List<Object> args) {
+        return runQuery(converter, sql, args.toArray());
+    }
+
+    /**
      * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
-     * not allow modifications, so invoking {@link Iterator#remove()} will cause an
+     * not allow modifications, so invoking {@link ResultIterator#remove()} will cause an
      * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
-     * element has been retrieved. If you break the iteration loop, you must manually call
+     * element has been retrieved. If you break the iteration loop, you <b>must</b> manually call
      * {@link ResultIterator#close()}. In general, you should prefer using
      * {@link #runQuery(ResultCallback, RowConverter, String, Object...)},
      * {@link #runQuery(SimpleResultCallback, String, Object...)}, or
-     * {@link #runQuery(RawResultCallback, String, Object...)}, which will guarantee closing a database resources.
+     * {@link #runQuery(RawResultCallback, String, Object...)}, which will guarantee closing all database resources.
      * 
      * @param <T> Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
@@ -174,20 +186,20 @@ public class DatabaseManager {
 
     /**
      * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
-     * not allow modifications, so invoking {@link Iterator#remove()} will cause an
+     * not allow modifications, so invoking {@link ResultIterator#remove()} will cause an
      * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
-     * element has been retrieved. If you break the iteration loop, you must manually call
+     * element has been retrieved. If you break the iteration loop, you <b>must</b> manually call
      * {@link ResultIterator#close()}. In general, you should prefer using
      * {@link #runQuery(ResultCallback, RowConverter, String, Object...)},
      * {@link #runQuery(SimpleResultCallback, String, Object...)}, or
-     * {@link #runQuery(RawResultCallback, String, Object...)}, which will guarantee closing a database resources.
+     * {@link #runQuery(RawResultCallback, String, Object...)}, which will guarantee closing all database resources.
      * 
      * @param <T> Type of the processed objects.
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
      * @param sql Query statement which may contain parameter markers.
      * @param args (Optional) arguments for parameter markers in query.
      * @return Iterator for iterating over results.
-     */    
+     */
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, List<Object> args) {
         return runQueryWithIterator(converter, sql, args.toArray());
     }
@@ -199,7 +211,7 @@ public class DatabaseManager {
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
      * @param sql Query statement which may contain parameter markers.
      * @param args (Optional) arguments for parameter markers in query.
-     * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no entry found.
+     * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
      */
     @SuppressWarnings("unchecked")
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, Object... args) {
@@ -226,45 +238,50 @@ public class DatabaseManager {
      * @param converter Converter for transforming the {@link ResultSet} to the desired type.
      * @param sql Query statement which may contain parameter markers.
      * @param args (Optional) arguments for parameter markers in query.
-     * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no entry found.
+     * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no item found.
      */
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<Object> args) {
         return runSingleQuery(converter, sql, args.toArray());
     }
-    
+
     /**
      * Run a query operation for a single item in the database.
      * 
      * @param sql Query statement which may contain parameter markers.
      * @param args (Optional) arguments for parameter markers in query.
-     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no entry
+     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no item
      *         found.
      */
     public final Map<String, Object> runSingleQuery(String sql, Object... args) {
         return runSingleQuery(new SimpleRowConverter(), sql, args);
     }
-    
+
     /**
      * Run a query operation for a single item in the database.
      * 
      * @param sql Query statement which may contain parameter markers.
      * @param args (Optional) arguments for parameter markers in query.
-     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no entry
+     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no item
      *         found.
      */
     public final Map<String, Object> runSingleQuery(String sql, List<Object> args) {
         return runSingleQuery(new SimpleRowConverter(), sql, args.toArray());
     }
 
+    // TODO name of this method is misleading in imho.
+    // at least we should state in the JavaDoc, that the query needs to contain a "count" column?
     public final int runCountQuery(String countQuery) {
 
-        final int[] count = new int[]{-1};
+        final int[] count = new int[] { -1 };
 
         SimpleResultCallback callback = new SimpleResultCallback() {
 
             @Override
             public void processResult(Map<String, Object> object, int number) {
-                count[0] = (Integer) object.get("count");
+                Object countObject = object.get("count");
+                if (countObject != null) {
+                    count[0] = (Integer) countObject;
+                }
             }
         };
 
@@ -272,18 +289,36 @@ public class DatabaseManager {
         return count[0];
     }
 
+    /**
+     * Check, whether an item for the specified query exists.
+     * 
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return <code>true</code> if at least on item exists, <code>false</code> otherwise.
+     */
     public final boolean entryExists(String sql, Object... args) {
         return runSingleQuery(sql, args) != null;
     }
 
     /**
+     * Check, whether an item for the specified query exists.
+     * 
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return <code>true</code> if at least on item exists, <code>false</code> otherwise.
+     */
+    public final boolean entryExists(String sql, List<Object> args) {
+        return entryExists(sql, args.toArray());
+    }
+
+    /**
      * Run an update operation and return the number of affected rows.
      * 
-     * @param updateStatement Update statement which may contain parameter markers.
+     * @param sql Update statement which may contain parameter markers.
      * @param args Arguments for parameter markers in updateStatement, if any.
      * @return The number of affected rows, or -1 if an error occurred.
      */
-    public final int runUpdate(String updateStatement, Object... args) {
+    public final int runUpdate(String sql, Object... args) {
 
         int affectedRows;
         Connection connection = null;
@@ -292,7 +327,7 @@ public class DatabaseManager {
         try {
 
             connection = getConnection();
-            ps = connection.prepareStatement(updateStatement);
+            ps = connection.prepareStatement(sql);
             fillPreparedStatement(ps, args);
 
             affectedRows = ps.executeUpdate();
@@ -308,16 +343,17 @@ public class DatabaseManager {
     }
 
     /**
+     * Run an update operation and return the number of affected rows.
      * 
-     * @param updateStatement
-     * @param args
-     * @return
+     * @param sql Update statement which may contain parameter markers.
+     * @param args Arguments for parameter markers in updateStatement, if any.
+     * @return The number of affected rows, or -1 if an error occurred.
      */
-    public final int runUpdate(String updateStatement, List<Object> args) {
-        return runUpdate(updateStatement, args.toArray());
+    public final int runUpdate(String sql, List<Object> args) {
+        return runUpdate(sql, args.toArray());
     }
 
-    public final int[] runBatchUpdate(String updateStatement, BatchDataProvider provider) {
+    public final int[] runBatchUpdate(String sql, BatchDataProvider provider) {
 
         Connection connection = null;
         PreparedStatement ps = null;
@@ -327,7 +363,7 @@ public class DatabaseManager {
 
             connection = getConnection();
             connection.setAutoCommit(false);
-            ps = connection.prepareStatement(updateStatement);
+            ps = connection.prepareStatement(sql);
 
             for (int i = 0; i < provider.getCount(); i++) {
                 List<Object> args = provider.getData(i);
@@ -348,7 +384,7 @@ public class DatabaseManager {
         return result;
     }
 
-    public final int[] runBatchUpdate(String updateStatement, final List<List<Object>> batchArgs) {
+    public final int[] runBatchUpdate(String sql, final List<List<Object>> batchArgs) {
 
         BatchDataProvider provider = new BatchDataProvider() {
 
@@ -363,18 +399,18 @@ public class DatabaseManager {
                 return batchArgs.size();
             }
         };
-        
-        return runBatchUpdate(updateStatement, provider);
+
+        return runBatchUpdate(sql, provider);
     }
 
     /**
      * Run an update operation and return the generated insert ID.
      * 
-     * @param updateStatement Update statement which may contain parameter markers.
+     * @param sql Update statement which may contain parameter markers.
      * @param args Arguments for parameter markers in updateStatement, if any.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
-    public final int runUpdateReturnId(String updateStatement, Object... args) {
+    public final int runUpdateReturnId(String sql, Object... args) {
 
         int generatedId;
         Connection connection = null;
@@ -384,7 +420,7 @@ public class DatabaseManager {
         try {
 
             connection = getConnection();
-            ps = connection.prepareStatement(updateStatement, Statement.RETURN_GENERATED_KEYS);
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
             fillPreparedStatement(ps, args);
             ps.executeUpdate();
 
@@ -406,19 +442,20 @@ public class DatabaseManager {
     }
 
     /**
+     * Run an update operation and return the generated insert ID.
      * 
-     * @param updateStatement
-     * @param args
-     * @return
+     * @param sql Update statement which may contain parameter markers.
+     * @param args Arguments for parameter markers in updateStatement, if any.
+     * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
-    public final int runUpdateReturnId(String updateStatement, List<Object> args) {
-        return runUpdateReturnId(updateStatement, args.toArray());
+    public final int runUpdateReturnId(String sql, List<Object> args) {
+        return runUpdateReturnId(sql, args.toArray());
     }
 
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods
     // //////////////////////////////////////////////////////////////////////////////
-    
+
     /**
      * Sets {@link PreparedStatement} parameters based on the supplied arguments.
      * 
@@ -426,7 +463,7 @@ public class DatabaseManager {
      * @param args
      * @throws SQLException
      */
-    private static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
+    protected static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
 
         // do we need a special treatment for NULL values here?
         // if you should stumble across this comment while debugging,
@@ -443,7 +480,7 @@ public class DatabaseManager {
      * @param args
      * @throws SQLException
      */
-    private static final void fillPreparedStatement(PreparedStatement ps, List<Object> args) throws SQLException {
+    protected static final void fillPreparedStatement(PreparedStatement ps, List<Object> args) throws SQLException {
         fillPreparedStatement(ps, args.toArray());
     }
 

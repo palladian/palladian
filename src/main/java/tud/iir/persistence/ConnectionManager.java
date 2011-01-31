@@ -107,12 +107,14 @@ public class ConnectionManager {
      * @throws SQLException
      */
     public Connection getConnection() throws SQLException {
-        try {
-            return connectionPool.getConnection();
-        } finally {
-//            LOGGER.debug("get pool connection; created:" + connectionPool.getTotalCreatedConnections() + " free:"
-//                    + connectionPool.getTotalFree() + " used:" + connectionPool.getTotalLeased());
+        Connection connection = connectionPool.getConnection();
+        // check if logging is enabled before creating the log output;
+        // this is saves time, es this method might be called millions of times.
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("get pool connection; created:" + connectionPool.getTotalCreatedConnections() + " free:"
+                    + connectionPool.getTotalFree() + " used:" + connectionPool.getTotalLeased());
         }
+        return connection;
     }
 
     public static void main(String[] args) throws Exception {
