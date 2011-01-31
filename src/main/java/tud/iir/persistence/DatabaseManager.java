@@ -32,16 +32,16 @@ public class DatabaseManager {
      * @return
      * @throws SQLException
      */
-    protected final Connection getConnection() throws SQLException {
+    private final Connection getConnection() throws SQLException {
         return ConnectionManager.getInstance().getConnection();
     }
 
     /**
-     * Run a query operation on the database.
+     * Run a query operation on the database, process the result using a callback.
      * 
-     * @param <T>
-     * @param callback
-     * @param converter
+     * @param <T> Type of the processed objects.
+     * @param callback The callback which is triggered for each result row of the query.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
      * @param sql Query statement which may contain parameter markers.
      * @param args (Optional) arguments for parameter markers in query.
      * @return Number of processed results.
@@ -72,45 +72,40 @@ public class DatabaseManager {
         }
 
         return counter;
-
-    }
-
-    private static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
-
-        // do we need a special treatment for NULL values here?
-        // if you should stumble across this comment while debugging,
-        // the answer is likely: yes, we do!
-        for (int i = 0; i < args.length; i++) {
-            ps.setObject(i + 1, args[i]);
-        }
-    }
-
-    private static final void fillPreparedStatement(PreparedStatement ps, List<Object> args) throws SQLException {
-        fillPreparedStatement(ps, args.toArray());
     }
 
     /**
+     * Run a query operation on the database, process the result using a callback.
      * 
-     * @param callback
-     * @param sql
-     * @param args
-     * @return
+     * @param callback The callback which is triggered for each result row of the query.
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return Number of processed results.
      */
     public final int runQuery(SimpleResultCallback callback, String sql, Object... args) {
         return runQuery(callback, new SimpleRowConverter(), sql, args);
     }
 
+    /**
+     * Run a query operation on the database, process the result using a callback.
+     * 
+     * @param callback The callback which is triggered for each result row of the query.
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return Number of processed results.
+     */
     public final int runQuery(RawResultCallback callback, String sql, Object... args) {
         return runQuery(callback, new NopRowConverter(), sql, args);
     }
 
     /**
+     * Run a query operation on the database, return the result as List.
      * 
-     * @param <T>
-     * @param converter
-     * @param sql
-     * @param args
-     * @return
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return List with results.
      */
     public final <T> List<T> runQuery(RowConverter<T> converter, String sql, Object... args) {
 
@@ -131,17 +126,20 @@ public class DatabaseManager {
     }
 
     /**
-     * Allows to iterate over available items without buffering the content of the whole result in memory first, using a
-     * standard Iterator interface. The underlying Iterator implementation does not allow modifications, so a call to
-     * {@link Iterator#remove()} will cause an {@link UnsupportedOperationException}. Database resources used by the
-     * implementation are closed, after the last element has been retrieved. If you break the iteration loop, you must
-     * manually call {@link ResultIterator#close()} .
+     * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
+     * not allow modifications, so invoking {@link Iterator#remove()} will cause an
+     * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
+     * element has been retrieved. If you break the iteration loop, you must manually call
+     * {@link ResultIterator#close()}. In general, you should prefer using
+     * {@link #runQuery(ResultCallback, RowConverter, String, Object...)},
+     * {@link #runQuery(SimpleResultCallback, String, Object...)}, or
+     * {@link #runQuery(RawResultCallback, String, Object...)}, which will guarantee closing a database resources.
      * 
-     * @param <T>
-     * @param converter
-     * @param sql
-     * @param args
-     * @return
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return Iterator for iterating over results.
      */
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, Object... args) {
 
@@ -172,29 +170,36 @@ public class DatabaseManager {
         }
 
         return result;
-
     }
 
     /**
+     * Run a query operation on the database, return the result as Iterator. The underlying Iterator implementation does
+     * not allow modifications, so invoking {@link Iterator#remove()} will cause an
+     * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
+     * element has been retrieved. If you break the iteration loop, you must manually call
+     * {@link ResultIterator#close()}. In general, you should prefer using
+     * {@link #runQuery(ResultCallback, RowConverter, String, Object...)},
+     * {@link #runQuery(SimpleResultCallback, String, Object...)}, or
+     * {@link #runQuery(RawResultCallback, String, Object...)}, which will guarantee closing a database resources.
      * 
-     * @param <T>
-     * @param converter
-     * @param sql
-     * @param args
-     * @return
-     */
+     * @param <T> Type of the processed objects.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return Iterator for iterating over results.
+     */    
     public final <T> ResultIterator<T> runQueryWithIterator(RowConverter<T> converter, String sql, List<Object> args) {
         return runQueryWithIterator(converter, sql, args.toArray());
     }
 
     /**
-     * Run a query operation for a single entry on the database.
+     * Run a query operation for a single item in the database.
      * 
-     * @param <T>
-     * @param converter
-     * @param sql
-     * @param args
-     * @return The retrieved entry for the given query, or <code>null</code> no entry found.
+     * @param <T> Type of the processed object.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no entry found.
      */
     @SuppressWarnings("unchecked")
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, Object... args) {
@@ -211,14 +216,49 @@ public class DatabaseManager {
         };
 
         runQuery(callback, converter, sql, args);
-
         return (T) result[0];
-
     }
 
-    public long runCountQuery(String countQuery) {
+    /**
+     * Run a query operation for a single item in the database.
+     * 
+     * @param <T> Type of the processed object.
+     * @param converter Converter for transforming the {@link ResultSet} to the desired type.
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return The <i>first</i> retrieved item for the given query, or <code>null</code> no entry found.
+     */
+    public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<Object> args) {
+        return runSingleQuery(converter, sql, args.toArray());
+    }
+    
+    /**
+     * Run a query operation for a single item in the database.
+     * 
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no entry
+     *         found.
+     */
+    public final Map<String, Object> runSingleQuery(String sql, Object... args) {
+        return runSingleQuery(new SimpleRowConverter(), sql, args);
+    }
+    
+    /**
+     * Run a query operation for a single item in the database.
+     * 
+     * @param sql Query statement which may contain parameter markers.
+     * @param args (Optional) arguments for parameter markers in query.
+     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no entry
+     *         found.
+     */
+    public final Map<String, Object> runSingleQuery(String sql, List<Object> args) {
+        return runSingleQuery(new SimpleRowConverter(), sql, args.toArray());
+    }
 
-        final Integer[] count = new Integer[1];
+    public final int runCountQuery(String countQuery) {
+
+        final int[] count = new int[]{-1};
 
         SimpleResultCallback callback = new SimpleResultCallback() {
 
@@ -229,22 +269,7 @@ public class DatabaseManager {
         };
 
         runQuery(callback, countQuery);
-
-        if (count[0] == null) {
-            count[0] = -1;
-        }
-
         return count[0];
-    }
-
-    /**
-     * 
-     * @param sql
-     * @param args
-     * @return
-     */
-    public final Map<String, Object> runSingleQuery(String sql, Object... args) {
-        return runSingleQuery(new SimpleRowConverter(), sql, args);
     }
 
     public final boolean entryExists(String sql, Object... args) {
@@ -280,7 +305,6 @@ public class DatabaseManager {
         }
 
         return affectedRows;
-
     }
 
     /**
@@ -322,7 +346,6 @@ public class DatabaseManager {
         }
 
         return result;
-
     }
 
     public final int[] runBatchUpdate(String updateStatement, final List<List<Object>> batchArgs) {
@@ -340,8 +363,8 @@ public class DatabaseManager {
                 return batchArgs.size();
             }
         };
+        
         return runBatchUpdate(updateStatement, provider);
-
     }
 
     /**
@@ -380,7 +403,6 @@ public class DatabaseManager {
         }
 
         return generatedId;
-
     }
 
     /**
@@ -396,8 +418,38 @@ public class DatabaseManager {
     // //////////////////////////////////////////////////////////////////////////////
     // Helper methods
     // //////////////////////////////////////////////////////////////////////////////
+    
+    /**
+     * Sets {@link PreparedStatement} parameters based on the supplied arguments.
+     * 
+     * @param ps
+     * @param args
+     * @throws SQLException
+     */
+    private static final void fillPreparedStatement(PreparedStatement ps, Object... args) throws SQLException {
+
+        // do we need a special treatment for NULL values here?
+        // if you should stumble across this comment while debugging,
+        // the answer is likely: yes, we do!
+        for (int i = 0; i < args.length; i++) {
+            ps.setObject(i + 1, args[i]);
+        }
+    }
 
     /**
+     * Sets {@link PreparedStatement} parameters based on the supplied arguments.
+     * 
+     * @param ps
+     * @param args
+     * @throws SQLException
+     */
+    private static final void fillPreparedStatement(PreparedStatement ps, List<Object> args) throws SQLException {
+        fillPreparedStatement(ps, args.toArray());
+    }
+
+    /**
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
      * 
      * @param connection
      */
@@ -406,7 +458,8 @@ public class DatabaseManager {
     }
 
     /**
-     * Convenient helper method to close database resources.
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
      * 
      * @param connection
      * @param statement
@@ -415,12 +468,20 @@ public class DatabaseManager {
         close(connection, statement, null);
     }
 
+    /**
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
+     * 
+     * @param connection
+     * @param resultSet
+     */
     protected static final void close(Connection connection, ResultSet resultSet) {
         close(connection, null, resultSet);
     }
 
     /**
-     * Convenient helper method to close database resources.
+     * Convenience method to close database resources. This method will perform <code>null</code> checking, close
+     * resources where applicable and swallow all {@link SQLException}s.
      * 
      * @param connection
      * @param statement

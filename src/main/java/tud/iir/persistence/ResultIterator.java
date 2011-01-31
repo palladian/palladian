@@ -14,7 +14,7 @@ public class ResultIterator<T> implements Iterator<T> {
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(ResultIterator.class);
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     private static final class NullIterator extends ResultIterator {
 
         public NullIterator() {
