@@ -224,6 +224,14 @@ public class Feed {
         }
         this.items = items;
     }
+    
+    public void addItem(FeedItem item) {
+        if (items == null) {
+            items = new ArrayList<FeedItem>();
+        }
+        items.add(item);
+        item.setFeed(this);
+    }
 
     public List<FeedItem> getItems() {
         return items;

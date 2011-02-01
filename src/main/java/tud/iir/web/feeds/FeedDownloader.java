@@ -4,7 +4,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -63,6 +62,8 @@ public class FeedDownloader {
      * do support either ETag or LastModifiedSince).
      */
     private boolean useBandwidthSavingHTTPHeaders = false;
+    
+    protected boolean useDateRecognition = true;
 
     // ///////////////////////////////////////////////////
     // FeedDownloader API
@@ -262,37 +263,77 @@ public class FeedDownloader {
 
         result.setLanguage(syndFeed.getLanguage());
 
+        // store the originating document in the feed
+        result.setDocument(feedDocument);
+        
         // get Feed items with ROME and assign to feed
-        List<FeedItem> entries = getFeedItems(syndFeed, feedDocument);
-        result.setItems(entries);
+        addFeedItems(result, syndFeed);
 
         // get the size of the feed
         if (feedDocument != null) {
             result.setByteSize(PageAnalyzer.getRawMarkup(feedDocument).getBytes().length);
         }
 
-        // store the originating document in the feed
-        result.setDocument(feedDocument);
 
         return result;
     }
 
+//    /**
+//     * Get {@link FeedItem}s from the specified {@link SyndFeed}.
+//     * 
+//     * @param syndFeed
+//     * @param feedDocument
+//     * @return
+//     */
+//    @SuppressWarnings("unchecked")
+//    private List<FeedItem> getFeedItems(SyndFeed syndFeed, Document feedDocument) {
+//
+//        List<FeedItem> result = new LinkedList<FeedItem>();
+//        List<SyndEntry> syndEntries = syndFeed.getEntries();
+//
+//        for (SyndEntry syndEntry : syndEntries) {
+//
+//            FeedItem item = new FeedItem();
+//            result.add(item);
+//
+//            String title = getEntryTitle(syndEntry);
+//            item.setTitle(title);
+//
+//            String entryLink = getEntryLink(syndFeed, syndEntry);
+//            item.setLink(entryLink);
+//
+//            String entryText = getEntryText(syndEntry);
+//            item.setItemText(entryText);
+//
+//            String rawId = getEntryRawId(syndEntry);
+//            item.setRawId(rawId);
+//
+//            // TODO only try a certain amount of times to extract a pub date, if none is found don't keep trying
+//            Date publishDate = getEntryPublishDate(syndEntry, item);
+//            item.setPublished(publishDate);
+//
+//            // result.add(item);
+//        }
+//
+//        return result;
+//    }
+    
     /**
-     * Get {@link FeedItem}s from the specified {@link SyndFeed}.
+     * Add {@link FeedItem}s to the {@link Feed} from the specified {@link SyndFeed}.
      * 
+     * @param feed
      * @param syndFeed
-     * @param feedDocument
      * @return
      */
-    @SuppressWarnings("unchecked")
-    private List<FeedItem> getFeedItems(SyndFeed syndFeed, Document feedDocument) {
-
-        List<FeedItem> result = new LinkedList<FeedItem>();
+    private void addFeedItems(Feed feed, SyndFeed syndFeed) {
+        
+        @SuppressWarnings("unchecked")
         List<SyndEntry> syndEntries = syndFeed.getEntries();
 
         for (SyndEntry syndEntry : syndEntries) {
 
             FeedItem item = new FeedItem();
+            feed.addItem(item);
 
             String title = getEntryTitle(syndEntry);
             item.setTitle(title);
@@ -309,11 +350,7 @@ public class FeedDownloader {
             // TODO only try a certain amount of times to extract a pub date, if none is found don't keep trying
             Date publishDate = getEntryPublishDate(syndEntry, item);
             item.setPublished(publishDate);
-
-            result.add(item);
         }
-
-        return result;
     }
 
     /**
@@ -340,13 +377,6 @@ public class FeedDownloader {
      * @return
      */
     private String getEntryTitle(SyndEntry syndEntry) {
-        // String title = syndEntry.getTitle();
-        // if (title != null) {
-        // title = HTMLHelper.removeHTMLTags(title);
-        // title = StringEscapeUtils.unescapeHtml(title);
-        // title = title.trim();
-        // }
-        // return title;
         return cleanup(syndEntry.getTitle());
     }
 
@@ -359,24 +389,8 @@ public class FeedDownloader {
     @SuppressWarnings("unchecked")
     private String getEntryText(SyndEntry syndEntry) {
 
-        //
         // I modified this method to return the *longest* text fragment which we can retrieve
         // from the feed item. -- Philipp, 2011-01-28.
-        //
-
-        // get the content from SyndEntry; either from content or from description
-        // String entryText = null;
-        // List<SyndContent> contents = syndEntry.getContents();
-        // if (contents != null) {
-        // for (SyndContent content : contents) {
-        // if (content.getValue() != null && content.getValue().length() != 0) {
-        // entryText = content.getValue();
-        // }
-        // }
-        // }
-        // if (entryText == null && syndEntry.getDescription() != null) {
-        // entryText = syndEntry.getDescription().getValue();
-        // }
 
         List<String> contentCandidates = new ArrayList<String>();
         List<SyndContent> contents = syndEntry.getContents();
@@ -401,13 +415,6 @@ public class FeedDownloader {
                 entryText = candidate;
             }
         }
-
-        // // clean up: strip out HTML tags, unescape HTML code
-        // if (entryText != null) {
-        // entryText = HTMLHelper.htmlToString(entryText, false);
-        // entryText = StringEscapeUtils.unescapeHtml(entryText);
-        // entryText = entryText.trim();
-        // }
 
         return entryText;
     }
@@ -438,12 +445,12 @@ public class FeedDownloader {
         // we could not get the ID from the SyndEntry, so we take the link as identification instead
         if (rawId == null) {
             rawId = syndEntry.getLink();
-            LOGGER.warn("id is missing, taking link instead");
+            LOGGER.debug("id is missing, taking link instead");
         }
 
         // we could ultimately get no ID
         if (rawId == null) {
-            LOGGER.warn("could not get id for entry");
+            LOGGER.debug("could not get id for entry");
         }
 
         return rawId;
@@ -463,7 +470,7 @@ public class FeedDownloader {
 
         // ROME library failed to get the date, use DateGetter
         // FIXME there are still some entries without date (David: why? does rome not get some date formats?)
-        if (publishDate == null) {
+        if (publishDate == null && useDateRecognition) {
 
             Node node = item.getNode();
             Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
@@ -571,7 +578,7 @@ public class FeedDownloader {
      * 
      * @param feed
      */
-    public static void printFeed(Feed feed) {
+    public static void printFeed(Feed feed, boolean includeText) {
 
         StringBuilder sb = new StringBuilder();
 
@@ -583,8 +590,11 @@ public class FeedDownloader {
         if (items != null) {
             for (FeedItem item : items) {
                 sb.append(item.getTitle()).append("\t");
-                sb.append(item.getItemText()).append("\t");
-                sb.append(item.getLink()).append("\n");
+                if (includeText) {
+                    sb.append(item.getItemText()).append("\t");
+                }
+                sb.append(item.getLink()).append("\t");
+                sb.append(item.getPublished()).append("\n");
             }
             sb.append("-----------------------------------").append("\n");
             sb.append("# entries: ").append(items.size());
@@ -592,6 +602,9 @@ public class FeedDownloader {
 
         System.out.println(sb.toString());
 
+    }
+    public static void printFeed(Feed feed) {
+        printFeed(feed, false);
     }
 
     public static void main(String[] args) throws Exception {
