@@ -15,13 +15,13 @@ public class NERTest {
     @Test
     public void testPalladianNER() {
         TUDNER tagger = new TUDNER();
-        // tagger.train("data/test/ner/training.txt", "data/test/tudner.model");
+        // tagger.train("data/test/ner/training.txt", "data/test/ner/tudner.model");
         // EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/temp/tudner.model",
         // TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
 
-        tagger.loadModel("data/test/tudner.model");
+        tagger.loadModel("data/test/ner/tudner.model");
         Annotations annotations = tagger.getAnnotations(FileFormatParser.getText("data/test/ner/test.txt",
                 TaggingFormat.COLUMN));
         annotations.removeNestedAnnotations();
@@ -46,13 +46,13 @@ public class NERTest {
     @Test
     public void testStanfordNER() {
         StanfordNER tagger = new StanfordNER();
-        // // tagger.train("data/test/ner/training.txt", "data/test/stanfordner.ser.gz");
-        // EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/temp/stanfordner.ser.gz",
+        // // tagger.train("data/test/ner/training.txt", "data/test/ner/stanfordner.ser.gz");
+        // EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/test/ner/stanfordner.ser.gz",
         // TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
 
-        tagger.loadModel("data/test/stanfordner.ser.gz");
+        tagger.loadModel("data/test/ner/stanfordner.ser.gz");
         Annotations annotations = tagger.getAnnotations(FileFormatParser.getText("data/test/ner/test.txt",
                 TaggingFormat.COLUMN));
         annotations.removeNestedAnnotations();
@@ -77,12 +77,12 @@ public class NERTest {
     @Test
     public void testIllinoisNER() {
         IllinoisLbjNER tagger = new IllinoisLbjNER();
-        // tagger.train("data/test/ner/training.txt", "data/temp/lbj.model");
+        // tagger.train("data/test/ner/training.txt", "data/test/ner/lbj.model");
         // EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/temp/lbj.model", TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
 
-        tagger.loadModel("data/test/lbj.model");
+        tagger.loadModel("data/test/ner/lbj.model");
         Annotations annotations = tagger.getAnnotations(FileFormatParser.getText("data/test/ner/test.txt",
                 TaggingFormat.COLUMN));
         annotations.removeNestedAnnotations();
@@ -107,13 +107,13 @@ public class NERTest {
     @Test
     public void testLingPipeNER() {
         LingPipeNER tagger = new LingPipeNER();
-        tagger.train("data/test/ner/training.txt", "data/test/lingpipe.model");
-        // EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/temp/lingpipe.model",
+        tagger.train("data/test/ner/training.txt", "data/test/ner/lingpipe.model");
+        // EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/test/ner/lingpipe.model",
         // TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
 
-        tagger.loadModel("data/test/lingpipe.model");
+        tagger.loadModel("data/test/ner/lingpipe.model");
         Annotations annotations = tagger.getAnnotations(FileFormatParser.getText("data/test/ner/test.txt",
                 TaggingFormat.COLUMN));
         annotations.removeNestedAnnotations();
@@ -147,7 +147,7 @@ public class NERTest {
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());
 
-        tagger.loadModel("data/test/openNLP_PER.bin,data/test/openNLP_MISC.bin,data/test/openNLP_LOC.bin,data/test/openNLP_ORG.bin");
+        tagger.loadModel("data/test/ner/openNLP_PER.bin,data/test/ner/openNLP_MISC.bin,data/test/ner/openNLP_LOC.bin,data/test/ner/openNLP_ORG.bin");
         // tagger.loadModel("data/temp/openNLP_LOC.bin,data/temp/openNLP_ORG.bin");
         Annotations annotations = tagger.getAnnotations(FileFormatParser.getText("data/test/ner/test.txt",
                 TaggingFormat.COLUMN));
