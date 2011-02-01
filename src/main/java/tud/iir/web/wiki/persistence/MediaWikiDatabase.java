@@ -9,7 +9,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -19,8 +18,8 @@ import tud.iir.daterecognition.DateGetterHelper;
 import tud.iir.helper.DateHelper;
 import tud.iir.helper.LocalizeHelper;
 import tud.iir.persistence.DatabaseManager;
+import tud.iir.persistence.ResultSetCallback;
 import tud.iir.persistence.RowConverter;
-import tud.iir.persistence.SimpleResultCallback;
 import tud.iir.web.wiki.MediaWikiCrawler;
 import tud.iir.web.wiki.data.PageTitleCache;
 import tud.iir.web.wiki.data.Revision;
@@ -489,8 +488,13 @@ public final class MediaWikiDatabase extends DatabaseManager {
 
         // if cache-miss, load pageID from database.
         if (pageID == null) {
-            Map<String, Object> queryResult = runSingleQuery(sqlGetPageIDByPageTitle, wikiID, pageTitle);
-            pageID = (Integer) queryResult.get("pageID");
+            RowConverter<Integer> converter = new RowConverter<Integer>() {
+                @Override
+                public Integer convert(ResultSet resultSet) throws SQLException {
+                    return resultSet.getInt("pageID");
+                }
+            };
+            pageID = runSingleQuery(converter, sqlGetPageIDByPageTitle, wikiID, pageTitle);
             cache.addPage(wikiID, pageTitle, pageID);
         }
         return pageID;
@@ -676,7 +680,6 @@ public final class MediaWikiDatabase extends DatabaseManager {
                 return resultSet.getString(1);
             }
         };
-        
         return runQuery(converter, sqlGetAllPageTitlesToCrawl, wikiID);
     }
 
@@ -777,10 +780,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
             LOGGER.debug("Could not remove namespaceID \"" + namespaceID + "\" for wiki \""
                     + getWikiDescriptor(wikiID).getWikiName() + "\" because it is not contained in the data base.");
         } else {
-            List<Object> args = new ArrayList<Object>();
-            args.add(wikiID);
-            args.add(namespaceID);
-            success = runUpdate(sqlRemoveNamespace, args) >= 0;
+            success = runUpdate(sqlRemoveNamespace, wikiID, namespaceID) >= 0;
         }
         return success;
     }
@@ -842,6 +842,8 @@ public final class MediaWikiDatabase extends DatabaseManager {
                         // changed to true, than set set date lastCheckNewPages to null for this wiki since the new
                         // namespace has never been checked.
                         if (nameSpacesWD.contains(nameSpaceIDInDB)) {
+                            System.out.println("---> " + nameSpaceIDInDB);
+                            System.out.println("---> " + namespacesDB);
                             if (!namespacesDB.get(nameSpaceIDInDB)) {
                                 errorCount += updateNamespace(wikiID, nameSpaceIDInDB, true) ? 0 : 1;
                                 resetLastCheck = true;
@@ -879,13 +881,13 @@ public final class MediaWikiDatabase extends DatabaseManager {
     public HashMap<Integer, Boolean> getAllNamespaces(final int wikiID) {
         final HashMap<Integer, Boolean> namespaces = new HashMap<Integer, Boolean>();
         
-        SimpleResultCallback callback = new SimpleResultCallback() {
+        ResultSetCallback callback = new ResultSetCallback() {
 
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-                Integer namespaceID = (Integer) object.get("namespaceID");
-                Boolean useCrawling = (Boolean) object.get("useCrawling");
-                namespaces.put(namespaceID, useCrawling);
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                int namespaceID = resultSet.getInt("namespaceID");
+                boolean useForCrawling = (Boolean) resultSet.getBoolean("useForCrawling");
+                namespaces.put(namespaceID, useForCrawling);                
             }
         };
         
@@ -1017,6 +1019,6 @@ public final class MediaWikiDatabase extends DatabaseManager {
         args.add(pageID);
         
         return runUpdate(sqlUpdatePageNextCheck, args) >= 0;
-    }
+    }    
 
 }
