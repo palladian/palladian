@@ -1019,4 +1019,18 @@ public final class MediaWikiDatabase extends DatabaseManager {
         return runUpdate(sqlUpdatePageNextCheck, args) >= 0;
     }    
 
+    /**
+     * Clear all wiki specific tables.
+     */
+    public void clearTables() {
+        runUpdate("TRUNCATE TABLE namespaces");
+        runUpdate("TRUNCATE TABLE pages");
+        runUpdate("TRUNCATE TABLE revisions");
+        runUpdate("TRUNCATE TABLE wikis");
+    }
+    
+    public static void main(String[] args) {
+        // new MediaWikiDatabase().clearTables();
+    }
+
 }
