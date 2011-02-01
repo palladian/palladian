@@ -1,5 +1,7 @@
 package tud.iir.web.ranking;
 
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -7,8 +9,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import tud.iir.persistence.DatabaseManager;
-import tud.iir.persistence.ResultCallback;
-import tud.iir.persistence.SimpleRowConverter;
+import tud.iir.persistence.ResultSetCallback;
 import tud.iir.web.ranking.RankingRetriever.Service;
 
 /**
@@ -45,25 +46,24 @@ public class RankingCacheDB extends RankingCache {
     public Map<Service, Float> get(final String url) {
 
         final Map<Service, Float> result = new HashMap<Service, Float>();
-
-        ResultCallback<Map<String, Object>> callback = new ResultCallback<Map<String, Object>>() {
-
+        
+        ResultSetCallback callback = new ResultSetCallback() {
+            
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-                float ranking = (Float) object.get("ranking");
-                Integer serviceId = (Integer) object.get("service");
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                float ranking = resultSet.getFloat("ranking");
+                int serviceId = resultSet.getInt("service");
                 Service service = Service.getById(serviceId);
                 result.put(service, ranking);
-                LOGGER.debug("cache hit for " + url + " : " + service + ":" + ranking);
-            }
+                LOGGER.debug("cache hit for " + url + " : " + service + ":" + ranking);            }
         };
 
         if (getTtlSeconds() == -1) {
             // System.out.println("without ttl");
-            databaseManager.runQuery(callback, new SimpleRowConverter(), getRankings2, url);
+            databaseManager.runQuery(callback, getRankings2, url);
         } else {
             // System.out.println("with ttl");
-            databaseManager.runQuery(callback, new SimpleRowConverter(), getRankings, url, getTtlSeconds());
+            databaseManager.runQuery(callback, getRankings, url, getTtlSeconds());
         }
 
         return result;

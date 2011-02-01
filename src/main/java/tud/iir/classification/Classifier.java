@@ -1,10 +1,12 @@
 package tud.iir.classification;
 
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
-import java.util.Map;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
@@ -12,7 +14,7 @@ import org.apache.log4j.Logger;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.LineAction;
 import tud.iir.persistence.DatabaseManager;
-import tud.iir.persistence.SimpleResultCallback;
+import tud.iir.persistence.RowConverter;
 import weka.classifiers.Evaluation;
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.functions.LibSVM;
@@ -45,8 +47,8 @@ public class Classifier {
     private boolean discrete = false; // if true all values must be discrete
     private boolean nominalClass = false; // if true the class must be nominal
 
-    protected ArrayList<FeatureObject> trainingObjects = null;
-    protected ArrayList<FeatureObject> testingObjects = null;
+    protected List<FeatureObject> trainingObjects = null;
+    protected List<FeatureObject> testingObjects = null;
 
     public final static int BAYES_NET = 1;
     public final static int LINEAR_REGRESSION = 2;
@@ -268,34 +270,32 @@ public class Classifier {
         return i;
     }
 
-    public ArrayList<FeatureObject> readFeatureObjects(int conceptID, PreparedStatement featureQuery) {
-        final ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
+    public List<FeatureObject> readFeatureObjects(int conceptID, PreparedStatement featureQuery) {
 
         DatabaseManager dbm = new DatabaseManager();
-
-        SimpleResultCallback callback = new SimpleResultCallback() {
+        
+        RowConverter<FeatureObject> converter = new RowConverter<FeatureObject>() {
 
             @Override
-            public void processResult(Map<String, Object> object, int number) {
+            public FeatureObject convert(ResultSet resultSet) throws SQLException {
+                
+                int columnCount = resultSet.getMetaData().getColumnCount();
+                Double[] features = new Double[columnCount - 1]; // ignore "id" column
+                String[] featureNames = new String[columnCount - 1]; // ignore "id" column
 
-                // FIXME:
-                // int columnCount = rs.getMetaData().getColumnCount();
-                // Double[] features = new Double[columnCount - 1]; // ignore "id" column
-                // String[] featureNames = new String[columnCount - 1]; // ignore "id" column
-                //
-                // // start with 2 to skip "id"
-                // for (int i = 2; i <= columnCount; i++) {
-                // features[i - 2] = rs.getDouble(i);
-                // featureNames[i - 2] = rs.getMetaData().getColumnLabel(i);
-                // }
-                //
-                // FeatureObject fo = new FeatureObject(features, featureNames);
-                // featureObjects.add(fo);
+                // start with 2 to skip "id"
+                for (int i = 2; i <= columnCount; i++) {
+                features[i - 2] = resultSet.getDouble(i);
+                featureNames[i - 2] = resultSet.getMetaData().getColumnLabel(i);
+                }
 
+                FeatureObject fo = new FeatureObject(features, featureNames);
+                return fo;
             }
+            
         };
 
-        dbm.runQuery(callback, featureQuery.toString());
+        return dbm.runQuery(converter, featureQuery.toString());
 
         // ResultSet rs = dbm.runQuery(featureQuery);
         //
@@ -321,7 +321,7 @@ public class Classifier {
         // e.printStackTrace();
         // }
 
-        return featureObjects;
+        // return featureObjects;
     }
 
     /**
@@ -335,7 +335,7 @@ public class Classifier {
      *            when processing files from data bases.
      * @return a list of FeatureObjects.
      */
-    public ArrayList<FeatureObject> readFeatureObjects(String filePath, final boolean hasHeaderRow,
+    public List<FeatureObject> readFeatureObjects(String filePath, final boolean hasHeaderRow,
             final boolean hasIdColumn) {
 
         final ArrayList<FeatureObject> featureObjects = new ArrayList<FeatureObject>();
@@ -404,7 +404,7 @@ public class Classifier {
         return featureObjects;
     }
     
-    public ArrayList<FeatureObject> readFeatureObjects(String filePath, boolean hasHeaderRow) {
+    public List<FeatureObject> readFeatureObjects(String filePath, boolean hasHeaderRow) {
         return readFeatureObjects(filePath, hasHeaderRow, false);
     }
 
@@ -414,7 +414,7 @@ public class Classifier {
      * @param filePath The file with the training data.
      * @return A list with the feature objects.
      */
-    public ArrayList<FeatureObject> readFeatureObjects(String filePath) {
+    public List<FeatureObject> readFeatureObjects(String filePath) {
         return readFeatureObjects(filePath, false);
     }
 
@@ -466,7 +466,7 @@ public class Classifier {
         this.discrete = discrete;
     }
 
-    public ArrayList<FeatureObject> getTrainingObjects() {
+    public List<FeatureObject> getTrainingObjects() {
         return trainingObjects;
     }
 

@@ -11,9 +11,9 @@ import org.apache.log4j.Logger;
 
 import tud.iir.helper.StopWatch;
 import tud.iir.persistence.DatabaseManager;
+import tud.iir.persistence.ResultSetCallback;
 import tud.iir.persistence.ResultIterator;
 import tud.iir.persistence.RowConverter;
-import tud.iir.persistence.SimpleResultCallback;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedItem;
 
@@ -114,23 +114,22 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     public Map<Integer, int[]> getFeedPostDistribution(Feed feed) {
+        
         final Map<Integer, int[]> postDistribution = new HashMap<Integer, int[]>();
-
-        SimpleResultCallback callback = new SimpleResultCallback() {
-
+        
+        ResultSetCallback callback = new ResultSetCallback() {
+            
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-                int minuteOfDay = (Integer) object.get("minuteOfDay");
-                int posts = (Integer) object.get("posts");
-                int chances = (Integer) object.get("chances");
-
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                int minuteOfDay = resultSet.getInt("minuteOfDay");
+                int posts = resultSet.getInt("posts");
+                int chances = resultSet.getInt("chances");
                 int[] postsChances = { posts, chances };
                 postDistribution.put(minuteOfDay, postsChances);
-
             }
         };
+        
         runQuery(callback, psGetFeedPostDistribution, feed.getId());
-
         return postDistribution;
     }
 

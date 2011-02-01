@@ -1,5 +1,7 @@
 package tud.iir.persistence;
 
+import java.sql.SQLException;
+
 /**
  * This is a callback interface to be used for handling database results.
  * 
@@ -16,8 +18,9 @@ public abstract class ResultCallback<T> {
      * 
      * @param object Current object to be processed.
      * @param number Number in the result set, starting with 1.
+     * @throws SQLException
      */
-    public abstract void processResult(T object, int number);
+    public abstract void processResult(T object, int number) throws SQLException;
 
     /**
      * Cancel the callback loop.

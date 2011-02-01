@@ -2,6 +2,7 @@ package tud.iir.web.feeds.evaluation;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -11,9 +12,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 
@@ -22,7 +23,8 @@ import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.persistence.DatabaseManager;
-import tud.iir.persistence.SimpleResultCallback;
+import tud.iir.persistence.ResultSetCallback;
+import tud.iir.persistence.RowConverter;
 import tud.iir.web.Crawler;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedClassifier;
@@ -104,16 +106,16 @@ public class FeedStatisticCreator {
 
         DatabaseManager dbm = new DatabaseManager();
 
-        SimpleResultCallback callback = new SimpleResultCallback() {
+        ResultSetCallback callback = new ResultSetCallback() {
 
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-
-                double coverage = (Double) object.get("coverage");
-                double percentNew = (Double) object.get("percentNew");
-                double missed = (Double) object.get("missedItems");
-                double missedPercent = (Double) object.get("missedPercent");
-                double traffic = (Double) object.get("traffic");
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                
+                double coverage = resultSet.getDouble("coverage");
+                double percentNew = resultSet.getDouble("percentNew");
+                double missed = resultSet.getDouble("missedItems");
+                double missedPercent = resultSet.getDouble("missedPercent");
+                double traffic = resultSet.getDouble("traffic");
 
                 // build csv
                 csv.append("\"================= Average Performance (").append(avgStyleExplanationF)
@@ -123,7 +125,7 @@ public class FeedStatisticCreator {
                 csv.append("Missed:;" + format.format(missed)).append("\n");
                 csv.append("Percent Missed Items / Window Size:;" + format.format(100 * missedPercent)).append("\n");
                 csv.append("Traffic Per Item:;" + traffic).append("\n\n");
-
+                
             }
         };
         dbm.runQuery(callback, query);
@@ -156,7 +158,7 @@ public class FeedStatisticCreator {
 
     private static double calculateMedianDelay(int avgStyle, int activityPattern, String tableName) throws SQLException {
 
-        final List<Double> valueList = new ArrayList<Double>();
+        List<Double> valueList = new ArrayList<Double>();
         DatabaseManager dbm = new DatabaseManager();
 
         String query = "";
@@ -176,10 +178,11 @@ public class FeedStatisticCreator {
             countQuery += " WHERE activityPattern = " + activityPattern;
         }
 
-        SimpleResultCallback callback = new SimpleResultCallback() {
+        RowConverter<Double> converter = new RowConverter<Double>() {
+
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-                valueList.add((Double) object.get("delay"));
+            public Double convert(ResultSet resultSet) throws SQLException {
+                return resultSet.getDouble("delay");
             }
         };
 
@@ -192,7 +195,8 @@ public class FeedStatisticCreator {
             Logger.getRootLogger().info(
                     "query for delay to calculate median, offset/maxOffset:" + currentOffset + "/" + maxOffset);
 
-            dbm.runQuery(callback, currentQuery);
+            List<Double> currentValues = dbm.runQuery(converter, currentQuery);
+            valueList.addAll(currentValues);
         }
 
         Collections.sort(valueList);
@@ -286,22 +290,21 @@ public class FeedStatisticCreator {
         DatabaseManager dbm = new DatabaseManager();
 
         // Double trafficPerNewItemCG = null;
-
-        SimpleResultCallback callback = new SimpleResultCallback() {
-
+        
+        ResultSetCallback callback = new ResultSetCallback() {
+            
             @Override
-            public void processResult(Map<String, Object> object, int number) {
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
                 csv.append("\"================= Average Performance (").append(avgStyleExplanationF)
-                        .append(", regardless of feed activity pattern) =================\"\n");
-                csv.append("Timeliness:;" + format.format(object.get("timeliness"))).append("\n");
-                csv.append("Timeliness Late:;" + format.format(object.get("timelinessLate"))).append("\n");
+                .append(", regardless of feed activity pattern) =================\"\n");
+                csv.append("Timeliness:;" + format.format(resultSet.getDouble("timeliness"))).append("\n");
+                csv.append("Timeliness Late:;" + format.format(resultSet.getDouble("timelinessLate"))).append("\n");
                 csv.append(
                         "Average Delay:;"
-                                + DateHelper.getTimeString(1000L * ((Double) object.get("delay")).longValue())).append(
+                        + DateHelper.getTimeString(1000L * ((Double) resultSet.getDouble("delay")).longValue())).append(
                         "\n");
-                csv.append("Avg. Missed Items:;" + format.format(object.get("missedItems"))).append("\n");
+                csv.append("Avg. Missed Items:;" + format.format(resultSet.getDouble("missedItems"))).append("\n");                
             }
-
         };
 
         dbm.runQuery(callback, query);
@@ -310,12 +313,12 @@ public class FeedStatisticCreator {
                         + DateHelper.getTimeString(1000L * ((Double) calculateMedianDelay(avgStyle, -1, tableName))
                                 .longValue())).append("\n");
 
-        SimpleResultCallback callback2 = new SimpleResultCallback() {
+        ResultSetCallback callback2 = new ResultSetCallback() {
 
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-                csv.append("Polls Per New Item:;" + format.format(object.get("pollsPerNewItem"))).append("\n");
-                csv.append("Traffic Per New Item:;" + object.get("trafficPerNewItem")).append("\n");
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                csv.append("Polls Per New Item:;" + format.format(resultSet.getDouble("pollsPerNewItem"))).append("\n");
+                csv.append("Traffic Per New Item:;" + resultSet.getDouble("trafficPerNewItem")).append("\n");
             }
 
         };
@@ -323,11 +326,11 @@ public class FeedStatisticCreator {
         dbm.runQuery(callback2, queryA);
 
 
-        SimpleResultCallback callback3 = new SimpleResultCallback() {
+        ResultSetCallback callback3 = new ResultSetCallback() {
 
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-                csv.append("New Items Per Discovery:;" + format.format(object.get("newItemsPerDiscovery")))
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                csv.append("New Items Per Discovery:;" + format.format(resultSet.getDouble("newItemsPerDiscovery")))
                         .append("\n");
             }
 
@@ -416,11 +419,11 @@ public class FeedStatisticCreator {
         ints[0] = -1;
         ints[1] = 1;
 
-        SimpleResultCallback callback3 = new SimpleResultCallback() {
+        ResultSetCallback callback3 = new ResultSetCallback() {
 
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-                Integer feedID = (Integer) object.get("feedID");
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                Integer feedID = resultSet.getInt("feedID");
 
                 if (feedID != ints[0]) {
                     ints[1] = 1;
@@ -432,13 +435,12 @@ public class FeedStatisticCreator {
                     data[0] = 0.0;
                     data[1] = 0.0;
                 }
-                data[0] += (Double) object.get("delay");
+                data[0] += resultSet.getDouble("delay");
                 data[1]++;
                 delayChartData.put(ints[1], data);
                 ints[0] = feedID;
                 ints[1]++;
             }
-
         };
 
         dbm.runQuery(
@@ -478,11 +480,11 @@ public class FeedStatisticCreator {
         ints[0] = -1;
         ints[1] = 1;
 
-        SimpleResultCallback callback = new SimpleResultCallback() {
+        ResultSetCallback callback = new ResultSetCallback() {
 
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-                Integer feedID = (Integer) object.get("feedID");
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                Integer feedID = resultSet.getInt("feedID");
 
                 if (feedID != ints[0]) {
                     ints[1] = 1;
@@ -494,7 +496,7 @@ public class FeedStatisticCreator {
                     data[0] = 0.0;
                     data[1] = 0.0;
                 }
-                data[0] += (Double) object.get("timeliness");
+                data[0] += resultSet.getDouble("timeliness");
                 data[1]++;
                 timelinessChartData.put(ints[1], data);
                 ints[0] = feedID;
@@ -692,22 +694,17 @@ public class FeedStatisticCreator {
     }
 
     private static double getUpdateInterval(String query) throws SQLException {
+        
         DatabaseManager dbm = new DatabaseManager();
-
-        final Double[] updateInterval = new Double[1];
-
-        SimpleResultCallback callback = new SimpleResultCallback() {
+        RowConverter<Double> converter = new RowConverter<Double>() {
 
             @Override
-            public void processResult(Map<String, Object> object, int number) {
-                updateInterval[0] = (Double) object.get("updateInterval");
+            public Double convert(ResultSet resultSet) throws SQLException {
+                return resultSet.getDouble("updateInterval");
             }
-
         };
-
-        dbm.runQuery(callback, query);
-
-        return updateInterval[0];
+        
+        return dbm.runSingleQuery(converter, query);
     }
 
     public static void createGeneralStatistics(FeedStore feedStore, String statisticOutputPath) {
