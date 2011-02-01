@@ -214,9 +214,11 @@ public class FeedItem {
         // for rss
         Node node = null;
 
+        // the feed's document representation
+        Document document = getFeed().getDocument();
+        
         try {
-
-            Document document = getFeed().getDocument();
+            
             node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
 
             if (node == null) {

@@ -42,8 +42,6 @@ public final class MetaInformationCreationTask implements Runnable {
 
     private DatabaseManager dbManager = new DatabaseManager();
 
-//    private Connection connection;
-
     private static final String psSupportsLMS = "UPDATE feeds SET supportsLMS=? WHERE id=?";
 
     private static final String psSupportsEtag = "UPDATE feeds SET supportsETag=? WHERE id=?";
@@ -54,18 +52,6 @@ public final class MetaInformationCreationTask implements Runnable {
 
     public MetaInformationCreationTask(Feed feed) {
         this.feed = feed;
-//        dbManager = DatabaseManager.getInstance();
-//        connection = dbManager.getConnection();
-//
-//        try {
-//            psSupportsLMS = connection.prepareStatement();
-//            psSupportsEtag = connection.prepareStatement();
-//            psResponseSize = connection.prepareStatement();
-//            psSupportsPubSubHubBub = connection.prepareStatement();
-//        } catch (SQLException e) {
-//            LOGGER.error(e.getMessage());
-//            System.exit(1);
-//        }
     }
 
     /**
@@ -193,25 +179,6 @@ public final class MetaInformationCreationTask implements Runnable {
             Integer responseSizeValue, Boolean supportsPubSubHubBub) throws SQLException {
 
         Integer id = feed.getId();
-
-//        psSupportsLMS.setBoolean(1, supportsLMS);
-//        psSupportsLMS.setInt(2, id);
-//        dbManager.runUpdate(psSupportsLMS);
-//        
-//
-//        psSupportsEtag.setBoolean(1, supportsETag);
-//        psSupportsEtag.setInt(2, id);
-//        dbManager.runUpdate(psSupportsEtag);
-//        
-//
-//        psResponseSize.setInt(1, responseSizeValue);
-//        psResponseSize.setInt(2, id);
-//        dbManager.runUpdate(psResponseSize);
-//
-//        psSupportsPubSubHubBub.setBoolean(1, supportsPubSubHubBub);
-//        psSupportsPubSubHubBub.setInt(2, id);
-//        dbManager.runUpdate(psSupportsPubSubHubBub);
-        
         
         dbManager.runUpdate(psSupportsLMS, supportsLMS, id);
         dbManager.runUpdate(psSupportsEtag, supportsETag, id);
