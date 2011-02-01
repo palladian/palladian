@@ -245,7 +245,7 @@ public class Crawler {
 
     }
 
-    public void startCrawl(HashSet<String> urlStack, boolean inDomain, boolean outDomain) {
+    public void startCrawl(Set<String> urlStack, boolean inDomain, boolean outDomain) {
         this.urlStack = urlStack;
         this.inDomain = inDomain;
         this.outDomain = outDomain;
@@ -458,21 +458,21 @@ public class Crawler {
      * @param outDomain If true all links that point to other pages outside the domain of the source page are added.
      * @return A set of urls.
      */
-    public HashSet<String> getLinks(boolean inDomain, boolean outDomain) {
+    public Set<String> getLinks(boolean inDomain, boolean outDomain) {
         return getLinks(document, inDomain, outDomain, "");
     }
 
-    public HashSet<String> getLinks(boolean inDomain, boolean outDomain, String prefix) {
+    public Set<String> getLinks(boolean inDomain, boolean outDomain, String prefix) {
         return getLinks(document, inDomain, outDomain, prefix);
     }
 
-    public HashSet<String> getLinks(Document document, boolean inDomain, boolean outDomain) {
+    public Set<String> getLinks(Document document, boolean inDomain, boolean outDomain) {
         return getLinks(document, inDomain, outDomain, "");
     }
 
-    public HashSet<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
+    public Set<String> getLinks(Document document, boolean inDomain, boolean outDomain, String prefix) {
 
-        HashSet<String> pageLinks = new HashSet<String>();
+        Set<String> pageLinks = new HashSet<String>();
 
         if (document == null) {
             return pageLinks;
@@ -629,9 +629,9 @@ public class Crawler {
         return bodyContent;
     }
 
-    public static ArrayList<String> extractKeywords(Document webPage) {
+    public static List<String> extractKeywords(Document webPage) {
 
-        ArrayList<String> keywords = new ArrayList<String>();
+        List<String> keywords = new ArrayList<String>();
 
         List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
         for (Node metaNode : metaNodes) {
@@ -650,9 +650,9 @@ public class Crawler {
         return keywords;
     }
 
-    public static ArrayList<String> extractDescription(Document webPage) {
+    public static List<String> extractDescription(Document webPage) {
 
-        ArrayList<String> descriptionWords = new ArrayList<String>();
+        List<String> descriptionWords = new ArrayList<String>();
 
         List<Node> metaNodes = XPathHelper.getNodes(webPage, "//META");
         for (Node metaNode : metaNodes) {
@@ -990,7 +990,10 @@ public class Crawler {
         InputSource is = new InputSource(dataStream);
 
         if (isXML) {
-            document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            // added by Philipp, 2011-01-28
+            docBuilderFactory.setNamespaceAware(true);
+            document = docBuilderFactory.newDocumentBuilder().parse(is);
         } else {
             parser.parse(is);
             document = parser.getDocument();
@@ -1859,7 +1862,7 @@ public class Crawler {
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             byte[] buffer = new byte[1024];
             int length;
-            long cumLength = 0;
+            long cumLength = 0; // :-O
             long maxFileSize = getDownloadFilter().getMaxFileSize();
             while ((length = urlInputStream.read(buffer)) >= 0) {
                 outputStream.write(buffer, 0, length);
