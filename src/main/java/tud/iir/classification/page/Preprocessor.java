@@ -3,6 +3,7 @@ package tud.iir.classification.page;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -64,7 +65,7 @@ public final class Preprocessor implements Serializable {
      * @param pageString The website contents.
      */
     private void extractKeywords(org.w3c.dom.Document webPage) {
-        ArrayList<String> keywords = Crawler.extractKeywords(webPage);
+        List<String> keywords = Crawler.extractKeywords(webPage);
         for (String term : keywords) {
             String[] keywordTerms = term.split("\\s");
             for (String keywordTerm : keywordTerms) {
@@ -79,7 +80,7 @@ public final class Preprocessor implements Serializable {
      * @param pageString The website contents.
      */
     private void extractMetaDescription(org.w3c.dom.Document webPage) {
-        ArrayList<String> keywords = Crawler.extractDescription(webPage);
+        List<String> keywords = Crawler.extractDescription(webPage);
         for (String term : keywords) {
             addToTermMap(term, WEIGHT_META_TERM);
         }

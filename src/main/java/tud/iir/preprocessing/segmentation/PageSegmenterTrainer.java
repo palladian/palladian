@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -230,7 +231,7 @@ public class PageSegmenterTrainer {
         String domain = c.getDomain(URL);
         Document d = c.getWebDocument(domain);
 
-        HashSet<String> te = new HashSet<String>();
+        Set<String> te = new HashSet<String>();
         te = c.getLinks(d, true, false, "");
         System.out.println(te.size() + " intern verlinkte URLs gefunden!");
         System.out.println(te);
@@ -327,7 +328,7 @@ public class PageSegmenterTrainer {
 
         Document d = c.getWebDocument(siteWithLinks);
 
-        HashSet<String> te = new HashSet<String>();
+        Set<String> te = new HashSet<String>();
         te = c.getLinks(d, true, false, "");
 
         int i = 0;
