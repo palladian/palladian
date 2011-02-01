@@ -842,8 +842,6 @@ public final class MediaWikiDatabase extends DatabaseManager {
                         // changed to true, than set set date lastCheckNewPages to null for this wiki since the new
                         // namespace has never been checked.
                         if (nameSpacesWD.contains(nameSpaceIDInDB)) {
-                            System.out.println("---> " + nameSpaceIDInDB);
-                            System.out.println("---> " + namespacesDB);
                             if (!namespacesDB.get(nameSpaceIDInDB)) {
                                 errorCount += updateNamespace(wikiID, nameSpaceIDInDB, true) ? 0 : 1;
                                 resetLastCheck = true;
