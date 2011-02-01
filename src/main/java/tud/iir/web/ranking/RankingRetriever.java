@@ -910,7 +910,9 @@ public class RankingRetriever {
      * @see tud.iir.web.ranking.RankingCache#setTtlSeconds(int)
      */
     public void setCacheTtlSeconds(int ttlSeconds) {
-        cache.setTtlSeconds(ttlSeconds);
+        if (cache != null) {
+            cache.setTtlSeconds(ttlSeconds);
+        }
     }
 
     /**
@@ -938,6 +940,7 @@ public class RankingRetriever {
         // String url = "http://www.porn.com";
 
         RankingRetriever urlRankingServices = new RankingRetriever();
+        urlRankingServices.setCache(new RankingCacheDB());
 
         // urlRankingServices.setCacheTtlSeconds(-1);
         urlRankingServices.setCacheTtlSeconds(5);

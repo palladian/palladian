@@ -46,16 +46,19 @@ public class RankingCacheDB extends RankingCache {
     public Map<Service, Float> get(final String url) {
 
         final Map<Service, Float> result = new HashMap<Service, Float>();
-        
+
         ResultSetCallback callback = new ResultSetCallback() {
-            
+
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 float ranking = resultSet.getFloat("ranking");
                 int serviceId = resultSet.getInt("service");
                 Service service = Service.getById(serviceId);
                 result.put(service, ranking);
-                LOGGER.debug("cache hit for " + url + " : " + service + ":" + ranking);            }
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("cache hit for " + url + " : " + service + ":" + ranking);
+                }
+            }
         };
 
         if (getTtlSeconds() == -1) {
