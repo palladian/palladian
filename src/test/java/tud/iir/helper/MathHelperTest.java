@@ -89,12 +89,12 @@ public class MathHelperTest {
     @Test
     public void testCalculateListSimilarity() {
 
-        System.out.println(MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#")
-                .getShiftSimilartiy(), 2));
-        System.out.println(MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#")
-                .getSquaredShiftSimilartiy(), 2));
-        System.out
-                .println(MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#").getRmse(), 2));
+        // System.out.println(MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#")
+        // .getShiftSimilartiy(), 2));
+        // System.out.println(MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#")
+        // .getSquaredShiftSimilartiy(), 2));
+        // System.out
+        // .println(MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#").getRmse(), 2));
 
         List<String> list1 = new ArrayList<String>();
         List<String> list2 = new ArrayList<String>();
