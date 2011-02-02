@@ -476,7 +476,12 @@ public class FeedDownloader {
             Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
 
             try {
+                
                 publishDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
+                if (publishDate != null) {
+                    LOGGER.debug("found publish date in original feed file: " + publishDate);
+                }
+                
             } catch (NullPointerException e) {
                 LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
                         + item.getFeedUrl() + ", " + e.getMessage());
@@ -490,9 +495,7 @@ public class FeedDownloader {
 
         }
 
-        if (publishDate != null) {
-            LOGGER.debug("found publish date in original feed file: " + publishDate);
-        } else {
+        if (publishDate == null) {
             // as a last resort, use the entry's updated date
             publishDate = syndEntry.getUpdatedDate();
         }
