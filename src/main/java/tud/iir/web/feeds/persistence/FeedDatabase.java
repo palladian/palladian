@@ -36,14 +36,14 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final String psUpdateFeed = "UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ? WHERE id = ?";
     private static final String psUpdateFeedPostDistribution = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
     private static final String psGetFeedPostDistribution = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
-    private static final String psGetFeeds = "SELECT id, feedUrl, siteUrl, title, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, activityPattern, lastEtag, lastPollTime, supportsETag, supportsLMS,conditionalGetResponseSize FROM feeds";
-    private static final String psGetFeedByUrl = "SELECT id, feedUrl, siteUrl, title, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, activityPattern FROM feeds WHERE feedUrl = ?";
-    private static final String psGetFeedByID = "SELECT feedUrl, siteUrl, title, textType, language, added, checks, minCheckInterval, maxCheckInterval, lastHeadlines, unreachableCount, lastFeedEntry, activityPattern FROM feeds WHERE id = ?";
-    private static final String psGetItemsByRawId = "SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items WHERE rawID = ?";
-    private static final String psGetItemsByRawId2 = "SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items WHERE feedId = ? AND rawID = ?";
+    private static final String psGetFeeds = "SELECT * FROM feeds";
+    private static final String psGetFeedByUrl = "SELECT * FROM feeds WHERE feedUrl = ?";
+    private static final String psGetFeedByID = "SELECT * FROM feeds WHERE id = ?";
+    private static final String psGetItemsByRawId = "SELECT * FROM feed_items WHERE rawID = ?";
+    private static final String psGetItemsByRawId2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
     private static final String psChangeCheckApproach = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL";
-    private static final String psGetItems = "SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items LIMIT ? OFFSET ?";
-    private static final String psGetAllItems = "SELECT id, feedId, title, link, rawId, published, text, pageText, added FROM feed_items";
+    private static final String psGetItems = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
+    private static final String psGetAllItems = "SELECT * FROM feed_items";
     private static final String psGetItemById = "SELECT * FROM feed_items WHERE id = ?";
     private static final String psDeleteItemById = "DELETE FROM feed_items WHERE id = ?";
 

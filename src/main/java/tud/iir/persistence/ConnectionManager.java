@@ -110,8 +110,8 @@ public class ConnectionManager {
         Connection connection = connectionPool.getConnection();
         // check if logging is enabled before creating the log output;
         // this is saves time, es this method might be called millions of times.
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("get pool connection; created:" + connectionPool.getTotalCreatedConnections() + " free:"
+        if (LOGGER.isTraceEnabled()) {
+            LOGGER.trace("get pool connection; created:" + connectionPool.getTotalCreatedConnections() + " free:"
                     + connectionPool.getTotalFree() + " used:" + connectionPool.getTotalLeased());
         }
         return connection;

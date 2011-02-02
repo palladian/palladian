@@ -5,7 +5,6 @@ import java.util.List;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedItem;
 
-// TODO move to persistence
 /**
  * The FeedStore is an interface for feed stores such as databases or file indices.
  * 
@@ -46,12 +45,14 @@ public interface FeedStore {
     Feed getFeedByUrl(String feedUrl);
 
     /**
-     * If it does not yet exist, add an entry to an existing feed.
+     * If it does not yet exist, add a {@link FeedItem} to an existing feed.
      * 
      * @param feed
      * @param entry
      */
-    boolean addFeedItem(Feed feed, FeedItem entry);
+    boolean addFeedItem(Feed feed, FeedItem item);
+    
+    // int addFeedItems(Feed feed, List<FeedItem> items);
 
     /**
      * Get an entry for a specific feed by its rawId.
