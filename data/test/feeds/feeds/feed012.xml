@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rss version="0.91">
+    <channel>
+        <title>IBM Internet Security Systems Internet Threat Information</title>
+        <link>http://www.iss.net</link>
+        <description><![CDATA[The latest Internet Threats, brought to you by XForce - the IBM Internet Security Systems' world-renowned security research and development team.]]></description>
+        <language>en</language>
+        <copyright>2007 IBM Internet Security Systems. All rights reserved worldwide.</copyright>
+
+<item>
+	<title>Microsoft Windows Backup Manager Could Allow Remote Code Execution</title>
+	<link>http://www.iss.net/threats/405.html</link>
+	<description>Windows Vista performs insecure dll loading when opening files associated with Windows Backup Manager .wbcat extension.</description>
+	<pubDate>Tue, 11 Jan 2011 00:00:00 -0500</pubDate>
+</item><item>
+	<title>Microsoft Windows Graphics Rendering Engine buffer overflow</title>
+	<link>http://www.iss.net/threats/406.html</link>
+	<description>A vulnerability exists in the way Windows explorer renders embedded thumbnails for certain files such as Office documents.</description>
+	<pubDate>Tue, 11 Jan 2011 00:00:00 -0500</pubDate>
+</item><item>
+	<title>Microsoft IIS FTP Interpret-As-Command (IAC) Overflow</title>
+	<link>http://www.iss.net/threats/407.html</link>
+	<description>IIS 7.5 has a buffer overflow vulnerability in the processing of the Telnet IAC command in the FTP response.</description>
+	<pubDate>Tue, 11 Jan 2011 00:00:00 -0500</pubDate>
+</item><item>
+	<title>Microsoft Windows Fax Cover Page Editor could allow denial of service</title>
+	<link>http://www.iss.net/threats/408.html</link>
+	<description>Windows Cover Fax Page Editor has a heap overflow vulnerability in the parsing of .cov files.</description>
+	<pubDate>Tue, 11 Jan 2011 00:00:00 -0500</pubDate>
+</item><item>
+	<title>Microsoft Internet Explorer CSS Remote Code Execution</title>
+	<link>http://www.iss.net/threats/404.html</link>
+	<description>A remote code execution vulnerability exists in the way that Microsoft Internet Explorer handles the CSS import statements.</description>
+	<pubDate>Thu, 16 Dec 2010 00:00:00 -0500</pubDate>
+</item><item>
+	<title>Insecure Library Loading in Internet Connection Signup Wizard Could Allow Remote Code Execution</title>
+	<link>http://www.iss.net/threats/401.html</link>
+	<description>Windows performs insecure dll loading when opening files associated with Internet Connection Signup Wizard such as .isp and .ins.</description>
+	<pubDate>Tue, 14 Dec 2010 00:00:00 -0500</pubDate>
+</item>
+   </channel>
+</rss>

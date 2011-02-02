@@ -64,6 +64,14 @@ public class FeedDownloader {
     private boolean useBandwidthSavingHTTPHeaders = false;
     
     protected boolean useDateRecognition = true;
+    
+    public FeedDownloader() {
+        // suXXX that I have to set this explicitly;
+        // makes sense to have this setting for Neko, 
+        // but ROME generally has no problem with too big files ...
+        // think this over?
+        crawler.getDownloadFilter().setMaxFileSize(-1);
+    }
 
     // ///////////////////////////////////////////////////
     // FeedDownloader API
@@ -621,7 +629,7 @@ public class FeedDownloader {
         // Feed feed = downloader.getFeed("http://badatsports.com/feed/");
         // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
         Feed feed = downloader
-                .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-devel/limit/100/offset/1000/rss");
+                .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-svn/rss");
         printFeed(feed);
 
     }

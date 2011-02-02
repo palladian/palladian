@@ -1,0 +1,862 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+<link href="http://media.timesfreepress.com/images/site2009/favicon/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+<link type="application/rss+xml" href="http://www.timesfreepress.com/news/rss/" rel="alternate" title="RSS" />
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<meta name="description" content="Chattanoogas only daily newspaper. Complete coverage of breaking news in Chattanooga. Other local, regional and national news.  Classifieds and online marketplace." />
+<meta name="keywords" content="Chattanooga Times Free Press, Chattanooga Breaking News, Breaking News Updates, Top Stories, Chattanooga, Local Regional, Chattanooga Sports, Chattanooga local Sports, Chattanooga Preps, Chattanooga Life, Chattanooga Business, Chattanooga local Business, National, International, Chattanooga News, Chattanooga local news" />
+
+
+
+<title>RSS Feeds | Chattanooga Times Free Press</title>
+
+
+
+<link href="http://media.timesfreepress.com/css/site2009/main.css" rel="stylesheet" type="text/css" />
+<link href="http://media.timesfreepress.com/css/site2009/topnavbar.css" rel="stylesheet" type="text/css" />
+
+<link href="http://media.timesfreepress.com/css/site2009/frontpage7daydatebar.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+.rssListColumn {
+	border:1px solid #CCC;
+	width:450px;
+}
+
+.rssSectionHeader {
+	background-color:#EBEBEB;
+	color:#444444;
+	font-weight:bold;
+	padding:2px 0px 2px 3px;
+	width:100%;
+	text-align:left;
+	border:2px solid #FFF;
+}
+
+.rssTitleCell {
+	background-color:#FFF;
+	color:#000000;
+	font-size:12px;
+	border-top:1px solid #CCC; 
+	padding:2px 0px 2px 5px;
+	text-align:left;
+	width:350px;
+	
+}
+
+.rssTitleCellIndent {
+	background-color:#FFF;
+	color:#000000;
+	font-size:12px;
+	border-top:1px solid #CCC; 
+	padding:2px 0px 2px 15px;
+	text-align:left;
+	width:150px;
+}
+
+.rssSubscribeCell {
+	border-top:1px solid #CCC; 
+	text-align:right;
+	vertical-align:middle;
+	font-size:11px;
+	font-weight:bold;
+	padding-right:5px;
+	width:110px;
+}
+
+.rssSubscribeLink {
+	color:#FF6600;
+}
+
+img{
+border:0px;
+border:none;
+}
+
+</style>
+
+
+
+
+
+
+<script type="text/javascript" src="http://media.timesfreepress.com/js/site2009/topnavbar.js"></script>
+<script type="text/javascript" src="http://media.timesfreepress.com/js/site2009/exleaderboard.js"></script>
+<script type="text/javascript" src="http://media.timesfreepress.com/videofiles/jquery.min.js"></script>	
+
+
+<script type="text/javascript">
+
+function removeElement() {
+document.getElementById("noscriptmenu").style.display="none";
+}
+window.onload = removeElement; 
+
+</script>
+
+
+<script type="text/javascript">
+$(document).ready(function(){	
+	
+});
+</script>
+
+
+
+
+
+</head>
+<body>
+<div id="headerwrapbg" >
+	<div id="headerwrap" >
+		<div id="sitemapwrap" >
+			<a href="/sitemap" target="_parent">SITE MAP</a> &nbsp;|&nbsp;
+             <a href="/mobileinfo/" target="_parent">MOBILE</a> &nbsp;|&nbsp;
+			<a href="/listrak/sub/" target="_parent">EMAILS</a> &nbsp;|&nbsp;
+   			<a href="http://iis.timesfreepress.com/myaccount/Subscribe.aspx" target="_parent">SUBSCRIBE</a> &nbsp;|&nbsp;
+			<a href="http://iis.timesfreepress.com/myaccount/Subscribe_Archives.aspx" target="_parent">ARCHIVES</a> &nbsp;|&nbsp;
+            <a href="/contactus" target="_parent">CONTACT US</a> &nbsp;|&nbsp;
+            <a href="/advertise/" target="_parent">ADVERTISE</a> &nbsp;|&nbsp;
+            <a href="/news/promotions" target="_parent">PROMOTIONS</a> &nbsp;|&nbsp;
+            <a href="/submitevents/" target="_parent">SUBMIT EVENTS</a> &nbsp;|&nbsp;
+            <a href="mailto:feedback@timesfreepress.com" target="_parent">FEEDBACK</a> &nbsp;|&nbsp;
+            <a href="/content/woe.html" target="_parent">PLACE AN AD</a>  &nbsp;|&nbsp;
+			<a href="/rss" target="_parent">RSS FEEDS</a>
+		</div> <!-- sitemapwrap -->
+		
+		<div id="logoadwrap" >
+			<div id="logo" >
+				 <a href="/"><img src="http://media.timesfreepress.com/images/site2009/blank.gif" style="height:43px; border:0px; width:229px;" /></a>
+			</div><!-- logo -->
+				
+			<div id="leaderad" >
+				<div id="containerdivid">
+					
+	<!-- begin ZEDO for channel:  tfp-HP-Leader , publisher: default , Ad Dimension: Super Banner - 728 x 90 -->
+		<script type="text/javascript">
+		var zflag_nid="591"; var zflag_cid="79/77/1"; var zflag_sid="0"; var zflag_width="728"; var zflag_height="90"; var zflag_sz="14"; 
+		</script>
+		<script type="text/javascript" src="http://c5.zedo.com/jsc/c5/fo.js"></script>
+	<!-- end ZEDO for channel:  tfp-HP-Leader , publisher: default , Ad Dimension: Super Banner - 728 x 90 -->
+
+					</div>
+			</div><!-- leaderad -->
+			
+			<div class="clearboth"></div>
+		</div><!-- logoadwrap -->
+		
+		<div id="nav_bar_wrapper_wrapper2" style="position:relative;" >
+			
+<div id="leftnewsmenu">
+    <ul id="maintab" class="basictab">
+        <li rel="home"><a href="/" target="_parent">Home</a></li>
+        <li class="selected" rel="news"><a href="/news/news/" target="_parent">News</a></li>
+        <li rel="sports"><a href="/news/sports/" target="_parent">Sports</a></li>
+        <li rel="entertainment"><a href="/news/entertainment/" target="_parent">Entertainment</a></li>
+        <li rel="multimedia"><a href="/news/multimedia/" target="_parent">Multimedia</a></li>
+        <li rel="opinion"><a href="/news/opinion/" target="_parent">Opinion</a></li>
+        <li rel="photos"><a href="/news/photos/" target="_parent">Photos</a></li>
+    </ul>
+</div>
+
+<div id="rightnavnewsmenu">
+	<div id="right_nav_bar_div">
+			<ul id="nav_bar_right">
+				<li class="popup jobs">
+					<a href="http://jobs.timesfreepress.com" target="_parent">JOBS</a>
+				</li>
+				<li class="popup homes">
+					<a href="http://homes.timesfreepress.com" target="_parent">HOMES</a>
+				</li>
+
+				<li class="popup cars">
+					<a href="http://cars.timesfreepress.com" target="_parent">CARS</a>
+				</li>
+				<li class="popup shop">
+					<a href="http://shop.timesfreepress.com" target="_parent">SHOP</a>
+				</li>
+				 <li class="popup class">
+					<a href="http://classifieds.timesfreepress.com" target="_parent">CLASSIFIEDS</a>
+                </li>
+
+			</ul>
+		</div>
+</div>
+
+
+
+<div class="clearboth"><!--  --></div>
+
+<div id="home" class="submenustyle">
+	<span style="margin-left:8px; color:#444444; font-weight:bold;">HOME:</span>
+	<a href="/" target="_parent">TimesFreePress</a>
+    <a href="/right2know/">Right2Know</a>
+    <a href="http://www.chatterchattanooga.com/" target="_parent">Chatter</a>
+    <a href="http://fyi.timesfreepress.com/" target="_parent">current</a>
+    <a href="http://community.timesfreepress.com/" target="_parent">Community</a>
+    <a href="http://jobs.timesfreepress.com/" target="_parent">Jobs</a>
+    <a href="http://cars.timesfreepress.com/" target="_parent">Cars</a>
+    <a href="http://homes.timesfreepress.com/" target="_parent">Homes</a>
+    <a href="http://shop.timesfreepress.com/" target="_parent">Shop</a>
+    <a href="http://timesfreepress.com/news/northgeorgia/" target="_parent">North Georgia</a>
+    <a href="http://spotted.timesfreepress.com/" target="_parent">Spotted</a>
+
+    <a href="http://www.chattamoms.com/" target="_parent">Chattamoms</a>
+    <a href="/mobileinfo/" target="_parent">Mobile</a>
+    <a href="http://www.noticiaslibres.com/" target="_parent">Noticias Libres</a>
+</div>
+
+<div id="news" class="submenustyle">
+	<span style="margin-left:8px; color:#444444; font-weight:bold;">NEWS:</span>
+    <a href="/news/breakingnews/" target="_parent">Latest News</a>
+    <a href="/news/local/" target="_parent">Local/Region</a>
+    <a href="/obits/2011/Feb/02/" target="_parent">Obituaries</a>
+    <a href="http://community.timesfreepress.com" target="_parent">Community News</a>
+    <a href="/news/business/" target="_parent">Business</a>
+    <a href="/news/politics/" target="_parent">Politics</a>
+    <a href="http://health.timesfreepress.com" target="_parent">Health</a>
+    <a href="/news/specialprojects/" target="_parent">News Projects</a>
+    <a href="/news/business/volkswagen/" target="_parent">Volkswagen News</a>
+    <a href="/news/green/" target="_parent">Green</a>
+        <a href="/news/northgeorgia/" target="_parent">North Georgia</a>
+</div>
+
+<div id="sports" class="submenustyle">
+	<span style="margin-left:8px; color:#444444; font-weight:bold;">SPORTS:</span>
+    <a href="/news/sports/preps/" target="_parent">Preps</a>
+    <a href="/news/sports/college/" target="_parent">College</a>
+    <a href="/news/sports/outdoors/" target="_parent">Outdoors</a>
+    <a href="/news/sports/golf/" target="_parent">Golf</a>
+    <a href="/news/sports/nascar/" target="_parent">NASCAR</a>
+    <a href="/sportscalendar/" target="_parent">Calendar</a>
+    <a href="/olympics/" target="_parent">Olympics</a>
+</div>
+
+<div id="entertainment" class="submenustyle">
+	<span style="margin-left:8px; color:#444444; font-weight:bold;">ENTERTAINMENT:</span>
+    <a href="/news/entertainment/food" target="_parent">Food</a>
+    <a href="http://fyi.timesfreepress.com" target="_parent">current</a>
+    <a href="/news/entertainment/lifeentertainment/" target="_parent">Life / Entertainment</a>
+    <a href="http://www.chatterchattanooga.com" target="_parent">Chatter</a>
+</div>
+
+<div id="multimedia" class="submenustyle">
+	<span style="margin-left:8px; color:#444444; font-weight:bold;">MULTIMEDIA:</span>
+    <a href="/news/multimedia/localvideos/" target="_parent">Local Video</a>
+<!--    <a href="/podcasts/" target="_parent">Podcasts</a>-->
+    <a href="/news/multimedia/multimediaproject/" target="_parent">Multimedia Projects</a>
+</div>
+
+<div id="opinion" class="submenustyle">
+	<span style="margin-left:8px; color:#444444; font-weight:bold;">OPINION:</span>
+    <a href="/news/opinion/cartoons/" target="_parent">Clay Bennett Cartoons</a>
+    <a href="/news/opinion/times2/" target="_parent">Times Opinion</a>
+    <a href="/news/opinion/freepress/" target="_parent">Free Press Opinion</a>
+    <a href="/news/opinion/rants/" target="_parent">Rants</a>
+    <a href="/news/opinion/letters/" target="_parent">Letters to the Editor</a>
+    <a href="/news/blogs/" target="_parent">Blogs</a>
+    <a href="/news/opinion/columns/" target="_parent">Columns</a>
+</div>
+
+<div id="photos" class="submenustyle">
+	<span style="margin-left:8px; color:#444444; font-weight:bold;">PHOTOS:</span>
+    <a href="/news/photogalleries/" target="_parent">Photo Gallery</a>
+    <a href="http://timesfreepress.mycapture.com" target="_parent">Photo Reprints</a>
+    <a href="http://spotted.timesfreepress.com" target="_parent">Spotted</a>
+    <a href="/news/photos/slideshows/" target="_parent">Slideshows</a>
+</div>
+
+<script type="text/javascript">
+//initialize tab menu, by passing in ID of UL
+initalizetab("maintab")
+</script>
+
+<div id="noscriptmenu" class="noscriptmenu">
+    <a href="/news/breakingnews/" target="_parent">Latest News</a>
+    <a href="/news/local/" target="_parent">Local/Region</a>
+     <a href="/obits/2011/Feb/02/" target="_parent">Obituaries</a>
+    <a href="http://community.timesfreepress.com" target="_parent">Community Correspondents</a>
+    <a href="http://community.timesfreepress.com" target="_parent">Community News</a>
+    <a href="/news/business/" target="_parent">Business</a>
+    <a href="/news/politics/" target="_parent">Politics</a>
+    <a href="http://health.timesfreepress.com" target="_parent">Health</a>
+    <a href="/news/specialprojects/" target="_parent">News Projects</a>
+    <a href="/news/exclusives/" target="_parent">Web Exclusives</a>
+    <a href="/news/business/volkswagen/" target="_parent">Volkswagen News</a>
+    <a href="/news/green/" target="_parent">Green</a>
+     <a href="/news/northgeorgia/" target="_parent">North Georgia</a>
+</div>
+		</div><!-- nav_bar_wrapper_wrapper 2 -->
+	</div><!-- headerwrap -->
+	<div class="clearboth"></div>
+</div><!-- headerwrapbg -->
+
+
+
+<div id="usertoolbarwrap">
+		<div id="searchformwrap" >
+			<div id="searchdropdown" >
+				<form id="searchForm" name="searchForm" method="post" action="http://iis.timesfreepress.com/site2009/searchscript.asp"  style="background:none;">
+ 					<div class="form" style="background:none;">
+						<input id="" class="" style=" float:left;" type="text" name="searchword" value="Search Word..." onFocus="document.forms['searchForm'].searchword.value = ''; return false;"/>
+						<input class="ibutton" type="submit" value=""/>
+							<div id="selectwrap" >
+								<select id="option" name="option" class="autocomplete2" >
+								 	
+									<option value="site">TimesFreePress</option>
+								  	<option value="fyi">FYI           </option>
+								 	<option value="community">Community     </option>
+								    
+									<option value="archives">Archives      </option>
+									<option value="web">Web           </option>
+								</select>
+							</div><!-- selectwrap -->
+					</div><!-- form -->
+				</form>
+			</div><!-- searchdropdown -->
+		</div><!-- searchformwrap -->
+		
+		<div id="datewrap"  >
+			<script type="text/javascript">
+				<!-- Begin
+				var day="";
+				var month="";
+				var myweekday="";
+				var year="";
+				newdate = new Date();
+				mydate = new Date();
+				dston =  new Date('April 4, 1999 2:59:59');
+				dstoff = new Date('october 31, 1999 2:59:59');
+				var myzone = newdate.getTimezoneOffset();
+				newtime=newdate.getTime();
+				
+				var zone = 5;  // references your time zone
+				
+				if (newdate > dston && newdate < dstoff ) {
+				zonea = zone - 1 ;
+				dst = "  Pacific Daylight Savings Time";
+				}
+				else {
+				zonea = zone ; dst = "  Pacific Standard Time";
+				}
+				var newzone = (zonea*60*60*1000);
+				newtimea = newtime+(myzone*60*1000)-newzone;
+				mydate.setTime(newtimea);
+				myday = mydate.getDay();
+				mymonth = mydate.getMonth();
+				myweekday= mydate.getDate();
+				myyear= mydate.getYear();
+				year = myyear;
+				
+				if (year < 2000)
+				year = year + 1900;
+				myhours = mydate.getHours();
+				if (myhours >= 12) {
+				myhours = (myhours == 12) ? 12 : myhours - 12; mm = " PM";
+				}
+				else {
+				myhours = (myhours == 0) ? 12 : myhours; mm = " AM";
+				}
+				myminutes = mydate.getMinutes();
+				if (myminutes < 10){
+				mytime = ":0" + myminutes;
+				}
+				else {
+				mytime = ":" + myminutes;
+				};
+				arday = new Array("Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday")
+				armonth = new Array("Jan. ","Feb. ","Mar. ","Apr. ","May ","June ","July ","Aug. ","Sept. ", "Oct. ","Nov. ","Dec. ")
+				ardate = new Array("0th","1st","2nd","3rd","4th","5th","6th","7th","8th","9th","10th","11th","12th","13th","14th","15th","16th","17th","18th","19th","20th","21st","22nd","23rd","24th","25th","26th","27th","28th","29th","30th","31st");
+				// rename locale as needed.
+				
+				var time = (arday[myday] +",&nbsp; " + armonth[mymonth] +" "+ardate[myweekday] + ",&nbsp; " + year+"");
+				document.write(time);
+				//-->
+			</script>
+		</div><!-- datewrap -->
+		
+		
+		
+		<div class="clearboth"></div>
+</div><!-- usertoolbarwrap -->
+
+<div class="clearboth"></div>
+<noscript>
+	<div id="noscript">
+Please note that Javascript is not enabled for your browser. This will prevent some site functions from working correctly.
+	</div>
+</noscript> 
+
+<div class="clearboth"></div>
+<div id="bodycontentwrap" >
+
+	 
+
+
+
+
+
+
+
+<div id="basegeneric_left">
+				<div class="basegeneric_roundcontmain"  style="width:960px;">
+				     <div class="basegeneric_roundtop"  style="width:960px;">
+				          <img src="http://media.timesfreepress.com/images/site2009/box_tl.jpg" alt="" width="5" height="5" class="corner" style="display: none"/>
+				     </div>
+					 
+					<div class="basegeneric_roundmiddle" style="width:950px;">
+						
+						
+	<h2 class="pagetitleh2">
+		<a href="/" class="bigbreadcrumbs">Home</a> | RSS Feeds
+	</h2>
+	
+
+						
+<div style="font-size:12px; margin-top:10px;">
+<h4 style="color:#444444;">Subscribe to our RSS feeds</h4>
+
+Subscribe to any of timesfreepress.com RSS feeds to get the latest headlines, summaries and links back to full articles, formatted for your favorite feed reader and updated throughout the day. In addition to the feeds listed here, look for this <img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt=""/> small orange feed icon across the site to subscribe to a number of other feeds from timesfreepress.com.<br /><br />
+
+To view one of the timesfreepress.com feeds in your RSS Aggregator:<br />
+&nbsp;&nbsp;&nbsp;<strong>1.</strong> Copy the URL/shortcut that corresponds to the topic that interests you.<br />
+&nbsp;&nbsp;&nbsp;<strong>2.</strong> Paste the URL into your reader.<br /><br />
+
+<strong>What is RSS?</strong><br />
+The acronym RSS stands for Really Simple Syndication or Rich Site Summary. An RSS feed is a syndicated news feed in an XML format. Through a news feed reader, you can subscribe to various RSS feeds to get customizable news feeds delivered directly to your desktop. You can <a href="http://download.cnet.com/windows/newsreaders-and-rss-readers/" target="_blank">click here</a> to see a list of many freeware and shareware rss readers.<br /><br />
+
+</div>
+<div style="margin-top:20px;">
+<div style="border-bottom:1px solid #CCCCCC;  margin-left:10px;  margin-right:20px; margin-bottom:5px;">
+<h4 style="color:#444444;">timesfreepress.com</h4>
+</div>
+  <div style="float:left; width:450px; margin-left:10px; margin-right:20px;">
+  <table class="rssListColumn" cellpadding="0" cellspacing="0">
+        <tr>
+          <td colspan="2" class="rssSectionHeader">Staff Writer Feeds</td>
+        </tr>
+        <tr>
+	    <td class="rssTitleCell">We provide RSS feeds for any individual staff member of TimesFreePress.com, so you could follow your favorite reporter.<br /><br /></td>
+          <td valign="top" class="rssSubscribeCell"><a href="/staff/">View Staff</a></td>
+        </tr>
+             
+        </table>
+     <br />
+<table class="rssListColumn" cellpadding="0" cellspacing="0">
+<tr>
+<td colspan="2" class="rssSectionHeader">News</td>
+</tr>
+
+<tr>
+<td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/breakingnews/" target="xmlfile" rel="alternate" type="application/rss+xml">Latest News</a><br />
+<span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/breakingnews/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/breakingnews/</a></span></td>
+<td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/breakingnews/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/local/" target="xmlfile" rel="alternate" type="application/rss+xml">Local/Region</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/local/" target="xmlfile" rel="alternate" type="application/rss+xml">http://www.timesfreepress.com/rss/headlines/local</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/local/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/obituaries/" target="xmlfile" rel="alternate" type="application/rss+xml">Obituaries</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/obituaries/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/obituaries/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/obituaries/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/business/" target="xmlfile" rel="alternate" type="application/rss+xml">Business</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/business/" target="xmlfile" rel="alternate" type="application/rss+xml">http://www.timesfreepress.com/rss/headlines/business</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/business/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/business/topstory/" target="xmlfile" rel="alternate" type="application/rss+xml">Business Top Story</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/business/topstory/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/business/topstory/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/business/topstory/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/business/tnvalley/" target="xmlfile" rel="alternate" type="application/rss+xml">Business TN Valley</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/business/tnvalley/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/business/tnvalley/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/business/tnvalley/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/business/diary/" target="xmlfile" rel="alternate" type="application/rss+xml">Business Diary</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/business/diary/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/business/diary/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/business/diary/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/business/ellenphillips/" target="xmlfile" rel="alternate" type="application/rss+xml">Ellen Phillips</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/business/ellenphillips/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/business/ellenphillips/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/business/ellenphillips/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/politics/" target="xmlfile" rel="alternate" type="application/rss+xml">Politics</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/politics/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/politics/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/politics/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/politics/local/" target="xmlfile" rel="alternate" type="application/rss+xml">Politics Local</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/politics/local/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/politics/local/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/politics/local/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/politics/regional/" target="xmlfile" rel="alternate" type="application/rss+xml">Politics Regional</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/politics/regional/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/politics/regional/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/politics/regional/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/politics/state/" target="xmlfile" rel="alternate" type="application/rss+xml">Politics State</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/politics/state/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/politics/state/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/politics/state/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/politics/national/" target="xmlfile" rel="alternate" type="application/rss+xml">Politics National</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/politics/national/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/politics/national/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/politics/national/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/health/" target="xmlfile" rel="alternate" type="application/rss+xml">Health</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/health/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/health/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/health/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/business/volkswagen/" target="xmlfile" rel="alternate" type="application/rss+xml">Volkswagen</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/business/volkswagen/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/business/volkswagen/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/business/volkswagen/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/green/" target="xmlfile" rel="alternate" type="application/rss+xml">Green</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/green/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/green/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/green/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+
+
+
+
+
+
+
+ 
+</table>
+
+<br />
+<table class="rssListColumn" cellpadding="0" cellspacing="0">
+<tr>
+<td colspan="2" class="rssSectionHeader">Sports</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/sports" target="xmlfile" rel="alternate" type="application/rss+xml">Sports</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/sports" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/sports</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/sports" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/sports/preps/" target="xmlfile" rel="alternate" type="application/rss+xml">Preps</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/sports/preps/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/sports/preps/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/sports/preps/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/sports/college/" target="xmlfile" rel="alternate" type="application/rss+xml">College</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/sports/college/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/sports/college/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/sports/college/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/sports/outdoors/" target="xmlfile" rel="alternate" type="application/rss+xml">Outdoors</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/sports/outdoors/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/sports/outdoors/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/sports/outdoors/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/sports/golf/" target="xmlfile" rel="alternate" type="application/rss+xml">Golf</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/sports/golf/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/sports/golf/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/sports/golf/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+
+
+</table>
+
+<br />
+<table class="rssListColumn" cellpadding="0" cellspacing="0">
+<tr>
+<td colspan="2" class="rssSectionHeader">Entertainment</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/entertainment/" target="xmlfile" rel="alternate" type="application/rss+xml">Entertainment</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/entertainment/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/entertainment/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/entertainment/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/entertainment/food/" target="xmlfile" rel="alternate" type="application/rss+xml">Food</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/entertainment/food/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/entertainment/food/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/entertainment/food/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+<tr>
+  <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/entertainment/lifeentertainment/" target="xmlfile" rel="alternate" type="application/rss+xml">Life/Entertainment</a><br />
+      <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/entertainment/lifeentertainment/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/entertainment/lifeentertainment/</a></span></td>
+  <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/entertainment/lifeentertainment/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+</tr>
+
+</table>
+
+
+<br />
+<br />
+  </div>
+  <div style="float:left; width:450px; ">
+
+ <table class="rssListColumn" cellpadding="0" cellspacing="0">
+        <tr>
+          <td colspan="2" class="rssSectionHeader">Social Networks</td>
+        </tr>
+        <tr>
+	    <td class="rssTitleCell"><a href="http://www.twitter.com/timesfreepress"  target="_blank">Twitter</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://www.twitter.com/timesfreepress" target="_blank" >http://www.twitter.com/timesfreepress</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://www.twitter.com/timesfreepress" target="_blank" >
+		<img src="http://media.timesfreepress.com/images/site2009/networking/twitter_button.png" alt="" style="border:0px;" /></a></td>
+        </tr>
+                <tr>
+	    <td class="rssTitleCell"><a href="http://www.facebook.com/timesfreepress"  target="_blank">Facebook</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://www.facebook.com/timesfreepress" target="_blank" >http://www.facebook.com/timesfreepress</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://www.facebook.com/timesfreepress" target="_blank" >
+		<img src="http://media.timesfreepress.com/images/site2009/networking/facebook_button.png" alt="" style="border:0px;" /></a></td>
+        </tr>
+        </table>
+     <br />
+<!--<table class="rssListColumn" cellpadding="0" cellspacing="0">
+        <tr>
+          <td colspan="2" class="rssSectionHeader">Podcasts</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/podcasts/newscast/" target="xmlfile" rel="alternate" type="application/rss+xml">NewsCast</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/podcasts/newscast/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/podcasts/newscast/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/podcasts/newscast/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/podcasts/downhome/" target="xmlfile" rel="alternate" type="application/rss+xml">Down Home</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/podcasts/downhome/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/podcasts/downhome/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/podcasts/downhome/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/podcasts/techcast/" target="xmlfile" rel="alternate" type="application/rss+xml">TechCast</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/podcasts/techcast/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/podcasts/techcast/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/podcasts/techcast/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/podcasts/musiccast/" target="xmlfile" rel="alternate" type="application/rss+xml">MusicCast</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/podcasts/musiccast/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/podcasts/musiccast/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/podcasts/musiccast/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        
+        </table>-->
+        <br />
+
+      <table class="rssListColumn" cellpadding="0" cellspacing="0">
+        <tr>
+          <td colspan="2" class="rssSectionHeader">Multimedia</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/photos/slideshows/" target="xmlfile" rel="alternate" type="application/rss+xml">Slideshows</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/photos/slideshows/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/photos/slideshows/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/photos/slideshows/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/multimedia/" target="xmlfile" rel="alternate" type="application/rss+xml">Multimedia</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/multimedia/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/multimedia/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/multimedia/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/localvideo/" target="xmlfile" rel="alternate" type="application/rss+xml">Local Videos</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/localvideo/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/localvideo/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/localvideo/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+                <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/multimedia/multimediaproject/" target="xmlfile" rel="alternate" type="application/rss+xml">Multimedia Projects</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/multimedia/multimediaproject/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/multimedia/multimediaproject/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/multimedia/multimediaproject/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+      </table>
+      <br />
+      <table class="rssListColumn" cellpadding="0" cellspacing="0">
+        <tr>
+          <td colspan="2" class="rssSectionHeader">Opinion</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/opinion/" target="xmlfile" rel="alternate" type="application/rss+xml">Opinion</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/opinion/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/opinion/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/opinion/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/opinion/cartoons/" target="xmlfile" rel="alternate" type="application/rss+xml">Editorial Cartoons</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/opinion/cartoons/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/opinion/cartoons/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/opinion/cartoons/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/opinion/times2/" target="xmlfile" rel="alternate" type="application/rss+xml">Times Editorial</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/opinion/times2/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/opinion/times2/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/opinion/times2/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/opinion/freepress/" target="xmlfile" rel="alternate" type="application/rss+xml">Free Press Editorial</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/opinion/freepress/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/opinion/freepress/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/opinion/freepress/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/opinion/rants/" target="xmlfile" rel="alternate" type="application/rss+xml">Rants</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/opinion/rants/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/opinion/rants/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/opinion/rants/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/opinion/letters/" target="xmlfile" rel="alternate" type="application/rss+xml">Letters to the Editor</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/opinion/letters/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/opinion/letters/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/opinion/letters/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/" target="xmlfile" rel="alternate" type="application/rss+xml">Blogs</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/firstperson/" target="xmlfile" rel="alternate" type="application/rss+xml">First Person</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/firstperson/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/firstperson/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/firstperson/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/metrochatt/" target="xmlfile" rel="alternate" type="application/rss+xml">Metro Chatt</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/metrochatt/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/metrochatt/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/metrochatt/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/cdreviews/" target="xmlfile" rel="alternate" type="application/rss+xml">CD Reviews</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/cdreviews/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/cdreviews/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/cdreviews/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/sceniccitysounds/" target="xmlfile" rel="alternate" type="application/rss+xml">Scenic City Sounds</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/sceniccitysounds/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/sceniccitysounds/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/sceniccitysounds/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/techcast/" target="xmlfile" rel="alternate" type="application/rss+xml">TechCast</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/techcast/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/techcast/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/techcast/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/food/" target="xmlfile" rel="alternate" type="application/rss+xml">Food</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/food/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/food/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/food/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/prepsports/" target="xmlfile" rel="alternate" type="application/rss+xml">Prep Sports</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/prepsports/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/prepsports/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/prepsports/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/nascar/" target="xmlfile" rel="alternate" type="application/rss+xml">NASCAR</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/nascar/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/nascar/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/nascar/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/lookouts/" target="xmlfile" rel="alternate" type="application/rss+xml">Lookouts</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/lookouts/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/lookouts/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/lookouts/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/utugautc/" target="xmlfile" rel="alternate" type="application/rss+xml">UT UGA UTC</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/utugautc/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/utugautc/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/utugautc/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/blogs/ncaa/" target="xmlfile" rel="alternate" type="application/rss+xml">NCAA</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/blogs/ncaa/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/blogs/ncaa/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/blogs/ncaa/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+        <tr>
+          <td class="rssTitleCell"><a href="http://timesfreepress.com/rss/headlines/opinion/columns/" target="xmlfile" rel="alternate" type="application/rss+xml">Columns</a><br />
+              <span style="font-size:9px; font-family:Arial, Helvetica, sans-serif;">&nbsp;&nbsp;&nbsp;<a href="http://timesfreepress.com/rss/headlines/opinion/columns/" target="xmlfile" rel="alternate" type="application/rss+xml">http://timesfreepress.com/rss/headlines/opinion/columns/</a></span></td>
+          <td class="rssSubscribeCell"><a href="http://timesfreepress.com/rss/headlines/opinion/columns/" target="xmlfile" rel="alternate" type="application/rss+xml"><img src="http://media.timesfreepress.com/images/site2009/rssfeeds.png" alt="" style="border:0px;" /></a>&nbsp;</td>
+        </tr>
+      </table>
+  </div>
+  
+    <div style="clear:both;"><!--  --></div>
+</div>
+
+
+						<div  class="clearboth"></div>
+						
+						<div style="text-align:center; margin-top:15px; margin-bottom:15px;">
+						
+							<!-- begin ZEDO for channel:  tfp-L/R-Banner , publisher: default , Ad Dimension: Full Banner - 468 x 60 -->
+							<script language="JavaScript">
+							var zflag_nid="591"; var zflag_cid="36/3/1"; var zflag_sid="0"; var zflag_width="468"; var zflag_height="60"; var zflag_sz="0"; 
+							</script>
+							<script language="JavaScript" src="http://c5.zedo.com/jsc/c5/fo.js"></script>
+							<!-- end ZEDO for channel:  tfp-L/R-Banner , publisher: default , Ad Dimension: Full Banner - 468 x 60 -->
+						
+						</div>
+						
+					</div>
+					
+				   	<div class="basegeneric_roundbottom"  style="width:960px;">
+					 <img src="http://media.timesfreepress.com/images/site2009/box_bl.jpg" alt="" width="5" height="5" class="corner" style="display: none" />
+					</div>
+				</div><!-- roundcontmain -->
+
+</div><!-- basegeneric_left -->
+
+
+
+
+
+
+	<div style="clear:both;"><br /></div>
+
+	<div style="width:960px; height:auto; color:#444444; font-weight:bold; font-size:11px; font-family:Verdana, Arial, Helvetica, sans-serif;  border-top:1px solid #ab1315; text-align:center;">
+
+					&copy; <a href="/news/2007/nov/12/publication-information-privacy-policy-terms-and-c/">Copyright, permissions and privacy policy</a>, <a href="/ethicspolicy/">Ethics policy</a> -  <strong>Copyright &copy;2011, Chattanooga Publishing Company, Inc. All rights reserved.</strong><br />
+					This document may not be reprinted without the express written permission of Chattanooga Publishing Company, Inc.
+
+</div>
+
+
+</div><!-- bodycontentwrap -->
+
+<!-- SiteCatalyst Code 
+Copyright 1997-2006 Omniture, Inc. 
+More info available at http://www.omniture.com -->
+<script type="text/javascript" src="http://iis.timesfreepress.com/js/s_code.js"></script>
+<script type="text/javascript"><!--
+	/* SiteCatalyst Variables */
+	s.pageName="Rss Feeds"
+	s.channel="Rss Feeds"
+	s.prop1="Content"
+	s.prop2="Article"
+	s.prop11="2"
+	s.products=",;TopBanner,;InStoryBox"
+	/************* DO NOT ALTER ANYTHING BELOW THIS LINE ! **************/
+	var s_code=s.t();if(s_code)document.write(s_code)//-->
+</script>
+<!-- End SiteCatalyst Code -->
+
+<!-- kbarrett google -->
+<script src="http://www.google-analytics.com/urchin.js" type="text/javascript"></script>
+<script type="text/javascript">
+_uacct = "UA-3865260-1";
+urchinTracker();
+</script>
+
+<!-- online google -->
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-11072036-2");
+pageTracker._setDomainName(".timesfreepress.com");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+<!-- begin ZEDO for channel: geotarget , publisher: default , Ad Dimension: Pixel/Popup - 1 x 1 -->
+<iframe src="http://c5.zedo.com/jsc/c5/ff2.html?n=591;c=232;d=15;w=1;h=1" frameborder="0" marginheight="0" marginwidth="0" scrolling="no" width="1" height="1"></iframe>
+<!-- end ZEDO for channel: geotarget , publisher: default , Ad Dimension: Pixel/Popup - 1 x 1 -->
+<div id="navrolloverprelaod"></div>
+</body>
+</html>

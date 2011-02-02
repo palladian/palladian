@@ -1,0 +1,35 @@
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us">
+	<head>
+		<title>World of Warcraft</title>
+		<link rel="stylesheet" type="text/css" media="all" href="/wow/static/css/interstitials/new-site.css" />
+		<link rel="shortcut icon" href="/wow/static/local-common/images/favicons/wow.ico" type="image/x-icon"/>
+	<!--[if IE6]><![endif]-->
+	</head>
+	
+	<body class="en-us">
+		<div class="content">
+			<div class="title">
+				<h1>Uh-oh.</h1>
+			</div>
+			<div class="text">
+				<p>Well, this is embarrassing. We tried really hard to find the page you were looking for, but it seems like it no longer exists at this address. The page may no longer be valid, or it may have moved as part of our recent release of the new community website; please visit <a href="http://us.battle.net/wow/en/">http://us.battle.net/wow/en/</a> to see if the page was moved there.</p><p>We apologize for the inconvenience. Rest assured that many goblins* were cast into the fiery abyss of the Molten Core for this transgression!</p>
+				<p class="footnote">*No goblins were harmed in the making of this webpage or cast into the fiery abyss of the Molten Core.</p>
+			</div>
+			<a class="button" href="http://us.battle.net/wow/en/">Continue</a>
+			<a class="screens" href="http://us.battle.net/wow/en/"><!-- --></a>
+			
+			<table cellpadding="0" cellspacing="0" border="0" class="logos">
+				<tr>
+					<td>
+						<a class="blizzlogo" target="_blank" href="http://us.blizzard.com/en-us/"><!-- --></a>
+					</td>
+					<td>
+						<a class="rating en-us" target="_blank" href="http://www.esrb.org/ratings/ratings_guide.jsp"><!-- --></a>
+					</td>
+				</tr>
+			</table>
+			<p class="copyright">©2010 Blizzard Entertainment, Inc. All rights reserved</p>
+		</div>
+	</body>
+</html>

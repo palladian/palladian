@@ -1,0 +1,50 @@
+
+<rss version="2.0">
+	<channel>
+		<title>Entertainment Earth Daily News Feed</title>
+		<link>http://www.entertainmentearth.com</link>
+		<description>Entertainment Earth's Daily News Feed provides the most up to date information about items we sell at Entertainment Earth.</description>
+		<image>
+			<url>http://images.entertainmentearth.com/templates/04_EE_logo_plain.gif</url>
+			<link>http://www.entertainmentearth.com/</link>
+		</image>
+		<language>en-us</language>
+		<copyright>Copyright 2005 Entertainment Earth, Inc. The contents of this feed are available for non-commercial use only.</copyright>
+		<generator>Entertainment Earth RSS Generator 1.0</generator>
+		<item>
+			<title>Kiss Space Zombies Goodbye</title>
+			<link>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011020201&amp;number=EW1048</link>
+			<description>Friend, do you have problems with monsters or the undead plaguing your space ships?  Worry no more with the Dead Space 2 Isaac Clarke Plasma Cutter Full Size Replica!   From Epic Weapons, this big mean weapon is a great tool to save your hide in the worlds of Dead Space.   If you like your plasma cutters retro, take a look at the Dead Space Timson Tools Plasma Cutter Full Size Replica, too. We think you'll be glad you did!</description>
+			<pubdate>Wed, 02 Feb 2011 2/2/2011 9:00:01 AM UT</pubdate>
+			<guid>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011020201&amp;number=EW1048</guid>
+		</item>
+		<item>
+			<title>This Bobble Head Is a Real Scream</title>
+			<link>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011020101&amp;number=NC41903</link>
+			<description>Based on the iconic mask of the killer from the film series, the Scream 4 Ghost Face Bobble Head is just around the corner!  NECA takes a stab (see what we did there?) at the classic design, expertly creating a bobble head with a bloody knife and flowing robes.  You can't miss out on this one!</description>
+			<pubdate>Tue, 01 Feb 2011 2/1/2011 9:00:00 AM UT</pubdate>
+			<guid>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011020101&amp;number=NC41903</guid>
+		</item>
+		<item>
+			<title>Save on Doctor Who's TARDIS</title>
+			<link>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011013101&amp;number=UT03500</link>
+			<description>If you've been holding off on getting your very own Doctor Who Flight Controlled TARDIS Vehicle, now is the time to act!   It makes all sorts of great noises, and your figures will fit inside, too.   But why buy today?  It's part of our Valentine's Day Sale, which ends really soon.  Get yours now!</description>
+			<pubdate>Mon, 31 Jan 2011 1/31/2011 9:00:01 AM UT</pubdate>
+			<guid>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011013101&amp;number=UT03500</guid>
+		</item>
+		<item>
+			<title>She'll Be Your Valentine</title>
+			<link>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011013001&amp;number=OS60072</link>
+			<description>Straight from Japan and available at our best price ever, the Sweet Body Huster Anime Figure Cardinal Red Variant Statue is hot stuff.  Bring her home today, as she's ready to play games with your heart and your pool table!</description>
+			<pubdate>Sun, 30 Jan 2011 1/30/2011 9:00:00 AM UT</pubdate>
+			<guid>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011013001&amp;number=OS60072</guid>
+		</item>
+		<item>
+			<title>Have a Drink with Bettie Page</title>
+			<link>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011012901&amp;number=DH15872</link>
+			<description>And if things get hot, she might take her top off.  You may say that sounds unrealistic, but let me assure you that the Bettie Page Color Changing Mug does exactly that!  Her outfit goes away when you pour in hot coffee or other warm drinks.  Amazing, and it's on sale now as part of our Valentine's Day Sale!</description>
+			<pubdate>Sat, 29 Jan 2011 1/29/2011 9:00:00 AM UT</pubdate>
+			<guid>http://www.entertainmentearth.com/prodinfo.asp?prod=1&amp;ts=2011012901&amp;number=DH15872</guid>
+		</item>
+	</channel>
+</rss>

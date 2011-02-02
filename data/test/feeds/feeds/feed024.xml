@@ -1,0 +1,920 @@
+<?xml version="1.0" ?>
+<rss version="2.0" xmlns:digg="http://digg.com/docs/diggrss/" xmlns:feedburner="http://rssnamespace.org/feedburner/ext/1.0" xmlns:media="http://search.yahoo.com/mrss/">
+	<channel>
+		<title>
+			digg.com: Top News
+		</title>
+		<language>
+			en-us
+		</language>
+		<description>
+			digg.com: Top News
+		</description>
+		<link>
+			http://digg.com/
+		</link>
+		<atom10:link href="http://feeds.digg.com/story.getTopNews" rel="self" type="application/rss+xml" xmlns:atom10="http://www.w3.org/2005/Atom">
+			http://digg.com/
+		</atom10:link>
+		<feedburner:info uri="story.getTopNews">
+			http://digg.com/
+		</feedburner:info>
+		<atom10:link href="http://pubsubhubbub.appspot.com/" rel="hub" xmlns:atom10="http://www.w3.org/2005/Atom">
+			http://digg.com/
+		</atom10:link>
+		<item>
+			<title>
+				Analyst: All consoles to get price cuts in 2011
+			</title>
+			<link>
+				http://digg.com/news/gaming/analyst_all_consoles_to_get_price_cuts_in_2011
+			</link>
+			<description>
+				Wedbush analyst Michael Pachter believes Microsoft, Sony, and Nintendo will make price cuts. He adds that a $50 cut across the board could help both the hardware and software markets.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 15:15:56
+			</pubDate>
+			<digg:diggCount>
+				65
+			</digg:diggCount>
+			<digg:category>
+				Gaming
+			</digg:category>
+			<digg:commentCount>
+				11
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn3.diggstatic.com/story/analyst_all_consoles_to_get_price_cuts_in_2011/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn2.diggstatic.com/story/analyst_all_consoles_to_get_price_cuts_in_2011/l.png" width="160"/>
+				<media:content height="48" url="http://cdn3.diggstatic.com/story/analyst_all_consoles_to_get_price_cuts_in_2011/s.png" width="48"/>
+				<media:content height="120" url="http://cdn2.diggstatic.com/story/analyst_all_consoles_to_get_price_cuts_in_2011/m.png" width="120"/>
+				<media:content height="62" url="http://cdn3.diggstatic.com/story/analyst_all_consoles_to_get_price_cuts_in_2011/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/gaming/analyst_all_consoles_to_get_price_cuts_in_2011
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					cnet
+				</digg:username>
+				<digg:userimage>
+					http://cdn2.diggstatic.com/user/179027/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/gaming/analyst_all_consoles_to_get_price_cuts_in_2011
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				How to fly a paper airplane from Germany to Australia
+			</title>
+			<link>
+				http://digg.com/news/science/how_to_fly_a_paper_airplane_from_germany_to_australia
+			</link>
+			<description>
+				The distance from Germany to Australia is approximately 10,000 miles. This seems like rather a long way for a paper airplane to fly. As it turns out, it's really not so hard, if you just launch a hundred of 'em from 20 miles up.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 19:39:28
+			</pubDate>
+			<digg:diggCount>
+				75
+			</digg:diggCount>
+			<digg:category>
+				Science
+			</digg:category>
+			<digg:commentCount>
+				5
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn3.diggstatic.com/story/how_to_fly_a_paper_airplane_from_germany_to_australia/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn1.diggstatic.com/story/how_to_fly_a_paper_airplane_from_germany_to_australia/l.png" width="160"/>
+				<media:content height="48" url="http://cdn1.diggstatic.com/story/how_to_fly_a_paper_airplane_from_germany_to_australia/s.png" width="48"/>
+				<media:content height="120" url="http://cdn1.diggstatic.com/story/how_to_fly_a_paper_airplane_from_germany_to_australia/m.png" width="120"/>
+				<media:content height="62" url="http://cdn3.diggstatic.com/story/how_to_fly_a_paper_airplane_from_germany_to_australia/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/science/how_to_fly_a_paper_airplane_from_germany_to_australia
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					mklopez
+				</digg:username>
+				<digg:userimage>
+					http://cdn2.diggstatic.com/user/30220/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/science/how_to_fly_a_paper_airplane_from_germany_to_australia
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Why Doesn’t Your Office Have A Recycling Bin?
+			</title>
+			<link>
+				http://digg.com/news/lifestyle/why_doesn_t_your_office_have_a_recycling_bin
+			</link>
+			<description>
+				The good news is that setting up an office recycling process is not that hard. In fact, you may find it an easy thing to do, although at first it will require a little conscious effort. But before long it will all be an automatic process, and your office will be doing its part to save the planet we all share.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 20:25:10
+			</pubDate>
+			<digg:diggCount>
+				81
+			</digg:diggCount>
+			<digg:category>
+				Lifestyle
+			</digg:category>
+			<digg:commentCount>
+				2
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn3.diggstatic.com/story/why_doesn_t_your_office_have_a_recycling_bin/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn3.diggstatic.com/story/why_doesn_t_your_office_have_a_recycling_bin/l.png" width="160"/>
+				<media:content height="48" url="http://cdn2.diggstatic.com/story/why_doesn_t_your_office_have_a_recycling_bin/s.png" width="48"/>
+				<media:content height="120" url="http://cdn1.diggstatic.com/story/why_doesn_t_your_office_have_a_recycling_bin/m.png" width="120"/>
+				<media:content height="62" url="http://cdn3.diggstatic.com/story/why_doesn_t_your_office_have_a_recycling_bin/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/lifestyle/why_doesn_t_your_office_have_a_recycling_bin
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					beshirthappy
+				</digg:username>
+				<digg:userimage>
+					http://cdn3.diggstatic.com/user/2803021/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/lifestyle/why_doesn_t_your_office_have_a_recycling_bin
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Born before Wright Brothers flew, world's oldest person dies at 114
+			</title>
+			<link>
+				http://digg.com/news/worldnews/born_before_wright_brothers_flew_world_s_oldest_person_dies_at_114
+			</link>
+			<description>
+				The world's oldest person, as verified by the Guinness Book of World Records, is dead at the age of 114, according to the Gerontology Research Group.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 19:01:56
+			</pubDate>
+			<digg:diggCount>
+				134
+			</digg:diggCount>
+			<digg:category>
+				World News
+			</digg:category>
+			<digg:commentCount>
+				18
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn1.diggstatic.com/story/born_before_wright_brothers_flew_world_s_oldest_person_dies_at_114/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn3.diggstatic.com/story/born_before_wright_brothers_flew_world_s_oldest_person_dies_at_114/l.png" width="160"/>
+				<media:content height="48" url="http://cdn2.diggstatic.com/story/born_before_wright_brothers_flew_world_s_oldest_person_dies_at_114/s.png" width="48"/>
+				<media:content height="120" url="http://cdn3.diggstatic.com/story/born_before_wright_brothers_flew_world_s_oldest_person_dies_at_114/m.png" width="120"/>
+				<media:content height="62" url="http://cdn1.diggstatic.com/story/born_before_wright_brothers_flew_world_s_oldest_person_dies_at_114/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/worldnews/born_before_wright_brothers_flew_world_s_oldest_person_dies_at_114
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					jcprodigalson
+				</digg:username>
+				<digg:userimage>
+					http://cdn2.diggstatic.com/img/user/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/worldnews/born_before_wright_brothers_flew_world_s_oldest_person_dies_at_114
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Worst Movie Roommates: 10 Characters We'd Never Want to Live With
+			</title>
+			<link>
+				http://digg.com/news/entertainment/worst_movie_roommates_10_characters_we_d_never_want_to_live_with
+			</link>
+			<description>
+				We all have our share of stories involving an iffy roommate. Yet we hope, for your sake, none have been as bad as our list of the worst roommates in movies -- especially number one.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 17:20:25
+			</pubDate>
+			<digg:diggCount>
+				103
+			</digg:diggCount>
+			<digg:category>
+				Entertainment
+			</digg:category>
+			<digg:commentCount>
+				7
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn2.diggstatic.com/story/worst_movie_roommates_10_characters_we_d_never_want_to_live_with/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn1.diggstatic.com/story/worst_movie_roommates_10_characters_we_d_never_want_to_live_with/l.png" width="160"/>
+				<media:content height="48" url="http://cdn2.diggstatic.com/story/worst_movie_roommates_10_characters_we_d_never_want_to_live_with/s.png" width="48"/>
+				<media:content height="120" url="http://cdn1.diggstatic.com/story/worst_movie_roommates_10_characters_we_d_never_want_to_live_with/m.png" width="120"/>
+				<media:content height="62" url="http://cdn2.diggstatic.com/story/worst_movie_roommates_10_characters_we_d_never_want_to_live_with/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/entertainment/worst_movie_roommates_10_characters_we_d_never_want_to_live_with
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					mklopez
+				</digg:username>
+				<digg:userimage>
+					http://cdn3.diggstatic.com/user/30220/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/entertainment/worst_movie_roommates_10_characters_we_d_never_want_to_live_with
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Charlotte Wins Democratic National Convention
+			</title>
+			<link>
+				http://digg.com/news/politics/charlotte_wins_democratic_national_convention
+			</link>
+			<description>
+				It came down to Charlotte, St. Louis, Minneapolis-St. Paul and Cleveland, but in the end it was the North Carolina city that got the nod to host the 2012 Democratic convention.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 13:53:11
+			</pubDate>
+			<digg:diggCount>
+				106
+			</digg:diggCount>
+			<digg:category>
+				Politics
+			</digg:category>
+			<digg:commentCount>
+				10
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn2.diggstatic.com/story/charlotte_wins_democratic_national_convention/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn2.diggstatic.com/story/charlotte_wins_democratic_national_convention/l.png" width="160"/>
+				<media:content height="48" url="http://cdn3.diggstatic.com/story/charlotte_wins_democratic_national_convention/s.png" width="48"/>
+				<media:content height="120" url="http://cdn1.diggstatic.com/story/charlotte_wins_democratic_national_convention/m.png" width="120"/>
+				<media:content height="62" url="http://cdn2.diggstatic.com/story/charlotte_wins_democratic_national_convention/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/politics/charlotte_wins_democratic_national_convention
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					cb810
+				</digg:username>
+				<digg:userimage>
+					http://cdn2.diggstatic.com/user/131614/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/politics/charlotte_wins_democratic_national_convention
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Crude Rally Ends on Signs of Reduced Risk From Egyptian Unrest - Bloomberg
+			</title>
+			<link>
+				http://digg.com/news/worldnews/crude_rally_ends_on_signs_of_reduced_risk_from_egyptian_unrest_bloomberg
+			</link>
+			<description>
+				Oil dropped from a two-year high as concern eased that supplies through the Suez Canal may be disrupted by unrest in Egypt. Brent crude traded above $100 a barrel for a second day.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 04:09:45
+			</pubDate>
+			<digg:diggCount>
+				102
+			</digg:diggCount>
+			<digg:category>
+				World News
+			</digg:category>
+			<digg:commentCount>
+				2
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn3.diggstatic.com/story/crude_rally_ends_on_signs_of_reduced_risk_from_egyptian_unrest_bloomberg/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn3.diggstatic.com/story/crude_rally_ends_on_signs_of_reduced_risk_from_egyptian_unrest_bloomberg/l.png" width="160"/>
+				<media:content height="48" url="http://cdn3.diggstatic.com/story/crude_rally_ends_on_signs_of_reduced_risk_from_egyptian_unrest_bloomberg/s.png" width="48"/>
+				<media:content height="120" url="http://cdn2.diggstatic.com/story/crude_rally_ends_on_signs_of_reduced_risk_from_egyptian_unrest_bloomberg/m.png" width="120"/>
+				<media:content height="62" url="http://cdn3.diggstatic.com/story/crude_rally_ends_on_signs_of_reduced_risk_from_egyptian_unrest_bloomberg/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/worldnews/crude_rally_ends_on_signs_of_reduced_risk_from_egyptian_unrest_bloomberg
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					dgooman
+				</digg:username>
+				<digg:userimage>
+					http://cdn1.diggstatic.com/user/7159274/p.2947355251.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/worldnews/crude_rally_ends_on_signs_of_reduced_risk_from_egyptian_unrest_bloomberg
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Simple Cell Phones For All Us Non-Smartphone Types
+			</title>
+			<link>
+				http://digg.com/news/technology/simple_cell_phones_for_all_us_non_smartphone_types
+			</link>
+			<description>
+				Looking to buy a cell phone for the luddite in your life? Or do you just want an uncomplicated phone for yourself? Either way, look no further than these seven easy-to-use cell phones
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 20:29:30
+			</pubDate>
+			<digg:diggCount>
+				100
+			</digg:diggCount>
+			<digg:category>
+				Technology
+			</digg:category>
+			<digg:commentCount>
+				6
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn3.diggstatic.com/story/simple_cell_phones_for_all_us_non_smartphone_types/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn2.diggstatic.com/story/simple_cell_phones_for_all_us_non_smartphone_types/l.png" width="160"/>
+				<media:content height="48" url="http://cdn2.diggstatic.com/story/simple_cell_phones_for_all_us_non_smartphone_types/s.png" width="48"/>
+				<media:content height="120" url="http://cdn3.diggstatic.com/story/simple_cell_phones_for_all_us_non_smartphone_types/m.png" width="120"/>
+				<media:content height="62" url="http://cdn3.diggstatic.com/story/simple_cell_phones_for_all_us_non_smartphone_types/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/technology/simple_cell_phones_for_all_us_non_smartphone_types
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					davincih
+				</digg:username>
+				<digg:userimage>
+					http://cdn2.diggstatic.com/user/458876/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/technology/simple_cell_phones_for_all_us_non_smartphone_types
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Bill O’Reilly Blows A Gasket Because Al-Jazeera Is Not Fair &amp; Balanced
+			</title>
+			<link>
+				http://digg.com/news/politics/bill_o_reilly_blows_a_gasket_because_al_jazeera_is_not_fair_balanced
+			</link>
+			<description>
+				Hilarity ensued during &quot;The O'Reilly Factor&quot; when host Bill O'Reilly blew a gasket at guest Alan Colmes during a discussion about Al-Jazeera.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 21:44:02
+			</pubDate>
+			<digg:diggCount>
+				145
+			</digg:diggCount>
+			<digg:category>
+				Politics
+			</digg:category>
+			<digg:commentCount>
+				33
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn3.diggstatic.com/story/bill_o_reilly_blows_a_gasket_because_al_jazeera_is_not_fair_balanced/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn1.diggstatic.com/story/bill_o_reilly_blows_a_gasket_because_al_jazeera_is_not_fair_balanced/l.png" width="160"/>
+				<media:content height="48" url="http://cdn3.diggstatic.com/story/bill_o_reilly_blows_a_gasket_because_al_jazeera_is_not_fair_balanced/s.png" width="48"/>
+				<media:content height="120" url="http://cdn3.diggstatic.com/story/bill_o_reilly_blows_a_gasket_because_al_jazeera_is_not_fair_balanced/m.png" width="120"/>
+				<media:content height="62" url="http://cdn3.diggstatic.com/story/bill_o_reilly_blows_a_gasket_because_al_jazeera_is_not_fair_balanced/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/politics/bill_o_reilly_blows_a_gasket_because_al_jazeera_is_not_fair_balanced
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					philperspective
+				</digg:username>
+				<digg:userimage>
+					http://cdn1.diggstatic.com/user/4058944/p.2893886901.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/politics/bill_o_reilly_blows_a_gasket_because_al_jazeera_is_not_fair_balanced
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Always Avoid Movies With Bold, Red Uppercase Fonts (Graphic)
+			</title>
+			<link>
+				http://digg.com/news/entertainment/always_avoid_movies_with_bold_red_uppercase_fonts_graphic
+			</link>
+			<description>
+				So very very accurate.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 14:18:42
+			</pubDate>
+			<digg:diggCount>
+				123
+			</digg:diggCount>
+			<digg:category>
+				Entertainment
+			</digg:category>
+			<digg:commentCount>
+				18
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn1.diggstatic.com/story/always_avoid_movies_with_bold_red_uppercase_fonts_graphic/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn1.diggstatic.com/story/always_avoid_movies_with_bold_red_uppercase_fonts_graphic/l.png" width="160"/>
+				<media:content height="48" url="http://cdn1.diggstatic.com/story/always_avoid_movies_with_bold_red_uppercase_fonts_graphic/s.png" width="48"/>
+				<media:content height="120" url="http://cdn2.diggstatic.com/story/always_avoid_movies_with_bold_red_uppercase_fonts_graphic/m.png" width="120"/>
+				<media:content height="62" url="http://cdn1.diggstatic.com/story/always_avoid_movies_with_bold_red_uppercase_fonts_graphic/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/entertainment/always_avoid_movies_with_bold_red_uppercase_fonts_graphic
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					refin3d
+				</digg:username>
+				<digg:userimage>
+					http://cdn1.diggstatic.com/user/6392971/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/entertainment/always_avoid_movies_with_bold_red_uppercase_fonts_graphic
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				When This Girl Laughs, It Sounds Like Pacman
+			</title>
+			<link>
+				http://digg.com/news/offbeat/when_this_girl_laughs_it_sounds_like_pacman
+			</link>
+			<description>
+				Some have also suggested it sounds like Mario swimming. Either way, this is hilarious.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 16:48:20
+			</pubDate>
+			<digg:diggCount>
+				128
+			</digg:diggCount>
+			<digg:category>
+				Offbeat
+			</digg:category>
+			<digg:commentCount>
+				12
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn1.diggstatic.com/story/when_this_girl_laughs_it_sounds_like_pacman/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn2.diggstatic.com/story/when_this_girl_laughs_it_sounds_like_pacman/l.png" width="160"/>
+				<media:content height="48" url="http://cdn1.diggstatic.com/story/when_this_girl_laughs_it_sounds_like_pacman/s.png" width="48"/>
+				<media:content height="120" url="http://cdn3.diggstatic.com/story/when_this_girl_laughs_it_sounds_like_pacman/m.png" width="120"/>
+				<media:content height="62" url="http://cdn1.diggstatic.com/story/when_this_girl_laughs_it_sounds_like_pacman/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/offbeat/when_this_girl_laughs_it_sounds_like_pacman
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					darkwater37
+				</digg:username>
+				<digg:userimage>
+					http://cdn3.diggstatic.com/user/3991920/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/offbeat/when_this_girl_laughs_it_sounds_like_pacman
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Loneliness is 'hidden killer' that poses as great a health risk as obesity
+			</title>
+			<link>
+				http://digg.com/news/lifestyle/loneliness_is_hidden_killer_that_poses_as_great_a_health_risk_as_obesity
+			</link>
+			<description>
+				Loneliness is a &quot;hidden killer&quot; of the elderly and as great a risk to health as obesity or smoking, a group of charities said today.
+They released a report, called Campaign to End Loneliness, which investigated the impact of the phenomenon in the UK.
+Researchers said a lack of social interaction has been linked with the onset of degenerative diseases such as Alzheimer's. They added that the World Health Organisation rated loneliness as a higher risk than lifelong smoking.
+
+Despite this fewer than one in five people have ever seen or heard information about loneliness as a health risk, according to a YouGov poll that accompanied the report.
+
+The report was launched by Age UK Oxfordshire, Counsel And Care, Independent Age and WRVS and funded by the Calouste Gulbenkian Foundation.
+
+Read more: http://www.dailymail.co.uk/health/article-1352479/Loneliness-hidden-killer-poses-great-health-risk-obesity.html#ixzz1CkeJp0mG
+
+
+It found the unpleasant feeling plagues the lives of one in 10 older people and that solitary pensioners are more likely to drink heavily, eat a poor diet and take less exercise.
+
+Read more: http://www.dailymail.co.uk/health/article-1352479/Loneliness-hidden-killer-poses-great-health-risk-obesity.html#ixzz1Cke3VOqk
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 15:06:52
+			</pubDate>
+			<digg:diggCount>
+				131
+			</digg:diggCount>
+			<digg:category>
+				Lifestyle
+			</digg:category>
+			<digg:commentCount>
+				9
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn1.diggstatic.com/story/loneliness_is_hidden_killer_that_poses_as_great_a_health_risk_as_obesity/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn3.diggstatic.com/story/loneliness_is_hidden_killer_that_poses_as_great_a_health_risk_as_obesity/l.png" width="160"/>
+				<media:content height="48" url="http://cdn3.diggstatic.com/story/loneliness_is_hidden_killer_that_poses_as_great_a_health_risk_as_obesity/s.png" width="48"/>
+				<media:content height="120" url="http://cdn2.diggstatic.com/story/loneliness_is_hidden_killer_that_poses_as_great_a_health_risk_as_obesity/m.png" width="120"/>
+				<media:content height="62" url="http://cdn1.diggstatic.com/story/loneliness_is_hidden_killer_that_poses_as_great_a_health_risk_as_obesity/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/lifestyle/loneliness_is_hidden_killer_that_poses_as_great_a_health_risk_as_obesity
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					bettverboten
+				</digg:username>
+				<digg:userimage>
+					http://cdn1.diggstatic.com/user/5118941/p.2949999146.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/lifestyle/loneliness_is_hidden_killer_that_poses_as_great_a_health_risk_as_obesity
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				BMW car key prototype unlocks hotel rooms, train seats
+			</title>
+			<link>
+				http://digg.com/news/technology/bmw_car_key_prototype_unlocks_hotel_rooms_train_seats
+			</link>
+			<description>
+				Researchers at BMW have taken the wireless car key to the next level by embedding &quot;near field communications&quot; and letting it be the key to many things (maybe even life?).
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 10:31:00
+			</pubDate>
+			<digg:diggCount>
+				123
+			</digg:diggCount>
+			<digg:category>
+				Technology
+			</digg:category>
+			<digg:commentCount>
+				8
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn2.diggstatic.com/story/bmw_car_key_prototype_unlocks_hotel_rooms_train_seats/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn3.diggstatic.com/story/bmw_car_key_prototype_unlocks_hotel_rooms_train_seats/l.png" width="160"/>
+				<media:content height="48" url="http://cdn3.diggstatic.com/story/bmw_car_key_prototype_unlocks_hotel_rooms_train_seats/s.png" width="48"/>
+				<media:content height="120" url="http://cdn1.diggstatic.com/story/bmw_car_key_prototype_unlocks_hotel_rooms_train_seats/m.png" width="120"/>
+				<media:content height="62" url="http://cdn2.diggstatic.com/story/bmw_car_key_prototype_unlocks_hotel_rooms_train_seats/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/technology/bmw_car_key_prototype_unlocks_hotel_rooms_train_seats
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					julie188
+				</digg:username>
+				<digg:userimage>
+					http://cdn1.diggstatic.com/user/510866/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/technology/bmw_car_key_prototype_unlocks_hotel_rooms_train_seats
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Video games breathe new life into pinball, board games
+			</title>
+			<link>
+				http://digg.com/news/gaming/video_games_breathe_new_life_into_pinball_board_games
+			</link>
+			<description>
+				Ars looks at the recent trend of physical games like board games and pinball making the transition to the digital world of video games.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 06:26:13
+			</pubDate>
+			<digg:diggCount>
+				104
+			</digg:diggCount>
+			<digg:category>
+				Gaming
+			</digg:category>
+			<digg:commentCount>
+				2
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn3.diggstatic.com/story/video_games_breathe_new_life_into_pinball_board_games/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn3.diggstatic.com/story/video_games_breathe_new_life_into_pinball_board_games/l.png" width="160"/>
+				<media:content height="48" url="http://cdn1.diggstatic.com/story/video_games_breathe_new_life_into_pinball_board_games/s.png" width="48"/>
+				<media:content height="120" url="http://cdn2.diggstatic.com/story/video_games_breathe_new_life_into_pinball_board_games/m.png" width="120"/>
+				<media:content height="62" url="http://cdn3.diggstatic.com/story/video_games_breathe_new_life_into_pinball_board_games/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/gaming/video_games_breathe_new_life_into_pinball_board_games
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					mklopez
+				</digg:username>
+				<digg:userimage>
+					http://cdn3.diggstatic.com/user/30220/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/gaming/video_games_breathe_new_life_into_pinball_board_games
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Egypt is Pissed Off! (PICS)
+			</title>
+			<link>
+				http://digg.com/news/worldnews/egypt_is_pissed_off_pics
+			</link>
+			<description>
+				
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 16:34:42
+			</pubDate>
+			<digg:diggCount>
+				138
+			</digg:diggCount>
+			<digg:category>
+				World News
+			</digg:category>
+			<digg:commentCount>
+				16
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn2.diggstatic.com/story/egypt_is_pissed_off_pics/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn3.diggstatic.com/story/egypt_is_pissed_off_pics/l.png" width="160"/>
+				<media:content height="48" url="http://cdn3.diggstatic.com/story/egypt_is_pissed_off_pics/s.png" width="48"/>
+				<media:content height="120" url="http://cdn1.diggstatic.com/story/egypt_is_pissed_off_pics/m.png" width="120"/>
+				<media:content height="62" url="http://cdn2.diggstatic.com/story/egypt_is_pissed_off_pics/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/worldnews/egypt_is_pissed_off_pics
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					notifyneal
+				</digg:username>
+				<digg:userimage>
+					http://cdn1.diggstatic.com/user/585810/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/worldnews/egypt_is_pissed_off_pics
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				GM looks to China for more plants, exports
+			</title>
+			<link>
+				http://digg.com/news/business/gm_looks_to_china_for_more_plants_exports_2
+			</link>
+			<description>
+				China has already become General Motors’ largest market and now the Detroit-based automaker says it is considering more plants aimed at export production.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 09:04:26
+			</pubDate>
+			<digg:diggCount>
+				127
+			</digg:diggCount>
+			<digg:category>
+				Business
+			</digg:category>
+			<digg:commentCount>
+				12
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn2.diggstatic.com/story/gm_looks_to_china_for_more_plants_exports_2/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn1.diggstatic.com/story/gm_looks_to_china_for_more_plants_exports_2/l.png" width="160"/>
+				<media:content height="48" url="http://cdn3.diggstatic.com/story/gm_looks_to_china_for_more_plants_exports_2/s.png" width="48"/>
+				<media:content height="120" url="http://cdn2.diggstatic.com/story/gm_looks_to_china_for_more_plants_exports_2/m.png" width="120"/>
+				<media:content height="62" url="http://cdn2.diggstatic.com/story/gm_looks_to_china_for_more_plants_exports_2/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/business/gm_looks_to_china_for_more_plants_exports_2
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					wjappe
+				</digg:username>
+				<digg:userimage>
+					http://cdn1.diggstatic.com/user/3523637/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/business/gm_looks_to_china_for_more_plants_exports_2
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				'Footloose' meets real life: Top 10 high school dance controversies (videos)
+			</title>
+			<link>
+				http://digg.com/news/offbeat/footloose_meets_real_life_top_10_high_school_dance_controversies_videos
+			</link>
+			<description>
+				As a real-life 'Footlose' situation unfolds in one Ohio town, cleveland.com looks at the Top 10 real-world high school dance controversies.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 13:21:04
+			</pubDate>
+			<digg:diggCount>
+				96
+			</digg:diggCount>
+			<digg:category>
+				Offbeat
+			</digg:category>
+			<digg:commentCount>
+				4
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn1.diggstatic.com/story/footloose_meets_real_life_top_10_high_school_dance_controversies_videos/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn2.diggstatic.com/story/footloose_meets_real_life_top_10_high_school_dance_controversies_videos/l.png" width="160"/>
+				<media:content height="48" url="http://cdn3.diggstatic.com/story/footloose_meets_real_life_top_10_high_school_dance_controversies_videos/s.png" width="48"/>
+				<media:content height="120" url="http://cdn1.diggstatic.com/story/footloose_meets_real_life_top_10_high_school_dance_controversies_videos/m.png" width="120"/>
+				<media:content height="62" url="http://cdn1.diggstatic.com/story/footloose_meets_real_life_top_10_high_school_dance_controversies_videos/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/offbeat/footloose_meets_real_life_top_10_high_school_dance_controversies_videos
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					sungoddess808
+				</digg:username>
+				<digg:userimage>
+					http://cdn1.diggstatic.com/user/2784495/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/offbeat/footloose_meets_real_life_top_10_high_school_dance_controversies_videos
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				Flickr Accidentally Deletes a User's 4,000 Photos and Can't Get Them Back
+			</title>
+			<link>
+				http://digg.com/news/technology/flickr_accidentally_deletes_a_user_s_4_000_photos_and_can_t_get_them_back
+			</link>
+			<description>
+				Major, major stumble from Flickr today--a Zurich-based photoblogger says Flickr deleted his account by mistake and lost his 4,000 photos.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 14:41:16
+			</pubDate>
+			<digg:diggCount>
+				151
+			</digg:diggCount>
+			<digg:category>
+				Technology
+			</digg:category>
+			<digg:commentCount>
+				45
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn1.diggstatic.com/story/flickr_accidentally_deletes_a_user_s_4_000_photos_and_can_t_get_them_back/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn2.diggstatic.com/story/flickr_accidentally_deletes_a_user_s_4_000_photos_and_can_t_get_them_back/l.png" width="160"/>
+				<media:content height="48" url="http://cdn1.diggstatic.com/story/flickr_accidentally_deletes_a_user_s_4_000_photos_and_can_t_get_them_back/s.png" width="48"/>
+				<media:content height="120" url="http://cdn3.diggstatic.com/story/flickr_accidentally_deletes_a_user_s_4_000_photos_and_can_t_get_them_back/m.png" width="120"/>
+				<media:content height="62" url="http://cdn1.diggstatic.com/story/flickr_accidentally_deletes_a_user_s_4_000_photos_and_can_t_get_them_back/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/technology/flickr_accidentally_deletes_a_user_s_4_000_photos_and_can_t_get_them_back
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					alaskalonewolf
+				</digg:username>
+				<digg:userimage>
+					http://cdn2.diggstatic.com/user/1255423/p.630795950.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/technology/flickr_accidentally_deletes_a_user_s_4_000_photos_and_can_t_get_them_back
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				APOD: Moon and Venus over Switzerland
+			</title>
+			<link>
+				http://digg.com/news/science/apod_moon_and_venus_over_switzerland
+			</link>
+			<description>
+				A different astronomy and space science
+related image is featured each day, along with a brief explanation.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 22:49:21
+			</pubDate>
+			<digg:diggCount>
+				153
+			</digg:diggCount>
+			<digg:category>
+				Science
+			</digg:category>
+			<digg:commentCount>
+				6
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn1.diggstatic.com/story/apod_moon_and_venus_over_switzerland/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn1.diggstatic.com/story/apod_moon_and_venus_over_switzerland/l.png" width="160"/>
+				<media:content height="48" url="http://cdn1.diggstatic.com/story/apod_moon_and_venus_over_switzerland/s.png" width="48"/>
+				<media:content height="120" url="http://cdn1.diggstatic.com/story/apod_moon_and_venus_over_switzerland/m.png" width="120"/>
+				<media:content height="62" url="http://cdn1.diggstatic.com/story/apod_moon_and_venus_over_switzerland/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/science/apod_moon_and_venus_over_switzerland
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					arbiinc
+				</digg:username>
+				<digg:userimage>
+					http://cdn1.diggstatic.com/user/5643928/p.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/science/apod_moon_and_venus_over_switzerland
+			</feedburner:origLink>
+		</item>
+		<item>
+			<title>
+				World Of Warcraft Nerd Rage (Video)
+			</title>
+			<link>
+				http://digg.com/news/gaming/world_of_warcraft_nerd_rage_video
+			</link>
+			<description>
+				If my little brother sounded that annoying I would of done the same thing.
+			</description>
+			<pubDate>
+				Tue, 01 February 2011 13:24:46
+			</pubDate>
+			<digg:diggCount>
+				125
+			</digg:diggCount>
+			<digg:category>
+				Gaming
+			</digg:category>
+			<digg:commentCount>
+				8
+			</digg:commentCount>
+			<media:thumbnail height="62" url="http://cdn3.diggstatic.com/story/world_of_warcraft_nerd_rage_video/t.png" width="62"/>
+			<media:group>
+				<media:content height="160" url="http://cdn1.diggstatic.com/story/world_of_warcraft_nerd_rage_video/l.png" width="160"/>
+				<media:content height="48" url="http://cdn2.diggstatic.com/story/world_of_warcraft_nerd_rage_video/s.png" width="48"/>
+				<media:content height="120" url="http://cdn3.diggstatic.com/story/world_of_warcraft_nerd_rage_video/m.png" width="120"/>
+				<media:content height="62" url="http://cdn3.diggstatic.com/story/world_of_warcraft_nerd_rage_video/t.png" width="62"/>
+			</media:group>
+			<guid isPermaLink="false">
+				http://digg.com/news/gaming/world_of_warcraft_nerd_rage_video
+			</guid>
+			<digg:submitter>
+				<digg:username>
+					break
+				</digg:username>
+				<digg:userimage>
+					http://cdn3.diggstatic.com/user/20100828042938:7d5f8ab2-4feb-4008-b90c-6ee4cd714dd4/p.3040954101.png
+				</digg:userimage>
+			</digg:submitter>
+			<feedburner:origLink>
+				http://digg.com/news/gaming/world_of_warcraft_nerd_rage_video
+			</feedburner:origLink>
+		</item>
+	</channel>
+</rss>

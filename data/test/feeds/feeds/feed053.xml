@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+   <channel>
+      <title>Features RSS</title>
+      <link></link>
+      <atom:link href="" rel="self" type="application/rss+xml" />
+      <description></description>
+      <language>en-us</language>
+      <pubDate>1/26/2011 4:40:55 PM</pubDate>    
+
+      <item>
+         <title>Helping the underrepresented</title>
+         <pubDate>11/30/2010 5:25:47 PM</pubDate>
+         <link>http://law.gsu.edu/4952.html</link>
+         <guid>http://law.gsu.edu/4952.html</guid>
+         <description><![CDATA[
+        Clair Bryan, a second-year student at Georgia State University College of Law, recently placed first in a writing competition sponsored by the National Academy of Elder Law Attorneys.
+    ]]></description>
+         <enclosure url="http://law.gsu.edu/images/news_thumbnails_100_75/TN_Student_Clair_Bryan.jpg" length="24944" type="image/gif" />
+      </item>
+
+      <item>
+         <title>Born to Perform</title>
+         <pubDate>1/6/2011 11:51:52 AM</pubDate>
+         <link>http://law.gsu.edu/5284.html</link>
+         <guid>http://law.gsu.edu/5284.html</guid>
+         <description><![CDATA[
+        Georgia State University College of Law student Raymond Lindholm was born to perform, whether showering the audience with inspiring melodies from his violin or winning the jury's vote with his powerful closing arguments.
+    ]]></description>
+         <enclosure url="http://law.gsu.edu/images/news_thumbnails_100_75/TN_Student_Raymond_Lindholm.jpg" length="27232" type="image/gif" />
+      </item>
+
+      <item>
+         <title>Getting in Tune</title>
+         <pubDate>1/6/2011 11:29:17 AM</pubDate>
+         <link>http://law.gsu.edu/5232.html</link>
+         <guid>http://law.gsu.edu/5232.html</guid>
+         <description><![CDATA[
+        <p>Before Doug Yarn became a College of Law professor, he owned a chain of music stores and played in a rock band. </p>
+    ]]></description>
+         <enclosure url="http://law.gsu.edu/images/news_thumbnails_100_75/TN_Faculty_Doug_Yarn_kilt.jpg" length="27460" type="image/gif" />
+      </item>
+
+      <item>
+         <title>Georgia State Law is #1</title>
+         <pubDate>10/27/2010 2:47:30 PM</pubDate>
+         <link>http://law.gsu.edu/4950.html</link>
+         <guid>http://law.gsu.edu/4950.html</guid>
+         <description><![CDATA[
+        Georgia State University College of Law was ranked No. 1 in the country for its value, according to National Jurist, a magazine geared to law students. Georgia State Law jumped to the top of the pack from fourth last year.
+    ]]></description>
+         <enclosure url="http://law.gsu.edu/images/news_thumbnails_100_75/TN_Publications_Prelaw_Bestvalue2010.gif" length="6406" type="image/gif" />
+      </item>
+
+   </channel>
+</rss>

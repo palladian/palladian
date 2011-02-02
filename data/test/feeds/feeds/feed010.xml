@@ -1,0 +1,48 @@
+<?xml version="1.0" ?> 
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+
+
+<channel>
+    <title>Massachusetts Department of Elementary and Secondary Education News Feed</title>
+    <link>http://www.doe.mass.edu</link>
+    <description>News Headlines from the Massachusetts Department of Elementary and Secondary Education</description>
+    <language>en-us</language>
+    <copyright>Copyright 2011 ESE</copyright>
+    <lastBuildDate>Wed, 02 Feb 2011 10:37:00 EST </lastBuildDate>
+    <atom:link rel="self" type="application/rss+xml" href="http://www.doe.mass.edu/rss/doe_headlines.rss" />
+
+    <image>
+        <title>ESE RSS</title>
+        <url>http://www.doe.mass.edu/images/esebutton.gif</url>
+        <link>http://www.doe.mass.edu</link>
+    </image>
+
+    <item>
+   <title>Snow emergency</title>
+   <link>http://www.doe.mass.edu/news/news.aspx?id=5982</link>
+   <pubDate>Wed, 02 Feb 2011 05:37:00 EST</pubDate>
+</item>
+<item>
+   <title>Snow Emergency</title>
+   <link>http://www.doe.mass.edu/news/news.aspx?id=5962</link>
+   <pubDate>Wed, 26 Jan 2011 04:33:00 EST</pubDate>
+</item>
+<item>
+   <title>Commissioner&#39;s Update - January 26, 2011</title>
+   <link>http://www.doe.mass.edu/mailings/2011/cm012611.html</link>
+   <pubDate>Wed, 26 Jan 2011 09:16:00 EST</pubDate>
+</item>
+<item>
+   <title>Massachusetts 4th &#38; 8th Graders Show Strong Performance on 2009 NAEP Science Exams</title>
+   <link>http://www.mass.gov/?pageID=gov3pressrelease&L=1&L0=Home&sid=Agov3&b=pressrelease&f=110125_naep_science_exams&csid=Agov3</link>
+   <pubDate>Tue, 25 Jan 2011 01:06:00 EST</pubDate>
+</item>
+<item>
+   <title>Eight Public Hearings Scheduled on 23 Charter School Applications</title>
+   <link>http://www.doe.mass.edu/charter/finalists/10/default.html</link>
+   <pubDate>Mon, 15 Nov 2010 01:38:00 EST</pubDate>
+</item>
+
+
+</channel>
+</rss>
