@@ -479,6 +479,7 @@ public class ChartCreator {
      * has a third column "cumulated number of feeds" (12, 2217, 50385), where the third row states that 50385 feeds had
      * at least 12 new items, but some of these 50385 feeds have more than 12 new items.
      */
+    @SuppressWarnings("unused")
     private void feedsNewItemsRewriter() {
         List<String> input = FileHelper.readFileToArray(FEEDS_NEW_ITEMS_PATH_INPUT);
         int highestNewItems = 0;
