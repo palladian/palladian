@@ -437,15 +437,12 @@ public class LingPipeNER extends NamedEntityRecognizer {
         // "data/temp/esp.testb");
 
         // using a column trainig and testing file
-        tagger.train("data/test/ner/training.txt", "data/temp/lingpipe.model");
-        EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/temp/lingpipe.model",
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lingPipeNER.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/lingPipeNER.model",
                 TaggingFormat.COLUMN);
-        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lingpipe.model");
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/testA.txt", "data/temp/lingpipe.model",
-        // TaggingFormat.COLUMN);
-
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
+
 
         // using a dataset
         // Dataset trainingDataset = new Dataset();

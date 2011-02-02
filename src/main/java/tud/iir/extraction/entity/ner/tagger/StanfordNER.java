@@ -13,7 +13,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 
-import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
@@ -531,21 +530,22 @@ public class StanfordNER extends NamedEntityRecognizer {
         // st.evaluateNER("data/temp/ner-model-mobilePhone.ser.gz", "data/temp/allUntagged.xml");
 
         // /////////////////////////// train and test /////////////////////////////
-        // tagger.train("data/datasets/ner/politician/text/training.tsv","data/models/stanfordner/training/sample.prop");
-        // EvaluationResult er = tagger.evaluate("data/datasets/ner/politician/text/testing.tsv",
-        // "data/models/stanfordner/data/new-example-model.ser.gz", TaggingFormat.COLUMN);
-        // System.out.println(er.getMUCResultsReadable());
-        // System.out.println(er.getExactMatchResultsReadable());
-
-        Dataset trainingDataset = new Dataset();
-        trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
-        tagger.train(trainingDataset, "data/temp/stanfordner." + tagger.getModelFileEnding());
-
-        Dataset testingDataset = new Dataset();
-        testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
-        EvaluationResult er = tagger.evaluate(testingDataset, "data/temp/stanfordner." + tagger.getModelFileEnding());
+        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/stanfordNER.model");
+        EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/stanfordNER.model",
+                TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
+
+// Dataset trainingDataset = new Dataset();
+        // trainingDataset.setPath("data/datasets/ner/www_test/index_split1.txt");
+        // tagger.train(trainingDataset, "data/temp/stanfordner." + tagger.getModelFileEnding());
+        //
+        // Dataset testingDataset = new Dataset();
+        // testingDataset.setPath("data/datasets/ner/www_test/index_split2.txt");
+        // EvaluationResult er = tagger.evaluate(testingDataset, "data/temp/stanfordner." +
+        // tagger.getModelFileEnding());
+        // System.out.println(er.getMUCResultsReadable());
+        // System.out.println(er.getExactMatchResultsReadable());
 
     }
 
