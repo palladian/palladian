@@ -8,10 +8,9 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 
 import net.sourceforge.jwbf.core.actions.util.ActionException;
-import net.sourceforge.jwbf.core.contentRep.SimpleArticle;
+import net.sourceforge.jwbf.core.contentRep.Article;
 import net.sourceforge.jwbf.mediawiki.actions.meta.Siteinfo;
 import net.sourceforge.jwbf.mediawiki.actions.util.VersionException;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
@@ -33,6 +32,7 @@ import tud.iir.web.wiki.queries.RevisionsByTitleQuery;
 /**
  * A MediaWiki crawler that connects to a MediaWiki API using the Java Wiki Bot Framework (jwbf).
  * For details see documentation/handout/img/MediaWikiCrawler-UMLStateMachine.png
+ * The crawler does a contineous crawling unless it is stopped or login to the Wiki fails for multiple times in a row.
  * 
  * Naming convention: all methods starting with "crawl" fetch something from the Wiki API.
  * 
@@ -40,16 +40,18 @@ import tud.iir.web.wiki.queries.RevisionsByTitleQuery;
  */
 public class MediaWikiCrawler implements Runnable {
 
-    /** The global logger. */
+    /** The global logger */
     private static final Logger LOGGER = Logger.getLogger(MediaWikiCrawler.class);
 
-    /** Do not call LOGGER.isDebugEnabled() 1000 times. */
+    /** do not call LOGGER.isDebugEnabled() 1000 times */
     private static final boolean DEBUG = LOGGER.isDebugEnabled();
 
-    /** Do not call LOGGER.isInfoEnabled() 1000 times. */
+    /** do not call LOGGER.isInfoEnabled() 1000 times */
     private static final boolean INFO = LOGGER.isInfoEnabled();
 
-    /** Used for logging to periodically write status output. */
+    // private static final UncertainRepository repository;
+
+    /** used for logging to periodically write status output */
     private static final int INFO_SIZE = 100;
 
     /**
@@ -172,18 +174,23 @@ public class MediaWikiCrawler implements Runnable {
         } catch (ActionException e1) {
             consecutiveLoginErrors++;
             LOGGER.error("Login to MediaWiki \"" + mwDescriptor.getWikiApiURL().toString() + "\" failed + "
-                    + consecutiveLoginErrors + " time(s)! ", e1);
-            try {
-                Thread.sleep(LOGIN_RETRY_TIME);
-            } catch (InterruptedException e) {
-                if (DEBUG) {
-                    LOGGER.debug(e);
+                    + consecutiveLoginErrors + " time(s) in a row!", e1);
+
+            if (consecutiveLoginErrors < maxConsecutiveLoginErrors) {
+
+                // wait and try to login again
+                try {
+                    Thread.sleep(LOGIN_RETRY_TIME);
+                } catch (InterruptedException e) {
+                    if (DEBUG) {
+                        LOGGER.debug(e);
+                    }
                 }
-            }
-            if (consecutiveLoginErrors > maxConsecutiveLoginErrors) {
+                login();
+            } else {
                 LOGGER.fatal("Could not log in MediaWiki \"" + mwDescriptor.getWikiApiURL().toString() + " for "
-                        + maxConsecutiveLoginErrors + " times in a row - I give up. Goodbye!");
-                stopThread();
+                        + maxConsecutiveLoginErrors + " times in a row - I give up!");
+                stopCrawler();
             }
         }
         return loginSuccessful;
@@ -196,32 +203,51 @@ public class MediaWikiCrawler implements Runnable {
      * @param pageName The title of the page to crawl.
      */
     private void crawlAndStorePageContent(final String pageName) {
-        SimpleArticle sa;
+        Article article;
+        StopWatch stopWatch = null;
         try {
             // TODO: room for optimization: whole page is transferred to get most recent revisionID
-            sa = new SimpleArticle(bot.readContent(pageName));
+            if (DEBUG) {
+                stopWatch = new StopWatch();
+            }
+            article = bot.readContent(pageName);
+            if (DEBUG) {
+                LOGGER.debug("API Processing Article of page \"" + pageName + "\" took "
+                        + stopWatch.getElapsedTimeString());
+            }
 
             final String htmlContent = crawlPageContent(pageName);
-            final int pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageName);
 
-            // FIXME: find better solution for this bug
+            if (DEBUG) {
+                stopWatch.start();
+            }
+            final int pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageName);
+            if (DEBUG) {
+                LOGGER.debug("DB Getting pageID for page \"" + pageName + "\" took " + stopWatch.getElapsedTimeString());
+            }
+
             // quick workaround for bug in SimpleArticle:
             // bug: if a page is missing, the MediaWiki API's response contains an element 'missing' but this element
             // is not processed by GetRevision#findContent(...)
             // workaround: if revisionID is empty, we assume that the page is not contained in the Wiki anymore and
             // ignore it for now.
-            if (sa.getRevisionId().equals("")) {
+            // FIXME: find better solution for this bug
+            if (article.getRevisionId().equals("")) {
                 if (DEBUG) {
                     LOGGER.debug("Could not retrieve page content for page \"" + pageName
                             + "\", page seems to be deleted.");
                 }
             } else {
-
+                if (DEBUG) {
+                    stopWatch.start();
+                }
                 boolean pageUpdated = mwDatabase.updatePage(mwDescriptor.getWikiID(), pageID,
-                        Long.parseLong(sa.getRevisionId()), htmlContent, predictNextCheck(pageID));
+                        Long.parseLong(article.getRevisionId()), htmlContent, predictNextCheck(pageID));
                 if (!pageUpdated || DEBUG) {
                     final String msg = "\n   Page \"" + pageName + "\" has HTML content:\n" + htmlContent
-                    + "\n   HTML content has " + (pageUpdated ? "" : "NOT ") + "been written to database.";
+                            + "\n   HTML content has " + (pageUpdated ? "" : "NOT ") + "been written to database.";
+                    LOGGER.debug("DB  Updating database for page \"" + pageName + "\" took "
+                            + stopWatch.getElapsedTimeString());
                     if (pageUpdated) {
                         LOGGER.debug(msg);
                     } else {
@@ -242,12 +268,24 @@ public class MediaWikiCrawler implements Runnable {
      */
     private String crawlPageContent(final String pageName) {
         String htmlContent = null;
+
+        StopWatch stopWatch = null;
+        if (DEBUG) {
+            stopWatch = new StopWatch();
+        }
+
         try {
             GetRendering renderedText = new GetRendering(bot, pageName);
             htmlContent = renderedText.getHtml();
         } catch (VersionException e) {
             LOGGER.error("Could not retrieve page content for page \"" + pageName + "\" ", e);
         }
+
+        if (DEBUG) {
+            LOGGER.debug("API Crawling page content of page \"" + pageName + "\" took "
+                    + stopWatch.getElapsedTimeString());
+        }
+
         return htmlContent;
     }
 
@@ -289,7 +327,7 @@ public class MediaWikiCrawler implements Runnable {
             }
 
             if (INFO) {
-                LOGGER.info("Finished crawling of all page titles for namespaceID=" + namespaceID + ". " + counter
+                LOGGER.info("Finished crawling of all page titles for namespaceID=" + namespaceID + ".   " + counter
                         + " page titles have been added to database, crawling took " + stopWatch.getElapsedTimeString());
             }
         }
@@ -356,13 +394,25 @@ public class MediaWikiCrawler implements Runnable {
      * @return The number of revisions that have been added. Negative value in case of an error (see error log).
      */
     private int crawlRevisionsByTitle(final String pageName, final Long revisionIDStart, final boolean skipFirst) {
+        StopWatch stopWatch = null;
 
+        if (DEBUG) {
+            stopWatch = new StopWatch();
+        }
         final Integer pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageName);
+        if (DEBUG) {
+            LOGGER.debug("DB crawlRevisionsByTitle, get pageID from Database for page \"" + pageName + "\" took "
+                    + stopWatch.getElapsedTimeString());
+        }
 
         if (pageID == null) {
             LOGGER.error("Page name \"" + pageName + "\" does not exist for Wiki \"" + mwDescriptor.getWikiName()
                     + "\" in database.");
             return -1;
+        }
+
+        if (DEBUG) {
+            stopWatch.start();
         }
 
         // prepare query for revisions
@@ -373,6 +423,12 @@ public class MediaWikiCrawler implements Runnable {
             LOGGER.error("Fetching the revisions is not supported by this Wiki version. " + e);
         }
 
+        if (DEBUG) {
+            LOGGER.debug("API crawlRevisionsByTitle, get Revisions from API for page \"" + pageName + "\" took "
+                    + stopWatch.getElapsedTimeString());
+            stopWatch.start();
+        }
+
         // run query and process results
         int revisionCounter = 0;
         int revisionsSkipped = 0;
@@ -381,7 +437,7 @@ public class MediaWikiCrawler implements Runnable {
             Long revisionID = revision.getRevisionID();
             // skip revision with revisionIDStart since we want get newer revisions only. Do not increase
             // revisionsSkipped since it is used to count revisions that should have been added but failed
-            if (skipFirst && revisionID.equals(revisionIDStart)) {
+            if (skipFirst && (revisionID.equals(revisionIDStart))) {
                 continue;
             }
 
@@ -396,12 +452,19 @@ public class MediaWikiCrawler implements Runnable {
 
         // update database
         revisionsSkipped += mwDatabase.addRevisions(mwDescriptor.getWikiID(), pageID, revisions);
+        if (DEBUG) {
+            LOGGER.debug("DB crawlRevisionsByTitle, add Revisions to database for page \"" + pageName + "\" took "
+                    + stopWatch.getElapsedTimeString());
+            stopWatch.start();
+        }
 
         mwDatabase.updatePage(mwDescriptor.getWikiID(), pageID, predictNextCheck(pageID));
 
         if (DEBUG) {
             LOGGER.debug("Processed " + revisionCounter + " revision(s) for page \"" + pageName + "\" : added "
                     + (revisionCounter - revisionsSkipped) + " , skipped " + revisionsSkipped);
+            LOGGER.debug("DB crawlRevisionsByTitle, update page \"" + pageName + "\" in database took "
+                    + stopWatch.getElapsedTimeString());
         }
         return revisionCounter - revisionsSkipped;
     }
@@ -418,7 +481,12 @@ public class MediaWikiCrawler implements Runnable {
         }
 
         int counter = 0;
+        StopWatch watch2 = null;
         for (String pageTitle : mwDatabase.getAllPageTitlesToCrawl(mwDescriptor.getWikiID())) {
+            if (DEBUG) {
+                watch2 = new StopWatch();
+            }
+
             crawlAndStorePageContent(pageTitle);
             crawlAndStoreAllRevisionsByTitle(pageTitle);
             // if (INFO) {
@@ -429,6 +497,10 @@ public class MediaWikiCrawler implements Runnable {
             // }
             if (INFO && ++counter % INFO_SIZE == 0) {
                 LOGGER.info("Crawled " + counter + " pages so far.");
+            }
+
+            if (DEBUG) {
+                LOGGER.debug("---- Processing page \"" + pageTitle + "\" took " + watch2.getElapsedTimeString());
             }
         }
 
@@ -461,7 +533,7 @@ public class MediaWikiCrawler implements Runnable {
             if (namespacesDB.size() == 0) {
                 for (int namespaceID : namespacesAPI.keySet()) {
                     mwDatabase
-                    .addNamespace(mwDescriptor.getWikiID(), namespaceID, namespacesAPI.get(namespaceID), true);
+                            .addNamespace(mwDescriptor.getWikiID(), namespaceID, namespacesAPI.get(namespaceID), true);
                 }
             } else {
                 for (int namespaceID : namespacesAPI.keySet()) {
@@ -632,9 +704,9 @@ public class MediaWikiCrawler implements Runnable {
 
     /**
      * Helper to stop this {@link MediaWikiCrawler} {@link Thread}. Sets the internal flag to stop the current
-     * {@link Thread}.
+     * {@link Thread}. The stop-flag is checked periodically.
      */
-    private synchronized void stopThread() {
+    public synchronized void stopCrawler() {
         stopThread = true;
     }
 
@@ -658,86 +730,92 @@ public class MediaWikiCrawler implements Runnable {
         if (INFO) {
             LOGGER.info("Start crawling Wiki \"" + mwDescriptor.getWikiName() + "\".");
         }
+
         login();
-        if (threadShouldStop()) {
-            return;
-        }
 
-        // check for first start of this wiki
-        if (mwDescriptor.getLastCheckForModifications() == null) {
-            if (INFO) {
-                LOGGER.info("Wiki \"" + mwDescriptor.getWikiName() + "\" hasn't been crawled completely before.");
-            }
+        if (!threadShouldStop()) {
+            // check for first start of this wiki
+            if (mwDescriptor.getLastCheckForModifications() == null) {
+                if (INFO) {
+                    LOGGER.info("Wiki \"" + mwDescriptor.getWikiName() + "\" hasn't been crawled completely before.");
+                }
 
-            Date currentDate = new Date();
-            crawlCompleteWiki();
-            mwDescriptor.setLastCheckForModifications(currentDate);
-            mwDatabase.updateWiki(mwDescriptor);
-        }
-
-        // enter continuous crawling
-        if (INFO) {
-            LOGGER.info("Entering continuous crawling mode for Wiki \"" + mwDescriptor.getWikiName() + "\".");
-        }
-        while (true) {
-            long wokeUp = System.currentTimeMillis();
-
-            // always check whether we are logged in.
-            login();
-            if (threadShouldStop()) {
-                return;
-            }
-
-            // check for new pages that have been created since last check (or since complete crawl)
-            if (System.currentTimeMillis() - mwDescriptor.getLastCheckForModifications().getTime() > pageCheckInterval) {
                 Date currentDate = new Date();
-
-                crawlAndStoreNamespaces();
-                crawlAndStoreNewPages();
-                crawlAndStoreNewRevisions();
-
+                crawlCompleteWiki();
                 mwDescriptor.setLastCheckForModifications(currentDate);
                 mwDatabase.updateWiki(mwDescriptor);
             }
 
-            // following lines might be used to evaluate the prediction of new revisions
-            // int added = 0;
-            // for (WikiPage pageToUpdate : MW_DATABASE.getPagesToUpdate(MW_DESCRIPTOR.getWikiID(), new Date())) {
-            // if (DEBUG) {
-            // LOGGER.debug("Checking page \"" + pageToUpdate.getTitle() + "\" for new revisions.");
-            // }
-            //
-            // added = crawlRevisionsByTitle(pageToUpdate.getTitle(), pageToUpdate.getNewestRevisionID(), true);
-            //
-            // // found new revisions ?
-            // if (added > 0) {
-            // crawlAndStorePageContent(pageToUpdate.getTitle());
-            // } else {
-            // MW_DATABASE.updatePage(MW_DESCRIPTOR.getWikiID(), pageToUpdate.getTitle(),
-            // predictNextCheck(pageToUpdate.getPageID()));
-            // }
-            // }
-
-            long timeElapsed = System.currentTimeMillis() - wokeUp;
-            if (timeElapsed < newRevisionsInterval) {
-                if (DEBUG) {
-                    LOGGER.debug("Nothing to do for Wiki \"" + mwDescriptor.getWikiName() + "\", going to sleep for "
-                            + (newRevisionsInterval - timeElapsed) / DateHelper.SECOND_MS + " seconds.");
-                }
-
-                try {
-                    Thread.sleep(newRevisionsInterval - timeElapsed);
-                } catch (InterruptedException e) {
-                    LOGGER.warn(e.getMessage());
-                }
-
-            } else {
-                LOGGER.error("Could not process all tasks for Wiki \"" + mwDescriptor.getWikiName()
-                        + "\" in time, processing took "
-                        + (timeElapsed - newRevisionsInterval) / DateHelper.SECOND_MS
-                        + " seconds, but should have been done within " + newRevisionsInterval / DateHelper.SECOND_MS
-                        + " seconds. Please provide more resources!");
+            // enter continuous crawling
+            if (INFO) {
+                LOGGER.info("Entering continuous crawling mode for Wiki \"" + mwDescriptor.getWikiName() + "\".");
             }
+
+            while (true) {
+                long wokeUp = System.currentTimeMillis();
+
+                // always check whether we are logged in.
+                login();
+                if (threadShouldStop()) {
+                    break;
+                }
+
+                // check for new pages that have been created since last check (or since complete crawl)
+                if ((System.currentTimeMillis() - mwDescriptor.getLastCheckForModifications().getTime()) > pageCheckInterval) {
+                    Date currentDate = new Date();
+
+                    crawlAndStoreNamespaces();
+                    crawlAndStoreNewPages();
+                    crawlAndStoreNewRevisions();
+
+                    mwDescriptor.setLastCheckForModifications(currentDate);
+                    mwDatabase.updateWiki(mwDescriptor);
+                }
+
+                // following lines might be used to evaluate the prediction of new revisions
+                // int added = 0;
+                // for (WikiPage pageToUpdate : MW_DATABASE.getPagesToUpdate(MW_DESCRIPTOR.getWikiID(), new Date())) {
+                // if (DEBUG) {
+                // LOGGER.debug("Checking page \"" + pageToUpdate.getTitle() + "\" for new revisions.");
+                // }
+                //
+                // added = crawlRevisionsByTitle(pageToUpdate.getTitle(), pageToUpdate.getNewestRevisionID(), true);
+                //
+                // // found new revisions ?
+                // if (added > 0) {
+                // crawlAndStorePageContent(pageToUpdate.getTitle());
+                // } else {
+                // MW_DATABASE.updatePage(MW_DESCRIPTOR.getWikiID(), pageToUpdate.getTitle(),
+                // predictNextCheck(pageToUpdate.getPageID()));
+                // }
+                // }
+
+                long timeElapsed = System.currentTimeMillis() - wokeUp;
+                if (timeElapsed < newRevisionsInterval) {
+                    if (DEBUG) {
+                        LOGGER.debug("Nothing to do for Wiki \"" + mwDescriptor.getWikiName()
+                                + "\", going to sleep for " + (newRevisionsInterval - timeElapsed)
+                                / DateHelper.SECOND_MS + " seconds.");
+                    }
+
+                    try {
+                        Thread.sleep(newRevisionsInterval - timeElapsed);
+                    } catch (InterruptedException e) {
+                        LOGGER.warn(e.getMessage());
+                    }
+
+                } else {
+                    LOGGER.error("Could not process all tasks for Wiki \"" + mwDescriptor.getWikiName()
+                            + "\" in time, processing took "
+                            + ((timeElapsed - newRevisionsInterval) / DateHelper.SECOND_MS)
+                            + " seconds, but should have been done within "
+                            + (newRevisionsInterval / DateHelper.SECOND_MS)
+                            + " seconds. Please provide more resources!");
+                }
+            }
+        }
+        if (INFO) {
+            LOGGER.info("Crawler has been stopped. Goodbye!");
         }
     }
 
