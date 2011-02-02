@@ -91,19 +91,22 @@ public final class MatrixCreator {
 	Table table = csvReader.readTable(args[0]);
 	Table matrix = new Table();
 	for (int i = 0; i < table.getRowCount(); i++) {
+	    LOGGER.info("Processing input line: "+i);
 	    Integer rowIndex = (Integer) table.get(i, 0);
 	    Integer columnIndex = (Integer) table.get(i, 1);
 	    Integer value = (Integer) table.get(i, 2);
 
 	    if (matrix.getRowCount() < rowIndex) {
 		for (int j = matrix.getRowCount(); j < rowIndex; j++) {
+		    LOGGER.info("Adding new Row: "+j);
 		    matrix.addRow();
 		}
 	    }
 
 	    if (matrix.getColumnCount() < columnIndex) {
 		for (int k = matrix.getColumnCount(); k < columnIndex; k++) {
-		    matrix.addColumn(columnIndex.toString(), String.class, "");
+		    LOGGER.info("Adding new Column: "+k);
+		    matrix.addColumn(String.valueOf(k), String.class, "");
 		}
 	    }
 
