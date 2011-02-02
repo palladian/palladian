@@ -14,6 +14,9 @@ import tud.iir.web.feeds.persistence.FeedDatabase;
 import tud.iir.web.feeds.persistence.FeedStore;
 
 /**
+ * <p>
+ * Creates meta information about the capabilities of some feeds.
+ * </p>
  * @author Klemens Muthmann
  * @version 1.0
  * @since 1.0
