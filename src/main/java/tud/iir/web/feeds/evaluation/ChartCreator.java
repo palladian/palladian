@@ -25,6 +25,8 @@ public class ChartCreator {
     private static final String TIMELINESS2_FILE_PATH = "data/temp/timeliness2Data.csv";
     private static final String PERCENTAGE_NEW_MAX_POLL_FILE_PATH = "data/temp/percentNewMaxPollData.csv";
     private static final String SUM_VOLUME_MAX_MIN_TIME_FILE_PATH = "data/temp/sumVolumeTimeData";
+    private static final String FEEDS_NEW_ITEMS_PATH_INPUT = "data/temp/Feeds_NewItems_IN.csv";
+    private static final String FEEDS_NEW_ITEMS_PATH_OUTPUT = "data/temp/Feeds_NewItems_OUT.csv";
 
     private final int maxNumberOfPollsScoreMax;
     private final int maxNumberOfPollsScoreMin;
@@ -469,10 +471,86 @@ public class ChartCreator {
         } else {
             LOGGER.fatal("sumVolumeFile for policy " + policy + " has not been written to: " + filePathToWrite);
         }
-    } 
-    
+    }
 
+    /**
+     * Rewrites file FEEDS_NEW_ITEMS_PATH_INPUT to FEEDS_NEW_ITEMS_PATH_OUTPUT. Input is a two column table with "new
+     * Items"; "Number of Feeds", where (12, 2217) means that exactly 300 feeds had exactly 12 new items. Output file
+     * has a third column "cumulated number of feeds" (12, 2217, 50385), where the third row states that 50385 feeds had
+     * at least 12 new items, but some of these 50385 feeds have more than 12 new items.
+     */
+    private void feedsNewItemsRewriter() {
+        List<String> input = FileHelper.readFileToArray(FEEDS_NEW_ITEMS_PATH_INPUT);
+        int highestNewItems = 0;
+        boolean headPassed = false;
 
+        // get highestNewItems-value
+        for (String feed : input) {
+            if (!headPassed) {
+                headPassed = true;
+                continue;
+            }
+            Integer feedI = Integer.parseInt(feed.split(";")[0]);
+            if (feedI != null) {
+                highestNewItems = feedI;
+            } else {
+                break;
+            }
+        }
+
+        // size highestNewItems + 1 for additional line with zero new items
+        Integer[][] expandedFile = new Integer[highestNewItems + 1][4];
+        int lineCounter = 0;
+        headPassed = false;
+        String head = null;
+
+        for (String currentLineS : input) {
+            // copy head
+            if (!headPassed) {
+                head = currentLineS;
+                headPassed = true;
+                continue;
+            }
+
+            String[] currentLineA = currentLineS.split(";");
+
+            // add missing lines
+            while (Integer.parseInt(currentLineA[0]) > lineCounter) {
+                expandedFile[lineCounter][0] = lineCounter;
+                expandedFile[lineCounter][1] = Integer.parseInt(currentLineA[1]);
+                expandedFile[lineCounter][2] = 0;
+                lineCounter++;
+            }
+
+            // copy line from file
+            expandedFile[lineCounter][0] = Integer.parseInt(currentLineA[0]);
+            expandedFile[lineCounter][1] = Integer.parseInt(currentLineA[1]);
+            expandedFile[lineCounter][2] = Integer.parseInt(currentLineA[1]);
+
+            lineCounter++;
+        }
+
+        // cumulate feeds
+        // copy value of last line
+        expandedFile[lineCounter - 1][3] = expandedFile[lineCounter - 1][2];
+
+        for (int i = lineCounter - 2; i >= 0; i--) {
+            expandedFile[i][3] = expandedFile[i][2] + expandedFile[i + 1][3];
+        }
+
+        // write output
+        StringBuilder outputSB = new StringBuilder();
+        outputSB.append(head).append(";cumulated number of feeds;\n");
+
+        for (Integer[] line : expandedFile) {
+            if (line[0] == null) {
+                break;
+            }
+            outputSB.append(line[0]).append(";").append(line[1]).append(";").append(line[3]).append(";\n");
+        }
+
+        FileHelper.writeToFile(FEEDS_NEW_ITEMS_PATH_OUTPUT, outputSB);
+    }
 
 
     // /**
