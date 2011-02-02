@@ -30,7 +30,6 @@ import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedClassifier;
 import tud.iir.web.feeds.FeedPostStatistics;
 import tud.iir.web.feeds.FeedReader;
-import tud.iir.web.feeds.persistence.FeedDatabase;
 import tud.iir.web.feeds.persistence.FeedStore;
 
 /**
@@ -43,6 +42,17 @@ public class FeedStatisticCreator {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FeedStatisticCreator.class);
+
+    /**
+     * A feed must have this many polls with new items to be used for the delay chart.
+     */
+    private static int pollsWithNewItems = 300;
+
+    // _50 -> ~9600 Feeds ohne 1440 zu betrachten - "temptable50"
+    // 100 -> ~5800 Feeds ohne 1440 zu betrachten
+    // 150 -> ~3700 Feeds ohne 1440 zu betrachten - "temptable150"
+    // 200 -> ~2740 Feeds ohne 1440 zu betrachten - "temptable200"
+    // 300 -> ~1500 Feeds ohne 1440 zu betrachten - "temptable300"
 
     /**
      * Perform maxCoveragePolicyEvaluation on all evaluation tables.
@@ -389,6 +399,8 @@ public class FeedStatisticCreator {
 
     public static void delayChart() throws SQLException {
 
+        final String tempTable = "tempTable" + pollsWithNewItems;
+
         Set<String> tables = new HashSet<String>();
         tables.add("feed_evaluation2_adaptive_min_poll");
         tables.add("feed_evaluation2_probabilistic_min_poll");
@@ -396,20 +408,88 @@ public class FeedStatisticCreator {
         tables.add("feed_evaluation2_fix1440_max_min_poll");
         tables.add("feed_evaluation2_fix_learned_min_poll");
 
+        createTempTable(tempTable);
+
         for (String table : tables) {
-            delayChart(table);
+            delayChart(table, tempTable);
         }
 
+        dropTempTable(tempTable);
     }
 
-    public static void delayChart(String tableName) throws SQLException {
+    /**
+     * Creates a temporary table required to generate the delay charts.
+     * 
+     * @param tempTableName The table's name.
+     */
+    private static void createTempTable(final String tempTableName) {
+        DatabaseManager dbm = new DatabaseManager();
+
+        // with fix1440
+        // final String sql = "CREATE TABLE "
+        // + tempTableName
+        // + " AS SELECT a.feedID, a.activityPattern FROM "
+        // +
+        // "(SELECT feedID, activityPattern FROM feed_evaluation2_adaptive_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+        // + POLLS_WITH_NEW_ITEMS
+        // + ") a, "
+        // +
+        // "(SELECT feedID FROM feed_evaluation2_probabilistic_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+        // + POLLS_WITH_NEW_ITEMS
+        // + ") b, "
+        // +
+        // "(SELECT feedID FROM feed_evaluation2_fix60_max_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+        // + POLLS_WITH_NEW_ITEMS
+        // + ") c, "
+        // +
+        // "(SELECT feedID FROM feed_evaluation2_fix1440_max_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+        // + POLLS_WITH_NEW_ITEMS
+        // + ") d, "
+        // +
+        // "(SELECT feedID FROM feed_evaluation2_fix_learned_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+        // + POLLS_WITH_NEW_ITEMS
+        // + ") e WHERE a.feedID = b.feedID AND b.feedID = c.feedID AND c.feedID = d.feedID AND d.feedID = e.feedID";
+
+        // ignore table 1440
+        final String sql = "CREATE TABLE "
+                + tempTableName
+                + " AS SELECT a.feedID, a.activityPattern FROM "
+                + "(SELECT feedID, activityPattern FROM feed_evaluation2_adaptive_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+                + pollsWithNewItems
+                + ") a, "
+                + "(SELECT feedID FROM feed_evaluation2_probabilistic_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+                + pollsWithNewItems
+                + ") b, "
+                + "(SELECT feedID FROM feed_evaluation2_fix60_max_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+                + pollsWithNewItems
+                + ") c, "
+                + "(SELECT feedID FROM feed_evaluation2_fix_learned_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+                + pollsWithNewItems
+                + ") d WHERE a.feedID = b.feedID AND b.feedID = c.feedID AND c.feedID = d.feedID";
+
+        Logger.getRootLogger().info(sql);
+        dbm.runUpdate(sql);
+        dbm.runUpdate("ALTER TABLE " + tempTableName + " ADD PRIMARY KEY (`feedID`)");
+    }
+
+    /**
+     * Drops the given table.
+     * 
+     * @param tempTableName Table to drop.
+     */
+    @SuppressWarnings("unused")
+    private static void dropTempTable(final String tempTableName) {
+        final String sql = "DROP TABLE " + tempTableName;
+        Logger.getRootLogger().info(sql);
+        DatabaseManager dbm = new DatabaseManager();
+        dbm.runUpdate(sql);
+    }
+
+    public static void delayChart(final String tableName, final String tempTableName) throws SQLException {
 
         StringBuilder csv = new StringBuilder();
 
         DatabaseManager dbm = new DatabaseManager();
-
-        dbm.runUpdate("CREATE TABLE tempTableA AS SELECT a.feedID FROM (SELECT feedID FROM feed_evaluation2_adaptive_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 40) a, (SELECT feedID FROM feed_evaluation2_probabilistic_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 40) b, (SELECT feedID FROM feed_evaluation2_fix60_max_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 40) c, (SELECT feedID FROM feed_evaluation2_fix1440_max_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 20) d, (SELECT feedID FROM feed_evaluation2_fix_learned_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= 40) e WHERE a.feedID = b.feedID AND b.feedID = c.feedID AND c.feedID = d.feedID AND d.feedID = e.feedID");
-        dbm.runUpdate("ALTER TABLE tempTableA ADD PRIMARY KEY (`feedID`)");
 
         // new item number, [total delay, number of feeds]
         final Map<Integer, Double[]> delayChartData = new TreeMap<Integer, Double[]>();
@@ -447,10 +527,10 @@ public class FeedStatisticCreator {
                 callback3,
                 "SELECT fep.feedID, numberOfPoll, cumulatedLateDelay/(newWindowItems+missedItems) AS delay FROM "
                         + tableName
-                        + " fep,tempTableA WHERE fep.feedID = tempTableA.feedID AND newWindowItems > 0 ORDER BY fep.feedID ASC, numberOfPoll ASC");
+                        + " fep,"
+                        + tempTableName
+                        + " temp WHERE fep.feedID = temp.feedID AND newWindowItems > 0 ORDER BY fep.feedID ASC, numberOfPoll ASC");
 
-        
-        dbm.runUpdate("DROP TABLE tempTableA");
 
         csv.append("new item number discovery;average delday;number of feeds\n");
         for (Entry<Integer, Double[]> dataEntry : delayChartData.entrySet()) {
@@ -459,7 +539,7 @@ public class FeedStatisticCreator {
             .append(dataEntry.getValue()[1]).append("\n");
         }
 
-        String path = "data/temp/feedEvaluationDelayChart_" + tableName + ".csv";
+        String path = "data/temp/feedEvaluationDelayChart_" + pollsWithNewItems + "polls_" + tableName + ".csv";
         FileHelper.writeToFile(path, csv);
 
         Logger.getRootLogger().info(path);
@@ -781,7 +861,9 @@ public class FeedStatisticCreator {
         // FeedStatisticCreator.minDelayPolicyEvaluationAll();
         // FeedStatisticCreator.timelinessChart();
         // FeedStatisticCreator.delayChart();
-        FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(), "data/temp/feedUpdateIntervals.csv");
+        // FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(), "data/temp/feedUpdateIntervals.csv");
+        FeedStatisticCreator.pollsWithNewItems = 500;
+        delayChart();
 
     }
 
