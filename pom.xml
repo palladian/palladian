@@ -174,11 +174,6 @@
 			<version>1.0.13</version>
 		</dependency>
 		<dependency>
-			<groupId>org.prefuse</groupId>
-			<artifactId>prefuse</artifactId>
-			<version>beta-20060220</version>
-		</dependency>
-		<dependency>
 			<groupId>twitter4j</groupId>
 			<artifactId>twitter4j</artifactId>
 			<version>2.0.10</version>
@@ -445,6 +440,13 @@
 			<groupId>com.jolbox</groupId>
 			<artifactId>bonecp</artifactId>
 			<version>0.7.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.prefuse</groupId>
+			<artifactId>prefuse</artifactId>
+			<version>beta-20071021</version>
+			<type>jar</type>
+			<scope>compile</scope>
 		</dependency>
 	</dependencies>
 	<properties>
