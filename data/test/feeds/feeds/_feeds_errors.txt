@@ -1,84 +1,41 @@
-no pub date	http://rss.imdb.com/news/
-no pub date	http://nationalzoo.si.edu/ZooNews/XML/rss.cfm
-no pub date	http://www.metrolyrics.com/xml/justreleased.xml
-no pub date	http://www.animalcrossingcommunity.com/rss/announcements.xml
-error (could not get document from http://www.sciencefriday.com/feed/scifrisite.xml)	http://www.sciencefriday.com/feed/scifrisite.xml
-no pub date	http://www.buffalonews.com/?widget=rssfeed&view=feed&contentId=77944
-no pub date	http://www.startribune.com/rss/?sf=1&s=/
-no pub date	http://feeds.allbusiness.com/rss/2471213
-error (could not get document from http://www.iowa.gov/feed_items/index.rss)	http://www.iowa.gov/feed_items/index.rss
-error (could not get document from http://www.doe.mass.edu/rss/doe_headlines.rss)	http://www.doe.mass.edu/rss/doe_headlines.rss
-error (could not get document from http://www.uaeinteract.com/rss/uaeinteract-news.asp)	http://www.uaeinteract.com/rss/uaeinteract-news.asp
-no pub date	http://www.iss.net/rss.php
-error (could not get document from http://javaboutique.internet.com/applets.rdf)	http://javaboutique.internet.com/applets.rdf
-no pub date	http://www.snopes.com/info/whatsnew.xml
-no pub date	http://www.internetnews.com/icom_includes/feeds/inews/xml_front-7-days-20.xml
-no pub date	http://www.king5.com/home/index.rss
-error (could not get document from http://www.9news.com/acm_rss.aspx?OSGNAME=KUSA&IKOBJECTID=882542b1-ac1f-02c5-002b-261a67fd11e2&TEMPLATEID=b3df6155-0abe-421a-01dd-729ac197ace2)	http://www.9news.com/acm_rss.aspx?OSGNAME=KUSA&IKOBJECTID=882542b1-ac1f-02c5-002b-261a67fd11e2&TEMPLATEID=b3df6155-0abe-421a-01dd-729ac197ace2
-no pub date	http://www.aero-news.net/news/rssfeed.xml
-error (could not get document from http://www.timesfreepress.com/news/rss/)	http://www.timesfreepress.com/news/rss/
-no pub date	http://news.sky.com/sky-news/rss/home/rss.xml
-no pub date	http://rss.sciam.com/ScientificAmerican-Global
-no pub date	http://feeds.feedburner.com/govtech/top_news
-error (could not get document from http://www.sitename.com/rss/rss.asp)	http://www.sitename.com/rss/rss.asp
-no pub date	http://digg.com/news.rss
-no pub date	http://www.53degrees.net/rss/news.xml
-no pub date	http://www.metacafe.com/rss.xml
-no pub date	http://feed.photobucket.com/featured.rss
-no pub date	http://feeds.smashits.com/RecentVideosOfcomedy
-no pub date	http://jobs.FortWayne.com/RSS.aspx?tj=1
-error (could not get document from http://www.muscleandfitness.com/rss/)	http://www.muscleandfitness.com/rss/
-no pub date	http://feeds.feedburner.com/fitnessgovnews
-error (could not get document from http://www.self.com/services/rss/feeds/all.xml)	http://www.self.com/services/rss/feeds/all.xml
-error (could not get document from http://www.kettlebellexercisefitness.com/)	http://www.kettlebellexercisefitness.com/
-error (could not get document from http://www.epfitness.com/index2.php?option=com_rss&no_html=1)	http://www.epfitness.com/index2.php?option=com_rss&no_html=1
-error (could not get document from http://www.familyfitnesscenters.net/index.php?format=feed&type=rss)	http://www.familyfitnesscenters.net/index.php?format=feed&type=rss
-no pub date	http://www.gamesgames.com/rss/popular.xml
-no pub date	http://www.miniclip.com/games/de/feed.xml
-error (could not get document from http://rss.pogo.com/rss)	http://rss.pogo.com/rss
-no pub date	http://www.freeonlinegames.com/feeds/latest-games
-no pub date	http://www.entertainmentearth.com/rssdnf.xml
-no pub date	http://www.freegamesonline.com/rss/recent/.html
-no pub date	http://www.hopkinsmedicine.org/RSS/HopkinsRSS.xml
-no pub date	http://cgi.kumc.edu/news/publish/kumcnews.xml
-no pub date	http://www.thecookinggames.com/rss/recent.html
-no pub date	http://www.zybez.net/latestNews.rss
-error (could not get document from http://rss.epinions.com/rss/linkin_id-8003929/category-2522484)	http://rss.epinions.com/rss/linkin_id-8003929/category-2522484
-error (java.lang.IllegalArgumentException: Invalid document)	http://www.worldofwarcraft.com/wow/en/feed/news
-no pub date	http://www.girlsgogames.com/rss/popular.xml
-no pub date	http://cooking.lifetips.com/rss/TipOfTheDay.asp
-error (could not get document from http://Marketing.jobs.net/RSS/)	http://Marketing.jobs.net/RSS/
-no pub date	http://moritzlaw.osu.edu/rss/news.php
-no pub date	http://news.law.wfu.edu/feed/rss/
-no pub date	http://law.gsu.edu/gsulawfeatures.rss
-no pub date	http://law.vanderbilt.edu/rss/news/index.aspx
-error (could not get document from http://washburnlaw.edu/rss/newscenter.xml)	http://washburnlaw.edu/rss/newscenter.xml
-error (could not get document from http://libweb.lib.buffalo.edu/blog/law/wp-rss.php)	http://libweb.lib.buffalo.edu/blog/law/wp-rss.php
-error (could not get document from http://www.monitorproducts.com/feed)	http://www.monitorproducts.com/feed
-no pub date	http://www.ebuild.com/manufacturer-list-rss.hwx
-error (could not get document from http://feeds.feedburner.com/lowrance/QBKe)	http://feeds.feedburner.com/lowrance/QBKe
-error (could not get document from http://products.modernmedicine.com/COEventsRSS.asp)	http://products.modernmedicine.com/COEventsRSS.asp
-no pub date	http://www.c-span.org/rss.aspx
-error (could not get document from http://www.comeexperiencelife.com/feed)	http://www.comeexperiencelife.com/feed
-error (could not get document from http://www.sciencenews.org/view/feed/name/all.rss)	http://www.sciencenews.org/view/feed/name/all.rss
-no pub date	http://feeds.health.com/healthtopstories
-error (could not get document from http://health.alltop.com/rss/)	http://health.alltop.com/rss/
-error (could not get document from http://www.dailypress.com/rss2.0.xml)	http://www.dailypress.com/rss2.0.xml
-error (could not get document from http://www.sportfishingmag.com/rss.jsp)	http://www.sportfishingmag.com/rss.jsp
-error (could not get document from http://www.babysport.com/products.xml)	http://www.babysport.com/products.xml
-error (could not get document from http://www.sporteyes.com/ror.xml)	http://www.sporteyes.com/ror.xml
-error (could not get document from http://www.accessatlanta.com/section-rss.do?source=entertainment&numArticles=20)	http://www.accessatlanta.com/section-rss.do?source=entertainment&numArticles=20
-no pub date	http://www.ez-tracks.com/./RSS/SongoftheDay.xml
-no pub date	http://community.webshots.com/scripts/openSearch.cgi?searchTerms=travel
-no pub date	http://www.topspeed.com/rss.xml
-no pub date	http://www.whitney.org/rss/exhibitions
-no pub date	http://art.alltop.com/rss/
-no pub date	http://best.lovetoknow.com/LoveToKnow_RSS
-no pub date	http://feeds.feedburner.com/comingsoonnet30
-error (could not get document from http://vforvendetta.warnerbros.com/v.xml)	http://vforvendetta.warnerbros.com/v.xml
-no pub date	http://feeds.hollywood.com/hollywoodcom_recent_news
-error (java.lang.IllegalArgumentException: Invalid document)	http://www.jackassmovie.com/sitemap.xml
-error (could not get document from http://www.dragonlance-movie.com/rss/dlmsnews.xml)	http://www.dragonlance-movie.com/rss/dlmsnews.xml
-error (could not get document from http://feeds.feedburner.com/ParentPreviewsMoviesNowInTheaters)	http://feeds.feedburner.com/ParentPreviewsMoviesNowInTheaters
-no pub date	http://www.catholic.org/xml/rss_readings.xml
-error (could not get document from http://popularlinguisticsonline.org/feed/)	http://popularlinguisticsonline.org/feed/
+feed001.xml	no pub date	http://rss.imdb.com/news/
+feed004.xml	no pub date	http://www.animalcrossingcommunity.com/rss/announcements.xml
+feed005.xml	error (could not get document from http://www.sciencefriday.com/feed/scifrisite.xml)	http://www.sciencefriday.com/feed/scifrisite.xml
+feed006.xml	no pub date	http://www.buffalonews.com/?widget=rssfeed&view=feed&contentId=77944
+feed007.xml	no pub date	http://www.startribune.com/rss/?sf=1&s=/
+feed008.xml	no pub date	http://feeds.allbusiness.com/rss/2471213
+feed009.xml	error (could not get document from http://www.iowa.gov/feed_items/index.rss)	http://www.iowa.gov/feed_items/index.rss
+feed010.xml	error (could not get document from http://www.doe.mass.edu/rss/doe_headlines.rss)	http://www.doe.mass.edu/rss/doe_headlines.rss
+feed012.xml	no pub date	http://www.iss.net/rss.php
+feed013.xml	error (could not get document from http://javaboutique.internet.com/applets.rdf)	http://javaboutique.internet.com/applets.rdf
+feed014.xml	no pub date	http://www.snopes.com/info/whatsnew.xml
+feed018.xml	no pub date	http://www.aero-news.net/news/rssfeed.xml
+feed021.xml	no pub date	http://rss.sciam.com/ScientificAmerican-Global
+feed024.xml	no pub date	http://digg.com/news.rss
+feed026.xml	no pub date	http://www.metacafe.com/rss.xml
+feed028.xml	no pub date	http://feeds.smashits.com/RecentVideosOfcomedy
+feed029.xml	no pub date	http://jobs.FortWayne.com/RSS.aspx?tj=1
+feed030.xml	error (could not get document from http://www.muscleandfitness.com/rss/)	http://www.muscleandfitness.com/rss/
+feed031.xml	no pub date	http://feeds.feedburner.com/fitnessgovnews
+feed035.xml	error (could not get document from http://www.familyfitnesscenters.net/index.php?format=feed&type=rss)	http://www.familyfitnesscenters.net/index.php?format=feed&type=rss
+feed040.xml	no pub date	http://www.entertainmentearth.com/rssdnf.xml
+feed043.xml	no pub date	http://cgi.kumc.edu/news/publish/kumcnews.xml
+feed045.xml	no pub date	http://www.zybez.net/latestNews.rss
+feed049.xml	no pub date	http://cooking.lifetips.com/rss/TipOfTheDay.asp
+feed051.xml	no pub date	http://moritzlaw.osu.edu/rss/news.php
+feed053.xml	no pub date	http://law.gsu.edu/gsulawfeatures.rss
+feed054.xml	no pub date	http://law.vanderbilt.edu/rss/news/index.aspx
+feed055.xml	error (could not get document from http://washburnlaw.edu/rss/newscenter.xml)	http://washburnlaw.edu/rss/newscenter.xml
+feed061.xml	no pub date	http://www.c-span.org/rss.aspx
+feed063.xml	error (could not get document from http://www.sciencenews.org/view/feed/name/all.rss)	http://www.sciencenews.org/view/feed/name/all.rss
+feed065.xml	error (could not get document from http://health.alltop.com/rss/)	http://health.alltop.com/rss/
+feed067.xml	error (could not get document from http://www.sportfishingmag.com/rss.jsp)	http://www.sportfishingmag.com/rss.jsp
+feed068.xml	error (could not get document from http://www.babysport.com/products.xml)	http://www.babysport.com/products.xml
+feed069.xml	error (could not get document from http://www.sporteyes.com/ror.xml)	http://www.sporteyes.com/ror.xml
+feed070.xml	error (could not get document from http://www.accessatlanta.com/section-rss.do?source=entertainment&numArticles=20)	http://www.accessatlanta.com/section-rss.do?source=entertainment&numArticles=20
+feed073.xml	no pub date	http://www.topspeed.com/rss.xml
+feed077.xml	no pub date	http://feeds.feedburner.com/comingsoonnet30
+feed078.xml	error (could not get document from http://vforvendetta.warnerbros.com/v.xml)	http://vforvendetta.warnerbros.com/v.xml
+feed081.xml	error (could not get document from http://www.dragonlance-movie.com/rss/dlmsnews.xml)	http://www.dragonlance-movie.com/rss/dlmsnews.xml
+feed082.xml	error (could not get document from http://feeds.feedburner.com/ParentPreviewsMoviesNowInTheaters)	http://feeds.feedburner.com/ParentPreviewsMoviesNowInTheaters
+feed084.xml	error (could not get document from http://popularlinguisticsonline.org/feed/)	http://popularlinguisticsonline.org/feed/
