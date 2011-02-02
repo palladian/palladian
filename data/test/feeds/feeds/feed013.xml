@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rss PUBLIC "-//Netscape Communications//DTD RSS 0.91//EN"
+            "http://my.netscape.com/publish/formats/rss-0.91.dtd">
+
+<rss version="0.91">
+
+<channel>
+<title>Java Boutique -  Your source for Java Tutorials, Applets and Resources</title>
+<link>http://javaboutique.internet.com/</link>
+<description>The Java Boutique is a collection of java applets, games, scripts, and tutorials. Learn programming and download free java applets and source code. You can also find news about java and jini.</description>
+<language>en-us</language>
+<copyright>Copyright(c)2004  Jupitermedia Corp. All rights reserved </copyright>
+<pubDate>2010-08-05T22:18</pubDate>
+<lastBuildDate>2010-08-05T22:18</lastBuildDate>
+<managingEditor>rhein@jupitermedia.com (Rich Hein)</managingEditor>
+<webMaster>rhein@jupitermedia.com (Rich Hein)</webMaster>
+
+<image>
+<title>JavaBoutique</title>
+<url>http://javaboutique.internet.com/img/javabtq.gif</url>
+</image>
+
+<item>
+<title>NEW: FreeJTV Player</title>
+<link>http://javaboutique.internet.com/JTV_Player/</link>
+<description>FreeJTV Player is a Slideshow Java Applet with photo retouching applied on the fly.</description>
+</item>
+
+<item>
+<title>Otto&#39;s Obstacles</title>
+<link>http://javaboutique.internet.com/otto/</link>
+<description>This is a small puzzle game with 10 levelsall completable, made from Dave Koelle&#39;s Java Boulderdash, but with it&#39;s own rules and graphics.</description>
+</item>
+
+<item>
+<title>Gerotor Pump Calculator GRPC061220</title>
+<link>http://javaboutique.internet.com/gerotor/</link>
+<description>Gerotor pumps are popular in a few industriesin automotive engine and transmission applications, for example. This Gerotor Pump Calculator applet provides a pump designer with a hopefully convenient starter tool, providing solid ground for beginners. </description>
+</item>
+
+<item>
+<title>Cannon Defender</title>
+<link>http://javaboutique.internet.com/cannondefender/</link>
+<description>The object of this game is to shoot your enemy planes before they drop their bombs on you. Your enemies are not that bright and often drop their bombs on each other. To play this game, use the arrow keys to move the barrell of your cannon from left to right. PRess the spacebar to fire. Click the screen to pause the game. Remember to take the wind into consideration when firingyour shots may just come back to hit you! </description>
+</item>
+
+<item>
+<title>draw4free</title>
+<link>http://javaboutique.internet.com/draw4free/</link>
+<description>draw4free is a free, object-oriented, Java-based, 2D+, SVG, online, vector drawing program.</description>
+</item>
+
+<item>
+<title>Roving Eyes</title>
+<link>http://javaboutique.internet.com/RovingEyes/</link>
+<description>Roving Eyes are superimposed on an image specified in an applet param. The eyes follow the mouse around the page, even beyond the borders of the applet (thanks to some simple JavaScript included in the example). </description>
+</item>
+
+</channel>
+</rss>

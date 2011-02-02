@@ -1,0 +1,252 @@
+﻿
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-us" lang="en-us">
+<head><meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" /><title>
+	Lowrance | Marine Electronics | Fish finder | Chartplotter 
+</title><meta name="description" content="Lowrance manufactures marine electronics such as fishfinders and GPS electronics for consumer sport fishing, boating, aviation, automotive and outdoors recreation markets." />
+<meta name="keywords" content="Lowrance, marine, electronics, fishfinders, fish finders, depthfinders, sounders, sonar, GPS, navigation, maps, charts, chartplotter, radar, VHF, radio, gauges, networking, systems" />
+<meta name="author" content="Navico" />
+
+
+
+    <link rel="stylesheet" type="text/css" media="screen" href="/css2/global.css" />
+    <link rel="stylesheet" type="text/css" media="screen" href="/css2/lowrance.css" />
+    <!--[if IE 6]>
+    <link rel="stylesheet" type="text/css" href="/css2/Lowrance/startPageBoxes_IE6.css" media="screen" />
+	<![endif]-->
+	
+	<link rel="stylesheet" type="text/css" media="print" href="/css2/print.css" />
+	
+
+
+    <link rel="stylesheet" type="text/css" href="/css2/Lowrance/startPageBoxes.css" media="screen" />
+    <link rel="stylesheet" type="text/css" href="/css2/startpage.css" />
+</head>
+<body class="en-us lowrance www startpage">
+    <form name="aspnetForm" method="post" action="/" id="aspnetForm" target="_top" class="startpage">
+<div>
+<input type="hidden" name="__VIEWSTATE" id="__VIEWSTATE" value="/wEPDwUJMjk3NzM2NDY4ZBgGBTBjdGwwMCROYXZpY29Gcm9udFBhZ2VSaWdodFNlY3Rpb24kY3RsMDAkTmV3c0xpc3QPD2ZkZAUrY3RsMDAkTmF2aWNvRnJvbnRQYWdlUmlnaHRTZWN0aW9uJEFQQUNJdGVtcw8PZmRkBS9jdGwwMCROYXZpY29Gcm9udFBhZ2VSaWdodFNlY3Rpb24kQW1lcmljYXNJdGVtcw8PZmRkBTdjdGwwMCROYXZpY29Gcm9udFBhZ2VSaWdodFNlY3Rpb24kTmV3c0xpc3RpbmcyJE5ld3NMaXN0Dw9mZGQFN2N0bDAwJE5hdmljb0Zyb250UGFnZVJpZ2h0U2VjdGlvbiROZXdzTGlzdGluZzEkTmV3c0xpc3QPD2ZkZAUrY3RsMDAkTmF2aWNvRnJvbnRQYWdlUmlnaHRTZWN0aW9uJEVNRUFJdGVtcw8PZmRkVS4vBkFs+ZLUnQNMTEoUbwEuJQ0=" />
+</div>
+
+        
+        <div id="topShadowEffect">
+        </div>
+        
+            <div id="branding">
+                
+
+<div id="brandingLogo">
+    <a href="/" target="_top">
+    
+    <img src="/images/Lowrance/brandLogo.png" alt="Lowrance logo" />
+    
+    </a>
+</div>
+
+
+    <div id="lowranceBrandingTagline">Seize the day</div>
+
+            </div>
+            <div id="global">
+                
+		<ol id="globalNavigation">
+	
+	    <li><a href="/Products/" target="_top">Products</a></li>
+	
+	    <li><a href="/Support/" target="_top">Support</a></li>
+	
+	    <li><a href="/Downloads/" target="_top">Downloads</a></li>
+	
+	    <li><a href="/Support/My-Account/" target="_top">Register Product</a></li>
+	
+	    <li><a href="/Community/" target="_top">Community</a></li>
+	
+	    <li><a href="/Dealer-Locator/" target="_top">Dealer Locator</a></li>
+	
+	    <li><a href="/About/" target="_top">About</a></li>
+	
+		</ol> 
+	
+
+ <script type="text/javascript">
+
+        function DoSearch(url) {
+            var tbBox = $("#globalSearchField");
+            var searchUrl = url + '?q=' + tbBox.val();
+            window.location = encodeURI(searchUrl);
+            return false;
+        }
+
+        function Reset() {
+            var tbBox = $("#globalSearchField");
+            tbBox.val('');
+        }
+
+        function doClick(e) {
+
+            var key;
+            var browser;
+
+            if (window.event) {
+                key = e.keyCode;     //IE
+                browser = 'IE';
+            }
+            else {
+                key = e.which;      //firefox
+                browser = 'FF';
+            }
+
+            if (key == 13) {
+                if (browser == 'IE') {
+                    event.returnValue = false;
+                    event.cancel = true;
+                }
+                else {
+                    e.preventDefault();
+                }
+                DoSearch('http://primus.lowrance.com/support/search.do');
+            }
+        }       
+
+    </script>
+<input type="submit" id="globalSearchSubmit" value="" onclick="return DoSearch('http://primus.lowrance.com/support/search.do');" />
+<input type="text" id="globalSearchField" class="globalSearchField" name="globalSearchField" value="Search" onkeypress="return doClick(event);" onfocus="Reset();" />
+
+            </div>
+            
+            <div id="content">
+                
+                    <div id="main">
+                        
+    
+        <div id="languageSelector">
+            <div id="languageSelectionMenuButton">
+                <a href="#">USA</a>
+            </div>
+            <ul id="languageSelectionMenu">
+    <li><a href="http://www.lowrance.com.au/en-au/">Australia</a></li><li><a href="http://www.lowrance.at/de-at/">Austria (Deutsch)</a></li><li><a href="http://www.lowrance.ca/en-ca/">Canada (English)</a></li><li><a href="http://www.lowrance.ca/fr-ca/">Canada (Français)</a></li><li><a href="http://www.lowrance.dk/da/">Danmark</a></li><li><a href="http://www.lowrance.de/de/">Deutschland</a></li><li><a href="http://www.lowrance.es/es/">España</a></li><li><a href="http://www.lowrance.fr/fr/">France</a></li><li><a href="http://www.lowrance.in/en-ie/">India English</a></li><li><a href="http://www.lowrance.com/it/">Italia</a></li><li><a href="http://www.lowrance.com/en-nz/">New Zealand</a></li><li><a href="http://www.lowrance.no/no/">Norge</a></li><li><a href="http://www.lowrance.sk/sk/">Slovakia</a></li><li><a href="http://www.lowrance.se/sv/">Sverige</a></li><li><a href="http://www.lowrance.co.uk/en-gb/">United Kingdom</a></li><li><a href="http://www.lowrance.com/en/">Worldwide</a></li><li><a href="http://www.lowrance.cn/ZH-CN/">中文</a></li>
+            </ul>
+        </div>
+    
+    
+        <div id="startPageBottomRightRow">
+            
+
+<div class="startPageBottomRightMenuBoxLowrance">
+    <h1><a href="/Products/Marine/">Marine Electronics</a></h1>
+    <a href="/Products/Marine/"><img src="http://mediabase.edbasa.com/erez4/erez?src=navipic/j2008/m12/t10/0003112%5F2.tif&amp;tmp=Custom&amp;top=0.2522&amp;bottom=0.8496&amp;right=0.9967&amp;width=280" alt="Marine" /></a>
+    <div><p>Lowrance produces some of the finest marine electronics, with everything from fishfinders, chartplotters, radar, networking, gauges and more...</p></div>
+</div>
+            
+
+<div class="startPageBottomRightMenuBoxLowrance">
+    <h1><a href="/Products/Outdoors2/">Outdoors</a></h1>
+    <a href="/Products/Outdoors2/"><img src="http://mediabase.edbasa.com/erez4/erez?src=navipic/j2009/m02/t04/0003391%5F2.tif&amp;tmp=Custom&amp;top=0.065&amp;bottom=0.74&amp;width=280" alt="Outdoors" /></a>
+    <div><p>Discover the&nbsp;accurate and easy-to-use Lowrance Outdoor GPS products for hunting, fishing, camping, geocaching,&nbsp;and more.</p></div>
+</div>
+            
+            
+            
+            
+        </div>
+    
+                    </div>
+                    
+                    
+                    <div id="secondary">
+                        <div class="section">
+                            
+    <!-- Showing two content boxes on the frontpage -->
+    
+                            
+                        </div>
+                    </div>
+                    
+                    <div id="breadcrumbs">
+                        
+    <!-- Hiding breadcrumb frontpage -->
+
+                    </div>
+                    
+                    <div id="regionalNavigation">
+                        
+    <!-- Hiding submenu on frontpage -->
+    
+        <div id="startPageBottomLeftColumn">
+            
+
+<div class="startPageBottomLeftMenuBoxLowrance">
+    <h1><a href="/About/Press-Releases/Lowrance-Elite-5-DSI-Wins-ICAST-2010-New-Products-Showcase-Award/">Lowrance Elite-5 DSI Wins ICAST 2010 New Products Showcase Award</a></h1>
+    <div><p>New High-Resolution Fishfinder/Chartplotter With Photo-Like Underwater Detail Honored for Innovation Excellence.</p></div>
+</div>
+            
+
+<div class="startPageBottomLeftMenuBoxLowrance">
+    <h1><a href="/Products/Marine/Mark-Elite-Series/Elite-5X/">Elite-5x $50.00 Mail In Rebate</a></h1>
+    <div><p>Qualify for a $50 rebate by purchasing one Elite-5x series unit between 7/26/10 and 1/10/11.</p></div>
+</div>
+            
+
+<div class="startPageBottomLeftMenuBoxLowrance">
+    <h1><a href="/SonicHub/"></a></h1>
+    <div><h1><a href="/en/SonicHub/">ULTIMATE COMPLETE AUDIO INTEGRATION WITH LOWRANCE SONICHUB™</a></h1>
+<p>SonicHub™ makes your music more accessible on the water with a direct link to your entire music collection via your iPhone, iPod, iPod touch or USB device.</p></div>
+</div>
+        </div>
+    
+        <div id="flashCampaignArea" style=""></div>
+    
+                    </div>
+                    
+                    <div class="clear">
+                    </div>
+                
+                
+            </div>
+            
+
+        
+<div style='display:none'><img src='http://www.lowrance.com/EPiTrace/PixelImg.aspx?pageid=13802&amp;usersid=&amp;referer=' alt='EPiTrace logger' /></div></form>
+        
+        
+        
+        <div id="siteinformation">
+			<div align="center" style="width:290px;padding-top:10px;margin:0px auto;"><a href="http://www.lowrance.com/Facebook" target="_blank"><img src="http://www.lowrance.com/upload/assets/facebookLogosm.png" border="0" alt="facebook.com/Lowrance" /> Follow Us on Facebook</a></div>
+<ul>
+    <li class="siteInfoLiVerticalBar"><a href="/Terms-of-Use/">Terms of Use</a></li><li class="siteInfoLiVerticalBar"><a href="/Privacy-Statement/">Privacy Policy</a></li><li class="siteInfoLiVerticalBar"><a href="/About/Contact/">Contact Us</a></li><li class="siteInfoLiVerticalBar"><a href="/Site-Map/">Sitemap</a></li><li><a href="http://www.lei-extras.com">Buy Accessories</a></li>
+    <li class="bg-none"><span>Copyright &copy; 2007 - 2009 <span>Navico</span></span></li>
+</ul>
+
+        </div> 
+        
+<script type="text/javascript" src="/script/global2.js"></script>
+
+        <script type="text/javascript"><!--
+            var campaignFlash = "/upload/Lowrance/Flash/navicobanner.swf";
+            var xmlcontent = "/upload/Lowrance/Flash/assets/DSI-and-X-Series.xml";
+            var useSystemFont = false;
+        // --></script>
+        
+    
+<script type="text/javascript" src="/foresee/foresee-trigger.js"></script>
+<!--script type="text/javascript" src="/fsrscripts/triggerParams.js"></script> 
+<script type="text/javascript" src="/fsrscripts/stdLauncher.js"></script-->
+<script type="text/javascript" src="/script/mediabank-demo.js"></script>
+
+    
+    
+    
+<script src="/script/x.js" type="text/javascript"></script>
+<script type="text/javascript"><!--
+    _pxId = "0327D2DF-ED65-44E1-8C18-F82E9F0EEF40";
+    _pxReg();
+//--></script>
+    
+<script type="text/javascript" src="http://www.google-analytics.com/ga.js"></script>
+<script type="text/javascript"><!--
+    var pageTracker = _gat._getTracker("UA-2139043-11");
+    pageTracker._initData();
+    pageTracker._trackPageview();
+// --></script>
+</body>
+</html>

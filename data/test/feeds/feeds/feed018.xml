@@ -1,0 +1,258 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<rdf:RDF 
+	xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns="http://purl.org/rss/1.0/"
+>
+
+
+		
+<channel rdf:about="http://www.aero-news.net">
+<title>Aero-News Network</title>
+<description>Daily, Real-Time news and information critical to aviation and aerospace personnel the world over. Aero-News provides daily newsletter summaries, RSS feeds, and numerous personal and professional syndication and news distribution options to insure that aviators, the world over, are kept up to date on information of critical concern.</description>
+<link>http://www.aero-news.net</link>
+
+<image>
+	<title>Aero-News Network</title>
+	<url>http://www.aero-news.net/images/rssimage.gif</url>
+	<link>http://www.aero-news.net/</link>
+	<width>136</width>
+	<height>27</height>
+</image>
+<items>
+	<rdf:Seq>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=5baf724b-edc0-4e07-9147-e98b95b42c3c"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=1d292a61-78bf-4833-80c0-ce82bd8c8478"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=a0336479-9520-4a14-bec5-c7a74001cd62"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=811762b8-6b83-4332-a27e-e2271e4dcece"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=816a245f-f8f2-4ac2-94b4-3fcaa2fe246c"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=5a445c02-2154-456a-91a4-1530e334092a"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=848196ad-4827-4764-93ad-c2d61f628a48"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=78a2b355-b401-45e8-b185-df5d0dbe08bf"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=8be09fd8-da54-4595-8136-74ea58486828"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=c6324147-f436-4f24-b320-ee825011c17e"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=778f45f5-f37a-4bed-9b50-7474937eee6d"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=680bd33c-42c7-43d0-89b2-e866ef5d5fa4"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=87f6af2a-a98b-47d7-b777-30ca292b58cf"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=4933e1e3-959e-41bf-a54c-1a335f1213ed"/>
+		
+			<rdf:li rdf:resource="http://www.aero-news.net/index.cfm?contentBlockId=6f14a5a9-9a19-4d00-b3fc-5a44e6979379"/>
+		
+	</rdf:Seq>
+</items>
+</channel>
+
+		
+
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=5baf724b-edc0-4e07-9147-e98b95b42c3c">
+			<title>PGA-Portugalia Airlines Signs Lifetime FLYFokker Take Care Contract</title>
+		
+			
+			
+			<description>Six Aircraft Covered By The Agreement PGA-Portugalia Airlines and Fokker Services have agreed to a Lifetime FLYFokker Take Care contract for the support of their six Fokker 100 aircraft. The contract, which was signed last December 31, names both the ABACUS services and Fokker Services as preferred preferred suppliers.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=5baf724b-edc0-4e07-9147-e98b95b42c3c</link>	
+		 <pubDate>Tue, Feb 01,2011 11:33:33PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=1d292a61-78bf-4833-80c0-ce82bd8c8478">
+			<title>ARSA Project To Measure Benefits Of Aviation Bilateral Agreements</title>
+		
+			
+			
+			<description>Looking To Gather Economic Data Relevant To The Aviation Maintenance Industry A survey to assess the economic impact of bilateral aviation safety agreements (BASA) has been launched by AeroStrategy and the Aeronautical Repair Station Association (ARSA). ARSA is an international trade association that represents companies performing aviation maintenance.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=1d292a61-78bf-4833-80c0-ce82bd8c8478</link>	
+		 <pubDate>Tue, Feb 01,2011 11:33:18PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=a0336479-9520-4a14-bec5-c7a74001cd62">
+			<title>AFNORTH Officials Give Civil Air Patrol A Technology Boost</title>
+		
+			
+			
+			<description>Portable &quot;Go&quot; Kits Will Help In The Field When Air Forces Northern officials need an aircrew to fly a search and rescue mission, run counterdrug support or play the bad guy, they frequently call on the members of the Civil Air Patrol, who are always more than eager to lend a helping hand.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=a0336479-9520-4a14-bec5-c7a74001cd62</link>	
+		 <pubDate>Tue, Feb 01,2011 11:32:56PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=811762b8-6b83-4332-a27e-e2271e4dcece">
+			<title>Los Angeles Police Department Selects Cobham EFIS</title>
+		
+			
+			
+			<description>Two-Screen Systems To Be Installed In Bell And Eurocopter Aircraft The Los Angeles Police Department (LAPD) has announced the selection of Cobham to supply Synthetic Vision Electronic Flight Instrument Systems (EFIS) for their fleet of Eurocopter and Bell helicopters.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=811762b8-6b83-4332-a27e-e2271e4dcece</link>	
+		 <pubDate>Tue, Feb 01,2011 10:58:36PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=816a245f-f8f2-4ac2-94b4-3fcaa2fe246c">
+			<title>Republic Airways Amends Delta Agreement To Add Eight E170 Aircraft</title>
+		
+			
+			
+			<description>Additional Regional Jets Would Fly Under Delta Connection Colors Republic Airways Holdings has amended its capacity purchase agreement with Delta Air Lines to provide for the addition of eight dual-class E170 aircraft.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=816a245f-f8f2-4ac2-94b4-3fcaa2fe246c</link>	
+		 <pubDate>Tue, Feb 01,2011 10:55:52PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=5a445c02-2154-456a-91a4-1530e334092a">
+			<title>Eurocopter Inaugurates New North Sea Service Center</title>
+		
+			
+			
+			<description>Facility Home To An EC225 Simulator At Aberdeen In Scotland Eurocopter officially inaugurated its new North Sea Service Center in Aberdeen, Scotland Monday, providing a highly capable training, technical support and logistics facility in close proximity to helicopter operators who support the region&apos;s vital oil and gas industry.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=5a445c02-2154-456a-91a4-1530e334092a</link>	
+		 <pubDate>Tue, Feb 01,2011 10:54:25PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=848196ad-4827-4764-93ad-c2d61f628a48">
+			<title>Florida Space Industry Sets March 16, 2011 To Lobby In Tallahassee</title>
+		
+			
+			
+			<description>Joining Together To Preserve Florida&apos;s Role In Nation&apos;s Space Program Key representatives from Florida&apos;s space industry plan to visit the state capital in Tallahassee on March 16 to participate in Florida Space Day and share the challenges the industry faces in ensuring Florida remains at the forefront of the nation&apos;s space program.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=848196ad-4827-4764-93ad-c2d61f628a48</link>	
+		 <pubDate>Tue, Feb 01,2011 10:51:29PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=78a2b355-b401-45e8-b185-df5d0dbe08bf">
+			<title>Tunisian President&apos;s Family Plane Siezed By French Authorities</title>
+		
+			
+			
+			<description>NGOs Claim President, Family Holding Assets Belonging To Tunisia A business jet belonging to the family of deposed Tunisian President Zine al-Abidine Ben Ali has been seized by French officials near Paris. The move is part of the EU&apos;s effort to freeze the assets of Ben Ali and his wife after being ousted in a popular revolt.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=78a2b355-b401-45e8-b185-df5d0dbe08bf</link>	
+		 <pubDate>Tue, Feb 01,2011 10:49:37PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=8be09fd8-da54-4595-8136-74ea58486828">
+			<title>Shadow Tactical Unmanned Aircraft System Program Wins Defense Logistics Award</title>
+		
+			
+			
+			<description>Best PBL Implementation Recognizes Military Partnerships With Industry The Defense Logistics Agency has awarded its Best Performance Based Logistics (PBL) award to AAI Corporation&apos;s Shadow Tactical Unmanned Aircraft System (TUAS) at the 7th Annual Defense Logistics Awards ceremony.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=8be09fd8-da54-4595-8136-74ea58486828</link>	
+		 <pubDate>Tue, Feb 01,2011 10:48:05PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=c6324147-f436-4f24-b320-ee825011c17e">
+			<title>First S-92 Helicopters Delivered To Afghanistan</title>
+		
+			
+			
+			<description>Aircraft Tasked With Utility Operations And Cargo Lift Missions Supporting DoD Two Sikorsky S-92 helicopters have been delivered to airlift services provider AAR CORP. for operations in Afghanistan. AAR will use the aircraft to perform passenger and cargo lift missions on behalf of the United States Transportation Command.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=c6324147-f436-4f24-b320-ee825011c17e</link>	
+		 <pubDate>Tue, Feb 01,2011 10:45:58PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=778f45f5-f37a-4bed-9b50-7474937eee6d">
+			<title>A Reason To Take Your iPad Down Island</title>
+		
+			
+			
+			<description>2011 Bahamas &amp; Caribbean Pilot&apos;s Guide Now On The Popular Tablet While you may go to the islands to get away from &quot;it all,&quot; there&apos;s still a good reason to slip your iPad into your flight bag ... the 2011 Bahamas &amp; Caribbean Pilot&apos;s Guide.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=778f45f5-f37a-4bed-9b50-7474937eee6d</link>	
+		 <pubDate>Tue, Feb 01,2011 10:42:43PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=680bd33c-42c7-43d0-89b2-e866ef5d5fa4">
+			<title>NTSB Makes Recommendations About Airbags In Cessna, Other Aircraft</title>
+		
+			
+			
+			<description>Study Found Some Potential Safety Issues With Airbag Restraint Systems After adopting the safety study Airbag Performance in General Aviation Restraint Systems on January 11 the NTSB is issuing six safety recommendations to the FAA to address issues concerning airbag restraint systems and shoulder harnesses.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=680bd33c-42c7-43d0-89b2-e866ef5d5fa4</link>	
+		 <pubDate>Tue, Feb 01,2011 10:41:21PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=87f6af2a-a98b-47d7-b777-30ca292b58cf">
+			<title>Aero-TV: Adventures in Gas Ballooning -- Mark Sullivan&apos;s Dedication to the Sport</title>
+		
+			
+			
+			<description>One Of The Most Amazing Aspects About Ballooning Are The Folks Who Are Devoted To It It&apos;s been a few months now and still the sites, sounds and sensations of the 2010 Albuquerque Balloon Fiesta bring a smile to our faces. Better than that, though, are the friends we made, the rest of the people we met and the world we were privileged to be a part of, that tumultuous week.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=87f6af2a-a98b-47d7-b777-30ca292b58cf</link>	
+		 <pubDate>Tue, Feb 01,2011 04:54:48PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=4933e1e3-959e-41bf-a54c-1a335f1213ed">
+			<title>Analyst: Retrofits May Boost Flagging Avionics Market</title>
+		
+			
+			
+			<description>Rising Demand For New Gadgets In Older Airplanes Could Buoy The Sector New research shows retrofit and aftermarket sales in previous years had resulted in unprecedented profits for avionics manufacturers, but currently, they are streamlining their operations and often relying on niche markets to stay afloat.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=4933e1e3-959e-41bf-a54c-1a335f1213ed</link>	
+		 <pubDate>Tue, Feb 01,2011 04:35:43PM</pubDate>
+		
+	</item>
+				
+<item rdf:about="http://www.aero-news.net/index.cfm?contentBlockId=6f14a5a9-9a19-4d00-b3fc-5a44e6979379">
+			<title>Alaska MPs Train On Guard Black Hawks</title>
+		
+			
+			
+			<description>Preparing For Deployment To Afghanistan Soldiers of the 164th Military Police Company, 793rd Military Police Battalion, 3rd Maneuver Enhancement Brigade conducted squad training the past two weeks at Joint Base Elmendorf-Richardson, Alaska, to prepare for an upcoming deployment to Afghanistan.</description>
+			
+		
+		<link>http://www.aero-news.net/index.cfm?contentBlockId=6f14a5a9-9a19-4d00-b3fc-5a44e6979379</link>	
+		 <pubDate>Tue, Feb 01,2011 04:35:02PM</pubDate>
+		
+	</item>
+				
+
+</rdf:RDF>
