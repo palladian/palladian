@@ -16,9 +16,7 @@ import org.apache.log4j.Logger;
  * If you need to create your own application specific persistence layer, you may create your own subclass.
  * 
  * @author David Urbansky
- * @author Christopher Friedrich
  * @author Philipp Katz
- * @author Martin Werner
  */
 public class DatabaseManager {
 
@@ -73,17 +71,17 @@ public class DatabaseManager {
         return counter;
     }
 
-//    /**
-//     * Run a query operation on the database, process the result using a callback.
-//     * 
-//     * @param callback The callback which is triggered for each result row of the query.
-//     * @param sql Query statement which may contain parameter markers.
-//     * @param args (Optional) arguments for parameter markers in query.
-//     * @return Number of processed results.
-//     */
-//    public final int runQuery(SimpleResultCallback callback, String sql, Object... args) {
-//        return runQuery(callback, new SimpleRowConverter(), sql, args);
-//    }
+    //    /**
+    //     * Run a query operation on the database, process the result using a callback.
+    //     *
+    //     * @param callback The callback which is triggered for each result row of the query.
+    //     * @param sql Query statement which may contain parameter markers.
+    //     * @param args (Optional) arguments for parameter markers in query.
+    //     * @return Number of processed results.
+    //     */
+    //    public final int runQuery(SimpleResultCallback callback, String sql, Object... args) {
+    //        return runQuery(callback, new SimpleRowConverter(), sql, args);
+    //    }
 
     /**
      * Run a query operation on the database, process the result using a callback.
@@ -124,34 +122,34 @@ public class DatabaseManager {
     }
 
     // TODO needs testing.
-//    public final <K, V> Map<K, V> runQuery(MapRowConverter<K, V> converter, String sql, Object... args) {
-//
-//        Connection connection = null;
-//        PreparedStatement ps = null;
-//        ResultSet rs = null;
-//        Map<K, V> result = new HashMap<K, V>();
-//
-//        try {
-//
-//            connection = getConnection();
-//            ps = connection.prepareStatement(sql);
-//            fillPreparedStatement(ps, args);
-//            rs = ps.executeQuery();
-//
-//            while (rs.next()) {
-//                K key = converter.convertKey(rs);
-//                V value = converter.convertValue(rs);
-//                result.put(key, value);
-//            }
-//
-//        } catch (SQLException e) {
-//            LOGGER.error(e.getMessage());
-//        } finally {
-//            close(connection, ps, rs);
-//        }
-//
-//        return result;
-//    }
+    //    public final <K, V> Map<K, V> runQuery(MapRowConverter<K, V> converter, String sql, Object... args) {
+    //
+    //        Connection connection = null;
+    //        PreparedStatement ps = null;
+    //        ResultSet rs = null;
+    //        Map<K, V> result = new HashMap<K, V>();
+    //
+    //        try {
+    //
+    //            connection = getConnection();
+    //            ps = connection.prepareStatement(sql);
+    //            fillPreparedStatement(ps, args);
+    //            rs = ps.executeQuery();
+    //
+    //            while (rs.next()) {
+    //                K key = converter.convertKey(rs);
+    //                V value = converter.convertValue(rs);
+    //                result.put(key, value);
+    //            }
+    //
+    //        } catch (SQLException e) {
+    //            LOGGER.error(e.getMessage());
+    //        } finally {
+    //            close(connection, ps, rs);
+    //        }
+    //
+    //        return result;
+    //    }
 
     /**
      * Run a query operation on the database, return the result as List.
@@ -273,66 +271,54 @@ public class DatabaseManager {
         return runSingleQuery(converter, sql, args.toArray());
     }
 
-//    /**
-//     * Run a query operation for a single item in the database.
-//     * 
-//     * @param sql Query statement which may contain parameter markers.
-//     * @param args (Optional) arguments for parameter markers in query.
-//     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no item
-//     *         found.
-//     */
-//    public final Map<String, Object> runSingleQuery(String sql, Object... args) {
-//        return runSingleQuery(new SimpleRowConverter(), sql, args);
-//    }
+    //    /**
+    //     * Run a query operation for a single item in the database.
+    //     *
+    //     * @param sql Query statement which may contain parameter markers.
+    //     * @param args (Optional) arguments for parameter markers in query.
+    //     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no item
+    //     *         found.
+    //     */
+    //    public final Map<String, Object> runSingleQuery(String sql, Object... args) {
+    //        return runSingleQuery(new SimpleRowConverter(), sql, args);
+    //    }
 
-//    /**
-//     * Run a query operation for a single item in the database.
-//     * 
-//     * @param sql Query statement which may contain parameter markers.
-//     * @param args (Optional) arguments for parameter markers in query.
-//     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no item
-//     *         found.
-//     */
-//    public final Map<String, Object> runSingleQuery(String sql, List<Object> args) {
-//        return runSingleQuery(new SimpleRowConverter(), sql, args.toArray());
-//    }
+    //    /**
+    //     * Run a query operation for a single item in the database.
+    //     *
+    //     * @param sql Query statement which may contain parameter markers.
+    //     * @param args (Optional) arguments for parameter markers in query.
+    //     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no item
+    //     *         found.
+    //     */
+    //    public final Map<String, Object> runSingleQuery(String sql, List<Object> args) {
+    //        return runSingleQuery(new SimpleRowConverter(), sql, args.toArray());
+    //    }
 
-    // TODO name of this method is misleading in imho.
-    // at least we should state in the JavaDoc, that the query needs to contain a "count" column?
+    /**
+     * Run a query which only uses exactly one COUNT. The method then returns the value of that count. For example,
+     * "SELECT COUNT(*) FROM feeds WHERE id > 342".
+     * 
+     * @param countQuery The query string with the COUNT.
+     * @return The result of the COUNT query. -1 means that there was nothing to count.
+     */
     public final int runCountQuery(String countQuery) {
 
-//        final int[] count = new int[] { -1 };
-        
         RowConverter<Integer> converter = new RowConverter<Integer>() {
-            
+
             @Override
             public Integer convert(ResultSet resultSet) throws SQLException {
-                return resultSet.getInt("count");
+                return resultSet.getInt(1);
             }
         };
 
-//        SimpleResultCallback callback = new SimpleResultCallback() {
-//
-//            @Override
-//            public void processResult(Map<String, Object> object, int number) {
-//                Object countObject = object.get("count");
-//                if (countObject != null) {
-//                    count[0] = (Integer) countObject;
-//                }
-//            }
-//        };
-
-//        runQuery(callback, countQuery);
-        
         int count = -1;
         Integer result = runSingleQuery(converter, countQuery);
         if (result != null) {
             count = result;
         }
-        
+
         return count;
-        
-//        return count[0];
     }
 
     /**
