@@ -3,6 +3,8 @@
  */
 package tud.iir.web.feeds.evaluation;
 
+import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -75,7 +77,9 @@ public final class MatrixCreator {
      * 
      * @param args
      *            The first parameter is the input the second the output file.
-     *            The output file is created if it is not yet available.
+     *            The output file is created if it is not yet available. The
+     *            third parameter is an optional symbol that is used as
+     *            separator in the input. If ommitted the default is ",".
      * @throws DataIOException
      *             If input file can not be accessed or is not valid.
      * @throws IOException
@@ -88,24 +92,38 @@ public final class MatrixCreator {
     public static void main(String[] args) throws DataIOException,
 	    FileNotFoundException, IOException {
 	CSVTableReader csvReader = new CSVTableReader();
-	Table table = csvReader.readTable(args[0]);
+	Table table = null;
+	if (args.length == 3) {
+	    FileInputStream inputStream = new FileInputStream(args[0]);
+	    String input = IOUtils.toString(inputStream);
+	    inputStream.close();
+	    String cleanedInput = input.replace(args[2], ",");
+
+	    LOGGER.info(cleanedInput);
+	    ByteArrayInputStream cleanedInputStream = new ByteArrayInputStream(
+		    cleanedInput.getBytes());
+	    table = csvReader.readTable(cleanedInputStream);
+	} else {
+	    table = csvReader.readTable(args[0]);
+	}
+
 	Table matrix = new Table();
 	for (int i = 0; i < table.getRowCount(); i++) {
-	    LOGGER.info("Processing input line: "+i);
+	    LOGGER.info("Processing input line: " + i);
 	    Integer rowIndex = (Integer) table.get(i, 0);
 	    Integer columnIndex = (Integer) table.get(i, 1);
 	    Integer value = (Integer) table.get(i, 2);
 
 	    if (matrix.getRowCount() < rowIndex) {
 		for (int j = matrix.getRowCount(); j < rowIndex; j++) {
-		    LOGGER.info("Adding new Row: "+j);
+		    LOGGER.info("Adding new Row: " + j);
 		    matrix.addRow();
 		}
 	    }
 
 	    if (matrix.getColumnCount() < columnIndex) {
 		for (int k = matrix.getColumnCount(); k < columnIndex; k++) {
-		    LOGGER.info("Adding new Column: "+k);
+		    LOGGER.info("Adding new Column: " + k);
 		    matrix.addColumn(String.valueOf(k), String.class, "");
 		}
 	    }
