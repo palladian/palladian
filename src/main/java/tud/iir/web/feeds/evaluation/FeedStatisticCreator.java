@@ -120,7 +120,7 @@ public class FeedStatisticCreator {
 
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
-                
+
                 double coverage = resultSet.getDouble("coverage");
                 double percentNew = resultSet.getDouble("percentNew");
                 double missed = resultSet.getDouble("missedItems");
@@ -135,7 +135,7 @@ public class FeedStatisticCreator {
                 csv.append("Missed:;" + format.format(missed)).append("\n");
                 csv.append("Percent Missed Items / Window Size:;" + format.format(100 * missedPercent)).append("\n");
                 csv.append("Traffic Per Item:;" + traffic).append("\n\n");
-                
+
             }
         };
         dbm.runQuery(callback, query);
@@ -300,9 +300,9 @@ public class FeedStatisticCreator {
         DatabaseManager dbm = new DatabaseManager();
 
         // Double trafficPerNewItemCG = null;
-        
+
         ResultSetCallback callback = new ResultSetCallback() {
-            
+
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 csv.append("\"================= Average Performance (").append(avgStyleExplanationF)
@@ -313,15 +313,15 @@ public class FeedStatisticCreator {
                         "Average Delay:;"
                         + DateHelper.getTimeString(1000L * ((Double) resultSet.getDouble("delay")).longValue())).append(
                         "\n");
-                csv.append("Avg. Missed Items:;" + format.format(resultSet.getDouble("missedItems"))).append("\n");                
+                csv.append("Avg. Missed Items:;" + format.format(resultSet.getDouble("missedItems"))).append("\n");
             }
         };
 
         dbm.runQuery(callback, query);
         csv.append(
                 "Median Delay:;"
-                        + DateHelper.getTimeString(1000L * ((Double) calculateMedianDelay(avgStyle, -1, tableName))
-                                .longValue())).append("\n");
+                + DateHelper.getTimeString(1000L * ((Double) calculateMedianDelay(avgStyle, -1, tableName))
+                        .longValue())).append("\n");
 
         ResultSetCallback callback2 = new ResultSetCallback() {
 
@@ -341,15 +341,15 @@ public class FeedStatisticCreator {
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 csv.append("New Items Per Discovery:;" + format.format(resultSet.getDouble("newItemsPerDiscovery")))
-                        .append("\n");
+                .append("\n");
             }
 
         };
 
         dbm.runQuery(callback3, queryB);
 
-        
-// score = avgDelay / 1000 * pollsPerNewItem;
+
+        // score = avgDelay / 1000 * pollsPerNewItem;
         // csv.append("Score:;" + format.format(score)).append("\n");
         // score *= 1 + missedItems;
         // csv.append("Score (with misses):;" + format.format(score)).append("\n\n");
@@ -376,10 +376,10 @@ public class FeedStatisticCreator {
 
             csv.append(
                     "Median Delay:;"
-                            + DateHelper.getTimeString(1000L * ((Double) calculateMedianDelay(avgStyle, -1, tableName))
-                                    .longValue())).append("\n");
+                    + DateHelper.getTimeString(1000L * ((Double) calculateMedianDelay(avgStyle, -1, tableName))
+                            .longValue())).append("\n");
 
-           
+
             String queryAAP = queryA.replaceAll("numberOfPoll > 1", "numberOfPoll > 1 AND activityPattern = "
                     + activityPatternID);
 
@@ -452,20 +452,20 @@ public class FeedStatisticCreator {
 
         // ignore table 1440
         final String sql = "CREATE TABLE "
-                + tempTableName
-                + " AS SELECT a.feedID, a.activityPattern FROM "
-                + "(SELECT feedID, activityPattern FROM feed_evaluation2_adaptive_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
-                + pollsWithNewItems
-                + ") a, "
-                + "(SELECT feedID FROM feed_evaluation2_probabilistic_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
-                + pollsWithNewItems
-                + ") b, "
-                + "(SELECT feedID FROM feed_evaluation2_fix60_max_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
-                + pollsWithNewItems
-                + ") c, "
-                + "(SELECT feedID FROM feed_evaluation2_fix_learned_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
-                + pollsWithNewItems
-                + ") d WHERE a.feedID = b.feedID AND b.feedID = c.feedID AND c.feedID = d.feedID";
+            + tempTableName
+            + " AS SELECT a.feedID, a.activityPattern FROM "
+            + "(SELECT feedID, activityPattern FROM feed_evaluation2_adaptive_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+            + pollsWithNewItems
+            + ") a, "
+            + "(SELECT feedID FROM feed_evaluation2_probabilistic_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+            + pollsWithNewItems
+            + ") b, "
+            + "(SELECT feedID FROM feed_evaluation2_fix60_max_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+            + pollsWithNewItems
+            + ") c, "
+            + "(SELECT feedID FROM feed_evaluation2_fix_learned_min_poll WHERE newWindowItems > 0 GROUP BY feedID HAVING COUNT(feedID) >= "
+            + pollsWithNewItems
+            + ") d WHERE a.feedID = b.feedID AND b.feedID = c.feedID AND c.feedID = d.feedID";
 
         Logger.getRootLogger().info(sql);
         dbm.runUpdate(sql);
@@ -526,10 +526,10 @@ public class FeedStatisticCreator {
         dbm.runQuery(
                 callback3,
                 "SELECT fep.feedID, numberOfPoll, cumulatedLateDelay/(newWindowItems+missedItems) AS delay FROM "
-                        + tableName
-                        + " fep,"
-                        + tempTableName
-                        + " temp WHERE fep.feedID = temp.feedID AND newWindowItems > 0 ORDER BY fep.feedID ASC, numberOfPoll ASC");
+                + tableName
+                + " fep,"
+                + tempTableName
+                + " temp WHERE fep.feedID = temp.feedID AND newWindowItems > 0 ORDER BY fep.feedID ASC, numberOfPoll ASC");
 
 
         csv.append("new item number discovery;average delday;number of feeds\n");
@@ -664,11 +664,25 @@ public class FeedStatisticCreator {
     public static void createFeedUpdateIntervals(FeedStore feedStore, String statisticOutputPath) throws IOException,
     SQLException {
 
-        String psFix1d = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix1440_max_min_poll WHERE feedID = ? AND numberOfPoll > 1";
-        String psFix1h = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix60_max_min_poll WHERE feedID = ? AND numberOfPoll > 1";
-        String psFixLearned = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix_learned_min_poll WHERE feedID = ? AND numberOfPoll > 1";
-        String psFixPostRate = "SELECT AVG(checkInterval) FROM feed_evaluation2_probabilistic_min_poll WHERE feedID = ? AND numberOfPoll > 1";
-        String psFixMAV = "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_poll WHERE feedID = ? AND numberOfPoll > 1";
+        // String psFix1d =
+        // "SELECT AVG(checkInterval) FROM feed_evaluation2_fix1440_max_min_poll WHERE feedID = ? AND numberOfPoll > 1";
+        // String psFix1h =
+        // "SELECT AVG(checkInterval) FROM feed_evaluation2_fix60_max_min_poll WHERE feedID = ? AND numberOfPoll > 1";
+        // String psFixLearned =
+        // "SELECT AVG(checkInterval) FROM feed_evaluation2_fix_learned_min_poll WHERE feedID = ? AND numberOfPoll > 1";
+        // String psFixPostRate =
+        // "SELECT AVG(checkInterval) FROM feed_evaluation2_probabilistic_min_poll WHERE feedID = ? AND numberOfPoll > 1";
+        // String psFixMAV =
+        // "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_poll WHERE feedID = ? AND numberOfPoll > 1";
+
+        String psFix1d = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix1440_max_min_time WHERE feedID = ? AND numberOfPoll > 1";
+        String psFix1h = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix60_max_min_time WHERE feedID = ? AND numberOfPoll > 1";
+        String psFixLearned = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix_learned_min_time WHERE feedID = ? AND numberOfPoll > 1";
+        String psFixPostRate = "SELECT AVG(checkInterval) FROM feed_evaluation2_probabilistic_min_time WHERE feedID = ? AND numberOfPoll > 1";
+        String psFixMAV = "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_time WHERE feedID = ? AND numberOfPoll > 1";
+
+        long timespan = FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND
+        - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
 
         // create the file we want to write to
         FileWriter csv = new FileWriter(statisticOutputPath);
@@ -680,33 +694,19 @@ public class FeedStatisticCreator {
             String safeFeedName = feed.getId() + "_";
             String historyFilePath = FeedReaderEvaluator.findHistoryFile(safeFeedName);
 
-            // determine the real average update interval of the feeds by looking at the first and last poll timestamp
-            // and the number of items
-            long newestItemTime = 0;
-            long oldestItemTime = 0;
             List<String> items = FileHelper.readFileToArray(historyFilePath);
 
             if (items.size() <= 1) {
                 continue;
             }
 
-            for (String item : items) {
-                String[] itemParts = item.split(";");
-                if (newestItemTime == 0) {
-                    newestItemTime = Long.valueOf(itemParts[0]);
-                }
-                oldestItemTime = Long.valueOf(itemParts[0]);
-            }
-
-            long totalTime = (newestItemTime - oldestItemTime) / DateHelper.MINUTE_MS;
-
-            double realAverageUpdateInterval = MathHelper.round(totalTime / ((double) items.size() - 1), 2);
+            double realAverageUpdateInterval = MathHelper.round(timespan / ((double) items.size() - 1), 2);
 
             // limit feeds to a maximum real average update interval of 31 days = 44640 minutes
             if (realAverageUpdateInterval > 44640) {
                 LOGGER.warn("feed had real update interval of" + realAverageUpdateInterval
                         + ", that is too few updates, we skip");
-                continue;
+                // continue;
             }
 
             StringBuilder temp = new StringBuilder();
@@ -774,7 +774,7 @@ public class FeedStatisticCreator {
     }
 
     private static double getUpdateInterval(String query) throws SQLException {
-        
+
         DatabaseManager dbm = new DatabaseManager();
         RowConverter<Double> converter = new RowConverter<Double>() {
 
@@ -783,7 +783,7 @@ public class FeedStatisticCreator {
                 return resultSet.getDouble("updateInterval");
             }
         };
-        
+
         return dbm.runSingleQuery(converter, query);
     }
 
