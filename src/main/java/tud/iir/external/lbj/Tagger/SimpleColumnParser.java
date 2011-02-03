@@ -80,7 +80,19 @@ public Object next()
 	   for (line = (String[]) super.next(); line != null && line.length > 0;
 	        line = (String[]) super.next())
 	   {
-            w = new NEWord(new Word(line[0]), null, line[1]);
+
+            int lastIndex = line.length - 1;
+
+            // the content before the tag
+            String tokenContent = "";
+            for (int i = 0; i < lastIndex; i++) {
+                if (i > 0) {
+                    tokenContent += " ";
+                }
+                tokenContent += line[i];
+            }
+
+            w = new NEWord(new Word(tokenContent), null, line[lastIndex]);
 		   v=splitWord(w);
 		   if(Parameters.tokenizationScheme.equalsIgnoreCase(Parameters.DualTokenizationScheme)){
 			   w.parts=new String[v.size()];

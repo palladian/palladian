@@ -7,7 +7,6 @@ import lbj.FeaturesLevel1;
 import lbj.FeaturesLevel2;
 import lbj.NETaggerLevel1;
 import lbj.NETaggerLevel2;
-
 import tud.iir.external.lbj.IO.OutFile;
 import LBJ2.classify.Classifier;
 import LBJ2.parse.LinkedVector;
@@ -90,11 +89,22 @@ public class NETagPlain
             	if (predictions[j].startsWith("B-")
             			|| 
             			j>0&&predictions[j].startsWith("I-") && !predictions[j-1].endsWith(predictions[j].substring(2))){
-            		res.append("[" + predictions[j].substring(2) + " ");
+                    res.append(" [" + predictions[j].substring(2) + " ");
             		open=true;
             	}
-            	res.append(words[j]+ " ");
-            	if(open){
+
+                if (words[j].length() > 0
+                        && (Character.isLetterOrDigit(words[j].charAt(0)) || isBracket(words[j].charAt(0)))) {
+                    res.append(" ");
+                }
+
+                // res.append(words[j]+ " ");
+                res.append(words[j]);
+                // if (Character.isLetterOrDigit(words[j].charAt(0)) && !open) {
+                // res.append(" ");
+                // }
+
+                if (open) {
             		boolean close=false;
             		if(j==vector.size()-1){
             			close=true;
@@ -112,16 +122,27 @@ public class NETagPlain
                         }
             		}
             		if(close){
-            			res.append(" ] ");
+                        res.append(" ]");
             			open=false;
             		}
             	}
             }
-            out.println(res.toString());
+            out.print(res.toString());
         }
         out.close();    	
     }
     
+    private static boolean isBracket(char character) {
+        final char[] BRACKETS = { '(', ')', '{', '}', '[', ']' };
+        for (char element : BRACKETS) {
+            if (element == character) {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
     public static String bilou2bio(String prediction){
     	if(Parameters.taggingScheme.equalsIgnoreCase(Parameters.BILOU)){
     		if(prediction.startsWith("U-")) {
