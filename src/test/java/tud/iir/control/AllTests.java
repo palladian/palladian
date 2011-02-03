@@ -18,7 +18,7 @@ import tud.iir.web.CrawlerTest;
 public class AllTests {
 
     // if true, also tests that require network access (online) are run
-    public static final boolean ALL_TESTS = false;
+    public static final boolean ALL_TESTS = true;
 
     public static Test suite() {
         TestSuite suite = new TestSuite("Test for test");

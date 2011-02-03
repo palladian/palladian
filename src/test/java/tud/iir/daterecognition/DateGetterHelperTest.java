@@ -39,7 +39,8 @@ public class DateGetterHelperTest {
 	        final String url12 = "http://www.example.com/text/2010/othertext/06/30example.html";
 	        final String url13 = "http://www.example.com/text/2010/other/text/06_30example.html";
 	        final String url14 = "http://www.example.com/text/othertext/20100630example.html";
-	        final String url15 = "http://www.guardian.co.uk/world/2002/aug/06/iraq.johnhooper";
+	        final String url15 = "http://www.guardian.co.uk/world/2002/sep/06/iraq.johnhooper";
+	        final String url16 = "http://www.gazettextra.com/news/2010/sep/23/abortion-issue-senate-races/";
 	
 	        // Cases with given day
 	        String time = "2010-06-30";
@@ -65,7 +66,9 @@ public class DateGetterHelperTest {
 	        udg.setUrl(url14);
 	        assertEquals(url14, time, udg.getFirstDate().getNormalizedDateString());
 	        udg.setUrl(url15);
-	        assertEquals(url15, "2002-08-06", udg.getFirstDate().getNormalizedDateString());
+	        assertEquals(url15, "2002-09-06", udg.getFirstDate().getNormalizedDateString());
+	        udg.setUrl(url16);
+	        assertEquals(url16, "2010-09-23", udg.getFirstDate().getNormalizedDateString());
 	
 	        // Cases without given day, so day will be set to 1st
 	        time = "2010-06";
@@ -324,6 +327,7 @@ public class DateGetterHelperTest {
         assertEquals("2010-07-29", DateGetterHelper.findDate("29/07/2010").getNormalizedDateString());
         assertEquals("2010-09-07", DateGetterHelper.findDate("09/07/2010").getNormalizedDateString());
         assertEquals("2010-08-23", DateGetterHelper.findDate("Monday, August 23, 2010").getNormalizedDateString());
+        assertEquals("2010-09-23", DateGetterHelper.findDate("Monday, Sep 23, 2010").getNormalizedDateString());
 
     }
 
@@ -505,7 +509,7 @@ public class DateGetterHelperTest {
 	        // "http://www.scifisquad.com/2010/05/21/fridays-sci-fi-tv-its-a-spy-game-on-stargate-universe?icid=sphere_wpcom_tagsidebar/";
 	        
     		String url = "http://g4tv.com/games/pc/61502/star-wars-the-old-republic/index/";
-    		url = "data/webpages/daterecognition/webpage_1292927985086.html";
+    		url = "data/evaluation/daterecognition/webpages/webpage_1292927985086.html";
 	        // String url =
 	        // "http://www.politicsdaily.com/2010/06/10/harry-reid-ads-tout-jobs-creation-spokesman-calls-sharron-angl/";
 	        if (AllTests.ALL_TESTS) {
