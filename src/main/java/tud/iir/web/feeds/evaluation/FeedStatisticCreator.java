@@ -675,8 +675,6 @@ public class FeedStatisticCreator {
         // String psFixMAV =
         // "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_poll WHERE feedID = ? AND numberOfPoll > 1";
 
-        String psFix1d = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix1440_max_min_time WHERE feedID = ? AND numberOfPoll > 1";
-        String psFix1h = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix60_max_min_time WHERE feedID = ? AND numberOfPoll > 1";
         String psFixLearned = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix_learned_min_time WHERE feedID = ? AND numberOfPoll > 1";
         String psFixPostRate = "SELECT AVG(checkInterval) FROM feed_evaluation2_probabilistic_min_time WHERE feedID = ? AND numberOfPoll > 1";
         String psFixMAV = "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_time WHERE feedID = ? AND numberOfPoll > 1";
@@ -715,26 +713,11 @@ public class FeedStatisticCreator {
             temp.append(String.valueOf(realAverageUpdateInterval) + ";");
 
             // get the number of polls for the feed from the database for the update strategies
-            psFix1d = psFix1d.replace("?", String.valueOf(feed.getId()));
-            double updateInterval = getUpdateInterval(psFix1d);
-            if (updateInterval < 1) {
-                LOGGER.warn("feed had " + items.size()
-                        + " items and the number of polls was too small to calculate a meaningful value");
-                continue;
-            }
-            temp.append(String.valueOf(updateInterval) + ";");
-
-            psFix1h = psFix1h.replace("?", String.valueOf(feed.getId()));
-            updateInterval = getUpdateInterval(psFix1h);
-            if (updateInterval < 1) {
-                LOGGER.warn("feed had " + items.size()
-                        + " items and the number of polls was too small to calculate a meaningful value");
-                continue;
-            }
-            temp.append(String.valueOf(updateInterval) + ";");
+            temp.append("1440;");
+            temp.append("60;");
 
             psFixLearned = psFixLearned.replace("?", String.valueOf(feed.getId()));
-            updateInterval = getUpdateInterval(psFixLearned);
+            double updateInterval = getUpdateInterval(psFixLearned);
             if (updateInterval < 1) {
                 LOGGER.warn("feed had " + items.size()
                         + " items and the number of polls was too small to calculate a meaningful value");
