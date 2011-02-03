@@ -30,12 +30,17 @@ import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedClassifier;
 import tud.iir.web.feeds.FeedPostStatistics;
 import tud.iir.web.feeds.FeedReader;
+import tud.iir.web.feeds.persistence.FeedDatabase;
 import tud.iir.web.feeds.persistence.FeedStore;
 
 /**
  * The FeedStatisticCreator creates a file with statistics about feeds from a feed store.
  * 
  * @author David Urbansky
+ * 
+ */
+/**
+ * @author Sandro Reichert
  * 
  */
 public class FeedStatisticCreator {
@@ -652,6 +657,23 @@ public class FeedStatisticCreator {
     }
 
     /**
+     * Checks whether a feed is contained in tempTableMin. tempTableMin contains all feedIDs that are contained in all
+     * five _min_time tables.
+     * 
+     * @param feed The feed to check
+     * @return true if feed is contained in tempTableMin, otherwise {@code false}.
+     */
+    private static boolean isInTempTable(Feed feed) {
+        String sql = "SELECT COUNT(*) AS count FROM tempTableMin WHERE feedID = " + feed.getId();
+        DatabaseManager dbm = new DatabaseManager();
+        int c = dbm.runCountQuery(sql);
+        if (c > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * Generate a csv file containing the following information:<br>
      * feedID;realAverageUpdateInterval;averageIntervalFix1d;averageIntervalFix1h;averageIntervalFixLearned;
      * averageIntervalPostRate;averageIntervalMAV
@@ -675,9 +697,9 @@ public class FeedStatisticCreator {
         // String psFixMAV =
         // "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_poll WHERE feedID = ? AND numberOfPoll > 1";
 
-        String psFixLearned = "SELECT AVG(checkInterval) FROM feed_evaluation2_fix_learned_min_time WHERE feedID = ? AND numberOfPoll > 1";
-        String psFixPostRate = "SELECT AVG(checkInterval) FROM feed_evaluation2_probabilistic_min_time WHERE feedID = ? AND numberOfPoll > 1";
-        String psFixMAV = "SELECT AVG(checkInterval) FROM feed_evaluation2_adaptive_min_time WHERE feedID = ? AND numberOfPoll > 1";
+        String psFixLearned = "SELECT AVG(checkInterval) AS checkInterval FROM feed_evaluation2_fix_learned_min_time WHERE feedID = ?";
+        String psFixPostRate = "SELECT AVG(checkInterval) AS checkInterval FROM feed_evaluation2_probabilistic_min_time WHERE feedID = ?";
+        String psFixMAV = "SELECT AVG(checkInterval) AS checkInterval FROM feed_evaluation2_adaptive_min_time WHERE feedID = ?";
 
         long timespan = FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND
         - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
@@ -689,6 +711,10 @@ public class FeedStatisticCreator {
         int totalSize = feedStore.getFeeds().size();
         for (Feed feed : feedStore.getFeeds()) {
 
+            if (!isInTempTable(feed)) {
+                LOGGER.info("not in temptable, that is, not in our time frame...skipping");
+            }
+
             String safeFeedName = feed.getId() + "_";
             String historyFilePath = FeedReaderEvaluator.findHistoryFile(safeFeedName);
 
@@ -698,12 +724,14 @@ public class FeedStatisticCreator {
                 continue;
             }
 
-            double realAverageUpdateInterval = MathHelper.round(timespan / ((double) items.size() - 1), 2);
+            double realAverageUpdateInterval = MathHelper.round(timespan / ((double) items.size() - 1), 2)
+                    / DateHelper.MINUTE_MS;
 
             // limit feeds to a maximum real average update interval of 31 days = 44640 minutes
             if (realAverageUpdateInterval > 44640) {
-                LOGGER.warn("feed had real update interval of" + realAverageUpdateInterval
-                        + ", that is too few updates, we skip");
+                LOGGER.warn("feed had real update interval of "
+                        + DateHelper.getRuntime(0L, (long) realAverageUpdateInterval)
+                        + ", that is too few updates, we should skip, but don't :)");
                 // continue;
             }
 
@@ -716,8 +744,17 @@ public class FeedStatisticCreator {
             temp.append("1440;");
             temp.append("60;");
 
-            psFixLearned = psFixLearned.replace("?", String.valueOf(feed.getId()));
-            double updateInterval = getUpdateInterval(psFixLearned);
+            String sql = psFixLearned.replace("?", String.valueOf(feed.getId()));
+            double updateInterval = getUpdateInterval(sql);
+            if (updateInterval < 1) {
+                LOGGER.warn("feed " + feed.getId() + " had " + items.size()
+                        + " items and the number of polls was too small to calculate a meaningful value");
+                continue;
+            }
+            temp.append(String.valueOf(updateInterval) + ";");
+
+            sql = psFixPostRate.replace("?", String.valueOf(feed.getId()));
+            updateInterval = getUpdateInterval(sql);
             if (updateInterval < 1) {
                 LOGGER.warn("feed had " + items.size()
                         + " items and the number of polls was too small to calculate a meaningful value");
@@ -725,17 +762,8 @@ public class FeedStatisticCreator {
             }
             temp.append(String.valueOf(updateInterval) + ";");
 
-            psFixPostRate = psFixPostRate.replace("?", String.valueOf(feed.getId()));
-            updateInterval = getUpdateInterval(psFixPostRate);
-            if (updateInterval < 1) {
-                LOGGER.warn("feed had " + items.size()
-                        + " items and the number of polls was too small to calculate a meaningful value");
-                continue;
-            }
-            temp.append(String.valueOf(updateInterval) + ";");
-
-            psFixMAV = psFixMAV.replace("?", String.valueOf(feed.getId()));
-            updateInterval = getUpdateInterval(psFixMAV);
+            sql = psFixMAV.replace("?", String.valueOf(feed.getId()));
+            updateInterval = getUpdateInterval(sql);
             if (updateInterval < 1) {
                 LOGGER.warn("feed had " + items.size()
                         + " items and the number of polls was too small to calculate a meaningful value");
@@ -763,7 +791,7 @@ public class FeedStatisticCreator {
 
             @Override
             public Double convert(ResultSet resultSet) throws SQLException {
-                return resultSet.getDouble("updateInterval");
+                return resultSet.getDouble("checkInterval");
             }
         };
 
@@ -844,9 +872,9 @@ public class FeedStatisticCreator {
         // FeedStatisticCreator.minDelayPolicyEvaluationAll();
         // FeedStatisticCreator.timelinessChart();
         // FeedStatisticCreator.delayChart();
-        // FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(), "data/temp/feedUpdateIntervals.csv");
-        FeedStatisticCreator.pollsWithNewItems = 500;
-        delayChart();
+        FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(), "data/temp/feedUpdateIntervals.csv");
+        // FeedStatisticCreator.pollsWithNewItems = 500;
+        // delayChart();
 
     }
 
