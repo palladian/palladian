@@ -29,26 +29,31 @@ public class ContentEvaluator {
 		TechniqueDateRater<ContentDate> pub_dr = new ContentDateRater(PageDateType.publish);
 		TechniqueDateRater<ContentDate> mod_dr = new ContentDateRater(PageDateType.last_modified);
 		
+		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
+		evaluate("pub0",DBExport.PUB_DATE, dg, pub_dr, file);
+		evaluate("mod0",DBExport.MOD_DATE, dg, mod_dr, file);
 		
-		//evaluate("pub0",DBExport.PUB_DATE, dg, pub_dr);
-		//evaluate("mod0",DBExport.MOD_DATE, dg, mod_dr);
 		
-		System.out.println(EvaluationHelper.count("mod0", EvaluationHelper.CONTENTEVAL, 250, DataSetHandler.TP));
 		
 		//EvaluationHelper.calculateOutput(0, EvaluationHelper.CONTENTEVAL);
-		System.out.println("pub:");
-		double ci = EvaluationHelper.calculateCI(EvaluationHelper.CONTENTEVAL, "pub0", DataSetHandler.TP, 150, false);
-		System.out.println("CI: " + ci);
-		System.out.println("Sample Size: " + EvaluationHelper.calculateSampleSize(ci));
-		System.out.println("mod:");
-		ci = EvaluationHelper.calculateCI(EvaluationHelper.CONTENTEVAL, "mod0", DataSetHandler.TP, 150, false);
-		System.out.println("CI: " + ci);
-		System.out.println("Sample Size: " + EvaluationHelper.calculateSampleSize(ci));
+		System.out.println("pub");
+		System.out.println("RF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.RF));
+		System.out.println("RNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.RNF));
+		System.out.println("WF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.WF));
+		System.out.println("WNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.WNF));
+		System.out.println("FF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.CONTENTEVAL, DataSetHandler.FF));
+				
+		System.out.println("mod");
+		System.out.println("RF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.RF));
+		System.out.println("RNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.RNF));
+		System.out.println("WF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.WF));
+		System.out.println("WNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.WNF));
+		System.out.println("FF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.CONTENTEVAL, DataSetHandler.FF));
 		
 	}
 	
-	public static void evaluate(String round,int pub_mod, TechniqueDateGetter<ContentDate> dg, TechniqueDateRater<ContentDate> dr){
-		Evaluator.evaluate(EvaluationHelper.CONTENTEVAL, round, pub_mod, dg, dr);
+	public static void evaluate(String round,int pub_mod, TechniqueDateGetter<ContentDate> dg, TechniqueDateRater<ContentDate> dr, String file){
+		Evaluator.evaluate(EvaluationHelper.CONTENTEVAL, round, pub_mod, dg, dr,file);
 		
 		/*int truePositiv = 0;
 		int trueNegative = 0;

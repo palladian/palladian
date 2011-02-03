@@ -1,5 +1,10 @@
 package tud.iir.daterecognition.evaluation;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,6 +26,7 @@ import tud.iir.daterecognition.technique.HttpDateRater;
 import tud.iir.daterecognition.technique.PageDateType;
 import tud.iir.daterecognition.technique.TechniqueDateGetter;
 import tud.iir.daterecognition.technique.TechniqueDateRater;
+import tud.iir.daterecognition.technique.URLDateGetter;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.helper.DateComparator;
 
@@ -37,38 +43,48 @@ public class HttpEvaluator {
 	public static void main(String[] args) {
 		//evaluateLastModified();
 		
+		//createHttpUrlList("", "");
+		
 		HTTPDateGetter dg = new HTTPDateGetter();
 		HttpDateRater dr = new HttpDateRater(PageDateType.publish);
 		
+		String file = "data/evaluation/daterecognition/datasets/httpdataset.txt";
+		evaluate("pub1",DBExport.PUB_DATE, dg, dr,file);
+		evaluate("mod1",DBExport.MOD_DATE, dg, dr,file);
 		
-		//evaluate("pub0",DBExport.PUB_DATE, dg, dr);
-		//evaluate("mod0",DBExport.MOD_DATE, dg, dr);
-		System.out.println(EvaluationHelper.count("pub0", EvaluationHelper.HTTPEVAL, 200, DataSetHandler.TP));
-		System.out.println(EvaluationHelper.count("mod0", EvaluationHelper.HTTPEVAL, 200, DataSetHandler.TP));
-		//EvaluationHelper.calculateOutput(0, EvaluationHelper.HTTPEVAL, 350);
-		//Integer[] list = {50, 100, 150, 200, 250, 300, 350};
-		//EvaluationHelper.calculateConfidenceInterval(EvaluationHelper.HTTPEVAL, "pub0", list);
-		System.out.println("pub:");
-		double ci = EvaluationHelper.calculateCI(EvaluationHelper.HTTPEVAL, "pub0", DataSetHandler.TP, 150, false);
-		System.out.println("CI: " + ci);
-		System.out.println("Sample Size: " + EvaluationHelper.calculateSampleSize(ci));
-		System.out.println("mod:");
-		ci = EvaluationHelper.calculateCI(EvaluationHelper.HTTPEVAL, "mod0", DataSetHandler.TP, 150, false);
-		System.out.println("CI: " + ci);
-		System.out.println("Sample Size: " + EvaluationHelper.calculateSampleSize(ci));
+		/*
+		String in1 = "data/evaluation/daterecognition/datasets/dataset.txt";
+		String in2 = "data/evaluation/daterecognition/datasets/httpdataset_old.txt";
+		mergeUrlsets(in1, in2, file);
+		*/
 		
-
+		String pub = "pub0";
+		System.out.println(pub);
+		System.out.println("RF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.RF));
+		System.out.println("RNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.RNF));
+		System.out.println("WF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.WF));
+		System.out.println("WNF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.WNF));
+		System.out.println("FF: " + EvaluationHelper.count(file, pub, EvaluationHelper.HTTPEVAL, DataSetHandler.FF));
+				
+		String mod = "mod0";
+		System.out.println(mod);
+		System.out.println("RF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.RF));
+		System.out.println("RNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.RNF));
+		System.out.println("WF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.WF));
+		System.out.println("WNF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.WNF));
+		System.out.println("FF: " + EvaluationHelper.count(file, mod, EvaluationHelper.HTTPEVAL, DataSetHandler.FF));
 		
 	}
 
-	private static void evaluate(String round,int pub_mod, HTTPDateGetter dg, HttpDateRater dr){
-		int truePositiv = 0;
-		int trueNegative = 0;
-		int falsePositv = 0;
-		int falseNegativ = 0;
+	private static void evaluate(String round,int pub_mod, HTTPDateGetter dg, HttpDateRater dr, String file){
+		int rnf = 0;
+		int ff= 0;
+		int wnf= 0;
+		int rf= 0;
+		int wf = 0;
 		int counter=0;
 		int compare;
-		HashMap<String, DBExport> set = EvaluationHelper.readFile();
+		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
 			String tempDateString = "";
@@ -103,31 +119,39 @@ public class HttpEvaluator {
 			}
 			
 			System.out.println("compare...");
-			
+
+			if(rate == 0){
+				tempDate = null;
+			}
 			compare = EvaluationHelper.compareDate(tempDate, e.getValue(), pub_mod);
+			
 			System.out.print(compare + " httpDate:" + tempDateString + " - " + pub_mod + ":" + e.getValue().get(pub_mod));
 			switch(compare){
-				case DataSetHandler.FN:
-					falseNegativ++;
+				case DataSetHandler.WF:
+					wf++;
 					break;
-				case DataSetHandler.FP:
-					falsePositv++;
+				case DataSetHandler.WNF:
+					wnf++;
 					break;
-				case DataSetHandler.TN:
-					trueNegative++;
+				case DataSetHandler.FF:
+					ff++;
 					break;
-				case DataSetHandler.TP:
-					truePositiv++;
+				case DataSetHandler.RNF:
+					rnf++;
+					break;
+				case DataSetHandler.RF:
+					rf++;
 					break;
 					
 			}
 			DataSetHandler.writeInDB(EvaluationHelper.HTTPEVAL, e.getValue().getUrl(), compare, round);
 			counter++;
 			System.out.println();
-			System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv);
+			System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
 			System.out.println("---------------------------------------------------------------------");
 		}
-		System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv);
+		System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
+		
 	}
 	
 	/**
@@ -199,5 +223,123 @@ public class HttpEvaluator {
 
 		DataSetHandler.closeConnection();
 		
+	}
+	
+private static void mergeUrlsets(String in1, String in2, String out){
+		
+		HashMap<String, DBExport> set1 = EvaluationHelper.readFile(in1);
+		HashMap<String, DBExport> set2 = EvaluationHelper.readFile(in2);
+		
+		HashMap<String, DBExport> merged = new HashMap<String, DBExport>();
+		merged.putAll(set1);
+		merged.putAll(set2);
+		String separator = DataSetHandler.separator;
+		File file = new File(out);
+		try{
+			FileWriter outw = new FileWriter(file, false);
+			BufferedWriter bw = new BufferedWriter(outw);
+			bw.write("url *;_;* path *;_;* pub_date *;_;* pub_sureness *;_;* mod_date *;_;* mod_sureness *;_;* google_date *;_;* hakia_date *;_;* ask_date *;_;* header_last_mod *;_;* header_date *;_;* down_date \n");
+			for(Entry<String, DBExport>e : merged.entrySet()){
+				ExtractedDate header_last_mod = DateGetterHelper.findDate(e.getValue().get(DBExport.HEADER_LAST));
+				ExtractedDate downloaded = getDownloadedDate(e.getValue());
+				DateComparator dc = new DateComparator();
+				
+				
+				boolean pub_sure = Boolean.valueOf(e.getValue().get(DBExport.PUB_SURE));
+				boolean mod_sure = Boolean.valueOf(e.getValue().get(DBExport.MOD_SURE));
+				if(header_last_mod != null && !(!pub_sure && mod_sure)  && hasPubOrModDate(e.getValue())){
+					int compare = dc.compare(downloaded, header_last_mod, DateComparator.MEASURE_DAY);
+					if( compare != 0){
+						String write = e.getValue().getUrl() + separator
+						+ e.getValue().getFilePath() + separator
+						+ e.getValue().getPubDate() + separator
+						+ String.valueOf(e.getValue().isPubSureness()) + separator
+						+ e.getValue().getModDate() + separator
+						+ String.valueOf(e.getValue().isModSureness()) + separator
+						+ e.getValue().getGoogleDate() + separator
+						+ e.getValue().getHakiaDate() + separator
+						+ e.getValue().getAskDate() + separator
+						+ e.getValue().getLastModDate() + separator
+						+ e.getValue().getDateDate() + separator
+						+ e.getValue().getActDate();
+						bw.write(write + "\n");
+					
+						System.out.println(write);
+					}
+					
+				}
+			}	
+			bw.close();
+			outw.close();
+		} catch(Exception e){
+			e.printStackTrace();
+		}
+		
+	}
+	
+
+	private static void createHttpUrlList(String in, String out){
+		HashMap<String, String> set = new HashMap<String, String>();
+		try{
+			
+			File file = new File(in);
+			FileReader fr = new FileReader(file);
+			BufferedReader br = new BufferedReader(fr);
+			String line;
+			
+			HTTPDateGetter dg = new HTTPDateGetter();
+			int lineindex=0;
+			while((line=br.readLine())!=null){
+				if(lineindex>1){
+					int indexStart = line.indexOf('>');
+					int indexEnd = line.indexOf("</a>");
+					String url = line.substring(indexStart + 1, indexEnd);
+					
+					System.out.println(url);
+					dg.setUrl(url);
+					ArrayList<HTTPDate> dates = dg.getDates();
+					if(dates.size() > 0){
+						boolean last = false;
+						for(int i=0; i<dates.size(); i++){
+							if(dates.get(i).getKeyword().equalsIgnoreCase("last-modified")){
+								System.out.println("!!!!!!!!!!!!!!!!!!!!");
+								set.put(line, null);
+							}
+						}
+					}
+				}
+				
+				lineindex++;
+			}
+			br.close();
+			fr.close();
+		}catch(Exception e){
+			
+		}
+		
+		try{
+			File file = new File(out);
+			FileWriter fw = new FileWriter(file);
+			BufferedWriter bw = new BufferedWriter(fw);
+			
+			for(Entry<String, String> e: set.entrySet()){
+				bw.write(e.getKey() + "\n");
+			}
+			
+			bw.close();
+			fw.close();
+		}catch(Exception e){
+			
+		}
+	}
+	
+	private static ExtractedDate getDownloadedDate(DBExport dbExport){
+		return DateGetterHelper.findDate(dbExport.get(DBExport.ACTUAL_DATE));
+	}
+	
+	private static boolean hasPubOrModDate(DBExport dbExport){
+		ExtractedDate pubDate = DateGetterHelper.findDate(dbExport.get(DBExport.PUB_DATE));
+		ExtractedDate modDate = DateGetterHelper.findDate(dbExport.get(DBExport.MOD_DATE));
+		return (pubDate != null || modDate != null);
 	}
 }

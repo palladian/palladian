@@ -19,7 +19,8 @@ import tud.iir.helper.DateComparator;
  */
 public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
 
-    public HttpDateRater(PageDateType dateType) {
+    private ExtractedDate actualDate;
+	public HttpDateRater(PageDateType dateType) {
 		super(dateType);
 	}
 
@@ -39,7 +40,10 @@ public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
      * @return
      */
     private HashMap<HTTPDate, Double> evaluateHTTPDate(ArrayList<HTTPDate> httpDates) {
-    	ExtractedDate current = ExtractedDateHelper.createActualDate();
+    	ExtractedDate current = actualDate;
+    	if(current == null){
+    		current = ExtractedDateHelper.createActualDate();
+    	}
     	return evaluateHTTPDate(httpDates, current);
     }
 
@@ -91,5 +95,8 @@ public class HttpDateRater extends TechniqueDateRater<HTTPDate> {
         }
 
         return result;
+    }
+    public void setActualDate(ExtractedDate actualDate){
+    	this.actualDate = actualDate;
     }
 }

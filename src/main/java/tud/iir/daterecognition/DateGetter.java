@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import org.w3c.dom.Document;
 
+import tud.iir.daterecognition.dates.HTTPDate;
 import tud.iir.daterecognition.technique.ArchiveDateGetter;
 import tud.iir.daterecognition.technique.ContentDateGetter;
 import tud.iir.daterecognition.technique.HTTPDateGetter;
@@ -42,6 +43,13 @@ public class DateGetter {
     private ArchiveDateGetter adg = new ArchiveDateGetter();
     private ReferenceDateGetter rdg = new ReferenceDateGetter();
 
+    private ArrayList<HTTPDate> httpDates;
+    private boolean externHttpDates = false;
+    public void setHttpDates(ArrayList<HTTPDate> httpDates){
+    	this.httpDates = httpDates; 
+    	externHttpDates = true;
+    }
+    
     /** URL that will be called */
     private String url;
 
@@ -94,8 +102,12 @@ public class DateGetter {
 
         if (url != null) {
             if (tech_HTTP) {
-                httpdg.setUrl(url);
-                dates.addAll((Collection<? extends T>) httpdg.getDates());
+            	if(externHttpDates){
+            		dates.addAll((Collection<? extends T>) httpDates);
+            	}else{
+	                httpdg.setUrl(url);
+	                dates.addAll((Collection<? extends T>) httpdg.getDates());
+            	}
             }
             if (tech_URL) {
                 udg.setUrl(url);

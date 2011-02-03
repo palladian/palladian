@@ -1,4 +1,4 @@
-package tud.iir.daterecognition;
+package tud.iir.daterecognition.technique.testtechniques;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import tud.iir.daterecognition.DateRaterHelper;
 import tud.iir.daterecognition.dates.ArchiveDate;
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
@@ -34,7 +35,7 @@ import tud.iir.helper.DateComparator;
  * @author Martin Gregor
  * 
  */
-public class DateEvaluator {
+public class DateEvaluatorTest {
 
     private String url;
     private boolean referneceLookUp = false;
@@ -46,19 +47,18 @@ public class DateEvaluator {
     private ContentDateRater cdr;
     private ArchiveDateRater adr;
     private ReferenceDateRater rdr;
-	private ExtractedDate actualDate;
 
     /**
      * Standard constructor.
      */
-    public DateEvaluator() {
+    public DateEvaluatorTest() {
     	setPubMod(PageDateType.publish);
     }
     
     /**
      * Standard constructor.
      */
-    public DateEvaluator(PageDateType pub_mod) {
+    public DateEvaluatorTest(PageDateType pub_mod) {
     	setPubMod(pub_mod);
     }
 
@@ -67,7 +67,7 @@ public class DateEvaluator {
      * 
      * @param url
      */
-    public DateEvaluator(String url, PageDateType pub_mod) {
+    public DateEvaluatorTest(String url, PageDateType pub_mod) {
         this.url = url;
         setPubMod(pub_mod);
     }
@@ -78,7 +78,7 @@ public class DateEvaluator {
      * @param url
      * @param referenceLookUp
      */
-    public DateEvaluator(String url, boolean referenceLookUp, PageDateType pub_mod) {
+    public DateEvaluatorTest(String url, boolean referenceLookUp, PageDateType pub_mod) {
         this.url = url;
         this.referneceLookUp = referenceLookUp;
         setPubMod(pub_mod);
@@ -91,10 +91,6 @@ public class DateEvaluator {
 		cdr = new ContentDateRater(pub_mod);
 		adr = new ArchiveDateRater(pub_mod);
 		rdr = new ReferenceDateRater(pub_mod);
-    }
-    
-    public void setActualDate(ExtractedDate actualDate){
-    	this.actualDate = actualDate;
     }
 
     /**
@@ -142,15 +138,9 @@ public class DateEvaluator {
             urlResult.putAll((Map<? extends T, ? extends Double>) udr.rate(urlDates));
         }
         if (httpDates != null && httpDates.size() > 0) {
-        	if(actualDate != null){
-        		httpdr.setActualDate(actualDate);
-        	}
             httpResult.putAll((Map<? extends T, ? extends Double>) httpdr.rate(httpDates));
         }
         if (headDates != null && headDates.size() > 0) {
-        	if(actualDate != null){
-        		headdr.setActualDate(actualDate);
-        	}
             headResult.putAll((Map<? extends T, ? extends Double>) headdr.rate(headDates));
         }
 

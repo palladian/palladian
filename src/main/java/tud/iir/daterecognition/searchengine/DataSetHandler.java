@@ -15,9 +15,14 @@ import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+
+import com.hp.hpl.jena.ontology.OntDocumentManager.ReadFailureHandler;
 
 import tud.iir.daterecognition.ExtractedDateHelper;
 import tud.iir.daterecognition.dates.ExtractedDate;
+import tud.iir.daterecognition.dates.HTTPDate;
+import tud.iir.daterecognition.evaluation.EvaluationHelper;
 import tud.iir.web.Crawler;
 
 
@@ -38,21 +43,40 @@ public class DataSetHandler{
 	private static final int SEARCH_ASK = 3;
 	
 	/**
-	 * False Negative. -2
+	 * Extracted Date (Datum der Webseite): ED
+	 * Gefundenes Datum: FD
+	 * 
 	 */
-	public static final int FN = -2;
 	/**
-	 * False Positive. -1
+	 * -2 <br>
+	 * Wrong Found. <br>
+	 * ED = 1 & FD = 1 & ED != Fd 
 	 */
-	public static final int FP = -1;
+	public static final int WF = -2;
 	/**
-	 * True Negative. 0
+	 * -1 <br>
+	 * Wrong not found. <br>
+	 * ED = 1 & FD = 0
 	 */
-	public static final int TN = 0;
+	public static final int WNF = -1;
 	/**
-	 * True Positive. 1
+	 * 0 <br>
+	 * False Found. <br>
+	 * ED = 0 & FD = 1
 	 */
-	public static final int TP = 1;
+	public static final int FF = 0;
+	/**
+	 * 1 <br>
+	 * Right not Found. <br>
+	 * ED = 0 & FD = 0
+	 */
+	public static final int RNF = 1;
+	/**
+	 * 2 <br>
+	 * Right Found. <br>
+	 * ED = 1 & FD = 1 & ED == FD
+	 */
+	public static final int RF = 2;
 	
 	public static final String separator = " *;_;* "; 
 	
@@ -71,7 +95,21 @@ public class DataSetHandler{
 		
 		//downloadUrls("data/webpages/daterecognition/");
 		
-		createSearchDatesAndDownload("data/evaluation/dateextraction/dataset.txt");
+		
+		//String path = "data/evaluation/dateextraction/dataset.txt";
+		//createSearchDatesAndDownload("urlset", path);
+		//setDownloadTo(path, "urlset", 1);
+		
+		/*
+		String path = "D:/_Uni/_semester16/dataset/";	
+		String in = "urlSet03.htm";
+		String out = "emptyDateUrlSet03.htm";
+		createUrlSetWithoutDate(path + in, path + out);
+		*/
+		
+		//addCloumn(EvaluationHelper.HEADEVAL, "pub1", "int", "-10");
+		//addCloumn(EvaluationHelper.HEADEVAL, "mod1", "int", "-10");
+		
 	}
 	
 	/**
@@ -79,8 +117,8 @@ public class DataSetHandler{
 	 * Writes results in to file.
 	 * @param path
 	 */
-	private static void createSearchDatesAndDownload(String path){
-		ArrayList<DBExport> set = loadURLsFromUrlset(0);
+	private static void createSearchDatesAndDownload(String table, String path){
+		ArrayList<DBExport> set = loadURLsFromUrlset(0, table);
 		GoogleDateGetter gdg = new GoogleDateGetter();
 		HakiaDateGetter hdg = new HakiaDateGetter();
 		AskDateGetter adg = new AskDateGetter();
@@ -135,7 +173,7 @@ public class DataSetHandler{
 			String filepath = downloadUrl(url);
 			if(!filepath.equalsIgnoreCase("false")){
 				dbExport.setFilePath(filepath);
-				setUrlDownloaded(url);
+				setUrlDownloaded(table, url);
 				dbExport.setDownloaded(true);
 				System.out.print("true");
 			}
@@ -174,12 +212,12 @@ public class DataSetHandler{
 		
 	}
 	
-	private static void setUrlDownloaded(String url){
+	private static void setUrlDownloaded(String table, String url){
 		openConnection();
 		
 		String sqlQuery;
 		try {
-			sqlQuery ="UPDATE urlset SET downloaded=1 WHERE url='" + url + "'";
+			sqlQuery ="UPDATE "+ table + " SET downloaded=1 WHERE url='" + url + "'";
 			st.executeUpdate(sqlQuery);
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -275,7 +313,7 @@ public class DataSetHandler{
 		try {
 			rs = DataSetHandler.st.executeQuery(sqlQuery);
 			while( rs.next() ) {
-				urls.add(rs.getString("url"));
+				urls.add((rs.getString("url")).toLowerCase());
 	        }
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -289,6 +327,45 @@ public class DataSetHandler{
 		ArrayList<DBExport> set= new ArrayList<DBExport>();
 		String sqlQuery ="SELECT * FROM `urlset` WHERE `downloaded`=" + downloaded;
 		
+		openConnection();
+		try {
+			rs = DataSetHandler.st.executeQuery(sqlQuery);
+			while( DataSetHandler.rs.next() ) {
+				String url = rs.getString("url");
+				String pubDate = rs.getString("pub_date");
+				String modDate = rs.getString("mod_date");
+				
+				boolean pubSureness = false;
+				switch(Integer.valueOf(rs.getString("pub_sure"))){
+					case 0:
+						pubSureness = false;
+						break;
+					case 1:
+						pubSureness = true;
+						break;
+				}
+				boolean modSureness = false;
+				switch(Integer.valueOf(rs.getString("mod_sure"))){
+				case 0:
+					modSureness = false;
+					break;
+				case 1:
+					modSureness = true;
+					break;
+				}
+				set.add(new DBExport(url, pubDate, modDate, pubSureness, modSureness));
+	        }
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		closeConnection();
+		
+		return set;
+	}
+	public static ArrayList<DBExport> loadURLsFromUrlset(int downloaded, String table){
+		ArrayList<DBExport> set= new ArrayList<DBExport>();
+		String sqlQuery ="SELECT * FROM `"+ table + "` WHERE `downloaded`=" + downloaded;
+		System.out.println(sqlQuery);
 		openConnection();
 		try {
 			rs = DataSetHandler.st.executeQuery(sqlQuery);
@@ -350,7 +427,7 @@ public class DataSetHandler{
 	private static String downloadUrl(String url){
 		
 		Crawler crawler = new Crawler();
-		String path = "data/webpages/daterecognition/";
+		String path = "data/evaluation/daterecognition/webpages/";
 		String file = "webpage_" + String.valueOf(GregorianCalendar.getInstance().getTimeInMillis()) + ".html";
 		String storage = path + file;
 		boolean success = crawler.downloadAndSave(url, storage);
@@ -410,6 +487,7 @@ public class DataSetHandler{
 		String sqlQuery = "ALTER TABLE  " + table + " ADD  " + ColumnName + " " + type + " NOT NULL " + defaultString;
 		openConnection();
 		try {
+			System.out.println(sqlQuery);
 			st.execute(sqlQuery);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -418,6 +496,80 @@ public class DataSetHandler{
 		closeConnection();
 	}
 	
+	private static void createUrlSetWithoutDate(String in, String out){
+		ArrayList<String> set = loadURLsFromDB("urlset");
+		HashMap<String, Boolean> urlSet = new HashMap<String, Boolean>();
+		ArrayList<String> tempUrls = readUrlsetFile(in);
+		ArrayList<String> finalUrlset = new ArrayList<String>();
+		for(int i=0; i<tempUrls.size(); i++){
+			urlSet.put(tempUrls.get(i), true);
+		}
+		for(int i=0; i<set.size(); i++){
+			urlSet.put(set.get(i), false);
+		}
+		for(Entry<String, Boolean> e: urlSet.entrySet()){
+			if(e.getValue()){
+				finalUrlset.add("<a href=\"" + e.getKey() + "\">" + e.getKey() + "</a><br>");
+			}
+		}
+		writeInFile(out, finalUrlset, false);
+		
+	}
 	
+	public static void writeInFile(String file, ArrayList<String> set, boolean appendFile){
+		try{
+			File in = new File(file);
+			FileWriter fw = new FileWriter(in,appendFile);
+			BufferedWriter bw = new BufferedWriter(fw);
+			for(int i=0; i<set.size(); i++){
+				bw.write(set.get(i));
+			}
+			bw.close();
+			fw.close();
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+	}
 	
+	private static ArrayList<String> readUrlsetFile(String file){
+		ArrayList<String> urls = new ArrayList<String>(); 
+		try{
+			
+			File in= new File(file);
+			FileReader fr = new FileReader(in);
+			BufferedReader br = new BufferedReader(fr);
+			String line;
+			int lineindex=0;
+			while((line=br.readLine())!=null){
+				if(lineindex>1){
+					int indexStart = line.indexOf('>');
+					int indexEnd = line.indexOf("</a>");
+					String url = line.substring(indexStart + 1, indexEnd);
+					urls.add(url.toLowerCase());
+				}
+				lineindex++;
+			}
+		}catch(Exception e){
+			e.printStackTrace();
+		}
+		return urls;
+	}
+	private static void setDownloadTo(String file, String table, int downloaded){
+		HashMap<String, DBExport> readySet = EvaluationHelper.readFile(file);
+		
+		openConnection();
+		for(Entry<String, DBExport> e: readySet.entrySet()){
+			String sqlQuery ="UPDATE " + table + " SET downloaded=" + downloaded + " WHERE url='" + e.getKey().toLowerCase() + "'";
+			try{
+				System.out.println(sqlQuery);
+				st.execute(sqlQuery);
+				
+			}catch (Exception ex) {
+				ex.printStackTrace();
+				break;
+			}
+		}
+		closeConnection();
+		
+	}
 }

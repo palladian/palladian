@@ -188,4 +188,21 @@ public class DBExport {
 		return value;
 		
 	}
+	public String toString(){
+		String separator = DataSetHandler.separator;
+		String write =getUrl() + separator
+		+ getFilePath() + separator
+		+ getPubDate() + separator
+		+ String.valueOf(isPubSureness()) + separator
+		+ getModDate() + separator
+		+ String.valueOf(isModSureness()) + separator
+		+ getGoogleDate() + separator
+		+ getHakiaDate() + separator
+		+ getAskDate() + separator
+		+ getLastModDate() + separator
+		+ getDateDate() + separator
+		+ getActDate();
+				
+		return write;
+	}
 }

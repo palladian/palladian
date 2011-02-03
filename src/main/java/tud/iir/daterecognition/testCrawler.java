@@ -55,7 +55,7 @@ public class testCrawler {
 
     public static void countStrings(String input) {
         try {
-            String pfad = "data/dateExtraction/";
+            String pfad = "data/test/dateExtraction/";
             File file = new File(pfad + input);
             FileReader fr = new FileReader(file);
             BufferedReader br = new BufferedReader(fr);
@@ -84,7 +84,7 @@ public class testCrawler {
     }
 
     public static void compareOutputs(String input1, String input2, String output) {
-        String pfad = "data/dateExtraction/";
+        String pfad = "data/test/dateExtraction/";
         HashMap<String, String[]> map = new HashMap<String, String[]>();
 
         try {
@@ -207,7 +207,7 @@ public class testCrawler {
         ArrayList<String> myAnno = new ArrayList<String>();
         ArrayList<String> url = new ArrayList<String>();
         ArrayList<String> technique = new ArrayList<String>();
-        String pfad = "data/dateExtraction/";
+        String pfad = "data/test/dateExtraction/";
         try {
             File file = new File(pfad + input);
             FileReader fr = new FileReader(file);
@@ -296,7 +296,7 @@ public class testCrawler {
 
     public static void orderEvalSet(String input, String output) {
         ArrayList<String[]> list = new ArrayList<String[]>();
-        String filePath = "data/dateExtraction/";
+        String filePath = "data/test/dateExtraction/";
         File file = new File(filePath + input);
 
         try {
@@ -332,7 +332,7 @@ public class testCrawler {
         ArrayList<String> stats = new ArrayList<String>();
         for (int i = begin; i <= end; i++) {
             File file = new File(
-                    "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                    "data/test/webPages/dateExtraction/tests/linkSet/"
                             + input.replaceAll(".txt", i + ".txt"));
             try {
                 FileReader fr = new FileReader(file);
@@ -432,7 +432,7 @@ public class testCrawler {
 
     public static void checkLinkSet() {
         File file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/urls_doppelt.txt");
+                "data/test/webPages/dateExtraction/tests/linkSet/urls_doppelt.txt");
         HashMap<String, Integer> urlMap = new HashMap<String, Integer>();
         try {
             FileReader fr = new FileReader(file);
@@ -452,7 +452,7 @@ public class testCrawler {
         for (Entry<String, Integer> e : urlMap.entrySet()) {
             try {
                 file = new File(
-                        "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/url_einzeln"
+                        "data/test/webPages/dateExtraction/tests/linkSet/url_einzeln"
                                 + count + ".txt");
 
                 FileWriter fw = new FileWriter(file, true);
@@ -501,7 +501,7 @@ public class testCrawler {
                     if (e.getValue() == 1) {
 
                         File file = new File(
-                                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate2.txt");
+                                "data/test/webPages/dateExtraction/tests/linkSet/urlsWithDate2.txt");
                         synchronized (file) {
                             try {
                                 FileWriter fw = new FileWriter(file, true);
@@ -548,7 +548,7 @@ public class testCrawler {
     public static void evaluateURLwithDate(String input, String output) {
 
         File file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                "data/test/webPages/dateExtraction/tests/linkSet/"
                         + input);
         ArrayList<String> urls = new ArrayList<String>();
         try {
@@ -581,7 +581,7 @@ public class testCrawler {
         int urlFormatInt;
         String outputString;
         File outfile = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                "data/test/webPages/dateExtraction/tests/linkSet/"
                         + output);
         try {
             outfile.delete();
@@ -684,7 +684,7 @@ public class testCrawler {
 
         HashMap<String, ExtractedDate[]> inputMap = new HashMap<String, ExtractedDate[]>();
 
-        String filePath = "data/dateExtraction/";
+        String filePath = "data/test/dateExtraction/";
         File file = new File(filePath + input);
 
         try {
@@ -785,7 +785,7 @@ public class testCrawler {
 
         HashMap<String, ExtractedDate> inputMap = new HashMap<String, ExtractedDate>();
 
-        String filePath = "data/dateExtraction/";
+        String filePath = "data/test/dateExtraction/";
         File file = new File(filePath + input);
 
         try {
@@ -874,7 +874,7 @@ public class testCrawler {
 
     public static void merge() {
         File file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/evaluationPages.txt");
+                "data/test/webPages/dateExtraction/tests/linkSet/evaluationPages.txt");
         ArrayList<String> urls = new ArrayList<String>();
         try {
             FileReader fr = new FileReader(file);
@@ -888,7 +888,7 @@ public class testCrawler {
         }
 
         file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/dates.txt");
+                "data/test/webPages/dateExtraction/tests/linkSet/dates.txt");
         ArrayList<String> dates = new ArrayList<String>();
         try {
             FileReader fr = new FileReader(file);
@@ -902,7 +902,7 @@ public class testCrawler {
         }
 
         file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/Evaluation-LinkSet.txt");
+                "data/test/webPages/dateExtraction/tests/linkSet/Evaluation-LinkSet.txt");
 
         try {
             FileWriter fr = new FileWriter(file);
@@ -922,7 +922,7 @@ public class testCrawler {
 
     public static void evaluateHTTP(String input, String output) {
         File file = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                "data/test/webPages/dateExtraction/tests/linkSet/"
                         + input);
 
         HashMap<String, Integer> urls = new HashMap<String, Integer>();
@@ -969,7 +969,7 @@ public class testCrawler {
         }
 
         File outputfile = new File(
-                "E:/_Uni/_semester15/Beleg/eclipse workspace/toolkit/data/test/webPages/dateExtraction/tests/linkSet/"
+                "data/test/webPages/dateExtraction/tests/linkSet/"
                         + output);
 
         try {
