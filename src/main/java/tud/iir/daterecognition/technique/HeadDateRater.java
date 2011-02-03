@@ -23,6 +23,8 @@ public class HeadDateRater extends TechniqueDateRater<HeadDate> {
 	protected byte middlePriority;
 	protected byte lowPriority;
 	
+	private ExtractedDate actualDate;
+	
     public HeadDateRater(PageDateType dateType) {
 		super(dateType);
 		switch(this.dateType){
@@ -86,7 +88,9 @@ public class HeadDateRater extends TechniqueDateRater<HeadDate> {
 
         } else {
 
-            ExtractedDate actualDate = ExtractedDateHelper.createActualDate();
+        	if(actualDate == null){
+        		actualDate = ExtractedDateHelper.createActualDate();
+        	}
             DateComparator dc = new DateComparator();
             for (int i = 0; i < lowRatedDates.size(); i++) {
                 rate = 0.75;
@@ -130,4 +134,7 @@ public class HeadDateRater extends TechniqueDateRater<HeadDate> {
         return result;
     }
 
+    public void setActualDate(ExtractedDate actualDate){
+    	this.actualDate = actualDate;
+    }
 }

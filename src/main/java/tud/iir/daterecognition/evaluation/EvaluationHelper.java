@@ -20,7 +20,7 @@ import tud.iir.helper.DateComparator;
 
 public class EvaluationHelper {
 
-	private static File file = new File("data/evaluation/dateextraction/dataset.txt");
+	private static File file = new File("data/evaluation/daterecognition/datasets/dataset.txt");
 	private static String separator = DataSetHandler.separator;
 	
 	public static final String CONTENTEVAL = "contenteval";
@@ -28,14 +28,24 @@ public class EvaluationHelper {
 	public static final String URLEVAL = "urleval";
 	public static final String STRUCTEVAL = "structeval";
 	public static final String HEADEVAL = "headeval";
+	public static final String KAIROSEVAL = "kairoseval";
 	
+	public static HashMap<String, DBExport> readFile(String file){
+		return readFile(-1, false, file);
+	}
 	public static HashMap<String, DBExport> readFile(){
 		return readFile(-1);
 	}
 	public static HashMap<String, DBExport> readFile(int maxEntries){
-		return readFile(maxEntries, false);
+		return readFile(maxEntries, false, null);
 	}
-	public static HashMap<String, DBExport> readFile(int entries, boolean random){
+	public static HashMap<String, DBExport> readFile(int entries, boolean random, String dataset){
+		File readfile;
+		if(dataset == null || dataset.equalsIgnoreCase("")){
+			readfile = file;
+		}else{
+			readfile = new File(dataset);
+		}
 		int maxEntries;
 		if(random && entries > 0){
 			maxEntries = -1;
@@ -45,7 +55,7 @@ public class EvaluationHelper {
 		HashMap<String, DBExport> set = new HashMap<String, DBExport>();
 		FileReader fr;
 		try {
-			fr = new FileReader(file);
+			fr = new FileReader(readfile);
 			BufferedReader br = new BufferedReader(fr);
 			String line;
 			int lineIndex=0;
@@ -80,7 +90,7 @@ public class EvaluationHelper {
 							headerLastModIndex = i;
 						}else if(parts[i].equals("header_date")){
 							headerDateIndex = i;
-						}else if(parts[i].equals("down_date")){
+						}else if(parts[i].substring(0, 9).equals("down_date")){
 							downIndex = i;
 						}
 						
@@ -139,55 +149,22 @@ public class EvaluationHelper {
 	 */
 	public static <T> int compareDate(T foundDate, DBExport dbExport, int compareDate){
 		int returnValue;
-		ExtractedDate realDate = DateGetterHelper.findDate(dbExport.get(compareDate));
-		if(realDate == null){
+		ExtractedDate ed = DateGetterHelper.findDate(dbExport.get(compareDate));
+		if(ed == null){
 			if(foundDate == null){
-				returnValue = DataSetHandler.TN;
+				returnValue = DataSetHandler.RNF;
 			}else{
-				returnValue = DataSetHandler.FP;
+				returnValue = DataSetHandler.FF;
 			}
 		}else{
 			if(foundDate == null){
-				returnValue = DataSetHandler.FN;
+				returnValue = DataSetHandler.WNF;
 			}else{
 				DateComparator dc = new DateComparator();
-				if (dc.compare(realDate, (ExtractedDate) foundDate, dc.getCompareDepth(realDate, (ExtractedDate) foundDate)) == 0){
-					returnValue = DataSetHandler.TP;
+				if (dc.compare(ed, (ExtractedDate) foundDate, Math.min(dc.getCompareDepth(ed, (ExtractedDate) foundDate),dc.STOP_DAY)) == 0){
+					returnValue = DataSetHandler.RF;
 				}else{
-					returnValue = DataSetHandler.FN;
-					//returnValue = -3;
-				}
-			}
-		}
-		return returnValue;
-	}
-	/**
-	 * Compares a date, found by in header, with an date, found by hand. 
-	 * @param foundDate Date found by date-getter and date-rater.
-	 * @param header Use static field header_last or header_date of {@link DBExport}.
-	 * @param dbExport Export of database holding publish and modified date.  
-	 * @param compareDate Use static field mod_date or pub_date of {@link DBExport}.
-	 * @return -2 false negative; -1 false positive; 0 true negative; 1 true positive
-	 */
-	public static int compareDate(DBExport headDate, int header, DBExport dbExport, int compareDate){
-		int returnValue;
-		ExtractedDate realDate = DateGetterHelper.findDate(dbExport.get(compareDate));
-		ExtractedDate headerDate = DateGetterHelper.findDate(headDate.get(header));
-		if(realDate == null){
-			if(headerDate == null){
-				returnValue = DataSetHandler.TN;
-			}else{
-				returnValue = DataSetHandler.FP;
-			}
-		}else{
-			if(headerDate == null){
-				returnValue = DataSetHandler.FN;
-			}else{
-				DateComparator dc = new DateComparator();
-				if (dc.compare(realDate, headerDate, dc.getCompareDepth(realDate, headerDate)) == 0){
-					returnValue = DataSetHandler.TP;
-				}else{
-					returnValue = DataSetHandler.FN;
+					returnValue = DataSetHandler.WF;
 				}
 			}
 		}
@@ -213,107 +190,73 @@ public class EvaluationHelper {
 		return count;
 	}
 	
+	
 	public static double count(String round, String table, int numberUrls, int classifire, boolean random){
-		ArrayList<String> urls = ArrayHelper.toArrayList(readFile(numberUrls, random));
+		return count(null, round, table, numberUrls, classifire, random);
+	}
+	public static double count(String file, String round, String table, int numberUrls, int classifire, boolean random){
+		ArrayList<String> urls = ArrayHelper.toArrayList(readFile(numberUrls, random, file));
 		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls); 
 		return count(valuedUrls, classifire);
 	}
 	public static double count(String round, String table, int numberUrls, int classifire){
 		return count(round, table, numberUrls, classifire, false);
 	}
-	
-	public static double calculateP(String round, String table, ArrayList<String> urls){
-		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls); 
-    	double tp = count(valuedUrls, DataSetHandler.TP);
-    	double fp = count(valuedUrls, DataSetHandler.FP);
-    	return (tp / (tp + fp));
-    	
-    }
-	public static double calculateR(String round, String table, ArrayList<String> urls){
-		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls);
-		double tp = count(valuedUrls, DataSetHandler.TP);
-    	double fn = count(valuedUrls, DataSetHandler.FN);
-    	
-    	return (tp / (tp+fn));
-    }
-	public static double calculateF1(String round, String table,  ArrayList<String> urls){
-		double p = calculateP(round, table, urls);
-		double r = calculateR(round, table, urls);
-		return ((2*p*r) / (p+r));
+	public static double count(String file, String round, String table, int numberUrls, int classifire){
+		return count(file, round, table, numberUrls, classifire, false);
 	}
-	
-	private static void calculateOutput(String round, String table, ArrayList<String> urls){
-		double p = Math.round((calculateP( round, table, urls)*100000.0))/1000.0;
-		double r = Math.round((calculateR( round, table, urls)*100000.0))/1000.0;
-		double f = Math.round((calculateF1( round, table, urls)*100000.0))/1000.0;
-		
-		System.out.print(round + ":   ");
-		System.out.print("p: " + p);
-		System.out.print(" - r: " + r);
-		System.out.print(" - f: " + f);
-		System.out.println();
-
+	public static double count(String file, String round, String table, int classifire){
+		return count(file, round, table, -1, classifire, false);
 	}
-	
-	
-	public static void calculateOutput(int round, String table){
-		calculateOutput(round, table, 50);
-		calculateOutput(round, table, 100);
-		calculateOutput(round, table, 150);
-		calculateOutput(round, table, 200);
-		calculateOutput(round, table, 250);
-		calculateOutput(round, table, 300);
-		calculateOutput(round, table, 350);
-	}
-	
-	public static void calculateOutput(String round1, String round2, String table){
-		ArrayList<String> urls = ArrayHelper.toArrayList(readFile());
-		System.out.println("sample size: " + urls.size());
-		calculateOutput(round1, table, urls);
-		calculateOutput(round2, table, urls);
-	}
-	
-	public static void calculateOutput(String[] round, String table){
-		ArrayList<String> urls = ArrayHelper.toArrayList(readFile());
-		System.out.println("sample size: " + urls.size());
-		for(int i=0; i<round.length; i++){
-			calculateOutput(round[i], table, urls);
-		}
-	}
-	
-	public static void calculateOutput(String round, String table){
-		ArrayList<String> urls = ArrayHelper.toArrayList(readFile());
-		System.out.println("sample size: " + urls.size());
-		calculateOutput(round, table, urls);
-	}
-	
 	/**
-	 * 
+	 * Calculates exactness. <br>
+	 * Exactness is defined by relation of correct answers to all answers. <br>
+	 * Correct answer includes found the right date and found if no date exists. <br>
+	 * (RNF+ RF) / all  
 	 * @param round
 	 * @param table
-	 * @param numberUrls
+	 * @param urls
+	 * @return
 	 */
-	public static void calculateOutput(int round, String table, int numberUrls){
+	public static double calculateExactness(String round, String table, ArrayList<String> urls){
+		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls); 
+    	double tp = count(valuedUrls, DataSetHandler.RNF) + count(valuedUrls, DataSetHandler.RF);
+    	double all = (double)urls.size();
+    	return (tp / all);
+    	
+    }
+	/**
+	 * Calculates exactness of missing dates. <br>
+	 * Is defined by relation of correct not found to all missing dates. <br>
+	 * RNF / (RNF + FF) 
+	 * @param round
+	 * @param table
+	 * @param urls
+	 * @return
+	 */
+	public static double calculateMissingExactness(String round, String table, ArrayList<String> urls){
+		HashMap<String, Integer> valuedUrls = DataSetHandler.getClassification(table, round, urls);
+		double rnf = count(valuedUrls, DataSetHandler.RNF);
+    	double ff = count(valuedUrls, DataSetHandler.FF);
+    	
+    	return (rnf / (rnf+ff));
+    }
 	
-		ArrayList<String> urls = ArrayHelper.toArrayList(readFile(numberUrls));
-		System.out.println("sample size: " + urls.size());
-		calculateOutput("pub" + round, table, urls);
-		calculateOutput("mod" + round, table, urls);
-		
-	}
-	public static double calculateSampleSize(double ci){
-		return Math.pow((1.96/2.0), 2) / Math.pow(ci, 2);
+	/**
+	 * Calculates sample size for Technique. <br> 
+	 * @param round e.g. "mod0", "pub0", "mod1" ...
+	 * @param table Name of DB-table.
+	 * @param file fitting file for table.
+	 * @return
+	 */
+	public static double calculateSampleSize(String round, String table,String file){
+		double zSqr = 1.96 * 1.96;
+		double ciSqr = 0.05 * 0.05;
+		ArrayList<String> urls = ArrayHelper.toArrayList(readFile(-1, false, file));
+		double p = calculateExactness(round, table, urls);
+		double n = ((zSqr * p * (1-p))/ciSqr)+1.0;
+		return n;
 	}
 	
 	
-	public static double calculateCI(String table, String round, int classifire, int sampleSize, boolean random){
-		double countClasifire = count(round, table, sampleSize, classifire, random);
-		double percentage = countClasifire / (double)sampleSize;
-		double z = 1.96;
-		double determinate = (Math.pow(z, 2) * percentage * (1 - percentage)) / (double)sampleSize;
-		double ci = Math.sqrt(determinate);
-		
-		return ci;
-		
-	}
 }

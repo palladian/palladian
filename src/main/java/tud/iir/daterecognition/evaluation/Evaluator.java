@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import org.hamcrest.core.IsInstanceOf;
+
 import tud.iir.daterecognition.DateGetterHelper;
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
@@ -13,6 +15,7 @@ import tud.iir.daterecognition.searchengine.DBExport;
 import tud.iir.daterecognition.searchengine.DataSetHandler;
 import tud.iir.daterecognition.technique.TechniqueDateGetter;
 import tud.iir.daterecognition.technique.TechniqueDateRater;
+import tud.iir.daterecognition.technique.URLDateGetter;
 import tud.iir.helper.DateArrayHelper;
 import tud.iir.web.Crawler;
 
@@ -21,16 +24,16 @@ public abstract class Evaluator {
 	
 	private ExtractedDate actualDate;
 	
-	public static <T> void evaluate(String table, String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr){
-		int truePositiv = 0;
-		int trueNegative = 0;
-		int falsePositv = 0;
-		int falseNegativ = 0;
-		int ff = 0;
+	public static <T> void evaluate(String table, String round,int pub_mod, TechniqueDateGetter<T> dg, TechniqueDateRater<T> dr, String file){
+		int rnf = 0;
+		int ff= 0;
+		int wnf= 0;
+		int rf= 0;
+		int wf = 0;
 		int counter=0;
 		int compare;
 		
-		HashMap<String, DBExport> set = EvaluationHelper.readFile();
+		HashMap<String, DBExport> set = EvaluationHelper.readFile(file);
 		Crawler crawler = new Crawler();
 		
 		for(Entry<String, DBExport> e : set.entrySet()){
@@ -53,8 +56,14 @@ public abstract class Evaluator {
 			ArrayList<T> list = dg.getDates();
 			list = DateArrayHelper.removeNull(list);
 			if(list.size() > 0){
+				
 				ArrayList<T> filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_FULL_DATE);
 				filteredDates = DateArrayHelper.filter(filteredDates, DateArrayHelper.FILTER_IS_IN_RANGE);
+				
+				if(dg instanceof URLDateGetter){
+					filteredDates = DateArrayHelper.filter(list, DateArrayHelper.FILTER_IS_IN_RANGE);
+				}
+				
 				
 				if(filteredDates.size()>0){
 						
@@ -82,22 +91,24 @@ public abstract class Evaluator {
 			if(date!=null){
 				dbExportDateString +=  date.getNormalizedDateString();
 			}
+			
 			System.out.print(compare + " bestDate:" + bestDateString + dbExportDateString);
+			
 			switch(compare){
-				case -3:
+				case DataSetHandler.WF:
+					wf++;
+					break;
+				case DataSetHandler.WNF:
+					wnf++;
+					break;
+				case DataSetHandler.FF:
 					ff++;
 					break;
-				case -2:
-					falseNegativ++;
+				case DataSetHandler.RNF:
+					rnf++;
 					break;
-				case -1:
-					falsePositv++;
-					break;
-				case 0:
-					trueNegative++;
-					break;
-				case 1:
-					truePositiv++;
+				case DataSetHandler.RF:
+					rf++;
 					break;
 					
 			}
@@ -106,10 +117,10 @@ public abstract class Evaluator {
 			counter++;
 			
 			System.out.println();
-			System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv + " ff: " + ff);
+			System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
 			System.out.println("---------------------------------------------------------------------");
 		}
-		System.out.println("all: " + counter + " FN: " + falseNegativ + " FP: " + falsePositv + " TN: " + trueNegative + " TP: " + truePositiv + " ff: " + ff);
+		System.out.println("all: " + counter + " RF: " + rf + " RNF: " + rnf + " WF: " + wf + " FF: " + ff + " WNF: " + wnf);
 	}
 	
 }

@@ -33,24 +33,28 @@ public class StructureEvaluator {
 		TechniqueDateRater<StructureDate> pub_dr = new StructureDateRater(PageDateType.publish);
 		TechniqueDateRater<StructureDate> mod_dr = new StructureDateRater(PageDateType.last_modified);
 		
+		String file = "data/evaluation/daterecognition/datasets/dataset.txt";
+		evaluate("pub0", DBExport.PUB_DATE, dg, pub_dr,file);
+		evaluate("mod0", DBExport.MOD_DATE, dg, mod_dr,file);
 		
-		//evaluate("pub0", DBExport.PUB_DATE, dg, pub_dr);
-		//evaluate("mod0", DBExport.MOD_DATE, dg, mod_dr);
+		System.out.println("pub");
+		System.out.println("RF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.RF));
+		System.out.println("RNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.RNF));
+		System.out.println("WF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.WF));
+		System.out.println("WNF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.WNF));
+		System.out.println("FF: " + EvaluationHelper.count(file, "pub0", EvaluationHelper.STRUCTEVAL, DataSetHandler.FF));
+				
+		System.out.println("mod");
+		System.out.println("RF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.RF));
+		System.out.println("RNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.RNF));
+		System.out.println("WF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.WF));
+		System.out.println("WNF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.WNF));
+		System.out.println("FF: " + EvaluationHelper.count(file, "mod0", EvaluationHelper.STRUCTEVAL, DataSetHandler.FF));
 		
-		
-		System.out.println("pub:");
-		double ci = EvaluationHelper.calculateCI(EvaluationHelper.CONTENTEVAL, "pub0", DataSetHandler.TP, 350, false);
-		System.out.println("CI: " + ci);
-		System.out.println("Sample Size: " + EvaluationHelper.calculateSampleSize(ci));
-		System.out.println("mod:");
-		ci = EvaluationHelper.calculateCI(EvaluationHelper.CONTENTEVAL, "mod0", DataSetHandler.TP, 350, false);
-		System.out.println("CI: " + ci);
-		System.out.println("Sample Size: " + EvaluationHelper.calculateSampleSize(ci));
-
 	}
 
-	public static void evaluate(String round,int pub_mod, TechniqueDateGetter<StructureDate> dg, TechniqueDateRater<StructureDate> dr){
-		Evaluator.evaluate(EvaluationHelper.STRUCTEVAL, round, pub_mod, dg, dr);
+	public static void evaluate(String round,int pub_mod, TechniqueDateGetter<StructureDate> dg, TechniqueDateRater<StructureDate> dr, String file){
+		Evaluator.evaluate(EvaluationHelper.STRUCTEVAL, round, pub_mod, dg, dr, file);
 		/*
 		int truePositiv = 0;
 		int trueNegative = 0;
