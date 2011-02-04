@@ -9,7 +9,6 @@ import java.util.TimeZone;
 
 import org.junit.Test;
 
-import tud.iir.control.AllTests;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.RegExp;
 
@@ -17,7 +16,7 @@ public class DateEvaluatorHelperTest {
 
     @Test
     public void testIsDateInRange() {
-    	
+
         Calendar cal = new GregorianCalendar(TimeZone.getTimeZone("UTC"));
         ExtractedDate date = new ExtractedDate("2010-01-01T12:30:30Z", RegExp.DATE_ISO8601_YMD_T[1]);
         assertTrue(DateRaterHelper.isDateInRange(date));
@@ -39,6 +38,6 @@ public class DateEvaluatorHelperTest {
         assertTrue(DateRaterHelper.isDateInRange(date));
         date = new ExtractedDate("2010-09", RegExp.DATE_ISO8601_YM[1]);
         assertTrue(DateRaterHelper.isDateInRange(date));
-    	
+
     }
 }

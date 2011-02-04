@@ -15,7 +15,7 @@ public class DictionaryFileIndexTest extends TestCase {
     public void testFileIndex() {
 
         // create the dictionary index and empty the existing one
-        DictionaryFileIndex di = new DictionaryFileIndex("data/test/testIndex/");
+        DictionaryFileIndex di = new DictionaryFileIndex(DictionaryFileIndexTest.class.getResource("/testIndex/").getFile());
         di.empty();
         di.openWriter();
 

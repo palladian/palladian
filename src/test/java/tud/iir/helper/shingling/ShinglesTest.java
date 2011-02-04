@@ -1,17 +1,19 @@
 package tud.iir.helper.shingling;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-
 /**
  * Test data is from http://codingplayground.blogspot.com/2008/06/shingling-and-text-clustering.html
  * 
  * @author Philipp Katz
+ * @author Klemens Muthmann
  * 
  */
 public class ShinglesTest {
@@ -21,16 +23,16 @@ public class ShinglesTest {
 
         Shingles shingles = new Shingles();
 
-        shingles.addFile("data/test/shingles/cluster1"); // #1
-        shingles.addFile("data/test/shingles/cluster2"); // #2
-        shingles.addFile("data/test/shingles/cluster3"); // #3
-        shingles.addFile("data/test/shingles/cluster3_a"); // #4
-        shingles.addFile("data/test/shingles/cluster4"); // #5
-        shingles.addFile("data/test/shingles/cluster4_a"); // #6
-        shingles.addFile("data/test/shingles/cluster4_b"); // #7
-        shingles.addFile("data/test/shingles/cluster4_c"); // #8
-        shingles.addFile("data/test/shingles/cluster5"); // #9
-        shingles.addFile("data/test/shingles/cluster5_a"); // 10
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster1").getFile()); // #1
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster2").getFile()); // #2
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster3").getFile()); // #3
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster3_a").getFile()); // #4
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster4").getFile()); // #5
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster4_a").getFile()); // #6
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster4_b").getFile()); // #7
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster4_c").getFile()); // #8
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster5").getFile()); // #9
+        shingles.addFile(ShinglesTest.class.getResource("/shingles/cluster5_a").getFile()); // 10
 
         // System.out.println(shingles.getSimilarityReport());
 

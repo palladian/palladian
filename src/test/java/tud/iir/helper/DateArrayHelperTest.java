@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import tud.iir.classification.page.ClassifierTest;
 import tud.iir.control.AllTests;
 import tud.iir.daterecognition.DateGetter;
 import tud.iir.daterecognition.dates.ExtractedDate;
@@ -15,7 +16,7 @@ public class DateArrayHelperTest {
 
     @Test
     public void testFilter() {
-        final String url = "data/test/webPages/dateExtraction/zeit1.htm";
+        final String url = DateArrayHelperTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);
@@ -79,7 +80,7 @@ public class DateArrayHelperTest {
     @Ignore
     @Test
     public void testArrangeByDate2() {
-        final String url = "data/test/webPages/dateExtraction/kullin.htm";
+        final String url = DateArrayHelperTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
         if (!AllTests.ALL_TESTS) {
             ArrayList<ExtractedDate> date = new ArrayList<ExtractedDate>();
             DateGetter dateGetter = new DateGetter(url);

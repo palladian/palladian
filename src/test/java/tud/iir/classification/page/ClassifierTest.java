@@ -3,6 +3,7 @@ package tud.iir.classification.page;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
 import org.junit.Test;
 
 import tud.iir.classification.Categories;
@@ -15,7 +16,23 @@ import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.classification.page.evaluation.FeatureSetting;
 
+/**
+ * <p>
+ * Tests the correct functionality of the classifiers provided by Palladian.
+ * </p>
+ * 
+ * @author David Urbansky
+ * @author Klemens Muthmann
+ * 
+ */
 public class ClassifierTest extends TestCase {
+
+    /**
+     * <p>
+     * The logger for objects of this class.
+     * </p>
+     */
+    private static final Logger LOGGER = Logger.getLogger(ClassifierTest.class);
 
     public ClassifierTest(String name) {
         super(name);
@@ -39,7 +56,8 @@ public class ClassifierTest extends TestCase {
         Dataset dataset = new Dataset();
 
         // set the path to the dataset
-        dataset.setPath("data/test/classifier/index_learning.txt");
+
+        dataset.setPath(ClassifierTest.class.getResource("/classifier/index_learning.txt").getFile());
 
         // tell the preprocessor that the first field in the file is a link to the actual document
         dataset.setFirstFieldLink(true);
@@ -117,7 +135,7 @@ public class ClassifierTest extends TestCase {
         assertEquals(0.75, c1.getPrior());
         assertEquals(0.25, c2.getPrior());
 
-        System.out.println(categories);
+        LOGGER.info(categories);
 
         Term word1 = new Term("word1");
         Term word2 = new Term("word2");
@@ -132,7 +150,7 @@ public class ClassifierTest extends TestCase {
         ces1.add(ce1);
         ces1.add(ce2);
 
-        System.out.println(ces1);
+        LOGGER.info(ces1);
 
         // test a dictionary
         // word c1 c2
@@ -180,7 +198,7 @@ public class ClassifierTest extends TestCase {
         assertEquals(1.0, dictionary.get(word1).getCategoryEntry("category1").getRelevance());
         assertEquals(66.0, dictionary.get(word1).getCategoryEntry("category1").getAbsoluteRelevance());
 
-        System.out.println(dictionary);
+        LOGGER.info(dictionary);
 
     }
 }

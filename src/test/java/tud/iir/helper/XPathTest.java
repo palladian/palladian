@@ -10,6 +10,7 @@ import tud.iir.web.Crawler;
  * Test cases for the xPath handling.
  * 
  * @author David Urbansky
+ * @author Klemens Muthmann
  */
 public class XPathTest extends TestCase {
 
@@ -51,24 +52,31 @@ public class XPathTest extends TestCase {
         // assertEquals("/div/p/table/tr/td/a/b", pa.getNextSibling("/div/p/table/tr/td/a/b"));
         assertEquals(pa.getNextSibling("/div/p/table[4]/tr[6]/td[1]/a/b"), "/div/p/table[4]/tr[6]/td[2]/a/b");
         assertEquals(pa.getNextSibling("/div/p/table[4]/tr[6]/xhtml:th/b/a"), "/div/p/table[4]/tr[6]/xhtml:td[1]/b/a");
-        assertEquals(pa.getNextTableCell("/div/p/table[4]/tr[6]/xhtml:th/div[6]/a"), "/div/p/table[4]/tr[6]/xhtml:td[1]/div[6]/a");
-        assertEquals(pa.getNextTableCell("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i"), "/div/p/table[4]/tr[6]/td[2]/div[6]/p[8]/a/i");
-        assertEquals("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i", pa.getNextTableCell("/div/p/table[4]/tr[6]/td/div[6]/p[8]/a/i"));
-        assertEquals("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i", pa.getNextTableCell("/div/p/table[4]/tr[6]/th/div[6]/p[8]/a/i"));
-        assertEquals("/div/p/table[4]/tr[6]/td[2]/div[6]/p[8]/a/i", pa.getNextTableCell("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i"));
+        assertEquals(pa.getNextTableCell("/div/p/table[4]/tr[6]/xhtml:th/div[6]/a"),
+                "/div/p/table[4]/tr[6]/xhtml:td[1]/div[6]/a");
+        assertEquals(pa.getNextTableCell("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i"),
+                "/div/p/table[4]/tr[6]/td[2]/div[6]/p[8]/a/i");
+        assertEquals("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i",
+                pa.getNextTableCell("/div/p/table[4]/tr[6]/td/div[6]/p[8]/a/i"));
+        assertEquals("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i",
+                pa.getNextTableCell("/div/p/table[4]/tr[6]/th/div[6]/p[8]/a/i"));
+        assertEquals("/div/p/table[4]/tr[6]/td[2]/div[6]/p[8]/a/i",
+                pa.getNextTableCell("/div/p/table[4]/tr[6]/td[1]/div[6]/p[8]/a/i"));
 
         // test get parent node
         assertEquals(PageAnalyzer.getParentNode("/table[6]/tr/td[5]/div/a"), "/table[6]/tr/td[5]/div");
 
         // test add XMLNS
-        assertEquals(XPathHelper.addNameSpaceToXPath("//TABLE/TR/TD/A[4]"), "//xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]");
+        assertEquals(XPathHelper.addNameSpaceToXPath("//TABLE/TR/TD/A[4]"),
+                "//xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]");
         assertEquals(XPathHelper.addNameSpaceToXPath("/TABLE/TR/TD/A[4]"), "/xhtml:TABLE/xhtml:TR/xhtml:TD/xhtml:A[4]");
         assertEquals(XPathHelper.addNameSpaceToXPath("/TABLE/TR[2]/TD/A"), "/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A");
         assertEquals(XPathHelper.addNameSpaceToXPath("/TABLE/TR[2]/TD/A/text()"),
                 "/xhtml:TABLE/xhtml:TR[2]/xhtml:TD/xhtml:A/text()");
 
         // test remove counts
-        assertEquals("/html/body/div/div/div/div/ul/li", PageAnalyzer.removeXPathIndices("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li[11]"));
+        assertEquals("/html/body/div/div/div/div/ul/li",
+                PageAnalyzer.removeXPathIndices("/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li[11]"));
 
         assertEquals(
                 "/html/body/div[1]/div[1]/div[1]/div[2]/ul[2]/li/small",
@@ -77,10 +85,14 @@ public class XPathTest extends TestCase {
 
         // test remove count not
         String[] rcElements = { "ul", "div" };
-        String xPath = PageAnalyzer.removeXPathIndicesNot(
-                "/html/body/div/div[1]/div/div[2]/table[2]/tbody/tr[3]/td/div/div/table[1]/tbody/tr/td/table/tbody/tr[13]/td[2]/div/span[7]/a", rcElements);
+        String xPath = PageAnalyzer
+                .removeXPathIndicesNot(
+                        "/html/body/div/div[1]/div/div[2]/table[2]/tbody/tr[3]/td/div/div/table[1]/tbody/tr/td/table/tbody/tr[13]/td[2]/div/span[7]/a",
+                        rcElements);
         // System.out.println(xPath);
-        assertEquals("/html/body/div/div[1]/div/div[2]/table/tbody/tr/td/div/div/table/tbody/tr/td/table/tbody/tr/td/div/span/a", xPath);
+        assertEquals(
+                "/html/body/div/div[1]/div/div[2]/table/tbody/tr/td/div/div/table/tbody/tr/td/table/tbody/tr/td/div/span/a",
+                xPath);
         String[] rcElements2 = { "ul", "div" };
         xPath = PageAnalyzer.removeXPathIndicesNot("/html/body/div/div[1]/div/div[2]/ul[1]/li[1]", rcElements2);
         assertEquals("/html/body/div/div[1]/div/div[2]/ul[1]/li", xPath);
@@ -107,49 +119,60 @@ public class XPathTest extends TestCase {
         PageAnalyzer pa = new PageAnalyzer();
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website3.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD"));
-        assertEquals(6, pa.getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website3.html"), "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD"));
+        assertEquals(6, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website3.html").getFile()),
+                "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[2]/TR/TD"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website5.html"),"/HTML/BODY/CENTER/TABLE[1]/TR/TD/BLOCKQUOTE/TABLE[1]/TR/TD/P"));
-        assertEquals(6, pa.getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website5.html"),
+        assertEquals(6, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website5.html").getFile()),
                 "/HTML/BODY/CENTER/TABLE[1]/TR/TD/BLOCKQUOTE/TABLE[1]/TR/TD/P"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website9.html"),"/HTML/BODY/TABLE/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/UL/LI/A/B"));
-        assertEquals(2, pa.getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website9.html"),
+        assertEquals(2, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website9.html").getFile()),
                 "/HTML/BODY/TABLE/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/UL/LI/A/B"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website11.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/TABLE/TBODY/TR/TD"));
-        assertEquals(2, pa.getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website11.html"),
+        assertEquals(2, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website11.html").getFile()),
                 "/HTML/BODY/DIV/DIV/DIV/DIV/DIV/DIV/TABLE/TBODY/TR/TD"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website17.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[4]/TR/TD/UL/LI/A"));
-        assertEquals(5, pa.getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website17.html"),
+        assertEquals(5, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website17.html").getFile()),
                 "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[4]/TR/TD/UL/LI/A"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website27.html"),"/HTML/BODY/FORM/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/DIV/DIV/SPAN/SPAN/SPAN/P/TABLE/TBODY/TR/TD"));
         assertEquals(
                 3,
-                pa
-                        .getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website27.html"),
-                                "/HTML/BODY/FORM/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/DIV/DIV/SPAN/SPAN/SPAN/P/TABLE/TBODY/TR/TD"));
+                pa.getNumberOfTableColumns(
+                        crawler.getWebDocument(XPathTest.class.getResource("/webPages/website27.html").getFile()),
+                        "/HTML/BODY/FORM/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/DIV/DIV/SPAN/SPAN/SPAN/P/TABLE/TBODY/TR/TD"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website29.html"),"/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD"));
-        assertEquals(5, pa.getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website29.html"),
+        assertEquals(5, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website29.html").getFile()),
                 "/HTML/BODY/CENTER/TABLE[1]/TR/TD/TABLE[1]/TR/TD/TABLE[1]/TR/TD"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website33.html"),"/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD/A"));
-        assertEquals(2, pa.getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website33.html"),
+        assertEquals(2, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website33.html").getFile()),
                 "/HTML/BODY/DIV/DIV/DIV/TABLE[1]/TR/TD/P/TABLE[3]/TR/TD/TABLE/TR/TD/A"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website65.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/DIV/TABLE[1]/TR/TD"));
-        assertEquals(11, pa.getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website65.html"),
+        assertEquals(11, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website65.html").getFile()),
                 "/HTML/BODY/DIV/DIV/DIV/DIV/DIV/TABLE[1]/TR/TD"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website67.html"),"/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[3]/TR/TD/I/A"));
-        assertEquals(3, pa
-                .getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website67.html"), "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[3]/TR/TD/I/A"));
+        assertEquals(3, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website67.html").getFile()),
+                "/HTML/BODY/DIV/DIV/DIV/DIV/TABLE[3]/TR/TD/I/A"));
 
         // System.out.println(pa.getNumberOfTableColumns(crawler.getDocument("data/test/webPages/website69.html"),"/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD/FONT/A"));
-        assertEquals(4, pa.getNumberOfTableColumns(crawler.getWebDocument("data/test/webPages/website69.html"),
+        assertEquals(4, pa.getNumberOfTableColumns(
+                crawler.getWebDocument(XPathTest.class.getResource("/webPages/website69.html").getFile()),
                 "/HTML/BODY/DIV/DIV/LAYER/DIV/TABLE[1]/TR/TD/DIV/TABLE[1]/TR/TD/P/TABLE/TR/TD/FONT/A"));
 
     }

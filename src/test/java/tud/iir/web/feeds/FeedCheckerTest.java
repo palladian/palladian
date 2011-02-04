@@ -30,13 +30,6 @@ public class FeedCheckerTest {
 
     private FeedReader objectOfClassUnderTest;
 
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() throws Exception {
         fixture = new HashSet<Feed>();

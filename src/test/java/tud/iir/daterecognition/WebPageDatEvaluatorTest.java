@@ -12,6 +12,7 @@ import tud.iir.helper.DateArrayHelper;
 
 /**
  * @author Martin Gregor
+ * @author Klemens Muthmann
  * 
  */
 public class WebPageDatEvaluatorTest {
@@ -46,18 +47,18 @@ public class WebPageDatEvaluatorTest {
      */
     @Test
     public void testGetAllBestRatedDate() {
-        String url = "data/test/webPages/dateExtraction/zeit2.htm";
+        String url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
         wpde.evaluate();
         assertEquals(2, wpde.getAllBestRatedDate().size());
 
-        url = "data/test/webPages/dateExtraction/zeit1.htm";
+        url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
         assertEquals(5, wpde.getAllBestRatedDate().size());
 
-        url = "data/test/webPages/dateExtraction/kullin.htm";
+        url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
         DateArrayHelper.printDateArray(wpde.getAllDates());
@@ -69,18 +70,18 @@ public class WebPageDatEvaluatorTest {
      */
     @Test
     public void testGetAllDates() {
-        String url = "data/test/webPages/dateExtraction/zeit2.htm";
+        String url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit2.htm").getFile();
         WebPageDateEvaluator wpde = new WebPageDateEvaluator();
         wpde.setUrl(url);
         wpde.evaluate();
         assertEquals(9, wpde.getAllDates().size());
 
-        url = "data/test/webPages/dateExtraction/zeit1.htm";
+        url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/zeit1.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
         assertEquals(44, wpde.getAllDates().size());
 
-        url = "data/test/webPages/dateExtraction/kullin.htm";
+        url = WebPageDatEvaluatorTest.class.getResource("/webPages/dateExtraction/kullin.htm").getFile();
         wpde.setUrl(url);
         wpde.evaluate();
         DateArrayHelper.printDateArray(wpde.getAllDates());

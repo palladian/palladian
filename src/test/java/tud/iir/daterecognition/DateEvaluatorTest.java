@@ -2,7 +2,6 @@ package tud.iir.daterecognition;
 
 import java.util.HashMap;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import tud.iir.control.AllTests;
@@ -13,26 +12,25 @@ import tud.iir.helper.RegExp;
 public class DateEvaluatorTest {
 
     @Test
-    
     public final void testEvaluate() {
-    	if(AllTests.ALL_TESTS){
-	        // DateGetter dg = new DateGetter("http://www.zeit.de/karriere/beruf/2010-08/karrierestrategien-frauen");
-	        // DateGetter dg = new DateGetter("data/test/webPages/dateExtraction/zeit2.htm");
-	        // DateGetter dg = new DateGetter(
-	        // "http://www.huffingtonpost.com/2010/09/08/mark-hurds-salary-at-orac_n_708676.html");
-	        String url;
-	        // url =
-	        url = "http://www.dailymail.co.uk/tvshowbiz/article-533432/Patrick-Swayze-smoking-despite-diagnosed-pancreatic-cancer.html";
-	        // "http://www.huffingtonpost.com/2010/09/07/ex-cia-electric-drill-contractor-training-operatives_n_708085.html";
-	
-	        WebPageDateEvaluator ae = new WebPageDateEvaluator();
-	        ae.setUrl(url);
-	        ae.evaluate();
-	        // DateArrayHelper.printDateArray(dates);
-	        DateArrayHelper.printDateArray(ae.getAllDates());
-	
-	        // assertEquals(dates.size(), dateMap.size());
-    	}
+        if (AllTests.ALL_TESTS) {
+            // DateGetter dg = new DateGetter("http://www.zeit.de/karriere/beruf/2010-08/karrierestrategien-frauen");
+            // DateGetter dg = new DateGetter("data/test/webPages/dateExtraction/zeit2.htm");
+            // DateGetter dg = new DateGetter(
+            // "http://www.huffingtonpost.com/2010/09/08/mark-hurds-salary-at-orac_n_708676.html");
+            String url;
+            // url =
+            url = "http://www.dailymail.co.uk/tvshowbiz/article-533432/Patrick-Swayze-smoking-despite-diagnosed-pancreatic-cancer.html";
+            // "http://www.huffingtonpost.com/2010/09/07/ex-cia-electric-drill-contractor-training-operatives_n_708085.html";
+
+            WebPageDateEvaluator ae = new WebPageDateEvaluator();
+            ae.setUrl(url);
+            ae.evaluate();
+            // DateArrayHelper.printDateArray(dates);
+            DateArrayHelper.printDateArray(ae.getAllDates());
+
+            // assertEquals(dates.size(), dateMap.size());
+        }
     }
 
     @Test

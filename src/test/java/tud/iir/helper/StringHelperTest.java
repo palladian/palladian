@@ -42,8 +42,8 @@ public class StringHelperTest extends TestCase {
     public void testRename() {
         // System.out.println(FileHelper.rename(new
         // File("data/test/sampleTextForTagging.txt"),"sampleTextForTagging_tagged"));
-        String renamedFile = FileHelper.rename(new File("data/test/sampleTextForTagging.txt"),
-                "sampleTextForTagging_tagged");
+        String renamedFile = FileHelper.rename(new File(StringHelperTest.class.getResource("/sampleTextForTagging.txt")
+                .getFile()), "sampleTextForTagging_tagged");
         renamedFile = renamedFile.substring(renamedFile.lastIndexOf(File.separatorChar) + 1);
         assertEquals("sampleTextForTagging_tagged.txt", renamedFile);
     }
@@ -149,10 +149,8 @@ public class StringHelperTest extends TestCase {
 
     public void testCountOccurences() {
         assertEquals(2, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", true));
-        assertEquals(1,
-                StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", false));
-        assertEquals(0,
-                StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "cat", false));
+        assertEquals(1, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "the", false));
+        assertEquals(0, StringHelper.countOccurences("The quick brown fox jumps over the lazy dog", "cat", false));
         assertEquals(5, StringHelper.countOccurences("aaaaa", "a", false));
         assertEquals(2, StringHelper.countOccurences("aaaaa", "aa", false));
     }
@@ -165,19 +163,21 @@ public class StringHelperTest extends TestCase {
         assertEquals("", StringHelper.getFirstWords("", 10));
         assertEquals("", StringHelper.getFirstWords(null, 10));
     }
-    
+
     public void testExtractUrls() {
-        
+
         String text = "The quick brown fox jumps over the lazy dog. Check out: http://microsoft.com, www.apple.com, google.com. (www.tu-dresden.de), http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars.";
         List<String> urls = StringHelper.extractUrls(text);
-        
+
         assertEquals(4, urls.size());
         assertEquals("http://microsoft.com", urls.get(0));
         assertEquals("www.apple.com", urls.get(1));
         // assertEquals("google.com", urls.get(2)); // not recognized
         assertEquals("www.tu-dresden.de", urls.get(2));
-        assertEquals("http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars", urls.get(3));
-        
+        assertEquals(
+                "http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars",
+                urls.get(3));
+
     }
 
 }

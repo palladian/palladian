@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Test;
 
 import tud.iir.control.AllTests;
-import tud.iir.web.feeds.FeedContentClassifier;
 import tud.iir.web.feeds.FeedContentClassifier.FeedContentType;
 
 public class FeedContentClassifierTest {
@@ -19,17 +18,17 @@ public class FeedContentClassifierTest {
 
             // Daring Fireball
             // TODO links to different sites
-            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType("data/test/feeds/feed9.xml"));
+            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType(FeedContentClassifierTest.class.getResource("/feeds/feed9.xml").getFile()));
 
             // Ars Technica / Infinite Loop
             // TODO mixed, some entries contain partial, some full content
-            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType("data/test/feeds/feed10.xml"));
+            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType(FeedContentClassifierTest.class.getResource("/feeds/feed10.xml").getFile()));
 
             // esse est percipi
-            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType("data/test/feeds/feed11.xml"));
+            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType(FeedContentClassifierTest.class.getResource("/feeds/feed11.xml").getFile()));
 
             // Panic Blog
-            assertEquals(FeedContentType.FULL, classifier.determineContentType("data/test/feeds/feed12.xml"));
+            assertEquals(FeedContentType.FULL, classifier.determineContentType(FeedContentClassifierTest.class.getResource("/feeds/feed12.xml").getFile()));
 
             // Engadget
             // TODO they have additional press releases on some pages, which are not in the feed
@@ -40,23 +39,23 @@ public class FeedContentClassifierTest {
 
             // Ars Technica / Gears & Gadgets
             // TODO mixed, some entries contain partial, sume full content
-            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType("data/test/feeds/feed15.xml"));
+            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType(FeedContentClassifierTest.class.getResource("/feeds/feed15.xml").getFile()));
 
             // SlashGear
             // TODO they acutally have MORE content in the feed entries, as they contain a "read more" list
             // assertEquals(FeedContentType.FULL, classifier.determineFeedTextType("data/test/feeds/feed16.xml"));
 
             // heise online
-            assertEquals(FeedContentType.NONE, classifier.determineContentType("data/test/feeds/feed17.xml"));
+            assertEquals(FeedContentType.NONE, classifier.determineContentType(FeedContentClassifierTest.class.getResource("/feeds/feed17.xml").getFile()));
 
             // Wired Top Stories
-            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType("data/test/feeds/feed18.xml"));
+            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType(FeedContentClassifierTest.class.getResource("/feeds/feed18.xml").getFile()));
 
             // FAZ.NET
-            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType("data/test/feeds/feed19.xml"));
+            assertEquals(FeedContentType.PARTIAL, classifier.determineContentType(FeedContentClassifierTest.class.getResource("/feeds/feed19.xml").getFile()));
 
             // Spreeblick
-            assertEquals(FeedContentType.FULL, classifier.determineContentType("data/test/feeds/feed20.xml"));
+            assertEquals(FeedContentType.FULL, classifier.determineContentType(FeedContentClassifierTest.class.getResource("/feeds/feed20.xml").getFile()));
 
         }
 
