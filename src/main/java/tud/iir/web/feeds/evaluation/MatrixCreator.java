@@ -18,10 +18,9 @@ import prefuse.data.io.DataIOException;
 
 /**
  * <p>
- * Transforms a 2D Matrix representation with three columns in a 3D
- * representation. This is required for 3D graphics in the feed paper. The input
- * needs to be a CSV file <big>with</big> headers. The output is a CSV Matrix.
- * An example is shown below.
+ * Transforms a 2D Matrix representation with three columns in a 3D representation. This is required for 3D graphics in
+ * the feed paper. The input needs to be a CSV file <big>with</big> headers. The output is a CSV Matrix. An example is
+ * shown below.
  * </p>
  * <p>
  * Example:
@@ -48,7 +47,7 @@ import prefuse.data.io.DataIOException;
  * becomes
  * 
  * <pre>
- * 	1	2	3	4	5	6	7	8	9	10
+ * 	    1	2	3	4	5	6	7	8	9	10
  * 1	1	1
  * 2	1
  * 3		1
