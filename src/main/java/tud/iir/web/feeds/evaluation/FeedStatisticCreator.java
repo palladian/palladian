@@ -413,7 +413,7 @@ public class FeedStatisticCreator {
         tables.add("feed_evaluation2_fix1440_max_min_poll");
         tables.add("feed_evaluation2_fix_learned_min_poll");
 
-        createTempTable(tempTable);
+        createTempTablePollsX(tempTable);
 
         for (String table : tables) {
             delayChart(table, tempTable);
@@ -423,11 +423,12 @@ public class FeedStatisticCreator {
     }
 
     /**
-     * Creates a temporary table required to generate the delay charts.
+     * Creates a temporary table required to generate the delay charts, uses FeedStatisticCreator.pollsWithNewItems to
+     * restrict the feeds to feeds that have at least that many polls with at least one new item.
      * 
      * @param tempTableName The table's name.
      */
-    private static void createTempTable(final String tempTableName) {
+    private static void createTempTablePollsX(final String tempTableName) {
         DatabaseManager dbm = new DatabaseManager();
 
         // with fix1440
@@ -657,11 +658,35 @@ public class FeedStatisticCreator {
     }
 
     /**
-     * Checks whether a feed is contained in tempTableMin. tempTableMin contains all feedIDs that are contained in all
-     * five _min_time tables.
+     * Creates the temporary table "tempTableMin" that contains all feedIDs that are contained in all
+     * five "_min_time" tables.
+     */
+    @SuppressWarnings("unused")
+    private static void createTempTableMin() {
+        DatabaseManager dbm = new DatabaseManager();
+        String sql = "CREATE TABLE tempTableMin AS SELECT DISTINCT a.feedID FROM "
+                + "feed_evaluation2_adaptive_min_time a, feed_evaluation2_fix1440_max_min_time b "
+                + "WHERE a.feedID = b.feedID " + "AND a.pollTimestamp BETWEEN "
+                + (FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND / DateHelper.SECOND_MS) + " AND "
+                + (FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / DateHelper.SECOND_MS)
+                + " AND b.pollTimestamp BETWEEN "
+                + (FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND / DateHelper.SECOND_MS) + " AND "
+                + (FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / DateHelper.SECOND_MS);
+
+        Logger.getRootLogger().info(sql);
+        dbm.runUpdate(sql);
+
+        sql = "ALTER TABLE tempTableMin ADD PRIMARY KEY (`feedID`)";
+        Logger.getRootLogger().info(sql);
+        dbm.runUpdate(sql);
+    }
+
+    /**
+     * Checks whether a feed is contained in tempTableMin.
      * 
      * @param feed The feed to check
      * @return true if feed is contained in tempTableMin, otherwise {@code false}.
+     * @see #createTempTableMin()
      */
     private static boolean isInTempTable(Feed feed) {
         String sql = "SELECT COUNT(*) AS count FROM tempTableMin WHERE feedID = " + feed.getId();
@@ -701,18 +726,19 @@ public class FeedStatisticCreator {
         String psFixPostRate = "SELECT AVG(checkInterval) AS checkInterval FROM feed_evaluation2_probabilistic_min_time WHERE feedID = ?";
         String psFixMAV = "SELECT AVG(checkInterval) AS checkInterval FROM feed_evaluation2_adaptive_min_time WHERE feedID = ?";
 
-        long timespan = FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND
-        - FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND;
-
         // create the file we want to write to
         FileWriter csv = new FileWriter(statisticOutputPath);
 
-        int c = 0;
+        int counter = 0;
         int totalSize = feedStore.getFeeds().size();
         for (Feed feed : feedStore.getFeeds()) {
+            counter++;
 
             if (!isInTempTable(feed)) {
-                LOGGER.info("not in temptable, that is, not in our time frame...skipping");
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("not in temptable, that is, not in our time frame...skipping");
+                }
+                continue;
             }
 
             String safeFeedName = feed.getId() + "_";
@@ -724,8 +750,22 @@ public class FeedStatisticCreator {
                 continue;
             }
 
-            double realAverageUpdateInterval = MathHelper.round(timespan / ((double) items.size() - 1), 2)
+            
+            long newestItemTime = 0;
+            long oldestItemTime = 0;
+            for (String item : items) {
+                String[] itemParts = item.split(";");
+                if (newestItemTime == 0) {
+                    newestItemTime = Long.valueOf(itemParts[0]);
+                }
+                oldestItemTime = Long.valueOf(itemParts[0]);
+            }
+
+            long totalTime = (newestItemTime - oldestItemTime) / DateHelper.MINUTE_MS;
+
+            double realAverageUpdateInterval = MathHelper.round(totalTime / ((double) items.size() - 1), 2)
                     / DateHelper.MINUTE_MS;
+
 
             // limit feeds to a maximum real average update interval of 31 days = 44640 minutes
             if (realAverageUpdateInterval > 44640) {
@@ -776,9 +816,9 @@ public class FeedStatisticCreator {
 
             csv.flush();
 
-            c++;
-
-            Logger.getRootLogger().info("percent done: " + MathHelper.round(100 * c / (double) totalSize, 2));
+            if (counter % 1000 == 0) {
+                Logger.getRootLogger().info("percent done: " + MathHelper.round(100 * counter / (double) totalSize, 2));
+            }
         }
 
         csv.close();
@@ -872,6 +912,7 @@ public class FeedStatisticCreator {
         // FeedStatisticCreator.minDelayPolicyEvaluationAll();
         // FeedStatisticCreator.timelinessChart();
         // FeedStatisticCreator.delayChart();
+        // FeedStatisticCreator.createTempTableMin();
         FeedStatisticCreator.createFeedUpdateIntervals(new FeedDatabase(), "data/temp/feedUpdateIntervals.csv");
         // FeedStatisticCreator.pollsWithNewItems = 500;
         // delayChart();
