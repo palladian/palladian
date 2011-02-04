@@ -7,19 +7,6 @@
 	<version>0.1-SNAPSHOT</version>
 	<description>Palladian is the IIR Toolkit from the Computer Networks Chair of the TU Dresden.</description>
 	<build>
-		<resources>
-			<resource>
-				<directory>${basedir}/config</directory>
-			</resource>
-		</resources>
-		<testResources>
-			<testResource>
-				<directory>${basedir}</directory>
-				<includes>
-					<include>data/**</include>
-				</includes>
-			</testResource>
-		</testResources>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>

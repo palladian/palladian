@@ -2,14 +2,14 @@ package tud.iir.preprocessing.segmentation;
 
 import java.io.IOException;
 import java.util.ArrayList;
+
 import javax.xml.parsers.ParserConfigurationException;
 
-import tud.iir.preprocessing.segmentation.PageSegmenter;
-import tud.iir.preprocessing.segmentation.Segment;
-import tud.iir.web.Crawler;
 import junit.framework.TestCase;
 
 import org.w3c.dom.Document;
+
+import tud.iir.web.Crawler;
 
 
 /**
@@ -26,16 +26,16 @@ public class PageSegmenterTest extends TestCase {
     public void testSegmentation() throws ParserConfigurationException, IOException {
     	
         PageSegmenter seg = new PageSegmenter();
-        seg.setDocument("data/test/pageSegmenter/forum_temp1.html");
+        seg.setDocument(PageSegmenterTest.class.getResource("/pageSegmenter/forum_temp1.html").getFile());
         
         Crawler c = new Crawler();
         
         ArrayList<Document> simList = new ArrayList<Document>();
-        simList.add(c.getWebDocument("data/test/pageSegmenter/forum_temp1_aehnlich1.html"));
-        simList.add(c.getWebDocument("data/test/pageSegmenter/forum_temp1_aehnlich2.html"));
-        simList.add(c.getWebDocument("data/test/pageSegmenter/forum_temp1_aehnlich3.html"));
-        simList.add(c.getWebDocument("data/test/pageSegmenter/forum_temp1_aehnlich4.html"));
-        simList.add(c.getWebDocument("data/test/pageSegmenter/forum_temp1_aehnlich5.html"));
+        simList.add(c.getWebDocument(PageSegmenterTest.class.getResource("/pageSegmenter/forum_temp1_aehnlich1.html").getFile()));
+        simList.add(c.getWebDocument(PageSegmenterTest.class.getResource("/pageSegmenter/forum_temp1_aehnlich2.html").getFile()));
+        simList.add(c.getWebDocument(PageSegmenterTest.class.getResource("/pageSegmenter/forum_temp1_aehnlich3.html").getFile()));
+        simList.add(c.getWebDocument(PageSegmenterTest.class.getResource("/pageSegmenter/forum_temp1_aehnlich4.html").getFile()));
+        simList.add(c.getWebDocument(PageSegmenterTest.class.getResource("/pageSegmenter/forum_temp1_aehnlich5.html").getFile()));
         seg.setSimilarFiles(simList);
     	
         seg.startPageSegmentation();

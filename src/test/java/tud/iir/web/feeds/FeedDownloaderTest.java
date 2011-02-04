@@ -30,8 +30,8 @@ public class FeedDownloaderTest {
     @Test
     @Ignore
     public void readFeedFromFile() throws FeedDownloaderException {
-        aggregator.getFeed("data/test/feeds/feed1.xml");
-        aggregator.getFeed("data/test/feeds/feed2.xml");
+        aggregator.getFeed(FeedDownloaderTest.class.getResource("/feeds/feed1.xml").getFile());
+        aggregator.getFeed(FeedDownloaderTest.class.getResource("/feeds/feed2.xml").getFile());
     }
     
     @Test

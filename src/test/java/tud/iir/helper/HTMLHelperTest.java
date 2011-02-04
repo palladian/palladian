@@ -45,7 +45,8 @@ public class HTMLHelperTest extends TestCase {
         assertEquals("this is relevant", HTMLHelper.removeHTMLTags(htmlContent, true, true, true, false));
 
         Crawler crawler = new Crawler();
-        String content = crawler.download("data/test/webPages/removeHTMLContentTest1.html");
+        String content = crawler.download(HTMLHelperTest.class.getResource("/webPages/removeHTMLContentTest1.html")
+                .getFile());
         String result = HTMLHelper.removeHTMLTags(content, true, true, true, false);
         Assert.assertEquals("ecf0720bd7f9afc0dc40ec100ca8e96f", DigestUtils.md5Hex(result));
     }
@@ -53,7 +54,8 @@ public class HTMLHelperTest extends TestCase {
     @Test
     public void testHtmlToString() {
         Crawler c = new Crawler();
-        Document doc = c.getWebDocument("data/test/pageContentExtractor/test001.html");
+        Document doc = c.getWebDocument(HTMLHelperTest.class.getResource("/pageContentExtractor/test001.html")
+                .getFile());
         String result = HTMLHelper.htmlToString(doc);
         Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
     }

@@ -78,12 +78,13 @@ public class MathHelperTest {
     @Test
     public void testPerformLinearRegression() {
         // test with the example data from http://en.wikipedia.org/wiki/Simple_linear_regression
-        double[] weights = {1.47,1.5,1.52,1.55,1.57,1.6,1.63,1.65,1.68,1.70,1.73,1.75,1.78,1.80,1.83};
-        double[] heights = {52.21,53.12,54.48,55.84,57.20,58.57,59.93,61.29,63.11,64.47,66.28,68.10,69.92,72.19,74.46};
+        double[] weights = { 1.47, 1.5, 1.52, 1.55, 1.57, 1.6, 1.63, 1.65, 1.68, 1.70, 1.73, 1.75, 1.78, 1.80, 1.83 };
+        double[] heights = { 52.21, 53.12, 54.48, 55.84, 57.20, 58.57, 59.93, 61.29, 63.11, 64.47, 66.28, 68.10, 69.92,
+                72.19, 74.46 };
 
-        double[] alphaBeta = MathHelper.performLinearRegression(weights,heights);
-        Assert.assertEquals(-39.062, MathHelper.round(alphaBeta[0],3));
-        Assert.assertEquals(61.272, MathHelper.round(alphaBeta[1],3));
+        double[] alphaBeta = MathHelper.performLinearRegression(weights, heights);
+        Assert.assertEquals(-39.062, MathHelper.round(alphaBeta[0], 3));
+        Assert.assertEquals(61.272, MathHelper.round(alphaBeta[1], 3));
     }
 
     @Test
@@ -116,12 +117,17 @@ public class MathHelperTest {
         list2.add("c");
         Assert.assertEquals(1.0, MathHelper.calculateListSimilarity(list1, list2).getShiftSimilartiy());
 
-        Assert.assertEquals(0.37,
-                MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv", "#").getShiftSimilartiy(), 2));
+        Assert.assertEquals(0.37, MathHelper.round(
+                MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+                        .getShiftSimilartiy(), 2));
 
-        Assert.assertEquals(0.57, MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv","#").getSquaredShiftSimilartiy(),2));
+        Assert.assertEquals(0.57, MathHelper.round(
+                MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+                        .getSquaredShiftSimilartiy(), 2));
 
-        Assert.assertEquals(4.16, MathHelper.round(MathHelper.calculateListSimilarity("data/test/list.csv","#").getRmse(), 2));
+        Assert.assertEquals(4.16, MathHelper.round(
+                MathHelper.calculateListSimilarity(MathHelperTest.class.getResource("/list.csv").getFile(), "#")
+                        .getRmse(), 2));
 
     }
 
@@ -138,7 +144,10 @@ public class MathHelperTest {
 
         Assert.assertEquals(7.155, MathHelper.round(MathHelper.calculateRMSE(values), 3));
 
-        Assert.assertEquals(3.607, MathHelper.round(MathHelper.calculateRMSE("data/test/rmseInput.csv", ";"), 3));
+        Assert.assertEquals(
+                3.607,
+                MathHelper.round(
+                        MathHelper.calculateRMSE(MathHelperTest.class.getResource("/rmseInput.csv").getFile(), ";"), 3));
     }
 
 }
