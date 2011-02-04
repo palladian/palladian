@@ -1,5 +1,9 @@
 package tud.iir.persistence;
 
+import java.io.File;
+
+import org.apache.commons.io.FileUtils;
+
 import junit.framework.TestCase;
 import tud.iir.classification.Categories;
 import tud.iir.classification.Category;
@@ -12,10 +16,14 @@ public class DictionaryFileIndexTest extends TestCase {
         super(name);
     }
 
-    public void testFileIndex() {
+    public void testFileIndex() throws Exception {
 
         // create the dictionary index and empty the existing one
-        DictionaryFileIndex di = new DictionaryFileIndex(DictionaryFileIndexTest.class.getResource("/testIndex/").getFile());
+        File dictionaryFile = new File("testIndex");
+        if(!dictionaryFile.exists()) {
+            dictionaryFile.mkdir();
+        }
+        DictionaryFileIndex di = new DictionaryFileIndex(dictionaryFile.getAbsolutePath());
         di.empty();
         di.openWriter();
 
@@ -88,6 +96,8 @@ public class DictionaryFileIndexTest extends TestCase {
         ces = di.read(".Com L_d");
         // System.out.println(ces);
         assertEquals(2, ces.size());
+        
+        FileUtils.deleteDirectory(dictionaryFile);
     }
 
 }
