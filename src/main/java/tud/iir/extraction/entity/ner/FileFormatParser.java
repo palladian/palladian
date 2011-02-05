@@ -519,6 +519,12 @@ public class FileFormatParser {
              * }
              */
 
+            // get the left and right context of the annotation
+            String leftContext = HTMLHelper.removeHTMLTags(taggedText.substring(Math.max(0, matcher.start() - 10),
+                    matcher.start()));
+            String rightContext = HTMLHelper.removeHTMLTags(taggedText.substring(matcher.end(),
+                    Math.min(taggedText.length(), matcher.end() + 10)));
+
             String conceptName = matcher.group(1);
             String entityName = matcher.group(2);
 
@@ -537,6 +543,8 @@ public class FileFormatParser {
             Entity namedEntity = new Entity(entityName, conceptName);
 
             Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getTagName());
+            annotation.setLeftContext(leftContext);
+            annotation.setRightContext(rightContext);
             annotations.add(annotation);
 
             // String annotationText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());

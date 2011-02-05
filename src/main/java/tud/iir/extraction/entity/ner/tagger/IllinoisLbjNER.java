@@ -223,6 +223,8 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
             LOGGER.error("could not transform tagged text, " + e.getMessage());
         }
 
+        cleanFile(taggedFilePathTransformed);
+
         FileFormatParser.bracketToXML(taggedFilePathTransformed, taggedFilePathTransformed);
         Annotations annotations = FileFormatParser.getAnnotationsFromXMLFile(taggedFilePathTransformed);
 
@@ -230,6 +232,20 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         // CollectionHelper.print(annotations);
 
         return annotations;
+    }
+
+    /**
+     * Retransform something the tokenizer might have destroyed. XXX this is only for the conll corpus so far and does
+     * not even cover everything needed
+     * 
+     * @param taggedFilePath The path of the tagged file.
+     */
+    private void cleanFile(String taggedFilePath) {
+        String content = FileHelper.readFileToString(taggedFilePath);
+        content = content.replace(".\"", ".''");
+        content = content.replace(":\"", ":''");
+        content = content.replace(",\"", ",''");
+        FileHelper.writeToFile(taggedFilePath, content);
     }
 
     @Override
@@ -409,7 +425,7 @@ public class IllinoisLbjNER extends NamedEntityRecognizer {
         // System.exit(0);
 
         // using a column trainig and testing file
-        tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
+        // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/lbj.model");
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_final.txt", "data/temp/lbj.model",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());

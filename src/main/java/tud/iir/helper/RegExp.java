@@ -24,7 +24,7 @@ public class RegExp {
 
     // TODO: Warning (10/11/2010): changed regexp without further testing, was:
     // ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*))*
-    public static final String ENTITY = "([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*))*";
+    public static final String ENTITY = "([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10}";
 
     // dates needed to normalize date found by general date pattern
     public static final String DATE0 = "(\\d){4}-(\\d){2}-(\\d){2} (\\d){2}:(\\d){2}:(\\d){2}"; // YYYY-MM-DD hh:mm:ss
@@ -481,6 +481,15 @@ public class RegExp {
     public static Object[] getOthersRegExp() {
         Object[] regExp = { DATE_URL_SPLIT };
         return regExp;
+    }
+
+    /**
+     * Return all regular expressions for month and week days.
+     * 
+     * @return A set of regular expressions.
+     */
+    public static String[] getDateFramentRegExp() {
+        return new String[] { MONTH_NAME_SHORT_ENG, MONTH_NAME_LONG_ENG, WEEKDAY_NAME_SHORT, WEEKDAY_NAME_LONG };
     }
 
     /**

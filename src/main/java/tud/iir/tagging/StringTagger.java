@@ -6,7 +6,6 @@ import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.FileFormatParser;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
-import tud.iir.helper.RegExp;
 import tud.iir.web.Crawler;
 
 public class StringTagger {
@@ -25,13 +24,15 @@ public class StringTagger {
 
     public static String tagString(String s) {
 
-        // Pattern pat = Pattern.compile(RegExp.ENTITY);
-        // Matcher m = pat.matcher(s);
-        // while (m.find()) {
-        // // s = s.replaceAll(m.group(), "#" + m.group() + "#");
-        // }
-
         String entityTag = "<CANDIDATE>$0</CANDIDATE>";
+
+//        Pattern pat = Pattern.compile(RegExp.ENTITY);
+//        Matcher m = pat.matcher(s);
+//        while (m.find()) {
+//            System.out.println(m.group());
+//            // s = s.replaceAll(m.group(), "#" + m.group() + "#");
+//            s = s.replaceAll(m.group(), "<CANDIDATE>" + m.group() + "</CANDIDATE>");
+//        }
 
         // tag obvious entities that are noun patterns
         // s = s.replaceAll("(?<!§.{0,20})" + RegExp.ENTITY + "(?!.*?#)", entityTag);
@@ -39,7 +40,20 @@ public class StringTagger {
         // s = s.replaceAll("(?<!\\<CANDIDATE\\>)" + RegExp.ENTITY, entityTag);
         // s = s.replaceAll("(?<!\"[^\"]{0,200}?)" + RegExp.ENTITY, entityTag);
 
-        s = s.replaceAll(RegExp.ENTITY, entityTag);
+        String regexp = "([A-Z]\\.)+";
+        regexp += "|";
+        regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9]+))+(( )?[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
+
+        // s =
+        // s.replaceAll("(([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9]+))+(( )?[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})",
+        // entityTag);
+        s = s.replaceAll(regexp, entityTag);
+        // s = s.replaceAll(RegExp.ENTITY, entityTag);
+
+        // ([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*))*
+        // s = s.replaceAll(
+        // "([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9.]*))+(( )?[A-Z0-9]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10}",
+        // entityTag);
         // s = Pattern.compile(RegExp.ENTITY).matcher(s).replaceAll(entityTag);
 
         // s = s.replaceAll("(?<!\"[^\"]{0,200})" + RegExp.ENTITY, entityTag);
@@ -63,8 +77,8 @@ public class StringTagger {
     public static Annotations getTaggedEntities(String text) {
         Annotations annotations = new Annotations();
         String taggedText = tagString(text);
-        FileHelper.writeToFile("t.txt", taggedText);
-        System.out.println(taggedText);
+        // FileHelper.writeToFile("t.txt", taggedText);
+        // System.out.println(taggedText);
         annotations = FileFormatParser.getAnnotationsFromXMLText(taggedText);
         return annotations;
     }
@@ -79,6 +93,10 @@ public class StringTagger {
                 + "Sketch of a young Abraham Lincoln\n"
                 + "Main articles: Abraham Lincoln on slavery and Emancipation Proclamation\n";
 
+        // testText =
+        // "The United States of America are often called the USA, the U.S.A., or simply the U.S. The U.N. has its headquarter in N.Y.C. on the east coast.";
+
+        // CollectionHelper.print(Tokenizer.tokenize(testText));
         System.out.println(StringTagger.tagString(testText));
 
         System.exit(0);

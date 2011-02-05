@@ -15,6 +15,7 @@ import tud.iir.classification.page.evaluation.Dataset;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationAnnotation;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CountMap;
+import tud.iir.helper.DateHelper;
 import tud.iir.helper.FileHelper;
 import tud.iir.helper.MathHelper;
 import tud.iir.helper.StopWatch;
@@ -363,6 +364,13 @@ public abstract class NamedEntityRecognizer {
             }
         }
 
+        // annotations that were tagged but do not appear in the gold standard (not even overlap with a gold standard
+        // annotation)
+        Annotations completelyIncorrectAnnotations = new Annotations();
+
+        // annotations that are in the gold standard but were completely missed by the NER
+        Annotations missedAnnotations = new Annotations();
+
         // check each NER annotation against the gold standard and add it to the assignment map depending on its error
         // type, we allow only one overlap for each gold standard annotation => real(<Person>Homer J. Simpson</Person>),
         // tagged(<Person>Homer</Person> J. <Person>Simpson</Person>) => tagged(<Person>Homer</Person> J. Simpson)
@@ -465,6 +473,8 @@ public abstract class NamedEntityRecognizer {
                     assignments.get(nerAnnotation.getMostLikelyTagName()).increment(
                             EvaluationResult.SPECIAL_MARKER + "OTHER" + EvaluationResult.SPECIAL_MARKER);
 
+                    completelyIncorrectAnnotations.add(nerAnnotation);
+
                     break;
                 }
 
@@ -476,25 +486,30 @@ public abstract class NamedEntityRecognizer {
         for (Annotation goldStandardAnnotation : goldStandard) {
             if (!((EvaluationAnnotation) goldStandardAnnotation).isTagged()) {
                 assignments.get(goldStandardAnnotation.getMostLikelyTagName()).increment(EvaluationResult.ERROR2);
+                missedAnnotations.add(goldStandardAnnotation);
             }
         }
 
-        EvaluationResult evaluationResult = new EvaluationResult(assignments);
+        EvaluationResult evaluationResult = new EvaluationResult(assignments, goldStandard);
 
-        printEvaluationDetails(evaluationResult, FileHelper.getFilePath(testingFilePath) + "results.csv");
+        printEvaluationDetails(evaluationResult, completelyIncorrectAnnotations, missedAnnotations,
+                FileHelper.getFilePath(testingFilePath) + DateHelper.getCurrentDatetime() + "_results.csv");
 
         return evaluationResult;
     }
 
     public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult) {
-        return printEvaluationDetails(evaluationResult, null);
+        return printEvaluationDetails(evaluationResult, new Annotations(), new Annotations(), null);
     }
-    public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult, String targetPath) {
+    public static StringBuilder printEvaluationDetails(EvaluationResult evaluationResult,
+            Annotations completelyIncorrectAnnotations, Annotations missedAnnotations, String targetPath) {
 
         // write evaluation results to file
         StringBuilder results = new StringBuilder();
 
-        results.append("Number of tags: ").append(evaluationResult.getAssignments().size()).append("\n");
+        results.append("Number of distinct tags:; ").append(evaluationResult.getAssignments().size()).append("\n");
+        results.append("Total annotations in test set:; ").append(evaluationResult.getGoldStandardAnnotations().size())
+                .append("\n");
         results.append("Confusion Matrix:\n");
 
         results.append("predicted\\real;");
@@ -587,11 +602,41 @@ public abstract class NamedEntityRecognizer {
                 .append(", overall:");
         results.append(MathHelper.round(evaluationResult.getF1(EvaluationResult.MUC), 4)).append("\n");
 
+        // write all incorrectly tagged and missed entities
+        results.append("\n\nCompletely Incorrect Annotations (total: ").append(completelyIncorrectAnnotations.size())
+                .append("):\n\n");
+        CountMap cm = getAnnotationCountForTag(completelyIncorrectAnnotations);
+        for (Entry<Object, Integer> entry : cm.entrySet()) {
+            results.append(entry.getKey()).append(":; ").append(entry.getValue()).append("\n");
+        }
+        results.append("\n");
+        for (Annotation annotation : completelyIncorrectAnnotations) {
+            results.append("  ").append(annotation).append("\n");
+        }
+
+        results.append("\n\nMissed Annotations (total: ").append(missedAnnotations.size()).append("):\n\n");
+        cm = getAnnotationCountForTag(missedAnnotations);
+        for (Entry<Object, Integer> entry : cm.entrySet()) {
+            results.append(entry.getKey()).append(":; ").append(entry.getValue()).append("\n");
+        }
+        results.append("\n");
+        for (Annotation annotation : missedAnnotations) {
+            results.append("  ").append(annotation).append("\n");
+        }
+
         if (targetPath != null) {
             FileHelper.writeToFile(targetPath, results);
         }
 
         return results;
+    }
+
+    private static CountMap getAnnotationCountForTag(Annotations annotations) {
+        CountMap cm = new CountMap();
+        for (Annotation annotation : annotations) {
+            cm.increment(annotation.getMostLikelyTagName());
+        }
+        return cm;
     }
 
     public void setName(String name) {

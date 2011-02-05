@@ -90,4 +90,14 @@ public class Annotations extends ArrayList<Annotation> {
         this.addAll(evaluationAnnotations);
     }
 
+    @Override
+    public boolean add(Annotation e) {
+        for (Annotation a : this) {
+            if (a.getOffset() == e.getOffset()) {
+                return false;
+            }
+        }
+        return super.add(e);
+    }
+
 }

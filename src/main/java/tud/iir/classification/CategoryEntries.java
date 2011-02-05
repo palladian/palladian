@@ -163,4 +163,13 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
         return hasEntry;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (CategoryEntry ce : this) {
+            sb.append(ce).append("\n");
+        }
+        return sb.toString();
+    }
+
 }

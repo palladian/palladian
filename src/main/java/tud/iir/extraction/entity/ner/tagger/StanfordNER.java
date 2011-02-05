@@ -96,8 +96,6 @@ public class StanfordNER extends NamedEntityRecognizer {
         configFileContent += "useTypeSeqs2=true" + "\n";
         configFileContent += "useTypeySequences=true" + "\n";
         configFileContent += "wordShape=chris2useLC";
-        
-        
     }
 
     public void demo(String inputText) throws IOException {
