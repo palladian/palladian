@@ -734,12 +734,12 @@ public class FeedStatisticCreator {
         for (Feed feed : feedStore.getFeeds()) {
             counter++;
 
-            // if (!isInTempTable(feed)) {
-            // if (LOGGER.isDebugEnabled()) {
-            // LOGGER.debug("not in temptable, that is, not in our time frame...skipping");
-            // }
-            // continue;
-            // }
+            if (!isInTempTable(feed)) {
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("not in temptable, that is, not in our time frame...skipping");
+                }
+                continue;
+            }
 
             String safeFeedName = feed.getId() + "_";
             String historyFilePath = FeedReaderEvaluator.findHistoryFile(safeFeedName);
