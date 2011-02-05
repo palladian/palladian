@@ -33,12 +33,12 @@ public class NERTest {
         // System.out.println(annotations.get(500));
         // System.out.println(annotations.get(annotations.size() - 1));
 
-        Assert.assertEquals(2888, annotations.size());
+        Assert.assertEquals(2153, annotations.size());
         Assert.assertEquals(annotations.get(0).getOffset(), 2);
         Assert.assertEquals(annotations.get(0).getLength(), 72);
 
-        Assert.assertEquals(annotations.get(500).getOffset(), 12885);
-        Assert.assertEquals(annotations.get(500).getLength(), 3);
+        Assert.assertEquals(annotations.get(500).getOffset(), 16258);
+        Assert.assertEquals(annotations.get(500).getLength(), 11);
 
         Assert.assertEquals(annotations.get(annotations.size() - 1).getOffset(), 105072);
         Assert.assertEquals(annotations.get(annotations.size() - 1).getLength(), 5);
