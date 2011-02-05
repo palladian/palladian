@@ -734,12 +734,12 @@ public class FeedStatisticCreator {
         for (Feed feed : feedStore.getFeeds()) {
             counter++;
 
-            if (!isInTempTable(feed)) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("not in temptable, that is, not in our time frame...skipping");
-                }
-                continue;
-            }
+            // if (!isInTempTable(feed)) {
+            // if (LOGGER.isDebugEnabled()) {
+            // LOGGER.debug("not in temptable, that is, not in our time frame...skipping");
+            // }
+            // continue;
+            // }
 
             String safeFeedName = feed.getId() + "_";
             String historyFilePath = FeedReaderEvaluator.findHistoryFile(safeFeedName);
@@ -750,7 +750,7 @@ public class FeedStatisticCreator {
                 continue;
             }
 
-            long stopTime = FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / DateHelper.SECOND_MS;
+            long stopTime = FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
             int numberOfItemsDuringExperiment = 0;
             long newestItemTime = 0;
             long oldestItemTime = 0;
@@ -767,7 +767,7 @@ public class FeedStatisticCreator {
                 }
             }
 
-            long totalTime = (stopTime - oldestItemTime) / DateHelper.MINUTE_MS;
+            long totalTime = stopTime - oldestItemTime;
 
             double realAverageUpdateInterval = MathHelper.round(totalTime
                     / ((double) numberOfItemsDuringExperiment - 1), 2)
