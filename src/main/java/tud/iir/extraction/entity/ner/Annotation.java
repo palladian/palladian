@@ -24,6 +24,12 @@ public class Annotation {
     /** The assigned tags for the entity. */
     private CategoryEntries tags = new CategoryEntries();
 
+    /** The left context of the annotation */
+    private String leftContext = "";
+
+    /** The right context of the annotation */
+    private String rightContext = "";
+
     public Annotation(Annotation annotation) {
         offset = annotation.getOffset();
         length = annotation.getLength();
@@ -111,6 +117,22 @@ public class Annotation {
         return getTags().getMostLikelyCategoryEntry().getCategory().getName();
     }
 
+    public String getLeftContext() {
+        return leftContext;
+    }
+
+    public void setLeftContext(String leftContext) {
+        this.leftContext = leftContext;
+    }
+
+    public String getRightContext() {
+        return rightContext;
+    }
+
+    public void setRightContext(String rightContext) {
+        this.rightContext = rightContext;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -119,11 +141,38 @@ public class Annotation {
         builder.append(", length=");
         builder.append(length);
         builder.append(", entity=");
-        builder.append(entity);
+        builder.append(entity.getName());
         builder.append(", tag=");
         builder.append(getMostLikelyTagName());
         builder.append("]");
         return builder.toString();
+    }
+
+    /**
+     * Try to find which of the given annotation are part of this entity. For example: "New York City and Dresden"
+     * contains two entities that might be in the given annotation set. If so, we return the found annotations.
+     * 
+     * @param annotations The annotations we are searching for in this entity.
+     * @return A set of annotations found in this annotation.
+     */
+    public Annotations unwrapAnnotations(Annotations annotations) {
+        Annotations unwrappedAnnotations = new Annotations();
+
+        String entityName = getEntity().getName().toLowerCase();
+        int length = entityName.length();
+
+        for (Annotation annotation : annotations) {
+            if (annotation.getLength() < length) {
+                int index = entityName.indexOf(" " + annotation.getEntity().getName().toLowerCase() + " ");
+                if (index > -1) {
+                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, annotation.getEntity()
+                            .getName(), annotation.getMostLikelyTagName());
+                    unwrappedAnnotations.add(wrappedAnnotation);
+                }
+            }
+        }
+
+        return unwrappedAnnotations;
     }
 
 }

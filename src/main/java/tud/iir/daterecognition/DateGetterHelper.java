@@ -9,8 +9,6 @@ import java.util.regex.Pattern;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
-import com.ibm.icu.util.Calendar;
-
 import tud.iir.daterecognition.dates.ContentDate;
 import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.helper.HTMLHelper;
@@ -32,7 +30,7 @@ public final class DateGetterHelper {
      * @return The found format, defined in RegExp constants. <br>
      *         If no match is found return <b>null</b>.
      */
-    public static ExtractedDate findDate(final String dateString) {
+    public static ExtractedDate findDate(String dateString) {
 
         return findDate(dateString, null);
     }

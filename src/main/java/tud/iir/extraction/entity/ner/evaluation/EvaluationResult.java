@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import tud.iir.extraction.entity.ner.Annotations;
 import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 import tud.iir.helper.CountMap;
 import tud.iir.helper.MathHelper;
@@ -36,9 +37,13 @@ import tud.iir.helper.MathHelper;
  */
 public class EvaluationResult {
 
-    public EvaluationResult(Map<String, CountMap> assignments) {
+    public EvaluationResult(Map<String, CountMap> assignments, Annotations goldStandardAnnotations) {
         this.assignments = assignments;
+        setGoldStandardAnnotations(goldStandardAnnotations);
     }
+
+    /** The annotations from the gold standard. */
+    private Annotations goldStandardAnnotations;
 
     /**
      * <p>
@@ -250,14 +255,13 @@ public class EvaluationResult {
             if (type == EXACT_MATCH) {
 
                 correctAssignments += cm.get(CORRECT);
-                totalAssignments += cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5)
- + cm.get(CORRECT);
+                totalAssignments += cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5) + cm.get(CORRECT);
 
             } else if (type == MUC) {
 
                 correctAssignments += cm.get(ERROR3) + cm.get(ERROR4) + 2 * cm.get(CORRECT);
-                totalAssignments += cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5) + 2
-                        * cm.get(CORRECT);
+                totalAssignments += 2 * (cm.get(ERROR1) + cm.get(ERROR3) + cm.get(ERROR4) + cm.get(ERROR5) + cm
+                        .get(CORRECT));
 
             }
 
@@ -363,6 +367,14 @@ public class EvaluationResult {
         builder.append(", F1 MUC: ");
         builder.append(MathHelper.round(100 * getF1(MUC), 2)).append("%");
         return builder.toString();
+    }
+
+    public void setGoldStandardAnnotations(Annotations goldStandardAnnotations) {
+        this.goldStandardAnnotations = goldStandardAnnotations;
+    }
+
+    public Annotations getGoldStandardAnnotations() {
+        return goldStandardAnnotations;
     }
 
 }
