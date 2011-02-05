@@ -667,11 +667,11 @@ public class FeedStatisticCreator {
         String sql = "CREATE TABLE tempTableMin AS SELECT DISTINCT a.feedID FROM "
                 + "feed_evaluation2_adaptive_min_time a, feed_evaluation2_fix1440_max_min_time b "
                 + "WHERE a.feedID = b.feedID " + "AND a.pollTimestamp BETWEEN "
-                + (FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND / DateHelper.SECOND_MS) + " AND "
-                + (FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / DateHelper.SECOND_MS)
+                + FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND / DateHelper.SECOND_MS + " AND "
+                + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / DateHelper.SECOND_MS
                 + " AND b.pollTimestamp BETWEEN "
-                + (FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND / DateHelper.SECOND_MS) + " AND "
-                + (FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / DateHelper.SECOND_MS);
+                + FeedReaderEvaluator.BENCHMARK_START_TIME_MILLISECOND / DateHelper.SECOND_MS + " AND "
+                + FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / DateHelper.SECOND_MS;
 
         Logger.getRootLogger().info(sql);
         dbm.runUpdate(sql);
@@ -750,7 +750,8 @@ public class FeedStatisticCreator {
                 continue;
             }
 
-            
+            long stopTime = FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND / DateHelper.SECOND_MS;
+            int numberOfItemsDuringExperiment = 0;
             long newestItemTime = 0;
             long oldestItemTime = 0;
             for (String item : items) {
@@ -759,11 +760,17 @@ public class FeedStatisticCreator {
                     newestItemTime = Long.valueOf(itemParts[0]);
                 }
                 oldestItemTime = Long.valueOf(itemParts[0]);
+
+                // count only items that are in the time frame of our experiment
+                if (Long.valueOf(itemParts[0]) < stopTime) {
+                    numberOfItemsDuringExperiment++;
+                }
             }
 
-            long totalTime = (newestItemTime - oldestItemTime) / DateHelper.MINUTE_MS;
+            long totalTime = (stopTime - oldestItemTime) / DateHelper.MINUTE_MS;
 
-            double realAverageUpdateInterval = MathHelper.round(totalTime / ((double) items.size() - 1), 2)
+            double realAverageUpdateInterval = MathHelper.round(totalTime
+                    / ((double) numberOfItemsDuringExperiment - 1), 2)
                     / DateHelper.MINUTE_MS;
 
 
