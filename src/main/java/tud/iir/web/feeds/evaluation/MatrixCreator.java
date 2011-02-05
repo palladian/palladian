@@ -92,11 +92,13 @@ public final class MatrixCreator {
 	    FileNotFoundException, IOException {
 	CSVTableReader csvReader = new CSVTableReader();
 	Table table = null;
+        String cellSeperator = ",";
 	if (args.length == 3) {
+            cellSeperator = args[2];
 	    FileInputStream inputStream = new FileInputStream(args[0]);
 	    String input = IOUtils.toString(inputStream);
 	    inputStream.close();
-	    String cleanedInput = input.replace(args[2], ",");
+            String cleanedInput = input.replace(cellSeperator, ",");
 
 	    LOGGER.info(cleanedInput);
 	    ByteArrayInputStream cleanedInputStream = new ByteArrayInputStream(
@@ -133,7 +135,7 @@ public final class MatrixCreator {
 
 	StringBuffer output = new StringBuffer();
 	for (int i = 0; i < matrix.getColumnCount(); i++) {
-	    output.append("," + (i + 1));
+            output.append(cellSeperator + (i + 1));
 	}
 	output.append("\n");
 
@@ -141,7 +143,7 @@ public final class MatrixCreator {
 	    output.append(j + 1);
 	    for (int k = 0; k < matrix.getColumnCount(); k++) {
 		Object value = matrix.get(j, k);
-		output.append("," + value);
+                output.append(cellSeperator + value);
 	    }
 	    output.append("\n");
 	}
