@@ -9,10 +9,9 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.helper.StopWatch;
 import tud.iir.persistence.DatabaseManager;
-import tud.iir.persistence.ResultSetCallback;
 import tud.iir.persistence.ResultIterator;
+import tud.iir.persistence.ResultSetCallback;
 import tud.iir.persistence.RowConverter;
 import tud.iir.web.feeds.Feed;
 import tud.iir.web.feeds.FeedItem;
@@ -114,11 +113,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     public Map<Integer, int[]> getFeedPostDistribution(Feed feed) {
-        
+
         final Map<Integer, int[]> postDistribution = new HashMap<Integer, int[]>();
-        
+
         ResultSetCallback callback = new ResultSetCallback() {
-            
+
             @Override
             public void processResult(ResultSet resultSet, int number) throws SQLException {
                 int minuteOfDay = resultSet.getInt("minuteOfDay");
@@ -128,7 +127,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
                 postDistribution.put(minuteOfDay, postsChances);
             }
         };
-        
+
         runQuery(callback, psGetFeedPostDistribution, feed.getId());
         return postDistribution;
     }
@@ -266,56 +265,6 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         runUpdate("TRUNCATE TABLE feed_items");
         runUpdate("TRUNCATE TABLE feeds_post_distribution");
         runUpdate("TRUNCATE TABLE feed_evaluation_polls");
-    }
-
-    public static void main(String[] args) {
-        
-        new FeedDatabase().clearFeedTables();
-        System.exit(0);
-        
-
-        // clear feed specfic tables
-        // FeedDatabase.getInstance().clearFeedTables();
-        // System.exit(0);
-
-        StopWatch sw = new StopWatch();
-        FeedDatabase fd = new FeedDatabase();
-        System.out.println(sw.getElapsedTimeString());
-        
-        
-//        List<Feed> feeds = fd.getFeeds();
-//        CollectionHelper.print(feeds);
-        
-        ResultIterator<FeedItem> feedItems = fd.getFeedItems();
-        System.out.println(feedItems);
-        while (feedItems.hasNext()) {
-            feedItems.next();
-        }
-        
-        
-        // List<FeedEntry> result = fd.getFeedEntries(100, -1);
-        // for (FeedEntry feedEntry : result) {
-        // System.out.println(feedEntry);
-        // }
-        // System.out.println(result.size());
-
-        // Iterator<FeedItem> iterator = fd.getFeedItems();
-        System.out.println(sw.getElapsedTimeString());
-
-//        int counter = 0;
-//        while (iterator.hasNext()) {
-//            System.out.println(iterator.next());
-//            counter++;
-//        }
-//        System.out.println(counter);
-//        System.out.println(sw.getElapsedTimeString());
-
-        System.exit(0);
-        // FeedItem dummy = new FeedItem();
-        // dummy.setId(123);
-        // List<Tag> tags = fd.getTags(dummy);
-        // System.out.println(tags);
-
     }
 
 }
