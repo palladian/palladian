@@ -114,7 +114,6 @@
    <rule ref="rulesets/j2ee.xml/StaticEJBFieldShouldBeFinal"/>
    <rule ref="rulesets/j2ee.xml/DoNotUseThreads"/>
    <rule ref="rulesets/optimizations.xml/LocalVariableCouldBeFinal"/>
-   <rule ref="rulesets/optimizations.xml/MethodArgumentCouldBeFinal"/>
    <rule ref="rulesets/optimizations.xml/AvoidInstantiatingObjectsInLoops"/>
    <rule ref="rulesets/optimizations.xml/UseArrayListInsteadOfVector"/>
    <rule ref="rulesets/optimizations.xml/SimplifyStartsWith"/>
