@@ -476,8 +476,9 @@ public class FeedDownloader {
 
         Date publishDate = syndEntry.getPublishedDate();
 
-        // ROME library failed to get the date, use DateGetter
-        // FIXME there are still some entries without date (David: why? does rome not get some date formats?)
+        // ROME library failed to get the date, use DateGetter, which allows to parse more date formats.
+        // There are still some feeds with entries where the publish date cannot be parsed though,
+        // see FeedDownloaderTest for a list of test cases.
         if (publishDate == null && useDateRecognition) {
 
             Node node = item.getNode();
