@@ -30,7 +30,7 @@ import com.aliasi.util.Strings;
 
 /**
  * Expects to chunk 1 sentence at a time. Needs lingPipe pos-tag model.
- *
+ * 
  * @author Martin Wunderwald
  */
 public class LingPipePhraseChunker extends AbstractPhraseChunker {
@@ -63,8 +63,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
     // ', ``, '', ., (, ), *, --, :, ,
 
     /** the logger for this class */
-    private static final Logger LOGGER = Logger
-            .getLogger(LingPipePhraseChunker.class);
+    private static final Logger LOGGER = Logger.getLogger(LingPipePhraseChunker.class);
 
     private static final Set<String> DETERMINER_TAGS = new HashSet<String>();
     private static final Set<String> ADJECTIVE_TAGS = new HashSet<String>();
@@ -188,7 +187,7 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     }
 
-    private final String MODEL;
+    private final transient String MODEL;
 
     /**
      * constructor
@@ -200,68 +199,41 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
         config = ConfigHolder.getInstance().getConfig();
 
-        if (config != null) {
-            MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
-        } else {
+        if (config == null) {
             MODEL = "";
+        } else {
+            MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
         }
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see
-     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
-     */
-    @Override
-    public LingPipePhraseChunker chunk(String sentence) {
-        final char[] cs = Strings.toCharArray(sentence);
-        final Chunking chunking = this.chunk(cs, 0, cs.length);
-        final TagAnnotations tagAnnotations = new TagAnnotations();
-        for (final Chunk chunk : chunking.chunkSet()) {
-            final TagAnnotation tagAnnotation = new TagAnnotation(
-                    chunk.start(), chunk.type(), sentence.substring(chunk
-                            .start(), chunk.end()));
-            tagAnnotations.add(tagAnnotation);
-        }
-
-        setTagAnnotations(tagAnnotations);
-        return this;
     }
 
     /**
      * The internal chunking method.
-     *
-     * @param cs
+     * 
+     * @param characters
      * @param start
      * @param end
      * @return
      */
-    private Chunking chunk(char[] cs, int start, int end) {
+    private Chunking chunk(char[] characters, int start, int end) {
 
         // tokenize
         final List<String> tokenList = new ArrayList<String>();
         final List<String> whiteList = new ArrayList<String>();
         final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
-        final Tokenizer tokenizer = tokenizerFactory.tokenizer(cs, start, end
-                - start);
+        final Tokenizer tokenizer = tokenizerFactory.tokenizer(characters, start, end - start);
         tokenizer.tokenize(tokenList, whiteList);
-        final String[] tokens = tokenList.<String> toArray(new String[tokenList
-                .size()]);
-        final String[] whites = whiteList.<String> toArray(new String[whiteList
-                .size()]);
+        final String[] tokens = tokenList.<String> toArray(new String[tokenList.size()]);
+        final String[] whites = whiteList.<String> toArray(new String[whiteList.size()]);
 
         // part-of-speech tag
         final int cacheSize = Integer.valueOf(100);
-        final FastCache<String, double[]> cache = new FastCache<String, double[]>(
-                cacheSize);
+        final FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);
 
-        final HmmDecoder posTagger = new HmmDecoder(
-                (HiddenMarkovModel) getModel(), null, cache);
+        final HmmDecoder posTagger = new HmmDecoder((HiddenMarkovModel) getModel(), null, cache);
 
         final Tagging<String> tagging = posTagger.tag(tokenList);
 
-        final ChunkingImpl chunking = new ChunkingImpl(cs, start, end);
+        final ChunkingImpl chunking = new ChunkingImpl(characters, start, end);
         int startChunk = 0;
         for (int i = 0; i < tagging.size();) {
 
@@ -270,46 +242,40 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
                 int endChunk = startChunk + tokens[i].length();
                 ++i;
-                while (i < tokens.length
-                        && CONTINUE_NOUN_TAGS.contains(tagging.tag(i))) {
+                while (i < tokens.length && CONTINUE_NOUN_TAGS.contains(tagging.tag(i))) {
                     endChunk += whites[i].length() + tokens[i].length();
                     ++i;
                 }
                 // this separation allows internal punctuation, but not final
                 // punctuation
                 int trimmedEndChunk = endChunk;
-                for (int k = i; --k >= 0
-                        && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
+                for (int k = i; --k >= 0 && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
                     trimmedEndChunk -= whites[k].length() + tokens[k].length();
                 }
                 if (startChunk >= trimmedEndChunk) {
                     startChunk = endChunk;
                     continue;
                 }
-                final Chunk chunk = ChunkFactory.createChunk(startChunk,
-                        trimmedEndChunk, "NP");
+                final Chunk chunk = ChunkFactory.createChunk(startChunk, trimmedEndChunk, "NP");
                 chunking.add(chunk);
                 startChunk = endChunk;
 
             } else if (START_VERB_TAGS.contains(tagging.tag(i))) {
                 int endChunk = startChunk + tokens[i].length();
                 ++i;
-                while (i < tokens.length
-                        && CONTINUE_VERB_TAGS.contains(tagging.tag(i))) {
+                while (i < tokens.length && CONTINUE_VERB_TAGS.contains(tagging.tag(i))) {
                     endChunk += whites[i].length() + tokens[i].length();
                     ++i;
                 }
                 int trimmedEndChunk = endChunk;
-                for (int k = i; --k >= 0
-                        && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
+                for (int k = i; --k >= 0 && PUNCTUATION_TAGS.contains(tagging.tag(k));) {
                     trimmedEndChunk -= whites[k].length() + tokens[k].length();
                 }
                 if (startChunk >= trimmedEndChunk) {
                     startChunk = endChunk;
                     continue;
                 }
-                final Chunk chunk = ChunkFactory.createChunk(startChunk,
-                        trimmedEndChunk, "VP");
+                final Chunk chunk = ChunkFactory.createChunk(startChunk, trimmedEndChunk, "VP");
                 chunking.add(chunk);
                 startChunk = endChunk;
 
@@ -323,53 +289,73 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
 
     /*
      * (non-Javadoc)
-     * 
+     * @see
+     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
+     */
+    @Override
+    public LingPipePhraseChunker chunk(String sentence) {
+        final char[] characters = Strings.toCharArray(sentence);
+        final Chunking chunking = this.chunk(characters, 0, characters.length);
+        final TagAnnotations tagAnnotations = new TagAnnotations();
+        for (final Chunk chunk : chunking.chunkSet()) {
+            final TagAnnotation tagAnnotation = new TagAnnotation(chunk.start(), chunk.type(), sentence.substring(chunk
+                    .start(), chunk.end()));
+            tagAnnotations.add(tagAnnotation);
+        }
+
+        setTagAnnotations(tagAnnotations);
+        return this;
+    }
+
+    /*
+     * (non-Javadoc)
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
      * java.lang.String)
      */
     @Override
-    public final LingPipePhraseChunker chunk(final String sentence,
-            final String configModelFilePath) {
-        loadModel(configModelFilePath);
+    public final LingPipePhraseChunker chunk(final String sentence, final String modelFilePath) {
+        loadModel(modelFilePath);
         return this.chunk(sentence);
 
     }
 
     /*
      * (non-Javadoc)
-     * 
+     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
+     */
+    @Override
+    public final LingPipePhraseChunker loadDefaultModel() {
+        return loadModel(MODEL);
+    }
+
+    /*
+     * (non-Javadoc)
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
      * )
      */
     @Override
-    public final LingPipePhraseChunker loadModel(
-            final String configModelFilePath) {
+    public final LingPipePhraseChunker loadModel(final String modelFilePath) {
 
-        ObjectInputStream oi = null;
+        ObjectInputStream inputStream = null;
 
         try {
 
             HiddenMarkovModel hmm;
 
-            if (DataHolder.getInstance()
-                    .containsDataObject(configModelFilePath)) {
-                hmm = (HiddenMarkovModel) DataHolder.getInstance()
-                        .getDataObject(configModelFilePath);
+            if (DataHolder.getInstance().containsDataObject(modelFilePath)) {
+                hmm = (HiddenMarkovModel) DataHolder.getInstance().getDataObject(modelFilePath);
             } else {
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
 
-                oi = new ObjectInputStream(new FileInputStream(
-                        configModelFilePath));
-                hmm = (HiddenMarkovModel) oi.readObject();
-                DataHolder.getInstance()
-                        .putDataObject(configModelFilePath, hmm);
+                inputStream = new ObjectInputStream(new FileInputStream(modelFilePath));
+                hmm = (HiddenMarkovModel) inputStream.readObject();
+                DataHolder.getInstance().putDataObject(modelFilePath, hmm);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + getName() + " from file "
-                        + configModelFilePath + " in "
+                LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
 
             }
@@ -383,9 +369,9 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
             LOGGER.error("Class error: " + ce.getMessage());
 
         } finally {
-            if (oi != null) {
+            if (inputStream != null) {
                 try {
-                    oi.close();
+                    inputStream.close();
                 } catch (final IOException ie) {
                     LOGGER.error(ie.getMessage());
                 }
@@ -393,16 +379,6 @@ public class LingPipePhraseChunker extends AbstractPhraseChunker {
         }
         return this;
 
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
-     */
-    @Override
-    public final LingPipePhraseChunker loadDefaultModel() {
-        return loadModel(MODEL);
     }
 
 }

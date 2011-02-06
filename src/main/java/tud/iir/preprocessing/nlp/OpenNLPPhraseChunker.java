@@ -16,7 +16,7 @@ import tud.iir.helper.StopWatch;
 public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
     /** The model path. **/
-    private final String MODEL;
+    private final transient String MODEL;
 
     /**
      * Constructor.
@@ -28,72 +28,15 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
 
         config = ConfigHolder.getInstance().getConfig();
 
-        if (config != null) {
-            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.chunker");
-        } else {
+        if (config == null) {
             MODEL = "";
+        } else {
+            MODEL = config.getString("models.root") + config.getString("models.opennlp.en.chunker");
         }
-    }
-
-    /**
-     * Chunks a sentence into annotations by a given list of tokens and postags.
-     *
-     * @param sentence
-     * @param tokenList
-     * @param posList
-     */
-    public OpenNLPPhraseChunker chunk(final String sentence,
-            List<String> tokenList, List<String> posList) {
-
-        final List<String> chunkList = ((ChunkerME) getModel()).chunk(
-                tokenList, posList);
-
-        String tag = "";
-        String token = "";
-
-        final TagAnnotations tagAnnotations = new TagAnnotations();
-
-        // joining Tags
-        for (int i = 0; i < chunkList.size(); i++) {
-
-            if (chunkList.get(i).contains("B-")) {
-                tag = chunkList.get(i).substring(2);
-                token = tokenList.get(i);
-
-            } else if (chunkList.get(i).contains("I-")) {
-                token += " " + tokenList.get(i);
-                tag = chunkList.get(i).substring(2);
-
-            }
-            if (i + 1 < chunkList.size() && chunkList.get(i + 1).contains(
-                    "B-")
-                    || i == chunkList.size() - 1) {
-
-                tagAnnotations.add(new TagAnnotation(sentence.indexOf(token),
-                        tag, token));
-            }
-        }
-        setTagAnnotations(tagAnnotations);
-        return this;
     }
 
     /*
      * (non-Javadoc)
-     * 
-     * @see
-     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
-     * java.lang.String)
-     */
-    @Override
-    public final OpenNLPPhraseChunker chunk(String sentence,
-            String configModelFilePath) {
-        loadModel(configModelFilePath);
-        return this.chunk(sentence);
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String)
      */
@@ -103,41 +46,92 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
         final OpenNLPPOSTagger tagger = new OpenNLPPOSTagger();
         tagger.loadDefaultModel().tag(sentence);
 
-        return chunk(sentence, tagger.getTagAnnotations().getTokenList(),
-                tagger.getTagAnnotations().getTagList());
+        return chunk(sentence, tagger.getTagAnnotations().getTokenList(), tagger.getTagAnnotations().getTagList());
 
+    }
+
+    /**
+     * Chunks a sentence into annotations by a given list of tokens and postags.
+     * 
+     * @param sentence
+     * @param tokenList
+     * @param posList
+     */
+    public OpenNLPPhraseChunker chunk(final String sentence, List<String> tokenList, List<String> posList) {
+
+        final List<String> chunkList = ((ChunkerME) getModel()).chunk(tokenList, posList);
+
+        String tag = "";
+        final StringBuffer token = new StringBuffer();
+
+        final TagAnnotations tagAnnotations = new TagAnnotations();
+
+        // joining Tags
+        for (int i = 0; i < chunkList.size(); i++) {
+
+            if (chunkList.get(i).contains("B-")) {
+                tag = chunkList.get(i).substring(2);
+                token.replace(0, token.length(), tokenList.get(i));
+
+            } else if (chunkList.get(i).contains("I-")) {
+                token.append(' ').append(tokenList.get(i));
+                tag = chunkList.get(i).substring(2);
+
+            }
+            if (i + 1 < chunkList.size() && chunkList.get(i + 1).contains("B-") || i == chunkList.size() - 1) {
+
+                tagAnnotations.add(new TagAnnotation(sentence.indexOf(token.toString()), tag, token.toString()));
+            }
+        }
+        setTagAnnotations(tagAnnotations);
+        return this;
     }
 
     /*
      * (non-Javadoc)
-     * 
+     * @see
+     * tud.iir.extraction.event.AbstractPhraseChunker#chunk(java.lang.String,
+     * java.lang.String)
+     */
+    @Override
+    public final OpenNLPPhraseChunker chunk(String sentence, String modelFilePath) {
+        loadModel(modelFilePath);
+        return this.chunk(sentence);
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
+     */
+    @Override
+    public final OpenNLPPhraseChunker loadDefaultModel() {
+        return loadModel(MODEL);
+    }
+
+    /*
+     * (non-Javadoc)
      * @see
      * tud.iir.extraction.event.AbstractPhraseChunker#loadModel(java.lang.String
      * )
      */
     @Override
-    public final OpenNLPPhraseChunker loadModel(String configModelFilePath) {
+    public final OpenNLPPhraseChunker loadModel(String modelFilePath) {
         try {
 
             ChunkerME tbc = null;
-            if (DataHolder.getInstance()
-                    .containsDataObject(configModelFilePath)) {
+            if (DataHolder.getInstance().containsDataObject(modelFilePath)) {
 
-                tbc = (ChunkerME) DataHolder.getInstance().getDataObject(
-                        configModelFilePath);
+                tbc = (ChunkerME) DataHolder.getInstance().getDataObject(modelFilePath);
 
             } else {
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
 
-                tbc = new ChunkerME(new ChunkerModel(new FileInputStream(
-                        configModelFilePath)));
-                DataHolder.getInstance()
-                        .putDataObject(configModelFilePath, tbc);
+                tbc = new ChunkerME(new ChunkerModel(new FileInputStream(modelFilePath)));
+                DataHolder.getInstance().putDataObject(modelFilePath, tbc);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + getName() + " from file "
-                        + configModelFilePath + " in "
+                LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
             }
 
@@ -148,16 +142,6 @@ public class OpenNLPPhraseChunker extends AbstractPhraseChunker {
         }
 
         return this;
-    }
-
-    /*
-     * (non-Javadoc)
-     * 
-     * @see tud.iir.extraction.event.AbstractPhraseChunker#loadModel()
-     */
-    @Override
-    public final OpenNLPPhraseChunker loadDefaultModel() {
-        return loadModel(MODEL);
     }
 
 }

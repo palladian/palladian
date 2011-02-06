@@ -27,11 +27,10 @@ import com.aliasi.util.FastCache;
 public class LingPipePOSTagger extends AbstractPOSTagger {
 
     /** the logger for this class. */
-    private static final Logger LOGGER = Logger
-            .getLogger(LingPipePOSTagger.class);
+    private static final Logger LOGGER = Logger.getLogger(LingPipePOSTagger.class);
 
     /** the model. **/
-    private final String MODEL;
+    private final transient String MODEL;
 
     /**
      * Constructor.
@@ -43,10 +42,10 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
 
         config = ConfigHolder.getInstance().getConfig();
 
-        if (config != null) {
-            MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
-        } else {
+        if (config == null) {
             MODEL = "";
+        } else {
+            MODEL = config.getString("models.root") + config.getString("models.lingpipe.en.postag");
         }
     }
 
@@ -65,31 +64,26 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
      * tud.iir.extraction.event.AbstractPOSTagger#loadModel(java.lang.String)
      */
     @Override
-    public LingPipePOSTagger loadModel(final String configModelFilePath) {
+    public LingPipePOSTagger loadModel(final String modelFilePath) {
 
-        ObjectInputStream oi = null;
+        ObjectInputStream inputStream = null;
 
         try {
             HiddenMarkovModel hmm = null;
 
-            if (DataHolder.getInstance()
-                    .containsDataObject(configModelFilePath)) {
-                hmm = (HiddenMarkovModel) DataHolder.getInstance()
-                        .getDataObject(configModelFilePath);
+            if (DataHolder.getInstance().containsDataObject(modelFilePath)) {
+                hmm = (HiddenMarkovModel) DataHolder.getInstance().getDataObject(modelFilePath);
             } else {
 
                 final StopWatch stopWatch = new StopWatch();
                 stopWatch.start();
 
-                oi = new ObjectInputStream(new FileInputStream(
-                        configModelFilePath));
-                hmm = (HiddenMarkovModel) oi.readObject();
-                DataHolder.getInstance()
-                        .putDataObject(configModelFilePath, hmm);
+                inputStream = new ObjectInputStream(new FileInputStream(modelFilePath));
+                hmm = (HiddenMarkovModel) inputStream.readObject();
+                DataHolder.getInstance().putDataObject(modelFilePath, hmm);
 
                 stopWatch.stop();
-                LOGGER.info("Reading " + getName() + " from file "
-                        + configModelFilePath + " in "
+                LOGGER.info("Reading " + getName() + " from file " + modelFilePath + " in "
                         + stopWatch.getElapsedTimeString());
             }
 
@@ -102,9 +96,9 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
             LOGGER.error("Class error: " + ce.getMessage());
 
         } finally {
-            if (oi != null) {
+            if (inputStream != null) {
                 try {
-                    oi.close();
+                    inputStream.close();
                 } catch (final IOException ie) {
                     LOGGER.error(ie.getMessage());
                 }
@@ -121,28 +115,24 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
     public LingPipePOSTagger tag(final String sentence) {
 
         final int cacheSize = Integer.valueOf(100);
-        final FastCache<String, double[]> cache = new FastCache<String, double[]>(
-                cacheSize);
+        final FastCache<String, double[]> cache = new FastCache<String, double[]>(cacheSize);
 
         // read HMM for pos tagging
 
         // construct chunker
-        final HmmDecoder posTagger = new HmmDecoder(
-                (HiddenMarkovModel) getModel(), null, cache);
+        final HmmDecoder posTagger = new HmmDecoder((HiddenMarkovModel) getModel(), null, cache);
         final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
 
         // apply pos tagger
-        final String[] tokens = tokenizerFactory.tokenizer(
-                sentence.toCharArray(), 0, sentence.length()).tokenize();
+        final String[] tokens = tokenizerFactory.tokenizer(sentence.toCharArray(), 0, sentence.length()).tokenize();
         final List<String> tokenList = Arrays.asList(tokens);
         final Tagging<String> tagging = posTagger.tag(tokenList);
 
         final TagAnnotations tagAnnotations = new TagAnnotations();
         for (int i = 0; i < tagging.size(); i++) {
 
-            final TagAnnotation tagAnnotation = new TagAnnotation(sentence
-                    .indexOf(tagging.token(i)), tagging.tag(i).toUpperCase(
-                    new Locale("en")), tagging.token(i));
+            final TagAnnotation tagAnnotation = new TagAnnotation(sentence.indexOf(tagging.token(i)), tagging.tag(i)
+                    .toUpperCase(new Locale("en")), tagging.token(i));
             tagAnnotations.add(tagAnnotation);
 
         }
@@ -156,8 +146,8 @@ public class LingPipePOSTagger extends AbstractPOSTagger {
      * java.lang.String)
      */
     @Override
-    public LingPipePOSTagger tag(String sentence, String configModelFilePath) {
-        return this.loadModel(configModelFilePath).tag(sentence);
+    public LingPipePOSTagger tag(String sentence, String modelFilePath) {
+        return this.loadModel(modelFilePath).tag(sentence);
     }
 
 }

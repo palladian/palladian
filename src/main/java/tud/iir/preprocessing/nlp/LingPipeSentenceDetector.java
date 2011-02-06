@@ -62,7 +62,7 @@ public class LingPipeSentenceDetector extends AbstractSentenceDetector {
      * .String)
      */
     @Override
-    public LingPipeSentenceDetector loadModel(final String configModelFilePath) {
+    public LingPipeSentenceDetector loadModel(final String modelFilePath) {
         final TokenizerFactory tokenizerFactory = IndoEuropeanTokenizerFactory.INSTANCE;
         final SentenceModel sentenceModel = new IndoEuropeanSentenceModel();
 
