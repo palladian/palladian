@@ -1,0 +1,12 @@
+We're currently in the Blueprint phase for our CRM implementation.<br />
+<br />
+We're deciding how to handle Leads: in our business, we don't always know at the time of lead creation if the lead will be worked by a channel partner (distributor) or by an internal employee.<br />
+<br />
+Because of this, we're leaning toward creating all leads as the <b>Lead Channel Partner</b> transaction.<br />
+<br />
+If the lead is worked by an internal employee, we'd never fill in the <b>Employee Resp. at Ch. Partner</b> field.<br />
+<br />
+Any thoughts on potential downsides to this approach?<br />
+<br />
+Thank you,<br />
+-Matt
