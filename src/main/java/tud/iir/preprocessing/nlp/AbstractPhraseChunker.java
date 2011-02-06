@@ -12,105 +12,8 @@ import tud.iir.helper.StopWatch;
  */
 public abstract class AbstractPhraseChunker {
 
-    /** The logger for this class. */
-    protected static final Logger LOGGER = Logger
-            .getLogger(AbstractPhraseChunker.class);
-
-    /** Holds the model. **/
-    private Object model = null;
-
-    /** Holds the name of the chunker. **/
-    private String name = null;
-
-    /** holds the tag Annotations. **/
-    private TagAnnotations tagAnnotations;
-
-    /**
-     * Loads the chunker model into the chunker. Method returns
-     * <code>this</code> instance of AbstractPhraseChunker, to allow convenient
-     * concatenations of method invocations, like:
-     * <code>new OpenNLPPhraseChunker().loadDefaultModel().chunk(...).getTagAnnotations();</code>
-     *
-     * @param configModelFilePath
-     * @return phraseChunker
-     */
-    public abstract AbstractPhraseChunker loadModel(String configModelFilePath);
-
-    /**
-     * Loads the default chunker model into the chunker.
-     *
-     * @return phraseChunker
-     */
-    public abstract AbstractPhraseChunker loadDefaultModel();
-
-    /**
-     * Chunks a sentence and writes parts in @see {@link #chunks} and @see
-     * {@link #tokens}.
-     *
-     * @param sentence
-     */
-    public abstract AbstractPhraseChunker chunk(String sentence);
-
-    /**
-     * Chunks a senntence with given model file path and writes it into @see
-     * {@link #chunks} and @see {@link #tokens}.
-     *
-     * @param sentence
-     * @param configModelFilePath
-     */
-    public abstract AbstractPhraseChunker chunk(String sentence,
-            String configModelFilePath);
-
-    /**
-     * Getter for the Chunker Model.
-     *
-     * @return
-     */
-    public final Object getModel() {
-        return model;
-    }
-
-    /**
-     * Setter for the chunker model.
-     *
-     * @param model
-     */
-    public final void setModel(Object model) {
-        this.model = model;
-    }
-
-    /**
-     * Getter for the name.
-     *
-     * @return
-     */
-    public final String getName() {
-        return name;
-    }
-
-    /**
-     * Setter for name.
-     *
-     * @param name
-     */
-    public final void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return the tagAnnotations
-     */
-    public final TagAnnotations getTagAnnotations() {
-        return tagAnnotations;
-    }
-
-    /**
-     * @param tagAnnotations
-     *            the tagAnnotations to set
-     */
-    public final void setTagAnnotations(TagAnnotations tagAnnotations) {
-        this.tagAnnotations = tagAnnotations;
-    }
+    /** The logger for this class. Configure it using log4j.properties in <tt>src/main/resources</tt> */
+    protected static final Logger LOGGER = Logger.getLogger(AbstractPhraseChunker.class);
 
     /**
      * @param args
@@ -129,6 +32,102 @@ public abstract class AbstractPhraseChunker {
         stopWatch.stop();
         LOGGER.info("time elapsed: " + stopWatch.getElapsedTimeString());
 
+    }
+
+    /** Holds the model. **/
+    private Object model = null;
+
+    /** Holds the name of the chunker. **/
+    private String name = null;
+
+    /** holds the tag Annotations. **/
+    private TagAnnotations tagAnnotations;
+
+    /**
+     * Chunks a sentence and writes parts in @see {@link #chunks} and @see {@link #tokens}.
+     * 
+     * @param sentence
+     */
+    public abstract AbstractPhraseChunker chunk(String sentence);
+
+    /**
+     * <p>
+     * Chunks a sentence with given model file path and writes it into a {@link TagAnnotation}.
+     * </p>
+     * 
+     * @param sentence The sentence to split.
+     * @param configModelFilePath Path to a model trained for sentence chunking.
+     * @see TagAnnotation
+     */
+    public abstract AbstractPhraseChunker chunk(String sentence, String modelFilePath);
+
+    /**
+     * Getter for the Chunker Model.
+     * 
+     * @return
+     */
+    public final Object getModel() {
+        return model;
+    }
+
+    /**
+     * Getter for the name.
+     * 
+     * @return
+     */
+    public final String getName() {
+        return name;
+    }
+
+    /**
+     * @return the tagAnnotations
+     */
+    public final TagAnnotations getTagAnnotations() {
+        return tagAnnotations;
+    }
+
+    /**
+     * Loads the default chunker model into the chunker.
+     * 
+     * @return phraseChunker
+     */
+    public abstract AbstractPhraseChunker loadDefaultModel();
+
+    /**
+     * Loads the chunker model into the chunker. Method returns <code>this</code> instance of AbstractPhraseChunker, to
+     * allow convenient
+     * concatenations of method invocations, like:
+     * <code>new OpenNLPPhraseChunker().loadDefaultModel().chunk(...).getTagAnnotations();</code>
+     * 
+     * @param configModelFilePath
+     * @return phraseChunker
+     */
+    public abstract AbstractPhraseChunker loadModel(String configModelFilePath);
+
+    /**
+     * Setter for the chunker model.
+     * 
+     * @param model
+     */
+    public final void setModel(Object model) {
+        this.model = model;
+    }
+
+    /**
+     * Setter for name.
+     * 
+     * @param name
+     */
+    public final void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * @param tagAnnotations
+     *            the tagAnnotations to set
+     */
+    public final void setTagAnnotations(TagAnnotations tagAnnotations) {
+        this.tagAnnotations = tagAnnotations;
     }
 
 }
