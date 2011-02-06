@@ -729,14 +729,17 @@ public class FeedStatisticCreator {
         // create the file we want to write to
         FileWriter csv = new FileWriter(statisticOutputPath);
 
-        int counter = 0;
+        // create header
+        csv.write("feedID;realUpdateInterval;realItemInterval;Fix 1d;Fix 1h;Fix Learned;Post Rate;MAV;\n");
+
+        int feedCounter = 0;
         int totalSize = feedStore.getFeeds().size();
         for (Feed feed : feedStore.getFeeds()) {
-            counter++;
+            feedCounter++;
 
             if (!isInTempTable(feed)) {
-                if (LOGGER.isDebugEnabled()) {
-                    LOGGER.debug("not in temptable, that is, not in our time frame...skipping");
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("not in temptable, that is, not in our time frame...skipping");
                 }
                 continue;
             }
@@ -751,34 +754,58 @@ public class FeedStatisticCreator {
             }
 
             long stopTime = FeedReaderEvaluator.BENCHMARK_STOP_TIME_MILLISECOND;
-            int numberOfItemsDuringExperiment = 0;
-            long newestItemTime = 0;
+            int numberOfUpdatesDuringExperiment = 0;
+            // long newestItemTime = 0;
             long oldestItemTime = 0;
+            long itemTimeLastStep = 0;
+            int numberOfItemsDuringExperiment = 0;
             for (String item : items) {
                 String[] itemParts = item.split(";");
-                if (newestItemTime == 0) {
-                    newestItemTime = Long.valueOf(itemParts[0]);
-                }
+                // if (newestItemTime == 0) {
+                // newestItemTime = Long.valueOf(itemParts[0]);
+                // }
                 oldestItemTime = Long.valueOf(itemParts[0]);
+
+                // skip items with same timestamp to count updates
+                if (oldestItemTime == itemTimeLastStep) {
+                    // LOGGER.info("Feed " + feed.getId() + " skip item with timestamp " + oldestItemTime);
+                    numberOfItemsDuringExperiment++;
+                    continue;
+                }
 
                 // count only items that are in the time frame of our experiment
                 if (Long.valueOf(itemParts[0]) < stopTime) {
+                    numberOfUpdatesDuringExperiment++;
                     numberOfItemsDuringExperiment++;
                 }
+                itemTimeLastStep = oldestItemTime;
             }
 
             long totalTime = stopTime - oldestItemTime;
 
-            double realAverageUpdateInterval = MathHelper.round(totalTime
-                    / ((double) numberOfItemsDuringExperiment - 1), 2)
+            if (LOGGER.isTraceEnabled()) {
+                LOGGER.trace("feedID " + feed.getId() + "totalTime: " + totalTime + ", stopTime: " + stopTime
+                        + ", oldestItemTime: " + oldestItemTime + ", numberOfUpdatesDuringExperiment: "
+                        + numberOfUpdatesDuringExperiment + ", numberOfItemsDuringExperiment: "
+                        + numberOfItemsDuringExperiment);
+            }
+
+            double realAverageUpdateInterval = MathHelper.round(
+                    (totalTime / ((double) numberOfUpdatesDuringExperiment - 1)), 2)
+                    / DateHelper.MINUTE_MS;
+            
+            double realAverageItemInterval = MathHelper.round(
+                    (totalTime / ((double) numberOfItemsDuringExperiment - 1)), 2)
                     / DateHelper.MINUTE_MS;
 
 
             // limit feeds to a maximum real average update interval of 31 days = 44640 minutes
             if (realAverageUpdateInterval > 44640) {
-                LOGGER.warn("feed had real update interval of "
-                        + DateHelper.getRuntime(0L, (long) realAverageUpdateInterval)
-                        + ", that is too few updates, we should skip, but don't :)");
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("feed had real update interval of "
+                            + DateHelper.getRuntime(0L, (long) realAverageUpdateInterval)
+                            + ", that is too few updates, we should skip, but don't :)");
+                }
                 // continue;
             }
 
@@ -786,6 +813,7 @@ public class FeedStatisticCreator {
 
             temp.append(String.valueOf(feed.getId() + ";"));
             temp.append(String.valueOf(realAverageUpdateInterval) + ";");
+            temp.append(String.valueOf(realAverageItemInterval) + ";");
 
             // get the number of polls for the feed from the database for the update strategies
             temp.append("1440;");
@@ -794,8 +822,10 @@ public class FeedStatisticCreator {
             String sql = psFixLearned.replace("?", String.valueOf(feed.getId()));
             double updateInterval = getUpdateInterval(sql);
             if (updateInterval < 1) {
-                LOGGER.warn("feed " + feed.getId() + " had " + items.size()
-                        + " items and the number of polls was too small to calculate a meaningful value");
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("feed " + feed.getId() + " had " + items.size()
+                            + " items and the number of polls was too small to calculate a meaningful value");
+                }
                 continue;
             }
             temp.append(String.valueOf(updateInterval) + ";");
@@ -803,8 +833,10 @@ public class FeedStatisticCreator {
             sql = psFixPostRate.replace("?", String.valueOf(feed.getId()));
             updateInterval = getUpdateInterval(sql);
             if (updateInterval < 1) {
-                LOGGER.warn("feed had " + items.size()
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("feed had " + items.size()
                         + " items and the number of polls was too small to calculate a meaningful value");
+                }
                 continue;
             }
             temp.append(String.valueOf(updateInterval) + ";");
@@ -812,8 +844,10 @@ public class FeedStatisticCreator {
             sql = psFixMAV.replace("?", String.valueOf(feed.getId()));
             updateInterval = getUpdateInterval(sql);
             if (updateInterval < 1) {
-                LOGGER.warn("feed had " + items.size()
-                        + " items and the number of polls was too small to calculate a meaningful value");
+                if (LOGGER.isTraceEnabled()) {
+                    LOGGER.trace("feed had " + items.size()
+                            + " items and the number of polls was too small to calculate a meaningful value");
+                }
                 continue;
             }
             temp.append(String.valueOf(updateInterval) + ";");
@@ -823,12 +857,12 @@ public class FeedStatisticCreator {
 
             csv.flush();
 
-            if (counter % 1000 == 0) {
-                Logger.getRootLogger().info("percent done: " + MathHelper.round(100 * counter / (double) totalSize, 2));
+            if (feedCounter % 1000 == 0) {
+                LOGGER.info("percent done: " + MathHelper.round(100 * feedCounter / (double) totalSize, 2));
             }
         }
-
         csv.close();
+        LOGGER.info("feedUpdateIntervals written to " + statisticOutputPath);
     }
 
     private static double getUpdateInterval(String query) throws SQLException {
