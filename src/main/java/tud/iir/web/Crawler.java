@@ -693,7 +693,7 @@ public class Crawler {
      * @author Philipp Katz
      */
     public static String makeFullURL(String pageUrl, String baseUrl, String linkUrl) {
-        LOGGER.trace(">makeFullURL " + pageUrl + " " + baseUrl + " " + linkUrl);
+        // LOGGER.trace(">makeFullURL " + pageUrl + " " + baseUrl + " " + linkUrl);
         String result = "";
         if (linkUrl != null && !linkUrl.startsWith("javascript") && !linkUrl.startsWith("mailto:")) {
             // let's java.net.URL do all the conversion work from relative to absolute
@@ -727,7 +727,7 @@ public class Crawler {
                 result = resultUrl.toString();
             }
         }
-        LOGGER.trace("<makeFullURL " + result);
+        // LOGGER.trace("<makeFullURL " + result);
         return result;
     }
 
@@ -991,8 +991,8 @@ public class Crawler {
 
         if (isXML) {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-            // added by Philipp, 2011-01-28
-            docBuilderFactory.setNamespaceAware(true);
+            // FIXME added by Philipp, 2011-01-28
+            // docBuilderFactory.setNamespaceAware(true);
             document = docBuilderFactory.newDocumentBuilder().parse(is);
         } else {
             parser.parse(is);
@@ -1234,6 +1234,7 @@ public class Crawler {
         downloadAndSave(file, 1);
     }
 
+    // TODO does this belong here? use case seems very special.
     public void downloadAndSave(File file, int startLine) {
 
         // store filename and corresponding classification
