@@ -22,6 +22,7 @@ public class FeedItemRowConverter implements RowConverter<FeedItem> {
         entry.setItemText(resultSet.getString("text"));
         entry.setPageText(resultSet.getString("pageText"));
         entry.setAdded(resultSet.getTimestamp("added"));
+        entry.setAuthors(resultSet.getString("authors"));
 
         return entry;
         

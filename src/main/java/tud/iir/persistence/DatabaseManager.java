@@ -10,6 +10,8 @@ import java.util.List;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.CollectionHelper;
+
 /**
  * The {@link DatabaseManager} provides general database specific functionality. This implementation aims on wrapping
  * all ugly SQL specific details like {@link SQLException}s and automatically closes resources for you where applicable.
@@ -329,7 +331,6 @@ public class DatabaseManager {
      * @return <code>true</code> if at least on item exists, <code>false</code> otherwise.
      */
     public final boolean entryExists(String sql, Object... args) {
-        // return runSingleQuery(sql, args) != null;
         return runSingleQuery(new NopRowConverter(), sql, args) != null;
     }
 
@@ -483,6 +484,46 @@ public class DatabaseManager {
      */
     public final int runUpdateReturnId(String sql, List<Object> args) {
         return runUpdateReturnId(sql, args.toArray());
+    }
+    
+    // TODO experimental
+    public final int[] runBatchUpdateReturnIds(String sql, BatchDataProvider provider) {
+        
+        Connection connection = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Integer> generatedIds = new ArrayList<Integer>();
+
+        try {
+
+            connection = getConnection();
+            connection.setAutoCommit(false);
+            ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+
+            for (int i = 0; i < provider.getCount(); i++) {
+                List<Object> args = provider.getData(i);
+                fillPreparedStatement(ps, args);
+                ps.addBatch();
+            }
+
+            ps.executeBatch();
+            connection.commit();
+            connection.setAutoCommit(true);
+            
+            rs = ps.getGeneratedKeys();
+            while (rs.next()) {
+                int id = rs.getInt(1);
+                generatedIds.add(id);
+            }
+
+        } catch (SQLException e) {
+            LOGGER.error(e.getMessage());
+        } finally {
+            close(connection, ps, rs);
+        }
+
+        Integer[] array = generatedIds.toArray(new Integer[generatedIds.size()]);
+        return CollectionHelper.toIntArray(array);
     }
 
     // //////////////////////////////////////////////////////////////////////////////

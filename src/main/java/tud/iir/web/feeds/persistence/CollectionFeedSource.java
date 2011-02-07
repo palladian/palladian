@@ -75,7 +75,7 @@ public class CollectionFeedSource implements FeedStore {
     @Override
     public boolean addFeedItem(Feed feed, FeedItem entry) {
         // TODO Auto-generated method stub
-        return false;
+        return true;
     }
 
     @Override

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -31,6 +32,7 @@ import com.sun.syndication.feed.rss.Guid;
 import com.sun.syndication.feed.synd.SyndContent;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.feed.synd.SyndPerson;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 
@@ -273,7 +275,7 @@ public class FeedDownloader {
 
         // store the originating document in the feed
         result.setDocument(feedDocument);
-        
+
         // get Feed items with ROME and assign to feed
         addFeedItems(result, syndFeed);
 
@@ -282,50 +284,9 @@ public class FeedDownloader {
             result.setByteSize(PageAnalyzer.getRawMarkup(feedDocument).getBytes().length);
         }
 
-
         return result;
     }
 
-//    /**
-//     * Get {@link FeedItem}s from the specified {@link SyndFeed}.
-//     * 
-//     * @param syndFeed
-//     * @param feedDocument
-//     * @return
-//     */
-//    @SuppressWarnings("unchecked")
-//    private List<FeedItem> getFeedItems(SyndFeed syndFeed, Document feedDocument) {
-//
-//        List<FeedItem> result = new LinkedList<FeedItem>();
-//        List<SyndEntry> syndEntries = syndFeed.getEntries();
-//
-//        for (SyndEntry syndEntry : syndEntries) {
-//
-//            FeedItem item = new FeedItem();
-//            result.add(item);
-//
-//            String title = getEntryTitle(syndEntry);
-//            item.setTitle(title);
-//
-//            String entryLink = getEntryLink(syndFeed, syndEntry);
-//            item.setLink(entryLink);
-//
-//            String entryText = getEntryText(syndEntry);
-//            item.setItemText(entryText);
-//
-//            String rawId = getEntryRawId(syndEntry);
-//            item.setRawId(rawId);
-//
-//            // TODO only try a certain amount of times to extract a pub date, if none is found don't keep trying
-//            Date publishDate = getEntryPublishDate(syndEntry, item);
-//            item.setPublished(publishDate);
-//
-//            // result.add(item);
-//        }
-//
-//        return result;
-//    }
-    
     /**
      * Add {@link FeedItem}s to the {@link Feed} from the specified {@link SyndFeed}.
      * 
@@ -334,7 +295,7 @@ public class FeedDownloader {
      * @return
      */
     private void addFeedItems(Feed feed, SyndFeed syndFeed) {
-        
+
         @SuppressWarnings("unchecked")
         List<SyndEntry> syndEntries = syndFeed.getEntries();
 
@@ -354,6 +315,9 @@ public class FeedDownloader {
 
             String rawId = getEntryRawId(syndEntry);
             item.setRawId(rawId);
+
+            String authors = getEntryAuthors(syndFeed, syndEntry);
+            item.setAuthors(authors);
 
             // TODO only try a certain amount of times to extract a pub date, if none is found don't keep trying
             Date publishDate = getEntryPublishDate(syndEntry, item);
@@ -513,6 +477,59 @@ public class FeedDownloader {
     }
 
     /**
+     * Get author information from the supplied {@link SyndEntry}. If multiple authors are provided, all of them are
+     * concatenated together using semicolons as separator. If the {@link SyndEntry} has no authors, the author data
+     * from the {@link SyndFeed} is considered instead.
+     * 
+     * @param syndFeed
+     * @param syndEntry
+     * @return authors, or <code>null</code> if no authors provided.
+     */
+    @SuppressWarnings("unchecked")
+    private String getEntryAuthors(SyndFeed syndFeed, SyndEntry syndEntry) {
+
+        List<String> authors = new ArrayList<String>();
+        
+        // try to get authors as list
+        List<SyndPerson> syndPersons = syndEntry.getAuthors();
+        if (syndPersons != null) {
+            for (SyndPerson syndPerson : syndPersons) {
+                authors.add(syndPerson.getName());
+            }
+        }
+
+        // try to get author as single item
+        String author = syndEntry.getAuthor();
+        if (authors.isEmpty() && author != null && !author.isEmpty()) {
+            authors.add(author);
+        }
+
+        // if the entry provides no author data, try to get it from the feed
+
+        if (authors.isEmpty()) {
+            LOGGER.debug("entry contains no author; trying to take from feed");
+            List<SyndPerson> syndFeedPersons = syndFeed.getAuthors();
+            if (syndFeedPersons != null) {
+                for (SyndPerson syndPerson : syndFeedPersons) {
+                    authors.add(syndPerson.getName());
+                }
+            }
+        }
+        
+        String feedAuthor = syndFeed.getAuthor();
+        if (authors.isEmpty() && feedAuthor != null && !feedAuthor.isEmpty()) {
+            authors.add(syndFeed.getAuthor());
+        }
+        
+        String result = null;
+        if (authors.size() > 0) {
+            result = StringUtils.join(authors, "; ");
+        }
+
+        return result;
+    }
+
+    /**
      * Download a feed document from the web.
      * 
      * @param feedUrl
@@ -606,7 +623,8 @@ public class FeedDownloader {
                     sb.append(item.getItemText()).append("\t");
                 }
                 sb.append(item.getLink()).append("\t");
-                sb.append(item.getPublished()).append("\n");
+                sb.append(item.getPublished()).append("\t");
+                sb.append(item.getAuthors()).append("\n");
             }
             sb.append("-----------------------------------").append("\n");
             sb.append("# entries: ").append(items.size());
@@ -629,9 +647,13 @@ public class FeedDownloader {
         FeedDownloader downloader = new FeedDownloader();
         // Feed feed = downloader.getFeed("http://badatsports.com/feed/");
         // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
-        Feed feed = downloader
-                .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-svn/rss");
-        printFeed(feed);
+        // Feed feed = downloader
+        //        .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-svn/rss");
+        // printFeed(feed);
+        
+        Feed feed = downloader.getFeed(FeedDownloader.class.getResource("/feeds/atomSample1.xml").getFile());
+        FeedDownloader.printFeed(feed);
+        
 
     }
 

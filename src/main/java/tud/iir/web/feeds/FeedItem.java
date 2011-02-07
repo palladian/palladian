@@ -41,16 +41,19 @@ public class FeedItem {
     /** Original ID from the feed. */
     private String rawId;
 
-    /** publish date from the feed */
+    /** Publish date from the feed */
     private Date published;
 
-    /** when the entry was aggregated */
+    /** When the entry was aggregated */
     private Date added;
+    
+    /** Author information. */
+    private String authors;
 
-    /** entryText directly from the feed entry */
+    /** Text directly from the feed entry */
     private String itemText;
 
-    /** entryText which we downloaded from the corresponding web page. */
+    /** Text which we downloaded from the corresponding web page. */
     private String pageText;
 
     /** Arbitrary, numeric features, used for feature extraction and classification. */
@@ -123,6 +126,14 @@ public class FeedItem {
             return new Timestamp(added.getTime());
         }
         return null;
+    }
+    
+    public String getAuthors() {
+        return authors;
+    }
+    
+    public void setAuthors(String authors) {
+        this.authors = authors;
     }
 
     public String getItemText() {
@@ -211,7 +222,6 @@ public class FeedItem {
      */
     Node getNode() {
 
-        // for rss
         Node node = null;
 
         // the feed's document representation
@@ -219,6 +229,7 @@ public class FeedItem {
         
         try {
             
+            // for rss
             node = XPathHelper.getNode(document, "//item[link=\"" + getLink() + "\"]");
 
             if (node == null) {
