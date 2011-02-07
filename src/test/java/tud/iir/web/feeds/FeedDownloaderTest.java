@@ -133,7 +133,7 @@ public class FeedDownloaderTest {
 
         // feed cannot be parsed, as it contains strange white space
         // 2011-02-02T06:33:52.690
-        // checkCorrectDate("2011-02-02 06:33:52.690 GMT", "/feeds/feeds/feed004.xml");
+        // checkDate("2011-02-02 06:33:52.690 GMT", "/feeds/feeds/feed004.xml");
 
         // Fri, 28 Jan 2011 10:45:15 -0500
         checkDate("2011-01-28 10:45:15.000 GMT-05:00", "/feeds/feeds/feed005.xml");
@@ -143,19 +143,19 @@ public class FeedDownloaderTest {
 
         // date cannot be parsed
         // Wed, 2, Feb 2011 9:36
-        // checkCorrectDate("2011-02-02 09:36:00.000 GMT", "/feeds/feeds/feed007.xml");
+        // checkDate("2011-02-02 09:36:00.000 GMT", "/feeds/feeds/feed007.xml");
 
         // date cannot be parsed
         // 2011-01-31
-        // checkCorrectDate("2011-01-31 00:00:00.000 GMT", "/feeds/feeds/feed008.xml");
+        // checkDate("2011-01-31 00:00:00.000 GMT", "/feeds/feeds/feed008.xml");
 
         // feed cannot be parsed
         // Thu, 31 Mar 2011 19:00:00 -0500
-        // checkCorrectDate("2011-03-31 19:00:00.000 GMT-05:00", "/feeds/feeds/feed009.xml");
+        // checkDate("2011-03-31 19:00:00.000 GMT-05:00", "/feeds/feeds/feed009.xml");
 
         // feed cannot be parsed
         // Wed, 02 Feb 2011 05:37:00 EST
-        // checkCorrectDate("2011-02-02 05:37:00.000 EST", "/feeds/feeds/feed010.xml");
+        // checkDate("2011-02-02 05:37:00.000 EST", "/feeds/feeds/feed010.xml");
 
         // Tue, 11 Jan 2011 00:00:00 -0500
         checkDate("2011-01-11 00:00:00.000 GMT-05:00", "/feeds/feeds/feed012.xml");
@@ -165,43 +165,43 @@ public class FeedDownloaderTest {
 
         // date cannot be parsed
         // Tue, Feb 01,2011 11:33:33PM
-        // checkCorrectDate("2011-02-01 23:33:33.000 GMT", "/feeds/feeds/feed018.xml");
+        // checkDate("2011-02-01 23:33:33.000 GMT", "/feeds/feeds/feed018.xml");
 
         // date cannot be parsed
         // Wed, 02 Feb 2011 09:00:00 EST
-        // checkCorrectDate("2011-02-02 09:00:00.000 EST", "/feeds/feeds/feed021.xml");
+        // checkDate("2011-02-02 09:00:00.000 EST", "/feeds/feeds/feed021.xml");
 
         // date cannot be parsed
         // Tue, 01 February 2011 15:15:56
-        // checkCorrectDate("2011-02-01 15:15:56.000 GMT", "/feeds/feeds/feed024.xml");
+        // checkDate("2011-02-01 15:15:56.000 GMT", "/feeds/feeds/feed024.xml");
 
         // Yesterday +0000
         // feed026.xml
 
         // date cannot be parsed
         // Wed, February 2, 2011 10:05 AM
-        // checkCorrectDate("2011-02-02 10:05:00.000 GMT", "/feeds/feeds/feed028.xml");
+        // checkDate("2011-02-02 10:05:00.000 GMT", "/feeds/feeds/feed028.xml");
 
         // 1/30/11
         checkDate("2011-01-30 00:00:00.000 GMT", "/feeds/feeds/feed029.xml");
 
         // feed cannot be parsed
         // 31 Jan 2011 20:34:17 EST
-        // checkCorrectDate("2011-01-31 20:34:17.000 EST", "/feeds/feeds/feed030.xml");
+        // checkDate("2011-01-31 20:34:17.000 EST", "/feeds/feeds/feed030.xml");
 
         // Tuesday, 14 Sept 2010 16:30:00 EST
-        // checkCorrectDate("2010-09-14 16:30:00.000 EST", "/feeds/feeds/feed031.xml");
+        // checkDate("2010-09-14 16:30:00.000 EST", "/feeds/feeds/feed031.xml");
 
         // feed cannot be parsed
         // Fri, 06 Aug 2010 09:53:48 +0000
-        // checkCorrectDate("2010-08-06 09:53:48.000 GMT", "/feeds/feeds/feed035.xml");
+        // checkDate("2010-08-06 09:53:48.000 GMT", "/feeds/feeds/feed035.xml");
 
         // Wed, 02 Feb 2011 2/2/2011 9:00:01 AM UT
         checkDate("2011-02-02 09:00:01.000 GMT", "/feeds/feeds/feed040.xml");
 
         // date cannot be parsed
         // Jan 25,2011
-        // checkCorrectDate("2011-01-25 00:00:00.000 GMT", "/feeds/feeds/feed043.xml");
+        // checkDate("2011-01-25 00:00:00.000 GMT", "/feeds/feeds/feed043.xml");
 
         // Wednesday, February 02, 2011 4:03:46 AM GMT
         checkDate("2011-02-02 04:03:46.000 GMT", "/feeds/feeds/feed045.xml");
@@ -229,7 +229,7 @@ public class FeedDownloaderTest {
 
         // date cannot be parsed
         // 2011-02-2T10:00
-        // checkCorrectDate("2011-02-02 10:00:00.000 GMT", "/feeds/feeds/feed073.xml");
+        // checkDate("2011-02-02 10:00:00.000 GMT", "/feeds/feeds/feed073.xml");
 
         // Feb 2, 2011
         checkDate("2011-02-02 00:00:00.000 GMT", "/feeds/feeds/feed077.xml");
