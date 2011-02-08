@@ -418,7 +418,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // save text
         if (webPageText.length() > 0) {
 
-            webPageText = cleanText(webPageText, conceptName);
+            // webPageText = cleanText(webPageText, conceptName);
 
             if (webPageText.length() > 10) {
 
