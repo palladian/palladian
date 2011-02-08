@@ -122,6 +122,7 @@ public class PageSentenceExtractor {
         mainContentNode = XPathHelper.getNode(getDocument(), shortestMatchingXPath);
         if (mainContentNode == null) {
             LOGGER.warn("could not get main content node for URL: " + getDocument().getDocumentURI());
+            return;
         }
 
         mainContentHTML = PageAnalyzer.getRawMarkup(mainContentNode);
