@@ -50,7 +50,7 @@ public class TokenizerPlus {
     // private Set<String> stopwords = new Stopwords(Stopwords.Predefined.EN);
 
     /** POS tagger, only necessary if POS tagging is enabled. */
-    private AbstractPOSTagger posTagger = new LingPipePOSTagger();
+    private AbstractPOSTagger posTagger = null; // new LingPipePOSTagger();
 
     /** Whether to use POS tagging. */
     private boolean usePosTagging = false;
@@ -364,6 +364,7 @@ public class TokenizerPlus {
     public void setUsePosTagging(boolean usePosTagging) {
         this.usePosTagging = usePosTagging;
         if (usePosTagging) {
+            posTagger = new LingPipePOSTagger();
             posTagger.loadModel();
         }
     }
