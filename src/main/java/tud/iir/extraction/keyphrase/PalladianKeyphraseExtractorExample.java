@@ -21,14 +21,15 @@ public class PalladianKeyphraseExtractorExample {
         KeyphraseExtractorSettings settings = keyphraseExtractor.getSettings();
 
         // Path to Corpus+Classifier
-        settings.setModelPath("C:\\Data\\models\\PalladianKeyphraseExtractor");
+        settings.setModelPath("data/models/PalladianKeyphraseExtractor");
 
         // extract 10 keyphrases per document
         settings.setAssignmentMode(AssignmentMode.FIXED_COUNT);
         settings.setKeyphraseCount(20);
 
         // maximum length of extracted keyphrases
-        settings.setPhraseLength(3);
+        settings.setMinPhraseLength(2);
+        settings.setMaxPhraseLength(3);
 
         // Pattern, which keyphrases have to match
         settings.setPattern("[a-zA-Z\\s\\-]{3,}");

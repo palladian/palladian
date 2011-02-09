@@ -49,6 +49,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     public PalladianKeyphraseExtractor() {
         tokenizer = new TokenizerPlus(settings);
         tokenizer.setUsePosTagging(false);
+        // tokenizer.setUsePosTagging(true);
     }
 
     /**
@@ -71,16 +72,22 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     public void addToCorpus(String text, Set<String> keyphrases) {
         
         // TODO removal of Stopwords should be done before!
-        // TODO tokenizing multiple times when training!
 
         // tokenize the text and add the tokens/phrases to the corpus
         List<Token> tokens = tokenize(text);
+        addToCorpus(tokens, keyphrases);
+
+    }
+    
+    
+    public void addToCorpus(List<Token> tokens, Set<String> keyphrases) {
+
         corpus.addPhrases(tokens);
 
         // the corpus stores the *stemmed* keyphrases
         keyphrases = stem(keyphrases);
         corpus.addKeyphrases(keyphrases);
-
+        
     }
 
     // private List<Candidate> trainData = new ArrayList<Candidate>();
@@ -97,9 +104,11 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
     @Override
     public void train(String inputText, Set<String> keyphrases, int index) {
+        
+        List<Token> tokens = tokenize(inputText);
 
         // add the document to the corpus
-        addToCorpus(inputText, keyphrases);
+        addToCorpus(tokens, keyphrases);
 
         // if (trainData.size() > TRAIN_DATA_LIMIT) {
         if (trainInstances > TRAIN_DATA_LIMIT) {
@@ -107,7 +116,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         }
 
         // create the document model
-        DocumentModel candidates = createDocumentModel(inputText, /*false*/ true);
+        DocumentModel candidates = createDocumentModel(tokens);
 
         // keep stemmed and unstemmed representation
         Set<String> stemmedKeyphrases = stem(keyphrases);
@@ -351,23 +360,6 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
 
         Collections.sort(candidates, new CandidateComparator());
         
-        // XXX experimental
-        /*Iterator<Candidate> candidateIterator1  =candidates.iterator();
-        while (candidateIterator1.hasNext()) {
-            Candidate currentCandidate = candidateIterator1.next();
-            
-            double regressionValue = currentCandidate.getRegressionValue();
-            int wordCount = currentCandidate.getWordCount();
-            
-            regressionValue = regressionValue * Math.sqrt(2 * wordCount);
-            
-            currentCandidate.setRegressionValue(regressionValue);
-            
-        }
-        
-        Collections.sort(candidates, new CandidateComparator());*/
-        
-        
         ////////////////////////////////////////////////////////
 
         // experimental: to normalize the range of the re-ranked tags back to their original range,
@@ -458,15 +450,18 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
      * @param text
      * @return
      */
-    private DocumentModel createDocumentModel(String text, boolean createCandidates /* TODO */) {
+    private DocumentModel createDocumentModel(String text) {
 
-        DocumentModel model = new DocumentModel(corpus);
         List<Token> tokens = tokenize(text);
-        model.addTokens(tokens);
+        return createDocumentModel(tokens);
+
+    }
+    
+    private DocumentModel createDocumentModel(List<Token> tokens) {
         
-        if (createCandidates) {
-            model.createCandidates();
-        }
+        DocumentModel model = new DocumentModel(corpus);
+        model.addTokens(tokens);
+        model.createCandidates();
 
         // when we are in controlled mode, we remove all non-keyphrases from the list of candidates.
         if (settings.isControlledMode()) {
@@ -474,33 +469,29 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         }
 
         return model;
-
-    }
-    private DocumentModel createDocumentModel(String text) {
-        return createDocumentModel(text, true);
+        
     }
 
     private List<Token> tokenize(String text) {
 
         List<Token> tokens = new ArrayList<Token>();
         List<Token> uniGrams = tokenizer.tokenize(text);
-        List<Token> collocations = tokenizer.makeCollocations(uniGrams, settings.getPhraseLength());
+        List<Token> collocations = tokenizer.makeCollocations(uniGrams, settings.getMinPhraseLength(), settings.getMaxPhraseLength());
 
-        tokens.addAll(uniGrams);
+        if (settings.getMinPhraseLength() == 1) {
+            tokens.addAll(uniGrams);
+        }
+        
         tokens.addAll(collocations);
         
-        
-        
-        // XXX
-//        Set<String> stopwords = settings.getStopwords();
-//        ListIterator<Token> lit = tokens.listIterator();
-//        while (lit.hasNext()) {
-//            Token current = lit.next();
-//            if (stopwords.contains(current.getUnstemmedValue())) {
-//                lit.remove();
-//            }
-//        }
-        // XXX
+        //        Set<String> stopwords = settings.getStopwords();
+        //        ListIterator<Token> lit = tokens.listIterator();
+        //        while (lit.hasNext()) {
+        //            Token current = lit.next();
+        //            if (stopwords.contains(current.getUnstemmedValue())) {
+        //                lit.remove();
+        //            }
+        //        }
 
         return tokens;
 

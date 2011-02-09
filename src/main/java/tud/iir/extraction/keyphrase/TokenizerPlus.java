@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.commons.collections15.Bag;
 import org.apache.commons.collections15.Factory;
@@ -32,10 +32,11 @@ import tud.iir.preprocessing.nlp.TagAnnotations;
 import tud.iir.web.Crawler;
 
 /**
- * Special tokenizer implementation which keeps positional and POS features of
- * extracted Tokens. Also supports extraction of collocated terms, like
- * "San Francisco" or "domestic cat", e.g. words consisting of more than one
- * single token. Experimental. TODO provide setter for Stemmer and Stopwords.
+ * Special tokenizer implementation which keeps positional and POS features of extracted Tokens. Also supports
+ * extraction of collocated terms, like "San Francisco" or "domestic cat", e.g. words consisting of more than one single
+ * token. Experimental. 
+ * 
+ * TODO provide setter for Stemmer and Stopwords.
  * 
  * @author Philipp Katz
  */
@@ -57,6 +58,7 @@ public class TokenizerPlus {
 
     public static interface TokenizerSettings {
         SnowballStemmer getStemmer();
+
         Set<String> getStopwords();
     }
 
@@ -85,20 +87,24 @@ public class TokenizerPlus {
      * @return set of tokens.
      */
     public List<Token> tokenize(String text) {
-        List<Token> tokens;
+        
         // first, tokenize into sentences.
         List<String> sentences = Tokenizer.getSentences(text);
+        
         // if we have no sentences, we just take the whole text.
         if (sentences.size() == 0) {
             sentences.add(text);
         }
+        
         // either tokenize with or without POS tagging
         // POS tagging takes time
+        List<Token> tokens;
         if (usePosTagging) {
             tokens = tokenizePos(sentences);
         } else {
             tokens = tokenizePlain(sentences);
         }
+        
         return tokens;
     }
 
@@ -161,22 +167,23 @@ public class TokenizerPlus {
         stemmer.stem();
         return stemmer.getCurrent();
     }
+    
+    public List<Token> makeCollocations(List<Token> tokens, int maxLength) {
+        return makeCollocations(tokens, 1, maxLength);
+    }
 
     /**
-     * Extract collocations from supplied token list, based on some simple
-     * heuristics. In our terms, a collocation is a sequence of terms, appearing
-     * frequently throughout the text, like "San Francisco", not beginning or
-     * ending with a stopword. This method is somewhat sophisticated, but I have
-     * no idea how to simplify it. It contains some magic numbers which proved
-     * to work well for longer texts, but which still need further evaluation.
-     * TODO take a look at
-     * http://personalpages.manchester.ac.uk/staff/sophia.ananiadou
-     * /IJODL2000.pdf
+     * Extract collocations from supplied token list, based on some simple heuristics. In our terms, a collocation is a
+     * sequence of terms, appearing frequently throughout the text, like "San Francisco", not beginning or ending with a
+     * stopword. This method is somewhat sophisticated, but I have no idea how to simplify it. It contains some magic
+     * numbers which proved to work well for longer texts, but which still need further evaluation.
+     * 
+     * TODO take a look at http://personalpages.manchester.ac.uk/staff/sophia.ananiadou/IJODL2000.pdf
      * 
      * @param tokens
      * @return
      */
-    public List<Token> makeCollocations(List<Token> tokens, int maxLength) {
+    public List<Token> makeCollocations(List<Token> tokens, int minLength, int maxLength) {
 
         List<Token> result = new ArrayList<Token>();
 
@@ -195,8 +202,8 @@ public class TokenizerPlus {
 
         // lazy map which never returns null when get() is invoked;
         // if specified key does not exist, it is created by the factory
-        Map<String, List<Token>> collocationMap = LazyMap.decorate(
-                new HashMap<String, List<Token>>(), new Factory<List<Token>>() {
+        Map<String, List<Token>> collocationMap = LazyMap.decorate(new HashMap<String, List<Token>>(),
+                new Factory<List<Token>>() {
                     @Override
                     public List<Token> create() {
                         return new ArrayList<Token>();
@@ -207,7 +214,7 @@ public class TokenizerPlus {
 
         // gram size. do a reverse iteration,
         // as we prefer longer collocations
-        for (int n = maxLength; n >= 2; n--) {
+        for (int n = maxLength; n >= minLength; n--) {
 
             // build n-grams
             for (int i = 0; i <= tokenArray.length - n; i++) {
@@ -223,12 +230,8 @@ public class TokenizerPlus {
                 boolean accept = true;
 
                 // don't accept collocations which start or end with a stopword
-                accept = accept
-                        && !stopwords.contains(tokenArray[i]
-                                .getUnstemmedValue());
-                accept = accept
-                        && !stopwords.contains(tokenArray[i + n - 1]
-                                .getUnstemmedValue());
+                accept = accept && !stopwords.contains(tokenArray[i].getUnstemmedValue());
+                accept = accept && !stopwords.contains(tokenArray[i + n - 1].getUnstemmedValue());
 
                 if (!accept) {
                     continue;
@@ -239,10 +242,8 @@ public class TokenizerPlus {
 
                     Token currentToken = tokenArray[j];
 
-                    boolean spansSentence = lastSentencePosition > currentToken
-                            .getSentencePosition();
-                    boolean matchesPattern = currentToken.getStemmedValue()
-                            .matches("[A-Za-z0-9]{2,}");
+                    boolean spansSentence = lastSentencePosition > currentToken.getSentencePosition();
+                    boolean matchesPattern = currentToken.getStemmedValue().matches("[A-Za-z0-9]{2,}");
 
                     if (spansSentence || !matchesPattern) {
                         accept = false;
@@ -250,13 +251,11 @@ public class TokenizerPlus {
                     }
 
                     lastSentencePosition = currentToken.getSentencePosition();
-                    unstemmedBuilder.append(currentToken.getUnstemmedValue())
-                            .append(" ");
+                    unstemmedBuilder.append(currentToken.getUnstemmedValue()).append(" ");
 
                     // XXX experimental
                     if (!stopwords.contains(currentToken.getUnstemmedValue())) {
-                        stemmedBuilder.append(currentToken.getStemmedValue())
-                                .append(" ");
+                        stemmedBuilder.append(currentToken.getStemmedValue()).append(" ");
                     }
                     // XXX
 
@@ -272,18 +271,13 @@ public class TokenizerPlus {
                     // XXX
 
                     // set values from first token in this collocation
-                    collocation
-                            .setTextPosition(tokenArray[i].getTextPosition());
-                    collocation.setSentenceNumber(tokenArray[i]
-                            .getSentenceNumber());
-                    collocation.setSentencePosition(tokenArray[i]
-                            .getSentencePosition());
-                    collocation.setUnstemmedValue(unstemmedBuilder.toString()
-                            .trim());
+                    collocation.setTextPosition(tokenArray[i].getTextPosition());
+                    collocation.setSentenceNumber(tokenArray[i].getSentenceNumber());
+                    collocation.setSentencePosition(tokenArray[i].getSentencePosition());
+                    collocation.setUnstemmedValue(unstemmedBuilder.toString().trim());
                     collocation.setStemmedValue(stemmedValue);
 
-                    List<Token> existingCollocations = collocationMap
-                            .get(stemmedValue);
+                    List<Token> existingCollocations = collocationMap.get(stemmedValue);
                     existingCollocations.add(collocation);
 
                 }
@@ -302,18 +296,14 @@ public class TokenizerPlus {
                 // determine minimum # of occurrences over all stems
                 int minCount = Integer.MAX_VALUE;
                 for (String stem : singleStems) {
-                    minCount = Math.min(minCount, stemmedTokenBag
-                            .getCount(stem));
+                    minCount = Math.min(minCount, stemmedTokenBag.getCount(stem));
                 }
 
-                // check, if we already have it as a "more complete"
-                // collocation;
-                // for example "New York Times" is more complete than
-                // "York Times".
+                // check, if we already have it as a "more complete" collocation;
+                // for example "New York Times" is more complete than "York Times".
                 boolean accept = true;
                 for (String existingStem : resultStems.uniqueSet()) {
-                    if (existingStem.contains(stemmedValue)
-                            && resultStems.getCount(existingStem) >= occurences * 0.95) { // TODO
+                    if (existingStem.contains(stemmedValue) && resultStems.getCount(existingStem) >= occurences * 0.95) { // TODO
                         // evaluate
                         accept = false;
                         break;
@@ -323,29 +313,14 @@ public class TokenizerPlus {
                 // the score determines, how many times a term appears with the
                 // specific collocation
                 float score = (float) occurences / minCount;
-                if (accept && occurences >= 2 && score > 0.25) { // TODO
-                                                                 // evaluate
+                if (accept && occurences >= 2 && score > 0.25) { // TODO evaluate
                     result.addAll(entryTokens);
                     resultStems.add(stemmedValue, occurences);
                 }
 
-                // settings 0.95 // 0.25 --> 0.3027 F1
-                // settings 0.95 // 0.15 --> 0,3019 F1
-                // settings 1 // 0 --> 0,3019 F1
-
             }
 
         }
-
-        // // sort tokens by position
-        // Comparator<Token> tokenPositionComparator = new Comparator<Token>() {
-        // @Override
-        // public int compare(Token t1, Token t2) {
-        // return new
-        // Integer(t1.getTextPosition()).compareTo(t2.getTextPosition());
-        // }
-        // };
-        // Collections.sort(result, tokenPositionComparator);
 
         return result;
 
@@ -356,8 +331,7 @@ public class TokenizerPlus {
     }
 
     /**
-     * Allows to enable or disable POS tagging. When enabled, the tokenization
-     * process takes considerably more time.
+     * Allows to enable or disable POS tagging. When enabled, the tokenization process takes considerably more time.
      * 
      * @param usePosTagging
      */
@@ -381,18 +355,20 @@ public class TokenizerPlus {
 
     public static void main(String[] args) {
 
-        // String str =
-        // FileHelper.readFileToString("/Users/pk/temp/fao780/46140e.txt");
-        String str = FileHelper.readFileToString("/home/pk/Desktop/t0848e.txt");
+        String str = FileHelper.readFileToString("/home/pk/temp/deliciousT140/docs/00/0035e82f5dd7e17b4992c90f6f351d60.txt");
+        str = HTMLHelper.removeHTMLTags(str);
+        
+        // String str = FileHelper.readFileToString("/Users/pk/temp/fao780/46140e.txt");
+        // String str = FileHelper.readFileToString("/home/pk/Desktop/t0848e.txt");
 
         TokenizerPlus tokenizer = new TokenizerPlus();
-        // tokenizer.setUsePosTagging(true); // 46s:203ms
-        tokenizer.setUsePosTagging(false); // 7s:905ms
+        // tokenizer.setUsePosTagging(true); // 33s:888ms
+        tokenizer.setUsePosTagging(false); // 4s:813ms
 
         StopWatch sw = new StopWatch();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 100; i++) {
             List<Token> t = tokenizer.tokenize(str);
-            tokenizer.makeCollocations(t, 4);
+            tokenizer.makeCollocations(t, 1, 4);
         }
         System.out.println(sw);
 
@@ -408,8 +384,7 @@ public class TokenizerPlus {
         // crawler.getWebDocument("http://en.wikipedia.org/wiki/San_Francisco");
         // Document doc =
         // crawler.getWebDocument("http://en.wikipedia.org/wiki/%22Manos%22_The_Hands_of_Fate");
-        Document doc = crawler
-                .getWebDocument("http://en.wikipedia.org/wiki/Cat");
+        Document doc = crawler.getWebDocument("http://en.wikipedia.org/wiki/Cat");
         // Document doc =
         // crawler.getWebDocument("http://edition.cnn.com/2010/TECH/social.media/11/19/social.media.isolation.project/index.html?hpt=C1");
         // Document doc =
@@ -423,7 +398,7 @@ public class TokenizerPlus {
         // StopWatch sw = new StopWatch();
         List<Token> tokens = tokenizer.tokenize(text);
         System.out.println("# of tokens : " + tokens.size());
-        List<Token> collocations = tokenizer.makeCollocations(tokens, 5);
+        List<Token> collocations = tokenizer.makeCollocations(tokens, 1, 5);
 
         List<Token> allTokens = new ArrayList<Token>();
         // allTokens.addAll(tokens);
@@ -434,8 +409,7 @@ public class TokenizerPlus {
             cm.increment(token.getStemmedValue());
         }
 
-        LinkedHashMap<Object, Integer> sort = CollectionHelper.sortByValue(cm
-                .entrySet(), false);
+        LinkedHashMap<Object, Integer> sort = CollectionHelper.sortByValue(cm.entrySet(), false);
         for (Entry<Object, Integer> entry : sort.entrySet()) {
             System.out.println(entry.getValue() + " " + entry.getKey());
         }
