@@ -64,7 +64,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getLastFeedEntrySQLTimestamp());
         parameters.add(feed.getActivityPattern());
-        int result = runUpdateReturnId(psAddFeed, parameters);
+        int result = runInsertReturnId(psAddFeed, parameters);
         if (result > 0) {
             feed.setId(result);
             added = true;
@@ -181,13 +181,46 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(entry.getItemText());
         parameters.add(entry.getPageText());
 
-        int result = runUpdateReturnId(psAddFeedItem, parameters);
+        int result = runInsertReturnId(psAddFeedItem, parameters);
         if (result > 0) {
             entry.setId(result);
             added = true;
         }
 
         LOGGER.trace("<addEntry " + added);
+        return added;
+    }
+    
+    @Override
+    public int addFeedItems(Feed feed, List<FeedItem> feedItems) {
+        LOGGER.trace(">addFeedItems " + feedItems.size() + " to " + feed);
+        int added = 0;
+
+        List<List<Object>> batchArgs = new ArrayList<List<Object>>();
+        for (FeedItem feedItem : feedItems) {
+            List<Object> parameters = new ArrayList<Object>();
+            parameters.add(feed.getId());
+            parameters.add(feedItem.getTitle());
+            parameters.add(feedItem.getLink());
+            parameters.add(feedItem.getRawId());
+            parameters.add(feedItem.getPublishedSQLTimestamp());
+            parameters.add(feedItem.getAuthors());
+            parameters.add(feedItem.getItemText());
+            parameters.add(feedItem.getPageText());
+            batchArgs.add(parameters);
+        }
+
+        // set the generated IDs back to the FeedItems and count number of added items
+        int[] result = runBatchInsertReturnIds(psAddFeedItem, batchArgs);
+        for (int i = 0; i < result.length; i++) {
+            int id = result[i];
+            if (id > 0) {
+                feedItems.get(i).setId(id);
+                added++;
+            }
+        }
+
+        LOGGER.trace("<addFeedItems " + added);
         return added;
     }
 
@@ -228,28 +261,16 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         return runQuery(new FeedItemRowConverter(), sqlQuery);
     }
 
-    public List<FeedItem> getFeedItemsForEvaluation(String sqlQuery) {
-        RowConverter<FeedItem> converter = new RowConverter<FeedItem>() {
-
+    public List<FeedItem> getFeedItemsForEvaluation(String sqlQuery) {        
+        RowConverter<FeedItem> converter = new FeedItemRowConverter() {
             @Override
             public FeedItem convert(ResultSet resultSet) throws SQLException {
-                FeedItem entry = new FeedItem();
-
-                entry.setId(resultSet.getInt("id"));
-                entry.setFeedId(resultSet.getInt("feedId"));
-                entry.setTitle(resultSet.getString("title"));
-                entry.setLink(resultSet.getString("link"));
-                entry.setRawId(resultSet.getString("rawId"));
-                entry.setPublished(resultSet.getTimestamp("published"));
-                entry.setItemText(resultSet.getString("text"));
-                entry.setPageText(resultSet.getString("pageText"));
-                entry.setAdded(resultSet.getTimestamp("added"));
+                FeedItem entry = super.convert(resultSet);
                 entry.putFeature("relevant", resultSet.getFloat("relevant"));
-
                 return entry;
             }
-
         };
+        
         return runQuery(converter, sqlQuery);
     }
 

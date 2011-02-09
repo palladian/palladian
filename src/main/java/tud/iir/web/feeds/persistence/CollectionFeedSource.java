@@ -90,4 +90,10 @@ public class CollectionFeedSource implements FeedStore {
         return null;
     }
 
+    @Override
+    public int addFeedItems(Feed feed, List<FeedItem> items) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
 }
