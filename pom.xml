@@ -226,9 +226,9 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>edu.stanford</groupId>
-			<artifactId>stanfordner</artifactId>
-			<version>1.0</version>
+			<groupId>edu.stanford.nlp</groupId>
+			<artifactId>stanford-ner</artifactId>
+			<version>1.1.1</version>
 		</dependency>
 		<!-- <dependency> <groupId>edu.illinois</groupId> <artifactId>lbj2</artifactId> 
 			<version>1.0</version> </dependency> -->
