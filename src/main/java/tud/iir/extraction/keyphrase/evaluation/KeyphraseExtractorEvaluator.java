@@ -155,7 +155,7 @@ public class KeyphraseExtractorEvaluator {
                 }
 
                 // automatically extract keyphrases
-                Set<Keyphrase> assignedKeyphrases = extractor.extract(text);
+                List<Keyphrase> assignedKeyphrases = extractor.extract(text);
                 int correctCount = 0;
                 int assignedCount = assignedKeyphrases.size();
 

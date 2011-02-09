@@ -1,8 +1,8 @@
 package tud.iir.extraction.keyphrase;
 
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -47,9 +47,9 @@ public class OpenCalaisSocialTagger extends KeyphraseExtractor {
     }
 
     @Override
-    public Set<Keyphrase> extract(String inputText) {
+    public List<Keyphrase> extract(String inputText) {
         
-        Set<Keyphrase> keyphrases = new HashSet<Keyphrase>();
+        List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
         PostMethod postMethod = new PostMethod("http://api.opencalais.com/tag/rs/enrich");
 

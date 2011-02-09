@@ -1,6 +1,7 @@
 package tud.iir.extraction.keyphrase;
 
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -90,7 +91,7 @@ public abstract class KeyphraseExtractor {
      */
     public abstract boolean needsTraining();
 
-    public abstract Set<Keyphrase> extract(String inputText);
+    public abstract List<Keyphrase> extract(String inputText);
 
     /**
      * @return the keyphraseCount
