@@ -2,6 +2,7 @@ package tud.iir.helper;
 
 import java.io.File;
 import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.PropertiesConfiguration;
@@ -41,9 +42,9 @@ public final class ConfigHolder {
      * <p>
      * Wrapper class for thread safe singleton handling. See Effective Java, item 48.
      * </p>
-     *
+     * 
      * @author David Urbansky
-     *
+     * 
      */
     static class SingletonHolder {
         /**
@@ -72,7 +73,6 @@ public final class ConfigHolder {
     private ConfigHolder() {
         try {
             File configFile = new File(CONFIG_PATH);
-            File classpathConfig = new File(ConfigHolder.class.getResource("/" + CONFIG_NAME).toURI());
             File environmentConfig = new File(System.getenv("PALLADIAN_HOME") + "/" + CONFIG_PATH);
             PropertiesConfiguration propertiesConfiguration = null;
             if (environmentConfig.exists()) {
@@ -83,10 +83,19 @@ public final class ConfigHolder {
                 LOGGER.debug("Try to load palladian.properties from config folder: " + configFile.getAbsolutePath());
                 propertiesConfiguration = new PropertiesConfiguration(configFile);
             } else {
-                LOGGER.debug("Try to load palladian.properties from Classpath: " + classpathConfig.getAbsolutePath());
-                propertiesConfiguration = new PropertiesConfiguration(classpathConfig);
+                URL resource = ConfigHolder.class.getResource("/" + CONFIG_NAME);
+                if (resource != null) {
+                    File classpathConfig = new File(resource.toURI());
+                    LOGGER.debug("Try to load palladian.properties from Classpath: "
+                            + classpathConfig.getAbsolutePath());
+                    propertiesConfiguration = new PropertiesConfiguration(classpathConfig);
+                }
             }
-            setConfig(propertiesConfiguration);
+            if (propertiesConfiguration != null) {
+                setConfig(propertiesConfiguration);
+            } else {
+                LOGGER.error("Palladian configuration file loading error.");
+            }
         } catch (ConfigurationException e) {
             LOGGER.error("Palladian configuration under " + CONFIG_PATH + " could not be loaded completely: "
                     + e.getMessage());
@@ -96,7 +105,7 @@ public final class ConfigHolder {
     }
 
     /**
-     * Return the value of the field with the specifield field name.
+     * Return the value of the field with the specified field name.
      * 
      * @param fieldName
      *            The name of the field for which a value should be retrieved.
@@ -128,5 +137,4 @@ public final class ConfigHolder {
     public PropertiesConfiguration getConfig() {
         return config;
     }
-
 }
