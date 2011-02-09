@@ -2,31 +2,22 @@ package tud.iir.web;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InterruptedIOException;
-import java.net.ConnectException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.FileRequestEntity;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.params.HttpClientParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.log4j.Logger;
-
-import tud.iir.helper.ThreadHelper;
 
 public class HTTPPoster {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(HTTPPoster.class);
 
-    private File output;
     private HttpClient client;
 
     public HTTPPoster() {

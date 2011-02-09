@@ -1,6 +1,5 @@
 package tud.iir.classification.page;
 
-import java.io.Serializable;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -8,10 +7,10 @@ import org.apache.log4j.Logger;
 
 import tud.iir.classification.Categories;
 import tud.iir.classification.CategoryEntry;
+import tud.iir.classification.Classifier;
 import tud.iir.classification.Term;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.classification.page.evaluation.ClassifierPerformance;
-import tud.iir.classification.page.evaluation.FeatureSetting;
 import tud.iir.extraction.PageAnalyzer;
 import tud.iir.web.Crawler;
 
@@ -20,10 +19,10 @@ import tud.iir.web.Crawler;
  * 
  * @author David Urbansky
  */
-public abstract class TextClassifier implements Serializable {
+public abstract class TextClassifier extends Classifier {
 
     /** The serialize version ID. */
-    private static final long serialVersionUID = 7180813470321257741L;
+    private static final long serialVersionUID = -2602257661494177552L;
 
     /** The logger for this class. */
     protected static final Logger LOGGER = Logger.getLogger(TextClassifier.class);
@@ -31,26 +30,11 @@ public abstract class TextClassifier implements Serializable {
     /** Start time of initialization of classifier. */
     protected long initTime = 0;
 
-    /** A classifier has a name. */
-    private String name = "";
-
-    /** A classifier classifies to certain categories. */
-    public Categories categories = null;
-
     /** A classifier has training documents. */
     private transient ClassificationDocuments trainingDocuments = new ClassificationDocuments();
 
     /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
     private transient ClassificationDocuments testDocuments = new ClassificationDocuments();
-
-    /**
-     * configurations for the classification type ({@link ClassificationTypeSetting.SINGLE},
-     * {@link ClassificationTypeSetting.HIERARCHICAL}, or {@link ClassificationTypeSetting.TAG})
-     */
-    protected ClassificationTypeSetting classificationTypeSetting = new ClassificationTypeSetting();
-
-    /** The feature settings which should be used by the text classifier. */
-    private FeatureSetting featureSetting = new FeatureSetting();
 
     private ClassifierPerformance performance = null;
 
@@ -81,6 +65,7 @@ public abstract class TextClassifier implements Serializable {
     /**
      * @return All the categories the classifier orders documents to.
      */
+    @Override
     public Categories getCategories() {
         return categories;
     }
@@ -88,6 +73,7 @@ public abstract class TextClassifier implements Serializable {
     /**
      * @param categories All the categories the classifier orders documents to.
      */
+    @Override
     public void setCategories(Categories categories) {
         this.categories = categories;
     }
@@ -124,7 +110,7 @@ public abstract class TextClassifier implements Serializable {
         this.benchmark = benchmark;
     }
 
- // TODO develop Web Page classifier subclass 
+    // TODO develop Web Page classifier subclass
     /**
      * Check whether a given web page is a forum/board page. Make use of heuristics.
      * 
@@ -140,7 +126,7 @@ public abstract class TextClassifier implements Serializable {
      * <p>
      * 
      * </p>
-     *
+     * 
      * @param document
      * @return
      */
@@ -227,7 +213,8 @@ public abstract class TextClassifier implements Serializable {
     }
 
     /**
-     * this method calls the classify function that is implemented by each concrete classifier all test documents are classified
+     * This method calls the classify function that is implemented by each concrete classifier all test documents are
+     * classified.
      */
     public void classifyTestDocuments() {
         for (ClassificationDocument testDocument : testDocuments) {
@@ -236,7 +223,8 @@ public abstract class TextClassifier implements Serializable {
     }
 
     /**
-     * This method turns a web document into a document that can be classified. The subclasses implement this method according to the information they need for
+     * This method turns a web document into a document that can be classified. The subclasses implement this method
+     * according to the information they need for
      * a classification document.
      * 
      * @param document The web document that should be prepared for classification.
@@ -285,36 +273,8 @@ public abstract class TextClassifier implements Serializable {
         return "no paramters used";
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-    
-    public void setClassificationTypeSetting(ClassificationTypeSetting classificationTypeSetting) {
-        this.classificationTypeSetting = classificationTypeSetting;
-    }
-
-    public ClassificationTypeSetting getClassificationTypeSetting() {
-        return classificationTypeSetting;
-    }
-
-    public int getClassificationType() {
-        return getClassificationTypeSetting().getClassificationType();
-    }
-
     public boolean isSerialize() {
         return getClassificationTypeSetting().isSerializeClassifier();
-    }
-
-    public void setFeatureSetting(FeatureSetting featureSetting) {
-        this.featureSetting = featureSetting;
-    }
-
-    public FeatureSetting getFeatureSetting() {
-        return featureSetting;
     }
 
     public void setPerformance(ClassifierPerformance performance) {
@@ -322,11 +282,11 @@ public abstract class TextClassifier implements Serializable {
     }
 
     public ClassifierPerformance getPerformance() {
-        
+
         if (performance == null) {
             performance = new ClassifierPerformance(this);
         }
-        
+
         return performance;
     }
 
@@ -387,11 +347,12 @@ public abstract class TextClassifier implements Serializable {
 
             document.sortCategoriesByRelevance();
 
-            show.append(document.getUrl() + "\n\treal (" + document.getClassifiedAsReadable() + "): ").append(document.getRealCategoriesString()).append(
-                    "\n\tclassified:");
+            show.append(document.getUrl() + "\n\treal (" + document.getClassifiedAsReadable() + "): ")
+                    .append(document.getRealCategoriesString()).append("\n\tclassified:");
             while (j.hasNext()) {
                 CategoryEntry categoryEntry = j.next();
-                show.append(categoryEntry.getCategory().getName()).append("(").append(Math.round(100 * categoryEntry.getRelevance())).append("%) ");
+                show.append(categoryEntry.getCategory().getName()).append("(")
+                        .append(Math.round(100 * categoryEntry.getRelevance())).append("%) ");
             }
 
             if (getClassificationType() == ClassificationTypeSetting.TAG) {
@@ -424,7 +385,8 @@ public abstract class TextClassifier implements Serializable {
                 if (((TestDocument) document).isCorrectClassified()) {
                     result = "CORRECT";
                 }
-                show.append("=> ").append(document.getMainCategoryEntry().getCategory().getName()).append(" ").append(result).append("\n");
+                show.append("=> ").append(document.getMainCategoryEntry().getCategory().getName()).append(" ")
+                        .append(result).append("\n");
                 // structuredOutput.append(" #").append(document.getMainCategoryEntry().getCategory().getName()).append("\n");
             }
         }
@@ -438,7 +400,8 @@ public abstract class TextClassifier implements Serializable {
             show.append("Average Precision@: ");
             for (int i = 1; i <= precisionAtRank; i++) {
                 double averagePrecisionAtX = totalPrecisionAts[i - 1] / testDocuments.size();
-                show.append("@").append(i).append(": ").append((int) Math.floor(100 * averagePrecisionAtX)).append("% ");
+                show.append("@").append(i).append(": ").append((int) Math.floor(100 * averagePrecisionAtX))
+                        .append("% ");
             }
             show.append("\n");
             show.append("Average Precision: ").append((int) Math.floor(100 * averagePrecision)).append("%\n");
@@ -455,7 +418,7 @@ public abstract class TextClassifier implements Serializable {
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("TextClassifier [name=");
-        builder.append(name);
+        builder.append(getName());
         builder.append("]");
         return builder.toString();
     }

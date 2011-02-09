@@ -56,7 +56,7 @@ public class FeedReaderEvaluator {
     public static int benchmarkSample = 10;
 
     /** The path to the folder with the feed post history files. */
-    private static final String BENCHMARK_DATASET_PATH = "F:\\Workspaces\\Feed-Item-Dataset-TUDCS1\\items\\clean\\";
+    private static final String BENCHMARK_DATASET_PATH = "G:\\Projects\\Programming\\Other\\clean\\";
 
     /** The list of history files, will be loaded only once for the sake of performance. */
     private static File[] benchmarkDatasetFiles;

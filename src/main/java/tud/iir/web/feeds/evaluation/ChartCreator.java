@@ -401,7 +401,6 @@ public class ChartCreator {
      *            added to the transfer volume (instead of the sizeOfPoll).
      * @param feedIDMax the highest FeedID in the data set.
      */
-    @SuppressWarnings("unused")
     private void cumulatedVolumePerTimeFile(final Policy policy, final boolean simulateEtagUsage, final int feedIDMax) {
         LOGGER.info("starting to create sumVolumeFile for policy " + policy);
         StringBuilder cumulatedVolumeSB = new StringBuilder();

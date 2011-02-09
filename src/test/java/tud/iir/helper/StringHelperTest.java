@@ -5,6 +5,8 @@ import java.util.List;
 
 import junit.framework.TestCase;
 
+import org.junit.Test;
+
 /**
  * Test cases for the StringHelper class.
  * 
@@ -27,6 +29,16 @@ public class StringHelperTest extends TestCase {
         assertEquals("Text", StringHelper.removeNumbering("1.2.3.4     Text"));
     }
 
+    @Test
+    public void testGetOccurrenceIndices() {
+        List<Integer> list = StringHelper.getOccurrenceIndices("This is a test.", " ");
+        assertEquals(3, list.size());
+        assertEquals(4, (int) list.get(0));
+        assertEquals(7, (int) list.get(1));
+        assertEquals(9, (int) list.get(2));
+    }
+
+    @Test
     public void testGetLongestCommonString() {
         assertEquals("abc", StringHelper.getLongestCommonString("abcd", "abcefg", false, false));
         assertEquals("abcdEf", StringHelper.getLongestCommonString("abcdEfE", "abcdEfefg", true, false));

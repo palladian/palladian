@@ -56,7 +56,6 @@ public class ClassifierTest extends TestCase {
         Dataset dataset = new Dataset();
 
         // set the path to the dataset
-
         dataset.setPath(ClassifierTest.class.getResource("/classifier/index_learning.txt").getFile());
 
         // tell the preprocessor that the first field in the file is a link to the actual document

@@ -227,11 +227,11 @@ public class FeedStatisticCreator {
     public static void minDelayPolicyEvaluationAll() throws SQLException {
 
         Set<String> tables = new HashSet<String>();
-        tables.add("feed_evaluation2_adaptive_min_poll");
-        tables.add("feed_evaluation2_probabilistic_min_poll");
-        tables.add("feed_evaluation2_fix60_max_min_poll");
-        tables.add("feed_evaluation2_fix1440_max_min_poll");
-        tables.add("feed_evaluation2_fix_learned_min_poll");
+        tables.add("feed_evaluation2_adaptive_min_time");
+        tables.add("feed_evaluation2_probabilistic_min_time");
+        tables.add("feed_evaluation2_fix60_max_min_time");
+        tables.add("feed_evaluation2_fix1440_max_min_time");
+        tables.add("feed_evaluation2_fix_learned_min_time");
 
         for (String table : tables) {
             minDelayPolicyEvaluation(table);
@@ -950,7 +950,7 @@ public class FeedStatisticCreator {
         // FeedStatisticCreator.maxCoveragePolicyEvaluation("feed_evaluation_polls");
         // FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation_polls");
         // FeedStatisticCreator.minDelayPolicyEvaluation("feed_evaluation2_fix60_max_min_poll");
-        // FeedStatisticCreator.minDelayPolicyEvaluationAll();
+        FeedStatisticCreator.minDelayPolicyEvaluationAll();
         // FeedStatisticCreator.timelinessChart();
         // FeedStatisticCreator.delayChart();
         // FeedStatisticCreator.createTempTableMin();

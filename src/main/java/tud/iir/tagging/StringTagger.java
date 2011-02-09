@@ -40,7 +40,10 @@ public class StringTagger {
         // s = s.replaceAll("(?<!\\<CANDIDATE\\>)" + RegExp.ENTITY, entityTag);
         // s = s.replaceAll("(?<!\"[^\"]{0,200}?)" + RegExp.ENTITY, entityTag);
 
-        String regexp = "([A-Z]\\.)+";
+        String regexp = "";
+        regexp += "([A-Z][a-z]{0,2}\\.) [A-Z]{1}[A-Za-z]{1,100}";
+        regexp += "|";
+        regexp += "([A-Z]\\.)+";
         regexp += "|";
         regexp += "((([A-Z]{1}([A-Za-z-üäößãáàúùíìîéèê0-9]+))+(( )?[A-Z]+([A-Za-z-üäößãáàúùíìîéèê0-9]*)){0,10})(?!(\\.[A-Z])+))";
 
@@ -95,6 +98,10 @@ public class StringTagger {
 
         // testText =
         // "The United States of America are often called the USA, the U.S.A., or simply the U.S. The U.N. has its headquarter in N.Y.C. on the east coast.";
+
+        // testText = "Mrs. Smithers is not called F. Smithers.";
+
+        testText = "The so called BBC is the British Broadcasting Corporation (BBC) or ( BBC )";
 
         // CollectionHelper.print(Tokenizer.tokenize(testText));
         System.out.println(StringTagger.tagString(testText));
