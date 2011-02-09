@@ -22,7 +22,7 @@ public class Stopwords extends HashSet<String> {
 
     private static final long serialVersionUID = 8764752921113362657L;
 
-    /** available predefined stopword lists. Those are included with the toolkit as resource files. */
+    /** Available predefined stopword lists. Those are included with the toolkit as resource files. */
     public static enum Predefined {
 
         // you can add your own stopword lists here ...

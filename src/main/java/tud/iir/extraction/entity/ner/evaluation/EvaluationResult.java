@@ -19,6 +19,8 @@ import tud.iir.helper.MathHelper;
  * <li>ERROR 4: correctly tagged an entity but either too much or too little (wrong boundaries)</li>
  * <li>ERROR 5: wrong boundaries and wrong tag</li>
  * </ol>
+ * For more information see <a
+ * href="http://nlp.cs.nyu.edu/sekine/papers/li07.pdf">http://nlp.cs.nyu.edu/sekine/papers/li07.pdf</a> page 14.
  * </p>
  * 
  * <p>
@@ -37,13 +39,18 @@ import tud.iir.helper.MathHelper;
  */
 public class EvaluationResult {
 
-    public EvaluationResult(Map<String, CountMap> assignments, Annotations goldStandardAnnotations) {
+    public EvaluationResult(Map<String, CountMap> assignments, Annotations goldStandardAnnotations,
+            Map<String, Annotations> errorAnnotations) {
         this.assignments = assignments;
-        setGoldStandardAnnotations(goldStandardAnnotations);
+        this.goldStandardAnnotations = goldStandardAnnotations;
+        this.errorAnnotations = errorAnnotations;
     }
 
     /** The annotations from the gold standard. */
     private Annotations goldStandardAnnotations;
+
+    /** All error annotations by error class. */
+    private Map<String, Annotations> errorAnnotations;
 
     /**
      * <p>
@@ -107,12 +114,26 @@ public class EvaluationResult {
 
     /** A marker that marks special fields. */
     public static final String SPECIAL_MARKER = "#";
+
+    /** Tagged something that should not have been tagged. */
     public static final String ERROR1 = SPECIAL_MARKER + "error1" + SPECIAL_MARKER;
+
+    /** Completely missed to tag an entity. */
     public static final String ERROR2 = SPECIAL_MARKER + "error2" + SPECIAL_MARKER;
+
+    /** Exact same content but wrong tag. */
     public static final String ERROR3 = SPECIAL_MARKER + "error3" + SPECIAL_MARKER;
+
+    /** Overlapping content and correct tag. */
     public static final String ERROR4 = SPECIAL_MARKER + "error4" + SPECIAL_MARKER;
+
+    /** Overlapping content but wrong tag. */
     public static final String ERROR5 = SPECIAL_MARKER + "error5" + SPECIAL_MARKER;
+
+    /** Exact same content and correct tag. */
     public static final String CORRECT = SPECIAL_MARKER + "correct" + SPECIAL_MARKER;
+
+    /** Number of possible annotations. */
     public static final String POSSIBLE = SPECIAL_MARKER + "possible" + SPECIAL_MARKER;
 
     public double getPrecisionFor(String tagName, int type) {
@@ -375,6 +396,14 @@ public class EvaluationResult {
 
     public Annotations getGoldStandardAnnotations() {
         return goldStandardAnnotations;
+    }
+
+    public void setErrorAnnotations(Map<String, Annotations> errorAnnotations) {
+        this.errorAnnotations = errorAnnotations;
+    }
+
+    public Map<String, Annotations> getErrorAnnotations() {
+        return errorAnnotations;
     }
 
 }

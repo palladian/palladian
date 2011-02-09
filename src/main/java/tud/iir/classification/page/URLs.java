@@ -3,7 +3,7 @@ package tud.iir.classification.page;
 import java.util.ArrayList;
 
 /**
- * an ArrayList of URLs
+ * An ArrayList of URLs.
  * 
  * @author David Urbansky
  */

@@ -77,6 +77,30 @@ public class StringHelper {
     }
 
     /**
+     * Search for the indices of a search string in a text.<br>
+     * For example given the text "This is a text" and the searchString " ", we would get [4,7,9], the indices of the
+     * white spaces.
+     * 
+     * @param text The text to search in.
+     * @param searchString The search string to find the indices of.
+     * @return A list of indices in the text.
+     */
+    public static List<Integer> getOccurrenceIndices(String text, String searchString) {
+        List<Integer> indexList = new ArrayList<Integer>();
+
+        String subText = text;
+        int position = 0;
+        while (subText.indexOf(searchString) > -1) {
+            int index = subText.indexOf(searchString);
+            indexList.add(index + position);
+            subText = subText.substring(index + 1);
+            position += index + 1;
+        }
+
+        return indexList;
+    }
+
+    /**
      * This function wraps the string to double conversion in order to prevent the exception catching in other
      * functions.
      * 

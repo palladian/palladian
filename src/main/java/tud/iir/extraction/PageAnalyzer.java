@@ -923,7 +923,6 @@ public class PageAnalyzer {
         return getTextByXPath(document, xPath);
     }
 
-    @SuppressWarnings("unchecked")
     public String getTextByXPath(Document document, String xpath) {
 
         if (document == null || xpath.length() == 0) {
@@ -1263,13 +1262,11 @@ public class PageAnalyzer {
         Crawler c = new Crawler();
         Document document = c.getWebDocument(url);
 
-        PageAnalyzer pa0 = new PageAnalyzer();
-
         System.out.println(HTMLHelper.getXmlDump(document));
         System.exit(1);
 
         // String t = PageAnalyzer.getDocumentTextDump(document);
-        String t = pa0.getRawMarkup(document);
+        String t = PageAnalyzer.getRawMarkup(document);
 
         System.out.println(t.getBytes().length);
         System.out.println(t);

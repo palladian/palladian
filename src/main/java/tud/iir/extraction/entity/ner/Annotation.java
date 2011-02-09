@@ -1,8 +1,14 @@
 package tud.iir.extraction.entity.ner;
 
+import java.util.List;
+
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
+import tud.iir.classification.page.ClassificationDocument;
+import tud.iir.classification.page.DictionaryClassifier;
+import tud.iir.classification.page.Preprocessor;
+import tud.iir.helper.StringHelper;
 
 /**
  * An annotation made by a {@link NamedEntityRecognizer} when tagging a text.
@@ -60,7 +66,7 @@ public class Annotation {
 
     public boolean overlaps(Annotation annotation) {
         if (getOffset() <= annotation.getOffset() && getEndIndex() >= annotation.getOffset()
-                || getOffset() <= annotation.getEndIndex() && getEndIndex() >= annotation.getEndIndex()) {
+                || getOffset() <= annotation.getEndIndex() && getEndIndex() >= annotation.getOffset()) {
             return true;
         }
         return false;
@@ -169,6 +175,50 @@ public class Annotation {
                             .getName(), annotation.getMostLikelyTagName());
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
+            }
+        }
+
+        return unwrappedAnnotations;
+    }
+
+    public Annotations unwrapAnnotations(DictionaryClassifier classifier, Preprocessor preprocessor) {
+        Annotations unwrappedAnnotations = new Annotations();
+
+        if (getEntity().getName().indexOf(" ") == -1) {
+            return unwrappedAnnotations;
+        }
+
+        String[] words = getEntity().getName().split(" ");
+        String[] tags = new String[words.length];
+
+        // classify each word
+        for (int i = 0; i < words.length; i++) {
+
+            ClassificationDocument document = preprocessor.preProcessDocument(words[i]);
+            classifier.classify(document, false);
+            tags[i] = document.getMainCategoryEntry().getCategory().getName();
+
+        }
+
+
+        // create annotations
+        Annotation lastAnnotation = new Annotation(0, "", "");
+        for (int i = 0; i < words.length; i++) {
+            String tag = tags[i];
+
+            if (!tag.equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())) {
+                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity().getName(), " ");
+                int offsetPlus = 0;
+                if (i > 0) {
+                    offsetPlus = indexList.get(i - 1) + 1;
+                }
+                lastAnnotation = new Annotation(getOffset() + offsetPlus, words[i],
+                        tags[i]);
+                unwrappedAnnotations.add(lastAnnotation);
+            } else {
+                // update last annotation
+                lastAnnotation.getEntity().setName(lastAnnotation.getEntity().getName() + " " + words[i]);
+                lastAnnotation.setLength(lastAnnotation.getEntity().getName().length());
             }
         }
 

@@ -13,7 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.tartarus.snowball.SnowballStemmer;
 
-import tud.iir.classification.Classifier;
+import tud.iir.classification.WekaClassifierWrapper;
 import tud.iir.classification.FeatureObject;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.extraction.keyphrase.KeyphraseExtractorSettings.AssignmentMode;
@@ -41,7 +41,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     private Corpus corpus = new Corpus();
 
     /** The classifier is used for predicting relevance values for keyphrase candidates. */
-    private Classifier classifier = new Classifier(Classifier.BAGGING);
+    private WekaClassifierWrapper classifier = new WekaClassifierWrapper(WekaClassifierWrapper.BAGGING);
 
     /** This class encapsulates all the customizable settings. */
     private KeyphraseExtractorSettings settings = new KeyphraseExtractorSettings();
@@ -276,7 +276,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     }
 
     /**
-     * Use the {@link Classifier} to classify the identified {@link Candidate}s.
+     * Use the {@link WekaClassifierWrapper} to classify the identified {@link Candidate}s.
      * 
      * @param candidates
      */

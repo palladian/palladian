@@ -65,6 +65,8 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     /** the connector to the knowledge base */
     private transient KnowledgeBaseCommunicatorInterface kbCommunicator = null;
 
+    private Annotations removeAnnotations = new Annotations();
+
     public TUDNER() {
         setName("TUD NER");
         patternCandidates = new TreeMap<String, CategoryEntries>();
@@ -116,6 +118,44 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         return true;
     }
 
+    public void calculateRemoveAnnotatations(String inputText) {
+        // run annotation on training set and discard all entities that were tagged but should not have been tagged
+        // (error1)
+        Annotations entityCandidates = StringTagger.getTaggedEntities(inputText);
+        Annotations annotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
+        removeAnnotations = new Annotations();
+        EvaluationResult evaluationResult = evaluate("data/datasets/ner/conll/training.txt", "data/temp/tudner.model",
+                TaggingFormat.COLUMN);
+
+        // get only those annotations that were incorrectly tagged and were never a real entity that is they have to be
+        // in ERROR1 set and NOT in the gold standard
+        Annotations wrongAnnotations = new Annotations();
+        for (Annotation wrongAnnotation : evaluationResult.getErrorAnnotations().get(EvaluationResult.ERROR1)) {
+            String wrongName = wrongAnnotation.getEntity().getName().toLowerCase();
+            boolean addAnnotation = true;
+
+            // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
+            for (Annotation gsAnnotation : evaluationResult.getGoldStandardAnnotations()) {
+                if (wrongName.equals(gsAnnotation.getEntity().getName().toLowerCase())) {
+                    addAnnotation = false;
+                    break;
+                }
+            }
+            if (addAnnotation) {
+                wrongAnnotations.add(wrongAnnotation);
+            }
+        }
+
+        for (Annotation wrongAnnotation : wrongAnnotations) {
+            String wrongName = wrongAnnotation.getEntity().getName().toLowerCase();
+            for (Annotation annotationCandidate : annotations) {
+                if (wrongName.equals(annotationCandidate.getEntity().getName().toLowerCase())) {
+                    removeAnnotations.add(annotationCandidate);
+                }
+            }
+        }
+    }
+
     @Override
     public Annotations getAnnotations(String inputText) {
         Annotations annotations = new Annotations();
@@ -130,6 +170,30 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         Annotations dictionaryRecognizedAnnotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
         annotations.addAll(dictionaryRecognizedAnnotations);
+
+        Annotations toRemove = new Annotations();
+
+        // remove all annotations with "DOCSTART- " in them because that is for format purposes
+        for (Annotation annotation : dictionaryRecognizedAnnotations) {
+            if (annotation.getEntity().getName().toLowerCase().indexOf("docstart- ") > -1) {
+                annotation.getEntity().setName(annotation.getEntity().getName().replace("DOCSTART- ", ""));
+                annotation.setOffset(annotation.getOffset() + 10);
+                annotation.setLength(annotation.getEntity().getName().length());
+                // toRemove.add(annotation);
+            }
+        }
+
+        // remove annotations that were found to be incorrectly tagged in the training data
+        for (Annotation removeAnnotation : removeAnnotations) {
+            String removeName = removeAnnotation.getEntity().getName().toLowerCase();
+            for (Annotation annotation : dictionaryRecognizedAnnotations) {
+                if (removeName.equals(annotation.getEntity().getName().toLowerCase())) {
+                    toRemove.add(annotation);
+                }
+            }
+        }
+
+        annotations.removeAll(toRemove);
 
         FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt",
                 tagText(inputText, dictionaryRecognizedAnnotations));
@@ -487,6 +551,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             // look for entities that have been annotated in the current text already to find them in the given
             // candidate
             Annotations wrappedAnnotations = entityCandidate.unwrapAnnotations(annotations);
+            // Annotations wrappedAnnotations = entityCandidate.unwrapAnnotations(dictionaryClassifier, preprocessor);
 
             if (!wrappedAnnotations.isEmpty()) {
                 for (Annotation annotation : wrappedAnnotations) {
@@ -499,7 +564,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
                         .preProcessDocument(entityCandidate.getEntity().getName());
                 dictionaryClassifier.classify(document, false);
 
-                if (document.getMainCategoryEntry().getAbsoluteRelevance() > 0) {
+                if (document.getMainCategoryEntry().getAbsoluteRelevance() > -4) {
 
                     CategoryEntries categoryEntries = document.getAssignedCategoryEntries();
                     Annotation annotation = new Annotation(entityCandidate.getOffset(), entityCandidate.getEntity()
@@ -704,6 +769,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         // using a column trainig and testing file
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
+        tagger.loadModel("data/temp/tudner.model");
+        tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",
+                TaggingFormat.COLUMN));
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/tudner.model",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());

@@ -2165,7 +2165,6 @@ public class Crawler {
         Crawler c12 = new Crawler();
         try {
             c12.downloadInputStream("http://www.cinefreaks.com");
-            Document document1 = c12.getWebDocument("http://listing-index.ebay.com/actors/List_of_actors.html");
         } catch (IOException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

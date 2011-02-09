@@ -4,8 +4,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import tud.iir.helper.CollectionHelper;
-
 /**
  * An object holding features.
  * 
@@ -37,7 +35,7 @@ public class FeatureObject {
         // setFeatureNames(featureNames);
         this.featureNames = featureNames;
         // setClassAssociation((int) Math.floor((features[features.length - 1])));
-        this.classAssociation = (int) Math.floor((features[features.length - 1]));
+        this.classAssociation = (int) Math.floor(features[features.length - 1]);
     }
 
     /**

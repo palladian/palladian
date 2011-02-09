@@ -6,8 +6,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.language.AlchemyLangDetect;
-import tud.iir.classification.language.GoogleLangDetect;
 import tud.iir.classification.language.JLangDetect;
 import tud.iir.classification.language.LanguageClassifier;
 import tud.iir.classification.language.PalladianLangDetect;
@@ -35,8 +33,8 @@ public class LanguageDetectionEvaluation {
         StopWatch sw = new StopWatch();
 
         LanguageClassifier jLangDetectClassifier = new JLangDetect();
-        LanguageClassifier googleLanguageClassifier = new GoogleLangDetect();
-        LanguageClassifier alchemyLanguageClassifier = new AlchemyLangDetect();
+        // LanguageClassifier googleLanguageClassifier = new GoogleLangDetect();
+        // LanguageClassifier alchemyLanguageClassifier = new AlchemyLangDetect();
         LanguageClassifier palladianClassifier = new PalladianLangDetect();
         LanguageClassifier tagTheNetClassifier = new TagTheNetLangDetect();
 
