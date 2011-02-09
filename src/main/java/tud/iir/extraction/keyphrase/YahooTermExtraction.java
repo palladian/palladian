@@ -1,7 +1,7 @@
 package tud.iir.extraction.keyphrase;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.httpclient.NameValuePair;
 import org.apache.commons.httpclient.methods.PostMethod;
@@ -25,9 +25,9 @@ public class YahooTermExtraction extends KeyphraseExtractor {
     private static final Logger LOGGER = Logger.getLogger(YahooTermExtraction.class);
 
     @Override
-    public Set<Keyphrase> extract(String inputText) {
+    public List<Keyphrase> extract(String inputText) {
         
-        Set<Keyphrase> keyphrases = new HashSet<Keyphrase>();
+        List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
         PostMethod postMethod = new PostMethod("http://query.yahooapis.com/v1/public/yql");
 

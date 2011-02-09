@@ -432,7 +432,7 @@ public class ControlledTagger extends KeyphraseExtractor {
      * @param text
      * @return
      */
-    private Set<Keyphrase> assignTags(String text) {
+    private List<Keyphrase> assignTags(String text) {
 
         Bag<String> extractedTags = extractTags(text);
         List<Keyphrase> assignedTags = new LinkedList<Keyphrase>();
@@ -480,7 +480,7 @@ public class ControlledTagger extends KeyphraseExtractor {
 
         LOGGER.trace("final tags:" + assignedTags);
         LOGGER.trace("---------------------");
-        return new HashSet<Keyphrase>(assignedTags);
+        return assignedTags;
     }
 
     /**
@@ -608,12 +608,12 @@ public class ControlledTagger extends KeyphraseExtractor {
     }
 
     @Override
-    public Set<Keyphrase> extract(String inputText) {
+    public List<Keyphrase> extract(String inputText) {
 
         addToIdf(inputText);
         updateIndex();
 
-        Set<Keyphrase> assignedTags = assignTags(inputText);
+        List<Keyphrase> assignedTags = assignTags(inputText);
         unstem(assignedTags);
         return assignedTags;
 
@@ -800,7 +800,7 @@ public class ControlledTagger extends KeyphraseExtractor {
         return unstem;
     }
 
-    private void unstem(Set<Keyphrase> stemmedTags) {
+    private void unstem(List<Keyphrase> stemmedTags) {
         for (Keyphrase tag : stemmedTags) {
             String unstemmed = unstem(tag.getValue());
             tag.setValue(unstemmed);
@@ -971,7 +971,7 @@ public class ControlledTagger extends KeyphraseExtractor {
         String result = c.download("http://www.i-funbox.com/");
         result = HTMLHelper.htmlToString(result, true);
         tagger.getSettings().setTagCount(20);
-        Set<Keyphrase> extract = tagger.extract(result);
+        List<Keyphrase> extract = tagger.extract(result);
         System.out.println(extract);
 
         System.exit(0);
@@ -1016,7 +1016,7 @@ public class ControlledTagger extends KeyphraseExtractor {
         PageContentExtractor extractor = new PageContentExtractor();
         String content = extractor
                 .getResultText("http://arstechnica.com/open-source/news/2010/10/mozilla-releases-firefox-4-beta-for-maemo-and-android.ars");
-        Set<Keyphrase> assignedTags = tagger.extract(content);
+        List<Keyphrase> assignedTags = tagger.extract(content);
 
         // print the assigned tags
         CollectionHelper.print(assignedTags);

@@ -227,7 +227,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
     }
 
     @Override
-    public Set<Keyphrase> extract(String text) {
+    public List<Keyphrase> extract(String text) {
 
         addToCorpus(text);
 
@@ -266,7 +266,7 @@ public class PalladianKeyphraseExtractor extends KeyphraseExtractor {
         limitResult(candidates);
 
         // return candidates;
-        Set<Keyphrase> keyphrases = new HashSet<Keyphrase>();
+        List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
         for (Candidate candidate : candidates) {
             keyphrases.add(new Keyphrase(candidate.getValue(), candidate.getRegressionValue()));
         }

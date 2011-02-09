@@ -1,5 +1,6 @@
 package tud.iir.extraction.keyphrase;
 
+import java.util.List;
 import java.util.Set;
 
 import tud.iir.extraction.content.PageContentExtractor;
@@ -11,7 +12,7 @@ import tud.iir.helper.CollectionHelper;
  * Assign at least 512 MB to the VM.
  * 
  * @author Philipp Katz
- *
+ * 
  */
 public class PalladianKeyphraseExtractorExample {
 
@@ -28,7 +29,7 @@ public class PalladianKeyphraseExtractorExample {
         settings.setKeyphraseCount(20);
 
         // maximum length of extracted keyphrases
-        settings.setMinPhraseLength(2);
+        settings.setMinPhraseLength(1);
         settings.setMaxPhraseLength(3);
 
         // Pattern, which keyphrases have to match
@@ -39,16 +40,20 @@ public class PalladianKeyphraseExtractorExample {
 
         // extract keyphrases
         String text = getSampleText();
-        Set<Keyphrase> keyphrases = keyphraseExtractor.extract(text);
+        List<Keyphrase> keyphrases = keyphraseExtractor.extract(text);
 
         // result
         CollectionHelper.print(keyphrases);
+        // for (Keyphrase keyphrase : keyphrases) {
+        // System.out.println(keyphrase.getValue() + " " + keyphrase.getWeight());
+        // }
 
     }
 
     private static String getSampleText() {
         PageContentExtractor contentExtractor = new PageContentExtractor();
-        String text = contentExtractor.getResultText("http://arstechnica.com/web/news/2011/01/mozilla-google-take-different-approaches-to-user-tracking-opt-out.ars");
+        String text = contentExtractor
+                .getResultText("http://arstechnica.com/web/news/2011/01/mozilla-google-take-different-approaches-to-user-tracking-opt-out.ars");
         return text;
     }
 

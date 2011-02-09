@@ -23,7 +23,9 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import maui.filters.MauiFilter;
@@ -254,11 +256,11 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
     }
 
     @Override
-    public Set<Keyphrase> extract(String inputText) {
+    public List<Keyphrase> extract(String inputText) {
 
         LOGGER.trace(">extract");
 
-        Set<Keyphrase> result = new HashSet<Keyphrase>();
+        List<Keyphrase> result = new ArrayList<Keyphrase>();
 
         double[] newInst = new double[3];
         newInst[0] = (double) data.attribute(0).addStringValue("inputFile"); // just a dummy
@@ -612,7 +614,7 @@ public class MauiKeyphraseExtractor extends KeyphraseExtractor {
         extractor.setKeyphraseCount(20);
 
         extractor.startExtraction();
-        Set<Keyphrase> extract = extractor
+        List<Keyphrase> extract = extractor
                 .extract("Bugs' ascension to stardom also prompted the Warner animators to recast Daffy Duck as the rabbit's rival, intensely jealous and determined to steal back the spotlight while Bugs remained indifferent to the duck's jealousy, or used it to his advantage. This turned out to be the recipe for the success of the duo.");
         System.out.println(extract);
 

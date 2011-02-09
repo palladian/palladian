@@ -16,7 +16,6 @@ import org.apache.commons.collections15.bag.HashBag;
 import org.apache.commons.collections15.map.LazyMap;
 import org.apache.commons.lang.StringUtils;
 
-import tud.iir.classification.Stopwords;
 import tud.iir.classification.WordCorrelation;
 import tud.iir.helper.StringHelper;
 
@@ -266,17 +265,17 @@ public class DocumentModel extends ArrayList<Candidate> {
         return builder.toString();
     }
     
-    public int getNumCand() {
-        Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
-        int numCand = 0;
-        Set<Entry<String, List<Token>>> entrySet = tokens.entrySet();
-        for (Entry<String, List<Token>> entry : entrySet) {
-            if (!stopwords.contains(entry.getValue().iterator().next().getUnstemmedValue().toLowerCase())) {
-                numCand++;
-            }
-        }
-        return numCand;
-        // return tokens.size();
-    }
+//    public int getNumCand() {
+//        Stopwords stopwords = new Stopwords(Stopwords.Predefined.EN);
+//        int numCand = 0;
+//        Set<Entry<String, List<Token>>> entrySet = tokens.entrySet();
+//        for (Entry<String, List<Token>> entry : entrySet) {
+//            if (!stopwords.contains(entry.getValue().iterator().next().getUnstemmedValue().toLowerCase())) {
+//                numCand++;
+//            }
+//        }
+//        return numCand;
+//        // return tokens.size();
+//    }
 
 }

@@ -1,6 +1,8 @@
 package tud.iir.extraction.keyphrase;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -52,9 +54,9 @@ public class AlchemyKeywordExtraction extends KeyphraseExtractor {
      * @return 
      */
     @Override
-    public Set<Keyphrase> extract(String inputText) {
+    public List<Keyphrase> extract(String inputText) {
         
-        Set<Keyphrase> keyphrases = new HashSet<Keyphrase>();
+        List<Keyphrase> keyphrases = new ArrayList<Keyphrase>();
 
         PostMethod postMethod = new PostMethod("http://access.alchemyapi.com/calls/text/TextGetRankedKeywords");
 
