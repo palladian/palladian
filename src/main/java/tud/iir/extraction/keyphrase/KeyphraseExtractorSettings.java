@@ -56,7 +56,8 @@ public class KeyphraseExtractorSettings implements TokenizerSettings {
 
     private Pattern pattern = Pattern.compile("[a-zA-Z\\s]{3,}");
 
-    private int phraseLength = 5;
+    private int minPhraseLength = 1;
+    private int maxPhraseLength = 5;
 
     /** Minimum occurrence of a candidate to be considered. Can be set to values greater 1 for long documents. */
     private int minOccurenceCount = 1;
@@ -64,7 +65,7 @@ public class KeyphraseExtractorSettings implements TokenizerSettings {
     public KeyphraseExtractorSettings() {
     }
 
-    public KeyphraseExtractorSettings(SnowballStemmer stemmer, Stopwords stopwords, boolean controlledMode,
+    /*public KeyphraseExtractorSettings(SnowballStemmer stemmer, Stopwords stopwords, boolean controlledMode,
             AssignmentMode assignmentMode, ReRankingMode reRankingMode, int keyphraseCount, float keyphraseThreshold,
             float correlationWeight, Pattern pattern) {
         this.stemmer = stemmer;
@@ -76,7 +77,7 @@ public class KeyphraseExtractorSettings implements TokenizerSettings {
         this.keyphraseThreshold = keyphraseThreshold;
         this.correlationWeight = correlationWeight;
         this.pattern = pattern;
-    }
+    }*/
 
     @Override
     public SnowballStemmer getStemmer() {
@@ -169,13 +170,21 @@ public class KeyphraseExtractorSettings implements TokenizerSettings {
     public void setPattern(String patternRegEx) {
         this.pattern = Pattern.compile(patternRegEx);
     }
-
-    public int getPhraseLength() {
-        return phraseLength;
+    
+    public int getMinPhraseLength() {
+        return minPhraseLength;
+    }
+    
+    public void setMinPhraseLength(int minPhraseLength) {
+        this.minPhraseLength = minPhraseLength;
     }
 
-    public void setPhraseLength(int phraseLength) {
-        this.phraseLength = phraseLength;
+    public int getMaxPhraseLength() {
+        return maxPhraseLength;
+    }
+
+    public void setMaxPhraseLength(int phraseLength) {
+        this.maxPhraseLength = phraseLength;
     }
 
     public int getMinOccurenceCount() {
