@@ -389,19 +389,28 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // mark up all seed entities
         for (String seedEntity : seedEntities) {
 
-            String escapedSeed = StringHelper.escapeForRegularExpression(seedEntity);
-            String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
-            + "(?=\\s)";
+            try {
 
-            // mark up html
-            webPageContent = webPageContent.replaceAll(searchRegexp, "<" + conceptName.toUpperCase()
-                    + " style=\"background-color:red; color:white;\">" + seedEntity + "</" + conceptName.toUpperCase()
-                    + ">");
+                String escapedSeed = StringHelper.escapeForRegularExpression(seedEntity);
+                String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
+                + "(?=\\s)";
 
-            // mark up text
-            webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">" + seedEntity
-                    + "</" + conceptName.toUpperCase() + ">");
+                // mark up html
+                webPageContent = webPageContent.replaceAll(searchRegexp,
+                        "<" + conceptName.toUpperCase() + " style=\"background-color:red; color:white;\">" + seedEntity
+                        + "</" + conceptName.toUpperCase() + ">");
 
+                // mark up text
+                webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">" + seedEntity
+                        + "</" + conceptName.toUpperCase() + ">");
+
+            } catch (Error e) {
+                LOGGER.error("something went wrong marking up the page content with seed " + seedEntity + ", "
+                        + e.getMessage());
+            } catch (Exception e) {
+                LOGGER.error("something went wrong marking up the page content with seed " + seedEntity + ", "
+                        + e.getMessage());
+            }
             LOGGER.debug("marked up page " + webPage.getDocumentURI() + " with entity " + seedEntity);
         }
 
