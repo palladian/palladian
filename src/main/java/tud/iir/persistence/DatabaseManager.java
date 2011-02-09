@@ -26,7 +26,9 @@ public class DatabaseManager {
     private static final Logger LOGGER = Logger.getLogger(DatabaseManager.class);
 
     /**
-     * Get a {@link Connection} from the {@link ConnectionManager}.
+     * Get a {@link Connection} from the {@link ConnectionManager}. If you use this method, e.g. in your subclass, it's
+     * your responsibility to close all database resources after work has been done. This can be done conveniently by
+     * using one of the various close methods offered by this class.
      * 
      * @return
      * @throws SQLException
@@ -73,18 +75,6 @@ public class DatabaseManager {
         return counter;
     }
 
-    //    /**
-    //     * Run a query operation on the database, process the result using a callback.
-    //     *
-    //     * @param callback The callback which is triggered for each result row of the query.
-    //     * @param sql Query statement which may contain parameter markers.
-    //     * @param args (Optional) arguments for parameter markers in query.
-    //     * @return Number of processed results.
-    //     */
-    //    public final int runQuery(SimpleResultCallback callback, String sql, Object... args) {
-    //        return runQuery(callback, new SimpleRowConverter(), sql, args);
-    //    }
-
     /**
      * Run a query operation on the database, process the result using a callback.
      * 
@@ -123,36 +113,6 @@ public class DatabaseManager {
         return result;
     }
 
-    // TODO needs testing.
-    //    public final <K, V> Map<K, V> runQuery(MapRowConverter<K, V> converter, String sql, Object... args) {
-    //
-    //        Connection connection = null;
-    //        PreparedStatement ps = null;
-    //        ResultSet rs = null;
-    //        Map<K, V> result = new HashMap<K, V>();
-    //
-    //        try {
-    //
-    //            connection = getConnection();
-    //            ps = connection.prepareStatement(sql);
-    //            fillPreparedStatement(ps, args);
-    //            rs = ps.executeQuery();
-    //
-    //            while (rs.next()) {
-    //                K key = converter.convertKey(rs);
-    //                V value = converter.convertValue(rs);
-    //                result.put(key, value);
-    //            }
-    //
-    //        } catch (SQLException e) {
-    //            LOGGER.error(e.getMessage());
-    //        } finally {
-    //            close(connection, ps, rs);
-    //        }
-    //
-    //        return result;
-    //    }
-
     /**
      * Run a query operation on the database, return the result as List.
      * 
@@ -172,8 +132,7 @@ public class DatabaseManager {
      * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
      * element has been retrieved. If you break the iteration loop, you <b>must</b> manually call
      * {@link ResultIterator#close()}. In general, you should prefer using
-     * {@link #runQuery(ResultCallback, RowConverter, String, Object...)},
-     * {@link #runQuery(SimpleResultCallback, String, Object...)}, or
+     * {@link #runQuery(ResultCallback, RowConverter, String, Object...)}, or
      * {@link #runQuery(ResultSetCallback, String, Object...)}, which will guarantee closing all database resources.
      * 
      * @param <T> Type of the processed objects.
@@ -219,8 +178,7 @@ public class DatabaseManager {
      * {@link UnsupportedOperationException}. Database resources used by the implementation are closed, after the last
      * element has been retrieved. If you break the iteration loop, you <b>must</b> manually call
      * {@link ResultIterator#close()}. In general, you should prefer using
-     * {@link #runQuery(ResultCallback, RowConverter, String, Object...)},
-     * {@link #runQuery(SimpleResultCallback, String, Object...)}, or
+     * {@link #runQuery(ResultCallback, RowConverter, String, Object...)}, or
      * {@link #runQuery(ResultSetCallback, String, Object...)}, which will guarantee closing all database resources.
      * 
      * @param <T> Type of the processed objects.
@@ -272,30 +230,6 @@ public class DatabaseManager {
     public final <T> T runSingleQuery(RowConverter<T> converter, String sql, List<Object> args) {
         return runSingleQuery(converter, sql, args.toArray());
     }
-
-    //    /**
-    //     * Run a query operation for a single item in the database.
-    //     *
-    //     * @param sql Query statement which may contain parameter markers.
-    //     * @param args (Optional) arguments for parameter markers in query.
-    //     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no item
-    //     *         found.
-    //     */
-    //    public final Map<String, Object> runSingleQuery(String sql, Object... args) {
-    //        return runSingleQuery(new SimpleRowConverter(), sql, args);
-    //    }
-
-    //    /**
-    //     * Run a query operation for a single item in the database.
-    //     *
-    //     * @param sql Query statement which may contain parameter markers.
-    //     * @param args (Optional) arguments for parameter markers in query.
-    //     * @return The <i>first</i> retrieved item for the given query as Map representation, or <code>null</code> no item
-    //     *         found.
-    //     */
-    //    public final Map<String, Object> runSingleQuery(String sql, List<Object> args) {
-    //        return runSingleQuery(new SimpleRowConverter(), sql, args.toArray());
-    //    }
 
     /**
      * Run a query which only uses exactly one COUNT. The method then returns the value of that count. For example,
@@ -438,13 +372,13 @@ public class DatabaseManager {
     }
 
     /**
-     * Run an update operation and return the generated insert ID.
+     * Run an insert operation and return the generated insert ID.
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param args Arguments for parameter markers in updateStatement, if any.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
-    public final int runUpdateReturnId(String sql, Object... args) {
+    public final int runInsertReturnId(String sql, Object... args) {
 
         int generatedId;
         Connection connection = null;
@@ -476,19 +410,27 @@ public class DatabaseManager {
     }
 
     /**
-     * Run an update operation and return the generated insert ID.
+     * Run an insert operation and return the generated insert ID.
      * 
      * @param sql Update statement which may contain parameter markers.
      * @param args Arguments for parameter markers in updateStatement, if any.
      * @return The generated ID, or 0 if no id was generated, or -1 if an error occurred.
      */
-    public final int runUpdateReturnId(String sql, List<Object> args) {
-        return runUpdateReturnId(sql, args.toArray());
+    public final int runInsertReturnId(String sql, List<Object> args) {
+        return runInsertReturnId(sql, args.toArray());
     }
-    
-    // TODO experimental
-    public final int[] runBatchUpdateReturnIds(String sql, BatchDataProvider provider) {
-        
+
+    /**
+     * Run a batch insertion and return the generated insert IDs.
+     * 
+     * @param sql Update statement which may contain parameter markers.
+     * @param provider A callback, which provides the necessary data for the insertion.
+     * @return Array with generated IDs for the data provided by the provider. This means, the size of the returned
+     *         array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
+     *         a 0 value.
+     */
+    public final int[] runBatchInsertReturnIds(String sql, BatchDataProvider provider) {
+
         Connection connection = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
@@ -506,13 +448,19 @@ public class DatabaseManager {
                 ps.addBatch();
             }
 
-            ps.executeBatch();
+            int[] batchResult = ps.executeBatch();
             connection.commit();
             connection.setAutoCommit(true);
             
+            // obtain the generated IDs for the inserted items
+            // where no item was inserted, return -1 as ID
             rs = ps.getGeneratedKeys();
-            while (rs.next()) {
-                int id = rs.getInt(1);
+            for (int result : batchResult) {
+                int id = -1;
+                if (result > 0) {
+                    rs.next();
+                    id = rs.getInt(1);
+                }
                 generatedIds.add(id);
             }
 
@@ -524,6 +472,34 @@ public class DatabaseManager {
 
         Integer[] array = generatedIds.toArray(new Integer[generatedIds.size()]);
         return CollectionHelper.toIntArray(array);
+    }
+    
+    /**
+     * Run a batch insertion and return the generated insert IDs.
+     * 
+     * @param sql Update statement which may contain parameter markers.
+     * @param batchArgs List of arguments for the batch insertion. Arguments are supplied parameter lists.
+     * @return Array with generated IDs for the data provided by the provider. This means, the size of the returned
+     *         array reflects the number of batch insertions. If a specific row was not inserted, the array will contain
+     *         a 0 value.
+     */
+    public final int[] runBatchInsertReturnIds(String sql, final List<List<Object>> batchArgs) {
+
+        BatchDataProvider provider = new BatchDataProvider() {
+
+            @Override
+            public List<Object> getData(int number) {
+                List<Object> args = batchArgs.get(number);
+                return args;
+            }
+
+            @Override
+            public int getCount() {
+                return batchArgs.size();
+            }
+        };
+
+        return runBatchInsertReturnIds(sql, provider);
     }
 
     // //////////////////////////////////////////////////////////////////////////////

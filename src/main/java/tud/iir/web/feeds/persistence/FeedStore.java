@@ -51,8 +51,15 @@ public interface FeedStore {
      * @param entry
      */
     boolean addFeedItem(Feed feed, FeedItem item);
-    
-    // int addFeedItems(Feed feed, List<FeedItem> items);
+
+    /**
+     * Add the not yet existing {@link FeedItem}s to the specified Feed.
+     * 
+     * @param feed
+     * @param items
+     * @return number of added {@link FeedItem}s.
+     */
+    int addFeedItems(Feed feed, List<FeedItem> items);
 
     /**
      * Get an entry for a specific feed by its rawId.
@@ -73,5 +80,6 @@ public interface FeedStore {
      * @return
      */
     List<FeedItem> getFeedItems(String sqlQuery);
+
 
 }
