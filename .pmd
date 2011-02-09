@@ -456,10 +456,6 @@
             <ruleset>Optimization Rules</ruleset>
         </rule>
         <rule>
-            <name>MethodArgumentCouldBeFinal</name>
-            <ruleset>Optimization Rules</ruleset>
-        </rule>
-        <rule>
             <name>AvoidInstantiatingObjectsInLoops</name>
             <ruleset>Optimization Rules</ruleset>
         </rule>
@@ -950,6 +946,10 @@
         <rule>
             <name>CloneMethodMustImplementCloneable</name>
             <ruleset>Type Resolution Rules</ruleset>
+        </rule>
+        <rule>
+            <name>MethodArgumentCouldBeFinal</name>
+            <ruleset>Optimization Rules</ruleset>
         </rule>
     </rules>
     <includeDerivedFiles>false</includeDerivedFiles>
