@@ -384,6 +384,9 @@ public class DatasetCreator implements DatasetCreatorInterface {
         } catch (Exception e) {
             LOGGER.error("could not extract clean content from " + webPage.getDocumentURI() + ", " + e.getMessage());
             return;
+        } catch (Error e) {
+            LOGGER.error("could not extract clean content from " + webPage.getDocumentURI() + ", " + e.getMessage());
+            return;
         }
 
         // mark up all seed entities
@@ -511,13 +514,13 @@ public class DatasetCreator implements DatasetCreatorInterface {
         File[] seedFiles = FileHelper.getFiles(seedFolderPath);
 
         List<String> combinedFilePaths = new ArrayList<String>();
-        
+
         // iterate over all concepts (seed files)
         for (File file : seedFiles) {
             String seedFileName = FileHelper.getFileName(file.getName());
 
             String conceptName = StringHelper.makeCamelCase(WordTransformer.wordToSingular(seedFileName), true);
-            
+
             if (seedFileName.length() == 0) {
                 continue;
             }
@@ -548,9 +551,9 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
                 counter++;
                 content = "\n\n----------------------------------------------- NEW DOCUMENT (#" + counter + " / "
-                        + conceptName + ") -----------------------------------------------\n\n"
-                        + content;
-                
+                + conceptName + ") -----------------------------------------------\n\n"
+                + content;
+
                 try {
                     combinedFile.write(content);
                     combinedFile.write("\n");
@@ -565,7 +568,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
                 LOGGER.error(e.getMessage());
             }
         }
-        
+
         // combined all combined files from each concept to one super combined file
         FileWriter combinedFile = null;
         try {
@@ -576,7 +579,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
         for (String combinedFilePath : combinedFilePaths) {
             String content = FileHelper.readFileToString(combinedFilePath);
             content = "\n\n----------------------------------------------- NEW CONCEPT -----------------------------------------------"
-                    + content;
+                + content;
             try {
                 combinedFile.write(content);
                 combinedFile.flush();
@@ -660,19 +663,19 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // DatasetCreator.deduplicateSeedLists("data/knowledgeBase/seedEntities/");
         // DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "data/datasets/ner/www_test2/");
         // System.exit(0);
-        // DatasetCreator datasetCreator = new DatasetCreator("www");
+        DatasetCreator datasetCreator = new DatasetCreator("www");
         // datasetCreator.setDataSetLocation("C:\\Safe\\");
 
         // datasetCreator.getConceptsMentions();
         // datasetCreator.writeMetaInformationFile(new StopWatch(), null, "data/knowledgeBase/seedEntities/");
-        DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "H:\\PalladianData\\Datasets\\www\\");
-        System.exit(0);
+        // DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "H:\\PalladianData\\Datasets\\www\\");
+        // System.exit(0);
 
-        // datasetCreator.setSourceAPI(SourceRetrieverManager.BING);
-        // datasetCreator.setMentionsPerEntity(5);
-        // datasetCreator.setSeedsPerConcept(5);
-        // datasetCreator.createDataset("data/knowledgeBase/seedEntities/");
-        System.exit(1);
+        datasetCreator.setSourceAPI(SourceRetrieverManager.BING);
+        datasetCreator.setMentionsPerEntity(10);
+        datasetCreator.setSeedsPerConcept(20);
+        datasetCreator.createDataset("data/knowledgeBase/seedEntities/");
+        System.exit(0);
 
         String text = FileHelper.readFileToString("data/temp/all.xml");
         // remove set of lines that are too short
