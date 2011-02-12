@@ -202,7 +202,7 @@ public class Tokenizer {
         List<String> sentences = new ArrayList<String>();
 
         Pattern pattern = Pattern
-        .compile("(?<!(\\.|\\()|Mr|mr|Mrs|mrs|Jr|jr|vs)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
+                .compile("(?<!(\\.|\\()|Mr|mr|Mrs|mrs|Jr|jr|vs)(\\.|\\?+|\\!+)(?!(\\.|[0-9]|\\()|[A-Za-z]{1,15}\\.|[A-Za-z]{1,15}\\(\\))");
 
         Matcher matcher = pattern.matcher(inputText);
         int lastIndex = 0;
@@ -210,6 +210,12 @@ public class Tokenizer {
         while (matcher.find()) {
             sentences.add(inputText.substring(lastIndex, matcher.end()).trim());
             lastIndex = matcher.end();
+        }
+
+        // if we could not tokenize the whole string, which happens when the text was not terminated by a punctation
+        // character, just add the last fragment
+        if (lastIndex < inputText.length()) {
+            sentences.add(inputText.substring(lastIndex).trim());
         }
 
         if (onlyRealSentences) {

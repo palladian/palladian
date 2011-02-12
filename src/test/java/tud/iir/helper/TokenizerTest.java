@@ -124,8 +124,7 @@ public class TokenizerTest extends TestCase {
         inputText = "ActionScript 3.0 (or Flex 3.0.1) supports flash.stage.MovieClip(), cool he?";
         sentences = Tokenizer.getSentences(inputText);
         assertEquals(1, sentences.size());
-        assertEquals("ActionScript 3.0 (or Flex 3.0.1) supports flash.stage.MovieClip(), cool he?",
-                sentences.get(0));
+        assertEquals("ActionScript 3.0 (or Flex 3.0.1) supports flash.stage.MovieClip(), cool he?", sentences.get(0));
 
         inputText = "Mr. X is sometimes called Mr. X Jr., too!";
         sentences = Tokenizer.getSentences(inputText);
@@ -140,7 +139,11 @@ public class TokenizerTest extends TestCase {
         assertEquals("Dont repeat yourself.", sentences.get(0));
         assertEquals("Dont repeat yourself.", sentences.get(1));
 
-
+        inputText = "Dies    ist  ein toller Test. Hallo Tag wird toll";
+        sentences = Tokenizer.getSentences(inputText);
+        assertEquals(2, sentences.size());
+        assertEquals("Dies    ist  ein toller Test.", sentences.get(0));
+        assertEquals("Hallo Tag wird toll", sentences.get(1));
 
     }
 }
