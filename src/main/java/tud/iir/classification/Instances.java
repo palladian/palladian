@@ -1,25 +1,20 @@
-package tud.iir.classification.numeric;
+package tud.iir.classification;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import tud.iir.classification.Category;
-import tud.iir.classification.CategoryEntry;
-import tud.iir.classification.Instance;
+import tud.iir.classification.numeric.MinMaxNormalization;
+import tud.iir.classification.numeric.NumericInstance;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 
-/**
- * An ArrayList of instances.
- * 
- * @author David Urbansky
- * 
- */
-public class NumericInstances extends ArrayList<NumericInstance> {
+public class Instances<T> extends ArrayList<T> {
 
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 9062002858891518522L;
 
     private boolean normalized = false;
+
+    private Categories categories = new Categories();
 
     /**
      * This stores the max - min differences for each feature of the training instances. We need these values to
@@ -54,14 +49,14 @@ public class NumericInstances extends ArrayList<NumericInstance> {
         } else if (category.getClassType() == ClassificationTypeSetting.HIERARCHICAL && category.isMainCategory()
                 || category.getClassType() == ClassificationTypeSetting.SINGLE) {
 
-            for (Instance d : this) {
+            for (Instance d : (Instances<Instance>) this) {
                 if (d.getMainCategoryEntry().getCategory().getName().equals(category.getName())) {
                     ++number;
                 }
             }
 
         } else {
-            for (Instance d : this) {
+            for (Instance d : (Instances<Instance>) this) {
                 for (CategoryEntry c : d.getAssignedCategoryEntries()) {
                     if (c.getCategory().getName().equals(category.getName())) {
                         ++number;
@@ -91,10 +86,13 @@ public class NumericInstances extends ArrayList<NumericInstance> {
         Map<Integer, Double> featureMaxValueMap = new HashMap<Integer, Double>();
 
         // find the min and max values
-        for (NumericInstance instance : this) {
-            for (int i = 0; i < instance.getFeatures().size(); i++) {
+        for (Instance instance : (Instances<Instance>) this) {
 
-                double featureValue = instance.getFeatures().get(i);
+            NumericInstance nInstance = (NumericInstance) instance;
+
+            for (int i = 0; i < nInstance.getFeatures().size(); i++) {
+
+                double featureValue = nInstance.getFeatures().get(i);
 
                 // check min value
                 if (featureMinValueMap.get(i) != null) {
@@ -122,15 +120,17 @@ public class NumericInstances extends ArrayList<NumericInstance> {
         // normalize the feature values
         minMaxNormalization = new MinMaxNormalization();
         Map<Integer, Double> normalizationMap = new HashMap<Integer, Double>();
-        for (NumericInstance instance : this) {
+        for (Instance instance : (Instances<Instance>) this) {
 
-            for (int i = 0; i < instance.getFeatures().size(); i++) {
+            NumericInstance nInstance = (NumericInstance) instance;
+
+            for (int i = 0; i < nInstance.getFeatures().size(); i++) {
 
                 double max_minus_min = featureMaxValueMap.get(i) - featureMinValueMap.get(i);
-                double featureValue = instance.getFeatures().get(i);
+                double featureValue = nInstance.getFeatures().get(i);
                 double normalizedValue = (featureValue - featureMinValueMap.get(i)) / max_minus_min;
 
-                instance.getFeatures().set(i, normalizedValue);
+                nInstance.getFeatures().set(i, normalizedValue);
 
                 normalizationMap.put(i, max_minus_min);
                 minMaxNormalization.getMinValueMap().put(i, featureMinValueMap.get(i));
@@ -158,4 +158,11 @@ public class NumericInstances extends ArrayList<NumericInstance> {
         this.minMaxNormalization = minMaxNormalization;
     }
 
+    public void setCategories(Categories categories) {
+        this.categories = categories;
+    }
+
+    public Categories getCategories() {
+        return categories;
+    }
 }

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.classification.page.evaluation.FeatureSetting;
 
-public abstract class Classifier implements Serializable {
+public abstract class Classifier<T> implements Serializable {
 
     /** The serialize version ID. */
     private static final long serialVersionUID = -7017462894898815981L;
@@ -13,8 +13,14 @@ public abstract class Classifier implements Serializable {
     /** A classifier has a name. */
     private String name = "";
 
+    /** A classifier has training documents. */
+    private transient Instances<T> trainingInstances = new Instances<T>();
+
+    /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
+    private transient Instances<T> testInstances = new Instances<T>();
+
     /** A classifier classifies to certain categories. */
-    public Categories categories = null;
+    public Categories categories = new Categories();
 
     public Categories getCategories() {
         return categories;
@@ -59,6 +65,42 @@ public abstract class Classifier implements Serializable {
 
     public FeatureSetting getFeatureSetting() {
         return featureSetting;
+    }
+
+    public Instances<T> getTrainingInstances() {
+        return trainingInstances;
+    }
+
+    public void setTrainingInstances(Instances<T> trainingInstances) {
+        this.trainingInstances = trainingInstances;
+        getPossibleCategories();
+    }
+
+    public Instances<T> getTestInstances() {
+        return testInstances;
+    }
+
+    public void setTestInstances(Instances<T> testInstances) {
+        this.testInstances = testInstances;
+    }
+
+    /**
+     * After training instances have been assigned, we can find out which nominal categories are possible for the
+     * classifier to classify.
+     */
+    private void getPossibleCategories() {
+        for (Instance instance : (Instances<Instance>) getTrainingInstances()) {
+            String categoryName = instance.getInstanceCategory().getName();
+            Category category = getCategories().getCategoryByName(categoryName);
+            if (category == null) {
+                category = new Category(categoryName);
+                category.increaseFrequency();
+                getCategories().add(category);
+            } else {
+                category.increaseFrequency();
+            }
+        }
+        getCategories().calculatePriors();
     }
 
 }

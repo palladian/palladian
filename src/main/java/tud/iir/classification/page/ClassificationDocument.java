@@ -6,8 +6,8 @@ import tud.iir.classification.Categories;
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
+import tud.iir.classification.Instance;
 import tud.iir.classification.Term;
-import tud.iir.classification.numeric.Instance;
 import tud.iir.helper.MathHelper;
 
 /**

@@ -1,5 +1,7 @@
 package tud.iir.classification;
 
+
+
 public class FastWordCorrelationMatrixTest extends WordCorrelationMatrixTest {
     
     @Override

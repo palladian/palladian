@@ -6,8 +6,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
@@ -19,7 +19,7 @@ import tud.iir.helper.StopWatch;
  * </p>
  * 
  * <p>
- * See corresponding test case {@link WordCorrelationMatrixTest} for an example.
+ * See corresponding test case for an example.
  * </p>
  * <p>
  * 2010-08-04 -- changed internal data structure from HashSet to HashMap for performance optimizations. Serializations

@@ -1,17 +1,21 @@
 package tud.iir.classification.numeric;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.Categories;
-import tud.iir.classification.Category;
 import tud.iir.classification.Classifier;
+import tud.iir.classification.Instances;
+import tud.iir.helper.FileHelper;
 
 /**
  * The classifier is an abstract class that provides basic methods used by concrete classifiers.
  * 
  * @author David Urbansky
+ * @param <T>
  */
-public abstract class NumericClassifier extends Classifier {
+public abstract class NumericClassifier extends Classifier<NumericInstance> {
 
     /** The serialize version ID. */
     private static final long serialVersionUID = -8370153238631532469L;
@@ -19,12 +23,11 @@ public abstract class NumericClassifier extends Classifier {
     /** The logger for this class. */
     protected static final Logger LOGGER = Logger.getLogger(NumericClassifier.class);
 
-    /** A classifier has training documents. */
-    private transient NumericInstances trainingInstances = new NumericInstances();
-
-
-    /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
-    private transient NumericInstances testInstances = new NumericInstances();
+    // /** A classifier has training documents. */
+    // private transient Instances<NumericInstance> trainingInstances = new Instances<NumericInstance>();
+    //
+    // /** A classifier has test documents that can be used to calculate recall, precision, and F-score. */
+    // private transient Instances<NumericInstance> testInstances = new Instances<NumericInstance>();
 
     /**
      * The constructor, initiate members.
@@ -37,43 +40,7 @@ public abstract class NumericClassifier extends Classifier {
      * Reset the classifier.
      */
     public void reset() {
-        categories = new Categories();
-    }
-
-    public NumericInstances getTrainingInstances() {
-        return trainingInstances;
-    }
-
-    public void setTrainingInstances(NumericInstances trainingInstances) {
-        this.trainingInstances = trainingInstances;
-        getPossibleCategories();
-    }
-
-    /**
-     * After training instances have been assigned, we can find out which nominal categories are possible for the
-     * classifier to classify.
-     */
-    private void getPossibleCategories() {
-        for (NumericInstance instance : trainingInstances) {
-            String categoryName = ((Category) instance.getInstanceClass()).getName();
-            Category category = categories.getCategoryByName(categoryName);
-            if (category == null) {
-                category = new Category(categoryName);
-                category.increaseFrequency();
-                categories.add(category);
-            } else {
-                category.increaseFrequency();
-            }
-        }
-        categories.calculatePriors();
-    }
-
-    public NumericInstances getTestInstances() {
-        return testInstances;
-    }
-
-    public void setTestInstances(NumericInstances testInstances) {
-        this.testInstances = testInstances;
+        // categories = new Categories();
     }
 
     @Override
@@ -85,7 +52,59 @@ public abstract class NumericClassifier extends Classifier {
         return builder.toString();
     }
 
+    /**
+     * Fill the vector space with known instances. The instances must be given in a CSV file in the following format:<br>
+     * feature1;..;featureN;NominalClass<br>
+     * All features must be real values and the class must be nominal. Each line is one training instance.
+     */
+    public void trainFromCSV(String trainingFilePath) {
+        setTrainingInstances(createInstances(trainingFilePath));
+    }
+
+    /**
+     * Create instances from a file. The instances must be given in a CSV file in the following format:<br>
+     * feature1;..;featureN;NominalClass<br>
+     * All features must be real values and the class must be nominal. Each line is one training instance.
+     */
+    private Instances<NumericInstance> createInstances(String filePath) {
+        List<String> trainingLines = FileHelper.readFileToArray(filePath);
+
+        Instances<NumericInstance> instances = new Instances<NumericInstance>();
+        NumericInstance instance = null;
+        List<Double> features = null;
+
+        for (String trainingLine : trainingLines) {
+            String[] parts = trainingLine.split(";");
+
+            instance = new NumericInstance(instances);
+            features = new ArrayList<Double>();
+
+            for (int f = 0; f < parts.length - 1; f++) {
+                features.add(Double.valueOf(parts[f]));
+            }
+
+            instance.setFeatures(features);
+            instance.setClassNominal(true);
+            // instance.setInstanceClass(parts[parts.length - 1]);
+            instance.setInstanceCategory(parts[parts.length - 1]);
+            instances.add(instance);
+        }
+
+        return instances;
+    }
+
+    /**
+     * Classify instances from a file. The instances must be given in a CSV file in the following format:<br>
+     * feature1;..;featureN;NominalClass<br>
+     * All features must be real values and the class must be nominal. Each line is one training instance.
+     */
+    public void classify(String instancesFilePath) {
+        classify(createInstances(instancesFilePath));
+    }
+
     public abstract void classify(NumericInstance instance);
+
+    public abstract void classify(Instances<NumericInstance> instances);
     public abstract void save(String path);
 
 }

@@ -2,9 +2,10 @@ package tud.iir.persistence;
 
 import java.io.File;
 
+import junit.framework.TestCase;
+
 import org.apache.commons.io.FileUtils;
 
-import junit.framework.TestCase;
 import tud.iir.classification.Categories;
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
@@ -97,7 +98,11 @@ public class DictionaryFileIndexTest extends TestCase {
         // System.out.println(ces);
         assertEquals(2, ces.size());
         
-        FileUtils.deleteDirectory(dictionaryFile);
+        try {
+            FileUtils.deleteDirectory(dictionaryFile);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
 }
