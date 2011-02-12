@@ -3,6 +3,8 @@ package tud.iir.classification.numeric;
 import java.util.List;
 
 import tud.iir.classification.Category;
+import tud.iir.classification.Instance;
+import tud.iir.classification.Instances;
 
 /**
  * <p>
@@ -29,8 +31,9 @@ public class NumericInstance extends Instance {
     /** Whether or not the class of the instance is nominal. */
     private boolean classNominal = false;
 
-    /** If the class is nominal we have an instance category. */
-    private Category instanceCategory;
+    public <T> NumericInstance(Instances<T> instances) {
+        setInstances(instances);
+    }
 
     public List<Double> getFeatures() {
         return features;
@@ -42,10 +45,10 @@ public class NumericInstance extends Instance {
 
     public Object getInstanceClass() {
         if (isClassNominal()) {
-            if (instanceCategory == null) {
-                instanceCategory = new Category(instanceClass.toString());
+            if (getInstanceCategory() == null) {
+                setInstanceCategory(new Category(instanceClass.toString()));
             }
-            return instanceCategory;
+            return getInstanceCategory();
         } else if (instanceClass != null) {
             return Double.valueOf(instanceClass.toString());
         }
@@ -53,9 +56,9 @@ public class NumericInstance extends Instance {
         return null;
     }
 
-    public void setInstanceClass(Object instanceClass) {
-        this.instanceClass = instanceClass;
-    }
+    // public void setInstanceClass(Object instanceClass) {
+    // this.instanceClass = instanceClass;
+    // }
 
     public boolean isClassNominal() {
         return classNominal;
@@ -63,6 +66,19 @@ public class NumericInstance extends Instance {
 
     public void setClassNominal(boolean classNominal) {
         this.classNominal = classNominal;
+    }
+
+    public void normalize(MinMaxNormalization normalization) {
+
+        for (int i = 0; i < features.size(); i++) {
+
+            double featureValue = features.get(i);
+            double normalizedValue = (featureValue - normalization.getMinValueMap().get(i))
+                    / normalization.getNormalizationMap().get(i);
+
+            features.set(i, normalizedValue);
+        }
+
     }
 
     @Override
@@ -75,7 +91,7 @@ public class NumericInstance extends Instance {
         builder.append(", classNominal=");
         builder.append(classNominal);
         builder.append(", instanceCategory=");
-        builder.append(instanceCategory);
+        builder.append(getInstanceCategory());
         builder.append(", assignedCategories=");
         builder.append(getAssignedCategoryEntries());
         builder.append("]");

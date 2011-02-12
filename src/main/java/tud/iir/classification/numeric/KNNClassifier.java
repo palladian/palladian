@@ -1,6 +1,5 @@
 package tud.iir.classification.numeric;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.Map.Entry;
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
+import tud.iir.classification.Instances;
 import tud.iir.classification.page.ClassifierManager;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 import tud.iir.helper.CollectionHelper;
@@ -21,7 +21,7 @@ import tud.iir.helper.StopWatch;
  * 
  * @author David Urbansky
  */
-public class KNNClassifier extends NumericClassifier {
+public final class KNNClassifier extends NumericClassifier {
 
     private static final long serialVersionUID = 1064061946261174688L;
 
@@ -36,45 +36,27 @@ public class KNNClassifier extends NumericClassifier {
         setName("k-NN");
     }
 
-    /**
-     * Fill the vector space with known instances. The instances must be given in a CSV file in the following format:<br>
-     * feature1;..;featureN;NominalClass<br>
-     * All features must be real values and the class must be nominal. Each line is one training instance.
-     */
-    public void trainFromCSV(String trainingFilePath) {
-        List<String> trainingLines = FileHelper.readFileToArray(trainingFilePath);
-
-        NumericInstances trainingInstances = new NumericInstances();
-        NumericInstance trainingInstance = null;
-        List<Double> features = null;
-
-        for (String trainingLine : trainingLines) {
-            String[] parts = trainingLine.split(";");
-
-            trainingInstance = new NumericInstance();
-            features = new ArrayList<Double>();
-
-            for (int f = 0; f < parts.length - 1; f++) {
-                features.add(Double.valueOf(parts[f]));
-            }
-
-            trainingInstance.setFeatures(features);
-            trainingInstance.setClassNominal(true);
-            trainingInstance.setInstanceClass(parts[parts.length - 1]);
-            trainingInstances.add(trainingInstance);
+    @Override
+    public void classify(Instances<NumericInstance> instances) {
+        for (NumericInstance instance : instances) {
+            classify(instance);
         }
-
-        setTrainingInstances(trainingInstances);
     }
+
 
     @Override
     /**
      * Classify a given instance.
-     * @param instance The instance being classified.
+     * @param instance The instance to be classified.
      */
     public void classify(NumericInstance instance) {
 
         StopWatch stopWatch = new StopWatch();
+
+        // we need to normalize the new instance if the training instances were also normalized
+        if (getTrainingInstances().areNormalized()) {
+            instance.normalize(getTrainingInstances().getMinMaxNormalization());
+        }
 
         int classType = getClassificationType();
 
@@ -147,7 +129,7 @@ public class KNNClassifier extends NumericClassifier {
 
         if (instance.getAssignedCategoryEntries().isEmpty()) {
             Category unassignedCategory = new Category(null);
-            categories.add(unassignedCategory);
+            getCategories().add(unassignedCategory);
             CategoryEntry defaultCE = new CategoryEntry(bestFitList, unassignedCategory, 1);
             instance.addCategoryEntry(defaultCE);
         }
@@ -196,5 +178,6 @@ public class KNNClassifier extends NumericClassifier {
     public void setK(int k) {
         this.k = k;
     }
+
 
 }

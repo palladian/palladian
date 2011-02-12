@@ -1,19 +1,25 @@
-package tud.iir.classification.numeric;
+package tud.iir.classification;
 
 import org.apache.log4j.Logger;
 
-import tud.iir.classification.Category;
-import tud.iir.classification.CategoryEntries;
-import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 
-public abstract class Instance {
+public abstract class Instance<T> {
 
     /** Type of classification (tags or hierarchy). */
     private int classifiedAs = ClassificationTypeSetting.TAG;
 
     /** The category of the instance, null if not classified. */
     protected CategoryEntries assignedCategoryEntries;
+
+    /** If the class is nominal we have an instance category. */
+    private Category instanceCategory;
+
+    /**
+     * The list of instances to which this instance belongs to. This is important so that categories can be set
+     * correctly.
+     */
+    private Instances<Instance> instances;
 
     /**
      * Get the category that is most relevant to this document.
@@ -144,6 +150,31 @@ public abstract class Instance {
             n++;
         }
         assignCategoryEntries(limitedCategories);
+    }
+
+    public void setInstanceCategory(Category instanceCategory) {
+        this.instanceCategory = instanceCategory;
+    }
+
+    public void setInstanceCategory(String categoryName) {
+        Category category = instances.getCategories().getCategoryByName(categoryName);
+        if (category == null) {
+            category = new Category(categoryName);
+            instances.getCategories().add(category);
+        }
+        this.instanceCategory = category;
+    }
+
+    public Category getInstanceCategory() {
+        return instanceCategory;
+    }
+
+    public void setInstances(Instances<Instance> instances) {
+        this.instances = instances;
+    }
+
+    public Instances<Instance> getInstances() {
+        return instances;
     }
 
 }

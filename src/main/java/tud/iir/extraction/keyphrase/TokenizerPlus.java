@@ -18,7 +18,7 @@ import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 import org.w3c.dom.Document;
 
-import tud.iir.classification.Stopwords;
+import tud.iir.classification.page.Stopwords;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.CountMap;
 import tud.iir.helper.FileHelper;

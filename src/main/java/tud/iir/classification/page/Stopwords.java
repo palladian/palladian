@@ -1,4 +1,4 @@
-package tud.iir.classification;
+package tud.iir.classification.page;
 
 import java.io.BufferedReader;
 import java.io.InputStream;

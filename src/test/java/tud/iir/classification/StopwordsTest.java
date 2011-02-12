@@ -4,6 +4,8 @@ import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
+import tud.iir.classification.page.Stopwords;
+
 public class StopwordsTest {
 
     @Test

@@ -7,7 +7,7 @@ import java.util.regex.Pattern;
 import org.tartarus.snowball.SnowballStemmer;
 import org.tartarus.snowball.ext.englishStemmer;
 
-import tud.iir.classification.Stopwords;
+import tud.iir.classification.page.Stopwords;
 
 /**
  * This class bundles all settings for the {@link ControlledTagger}.
