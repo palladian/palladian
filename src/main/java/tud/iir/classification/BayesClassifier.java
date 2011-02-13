@@ -239,4 +239,17 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
     }
 
+    @Override
+    public void save(String classifierPath) {
+        FileHelper.serialize(this, classifierPath + getName() + ".gz");
+    }
+
+    public static BayesClassifier load(String classifierPath) {
+        LOGGER.info("deserialzing classifier from " + classifierPath);
+
+        BayesClassifier classifier = (BayesClassifier) FileHelper.deserialize(classifierPath);
+
+        return classifier;
+    }
+
 }

@@ -28,6 +28,10 @@ public final class KNNClassifier extends NumericClassifier {
     /** Number of nearest neighbors that are allowed to vote. */
     private int k = 3;
 
+    /** Non-transient training instances. We need to save them as the instance based classifier depends on them. */
+    private Instances<NumericInstance> serializableTrainingInstances;
+
+    
     /**
      * The constructor.
      */
@@ -42,7 +46,6 @@ public final class KNNClassifier extends NumericClassifier {
             classify(instance);
         }
     }
-
 
     @Override
     /**
@@ -166,9 +169,27 @@ public final class KNNClassifier extends NumericClassifier {
         return distance;
     }
 
+    // public Instances<NumericInstance> getSerializableTrainingInstances() {
+    // return serializableTrainingInstances;
+    // }
+
     @Override
     public void save(String path) {
-        FileHelper.serialize(this, path + getName() + ".ser");
+        // save the training instances since they are normally transient
+        serializableTrainingInstances = getTrainingInstances();
+        FileHelper.serialize(this, path + getName() + ".gz");
+    }
+
+    public static KNNClassifier load(String classifierPath) {
+        LOGGER.info("deserialzing classifier from " + classifierPath);
+
+        KNNClassifier classifier = (KNNClassifier) FileHelper.deserialize(classifierPath);
+
+        // we attach the serialized training instances
+        classifier.setTrainingInstances(classifier.serializableTrainingInstances);
+        classifier.serializableTrainingInstances = null;
+
+        return classifier;
     }
 
     public int getK() {
@@ -178,6 +199,7 @@ public final class KNNClassifier extends NumericClassifier {
     public void setK(int k) {
         this.k = k;
     }
+
 
 
 }

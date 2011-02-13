@@ -31,8 +31,13 @@ public class BayesClassifierTest {
 
         bc.train();
 
+        // test saving and loading
+        bc.setName("testBayesClassifier");
+        bc.save("data/temp/");
+        BayesClassifier loadedBC = BayesClassifier.load("data/temp/testBayesClassifier.gz");
+
         // classify
-        bc.classify(newInstance);
+        loadedBC.classify(newInstance);
 
         Assert.assertEquals(0.795417348608838, newInstance.getMainCategoryEntry().getRelevance());
         Assert.assertEquals("No", newInstance.getMainCategoryEntry().getCategory().getName());

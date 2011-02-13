@@ -103,4 +103,6 @@ public abstract class Classifier<T> implements Serializable {
         getCategories().calculatePriors();
     }
 
+    public abstract void save(String classifierPath);
+
 }

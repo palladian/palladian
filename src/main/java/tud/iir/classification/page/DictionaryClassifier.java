@@ -135,12 +135,12 @@ public class DictionaryClassifier extends TextClassifier {
     @Override
     public void save(String path) {
         saveDictionary(path, true, true);
-        FileHelper.serialize(this, path + getName() + ".ser");
+        FileHelper.serialize(this, path + getName() + ".gz");
     }
 
     public void save(String path, boolean indexFirst, boolean deleteIndexFirst) {
         saveDictionary(path, indexFirst, deleteIndexFirst);
-        FileHelper.serialize(this, path + getName() + ".ser");
+        FileHelper.serialize(this, path + getName() + ".gz");
     }
 
     /**
@@ -156,14 +156,29 @@ public class DictionaryClassifier extends TextClassifier {
         }
 
         LOGGER.info("saving the dictionary");
-        dictionary.serialize(path + getDictionaryName() + ".ser", indexFirst, deleteIndexFirst);
+        dictionary.serialize(path + getDictionaryName() + ".gz", indexFirst, deleteIndexFirst);
         // dictionary.index("data/models/dictionaryIndex_"+getName()+"_"+classType);
 
-        LOGGER.info("saved model at " + path + getDictionaryName() + ".ser");
+        LOGGER.info("saved model at " + path + getDictionaryName() + ".gz");
         // dictionary.saveAsCSV();
 
         // we now have to use the index for classification because the in-memory dictionary is empty
         dictionary.useIndex();
+    }
+
+    public static DictionaryClassifier load(String classifierPath) {
+
+        LOGGER.info("deserialzing classifier from " + classifierPath);
+
+        DictionaryClassifier classifier;
+
+        classifier = (DictionaryClassifier) FileHelper.deserialize(classifierPath);
+        classifier.reset();
+
+        LOGGER.info("loading dictionary");
+        classifier.loadDictionary();
+
+        return classifier;
     }
 
     public void loadDictionary() {

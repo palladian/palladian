@@ -707,7 +707,8 @@ public class FileHelper {
     }
 
     /**
-     * Deserialize a serialized object. This generic method does the cast for you.
+     * Deserialize a serialized object. If the filepath ends with "gz" it is automatically decompressed. This generic
+     * method does the cast for you.
      * 
      * @param <T> type of the objects.
      * @param filePath the file path
@@ -715,6 +716,11 @@ public class FileHelper {
      */
     @SuppressWarnings("unchecked")
     public static <T extends Serializable> T deserialize(String filePath) {
+
+        if (getFileType(filePath).equalsIgnoreCase("gz")) {
+            return deserializeCompressed(filePath);
+        }
+
         // made generic, avoids the cast
         FileInputStream fis = null;
         ObjectInputStream in = null;
@@ -736,14 +742,49 @@ public class FileHelper {
         return obj;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends Serializable> T deserializeCompressed(String filePath) {
+
+        FileInputStream fis = null;
+        GZIPInputStream gis = null;
+        ObjectInputStream ois = null;
+        T obj = null;
+
+        try {
+
+            fis = new FileInputStream(filePath);
+            gis = new GZIPInputStream(fis);
+            ois = new ObjectInputStream(gis);
+            obj = (T) ois.readObject();
+            ois.close();
+            gis.close();
+            fis.close();
+
+        } catch (FileNotFoundException e) {
+            LOGGER.error(e.getMessage());
+        } catch (IOException e) {
+            LOGGER.error(e.getMessage());
+        } catch (ClassNotFoundException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        return obj;
+    }
+
     //public static void serialize(Object obj, String filePath) {
     /**
-     * Serialize.
-     *
+     * Serialize a serializable object. If the path ends with ".gz" it is automatically saved using gzip compression.
+     * 
      * @param obj the obj
      * @param filePath the file path
      */
     public static void serialize(Serializable obj, String filePath) {
+
+        if (getFileType(filePath).equalsIgnoreCase("gz")) {
+            serializeCompress(obj, filePath);
+            return;
+        }
+
         FileOutputStream fos = null;
         ObjectOutputStream out = null;
         try {
@@ -767,6 +808,38 @@ public class FileHelper {
             System.exit(1);
         } catch (Exception e) {
             LOGGER.error("could not serialize object, " + e.getMessage());
+        }
+    }
+
+    public static void serializeCompress(Serializable obj, String filePath) {
+        FileOutputStream fos = null;
+        GZIPOutputStream zipout = null;
+        ObjectOutputStream out = null;
+        try {
+
+            File outputFile = new File(FileHelper.getFilePath(filePath));
+            if (!outputFile.exists()) {
+                outputFile.mkdirs();
+            }
+
+            fos = new FileOutputStream(filePath);
+            zipout = new GZIPOutputStream(fos);
+            out = new ObjectOutputStream(zipout);
+            out.writeObject(obj);
+            out.flush();
+            out.close();
+            zipout.close();
+            fos.close();
+            out = null;
+            zipout = null;
+            fos = null;
+        } catch (IOException e) {
+            LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage(), e);
+        } catch (OutOfMemoryError e) {
+            LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage() + ", exiting now!");
+            System.exit(1);
+        } catch (Exception e) {
+            LOGGER.error("could not serialize object to " + filePath + ", " + e.getMessage());
         }
     }
 

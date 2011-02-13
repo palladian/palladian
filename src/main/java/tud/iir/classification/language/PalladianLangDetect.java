@@ -35,11 +35,11 @@ public class PalladianLangDetect extends LanguageClassifier {
     private Set<String> possibleClasses = null;
 
     public PalladianLangDetect(String modelPath) {
-        palladianClassifier = ClassifierManager.load(modelPath);
+        palladianClassifier = DictionaryClassifier.load(modelPath);
     }
 
     public PalladianLangDetect() {
-        palladianClassifier = ClassifierManager.load("data/models/palladianLanguageJRC/palladianLanguageJRC.ser");
+        palladianClassifier = DictionaryClassifier.load("data/models/palladianLanguageJRC/palladianLanguageJRC.ser");
     }
 
     public Set<String> getPossibleClasses() {
