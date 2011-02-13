@@ -1,9 +1,12 @@
 package tud.iir.classification.numeric;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MinMaxNormalization {
+public class MinMaxNormalization implements Serializable {
+
+    private static final long serialVersionUID = 7227377881428315427L;
 
     private Map<Integer, Double> normalizationMap = new HashMap<Integer, Double>();
     private Map<Integer, Double> minValueMap = new HashMap<Integer, Double>();

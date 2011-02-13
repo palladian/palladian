@@ -1,9 +1,12 @@
 package tud.iir.helper;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Tensor {
+public class Tensor implements Serializable {
+
+    private static final long serialVersionUID = 132563905715312957L;
 
     private Map<Object, Map<Object, Map<Object, Object>>> tensor;
 

@@ -121,6 +121,11 @@ public class KNNClassifierTest extends TestCase {
         knn.trainFromCSV(KNNClassifierTest.class.getResource("/classifier/wineData.txt").getFile());
         knn.getTrainingInstances().normalize();
 
+        knn.setName("testKNN");
+        knn.save("data/temp/");
+
+        KNNClassifier loadedKnn = KNNClassifier.load("data/temp/testKNN.gz");
+
         // create an instance to classify
         // 13.82;1.75;2.42;14;111;3.88;3.74;.32;1.87;7.05;1.01;3.26;1190;1 => this is an actual instance from the
         // training data and should therefore also be classified as "1"
@@ -142,7 +147,7 @@ public class KNNClassifierTest extends TestCase {
         newInstance.setFeatures(features);
 
         // classify
-        knn.classify(newInstance);
+        loadedKnn.classify(newInstance);
 
         Assert.assertEquals(1.0000000079926668E9, newInstance.getMainCategoryEntry().getAbsoluteRelevance());
         Assert.assertEquals("1", newInstance.getMainCategoryEntry().getCategory().getName());

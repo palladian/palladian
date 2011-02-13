@@ -786,20 +786,6 @@ public class ClassifierManager {
         this.trainingDataPercentage = trainingDataPercentage;
     }
 
-    // TODO save and load KNN too
-    public static TextClassifier load(String classifierPath) {
-        TextClassifier classifier;
-
-        LOGGER.info("deserialzing classifier");
-        classifier = (TextClassifier) FileHelper.deserialize(classifierPath);
-        classifier.reset();
-
-        LOGGER.info("loading dictionary");
-        ((DictionaryClassifier) classifier).loadDictionary();
-
-        return classifier;
-    }
-
     /**
      * This method simplifies the search for the best combination of classifier and feature settings.
      * It automatically learns and evaluates all given combinations.
@@ -853,7 +839,7 @@ public class ClassifierManager {
         String classifierPath = "data/models/languageClassifier/LanguageClassifier.ser";
 
         // load the language classifier
-        TextClassifier classifier = ClassifierManager.load(classifierPath);
+        TextClassifier classifier = DictionaryClassifier.load(classifierPath);
 
         // create a classification document that holds the result
         ClassificationDocument classifiedDocument = null;
@@ -888,7 +874,7 @@ public class ClassifierManager {
         dataset.setFirstFieldLink(true);
 
         // load the language classifier
-        TextClassifier classifier = ClassifierManager.load(classifierPath);
+        TextClassifier classifier = DictionaryClassifier.load(classifierPath);
 
         // now we can test the classifier using the given dataset (output is written to the console)
         ClassifierPerformance classifierPerformance = null;
@@ -1016,7 +1002,7 @@ public class ClassifierManager {
                 if (cmd.hasOption("trainingFile")) {
                     classifier = new DictionaryClassifier(cmd.getOptionValue("name"), "");// new KNNClassifier();
                 } else if (cmd.hasOption("testingFile")) {
-                    classifier = ClassifierManager.load(cmd.getOptionValue("name"));
+                    classifier = DictionaryClassifier.load(cmd.getOptionValue("name"));
                 }
             } else {
                 classifier = new DictionaryClassifier();// new KNNClassifier();

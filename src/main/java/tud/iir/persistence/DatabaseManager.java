@@ -257,6 +257,26 @@ public class DatabaseManager {
         return count;
     }
 
+    public final Object[] runOneResultLineQuery(String query, final int entries) {
+
+        final Object[] resultEntries = new Object[entries];
+
+        ResultSetCallback callback = new ResultSetCallback() {
+
+            @Override
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                for (int i = 1; i <= entries; i++) {
+                    resultEntries[i] = resultSet.getObject(i);
+                }
+
+            }
+        };
+
+        runQuery(callback, query);
+
+        return resultEntries;
+    }
+
     /**
      * Check, whether an item for the specified query exists.
      * 

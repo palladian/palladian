@@ -1,10 +1,14 @@
 package tud.iir.classification;
 
+import java.io.Serializable;
+
 import org.apache.log4j.Logger;
 
 import tud.iir.classification.page.evaluation.ClassificationTypeSetting;
 
-public abstract class Instance<T> {
+public abstract class Instance<T> implements Serializable {
+
+    private static final long serialVersionUID = -3259696661191824716L;
 
     /** Type of classification (tags or hierarchy). */
     private int classifiedAs = ClassificationTypeSetting.TAG;
