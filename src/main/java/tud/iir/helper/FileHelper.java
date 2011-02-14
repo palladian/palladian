@@ -718,7 +718,7 @@ public class FileHelper {
     public static <T extends Serializable> T deserialize(String filePath) {
 
         if (getFileType(filePath).equalsIgnoreCase("gz")) {
-            return deserializeCompressed(filePath);
+            return (T) deserializeCompressed(filePath);
         }
 
         // made generic, avoids the cast
