@@ -61,10 +61,10 @@ public class MediaWikiCrawler implements Runnable {
     private static final int BULK_WRITE_SIZE = 3000;
 
     /** The database used to persist results */
-    private final MediaWikiDatabase mwDatabase;
+    protected final MediaWikiDatabase mwDatabase;
 
     /** Basic configuration of the {@link MediaWikiCrawler} */
-    private final WikiDescriptor mwDescriptor;
+    protected final WikiDescriptor mwDescriptor;
 
     /** The jwbf bot that does all the communication with the MediaWiki API. */
     private final MediaWikiBot bot;
