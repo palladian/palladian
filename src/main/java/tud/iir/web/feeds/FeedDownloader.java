@@ -65,7 +65,14 @@ public class FeedDownloader {
      */
     private boolean useBandwidthSavingHTTPHeaders = false;
     
-    protected boolean useDateRecognition = true;
+    /** Whether to use additional date parsing techniques provided by Palladian. */
+    private boolean useDateRecognition = true;
+    
+    /**
+     * Whether to clean strings like text and title from feed's items; this means strip out HTML tags and entities. If
+     * disabled, the raw content from the feed is aggregated without further treatment.
+     */
+    private boolean cleanStrings = true;
     
     public FeedDownloader() {
         // suXXX that I have to set this explicitly;
@@ -238,6 +245,22 @@ public class FeedDownloader {
     public boolean isUseBandwidthSavingHTTPHeaders() {
         return useBandwidthSavingHTTPHeaders;
     }
+    
+    public void setUseDateRecognition(boolean useDateRecognition) {
+        this.useDateRecognition = useDateRecognition;
+    }
+    
+    public boolean isUseDateRecognition() {
+        return useDateRecognition;
+    }
+    
+    public void setCleanStrings(boolean cleanStrings) {
+        this.cleanStrings = cleanStrings;
+    }
+    
+    public boolean isCleanStrings() {
+        return cleanStrings;
+    }
 
     // ///////////////////////////////////////////////////
     // private ROME specific methods
@@ -363,6 +386,10 @@ public class FeedDownloader {
 
         // I modified this method to return the *longest* text fragment which we can retrieve
         // from the feed item. -- Philipp, 2011-01-28.
+        
+        // TODO ability to decide manually from where to take the text content,
+        // or maybe better -- distinguish between summary/description vs. content?
+        // http://web.resource.org/rss/1.0/modules/content/
 
         List<String> contentCandidates = new ArrayList<String>();
         List<SyndContent> contents = syndEntry.getContents();
@@ -592,14 +619,18 @@ public class FeedDownloader {
      * @param dirty
      * @return
      */
-    private static String cleanup(String dirty) {
-        String clean = null;
-        if (dirty != null) {
-            clean = HTMLHelper.htmlToString(dirty, false);
-            clean = StringEscapeUtils.unescapeHtml(clean);
-            clean = clean.trim();
+    private String cleanup(String dirty) {
+        String result = null;
+        if (cleanStrings) {
+            if (dirty != null) {
+                result = HTMLHelper.htmlToString(dirty, false);
+                result = StringEscapeUtils.unescapeHtml(result);
+                result = result.trim();
+            }            
+        } else {
+            result = dirty;
         }
-        return clean;
+        return result;
     }
 
     /**
@@ -645,14 +676,16 @@ public class FeedDownloader {
         // System.exit(0);
 
         FeedDownloader downloader = new FeedDownloader();
+        downloader.setCleanStrings(false);
         // Feed feed = downloader.getFeed("http://badatsports.com/feed/");
         // Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
         // Feed feed = downloader
         //        .getFeed("http://sourceforge.net/api/message/index/list-name/phpmyadmin-svn/rss");
         // printFeed(feed);
         
-        Feed feed = downloader.getFeed(FeedDownloader.class.getResource("/feeds/atomSample1.xml").getFile());
-        FeedDownloader.printFeed(feed);
+        // Feed feed = downloader.getFeed(FeedDownloader.class.getResource("/feeds/atomSample1.xml").getFile());
+        Feed feed = downloader.getFeed("http://sourceforge.net/api/event/index/project-id/23067/rss");
+        FeedDownloader.printFeed(feed, true);
         
 
     }
