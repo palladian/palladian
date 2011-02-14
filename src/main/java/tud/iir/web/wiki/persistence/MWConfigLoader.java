@@ -14,19 +14,19 @@ import tud.iir.web.wiki.data.MWCrawlerConfiguration;
 import tud.iir.web.wiki.data.WikiDescriptor;
 import tud.iir.web.wiki.data.WikiDescriptorYAML;
 
-public final class MWConfigLoader {
+public class MWConfigLoader {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MWConfigLoader.class);
 
     /** Relative path to MediaWiki crawler configuration file in YAML */
-    private static final String CONFIG_FILE_PATH = "config/mwCrawlerConfiguration.yml";
+    protected static final String CONFIG_FILE_PATH = "config/mwCrawlerConfiguration.yml";
 
     /** The instance of this class. */
-    private static MWConfigLoader instance = null;
+    protected static MWConfigLoader instance = null;
 
     /** The {@link MediaWikiDatabase} which acts as persistence layer. */
-    private final MediaWikiDatabase mwDatabase = new MediaWikiDatabase();
+    protected final MediaWikiDatabase mwDatabase = new MediaWikiDatabase();
 
     /**
      * Instantiates a new MWConfigLoader.
@@ -137,9 +137,9 @@ public final class MWConfigLoader {
     }
 
     /**
-     * Creates for every Wiki in the database an own {@link MediaWikiCrawler}, running as own thread.
+     * Creates an own {@link MediaWikiCrawler} for every Wiki in the database, running as own thread.
      */
-    private void createCrawlers() {
+    protected void createCrawlers() {
         for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
             Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName()), "WikID-" + wikis.getWikiID());
             mwCrawler.start();

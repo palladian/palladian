@@ -32,7 +32,7 @@ import tud.iir.web.wiki.queries.RevisionsByTitleQuery;
 /**
  * A MediaWiki crawler that connects to a MediaWiki API using the Java Wiki Bot Framework (jwbf).
  * For details see documentation/handout/img/MediaWikiCrawler-UMLStateMachine.png
- * The crawler does a contineous crawling unless it is stopped or login to the Wiki fails for multiple times in a row.
+ * The crawler does a continuous crawling unless it is stopped or login to the Wiki fails for multiple times in a row.
  * 
  * Naming convention: all methods starting with "crawl" fetch something from the Wiki API.
  * 
@@ -114,13 +114,13 @@ public class MediaWikiCrawler implements Runnable {
      */
     // private int nextBot = 0;
 
-    /**
-     * Creates the MediaWikiCrawler for the given Wiki. use if want to use threads. problem: not faster with threads
-     * since jwbf seems to have some internals preventing parallelization.
-     * 
-     * @param WIKI_NAME The name of the Wiki this crawler processes.
-     * @param POOL_SIZE The number of worker threads to use for this wiki.
-     */
+    // /**
+    // * Creates the MediaWikiCrawler for the given Wiki. use if want to use threads. problem: not faster with threads
+    // * since jwbf seems to have some internals preventing parallelization.
+    // *
+    // * @param WIKI_NAME The name of the Wiki this crawler processes.
+    // * @param POOL_SIZE The number of worker threads to use for this wiki.
+    // */
     // public MediaWikiCrawler(final String WIKI_NAME, final int POOL_SIZE) {
     // this.MW_DATABASE = MediaWikiDatabase.getInstance();
     // if (!MW_DATABASE.wikiExists(WIKI_NAME)) {
@@ -491,7 +491,7 @@ public class MediaWikiCrawler implements Runnable {
             LOGGER.info("Start crawling content and revisions of all pages.");
         }
 
-        int counter = 0;
+        int pageCounter = 0;
         StopWatch watch2 = null;
         for (String pageTitle : mwDatabase.getAllPageTitlesToCrawl(mwDescriptor.getWikiID())) {
             if (DEBUG) {
@@ -500,14 +500,10 @@ public class MediaWikiCrawler implements Runnable {
 
             crawlAndStorePageContent(pageTitle);
             crawlAndStoreAllRevisionsByTitle(pageTitle);
-            // if (INFO) {
-            // counter++;
-            // if (counter % INFO_SIZE == 0) {
-            // LOGGER.info("Crawled " + counter + " pages so far.");
-            // }
-            // }
-            if (INFO && ++counter % INFO_SIZE == 0) {
-                LOGGER.info("Crawled " + counter + " pages so far.");
+            processNewPage(pageTitle);
+
+            if (INFO && ++pageCounter % INFO_SIZE == 0) {
+                LOGGER.info("Crawled " + pageCounter + " pages so far.");
             }
 
             if (DEBUG) {
@@ -636,7 +632,7 @@ public class MediaWikiCrawler implements Runnable {
 
     /**
      * Calls the MediaWiki API, retrieves all new pages created since the last check for new pages and stores them in
-     * the database. Only the newest revision is is fetched and stored.
+     * the database. Only the newest revision is fetched and stored.
      */
     private void crawlAndStoreNewPages() {
         // prepare query
@@ -670,6 +666,10 @@ public class MediaWikiCrawler implements Runnable {
             }
         }
         addPagesToDB(pagesToAdd, pagesSkipped, (counter - pagesSkipped));
+
+        for (WikiPage page : pagesToAdd) {
+            processNewPage(page.getTitle());
+        }
     }
 
     /**
@@ -697,6 +697,8 @@ public class MediaWikiCrawler implements Runnable {
             mwDatabase.addRevisions(mwDescriptor.getWikiID(), page.getPageID(), page.getRevisions().values());
             crawlAndStorePageContent(page.getTitle());
             // if (counter == BULK_WRITE_SIZE) break; //debug code, use to limit number of pages to crawl wikipedia
+
+            processNewPage(page.getTitle());
         }
     }
 
@@ -712,6 +714,16 @@ public class MediaWikiCrawler implements Runnable {
         String wikiTime = DateHelper.getDatetime("yyyy-MM-dd'T'HH:mm:ss'Z'", date.getTime());
         LocalizeHelper.restoreTimeZone();
         return wikiTime;
+    }
+
+    /**
+     * Processes a new or updated page. Override this method to process a new or updated page in your application. The
+     * method is called whenever a new wiki page has been crawled completely or an update of a page has been received.
+     * 
+     * @param pageTitle The title of the new or updated page
+     */
+    protected void processNewPage(final String pageTitle) {
+        LOGGER.warn("processNewPage() has to be implemented!");
     }
 
     /**
@@ -763,6 +775,7 @@ public class MediaWikiCrawler implements Runnable {
                 LOGGER.info("Entering continuous crawling mode for Wiki \"" + mwDescriptor.getWikiName() + "\".");
             }
 
+            // TODO is it correct to have while (true) inside if (!threadShouldStop())?
             while (true) {
                 long wokeUp = System.currentTimeMillis();
 
