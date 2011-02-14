@@ -337,14 +337,14 @@ public class FeedDownloaderTest {
         String feedPath = FeedDownloader.class.getResource("/feeds/feeds/feed014.xml").getFile();
 
         StopWatch sw = new StopWatch();
-        feedDownloader.useDateRecognition = false;
+        feedDownloader.setUseDateRecognition(false);
         for (int i = 0; i < numIterations; i++) {
             feedDownloader.getFeed(feedPath);
         }
         LOGGER.info("without date recognition : " + (float) sw.getElapsedTime() / numIterations + " ms.");
 
         sw = new StopWatch();
-        feedDownloader.useDateRecognition = true;
+        feedDownloader.setUseDateRecognition(true);
         for (int i = 0; i < numIterations; i++) {
             feedDownloader.getFeed(feedPath);
         }
