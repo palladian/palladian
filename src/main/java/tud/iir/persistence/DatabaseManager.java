@@ -257,7 +257,7 @@ public class DatabaseManager {
         return count;
     }
 
-    public final Object[] runOneResultLineQuery(String query, final int entries) {
+    public final Object[] runOneResultLineQuery(String query, final int entries, Object... args) {
 
         final Object[] resultEntries = new Object[entries];
 
@@ -272,7 +272,7 @@ public class DatabaseManager {
             }
         };
 
-        runQuery(callback, query);
+        runQuery(callback, query, args);
 
         return resultEntries;
     }
@@ -471,7 +471,7 @@ public class DatabaseManager {
             int[] batchResult = ps.executeBatch();
             connection.commit();
             connection.setAutoCommit(true);
-            
+
             // obtain the generated IDs for the inserted items
             // where no item was inserted, return -1 as ID
             rs = ps.getGeneratedKeys();
@@ -493,7 +493,7 @@ public class DatabaseManager {
         Integer[] array = generatedIds.toArray(new Integer[generatedIds.size()]);
         return CollectionHelper.toIntArray(array);
     }
-    
+
     /**
      * Run a batch insertion and return the generated insert IDs.
      * 
