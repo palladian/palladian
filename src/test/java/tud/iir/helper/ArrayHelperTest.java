@@ -6,7 +6,7 @@ import java.util.ArrayList;
 
 import org.junit.Test;
 
-public class ArrayHelpterTest {
+public class ArrayHelperTest {
     @Test
     public void removeNullElementsTest() {
         ArrayList<String> array = new ArrayList<String>();
