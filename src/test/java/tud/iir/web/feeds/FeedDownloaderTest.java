@@ -26,6 +26,11 @@ public class FeedDownloaderTest {
 
     private final DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS z");
 
+    /**
+     * Test downloading a feed from the web.
+     * 
+     * @throws FeedDownloaderException
+     */
     @Test
     public void testDownloadFeed() throws FeedDownloaderException {
         if (AllTests.ALL_TESTS) {
@@ -46,51 +51,53 @@ public class FeedDownloaderTest {
         FeedDownloader feedDownloader = new FeedDownloader();
 
         // Content is not allowed in prolog.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed004.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed004.xml").getFile());
 
         // The processing instruction target matching "[xX][mM][lL]" is not allowed.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed009.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed009.xml").getFile());
 
         // The reference to entity "L" must end with the ';' delimiter.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed010.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed010.xml").getFile());
 
         // The markup declarations contained or pointed to by the document type declaration must be well-formed.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed013.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed013.xml").getFile());
 
         // The reference to entity "F" must end with the ';' delimiter.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed030.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed030.xml").getFile());
 
         // The entity name must immediately follow the '&' in the entity reference.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed035.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed035.xml").getFile());
 
-        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed055.xml").getFile());
-        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed063.xml").getFile());
-        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed065.xml").getFile());
-        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed067.xml").getFile());
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed055.xml").getFile());
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed063.xml").getFile());
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed065.xml").getFile());
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed067.xml").getFile());
 
         // The reference to entity "M" must end with the ';' delimiter.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed068.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed068.xml").getFile());
 
         // The entity "nbsp" was referenced, but not declared.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed069.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed069.xml").getFile());
 
-        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed070.xml").getFile());
-
-        // The entity name must immediately follow the '&' in the entity reference.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed078.xml").getFile());
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed070.xml").getFile());
 
         // The entity name must immediately follow the '&' in the entity reference.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed081.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed078.xml").getFile());
+
+        // The entity name must immediately follow the '&' in the entity reference.
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed081.xml").getFile());
 
         // The entity "eacute" was referenced, but not declared.
-        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed082.xml").getFile());
+        // feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed082.xml").getFile());
 
-        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feeds/feed084.xml").getFile());
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed084.xml").getFile());
 
     }
 
     /**
-     * Test, if standard conform formats from constructed test set can be parsed.
+     * Test, if standard conform formats from constructed test set can be parsed. This means, that in contrast to
+     * {@link #testFeedParsing()}, the feed data which is checked below is taken from synthetic sample data, not
+     * "from the wild".
      * 
      * @throws FeedDownloaderException
      * @throws ParseException
@@ -99,6 +106,7 @@ public class FeedDownloaderTest {
     public void testFeedParsing2() throws FeedDownloaderException, ParseException {
 
         FeedDownloader feedDownloader = new FeedDownloader();
+        feedDownloader.setCleanStrings(false);
 
         // verify, if author information is parsed correctly
         
@@ -118,6 +126,12 @@ public class FeedDownloaderTest {
         feedItem = feed.getItems().iterator().next();
         Assert.assertEquals("lawyer@boyer.net (Lawyer Boyer)", feedItem.getAuthors());
         Assert.assertEquals(df.parse("2009-09-06 16:45:00.000 GMT"), feedItem.getPublished());
+        
+        // RDF Site Summary 1.0; Content Module
+        // http://web.resource.org/rss/1.0/modules/content/
+        feed = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/rssRdf10.xml").getFile());
+        feedItem = feed.getItems().iterator().next();
+        Assert.assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getItemText());
 
     }
 
@@ -129,110 +143,110 @@ public class FeedDownloaderTest {
     public void testDateParsing() throws ParseException {
 
         // Wed, 02 Feb 2011 12:11:00 GMT
-        checkDate("2011-02-02 12:11:00.000 GMT", "/feeds/feeds/feed001.xml");
+        checkDate("2011-02-02 12:11:00.000 GMT", "/feeds/feed001.xml");
 
         // feed cannot be parsed, as it contains strange white space
         // 2011-02-02T06:33:52.690
-        // checkDate("2011-02-02 06:33:52.690 GMT", "/feeds/feeds/feed004.xml");
+        // checkDate("2011-02-02 06:33:52.690 GMT", "/feeds/feed004.xml");
 
         // Fri, 28 Jan 2011 10:45:15 -0500
-        checkDate("2011-01-28 10:45:15.000 GMT-05:00", "/feeds/feeds/feed005.xml");
+        checkDate("2011-01-28 10:45:15.000 GMT-05:00", "/feeds/feed005.xml");
 
         // Wed, 02 Feb 2011 10:26:21 -0500
-        checkDate("2011-02-02 10:26:21.000 GMT-05:00", "/feeds/feeds/feed006.xml");
+        checkDate("2011-02-02 10:26:21.000 GMT-05:00", "/feeds/feed006.xml");
 
         // date cannot be parsed
         // Wed, 2, Feb 2011 9:36
-        // checkDate("2011-02-02 09:36:00.000 GMT", "/feeds/feeds/feed007.xml");
+        // checkDate("2011-02-02 09:36:00.000 GMT", "/feeds/feed007.xml");
 
         // date cannot be parsed
         // 2011-01-31
-        // checkDate("2011-01-31 00:00:00.000 GMT", "/feeds/feeds/feed008.xml");
+        // checkDate("2011-01-31 00:00:00.000 GMT", "/feeds/feed008.xml");
 
         // feed cannot be parsed
         // Thu, 31 Mar 2011 19:00:00 -0500
-        // checkDate("2011-03-31 19:00:00.000 GMT-05:00", "/feeds/feeds/feed009.xml");
+        // checkDate("2011-03-31 19:00:00.000 GMT-05:00", "/feeds/feed009.xml");
 
         // feed cannot be parsed
         // Wed, 02 Feb 2011 05:37:00 EST
-        // checkDate("2011-02-02 05:37:00.000 EST", "/feeds/feeds/feed010.xml");
+        // checkDate("2011-02-02 05:37:00.000 EST", "/feeds/feed010.xml");
 
         // Tue, 11 Jan 2011 00:00:00 -0500
-        checkDate("2011-01-11 00:00:00.000 GMT-05:00", "/feeds/feeds/feed012.xml");
+        checkDate("2011-01-11 00:00:00.000 GMT-05:00", "/feeds/feed012.xml");
 
         // Wed, 2 Feb 2011 15:00:00 GMT
-        checkDate("2011-02-02 15:00:00.000 GMT", "/feeds/feeds/feed014.xml");
+        checkDate("2011-02-02 15:00:00.000 GMT", "/feeds/feed014.xml");
 
         // date cannot be parsed
         // Tue, Feb 01,2011 11:33:33PM
-        // checkDate("2011-02-01 23:33:33.000 GMT", "/feeds/feeds/feed018.xml");
+        // checkDate("2011-02-01 23:33:33.000 GMT", "/feeds/feed018.xml");
 
         // date cannot be parsed
         // Wed, 02 Feb 2011 09:00:00 EST
-        // checkDate("2011-02-02 09:00:00.000 EST", "/feeds/feeds/feed021.xml");
+        // checkDate("2011-02-02 09:00:00.000 EST", "/feeds/feed021.xml");
 
         // date cannot be parsed
         // Tue, 01 February 2011 15:15:56
-        // checkDate("2011-02-01 15:15:56.000 GMT", "/feeds/feeds/feed024.xml");
+        // checkDate("2011-02-01 15:15:56.000 GMT", "/feeds/feed024.xml");
 
         // Yesterday +0000
         // feed026.xml
 
         // date cannot be parsed
         // Wed, February 2, 2011 10:05 AM
-        // checkDate("2011-02-02 10:05:00.000 GMT", "/feeds/feeds/feed028.xml");
+        // checkDate("2011-02-02 10:05:00.000 GMT", "/feeds/feed028.xml");
 
         // 1/30/11
-        checkDate("2011-01-30 00:00:00.000 GMT", "/feeds/feeds/feed029.xml");
+        checkDate("2011-01-30 00:00:00.000 GMT", "/feeds/feed029.xml");
 
         // feed cannot be parsed
         // 31 Jan 2011 20:34:17 EST
-        // checkDate("2011-01-31 20:34:17.000 EST", "/feeds/feeds/feed030.xml");
+        // checkDate("2011-01-31 20:34:17.000 EST", "/feeds/feed030.xml");
 
         // Tuesday, 14 Sept 2010 16:30:00 EST
-        // checkDate("2010-09-14 16:30:00.000 EST", "/feeds/feeds/feed031.xml");
+        // checkDate("2010-09-14 16:30:00.000 EST", "/feeds/feed031.xml");
 
         // feed cannot be parsed
         // Fri, 06 Aug 2010 09:53:48 +0000
-        // checkDate("2010-08-06 09:53:48.000 GMT", "/feeds/feeds/feed035.xml");
+        // checkDate("2010-08-06 09:53:48.000 GMT", "/feeds/feed035.xml");
 
         // Wed, 02 Feb 2011 2/2/2011 9:00:01 AM UT
-        checkDate("2011-02-02 09:00:01.000 GMT", "/feeds/feeds/feed040.xml");
+        checkDate("2011-02-02 09:00:01.000 GMT", "/feeds/feed040.xml");
 
         // date cannot be parsed
         // Jan 25,2011
-        // checkDate("2011-01-25 00:00:00.000 GMT", "/feeds/feeds/feed043.xml");
+        // checkDate("2011-01-25 00:00:00.000 GMT", "/feeds/feed043.xml");
 
         // Wednesday, February 02, 2011 4:03:46 AM GMT
-        checkDate("2011-02-02 04:03:46.000 GMT", "/feeds/feeds/feed045.xml");
+        checkDate("2011-02-02 04:03:46.000 GMT", "/feeds/feed045.xml");
 
         // Wed 2 Feb 2011 00:00:00 GMT
-        checkDate("2011-02-02 00:00:00.000 GMT", "/feeds/feeds/feed049.xml");
+        checkDate("2011-02-02 00:00:00.000 GMT", "/feeds/feed049.xml");
 
         // Wed, 26 Jan 2011 09:25:02 -0500
-        checkDate("2011-01-26 09:25:02.000 GMT-05:00", "/feeds/feeds/feed051.xml");
+        checkDate("2011-01-26 09:25:02.000 GMT-05:00", "/feeds/feed051.xml");
 
         // 11/30/2010 5:25:47 PM
-        checkDate("2010-11-30 17:25:47.000 GMT", "/feeds/feeds/feed053.xml");
+        checkDate("2010-11-30 17:25:47.000 GMT", "/feeds/feed053.xml");
 
         // 2011-01-31T11:48:00
-        checkDate("2011-01-31 11:48:00.000 GMT", "/feeds/feeds/feed054.xml");
+        checkDate("2011-01-31 11:48:00.000 GMT", "/feeds/feed054.xml");
 
         // Sun, 30 Jan 2011 00:00:00 -0600
-        checkDate("2011-01-30 00:00:00.000 GMT-06:00", "/feeds/feeds/feed055.xml");
+        checkDate("2011-01-30 00:00:00.000 GMT-06:00", "/feeds/feed055.xml");
 
         // 2011-02-02T00:00:00.0000000-05:00
-        checkDate("2011-02-02 00:00:00.000 GMT-05:00", "/feeds/feeds/feed061.xml");
+        checkDate("2011-02-02 00:00:00.000 GMT-05:00", "/feeds/feed061.xml");
 
         // Wed, 02 Feb 2011 09:12:43 -0500
-        checkDate("2011-02-02 09:12:43.000 GMT-05:00", "/feeds/feeds/feed063.xml");
+        checkDate("2011-02-02 09:12:43.000 GMT-05:00", "/feeds/feed063.xml");
 
         // date cannot be parsed
         // 2011-02-2T10:00
-        // checkDate("2011-02-02 10:00:00.000 GMT", "/feeds/feeds/feed073.xml");
+        // checkDate("2011-02-02 10:00:00.000 GMT", "/feeds/feed073.xml");
 
         // Feb 2, 2011
-        checkDate("2011-02-02 00:00:00.000 GMT", "/feeds/feeds/feed077.xml");
+        checkDate("2011-02-02 00:00:00.000 GMT", "/feeds/feed077.xml");
 
     }
 
@@ -334,7 +348,7 @@ public class FeedDownloaderTest {
 
         FeedDownloader feedDownloader = new FeedDownloader();
         int numIterations = 100;
-        String feedPath = FeedDownloader.class.getResource("/feeds/feeds/feed014.xml").getFile();
+        String feedPath = FeedDownloader.class.getResource("/feeds/feed014.xml").getFile();
 
         StopWatch sw = new StopWatch();
         feedDownloader.setUseDateRecognition(false);

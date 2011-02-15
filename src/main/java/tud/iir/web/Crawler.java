@@ -992,7 +992,7 @@ public class Crawler {
         if (isXML) {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
             // FIXME added by Philipp, 2011-01-28
-            // docBuilderFactory.setNamespaceAware(true);
+            docBuilderFactory.setNamespaceAware(true);
             document = docBuilderFactory.newDocumentBuilder().parse(is);
         } else {
             parser.parse(is);
