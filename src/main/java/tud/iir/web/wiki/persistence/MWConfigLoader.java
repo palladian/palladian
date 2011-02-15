@@ -14,7 +14,7 @@ import tud.iir.web.wiki.data.MWCrawlerConfiguration;
 import tud.iir.web.wiki.data.WikiDescriptor;
 import tud.iir.web.wiki.data.WikiDescriptorYAML;
 
-public class MWConfigLoader {
+public final class MWConfigLoader {
 
     /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(MWConfigLoader.class);
@@ -32,23 +32,27 @@ public class MWConfigLoader {
      * Instantiates a new MWConfigLoader.
      */
     private MWConfigLoader() {
-        // load MWCrawlerConfiguration and prepare to use as singleton
+        // load MWCrawlerConfiguration from file and prepare to use as singleton
         MWCrawlerConfiguration configuration = loadConfigurationFromConfigFile();
 
         // its a trick for creating a singleton because of yml
         MWCrawlerConfiguration.instance = configuration;
+
+        processConfiguration();
+        createCrawlers();
     }
 
     /**
-     * Gets the single instance of MWConfigLoader.
-     * 
-     * @return single instance of MWConfigLoader
+     * Does the complete initialization of the MediaWiki crawlers when called the first time. The configuration is
+     * loaded from local configuration file {@link #CONFIG_FILE_PATH}, written to database and crawlers are created.
+     * Additional calls of have no effect.
      */
-    public static MWConfigLoader getInstance() {
+    public static void initialize() {
         if (instance == null) {
             instance = new MWConfigLoader();
+        } else {
+            LOGGER.warn("MediaWiki crawlers have already been initialized! Doing nothing.");
         }
-        return instance;
     }
 
     /**
@@ -65,7 +69,6 @@ public class MWConfigLoader {
 
             returnValue = config;
         } catch (FileNotFoundException e) {
-
             LOGGER.error(e.getMessage());
         }
         return returnValue;
@@ -73,8 +76,8 @@ public class MWConfigLoader {
 
     /**
      * <p>
-     * Load the crawler configuration from file (see {@link #loadConfigurationFromConfigFile()}) and--if already
-     * existent--from database, and write (updated) config to database.
+     * Loads the crawler configuration from file (see {@link #loadConfigurationFromConfigFile()}) and--if already
+     * existent--from database, and writes (updates) config to database.
      * </p>
      * <p>
      * Details:<br />
@@ -88,7 +91,7 @@ public class MWConfigLoader {
      * </ul>
      * </p>
      */
-    public void initializeCrawlers() {
+    private void processConfiguration() {
         // load known Wikis from db
         TreeMap<String, WikiDescriptor> wikisInDB = new TreeMap<String, WikiDescriptor>();
         for (WikiDescriptor wd : mwDatabase.getAllWikiDescriptors()) {
@@ -132,20 +135,19 @@ public class MWConfigLoader {
         for (WikiDescriptor wikiToDelete : wikisInDB.values()) {
             mwDatabase.removeWiki(wikiToDelete.getWikiID());
         }
-
-        createCrawlers();
     }
 
     /**
      * Creates an own {@link MediaWikiCrawler} for every Wiki in the database, running as own thread.
      */
-    protected void createCrawlers() {
+    private void createCrawlers(){
         for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
             Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName()), "WikID-" + wikis.getWikiID());
             mwCrawler.start();
         }
     }
-
+    
+    
     /**
      * Debug helper to reset the database. All Wikis and their complete content is removed from the database.
      * Use with caution...
@@ -158,15 +160,5 @@ public class MWConfigLoader {
             LOGGER.fatal("Removed all data for Wiki \"" + wiki.getWikiName() + "\".");
         }
     }
-
-    public static void main(String[] args) throws Exception {
-
-        // Locale.setDefault(Locale.ENGLISH);
-        // TimeZone.setDefault(TimeZone.getTimeZone("Etc/UTC"));
-        // resetDatabase(); // debug code
-
-        MWConfigLoader.getInstance().initializeCrawlers();
-    }
-
 
 }

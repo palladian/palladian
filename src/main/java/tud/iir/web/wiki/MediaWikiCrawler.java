@@ -23,6 +23,7 @@ import tud.iir.helper.StopWatch;
 import tud.iir.web.wiki.data.Revision;
 import tud.iir.web.wiki.data.WikiDescriptor;
 import tud.iir.web.wiki.data.WikiPage;
+import tud.iir.web.wiki.persistence.MWConfigLoader;
 import tud.iir.web.wiki.persistence.MediaWikiDatabase;
 import tud.iir.web.wiki.queries.AllPageTitles;
 import tud.iir.web.wiki.queries.GetRendering;
@@ -61,10 +62,10 @@ public class MediaWikiCrawler implements Runnable {
     private static final int BULK_WRITE_SIZE = 3000;
 
     /** The database used to persist results */
-    protected final MediaWikiDatabase mwDatabase;
+    private final MediaWikiDatabase mwDatabase;
 
     /** Basic configuration of the {@link MediaWikiCrawler} */
-    protected final WikiDescriptor mwDescriptor;
+    private final WikiDescriptor mwDescriptor;
 
     /** The jwbf bot that does all the communication with the MediaWiki API. */
     private final MediaWikiBot bot;
@@ -722,8 +723,10 @@ public class MediaWikiCrawler implements Runnable {
      * 
      * @param pageTitle The title of the new or updated page
      */
-    protected void processNewPage(final String pageTitle) {
-        LOGGER.warn("processNewPage() has to be implemented!");
+    private void processNewPage(final String pageTitle) {
+        WikiPage page = mwDatabase.getPage(mwDescriptor.getWikiID(),
+                mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle));
+        LOGGER.warn("processNewPage() has to be implemented! " + page.toString());
     }
 
     /**
@@ -775,7 +778,6 @@ public class MediaWikiCrawler implements Runnable {
                 LOGGER.info("Entering continuous crawling mode for Wiki \"" + mwDescriptor.getWikiName() + "\".");
             }
 
-            // TODO is it correct to have while (true) inside if (!threadShouldStop())?
             while (true) {
                 long wokeUp = System.currentTimeMillis();
 
@@ -842,6 +844,16 @@ public class MediaWikiCrawler implements Runnable {
         if (INFO) {
             LOGGER.info("Crawler has been stopped. Goodbye!");
         }
+    }
+
+
+    /**
+     * Main method to initialize the MediaWiki crawler.
+     * 
+     * @param args the command line arguments.
+     */
+    public static void main(String[] args) {
+        MWConfigLoader.initialize();
     }
 
 }
