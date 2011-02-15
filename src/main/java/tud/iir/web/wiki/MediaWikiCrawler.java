@@ -8,6 +8,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import net.sourceforge.jwbf.core.actions.util.ActionException;
 import net.sourceforge.jwbf.core.contentRep.Article;
@@ -89,13 +90,17 @@ public class MediaWikiCrawler implements Runnable {
      */
     private static final long LOGIN_RETRY_TIME = DateHelper.HOUR_MS;
 
+    /** Flag, checked periodically to stop the thread if set to true. */
     private boolean stopThread = false;
 
     /** time period to check the Wiki for new pages */
     private long pageCheckInterval = DateHelper.MINUTE_MS;
 
-    /** time period to wake up and check data base for pages that need to be checked for new revisions */
+    /** time period to wake up and check database for pages that need to be checked for new revisions */
     private final long newRevisionsInterval = DateHelper.MINUTE_MS;
+
+    /** Synchronized FIFO queue to put new pages. Multiple consumers can process these pages. */
+    private final LinkedBlockingQueue<WikiPage> pageQueue;
 
     /*
      * use if want to use threads. problem: not faster with threads since jwbf seems to have some internals preventing
@@ -139,8 +144,9 @@ public class MediaWikiCrawler implements Runnable {
      * Creates the MediaWikiCrawler for the given Wiki. It fetches its own configuration from the database.
      * 
      * @param wikiName The name of the Wiki this crawler processes.
+     * @param pageQueue Synchronized FIFO queue to put new pages. Multiple consumers can process these pages.
      */
-    public MediaWikiCrawler(final String wikiName) {
+    public MediaWikiCrawler(final String wikiName, LinkedBlockingQueue<WikiPage> pageQueue) {
         this.mwDatabase = new MediaWikiDatabase();
         if (!mwDatabase.wikiExists(wikiName)) {
             throw new IllegalArgumentException("Wiki name \"" + wikiName
@@ -148,6 +154,7 @@ public class MediaWikiCrawler implements Runnable {
         }
         this.mwDescriptor = mwDatabase.getWikiDescriptor(wikiName);
         this.bot = new MediaWikiBot(mwDescriptor.getWikiApiURL());
+        this.pageQueue = pageQueue;
     }
 
     /**
@@ -718,15 +725,24 @@ public class MediaWikiCrawler implements Runnable {
     }
 
     /**
-     * Processes a new or updated page. Override this method to process a new or updated page in your application. The
-     * method is called whenever a new wiki page has been crawled completely or an update of a page has been received.
+     * Puts a new or updated page and all revisions to the pageQueue to notify consumers on this new or updated page.
      * 
      * @param pageTitle The title of the new or updated page
      */
     private void processNewPage(final String pageTitle) {
         WikiPage page = mwDatabase.getPage(mwDescriptor.getWikiID(),
                 mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle));
-        LOGGER.warn("processNewPage() has to be implemented! " + page.toString());
+        try {
+            pageQueue.put(page);
+            if (DEBUG) {
+                LOGGER.debug("queue size: " + pageQueue.size());
+            }
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        } catch (NullPointerException e) {
+            LOGGER.error("Could not put page \"" + pageTitle + "\" to pageQuele: page does not exist.");
+        }
     }
 
     /**
@@ -853,7 +869,16 @@ public class MediaWikiCrawler implements Runnable {
      * @param args the command line arguments.
      */
     public static void main(String[] args) {
-        MWConfigLoader.initialize();
+        final int queueCapacity = 1000;
+        final int pageConsumers = 5;
+
+        LinkedBlockingQueue<WikiPage> pageQueue = new LinkedBlockingQueue<WikiPage>(queueCapacity);
+        MWConfigLoader.initialize(pageQueue);
+
+        for (int i = 1; i <= pageConsumers; i++) {
+            Thread consumer = new Thread(new PageConsumer(pageQueue), "Consum-" + i);
+            consumer.start();
+        }
     }
 
 }

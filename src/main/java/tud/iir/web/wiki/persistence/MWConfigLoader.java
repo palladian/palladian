@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.apache.log4j.Logger;
 import org.ho.yaml.Yaml;
@@ -13,6 +14,7 @@ import tud.iir.web.wiki.MediaWikiCrawler;
 import tud.iir.web.wiki.data.MWCrawlerConfiguration;
 import tud.iir.web.wiki.data.WikiDescriptor;
 import tud.iir.web.wiki.data.WikiDescriptorYAML;
+import tud.iir.web.wiki.data.WikiPage;
 
 public final class MWConfigLoader {
 
@@ -30,8 +32,11 @@ public final class MWConfigLoader {
 
     /**
      * Instantiates a new MWConfigLoader.
+     * 
+     * @param pageQueue The queue that is used by {@link MediaWikiCrawler}s to put processed pages in and consumers that
+     *            process these pages.
      */
-    private MWConfigLoader() {
+    private MWConfigLoader(LinkedBlockingQueue<WikiPage> pageQueue) {
         // load MWCrawlerConfiguration from file and prepare to use as singleton
         MWCrawlerConfiguration configuration = loadConfigurationFromConfigFile();
 
@@ -39,17 +44,20 @@ public final class MWConfigLoader {
         MWCrawlerConfiguration.instance = configuration;
 
         processConfiguration();
-        createCrawlers();
+        createCrawlers(pageQueue);
     }
 
     /**
      * Does the complete initialization of the MediaWiki crawlers when called the first time. The configuration is
      * loaded from local configuration file {@link #CONFIG_FILE_PATH}, written to database and crawlers are created.
      * Additional calls of have no effect.
+     * 
+     * @param pageQueue The queue that is used by {@link MediaWikiCrawler}s to put processed pages in and consumers that
+     *            process these pages.
      */
-    public static void initialize() {
+    public static void initialize(LinkedBlockingQueue<WikiPage> pageQueue) {
         if (instance == null) {
-            instance = new MWConfigLoader();
+            instance = new MWConfigLoader(pageQueue);
         } else {
             LOGGER.warn("MediaWiki crawlers have already been initialized! Doing nothing.");
         }
@@ -140,9 +148,10 @@ public final class MWConfigLoader {
     /**
      * Creates an own {@link MediaWikiCrawler} for every Wiki in the database, running as own thread.
      */
-    private void createCrawlers(){
+    private void createCrawlers(LinkedBlockingQueue<WikiPage> pageQueue) {
         for (WikiDescriptor wikis : mwDatabase.getAllWikiDescriptors()) {
-            Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName()), "WikID-" + wikis.getWikiID());
+            Thread mwCrawler = new Thread(new MediaWikiCrawler(wikis.getWikiName(), pageQueue), "WikID-"
+                    + wikis.getWikiID());
             mwCrawler.start();
         }
     }
