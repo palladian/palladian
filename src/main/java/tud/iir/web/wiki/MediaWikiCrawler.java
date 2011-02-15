@@ -862,9 +862,8 @@ public class MediaWikiCrawler implements Runnable {
         }
     }
 
-
     /**
-     * Main method to initialize the MediaWiki crawler.
+     * Main method to initialize the {@link MediaWikiCrawler}s.
      * 
      * @param args the command line arguments.
      */
