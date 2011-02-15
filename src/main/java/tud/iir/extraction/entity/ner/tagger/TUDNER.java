@@ -44,7 +44,6 @@ import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
-import tud.iir.helper.MathHelper;
 import tud.iir.helper.RegExp;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
@@ -81,9 +80,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         patterns = new HashMap<String, CategoryEntries>();
         universalClassifier = new UniversalClassifier();
         universalClassifier.getNumericClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
         universalClassifier.getNominalClassifier().getClassificationTypeSetting()
-                .setClassificationType(ClassificationTypeSetting.TAG);
+        .setClassificationType(ClassificationTypeSetting.TAG);
     }
 
     @Override
@@ -206,19 +205,19 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // Annotations patternRecognizedAnnotations = verifyEntitiesWithPattern(entityCandidates, inputText);
         // annotations.addAll(patternRecognizedAnnotations);
 
-        // Annotations dictionaryRecognizedAnnotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
-        // annotations.addAll(dictionaryRecognizedAnnotations);
+        Annotations dictionaryRecognizedAnnotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
+        annotations.addAll(dictionaryRecognizedAnnotations);
 
         // classify annotations with the UniversalClassifier
-        int i = 0;
-        for (Annotation annotation : entityCandidates) {
-            universalClassifier.classify(annotation);
-            annotations.add(annotation);
-            if (i % 100 == 0) {
-                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
-            }
-            i++;
-        }
+        // int i = 0;
+        // for (Annotation annotation : entityCandidates) {
+        // universalClassifier.classify(annotation);
+        // annotations.add(annotation);
+        // if (i % 100 == 0) {
+        // LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
+        // }
+        // i++;
+        // }
 
         Annotations toRemove = new Annotations();
 
@@ -245,7 +244,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // annotations.removeAll(toRemove);
 
         FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt",
- tagText(inputText, annotations));
+                tagText(inputText, annotations));
 
         return annotations;
     }
@@ -286,7 +285,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private void createPatternCandidates(String trainingFilePath, Annotations annotations) {
 
         String xmlTraingFilePath = trainingFilePath.substring(0, trainingFilePath.length() - 4) + "_transformed."
-                + FileHelper.getFileType(trainingFilePath);
+        + FileHelper.getFileType(trainingFilePath);
         FileFormatParser.columnToXML(trainingFilePath, xmlTraingFilePath, "\t");
         String inputText = FileFormatParser.getText(xmlTraingFilePath, TaggingFormat.XML);
 
@@ -457,7 +456,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             Categories documentCategories = new Categories();
 
             Category knownCategory = categories
-                    .getCategoryByName(annotation.getMostLikelyTag().getCategory().getName());
+            .getCategoryByName(annotation.getMostLikelyTag().getCategory().getName());
             if (knownCategory == null) {
                 knownCategory = new Category(annotation.getMostLikelyTag().getCategory().getName());
                 categories.add(knownCategory);
@@ -610,7 +609,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
                 // ClassificationDocument document = preprocessor.preProcessDocument(toClassify);
                 ClassificationDocument document = preprocessor
-.preProcessDocument(entityCandidate.getEntity());
+                .preProcessDocument(entityCandidate.getEntity());
                 dictionaryClassifier.classify(document, false);
 
                 if (document.getMainCategoryEntry().getAbsoluteRelevance() > -4) {
@@ -654,7 +653,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private void demo(String optionValue) {
         System.out.println(tag(
                 "Homer Simpson likes to travel through his hometown Springfield. His friends are Moe and Barney.",
-                "data/models/tudnerdemo.model"));
+        "data/models/tudnerdemo.model"));
 
     }
 
@@ -698,7 +697,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
             options.addOption(OptionBuilder
                     .withLongOpt("testFile")
                     .withDescription(
-                            "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
+                    "the path and name of the test file for evaluating the tagger (only if mode = evaluate)")
                     .hasArg().withArgName("text").withType(String.class).create());
 
             options.addOption(OptionBuilder.withLongOpt("configFile")
@@ -772,13 +771,13 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
         // train
         // tagger.train("data/datasets/ner/sample/trainingColumn.tsv", "data/models/tudner/tudner.model");
-       
+
         // tag
         // tagger.loadModel("data/models/tudner/tudner.model");
         // tagger.tag("John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.");
-        
-//        tagger.tag(
-//                "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.",
+
+        //        tagger.tag(
+        //                "John J. Smith and the Nexus One location iphone 4 mention Seattle in the text John J. Smith lives in Seattle.",
         // "data/models/tudner/tudner.model");
 
         // evaluate
@@ -799,7 +798,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // .tag("John J. Smith and the John Reilly location mention Samsung Galaxy in the text John J. Smith lives in Seattle. He wants to buy an iPhone 4 or a Samsung i7110 phone.",
         // "data/temp/nercer.model"));
 
-        
+
         // tagger.evaluate("data/temp/evaluate/taggedTextTesting.xml", "data/temp/nercer.model", TaggingFormat.XML);
 
         // use the trained model to recognize entities in a text
