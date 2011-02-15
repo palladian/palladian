@@ -3,8 +3,8 @@ package tud.iir.control;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import tud.iir.classification.page.ClassifierTest;
+import tud.iir.extraction.PageAnalyzerTest;
 import tud.iir.helper.DBStoreTest;
-import tud.iir.helper.XPathTest;
 import tud.iir.persistence.DictionaryFileIndexTest;
 import tud.iir.preprocessing.multimedia.ImageHandlerTest;
 import tud.iir.preprocessing.normalization.NormalizationTest;
@@ -28,7 +28,7 @@ public class AllTests {
         suite.addTestSuite(CrawlerTest.class);
         suite.addTestSuite(ImageHandlerTest.class);
         suite.addTestSuite(NormalizationTest.class);
-        suite.addTestSuite(XPathTest.class);
+        suite.addTestSuite(PageAnalyzerTest.class);
         suite.addTestSuite(DBStoreTest.class);
 
         // $JUnit-END$
