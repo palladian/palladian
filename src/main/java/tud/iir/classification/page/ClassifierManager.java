@@ -290,7 +290,7 @@ public class ClassifierManager {
 
         // in hierarchy mode we have to tell the dictionary which categories are main categories
         if (classifier.getClassificationType() == ClassificationTypeSetting.HIERARCHICAL) {
-            ((DictionaryClassifier) classifier).getDictionary().setMainCategories(classifier.categories);
+            ((DictionaryClassifier) classifier).getDictionary().setMainCategories(classifier.getCategories());
         }
 
         // save the dictionary (serialize, in-memory dictionary will be deleted at this point)
@@ -350,7 +350,7 @@ public class ClassifierManager {
                 + Preprocessor.WEIGHT_KEYWORD_TERM + " Meta " + Preprocessor.WEIGHT_META_TERM + " Body "
                 + Preprocessor.WEIGHT_BODY_TERM);
         LOGGER.info("Use " + trainingDataPercentage + "% as training data. Loaded " + trainingUrls.size()
-                + " training urls, " + testUrls.size() + " test urls in " + classifier.categories.size()
+                + " training urls, " + testUrls.size() + " test urls in " + classifier.getCategories().size()
                 + " categories");
         LOGGER.info("Runtime: " + timeNeeded);
 
@@ -360,7 +360,7 @@ public class ClassifierManager {
             .info("Category                      Training  Test  Classified  Correct  Precision        Recall           F1               Sensitivity      Specificity      Accuracy         Weight/Prior");
 
             int totalCorrect = 0;
-            for (Category category : classifier.categories) {
+            for (Category category : classifier.getCategories()) {
 
                 // skip categories that are not main categories because they are
                 // classified according to the main category
@@ -513,7 +513,7 @@ public class ClassifierManager {
                     urlInformation[i] = categoryName;
 
                     // add category if it does not exist yet
-                    if (!classifier.categories.containsCategoryName(categoryName)) {
+                    if (!classifier.getCategories().containsCategoryName(categoryName)) {
                         Category cat = new Category(categoryName);
                         if ((Integer) obj[1] == ClassificationTypeSetting.HIERARCHICAL
                                 && ((DictionaryClassifier) classifier).getDictionary().hierarchyRootNode.getNode(
@@ -524,10 +524,10 @@ public class ClassifierManager {
                         }
                         cat.setClassType((Integer) obj[1]);
                         cat.increaseFrequency();
-                        classifier.categories.add(cat);
+                        classifier.getCategories().add(cat);
                     } else {
-                        classifier.categories.getCategoryByName(categoryName).setClassType((Integer) obj[1]);
-                        classifier.categories.getCategoryByName(categoryName).increaseFrequency();
+                        classifier.getCategories().getCategoryByName(categoryName).setClassType((Integer) obj[1]);
+                        classifier.getCategories().getCategoryByName(categoryName).increaseFrequency();
                     }
 
                     // only take first category in "first" mode
@@ -559,7 +559,7 @@ public class ClassifierManager {
 
         // calculate the prior for all categories classifier.categories.calculatePriors(trainingUrls.size() +
         // testUrls.size());
-        classifier.categories.calculatePriors();
+        classifier.getCategories().calculatePriors();
     }
 
     /**

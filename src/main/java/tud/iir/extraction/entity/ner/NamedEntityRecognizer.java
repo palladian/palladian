@@ -259,28 +259,28 @@ public abstract class NamedEntityRecognizer {
             taggedText.append(inputText.substring(lastEndIndex, annotation.getOffset()));
 
             if (!inputText.substring(annotation.getOffset(), annotation.getEndIndex()).equalsIgnoreCase(
-                    annotation.getEntity().getName())) {
+                    annotation.getEntity())) {
                 LOGGER.fatal("alignment error, the annotation candidates don't match the text:");
                 LOGGER.fatal("found: " + inputText.substring(annotation.getOffset(), annotation.getEndIndex()));
-                LOGGER.fatal("instead of: " + annotation.getEntity().getName() + "(" + annotation + ")");
+                LOGGER.fatal("instead of: " + annotation.getEntity() + "(" + annotation + ")");
                 System.exit(1);
             }
 
             if (format == TaggingFormat.XML) {
 
                 taggedText.append("<").append(tagName).append(">");
-                taggedText.append(annotation.getEntity().getName());
+                taggedText.append(annotation.getEntity());
                 taggedText.append("</").append(tagName).append(">");
 
             } else if (format == TaggingFormat.BRACKETS) {
 
                 taggedText.append("[").append(tagName).append(" ");
-                taggedText.append(annotation.getEntity().getName());
+                taggedText.append(annotation.getEntity());
                 taggedText.append(" ]");
 
             } else if (format == TaggingFormat.SLASHES) {
 
-                List<String> tokens = Tokenizer.tokenize(annotation.getEntity().getName());
+                List<String> tokens = Tokenizer.tokenize(annotation.getEntity());
                 for (String token : tokens) {
                     taggedText.append(token).append("/").append(tagName).append(" ");
                 }
@@ -379,9 +379,9 @@ public abstract class NamedEntityRecognizer {
         // otherwise we get problems with calculating MUC precision and recall scores
         for (Annotation nerAnnotation : nerAnnotations) {
 
-            if (nerAnnotation.getEntity().getName().toLowerCase().equals("lomason")) {
-                System.out.println("wait here");
-            }
+            // if (nerAnnotation.getEntity().toLowerCase().equals("lomason")) {
+            // System.out.println("wait here");
+            // }
 
             boolean taggedOverlap = false;
 

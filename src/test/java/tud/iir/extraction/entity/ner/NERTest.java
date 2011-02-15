@@ -16,8 +16,9 @@ public class NERTest {
     @Test
     public void testPalladianNER() {
         TUDNER tagger = new TUDNER();
-        // tagger.train("data/test/ner/training.txt", "data/test/ner/tudner.model");
-        // EvaluationResult er = tagger.evaluate("data/test/ner/test.txt", "data/temp/tudner.model",
+        // tagger.train("data/test/ner/training.txt", "data/test/ner/tudner_.model");
+        // EvaluationResult er = tagger
+        // .evaluate("data/test/ner/test.txt", "data/test/ner/tudner_.model",
         // TaggingFormat.COLUMN);
         // System.out.println(er.getMUCResultsReadable());
         // System.out.println(er.getExactMatchResultsReadable());

@@ -28,6 +28,10 @@ import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
 import tud.iir.classification.Dictionary;
+import tud.iir.classification.Instances;
+import tud.iir.classification.UniversalClassifier;
+import tud.iir.classification.UniversalInstance;
+import tud.iir.classification.numeric.NumericInstance;
 import tud.iir.classification.page.ClassificationDocument;
 import tud.iir.classification.page.DictionaryClassifier;
 import tud.iir.classification.page.Preprocessor;
@@ -40,6 +44,7 @@ import tud.iir.extraction.entity.ner.TaggingFormat;
 import tud.iir.extraction.entity.ner.evaluation.EvaluationResult;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.MathHelper;
 import tud.iir.helper.RegExp;
 import tud.iir.helper.StopWatch;
 import tud.iir.helper.StringHelper;
@@ -57,13 +62,16 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     private Map<String, CategoryEntries> patternCandidates = null;
 
     /** patterns in the form of: prefix (TODO ENTITY suffix) */
-    private HashMap<String, CategoryEntries> patterns = null;
+    private HashMap<String, CategoryEntries> patterns;
 
     /** a dictionary that holds a term vector of words that appear frequently close to the entities */
     private Dictionary dictionary = null;
 
+    /** The classifier to use for classifying the annotations. */
+    private UniversalClassifier universalClassifier;
+
     /** the connector to the knowledge base */
-    private transient KnowledgeBaseCommunicatorInterface kbCommunicator = null;
+    private transient KnowledgeBaseCommunicatorInterface kbCommunicator;
 
     private Annotations removeAnnotations = new Annotations();
 
@@ -71,6 +79,11 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         setName("TUD NER");
         patternCandidates = new TreeMap<String, CategoryEntries>();
         patterns = new HashMap<String, CategoryEntries>();
+        universalClassifier = new UniversalClassifier();
+        universalClassifier.getNumericClassifier().getClassificationTypeSetting()
+                .setClassificationType(ClassificationTypeSetting.TAG);
+        universalClassifier.getNominalClassifier().getClassificationTypeSetting()
+                .setClassificationType(ClassificationTypeSetting.TAG);
     }
 
     @Override
@@ -86,8 +99,32 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
     @Override
     public boolean train(String trainingFilePath, String modelFilePath) {
 
-        // get all training terms
+        // get all training annotations including their features
         Annotations annotations = FileFormatParser.getAnnotationsFromColumn(trainingFilePath);
+
+        // create instances with nominal and numeric features
+        Instances<UniversalInstance> nominalInstances = new Instances<UniversalInstance>();
+        Instances<NumericInstance> numericInstances = new Instances<NumericInstance>();
+        for (Annotation annotation : annotations) {
+            UniversalInstance nominalInstance = new UniversalInstance(nominalInstances);
+            nominalInstance.setNominalFeatures(annotation.getNominalFeatures());
+            nominalInstance.setInstanceCategory(annotation.getTags().getMostLikelyCategoryEntry().getCategory());
+            nominalInstances.add(nominalInstance);
+
+            NumericInstance numericInstance = new NumericInstance(numericInstances);
+            numericInstance.setFeatures(annotation.getNumericFeatures());
+            numericInstance.setInstanceCategory(annotation.getTags().getMostLikelyCategoryEntry().getCategory());
+            numericInstances.add(numericInstance);
+        }
+
+        // train the numeric classifier with numeric features from the annotations
+        universalClassifier.getNumericClassifier().setTrainingInstances(numericInstances);
+        universalClassifier.getNumericClassifier().getTrainingInstances().normalize();
+
+        // train the nominal classifier with nominal features from the annotations
+        universalClassifier.getNominalClassifier().setTrainingInstances(nominalInstances);
+
+        universalClassifier.trainAll();
 
         // learn patterns
         // createPatternCandidates(trainingFilePath, annotations);
@@ -111,6 +148,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         }
         this.kbCommunicator = n.kbCommunicator;
         this.patterns = n.patterns;
+        this.universalClassifier = n.universalClassifier;
 
         setModel(n);
         LOGGER.info("model " + configModelFilePath + " successfully loaded in " + stopWatch.getElapsedTimeString());
@@ -131,12 +169,12 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // in ERROR1 set and NOT in the gold standard
         Annotations wrongAnnotations = new Annotations();
         for (Annotation wrongAnnotation : evaluationResult.getErrorAnnotations().get(EvaluationResult.ERROR1)) {
-            String wrongName = wrongAnnotation.getEntity().getName().toLowerCase();
+            String wrongName = wrongAnnotation.getEntity().toLowerCase();
             boolean addAnnotation = true;
 
             // check if annotation happens to be in the gold standard, if so, do not declare it completely wrong
             for (Annotation gsAnnotation : evaluationResult.getGoldStandardAnnotations()) {
-                if (wrongName.equals(gsAnnotation.getEntity().getName().toLowerCase())) {
+                if (wrongName.equals(gsAnnotation.getEntity().toLowerCase())) {
                     addAnnotation = false;
                     break;
                 }
@@ -147,9 +185,9 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         }
 
         for (Annotation wrongAnnotation : wrongAnnotations) {
-            String wrongName = wrongAnnotation.getEntity().getName().toLowerCase();
+            String wrongName = wrongAnnotation.getEntity().toLowerCase();
             for (Annotation annotationCandidate : annotations) {
-                if (wrongName.equals(annotationCandidate.getEntity().getName().toLowerCase())) {
+                if (wrongName.equals(annotationCandidate.getEntity().toLowerCase())) {
                     removeAnnotations.add(annotationCandidate);
                 }
             }
@@ -168,35 +206,46 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // Annotations patternRecognizedAnnotations = verifyEntitiesWithPattern(entityCandidates, inputText);
         // annotations.addAll(patternRecognizedAnnotations);
 
-        Annotations dictionaryRecognizedAnnotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
-        annotations.addAll(dictionaryRecognizedAnnotations);
+        // Annotations dictionaryRecognizedAnnotations = verifyEntitiesWithDictionary(entityCandidates, inputText);
+        // annotations.addAll(dictionaryRecognizedAnnotations);
+
+        // classify annotations with the UniversalClassifier
+        int i = 0;
+        for (Annotation annotation : entityCandidates) {
+            universalClassifier.classify(annotation);
+            annotations.add(annotation);
+            if (i % 100 == 0) {
+                LOGGER.info("classified " + MathHelper.round(100 * i / entityCandidates.size(), 0) + "%");
+            }
+            i++;
+        }
 
         Annotations toRemove = new Annotations();
 
         // remove all annotations with "DOCSTART- " in them because that is for format purposes
-        for (Annotation annotation : dictionaryRecognizedAnnotations) {
-            if (annotation.getEntity().getName().toLowerCase().indexOf("docstart- ") > -1) {
-                annotation.getEntity().setName(annotation.getEntity().getName().replace("DOCSTART- ", ""));
+        for (Annotation annotation : annotations) {
+            if (annotation.getEntity().toLowerCase().indexOf("docstart- ") > -1) {
+                annotation.setEntity(annotation.getEntity().replace("DOCSTART- ", ""));
                 annotation.setOffset(annotation.getOffset() + 10);
-                annotation.setLength(annotation.getEntity().getName().length());
-                // toRemove.add(annotation);
+                annotation.setLength(annotation.getEntity().length());
+                toRemove.add(annotation);
             }
         }
 
         // remove annotations that were found to be incorrectly tagged in the training data
         for (Annotation removeAnnotation : removeAnnotations) {
-            String removeName = removeAnnotation.getEntity().getName().toLowerCase();
-            for (Annotation annotation : dictionaryRecognizedAnnotations) {
-                if (removeName.equals(annotation.getEntity().getName().toLowerCase())) {
+            String removeName = removeAnnotation.getEntity().toLowerCase();
+            for (Annotation annotation : annotations) {
+                if (removeName.equals(annotation.getEntity().toLowerCase())) {
                     toRemove.add(annotation);
                 }
             }
         }
 
-        annotations.removeAll(toRemove);
+        // annotations.removeAll(toRemove);
 
         FileHelper.writeToFile("data/test/ner/palladianNEROutput.txt",
-                tagText(inputText, dictionaryRecognizedAnnotations));
+ tagText(inputText, annotations));
 
         return annotations;
     }
@@ -416,7 +465,7 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
             documentCategories.add(knownCategory);
 
-            ClassificationDocument trainingDocument = preprocessor.preProcessDocument(annotation.getEntity().getName());
+            ClassificationDocument trainingDocument = preprocessor.preProcessDocument(annotation.getEntity());
             // ClassificationDocument trainingDocument = preprocessor.preProcessDocument(annotation.getLeftContext() +
             // " "+ annotation.getEntity().getName() + " " + annotation.getRightContext());
             trainingDocument.setDocumentType(ClassificationDocument.TRAINING);
@@ -537,13 +586,13 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         Preprocessor preprocessor = new Preprocessor(dictionaryClassifier);
         for (Annotation entityCandidate : entityCandidates) {
 
-            if (containsDateFragment(entityCandidate.getEntity().getName())) {
+            if (containsDateFragment(entityCandidate.getEntity())) {
                 continue;
             }
 
             String[] windowWords = getWindowWords(text, entityCandidate.getOffset(), entityCandidate.getEndIndex(),
                     true, true);
-            String toClassify = entityCandidate.getEntity().getName();
+            String toClassify = entityCandidate.getEntity();
             for (String word : windowWords) {
                 toClassify += " " + word;
             }
@@ -561,14 +610,14 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
 
                 // ClassificationDocument document = preprocessor.preProcessDocument(toClassify);
                 ClassificationDocument document = preprocessor
-                        .preProcessDocument(entityCandidate.getEntity().getName());
+.preProcessDocument(entityCandidate.getEntity());
                 dictionaryClassifier.classify(document, false);
 
                 if (document.getMainCategoryEntry().getAbsoluteRelevance() > -4) {
 
                     CategoryEntries categoryEntries = document.getAssignedCategoryEntries();
-                    Annotation annotation = new Annotation(entityCandidate.getOffset(), entityCandidate.getEntity()
-                            .getName(), categoryEntries);
+                    Annotation annotation = new Annotation(entityCandidate.getOffset(), entityCandidate.getEntity(),
+                            categoryEntries);
                     annotations.add(annotation);
 
                 }
@@ -768,14 +817,17 @@ public class TUDNER extends NamedEntityRecognizer implements Serializable {
         // System.out.println(er.getExactMatchResultsReadable());
 
         // using a column trainig and testing file
+        StopWatch stopWatch = new StopWatch();
         // tagger.train("data/datasets/ner/conll/training.txt", "data/temp/tudner.model");
+        // System.exit(0);
         tagger.loadModel("data/temp/tudner.model");
-        tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",
-                TaggingFormat.COLUMN));
+        // tagger.calculateRemoveAnnotatations(FileFormatParser.getText("data/datasets/ner/conll/training.txt",TaggingFormat.COLUMN));
         EvaluationResult er = tagger.evaluate("data/datasets/ner/conll/test_validation.txt", "data/temp/tudner.model",
                 TaggingFormat.COLUMN);
         System.out.println(er.getMUCResultsReadable());
         System.out.println(er.getExactMatchResultsReadable());
+
+        System.out.println(stopWatch.getElapsedTimeString());
 
         // Dataset trainingDataset = new Dataset();
         // trainingDataset.setPath("data/datasets/ner/www_test2/index_split1.txt");

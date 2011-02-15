@@ -540,11 +540,13 @@ public class FileFormatParser {
 
             int offset = matcher.start() + tagOffset - cumulatedTagOffset;
 
+
             Entity namedEntity = new Entity(entityName, conceptName);
 
             Annotation annotation = new Annotation(offset, namedEntity.getName(), namedEntity.getTagName());
             annotation.setLeftContext(leftContext);
             annotation.setRightContext(rightContext);
+            annotation.createFeatures();
             annotations.add(annotation);
 
             // String annotationText = inputText.substring(annotation.getOffset(), annotation.getEndIndex());
@@ -556,6 +558,7 @@ public class FileFormatParser {
 
         return annotations;
     }
+
 
     public static Annotations getAnnotationsFromXMLFile(String taggedTextFilePath) {
         String taggedText = FileHelper.readFileToString(taggedTextFilePath);

@@ -39,7 +39,7 @@ public abstract class TextClassifier extends Classifier {
     private ClassifierPerformance performance = null;
 
     /** The document preprocessor. */
-    protected transient Preprocessor preprocessor;
+    protected Preprocessor preprocessor = new Preprocessor(this);
 
     /** whether or not the program runs in benchmark mode */
     protected boolean benchmark = false;
@@ -423,6 +423,7 @@ public abstract class TextClassifier extends Classifier {
         return builder.toString();
     }
 
+    @Override
     public abstract void save(String path);
 
 }

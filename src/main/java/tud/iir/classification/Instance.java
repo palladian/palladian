@@ -14,7 +14,7 @@ public abstract class Instance<T> implements Serializable {
     private int classifiedAs = ClassificationTypeSetting.TAG;
 
     /** The category of the instance, null if not classified. */
-    protected CategoryEntries assignedCategoryEntries;
+    protected CategoryEntries assignedCategoryEntries = new CategoryEntries();
 
     /** If the class is nominal we have an instance category. */
     private Category instanceCategory;

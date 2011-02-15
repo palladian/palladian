@@ -9,6 +9,7 @@ import java.util.Map.Entry;
 import org.apache.log4j.Logger;
 
 import tud.iir.helper.FileHelper;
+import tud.iir.helper.StopWatch;
 import tud.iir.helper.Tensor;
 
 public class BayesClassifier extends Classifier<UniversalInstance> {
@@ -202,6 +203,10 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
     public void classify(UniversalInstance instance) {
 
+        StopWatch sw = new StopWatch();
+
+        int classType = getClassificationType();
+
         // calculate the probability for each class given the feature values
         
         // category-probability map
@@ -220,8 +225,12 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
         for (String nominalFeatureValue : nominalFeatures) {
             
             for (Category category : categories) {
-                double prob = (Double) bayesProbabilityTensor
+                Double prob = (Double) bayesProbabilityTensor
                         .get(featureIndex, category.getName(), nominalFeatureValue);
+                // ignore if there was nothing learned for the featureValue class combination
+                if (prob == null) {
+                    continue;
+                }
                 probabilities.put(category, probabilities.get(category) * prob);
             }
             
@@ -237,6 +246,8 @@ public class BayesClassifier extends Classifier<UniversalInstance> {
 
         instance.assignCategoryEntries(assignedEntries);
 
+        LOGGER.debug("classified document (classType " + classType + ") in " + sw.getElapsedTimeString() + " " + " ("
+                + instance.getAssignedCategoryEntriesByRelevance(classType) + ")");
     }
 
     @Override

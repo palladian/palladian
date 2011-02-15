@@ -48,10 +48,10 @@ public final class Preprocessor implements Serializable {
      * memory since strings do not have to be
      * copied but references to the terms will be kept.
      */
-    private Map<String, Term> termMap = new HashMap<String, Term>();
+    private transient Map<String, Term> termMap = new HashMap<String, Term>();
 
     /** The term x weight map. */
-    private Map<Term, Double> map;
+    private transient Map<Term, Double> map;
 
     public Preprocessor(TextClassifier classifier) {
         this.classifier = classifier;
