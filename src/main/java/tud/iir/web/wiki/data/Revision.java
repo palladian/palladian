@@ -59,4 +59,55 @@ public class Revision {
         return user;
     }
 
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + (int) (revisionID ^ (revisionID >>> 32));
+        result = prime * result + ((timestamp == null) ? 0 : timestamp.hashCode());
+        result = prime * result + ((user == null) ? 0 : user.hashCode());
+        return result;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Revision other = (Revision) obj;
+        if (revisionID != other.revisionID)
+            return false;
+        if (timestamp == null) {
+            if (other.timestamp != null)
+                return false;
+        } else if (!timestamp.equals(other.timestamp))
+            return false;
+        if (user == null) {
+            if (other.user != null)
+                return false;
+        } else if (!user.equals(other.user))
+            return false;
+        return true;
+    }
+
+    /*
+     * (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "Revision [revisionID=" + revisionID + ", timestamp=" + timestamp + ", user=" + user + "]";
+    }
+
 }

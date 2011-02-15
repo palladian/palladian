@@ -169,7 +169,7 @@ public class WikiPage {
      */
     public final void addRevision(final Revision revision) {
         if (revisions.containsKey(revision.getRevisionID())) {
-            LOGGER.error("Revision " + revision.getRevisionID() + " could not be added, it is already contained!");
+            LOGGER.warn("Revision " + revision.getRevisionID() + " could not be added, it is already contained!");
         } else {
             revisions.put(revision.getRevisionID(), revision);
             newestRevisionID = revisions.lastKey();
@@ -223,9 +223,9 @@ public class WikiPage {
     @Override
     public String toString() {
         return "WikiPage [wikiID=" + wikiID + ", title=" + title + ", pageID=" + pageID + ", namespaceID="
-        + namespaceID + ", sourceDynamics=" + sourceDynamics + ", pageContentHTML=" + pageContentHTML
-        + ", revisions=" + revisions + ", newestRevisionID=" + newestRevisionID + ", nextCheck=" + nextCheck
-        + "]";
+                + namespaceID + ", sourceDynamics=" + sourceDynamics + ", pageContentHTML=" + pageContentHTML
+                + ", newestRevisionID=" + newestRevisionID + ", nextCheck=" + nextCheck + ", revisions=" + revisions
+                + "]";
     }
 
 }
