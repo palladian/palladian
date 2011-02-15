@@ -239,7 +239,7 @@ public class HTMLHelper {
         String htmlText = htmlContent;
         // modified by Martin Werner, 2010-06-02
 
-        // String regExp = "";
+        String regExp = "";
 
         if (joinTagsAndRemoveNewlines) {
             htmlText = htmlText.replaceAll(">\\s*?<", "><");
@@ -247,45 +247,45 @@ public class HTMLHelper {
         }
 
         if (stripComments) {
-            // regExp += "(\\<!--.*?-->)|";
-            htmlText = htmlText.replaceAll("<!--.*?-->", "");
+            regExp += "(\\<!--.*?-->)|";
+            // htmlText = htmlText.replaceAll("<!--.*?-->", "");
         }
 
         if (stripJSAndCSS) {
-            // regExp += "(<style.*?>.*?</style>)|(<script.*?>.*?</script>)|";
-            htmlText = removeConcreteHTMLTag(htmlText, "style");
-            htmlText = removeConcreteHTMLTag(htmlText, "script");
+            regExp += "(<style.*?>.*?</style>)|(<script.*?>.*?</script>)|";
+            // htmlText = removeConcreteHTMLTag(htmlText, "style");
+            // htmlText = removeConcreteHTMLTag(htmlText, "script");
         }
 
         if (stripTags) {
-            // regExp += "(\\<.*?>)";
-            htmlText = removeConcreteHTMLTag(htmlText, "\\<", ">");
-            // htmlText = htmlText.replaceAll("<.*?>", "");
+            regExp += "(\\<.*?>)";
+            // htmlText = removeConcreteHTMLTag(htmlText, "\\<", ">");
+            // htmlText = htmlText.replaceAll("\\<.*?\\>", "");
         }
 
-        // if (regExp.length() == 0) {
-        // return htmlText;
-        // }
+        if (regExp.length() == 0) {
+            return htmlText;
+        }
 
-        // if (regExp.endsWith("|")) {
-        // regExp = regExp.substring(0, regExp.length() - 1);
-        // }
+
+        if (regExp.endsWith("|")) {
+            regExp = regExp.substring(0, regExp.length() - 1);
+        }
         //
-        // // Pattern pattern =
-        // //
+        // Pattern pattern =
         // Pattern.compile("((\\<!--.*?-->)|(\\<style.*?>.*?\\</style>)|(\\<script.*?>.*?\\</script>)|(\\<.*?>))",Pattern.DOTALL);
-        // Pattern pattern = Pattern.compile("(" + regExp + ")", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
-        // Matcher matcher = pattern.matcher(htmlText);
+        Pattern pattern = Pattern.compile("(" + regExp + ")", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+        Matcher matcher = pattern.matcher(htmlText);
         //
-        // while (matcher.find()) {
-        // htmlText = htmlText.replace(matcher.group(), " "); // TODO changed
-        // // and untested
-        // // 16/06/2009
-        // // replace with
-        // // whitespace
-        // // instead of
-        // // nothing
-        // }
+        while (matcher.find()) {
+            htmlText = htmlText.replace(matcher.group(), " "); // TODO changed
+            // // and untested
+            // // 16/06/2009
+            // // replace with
+            // // whitespace
+            // // instead of
+            // // nothing
+        }
 
         // close gaps
         htmlText = htmlText.replaceAll("(\\s){2,}", " ");
