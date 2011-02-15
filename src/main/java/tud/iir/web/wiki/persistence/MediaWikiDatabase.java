@@ -45,81 +45,79 @@ public final class MediaWikiDatabase extends DatabaseManager {
     private final PageTitleCache cache;
 
     // ////////////////// prepared statements ////////////////////
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlGetNamespaceIDsToCrawl = "SELECT namespaceID FROM namespaces WHERE wikiID = ? AND useForCrawling = 1";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlAllNamespaces = "SELECT namespaceID, useForCrawling FROM namespaces WHERE wikiID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlAddWiki = "INSERT INTO wikis(wikiName, wikiURL, pathToApi, lastCheckNewPages, crawler_username, crawler_password) VALUES (?,?,?,?,?,?)";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlUpdateWiki = "UPDATE wikis SET wikiURL= ?, pathToApi = ?, lastCheckNewPages = ?, crawler_username = ?, crawler_password = ? WHERE wikiID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlRemoveWiki = "DELETE FROM wikis WHERE wikiID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlGetWikiDescriptorByName = "SELECT * FROM wikis WHERE wikiName COLLATE utf8_bin = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlGetWikiDescriptorByID = "SELECT * FROM wikis WHERE wikiID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlGetAllWikiDescriptors = "SELECT * FROM wikis ORDER BY wikiName";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlAddPage = "INSERT INTO pages(wikiID, pageID, pageTitle, namespaceID, sourceDynamics, pageContent, revisionID, nextCheck) VALUES (?,?,?,?,?,?,?,?)";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlUpdatePage = "UPDATE pages SET revisionID = ?, pageContent = ?, nextCheck = ? WHERE wikiID = ? AND pageID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlUpdatePageNextCheck = "UPDATE pages SET nextCheck = ? WHERE wikiID = ? AND pageID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlRemoveAllPages = "DELETE FROM pages WHERE wikiID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlAddNamespace = "INSERT INTO namespaces(wikiID, namespaceID, namespaceName, useForCrawling) VALUES (?,?,?,?)";
 
-    /** @see #prepareStatements() */
-    // TODO: wird das statement benötigt??
+    /** see sql */
     private static final String sqlGetNamespace = "SELECT namespaceID FROM namespaces WHERE wikiID = ? AND namespaceID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlUpdateNamespace = "UPDATE namespaces SET useForCrawling = ? WHERE wikiID = ? AND namespaceID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlUpdateNamespaceName = "UPDATE namespaces SET namespaceName = ? WHERE wikiID = ? AND namespaceID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlRemoveNamespace = "DELETE FROM namespaces WHERE wikiID = ? AND namespaceID = ?";
 
-    /** @see #prepareStatements() */
-    private static final String sqlGetPageByPageID = "SELECT namespaceID, sourceDynamics, pageContent, revisionID FROM pages WHERE wikiID = ? AND pageID = ?";
+    /** see sql */
+    private static final String sqlGetPageByPageID = "SELECT pageTitle, namespaceID, sourceDynamics, pageContent, revisionID, nextCheck FROM pages WHERE wikiID = ? AND pageID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlGetPageIDByPageTitle = "SELECT pageID FROM pages WHERE wikiID = ? AND pageTitle COLLATE utf8_bin = ? ";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlGetPagesToUpdate = "SELECT pageID, pageTitle, namespaceID, sourceDynamics, revisionID, nextCheck FROM pages WHERE wikiID = ? AND (nextCheck IS NULL OR TIMEDIFF(nextCheck, ?) < 0)";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlAddRevision = "INSERT INTO revisions(wikiID, pageID, revisionID, timestamp, author) VALUES (?,?,?,?,?)";
 
-    // /** @see #prepareStatements() */
-    // private static final String sqlGetRevision =
-    // "SELECT * FROM revisions WHERE wikiID = ? AND pageID = ? AND revisionID = ?";
+    /** see sql */
+    private static final String sqlGetRevisions = "SELECT * FROM revisions WHERE wikiID = ? AND pageID = ?";
 
-    /** @see #prepareStatements() */
+    /** see sql */
     private static final String sqlGetAllPageTitlesToCrawl = "SELECT pageTitle FROM pages "
         + "WHERE wikiID = ? AND namespaceID IN "
         + "(SELECT namespaceID FROM namespaces WHERE pages.wikiID = namespaces.wikiID AND useForCrawling = 1)";
 
     /**
-     * Constructor that prepares all {@link PreparedStatement}s.
+     * Constructor, prepares the {@link PageTitleCache}.
      */
     public MediaWikiDatabase() {
         cache = new PageTitleCache();
@@ -504,47 +502,95 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * Get a page without its revisions. (data from table pages only: faster.)
      * 
      * @param wikiID The ID of the Wiki the searched page is in.
-     * @param pageTitle The name of the page (title) to get information about.
+     * @param pageID The pageID of the page to get information about.
      * @return {@link WikiPage} containing data from table pages but not from table revisions.
+     * @see #getPage(int, int)
      */
-    public WikiPage getPlainPage(final int wikiID, final String pageTitle) {
+    public WikiPage getPlainPage(final int wikiID, final int pageID) {
 
-        if (pageTitle == null) {
-            throw new IllegalArgumentException("PAGE_TITLE must not be null");
-        }
-        
-        final int pageID = getPageID(wikiID, pageTitle);
-        
         RowConverter<WikiPage> converter = new RowConverter<WikiPage>() {
 
             @Override
             public WikiPage convert(ResultSet resultSet) throws SQLException {
                 WikiPage page = new WikiPage();
                 page.setWikiID(wikiID);
-                page.setTitle(pageTitle);
                 page.setPageID(pageID);
-                page.setNamespaceID(resultSet.getInt(1));
-                page.setSourceDynamics(resultSet.getFloat(2));
-                page.setPageContent(resultSet.getString(3));
-                page.setNewestRevisionID(resultSet.getLong(4));
+                page.setTitle(resultSet.getString("pageTitle"));
+                page.setNamespaceID(resultSet.getInt("namespaceID"));
+                page.setSourceDynamics(resultSet.getFloat("sourceDynamics"));
+                page.setPageContent(resultSet.getString("pageContent"));
+                page.setNewestRevisionID(resultSet.getLong("revisionID"));
 
-                if (resultSet.getString(6) != null && !resultSet.getString(6).equalsIgnoreCase("NULL")) {
-                    Date lastCheck = null;
+                String nextCheckS = resultSet.getString("nextCheck");
+                if (nextCheckS != null && !nextCheckS.equalsIgnoreCase("NULL")) {
+                    Date nextCheckD = null;
                     try {
-                        lastCheck = convertSQLDateTimeToDate(resultSet.getString(6));
+                        nextCheckD = convertSQLDateTimeToDate(nextCheckS);
                     } catch (Exception e) {
                         LOGGER.error(
                                 "Could not process the timestamp the page has been checked for new revisions the last time. Wiki "
                                 + page.getWikiID() + ", page title: " + page.getTitle() + " ", e);
                     }
-                    page.setNextCheck(lastCheck);
+                    page.setNextCheck(nextCheckD);
                 }
                 return page;
             }
         };
         
         return runSingleQuery(converter, sqlGetPageByPageID, wikiID, pageID);
+    }
 
+    /**
+     * Fetches all revisions for a given page and wiki from database.
+     * 
+     * @param wikiID The ID of the Wiki the page is in.
+     * @param pageID The pageID to get all revisions for.
+     * @return A collection containing all revisions of the given page and wiki.
+     */
+    public Collection<Revision> getRevisions(final int wikiID, final int pageID) {
+        final Collection<Revision> revisions = new HashSet<Revision>();
+
+        ResultSetCallback callback = new ResultSetCallback() {
+
+            @Override
+            public void processResult(ResultSet resultSet, int number) throws SQLException {
+                Long revisionID = resultSet.getLong("revisionID");
+
+                String timestampString = resultSet.getString("timestamp");
+                Date timestamp = null;
+                if (timestampString != null && !timestampString.equalsIgnoreCase("NULL")) {
+                    try {
+                        timestamp = convertSQLDateTimeToDate(timestampString);
+                    } catch (Exception e) {
+                        LOGGER.error("Could not process the timestamp for wikiID \"" + wikiID + "\", pageID \""
+                                + pageID + "\", revisionID \"" + revisionID + "\", timestamp \"" + timestampString
+                                + "\": ", e);
+                    }
+                }
+
+                String user = (String) resultSet.getString("author");
+                Revision revision = new Revision(revisionID, timestamp, user);
+                revisions.add(revision);
+            }
+        };
+
+        runQuery(callback, sqlGetRevisions, wikiID, pageID);
+        return revisions;
+    }
+
+    /**
+     * Get a page and its revisions from database.
+     * 
+     * @param wikiID The ID of the Wiki the page is in.
+     * @param pageID The pageID to get.
+     * @return A page and all its revisions from database.
+     */
+    public WikiPage getPage(final int wikiID, final int pageID) {
+        WikiPage page = getPlainPage(wikiID, pageID);
+        for (Revision revision : getRevisions(wikiID, pageID)) {
+            page.addRevision(revision);
+        }
+        return page;
     }
 
     /**
@@ -607,6 +653,8 @@ public final class MediaWikiDatabase extends DatabaseManager {
         }
         return skipCounter;
     }
+
+
 
     /**
      * Adds all {@link Revision}s to the database. Use this to add multiple revisions since database optimizations can
@@ -684,12 +732,12 @@ public final class MediaWikiDatabase extends DatabaseManager {
     }
 
     /**
-     * Returns a {@link List} of all page titles that should be updated since their predicted date of a new revision is
-     * in the past of the given date. The pages' revision are not returned.
+     * Returns a {@link Set} of all pages that should be updated since their predicted date of a new revision is
+     * in the past of the given date. The pages' revisions are not returned.
      * 
      * @param wikiID The internal Wiki ID to get the pages for.
      * @param date The date to compare the predicted date with, usually the current date.
-     * @return A {@link List} of all page titles that are used for crawling.
+     * @return A {@link Set} of all pages that are used for crawling.
      */
     public Set<WikiPage> getPagesToUpdate(final int wikiID, final Date date) {
         
