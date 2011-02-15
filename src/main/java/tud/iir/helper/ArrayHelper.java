@@ -1,8 +1,8 @@
 package tud.iir.helper;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 /**
@@ -49,14 +49,14 @@ public class ArrayHelper {
     
     /**
      * Returns a ArrayList of keys of map. 
-     * @param <T>
+     * @param <K>
      * @param <V>
      * @param map
      * @return
      */
-    public static <T,V> ArrayList<T> toArrayList(HashMap<T, V> map){
-    	ArrayList<T> returnList = new ArrayList<T>();
-    	for(Entry<T, V> e : map.entrySet()){
+    public static <K,V> ArrayList<K> toArrayList(Map<K, V> map){
+    	ArrayList<K> returnList = new ArrayList<K>();
+    	for(Entry<K, V> e : map.entrySet()){
     		returnList.add(e.getKey());
     	}
     	return returnList;

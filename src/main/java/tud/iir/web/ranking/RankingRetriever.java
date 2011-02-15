@@ -670,7 +670,9 @@ public class RankingRetriever {
                         + yahooApikey + "&adult_ok=1&query=linkdomain:" + domain + "%20-site:" + domain);
 
         if (doc != null) {
-            Node totalResultsNode = XPathHelper.getNode(doc, "/ResultSet/@totalResultsAvailable");
+            // Node totalResultsNode = XPathHelper.getNode(doc, "/ResultSet/@totalResultsAvailable");
+            Node totalResultsNode = XPathHelper.getNode(doc, "//@totalResultsAvailable");
+
             if (totalResultsNode != null) {
                 String totalResults = totalResultsNode.getNodeValue();
                 result = Integer.parseInt(totalResults);
@@ -703,7 +705,9 @@ public class RankingRetriever {
                         + yahooApikey + "&adult_ok=1&query=link:" + getUrl() + "%20-site:" + domain);
 
         if (doc != null) {
-            Node totalResultsNode = XPathHelper.getNode(doc, "/ResultSet/@totalResultsAvailable");
+            // Node totalResultsNode = XPathHelper.getNode(doc, "/ResultSet/@totalResultsAvailable");
+            Node totalResultsNode = XPathHelper.getNode(doc, "//@totalResultsAvailable");
+
             if (totalResultsNode != null) {
                 String totalResults = totalResultsNode.getNodeValue();
                 result = Integer.parseInt(totalResults);
@@ -940,7 +944,7 @@ public class RankingRetriever {
         // String url = "http://www.porn.com";
 
         RankingRetriever urlRankingServices = new RankingRetriever();
-        urlRankingServices.setCache(new RankingCacheDB());
+        // urlRankingServices.setCache(new RankingCacheDB());
 
         // urlRankingServices.setCacheTtlSeconds(-1);
         urlRankingServices.setCacheTtlSeconds(5);
