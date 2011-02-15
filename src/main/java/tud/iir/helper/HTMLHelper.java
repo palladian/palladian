@@ -221,6 +221,8 @@ public class HTMLHelper {
     }
 
     /**
+     * TODO this is f***ing slow, especially the stripTags part. Why not use "<.*?>"?
+     * 
      * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
      * gaps.
      * 

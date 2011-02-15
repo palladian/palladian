@@ -33,7 +33,7 @@ public class Annotations extends ArrayList<Annotation> {
             output.append(annotation.getOffset()).append(";");
             output.append(annotation.getLength()).append(";");
             output.append(annotation.getEndIndex()).append(";");
-            output.append(annotation.getEntity().getName()).append(";");
+            output.append(annotation.getEntity()).append(";");
             output.append(annotation.getMostLikelyTag().getCategory().getName()).append("\n");
 
         }

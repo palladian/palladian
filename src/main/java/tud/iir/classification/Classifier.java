@@ -20,15 +20,7 @@ public abstract class Classifier<T> implements Serializable {
     private transient Instances<T> testInstances = new Instances<T>();
 
     /** A classifier classifies to certain categories. */
-    public Categories categories = new Categories();
-
-    public Categories getCategories() {
-        return categories;
-    }
-
-    public void setCategories(Categories categories) {
-        this.categories = categories;
-    }
+    protected Categories categories;
 
     /**
      * Configurations for the classification type ({@link ClassificationTypeSetting.SINGLE},
@@ -45,6 +37,14 @@ public abstract class Classifier<T> implements Serializable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Categories getCategories() {
+        return categories;
+    }
+
+    public void setCategories(Categories categories) {
+        this.categories = categories;
     }
 
     public void setClassificationTypeSetting(ClassificationTypeSetting classificationTypeSetting) {
@@ -73,7 +73,7 @@ public abstract class Classifier<T> implements Serializable {
 
     public void setTrainingInstances(Instances<T> trainingInstances) {
         this.trainingInstances = trainingInstances;
-        getPossibleCategories();
+        getPossibleCategories(trainingInstances);
     }
 
     public Instances<T> getTestInstances() {
@@ -88,9 +88,12 @@ public abstract class Classifier<T> implements Serializable {
      * After training instances have been assigned, we can find out which nominal categories are possible for the
      * classifier to classify.
      */
-    private void getPossibleCategories() {
-        for (Instance instance : (Instances<Instance>) getTrainingInstances()) {
-            String categoryName = instance.getInstanceCategory().getName();
+    protected void getPossibleCategories(Instances<T> instances) {
+        if (getCategories() == null) {
+            setCategories(new Categories());
+        }
+        for (T instance : instances) {
+            String categoryName = ((Instance) instance).getInstanceCategory().getName();
             Category category = getCategories().getCategoryByName(categoryName);
             if (category == null) {
                 category = new Category(categoryName);

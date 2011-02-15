@@ -131,7 +131,6 @@ public class DatasetCreator implements DatasetCreatorInterface {
             // iterate over all concepts (seed files)
             for (File file : seedFiles) {
 
-
                 String seedFileName = FileHelper.getFileName(file.getName());
                 if (seedFileName.length() > 1) {
                     conceptsSearched.add(getConceptNameFromFileName(seedFileName));
@@ -143,11 +142,10 @@ public class DatasetCreator implements DatasetCreatorInterface {
         StringBuilder meta = new StringBuilder();
 
         meta.append("Start Date of Creation: ")
-        .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime()))
-        .append("\n");
+                .append(DateHelper.getDatetime("yyyy-MM-dd_HH-mm-ss", stopWatch.getStartTime())).append("\n");
         meta.append("Dataset created in: ").append(stopWatch.getElapsedTimeString()).append("\n");
         meta.append("Total Generated Traffic: ").append(Crawler.getSessionDownloadSize(Crawler.MEGA_BYTES))
-        .append("MB\n");
+                .append("MB\n");
         meta.append("Search Engine used: ").append(SourceRetrieverManager.getName(getSourceAPI())).append("\n");
         meta.append("Minimum Mentions per Entity Targeted: ").append(getMentionsPerEntity()).append("\n");
 
@@ -160,15 +158,14 @@ public class DatasetCreator implements DatasetCreatorInterface {
             }
             Double averageMentionsPerEntity = (Double) object[2];
             meta.append("  Concept: ").append(conceptName).append("\n  Entities with few mentions: ")
-            .append(entitiesWithFewMentions).append("\n  Average Mentions per Entity: ")
-            .append(averageMentionsPerEntity).append("\n\n");
+                    .append(entitiesWithFewMentions).append("\n  Average Mentions per Entity: ")
+                    .append(averageMentionsPerEntity).append("\n\n");
         }
 
         meta.append("Concepts Searched (").append(conceptsSearched.size()).append("):\n");
         for (String conceptName : conceptsSearched) {
             meta.append("    ").append(conceptName).append("\n");
         }
-
 
         FileHelper.writeToFile(getDataSetLocation() + "metaInformation.txt", meta);
     }
@@ -301,7 +298,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             LOGGER.info("start processing seed entity " + seedEntity + " (" + seedFileName + ")");
 
             seedFileCopy.append(seedEntity).append("###")
-            .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
+                    .append(getConceptNameFromFileName(seedFileName).toUpperCase()).append("\n");
 
             List<String> urls = getWebPages(seedEntity);
             urlDownloader.add(urls);
@@ -321,8 +318,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
                 uc++;
 
                 LOGGER.debug("marked up page " + document.getDocumentURI() + " " + ec + "/" + seedEntities.size()
-                        + ", "
-                        + uc + "/" + urls.size());
+                        + ", " + uc + "/" + urls.size());
             }
 
             LOGGER.info("processed seed entity:" + seedEntity + " (" + seedFileName + ")" + " in "
@@ -396,12 +392,12 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
                 String escapedSeed = StringHelper.escapeForRegularExpression(seedEntity);
                 String searchRegexp = "(?<=\\s)" + escapedSeed + "(?![0-9A-Za-z])|(?<![0-9A-Za-z])" + escapedSeed
-                + "(?=\\s)";
+                        + "(?=\\s)";
 
                 // mark up html
                 webPageContent = webPageContent.replaceAll(searchRegexp,
                         "<" + conceptName.toUpperCase() + " style=\"background-color:red; color:white;\">" + seedEntity
-                        + "</" + conceptName.toUpperCase() + ">");
+                                + "</" + conceptName.toUpperCase() + ">");
 
                 // mark up text
                 webPageText = webPageText.replaceAll(searchRegexp, "<" + conceptName.toUpperCase() + ">" + seedEntity
@@ -421,8 +417,8 @@ public class DatasetCreator implements DatasetCreatorInterface {
         if (webPageContent.length() > 10) {
             FileHelper.writeToFile(
                     getDataSetLocation() + seedFileName + "/html/"
-                    + StringHelper.makeSafeName(Crawler.getCleanURL(webPage.getDocumentURI()), 30)
-                    + ".html", webPageContent);
+                            + StringHelper.makeSafeName(Crawler.getCleanURL(webPage.getDocumentURI()), 30) + ".html",
+                    webPageContent);
 
             LOGGER.debug("saved html file");
         }
@@ -435,7 +431,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             if (webPageText.length() > 10) {
 
                 String filePath = getDataSetLocation() + seedFileName + "/"
-                + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
+                        + StringHelper.makeSafeName(webPage.getDocumentURI(), 30) + ".xml";
                 FileHelper.writeToFile(filePath, webPageText);
 
                 FileHelper.removeDuplicateLines(filePath, filePath);
@@ -446,6 +442,54 @@ public class DatasetCreator implements DatasetCreatorInterface {
         }
     }
 
+    public static void cleanDataset(String datasetRoot, String datasetName, String seedFolderPath) {
+
+        StopWatch stopWatch = new StopWatch();
+
+        String targetLocation = datasetRoot + datasetName + "_cleansed/";
+
+        File[] seedFiles = FileHelper.getFiles(seedFolderPath);
+
+        // iterate over all concepts (seed files)
+        for (File file : seedFiles) {
+
+            String seedFileName = FileHelper.getFileName(file.getName());
+            String conceptName = getConceptNameFromFileName(seedFileName);
+
+            if (seedFileName.length() > 1) {
+
+                File[] taggedFiles = FileHelper.getFiles(datasetRoot + datasetName + "/" + seedFileName + "/");
+
+                // iterate over all text files
+                for (File taggedFile : taggedFiles) {
+
+                    if (taggedFile.isDirectory()) {
+                        continue;
+                    }
+
+                    String content = FileHelper.readFileToString(taggedFile);
+
+                    String cleansedText = cleanText(content, conceptName);
+
+                    if (cleansedText.length() > 10) {
+
+                        String filePath = targetLocation + seedFileName + "/"
+                                + FileHelper.getFileName(taggedFile.getPath()) + ".xml";
+                        FileHelper.writeToFile(filePath, cleansedText);
+
+                        FileHelper.removeDuplicateLines(filePath, filePath);
+
+                        LOGGER.debug("saved cleansed text file");
+                    }
+
+                }
+            }
+
+        }
+
+        LOGGER.info("dataset cleansed in " + stopWatch.getElapsedTimeString());
+    }
+
     /**
      * Remove sets of short lines which are usually tables or other irrelevant content that was incorrectly added as
      * page content.
@@ -454,7 +498,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
      * @param tagName The name of the tag.
      * @return The cleansed text.
      */
-    private String cleanText(String inputText, String tagName) {
+    private static String cleanText(String inputText, String tagName) {
 
         String text = inputText;
 
@@ -462,10 +506,13 @@ public class DatasetCreator implements DatasetCreatorInterface {
             // remove sets of lines that are too short
             text = text.replaceAll("(\n)+(.{0,80}(\n)){4,}", "\n");
 
+            Pattern pattern;
+            Matcher matcher;
+
             // remove lines without mentions
-            Pattern pattern = Pattern.compile("^((?!" + tagName.toUpperCase() + ").)*$", Pattern.MULTILINE);
-            Matcher matcher = pattern.matcher(text);
-            text = matcher.replaceAll("");
+            // pattern = Pattern.compile("^((?!" + tagName.toUpperCase() + ").)*$", Pattern.MULTILINE);
+            // matcher = pattern.matcher(text);
+            // text = matcher.replaceAll("");
 
             // remove lines without context around the entity
             pattern = Pattern.compile("^<" + tagName.toUpperCase() + ">.*?</" + tagName.toUpperCase() + ">$",
@@ -477,7 +524,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
             text = text.replaceAll("(\n){3,}", "\n");
 
             // remove empty line in the beginning
-            text = text.replaceAll("^\n", "");
+            // text = text.replaceAll("^\n", "");
 
         } catch (Error e) {
             LOGGER.error(e.getMessage());
@@ -551,8 +598,7 @@ public class DatasetCreator implements DatasetCreatorInterface {
 
                 counter++;
                 content = "\n\n----------------------------------------------- NEW DOCUMENT (#" + counter + " / "
-                + conceptName + ") -----------------------------------------------\n\n"
-                + content;
+                        + conceptName + ") -----------------------------------------------\n\n" + content;
 
                 try {
                     combinedFile.write(content);
@@ -572,14 +618,14 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // combined all combined files from each concept to one super combined file
         FileWriter combinedFile = null;
         try {
-            combinedFile = new FileWriter(dataSetLocation+"all.xml");
+            combinedFile = new FileWriter(dataSetLocation + "all.xml");
         } catch (IOException e) {
             LOGGER.error("couldn't create all.xml file, " + e.getMessage());
         }
         for (String combinedFilePath : combinedFilePaths) {
             String content = FileHelper.readFileToString(combinedFilePath);
             content = "\n\n----------------------------------------------- NEW CONCEPT -----------------------------------------------"
-                + content;
+                    + content;
             try {
                 combinedFile.write(content);
                 combinedFile.flush();
@@ -636,7 +682,6 @@ public class DatasetCreator implements DatasetCreatorInterface {
         return sourceAPI;
     }
 
-
     /**
      * @param args
      * @throws PageContentExtractorException
@@ -661,8 +706,11 @@ public class DatasetCreator implements DatasetCreatorInterface {
         // System.exit(0);
 
         // DatasetCreator.deduplicateSeedLists("data/knowledgeBase/seedEntities/");
-        // DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/", "data/datasets/ner/www_test2/");
-        // System.exit(0);
+        DatasetCreator.cleanDataset("H:\\PalladianData\\Datasets\\wwwner\\ner\\", "www",
+                "data/knowledgeBase/seedEntities/");
+        DatasetCreator.postProcessDataset("data/knowledgeBase/seedEntities/",
+                "H:\\PalladianData\\Datasets\\wwwner\\ner\\www_cleansed\\");
+        System.exit(0);
         DatasetCreator datasetCreator = new DatasetCreator("www");
         // datasetCreator.setDataSetLocation("C:\\Safe\\");
 

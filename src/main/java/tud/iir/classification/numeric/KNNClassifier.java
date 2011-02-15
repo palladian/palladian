@@ -25,11 +25,14 @@ public final class KNNClassifier extends NumericClassifier {
 
     private static final long serialVersionUID = 1064061946261174688L;
 
+    /** Non-transient training instances. We need to save them as the instance based classifier depends on them. */
+    private Instances<NumericInstance> trainingInstances = new Instances<NumericInstance>();
+
     /** Number of nearest neighbors that are allowed to vote. */
     private int k = 3;
 
     /** Non-transient training instances. We need to save them as the instance based classifier depends on them. */
-    private Instances<NumericInstance> serializableTrainingInstances;
+    // private Instances<NumericInstance> serializableTrainingInstances;
 
     
     /**
@@ -88,7 +91,7 @@ public final class KNNClassifier extends NumericClassifier {
         for (Entry<NumericInstance, Double> entry : sortedList.entrySet()) {
             NumericInstance votingDocument = entry.getKey();
 
-            Category realCategory = (Category) votingDocument.getInstanceClass();
+            Category realCategory = votingDocument.getInstanceCategory();
 
             if (votes.containsKey(realCategory.getName())) {
                 votes.put(realCategory.getName(), votes.get(realCategory.getName()) + 1.0
@@ -139,7 +142,8 @@ public final class KNNClassifier extends NumericClassifier {
 
         instance.setClassifiedAs(classType);
 
-        ClassifierManager.log("classified document (classType " + classType + ") in " + stopWatch.getElapsedTimeString() + " " + " ("
+        LOGGER.debug("classified document (classType " + classType + ") in " + stopWatch.getElapsedTimeString() + " "
+                + " ("
                 + instance.getAssignedCategoryEntriesByRelevance(classType) + ")");
     }
 
@@ -176,7 +180,7 @@ public final class KNNClassifier extends NumericClassifier {
     @Override
     public void save(String path) {
         // save the training instances since they are normally transient
-        serializableTrainingInstances = getTrainingInstances();
+        // serializableTrainingInstances = getTrainingInstances();
         FileHelper.serialize(this, path + getName() + ".gz");
     }
 
@@ -186,8 +190,8 @@ public final class KNNClassifier extends NumericClassifier {
         KNNClassifier classifier = (KNNClassifier) FileHelper.deserialize(classifierPath);
 
         // we attach the serialized training instances
-        classifier.setTrainingInstances(classifier.serializableTrainingInstances);
-        classifier.serializableTrainingInstances = null;
+        // classifier.setTrainingInstances(classifier.serializableTrainingInstances);
+        // classifier.serializableTrainingInstances = null;
 
         return classifier;
     }
@@ -200,6 +204,15 @@ public final class KNNClassifier extends NumericClassifier {
         this.k = k;
     }
 
+    @Override
+    public Instances<NumericInstance> getTrainingInstances() {
+        return trainingInstances;
+    }
 
+    @Override
+    public void setTrainingInstances(Instances<NumericInstance> trainingInstances) {
+        this.trainingInstances = trainingInstances;
+        getPossibleCategories(trainingInstances);
+    }
 
 }

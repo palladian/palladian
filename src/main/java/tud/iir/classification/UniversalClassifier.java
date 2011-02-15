@@ -32,9 +32,13 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
     public UniversalClassifier() {
 
-        textClassifier = DictionaryClassifier.load("data/temp/textClassifier.gz");
-        numericClassifier = KNNClassifier.load("data/temp/numericClassifier.gz");
-        nominalClassifier = BayesClassifier.load("data/temp/nominalClassifier.gz");
+        // textClassifier = DictionaryClassifier.load("data/temp/textClassifier.gz");
+        // numericClassifier = KNNClassifier.load("data/temp/numericClassifier.gz");
+        // nominalClassifier = BayesClassifier.load("data/temp/nominalClassifier.gz");
+
+        textClassifier = new DictionaryClassifier();
+        numericClassifier = new KNNClassifier();
+        nominalClassifier = new BayesClassifier();
 
     }
 
@@ -56,13 +60,13 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
         // classify nominal features with the Bayes classifier
         UniversalInstance nominalInstance = new UniversalInstance(null);
         nominalInstance.setNominalFeatures(nominalFeatures);
-        nominalClassifier.classify(nominalInstance);
+        // nominalClassifier.classify(nominalInstance);
 
         // merge classification results
         CategoryEntries mergedCategoryEntries = new CategoryEntries();
         mergedCategoryEntries.addAll(textResult.getAssignedCategoryEntries());
         mergedCategoryEntries.addAll(numericInstance.getAssignedCategoryEntries());
-        mergedCategoryEntries.addAll(nominalInstance.getAssignedCategoryEntries());
+        // mergedCategoryEntries.addAll(nominalInstance.getAssignedCategoryEntries());
 
         instance.assignCategoryEntries(mergedCategoryEntries);
     }
@@ -98,7 +102,33 @@ public class UniversalClassifier extends Classifier<UniversalInstance> {
 
     public static UniversalClassifier load(String classifierPath) {
         LOGGER.info("deserialzing classifier from " + classifierPath);
-        return (UniversalClassifier) FileHelper.deserialize(classifierPath);
+        UniversalClassifier classifier = (UniversalClassifier) FileHelper.deserialize(classifierPath);
+        // classifier.getTextClassifier().reset();
+        return classifier;
     }
+
+    /**
+     * Train all classifiers.
+     */
+    public void trainAll() {
+        // train the text classifier
+        // ClassifierManager cm = new ClassifierManager();
+        // cm.trainClassifier(dataset, classifier)
+
+        // train the numeric classifier
+        // getNumericClassifier().train();
+
+        // train the nominal classifier
+        getNominalClassifier().train();
+
+    }
+
+    /**
+     * Perform actions that make sure all classifiers work properly.
+     */
+    // public void init() {
+    // getTextClassifier().
+    //
+    // }
     
 }

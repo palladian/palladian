@@ -1,10 +1,13 @@
 package tud.iir.extraction.entity.ner;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import tud.iir.classification.Category;
 import tud.iir.classification.CategoryEntries;
 import tud.iir.classification.CategoryEntry;
+import tud.iir.classification.Instances;
+import tud.iir.classification.UniversalInstance;
 import tud.iir.classification.page.ClassificationDocument;
 import tud.iir.classification.page.DictionaryClassifier;
 import tud.iir.classification.page.Preprocessor;
@@ -16,7 +19,9 @@ import tud.iir.helper.StringHelper;
  * @author David Urbansky
  * 
  */
-public class Annotation {
+public class Annotation extends UniversalInstance {
+
+    private static final long serialVersionUID = 6235371698078169268L;
 
     /** The start index of the annotation in the annotated text. */
     private int offset = -1;
@@ -25,10 +30,7 @@ public class Annotation {
     private int length = -1;
 
     /** The annotated entity. */
-    private Entity entity;
-
-    /** The assigned tags for the entity. */
-    private CategoryEntries tags = new CategoryEntries();
+    private String entity;
 
     /** The left context of the annotation */
     private String leftContext = "";
@@ -37,24 +39,51 @@ public class Annotation {
     private String rightContext = "";
 
     public Annotation(Annotation annotation) {
+        super(null);
         offset = annotation.getOffset();
         length = annotation.getLength();
         entity = annotation.getEntity();
-        tags = annotation.getTags();
+        assignedCategoryEntries = annotation.getTags();
+    }
+
+    public Annotation(Annotation annotation, Instances<UniversalInstance> instances) {
+        super(instances);
+        offset = annotation.getOffset();
+        length = annotation.getLength();
+        entity = annotation.getEntity();
+        assignedCategoryEntries = annotation.getTags();
     }
 
     public Annotation(int offset, String entityName, String tagName) {
+        super(null);
         this.offset = offset;
         this.length = entityName.length();
-        entity = new Entity(entityName);
-        tags.add(new CategoryEntry(tags, new Category(tagName), 1));
+        entity = entityName;
+        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
+    }
+
+    public Annotation(int offset, String entityName, String tagName, Instances<UniversalInstance> instances) {
+        super(instances);
+        this.offset = offset;
+        this.length = entityName.length();
+        entity = entityName;
+        assignedCategoryEntries.add(new CategoryEntry(assignedCategoryEntries, new Category(tagName), 1));
     }
 
     public Annotation(int offset, String entityName, CategoryEntries tags) {
+        super(null);
         this.offset = offset;
         this.length = entityName.length();
-        entity = new Entity(entityName);
-        this.tags = tags;
+        entity = entityName;
+        this.assignedCategoryEntries = tags;
+    }
+
+    public Annotation(int offset, String entityName, CategoryEntries tags, Instances<UniversalInstance> instances) {
+        super(instances);
+        this.offset = offset;
+        this.length = entityName.length();
+        entity = entityName;
+        this.assignedCategoryEntries = tags;
     }
 
     public boolean matches(Annotation annotation) {
@@ -100,19 +129,20 @@ public class Annotation {
         return getOffset() + getLength();
     }
 
-    public Entity getEntity() {
+    public String getEntity() {
         return entity;
     }
-    public void setEntity(Entity entity) {
+
+    public void setEntity(String entity) {
         this.entity = entity;
     }
 
     public CategoryEntries getTags() {
-        return tags;
+        return getAssignedCategoryEntries();
     }
 
     public void setTags(CategoryEntries tags) {
-        this.tags = tags;
+        this.assignedCategoryEntries = tags;
     }
 
     public CategoryEntry getMostLikelyTag() {
@@ -147,7 +177,7 @@ public class Annotation {
         builder.append(", length=");
         builder.append(length);
         builder.append(", entity=");
-        builder.append(entity.getName());
+        builder.append(entity);
         builder.append(", tag=");
         builder.append(getMostLikelyTagName());
         builder.append("]");
@@ -164,15 +194,15 @@ public class Annotation {
     public Annotations unwrapAnnotations(Annotations annotations) {
         Annotations unwrappedAnnotations = new Annotations();
 
-        String entityName = getEntity().getName().toLowerCase();
+        String entityName = getEntity().toLowerCase();
         int length = entityName.length();
 
         for (Annotation annotation : annotations) {
             if (annotation.getLength() < length) {
-                int index = entityName.indexOf(" " + annotation.getEntity().getName().toLowerCase() + " ");
+                int index = entityName.indexOf(" " + annotation.getEntity().toLowerCase() + " ");
                 if (index > -1) {
-                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, annotation.getEntity()
-                            .getName(), annotation.getMostLikelyTagName());
+                    Annotation wrappedAnnotation = new Annotation(getOffset() + index + 1, annotation.getEntity(),
+                            annotation.getMostLikelyTagName());
                     unwrappedAnnotations.add(wrappedAnnotation);
                 }
             }
@@ -184,11 +214,11 @@ public class Annotation {
     public Annotations unwrapAnnotations(DictionaryClassifier classifier, Preprocessor preprocessor) {
         Annotations unwrappedAnnotations = new Annotations();
 
-        if (getEntity().getName().indexOf(" ") == -1) {
+        if (getEntity().indexOf(" ") == -1) {
             return unwrappedAnnotations;
         }
 
-        String[] words = getEntity().getName().split(" ");
+        String[] words = getEntity().split(" ");
         String[] tags = new String[words.length];
 
         // classify each word
@@ -207,7 +237,7 @@ public class Annotation {
             String tag = tags[i];
 
             if (!tag.equalsIgnoreCase(lastAnnotation.getMostLikelyTagName())) {
-                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity().getName(), " ");
+                List<Integer> indexList = StringHelper.getOccurrenceIndices(getEntity(), " ");
                 int offsetPlus = 0;
                 if (i > 0) {
                     offsetPlus = indexList.get(i - 1) + 1;
@@ -217,12 +247,77 @@ public class Annotation {
                 unwrappedAnnotations.add(lastAnnotation);
             } else {
                 // update last annotation
-                lastAnnotation.getEntity().setName(lastAnnotation.getEntity().getName() + " " + words[i]);
-                lastAnnotation.setLength(lastAnnotation.getEntity().getName().length());
+                lastAnnotation.setEntity(lastAnnotation.getEntity() + " " + words[i]);
+                lastAnnotation.setLength(lastAnnotation.getEntity().length());
             }
         }
 
         return unwrappedAnnotations;
+    }
+
+    /**
+     * Get the following features for each annotation:<br>
+     * Numeric features<br>
+     * <ol>
+     * <li>#Words: The number of words of the annotation.</li>
+     * <li>#Chars: The number of characters of the annotation.</li>
+     * <li>#Digits: The number of digits of the annotation.</li>
+     * <li>#UpperCaseChars: The number of upper case chars of the annotation.</li>
+     * </ol>
+     * 
+     * Nominal features<br>
+     * <ol>
+     * <li>Whether the annotation is at the start of a sentence (yes/no)</li>
+     * <li>Whether the annotation is in quotes (yes/no)</li>
+     * <li>Whether the annotation is all uppercase (yes/no)</li>
+     * </ol>
+     */
+    public void createFeatures() {
+        
+        String entity = getEntity();
+        String leftContext = getLeftContext().trim();
+        String rightContext = getRightContext().trim();
+
+        // // get the numeric features
+        List<Double> numericFeatures = new ArrayList<Double>();
+        
+        // get the number of words
+        double numberOfWords = entity.split(" ").length;
+        numericFeatures.add(numberOfWords);
+
+        // get the number of chars
+        double numberOfChars = entity.length();
+        numericFeatures.add(numberOfChars);
+        
+        // get the number of digits
+        double numberOfDigits = StringHelper.countOccurences(entity, "[0-9]", true);
+        numericFeatures.add(numberOfDigits);
+        
+        // get the number of uppercase chars
+        double numberOfUppercaseChars = StringHelper.countOccurences(entity, "[A-Z]", false);
+        numericFeatures.add(numberOfUppercaseChars);
+
+        // // get the nominal features
+        List<String> nominalFeatures = new ArrayList<String>();
+        
+        // is the entity at the start of a sentence? check if there is a period in the immediate left context
+        boolean startOfSentence = leftContext.endsWith(".");
+        nominalFeatures.add(String.valueOf(startOfSentence));
+
+        // is the entity in quotes? ",',´
+        boolean inQuotes = false;
+        if (leftContext.endsWith("\"") && rightContext.startsWith("\"") || leftContext.endsWith("'")
+                && rightContext.startsWith("'") || leftContext.endsWith("´") && rightContext.startsWith("´")) {
+            inQuotes = true;
+        }
+        nominalFeatures.add(String.valueOf(inQuotes));
+
+        // whether the entity is uppercase only
+        boolean completelyUppercase = StringHelper.isCompletelyUppercase(entity);
+        nominalFeatures.add(String.valueOf(completelyUppercase));
+
+        setNumericFeatures(numericFeatures);
+        setNominalFeatures(nominalFeatures);        
     }
 
 }

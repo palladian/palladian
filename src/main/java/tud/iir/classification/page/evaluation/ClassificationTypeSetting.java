@@ -37,7 +37,7 @@ public class ClassificationTypeSetting implements Serializable {
     private boolean serializeClassifier = false;
 
     /** configurations that only apply if {@link classifcationType} is set to {@link TAG} */
-    private ClassificationTypeTagSetting classificationTypeTagSetting;
+    private ClassificationTypeTagSetting classificationTypeTagSetting = new ClassificationTypeTagSetting();
 
     /**
      * Set the classification type under which the classifier operates.

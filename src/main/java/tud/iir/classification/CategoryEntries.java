@@ -79,8 +79,21 @@ public class CategoryEntries extends java.util.ArrayList<CategoryEntry> implemen
 
     @Override
     public boolean addAll(Collection<? extends CategoryEntry> c) {
+        boolean listChanged = false;
+
         setRelevancesUpToDate(false);
-        return super.addAll(c);
+
+        for (CategoryEntry newCategoryEntry : c) {
+            if (hasEntryWithCategory(newCategoryEntry.getCategory())) {
+                CategoryEntry ce = getCategoryEntry(newCategoryEntry.getCategory());
+                ce.addAbsoluteRelevance(newCategoryEntry.getAbsoluteRelevance());
+            } else {
+                super.add(newCategoryEntry);
+            }
+            listChanged = true;
+        }
+
+        return listChanged;
     }
 
     /*
