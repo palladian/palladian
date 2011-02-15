@@ -14,6 +14,7 @@ import tud.iir.extraction.entity.ner.tagger.TUDNER;
 public class NERTest {
 
     @Test
+    @Ignore
     public void testPalladianNER() {
         TUDNER tagger = new TUDNER();
         // tagger.train("data/test/ner/training.txt", "data/test/ner/tudner_.model");
@@ -46,6 +47,7 @@ public class NERTest {
     }
 
     @Test
+    @Ignore
     public void testStanfordNER() {
         StanfordNER tagger = new StanfordNER();
         // // tagger.train("data/test/ner/training.txt", "data/test/ner/stanfordner.ser.gz");
@@ -108,6 +110,7 @@ public class NERTest {
     }
 
     @Test
+    @Ignore
     public void testLingPipeNER() {
         LingPipeNER tagger = new LingPipeNER();
         tagger.train(NERTest.class.getResource("/ner/training.txt").getFile(),
@@ -140,6 +143,7 @@ public class NERTest {
     }
 
     @Test
+    @Ignore
     public void testOpenNLPNER() {
         OpenNLPNER tagger = new OpenNLPNER();
         // tagger.train("data/test/ner/training.txt", "data/test/openNLP.bin");
