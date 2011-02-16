@@ -622,6 +622,7 @@ public class FeedDownloader {
         String result = null;
         if (cleanStrings) {
             if (dirty != null) {
+                // TODO this causes trouble with special and foreign characters
                 result = HTMLHelper.documentToReadableText(dirty, false);
                 result = StringEscapeUtils.unescapeHtml(result);
                 result = result.trim();

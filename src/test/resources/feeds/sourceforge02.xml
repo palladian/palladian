@@ -1,0 +1,3839 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:sf="http://sourceforge.net/api/sfelements.rdf#" version="2.0">
+  <channel xmlns:doap="http://usefulinc.com/ns/doap#" xmlns:sf="http://sourceforge.net/api/sfelements.rdf#">
+    <title><![CDATA[SourceForge: Mailing List Messages for phpMyAdmin]]></title>
+    <link>http://sourceforge.net/api/message/index/list-name/phpmyadmin-devel/limit/100/offset/1000/rss</link>
+    <description><![CDATA[Mailing List Messages from phpMyAdmin, list: 'phpmyadmin-devel']]></description>
+    <pubDate>Fri, 02 Apr 2010 12:10:04 +0000</pubDate>
+    <generator>Zend_Feed</generator>
+    <docs>http://blogs.law.harvard.edu/tech/rss</docs>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB5DE9C.8080209%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB5DE9C.8080209%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></description>
+      <content:encoded><![CDATA[Brian Douglass a écrit :
+>>> Is the project to large?  I didn't think it would be that big, but you
+>>> probably would know better than me.  Should I narrow my focus?
+>> I think it would be great, we have already several proposals for UI
+>> improvements but none for this.
+>>
+>> http://wiki.phpmyadmin.net/pma/GSoC_2010_Ideas_List#User_Preferences
+> 
+> 
+>  When you say you think it would be great are you thinking that just the
+> user preferences would be great and large enough for GSoC or my current
+> proposal?  Thanks for all your help!
+> 
+> bhdouglass
+
+Both projects seem to be large enough for GSoC. That's why they are
+separate ideas on the ideas list.
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Fri, 02 Apr 2010 12:10:04 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></title>
+      <author>Kishanthan Thangarajah &lt;kshanth2101@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=j2w290aec121004020508hbc7ae33bxdc5a7ffef9df4a6%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=j2w290aec121004020508hbc7ae33bxdc5a7ffef9df4a6%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></description>
+      <content:encoded><![CDATA[Hi,
+I have submitted my proposal to <http://socghop.appspot.com/>.
+Please give feedback on any for changes that have to be made.
+
+Thanks,
+
+Kishanthan.T
+
+
+]]></content:encoded>
+      <pubDate>Fri, 02 Apr 2010 12:08:37 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB5BE12.6060903%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB5BE12.6060903%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></description>
+      <content:encoded><![CDATA[Philip Frank a écrit :
+> 2010/4/1 Marc Delisle <marc@infomarc.info>:
+>> Philip Frank a écrit :
+>>> 2010/4/1 Marc Delisle <marc@infomarc.info>:
+>>>> Philip Frank a écrit :
+>>>>> Hello everyone,
+>>>>>
+>>>>> I'm a student from Munich, Germany and stumbled across the GSoC Idea
+>>>>> of collecting the data that is shown on the server status page and
+>>>>> rendering them as graphs over time. I will apply in the next days,
+>>>>> here is what I thought of implementing when I'm accepted:
+>>>>>
+>>>>> Data collection: In the past, I used rrdtool to collect stats on a
+>>>>> server. Its datastore has a limited size - over time old entries get
+>>>>> merged together and the data gets thinner, but is never completely
+>>>>> deleted. Unfortunately, it is not very portable. Therefor, I would
+>>>>> implement a similarily behaving datastore ontop of a mysql table. I
+>>>>> think of storing each set of measures as a row and limit the number of
+>>>>> total rows, making room for new entries by combining one pair of
+>>>>> neighbouring old entries together.
+>>>> Hi Philip,
+>>>> so you plan that an external process will collect data? Please have a
+>>>> look on this list archives, this was discussed a few days ago.
+>>>>
+>>> Hi Marc,
+>>> i thought the process could be triggered by a cron, but if that is not
+>>> an option, historic data can not be collected, i guess. How about a
+>>> live monitoring tool? I could create a visualisation of the ratios of
+>>> the different query types. Constantly updating that with ajax would be
+>>> nice, and maybe even collecting the data in the browser and plotting
+>>> graphes.
+>> As discussed on the list, asking users to setup cron is out of
+>> phpMyAdmin's scope. Live monitoring tool is interesting.
+>>
+>> --
+>> Marc Delisle
+>> http://infomarc.info
+>>
+> 
+> Alright, that live monitoring could be awesome, too. The user could
+> select what values should be measured, they would be constantly
+> updated via ajax and it would be graphed with processing.js.
+> The data could be stored as long as the browser window is open, so it
+> could still be displayed on a time axis. At its best, one could just
+> leave pma running in his browser while testing different
+> configurations.
+> 
+> With the html5 client storage, even saving snapshots persistently and
+> comparing them could be done.
+> 
+> How does this sound?
+
+Before reading your post about "as long as the browser window is open" I
+had the same idea.
+
+About selecting what values should be measured, I think that this
+interface should at least propose a list of the most popular things to
+measure, to guide the admin. I guess that admins will want to use this
+to find problems on their servers.
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Fri, 02 Apr 2010 09:51:14 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></title>
+      <author>Brian Douglass &lt;bhdouglass@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=y2wf4b84ea91004012156xc84429f6qa29df631febf687e%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=y2wf4b84ea91004012156xc84429f6qa29df631febf687e%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></description>
+      <content:encoded><![CDATA[>
+> > Is the project to large?  I didn't think it would be that big, but you
+> > probably would know better than me.  Should I narrow my focus?
+>
+> I think it would be great, we have already several proposals for UI
+> improvements but none for this.
+>
+> http://wiki.phpmyadmin.net/pma/GSoC_2010_Ideas_List#User_Preferences
+
+
+ When you say you think it would be great are you thinking that just the
+user preferences would be great and large enough for GSoC or my current
+proposal?  Thanks for all your help!
+
+bhdouglass
+]]></content:encoded>
+      <pubDate>Fri, 02 Apr 2010 04:56:15 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></title>
+      <author>Raj Shekhar &lt;rajlist@ra...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=lkgoci2en08.wl%25rshekhar%40yahoo-inc.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=lkgoci2en08.wl%25rshekhar%40yahoo-inc.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></description>
+      <content:encoded><![CDATA[In infinite wisdom Philip Frank <ich@philipfrank.de> wrote:
+
+> 
+> Data collection: In the past, I used rrdtool to collect stats on a
+> server. Its datastore has a limited size - over time old entries get
+> merged together and the data gets thinner, but is never completely
+> deleted. Unfortunately, it is not very portable. 
+
+The size of the RRD file does not increase over time.  THat is a
+feature, not a bug :-) .  Merging of the older data (reducing the
+granularity) is a side effect of this.  In my opinion, the way RRD
+handles that is quite intelligent.  It would be hard to get that
+functionality right using mysql and rollup tables.
+
+Why do you say that RRDs are not portable?  I have seen them work on
+bsd/linux (and on 32/64 bit).  
+
+-- 
+Raj Shekhar
+-
+If there's anything more important than my ego around, I want it
+caught and shot now.
+- 
+Read the latest at my blog: "casio's g-shock watch" <http://rajshekhar.net/blog/archives/360-casios-g-shock-watch.html>
+
+
+]]></content:encoded>
+      <pubDate>Fri, 02 Apr 2010 00:06:31 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></title>
+      <author>Philip Frank &lt;ich@ph...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=i2x970855b11004011418mb25a07edm22d553a725b392d%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=i2x970855b11004011418mb25a07edm22d553a725b392d%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></description>
+      <content:encoded><![CDATA[2010/4/1 Marc Delisle <marc@infomarc.info>:
+> Philip Frank a écrit :
+>> 2010/4/1 Marc Delisle <marc@infomarc.info>:
+>>> Philip Frank a écrit :
+>>>> Hello everyone,
+>>>>
+>>>> I'm a student from Munich, Germany and stumbled across the GSoC Idea
+>>>> of collecting the data that is shown on the server status page and
+>>>> rendering them as graphs over time. I will apply in the next days,
+>>>> here is what I thought of implementing when I'm accepted:
+>>>>
+>>>> Data collection: In the past, I used rrdtool to collect stats on a
+>>>> server. Its datastore has a limited size - over time old entries get
+>>>> merged together and the data gets thinner, but is never completely
+>>>> deleted. Unfortunately, it is not very portable. Therefor, I would
+>>>> implement a similarily behaving datastore ontop of a mysql table. I
+>>>> think of storing each set of measures as a row and limit the number of
+>>>> total rows, making room for new entries by combining one pair of
+>>>> neighbouring old entries together.
+>>> Hi Philip,
+>>> so you plan that an external process will collect data? Please have a
+>>> look on this list archives, this was discussed a few days ago.
+>>>
+>>
+>> Hi Marc,
+>> i thought the process could be triggered by a cron, but if that is not
+>> an option, historic data can not be collected, i guess. How about a
+>> live monitoring tool? I could create a visualisation of the ratios of
+>> the different query types. Constantly updating that with ajax would be
+>> nice, and maybe even collecting the data in the browser and plotting
+>> graphes.
+>
+> As discussed on the list, asking users to setup cron is out of
+> phpMyAdmin's scope. Live monitoring tool is interesting.
+>
+> --
+> Marc Delisle
+> http://infomarc.info
+>
+
+Alright, that live monitoring could be awesome, too. The user could
+select what values should be measured, they would be constantly
+updated via ajax and it would be graphed with processing.js.
+The data could be stored as long as the browser window is open, so it
+could still be displayed on a time axis. At its best, one could just
+leave pma running in his browser while testing different
+configurations.
+
+With the html5 client storage, even saving snapshots persistently and
+comparing them could be done.
+
+How does this sound?
+
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 21:18:33 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB506F6.1070606%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB506F6.1070606%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></description>
+      <content:encoded><![CDATA[Philip Frank a écrit :
+> 2010/4/1 Marc Delisle <marc@infomarc.info>:
+>> Philip Frank a écrit :
+>>> Hello everyone,
+>>>
+>>> I'm a student from Munich, Germany and stumbled across the GSoC Idea
+>>> of collecting the data that is shown on the server status page and
+>>> rendering them as graphs over time. I will apply in the next days,
+>>> here is what I thought of implementing when I'm accepted:
+>>>
+>>> Data collection: In the past, I used rrdtool to collect stats on a
+>>> server. Its datastore has a limited size - over time old entries get
+>>> merged together and the data gets thinner, but is never completely
+>>> deleted. Unfortunately, it is not very portable. Therefor, I would
+>>> implement a similarily behaving datastore ontop of a mysql table. I
+>>> think of storing each set of measures as a row and limit the number of
+>>> total rows, making room for new entries by combining one pair of
+>>> neighbouring old entries together.
+>> Hi Philip,
+>> so you plan that an external process will collect data? Please have a
+>> look on this list archives, this was discussed a few days ago.
+>>
+> 
+> Hi Marc,
+> i thought the process could be triggered by a cron, but if that is not
+> an option, historic data can not be collected, i guess. How about a
+> live monitoring tool? I could create a visualisation of the ratios of
+> the different query types. Constantly updating that with ajax would be
+> nice, and maybe even collecting the data in the browser and plotting
+> graphes.
+
+As discussed on the list, asking users to setup cron is out of
+phpMyAdmin's scope. Live monitoring tool is interesting.
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 20:49:58 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></title>
+      <author>Philip Frank &lt;ich@ph...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=w2y970855b11004011344gbc9ff913iab94e8a063d56a81%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=w2y970855b11004011344gbc9ff913iab94e8a063d56a81%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></description>
+      <content:encoded><![CDATA[2010/4/1 Marc Delisle <marc@infomarc.info>:
+> Philip Frank a écrit :
+>> Hello everyone,
+>>
+>> I'm a student from Munich, Germany and stumbled across the GSoC Idea
+>> of collecting the data that is shown on the server status page and
+>> rendering them as graphs over time. I will apply in the next days,
+>> here is what I thought of implementing when I'm accepted:
+>>
+>> Data collection: In the past, I used rrdtool to collect stats on a
+>> server. Its datastore has a limited size - over time old entries get
+>> merged together and the data gets thinner, but is never completely
+>> deleted. Unfortunately, it is not very portable. Therefor, I would
+>> implement a similarily behaving datastore ontop of a mysql table. I
+>> think of storing each set of measures as a row and limit the number of
+>> total rows, making room for new entries by combining one pair of
+>> neighbouring old entries together.
+>
+> Hi Philip,
+> so you plan that an external process will collect data? Please have a
+> look on this list archives, this was discussed a few days ago.
+>
+
+Hi Marc,
+i thought the process could be triggered by a cron, but if that is not
+an option, historic data can not be collected, i guess. How about a
+live monitoring tool? I could create a visualisation of the ratios of
+the different query types. Constantly updating that with ajax would be
+nice, and maybe even collecting the data in the browser and plotting
+graphes.
+
+Philip
+
+>>
+>> Plotting: On the ideas page GD is suggeted, but I would prefer to use
+>> processing.js, which is a javascript library that draws on a canvas
+>> element with a similar usage.
+>> To connect to the datastore I would build a json interface for the
+>> collected data.
+>>
+>> Let me know, what you think of it!
+>>
+>> Best regards,
+>> Philip
+>
+>
+>
+> --
+> Marc Delisle
+> http://infomarc.info
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 20:44:45 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4FE3B.4020908%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4FE3B.4020908%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC - Server Stats]]></description>
+      <content:encoded><![CDATA[Philip Frank a écrit :
+> Hello everyone,
+> 
+> I'm a student from Munich, Germany and stumbled across the GSoC Idea
+> of collecting the data that is shown on the server status page and
+> rendering them as graphs over time. I will apply in the next days,
+> here is what I thought of implementing when I'm accepted:
+> 
+> Data collection: In the past, I used rrdtool to collect stats on a
+> server. Its datastore has a limited size - over time old entries get
+> merged together and the data gets thinner, but is never completely
+> deleted. Unfortunately, it is not very portable. Therefor, I would
+> implement a similarily behaving datastore ontop of a mysql table. I
+> think of storing each set of measures as a row and limit the number of
+> total rows, making room for new entries by combining one pair of
+> neighbouring old entries together.
+
+Hi Philip,
+so you plan that an external process will collect data? Please have a
+look on this list archives, this was discussed a few days ago.
+
+> 
+> Plotting: On the ideas page GD is suggeted, but I would prefer to use
+> processing.js, which is a javascript library that draws on a canvas
+> element with a similar usage.
+> To connect to the datastore I would build a json interface for the
+> collected data.
+> 
+> Let me know, what you think of it!
+> 
+> Best regards,
+> Philip
+
+
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 20:12:43 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] GSoC - Server Stats]]></title>
+      <author>Philip Frank &lt;ich@ph...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=i2s970855b11004011200g5687b178vfabeb95dfe0cf8d%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=i2s970855b11004011200g5687b178vfabeb95dfe0cf8d%40mail.gmail.com</guid>
+      <description><![CDATA[[Phpmyadmin-devel] GSoC - Server Stats]]></description>
+      <content:encoded><![CDATA[Hello everyone,
+
+I'm a student from Munich, Germany and stumbled across the GSoC Idea
+of collecting the data that is shown on the server status page and
+rendering them as graphs over time. I will apply in the next days,
+here is what I thought of implementing when I'm accepted:
+
+Data collection: In the past, I used rrdtool to collect stats on a
+server. Its datastore has a limited size - over time old entries get
+merged together and the data gets thinner, but is never completely
+deleted. Unfortunately, it is not very portable. Therefor, I would
+implement a similarily behaving datastore ontop of a mysql table. I
+think of storing each set of measures as a row and limit the number of
+total rows, making room for new entries by combining one pair of
+neighbouring old entries together.
+
+Plotting: On the ideas page GD is suggeted, but I would prefer to use
+processing.js, which is a javascript library that draws on a canvas
+element with a similar usage.
+To connect to the datastore I would build a json interface for the
+collected data.
+
+Let me know, what you think of it!
+
+Best regards,
+Philip
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 19:00:03 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4E087.7030402%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4E087.7030402%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Michal Čihař a écrit :
+> Hi
+> 
+> Dne Thu, 1 Apr 2010 17:33:12 +0200
+> Michal Čihař <michal@cihar.com> napsal(a):
+> 
+>> The only mootools user I found is mootools_common.js (it should be
+>> rather named replication.js), but I checked only separate js files and
+>> not inline code.
+> 
+> Ah okay, in functions.js there are some blob streaming functions which
+> do also use mootools.
+>
+
+Mootools also used in /setup.
+
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 18:05:59 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401200217.4532336b%40nutt.cihar.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401200217.4532336b%40nutt.cihar.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 1 Apr 2010 12:24:21 -0400
+Brian Douglass <bhdouglass@gmail.com> napsal(a):
+
+> Yeah, I'll see about making myself more clear.
+> I was thinking about storing configuration values in a database or file like
+> the current config.inc.php.
+
+We are planning per user settings storage in a database.
+
+> Is the project to large?  I didn't think it would be that big, but you
+> probably would know better than me.  Should I narrow my focus?
+
+I think it would be great, we have already several proposals for UI
+improvements but none for this.
+
+http://wiki.phpmyadmin.net/pma/GSoC_2010_Ideas_List#User_Preferences
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 18:02:17 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401191315.7f4a7a97%40nutt.cihar.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401191315.7f4a7a97%40nutt.cihar.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 01 Apr 2010 09:37:00 -0700
+Raj Shekhar <rajlist@rajshekhar.net> napsal(a):
+
+> In infinite wisdom Michal Čihař <michal@cihar.com> wrote:
+> 
+> > BTW: Does anybody know where all do we use mootools?
+> 
+> One way to find this would be to run the selenium test scripts and then
+> grep the apache logs for mootool*.js.  The referrer page in the access
+> log should give an idea of which all pages use mootools (or include it).
+
+We don't have problem finding code which references to mootools*js, but
+rather code which uses some of mootools functions.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 17:13:15 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Raj Shekhar &lt;rajlist@ra...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=lkgwrwrdt8z.wl%25rshekhar%40yahoo-inc.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=lkgwrwrdt8z.wl%25rshekhar%40yahoo-inc.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[In infinite wisdom Michal Čihař <michal@cihar.com> wrote:
+
+> BTW: Does anybody know where all do we use mootools?
+
+One way to find this would be to run the selenium test scripts and then
+grep the apache logs for mootool*.js.  The referrer page in the access
+log should give an idea of which all pages use mootools (or include it).
+
+-- 
+Raj Shekhar
+-
+If there's anything more important than my ego around, I want it
+caught and shot now.
+- 
+Read the latest at my blog: "casio's g-shock watch" <http://rajshekhar.net/blog/archives/360-casios-g-shock-watch.html>
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 16:37:00 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></title>
+      <author>Brian Douglass &lt;bhdouglass@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=t2lf4b84ea91004010924q4abf8fe1t90266eadfa2a1444%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=t2lf4b84ea91004010924q4abf8fe1t90266eadfa2a1444%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></description>
+      <content:encoded><![CDATA[Hello,
+
+
+> Short feedback (generally applicable to any proposal):
+>
+> 1. Fill in complete template.
+> 2. Try to describe what you want to do ("Less ominous warning and more
+>   helpful help icons" does not tell me much)
+>
+> Directly to your proposal:
+>
+> You write about configuration page, where you want to store
+> configuration values? I think this itself is separate project which
+> will consume quite a lot of time (well we were thinking that user
+> preferences would be separate project for GSoC).
+>
+
+Yeah, I'll see about making myself more clear.
+I was thinking about storing configuration values in a database or file like
+the current config.inc.php.
+Is the project to large?  I didn't think it would be that big, but you
+probably would know better than me.  Should I narrow my focus?
+
+bhdouglass
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 16:24:21 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401174043.763e130d%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401174043.763e130d%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 1 Apr 2010 17:33:12 +0200
+Michal Čihař <michal@cihar.com> napsal(a):
+
+> The only mootools user I found is mootools_common.js (it should be
+> rather named replication.js), but I checked only separate js files and
+> not inline code.
+
+Ah okay, in functions.js there are some blob streaming functions which
+do also use mootools.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:40:43 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401173312.007b1684%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401173312.007b1684%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 01 Apr 2010 11:20:30 -0400
+Marc Delisle <marc@infomarc.info> napsal(a):
+
+> Michal Čihař a écrit :
+> > Hi
+> > 
+> > Dne Thu, 01 Apr 2010 11:03:00 -0400
+> > Marc Delisle <marc@infomarc.info> napsal(a):
+> > 
+> >> Now that js/update-location.js is converted to jQuery -- thanks Michal
+> >> --  I believe we could remove the loading of mootools.js from index.php.
+> >>
+> >> Unless there is some dependency to Mootools inside js/common.js but I
+> >> think not.
+> > 
+> > Probably yes.
+> 
+> Yes there is a dependency?
+
+Yes, we can remove it.
+
+> > 
+> > BTW: Does anybody know where all do we use mootools?
+> 
+> I expect that it's only where we include it. Is it oversimplified?
+
+The only mootools user I found is mootools_common.js (it should be
+rather named replication.js), but I checked only separate js files and
+not inline code.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:33:12 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401173003.46ff6bb0%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401173003.46ff6bb0%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 01 Apr 2010 11:28:11 -0400
+Marc Delisle <marc@infomarc.info> napsal(a):
+
+> Ah, I was not aware that common.inc.php now loads it. Well, this brings
+> another question: how will we document which code depends on jQuery? or
+> do we need to document it?
+
+As the location updater requires it and it is used on each page, I
+think it's safe to assume jQuery is always present.
+
+And it was probably mine fault, because other users were added earlier
+than the one in common and I should have removed it.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:30:03 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4BB8B.2060600%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4BB8B.2060600%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Michal Čihař a écrit :
+> Dne Thu, 1 Apr 2010 17:08:43 +0200
+> Piotr Przybylski <piotr.prz@gmail.com> napsal(a):
+> 
+>> Just a related issue - main.php loads jQuery two times, it's added to
+>> js_include in common.inc.php and main.php
+> 
+> It was the case in more files, fixed in Git.
+
+Ah, I was not aware that common.inc.php now loads it. Well, this brings
+another question: how will we document which code depends on jQuery? or
+do we need to document it?
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:28:11 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4B9E5.9020906%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4B9E5.9020906%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Piotr Przybylski a écrit :
+> Just a related issue - main.php loads jQuery two times, it's added to
+> js_include in common.inc.php and main.php
+
+Thanks I'll fix this.
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:21:09 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401172057.4c704ebd%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401172057.4c704ebd%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 1 Apr 2010 20:48:59 +0530
+Kishanthan Thangarajah <kshanth2101@gmail.com> napsal(a):
+
+> Hi,
+> I found that without any compression applied , Dia is just another XML file.
+> So we can use the DOM extension for the creation of Dia file.
+> 
+> Any suggestion on this?
+
+Yes, of course you can.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:20:57 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4B9BE.80809%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4B9BE.80809%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Michal Čihař a écrit :
+> Hi
+> 
+> Dne Thu, 01 Apr 2010 11:03:00 -0400
+> Marc Delisle <marc@infomarc.info> napsal(a):
+> 
+>> Now that js/update-location.js is converted to jQuery -- thanks Michal
+>> --  I believe we could remove the loading of mootools.js from index.php.
+>>
+>> Unless there is some dependency to Mootools inside js/common.js but I
+>> think not.
+> 
+> Probably yes.
+
+Yes there is a dependency?
+> 
+> BTW: Does anybody know where all do we use mootools?
+
+I expect that it's only where we include it. Is it oversimplified?
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:20:30 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401171918.1307665e%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401171918.1307665e%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Dne Thu, 1 Apr 2010 17:08:43 +0200
+Piotr Przybylski <piotr.prz@gmail.com> napsal(a):
+
+> Just a related issue - main.php loads jQuery two times, it's added to
+> js_include in common.inc.php and main.php
+
+It was the case in more files, fixed in Git.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:19:18 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></title>
+      <author>Kishanthan Thangarajah &lt;kshanth2101@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=i2r290aec121004010818pe1f922baref27a6c684c4069%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=i2r290aec121004010818pe1f922baref27a6c684c4069%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></description>
+      <content:encoded><![CDATA[Hi,
+I found that without any compression applied , Dia is just another XML file.
+So we can use the DOM extension for the creation of Dia file.
+
+Any suggestion on this?
+
+Kishanthan.T
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:18:59 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Piotr Przybylski &lt;piotr.prz@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=i2ta49078951004010808mfeb7e3bexaf7119eabed918f8%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=i2ta49078951004010808mfeb7e3bexaf7119eabed918f8%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Just a related issue - main.php loads jQuery two times, it's added to
+js_include in common.inc.php and main.php
+
+2010/4/1 Marc Delisle <marc@infomarc.info>:
+> Hi,
+> Now that js/update-location.js is converted to jQuery -- thanks Michal
+> --  I believe we could remove the loading of mootools.js from index.php.
+>
+> Unless there is some dependency to Mootools inside js/common.js but I
+> think not.
+>
+> --
+> Marc Delisle
+> http://infomarc.info
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:08:43 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401170723.251102df%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401170723.251102df%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 01 Apr 2010 11:03:00 -0400
+Marc Delisle <marc@infomarc.info> napsal(a):
+
+> Now that js/update-location.js is converted to jQuery -- thanks Michal
+> --  I believe we could remove the loading of mootools.js from index.php.
+> 
+> Unless there is some dependency to Mootools inside js/common.js but I
+> think not.
+
+Probably yes.
+
+BTW: Does anybody know where all do we use mootools?
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:07:23 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] common.js and Mootools]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4B5A4.90408%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4B5A4.90408%40infomarc.info</guid>
+      <description><![CDATA[[Phpmyadmin-devel] common.js and Mootools]]></description>
+      <content:encoded><![CDATA[Hi,
+Now that js/update-location.js is converted to jQuery -- thanks Michal
+--  I believe we could remove the loading of mootools.js from index.php.
+
+Unless there is some dependency to Mootools inside js/common.js but I
+think not.
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 15:03:00 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] To potential GSoC students]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4A103.4070002%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB4A103.4070002%40infomarc.info</guid>
+      <description><![CDATA[[Phpmyadmin-devel] To potential GSoC students]]></description>
+      <content:encoded><![CDATA[Hi,
+Your proposal sent to http://socghop.appspot.com/ will receive public
+comments [0] from our mentors team. Now that your proposal has been
+sent, there is a "subscribe to updates" button on top of the page. We
+strongly suggest you subscribe to updates, to be able to react to our
+questions and reply via a public comment of your own.
+
+- your mentors team
+
+[0] here "public" means that the mentoring team and yourself can see it
+
+
+
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 13:34:59 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401153020.01765288%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401153020.01765288%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 1 Apr 2010 09:01:43 -0400
+Brian Douglass <bhdouglass@gmail.com> napsal(a):
+
+> Thanks for the heads up, I planned on submitting the real thing later
+> this week.  I just wanted to post it up here for any feedback to make
+> it better.  But if no feedback can be given I'll just send it along to
+> the GSoC website.  Thanks!
+
+Short feedback (generally applicable to any proposal):
+
+1. Fill in complete template.
+2. Try to describe what you want to do ("Less ominous warning and more
+   helpful help icons" does not tell me much)
+
+Directly to your proposal:
+
+You write about configuration page, where you want to store
+configuration values? I think this itself is separate project which
+will consume quite a lot of time (well we were thinking that user
+preferences would be separate project for GSoC).
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 13:30:20 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+	GSoC 2010]]></title>
+      <author>ANKIT GUPTA &lt;ankitatbits@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=y2z34c4ff31004010606y17a0ce3ne324f0723885f88%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=y2z34c4ff31004010606y17a0ce3ne324f0723885f88%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+	GSoC 2010]]></description>
+      <content:encoded><![CDATA[Hello marc,
+
+yes you are right,that there is no need to explicitly ask the user to
+"select relation arrows",
+but  i want to provide users with an option to select the Join
+type(inner,outer,left,right).
+
+i have not mentioned any details for writing Nested Sub queries.till now i
+don't have a good design to implement them......and am still working on it.
+
+Thanks
+Ankit
+
+2010/4/1 Marc Delisle <marc@infomarc.info>
+
+> ANKIT GUPTA a écrit :
+> > Hi,
+> >
+> > because of the size limit , i am resending the my previous mail but this
+> > time in place of attaching the image i am providing a URL
+> >
+> > URL for image:
+> > http://dl.dropbox.com/u/1008346/mock_schema.jpg
+> >
+> > PFA with this mail
+> > as marc Suggested that we should discuss the design with the help of an
+> > example,
+> > so i have made a mock schema with three tables artist,song and
+> sings.details
+> > u can see in the diagram with this mail.
+> >
+> > i know The Design which i have developed till now is just the beginning
+> > draft , lot of discussion and thought has to be put to finalize the
+> design
+> > with functionality.
+>
+> Hi Ankit,
+>
+> I had a look at your image. I'm not sure what you mean by "select the
+> relations arrows which we need for the query". I think that in a query
+> builder, the user should be able to specify what he needs just in terms
+> of tables and columns, and the product should build the correct joins.
+>
+> --
+> Marc Delisle
+> http://infomarc.info
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 13:06:16 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></title>
+      <author>Brian Douglass &lt;bhdouglass@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=x2of4b84ea91004010601n95599f70x3b5374a0aea1baf8%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=x2of4b84ea91004010601n95599f70x3b5374a0aea1baf8%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></description>
+      <content:encoded><![CDATA[Hi Michal,
+
+Thanks for the heads up, I planned on submitting the real thing later
+this week.  I just wanted to post it up here for any feedback to make
+it better.  But if no feedback can be given I'll just send it along to
+the GSoC website.  Thanks!
+
+bhdouglass
+
+> Hi
+
+
+> Dne Thu, 1 Apr 2010 01:17:05 -0400
+> Brian Douglass <bhdouglass@gmail.com <https://mail.google.com/mail/?extsrc=mailto&url=mailto%3Abhdouglass@gmail.com>> napsal(a):
+
+> > Just realized that I was on the wrong mailing list and figured out that I
+> > should be on this one (embarrassed).  But, no matter, I wrote up my proposal
+> > while wondering why no one was talking to me.  If you would like to view the
+> > rough proposal I wrote up you can view it here -
+> > https://docs.google.com/Doc?docid=0AXQtkzw9tbFUZGZzZGg5ZHZfOTU0dDV3c3NkcA&hl=en.
+> >  I would appreciate any feedback that I can get (about the project, the
+> > timeline, anything), I would enjoy working with PMA as part of GSoC.  Thank
+> > you!
+
+> Please use GSoC website for submitting proposals, we can not accept
+> them elsewhere: http://socghop.appspot.com/
+
+> Also please follow instructions we've written down for students:
+> http://wiki.phpmyadmin.net/pma/GSoC_2010_Student_Checklist
+
+> --
+> 	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 13:01:43 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></title>
+      <author>Kishanthan Thangarajah &lt;kshanth2101@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=o2j290aec121004010308l168dd29esb95e3d9b2d439a71%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=o2j290aec121004010308l168dd29esb95e3d9b2d439a71%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></description>
+      <content:encoded><![CDATA[Ok , so we have to create a XML file in format which can be opened by the
+Dia program.
+
+Thanks,
+Kishanthan.T
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 10:08:27 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401113656.1b7cf2a4%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401113656.1b7cf2a4%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 1 Apr 2010 14:58:22 +0530
+Kishanthan Thangarajah <kshanth2101@gmail.com> napsal(a):
+
+> I didn't clearly understand the feature request at here[1] , it says that
+> exporting the schema to xml Dia format.
+> Is the request  is to create a xml format of dia?
+
+It means to create XML file in format for Dia program -
+http://projects.gnome.org/dia/
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 09:36:56 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></title>
+      <author>Kishanthan Thangarajah &lt;kshanth2101@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=g2l290aec121004010228t389dedf2k37a4cda24fddef0a%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=g2l290aec121004010228t389dedf2k37a4cda24fddef0a%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></description>
+      <content:encoded><![CDATA[Hi,
+I didn't clearly understand the feature request at here[1] , it says that
+exporting the schema to xml Dia format.
+Is the request  is to create a xml format of dia?
+-- 
+Kishanthan.T
+
+[1]
+http://sourceforge.net/tracker/index.php?func=detail&aid=686260&group_id=23067&atid=377411
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 09:28:22 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Proposal for GSOC 2010]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401105229.5a1007bc%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401105229.5a1007bc%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Proposal for GSOC 2010]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 1 Apr 2010 08:49:07 +0530
+Hemanth kumar <hemanth147@gmail.com> napsal(a):
+
+> Do i need to submit any patch or sample work before submitting the proposal
+> in GSOC site??
+
+You need to submit some patch to be accepted, but you have time to
+update your proposal till the deadline (April 9 19:00 UTC).
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 08:52:29 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401100303.1bc8e17c%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401100303.1bc8e17c%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC 2010 Idea]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Thu, 1 Apr 2010 01:17:05 -0400
+Brian Douglass <bhdouglass@gmail.com> napsal(a):
+
+> Just realized that I was on the wrong mailing list and figured out that I
+> should be on this one (embarrassed).  But, no matter, I wrote up my proposal
+> while wondering why no one was talking to me.  If you would like to view the
+> rough proposal I wrote up you can view it here -
+> https://docs.google.com/Doc?docid=0AXQtkzw9tbFUZGZzZGg5ZHZfOTU0dDV3c3NkcA&hl=en.
+>  I would appreciate any feedback that I can get (about the project, the
+> timeline, anything), I would enjoy working with PMA as part of GSoC.  Thank
+> you!
+
+Please use GSoC website for submitting proposals, we can not accept
+them elsewhere: http://socghop.appspot.com/
+
+Also please follow instructions we've written down for students:
+http://wiki.phpmyadmin.net/pma/GSoC_2010_Student_Checklist
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 08:03:03 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] problem with _pgettext() in English (US)]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401095719.3e1b8d1a%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401095719.3e1b8d1a%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] problem with _pgettext() in English (US)]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Wed, 31 Mar 2010 13:02:50 -0400
+Marc Delisle <marc@infomarc.info> napsal(a):
+
+> in libraries/messages.inc.php we have
+> 
+> $strCreateTableShort = _pgettext('$strCreateTableShort', 'Create table');
+> 
+> This gives a good result for all languages I tried, except English (US).
+
+Fixed and reported to php-gettext upstream:
+https://bugs.launchpad.net/php-gettext/+bug/553091
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 07:57:19 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Gettext now used in master]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401093503.2570373c%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100401093503.2570373c%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Gettext now used in master]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Wed, 31 Mar 2010 22:12:03 +0200
+Piotr Przybylski <piotr.prz@gmail.com> napsal(a):
+
+> I pulled latest changes and on Status page I have a link:
+> [ $strShowStatusResetReset ]
+> 
+> This variable corresponds to the following line in messages.inc.php:
+> $strShowStatusReset = _pgettext('$strShowStatusReset', 'Reset');
+> 
+> Is this still work in progress or a bug? If the latter, I found many
+> similar cases in messages.inc.php.
+
+Clearly a bug (which reappeared in new upstream of php-gettext). I will
+fix that.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 07:35:03 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] GSoC 2010 Idea]]></title>
+      <author>Brian Douglass &lt;bhdouglass@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=u2lf4b84ea91003312217o1670f0bdw966a5b736a995618%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=u2lf4b84ea91003312217o1670f0bdw966a5b736a995618%40mail.gmail.com</guid>
+      <description><![CDATA[[Phpmyadmin-devel] GSoC 2010 Idea]]></description>
+      <content:encoded><![CDATA[Hello all!
+
+Just realized that I was on the wrong mailing list and figured out that I
+should be on this one (embarrassed).  But, no matter, I wrote up my proposal
+while wondering why no one was talking to me.  If you would like to view the
+rough proposal I wrote up you can view it here -
+https://docs.google.com/Doc?docid=0AXQtkzw9tbFUZGZzZGg5ZHZfOTU0dDV3c3NkcA&hl=en.
+ I would appreciate any feedback that I can get (about the project, the
+timeline, anything), I would enjoy working with PMA as part of GSoC.  Thank
+you!
+
+bhdouglass
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 05:17:05 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Proposal for GSOC 2010]]></title>
+      <author>Hemanth kumar &lt;hemanth147@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=j2jd4285c941003312019x3b834fdjc819a47e1b85c4d3%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=j2jd4285c941003312019x3b834fdjc819a47e1b85c4d3%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Proposal for GSOC 2010]]></description>
+      <content:encoded><![CDATA[Hi Marc,
+
+Do i need to submit any patch or sample work before submitting the proposal
+in GSOC site??
+
+Thanks and Regards
+R Hemanth Kumar
+
+Date: Wed, 24 Mar 2010 09:22:59 +0530
+From: Hemanth kumar <hemanth147@gmail.com>
+Subject: Re: [Phpmyadmin-devel] Proposal for GSOC 2010.
+To: phpmyadmin-devel@lists.sourceforge.net
+Message-ID:
+       <d4285c941003232052p59e668c3x73c1c8dca7680609@mail.gmail.com
+>
+Content-Type: text/plain; charset="utf-8"
+
+Hi,
+I'l submit my proposal formally on march 29.
+
+Regarding Exporting it to XML format what i intended to say was i want to
+exporting whole database into XML format with one click.
+
+I've an idea on how to do it. MySQL supports converting sql query result
+into XML and Mysql also displays complete list of tables using "show
+tables;" We have to merge both the features. I Dont know if its extensively
+useful but as an admin UI i want to provide all the features.
+
+Thanks & Regards
+
+R Hemanth Kumar
+
+
+Date: Tue, 23 Mar 2010 14:25:39 -0400
+From: Marc Delisle <marc@infomarc.info>
+Subject: Re: [Phpmyadmin-devel] Proposal for GSOC 2010.
+To: phpmyadmin-devel@lists.sourceforge.net
+Message-ID: <4BA907A3.2040602@infomarc.info>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+
+Hemanth kumar a ?crit :
+> Hi ,
+>
+> I'm Hemanth,Undergrad Student of Bits-Pilani Goa campus-INDIA. I would
+> like to work on GSOC project USER INTERFACE CLEANUP.
+>
+> Last semester i developed an intranet application using php, Mysql, I
+> used phpMyAdmin for it and i feel there should be some changes in the
+> user interface and i would like to share my suggestions for phpMyAdmin
+> user interface cleanup.
+>
+> 1. User should be able to customize the user interface of phpMyAdmin.
+> Example: user should able to hide unwanted Links.
+>    OR
+>    Less used links should be under one link moving cursor upon it drops
+> down a menu of less used links.
+>
+> 2. GUI should be Made simpler for Novice or There should two instances
+> of phpMyAdmin one for Basic users and other for Advanced Users.
+
+Hi,
+these are interesting points that you can put in your formal proposal,
+when Google's interface accepts proposals on March 29.
+
+>
+> Recently I worked on php, XML, MySQL and i noticed phpMyAdmin doesn't
+> have a feature which converts result of a SQL query to XML format which
+> can be used for taking backup of data.
+
+In phpMyAdmin 3.3.1, in table Export you can export in XML. Did you try it?
+
+>
+> I would like to work on the above as GSOC 2010 project.
+
+
+--
+Marc Delisle
+http://infomarc.info
+
+
+--
+R.Hemanth Kumar
+Bits-pilani Goa campus
+Msc Economics+B.E. (hons) Chemical engineering
+
+
+-- 
+R.Hemanth Kumar
+Bits-pilani Goa campus
+Msc Economics+B.E. (hons) Chemical engineering
+]]></content:encoded>
+      <pubDate>Thu, 01 Apr 2010 03:19:07 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3BD19.6030606%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3BD19.6030606%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></description>
+      <content:encoded><![CDATA[ANKIT GUPTA a écrit :
+> Hi,
+> 
+> because of the size limit , i am resending the my previous mail but this
+> time in place of attaching the image i am providing a URL
+> 
+> URL for image:
+> http://dl.dropbox.com/u/1008346/mock_schema.jpg
+> 
+> PFA with this mail
+> as marc Suggested that we should discuss the design with the help of an
+> example,
+> so i have made a mock schema with three tables artist,song and sings.details
+> u can see in the diagram with this mail.
+> 
+> i know The Design which i have developed till now is just the beginning
+> draft , lot of discussion and thought has to be put to finalize the design
+> with functionality.
+
+Hi Ankit,
+
+I had a look at your image. I'm not sure what you mean by "select the
+relations arrows which we need for the query". I think that in a query
+builder, the user should be able to specify what he needs just in terms
+of tables and columns, and the product should build the correct joins.
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 21:22:33 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Gettext now used in master]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3BB27.3090009%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3BB27.3090009%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Gettext now used in master]]></description>
+      <content:encoded><![CDATA[Piotr Przybylski a écrit :
+> Hi,
+> 
+> I pulled latest changes and on Status page I have a link:
+> [ $strShowStatusResetReset ]
+> 
+> This variable corresponds to the following line in messages.inc.php:
+> $strShowStatusReset = _pgettext('$strShowStatusReset', 'Reset');
+> 
+> Is this still work in progress or a bug? If the latter, I found many
+> similar cases in messages.inc.php.
+> 
+
+Yes, see my post "problem with _pgettext() in English (US)".
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 21:14:15 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Gettext now used in master]]></title>
+      <author>Piotr Przybylski &lt;piotr.prz@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=l2la49078951003311312zc72fb14ci6668cfd4e67603c5%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=l2la49078951003311312zc72fb14ci6668cfd4e67603c5%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Gettext now used in master]]></description>
+      <content:encoded><![CDATA[Hi,
+
+I pulled latest changes and on Status page I have a link:
+[ $strShowStatusResetReset ]
+
+This variable corresponds to the following line in messages.inc.php:
+$strShowStatusReset = _pgettext('$strShowStatusReset', 'Reset');
+
+Is this still work in progress or a bug? If the latter, I found many
+similar cases in messages.inc.php.
+
+-- 
+Piotr Przybylski
+
+2010/3/30 Michal Čihař <michal@cihar.com>:
+> Hi all
+>
+> as announced earlier, phpMyAdmin now uses gettext for translations in
+> master branch. As this changed quite a lot how the translations are
+> being used, I've written down guides for it to our wiki.
+>
+> If you want to translate, you can find the information here:
+>
+> http://wiki.phpmyadmin.net/pma/Devel:Gettext_for_translators
+>
+> And for the developers it is available here:
+>
+> http://wiki.phpmyadmin.net/pma/Devel:Gettext_for_developers
+>
+> --
+>        Michal Čihař | http://cihar.com | http://blog.cihar.com
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+>
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 20:12:03 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3A6F8.1060901%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3A6F8.1060901%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Ninad Pundalik a écrit :
+> Hi,
+> 
+> On 31 March 2010 19:25, Michal Čihař <michal@cihar.com> wrote:
+>> I think the div can be already present in the document (extra div doe
+>> not matter at all):
+>>
+>> <div class="slider">...</div>
+>>
+>> And there would be javascript to set initial state based on the
+>> settings and add add the link:
+>>
+> This seems a better way.  I'll make the changes in the code in some
+> time and test it, my guess is that it'll work fine.  Should I include
+> this change in the patch that I'll put in?  Also, I plan to put the
+> jQuery code for the time being in a file js/paginte_table.js.  Is that
+> fine?  Any particular convention I should be following when doing it?
+
+We'll probably need to build some filename convention for /js. For the 
+moment, just try to be clear ...
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 19:48:08 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3A53A.5070400%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3A53A.5070400%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC]]></description>
+      <content:encoded><![CDATA[Gustavo Henrique Lima Pinto a écrit :
+> Ok, that's right.
+> 
+> In my master course, I worked on software testing. So I have good 
+> knowledge with unit test, integration test and automatic test 
+> generation. So,  I wanna write a proposal to automatic test, if 
+> possible. Case not, I'm also interesting in charts in serve status page 
+> project. 
+> 
+> Now the question: I need to do some code before submit the proposal? I 
+> need to share the doc in the list, or just submit?
+
+Isaac Bennetch replied in a recent thread with relevant information 
+about this, which I quote:
+---------
+A good place to start is http://wiki.phpmyadmin.net/pma/Devel:Junior for
+small code contribution ideas and
+http://wiki.phpmyadmin.net/pma/Devel:Main and
+http://www.phpmyadmin.net/phpdoc/ for documentation
+---------
+
+to which I would add
+http://www.phpmyadmin.net/home_page/improve.php
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 19:40:42 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></title>
+      <author>Raj Shekhar &lt;rajlist@ra...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=lkgy6h82si0.wl%25rshekhar%40yahoo-inc.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=lkgy6h82si0.wl%25rshekhar%40yahoo-inc.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></description>
+      <content:encoded><![CDATA[In infinite wisdom Michal Čihař <michal@cihar.com> wrote:
+
+> 
+> Dne Wed, 31 Mar 2010 00:36:18 -0700
+> Raj Shekhar <rajlist@rajshekhar.net> napsal(a):
+
+> > Initial working version checked in at github ->
+> > http://github.com/lunatech/myq_tuner (details on how to checkout/copy in
+> > the readme itself)
+> 
+> Looks good!
+> 
+> Please do not use short open tags (<?) but full version instead (<?php).
+
+Thanks. Will make these changes.
+
+> 
+> As there is not that much of output, I'd integrate this into
+> server_status (some of the information is already available there).
+> 
+
+
+makes sense.  Will put in these changes by April 08. 
+
+-- 
+Raj Shekhar
+-
+If there's anything more important than my ego around, I want it
+caught and shot now.
+- 
+Read the latest at my blog: "casio's g-shock watch" <http://rajshekhar.net/blog/archives/360-casios-g-shock-watch.html>
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 19:36:23 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></title>
+      <author>Isaac Bennetch &lt;bennetch@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB392C7.1090001%40gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB392C7.1090001%40gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></description>
+      <content:encoded><![CDATA[Hi,
+
+On 3/31/2010 12:43 PM, ANKIT GUPTA wrote:
+[snip]
+>
+> I got a comment from Michal cihar that this time phpMyadmin is selecting
+> only those students who have contributed something before,but i have not
+> contributed to phpmyadmin till now.
+> But i am willing to contribute can anyone  please suggest me some bugs
+> to fix  and which  can be done in the given timeline  also please tell
+> where to find documentation for developers,explaining overall structure
+
+A good place to start is http://wiki.phpmyadmin.net/pma/Devel:Junior for 
+small code contribution ideas and 
+http://wiki.phpmyadmin.net/pma/Devel:Main and 
+http://www.phpmyadmin.net/phpdoc/ for documentation
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 18:21:59 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC]]></title>
+      <author>Gustavo Henrique Lima Pinto &lt;gustavohenrique.86@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=q2ubdf662b91003311116v7e30a601p8d61ed066385f06a%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=q2ubdf662b91003311116v7e30a601p8d61ed066385f06a%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC]]></description>
+      <content:encoded><![CDATA[Ok, that's right.
+
+In my master course, I worked on software testing. So I have good knowledge
+with unit test, integration test and automatic test generation. So,  I wanna
+write a proposal to automatic test, if possible. Case not, I'm also
+interesting in charts in serve status page project.
+
+Now the question: I need to do some code before submit the proposal? I need
+to share the doc in the list, or just submit?
+
+regards
+
+On Wed, Mar 31, 2010 at 2:56 PM, Marc Delisle <marc@infomarc.info> wrote:
+
+> Gustavo Henrique Lima Pinto a écrit :
+> > Hi everyone. My name is Gustavo, a phd student from Brazil, and I'm also
+> > interested in participate into gsoc.
+> >
+> > I became interested in the topics provided by Helmo. Does anyone else
+> >  have subscribe to these topics? Where I can find Helmo to discuss about
+> it?
+>
+> You can find Helmo on this list :) Discussions should be public.
+>
+> --
+> Marc Delisle
+> http://infomarc.info
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 18:16:51 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Ninad Pundalik &lt;ninadsp16289@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=n2z1ec5f42c1003311116wf9743616ic32b22b542320b5c%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=n2z1ec5f42c1003311116wf9743616ic32b22b542320b5c%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Hi,
+
+> You probably mean "paginate".
+Yes.  I'm extremely sorry for the typing mistake, and hence the
+off-topic discussion on the mailing list.  Realised it just now.
+
+-- 
+Ninad S. Pundalik
+Twitter: @ni_nad | Identica : @ninad | http://ninadpundalik.co.cc/blog
+GPG Key Fingerprint: 2DF7 B856 C75E C9F9 0504 C0EF D456 1946 7C45 2C69
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 18:16:30 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB38CC9.6020805%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB38CC9.6020805%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC]]></description>
+      <content:encoded><![CDATA[Gustavo Henrique Lima Pinto a écrit :
+> Hi everyone. My name is Gustavo, a phd student from Brazil, and I'm also 
+> interested in participate into gsoc.
+> 
+> I became interested in the topics provided by Helmo. Does anyone else 
+>  have subscribe to these topics? Where I can find Helmo to discuss about it?
+
+You can find Helmo on this list :) Discussions should be public.
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 17:56:25 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB38C6F.8090903%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB38C6F.8090903%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Ninad Pundalik a écrit :
+> Hi,
+> 
+> I guess it's the verb form for pagination.  I've heard this used by a
+> few people, but I'm not sure if it exists in the dictionary with it's
+> internet reference.  The dictionary contains the verb with reference
+> to printed books/manuscripts. :)
+
+You probably mean "paginate".
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 17:54:55 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] GSoC]]></title>
+      <author>Gustavo Henrique Lima Pinto &lt;gustavohenrique.86@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=u2ybdf662b91003311054z6241eeabz7a1af99e314149f%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=u2ybdf662b91003311054z6241eeabz7a1af99e314149f%40mail.gmail.com</guid>
+      <description><![CDATA[[Phpmyadmin-devel] GSoC]]></description>
+      <content:encoded><![CDATA[Hi everyone. My name is Gustavo, a phd student from Brazil, and I'm also
+interested in participate into gsoc.
+
+I became interested in the topics provided by Helmo. Does anyone else  have
+subscribe to these topics? Where I can find Helmo to discuss about it?
+
+Best regards.
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 17:54:05 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Ninad Pundalik &lt;ninadsp16289@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=t2l1ec5f42c1003311024v5d829617t542c2000d9115045%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=t2l1ec5f42c1003311024v5d829617t542c2000d9115045%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Hi,
+
+I guess it's the verb form for pagination.  I've heard this used by a
+few people, but I'm not sure if it exists in the dictionary with it's
+internet reference.  The dictionary contains the verb with reference
+to printed books/manuscripts. :)
+
+Ninad S. Pundalik
+Twitter: @ni_nad | Identica : @ninad | http://ninadpundalik.co.cc/blog
+GPG Key Fingerprint: 2DF7 B856 C75E C9F9 0504 C0EF D456 1946 7C45 2C69
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 17:24:34 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB383B8.9030905%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB383B8.9030905%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Ninad Pundalik a écrit :
+> Hi,
+> 
+> On 31 March 2010 22:28, Marc Delisle <marc@infomarc.info> wrote:
+>> What's the meaning of "paginte" ?
+>>
+> Wikipedia says : "Pagination is the process of dividing web content
+> and displaying it on separate pages." [0].  For all the results
+> displayed from a table (either while browsing or as the results of an
+> SQL query), we have the navigation bar which navigates from the
+> current set of results to the next.  I've right now got that to work
+> through AJAX instead of re-loading the entire content frame. :)
+> 
+> [0] - http://en.wikipedia.org/wiki/Pagination_(web)
+
+I'm familiar with "pagination" but what is "paginte"?
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 17:17:44 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Ninad Pundalik &lt;ninadsp16289@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=z2i1ec5f42c1003311015v920839a2n518bee57c05487cf%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=z2i1ec5f42c1003311015v920839a2n518bee57c05487cf%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Hi,
+
+On 31 March 2010 22:28, Marc Delisle <marc@infomarc.info> wrote:
+> What's the meaning of "paginte" ?
+>
+Wikipedia says : "Pagination is the process of dividing web content
+and displaying it on separate pages." [0].  For all the results
+displayed from a table (either while browsing or as the results of an
+SQL query), we have the navigation bar which navigates from the
+current set of results to the next.  I've right now got that to work
+through AJAX instead of re-loading the entire content frame. :)
+
+[0] - http://en.wikipedia.org/wiki/Pagination_(web)
+
+Ninad S. Pundalik
+Twitter: @ni_nad | Identica : @ninad | http://ninadpundalik.co.cc/blog
+GPG Key Fingerprint: 2DF7 B856 C75E C9F9 0504 C0EF D456 1946 7C45 2C69
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 17:15:15 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] problem with _pgettext() in English (US)]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3803A.5010406%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB3803A.5010406%40infomarc.info</guid>
+      <description><![CDATA[[Phpmyadmin-devel] problem with _pgettext() in English (US)]]></description>
+      <content:encoded><![CDATA[Hi,
+in libraries/messages.inc.php we have
+
+$strCreateTableShort = _pgettext('$strCreateTableShort', 'Create table');
+
+This gives a good result for all languages I tried, except English (US).
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 17:02:50 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB37F3A.6090208%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB37F3A.6090208%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Ninad Pundalik a écrit :
+> Hi,
+> 
+> On 31 March 2010 19:25, Michal Čihař <michal@cihar.com> wrote:
+>> I think the div can be already present in the document (extra div doe
+>> not matter at all):
+>>
+>> <div class="slider">...</div>
+>>
+>> And there would be javascript to set initial state based on the
+>> settings and add add the link:
+>>
+> This seems a better way.  I'll make the changes in the code in some
+> time and test it, my guess is that it'll work fine.  Should I include
+> this change in the patch that I'll put in?  Also, I plan to put the
+> jQuery code for the time being in a file js/paginte_table.js.  Is that
+> fine?  Any particular convention I should be following when doing it?
+
+What's the meaning of "paginte" ?
+
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 16:58:34 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Ninad Pundalik &lt;ninadsp16289@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=s2k1ec5f42c1003310956n2e7010c2p3550d052cd5e842b%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=s2k1ec5f42c1003310956n2e7010c2p3550d052cd5e842b%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Hi,
+
+On 31 March 2010 19:25, Michal Čihař <michal@cihar.com> wrote:
+> I think the div can be already present in the document (extra div doe
+> not matter at all):
+>
+> <div class="slider">...</div>
+>
+> And there would be javascript to set initial state based on the
+> settings and add add the link:
+>
+This seems a better way.  I'll make the changes in the code in some
+time and test it, my guess is that it'll work fine.  Should I include
+this change in the patch that I'll put in?  Also, I plan to put the
+jQuery code for the time being in a file js/paginte_table.js.  Is that
+fine?  Any particular convention I should be following when doing it?
+
+Ninad S. Pundalik
+Twitter: @ni_nad | Identica : @ninad | http://ninadpundalik.co.cc/blog
+GPG Key Fingerprint: 2DF7 B856 C75E C9F9 0504 C0EF D456 1946 7C45 2C69
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 16:56:38 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+	GSoC 2010]]></title>
+      <author>ANKIT GUPTA &lt;ankitatbits@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=j2z34c4ff31003310943uc2f4a517xeeb20ed8edc10420%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=j2z34c4ff31003310943uc2f4a517xeeb20ed8edc10420%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+	GSoC 2010]]></description>
+      <content:encoded><![CDATA[Hi,
+
+because of the size limit , i am resending the my previous mail but this
+time in place of attaching the image i am providing a URL
+
+URL for image:
+http://dl.dropbox.com/u/1008346/mock_schema.jpg
+
+PFA with this mail
+as marc Suggested that we should discuss the design with the help of an
+example,
+so i have made a mock schema with three tables artist,song and sings.details
+u can see in the diagram with this mail.
+
+i know The Design which i have developed till now is just the beginning
+draft , lot of discussion and thought has to be put to finalize the design
+with functionality.
+
+Its my Bad to miss the having clause,we can put it in with the Group By
+option in menu bar(see the diagram).
+
+I got a comment from Michal cihar that this time phpMyadmin is selecting
+only those students who have contributed something before,but i have not
+contributed to phpmyadmin till now.
+But i am willing to contribute can anyone  please suggest me some bugs to
+fix  and which  can be done in the given timeline  also please tell where to
+find documentation for developers,explaining overall structure
+
+Thanks,
+Ankit Gupta
+
+
+2010/3/31 ANKIT GUPTA <ankitatbits@gmail.com>
+
+> Hi,
+>
+> PFA with this mail
+> as marc Suggested that we should discuss the design with the help of an
+> example,
+> so i have made a mock schema with three tables artist,song and
+> sings.details u can see in the diagram with this mail.
+>
+> i know The Design which i have developed till now is just the beginning
+> draft , lot of discussion and thought has to be put to finalize the design
+> with functionality.
+>
+> Its my Bad to miss the having clause,we can put it in with the Group By
+> option in menu bar(see the diagram).
+>
+> I got a comment from Michal cihar that this time phpMyadmin is selecting
+> only those students who have contributed something before,but i have not
+> contributed to phpmyadmin till now.
+> But i am willing to contribute can anyone  please suggest me some bugs to
+> fix  and which  can be done in the given timeline  also please tell where to
+> find documentation for developers,explaining overall structure
+>
+> Thanks,
+> Ankit Gupta
+>
+>
+>
+> ---------- Forwarded message ----------
+> From: Michal Čihař <michal@cihar.com>
+> Date: Wed, Mar 31, 2010 at 7:39 PM
+> Subject: Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+> GSoC 2010
+> To: phpmyadmin-devel@lists.sourceforge.net
+>
+>
+> Hi
+>
+> Dne Tue, 30 Mar 2010 23:06:43 +0530
+> ANKIT GUPTA <ankitatbits@gmail.com> napsal(a):
+>
+> > i have already tried that command but it is also not working,i am getting
+> > following error
+> > fatal:unable to connect a socket (connection timed out).
+>
+> See
+>
+> http://wiki.phpmyadmin.net/pma/Devel:Git#Accessing_Git_repository_from_behind_firewall
+>
+> > I also want to discuss about the design for visual query designer,i have
+> > thought of some points like
+> > to add an  option button  with each  selected attribute of table where we
+> > will have  a menu bar with following fields GROUP ,ORDER ,Rename and
+> Where.
+> >    As user selects option from this menu bar other  boxes/options  will
+> > appear as the case is.
+> >
+> > i am planing to implement select from clause,joins,group by order by and
+> > various aggregate function in query builder.you can check further details
+> in
+> > my Gscoc Application .
+> >
+> >  please suggest any other functionality which we can add or any
+> additional
+> > features in the design.
+>
+> You did not explicitely mention HAVING clause...
+>
+> --
+>        Michal Čihař | http://cihar.com | http://blog.cihar.com
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+>
+>
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 16:43:44 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100331160950.7aaa3361%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100331160950.7aaa3361%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Tue, 30 Mar 2010 23:06:43 +0530
+ANKIT GUPTA <ankitatbits@gmail.com> napsal(a):
+
+> i have already tried that command but it is also not working,i am getting
+> following error
+> fatal:unable to connect a socket (connection timed out).
+
+See
+http://wiki.phpmyadmin.net/pma/Devel:Git#Accessing_Git_repository_from_behind_firewall
+
+> I also want to discuss about the design for visual query designer,i have
+> thought of some points like
+> to add an  option button  with each  selected attribute of table where we
+> will have  a menu bar with following fields GROUP ,ORDER ,Rename and Where.
+>    As user selects option from this menu bar other  boxes/options  will
+> appear as the case is.
+> 
+> i am planing to implement select from clause,joins,group by order by and
+> various aggregate function in query builder.you can check further details in
+> my Gscoc Application .
+> 
+>  please suggest any other functionality which we can add or any additional
+> features in the design.
+
+You did not explicitely mention HAVING clause...
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 14:09:50 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100331155514.38a83dd1%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100331155514.38a83dd1%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Wed, 31 Mar 2010 09:34:52 -0400
+Marc Delisle <marc@infomarc.info> napsal(a):
+
+> to insert that div element, if I'm not mistaken you must tell jQuery to 
+> insert it before of after a certain element; which element would you 
+> choose?
+
+I think the div can be already present in the document (extra div doe
+not matter at all):
+
+<div class="slider">...</div>
+
+And there would be javascript to set initial state based on the
+settings and add add the link:
+
+jQuery(document).ready(function(){
+  if (pma_settings['InitialSlidersState'] == 'closed') {
+    jQuery('.slider').addClass('slider-hidden');
+  }
+  jQuery('<a href="#" class="sliderexpand">Details...</a>').insertBefore(jQuery('.slider'));
+}
+
+pma_settings would be exported by separate code which will create
+javascript array with settings (or rather subset of it which is needed
+in javascript)
+
+The code is just typed in mail client so it will most likely not
+work, but I hope it shows the idea :-).
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 13:55:14 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB34F7C.5050109%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB34F7C.5050109%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Ninad Pundalik a écrit :
+> Hi,
+> 
+> I've narrowed down the javascript code that is conflicting with my
+> jQuery code for paginating a table's contents to one particular line
+> in PMA_generate_slider_effect() in libraries/common.lib.php.  The line
+> is:
+> 
+> document.write('<div id="<?php echo $id; ?>" <?php echo
+> $GLOBALS['cfg']['InitialSlidersState'] == 'closed' ? ' style="display:
+> none;"' : ''; ?>>');
+> 
+> If I'm not wrong, the div is being generated on the fly with
+> javascript, so that it can b backward compatible in browsers where
+> javascript is disabled.  In that case, we could use jQuery itself to
+> insert that element, instead of document.write().  I'll go ahead and
+> try that, but someone please confirm this.  Once this is fixed, I'll
+> be able to submit a patch to Sourceforge.
+> 
+> Marc, you might know about this better :).
+
+Ninad,
+to insert that div element, if I'm not mistaken you must tell jQuery to 
+insert it before of after a certain element; which element would you 
+choose?
+
+Maybe you could pass to this PHP function the name of the element after 
+which you want to insert this div?
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 13:34:52 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Git over HTTP]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100331151419.14069e9f%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100331151419.14069e9f%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Git over HTTP]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Wed, 31 Mar 2010 18:36:13 +0530
+Rohit Kalhans <rohit.kalhans@gmail.com> napsal(a):
+
+> I tried using the git over http on the link
+> 
+> http://repo.or.cz/r/phpmyadmin.git
+> 
+> but the server returned a 403 header. Do i need to supply some username or
+> password to be able to use the repo?
+
+Both accessing it from browser or using 'git clone
+http://repo.or.cz/r/phpmyadmin.git/' works fine for me. Maybe your
+proxy prevents access there?
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 13:14:19 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Fwd: Log-in screen and problem with file
+	./libraries/common.inc.php]]></title>
+      <author>Rohit Kalhans &lt;rohit.kalhans@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=k2q24ded88d1003310606hd26e5a65q72d7ada147559530%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=k2q24ded88d1003310606hd26e5a65q72d7ada147559530%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Fwd: Log-in screen and problem with file
+	./libraries/common.inc.php]]></description>
+      <content:encoded><![CDATA[hi ,
+
+On Tue, Mar 30, 2010 at 2:00 PM, Michal Čihař <michal@cihar.com> wrote:
+
+> Hi
+>
+> Dne Tue, 30 Mar 2010 04:22:34 +0530
+> Rohit Kalhans <rohit.kalhans@gmail.com> napsal(a):
+>
+> > Thats what i was trying to do all these days, figuring out the ways to
+> > implement what i suggested with minimal changes to the native code and i
+> was
+> > successful. I was, however unable to create the patch (using git) but
+> i'll
+> > attach the modified code files as an attachment in 2 to 3 days,( if I am
+> > still unable to use git, i am still trying to figure out the problem) and
+> > you can have a look at it and then make the decision :).
+>
+> I added some hints about exporting patches to our wiki:
+>
+> http://wiki.phpmyadmin.net/pma/Devel:Git#Exporting_patches
+>
+> I tried using the git over http on the link
+
+http://repo.or.cz/r/phpmyadmin.git
+
+but the server returned a 403 header. Do i need to supply some username or
+password to be able to use the repo?
+
+
+>  The first option [from config file] will disable AJAX permanently and the
+> > second one will disable it for just a given session.
+>
+> Well then it does not make sense to have it in config file, the session
+> can update the option from config file.
+>
+> --
+>         Michal Čihař | http://cihar.com | http://blog.cihar.com
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+>
+
+
+-- 
+Rohit Kalhans
+homepage: http://rohit-kalhans.co.cc
+BLOG: http://13lackburn.blogspot.com
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 13:06:13 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC 2010 Charts]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB345D3.5020000%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB345D3.5020000%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC 2010 Charts]]></description>
+      <content:encoded><![CDATA[Martynas Mickevičius a écrit :
+> On 31 March 2010 14:17, Marc Delisle <marc@infomarc.info 
+> <mailto:marc@infomarc.info>> wrote:
+> 
+>     Martynas Mickevičius a écrit :
+> 
+>      > I have written my proposal according to the discussion we had in this
+>      > thread. If you want to check it out, you can find it here:
+>      >
+>      >
+>     http://docs.google.com/Doc?docid=0AcmR3UsXFvy-ZHJ3aG1tc18zZzVodmtuZHM&hl=en
+>     <http://docs.google.com/Doc?docid=0AcmR3UsXFvy-ZHJ3aG1tc18zZzVodmtuZHM&hl=en>
+>      >
+>     <http://docs.google.com/Doc?docid=0AcmR3UsXFvy-ZHJ3aG1tc18zZzVodmtuZHM&hl=en
+>     <http://docs.google.com/Doc?docid=0AcmR3UsXFvy-ZHJ3aG1tc18zZzVodmtuZHM&hl=en>>
+>      >
+>      > where you can comment any points worth doing that. If the editable
+>      > version gets corrupted very much you can always find PDF version
+>     here:
+>      >
+>      > http://www.2m.lt/files/GSoC_2010_phpMyAdmin.pdf
+>      >
+>      > I would greatly appreciate any comments. However I will be unable to
+>      > respond until the end of this week since I will be out for the
+>     Easter break.
+> 
+>     Martynas,
+>     You should not send your proposals to these places. The only proper
+>     place to send your proposal in on the official interface at
+>     http://socghop.appspot.com/
+> 
+>     Please send it there and remove it from the other places.
+> 
+> 
+> Hm. Ok. I removed my application from the mentioned links. I will add my 
+> application to gsoc site.
+> 
+> I mentioned in the "Student application : no rush please" thread that I 
+> am going to attach my application links to this thread and I got no 
+> negative response so I thought it was OK to do it. Sorry for the fuss. (:
+
+Sorry, due to the huge number of active threads in this list, I don't 
+have the time to react correctly to all of them...
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 12:53:39 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC 2010 Charts]]></title>
+      <author>Martynas Mickevičius &lt;mmartynas@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=l2nc2cab2bb1003310532wb87292d9l427e4b9d89ebd8d6%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=l2nc2cab2bb1003310532wb87292d9l427e4b9d89ebd8d6%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC 2010 Charts]]></description>
+      <content:encoded><![CDATA[On 31 March 2010 14:17, Marc Delisle <marc@infomarc.info> wrote:
+
+> Martynas Mickevičius a écrit :
+>
+> > I have written my proposal according to the discussion we had in this
+> > thread. If you want to check it out, you can find it here:
+> >
+> >
+> http://docs.google.com/Doc?docid=0AcmR3UsXFvy-ZHJ3aG1tc18zZzVodmtuZHM&hl=en
+> > <
+> http://docs.google.com/Doc?docid=0AcmR3UsXFvy-ZHJ3aG1tc18zZzVodmtuZHM&hl=en
+> >
+> >
+> > where you can comment any points worth doing that. If the editable
+> > version gets corrupted very much you can always find PDF version here:
+> >
+> > http://www.2m.lt/files/GSoC_2010_phpMyAdmin.pdf
+> >
+> > I would greatly appreciate any comments. However I will be unable to
+> > respond until the end of this week since I will be out for the Easter
+> break.
+>
+> Martynas,
+> You should not send your proposals to these places. The only proper
+> place to send your proposal in on the official interface at
+> http://socghop.appspot.com/
+>
+> Please send it there and remove it from the other places.
+>
+>
+Hm. Ok. I removed my application from the mentioned links. I will add my
+application to gsoc site.
+
+I mentioned in the "Student application : no rush please" thread that I am
+going to attach my application links to this thread and I got no negative
+response so I thought it was OK to do it. Sorry for the fuss. (:
+
+
+> --
+> Marc Delisle
+> http://infomarc.info
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 12:32:14 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC 2010 Charts]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB33D73.90108%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB33D73.90108%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC 2010 Charts]]></description>
+      <content:encoded><![CDATA[Martynas Mickevičius a écrit :
+
+> I have written my proposal according to the discussion we had in this 
+> thread. If you want to check it out, you can find it here:
+> 
+> http://docs.google.com/Doc?docid=0AcmR3UsXFvy-ZHJ3aG1tc18zZzVodmtuZHM&hl=en 
+> <http://docs.google.com/Doc?docid=0AcmR3UsXFvy-ZHJ3aG1tc18zZzVodmtuZHM&hl=en>
+> 
+> where you can comment any points worth doing that. If the editable 
+> version gets corrupted very much you can always find PDF version here:
+> 
+> http://www.2m.lt/files/GSoC_2010_phpMyAdmin.pdf
+> 
+> I would greatly appreciate any comments. However I will be unable to 
+> respond until the end of this week since I will be out for the Easter break.
+
+Martynas,
+You should not send your proposals to these places. The only proper 
+place to send your proposal in on the official interface at 
+http://socghop.appspot.com/
+
+Please send it there and remove it from the other places.
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 12:17:55 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC 2010 Charts]]></title>
+      <author>Martynas Mickevičius &lt;mmartynas@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=h2lc2cab2bb1003310510vb983523fof84db64f4b488324%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=h2lc2cab2bb1003310510vb983523fof84db64f4b488324%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC 2010 Charts]]></description>
+      <content:encoded><![CDATA[On 29 March 2010 16:27, Michal Čihař <michal@cihar.com> wrote:
+
+> Hi
+>
+> Dne Wed, 24 Mar 2010 00:04:54 +0100
+> Martynas Mickevičius <mmartynas@gmail.com> napsal(a):
+>
+> > I am not able to figure out how to use bookmarks feature in PMA. I have
+> > noticed a table in phpmyadmin DB for that. So I looked all over the place
+> of
+> > SQL query results, but could not find bookmark button.
+>
+> Bellow SQL edit textarea you can enter name of query to bookmark it.
+>
+> > Another reporting feature, which could be improved is PDF reports. I
+> would
+> > imagine that adding just a simple font size input box would render this
+> > feature far more usable.
+>
+> Adding more choices does not always improve usability. In fact it
+> usually works exactly opposite way.
+>
+> Slightly off topic, but good reasoning for actually giving less choices:
+>
+> http://www.ted.com/talks/lang/eng/barry_schwartz_on_the_paradox_of_choice.html
+>
+> > P.S. Just noticed that the PMA translation of my mother tongue,
+> Lithuanian,
+> > has not had any input for some time now. Another project to commit for
+> > translation.
+>
+> You can also translate online: https://l10n.cihar.com/
+>
+> --
+>
+
+I have written my proposal according to the discussion we had in this
+thread. If you want to check it out, you can find it here:
+
+http://docs.google.com/Doc?docid=0AcmR3UsXFvy-ZHJ3aG1tc18zZzVodmtuZHM&hl=en
+
+where you can comment any points worth doing that. If the editable version
+gets corrupted very much you can always find PDF version here:
+
+http://www.2m.lt/files/GSoC_2010_phpMyAdmin.pdf
+
+I would greatly appreciate any comments. However I will be unable to respond
+until the end of this week since I will be out for the Easter break.
+
+
+>         Michal Čihař | http://cihar.com | http://blog.cihar.com
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+>
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 12:10:15 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100331102439.3fd1f1f2%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100331102439.3fd1f1f2%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Wed, 31 Mar 2010 00:36:18 -0700
+Raj Shekhar <rajlist@rajshekhar.net> napsal(a):
+
+> In infinite wisdom Raj Shekhar <rajlist@rajshekhar.net> wrote:
+> 
+>  
+> > Let me create the class, and a driver script for that.  Once you have seen
+> > how it works, you should have an idea where it would fit.
+> 
+> Initial working version checked in at github ->
+> http://github.com/lunatech/myq_tuner (details on how to checkout/copy in
+> the readme itself)
+
+Looks good!
+
+Please do not use short open tags (<?) but full version instead (<?php).
+
+As there is not that much of output, I'd integrate this into
+server_status (some of the information is already available there).
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 08:24:39 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></title>
+      <author>Raj Shekhar &lt;rajlist@ra...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=lkg1vf13pu5.wl%25rshekhar%40yahoo-inc.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=lkg1vf13pu5.wl%25rshekhar%40yahoo-inc.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></description>
+      <content:encoded><![CDATA[In infinite wisdom Raj Shekhar <rajlist@rajshekhar.net> wrote:
+
+ 
+> Let me create the class, and a driver script for that.  Once you have seen
+> how it works, you should have an idea where it would fit.
+
+Initial working version checked in at github ->
+http://github.com/lunatech/myq_tuner (details on how to checkout/copy in
+the readme itself)
+
+Here is a sample run on my development box -
+
+ php drive.php 
+
+==========      Info    ==========
+qps       : 0.000
+TX        : 599.5 Kb
+RX        : 7.9 Kb
+Reads to Writes ratio: 100% / 0%
+Total buffers: 34.0 Mb global + 2.7 Mb per thread (100 max threads)
+
+==========      No problems detected in following       ==========
+slow queries: Slow queries: 0% (0/173)
+available connections: Highest usage of available connections: 1% 1/100
+Sorts requiring temporary tables: 0% (0 temp sorts / 2 sorts)
+Temporary tables created on disk: 0% (0 on disk / 108 total)
+Open file limit used: 2% (14/510)
+
+==========      Problems        ==========
+query cache: Query cache is disabled
+Thread cache: Thread cache is disabled
+
+==========      General tuneups ==========
+Enable the slow query log to troubleshoot bad queries
+Set thread_cache_size to 4 as a starting value
+Increase table_cache gradually to avoid file descriptor limits
+
+==========      Variable tuneups        ==========
+query_cache_size (>= 8M)
+thread_cache_size (start at 4)
+table_cache (> 64)
+
+Here is the output on a box which hosts  a few blogs/sites
+
+==========      Info    ==========
+qps       : 7.324
+TX        : 1.5 Gb
+RX        : 1.3 Gb
+Reads to Writes ratio: 99% / 1%
+Total buffers: 50.0 Mb global + 2.6 Mb per thread (150 max threads)
+
+==========      No problems detected in following       ==========
+slow queries: Slow queries: 0% (6/9 Million
+Query cache prunes per day: 0
+Sorts requiring temporary tables: 0% (0 temp sorts / 1 Million sorts)
+Thread cache hit rate: 92% (30 Thousand created / 391 Thousand connections)
+Open file limit used: 12% (128/1 Thousand)
+
+==========      Problems        ==========
+Joins performed without indexes: 26763
+Temporary tables created on disk: 44% (747 Thousand on disk / 1 Million total)
+Table cache hit rate: 0% (64 open / 87 Thousand opened)
+
+==========      General tuneups ==========
+Enable the slow query log to troubleshoot bad queries
+Reduce or eliminate persistent connections to reduce connection usage
+Adjust your join queries to always utilize indexes
+When making adjustments, make tmp_table_size/max_heap_table_size equal
+Reduce your SELECT DISTINCT queries without LIMIT clauses
+Increase table_cache gradually to avoid file descriptor limits
+
+==========      Variable tuneups        ==========
+Highest connection usage: 100%  151/150
+max_connections (> 150)
+wait_timeout (< 150)
+interactive_timeout (< 28800)
+Query cache efficiency: 0.0% (0 cached / 8 Million selects)
+join_buffer_size (> 128.0 Kb, or always use indexes with joins)
+tmp_table_size (> 32 Mib)
+max_heap_table_size (> 16 Mib)
+
+I am working on getting engine stats and calculating tuneups based on
+that.  Michal, let me know where do you think this can fit in and any
+other thoughts anyone has about this. 
+
+Thanks.
+-- 
+Raj Shekhar
+-
+If there's anything more important than my ego around, I want it
+caught and shot now.
+- 
+Read the latest at my blog: "casio's g-shock watch" <http://rajshekhar.net/blog/archives/360-casios-g-shock-watch.html>
+
+
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 07:36:18 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Ninad Pundalik &lt;ninadsp16289@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=j2i1ec5f42c1003302059oca60ed33jb4a9206666744366%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=j2i1ec5f42c1003302059oca60ed33jb4a9206666744366%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Hi,
+
+I've narrowed down the javascript code that is conflicting with my
+jQuery code for paginating a table's contents to one particular line
+in PMA_generate_slider_effect() in libraries/common.lib.php.  The line
+is:
+
+document.write('<div id="<?php echo $id; ?>" <?php echo
+$GLOBALS['cfg']['InitialSlidersState'] == 'closed' ? ' style="display:
+none;"' : ''; ?>>');
+
+If I'm not wrong, the div is being generated on the fly with
+javascript, so that it can b backward compatible in browsers where
+javascript is disabled.  In that case, we could use jQuery itself to
+insert that element, instead of document.write().  I'll go ahead and
+try that, but someone please confirm this.  Once this is fixed, I'll
+be able to submit a patch to Sourceforge.
+
+Marc, you might know about this better :).
+
+Ninad S. Pundalik
+Twitter: @ni_nad | Identica : @ninad | http://ninadpundalik.co.cc/blog
+GPG Key Fingerprint: 2DF7 B856 C75E C9F9 0504 C0EF D456 1946 7C45 2C69
+
+
+]]></content:encoded>
+      <pubDate>Wed, 31 Mar 2010 03:59:21 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Ninad Pundalik &lt;ninadsp16289@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=h2i1ec5f42c1003301603ua6814830ya88e0dba8106ce40%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=h2i1ec5f42c1003301603ua6814830ya88e0dba8106ce40%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Hi,
+
+On 31 March 2010 04:05, Rohit Kalhans <rohit.kalhans@gmail.com> wrote:
+> forgot to tell kindly look at other places as well like line no 122 onwards
+Thanx for ^^ !  I had commented out the javascript code that appears
+at the beginning before, and checked it out.  But, it did not help.
+I'd missed this extra jQuery snippet, even though I remembered seeing
+at it and realising that it is one of Marc's recent additions and that
+it could be conflicting.  As of now, I've commented out that snippet
+and got it partly working, just need to remove the right divs and
+replace them with the content that the AJAX request returned.  Hope to
+get a patch in soon. :)
+
+Ninad S. Pundalik
+Twitter: @ni_nad | Identica : @ninad | http://ninadpundalik.co.cc/blog
+GPG Key Fingerprint: 2DF7 B856 C75E C9F9 0504 C0EF D456 1946 7C45 2C69
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 23:03:19 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Rohit Kalhans &lt;rohit.kalhans@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=o2k24ded88d1003301535h5a58cf15zafe3d7615087d893%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=o2k24ded88d1003301535h5a58cf15zafe3d7615087d893%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[On Wed, Mar 31, 2010 at 3:56 AM, Rohit Kalhans <rohit.kalhans@gmail.com>wrote:
+
+>
+>
+> On Wed, Mar 31, 2010 at 2:40 AM, Ninad Pundalik <ninadsp16289@gmail.com>wrote:
+>
+>> Hi,
+>>
+>> As of now, my progress in trying to paginate the contents of a table
+>> is that I have successfully written a jQuery snippet which modifies
+>> the behaviour of the '>' and '>>' buttons to make an AJAX request.  I
+>> have suitably modified the output of sql.php to print only the html
+>> content of the table ( i.e. only the content generated by
+>> PMA_displayTable() ), the SQL query and the Profiling Result.
+>>
+>
+>> However, I am right now facing issues in appending the HTML returned
+>> in the AJAX query. The moment I append the output to the DOM, the right
+>
+> frame (frame_content) goes completely blank, and Firefox gets stuck in a
+>
+>  'Loading' state, while Firebug does not show any such request being made.
+>
+>
+> Thats because a JavaScript function you called somewhere is going in an
+> infinite loop ( or may be object it is dealing with is not found, like a div
+> tag referenced by its id). I guess its the CDATA JavaScript being sent in
+> the response line no 3. You cannot execute the JavaScript returned in a
+> response without using the eval function. I would suggest you use JSON as
+> the response form for that purpose.
+>
+>
+
+forgot to tell kindly look at other places as well like line no 122 onwards
+for JQuery code snippets.
+
+
+>  Could someone please tell me where I am going
+>> wrong?
+>>
+>> For reference, I've pasted the output of sql.php here:
+>> http://pastebin.org/126332
+>>
+>> Ninad S. Pundalik
+>> Twitter: @ni_nad | Identica : @ninad | http://ninadpundalik.co.cc/blog
+>> GPG Key Fingerprint: 2DF7 B856 C75E C9F9 0504 C0EF D456 1946 7C45 2C69
+>>
+>>
+>> ------------------------------------------------------------------------------
+>> Download Intel&#174; Parallel Studio Eval
+>> Try the new software tools for yourself. Speed compiling, find bugs
+>> proactively, and fine-tune applications for parallel performance.
+>> See why Intel Parallel Studio got high marks during beta.
+>> http://p.sf.net/sfu/intel-sw-dev
+>> _______________________________________________
+>> Phpmyadmin-devel mailing list
+>> Phpmyadmin-devel@lists.sourceforge.net
+>> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>>
+>
+>
+>
+> --
+> Rohit Kalhans
+> homepage: http://rohit-kalhans.co.cc
+> BLOG: http://13lackburn.blogspot.com
+>
+
+
+
+-- 
+Rohit Kalhans
+homepage: http://rohit-kalhans.co.cc
+BLOG: http://13lackburn.blogspot.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 22:35:03 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Rohit Kalhans &lt;rohit.kalhans@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=r2o24ded88d1003301526j220711f3x861b52dd70352729%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=r2o24ded88d1003301526j220711f3x861b52dd70352729%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[On Wed, Mar 31, 2010 at 2:40 AM, Ninad Pundalik <ninadsp16289@gmail.com>wrote:
+
+> Hi,
+>
+> As of now, my progress in trying to paginate the contents of a table
+> is that I have successfully written a jQuery snippet which modifies
+> the behaviour of the '>' and '>>' buttons to make an AJAX request.  I
+> have suitably modified the output of sql.php to print only the html
+> content of the table ( i.e. only the content generated by
+> PMA_displayTable() ), the SQL query and the Profiling Result.
+>
+
+> However, I am right now facing issues in appending the HTML returned
+> in the AJAX query. The moment I append the output to the DOM, the right
+
+frame (frame_content) goes completely blank, and Firefox gets stuck in a
+
+ 'Loading' state, while Firebug does not show any such request being made.
+
+
+Thats because a JavaScript function you called somewhere is going in an
+infinite loop ( or may be object it is dealing with is not found, like a div
+tag referenced by its id). I guess its the CDATA JavaScript being sent in
+the response line no 3. You cannot execute the JavaScript returned in a
+response without using the eval function. I would suggest you use JSON as
+the response form for that purpose.
+
+
+>  Could someone please tell me where I am going
+> wrong?
+>
+> For reference, I've pasted the output of sql.php here:
+> http://pastebin.org/126332
+>
+> Ninad S. Pundalik
+> Twitter: @ni_nad | Identica : @ninad | http://ninadpundalik.co.cc/blog
+> GPG Key Fingerprint: 2DF7 B856 C75E C9F9 0504 C0EF D456 1946 7C45 2C69
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+
+
+
+-- 
+Rohit Kalhans
+homepage: http://rohit-kalhans.co.cc
+BLOG: http://13lackburn.blogspot.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 22:26:26 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB276FD.5090901%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB276FD.5090901%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></description>
+      <content:encoded><![CDATA[ANKIT GUPTA a écrit :
+> Hi Marc,
+> 
+> i have already tried that command but it is also not working,i am getting
+> following error
+> fatal:unable to connect a socket (connection timed out).
+
+I hope you can find a machine on which you can git ...
+> 
+> I also want to discuss about the design for visual query designer,i have
+> thought of some points like
+> to add an  option button  with each  selected attribute of table where we
+> will have  a menu bar with following fields GROUP ,ORDER ,Rename and Where.
+>    As user selects option from this menu bar other  boxes/options  will
+> appear as the case is.
+
+This would be easier to discuss with some mock-up examples.
+> 
+> i am planing to implement select from clause,joins,group by order by and
+> various aggregate function in query builder.you can check further details in
+> my Gscoc Application .
+> 
+>  please suggest any other functionality which we can add or any additional
+> features in the design.
+> 
+> Thanks,
+> Ankit Gupta
+
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 22:11:09 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] presenting proposed layout and theme]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB27533.8070707%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB27533.8070707%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] presenting proposed layout and theme]]></description>
+      <content:encoded><![CDATA[Nissim Salinas a écrit :
+> To PMA Team,
+> 
+> I'm the guy who asked about how to send a zip with screen shots and
+> an RTF file. My gratitude to Mr. Cihar for his answer, suggesting to
+> use a 3rd party image sharing site.
+> 
+> My question: surely there must be a simpler way. I can track an
+> Amazon package that is traveling halfway around the world, but I
+> can't submit a few images for your review and comments? No
+> attachments?
+
+I think that as a courtesy to subscribers of this list, there should be
+no attached files.
+
+However you could use our feature requests tracker or patches tracker
+and attach your files there.
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 22:03:31 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin-translators] no more official
+	translators?]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330233400.4a291567%40nutt.cihar.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330233400.4a291567%40nutt.cihar.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin-translators] no more official
+	translators?]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Tue, 30 Mar 2010 12:10:15 -0400
+Marc Delisle <marc@infomarc.info> napsal(a):
+
+> now that there is an online translation server, should we drop the 
+> notion of an official translator per language?
+> 
+> I know that translation can be restricted per language on the 
+> translation server, but it is done in practice?
+
+I think it should rather depend on the translator if he wants to lock
+in the translation from other contributors.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 21:34:00 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></title>
+      <author>Ninad Pundalik &lt;ninadsp16289@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=1ec5f42c1003301410s50997864hd2ccfc9c664d4eb2%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=1ec5f42c1003301410s50997864hd2ccfc9c664d4eb2%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Passing POST variables]]></description>
+      <content:encoded><![CDATA[Hi,
+
+As of now, my progress in trying to paginate the contents of a table
+is that I have successfully written a jQuery snippet which modifies
+the behaviour of the '>' and '>>' buttons to make an AJAX request.  I
+have suitably modified the output of sql.php to print only the html
+content of the table ( i.e. only the content generated by
+PMA_displayTable() ), the SQL query and the Profiling Result.
+
+However, I am right now facing issues in appending the HTML returned
+in the AJAX query.  The moment I append the output to the DOM, the
+right frame (frame_content) goes completely blank, and Firefox gets
+stuck in a 'Loading' state, while Firebug does not show any such
+request being made.  Could someone please tell me where I am going
+wrong?
+
+For reference, I've pasted the output of sql.php here:
+http://pastebin.org/126332
+
+Ninad S. Pundalik
+Twitter: @ni_nad | Identica : @ninad | http://ninadpundalik.co.cc/blog
+GPG Key Fingerprint: 2DF7 B856 C75E C9F9 0504 C0EF D456 1946 7C45 2C69
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 21:10:39 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+	GSoC 2010]]></title>
+      <author>ANKIT GUPTA &lt;ankitatbits@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=34c4ff31003301036w6a684eedvaca3bd66e9939109%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=34c4ff31003301036w6a684eedvaca3bd66e9939109%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+	GSoC 2010]]></description>
+      <content:encoded><![CDATA[Hi Marc,
+
+i have already tried that command but it is also not working,i am getting
+following error
+fatal:unable to connect a socket (connection timed out).
+
+I also want to discuss about the design for visual query designer,i have
+thought of some points like
+to add an  option button  with each  selected attribute of table where we
+will have  a menu bar with following fields GROUP ,ORDER ,Rename and Where.
+   As user selects option from this menu bar other  boxes/options  will
+appear as the case is.
+
+i am planing to implement select from clause,joins,group by order by and
+various aggregate function in query builder.you can check further details in
+my Gscoc Application .
+
+ please suggest any other functionality which we can add or any additional
+features in the design.
+
+Thanks,
+Ankit Gupta
+
+
+On Tue, Mar 30, 2010 at 7:27 PM, Marc Delisle <marc@infomarc.info> wrote:
+
+> ANKIT GUPTA a écrit :
+> > yes maybe you are right ,it is better not to see those products.
+> >
+> > I was planning to get started and get familiarized with the latest
+> > "master" git ,
+> > i want to start developing and provide u with some deliverable as soon
+> > as possible.
+> > but presently i am on my college's network ,the port 22 needed for the
+> > git is blocked in here.
+> > so am not able to access it.
+> >
+> > Is there any  way to solve this problem.??
+> >
+> > Thanks,
+>
+> In http://wiki.phpmyadmin.net/pma/Devel:Git there are two commands in
+> the "obtaining the code" section, try the one which does not use "ssh".
+>
+> --
+> Marc Delisle
+> http://infomarc.info
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 17:36:43 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Documentation.html]]></title>
+      <author>Dieter Adriaenssens &lt;dieter.adriaenssens@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=8993c5f81003301011r53c231a8oa4f28a19790d2b10%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=8993c5f81003301011r53c231a8oa4f28a19790d2b10%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Documentation.html]]></description>
+      <content:encoded><![CDATA[-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
+
+
+
+2010/3/29 Marc Delisle :
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.9 (GNU/Linux)
+Comment: Use GnuPG with Firefox : http://getfiregpg.org (Version: 0.7.10)
+
+iEYEARECAAYFAkuyMLQACgkQZGJbiPqZM6Nl4ACglX6fnX59Gj0GGJIw8BVgW/+v
+2I0AnRtc2We0mOeJz7zPTBE9vRzRySZw
+=D+hX
+-----END PGP SIGNATURE-----
+
+>
+> when I wrote "change it yourself in QA_3_3 and merge to master" I meant
+> the "phpmyadmin" repository, not the "website" one. There is no distinct
+> Documentation.html to maintain in a second repository.
+
+My bad, I overlooked the Documentation.html file in the phpmyadmin
+project. I was looking for a doc(umentation) folder, and only found
+the documenation-gsoc folder, so I started looking elsewhere.
+
+Greets,
+
+Dieter
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 17:11:17 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] presenting proposed layout and theme]]></title>
+      <author>Nissim Salinas &lt;nmsalinas@ya...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=426815.88673.qm%40web30802.mail.mud.yahoo.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=426815.88673.qm%40web30802.mail.mud.yahoo.com</guid>
+      <description><![CDATA[[Phpmyadmin-devel] presenting proposed layout and theme]]></description>
+      <content:encoded><![CDATA[To PMA Team,
+
+I'm the guy who asked about how to send a zip with screen shots and an RTF file. My gratitude to Mr. Cihar for his answer, suggesting to use a 3rd party image sharing site.
+
+My question: surely there must be a simpler way. I can track an Amazon package that is traveling halfway around the world, but I can't submit a few images for your review and comments? No attachments?
+
+I apologize in advance if it reads like I'm being persistent, that is not my intention. However, there should be a simpler way for submitting visually-oriented proposals. The PMA team may actually like what I send. I'm just trying to see if I can contribute in a small way, but that would require a fluid exchange of ideas, an electronic conversation if you will. How do people submit screen-shots or themes or anything that is not ASCII text in an email? We have to have an efficient way, or establish one.
+
+If this email aggravates the team, please don't answer it, and I won't pursue the matter.
+
+Again, thank you for PMA, and thank you for all your hard work.
+
+Best Regards,
+Nissim
+
+
+
+      
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 16:44:55 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] no more official translators?]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB22267.1070403%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB22267.1070403%40infomarc.info</guid>
+      <description><![CDATA[[Phpmyadmin-devel] no more official translators?]]></description>
+      <content:encoded><![CDATA[Hi,
+
+now that there is an online translation server, should we drop the 
+notion of an official translator per language?
+
+I know that translation can be restricted per language on the 
+translation server, but it is done in practice?
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 16:10:15 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330165802.2edbb3c1%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330165802.2edbb3c1%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Tue, 30 Mar 2010 14:49:40 +0000 (UTC)
+Raj Shekhar <rajlist@rajshekhar.net> napsal(a):
+
+> Let me create the class, and a driver script for that.  Once you have seen
+> how it works, you should have an idea where it would fit.
+
+Great, thanks!
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 14:58:02 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></title>
+      <author>Raj Shekhar &lt;rajlist@ra...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=loom.20100330T164724-645%40post.gmane.org</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=loom.20100330T164724-645%40post.gmane.org</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></description>
+      <content:encoded><![CDATA[> We already have a feature request for including such thing into
+> server status :-).
+
+
+
+Excellent.
+
+> So yes, we're definitely interested (please note that your class needs
+> to be licensed under GPLv2 compatible license so that it can be
+> included in phpMyAdmin).
+
+
+Not an issue.  I will put it under whatever license PMA is.
+
+> The only question is whether to integrate it into some existing page
+> (what I would prefer) or to create new one.
+
+Let me create the class, and a driver script for that.  Once you have seen
+how it works, you should have an idea where it would fit.
+
+Thanks!
+
+
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 14:49:40 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] git and $Id$ expansion]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330164211.46300882%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330164211.46300882%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] git and $Id$ expansion]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Tue, 30 Mar 2010 10:36:21 -0400
+Marc Delisle <marc@infomarc.info> napsal(a):
+
+> Do you plan to remove the lines yourself?
+
+Not right now, I just wanted to know other opinions.
+
+I personally don't see anything good on changing files on checkout just
+add some sort of id into it (it's clear case of mixing metadata and
+data).
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 14:42:11 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] git and $Id$ expansion]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB20C65.9030806%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB20C65.9030806%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] git and $Id$ expansion]]></description>
+      <content:encoded><![CDATA[Michal Čihař a écrit :
+> Hi
+> 
+> Dne Tue, 9 Mar 2010 12:04:43 +0100
+> Michal Čihař <michal@cihar.com> napsal(a):
+> 
+>> Well I'd prefer to drop keywords completely because I really did not
+>> find them helpful.
+>>
+>>> It does not support any other CVS keywords however, so those we can
+>>> remove.
+>> You can implement anything using filters and/or use git archive $Format
+>> feature.
+> 
+> Any other comments on $Id$ expansion?
+
+Do you plan to remove the lines yourself?
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 14:36:21 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></title>
+      <author>&lt;rajlist@ra...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=65417.99.31.208.116.1269959731.squirrel%40bart.rajshekhar.net</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=65417.99.31.208.116.1269959731.squirrel%40bart.rajshekhar.net</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></description>
+      <content:encoded><![CDATA[> Hi
+>
+> Dne Tue, 30 Mar 2010 13:58:58 +0000 (UTC)
+> Raj Shekhar <rajlist@rajshekhar.net> napsal(a):
+me know what you think.
+>
+> We already have a feature request for including such thing into
+> server status :-).
+>
+> https://sourceforge.net/tracker/?func=detail&aid=1450298&group_id=23067&atid=377411
+>
+
+Excellent.
+
+> So yes, we're definitely interested (please note that your class needs
+> to be licensed under GPLv2 compatible license so that it can be
+> included in phpMyAdmin).
+>
+
+Not an issue.  I will put it under whatever license PMA is.
+
+> The only question is whether to integrate it into some existing page
+> (what I would prefer) or to create new one.
+
+Let me create the class, and a driver script for that.  Once you have seen
+how it works, you should have an idea where it would fit.
+
+Thanks!
+
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 14:35:31 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] git and $Id$ expansion]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330163449.0041f81b%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330163449.0041f81b%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] git and $Id$ expansion]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Tue, 9 Mar 2010 12:04:43 +0100
+Michal Čihař <michal@cihar.com> napsal(a):
+
+> Well I'd prefer to drop keywords completely because I really did not
+> find them helpful.
+> 
+> > It does not support any other CVS keywords however, so those we can
+> > remove.
+> 
+> You can implement anything using filters and/or use git archive $Format
+> feature.
+
+Any other comments on $Id$ expansion?
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 14:34:49 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330161146.5468cbf8%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330161146.5468cbf8%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Tue, 30 Mar 2010 13:58:58 +0000 (UTC)
+Raj Shekhar <rajlist@rajshekhar.net> napsal(a):
+
+> I wanted to see if there is some interest from the PMA developers in
+> integerating this into PMA.  Currently there are tabs to show the
+> variables and status counters (server_status.php and
+> server_variables.php).  I was thinking of a server_tuneups.php script
+> that would print out tuning recommendations.
+> 
+> This is not a GSoC project.
+> 
+> Let me know what you think.
+
+We already have a feature request for including such thing into
+server status :-).
+
+https://sourceforge.net/tracker/?func=detail&aid=1450298&group_id=23067&atid=377411
+
+So yes, we're definitely interested (please note that your class needs
+to be licensed under GPLv2 compatible license so that it can be
+included in phpMyAdmin).
+
+The only question is whether to integrate it into some existing page
+(what I would prefer) or to create new one.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 14:11:46 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></title>
+      <author>Raj Shekhar &lt;rajlist@ra...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=loom.20100330T155816-613%40post.gmane.org</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=loom.20100330T155816-613%40post.gmane.org</guid>
+      <description><![CDATA[[Phpmyadmin-devel] RFC: Integerating mysqltuner into phpmyadmin]]></description>
+      <content:encoded><![CDATA[MySQLTuner is a script written in Perl that will assist you with your
+MySQL configuration and make recommendations for increased performance
+and stability. Within seconds, it will display statistics about your
+MySQL installation and the areas where it can be improved.  More info
+at <http://blog.mysqltuner.com/faq/>
+
+
+I am currently porting this script into a PHP class, that will have
+these public functions -
+- constructor
+- analyze
+- get_variable_tuneups
+- get_general_tuneups
+- get_engine_tuneups (not yet ready)
+
+I wanted to see if there is some interest from the PMA developers in
+integerating this into PMA.  Currently there are tabs to show the
+variables and status counters (server_status.php and
+server_variables.php).  I was thinking of a server_tuneups.php script
+that would print out tuning recommendations.
+
+This is not a GSoC project.
+
+Let me know what you think.
+
+Thanks,
+Raj Shekhar
+
+
+
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 13:58:58 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></title>
+      <author>Marc Delisle &lt;marc@in...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB20366.3030003%40infomarc.info</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=4BB20366.3030003%40infomarc.info</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] [Phpmyadmin] Interested in Participating in
+ GSoC 2010]]></description>
+      <content:encoded><![CDATA[ANKIT GUPTA a écrit :
+> yes maybe you are right ,it is better not to see those products.
+> 
+> I was planning to get started and get familiarized with the latest 
+> "master" git ,
+> i want to start developing and provide u with some deliverable as soon 
+> as possible.
+> but presently i am on my college's network ,the port 22 needed for the 
+> git is blocked in here.
+> so am not able to access it.
+> 
+> Is there any  way to solve this problem.??
+> 
+> Thanks,
+
+In http://wiki.phpmyadmin.net/pma/Devel:Git there are two commands in 
+the "obtaining the code" section, try the one which does not use "ssh".
+
+-- 
+Marc Delisle
+http://infomarc.info
+
+
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 13:57:58 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Student application : no rush please]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330155714.72bd2bbe%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330155714.72bd2bbe%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Student application : no rush please]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Tue, 30 Mar 2010 15:37:02 +0200
+Martynas Mickevičius <mmartynas@gmail.com> napsal(a):
+
+> I have provided couple patches to PMA. So maybe it would be better to
+> provide a link to my application draft in the mailing list where I discussed
+> ideas. I would provide all the links to my patches in my application. Is
+> that reasonable?
+
+Yes, please list it in open source contributions as specified in the
+template. I've just updated the application template to provide
+explicit question about contributions to phpMyAdmin.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 13:57:14 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Student application : no rush please]]></title>
+      <author>Martynas Mickevičius &lt;mmartynas@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=c2cab2bb1003300637s2e77e9d7m2b5233f59d40fd04%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=c2cab2bb1003300637s2e77e9d7m2b5233f59d40fd04%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Student application : no rush please]]></description>
+      <content:encoded><![CDATA[On 29 March 2010 13:45, Michal Čihař <michal@cihar.com> wrote:
+
+> Hi
+>
+> Dne Sun, 28 Mar 2010 07:51:42 -0400
+> Marc Delisle <marc@infomarc.info> napsal(a):
+>
+> > The student application period is from March 29, 19:00 UTC to April 9,
+> > 19:00 UTC. As an advice to students, please do not rush to send a
+> proposal.
+> >
+> > In particular, you really want to put in your proposal links to our
+> > Patches tracker where you submitted phpMyAdmin code modifications.
+> > Remember, we cannot guess your SourceForge.net user name so links will
+> > be clearer.
+>
+> Also you should be able to update the application till the deadline, so
+> even if you submit it right now, fill in remaining details. We might
+> ask you questions meanwhile to improve the application, however final
+> evaluation will be done after deadline, so the final state of your
+> application is important.
+>
+>
+I have provided couple patches to PMA. So maybe it would be better to
+provide a link to my application draft in the mailing list where I discussed
+ideas. I would provide all the links to my patches in my application. Is
+that reasonable?
+
+
+> --
+>        Michal Čihař | http://cihar.com | http://blog.cihar.com
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+>
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 13:37:02 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] PMA related question to Mr. Delisle]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330132144.2dcbf140%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330132144.2dcbf140%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] PMA related question to Mr. Delisle]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Mon, 29 Mar 2010 21:01:33 -0700 (PDT)
+Nissim Salinas <nmsalinas@yahoo.com> napsal(a):
+
+> I would like to send you a few screen-shots in jpg format, of a proposed theme and layout. I know that [a] your email scrubs attachments, and [b] it's better not to email you directly.
+> 
+> So, how do I send you a zip with a few jpg's and a text or rtf file explaining the design and asking a few questions?
+
+You can also use services like http://imageshack.us/ to share images
+without polluting mail.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 11:21:44 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSoC AJAXifying phpMyAdmin with jQuery]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330132055.4a56c92f%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330132055.4a56c92f%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSoC AJAXifying phpMyAdmin with jQuery]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Mon, 29 Mar 2010 17:38:17 -0500
+Emily Brand <eabrand@gmail.com> napsal(a):
+
+> I will use jQuery to essentially make 90% of the administration ajax-style
+> so that not as many reloads will have to occur throughout the site. Speed is
+> quite a problem in phpMyAdmin at the moment, especially while running
+> locally (at least on my computer). I am proposing not only switching the top
+> navigation menu over to jQuery, but also editing table structures, searching
+> tables, building queries, inserting new fields and new rows, and much more.
+> I will also allow the site to degrade nicely if a user does not have
+> javascript enabled.
+> 
+> I am planning on converting the following features to AJAX-style coding:
+> Top Navigation Bar
+> Adding Fields to tables
+> Validating the inserted fields
+> Inserting/updating rows in tables
+> Search Function
+> Query Builder Function
+> primary/unique/index keys
+> Empty/Drop/Delete
+
+Please remember that all functions need to work also with disabled
+javascript.
+
+> Does anyone have any more suggestions of things I can add to my timeline?
+
+No special suggestion, just follow
+http://wiki.phpmyadmin.net/pma/GSoC_2010_Student_Checklist
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 11:20:55 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330124906.75cd08c0%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330124906.75cd08c0%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Tue, 30 Mar 2010 15:15:57 +0530
+Kishanthan Thangarajah <kshanth2101@gmail.com> napsal(a):
+
+> Do you have any suggestion on creating a postscript file other than what i
+> have mentioned above?
+> If so can you direct me to those resources.
+
+I don't have any experiences with this. Quick googling reveals some
+links:
+
+http://www.koders.com/php/fidEA8BDDEB11481C34BA2A0775B0E9AF5DAB0AC95B.aspx
+http://php.net/manual/en/book.ps.php
+
+
+> Using existing libraries will have an advantage of writing small amount of
+> code , so i prefer to use some external libraries for this project.
+
+As long as you find something properly maintained and in good shape,
+there is no problem in including external libraries.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 10:49:06 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Interested in Participating in GSoC 2010]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330124546.0639fc78%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330124546.0639fc78%40rincewind.suse.cz</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Interested in Participating in GSoC 2010]]></description>
+      <content:encoded><![CDATA[Hi
+
+Dne Tue, 30 Mar 2010 01:44:53 -0700
+Yian Shang <yian.shang@gmail.com> napsal(a):
+
+> >
+> > Well my implementation would consists of base class for rendering the
+> > schema with virtual methods for rendering the primitives (box, line,
+> > text, ...) and subclasses for each format which would actually
+> > implement these methods.
+> >
+> 
+> I think that makes sense. Would the pdf schema export eventually also be
+> converted to use this framework? (Or is it better left alone since it
+> already works?)
+
+I think it would be easier to first convert it. We don't want to
+duplicate the code or have need to make the changes in two different
+code bases.
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 10:45:46 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></title>
+      <author>Kishanthan Thangarajah &lt;kshanth2101@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=z2g290aec121003300245u9096f065m72b2d89061c2256c%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=z2g290aec121003300245u9096f065m72b2d89061c2256c%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] GSOC - Export relations scheme other formats]]></description>
+      <content:encoded><![CDATA[Hi Michal,
+Thanks for the information.
+
+On Tue, Mar 30, 2010 at 1:55 PM, Michal Čihař <michal@cihar.com> wrote:
+
+> Hi
+>
+> Dne Tue, 30 Mar 2010 11:39:51 +0530
+> Kishanthan Thangarajah <kshanth2101@gmail.com> napsal(a):
+>
+> > I thought of implementing classes for each format with some methods for
+> > rendering the primitives (line, text, box, etc) and subclasses for each
+> > format to implement these methods.
+> > I also think that 'creating a file with known format and converting that
+> to
+> > EPS' would cause more trouble.
+> > We can use the PostScript Document Creation Module of PHP to create
+> > postscript files.
+>
+> I don't know how good is it in drawing as it is something you don't
+> need much in documentation.
+>
+
+Do you have any suggestion on creating a postscript file other than what i
+have mentioned above?
+If so can you direct me to those resources.
+
+
+>
+> > And from the external libraries which i have mentioned, i thought of
+> using
+> > the DOM extension of PHP for the creation of SVG files.
+> > Since SVG is a XML format it will be easy to operate on it with DOM
+> > extension.
+>
+> Using DOM can help, generating XML manually is also an option (we do
+> this for XML and OpenDocument exports.
+>
+> > >From what i have learnt by going through the source is that exporting
+> > files(eg - PDF) are done on-the-fly without requiring external
+> extensions.
+> > Are you suggesting me to do like that for these formats?
+>
+> Well if it can be done with reasonably small amount of code, then it is
+> prefered. If you would have to implement lot of code, it is better to
+> use existing libraries.
+>
+> Using existing libraries will have an advantage of writing small amount of
+code , so i prefer to use some external libraries for this project.
+
+Thanks,
+-- 
+Kishanthan.T
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 09:45:57 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[[Phpmyadmin-devel] Gettext now used in master]]></title>
+      <author>Michal Čihař &lt;michal@ci...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330105042.23450a3c%40rincewind.suse.cz</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=20100330105042.23450a3c%40rincewind.suse.cz</guid>
+      <description><![CDATA[[Phpmyadmin-devel] Gettext now used in master]]></description>
+      <content:encoded><![CDATA[Hi all
+
+as announced earlier, phpMyAdmin now uses gettext for translations in
+master branch. As this changed quite a lot how the translations are
+being used, I've written down guides for it to our wiki.
+
+If you want to translate, you can find the information here:
+
+http://wiki.phpmyadmin.net/pma/Devel:Gettext_for_translators
+
+And for the developers it is available here:
+
+http://wiki.phpmyadmin.net/pma/Devel:Gettext_for_developers
+
+-- 
+	Michal Čihař | http://cihar.com | http://blog.cihar.com
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 08:50:42 +0000</pubDate>
+    </item>
+    <item>
+      <title><![CDATA[Re: [Phpmyadmin-devel] Interested in Participating in GSoC 2010]]></title>
+      <author>Yian Shang &lt;yian.shang@gm...&gt;</author>
+      <link>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=a89e41b11003300144s43132f3bt7c37b21dd8c6dd38%40mail.gmail.com</link>
+      <guid>http://sourceforge.net/mailarchive/forum.php?forum_name=phpmyadmin-devel&amp;thread_name=a89e41b11003300144s43132f3bt7c37b21dd8c6dd38%40mail.gmail.com</guid>
+      <description><![CDATA[Re: [Phpmyadmin-devel] Interested in Participating in GSoC 2010]]></description>
+      <content:encoded><![CDATA[>
+> Well my implementation would consists of base class for rendering the
+> schema with virtual methods for rendering the primitives (box, line,
+> text, ...) and subclasses for each format which would actually
+> implement these methods.
+>
+
+I think that makes sense. Would the pdf schema export eventually also be
+converted to use this framework? (Or is it better left alone since it
+already works?)
+
+Yian
+
+
+On Mon, Mar 29, 2010 at 4:53 AM, Michal Čihař <michal@cihar.com> wrote:
+
+> Hi
+>
+> Dne Mon, 29 Mar 2010 02:16:34 -0700
+> Yian Shang <yian.shang@gmail.com> napsal(a):
+>
+> > So since SVG and EPS are both just XML files
+>
+> No, EPS is text format, not a XML. See
+> <http://www.tailrecursive.org/postscript/eps.html>.
+>
+> > , would using PHP's DOM
+> > libraries to generate them be best? And also, since phpMyAdmin is
+> rewriting
+> > things in object-oriented php, would that be the way in which elements of
+> > pdf_schema.php are combined into a generic schema generating class and
+> then
+> > used by other formats?
+>
+> Well my implementation would consists of base class for rendering the
+> schema with virtual methods for rendering the primitives (box, line,
+> text, ...) and subclasses for each format which would actually
+> implement these methods.
+>
+> --
+>        Michal Čihař | http://cihar.com | http://blog.cihar.com
+>
+>
+> ------------------------------------------------------------------------------
+> Download Intel&#174; Parallel Studio Eval
+> Try the new software tools for yourself. Speed compiling, find bugs
+> proactively, and fine-tune applications for parallel performance.
+> See why Intel Parallel Studio got high marks during beta.
+> http://p.sf.net/sfu/intel-sw-dev
+> _______________________________________________
+> Phpmyadmin-devel mailing list
+> Phpmyadmin-devel@lists.sourceforge.net
+> https://lists.sourceforge.net/lists/listinfo/phpmyadmin-devel
+>
+>
+]]></content:encoded>
+      <pubDate>Tue, 30 Mar 2010 08:44:53 +0000</pubDate>
+    </item>
+    <doap:Project xmlns:doap="http://usefulinc.com/ns/doap#"><doap:name>phpMyAdmin</doap:name><doap:description>phpMyAdmin is a tool written in PHP intended to handle the administration of MySQL over the Web. Currently it can create and drop databases, create/drop/alter tables, delete/edit/add fields, execute any SQL statement, manage keys on fields.</doap:description></doap:Project>
+    <sf:next xmlns:sf="http://sourceforge.net/api/sfelements.rdf#">/api/message/index/list-name/phpmyadmin-devel/limit/100/offset/1100/rss</sf:next>
+  </channel>
+</rss>

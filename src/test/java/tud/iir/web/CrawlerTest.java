@@ -1,6 +1,5 @@
 package tud.iir.web;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 import tud.iir.control.AllTests;
 import tud.iir.helper.XPathHelper;
@@ -50,33 +49,33 @@ public class CrawlerTest extends TestCase {
 
     public void testMakeFullURL() {
 
-        Assert.assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de", "", "page.html"));
-        Assert.assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de", null, "page.html"));
-        Assert.assertEquals("http://www.xyz.de/page.html",
+        assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de", "", "page.html"));
+        assertEquals("http://www.xyz.de/page.html", Crawler.makeFullURL("http://www.xyz.de", null, "page.html"));
+        assertEquals("http://www.xyz.de/page.html",
                 Crawler.makeFullURL("http://www.xyz.de/index.html", "", "page.html"));
-        Assert.assertEquals("http://www.xyz.de/page.html",
+        assertEquals("http://www.xyz.de/page.html",
                 Crawler.makeFullURL("http://www.xyz.de/index.html", "/directory", "/page.html"));
-        Assert.assertEquals("http://www.xyz.de/directory/page.html",
+        assertEquals("http://www.xyz.de/directory/page.html",
                 Crawler.makeFullURL("http://www.xyz.de/index.html", "/directory", "./page.html"));
-        Assert.assertEquals("http://www.xyz.de/directory/page.html",
+        assertEquals("http://www.xyz.de/directory/page.html",
                 Crawler.makeFullURL("http://www.xyz.de/index.html", "/directory/directory", "../page.html"));
 
-        Assert.assertEquals("http://www.abc.de/page.html",
+        assertEquals("http://www.abc.de/page.html",
                 Crawler.makeFullURL("http://www.xyz.de", "", "http://www.abc.de/page.html"));
-        Assert.assertEquals("http://www.abc.de/page.html",
+        assertEquals("http://www.abc.de/page.html",
                 Crawler.makeFullURL("http://www.xyz.de", "http://www.abc.de/", "/page.html"));
 
-        Assert.assertEquals("http://www.example.com/page.html",
+        assertEquals("http://www.example.com/page.html",
                 Crawler.makeFullURL("/some/file/path.html", "http://www.example.com/page.html"));
-        Assert.assertEquals("", Crawler.makeFullURL("http://www.xyz.de", "mailto:example@example.com"));
+        assertEquals("", Crawler.makeFullURL("http://www.xyz.de", "mailto:example@example.com"));
 
-        Assert.assertEquals("http://www.example.com/page.html",
+        assertEquals("http://www.example.com/page.html",
                 Crawler.makeFullURL(null, null, "http://www.example.com/page.html"));
 
         // when no linkUrl is supplied, we cannot determine the full URL, so just return an empty String.
-        Assert.assertEquals("", Crawler.makeFullURL(null, "http://www.example.com", null));
-        Assert.assertEquals("", Crawler.makeFullURL("http://www.example.com", null, null));
-        Assert.assertEquals("", Crawler.makeFullURL(null, null, "/page.html"));
+        assertEquals("", Crawler.makeFullURL(null, "http://www.example.com", null));
+        assertEquals("", Crawler.makeFullURL("http://www.example.com", null, null));
+        assertEquals("", Crawler.makeFullURL(null, null, "/page.html"));
 
     }
 
@@ -136,6 +135,28 @@ public class CrawlerTest extends TestCase {
                 XPathHelper.getNodes(
                         crawler.getWebDocument(CrawlerTest.class.getResource("/webPages/NekoTableTestcase4.html")
                                 .getFile()), "//TABLE/TR[1]/TD").size());
+
+    }
+
+    public void testNekoBugs() {
+
+        // produces a StackOverflowError -- see
+        // http://sourceforge.net/tracker/?func=detail&aid=3109537&group_id=195122&atid=952178
+        // Crawler crawler = new Crawler();
+        // Document doc =
+        // crawler.getWebDocument(CrawlerTest.class.getResource("/webPages/NekoTestcase3109537.html").getFile());
+        // assertNotNull(doc);
+
+    }
+
+    public void testParseXml() {
+
+        Crawler crawler = new Crawler();
+
+        // parse errors will yield in a null return
+        assertNotNull(crawler.getXMLDocument(CrawlerTest.class.getResource("/xmlDocuments/invalid-chars.xml").getFile()));
+        assertNotNull(crawler.getXMLDocument(CrawlerTest.class.getResource("/feeds/sourceforge02.xml").getFile()));
+        assertNotNull(crawler.getXMLDocument(CrawlerTest.class.getResource("/feeds/feed061.xml").getFile()));
 
     }
 
