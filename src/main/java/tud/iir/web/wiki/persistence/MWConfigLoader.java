@@ -113,8 +113,8 @@ public final class MWConfigLoader {
             try {
                 wd.setWikiName(wdYAML.wikiName);
                 wd.setWikiURL(wdYAML.wikiURL);
-                wd.setPathToAPI(wdYAML.pathToAPI);
-                wd.setPathToContent(wdYAML.pathToContent);
+                wd.setRelativePathToAPI(wdYAML.pathToAPI);
+                wd.setRelativePathToContent(wdYAML.pathToContent);
                 wd.setCrawlerUserName(wdYAML.crawlerUserName);
                 wd.setCrawlerPassword(wdYAML.crawlerPassword);
                 wd.setNamespacesToCrawl((wdYAML.getNamespacesToCrawl() == null) ? new HashSet<Integer>() : wdYAML

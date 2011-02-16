@@ -206,7 +206,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
         List<Object> args = new ArrayList<Object>();
         args.add(wd.getWikiName());
         args.add(wd.getWikiURL());
-        args.add(wd.getPathToAPI());
+        args.add(wd.getRelativePathToAPI());
         if (wd.getLastCheckForModifications() != null) {
             args.add(convertDateToSQLDateTime(wd.getLastCheckForModifications()));
         } else {
@@ -334,7 +334,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
         } else {
             args.add(null);
         }
-        args.add(page.getPageContent() == null ? "" : page.getPageContent());
+        args.add(page.getPageContentHTML() == null ? "" : page.getPageContentHTML());
         if (page.getNewestRevisionID() != null) {
             args.add(page.getNewestRevisionID());
         } else {
@@ -518,7 +518,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
                 page.setTitle(resultSet.getString("pageTitle"));
                 page.setNamespaceID(resultSet.getInt("namespaceID"));
                 page.setSourceDynamics(resultSet.getFloat("sourceDynamics"));
-                page.setPageContent(resultSet.getString("pageContent"));
+                page.setPageContentHTML(resultSet.getString("pageContent"));
                 page.setNewestRevisionID(resultSet.getLong("revisionID"));
 
                 String nextCheckS = resultSet.getString("nextCheck");
@@ -864,8 +864,8 @@ public final class MediaWikiDatabase extends DatabaseManager {
 
             List<Object> args = new ArrayList<Object>();
             args.add(wd.getWikiURL());
-            args.add(wd.getPathToAPI());
-            args.add(wd.getPathToContent());
+            args.add(wd.getRelativePathToAPI());
+            args.add(wd.getRelativePathToContent());
             if (wd.getLastCheckForModifications() != null) {
                 args.add(convertDateToSQLDateTime(wd.getLastCheckForModifications()));
             } else {

@@ -20,8 +20,8 @@ public class WikiDescriptorRowConverter implements RowConverter<WikiDescriptor> 
         wd.setWikiID(resultSet.getInt("wikiID"));
         wd.setWikiName(resultSet.getString("wikiName"));
         wd.setWikiURL(resultSet.getString("wikiURL"));
-        wd.setPathToAPI(resultSet.getString("pathToAPI"));
-        wd.setPathToContent(resultSet.getString("pathToContent"));
+        wd.setRelativePathToAPI(resultSet.getString("pathToAPI"));
+        wd.setRelativePathToContent(resultSet.getString("pathToContent"));
 
         String lastCheckSt = resultSet.getString("lastCheckNewPages");
         if (lastCheckSt != null && !lastCheckSt.equalsIgnoreCase("NULL")) {

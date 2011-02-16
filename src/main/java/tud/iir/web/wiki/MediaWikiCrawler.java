@@ -3,11 +3,16 @@
  */
 package tud.iir.web.wiki;
 
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import net.sourceforge.jwbf.core.actions.util.ActionException;
@@ -101,6 +106,9 @@ public class MediaWikiCrawler implements Runnable {
 
     /** Synchronized FIFO queue to put new pages. Multiple consumers can process these pages. */
     private final LinkedBlockingQueue<WikiPage> pageQueue;
+
+    /** If pageQueue has less than that many open slots, write out warn messages. */
+    private static final int QUEUE_WARN_CAPACITY = 50;
 
     /*
      * use if want to use threads. problem: not faster with threads since jwbf seems to have some internals preventing
@@ -664,7 +672,7 @@ public class MediaWikiCrawler implements Runnable {
                 LOGGER.debug("Found new page \"" + page.getTitle() + "\", pageid: " + page.getPageID());
             }
             page.setWikiID(mwDescriptor.getWikiID());
-            page.setPageContent(crawlPageContent(page.getTitle()));
+            page.setPageContentHTML(crawlPageContent(page.getTitle()));
             pagesToAdd.add(page);
 
             if (counter % BULK_WRITE_SIZE == 0) {
@@ -732,11 +740,29 @@ public class MediaWikiCrawler implements Runnable {
     private void processNewPage(final String pageTitle) {
         WikiPage page = mwDatabase.getPage(mwDescriptor.getWikiID(),
                 mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle));
+
+        String baseURL = mwDescriptor.getAbsoltuePathToContent();
+        URL pageURL = null;
         try {
-            pageQueue.put(page);
+            String encodedTitle = URLEncoder.encode(page.getTitle(), "UTF-8");
+            pageURL = new URL(baseURL + encodedTitle);
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("Could not encode page title \"" + page.getTitle() + "\" ", e);
+        } catch (MalformedURLException e) {
+            LOGGER.error("Could not create URL of page \"" + page.getTitle() + "\" ", e);
+        }
+        page.setPageURL(pageURL);
+
+        try {
             if (DEBUG) {
                 LOGGER.debug("queue size: " + pageQueue.size());
             }
+            if (pageQueue.remainingCapacity() < QUEUE_WARN_CAPACITY) {
+                LOGGER.warn("Queue to PageConsumers almost full, increase number of consumers! Remaining capacity: "
+                        + pageQueue.remainingCapacity());
+            }
+
+            pageQueue.put(page);
         } catch (InterruptedException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

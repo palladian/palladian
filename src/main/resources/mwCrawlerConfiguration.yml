@@ -9,6 +9,10 @@
 #         # Path to api.php, relative from wikiURL, like "/w/" for wikipedia. Must not contain the file name api.php
 #         # Optional parameter. Leave empty if unknown. 		
 #      pathToAPI: "/w/" 
+#         # Path to wiki pages, relative from wiki_url, like /wiki/ as used in wikipedia (resulting path is http://de.wikipedia.org/wiki/)         
+#         # Do not forget the "/" in  the end of the path if there is any. 
+#         # Optional parameter. Leave empty if unknown.
+#      pathToContent: "/wiki/"
 #         # User name to use for crawling.
 #         # Optional parameter. Leave empty if login is not required for reading
 #      crawlerUserName: "myname" 
@@ -32,10 +36,12 @@
 wikiConfigurations:
     - wikiName: "Aletheia Projektwiki"
       wikiURL: "http://87.106.216.160/aletheia/"
+      pathToContent: "/index.php/"
       crawlerUserName: "Sandro Crawler"
       crawlerPassword: "********"
       namespacesToCrawl: "1, 2, 3"
 #    - wikiName: "Wikipedia (en)"
 #      wikiURL: "http://en.wikipedia.org/"
 #      pathToAPI: "/w/"
+#      pathToContent: "/wiki/"
 #      namespacesToCrawl: "1, 2"
