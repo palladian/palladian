@@ -92,6 +92,15 @@ public class FeedDownloaderTest {
 
         feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed084.xml").getFile());
 
+        // Sourceforge feeds; sourceforge02.xml failed because of illegal XML characters
+        // An invalid XML character (Unicode: 0x4) was found in the CDATA section.
+        feedDownloader.getFeed(FeedDatabaseTest.class.getResource("/feeds/sourceforge01.xml").getFile());
+        feedDownloader.getFeed(FeedDatabaseTest.class.getResource("/feeds/sourceforge02.xml").getFile());
+        
+        // UTF-16
+        feedDownloader.setCleanStrings(false);
+        feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed102.xml").getFile());
+
     }
 
     /**
@@ -132,6 +141,33 @@ public class FeedDownloaderTest {
         feed = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/rssRdf10.xml").getFile());
         feedItem = feed.getItems().iterator().next();
         Assert.assertEquals("<p>What a <em>beautiful</em> day!</p>", feedItem.getItemText());
+
+    }
+
+    /**
+     * Test parsing of exotic "real world" feeds with foreign characters.
+     * 
+     * @throws FeedDownloaderException
+     */
+    @Test
+    public void testFeedParsing3() throws FeedDownloaderException {
+
+        FeedDownloader feedDownloader = new FeedDownloader();
+
+        // TODO cleaning destroys the content
+        feedDownloader.setCleanStrings(false);
+
+        // arabic characters
+        Feed feed = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed100.xml").getFile());
+        FeedItem item = feed.getItems().iterator().next();
+        Assert.assertEquals("الجزيرة نت", feed.getTitle());
+        Assert.assertEquals("اشتباكات ببنغازي توقع جرحى", item.getTitle());
+        Assert.assertEquals(80, feed.getItems().size());
+
+        // japanese characters
+        feed = feedDownloader.getFeed(FeedDownloader.class.getResource("/feeds/feed101.xml").getFile());
+        item = feed.getItems().iterator().next();
+        Assert.assertEquals("植村冒険賞に登山家、栗秋正寿さん", item.getTitle());
 
     }
 

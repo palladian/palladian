@@ -41,6 +41,7 @@ import java.util.regex.Matcher;
 import java.util.zip.DeflaterInputStream;
 import java.util.zip.GZIPInputStream;
 
+import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.Transformer;
@@ -75,6 +76,8 @@ import tud.iir.helper.StringHelper;
 import tud.iir.helper.XPathHelper;
 import tud.iir.preprocessing.multimedia.ImageHandler;
 import tud.iir.web.feeds.FeedDiscoveryCallback;
+
+import com.sun.syndication.io.XmlReader;
 
 /**
  * The Crawler downloads pages from the web. List of proxies can be found here: http://www.proxy-list.org/en/index.php
@@ -175,6 +178,8 @@ public class Crawler {
      */
     private double compressionSaving = 0.5;
 
+    protected boolean sanitizeXml = true;
+    
     // ////////////////// crawl settings ////////////////////
     /** whether to crawl within a certain domain */
     private boolean inDomain = true;
@@ -208,6 +213,7 @@ public class Crawler {
 
     /** number of requests sent with currently used proxy. */
     private int proxyRequests = 0;
+
 
     // ///////////////////// constructors ///////////////////////
 
@@ -987,14 +993,31 @@ public class Crawler {
         parser.setProperty("http://cyberneko.org/html/properties/filters", new XMLDocumentFilter[] { new TBODYFix() });
         // end fix.
 
-        InputSource is = new InputSource(dataStream);
-
         if (isXML) {
             DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
-            // FIXME added by Philipp, 2011-01-28
+            
+            // added by Philipp, 2011-01-28
             docBuilderFactory.setNamespaceAware(true);
-            document = docBuilderFactory.newDocumentBuilder().parse(is);
+            
+            DocumentBuilder docBuilder = docBuilderFactory.newDocumentBuilder();
+            
+            if (sanitizeXml) {
+                // fix to parse XML documents with illegal characters, 2011-02-15
+                // see http://java.net/projects/rome/lists/users/archive/2009-04/message/12
+                // and http://info.tsachev.org/2009/05/skipping-invalid-xml-character-with.html
+                // although XmlReader is from ROME, I suppose it can be used for general XML applications 
+                XmlReader xmlReader = new XmlReader(dataStream);
+                Xml10FilterReader filterReader = new Xml10FilterReader(xmlReader);
+                InputSource is = new InputSource(filterReader);
+                // LOGGER.debug("encoding : " + xmlReader.getEncoding());
+                // end fix.
+                document = docBuilder.parse(is);
+            } else {
+                document = docBuilder.parse(dataStream);
+            }
+            
         } else {
+            InputSource is = new InputSource(dataStream);
             parser.parse(is);
             document = parser.getDocument();
         }

@@ -20,6 +20,7 @@ import org.apache.log4j.Logger;
 
 import tud.iir.preprocessing.normalization.StringNormalizer;
 import tud.iir.preprocessing.normalization.UnitNormalizer;
+import tud.iir.web.Xml10FilterReader;
 
 /**
  * The StringHelper adds string functionality.
@@ -1265,6 +1266,8 @@ public class StringHelper {
      * This method ensures that the output String has only valid XML unicode characters as specified by the XML 1.0
      * standard. For reference, please see <a href="http://www.w3.org/TR/2000/REC-xml-20001006#NT-Char">the
      * standard</a>. This method will return an empty String if the input is null or empty.
+     * 
+     * For stream processing purposes see {@link Xml10FilterReader}.
      * 
      * @param in The String whose non-valid characters we want to remove.
      * @return The in String, stripped of non-valid characters.
