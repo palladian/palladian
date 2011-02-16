@@ -12,7 +12,7 @@ MySQL - 5.1.36-community : Database - wiki_crawler
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-CREATE DATABASE /*!32312 IF NOT EXISTS*/`wiki_crawler` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
+CREATE DATABASE /*!32312 IF NOT EXISTS*/`wiki_crawler` /*!40100 DEFAULT CHARACTER SET latin1 */;
 
 USE `wiki_crawler`;
 
@@ -61,14 +61,15 @@ CREATE TABLE `wikis` (
   `wikiID` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'Unique ID of a Wiki',
   `wikiName` varchar(255) COLLATE utf8_bin NOT NULL COMMENT 'Unique name of the Wiki to distinguish between them by name',
   `wikiURL` varchar(255) COLLATE utf8_bin NOT NULL COMMENT 'Path to the Wiki, like http://en.wikipedia.org/',
-  `pathToApi` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT 'Path to API, relative from wiki_url, without page name of the api, like /w/ as used in wikipedia.',
+  `pathToApi` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT 'Path to API, relative from wiki_url, without page name of the api, like /w/ in wikipedia (resulting path is http://de.wikipedia.org/w/)',
+  `pathToContent` varchar(255) COLLATE utf8_bin DEFAULT NULL COMMENT 'Path to wiki pages, relative from wiki_url, like /wiki/ as used in wikipedia (resulting path is http://de.wikipedia.org/wiki/)',
   `lastCheckNewPages` datetime DEFAULT NULL COMMENT 'The timestamp the wiki has been checked for new pages the last time',
   `crawler_username` varchar(30) COLLATE utf8_bin DEFAULT NULL COMMENT 'The username to log in the wiki, empty if no login is required for reading ',
   `crawler_password` varchar(30) COLLATE utf8_bin DEFAULT NULL COMMENT 'The password to log in the wiki, empty if no login is required for reading. Caution! Password in plain text! ',
   PRIMARY KEY (`wikiID`),
   UNIQUE KEY `wikiName_idx` (`wikiName`),
   UNIQUE KEY `wikiURL_idx` (`wikiURL`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

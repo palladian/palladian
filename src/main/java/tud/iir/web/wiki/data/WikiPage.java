@@ -1,5 +1,6 @@
 package tud.iir.web.wiki.data;
 
+import java.net.URL;
 import java.util.Date;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -23,6 +24,9 @@ public class WikiPage {
 
     /** The page's title. */
     private String title = null;
+
+    /** The page's URL */
+    private URL pageURL = null;
 
     /** The Wiki's internal id of this page. */
     private int pageID = -1;
@@ -79,6 +83,20 @@ public class WikiPage {
     }
 
     /**
+     * @return The {@link URL} this page can be found at or <code>null</code> if it has not been set.
+     */
+    public final URL getPageURL() {
+        return pageURL;
+    }
+
+    /**
+     * @param pageURL The {@link URL} this page can be found at.
+     */
+    public final void setPageURL(URL pageURL) {
+        this.pageURL = pageURL;
+    }
+
+    /**
      * @return The Wiki's internal id of this page.
      */
     public final int getPageID() {
@@ -124,7 +142,7 @@ public class WikiPage {
     /**
      * @return The page content as HTML representation, rendered by the Wiki.
      */
-    public final String getPageContent() {
+    public final String getPageContentHTML() {
         return pageContentHTML;
     }
 
@@ -138,7 +156,7 @@ public class WikiPage {
     /**
      * @param pageContent The page's content as HTML representation, rendered by the Wiki.
      */
-    public final void setPageContent(String pageContent) {
+    public final void setPageContentHTML(String pageContent) {
         this.pageContentHTML = pageContent;
     }
 

@@ -25,13 +25,13 @@ public class WikiDescriptor {
     private String wikiURL = null;
 
     /** Path to Wiki API (api.php) if API can not be found at {@link #wikiURL}, like "/w/" for wikipedia. */
-    private String pathToAPI = null;
+    private String relativePathToAPI = null;
 
     /**
      * Path to wiki pages, relative from {@link #wikiURL}, like /wiki/ as used in wikipedia (resulting path is
      * http://de.wikipedia.org/wiki/)
      */
-    public String pathToContent = null;
+    private String relativePathToContent = null;
 
     /** Date the crawler did the last check for new pages. (Search for new pages, not revisions of a page!) */
     private Date timestampLastCheckForModifications = null;
@@ -111,31 +111,53 @@ public class WikiDescriptor {
     /**
      * @return Path to Wiki API (api.php) if API can not be found at {@link #wikiURL}, like "/w/" for wikipedia
      */
-    public final String getPathToAPI() {
-        return pathToAPI;
+    public final String getRelativePathToAPI() {
+        return relativePathToAPI;
     }
 
     /**
-     * @param pathToAPI Path to Wiki API (api.php) if API can not be found at {@link #wikiURL}, like "/w/" for wikipedia
+     * @param relativePathToAPI Path to Wiki API (api.php) if API can not be found at {@link #wikiURL}, like "/w/" for wikipedia
      */
-    public final void setPathToAPI(String pathToAPI) {
-        this.pathToAPI = (pathToAPI == null) ? "" : pathToAPI;
+    public final void setRelativePathToAPI(String relativePathToAPI) {
+        this.relativePathToAPI = (relativePathToAPI == null) ? "" : relativePathToAPI.trim();
     }
 
     /**
      * @return Path to wiki pages, relative from {@link #wikiURL}, like /wiki/ as used in wikipedia (resulting path is
      *         http://de.wikipedia.org/wiki/)
      */
-    public final String getPathToContent() {
-        return pathToContent;
+    public final String getRelativePathToContent() {
+        return relativePathToContent;
+    }
+
+    /**
+     * @return Absolute path to wiki pages, like http://de.wikipedia.org/wiki/
+     */
+    public final String getAbsoltuePathToContent() {
+        String absolutePath = "";
+        absolutePath = wikiURL;
+        if (wikiURL.endsWith("/")) { // e.g. "http://en.wikipedia.org/"
+            if (relativePathToContent.startsWith("/")) { // e.g. "/wiki/"
+                absolutePath += relativePathToContent.substring(1, relativePathToContent.length()); // "http://en.wikipedia.org/wiki/"
+            } else { // e.g. "wiki/"
+                absolutePath += relativePathToContent; // = "http://en.wikipedia.org/wiki/"
+            }
+        } else { // e.g. "http://en.wikipedia.org"
+            if (relativePathToContent.startsWith("/")) { // e.g. "/wiki/"
+                absolutePath += relativePathToContent; // = "http://en.wikipedia.org/wiki/"
+            } else { // e.g. "wiki/"
+                absolutePath += "/" + relativePathToContent; // = "http://en.wikipedia.org/wiki/"
+            }
+        }
+        return absolutePath;
     }
 
     /**
      * @param pathToContent Path to wiki pages, relative from {@link #wikiURL}, like /wiki/ as used in wikipedia
      *            (resulting path is http://de.wikipedia.org/wiki/)
      */
-    public final void setPathToContent(String pathToContent) {
-        this.pathToContent = (pathToContent == null) ? "" : pathToContent;
+    public final void setRelativePathToContent(String pathToContent) {
+        this.relativePathToContent = (pathToContent == null) ? "" : pathToContent.trim();
     }
 
     /**
@@ -228,14 +250,14 @@ public class WikiDescriptor {
     public final URL getWikiApiURL() {
         String wikiPath = wikiURL.toString();
         String wikiAPI = (wikiPath.endsWith("/")) ? wikiPath : wikiPath + "/";
-        wikiAPI += (pathToAPI.startsWith("/")) ? pathToAPI.substring(1, pathToAPI.length()) : pathToAPI;
-        wikiAPI += (pathToAPI.equalsIgnoreCase("") || pathToAPI.endsWith("/")) ? "" : "/";
+        wikiAPI += (relativePathToAPI.startsWith("/")) ? relativePathToAPI.substring(1, relativePathToAPI.length()) : relativePathToAPI;
+        wikiAPI += (relativePathToAPI.equalsIgnoreCase("") || relativePathToAPI.endsWith("/")) ? "" : "/";
 
         URL wikiApiURL = null;
         try {
             wikiApiURL = new URL(wikiAPI);
         } catch (MalformedURLException e) {
-            throw new RuntimeException("Syntax error in relative path to API: " + pathToAPI + " ", e);
+            throw new RuntimeException("Syntax error in relative path to API: " + relativePathToAPI + " ", e);
         }
         return wikiApiURL;
     }
@@ -247,7 +269,7 @@ public class WikiDescriptor {
     @Override
     public String toString() {
         return "WikiDescriptor [wikiID=" + wikiID + ", wikiName=" + wikiName + ", wikiURL=" + wikiURL + ", pathToAPI="
-                + pathToAPI + ", pathToContent=" + pathToContent + ", timestampLastCheckForModifications="
+                + relativePathToAPI + ", pathToContent=" + relativePathToContent + ", timestampLastCheckForModifications="
                 + timestampLastCheckForModifications + ", crawlerUserName=" + crawlerUserName + ", crawlerPassword="
                 + crawlerPassword + ", namespacesToCrawl=" + namespacesToCrawl + "]";
     }
@@ -263,8 +285,8 @@ public class WikiDescriptor {
         result = prime * result + ((crawlerPassword == null) ? 0 : crawlerPassword.hashCode());
         result = prime * result + ((crawlerUserName == null) ? 0 : crawlerUserName.hashCode());
         result = prime * result + ((namespacesToCrawl == null) ? 0 : namespacesToCrawl.hashCode());
-        result = prime * result + ((pathToAPI == null) ? 0 : pathToAPI.hashCode());
-        result = prime * result + ((pathToContent == null) ? 0 : pathToContent.hashCode());
+        result = prime * result + ((relativePathToAPI == null) ? 0 : relativePathToAPI.hashCode());
+        result = prime * result + ((relativePathToContent == null) ? 0 : relativePathToContent.hashCode());
         result = prime * result
                 + ((timestampLastCheckForModifications == null) ? 0 : timestampLastCheckForModifications.hashCode());
         result = prime * result + wikiID;
@@ -301,15 +323,15 @@ public class WikiDescriptor {
                 return false;
         } else if (!namespacesToCrawl.equals(other.namespacesToCrawl))
             return false;
-        if (pathToAPI == null) {
-            if (other.pathToAPI != null)
+        if (relativePathToAPI == null) {
+            if (other.relativePathToAPI != null)
                 return false;
-        } else if (!pathToAPI.equals(other.pathToAPI))
+        } else if (!relativePathToAPI.equals(other.relativePathToAPI))
             return false;
-        if (pathToContent == null) {
-            if (other.pathToContent != null)
+        if (relativePathToContent == null) {
+            if (other.relativePathToContent != null)
                 return false;
-        } else if (!pathToContent.equals(other.pathToContent))
+        } else if (!relativePathToContent.equals(other.relativePathToContent))
             return false;
         if (timestampLastCheckForModifications == null) {
             if (other.timestampLastCheckForModifications != null)
