@@ -208,24 +208,27 @@ public class ContentExtractionEvaluation {
 
     private String getRealText(String uuid) {
 
+        StringBuilder sb = new StringBuilder();
+        
         // get the manually annotated document from the data set
         Document annotatedDocument = crawler.getWebDocument(BASE_PATH + "annotated/" + uuid + ".html");
 
-        StringBuilder sb = new StringBuilder();
+        if (annotatedDocument != null) {
 
-        // get the real content data, which is wrapped in <SPAN> tags with class 'x-nc-sel2' and the additional user
-        // data from tags with 'x-nc-sel5'
-        String xPath;
-        if (isMainContentOnly()) {
-            xPath = "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2']";
-        } else {
-            xPath = "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2' or ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel5']";
-        }
+            // get the real content data, which is wrapped in <SPAN> tags with class 'x-nc-sel2' and the additional user
+            // data from tags with 'x-nc-sel5'
+            String xPath;
+            if (isMainContentOnly()) {
+                xPath = "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2']";
+            } else {
+                xPath = "//text()[ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel2' or ancestor::*[contains(@class,'x-nc-sel')][1]/@class='x-nc-sel5']";
+            }
 
-        // get nodes containing the tagged text
-        List<Node> nodes = XPathHelper.getNodes(annotatedDocument, xPath);
-        for (Node node : nodes) {
-            sb.append(node.getTextContent()).append(" ");
+            // get nodes containing the tagged text
+            List<Node> nodes = XPathHelper.getXhtmlNodes(annotatedDocument, xPath);
+            for (Node node : nodes) {
+                sb.append(node.getTextContent()).append(" ");
+            }
         }
 
         return sb.toString();

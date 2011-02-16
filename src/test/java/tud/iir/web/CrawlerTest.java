@@ -117,22 +117,22 @@ public class CrawlerTest extends TestCase {
         Crawler crawler = new Crawler();
         assertEquals(
                 3,
-                XPathHelper.getNodes(
+                XPathHelper.getXhtmlNodes(
                         crawler.getWebDocument(CrawlerTest.class.getResource("/webPages/NekoTableTestcase1.html")
                                 .getFile()), "//TABLE/TR[1]/TD").size());
         assertEquals(
                 3,
-                XPathHelper.getNodes(
+                XPathHelper.getXhtmlNodes(
                         crawler.getWebDocument(CrawlerTest.class.getResource("/webPages/NekoTableTestcase2.html")
                                 .getFile()), "//TABLE/TBODY/TR[1]/TD").size());
         assertEquals(
                 3,
-                XPathHelper.getNodes(
+                XPathHelper.getXhtmlNodes(
                         crawler.getWebDocument(CrawlerTest.class.getResource("/webPages/NekoTableTestcase3.html")
                                 .getFile()), "//TABLE/TBODY/TR[1]/TD").size());
         assertEquals(
                 3,
-                XPathHelper.getNodes(
+                XPathHelper.getXhtmlNodes(
                         crawler.getWebDocument(CrawlerTest.class.getResource("/webPages/NekoTableTestcase4.html")
                                 .getFile()), "//TABLE/TR[1]/TD").size());
 

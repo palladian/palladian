@@ -1,69 +1,289 @@
 package tud.iir.helper;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
-
-import javax.xml.transform.OutputKeys;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.TransformerFactoryConfigurationError;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.log4j.Logger;
 import org.jaxen.JaxenException;
+import org.jaxen.SimpleNamespaceContext;
 import org.jaxen.dom.DOMXPath;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import tud.iir.web.Crawler;
-
 /**
- * A helper to handle xPath.
+ * A helper class for handling XPath queries, depending on Jaxen XPath library.
+ * 
+ * The methods {@link #getNodes(Node, String, Map)} and {@link #getNode(Node, String, Map)} allow processing of
+ * Documents with namespaces. If your XPath expression contains namespace prefixes, like <code>//atom:entry</code>, you
+ * must supply the corresponding mapping from prefix to URI as parameter, for
+ * example:
+ * 
+ * <pre>
+ * Map&lt;String, String&gt; mapping = new HashMap&lt;String, String&gt;();
+ * mapping.put(&quot;atom&quot;, &quot;http://www.w3.org/2005/Atom&quot;);
+ * List&lt;Node&gt; nodes = XPathHelper.getNodes(doc, &quot;//atom:entry&quot;, mapping);
+ * </pre>
+ * 
+ * The methods with <i>xhtml</i> in their names, like {@link #getXhtmlNodes(Document, String)}, serve as convenience
+ * methods for processing XHTML documents. The prefix for XHTML namespace is inserted automatically, simplifying XHTML
+ * XPath queries.
  * 
  * @author David Urbansky
  * @author Philipp Katz
  * @author Martin Werner
+ * 
+ * @see http://jaxen.codehaus.org/
  */
 public class XPathHelper {
 
+    /** The logger for this class. */
+    private static final Logger LOGGER = Logger.getLogger(XPathHelper.class);
+
     /**
-     * Check whether document has an xhtml namespace declared.
+     * Get a list of {@link Node}s matching the given XPath expression.
      * 
-     * @param document The document.
-     * @return True if the document has an xhtml namespace declared, else false.
+     * @param node The Node or Document to consider, not <code>null</code>.
+     * @param xPath The XPath expression, not <code>null</code>.
+     * @param namespaces (Optional) Map with namespaces, necessary to bind prefixes in XPath expression to namespaces.
+     * @return Matching nodes for the given xPath expression, or an empty List if no nodes match or an error occured.
      */
-    public static boolean hasXMLNS(Document document) {
+    @SuppressWarnings("unchecked")
+    public static List<Node> getNodes(Node node, String xPath, Map<String, String> namespaces) {
+        notNull(node, xPath);
 
-        if (document == null) {
-            return false;
+        List<Node> nodes = new ArrayList<Node>();
+
+        try {
+
+            DOMXPath xpathObj = new DOMXPath(xPath);
+            SimpleNamespaceContext namespaceContext = new SimpleNamespaceContext();
+            namespaceContext.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
+            if (namespaces != null) {
+                for (Entry<String, String> entry : namespaces.entrySet()) {
+                    String prefix = entry.getKey();
+                    String URI = entry.getValue();
+                    namespaceContext.addNamespace(prefix, URI);
+                }
+            }
+            xpathObj.setNamespaceContext(namespaceContext);
+
+            nodes = xpathObj.selectNodes(node);
+
+        } catch (JaxenException e) {
+            LOGGER.error(xPath + ", " + e.getMessage());
         }
 
-        Node node = null;
-        if (document.getLastChild() != null && document.getLastChild().getAttributes() != null
-                && document.getLastChild().getAttributes() != null) {
-            node = document.getLastChild().getAttributes().getNamedItem("xmlns");
+        return nodes;
+    }
+
+    /**
+     * Get a list of {@link Node}s from matching the given XPath expression.
+     * 
+     * @param node The Node or Document to consider, not <code>null</code>.
+     * @param xPath The XPath expression, not <code>null</code>.
+     * @return Matching nodes for the given xPath expression, or an empty List if no nodes match or an error occured.
+     */
+    public static List<Node> getNodes(Node node, String xPath) {
+        notNull(node, xPath);
+        return getNodes(node, xPath, null);
+    }
+
+    /**
+     * Get a {@link Node} matching the given XPath expression.
+     * 
+     * @param node The Node or Document to consider, not <code>null</code>.
+     * @param xPath The XPath expression, not <code>null</code>.
+     * @param namespaces (Optional) Map with namespaces, necessary to bind prefixes in XPath expression to namespaces.
+     * @return Matching node for the given xPath expression, or <code>null</code> if no matching node or an error
+     *         occured.
+     */
+    public static Node getNode(Node node, String xPath, Map<String, String> namespaces) {
+        notNull(node, xPath);
+
+        Node targetNode = null;
+        List<Node> nodeList = getNodes(node, xPath, namespaces);
+        if (nodeList.iterator().hasNext()) {
+            targetNode = nodeList.iterator().next();
+        }
+        return targetNode;
+    }
+
+    /**
+     * Get a {@link Node} matching the given XPath expression.
+     * 
+     * @param node The Node or Document to consider, not <code>null</code>.
+     * @param xPath The XPath expression, not <code>null</code>.
+     * @return Matching node for the given xPath expression, or <code>null</code> if no matching node or an error
+     *         occured.
+     */
+    public static Node getNode(Node node, String xPath) {
+        notNull(node, xPath);
+        return getNode(node, xPath, null);
+    }
+
+    /**
+     * Get the {@link Node} with the specified ID.
+     * 
+     * @param node The Node or Document to consider, not <code>null</code>.
+     * @param nodeId The ID of the Node to return, not <code>null</code>.
+     * @return Matching node with the given ID, or <code>null</code> if no matching node.
+     */
+    public static Node getNodeByID(Node node, String nodeId) {
+        notNull(node, nodeId);
+
+        Node result = null;
+        // try {
+        List<Node> idNodes = XPathHelper.getNodes(node, "//*[@id='" + nodeId + "']");
+        for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
+            result = idNodes.get(i);
+        }
+        // } catch (OutOfMemoryError e) {
+        // Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
+        // } catch (NullPointerException e) {
+        // Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
+        // } catch (Error e) {
+        // Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
+        // }
+
+        return result;
+    }
+
+    /**
+     * Get the parent of the {@link Node} with the specified ID.
+     * 
+     * @param node The Node or Document to consider, not <code>null</code>.
+     * @param nodeId The ID of the Node to return, not <code>null</code>.
+     * @return Parent of the node with the given ID, or <code>null</code> if no matching node.
+     */
+    public static Node getParentNodeByID(Node node, String nodeId) {
+        notNull(node, nodeId);
+
+        Node result = null;
+        Node childNode = getNodeByID(node, nodeId);
+        if (childNode != null) {
+            result = childNode.getParentNode();
+        }
+        return result;
+    }
+
+    /**
+     * Gets the child {@link Node}s of a given node that are addressed by the given XPath.
+     * 
+     * @param node The parent node of the children, not <code>null</code>
+     * @param xPath The XPath that addresses the children, not <code>null</code>.
+     * @return The child nodes, or an empty List if no matching child nodes.
+     */
+    public static List<Node> getChildNodes(Node node, String xPath) {
+        notNull(node, xPath);
+
+        List<Node> childNodesMatch = new ArrayList<Node>();
+        List<Node> childNodes = getNodes(node, xPath);
+
+        for (Node cn : childNodes) {
+            if (isChildOf(cn, node)) {
+                childNodesMatch.add(cn);
+            }
         }
 
-        if (node != null && node.getTextContent().toLowerCase().indexOf("xhtml") > -1) {
-            return true;
+        return childNodesMatch;
+    }
+
+    /**
+     * Gets the child nodes of a given node.
+     * 
+     * @param node The parent of the children, not <code>null</code>.
+     * @return The child nodes, or an empty List if no matching child nodes.
+     */
+    public static List<Node> getChildNodes(Node node) {
+        notNull(node);
+
+        List<Node> children = new ArrayList<Node>();
+
+        // try {
+        NodeList childNodes = node.getChildNodes();
+        if (childNodes != null) {
+            for (int x = 0; x < childNodes.getLength(); x++) {
+                if (childNodes.item(x).getNodeName() != null && isChildOf(childNodes.item(x), node)) {
+                    children.add(childNodes.item(x));
+                }
+            }
+        }
+        // } catch (Exception e) {
+        // Logger.getRootLogger().error(e.getMessage());
+        // }
+
+        return children;
+    }
+
+    /**
+     * Get a child node from the {@link Node} matching the given XPath.
+     * 
+     * @param node The parent node under which the sought node must descend, not <code>null</code>
+     * @param xPath The XPath that points to a node, not <code>null</code>.
+     * @return A node that matches the XPath and descends from the given node.
+     */
+    public static Node getChildNode(Node node, String xPath) {
+        notNull(node, xPath);
+
+        List<Node> childNodes = getChildNodes(node, xPath);
+        Node childNode = null;
+        if (childNodes.iterator().hasNext()) {
+            childNode = childNodes.iterator().next();
+        }
+        return childNode;
+    }
+
+    /**
+     * Check whether a node is a child (descendant) of another node.
+     * 
+     * @param childCandidate The node that is checked to be a child.
+     * @param parent The node under which the childCandidate must descend.
+     * @return True, if the childCandidate really descends from the parent, false otherwise.
+     */
+    private static boolean isChildOf(Node childCandidate, Node parent) {
+        Node modChildCandidate = childCandidate.getParentNode();
+        while (modChildCandidate != null) {
+            if (modChildCandidate.equals(parent)) {
+                return true;
+            }
+            modChildCandidate = modChildCandidate.getParentNode();
         }
         return false;
+    }
+
+    /**
+     * Get the text content of a child node with the given XPath expression.
+     * 
+     * @param node The node whose children are considered, not <code>null</code>.
+     * @param xPath The XPath expression addressing the node with the sought text content, not <code>null</code>.
+     * @return The Node's text content, or an empty String if node does not exist.
+     */
+    public static String getNodeTextContent(Node node, String xPath) {
+        notNull(node, xPath);
+
+        String textContent = "";
+        Node textNode = getNode(node, xPath);
+        if (textNode != null) {
+            textContent = textNode.getTextContent();
+        }
+
+        return textContent;
     }
 
     /**
      * Get the xPath that points to the parent element of the given xPath.<br>
      * For example: /DIV/P/A => /DIV/P
      * 
-     * @param xPath The xPath for which the parent xPath should be found.
+     * @param xPath The xPath for which the parent xPath should be found, not <code>null</code>.
      * @return The xPath that points to the parent node of the given xPath.
      */
     public static String getParentXPath(String xPath) {
+        notNull(xPath);
 
         String parentXPath = xPath;
 
@@ -76,17 +296,129 @@ public class XPathHelper {
     }
 
     /**
+     * Gets the previous sibling nodes of a node.
+     * 
+     * @param node the node
+     * @return the previous siblings
+     */
+    public static List<Node> getPreviousSiblings(Node node) {
+        notNull(node);
+
+        Node parentNode = node.getParentNode();
+        List<Node> previousSiblings = new ArrayList<Node>();
+        List<Node> childNodes = XPathHelper.getChildNodes(parentNode);
+
+        for (Node childNode : childNodes) {
+            if (childNode.isSameNode(node)) {
+                break;
+            } else {
+                previousSiblings.add(childNode);
+            }
+        }
+        return previousSiblings;
+    }
+
+    // /**
+    // * Convert a node and his children to string.
+    // *
+    // * TODO duplicate of {@link HTMLHelper#documentToHTMLString(Node)}, {@link HTMLHelper#getXmlDump(Node)}?
+    // *
+    // * @param node the node
+    // * @return the node as string
+    // */
+    // public static String convertNodeToString(Node node) {
+    // Transformer trans = null;
+    // try {
+    // trans = TransformerFactory.newInstance().newTransformer();
+    // } catch (TransformerConfigurationException e1) {
+    // Logger.getRootLogger().error(e1.getMessage());
+    // } catch (TransformerFactoryConfigurationError e1) {
+    // Logger.getRootLogger().error(e1.getMessage());
+    // }
+    //
+    // final StringWriter sWriter = new StringWriter();
+    // try {
+    // trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+    // trans.transform(new DOMSource(node), new StreamResult(sWriter));
+    // } catch (TransformerException e) {
+    // Logger.getRootLogger().error(e.getMessage());
+    // }
+    // String result = sWriter.toString();
+    // result = result.replace(" xmlns=\"http://www.w3.org/1999/xhtml\"", "");
+    // // result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\"", "");
+    //
+    // return result;
+    // }
+
+    // //////////////////////////////////////////////////
+    // convenience methods for XHTML XPaths
+    // TODO auto-uppercase?
+    // //////////////////////////////////////////////////
+
+    public static List<Node> getXhtmlNodes(Document document, String xPath) {
+        notNull(document, xPath);
+        return getNodes(document.getLastChild(), addXhtmlNsToXPath(document, xPath));
+
+    }
+
+    public static Node getXhtmlNode(Document doc, String xPath) {
+        notNull(doc, xPath);
+        return getNode(doc, addXhtmlNsToXPath(xPath));
+    }
+
+    public static List<Node> getXhtmlChildNodes(Node node, String xPath) {
+        notNull(node, xPath);
+        return getChildNodes(node, addXhtmlNsToXPath(xPath));
+
+    }
+
+    public static Node getXhtmlChildNode(Node node, String xPath) {
+        notNull(node, xPath);
+
+        List<Node> childNodes = getXhtmlChildNodes(node, xPath);
+        Node childNode = null;
+        Iterator<Node> iterator = childNodes.iterator();
+        if (iterator.hasNext()) {
+            childNode = iterator.next();
+        }
+        return childNode;
+    }
+
+    /**
+     * Check whether document has an xhtml namespace declared.
+     * 
+     * @param document The document.
+     * @return True if the document has an xhtml namespace declared, else false.
+     */
+    public static boolean hasXhtmlNs(Document document) {
+        notNull(document);
+
+        boolean result = false;
+        Node node = null;
+        if (document.getLastChild() != null && document.getLastChild().getAttributes() != null
+                && document.getLastChild().getAttributes() != null) {
+            node = document.getLastChild().getAttributes().getNamedItem("xmlns");
+        }
+
+        if (node != null && node.getTextContent().toLowerCase().indexOf("xhtml") > -1) {
+            result = true;
+        }
+        return result;
+    }
+
+    /**
      * Add the xhtml namespace to an xPath.
      * 
      * @param document The document.
      * @param xPath The xPath.
      * @return The xPath with the namespace.
      */
-    public static String addNameSpaceToXPath(final Document document, final String xPath) {
+    public static String addXhtmlNsToXPath(Document document, String xPath) {
+        notNull(document, xPath);
+
         String returnValue = xPath;
-        if (hasXMLNS(document)) {
-            returnValue = addNameSpaceToXPath(xPath);
-            // returnValue = returnValue.replaceAll("xhtml:TBODY", "");
+        if (hasXhtmlNs(document)) {
+            returnValue = addXhtmlNsToXPath(xPath);
         }
         return returnValue;
     }
@@ -98,7 +430,9 @@ public class XPathHelper {
      * @param xPath The xPath.
      * @return The xPath with included xhtml namespace.
      */
-    public static String addNameSpaceToXPath(final String xPath) {
+    public static String addXhtmlNsToXPath(String xPath) {
+        notNull(xPath);
+
         if (xPath.toLowerCase(Locale.ENGLISH).indexOf("xhtml:") > -1) {
             return xPath;
         }
@@ -112,345 +446,16 @@ public class XPathHelper {
     }
 
     /**
-     * Gets the nodes.
+     * Ensure that the given arguments are not <code>null</code>, otherwise throw a {@link NullPointerException}.
      * 
-     * @param document the document
-     * @param xPath the x path
-     * @return the nodes
+     * @param args
      */
-    public static List<Node> getNodes(Document document, String xPath) {
-        if (document == null || xPath == null || xPath.length() == 0) {
-            return new ArrayList<Node>();
-        }
-        String modXPath = addNameSpaceToXPath(document, xPath);
-
-        return getNodes(document.getLastChild(), modXPath);
-    }
-
-    // TODO uppercase xPath and namespace (xml vs. xhtml!?)
-    /**
-     * Gets the nodes.
-     * 
-     * @param node the node
-     * @param xPath the x path
-     * @return the nodes
-     */
-    @SuppressWarnings("unchecked")
-    public static List<Node> getNodes(Node node, String xPath) {
-
-        List<Node> nodes = new ArrayList<Node>();
-        try {
-            // System.out.println(xPath);
-            final DOMXPath xpathObj = new DOMXPath(xPath);
-            xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-
-            nodes = xpathObj.selectNodes(node);
-        } catch (JaxenException e) {
-            Logger.getRootLogger().error(xPath + ", " + e.getMessage());
-        } catch (OutOfMemoryError e) {
-            Logger.getRootLogger().error(xPath + ", " + e.getMessage());
-        } catch (NullPointerException e) {
-            Logger.getRootLogger().error(xPath + ", " + e.getMessage());
-        } catch (Error e) {
-            Logger.getRootLogger().error(xPath + ", " + e.getMessage());
-        }
-
-        return nodes;
-    }
-
-    /**
-     * Get a node by xPath.
-     * 
-     * @param node The node where the xPath should be applied to.
-     * @param xPath The xPath.
-     * @return The node that the xPath points to.
-     */
-    public static Node getNode(Node node, String xPath) {
-        if (node == null) {
-            return null;
-        }
-        Node targetNode = null;
-        List<Node> nodeList = getNodes(node, xPath);
-        if (nodeList.iterator().hasNext()) {
-            targetNode = nodeList.iterator().next();
-        }
-        return targetNode;
-    }
-
-    public static String getNodeTextContent(Document document, String xPath) {
-        String textContent = "";
-
-        Node node = getNode(document, xPath);
-        if (node != null) {
-            textContent = node.getTextContent();
-        }
-
-        return textContent;
-    }
-
-    /**
-     * Gets the node.
-     * 
-     * @param doc the doc
-     * @param xPath the x path
-     * @return the node
-     */
-    public static Node getNode(Document doc, String xPath) {
-        if (doc == null) {
-            return null;
-        }
-        Node targetNode = null;
-        List<Node> nodeList = getNodes(doc, xPath);
-        if (nodeList.iterator().hasNext()) {
-            targetNode = nodeList.iterator().next();
-        }
-        return targetNode;
-    }
-
-    /*
-     * public static Node getChildNodeNS(Node node, String xPath) { if (node == null) return null; Node childNode =
-     * null; try { //System.out.println(xPath);
-     * DOMXPath xpathObj = new DOMXPath(xPath); xpathObj.addNamespace("xhtml", "http://www.w3.org/1999/xhtml");
-     * List<Node> nodeList =
-     * xpathObj.selectNodes(node); if (nodeList.size() > 0) childNode = nodeList.get(0); } catch (JaxenException e) {
-     * Logger.getRootLogger().error(xPath + ", "
-     * + e.getMessage()); } catch (OutOfMemoryError e) { Logger.getRootLogger().error(xPath + ", " + e.getMessage()); }
-     * catch (NullPointerException e) {
-     * Logger.getRootLogger().error(xPath + ", " + e.getMessage()); } catch (Error e) {
-     * Logger.getRootLogger().error(xPath + ", " + e.getMessage()); } return
-     * childNode; }
-     */
-
-    /**
-     * Gets the node by id.
-     * 
-     * @param document the document
-     * @param nodeId the id
-     * @return the node by id
-     */
-    public static Node getNodeByID(Document document, String nodeId) {
-
-        Node node = null;
-        try {
-            List<Node> idNodes = XPathHelper.getNodes(document, "//*[@id='" + nodeId + "']");
-            for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
-                node = idNodes.get(i).getParentNode();
-            }
-        } catch (OutOfMemoryError e) {
-            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
-        } catch (NullPointerException e) {
-            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
-        } catch (Error e) {
-            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
-        }
-
-        return node;
-    }
-
-    /**
-     * It seams to be, that getNodeByID returns parent node. <br>
-     * Here the ID-node will be returned.
-     * 
-     * @param document the document
-     * @param nodeId the id
-     * @return the node by id
-     */
-    public static Node getChildNodeByID(Document document, String nodeId) {
-
-        Node node = null;
-        try {
-            List<Node> idNodes = XPathHelper.getNodes(document, "//*[@id='" + nodeId + "']");
-            for (int i = 0; i < Math.min(1, idNodes.size()); i++) {
-                node = idNodes.get(i);
-            }
-        } catch (OutOfMemoryError e) {
-            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
-        } catch (NullPointerException e) {
-            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
-        } catch (Error e) {
-            Logger.getRootLogger().error(nodeId + ", " + e.getMessage());
-        }
-
-        return node;
-    }
-
-    /**
-     * Get a child node by xPath.
-     * 
-     * @param node The parent node under which the sought node must descend.
-     * @param xPath The xPath that points to a node.
-     * @return A node that matches the xPath and descends from the given node.
-     */
-    public static Node getChildNode(Node node, String xPath) {
-        return getChildNode(node, xPath, true);
-    }
-
-    public static Node getChildNode(Node node, String xPath, boolean addNameSpace) {
-        if (node == null) {
-            return null;
-        }
-        Node childNode = null;
-        if (getChildNodes(node, xPath, addNameSpace).iterator().hasNext()) {
-            childNode = getChildNodes(node, xPath, addNameSpace).iterator().next();
-        }
-        return childNode;
-    }
-
-
-    /**
-     * Check whether a node is a child (descendant) of another node.
-     * 
-     * @param childCandidate The node that is checked to be a child.
-     * @param parent The node under which the childCandidate must descend.
-     * @return True, if the childCandidate really descends from the parent, false otherwise.
-     */
-    private static boolean isChildOf(Node childCandidate, Node parent) {
-
-        Node modChildCandidate = childCandidate.getParentNode();
-        while (modChildCandidate != null) {
-            if (modChildCandidate.equals(parent)) {
-                return true;
-            }
-            modChildCandidate = modChildCandidate.getParentNode();
-        }
-
-        return false;
-    }
-
-    /**
-     * Gets the child nodes of a given node that are addressed by the given xPath.
-     * 
-     * @param node The parent node of the children.
-     * @param xPath The xPath that addresses the children.
-     * @return The child nodes.
-     */
-    public static List<Node> getChildNodes(Node node, String xPath) {
-        return getChildNodes(node, xPath, true);
-    }
-
-    public static List<Node> getChildNodes(Node node, String xPath, boolean addNameSpace) {
-        List<Node> childNodes = null;
-        List<Node> childNodesMatch = new ArrayList<Node>();
-
-        if (addNameSpace) {
-            xPath = addNameSpaceToXPath(xPath);
-        }
-        childNodes = getNodes(node, xPath);
-
-        for (Node cn : childNodes) {
-            if (isChildOf(cn, node)) {
-                childNodesMatch.add(cn);
+    private static void notNull(Object... args) {
+        for (Object arg : args) {
+            if (arg == null) {
+                throw new NullPointerException("parameter must not be null");
             }
         }
-
-        return childNodesMatch;
-    }
-
-    /**
-     * Gets the child nodes.
-     * 
-     * @param node the (parent)node
-     * @return the childNodes
-     */
-    public static List<Node> getChildNodes(Node node) {
-
-        List<Node> children = new ArrayList<Node>();
-
-        try {
-            NodeList childNodes = node.getChildNodes();
-            if (childNodes != null) {
-                for (int x = 0; x < childNodes.getLength(); x++) {
-                    if (childNodes.item(x).getNodeName() != null && isChildOf(childNodes.item(x), node)) {
-                        children.add(childNodes.item(x));
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Logger.getRootLogger().error(e.getMessage());
-        }
-
-        return children;
-    }
-
-    /**
-     * Convert a node and his children to string.
-     * 
-     * TODO duplicate of {@link HTMLHelper#documentToHTMLString(Node)}, {@link HTMLHelper#getXmlDump(Node)}?
-     * 
-     * @param node the node
-     * @return the node as string
-     */
-    public static String convertNodeToString(Node node) {
-        Transformer trans = null;
-        try {
-            trans = TransformerFactory.newInstance().newTransformer();
-        } catch (TransformerConfigurationException e1) {
-            Logger.getRootLogger().error(e1.getMessage());
-        } catch (TransformerFactoryConfigurationError e1) {
-            Logger.getRootLogger().error(e1.getMessage());
-        }
-
-        final StringWriter sWriter = new StringWriter();
-        try {
-            trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
-            trans.transform(new DOMSource(node), new StreamResult(sWriter));
-        } catch (TransformerException e) {
-            Logger.getRootLogger().error(e.getMessage());
-        }
-        String result = sWriter.toString();
-        result = result.replace(" xmlns=\"http://www.w3.org/1999/xhtml\"", "");
-        // result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\"", "");
-
-        return result;
-    }
-
-    /**
-     * Gets the previous sibling nodes of a node.
-     * 
-     * @param node the node
-     * @return the previous siblings
-     */
-    public static List<Node> getPreviousSiblings(Node node) {
-
-        Node parentNode = node.getParentNode();
-
-        List<Node> previousSiblings = new ArrayList<Node>();
-        List<Node> childNodes = XPathHelper.getChildNodes(parentNode);
-
-        for (Node childNode : childNodes) {
-            if (childNode.isSameNode(node)) {
-
-                break;
-            } else {
-                previousSiblings.add(childNode);
-
-            }
-        }
-        return previousSiblings;
-    }
-
-    public static void main(String[] args) {
-
-        // String xPath = "//div/text()";
-        // System.out.println(addNameSpaceToXPath(xPath));
-
-        Crawler crawler = new Crawler();
-        Document doc = crawler.getWebDocument("data/test/xPathTestcase.html");
-
-        // iterate over all TRs
-        List<Node> rows = XPathHelper.getNodes(doc, "//TABLE/TR");
-        for (Node row : rows) {
-
-            // System.out.println(HTMLHelper.getXmlDump(row));
-
-            // iterate over TDs
-            List<Node> cells = XPathHelper.getChildNodes(row, "//TD"); // does not work EDIT: now it does
-            // List<Node> cells = XPathHelper.getChildNodes(row, "*"); // infinite loop? EDIT: yes, stupid me :) solved.
-            for (Node cell : cells) {
-                System.out.println(cell.getTextContent());
-            }
-        }
-
     }
 
 }

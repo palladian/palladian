@@ -490,7 +490,7 @@ public class Crawler {
         String domain = getDomain(url, false);
 
         // get value of base element, if present
-        Node baseNode = XPathHelper.getNode(document, "//HEAD/BASE/@href");
+        Node baseNode = XPathHelper.getXhtmlNode(document, "//HEAD/BASE/@href");
         String baseHref = null;
         if (baseNode != null) {
             baseHref = baseNode.getTextContent();
@@ -498,7 +498,7 @@ public class Crawler {
 
         // get all internal domain links
         // List<Node> linkNodes = XPathHelper.getNodes(document, "//@href");
-        List<Node> linkNodes = XPathHelper.getNodes(document, "//A/@href");
+        List<Node> linkNodes = XPathHelper.getXhtmlNodes(document, "//A/@href");
         for (int i = 0; i < linkNodes.size(); i++) {
             String currentLink = linkNodes.get(i).getTextContent();
             currentLink = currentLink.trim();
@@ -972,12 +972,12 @@ public class Crawler {
      * 
      * @param dataStream The stream to parse.
      * @param isXML {@code true} if this document is an XML document and {@code false} otherwise.
-     * @param Uri The URI the provided stream comes from.
+     * @param uri The URI the provided stream comes from.
      * @throws SAXException
      * @throws IOException
      * @throws ParserConfigurationException
      */
-    private void parse(InputStream dataStream, Boolean isXML, String Uri) throws SAXException, IOException,
+    private void parse(InputStream dataStream, boolean isXML, String uri) throws SAXException, IOException,
     ParserConfigurationException {
         DOMParser parser = new DOMParser();
 
@@ -1022,7 +1022,7 @@ public class Crawler {
             document = parser.getDocument();
         }
 
-        document.setDocumentURI(Uri);
+        document.setDocumentURI(uri);
     }
 
     public Document getDocument() {

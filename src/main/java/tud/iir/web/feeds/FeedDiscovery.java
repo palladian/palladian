@@ -273,7 +273,7 @@ public class FeedDiscovery {
             HTMLHelper.writeXmlDump(document, "dumps/" + pageUrl.replaceAll("https?://", "") + ".xml");
         }
 
-        Node baseNode = XPathHelper.getNode(document, "//HEAD/BASE/@href");
+        Node baseNode = XPathHelper.getXhtmlNode(document, "//HEAD/BASE/@href");
         String baseHref = null;
         if (baseNode != null) {
             baseHref = baseNode.getTextContent();
@@ -283,7 +283,7 @@ public class FeedDiscovery {
         // this XPath relatively complicated to be in conformance to the Atom autodiscovery "standard".
         // see: http://diveintomark.org/archives/2003/12/19/atom-autodiscovery
         List<Node> feedNodes = XPathHelper
-        .getNodes(
+        .getXhtmlNodes(
                 document,
                 "//LINK[contains(translate(@rel, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'alternate') and "
                 + "(translate(@type, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')='application/atom+xml' or "

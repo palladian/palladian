@@ -277,8 +277,8 @@ public class PageContentExtractor {
         // we need to query the result document with an xpath but the name space check has to be done on the original
         // document
         String imgXPath = "//img";
-        if (XPathHelper.hasXMLNS(document)) {
-            imgXPath = XPathHelper.addNameSpaceToXPath(imgXPath);
+        if (XPathHelper.hasXhtmlNs(document)) {
+            imgXPath = XPathHelper.addXhtmlNsToXPath(imgXPath);
         }
 
         List<Node> imageNodes = XPathHelper.getNodes(getResultDocument(), imgXPath);
