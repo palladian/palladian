@@ -27,6 +27,12 @@ public class WikiDescriptor {
     /** Path to Wiki API (api.php) if API can not be found at {@link #wikiURL}, like "/w/" for wikipedia. */
     private String pathToAPI = null;
 
+    /**
+     * Path to wiki pages, relative from {@link #wikiURL}, like /wiki/ as used in wikipedia (resulting path is
+     * http://de.wikipedia.org/wiki/)
+     */
+    public String pathToContent = null;
+
     /** Date the crawler did the last check for new pages. (Search for new pages, not revisions of a page!) */
     private Date timestampLastCheckForModifications = null;
 
@@ -114,6 +120,22 @@ public class WikiDescriptor {
      */
     public final void setPathToAPI(String pathToAPI) {
         this.pathToAPI = (pathToAPI == null) ? "" : pathToAPI;
+    }
+
+    /**
+     * @return Path to wiki pages, relative from {@link #wikiURL}, like /wiki/ as used in wikipedia (resulting path is
+     *         http://de.wikipedia.org/wiki/)
+     */
+    public final String getPathToContent() {
+        return pathToContent;
+    }
+
+    /**
+     * @param pathToContent Path to wiki pages, relative from {@link #wikiURL}, like /wiki/ as used in wikipedia
+     *            (resulting path is http://de.wikipedia.org/wiki/)
+     */
+    public final void setPathToContent(String pathToContent) {
+        this.pathToContent = (pathToContent == null) ? "" : pathToContent;
     }
 
     /**
@@ -225,9 +247,9 @@ public class WikiDescriptor {
     @Override
     public String toString() {
         return "WikiDescriptor [wikiID=" + wikiID + ", wikiName=" + wikiName + ", wikiURL=" + wikiURL + ", pathToAPI="
-        + pathToAPI + ", timestampLastCheckForModifications=" + timestampLastCheckForModifications
-        + ", crawlerUserName=" + crawlerUserName + ", crawlerPassword=" + crawlerPassword
-        + ", namespacesToCrawl=" + namespacesToCrawl + "]";
+                + pathToAPI + ", pathToContent=" + pathToContent + ", timestampLastCheckForModifications="
+                + timestampLastCheckForModifications + ", crawlerUserName=" + crawlerUserName + ", crawlerPassword="
+                + crawlerPassword + ", namespacesToCrawl=" + namespacesToCrawl + "]";
     }
 
     /*
@@ -242,8 +264,9 @@ public class WikiDescriptor {
         result = prime * result + ((crawlerUserName == null) ? 0 : crawlerUserName.hashCode());
         result = prime * result + ((namespacesToCrawl == null) ? 0 : namespacesToCrawl.hashCode());
         result = prime * result + ((pathToAPI == null) ? 0 : pathToAPI.hashCode());
+        result = prime * result + ((pathToContent == null) ? 0 : pathToContent.hashCode());
         result = prime * result
-        + ((timestampLastCheckForModifications == null) ? 0 : timestampLastCheckForModifications.hashCode());
+                + ((timestampLastCheckForModifications == null) ? 0 : timestampLastCheckForModifications.hashCode());
         result = prime * result + wikiID;
         result = prime * result + ((wikiName == null) ? 0 : wikiName.hashCode());
         result = prime * result + ((wikiURL == null) ? 0 : wikiURL.hashCode());
@@ -256,68 +279,55 @@ public class WikiDescriptor {
      */
     @Override
     public boolean equals(Object obj) {
-        if (this == obj) {
+        if (this == obj)
             return true;
-        }
-        if (obj == null) {
+        if (obj == null)
             return false;
-        }
-        if (getClass() != obj.getClass()) {
+        if (getClass() != obj.getClass())
             return false;
-        }
         WikiDescriptor other = (WikiDescriptor) obj;
         if (crawlerPassword == null) {
-            if (other.crawlerPassword != null) {
+            if (other.crawlerPassword != null)
                 return false;
-            }
-        } else if (!crawlerPassword.equals(other.crawlerPassword)) {
+        } else if (!crawlerPassword.equals(other.crawlerPassword))
             return false;
-        }
         if (crawlerUserName == null) {
-            if (other.crawlerUserName != null) {
+            if (other.crawlerUserName != null)
                 return false;
-            }
-        } else if (!crawlerUserName.equals(other.crawlerUserName)) {
+        } else if (!crawlerUserName.equals(other.crawlerUserName))
             return false;
-        }
         if (namespacesToCrawl == null) {
-            if (other.namespacesToCrawl != null) {
+            if (other.namespacesToCrawl != null)
                 return false;
-            }
-        } else if (!namespacesToCrawl.equals(other.namespacesToCrawl)) {
+        } else if (!namespacesToCrawl.equals(other.namespacesToCrawl))
             return false;
-        }
         if (pathToAPI == null) {
-            if (other.pathToAPI != null) {
+            if (other.pathToAPI != null)
                 return false;
-            }
-        } else if (!pathToAPI.equals(other.pathToAPI)) {
+        } else if (!pathToAPI.equals(other.pathToAPI))
             return false;
-        }
+        if (pathToContent == null) {
+            if (other.pathToContent != null)
+                return false;
+        } else if (!pathToContent.equals(other.pathToContent))
+            return false;
         if (timestampLastCheckForModifications == null) {
-            if (other.timestampLastCheckForModifications != null) {
+            if (other.timestampLastCheckForModifications != null)
                 return false;
-            }
-        } else if (!timestampLastCheckForModifications.equals(other.timestampLastCheckForModifications)) {
+        } else if (!timestampLastCheckForModifications.equals(other.timestampLastCheckForModifications))
             return false;
-        }
-        if (wikiID != other.wikiID) {
+        if (wikiID != other.wikiID)
             return false;
-        }
         if (wikiName == null) {
-            if (other.wikiName != null) {
+            if (other.wikiName != null)
                 return false;
-            }
-        } else if (!wikiName.equals(other.wikiName)) {
+        } else if (!wikiName.equals(other.wikiName))
             return false;
-        }
         if (wikiURL == null) {
-            if (other.wikiURL != null) {
+            if (other.wikiURL != null)
                 return false;
-            }
-        } else if (!wikiURL.equals(other.wikiURL)) {
+        } else if (!wikiURL.equals(other.wikiURL))
             return false;
-        }
         return true;
     }
 }

@@ -55,7 +55,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
     private static final String sqlAddWiki = "INSERT INTO wikis(wikiName, wikiURL, pathToApi, lastCheckNewPages, crawler_username, crawler_password) VALUES (?,?,?,?,?,?)";
 
     /** see sql */
-    private static final String sqlUpdateWiki = "UPDATE wikis SET wikiURL= ?, pathToApi = ?, lastCheckNewPages = ?, crawler_username = ?, crawler_password = ? WHERE wikiID = ?";
+    private static final String sqlUpdateWiki = "UPDATE wikis SET wikiURL= ?, pathToApi = ?, pathToContent = ?, lastCheckNewPages = ?, crawler_username = ?, crawler_password = ? WHERE wikiID = ?";
 
     /** see sql */
     private static final String sqlRemoveWiki = "DELETE FROM wikis WHERE wikiID = ?";
@@ -846,8 +846,8 @@ public final class MediaWikiDatabase extends DatabaseManager {
     }
 
     /**
-     * Updates the parameters wikiURL, pathToAPI, crawler_username, crawler_password in the data base. The namespaces to
-     * be crawled are updated iff updateNamespaces is set to {@code true}.
+     * Updates the parameters wikiURL, pathToAPI, pathToContent, crawler_username, crawler_password in the data base.
+     * The namespaces to be crawled are updated iff updateNamespaces is set to {@code true}.
      * 
      * @param wd the Wiki to update.
      * @param updateNamespaces Set to true to update namespaces or false to skip them.
@@ -865,6 +865,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
             List<Object> args = new ArrayList<Object>();
             args.add(wd.getWikiURL());
             args.add(wd.getPathToAPI());
+            args.add(wd.getPathToContent());
             if (wd.getLastCheckForModifications() != null) {
                 args.add(convertDateToSQLDateTime(wd.getLastCheckForModifications()));
             } else {
