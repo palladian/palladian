@@ -126,7 +126,7 @@ public class SimilarityCalculator {
         while (it.hasNext()) {
             Document doc = (Document) it.next();
 
-            String simNode = HTMLHelper.htmlToString(XPathHelper.getNode(doc, xPath));
+            String simNode = HTMLHelper.htmlToReadableText(XPathHelper.getNode(doc, xPath));
 
             Map<String, Integer> nodeLines = new LinkedHashMap<String, Integer>();
             StringTokenizer st = new StringTokenizer(simNode, "\n");

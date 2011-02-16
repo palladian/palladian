@@ -45,7 +45,7 @@ public class AskDateGetter {
 		}
 		
 		if(dateDiv != null){
-			String divText = HTMLHelper.htmlToString(dateDiv);
+			String divText = HTMLHelper.htmlToReadableText(dateDiv);
 			int index = divText.indexOf("...");
 			if(index != -1){
 				String dateString = divText.substring(0, index);

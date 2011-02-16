@@ -12,8 +12,8 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import tud.iir.extraction.PageAnalyzer;
 import tud.iir.helper.CollectionHelper;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.web.Crawler;
 import tud.iir.web.feeds.FeedContentClassifier.FeedContentType;
 import tud.iir.web.feeds.evaluation.PollDataSeries;
@@ -642,7 +642,7 @@ public class Feed {
      */
     public String getRawMarkup() {
         if (rawMarkup == null) {
-            rawMarkup = PageAnalyzer.getRawMarkup(getDocument());
+            rawMarkup = HTMLHelper.documentToHTMLString(getDocument());
         }
         return rawMarkup;
     }

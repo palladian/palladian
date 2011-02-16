@@ -84,7 +84,7 @@ public class PageSentenceExtractor {
 
     private void parseDocument() {
 
-        String content = PageAnalyzer.getReadableTextDump(document);
+        String content = HTMLHelper.documentToText(document);
         sentences = Tokenizer.getSentences(content, true);
 
         PageAnalyzer pa = new PageAnalyzer();
@@ -125,10 +125,10 @@ public class PageSentenceExtractor {
             return;
         }
 
-        mainContentHTML = PageAnalyzer.getRawMarkup(mainContentNode);
+        mainContentHTML = HTMLHelper.documentToHTMLString(mainContentNode);
 
         // mainContentHTML = mainContentHTML.replaceAll("\n{2,}","");
-        mainContentText = HTMLHelper.htmlToString(mainContentNode);
+        mainContentText = HTMLHelper.htmlToReadableText(mainContentNode);
 
         // System.out.println(mainContentHTML);
         // System.out.println(mainContentText);

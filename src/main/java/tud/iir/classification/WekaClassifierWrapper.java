@@ -124,7 +124,7 @@ public class WekaClassifierWrapper {
         trainingObjects = readFeatureObjects(filePath);
         trainClassifier();
     }
-    
+
     public void trainClassifier(String filePath, boolean hasHeaderRow) {
         trainingObjects = readFeatureObjects(filePath, hasHeaderRow);
         trainClassifier();
@@ -273,26 +273,26 @@ public class WekaClassifierWrapper {
     public List<FeatureObject> readFeatureObjects(int conceptID, PreparedStatement featureQuery) {
 
         DatabaseManager dbm = new DatabaseManager();
-        
+
         RowConverter<FeatureObject> converter = new RowConverter<FeatureObject>() {
 
             @Override
             public FeatureObject convert(ResultSet resultSet) throws SQLException {
-                
+
                 int columnCount = resultSet.getMetaData().getColumnCount();
                 Double[] features = new Double[columnCount - 1]; // ignore "id" column
                 String[] featureNames = new String[columnCount - 1]; // ignore "id" column
 
                 // start with 2 to skip "id"
                 for (int i = 2; i <= columnCount; i++) {
-                features[i - 2] = resultSet.getDouble(i);
-                featureNames[i - 2] = resultSet.getMetaData().getColumnLabel(i);
+                    features[i - 2] = resultSet.getDouble(i);
+                    featureNames[i - 2] = resultSet.getMetaData().getColumnLabel(i);
                 }
 
                 FeatureObject fo = new FeatureObject(features, featureNames);
                 return fo;
             }
-            
+
         };
 
         return dbm.runQuery(converter, featureQuery.toString());
@@ -378,8 +378,8 @@ public class WekaClassifierWrapper {
 
                 // read the features themselves
                 ArrayList<Double> features = new ArrayList<Double>(split.length);
-                for (int i = 0; i < split.length; i++) {
-                    features.add(Double.valueOf(split[i]));
+                for (String element : split) {
+                    features.add(Double.valueOf(element));
                 }
 
                 // remove first column, which contains the ID, if applicable
@@ -403,7 +403,7 @@ public class WekaClassifierWrapper {
 
         return featureObjects;
     }
-    
+
     public List<FeatureObject> readFeatureObjects(String filePath, boolean hasHeaderRow) {
         return readFeatureObjects(filePath, hasHeaderRow, false);
     }
@@ -470,7 +470,7 @@ public class WekaClassifierWrapper {
         return trainingObjects;
     }
 
-    public void setTrainingObjects(ArrayList<FeatureObject> trainingObjects) {
+    public void setTrainingObjects(List<FeatureObject> trainingObjects) {
         this.trainingObjects = trainingObjects;
     }
 
@@ -562,7 +562,7 @@ public class WekaClassifierWrapper {
     public void loadTrainedClassifier(String modelNamePath) {
         try {
             weka.classifiers.Classifier trainedClassifier = (weka.classifiers.Classifier) weka.core.SerializationHelper
-                    .read(modelNamePath);
+            .read(modelNamePath);
             setClassifier(trainedClassifier);
         } catch (Exception e) {
             LOGGER.error(e.getMessage());

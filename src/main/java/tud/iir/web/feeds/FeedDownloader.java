@@ -16,7 +16,6 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import tud.iir.daterecognition.DateGetterHelper;
-import tud.iir.extraction.PageAnalyzer;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.FileHelper;
@@ -304,7 +303,7 @@ public class FeedDownloader {
 
         // get the size of the feed
         if (feedDocument != null) {
-            result.setByteSize(PageAnalyzer.getRawMarkup(feedDocument).getBytes().length);
+            result.setByteSize(HTMLHelper.documentToHTMLString(feedDocument).getBytes().length);
         }
 
         return result;
@@ -623,7 +622,7 @@ public class FeedDownloader {
         String result = null;
         if (cleanStrings) {
             if (dirty != null) {
-                result = HTMLHelper.htmlToString(dirty, false);
+                result = HTMLHelper.htmlToReadableText(dirty, false);
                 result = StringEscapeUtils.unescapeHtml(result);
                 result = result.trim();
             }            

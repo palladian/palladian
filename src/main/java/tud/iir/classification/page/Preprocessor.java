@@ -259,7 +259,7 @@ public final class Preprocessor implements Serializable {
         // get body text
         String bodyContent = Crawler.extractBodyContent(webPage).toLowerCase();
 
-        bodyContent = HTMLHelper.removeHTMLTags(bodyContent, true, true, true, false);
+        bodyContent = HTMLHelper.stripHTMLTags(bodyContent, true, true, true, false);
 
         // remove stop words
         bodyContent = stripStopWords(bodyContent);

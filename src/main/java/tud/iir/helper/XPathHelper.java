@@ -21,7 +21,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
-import tud.iir.extraction.PageAnalyzer;
 import tud.iir.web.Crawler;
 
 /**
@@ -376,7 +375,7 @@ public class XPathHelper {
     /**
      * Convert a node and his children to string.
      * 
-     * TODO duplicate of {@link PageAnalyzer#getRawMarkup(Node)}, {@link HTMLHelper#getXmlDump(Node)}?
+     * TODO duplicate of {@link HTMLHelper#documentToHTMLString(Node)}, {@link HTMLHelper#getXmlDump(Node)}?
      * 
      * @param node the node
      * @return the node as string
