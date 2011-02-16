@@ -622,7 +622,7 @@ public class FeedDownloader {
         String result = null;
         if (cleanStrings) {
             if (dirty != null) {
-                result = HTMLHelper.htmlToReadableText(dirty, false);
+                result = HTMLHelper.documentToReadableText(dirty, false);
                 result = StringEscapeUtils.unescapeHtml(result);
                 result = result.trim();
             }            

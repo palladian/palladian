@@ -391,7 +391,7 @@ public class TokenizerPlus {
         // crawler.getWebDocument("http://blogs.reuters.com/mediafile/2010/11/18/ft-hearts-tablets-so-much-its-spreading-the-joy-among-staff/");
         // Document doc =
         // crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
-        String text = HTMLHelper.htmlToReadableText(doc);
+        String text = HTMLHelper.documentToReadableText(doc);
 
         // String text =
         // "the quick brown fox jumps over the lazy dog. brown foxes. brown fox. brown fox. fox";

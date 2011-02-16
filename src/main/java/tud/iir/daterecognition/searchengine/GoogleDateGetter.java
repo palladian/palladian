@@ -49,7 +49,7 @@ public class GoogleDateGetter {
 			Node classAttr = attr.getNamedItem("class");
 			if(classAttr != null){
 				if(classAttr.getNodeValue().equalsIgnoreCase("s")){
-					String divText = HTMLHelper.htmlToReadableText(dateDiv);
+					String divText = HTMLHelper.documentToReadableText(dateDiv);
 					int index = divText.indexOf("...");
 					if(index != -1){
 						String dateString = divText.substring(0, index);
