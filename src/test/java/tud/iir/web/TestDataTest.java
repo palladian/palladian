@@ -6,20 +6,18 @@ import java.io.FileInputStream;
 
 import junit.framework.Assert;
 
-import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sun.syndication.io.XmlReader;
 
 public class TestDataTest {
-    
-    @Ignore
+
     @Test
     public void checkTestDataEncoding() {
 
-        String filePath1 = "/home/pk/workspace/Palladian/src/test/resources/feeds/feed102.xml";
+        String filePath1 = "src/test/resources/feeds/feed102.xml";
         String filePath2 = TestDataTest.class.getResource("/feeds/feed102.xml").getFile();
-        
+
         Assert.assertEquals("UTF-16LE", getXmlEncoding(filePath1));
         Assert.assertEquals("UTF-16LE", getXmlEncoding(filePath2));
 
