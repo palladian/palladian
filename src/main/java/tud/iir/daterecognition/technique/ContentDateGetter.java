@@ -40,7 +40,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
     private ArrayList<ContentDate> getContentDates(Document document) {
         ArrayList<ContentDate> dates = new ArrayList<ContentDate>();
         NodeList body = document.getElementsByTagName("body");
-        String doc = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(HTMLHelper.htmlToReadableText(body
+        String doc = StringHelper.removeDoubleWhitespaces(HTMLHelper.replaceHTMLSymbols(HTMLHelper.documentToReadableText(body
                 .item(0))));
         if (body.getLength() > 0) {
             dates.addAll(enterTextnodes(body.item(0), doc, 0));
@@ -138,7 +138,7 @@ public class ContentDateGetter extends TechniqueDateGetter<ContentDate> {
             }
             
             if (date.getKeyword() == null) {
-                text = HTMLHelper.htmlToReadableText(parent.getParentNode());
+                text = HTMLHelper.documentToReadableText(parent.getParentNode());
                 
                 DateGetterHelper.setNearestTextkeyword(text, date, KeyWords.BODY_CONTENT_KEYWORDS_ALL);
             }

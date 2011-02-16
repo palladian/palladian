@@ -128,7 +128,7 @@ public class PageSentenceExtractor {
         mainContentHTML = HTMLHelper.documentToHTMLString(mainContentNode);
 
         // mainContentHTML = mainContentHTML.replaceAll("\n{2,}","");
-        mainContentText = HTMLHelper.htmlToReadableText(mainContentNode);
+        mainContentText = HTMLHelper.documentToReadableText(mainContentNode);
 
         // System.out.println(mainContentHTML);
         // System.out.println(mainContentText);

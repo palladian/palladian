@@ -397,7 +397,7 @@ public class HTMLHelper {
      * @return
      * @author Philipp Katz
      */
-    public static String htmlToReadableText(Node node) {
+    public static String documentToReadableText(Node node) {
         final StringBuilder builder = new StringBuilder();
         try {
             TransformerFactory transFac = TransformerFactory.newInstance();
@@ -471,7 +471,7 @@ public class HTMLHelper {
      * @return
      * @author Philipp Katz
      */
-    public static String htmlToReadableText(String html, boolean oneLine) {
+    public static String documentToReadableText(String html, boolean oneLine) {
 
         String result;
 
@@ -483,7 +483,7 @@ public class HTMLHelper {
             // see http://nekohtml.sourceforge.net/usage.html
             DocumentFragment fragment = document.createDocumentFragment();
             parser.parse(new InputSource(new StringInputStream(html)), fragment);
-            result = htmlToReadableText(fragment);
+            result = documentToReadableText(fragment);
 
         } catch (Exception e) {
 
@@ -846,7 +846,7 @@ public class HTMLHelper {
         System.exit(0);
 
         System.out.println(stripHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
-        System.out.println(htmlToReadableText("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
+        System.out.println(documentToReadableText("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
 
         // String html = readHtmlFile("testfiles/readability/test004.html");
         // html = htmlToString(html, true);
