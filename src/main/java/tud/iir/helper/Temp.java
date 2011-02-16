@@ -200,7 +200,7 @@ public class Temp {
         PageAnalyzer pa = new PageAnalyzer();
 
         Document webPage = crawler.getWebDocument(imprintURL);
-        String rawMarkup = PageAnalyzer.getRawMarkup(webPage);
+        String rawMarkup = HTMLHelper.documentToHTMLString(webPage);
         // String plainContent = Crawler.extractBodyContent(rawMarkup, true);
         String plainContent = Crawler.extractBodyContent(webPage);
         //plainContent = PageAnalyzer.getReadableTextDump(webPage);

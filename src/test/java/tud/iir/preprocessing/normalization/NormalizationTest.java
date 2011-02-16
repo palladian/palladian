@@ -32,9 +32,9 @@ public class NormalizationTest extends TestCase {
     }
 
     public void testRemoveHTMLTags() {
-        assertEquals("some text1", HTMLHelper.removeHTMLTags(
+        assertEquals("some text1", HTMLHelper.stripHTMLTags(
                 "<style type=\"text/css\">#abca{}</style><a>some text\n1</a><br />\n\n\n<script>another text</script>", true, true, true, true));
-        assertEquals("some text 2", HTMLHelper.removeHTMLTags(
+        assertEquals("some text 2", HTMLHelper.stripHTMLTags(
                 "<style type=\"text/css\">#abca{}</style><a>some text\n 2</a><br />", true, true, true, true));
     }
 

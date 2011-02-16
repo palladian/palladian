@@ -258,7 +258,7 @@ public class PageContentExtractor {
      * @return The extracted text from the document.
      */
     public String getResultText() {
-        String result = HTMLHelper.htmlToString(getResultDocument());
+        String result = HTMLHelper.htmlToReadableText(getResultDocument());
         return result;
     }
 
@@ -311,7 +311,7 @@ public class PageContentExtractor {
         } catch (PageContentExtractorException e) {
             LOGGER.error("location: " + documentLocation + " could not be loaded successfully, " + e.getMessage());
         }
-        return HTMLHelper.htmlToString(getResultDocument());
+        return HTMLHelper.htmlToReadableText(getResultDocument());
     }
 
     /**

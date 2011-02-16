@@ -201,7 +201,7 @@ public class FileHelper {
 
         if (stripTags) {
             contents = StringEscapeUtils.unescapeHtml(contents);
-            contents = HTMLHelper.removeHTMLTags(contents, true, false, false, false); // TODO remove JS, CSS,
+            contents = HTMLHelper.stripHTMLTags(contents, true, false, false, false); // TODO remove JS, CSS,
             // comments and merge?
             return contents;
         }

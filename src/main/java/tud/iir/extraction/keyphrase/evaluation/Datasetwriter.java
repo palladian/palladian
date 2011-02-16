@@ -218,7 +218,7 @@ public class Datasetwriter {
 
                     // parse the HTML file
                     String content = FileHelper.readFileToString(pathToHtmlFile);
-                    String cleanContent = HTMLHelper.htmlToString(content, false);
+                    String cleanContent = HTMLHelper.htmlToReadableText(content, false);
                     
                     if (cleanContent.length() < 100) {
                         return;

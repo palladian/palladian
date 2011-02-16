@@ -969,7 +969,7 @@ public class ControlledTagger extends KeyphraseExtractor {
 
         Crawler c = new Crawler();
         String result = c.download("http://www.i-funbox.com/");
-        result = HTMLHelper.htmlToString(result, true);
+        result = HTMLHelper.htmlToReadableText(result, true);
         tagger.getSettings().setTagCount(20);
         List<Keyphrase> extract = tagger.extract(result);
         System.out.println(extract);

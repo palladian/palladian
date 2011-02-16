@@ -1,7 +1,5 @@
 package tud.iir.extraction;
 
-import java.io.IOException;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -13,9 +11,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.apache.xerces.dom.DocumentImpl;
-import org.apache.xml.serialize.OutputFormat;
-import org.apache.xml.serialize.XMLSerializer;
 import org.jaxen.JaxenException;
 import org.jaxen.dom.DOMXPath;
 import org.w3c.dom.DOMException;
@@ -27,7 +22,6 @@ import org.w3c.dom.NodeList;
 import tud.iir.helper.CollectionHelper;
 import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.StringHelper;
-import tud.iir.helper.StringOutputStream;
 import tud.iir.helper.XPathHelper;
 import tud.iir.web.Crawler;
 
@@ -38,7 +32,7 @@ import tud.iir.web.Crawler;
  */
 public class PageAnalyzer {
 
-    private static final Logger LOGGER = Logger.getLogger(PageAnalyzer.class);
+    public static final Logger LOGGER = Logger.getLogger(PageAnalyzer.class);
 
     private Document document = null;
 
@@ -96,21 +90,6 @@ public class PageAnalyzer {
         return title;
     }
 
-    public String getDocumentAsString() {
-        Crawler c = new Crawler();
-        return c.download(getDocument().getDocumentURI());
-    }
-
-    public String getDocumentTextDump() {
-        return getDocumentTextDump(getDocument());
-    }
-
-    public static String getDocumentTextDump(Document document) {
-        if (document != null && document.getLastChild() != null) {
-            return document.getLastChild().getTextContent();
-        }
-        return "";
-    }
 
     /**
      * Try to find a table with at least 4 facts.
@@ -1140,121 +1119,6 @@ public class PageAnalyzer {
         return xPath;
     }
 
-    public static void printDOM(Node node, String indent) {
-        System.out.println(indent + node.getNodeName()/* +node.getTextContent().substring(0,20) */);
-        Node child = node.getFirstChild();
-        while (child != null) {
-            printDOM(child, indent + "_");
-            child = child.getNextSibling();
-        }
-    }
-
-    /**
-     * Get the sub tree as text.
-     * 
-     * @param node The node from where to start.
-     * @return A string representation of the node and its sub nodes.
-     */
-    public static String getReadableTextDump(Node node) {
-
-        // ignore css and script nodes
-        if (node == null || node.getNodeName().equalsIgnoreCase("script")
-                || node.getNodeName().equalsIgnoreCase("style")
-                || node.getNodeName().equalsIgnoreCase("#comment") || node.getNodeName().equalsIgnoreCase("option")
-                || node.getNodeName().equalsIgnoreCase("meta") || node.getNodeName().equalsIgnoreCase("head")) {
-            return "";
-        }
-
-        StringBuilder sb = new StringBuilder();
-
-        // System.out.println(node.getNodeName()+node.getTextContent());
-        if (node.getTextContent() != null) {
-
-            if (node.getNodeName().equalsIgnoreCase("#text")) {
-                sb.append(node.getTextContent().trim());
-            }
-
-        }
-        if (isWrappingNode(node)) {
-            sb.append("\n");
-        }
-
-        Node child = node.getFirstChild();
-        while (child != null) {
-            sb.append(getReadableTextDump(child));
-            child = child.getNextSibling();
-        }
-
-        return sb.toString();
-    }
-
-    public static boolean isWrappingNode(Node node) {
-
-        String nodeName = node.getNodeName().toLowerCase();
-
-        Set<String> wrappingNodes = new HashSet<String>();
-        wrappingNodes.add("p");
-        wrappingNodes.add("div");
-        wrappingNodes.add("td");
-        wrappingNodes.add("h1");
-        wrappingNodes.add("h2");
-        wrappingNodes.add("h3");
-        wrappingNodes.add("h4");
-        wrappingNodes.add("h5");
-        wrappingNodes.add("h6");
-        wrappingNodes.add("li");
-
-        if (wrappingNodes.contains(nodeName)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    public static String getRawMarkup(Document document) {
-
-        OutputStream os = new StringOutputStream();
-
-        try {
-            OutputFormat format = new OutputFormat(document);
-            XMLSerializer serializer = new XMLSerializer(os, format);
-            serializer.serialize(document);
-
-        } catch (IOException e) {
-            LOGGER.error("could not serialize document, " + e.getMessage());
-        } catch (Exception e) {
-            LOGGER.error("could not serialize document, " + e.getMessage());
-        }
-
-        return os.toString();
-    }
-
-    /**
-     * <p>
-     * 
-     * </p>
-     * 
-     * @param node
-     * @return
-     */
-    public static String getRawMarkup(Node node) {
-        Document doc = new DocumentImpl();
-
-        String ret = "";
-
-        try {
-            Node clonedNode = node.cloneNode(true);
-            Node adoptedNode = doc.adoptNode(clonedNode);
-            doc.appendChild(adoptedNode);
-            String rawMarkupString = getRawMarkup(doc);
-            ret = rawMarkupString.replaceFirst("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>", "").trim();
-        } catch (Exception e) {
-            LOGGER.error("couldn't get raw markup from node " + e.getMessage());
-        }
-
-        return ret;
-    }
-
     public static void main(String[] args) {
 
         String url = "http://www.cinefreaks.com/downloads";
@@ -1266,7 +1130,7 @@ public class PageAnalyzer {
         System.exit(1);
 
         // String t = PageAnalyzer.getDocumentTextDump(document);
-        String t = PageAnalyzer.getRawMarkup(document);
+        String t = HTMLHelper.documentToHTMLString(document);
 
         System.out.println(t.getBytes().length);
         System.out.println(t);

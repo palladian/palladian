@@ -22,6 +22,18 @@ public class HTMLHelperTest extends TestCase {
         super(name);
     }
 
+    // @Test
+    // public void testGetHTMLContent() {
+    //
+    // Crawler crawler = new Crawler();
+    // Document document = crawler.getWebDocument(HTMLHelperTest.class.getResource("/webPages/newsPage1.html")
+    // .getFile());
+    //
+    // // System.out.println(PageAnalyzer.getRawMarkup(document));
+    // System.out.println(HTMLHelper.htmlToReadableText(document));
+    //
+    // }
+
     @Test
     public void testCountTags() {
         assertEquals(4, HTMLHelper.countTags("everybody is <b>here</b> to do some <p>work</p>"));
@@ -42,12 +54,12 @@ public class HTMLHelperTest extends TestCase {
     @Test
     public void testStripTags() {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
-        assertEquals("this is relevant", HTMLHelper.removeHTMLTags(htmlContent, true, true, true, false));
+        assertEquals("this is relevant", HTMLHelper.stripHTMLTags(htmlContent, true, true, true, false));
 
         Crawler crawler = new Crawler();
         String content = crawler.download(HTMLHelperTest.class.getResource("/webPages/removeHTMLContentTest1.html")
                 .getFile());
-        String result = HTMLHelper.removeHTMLTags(content, true, true, true, false);
+        String result = HTMLHelper.stripHTMLTags(content, true, true, true, false);
         // System.out.println(result);
         // System.out.println(DigestUtils.md5Hex(result));
         Assert.assertEquals("c104399f6ad077a642161ba03be83bdb", DigestUtils.md5Hex(result));
@@ -58,14 +70,14 @@ public class HTMLHelperTest extends TestCase {
         Crawler c = new Crawler();
         Document doc = c.getWebDocument(HTMLHelperTest.class.getResource("/pageContentExtractor/test001.html")
                 .getFile());
-        String result = HTMLHelper.htmlToString(doc);
+        String result = HTMLHelper.htmlToReadableText(doc);
         Assert.assertEquals("489eb91cf94343d0b62e69c396bc6b6f", DigestUtils.md5Hex(result));
     }
 
     @Test
     public void testHtmlToString2() {
         String htmlContent = "<html lang=\"en-us\"> <script language=\"JavaScript\" type=\"text/javascript\">var MKTCOUNTRY = \"USA\"</script>this is relevant <!-- function open_doc (docHref) {document.location.href = '/sennheiser/home_de.nsf/' + docHref;}--> </html>";
-        System.out.println(HTMLHelper.htmlToString(htmlContent, true));
+        System.out.println(HTMLHelper.htmlToReadableText(htmlContent, true));
         // assertEquals("this is relevant", HTMLHelper.removeHTMLTags(htmlContent, true, true, true, false));
 
     }

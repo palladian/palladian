@@ -619,7 +619,7 @@ public class Crawler {
             boolean joinTagsAndRemoveNewlines = false;
 
             // Remove all tags, comments, JS and CSS from body
-            bodyContent = HTMLHelper.removeHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
+            bodyContent = HTMLHelper.stripHTMLTags(bodyContent, stripTags, stripComments, stripJSAndCSS,
                     joinTagsAndRemoveNewlines);
             bodyContent = bodyContent.replaceAll("&nbsp;", " ");
             bodyContent = bodyContent.replaceAll("&amp;", "&");
@@ -1193,7 +1193,7 @@ public class Crawler {
         }
 
         if (stripTags || stripComments || stripJSAndCSS) {
-            contentString = HTMLHelper.removeHTMLTags(contentString, stripTags, stripComments, stripJSAndCSS,
+            contentString = HTMLHelper.stripHTMLTags(contentString, stripTags, stripComments, stripJSAndCSS,
                     joinTagsAndRemoveNewlines);
         }
 

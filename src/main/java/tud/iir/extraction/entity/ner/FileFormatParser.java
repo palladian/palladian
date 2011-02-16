@@ -52,7 +52,7 @@ public class FileFormatParser {
 
         String xmlText = FileHelper.readFileToString(inputFilePath);
 
-        return HTMLHelper.removeHTMLTags(xmlText, true, true, true, false);
+        return HTMLHelper.stripHTMLTags(xmlText, true, true, true, false);
 
     }
 
@@ -520,9 +520,9 @@ public class FileFormatParser {
              */
 
             // get the left and right context of the annotation
-            String leftContext = HTMLHelper.removeHTMLTags(taggedText.substring(Math.max(0, matcher.start() - 10),
+            String leftContext = HTMLHelper.stripHTMLTags(taggedText.substring(Math.max(0, matcher.start() - 10),
                     matcher.start()));
-            String rightContext = HTMLHelper.removeHTMLTags(taggedText.substring(matcher.end(),
+            String rightContext = HTMLHelper.stripHTMLTags(taggedText.substring(matcher.end(),
                     Math.min(taggedText.length(), matcher.end() + 10)));
 
             String conceptName = matcher.group(1);
@@ -532,7 +532,7 @@ public class FileFormatParser {
             int nestedTagLength = HTMLHelper.countTagLength(entityName);
 
             // remove nested tags
-            entityName = HTMLHelper.removeHTMLTags(matcher.group(2));
+            entityName = HTMLHelper.stripHTMLTags(matcher.group(2));
 
             // add tag < + name + > to cumulated tag offset
             int tagOffset = conceptName.length() + 2;

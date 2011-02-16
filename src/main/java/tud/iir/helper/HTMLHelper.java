@@ -1,6 +1,7 @@
 package tud.iir.helper;
 
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.ArrayList;
@@ -36,6 +37,9 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.html.dom.HTMLDocumentImpl;
 import org.apache.log4j.Logger;
+import org.apache.xerces.dom.DocumentImpl;
+import org.apache.xml.serialize.OutputFormat;
+import org.apache.xml.serialize.XMLSerializer;
 import org.cyberneko.html.parsers.DOMFragmentParser;
 import org.w3c.dom.DOMException;
 import org.w3c.dom.Document;
@@ -221,10 +225,9 @@ public class HTMLHelper {
     }
 
     /**
-     * TODO this is f***ing slow, especially the stripTags part. Why not use "<.*?>"?
-     * 
      * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
-     * gaps.
+     * gaps. The text might not be readable since all format hints are discarded. Consider using
+     * {@link HTMLHelper.htmlToReableText} in case you need formatting.
      * 
      * @param htmlContent the html content
      * @param stripTags the strip tags
@@ -233,11 +236,10 @@ public class HTMLHelper {
      * @param joinTagsAndRemoveNewlines the join tags and remove newlines
      * @return The text of the web page.
      */
-    public static String removeHTMLTags(String htmlContent, boolean stripTags, boolean stripComments,
+    public static String stripHTMLTags(String htmlContent, boolean stripTags, boolean stripComments,
             boolean stripJSAndCSS, boolean joinTagsAndRemoveNewlines) {
 
         String htmlText = htmlContent;
-        // modified by Martin Werner, 2010-06-02
 
         String regExp = "";
 
@@ -248,13 +250,10 @@ public class HTMLHelper {
 
         if (stripComments) {
             regExp += "(\\<!--.*?-->)|";
-            // htmlText = htmlText.replaceAll("<!--.*?-->", "");
         }
 
         if (stripJSAndCSS) {
             regExp += "(<style.*?>.*?</style>)|(<script.*?>.*?</script>)|";
-            // htmlText = removeConcreteHTMLTag(htmlText, "style");
-            // htmlText = removeConcreteHTMLTag(htmlText, "script");
         }
 
         if (stripTags) {
@@ -271,14 +270,12 @@ public class HTMLHelper {
         if (regExp.endsWith("|")) {
             regExp = regExp.substring(0, regExp.length() - 1);
         }
-        //
-        // Pattern pattern =
-        // Pattern.compile("((\\<!--.*?-->)|(\\<style.*?>.*?\\</style>)|(\\<script.*?>.*?\\</script>)|(\\<.*?>))",Pattern.DOTALL);
+
         Pattern pattern = Pattern.compile("(" + regExp + ")", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
         Matcher matcher = pattern.matcher(htmlText);
-        //
+
         while (matcher.find()) {
-            htmlText = htmlText.replace(matcher.group(), " "); // TODO changed
+            htmlText = htmlText.replace(matcher.group(), " ");
             // // and untested
             // // 16/06/2009
             // // replace with
@@ -293,8 +290,20 @@ public class HTMLHelper {
         return htmlText.trim();
     }
 
-    public static String removeHTMLTags(String htmlContent) {
-        return removeHTMLTags(htmlContent, true, true, true, true);
+    /**
+     * <p>
+     * Remove all style and script tags including their content (css, javascript). Remove all other tags as well. Close
+     * gaps. The text might not be readable since all format hints are discarded. Consider using
+     * {@link HTMLHelper.htmlToReableText} in case you need formatting.
+     * </p>
+     * <p>
+     * All tags, including css and javascript, will be removed. Lines will be joined.
+     * </p>
+     * 
+     * @param htmlContent the html content
+     */
+    public static String stripHTMLTags(String htmlContent) {
+        return stripHTMLTags(htmlContent, true, true, true, true);
     }
 
     /**
@@ -347,8 +356,6 @@ public class HTMLHelper {
      */
     public static List<String> getConcreteTags(String pageString, String beginTag, String endTag) {
 
-        StopWatch sw = new StopWatch();
-
         List<String> tagList = new ArrayList<String>();
         String regExp = "";
         if (beginTag.equals(endTag)) {
@@ -379,7 +386,7 @@ public class HTMLHelper {
      * </p>
      * 
      * <p>
-     * In contrast to {@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}, which works on Strings and
+     * In contrast to {@link #stripHTMLTags(String, boolean, boolean, boolean, boolean)}, which works on Strings and
      * just strips out all tags via RegExes, this approach tries to keep some structure for displaying HTML content in
      * text mode in a readable form.
      * </p>
@@ -390,7 +397,7 @@ public class HTMLHelper {
      * @return
      * @author Philipp Katz
      */
-    public static String htmlToString(Node node) {
+    public static String htmlToReadableText(Node node) {
         final StringBuilder builder = new StringBuilder();
         try {
             TransformerFactory transFac = TransformerFactory.newInstance();
@@ -455,7 +462,7 @@ public class HTMLHelper {
     /**
      * Allows to strip HTML tags from HTML fragments. It will use the Neko parser to parse the String first and then
      * remove the tags, based on the document's structure. Advantage instead of using RegExes to strip the tags is, that
-     * whitespace is handled more correctly than in {@link #removeHTMLTags(String, boolean, boolean, boolean, boolean)}
+     * whitespace is handled more correctly than in {@link #stripHTMLTags(String, boolean, boolean, boolean, boolean)}
      * which never worked well for me.
      * TODO: "namespace not declared errors"
      * 
@@ -464,7 +471,7 @@ public class HTMLHelper {
      * @return
      * @author Philipp Katz
      */
-    public static String htmlToString(String html, boolean oneLine) {
+    public static String htmlToReadableText(String html, boolean oneLine) {
 
         String result;
 
@@ -476,13 +483,13 @@ public class HTMLHelper {
             // see http://nekohtml.sourceforge.net/usage.html
             DocumentFragment fragment = document.createDocumentFragment();
             parser.parse(new InputSource(new StringInputStream(html)), fragment);
-            result = htmlToString(fragment);
+            result = htmlToReadableText(fragment);
 
         } catch (Exception e) {
 
             // parser failed -> fall back, remove tags directly from the string without parsing
             LOGGER.debug("encountered error while parsing, will just strip tags : " + e.getMessage());
-            result = removeHTMLTags(html, true, true, true, false);
+            result = stripHTMLTags(html, true, true, true, false);
 
         }
 
@@ -838,8 +845,8 @@ public class HTMLHelper {
 
         System.exit(0);
 
-        System.out.println(removeHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
-        System.out.println(htmlToString("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
+        System.out.println(stripHTMLTags("<p>One <b>sentence</b>.</p><p>Another sentence.", true, true, true, true));
+        System.out.println(htmlToReadableText("<p>One <b>sentence</b>.</p><p>Another sentence.", true));
 
         // String html = readHtmlFile("testfiles/readability/test004.html");
         // html = htmlToString(html, true);
@@ -862,6 +869,133 @@ public class HTMLHelper {
         // System.out.println(DigestUtils.md5Hex(result)); // 489eb91cf94343d0b62e69c396bc6b6f
         // System.out.println(result);
 
+    }
+
+    /**
+     * Get the raw HTML code of the document. The code will not be reformatted.
+     * 
+     * @param document The web document to transform to the HTML string.
+     * @return The unformatted HTML code of the document.
+     */
+    public static String documentToHTMLString(Document document) {
+
+        OutputStream os = new StringOutputStream();
+
+        try {
+            OutputFormat format = new OutputFormat(document);
+            XMLSerializer serializer = new XMLSerializer(os, format);
+            serializer.serialize(document);
+
+        } catch (IOException e) {
+            LOGGER.error("could not serialize document, " + e.getMessage());
+        } catch (Exception e) {
+            LOGGER.error("could not serialize document, " + e.getMessage());
+        }
+
+        return os.toString();
+    }
+
+    /**
+     * Get the raw HTML code of the node. The code will not be reformatted.
+     * 
+     * @param node An HTML node that should be transformed to an HTML string.
+     * @return The unformatted HTML code of the node.
+     */
+    public static String documentToHTMLString(Node node) {
+        Document doc = new DocumentImpl();
+
+        String ret = "";
+
+        try {
+            Node clonedNode = node.cloneNode(true);
+            Node adoptedNode = doc.adoptNode(clonedNode);
+            doc.appendChild(adoptedNode);
+            String rawMarkupString = documentToHTMLString(doc);
+            ret = rawMarkupString.replaceFirst("<\\?xml version=\"1.0\" encoding=\"UTF-8\"\\?>", "").trim();
+        } catch (Exception e) {
+            LOGGER.error("couldn't get raw markup from node " + e.getMessage());
+        }
+
+        return ret;
+    }
+
+    public static void printDOM(Node node, String indent) {
+        System.out.println(indent + node.getNodeName()/* +node.getTextContent().substring(0,20) */);
+        Node child = node.getFirstChild();
+        while (child != null) {
+            printDOM(child, indent + "_");
+            child = child.getNextSibling();
+        }
+    }
+
+    /**
+     * Get the sub tree of the document or node as text without tags.
+     * You could also use {@link documentToHTMLString} and {@link htmlToReadableText} to achieve similar results.
+     * 
+     * @param node The node from where to start.
+     * @return A text representation of the node and its sub nodes without tags.
+     */
+    public static String documentToText(Node node) {
+
+        // ignore css and script nodes
+        if (node == null || node.getNodeName().equalsIgnoreCase("script")
+                || node.getNodeName().equalsIgnoreCase("style")
+                || node.getNodeName().equalsIgnoreCase("#comment") || node.getNodeName().equalsIgnoreCase("option")
+                || node.getNodeName().equalsIgnoreCase("meta") || node.getNodeName().equalsIgnoreCase("head")) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        // System.out.println(node.getNodeName()+node.getTextContent());
+        if (node.getTextContent() != null) {
+
+            if (node.getNodeName().equalsIgnoreCase("#text")) {
+                sb.append(node.getTextContent().trim());
+            }
+
+        }
+        if (isWrappingNode(node)) {
+            sb.append("\n");
+        }
+
+        Node child = node.getFirstChild();
+        while (child != null) {
+            sb.append(documentToText(child));
+            child = child.getNextSibling();
+        }
+
+        return sb.toString();
+    }
+
+    public static String getDocumentTextDump(Document document) {
+        if (document != null && document.getLastChild() != null) {
+            return document.getLastChild().getTextContent();
+        }
+        return "";
+    }
+
+    private static boolean isWrappingNode(Node node) {
+
+        String nodeName = node.getNodeName().toLowerCase();
+
+        Set<String> wrappingNodes = new HashSet<String>();
+        wrappingNodes.add("p");
+        wrappingNodes.add("div");
+        wrappingNodes.add("td");
+        wrappingNodes.add("h1");
+        wrappingNodes.add("h2");
+        wrappingNodes.add("h3");
+        wrappingNodes.add("h4");
+        wrappingNodes.add("h5");
+        wrappingNodes.add("h6");
+        wrappingNodes.add("li");
+
+        if (wrappingNodes.contains(nodeName)) {
+            return true;
+        }
+
+        return false;
     }
 
 }

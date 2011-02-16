@@ -618,8 +618,8 @@ public class SourceRetriever {
                     String summary = (String) summExpr.evaluate(currentNode, XPathConstants.STRING);
 
                     WebResult webresult = new WebResult(SourceRetrieverManager.YAHOO_BOSS, numHits + 1, new Source(
-                            resultUrl), HTMLHelper.removeHTMLTags(title, true, true, true, true),
-                            HTMLHelper.removeHTMLTags(summary, true, true, true, true));
+                            resultUrl), HTMLHelper.stripHTMLTags(title, true, true, true, true),
+                            HTMLHelper.stripHTMLTags(summary, true, true, true, true));
 
                     LOGGER.debug("yahoo boss retrieved url " + resultUrl);
                     webresults.add(webresult);

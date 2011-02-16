@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import tud.iir.extraction.PageAnalyzer;
+import tud.iir.helper.HTMLHelper;
 import tud.iir.helper.XPathHelper;
 
 /**
@@ -208,7 +208,7 @@ public class FeedItem {
     public String getRawMarkup() {
         String rawMarkup = "";
 
-        rawMarkup = PageAnalyzer.getRawMarkup(getNode());
+        rawMarkup = HTMLHelper.documentToHTMLString(getNode());
 
         return rawMarkup;
     }

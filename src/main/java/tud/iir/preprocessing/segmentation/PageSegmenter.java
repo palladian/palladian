@@ -352,7 +352,7 @@ public class PageSegmenter {
             while (it2.hasNext()) {
                 Document currentDocument = it2.next();
 
-                if (HTMLHelper.htmlToString(d).equals(HTMLHelper.htmlToString(currentDocument))) {
+                if (HTMLHelper.htmlToReadableText(d).equals(HTMLHelper.htmlToReadableText(currentDocument))) {
                     System.out.println("#####################################################");
                     continue;
                 }

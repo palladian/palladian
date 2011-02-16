@@ -12,19 +12,19 @@ import tud.iir.extraction.entity.ner.NamedEntityRecognizer;
 public abstract class AbstractNaturalLanguageProcessor {
 
     /** The Named Entity Recognizer. **/
-    private NamedEntityRecognizer ner;
+    protected NamedEntityRecognizer ner;
 
     /** The POS-Tagger used in this class. **/
-    private AbstractPOSTagger posTagger;
+    protected AbstractPOSTagger posTagger;
 
     /** The PhraseChunker. **/
-    private AbstractPhraseChunker phraseChunker;
+    protected AbstractPhraseChunker phraseChunker;
 
     /** The Parser. **/
-    private AbstractParser parser;
+    protected AbstractParser parser;
 
     /** The SentenceDetector. **/
-    private AbstractSentenceDetector sentenceDetector;
+    protected AbstractSentenceDetector sentenceDetector;
 
     /**
      * @param text

@@ -40,13 +40,13 @@ public abstract class AbstractSentenceDetector {
     }
 
     /** holds the model. **/
-    private Object model;
+    protected Object model;
 
     /** holds the name of the chunker. **/
-    private String name;
+    protected String name;
 
     /** holds the sentences. **/
-    private String[] sentences;
+    protected String[] sentences;
 
     /**
      * chunks a sentence and writes parts in @see {@link #chunks} and @see {@link #tokens}. Method returns

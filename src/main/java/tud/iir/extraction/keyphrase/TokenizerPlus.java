@@ -356,7 +356,7 @@ public class TokenizerPlus {
     public static void main(String[] args) {
 
         String str = FileHelper.readFileToString("/home/pk/temp/deliciousT140/docs/00/0035e82f5dd7e17b4992c90f6f351d60.txt");
-        str = HTMLHelper.removeHTMLTags(str);
+        str = HTMLHelper.stripHTMLTags(str);
         
         // String str = FileHelper.readFileToString("/Users/pk/temp/fao780/46140e.txt");
         // String str = FileHelper.readFileToString("/home/pk/Desktop/t0848e.txt");
@@ -391,7 +391,7 @@ public class TokenizerPlus {
         // crawler.getWebDocument("http://blogs.reuters.com/mediafile/2010/11/18/ft-hearts-tablets-so-much-its-spreading-the-joy-among-staff/");
         // Document doc =
         // crawler.getWebDocument("http://en.wikipedia.org/wiki/The_Garden_of_Earthly_Delights");
-        String text = HTMLHelper.htmlToString(doc);
+        String text = HTMLHelper.htmlToReadableText(doc);
 
         // String text =
         // "the quick brown fox jumps over the lazy dog. brown foxes. brown fox. brown fox. fox";
