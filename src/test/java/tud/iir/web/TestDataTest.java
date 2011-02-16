@@ -6,12 +6,14 @@ import java.io.FileInputStream;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.sun.syndication.io.XmlReader;
 
 public class TestDataTest {
     
+    @Ignore
     @Test
     public void checkTestDataEncoding() {
 
