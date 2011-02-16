@@ -8,8 +8,12 @@ import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.persistence.DatabaseManager;
+
 /**
  * This class allows one to save data into a database instead of keeping it in memory.
+ * 
+ * TODO inherit from {@link DatabaseManager}?
  * 
  * @author David Urbansky
  */

@@ -144,6 +144,7 @@ public class TokenizerTest extends TestCase {
         assertEquals(2, sentences.size());
         assertEquals("Dies    ist  ein toller Test.", sentences.get(0));
         assertEquals("Hallo Tag wird toll", sentences.get(1));
+        System.out.println(sentences);
 
     }
 }

@@ -30,14 +30,14 @@ public class AskDateGetter {
 		ExtractedDate date = null;
 		
 		for(int i=0; i <aList.getLength(); i++){
-			Node div = XPathHelper.getChildNodeByID(doc, "r" + i + "_t");
+			Node div = XPathHelper.getNodeByID(doc, "r" + i + "_t");
 			
 			if(div != null){
 				NamedNodeMap attr = div.getAttributes();
 				Node href = attr.getNamedItem("href");
 				if(href != null){
 					if(href.getNodeValue().equalsIgnoreCase(url)){
-						dateDiv = XPathHelper.getChildNodeByID(doc, "r" + i + "_a");
+						dateDiv = XPathHelper.getNodeByID(doc, "r" + i + "_a");
 						break;
 					}
 				}	

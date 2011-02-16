@@ -561,7 +561,7 @@ public class PageSegmenter {
             Segment testSeg = chosenSegments.get(i);
             System.out.println(testSeg.getVariability() + " " + testSeg.getColor() + " " + testSeg.getXPath());
 
-            Element e2 = (Element) XPathHelper.getNode(document, testSeg.getXPath());
+            Element e2 = (Element) XPathHelper.getXhtmlNode(document, testSeg.getXPath());
 
             String border = "";
             double value = testSeg.getVariability();
@@ -770,7 +770,7 @@ public class PageSegmenter {
 
         for (int i = 0; i < nonConflictNodes.size(); i++) {
             String xPath = nonConflictNodes.get(i);
-            Element node = (Element) XPathHelper.getNode(document, xPath);
+            Element node = (Element) XPathHelper.getXhtmlNode(document, xPath);
             if (node == null) {
                 continue;
             }
@@ -786,7 +786,7 @@ public class PageSegmenter {
 
             String xPath = (String) pairs.getKey();
             Double significance = (Double) pairs.getValue();
-            Element node = (Element) XPathHelper.getNode(document, xPath);
+            Element node = (Element) XPathHelper.getXhtmlNode(document, xPath);
             if (node == null) {
                 continue;
             }
@@ -827,7 +827,7 @@ public class PageSegmenter {
             if (xp.substring(xp.lastIndexOf("/") + 1, xp.length()).equals("TR")) {
                 xp = xp + "/TD";
             }
-            ArrayList<Node> list = (ArrayList<Node>) XPathHelper.getNodes(document, xp);
+            ArrayList<Node> list = (ArrayList<Node>) XPathHelper.getXhtmlNodes(document, xp);
             System.out.println("--------------\n" + xp + "\nS.size: " + s.size() + "\n---------------");
             for (int i = 0; i < list.size(); i++) {
                 Node n = list.get(i);

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<?xml-stylesheet type="text/xsl" href="veranstaltungen.xsl"?>
+<activity>
+	<events>
+		<event id="e01" name="XML on Stage" />
+		<event id="e02" name="SELFHTML Treffen" />
+		<event id="e03" name="Expertenchat" />
+	</events>
+	<participants>
+		<participant events="e02" name="Otto Lieb" />
+		<participant events="e02" name="Axel Bravo" />
+		<participant events="e01 e03" name="Petra Klug" />
+		<participant events="e02 e03" name="Birgit Lob" />
+		<participant events="e01 e03" name="Andrea Groß" />
+		<participant events="e01 e02 e03" name="Heinrich Aller" />
+		<participant events="e01 e02 e03" name="Jessy Keen" />
+	</participants>
+</activity>

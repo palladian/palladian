@@ -64,7 +64,7 @@ public class PageAnalyzer {
 
         String xPath = "//TITLE";
         try {
-            xPath = XPathHelper.addNameSpaceToXPath(document, xPath);
+            xPath = XPathHelper.addXhtmlNsToXPath(document, xPath);
 
             // TODO no attribute xpath working "/@href"
             DOMXPath xpathObj = new DOMXPath(xPath);
@@ -136,7 +136,7 @@ public class PageAnalyzer {
 
         for (String currentXPath : listElements) {
 
-            List<Node> results = XPathHelper.getNodes(document, currentXPath);
+            List<Node> results = XPathHelper.getXhtmlNodes(document, currentXPath);
             if (results == null) {
                 continue;
             }
@@ -195,7 +195,7 @@ public class PageAnalyzer {
         Iterator<String> xpathIterator = xpaths.iterator();
         while (xpathIterator.hasNext()) {
             String currentXpath = xpathIterator.next();
-            currentXpath = XPathHelper.addNameSpaceToXPath(document, currentXpath);
+            currentXpath = XPathHelper.addXhtmlNsToXPath(document, currentXpath);
 
             if (deleteAllIndices) {
                 currentXpath = removeXPathIndices(currentXpath);
@@ -743,7 +743,7 @@ public class PageAnalyzer {
 
         // find out how many rows the table has
         String tableXPath = getParentNode(attributeXPath.substring(0, lastOpeningBrackets));
-        List<Node> tableNodes = XPathHelper.getNodes(document, tableXPath);
+        List<Node> tableNodes = XPathHelper.getXhtmlNodes(document, tableXPath);
         if (tableNodes.size() == 0) {
             return tableRowsXPaths;
         }
@@ -822,7 +822,7 @@ public class PageAnalyzer {
 
         // System.out.println(getParentNode(getTableCellPath(tableTDXPath)));
         // printDOM(XPathHelper.getNodes(document, getParentNode(getTableCellPath(tableTDXPath))).item(0), " ");
-        List<Node> nodeList = XPathHelper.getNodes(document, getParentNode(getTableCellPath(tableTDXPath)));
+        List<Node> nodeList = XPathHelper.getXhtmlNodes(document, getParentNode(getTableCellPath(tableTDXPath)));
         LinkedHashMap<Integer, Integer> tdCountMap = new LinkedHashMap<Integer, Integer>();
 
         for (int i = 0; i < nodeList.size(); i++) {
@@ -922,7 +922,7 @@ public class PageAnalyzer {
             //
             // List<Node> results = xpathObj.selectNodes(document.getLastChild());
 
-            List<Node> results = XPathHelper.getNodes(document, xpath);
+            List<Node> results = XPathHelper.getXhtmlNodes(document, xpath);
 
             Iterator<Node> nodeIterator = results.iterator();
             while (nodeIterator.hasNext()) {
@@ -1045,7 +1045,7 @@ public class PageAnalyzer {
         try {
             // TODO next line, DOMXPath instead of XPath and document.getLastChild changed (might lead to different
             // evaluation results)
-            xpath = XPathHelper.addNameSpaceToXPath(document, xpath);
+            xpath = XPathHelper.addXhtmlNsToXPath(document, xpath);
 
             // xpath = xpath.replaceAll("/xhtml:TBODY", "/");
 

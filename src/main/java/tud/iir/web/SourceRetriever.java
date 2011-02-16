@@ -1152,7 +1152,7 @@ public class SourceRetriever {
 
             Node startNode = document.getLastChild(); // the html node
 
-            if (XPathHelper.hasXMLNS(document)) {
+            if (XPathHelper.hasXhtmlNs(document)) {
                 xPath = xPath.replaceAll("/", "/xhtml:");
             }
 

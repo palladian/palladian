@@ -48,12 +48,12 @@ import org.apache.log4j.Logger;
  */
 public class FileHelper {
 
-    /** The Constant LOGGER. */
+    /** The logger for this class. */
     private static final Logger LOGGER = Logger.getLogger(FileHelper.class);
 
     /**
      * Checks if is file name.
-     *
+     * 
      * @param name the name
      * @return true, if is file name
      */
