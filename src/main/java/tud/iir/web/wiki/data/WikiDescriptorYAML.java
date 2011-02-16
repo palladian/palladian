@@ -22,6 +22,12 @@ public class WikiDescriptorYAML {
     /** Path to Wiki API (api.php) if API can not be found at {@link #wikiURL}, like "/w/" for wikipedia. */
     public String pathToAPI = null;
 
+    /**
+     * Path to wiki pages, relative from {@link #wikiURL}, like /wiki/ as used in wikipedia (resulting path is
+     * http://de.wikipedia.org/wiki/)
+     */
+    public String pathToContent = null;
+
     /** User name the {@link MediaWikiCrawler} uses to log into the Wiki for reading content. */
     public String crawlerUserName = null;
 
@@ -70,8 +76,8 @@ public class WikiDescriptorYAML {
     @Override
     public String toString() {
         return "WikiDescriptorYAML [wikiName=" + wikiName + ", wikiURL=" + wikiURL + ", pathToAPI=" + pathToAPI
-        + ", crawlerUserName=" + crawlerUserName + ", crawlerPassword=" + crawlerPassword
-        + ", namespacesToCrawl=" + namespacesToCrawl + "]";
+                + ", pathToContent=" + pathToContent + ", crawlerUserName=" + crawlerUserName + ", crawlerPassword="
+                + crawlerPassword + ", namespacesToCrawl=" + namespacesToCrawl + "]";
     }
 
 }
