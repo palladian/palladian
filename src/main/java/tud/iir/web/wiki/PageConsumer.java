@@ -21,7 +21,7 @@ public class PageConsumer implements Runnable {
     private static final boolean DEBUG = LOGGER.isDebugEnabled();
 
     /** do not call LOGGER.isInfoEnabled() 1000 times */
-    private static final boolean INFO = LOGGER.isInfoEnabled();
+    // private static final boolean INFO = LOGGER.isInfoEnabled();
 
     /** Flag, checked periodically to stop the thread if set to true. */
     private boolean stopThread = false;
@@ -70,8 +70,8 @@ public class PageConsumer implements Runnable {
 
     @Override
     public void run() {
-        if (INFO) {
-            LOGGER.info("Start processing WikiPages.");
+        if (DEBUG) {
+            LOGGER.debug("Start processing WikiPages.");
         }
 
         while (true) {
@@ -90,8 +90,8 @@ public class PageConsumer implements Runnable {
                 e.printStackTrace();
             }
         }
-        if (INFO) {
-            LOGGER.info("PageConsumer has been stopped. Goodbye!");
+        if (DEBUG) {
+            LOGGER.debug("PageConsumer has been stopped. Goodbye!");
         }
     }
 

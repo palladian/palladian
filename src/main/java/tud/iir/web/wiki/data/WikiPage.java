@@ -6,6 +6,8 @@ import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
+import tud.iir.helper.HTMLHelper;
+
 /**
  * Representation of a Wiki page with title, pageID, namespaceID, content, revisions, etc.
  * 
@@ -120,10 +122,17 @@ public class WikiPage {
     }
 
     /**
-     * @return The page's content as HTML representation, rendered by the Wiki.
+     * @return The page content as HTML representation, rendered by the Wiki.
      */
     public final String getPageContent() {
         return pageContentHTML;
+    }
+
+    /**
+     * @return The page content without HTML tags.
+     */
+    public final String getStripedPageContent() {
+        return HTMLHelper.documentToReadableText(pageContentHTML, false);
     }
 
     /**
@@ -160,6 +169,34 @@ public class WikiPage {
             timeStamps.add(revision.getTimestamp());
         }
         return timeStamps;
+    }
+
+    /**
+     * Get the {@link Date} this {@link WikiPage} has been created.
+     * 
+     * @return The {@link Date} this page has been created or <code>null</code> if there are no known revisions (which
+     *         should never be the case.)
+     */
+    public final Date getCreatedDate() {
+        Date created = null;
+        if (!revisions.isEmpty()) {
+            created = revisions.firstEntry().getValue().getTimestamp();
+        }
+        return created;
+    }
+
+    /**
+     * Get the {@link Date} this {@link WikiPage} has been modified the last time.
+     * 
+     * @return The {@link Date} this page has been last modified or <code>null</code> if there are no known revisions
+     *         (which should never be the case.)
+     */
+    public final Date getLastModifiedDate() {
+        Date lastModified = null;
+        if (!revisions.isEmpty()) {
+            lastModified = revisions.lastEntry().getValue().getTimestamp();
+        }
+        return lastModified;
     }
 
     /**
