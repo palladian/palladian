@@ -16,6 +16,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.InputSource;
 
 import tud.iir.daterecognition.DateGetterHelper;
+import tud.iir.daterecognition.dates.ExtractedDate;
 import tud.iir.extraction.content.PageContentExtractor;
 import tud.iir.extraction.content.PageContentExtractorException;
 import tud.iir.helper.FileHelper;
@@ -470,28 +471,46 @@ public class FeedDownloader {
         // There are still some feeds with entries where the publish date cannot be parsed though,
         // see FeedDownloaderTest for a list of test cases.
         if (publishDate == null && useDateRecognition) {
-
+            
+            
+//            Node node = item.getNode();
+//            Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
+//
+//            try {
+//                
+//                publishDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
+//                if (publishDate != null) {
+//                    LOGGER.debug("found publish date in original feed file: " + publishDate);
+//                }
+//                
+//            } catch (NullPointerException e) {
+//                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
+//                        + item.getFeedUrl() + ", " + e.getMessage());
+//            } catch (DOMException e) {
+//                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
+//                        + item.getFeedUrl() + ", " + e.getMessage());
+//            } catch (Exception e) {
+//                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
+//                        + item.getFeedUrl() + ", " + e.getMessage());
+//            }
+            
             Node node = item.getNode();
-            Node pubDateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
-
-            try {
+            if (node != null) {
                 
-                publishDate = DateGetterHelper.findDate(pubDateNode.getTextContent()).getNormalizedDate();
-                if (publishDate != null) {
-                    LOGGER.debug("found publish date in original feed file: " + publishDate);
+                Node dateNode = XPathHelper.getChildNode(node, "*[contains(name(),'date') or contains(name(),'Date')]");
+                if (dateNode != null) {
+                    
+                    ExtractedDate extractedDate = DateGetterHelper.findDate(dateNode.getTextContent());
+                    if (extractedDate != null) {
+                        try {
+                            publishDate = extractedDate.getNormalizedDate();
+                            LOGGER.debug("found publish date in original feed file: " + publishDate);
+                        } catch (Exception e) {
+                            LOGGER.warn("date format could not be parsed correctly: " + dateNode + ", feed: " + item.getFeedUrl() + ", " + e.getMessage());
+                        }
+                    }
                 }
-                
-            } catch (NullPointerException e) {
-                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
-                        + item.getFeedUrl() + ", " + e.getMessage());
-            } catch (DOMException e) {
-                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
-                        + item.getFeedUrl() + ", " + e.getMessage());
-            } catch (Exception e) {
-                LOGGER.warn("date format could not be parsed correctly: " + pubDateNode + ", feed: "
-                        + item.getFeedUrl() + ", " + e.getMessage());
             }
-
         }
 
         if (publishDate == null) {
