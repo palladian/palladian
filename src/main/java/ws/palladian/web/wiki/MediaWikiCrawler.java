@@ -31,6 +31,7 @@ import ws.palladian.web.wiki.data.WikiPage;
 import ws.palladian.web.wiki.persistence.MWConfigLoader;
 import ws.palladian.web.wiki.persistence.MediaWikiDatabase;
 import ws.palladian.web.wiki.queries.AllPageTitles;
+import ws.palladian.web.wiki.queries.BasicInformationQuery;
 import ws.palladian.web.wiki.queries.GetRendering;
 import ws.palladian.web.wiki.queries.RecentChanges;
 import ws.palladian.web.wiki.queries.RevisionsByTitleQuery;
