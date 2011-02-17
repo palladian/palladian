@@ -1,5 +1,6 @@
 package ws.palladian.persistence;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 
@@ -17,7 +18,9 @@ import org.apache.lucene.search.BooleanQuery;
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.TermQuery;
-import org.apache.lucene.search.TopDocCollector;
+import org.apache.lucene.search.TopScoreDocCollector;
+import org.apache.lucene.store.Directory;
+import org.apache.lucene.store.SimpleFSDirectory;
 
 import ws.palladian.classification.Categories;
 import ws.palladian.classification.Category;
@@ -33,7 +36,7 @@ import ws.palladian.helper.FileHelper;
  */
 public class DictionaryFileIndex extends DictionaryIndex {
 
-    private static final Logger logger = Logger.getLogger(DictionaryFileIndex.class);
+    private static final Logger LOGGER = Logger.getLogger(DictionaryFileIndex.class);
 
     private String indexPath = "";
     private IndexWriter indexWriter = null;
@@ -41,6 +44,7 @@ public class DictionaryFileIndex extends DictionaryIndex {
     private NGramAnalyzer analyzer = null;
     // private QueryParser queryParser = null;
     private IndexReader indexReader = null;
+    private Directory directory;
 
     private Categories categories = new Categories();
 
@@ -48,6 +52,11 @@ public class DictionaryFileIndex extends DictionaryIndex {
         this.indexPath = indexPath;
         analyzer = new NGramAnalyzer();
         // queryParser = new QueryParser("word", analyzer);
+        try {
+            directory = new SimpleFSDirectory(new File(indexPath));
+        } catch (IOException e) {
+            LOGGER.error(e);
+        }
     }
 
     @Override
@@ -71,9 +80,9 @@ public class DictionaryFileIndex extends DictionaryIndex {
             }
             indexWriter.deleteDocuments(new Term("word", word));
         } catch (CorruptIndexException e) {
-            Logger.getRootLogger().error(word + ", " + e.getMessage());
+            LOGGER.error(word + ", " + e.getMessage());
         } catch (IOException e) {
-            Logger.getRootLogger().error(word + ", " + e.getMessage());
+            LOGGER.error(word + ", " + e.getMessage());
         }
         write(word, categoryEntries);
     }
@@ -87,9 +96,9 @@ public class DictionaryFileIndex extends DictionaryIndex {
             }
             indexWriter.deleteDocuments(new Term("word", word));
         } catch (CorruptIndexException e) {
-            Logger.getRootLogger().error(word + ", " + e.getMessage());
+            LOGGER.error(word + ", " + e.getMessage());
         } catch (IOException e) {
-            Logger.getRootLogger().error(word + ", " + e.getMessage());
+            LOGGER.error(word + ", " + e.getMessage());
         }
         write(word, categoryEntry);
     }
@@ -100,11 +109,11 @@ public class DictionaryFileIndex extends DictionaryIndex {
 
         // make a new, empty document
         Document document = new Document();
-        document.add(new Field("word", word, Field.Store.YES, Field.Index.UN_TOKENIZED));
-        document.add(new Field("categoryName", categoryEntry.getCategory().getName(), Field.Store.YES, Field.Index.UN_TOKENIZED));
+        document.add(new Field("word", word, Field.Store.YES, Field.Index.NOT_ANALYZED));
+        document.add(new Field("categoryName", categoryEntry.getCategory().getName(), Field.Store.YES, Field.Index.NOT_ANALYZED));
         // document.add(new Field("categoryPrior", String.valueOf(categoryEntry.getCategory().getPrior()), Field.Store.YES, Field.Index.UN_TOKENIZED));
-        document.add(new Field("absoluteRelevance", String.valueOf(categoryEntry.getAbsoluteRelevance()), Field.Store.YES, Field.Index.UN_TOKENIZED));
-        document.add(new Field("relativeRelevance", String.valueOf(categoryEntry.getRelevance()), Field.Store.YES, Field.Index.UN_TOKENIZED));
+        document.add(new Field("absoluteRelevance", String.valueOf(categoryEntry.getAbsoluteRelevance()), Field.Store.YES, Field.Index.NOT_ANALYZED));
+        document.add(new Field("relativeRelevance", String.valueOf(categoryEntry.getRelevance()), Field.Store.YES, Field.Index.NOT_ANALYZED));
 
         try {
             // indexWriter = new IndexWriter(indexPath, new StandardAnalyzer());
@@ -115,9 +124,9 @@ public class DictionaryFileIndex extends DictionaryIndex {
             // indexWriter.commit();
 
         } catch (CorruptIndexException e) {
-            Logger.getRootLogger().error(word + ", " + e.getMessage());
+            LOGGER.error(word + ", " + e.getMessage());
         } catch (IOException e) {
-            Logger.getRootLogger().error(word + " " + categoryEntry + ", " + e.getMessage());
+            LOGGER.error(word + " " + categoryEntry + ", " + e.getMessage());
         }
 
     }
@@ -140,7 +149,8 @@ public class DictionaryFileIndex extends DictionaryIndex {
 
             // System.out.println("Searching for: " + query.toString(field));
 
-            TopDocCollector collector = new TopDocCollector(81);
+            // TopDocCollector collector = new TopDocCollector(81);
+            TopScoreDocCollector collector = TopScoreDocCollector.create(81, false);
             indexSearcher.search(apiQuery, collector);
             // searcher.search(query, new Filter(), 100);
 
@@ -156,7 +166,7 @@ public class DictionaryFileIndex extends DictionaryIndex {
                 int docId = hits[i].doc;
                 Document d = indexSearcher.doc(docId);
 
-                logger.debug("word found: " + d.get("word"));
+                LOGGER.debug("word found: " + d.get("word"));
 
                 String categoryName = d.get("categoryName");
                 Category category = categories.getCategoryByName(categoryName);
@@ -172,7 +182,7 @@ public class DictionaryFileIndex extends DictionaryIndex {
                 if (categoryEntries.getCategoryEntry(d.get("categoryName")) == null) {
                     CategoryEntry ce = new CategoryEntry(categoryEntries, category, Double.valueOf(d.get("absoluteRelevance")));
 
-                    logger.debug("add " + ce);
+                    LOGGER.debug("add " + ce);
 
                     categoryEntries.add(ce);
                 }
@@ -180,9 +190,9 @@ public class DictionaryFileIndex extends DictionaryIndex {
             }
 
         } catch (CorruptIndexException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         } catch (IOException e) {
-            Logger.getRootLogger().error(e.getMessage());
+            LOGGER.error(e.getMessage());
         }
 
         return categoryEntries;
@@ -194,7 +204,7 @@ public class DictionaryFileIndex extends DictionaryIndex {
         FileHelper.delete(indexPath, true);
         openWriter();
         close();
-        logger.info("deleted the complete index");
+        LOGGER.info("deleted the complete index");
     }
 
     @Override
@@ -203,9 +213,9 @@ public class DictionaryFileIndex extends DictionaryIndex {
             return;
         }
         try {
-            indexWriter = new IndexWriter(indexPath, analyzer, IndexWriter.MaxFieldLength.UNLIMITED);
+            indexWriter = new IndexWriter(directory, analyzer, IndexWriter.MaxFieldLength.UNLIMITED);
         } catch (IOException e) {
-            logger.error("could not open the index" + e.getMessage());
+            LOGGER.error("could not open the index" + e.getMessage());
         }
     }
 
@@ -216,7 +226,7 @@ public class DictionaryFileIndex extends DictionaryIndex {
                 try {
                     indexWriter.optimize();
                 } catch (OutOfMemoryError e) {
-                    logger.error(e.getMessage());
+                    LOGGER.error(e.getMessage());
                 }
                 indexWriter.commit();
                 indexWriter.close();
@@ -226,22 +236,22 @@ public class DictionaryFileIndex extends DictionaryIndex {
                 indexReader.close();
                 indexReader = null;
             }
-            logger.debug("indexWriter and indexReader closed");
+            LOGGER.debug("indexWriter and indexReader closed");
         } catch (IOException e) {
-            logger.error("could not close the index" + e.getMessage());
+            LOGGER.error("could not close the index" + e.getMessage());
         }
     }
 
     @Override
     public boolean openReader() {
         try {
-            indexReader = IndexReader.open(indexPath);
+            indexReader = IndexReader.open(directory, true);
             indexSearcher = new IndexSearcher(indexReader);
         } catch (CorruptIndexException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             return false;
         } catch (IOException e) {
-            logger.error(e.getMessage());
+            LOGGER.error(e.getMessage());
             return false;
         }
 
