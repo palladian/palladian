@@ -640,6 +640,40 @@ public class HTMLHelper {
     public static String getXmlDump(Node node) {
         return getXmlDump(node, false, false);
     }
+    
+
+//    /**
+//     * Convert a node and his children to string.
+//     * 
+//     * duplicate of {@link HTMLHelper#documentToHTMLString(Node)}, {@link HTMLHelper#getXmlDump(Node)}?
+//     * 
+//     * @param node the node
+//     * @return the node as string
+//     */
+//    public static String convertNodeToString(Node node) {
+//        Transformer trans = null;
+//        try {
+//            trans = TransformerFactory.newInstance().newTransformer();
+//        } catch (TransformerConfigurationException e1) {
+//            Logger.getRootLogger().error(e1.getMessage());
+//        } catch (TransformerFactoryConfigurationError e1) {
+//            Logger.getRootLogger().error(e1.getMessage());
+//        }
+//
+//        final StringWriter sWriter = new StringWriter();
+//        try {
+//            trans.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+//            trans.transform(new DOMSource(node), new StreamResult(sWriter));
+//        } catch (TransformerException e) {
+//            Logger.getRootLogger().error(e.getMessage());
+//        }
+//        String result = sWriter.toString();
+//        result = result.replace(" xmlns=\"http://www.w3.org/1999/xhtml\"", "");
+//        // result = result.replace("xmlns=\"http://www.w3.org/1999/xhtml\"", "");
+//
+//        return result;
+//    }
+
 
     /**
      * Remove unnecessary whitespace from DOM nodes.
