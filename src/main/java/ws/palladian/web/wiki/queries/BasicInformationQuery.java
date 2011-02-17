@@ -1,4 +1,4 @@
-package tud.iir.web.wiki.queries;
+package ws.palladian.web.wiki.queries;
 
 /**
  * This file is based on net.sourceforge.jwbf.mediawiki.actions.queries.AllPageTitles
@@ -42,10 +42,10 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-import tud.iir.helper.StringHelper;
-import tud.iir.helper.StringInputStream;
-import tud.iir.helper.XPathHelper;
-import tud.iir.web.wiki.data.WikiPage;
+import ws.palladian.helper.StringHelper;
+import ws.palladian.helper.StringInputStream;
+import ws.palladian.helper.XPathHelper;
+import ws.palladian.web.wiki.data.WikiPage;
 
 /**
  * Action class using the MediaWiki-api's "prop = info", compatibility tested with 1.17, others might also work,
