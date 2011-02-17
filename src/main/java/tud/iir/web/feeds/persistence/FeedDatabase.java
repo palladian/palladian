@@ -30,21 +30,21 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     private static final Logger LOGGER = Logger.getLogger(FeedDatabase.class);
 
     // ////////////////// feed prepared statements ////////////////////
-    private static final String psAddFeedItem = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, text = ?, pageText = ?";
-    private static final String psAddFeed = "INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?";
-    private static final String psUpdateFeed = "UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ? WHERE id = ?";
-    private static final String psUpdateFeedPostDistribution = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
-    private static final String psGetFeedPostDistribution = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
-    private static final String psGetFeeds = "SELECT * FROM feeds";
-    private static final String psGetFeedByUrl = "SELECT * FROM feeds WHERE feedUrl = ?";
-    private static final String psGetFeedByID = "SELECT * FROM feeds WHERE id = ?";
-    private static final String psGetItemsByRawId = "SELECT * FROM feed_items WHERE rawID = ?";
-    private static final String psGetItemsByRawId2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
-    private static final String psChangeCheckApproach = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL";
-    private static final String psGetItems = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
-    private static final String psGetAllItems = "SELECT * FROM feed_items";
-    private static final String psGetItemById = "SELECT * FROM feed_items WHERE id = ?";
-    private static final String psDeleteItemById = "DELETE FROM feed_items WHERE id = ?";
+    private static final String ADD_FEED_ITEM = "INSERT IGNORE INTO feed_items SET feedId = ?, title = ?, link = ?, rawId = ?, published = ?, authors = ?, text = ?, pageText = ?";
+    private static final String ADD_FEED = "INSERT IGNORE INTO feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, activityPattern = ?";
+    private static final String UPDATE_FEED = "UPDATE feeds SET feedUrl = ?, siteUrl = ?, title = ?, textType = ?, language = ?, checks = ?, minCheckInterval = ?, maxCheckInterval = ?, lastHeadlines = ?, unreachableCount = ?, lastFeedEntry = ?, lastEtag = ?, lastPollTime = ?, activityPattern = ? WHERE id = ?";
+    private static final String UPDATE_FEED_POST_DISTRIBUTION = "REPLACE INTO feeds_post_distribution SET feedID = ?, minuteOfDay = ?, posts = ?, chances = ?";
+    private static final String GET_FEED_POST_DISTRIBUTION = "SELECT minuteOfDay, posts, chances FROM feeds_post_distribution WHERE feedID = ?";
+    private static final String GET_FEEDS = "SELECT * FROM feeds";
+    private static final String GET_FEED_BY_URL = "SELECT * FROM feeds WHERE feedUrl = ?";
+    private static final String GET_FEED_BY_ID = "SELECT * FROM feeds WHERE id = ?";
+    private static final String GET_ITEMS_BY_RAW_ID = "SELECT * FROM feed_items WHERE rawID = ?";
+    private static final String GET_ITEMS_BY_RAW_ID_2 = "SELECT * FROM feed_items WHERE feedId = ? AND rawID = ?";
+    private static final String CHANGE_CHECK_APPROACH = "UPDATE feeds SET minCheckInterval = 5, maxCheckInterval = 1, lastHeadlines = '', checks = 0, lastFeedEntry = NULL";
+    private static final String GET_ITEMS = "SELECT * FROM feed_items LIMIT ? OFFSET ?";
+    private static final String GET_ALL_ITEMS = "SELECT * FROM feed_items";
+    private static final String GET_ITEM_BY_ID = "SELECT * FROM feed_items WHERE id = ?";
+    private static final String DELETE_ITEM_BY_ID = "DELETE FROM feed_items WHERE id = ?";
 
     @Override
     public boolean addFeed(Feed feed) {
@@ -64,7 +64,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getUnreachableCount());
         parameters.add(feed.getLastFeedEntrySQLTimestamp());
         parameters.add(feed.getActivityPattern());
-        int result = runInsertReturnId(psAddFeed, parameters);
+        int result = runInsertReturnId(ADD_FEED, parameters);
         if (result > 0) {
             feed.setId(result);
             added = true;
@@ -102,7 +102,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(feed.getActivityPattern());
         parameters.add(feed.getId());
 
-        int result = runUpdate(psUpdateFeed, parameters);
+        int result = runUpdate(UPDATE_FEED, parameters);
         if (result == 1) {
             updated = true;
         }
@@ -128,7 +128,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
             }
         };
 
-        runQuery(callback, psGetFeedPostDistribution, feed.getId());
+        runQuery(callback, GET_FEED_POST_DISTRIBUTION, feed.getId());
         return postDistribution;
     }
 
@@ -139,7 +139,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
             parameters.add(distributionEntry.getKey());
             parameters.add(distributionEntry.getValue()[0]);
             parameters.add(distributionEntry.getValue()[1]);
-            runUpdate(psUpdateFeedPostDistribution, parameters);
+            runUpdate(UPDATE_FEED_POST_DISTRIBUTION, parameters);
         }
     }
 
@@ -148,22 +148,22 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * checks, lastHeadlines etc.
      */
     public void changeCheckApproach() {
-        runUpdate(psChangeCheckApproach);
+        runUpdate(CHANGE_CHECK_APPROACH);
     }
 
     @Override
     public List<Feed> getFeeds() {
-        return runQuery(new FeedRowConverter(), psGetFeeds);
+        return runQuery(new FeedRowConverter(), GET_FEEDS);
     }
 
     @Override
     public Feed getFeedByUrl(String feedUrl) {
-        return runSingleQuery(new FeedRowConverter(), psGetFeedByUrl, feedUrl);
+        return runSingleQuery(new FeedRowConverter(), GET_FEED_BY_URL, feedUrl);
     }
 
     @Override
     public Feed getFeedByID(int feedID) {
-        return runSingleQuery(new FeedRowConverter(), psGetFeedByID, feedID);
+        return runSingleQuery(new FeedRowConverter(), GET_FEED_BY_ID, feedID);
     }
 
     @Override
@@ -181,7 +181,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         parameters.add(entry.getItemText());
         parameters.add(entry.getPageText());
 
-        int result = runInsertReturnId(psAddFeedItem, parameters);
+        int result = runInsertReturnId(ADD_FEED_ITEM, parameters);
         if (result > 0) {
             entry.setId(result);
             added = true;
@@ -211,7 +211,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
         }
 
         // set the generated IDs back to the FeedItems and count number of added items
-        int[] result = runBatchInsertReturnIds(psAddFeedItem, batchArgs);
+        int[] result = runBatchInsertReturnIds(ADD_FEED_ITEM, batchArgs);
         for (int i = 0; i < result.length; i++) {
             int id = result[i];
             if (id > 0) {
@@ -226,16 +226,16 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
 
     @Deprecated
     public FeedItem getFeedItemByRawId(String rawId) {
-        return runSingleQuery(new FeedItemRowConverter(), psGetItemsByRawId, rawId);
+        return runSingleQuery(new FeedItemRowConverter(), GET_ITEMS_BY_RAW_ID, rawId);
     }
 
     @Override
     public FeedItem getFeedItemByRawId(int feedId, String rawId) {
-        return runSingleQuery(new FeedItemRowConverter(), psGetItemsByRawId2, feedId, rawId);
+        return runSingleQuery(new FeedItemRowConverter(), GET_ITEMS_BY_RAW_ID_2, feedId, rawId);
     }
 
     public FeedItem getFeedItemById(int id) {
-        return runSingleQuery(new FeedItemRowConverter(), psGetItemById, id);
+        return runSingleQuery(new FeedItemRowConverter(), GET_ITEM_BY_ID, id);
     }
 
     /**
@@ -246,7 +246,7 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
      * @return
      */
     public List<FeedItem> getFeedItems(int limit, int offset) {
-        return runQuery(new FeedItemRowConverter(), psGetItems, limit, offset);
+        return runQuery(new FeedItemRowConverter(), GET_ITEMS, limit, offset);
     }
 
     /**
@@ -275,11 +275,11 @@ public class FeedDatabase extends DatabaseManager implements FeedStore {
     }
 
     public void deleteFeedItemById(int id) {
-        runUpdate(psDeleteItemById, id);
+        runUpdate(DELETE_ITEM_BY_ID, id);
     }
 
     public ResultIterator<FeedItem> getFeedItems() {
-        return runQueryWithIterator(new FeedItemRowConverter(), psGetAllItems);
+        return runQueryWithIterator(new FeedItemRowConverter(), GET_ALL_ITEMS);
     }
 
     public void clearFeedTables() {
