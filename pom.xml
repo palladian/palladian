@@ -474,6 +474,7 @@
 			<id>snapshots</id>
 			<name>Effingo Internal Snapshots</name>
 			<url>http://www.effingo.de/nexus/content/repositories/snapshots</url>
+			<uniqueVersion>false</uniqueVersion>
 		</snapshotRepository>
 	</distributionManagement>
 </project>
