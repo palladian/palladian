@@ -16,7 +16,6 @@ import java.util.TimeZone;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import net.sourceforge.jwbf.core.actions.util.ActionException;
-import net.sourceforge.jwbf.core.contentRep.Article;
 import net.sourceforge.jwbf.mediawiki.actions.meta.Siteinfo;
 import net.sourceforge.jwbf.mediawiki.actions.util.VersionException;
 import net.sourceforge.jwbf.mediawiki.bots.MediaWikiBot;
@@ -213,76 +212,84 @@ public class MediaWikiCrawler implements Runnable {
     }
 
     /**
-     * Retrieves for the given pageName its content as HTML and the revisionID of the most recent page and stores them
+     * Retrieves for the given pageTitle its content as HTML and the revisionID of the most recent page and stores them
      * in db.
      * 
-     * @param pageName The title of the page to crawl.
+     * @param pageTitle The title of the page to crawl.
+     * @return <code>true</code> if page has been processed successful, false otherwise.
      */
-    private void crawlAndStorePageContent(final String pageName) {
-        Article article;
+    private boolean crawlAndStorePage(final String pageTitle) {
+        BasicInformationQuery basicInfo = null;
         StopWatch stopWatch = null;
+        if (DEBUG) {
+            stopWatch = new StopWatch();
+        }
         try {
-            // TODO: room for optimization: whole page is transferred to get most recent revisionID
+            basicInfo = new BasicInformationQuery(bot, pageTitle);
+        } catch (VersionException e) {
+            LOGGER.fatal("Retrieving basic Information from Wiki is not supported by this Wiki version", e);
+            return false;
+        }
+
+        // process the single page that was requested.
+        WikiPage page = basicInfo.next();
+        // Check whether there is a result. If not, the page has been deleted.
+        if (page != null) {
+
             if (DEBUG) {
-                stopWatch = new StopWatch();
-            }
-            article = bot.readContent(pageName);
-            if (DEBUG) {
-                LOGGER.debug("[API] Processing Article of page \"" + pageName + "\" took "
+                LOGGER.debug("[API] Processing basic information of page \"" + pageTitle + "\" took "
                         + stopWatch.getElapsedTimeString());
             }
 
-            final String htmlContent = crawlPageContent(pageName);
+            final String htmlContent = crawlPageContent(pageTitle);
 
             if (DEBUG) {
                 stopWatch.start();
             }
-            final int pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageName);
-            if (DEBUG) {
-                LOGGER.debug("[DB ] Getting pageID for page \"" + pageName + "\" took "
-                        + stopWatch.getElapsedTimeString());
+
+            String pageURL = "";
+            // Is URL value set, i.e. fetched from API?
+            if (page.getPageURL() == null) {
+                // try reconstruct it from title
+                page.setTitle(pageTitle);
+                constructPageURLfromTitle(page);
+            }
+            // URL now set?
+            if (page.getPageURL() != null) {
+                pageURL = page.getPageURL().toString();
             }
 
-            // quick workaround for bug in SimpleArticle:
-            // bug: if a page is missing, the MediaWiki API's response contains an element 'missing' but this element
-            // is not processed by GetRevision#findContent(...)
-            // workaround: if revisionID is empty, we assume that the page is not contained in the Wiki anymore and
-            // ignore it for now.
-            // FIXME: find better solution for this bug
-            if (article.getRevisionId().equals("")) {
-                if (DEBUG) {
-                    LOGGER.debug("Could not retrieve page content for page \"" + pageName
-                            + "\", page seems to be deleted.");
-                }
-            } else {
-                if (DEBUG) {
-                    stopWatch.start();
-                }
-                boolean pageUpdated = mwDatabase.updatePage(mwDescriptor.getWikiID(), pageID,
-                        Long.parseLong(article.getRevisionId()), htmlContent, predictNextCheck(pageID));
-                if (!pageUpdated || DEBUG) {
-                    final String msg = "Page \"" + pageName + "\" has HTML content: " + htmlContent;
-                    LOGGER.debug("[DB ] Updating database for page \"" + pageName + "\" took "
-                            + stopWatch.getElapsedTimeString());
-                    if (pageUpdated) {
-                        LOGGER.debug(msg);
-                    } else {
-                        LOGGER.error(msg + "\n   HTML content has NOT  been written to database.");
-                    }
+            boolean pageUpdated = mwDatabase.updatePage(mwDescriptor.getWikiID(), page.getPageID(),
+                    page.getNewestRevisionID(), htmlContent, predictNextCheck(page.getPageID()), pageURL);
+
+            if (!pageUpdated || DEBUG) {
+                final String msg = "Page \"" + pageTitle + "\" has HTML content: " + htmlContent;
+                LOGGER.debug("[DB ] Updating database for page \"" + pageTitle + "\" took "
+                        + stopWatch.getElapsedTimeString());
+                if (pageUpdated) {
+                    LOGGER.debug(msg);
+                } else {
+                    LOGGER.error(msg + "\n   HTML content has NOT  been written to database.");
                 }
             }
-        } catch (Exception e) {
-            LOGGER.error("Could not retrieve page content for page \"" + pageName + "\" ", e);
+            return pageUpdated;
+
+        } else { // if there is no page, the page has been deleted from the wiki
+            // TODO: add deleted-Flag to database and set page status to deleted
+            if (DEBUG) {
+                LOGGER.debug("Could not process page \"" + pageTitle + "\", page seems to be deleted.");
+            }
+            return false;
         }
     }
 
     /**
-     * Calls the MediaWiki API and retrieves for the given pageName its content rendered as HTML.
+     * Calls the MediaWiki API and retrieves for the given pageTitle its content rendered as HTML.
      * 
-     * @param pageName The title of the page to crawl.
+     * @param pageTitle The title of the page to crawl.
      * @return The page's HTML content.
      */
-    private String crawlPageContent(final String pageName) {
+    private String crawlPageContent(final String pageTitle) {
         String htmlContent = null;
 
         StopWatch stopWatch = null;
@@ -291,14 +298,14 @@ public class MediaWikiCrawler implements Runnable {
         }
 
         try {
-            GetRendering renderedText = new GetRendering(bot, pageName);
+            GetRendering renderedText = new GetRendering(bot, pageTitle);
             htmlContent = renderedText.getHtml();
         } catch (VersionException e) {
-            LOGGER.error("Could not retrieve page content for page \"" + pageName + "\" ", e);
+            LOGGER.error("Could not retrieve page content for page \"" + pageTitle + "\" ", e);
         }
 
         if (DEBUG) {
-            LOGGER.debug("[API] Crawling page content of page \"" + pageName + "\" took "
+            LOGGER.debug("[API] Crawling page content of page \"" + pageTitle + "\" took "
                     + stopWatch.getElapsedTimeString());
         }
 
@@ -306,7 +313,7 @@ public class MediaWikiCrawler implements Runnable {
     }
 
     /**
-     * Retrieves all page titles (pageName), their pageID and their namespace from the wiki, if namespace included in
+     * Retrieves all page titles, their pageID and their namespace from the wiki, if namespace included in
      * {@link #mwDescriptor} and stores them in database.
      */
     private void crawlAndStoreAllPageTitles() {
@@ -382,9 +389,9 @@ public class MediaWikiCrawler implements Runnable {
      * Fetches all revisions for the given page from the API and stores them in the database. A revision is identified
      * by its revisionID, duplicate revisionIDs (revisionIDs already contained in database) are ignored.
      * 
-     * @param pageName The name of the page to get revisions for.
+     * @param pageTitle The name of the page to get revisions for.
      */
-    private void crawlAndStoreAllRevisionsByTitle(final String pageName) {
+    private void crawlAndStoreAllRevisionsByTitle(final String pageTitle) {
 
         /*
          * use if want to use threads. problem: not faster with threads since jwbf seems to have some internals
@@ -394,7 +401,7 @@ public class MediaWikiCrawler implements Runnable {
         // MW_DESCRIPTOR.getWikiID(), PAGE_NAME)));
         // revisionCrawler.start();
 
-        crawlRevisionsByTitle(pageName, null, false);
+        crawlRevisionsByTitle(pageTitle, null, false);
 
     }
 
@@ -403,13 +410,13 @@ public class MediaWikiCrawler implements Runnable {
      * database. A revision is identified by its revisionID, duplicate revisionIDs (revisionIDs already contained in
      * database) are ignored.
      * 
-     * @param pageName The name of the page to get revisions for.
+     * @param pageTitle The name of the page to get revisions for.
      * @param revisionIDStart The revisionID to start from, only newer revisions are retrieved.
      * @param skipFirst If true, skip the first returned revision. Use to get revisions that are newer than
      *            revisionIDStart.
      * @return The number of revisions that have been added. Negative value in case of an error (see error log).
      */
-    private int crawlRevisionsByTitle(final String pageName, final Long revisionIDStart, final boolean skipFirst) {
+    private int crawlRevisionsByTitle(final String pageTitle, final Long revisionIDStart, final boolean skipFirst) {
         StopWatch stopWatch1 = null;
         StopWatch stopWatch2 = null;
 
@@ -417,15 +424,15 @@ public class MediaWikiCrawler implements Runnable {
             stopWatch1 = new StopWatch();
             stopWatch2 = new StopWatch();
         }
-        final Integer pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageName);
+        final Integer pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle);
         if (DEBUG) {
-            LOGGER.debug("[DB ] crawlRevisionsByTitle, get pageID from Database for page \"" + pageName + "\" took "
+            LOGGER.debug("[DB ] crawlRevisionsByTitle, get pageID from Database for page \"" + pageTitle + "\" took "
                     + stopWatch1.getElapsedTimeString());
             stopWatch1.start();
         }
 
         if (pageID == null) {
-            LOGGER.error("Page name \"" + pageName + "\" does not exist for Wiki \"" + mwDescriptor.getWikiName()
+            LOGGER.error("Page name \"" + pageTitle + "\" does not exist for Wiki \"" + mwDescriptor.getWikiName()
                     + "\" in database.");
             return -1;
         }
@@ -433,7 +440,7 @@ public class MediaWikiCrawler implements Runnable {
         // prepare query for revisions
         RevisionsByTitleQuery rbtq = null;
         try {
-            rbtq = new RevisionsByTitleQuery(bot, pageName, revisionIDStart);
+            rbtq = new RevisionsByTitleQuery(bot, pageTitle, revisionIDStart);
         } catch (VersionException e) {
             LOGGER.error("Fetching the revisions is not supported by this Wiki version. " + e);
         }
@@ -476,10 +483,10 @@ public class MediaWikiCrawler implements Runnable {
         
         if (DEBUG) {
             dbTime += stopWatch2.getElapsedTime();
-            LOGGER.debug("[API] crawlRevisionsByTitle, get Revisions from API for page \"" + pageName + "\" took "
+            LOGGER.debug("[API] crawlRevisionsByTitle, get Revisions from API for page \"" + pageTitle + "\" took "
                     + DateHelper.getRuntime(0L, (stopWatch1.getElapsedTime() - dbTime)));
             LOGGER.debug("[DB ] crawlRevisionsByTitle, add " + (revisionCounter - revisionsSkipped)
-                    + " Revisions to database for page \"" + pageName + "\" took "
+                    + " Revisions to database for page \"" + pageTitle + "\" took "
                     + DateHelper.getRuntime(0L, dbTime));
             stopWatch1.start();
         }
@@ -487,9 +494,9 @@ public class MediaWikiCrawler implements Runnable {
         mwDatabase.updatePage(mwDescriptor.getWikiID(), pageID, predictNextCheck(pageID));
 
         if (DEBUG) {
-            LOGGER.debug("Processed " + revisionCounter + " revision(s) for page \"" + pageName + "\" : added "
+            LOGGER.debug("Processed " + revisionCounter + " revision(s) for page \"" + pageTitle + "\" : added "
                     + (revisionCounter - revisionsSkipped) + " , skipped " + revisionsSkipped);
-            LOGGER.debug("[DB ] crawlRevisionsByTitle, update page \"" + pageName + "\" in database took "
+            LOGGER.debug("[DB ] crawlRevisionsByTitle, update page \"" + pageTitle + "\" in database took "
                     + stopWatch1.getElapsedTimeString());
         }
 
@@ -514,9 +521,11 @@ public class MediaWikiCrawler implements Runnable {
                 watch2 = new StopWatch();
             }
 
-            crawlAndStorePageContent(pageTitle);
-            crawlAndStoreAllRevisionsByTitle(pageTitle);
-            processNewPage(pageTitle);
+            boolean success = crawlAndStorePage(pageTitle);
+            if (success) {
+                crawlAndStoreAllRevisionsByTitle(pageTitle);
+                processNewPage(pageTitle);
+            }
 
             if (INFO && ++pageCounter % INFO_SIZE == 0) {
                 LOGGER.info("Crawled " + pageCounter + " pages so far.");
@@ -711,10 +720,12 @@ public class MediaWikiCrawler implements Runnable {
                         + "\", pageid: " + page.getPageID());
             }
             mwDatabase.addRevisions(mwDescriptor.getWikiID(), page.getPageID(), page.getRevisions().values());
-            crawlAndStorePageContent(page.getTitle());
+            boolean success = crawlAndStorePage(page.getTitle());
             // if (counter == BULK_WRITE_SIZE) break; //debug code, use to limit number of pages to crawl wikipedia
 
-            processNewPage(page.getTitle());
+            if (success) {
+                processNewPage(page.getTitle());
+            }
         }
     }
 
@@ -730,6 +741,38 @@ public class MediaWikiCrawler implements Runnable {
         String wikiTime = DateHelper.getDatetime("yyyy-MM-dd'T'HH:mm:ss'Z'", date.getTime());
         LocalizeHelper.restoreTimeZone();
         return wikiTime;
+    }
+
+    /**
+     * Constructs a {@link URL} from page title and {@link WikiDescriptor#getAbsoltuePathToContent()} and sets it to the
+     * given {@link WikiPage} in case no error occurred while reconstructing the url.
+     * Caution. Not completely tested!
+     * 
+     * @param page The page to construct the URL for.
+     * @return <code>true</code> if the page's {@link URL} could be reconstructed, <code>false</code> if any error
+     *         occurred.
+     */
+    private boolean constructPageURLfromTitle(final WikiPage page) {
+        boolean success = false;
+        try {
+            String baseURL = mwDescriptor.getAbsoltuePathToContent();
+            String encodedTitle = URLEncoder.encode(page.getTitle(), "UTF-8");
+        
+            // "http://en.wikipedia.org/wiki/Golden+Age" -> "http://en.wikipedia.org/wiki/Golden_Age"
+            String convertedTitle = encodedTitle.replaceAll("[+]", "_");
+
+            URL pageURL = new URL(baseURL + convertedTitle);
+            page.setPageURL(pageURL);
+            success = true;
+            if (DEBUG) {
+                LOGGER.debug("Constructed URL = " + pageURL.toString());
+            }
+        } catch (UnsupportedEncodingException e) {
+            LOGGER.error("Could not encode page title \"" + page.getTitle() + "\" ", e);
+        } catch (MalformedURLException e) {
+            LOGGER.error("Could not create URL of page \"" + page.getTitle() + "\" ", e);
+        }
+        return success;
     }
 
     /**
@@ -764,8 +807,7 @@ public class MediaWikiCrawler implements Runnable {
 
             pageQueue.put(page);
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOGGER.warn(e);
         } catch (NullPointerException e) {
             LOGGER.error("Could not put page \"" + pageTitle + "\" to pageQuele: page does not exist.");
         }
@@ -893,7 +935,7 @@ public class MediaWikiCrawler implements Runnable {
      * 
      * @param args the command line arguments.
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
         final int queueCapacity = 1000;
         final int pageConsumers = 5;
 
@@ -904,6 +946,11 @@ public class MediaWikiCrawler implements Runnable {
             Thread consumer = new Thread(new PageConsumer(pageQueue), "Consum-" + i);
             consumer.start();
         }
+
+// String eingabe = "http://de-s-0113195.de.abb.com/kb/index.php/Fehler_2_%22Uref%22_zu_klein";
+        // System.out.println(eingabe + " = eingabe");
+        // System.out.println(MediaWiki.decode(eingabe) + " = MediaWiki.decode(eingabe)");
+
     }
 
 }

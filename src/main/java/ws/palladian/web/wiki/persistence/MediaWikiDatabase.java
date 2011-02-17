@@ -1,5 +1,7 @@
 package ws.palladian.web.wiki.persistence;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -73,7 +75,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
     private static final String sqlAddPage = "INSERT INTO pages(wikiID, pageID, pageTitle, namespaceID, sourceDynamics, pageContent, revisionID, nextCheck) VALUES (?,?,?,?,?,?,?,?)";
 
     /** see sql */
-    private static final String sqlUpdatePage = "UPDATE pages SET revisionID = ?, pageContent = ?, nextCheck = ? WHERE wikiID = ? AND pageID = ?";
+    private static final String sqlUpdatePage = "UPDATE pages SET revisionID = ?, pageContent = ?, nextCheck = ?, fullURL = ? WHERE wikiID = ? AND pageID = ?";
 
     /** see sql */
     private static final String sqlUpdatePageNextCheck = "UPDATE pages SET nextCheck = ? WHERE wikiID = ? AND pageID = ?";
@@ -97,7 +99,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
     private static final String sqlRemoveNamespace = "DELETE FROM namespaces WHERE wikiID = ? AND namespaceID = ?";
 
     /** see sql */
-    private static final String sqlGetPageByPageID = "SELECT pageTitle, namespaceID, sourceDynamics, pageContent, revisionID, nextCheck FROM pages WHERE wikiID = ? AND pageID = ?";
+    private static final String sqlGetPageByPageID = "SELECT pageTitle, namespaceID, sourceDynamics, pageContent, revisionID, nextCheck, fullURL FROM pages WHERE wikiID = ? AND pageID = ?";
 
     /** see sql */
     private static final String sqlGetPageIDByPageTitle = "SELECT pageID FROM pages WHERE wikiID = ? AND pageTitle COLLATE utf8_bin = ? ";
@@ -160,7 +162,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * @param dateTime A Date String representation of the SQL data type DATETIME (yyyy-MM-dd hh:mm:ss)
      * @return The date as a {@link java.util.Date} object.
      * @throws Exception If no valid Date format could be found. See
-     *             {@link ws.palladian.daterecognition.dates.ExtractedDate#getNormalizedDate()} for details.
+     *             {@link tud.iir.daterecognition.dates.ExtractedDate#getNormalizedDate()} for details.
      */
     static Date convertSQLDateTimeToDate(final String dateTime) throws Exception {
         LocalizeHelper.setUTCandEnglish();
@@ -532,6 +534,13 @@ public final class MediaWikiDatabase extends DatabaseManager {
                                 + page.getWikiID() + ", page title: " + page.getTitle() + " ", e);
                     }
                     page.setNextCheck(nextCheckD);
+                    if (resultSet.getString("fullURL") != null) {
+                        try {
+                            page.setPageURL(new URL(resultSet.getString("fullURL")));
+                        } catch (MalformedURLException e) {
+                            LOGGER.error("DB contains invalid URL of page \"" + page.getTitle() + "\". ", e);
+                        }
+                    }
                 }
                 return page;
             }
@@ -999,11 +1008,12 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * @param revisionID the revisionID of the pageContent.
      * @param pageContent the page content, including HTML mark-up but no wiki mark-up.
      * @param nextCheck The predicted date to check this page for new revisions.
+     * @param fullURL The page's URL.
      * @return true if update was successful, false if any problem occurred while updating. If false, see error log for
      *         details.
      */
     public boolean updatePage(final int wikiID, final int pageID, final long revisionID, final String pageContent,
-            final Date nextCheck) {
+            final Date nextCheck, final String fullURL) {
         
         List<Object> args = new ArrayList<Object>();
         args.add(revisionID);
@@ -1013,6 +1023,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
         } else {
             args.add(null);
         }
+        args.add(fullURL);
         args.add(wikiID);
         args.add(pageID);
         
@@ -1072,6 +1083,7 @@ public final class MediaWikiDatabase extends DatabaseManager {
      * Clear all wiki specific tables.
      */
     public void clearTables() {
+        LOGGER.fatal("TRUNCATE all tables!!");
         runUpdate("TRUNCATE TABLE namespaces");
         runUpdate("TRUNCATE TABLE pages");
         runUpdate("TRUNCATE TABLE revisions");
