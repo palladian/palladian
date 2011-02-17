@@ -50,6 +50,9 @@ public class MediaWikiCrawler implements Runnable {
     /** The global logger */
     private static final Logger LOGGER = Logger.getLogger(MediaWikiCrawler.class);
 
+    /** do not call LOGGER.isTraceEnabled()() 1000 times */
+    private static final boolean TRACE = LOGGER.isTraceEnabled();
+
     /** do not call LOGGER.isDebugEnabled() 1000 times */
     private static final boolean DEBUG = LOGGER.isDebugEnabled();
 
@@ -222,7 +225,7 @@ public class MediaWikiCrawler implements Runnable {
     private boolean crawlAndStorePage(final String pageTitle) {
         BasicInformationQuery basicInfo = null;
         StopWatch stopWatch = null;
-        if (DEBUG) {
+        if (TRACE) {
             stopWatch = new StopWatch();
         }
         try {
@@ -237,14 +240,14 @@ public class MediaWikiCrawler implements Runnable {
         // Check whether there is a result. If not, the page has been deleted.
         if (page != null) {
 
-            if (DEBUG) {
-                LOGGER.debug("[API] Processing basic information of page \"" + pageTitle + "\" took "
+            if (TRACE) {
+                LOGGER.trace("[API] Processing basic information of page \"" + pageTitle + "\" took "
                         + stopWatch.getElapsedTimeString());
             }
 
             final String htmlContent = crawlPageContent(pageTitle);
 
-            if (DEBUG) {
+            if (TRACE) {
                 stopWatch.start();
             }
 
@@ -265,14 +268,17 @@ public class MediaWikiCrawler implements Runnable {
 
             if (!pageUpdated || DEBUG) {
                 final String msg = "Page \"" + pageTitle + "\" has HTML content: " + htmlContent;
-                LOGGER.debug("[DB ] Updating database for page \"" + pageTitle + "\" took "
-                        + stopWatch.getElapsedTimeString());
                 if (pageUpdated) {
                     LOGGER.debug(msg);
                 } else {
                     LOGGER.error(msg + "\n   HTML content has NOT  been written to database.");
                 }
             }
+            if (TRACE) {
+                LOGGER.trace("[DB ] Updating database for page \"" + pageTitle + "\" took "
+                        + stopWatch.getElapsedTimeString());
+            }
+
             return pageUpdated;
 
         } else { // if there is no page, the page has been deleted from the wiki
@@ -294,7 +300,7 @@ public class MediaWikiCrawler implements Runnable {
         String htmlContent = null;
 
         StopWatch stopWatch = null;
-        if (DEBUG) {
+        if (TRACE) {
             stopWatch = new StopWatch();
         }
 
@@ -305,8 +311,8 @@ public class MediaWikiCrawler implements Runnable {
             LOGGER.error("Could not retrieve page content for page \"" + pageTitle + "\" ", e);
         }
 
-        if (DEBUG) {
-            LOGGER.debug("[API] Crawling page content of page \"" + pageTitle + "\" took "
+        if (TRACE) {
+            LOGGER.trace("[API] Crawling page content of page \"" + pageTitle + "\" took "
                     + stopWatch.getElapsedTimeString());
         }
 
@@ -421,13 +427,13 @@ public class MediaWikiCrawler implements Runnable {
         StopWatch stopWatch1 = null;
         StopWatch stopWatch2 = null;
 
-        if (DEBUG) {
+        if (TRACE) {
             stopWatch1 = new StopWatch();
             stopWatch2 = new StopWatch();
         }
         final Integer pageID = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle);
-        if (DEBUG) {
-            LOGGER.debug("[DB ] crawlRevisionsByTitle, get pageID from Database for page \"" + pageTitle + "\" took "
+        if (TRACE) {
+            LOGGER.trace("[DB ] crawlRevisionsByTitle, get pageID from Database for page \"" + pageTitle + "\" took "
                     + stopWatch1.getElapsedTimeString());
             stopWatch1.start();
         }
@@ -464,29 +470,29 @@ public class MediaWikiCrawler implements Runnable {
             revisionCounter++;
 
             if (revisionCounter % BULK_WRITE_SIZE == 0) {
-                if (DEBUG) {
+                if (TRACE) {
                     stopWatch2.start();
                 }
                 revisionsSkipped += mwDatabase.addRevisions(mwDescriptor.getWikiID(), pageID, revisions);
                 revisions.clear();
-                if (DEBUG) {
+                if (TRACE) {
                     dbTime += stopWatch2.getElapsedTime();
                 }
             }
         }
 
         // update database
-        if (DEBUG) {
+        if (TRACE) {
             stopWatch2.start();
         }
         
         revisionsSkipped += mwDatabase.addRevisions(mwDescriptor.getWikiID(), pageID, revisions);
         
-        if (DEBUG) {
+        if (TRACE) {
             dbTime += stopWatch2.getElapsedTime();
-            LOGGER.debug("[API] crawlRevisionsByTitle, get Revisions from API for page \"" + pageTitle + "\" took "
+            LOGGER.trace("[API] crawlRevisionsByTitle, get Revisions from API for page \"" + pageTitle + "\" took "
                     + DateHelper.getRuntime(0L, (stopWatch1.getElapsedTime() - dbTime)));
-            LOGGER.debug("[DB ] crawlRevisionsByTitle, add " + (revisionCounter - revisionsSkipped)
+            LOGGER.trace("[DB ] crawlRevisionsByTitle, add " + (revisionCounter - revisionsSkipped)
                     + " Revisions to database for page \"" + pageTitle + "\" took "
                     + DateHelper.getRuntime(0L, dbTime));
             stopWatch1.start();
@@ -497,7 +503,9 @@ public class MediaWikiCrawler implements Runnable {
         if (DEBUG) {
             LOGGER.debug("Processed " + revisionCounter + " revision(s) for page \"" + pageTitle + "\" : added "
                     + (revisionCounter - revisionsSkipped) + " , skipped " + revisionsSkipped);
-            LOGGER.debug("[DB ] crawlRevisionsByTitle, update page \"" + pageTitle + "\" in database took "
+        }
+        if (TRACE) {
+            LOGGER.trace("[DB ] crawlRevisionsByTitle, update page \"" + pageTitle + "\" in database took "
                     + stopWatch1.getElapsedTimeString());
         }
 
@@ -518,7 +526,7 @@ public class MediaWikiCrawler implements Runnable {
         int pageCounter = 0;
         StopWatch watch2 = null;
         for (String pageTitle : mwDatabase.getAllPageTitlesToCrawl(mwDescriptor.getWikiID())) {
-            if (DEBUG) {
+            if (TRACE) {
                 watch2 = new StopWatch();
             }
 
@@ -532,8 +540,8 @@ public class MediaWikiCrawler implements Runnable {
                 LOGGER.info("Crawled " + pageCounter + " pages so far.");
             }
 
-            if (DEBUG) {
-                LOGGER.debug("----- Processing page \"" + pageTitle + "\" took " + watch2.getElapsedTimeString()
+            if (TRACE) {
+                LOGGER.trace("----- Processing page \"" + pageTitle + "\" took " + watch2.getElapsedTimeString()
                         + " -----");
             }
         }
