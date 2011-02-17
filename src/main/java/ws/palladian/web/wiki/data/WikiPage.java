@@ -40,6 +40,9 @@ public class WikiPage {
     /** The page's content as HTML representation, rendered by the Wiki. */
     private String pageContentHTML = null;
 
+    /** Flag, if <code>true</code>, the page has been deleted from the Wiki. */
+    private boolean pageDeleted = false;
+
     /** The page's revision history. */
     private TreeMap<Long, Revision> revisions = new TreeMap<Long, Revision>();
 
@@ -161,6 +164,20 @@ public class WikiPage {
     }
 
     /**
+     * @return the pageDeleted
+     */
+    public final boolean isPageDeleted() {
+        return pageDeleted;
+    }
+
+    /**
+     * @param pageDeleted the pageDeleted to set
+     */
+    public final void setPageDeleted(boolean pageDeleted) {
+        this.pageDeleted = pageDeleted;
+    }
+
+    /**
      * @return All authors that contributed to at least one revision of the page.
      */
     public final TreeSet<String> getAuthors() {
@@ -232,8 +249,9 @@ public class WikiPage {
     }
 
     /**
-     * Ugly hack to set and store the newest revisionID additional to {@link #revisions} to get this information without
-     * asking database table revisions (speeds up crawler).
+     * Ugly hack to set and store the newest revisionID without setting complete revisions with
+     * {@link #addRevision(Revision)}. This is required since the newest revisionID can be fetched from API without
+     * fetching all revisions. (speeds up crawler).
      * 
      * @param newesRevisionID the revisionId read from table pages, might be null if page content has never been
      *            crawled.
@@ -277,10 +295,10 @@ public class WikiPage {
      */
     @Override
     public String toString() {
-        return "WikiPage [wikiID=" + wikiID + ", title=" + title + ", pageID=" + pageID + ", namespaceID="
-                + namespaceID + ", sourceDynamics=" + sourceDynamics + ", pageContentHTML=" + pageContentHTML
-                + ", newestRevisionID=" + newestRevisionID + ", nextCheck=" + nextCheck + ", revisions=" + revisions
-                + "]";
+        return "WikiPage [wikiID=" + wikiID + ", title=" + title + ", pageURL=" + pageURL + ", pageID=" + pageID
+                + ", namespaceID=" + namespaceID + ", sourceDynamics=" + sourceDynamics + ", pageContentHTML="
+                + pageContentHTML + ", pageDeleted=" + pageDeleted + ", revisions=" + revisions + ", newestRevisionID="
+                + newestRevisionID + ", nextCheck=" + nextCheck + "]";
     }
 
 }
