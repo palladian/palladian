@@ -1,5 +1,6 @@
 package tud.iir.classification.numeric;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import tud.iir.classification.Category;
@@ -33,6 +34,7 @@ public class NumericInstance extends Instance {
 
     public <T> NumericInstance(Instances<T> instances) {
         setInstances(instances);
+        features = new ArrayList<Double>();
     }
 
     public List<Double> getFeatures() {
@@ -74,7 +76,7 @@ public class NumericInstance extends Instance {
 
             double featureValue = features.get(i);
             double normalizedValue = (featureValue - normalization.getMinValueMap().get(i))
-                    / normalization.getNormalizationMap().get(i);
+            / normalization.getNormalizationMap().get(i);
 
             features.set(i, normalizedValue);
         }

@@ -34,7 +34,7 @@ public final class KNNClassifier extends NumericClassifier {
     /** Non-transient training instances. We need to save them as the instance based classifier depends on them. */
     // private Instances<NumericInstance> serializableTrainingInstances;
 
-    
+
     /**
      * The constructor.
      */
@@ -58,6 +58,10 @@ public final class KNNClassifier extends NumericClassifier {
     public void classify(NumericInstance instance) {
 
         StopWatch stopWatch = new StopWatch();
+
+        if (categories == null) {
+            getPossibleCategories(getTrainingInstances());
+        }
 
         // we need to normalize the new instance if the training instances were also normalized
         if (getTrainingInstances().areNormalized()) {
@@ -125,7 +129,7 @@ public final class KNNClassifier extends NumericClassifier {
         if (classType == ClassificationTypeSetting.TAG) {
             instance.limitCategories(classificationTypeSetting.getClassificationTypeTagSetting().getMinTags(),
                     classificationTypeSetting.getClassificationTypeTagSetting().getMaxTags(), classificationTypeSetting
-                            .getClassificationTypeTagSetting().getTagConfidenceThreshold());
+                    .getClassificationTypeTagSetting().getTagConfidenceThreshold());
         }
 
         // keep only top category for single mode
@@ -160,14 +164,14 @@ public final class KNNClassifier extends NumericClassifier {
         double distance = Double.MAX_VALUE;
 
         double squaredSum = 0;
-        
+
         List<Double> instanceFeatures = instance.getFeatures();
         List<Double> knownInstanceFeatures = knownInstance.getFeatures();
-        
+
         for (int i = 0; i < instance.getFeatures().size(); i++) {
             squaredSum += Math.pow(instanceFeatures.get(i) - knownInstanceFeatures.get(i), 2);
         }
-        
+
         distance = Math.sqrt(squaredSum);
 
         return distance;
