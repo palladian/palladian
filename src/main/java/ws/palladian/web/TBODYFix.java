@@ -6,7 +6,7 @@ import org.apache.xerces.xni.XMLAttributes;
 import org.apache.xerces.xni.XNIException;
 import org.cyberneko.html.filters.DefaultFilter;
 
-import tud.iir.web.CrawlerTest;
+import ws.palladian.web.CrawlerTest;
 
 /**
  * Fix for newer NekoHTML versions which insert TBODY tags into tables, which we do not want. The main problem are not
