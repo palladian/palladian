@@ -1,7 +1,0 @@
-http://forzamotorsport.net/rss
-http://www.esato.com/rss/
-http://newsfeed.zeit.de/wirtschaft/index
-http://newsfeed.zeit.de/politik/deutschland/index
-http://www.kullin.net/feed/
-http://www.tagesschau.de/xml/rss2
-http://www.w3.org/News/atom.xml
