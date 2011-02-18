@@ -171,7 +171,7 @@ public class BasicInformationQuery extends TitleQuery<WikiPage> {
                     LOGGER.error("Could not create URL from \"" + fullurl + "\". ", e);
                 }
             } else {
-                LOGGER.error("Could not fetch prop=url from API, page \"" + title + "\".");
+                LOGGER.warn("Could not fetch prop=url from API, page \"" + title + "\".");
             }
 
             // timestampTouched nor used, could be added

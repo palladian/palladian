@@ -16,13 +16,16 @@ public class PageTitle {
      * @param pageTitle Title of the page.
      */
     public PageTitle(final String pageTitle) {
+        if (pageTitle == null || pageTitle.length() == 0) {
+            throw new IllegalArgumentException("Value for pageTitle may not be null or empty string!");
+        }
         this.title = pageTitle;
     }
 
     /**
      * Get the title of the page.
      * 
-     * @return The title of the page.
+     * @return The title of the page. It is guaranteed that the return value is not <code>null</code> and of length > 0.
      */
     public String getpageTitle() {
         return title;

@@ -33,6 +33,7 @@ import ws.palladian.web.wiki.persistence.MediaWikiDatabase;
 import ws.palladian.web.wiki.queries.AllPageTitles;
 import ws.palladian.web.wiki.queries.BasicInformationQuery;
 import ws.palladian.web.wiki.queries.GetRendering;
+import ws.palladian.web.wiki.queries.PageLinksQuery;
 import ws.palladian.web.wiki.queries.RecentChanges;
 import ws.palladian.web.wiki.queries.RevisionsByTitleQuery;
 
@@ -256,7 +257,7 @@ public class MediaWikiCrawler implements Runnable {
             if (page.getPageURL() == null) {
                 // try reconstruct it from title
                 page.setTitle(pageTitle);
-                constructPageURLfromTitle(page);
+                reconstructPageURLfromTitle(page);
             }
             // URL now set?
             if (page.getPageURL() != null) {
@@ -485,16 +486,15 @@ public class MediaWikiCrawler implements Runnable {
         if (TRACE) {
             stopWatch2.start();
         }
-        
+
         revisionsSkipped += mwDatabase.addRevisions(mwDescriptor.getWikiID(), pageID, revisions);
-        
+
         if (TRACE) {
             dbTime += stopWatch2.getElapsedTime();
             LOGGER.trace("[API] crawlRevisionsByTitle, get Revisions from API for page \"" + pageTitle + "\" took "
                     + DateHelper.getRuntime(0L, (stopWatch1.getElapsedTime() - dbTime)));
             LOGGER.trace("[DB ] crawlRevisionsByTitle, add " + (revisionCounter - revisionsSkipped)
-                    + " Revisions to database for page \"" + pageTitle + "\" took "
-                    + DateHelper.getRuntime(0L, dbTime));
+                    + " Revisions to database for page \"" + pageTitle + "\" took " + DateHelper.getRuntime(0L, dbTime));
             stopWatch1.start();
         }
 
@@ -533,6 +533,7 @@ public class MediaWikiCrawler implements Runnable {
             boolean success = crawlAndStorePage(pageTitle);
             if (success) {
                 crawlAndStoreAllRevisionsByTitle(pageTitle);
+                crawlAndStoreAllPageLinks(pageTitle);
                 processNewPage(pageTitle);
             }
 
@@ -620,6 +621,45 @@ public class MediaWikiCrawler implements Runnable {
             LOGGER.info("Initial crawling of Wiki \"" + mwDescriptor.getWikiName()
                     + "\" has been completed. Crawling took " + stopWatch.getElapsedTimeString());
         }
+    }
+
+    private void crawlAndStoreAllPageLinks(final String pageTitleSource) {
+        if (DEBUG) {
+            LOGGER.debug("Try getting all links from page " + pageTitleSource);
+        }
+        PageLinksQuery links = null;
+        try {
+            links = new PageLinksQuery(bot, pageTitleSource, mwDescriptor.getNamespacesToCrawl());
+        } catch (VersionException e) {
+            LOGGER.error("Fetching the links is not supported by this Wiki version. " + e);
+        }
+
+        // remove all Links for the current page
+        mwDatabase.removeAllHyperlinks(mwDescriptor.getWikiID(), pageTitleSource);
+
+        final WikiPage page = new WikiPage();
+        page.setWikiID(mwDescriptor.getWikiID());
+        page.setPageID(mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitleSource));
+
+        // run query and process results
+        for (WikiPage pageDest : links) {
+
+            // get pageIDs from db since we got only titles from API.
+            final Integer pageIDDest = mwDatabase.getPageID(mwDescriptor.getWikiID(), pageDest.getTitle());
+            // check whether page exists
+            if (pageIDDest == null) { // identified a link to not existing page (link has red font in Wiki)
+                if (DEBUG) {
+                    LOGGER.debug("Page \"" + pageTitleSource + "\" links to page \"" + pageDest.getTitle()
+                            + "\", but this destination page does not jet exist in the Wiki, "
+                            + "so we do not store the hyperlink to it.");
+                }
+            } else {
+                page.addHyperLink(pageIDDest);
+            }
+        }
+
+        // add links to database
+        mwDatabase.addHyperlinks(page);
     }
 
     /**
@@ -753,20 +793,20 @@ public class MediaWikiCrawler implements Runnable {
     }
 
     /**
-     * Constructs a {@link URL} from page title and {@link WikiDescriptor#getAbsoltuePathToContent()} and sets it to the
-     * given {@link WikiPage} in case no error occurred while reconstructing the url.
+     * Reconstructs a {@link URL} from page title and {@link WikiDescriptor#getAbsoltuePathToContent()} and sets it to
+     * the given {@link WikiPage} in case no error occurred while reconstructing the url.
      * Caution. Not completely tested!
      * 
      * @param page The page to construct the URL for.
      * @return <code>true</code> if the page's {@link URL} could be reconstructed, <code>false</code> if any error
      *         occurred.
      */
-    private boolean constructPageURLfromTitle(final WikiPage page) {
+    private boolean reconstructPageURLfromTitle(final WikiPage page) {
         boolean success = false;
         try {
-            String baseURL = mwDescriptor.getAbsoltuePathToContent();
+            String baseURL = mwDescriptor.getAbsoltuePathToContent().toString();
             String encodedTitle = URLEncoder.encode(page.getTitle(), "UTF-8");
-        
+
             // "http://en.wikipedia.org/wiki/Golden+Age" -> "http://en.wikipedia.org/wiki/Golden_Age"
             String convertedTitle = encodedTitle.replaceAll("[+]", "_");
 
@@ -777,9 +817,12 @@ public class MediaWikiCrawler implements Runnable {
                 LOGGER.debug("Constructed URL = " + pageURL.toString());
             }
         } catch (UnsupportedEncodingException e) {
-            LOGGER.error("Could not encode page title \"" + page.getTitle() + "\" ", e);
+            LOGGER.error("Could not encode page title \"" + page.getTitle() + "\". ", e);
         } catch (MalformedURLException e) {
-            LOGGER.error("Could not create URL of page \"" + page.getTitle() + "\" ", e);
+            LOGGER.error("Could not reconstruct URL of page \"" + page.getTitle() + "\". ", e);
+        } catch (NullPointerException e) {
+            LOGGER.error("Could not reconstruct URL of page \"" + page.getTitle()
+                    + "\", absolute path to content is unknown. ", e);
         }
         return success;
     }
@@ -793,17 +836,17 @@ public class MediaWikiCrawler implements Runnable {
         WikiPage page = mwDatabase.getPage(mwDescriptor.getWikiID(),
                 mwDatabase.getPageID(mwDescriptor.getWikiID(), pageTitle));
 
-        String baseURL = mwDescriptor.getAbsoltuePathToContent();
-        URL pageURL = null;
-        try {
-            String encodedTitle = URLEncoder.encode(page.getTitle(), "UTF-8");
-            pageURL = new URL(baseURL + encodedTitle);
-        } catch (UnsupportedEncodingException e) {
-            LOGGER.error("Could not encode page title \"" + page.getTitle() + "\" ", e);
-        } catch (MalformedURLException e) {
-            LOGGER.error("Could not create URL of page \"" + page.getTitle() + "\" ", e);
-        }
-        page.setPageURL(pageURL);
+        // String baseURL = mwDescriptor.getAbsoltuePathToContent();
+        // URL pageURL = null;
+        // try {
+        // String encodedTitle = URLEncoder.encode(page.getTitle(), "UTF-8");
+        // pageURL = new URL(baseURL + encodedTitle);
+        // } catch (UnsupportedEncodingException e) {
+        // LOGGER.error("Could not encode page title \"" + page.getTitle() + "\" ", e);
+        // } catch (MalformedURLException e) {
+        // LOGGER.error("Could not create URL of page \"" + page.getTitle() + "\" ", e);
+        // }
+        // page.setPageURL(pageURL);
 
         try {
             if (DEBUG) {
@@ -956,7 +999,7 @@ public class MediaWikiCrawler implements Runnable {
             consumer.start();
         }
 
-// String eingabe = "http://de-s-0113195.de.abb.com/kb/index.php/Fehler_2_%22Uref%22_zu_klein";
+        // String eingabe = "http://de-s-0113195.de.abb.com/kb/index.php/Fehler_2_%22Uref%22_zu_klein";
         // System.out.println(eingabe + " = eingabe");
         // System.out.println(MediaWiki.decode(eingabe) + " = MediaWiki.decode(eingabe)");
 
